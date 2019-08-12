@@ -1,3 +1,8 @@
+/vendor
+
+# ---
+# Flutter generated excludes below:
+
 # Miscellaneous
 *.class
 *.log
@@ -28,6 +33,10 @@
 .pub-cache/
 .pub/
 /build/
+
+# Project related
+android/irmagobridge/irmagobridge.aar
+android/irmagobridge/irmagobridge-sources.jar
 
 # Android related
 **/android/**/gradle-wrapper.jar

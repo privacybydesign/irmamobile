@@ -1,16 +1,15 @@
-# irmamobile
+irmamobile
+==========
 
-IRMA Authentication
+### Authentication made easy, privacy-friendly, and secure
 
-## Getting Started
+IRMA offers a privacy-friendly, flexible and secure solution to many authentication problems, putting the user in full control over his/her data.
 
-This project is a starting point for a Flutter application.
+The IRMA app manages the user's IRMA attributes: receiving new attributes, selectively disclosing them to others, and attaching them to signed statements. These attributes can be relevant properties, such as: "I am over 18", "my name is ..." and "I am entitled to access ....". They are only stored on the user's device and nowhere else.
 
-A few resources to get you started if this is your first Flutter project:
+## Building the app for development
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+* Only Android is supported for now
+* Follow many of the steps for [irma_mobile](https://github.com/privacybydesign/irma_mobile/blob/master/README.md), excluding React Native stuff, but including setting up the Android SDK and installing the Android NDK through the SDK manager, setting up a Go environment and moving the project to `$GOPATH/src/github.com/privacybydesign/irmamobile`.
+* For Android, run `gomobile bind -target android -o android/irmagobridge/irmagobridge.aar github.com/privacybydesign/irmamobile/irmagobridge`
+* Start an emulator or connect a device, and run `flutter run`
