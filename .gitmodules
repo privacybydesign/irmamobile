@@ -1,0 +1,6 @@
+[submodule "irma_configuration/pbdf"]
+	path = irma_configuration/pbdf
+	url = https://github.com/privacybydesign/pbdf-schememanager.git
+[submodule "irma_configuration/irma-demo"]
+	path = irma_configuration/irma-demo
+	url = https://github.com/privacybydesign/irma-demo-schememanager.git
