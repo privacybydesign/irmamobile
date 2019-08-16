@@ -10,25 +10,39 @@ import (
 
 type OutgoingAction map[string]interface{}
 
-func sendConfiguration() {
-	sendAction(&OutgoingAction{
-		"type":              "IrmaClient.Configuration",
-		"irmaConfiguration": client.Configuration,
-		"sentryDSN":         irmaclient.SentryDSN,
-	})
+type irmaConfigurationEvent struct {
+	SchemeManagers  map[irma.SchemeManagerIdentifier]*irma.SchemeManager
+	Issuers         map[irma.IssuerIdentifier]*irma.Issuer
+	CredentialTypes map[irma.CredentialTypeIdentifier]*irma.CredentialType
+	AttributeTypes  map[irma.AttributeTypeIdentifier]*irma.AttributeType
 }
 
-func sendPreferences() {
-	sendAction(&OutgoingAction{
-		"type":        "IrmaClient.Preferences",
-		"preferences": client.Preferences,
+type credentialsEvent struct {
+	Credentials irma.CredentialInfoList
+}
+
+type preferencesEvent struct {
+	Preferences irmaclient.Preferences
+}
+
+func sendConfiguration() {
+	dispatchEvent("IrmaConfigurationEvent", &irmaConfigurationEvent{
+		SchemeManagers:  client.Configuration.SchemeManagers,
+		Issuers:         client.Configuration.Issuers,
+		CredentialTypes: client.Configuration.CredentialTypes,
+		AttributeTypes:  client.Configuration.AttributeTypes,
 	})
 }
 
 func sendCredentials() {
-	sendAction(&OutgoingAction{
-		"type":        "IrmaClient.Credentials",
-		"credentials": client.CredentialInfoList(),
+	dispatchEvent("CredentialsEvent", &credentialsEvent{
+		Credentials: client.CredentialInfoList(),
+	})
+}
+
+func sendPreferences() {
+	dispatchEvent("PreferencesEvent", &preferencesEvent{
+		Preferences: client.Preferences,
 	})
 }
 
@@ -61,12 +75,17 @@ func sendAuthenticateError(err *irma.SessionError) {
 	})
 }
 
-func sendAction(action *OutgoingAction) {
-	jsonBytes, err := json.Marshal(action)
+func sendAction(action interface{}) {
+	bridge.DebugLog("Blackholing action...")
+}
+
+func dispatchEvent(name string, payload interface{}) {
+	jsonBytes, err := json.Marshal(payload)
 	if err != nil {
-		logError(errors.Errorf("Cannot marshal action: %s", err))
+		logError(errors.Errorf("Cannot marshal event payload: %s", err))
 		return
 	}
 
-	bridge.SendEvent("irmago", string(jsonBytes))
+	bridge.DebugLog("Sending event " + name)
+	bridge.DispatchFromGo(name, string(jsonBytes))
 }

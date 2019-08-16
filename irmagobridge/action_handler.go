@@ -8,18 +8,18 @@ import (
 	"github.com/privacybydesign/irmago"
 )
 
-type ActionHandler struct {
+type EventHandler struct {
 	sessionLookup map[int]*SessionHandler
 }
 
 // Enrollment to a keyshare server
-type EnrollAction struct {
+type EnrollEvent struct {
 	Email    *string
 	Pin      string
 	Language string
 }
 
-func (ah *ActionHandler) Enroll(action *EnrollAction) (err error) {
+func (ah *EventHandler) Enroll(action *EnrollEvent) (err error) {
 	unenrolled := client.UnenrolledSchemeManagers()
 
 	if len(unenrolled) == 0 {
@@ -36,7 +36,7 @@ type AuthenticateAction struct {
 	Pin string
 }
 
-func (ah *ActionHandler) Authenticate(action *AuthenticateAction) (err error) {
+func (ah *EventHandler) Authenticate(action *AuthenticateAction) (err error) {
 	enrolled := client.EnrolledSchemeManagers()
 	if len(enrolled) == 0 {
 		sendAuthenticateError(&irma.SessionError{
@@ -70,7 +70,7 @@ type ChangePinAction struct {
 	NewPin string
 }
 
-func (ah *ActionHandler) ChangePin(action *ChangePinAction) (err error) {
+func (ah *EventHandler) ChangePin(action *ChangePinAction) (err error) {
 	enrolled := client.EnrolledSchemeManagers()
 
 	if len(enrolled) == 0 {
@@ -89,7 +89,7 @@ type NewSessionAction struct {
 	Request   json.RawMessage
 }
 
-func (ah *ActionHandler) NewSession(action *NewSessionAction) (err error) {
+func (ah *EventHandler) NewSession(action *NewSessionAction) (err error) {
 	if action.SessionID < 1 {
 		return errors.Errorf("Action id should be provided and larger than zero")
 	}
@@ -108,7 +108,7 @@ type RespondPermissionAction struct {
 	DisclosureChoices [][]*irma.AttributeIdentifier
 }
 
-func (ah *ActionHandler) RespondPermission(action *RespondPermissionAction) (err error) {
+func (ah *EventHandler) RespondPermission(action *RespondPermissionAction) (err error) {
 	sh, err := ah.findSessionHandler(action.SessionID)
 	if err != nil {
 		return err
@@ -130,7 +130,7 @@ type RespondPinAction struct {
 	Pin       string
 }
 
-func (ah *ActionHandler) RespondPin(action *RespondPinAction) (err error) {
+func (ah *EventHandler) RespondPin(action *RespondPinAction) (err error) {
 	sh, err := ah.findSessionHandler(action.SessionID)
 	if err != nil {
 		return err
@@ -144,7 +144,7 @@ func (ah *ActionHandler) RespondPin(action *RespondPinAction) (err error) {
 }
 
 // Request to remove all attributes and keyshare enrollment
-func (ah *ActionHandler) DeleteAllCredentials() (err error) {
+func (ah *EventHandler) DeleteAllCredentials() (err error) {
 	if err := client.RemoveAllCredentials(); err != nil {
 		return err
 	}
@@ -161,7 +161,7 @@ type DeleteCredentialAction struct {
 	Hash string
 }
 
-func (ah *ActionHandler) DeleteCredential(action *DeleteCredentialAction) error {
+func (ah *EventHandler) DeleteCredential(action *DeleteCredentialAction) error {
 	if err := client.RemoveCredentialByHash(action.Hash); err != nil {
 		return err
 	}
@@ -174,7 +174,7 @@ type DismissSessionAction struct {
 	SessionID int
 }
 
-func (ah *ActionHandler) DismissSession(action *DismissSessionAction) error {
+func (ah *EventHandler) DismissSession(action *DismissSessionAction) error {
 	sh, err := ah.findSessionHandler(action.SessionID)
 	if err != nil {
 		return err
@@ -190,7 +190,7 @@ type SetCrashReportingPreferenceAction struct {
 	EnableCrashReporting bool
 }
 
-func (ah *ActionHandler) SetCrashReportingPreference(action *SetCrashReportingPreferenceAction) error {
+func (ah *EventHandler) SetCrashReportingPreference(action *SetCrashReportingPreferenceAction) error {
 	client.SetCrashReportingPreference(action.EnableCrashReporting)
 	sendPreferences()
 
@@ -198,7 +198,7 @@ func (ah *ActionHandler) SetCrashReportingPreference(action *SetCrashReportingPr
 }
 
 // findSessionHandler is a helper function to find a session in the sessionLookup
-func (ah *ActionHandler) findSessionHandler(sessionID int) (*SessionHandler, error) {
+func (ah *EventHandler) findSessionHandler(sessionID int) (*SessionHandler, error) {
 	sh := ah.sessionLookup[sessionID]
 	if sh == nil {
 		return nil, errors.Errorf("Invalid session ID in RespondPermission: %d", sessionID)
@@ -207,7 +207,7 @@ func (ah *ActionHandler) findSessionHandler(sessionID int) (*SessionHandler, err
 	return sh, nil
 }
 
-func (ah *ActionHandler) updateSchemes() error {
+func (ah *EventHandler) updateSchemes() error {
 	err := client.Configuration.UpdateSchemes()
 	if err != nil {
 		return err

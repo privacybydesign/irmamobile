@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 @immutable
-class EnrollmentState with EquatableMixinBase, EquatableMixin {
+class EnrollmentState with EquatableMixin {
   final String pin;
   final String email;
 

@@ -5,38 +5,43 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/getsentry/raven-go"
 	"github.com/go-errors/errors"
 	"github.com/privacybydesign/irmago/irmaclient"
 )
 
-// IrmaBridge is the Objective C or Java component we use to communicate to Javascript
-type IrmaBridge interface {
-	SendEvent(channel string, message string)
+// IrmaMobileBridge is the iOS or Android native component that is used for message passing
+type IrmaMobileBridge interface {
+	DispatchFromGo(name string, payload string)
 	DebugLog(message string)
 }
 
-var bridge IrmaBridge
+var bridge IrmaMobileBridge
 var client *irmaclient.Client
 var appDataVersion = "v2"
 
-// actionHandler maintains a sessionLookup for actions incoming
+// eventHandler maintains a sessionLookup for actions incoming
 // from irma_mobile (see action_handler.go)
-var actionHandler = &ActionHandler{
+var eventHandler = &EventHandler{
 	sessionLookup: map[int]*SessionHandler{},
 }
 
 // clientHandler is used for messages coming in from irmago (see client_handler.go)
 var clientHandler = &ClientHandler{}
 
-// The Start function is invoked from Javascript via native code, when the app starts
-func Start(givenBridge IrmaBridge, appDataPath string, assetsPath string) {
-	raven.CapturePanic(func() {
-		recoveredStart(givenBridge, appDataPath, assetsPath)
-	}, nil)
+// Prestart is invoked only on Android in MainActivity's onCreate, to initialize
+// the Go binding at the earliest moment, instead of inside the Flutter plugin
+func Prestart() {
+	// noop
 }
 
-func recoveredStart(givenBridge IrmaBridge, appDataPath string, assetsPath string) {
+// Start is invoked from the native side, when the app starts
+func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) {
+	// raven.CapturePanic(func() {
+	recoveredStart(givenBridge, appDataPath, assetsPath)
+	// }, nil)
+}
+
+func recoveredStart(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) {
 	bridge = givenBridge
 
 	// Check for user data directory, and create version-specific directory
@@ -58,33 +63,19 @@ func recoveredStart(givenBridge IrmaBridge, appDataPath string, assetsPath strin
 	}
 
 	// Initialize the client
+	// TODO: Deprecate third argument (androidPath) of irmaclient.New
 	configurationPath := filepath.Join(assetsPath, "irma_configuration")
-	androidPath := appDataPath
-
-	client, err = irmaclient.New(appVersionDataPath, configurationPath, androidPath, clientHandler)
+	client, err = irmaclient.New(appVersionDataPath, configurationPath, "", clientHandler)
 	if err != nil {
 		logError(errors.WrapPrefix(err, "Cannot initialize client", 0))
 		return
 	}
-
-	// Update schemes before boot
-	err = client.Configuration.UpdateSchemes()
-	if err != nil {
-		logError(errors.WrapPrefix(err, "Cannot update schemes", 0))
-		// Continuing here should be safe
-	}
-
-	// Grab information from the client and send it to irma_mobile
-	sendEnrollmentStatus()
-	sendConfiguration()
-	sendPreferences()
-	sendCredentials()
 }
 
 func logError(err error) {
 	message := fmt.Sprintf("%s\n%s", err.Error(), err.(*errors.Error).ErrorStack())
 
-	raven.CaptureError(err, nil)
+	// raven.CaptureError(err, nil)
 	bridge.DebugLog(message)
 }
 
