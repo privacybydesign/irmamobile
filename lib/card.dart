@@ -1,93 +1,83 @@
 import 'package:flutter/material.dart';
 
 class IrmaCardState extends State<IrmaCard> {
-  @override
-  Widget build(BuildContext context) {
+    @override
+    Widget build(BuildContext context) {
+        final indent = 100.0;
+        final padingLeft = 15.0;
+        final personalDataTop = 60.0;
+        final lineHeight = 20.0;
+        final personal = [
+            {'key': 'Geboren', 'value': '4 juli 1990'},
+            {'key': 'E-mail', 'value': 'anouk.meijer@gmail.com'},
+        ];
 
-    return Container(
-      // grey box
-      child: Stack(
-        children: [
-          Positioned(
-            // red box
-            child: Text(
-              "Persoonsgegevens",
-              style: TextStyle(
-                fontSize: 18.0,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-              ),
-            ),
-            left: 100,
-            top: 15,
-          ),
-            Positioned(
-                // red box
-                child: Text(
-                    "Geboren",
-                    style: TextStyle(
-                        fontSize: 14.0,
-                        fontWeight: FontWeight.w300,
-                        color: Colors.white,
+        List<Positioned> getDataLines() {
+            var textLines = [
+                Positioned(
+                    // red box
+                    child: Text(
+                        "Persoonsgegevens",
+                        style: TextStyle(
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                        ),
                     ),
+                    left: indent,
+                    top: padingLeft,
                 ),
-                left: 15,
-                top: 60,
-            ),
-            Positioned(
-                // red box
-                child: Text(
-                    "4 juli 1990",
-                    style: TextStyle(
-                        fontSize: 14.0,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white,
+            ];
+
+            for (var i = 0; i < personal.length; i++) {
+                textLines.add(
+                    Positioned(
+                        child: Text(
+                            personal[i]['key'],
+                            style: TextStyle(
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.w300,
+                                color: Colors.white,
+                            ),
+                        ),
+                        left: padingLeft,
+                        top: personalDataTop + i * lineHeight,
                     ),
-                ),
-                left: 100,
-                top: 60,
-            ),
-            Positioned(
-                // red box
-                child: Text(
-                    "E-mail",
-                    style: TextStyle(
-                        fontSize: 14.0,
-                        fontWeight: FontWeight.w300,
-                        color: Colors.white,
+                );
+                textLines.add(
+                    Positioned(
+                        child: Text(
+                            personal[i]['value'],
+                            style: TextStyle(
+                                fontSize: 14.0,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white,
+                            ),
+                        ),
+                        left: indent,
+                        top: personalDataTop + i * lineHeight,
                     ),
-                ),
-                left: 15,
-                top: 80,
+                );
+            }return textLines;
+        }
+
+        return Container(
+            child: Stack(
+                children: getDataLines(),
             ),
-            Positioned(
-                // red box
-                child: Text(
-                    "anouk.meijer@gmail.com",
-                    style: TextStyle(
-                        fontSize: 14.0,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white,
-                    ),
+            width: 320.0,
+            height: 240.0,
+            decoration: BoxDecoration(
+                color: Color(0xffec0000),
+                borderRadius: BorderRadius.all(
+                    const Radius.circular(15.0),
                 ),
-                left: 100,
-                top: 80,
             ),
-        ],
-      ),
-      width: 320.0,
-      height: 240.0,
-      decoration: BoxDecoration(
-        color: Color(0xffec0000),
-        borderRadius: BorderRadius.all(
-          const Radius.circular(15.0),
-        ),
-      ),
-    );
-  }
+        );
+    }
 }
 
 class IrmaCard extends StatefulWidget {
-  @override
-  IrmaCardState createState() => IrmaCardState();
+    @override
+    IrmaCardState createState() => IrmaCardState();
 }
