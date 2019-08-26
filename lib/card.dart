@@ -1,26 +1,40 @@
 import 'package:flutter/material.dart';
 
 class IrmaCardState extends State<IrmaCard> {
-    @override
-    Widget build(BuildContext context) {
-        return Container(
-            // grey box
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      // grey box
+      child: Stack(
+        children: [
+          Positioned(
+            // red box
             child: Text(
-                "Card",
-                style: TextStyle(
-                    fontSize: 24.0,
-                    fontWeight: FontWeight.w900,
-                    fontFamily: "Georgia",
-                ),
+              "Persoonsgegevens",
+              style: TextStyle(
+                fontSize: 20.0,
+                fontWeight: FontWeight.w900,
+                color: Colors.white,
+              ),
             ),
-            width: 320.0,
-            height: 240.0,
-            color: Colors.grey[300],
-        );
-    }
+            left: 100,
+            top: 30,
+          )
+        ],
+      ),
+      width: 320.0,
+      height: 240.0,
+      decoration: BoxDecoration(
+        color: Colors.red[400],
+        borderRadius: BorderRadius.all(
+          const Radius.circular(8.0),
+        ),
+      ),
+    );
+  }
 }
 
 class IrmaCard extends StatefulWidget {
-    @override
-    IrmaCardState createState() => IrmaCardState();
+  @override
+  IrmaCardState createState() => IrmaCardState();
 }
