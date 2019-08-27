@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import 'introduction.dart';
 import 'choose_pin.dart';
+import '../../home/index.dart';
 
 class Welcome extends StatelessWidget {
   @override
@@ -66,6 +67,23 @@ class Welcome extends StatelessWidget {
                   FlutterI18n.translate(
                       context, 'enrollment.welcome.choose_pin_button'),
                   style: TextStyle(fontSize: 20)),
+            ),
+            const SizedBox(height: 20),
+            FlatButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => IrmaHome()),
+                );
+              },
+              child: Text(
+                'Skip',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w400,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
             ),
           ])),
     );
