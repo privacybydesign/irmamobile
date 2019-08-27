@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'card.dart';
+import '../../widgets/card.dart';
 
 class IrmaHome extends StatefulWidget {
   IrmaHome() : super();
