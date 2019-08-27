@@ -1,40 +1,27 @@
 import 'package:flutter/material.dart';
-import 'card.dart';
+import 'package:flutter_i18n/flutter_i18n_delegate.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
-void main() => runApp(MyApp());
+import 'screens/enrollment/index.dart';
 
-class MyApp extends StatelessWidget {
+void main() => runApp(App());
+
+class App extends StatelessWidget {
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'IRMA Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(title: 'IRMA'),
+      title: 'IRMA',
+      home: Enrollment(),
+      localizationsDelegates: [
+        FlutterI18nDelegate(
+          fallbackFile: 'nl',
+          path: 'assets/locales',
+        ),
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate
+      ],
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: IrmaCard()
-      ),
-    );
-  }
-}
