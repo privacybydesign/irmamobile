@@ -49,7 +49,7 @@ ANDROID_SDK_URL = https://dl.google.com/android/repository/$(ANDROID_SDK_ZIP)
 ifeq (, $(shell which flutter))
 	FLUTTER_HOME ?= $(HOME)/Android/flutter
 else
-	FLUTTER_HOME ?= $(dir $(shell which flutter))
+	FLUTTER_HOME ?= $(patsubst %/bin/flutter,%,$(shell which flutter))
 endif
 FLUTTER_TARBALL = flutter_$(FLUTTER_OS)_v$(FLUTTER_VERSION).tar.xz
 FLUTTER_URL = https://storage.googleapis.com/flutter_infra/releases/stable/$(FLUTTER_OS)/$(FLUTTER_TARBALL)
@@ -74,8 +74,8 @@ flutter-pub-get: flutter-sdk
 	flutter pub get
 
 # Target for building the android version of the irmagobridge
-irmagobridge-android: android-ndk gomobile-init android/irmagobridge/irmagobridge.aar
-android/irmagobridge/irmagobridge.aar:
+irmagobridge-android: android/irmagobridge/irmagobridge.aar
+android/irmagobridge/irmagobridge.aar: android-ndk dep-ensure gomobile-init
 	$(GOPATH)/bin/gomobile bind -target android -o android/irmagobridge/irmagobridge.aar github.com/privacybydesign/irmamobile/irmagobridge
 
 # Target to clean the android version of the irmagobridge
