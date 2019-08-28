@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:vector_math/vector_math_64.dart' as math;
 
 class IrmaCardState extends State<IrmaCard> {
   @override
@@ -59,11 +61,27 @@ class IrmaCardState extends State<IrmaCard> {
     }
 
     return Container(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: getDataLines(),
-      ),
+      child: Stack(children: [
+        Padding(
+          padding: EdgeInsets.only(left: 4),
+          // TODO: rename irma_logo.svg
+          child: SvgPicture.asset('assets/issuers/amsterdam/irma_logo.svg'),
+        ),
+        Positioned(
+            child: Transform(
+              child: SvgPicture.asset('assets/issuers/amsterdam/irma_logo.svg',
+                  color: Color(0x77ffffff)),
+              alignment: Alignment.topRight,
+              transform: Matrix4.diagonal3(math.Vector3.all(4.0)),
+            ),
+            right: 0,
+            top: 10),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: getDataLines(),
+        )
+      ]),
       width: 320.0,
       height: 240.0,
       padding: const EdgeInsets.all(15),
