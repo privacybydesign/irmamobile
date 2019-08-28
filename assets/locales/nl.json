@@ -27,6 +27,28 @@
             "error": "Het ingevulde e-mailadres is niet geldig."
         }
     },
+    "about": {
+        "title": "About IRMA",
+        "header": "Authentication and digital signing made easy, privacy-friendly, and secure.",
+        "what_is_irma": "The IRMA app manages your personal IRMA attributes: you can receive new attributes, selectively disclose them to others, and attach them to signed statements. IRMA is made and maintained by the Privacy by Design Foundation, and freely available and open-source.",
+        "privacy_benefits": "Your attributes will be stored exclusively in the IRMA app on your phone. However, in order to operate the IRMA platform, the Privacy by Design Foundation processes a limited amount of personal data, as explained in its privacy policy:",
+        "privacy_policy_link": "https://privacybydesign.foundation/privacy-policy-en",
+        "url_launch_error": "error on launch of url - probably bad certificate?",
+        "processing_agreement": "By starting the registration process of the IRMA app you agree to this processing.",
+        "signatures_information": "Signatures, also in digital form, may have (legal) effects, and bind (commit) you to the content of the message that you sign. Whatever you sign with your IRMA app is your own personal responsibility. By using the IRMA app you agree that the Privacy by Design foundation is no party in whatever agreement you enter into via an IRMA signature. In particular, the Privacy by Design foundation is not responsible or liable.",
+        "problems": "If you encounter any problems while using the app, please let us know.",
+        "more_information": "More information:",
+        "pbdf_website_link": "https://privacybydesign.foundation/en",
+        "source_code": "Source code",
+        "source_code_link": "https://github.com/privacybydesign"
+    },
+    "drawer": {
+        "lock_wallet": "Lock wallet",
+        "add_cards": "Add cards",
+        "settings": "Settings",
+        "history": "Usage history",
+        "about": "About IRMA"
+    },
     "accessibility": {
         "unfold": "Uitvouwen",
         "update": "Bijwerken",
@@ -34,5 +56,24 @@
     },
     "card": {
         "personaldata": "Persoonsgegevens"
+    },
+    "settings": {
+        "title": "Instellingen",
+        "pin": {
+          "header": "Toegang",
+          "long_pin": "Gebruik een lange pincode",
+          "long_pin_detail": "Maakt een pincode mogelijk van maximaal 16 cijfers",
+          "change_pin": "Pincode wijzigen"
+        },
+        "behavior" : {
+          "header": "Voorkeuren",
+          "start_qr": "Open de QR scanner bij opstarten",
+          "report_errors": "Stuur fouten naar IRMA"
+        },
+        "advanced" : {
+          "header": "Opnieuw instellen",
+          "delete": "Verwijder IRMA",
+          "delete_details": "Alle gegevens worden verwijderd"
+        }
     }
 }

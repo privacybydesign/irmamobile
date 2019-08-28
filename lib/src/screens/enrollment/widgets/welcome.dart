@@ -73,11 +73,10 @@ class Welcome extends StatelessWidget {
               color: Colors.white,
               textColor: Colors.black,
               onPressed: () {
-                Navigator.of(context, rootNavigator: true).pushReplacementNamed('/');
+                Navigator.of(context, rootNavigator: true)
+                    .pushReplacementNamed('/');
               },
-              child: Text(
-                  'Not now',
-                  style: TextStyle(fontSize: 20)),
+              child: Text('Not now', style: TextStyle(fontSize: 20)),
             ),
           ])),
     );

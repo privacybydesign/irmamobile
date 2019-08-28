@@ -21,7 +21,6 @@ const Map<String, Map<String, Object>> mockIssuers = {
   },
 };
 
-
 const Map<String, Map<String, List<Map<String, String>>>> mockCredentials = {
   'personalData': {
     'data': [

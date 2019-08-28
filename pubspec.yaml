@@ -30,6 +30,7 @@ dependencies:
   flutter_bloc: ^0.21.0
   equatable: ^0.2.0
   email_validator: ^1.0.0
+  url_launcher: ^5.0.2
 
 dev_dependencies:
   flutter_test:
