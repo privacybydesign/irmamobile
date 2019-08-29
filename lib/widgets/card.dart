@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:vector_math/vector_math_64.dart' as math;
 
 class IrmaCardState extends State<IrmaCard> {
   @override
   Widget build(BuildContext context) {
-    final indent = 100.0;
-    final headerBottom = 30.0;
-    final personalData = [
+    const indent = 100.0;
+    const headerBottom = 30.0;
+    const borderRadius = Radius.circular(15.0);
+    const padding = 15.0;
+    const personalData = [
       {'key': 'Geboren', 'value': '4 juli 1990'},
       {'key': 'E-mail', 'value': 'anouk.meijer@gmail.com'},
     ];
@@ -65,7 +66,7 @@ class IrmaCardState extends State<IrmaCard> {
         children: <Widget>[
           Expanded(
             child: Padding(
-                padding: const EdgeInsets.all(15),
+                padding: const EdgeInsets.all(padding),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
@@ -78,25 +79,25 @@ class IrmaCardState extends State<IrmaCard> {
                 Expanded(
                   child: IconButton(
                     icon: SvgPicture.asset('assets/icons/arrow-down.svg'),
-                    padding: EdgeInsets.only(left: 15),
+                    padding: EdgeInsets.only(left: padding),
                     alignment: Alignment.centerLeft,
                     onPressed: () {
-                      print('down');
+                      print('unfold');
                     },
                   ),
                 ),
                 IconButton(
-                  icon: SvgPicture.asset('assets/icons/delete.svg'),
-                  padding: EdgeInsets.only(right: 15),
+                  icon: SvgPicture.asset('assets/icons/update.svg'),
+                  padding: EdgeInsets.only(right: padding),
                   onPressed: () {
-                    print('delete');
+                    print('update');
                   },
                 ),
                 IconButton(
-                  icon: SvgPicture.asset('assets/icons/update.svg'),
-                  padding: EdgeInsets.only(right: 15),
+                  icon: SvgPicture.asset('assets/icons/delete.svg'),
+                  padding: EdgeInsets.only(right: padding),
                   onPressed: () {
-                    print('update');
+                    print('delete');
                   },
                 ),
               ],
@@ -105,8 +106,8 @@ class IrmaCardState extends State<IrmaCard> {
             decoration: BoxDecoration(
               color: Color(0x55ffffff),
               borderRadius: BorderRadius.only(
-                bottomLeft: const Radius.circular(15.0),
-                bottomRight: const Radius.circular(15.0),
+                bottomLeft: borderRadius,
+                bottomRight: borderRadius,
               ),
             ),
           ),
@@ -117,7 +118,7 @@ class IrmaCardState extends State<IrmaCard> {
       decoration: BoxDecoration(
           color: Color(0xffec0000),
           borderRadius: BorderRadius.all(
-            const Radius.circular(15.0),
+            borderRadius,
           ),
           image: DecorationImage(
               image: AssetImage('assets/issuers/amsterdam/bg.png'),
