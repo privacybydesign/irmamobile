@@ -9,6 +9,7 @@ class IrmaCardState extends State<IrmaCard> {
     const borderRadius = Radius.circular(15.0);
     const padding = 15.0;
     const personalData = [
+      {'key': 'Naam', 'value': 'Anouk Meijer'},
       {'key': 'Geboren', 'value': '4 juli 1990'},
       {'key': 'E-mail', 'value': 'anouk.meijer@gmail.com'},
     ];
