@@ -61,65 +61,51 @@ class IrmaCardState extends State<IrmaCard> {
     }
 
     return Container(
-      child: Stack(children: [
-        Padding(
-          padding: EdgeInsets.only(left: 20, top: 15),
-          // TODO: rename irma_logo.svg
-          child: SvgPicture.asset('assets/issuers/amsterdam/logo.svg'),
-        ),
-        Positioned(
-            child: Transform(
-              child: SvgPicture.asset('assets/issuers/amsterdam/logo.svg',
-                  color: Color(0x77ffffff)),
-              alignment: Alignment.topRight,
-              transform: Matrix4.diagonal3(math.Vector3.all(4.0)),
-            ),
-            right: 15,
-            top: 15),
-        Column(
-          children: <Widget>[
-            Expanded(
-              child: Padding(
-                  padding: const EdgeInsets.all(15),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: getDataLines(),
-                  )),
-            ),
-            Container(
-              child: Row(
-                children: <Widget>[
-                    IconButton(
-                        icon: SvgPicture.asset('assets/icons/arrow-down.svg'),
-                        padding: EdgeInsets.only(left: 10),
-                        onPressed: () {
-                            print('pressed');
-                        },
-                    ),
-
-                ],
-              ),
-              height: 50,
-              decoration: BoxDecoration(
-                color: Color(0x55ffffff),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: const Radius.circular(15.0),
-                  bottomRight: const Radius.circular(15.0),
+      child: Column(
+        children: <Widget>[
+          Expanded(
+            child: Padding(
+                padding: const EdgeInsets.all(15),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: getDataLines(),
+                )),
+          ),
+          Container(
+            child: Row(
+              children: <Widget>[
+                IconButton(
+                  icon: SvgPicture.asset('assets/icons/arrow-down.svg'),
+                  padding: EdgeInsets.only(left: 10),
+                  onPressed: () {
+                    print('pressed');
+                  },
                 ),
+              ],
+            ),
+            height: 50,
+            decoration: BoxDecoration(
+              color: Color(0x55ffffff),
+              borderRadius: BorderRadius.only(
+                bottomLeft: const Radius.circular(15.0),
+                bottomRight: const Radius.circular(15.0),
               ),
             ),
-          ],
-        )
-      ]),
+          ),
+        ],
+      ),
       height: 240.0,
       margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
-        color: Color(0xffec0000),
-        borderRadius: BorderRadius.all(
-          const Radius.circular(15.0),
-        ),
-      ),
+          color: Color(0xffec0000),
+          borderRadius: BorderRadius.all(
+            const Radius.circular(15.0),
+          ),
+          image: DecorationImage(
+              image: AssetImage('assets/issuers/amsterdam/bg.png'),
+              fit: BoxFit.fitWidth,
+              alignment: Alignment.topCenter)),
     );
   }
 }
