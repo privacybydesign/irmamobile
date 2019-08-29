@@ -78,28 +78,41 @@ class IrmaCardState extends State<IrmaCard> {
             child: Row(
               children: <Widget>[
                 Expanded(
+                  child: Semantics(
+                    button: true,
+                    enabled: false,
+                    label: 'Uitvouwen',
+                    child: IconButton(
+                      icon: SvgPicture.asset('assets/icons/arrow-down.svg'),
+                      padding: EdgeInsets.only(left: padding),
+                      alignment: Alignment.centerLeft,
+                      onPressed: () {
+                        print('unfold');
+                      },
+                    ),
+                  ),
+                ),
+                Semantics(
+                  button: true,
+                  label: 'Bijwerken',
                   child: IconButton(
-                    icon: SvgPicture.asset('assets/icons/arrow-down.svg'),
-                    padding: EdgeInsets.only(left: padding),
-                    alignment: Alignment.centerLeft,
+                    icon: SvgPicture.asset('assets/icons/update.svg'),
+                    padding: EdgeInsets.only(right: padding),
                     onPressed: () {
-                      print('unfold');
+                      print('update');
                     },
                   ),
                 ),
-                IconButton(
-                  icon: SvgPicture.asset('assets/icons/update.svg'),
-                  padding: EdgeInsets.only(right: padding),
-                  onPressed: () {
-                    print('update');
-                  },
-                ),
-                IconButton(
-                  icon: SvgPicture.asset('assets/icons/delete.svg'),
-                  padding: EdgeInsets.only(right: padding),
-                  onPressed: () {
-                    print('delete');
-                  },
+                Semantics(
+                  button: true,
+                  label: 'Verwijderen',
+                  child: IconButton(
+                    icon: SvgPicture.asset('assets/icons/delete.svg'),
+                    padding: EdgeInsets.only(right: padding),
+                    onPressed: () {
+                      print('delete');
+                    },
+                  ),
                 ),
               ],
             ),
