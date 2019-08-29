@@ -63,7 +63,7 @@ class IrmaCardState extends State<IrmaCard> {
     return Container(
       child: Stack(children: [
         Padding(
-          padding: EdgeInsets.only(left: 4),
+          padding: EdgeInsets.only(left: 20, top: 15),
           // TODO: rename irma_logo.svg
           child: SvgPicture.asset('assets/issuers/amsterdam/irma_logo.svg'),
         ),
@@ -74,17 +74,34 @@ class IrmaCardState extends State<IrmaCard> {
               alignment: Alignment.topRight,
               transform: Matrix4.diagonal3(math.Vector3.all(4.0)),
             ),
-            right: 0,
-            top: 10),
+            right: 15,
+            top: 15),
         Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: getDataLines(),
+          children: <Widget>[
+            Expanded(
+              child: Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: getDataLines(),
+                  )),
+            ),
+            Container(
+              height: 50,
+              decoration: BoxDecoration(
+                color: Color(0x77ffffff),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: const Radius.circular(15.0),
+                  bottomRight: const Radius.circular(15.0),
+                ),
+              ),
+            ),
+          ],
         )
       ]),
-      width: 320.0,
       height: 240.0,
-      padding: const EdgeInsets.all(15),
+      margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
         color: Color(0xffec0000),
         borderRadius: BorderRadius.all(
