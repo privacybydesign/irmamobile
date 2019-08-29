@@ -65,11 +65,11 @@ class IrmaCardState extends State<IrmaCard> {
         Padding(
           padding: EdgeInsets.only(left: 20, top: 15),
           // TODO: rename irma_logo.svg
-          child: SvgPicture.asset('assets/issuers/amsterdam/irma_logo.svg'),
+          child: SvgPicture.asset('assets/issuers/amsterdam/logo.svg'),
         ),
         Positioned(
             child: Transform(
-              child: SvgPicture.asset('assets/issuers/amsterdam/irma_logo.svg',
+              child: SvgPicture.asset('assets/issuers/amsterdam/logo.svg',
                   color: Color(0x77ffffff)),
               alignment: Alignment.topRight,
               transform: Matrix4.diagonal3(math.Vector3.all(4.0)),
@@ -88,9 +88,21 @@ class IrmaCardState extends State<IrmaCard> {
                   )),
             ),
             Container(
+              child: Row(
+                children: <Widget>[
+                    IconButton(
+                        icon: SvgPicture.asset('assets/icons/arrow-down.svg'),
+                        padding: EdgeInsets.only(left: 10),
+                        onPressed: () {
+                            print('pressed');
+                        },
+                    ),
+
+                ],
+              ),
               height: 50,
               decoration: BoxDecoration(
-                color: Color(0x77ffffff),
+                color: Color(0x55ffffff),
                 borderRadius: BorderRadius.only(
                   bottomLeft: const Radius.circular(15.0),
                   bottomRight: const Radius.circular(15.0),
