@@ -75,11 +75,28 @@ class IrmaCardState extends State<IrmaCard> {
           Container(
             child: Row(
               children: <Widget>[
+                Expanded(
+                  child: IconButton(
+                    icon: SvgPicture.asset('assets/icons/arrow-down.svg'),
+                    padding: EdgeInsets.only(left: 15),
+                    alignment: Alignment.centerLeft,
+                    onPressed: () {
+                      print('down');
+                    },
+                  ),
+                ),
                 IconButton(
-                  icon: SvgPicture.asset('assets/icons/arrow-down.svg'),
-                  padding: EdgeInsets.only(left: 10),
+                  icon: SvgPicture.asset('assets/icons/delete.svg'),
+                  padding: EdgeInsets.only(right: 15),
                   onPressed: () {
-                    print('pressed');
+                    print('delete');
+                  },
+                ),
+                IconButton(
+                  icon: SvgPicture.asset('assets/icons/update.svg'),
+                  padding: EdgeInsets.only(right: 15),
+                  onPressed: () {
+                    print('update');
                   },
                 ),
               ],
