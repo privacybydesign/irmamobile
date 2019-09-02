@@ -1,7 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/animation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class IrmaCardState extends State<IrmaCard> {
+class IrmaCardState extends State<IrmaCard>
+    with SingleTickerProviderStateMixin {
+  Animation<double> animation;
+  AnimationController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller =
+        AnimationController(duration: const Duration(milliseconds: 250), vsync: this);
+    animation = Tween<double>(begin: 240, end: 500).animate(controller)
+      ..addListener(() {
+        setState(() {
+          // The state that has changed here is the animation object’s value.
+        });
+      });
+  }
+
   @override
   Widget build(BuildContext context) {
     const indent = 100.0;
@@ -13,6 +31,7 @@ class IrmaCardState extends State<IrmaCard> {
       {'key': 'Geboren', 'value': '4 juli 1990'},
       {'key': 'E-mail', 'value': 'anouk.meijer@gmail.com'},
     ];
+    bool isUnfolded = false;
 
     List<Widget> getDataLines() {
       var textLines = <Widget>[
@@ -87,7 +106,14 @@ class IrmaCardState extends State<IrmaCard> {
                       padding: EdgeInsets.only(left: padding),
                       alignment: Alignment.centerLeft,
                       onPressed: () {
-                        print('unfold');
+                        if (isUnfolded) {
+                          print('unfold');
+                          controller.forward();
+                        } else {
+                          print('fold');
+                          controller.reverse();
+                        }
+                        isUnfolded = !isUnfolded;
                       },
                     ),
                   ),
@@ -127,7 +153,7 @@ class IrmaCardState extends State<IrmaCard> {
           ),
         ],
       ),
-      height: 240.0,
+      height: animation.value,
       margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
           color: Color(0xffec0000),
