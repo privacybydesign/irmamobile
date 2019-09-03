@@ -84,12 +84,12 @@ class AnimatedCard extends AnimatedWidget {
         children: <Widget>[
           Expanded(
             child: Padding(
-                padding: const EdgeInsets.all(padding),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: getDataLines(),
-                )),
+              padding: const EdgeInsets.all(padding),
+              child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: getDataLines(),
+                  )),
           ),
           Container(
             child: Row(
