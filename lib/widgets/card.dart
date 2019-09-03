@@ -2,37 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class IrmaCardState extends State<IrmaCard>
-    with SingleTickerProviderStateMixin {
-  Animation<double> animation;
-  AnimationController controller;
-  bool isUnfolded = false;
+class AnimatedCard extends AnimatedWidget {
+  static final _opacityTween = Tween<double>(begin: 0.1, end: 1);
+  static final _heightTween = Tween<double>(begin: 240, end: 500);
+  static final _rotateTween = Tween<double>(begin: 0, end: 1);
 
   static const indent = 100.0;
   static const headerBottom = 30.0;
   static const borderRadius = Radius.circular(15.0);
   static const padding = 15.0;
   static const personalData = [
-      {'key': 'Naam', 'value': 'Anouk Meijer'},
-      {'key': 'Geboren', 'value': '4 juli 1990'},
-      {'key': 'E-mail', 'value': 'anouk.meijer@gmail.com'},
+    {'key': 'Naam', 'value': 'Anouk Meijer'},
+    {'key': 'Geboren', 'value': '4 juli 1990'},
+    {'key': 'E-mail', 'value': 'anouk.meijer@gmail.com'},
   ];
+  bool isUnfolded = false;
 
-  @override
-  void initState() {
-    super.initState();
-    controller =
-        AnimationController(duration: const Duration(milliseconds: 250), vsync: this);
-    animation = Tween<double>(begin: 240, end: 500).animate(controller)
-      ..addListener(() {
-        setState(() {
-          // The state that has changed here is the animation object’s value.
-        });
-      });
-  }
+  Animation<double> _animation;
+
+  AnimatedCard(
+      {Key key, AnimationController controller, Animation<double> animation})
+      : _animation = animation,
+        super(key: key, listenable: controller);
 
   @override
   Widget build(BuildContext context) {
+    final AnimationController controller = listenable as AnimationController;
+
     List<Widget> getDataLines() {
       var textLines = <Widget>[
         Padding(
@@ -108,10 +104,10 @@ class IrmaCardState extends State<IrmaCard>
                       onPressed: () {
                         if (isUnfolded) {
                           print('unfold');
-                          controller.forward();
+                          controller.reverse();
                         } else {
                           print('fold');
-                          controller.reverse();
+                          controller.forward();
                         }
                         isUnfolded = !isUnfolded;
                       },
@@ -153,7 +149,7 @@ class IrmaCardState extends State<IrmaCard>
           ),
         ],
       ),
-      height: animation.value,
+      height: _heightTween.evaluate(_animation),
       margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
           color: Color(0xffec0000),
@@ -166,6 +162,34 @@ class IrmaCardState extends State<IrmaCard>
               alignment: Alignment.topCenter)),
     );
   }
+}
+
+class IrmaCardState extends State<IrmaCard>
+    with SingleTickerProviderStateMixin {
+  Animation<double> animation;
+  AnimationController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = AnimationController(
+        duration: const Duration(milliseconds: 250), vsync: this);
+
+    animation = CurvedAnimation(parent: controller, curve: Curves.easeInOut)
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          print('AnimationStatus.completed');
+        } else if (status == AnimationStatus.dismissed) {
+          print('AnimationStatus.dismissed');
+        }
+      });
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedCard(
+        controller: controller,
+        animation: animation,
+      );
 }
 
 class IrmaCard extends StatefulWidget {
