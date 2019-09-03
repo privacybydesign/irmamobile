@@ -6,6 +6,17 @@ class IrmaCardState extends State<IrmaCard>
     with SingleTickerProviderStateMixin {
   Animation<double> animation;
   AnimationController controller;
+  bool isUnfolded = false;
+
+  static const indent = 100.0;
+  static const headerBottom = 30.0;
+  static const borderRadius = Radius.circular(15.0);
+  static const padding = 15.0;
+  static const personalData = [
+      {'key': 'Naam', 'value': 'Anouk Meijer'},
+      {'key': 'Geboren', 'value': '4 juli 1990'},
+      {'key': 'E-mail', 'value': 'anouk.meijer@gmail.com'},
+  ];
 
   @override
   void initState() {
@@ -22,17 +33,6 @@ class IrmaCardState extends State<IrmaCard>
 
   @override
   Widget build(BuildContext context) {
-    const indent = 100.0;
-    const headerBottom = 30.0;
-    const borderRadius = Radius.circular(15.0);
-    const padding = 15.0;
-    const personalData = [
-      {'key': 'Naam', 'value': 'Anouk Meijer'},
-      {'key': 'Geboren', 'value': '4 juli 1990'},
-      {'key': 'E-mail', 'value': 'anouk.meijer@gmail.com'},
-    ];
-    bool isUnfolded = false;
-
     List<Widget> getDataLines() {
       var textLines = <Widget>[
         Padding(
