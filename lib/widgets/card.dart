@@ -33,17 +33,6 @@ class AnimatedCard extends AnimatedWidget {
 
     List<Widget> getDataLines() {
       var textLines = <Widget>[
-        Padding(
-          padding: EdgeInsets.only(left: indent, bottom: headerBottom),
-          child: Text(
-            "Persoonsgegevens",
-            style: TextStyle(
-              fontSize: 18.0,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-            ),
-          ),
-        ),
         Divider(color: Color(0xaaffffff)),
       ];
 
@@ -82,14 +71,34 @@ class AnimatedCard extends AnimatedWidget {
     return Container(
       child: Column(
         children: <Widget>[
+          Container(
+            child: Padding(
+              padding: EdgeInsets.only(
+                  top: padding,
+                  right: padding,
+                  bottom: headerBottom,
+                  left: indent),
+              child: Text(
+                "Persoonsgegevens",
+                style: TextStyle(
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(padding),
-              child: Column(
+              child: Opacity(
+                  opacity: _opacityTween.evaluate(_animation),
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: getDataLines(),
                   )),
+            ),
           ),
           Container(
             child: Row(
@@ -125,23 +134,29 @@ class AnimatedCard extends AnimatedWidget {
                 Semantics(
                   button: true,
                   label: 'Bijwerken',
-                  child: IconButton(
-                    icon: SvgPicture.asset('assets/icons/update.svg'),
-                    padding: EdgeInsets.only(right: padding),
-                    onPressed: () {
-                      print('update');
-                    },
+                  child: Opacity(
+                    opacity: _opacityTween.evaluate(_animation),
+                    child: IconButton(
+                      icon: SvgPicture.asset('assets/icons/update.svg'),
+                      padding: EdgeInsets.only(right: padding),
+                      onPressed: () {
+                        print('update');
+                      },
+                    ),
                   ),
                 ),
                 Semantics(
                   button: true,
                   label: 'Verwijderen',
-                  child: IconButton(
-                    icon: SvgPicture.asset('assets/icons/delete.svg'),
-                    padding: EdgeInsets.only(right: padding),
-                    onPressed: () {
-                      print('delete');
-                    },
+                  child: Opacity(
+                    opacity: _opacityTween.evaluate(_animation),
+                    child: IconButton(
+                      icon: SvgPicture.asset('assets/icons/delete.svg'),
+                      padding: EdgeInsets.only(right: padding),
+                      onPressed: () {
+                        print('delete');
+                      },
+                    ),
                   ),
                 ),
               ],
