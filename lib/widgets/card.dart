@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:vector_math/vector_math_64.dart' as vector;
 import 'dart:math' as math;
 
 class AnimatedCard extends AnimatedWidget {
-  static final _opacityTween = Tween<double>(begin: 0.1, end: 1);
+  static final _opacityTween = Tween<double>(begin: 0, end: 1);
   static final _heightTween = Tween<double>(begin: 240, end: 500);
-  static final _rotateTween = Tween<double>(begin: 0, end: -math.pi);
+  static final _rotateTween = Tween<double>(begin: 0, end: math.pi);
 
   static const indent = 100.0;
   static const headerBottom = 30.0;
   static const borderRadius = Radius.circular(15.0);
   static const padding = 15.0;
+
   static const personalData = [
     {'key': 'Naam', 'value': 'Anouk Meijer'},
     {'key': 'Geboren', 'value': '4 juli 1990'},
     {'key': 'E-mail', 'value': 'anouk.meijer@gmail.com'},
   ];
+
   bool isUnfolded = false;
 
   Animation<double> _animation;
@@ -119,10 +120,8 @@ class AnimatedCard extends AnimatedWidget {
                         alignment: Alignment.centerLeft,
                         onPressed: () {
                           if (isUnfolded) {
-                            print('unfold');
                             controller.reverse();
                           } else {
-                            print('fold');
                             controller.forward();
                           }
                           isUnfolded = !isUnfolded;
@@ -192,20 +191,15 @@ class IrmaCardState extends State<IrmaCard>
   Animation<double> animation;
   AnimationController controller;
 
+  static const animationDuration = 250;
+
   @override
   void initState() {
     super.initState();
     controller = AnimationController(
-        duration: const Duration(milliseconds: 250), vsync: this);
+        duration: const Duration(milliseconds: animationDuration), vsync: this);
 
-    animation = CurvedAnimation(parent: controller, curve: Curves.easeInOut)
-      ..addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          print('AnimationStatus.completed');
-        } else if (status == AnimationStatus.dismissed) {
-          print('AnimationStatus.dismissed');
-        }
-      });
+    animation = CurvedAnimation(parent: controller, curve: Curves.easeInOut);
   }
 
   @override
