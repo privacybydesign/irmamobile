@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:vector_math/vector_math_64.dart' as vector;
+import 'dart:math' as math;
 
 class AnimatedCard extends AnimatedWidget {
   static final _opacityTween = Tween<double>(begin: 0.1, end: 1);
   static final _heightTween = Tween<double>(begin: 240, end: 500);
-  static final _rotateTween = Tween<double>(begin: 0, end: 1);
+  static final _rotateTween = Tween<double>(begin: 0, end: -math.pi);
 
   static const indent = 100.0;
   static const headerBottom = 30.0;
@@ -97,20 +99,26 @@ class AnimatedCard extends AnimatedWidget {
                     button: true,
                     enabled: false,
                     label: 'Uitvouwen',
-                    child: IconButton(
-                      icon: SvgPicture.asset('assets/icons/arrow-down.svg'),
-                      padding: EdgeInsets.only(left: padding),
-                      alignment: Alignment.centerLeft,
-                      onPressed: () {
-                        if (isUnfolded) {
-                          print('unfold');
-                          controller.reverse();
-                        } else {
-                          print('fold');
-                          controller.forward();
-                        }
-                        isUnfolded = !isUnfolded;
-                      },
+                    child: Transform(
+                      origin: Offset(27, 24),
+                      transform: Matrix4.rotationZ(
+                        _rotateTween.evaluate(_animation),
+                      ),
+                      child: IconButton(
+                        icon: SvgPicture.asset('assets/icons/arrow-down.svg'),
+                        padding: EdgeInsets.only(left: padding),
+                        alignment: Alignment.centerLeft,
+                        onPressed: () {
+                          if (isUnfolded) {
+                            print('unfold');
+                            controller.reverse();
+                          } else {
+                            print('fold');
+                            controller.forward();
+                          }
+                          isUnfolded = !isUnfolded;
+                        },
+                      ),
                     ),
                   ),
                 ),
