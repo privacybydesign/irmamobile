@@ -17,7 +17,7 @@ class App extends StatelessWidget {
   final List<BlocProvider> providers;
 
   App()
-      : initialRoute = '/enrollment',
+      : initialRoute = '/',
         routes = {
           '/': (BuildContext context) => Home(),
           '/enrollment': (BuildContext context) => Enrollment(),

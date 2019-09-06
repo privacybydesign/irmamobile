@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/prototypes/schermflow_1.dart';
+import 'package:irmamobile/src/prototypes/schermflow_5.dart';
 
 class PrototypesMenuPage extends StatelessWidget {
   @override
@@ -39,7 +40,9 @@ class PrototypesMenuPage extends StatelessWidget {
           _buildListItem(context, "2. IRMA Account aangemaakt", null),
           _buildListItem(context, "3. Gemeentegegevens opgehaald", null),
           _buildListItem(context, "4. Contactgegevens toevoegen", null),
-          _buildListItem(context, "5. Gegevens toevoegen", null),
+          _buildListItem(context, "5. Gegevens toevoegen", () {
+            startSchermflow5(context);
+          }),
           _buildListItem(context, "6. Meerdere gegevenskaarten", null),
           _buildListItem(context, "7. Vrijgeven leeftijd 18+", null),
           _buildListItem(context, "8. Vrijgeven leeftijd 18+ & contactgegevens", null),
@@ -88,7 +91,10 @@ class PrototypesMenuPage extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Text(name, style: Theme.of(context).textTheme.button),
+                Text(
+                  name,
+                  style: Theme.of(context).textTheme.button,
+                ),
                 Text(">", style: Theme.of(context).textTheme.button),
               ],
             ),

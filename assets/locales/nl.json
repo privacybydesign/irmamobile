@@ -61,20 +61,30 @@
     "settings": {
         "title": "Instellingen",
         "pin": {
-          "header": "Toegang",
-          "long_pin": "Gebruik een lange pincode",
-          "long_pin_detail": "Maakt een pincode mogelijk van maximaal 16 cijfers",
-          "change_pin": "Pincode wijzigen"
+            "header": "Toegang",
+            "long_pin": "Gebruik een lange pincode",
+            "long_pin_detail": "Maakt een pincode mogelijk van maximaal 16 cijfers",
+            "change_pin": "Pincode wijzigen"
         },
-        "behavior" : {
-          "header": "Voorkeuren",
-          "start_qr": "Open de QR scanner bij opstarten",
-          "report_errors": "Stuur fouten naar IRMA"
+        "behavior": {
+            "header": "Voorkeuren",
+            "start_qr": "Open de QR scanner bij opstarten",
+            "report_errors": "Stuur fouten naar IRMA"
         },
-        "advanced" : {
-          "header": "Opnieuw instellen",
-          "delete": "Verwijder IRMA",
-          "delete_details": "Alle gegevens worden verwijderd"
+        "advanced": {
+            "header": "Opnieuw instellen",
+            "delete": "Verwijder IRMA",
+            "delete_details": "Alle gegevens worden verwijderd"
         }
+    }, 
+    "issuance": {
+        "title": "Gegevens toevoegen",
+        "header": "Kies de gegevens die je wilt ophalen",
+        "hint_search": "zoek", 
+        "loading" : {
+            "title": "Gegevens ophalen",
+            "body": "Je gegevens worden opgehaald."
+        }
+
     }
 }

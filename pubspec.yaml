@@ -26,11 +26,12 @@ dependencies:
   dots_indicator: ^1.0.0
   flutter_svg: ^0.14.1
   flutter_i18n: ^0.6.4
-  bloc: ^0.15.0
   flutter_bloc: ^0.21.0
   equatable: ^0.2.0
   email_validator: ^1.0.0
-  url_launcher: ^5.0.2
+  webview_flutter: 0.3.14+1
+  url_launcher: ^5.1.2
+
 
 dev_dependencies:
   flutter_test:
