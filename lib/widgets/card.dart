@@ -21,11 +21,11 @@ class AnimatedCard extends AnimatedWidget {
 
   bool isUnfolded = false;
 
-  Animation<double> _animation;
+  Animation<double> animation;
 
   AnimatedCard(
-      {Key key, AnimationController controller, Animation<double> animation})
-      : _animation = animation,
+      {Key key, AnimationController controller, Animation<double> this.animation})
+      :
         super(key: key, listenable: controller);
 
   @override
@@ -93,7 +93,7 @@ class AnimatedCard extends AnimatedWidget {
             child: Padding(
               padding: const EdgeInsets.all(padding),
               child: Opacity(
-                  opacity: _opacityTween.evaluate(_animation),
+                  opacity: _opacityTween.evaluate(animation),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
@@ -112,7 +112,7 @@ class AnimatedCard extends AnimatedWidget {
                     child: Transform(
                       origin: Offset(27, 24),
                       transform: Matrix4.rotationZ(
-                        _rotateTween.evaluate(_animation),
+                        _rotateTween.evaluate(animation),
                       ),
                       child: IconButton(
                         icon: SvgPicture.asset('assets/icons/arrow-down.svg'),
@@ -124,6 +124,7 @@ class AnimatedCard extends AnimatedWidget {
                           } else {
                             controller.forward();
                           }
+//                          setState(() {})
                           isUnfolded = !isUnfolded;
                         },
                       ),
@@ -134,7 +135,7 @@ class AnimatedCard extends AnimatedWidget {
                   button: true,
                   label: 'Bijwerken',
                   child: Opacity(
-                    opacity: _opacityTween.evaluate(_animation),
+                    opacity: _opacityTween.evaluate(animation),
                     child: IconButton(
                       icon: SvgPicture.asset('assets/icons/update.svg'),
                       padding: EdgeInsets.only(right: padding),
@@ -148,7 +149,7 @@ class AnimatedCard extends AnimatedWidget {
                   button: true,
                   label: 'Verwijderen',
                   child: Opacity(
-                    opacity: _opacityTween.evaluate(_animation),
+                    opacity: _opacityTween.evaluate(animation),
                     child: IconButton(
                       icon: SvgPicture.asset('assets/icons/delete.svg'),
                       padding: EdgeInsets.only(right: padding),
@@ -171,7 +172,7 @@ class AnimatedCard extends AnimatedWidget {
           ),
         ],
       ),
-      height: _heightTween.evaluate(_animation),
+      height: _heightTween.evaluate(animation),
       margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
           color: Color(0xffec0000),
@@ -186,7 +187,7 @@ class AnimatedCard extends AnimatedWidget {
   }
 }
 
-class IrmaCardState extends State<IrmaCard>
+class _IrmaCardState extends State<IrmaCard>
     with SingleTickerProviderStateMixin {
   Animation<double> animation;
   AnimationController controller;
@@ -195,11 +196,11 @@ class IrmaCardState extends State<IrmaCard>
 
   @override
   void initState() {
-    super.initState();
     controller = AnimationController(
         duration: const Duration(milliseconds: animationDuration), vsync: this);
 
     animation = CurvedAnimation(parent: controller, curve: Curves.easeInOut);
+    super.initState();
   }
 
   @override
@@ -211,5 +212,5 @@ class IrmaCardState extends State<IrmaCard>
 
 class IrmaCard extends StatefulWidget {
   @override
-  IrmaCardState createState() => IrmaCardState();
+  _IrmaCardState createState() => _IrmaCardState();
 }
