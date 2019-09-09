@@ -13,7 +13,7 @@ class AnimatedCard extends AnimatedWidget {
   static const borderRadius = Radius.circular(15.0);
   static const padding = 15.0;
 
-  var personalData;
+  List<Map<String, String>> personalData;
   bool isUnfolded = false;
   Animation<double> animation;
 
@@ -208,7 +208,7 @@ class _IrmaCardState extends State<IrmaCard>
 }
 
 class IrmaCard extends StatefulWidget {
-  var personalData;
+  List<Map<String, String>> personalData;
 
   IrmaCard(this.personalData);
 
