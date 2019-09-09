@@ -180,7 +180,7 @@ class AnimatedCard extends AnimatedWidget {
             borderRadius,
           ),
           image: DecorationImage(
-              image: AssetImage('assets/issuers/amsterdam/bg.png'),
+              image: AssetImage('assets/issuers/duo.png'),
               fit: BoxFit.fitWidth,
               alignment: Alignment.topCenter)),
     );
