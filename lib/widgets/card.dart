@@ -12,16 +12,19 @@ class AnimatedCard extends AnimatedWidget {
   static const headerBottom = 30.0;
   static const borderRadius = Radius.circular(15.0);
   static const padding = 15.0;
+  static const transparentWhite = Color(0xaaffffff);
 
   List<Map<String, String>> personalData;
   bool isUnfolded = false;
   Animation<double> animation;
+  Map<String, Object> issuer; // Object is String | Color
 
   AnimatedCard(
       {Key key,
       AnimationController controller,
       Animation<double> this.animation,
-      this.personalData})
+      this.personalData,
+      this.issuer})
       : super(key: key, listenable: controller);
 
   @override
@@ -30,7 +33,7 @@ class AnimatedCard extends AnimatedWidget {
 
     List<Widget> getDataLines() {
       var textLines = <Widget>[
-        Divider(color: Color(0xaaffffff)),
+        Divider(color: transparentWhite),
       ];
 
       for (var i = 0; i < personalData.length; i++) {
@@ -44,7 +47,7 @@ class AnimatedCard extends AnimatedWidget {
                       style: TextStyle(
                         fontSize: 14.0,
                         fontWeight: FontWeight.w300,
-                        color: Colors.white,
+                        color: issuer['color'],
                       )),
                   width: indent,
                 ),
@@ -53,7 +56,7 @@ class AnimatedCard extends AnimatedWidget {
                   style: TextStyle(
                     fontSize: 14.0,
                     fontWeight: FontWeight.w500,
-                    color: Colors.white,
+                    color: issuer['color'],
                   ),
                 ),
               ],
@@ -80,7 +83,7 @@ class AnimatedCard extends AnimatedWidget {
                 style: TextStyle(
                   fontSize: 18.0,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: issuer['color'],
                 ),
               ),
             ),
@@ -159,7 +162,6 @@ class AnimatedCard extends AnimatedWidget {
             ),
             height: 50,
             decoration: BoxDecoration(
-              color: Color(0x55ffffff),
               borderRadius: BorderRadius.only(
                 bottomLeft: borderRadius,
                 bottomRight: borderRadius,
@@ -171,12 +173,12 @@ class AnimatedCard extends AnimatedWidget {
       height: _heightTween.evaluate(animation),
       margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
-          color: Color(0xffec0000),
+          color: issuer['bg-color'],
           borderRadius: BorderRadius.all(
             borderRadius,
           ),
           image: DecorationImage(
-              image: AssetImage('assets/issuers/duo.png'),
+              image: AssetImage("assets/issuers/${issuer['bg']}"),
               fit: BoxFit.fitWidth,
               alignment: Alignment.topCenter)),
     );
@@ -204,13 +206,15 @@ class _IrmaCardState extends State<IrmaCard>
         controller: controller,
         animation: animation,
         personalData: widget.personalData,
+        issuer: widget.issuer,
       );
 }
 
 class IrmaCard extends StatefulWidget {
   List<Map<String, String>> personalData;
+  Map<String, Object> issuer; // Object is String | Color
 
-  IrmaCard(this.personalData);
+  IrmaCard(this.personalData, this.issuer);
 
   @override
   _IrmaCardState createState() => _IrmaCardState();

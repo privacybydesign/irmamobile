@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../widgets/card.dart';
+import '../../data/issuers.dart';
 
 class IrmaHome extends StatefulWidget {
   IrmaHome() : super();
@@ -24,7 +25,7 @@ class _IrmaHomeState extends State<IrmaHome> {
             icon: Icon(Icons.arrow_back),
             onPressed: () => Navigator.pop(context, false),
           )),
-      body: Center(child: IrmaCard(personalData)),
+      body: Center(child: IrmaCard(personalData, issuers["amsterdam"])),
     );
   }
 }
