@@ -36,34 +36,32 @@ class AnimatedCard extends AnimatedWidget {
         Divider(color: transparentWhite),
       ];
 
-      for (var i = 0; i < personalData.length; i++) {
-        textLines.add(
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 4),
-            child: Row(
-              children: [
-                Container(
-                  child: Text(personalData[i]['key'],
-                      style: TextStyle(
-                        fontSize: 14.0,
-                        fontWeight: FontWeight.w300,
-                        color: issuer['color'],
-                      )),
-                  width: indent,
+      textLines.addAll(personalData.map((personal) {
+        return Padding(
+          padding: EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            children: [
+              Container(
+                child: Text(personal['key'],
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.w300,
+                      color: issuer['color'],
+                    )),
+                width: indent,
+              ),
+              Text(
+                personal['value'],
+                style: TextStyle(
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.w500,
+                  color: issuer['color'],
                 ),
-                Text(
-                  personalData[i]['value'],
-                  style: TextStyle(
-                    fontSize: 14.0,
-                    fontWeight: FontWeight.w500,
-                    color: issuer['color'],
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
-      }
+      }));
 
       return textLines;
     }
