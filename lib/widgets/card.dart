@@ -13,20 +13,16 @@ class AnimatedCard extends AnimatedWidget {
   static const borderRadius = Radius.circular(15.0);
   static const padding = 15.0;
 
-  static const personalData = [
-    {'key': 'Naam', 'value': 'Anouk Meijer'},
-    {'key': 'Geboren', 'value': '4 juli 1990'},
-    {'key': 'E-mail', 'value': 'anouk.meijer@gmail.com'},
-  ];
-
+  var personalData;
   bool isUnfolded = false;
-
   Animation<double> animation;
 
   AnimatedCard(
-      {Key key, AnimationController controller, Animation<double> this.animation})
-      :
-        super(key: key, listenable: controller);
+      {Key key,
+      AnimationController controller,
+      Animation<double> this.animation,
+      this.personalData})
+      : super(key: key, listenable: controller);
 
   @override
   Widget build(BuildContext context) {
@@ -207,10 +203,15 @@ class _IrmaCardState extends State<IrmaCard>
   Widget build(BuildContext context) => AnimatedCard(
         controller: controller,
         animation: animation,
+        personalData: widget.personalData,
       );
 }
 
 class IrmaCard extends StatefulWidget {
+  var personalData;
+
+  IrmaCard(this.personalData);
+
   @override
   _IrmaCardState createState() => _IrmaCardState();
 }

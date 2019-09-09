@@ -9,6 +9,12 @@ class IrmaHome extends StatefulWidget {
 }
 
 class _IrmaHomeState extends State<IrmaHome> {
+  static const personalData = [
+    {'key': 'Naam', 'value': 'Anouk Meijer'},
+    {'key': 'Geboren', 'value': '4 juli 1990'},
+    {'key': 'E-mail', 'value': 'anouk.meijer@gmail.com'},
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,7 +24,7 @@ class _IrmaHomeState extends State<IrmaHome> {
             icon: Icon(Icons.arrow_back),
             onPressed: () => Navigator.pop(context, false),
           )),
-      body: Center(child: IrmaCard()),
+      body: Center(child: IrmaCard(personalData)),
     );
   }
 }
