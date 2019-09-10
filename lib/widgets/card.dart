@@ -1,7 +1,8 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'dart:math' as math;
+import 'package:flutter_i18n/flutter_i18n.dart';
 
 class IrmaCard extends StatefulWidget {
   List<Map<String, String>> personalData;
@@ -51,12 +52,12 @@ class _IrmaCardState extends State<IrmaCard>
               Container(
                 child: Padding(
                   padding: EdgeInsets.only(
-                      top: padding,
-                      right: padding,
-                      bottom: headerBottom,
-                      left: indent),
+                    top: padding,
+                    right: padding,
+                    bottom: headerBottom,
+                  ),
                   child: Text(
-                    "Persoonsgegevens",
+                    FlutterI18n.translate(context, 'card.personaldata'),
                     style: TextStyle(
                       fontSize: 18.0,
                       fontWeight: FontWeight.w700,
@@ -80,7 +81,8 @@ class _IrmaCardState extends State<IrmaCard>
                       child: Semantics(
                         button: true,
                         enabled: false,
-                        label: 'Uitvouwen',
+                        label: FlutterI18n.translate(
+                            context, 'accessibility.unfold'),
                         child: Transform(
                           origin: Offset(27, 24),
                           transform: Matrix4.rotationZ(
@@ -107,7 +109,8 @@ class _IrmaCardState extends State<IrmaCard>
                     ),
                     Semantics(
                       button: true,
-                      label: 'Bijwerken',
+                      label: FlutterI18n.translate(
+                          context, 'accessibility.update'),
                       child: Opacity(
                         opacity: _opacityTween.evaluate(animation),
                         child: IconButton(
@@ -121,7 +124,8 @@ class _IrmaCardState extends State<IrmaCard>
                     ),
                     Semantics(
                       button: true,
-                      label: 'Verwijderen',
+                      label: FlutterI18n.translate(
+                          context, 'accessibility.remove'),
                       child: Opacity(
                         opacity: _opacityTween.evaluate(animation),
                         child: IconButton(
