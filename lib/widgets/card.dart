@@ -3,53 +3,14 @@ import 'package:flutter/animation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:math' as math;
 
-class _personalData extends StatelessWidget {
-  static const transparentWhite = Color(0xaaffffff);
-  static const indent = 100.0;
-
+class IrmaCard extends StatefulWidget {
   List<Map<String, String>> personalData;
   Map<String, Object> issuer; // Object is String | Color
 
-  _personalData(this.personalData, this.issuer);
+  IrmaCard(this.personalData, this.issuer);
 
-  Widget build(BuildContext context) {
-    List<Widget> textLines = <Widget>[
-      Divider(color: transparentWhite),
-    ];
-
-    textLines.addAll(personalData.map((personal) {
-      return Padding(
-        padding: EdgeInsets.symmetric(vertical: 4),
-        child: Row(
-          children: [
-            Container(
-              child: Text(personal['key'],
-                  style: TextStyle(
-                    fontSize: 14.0,
-                    fontWeight: FontWeight.w300,
-                    color: issuer['color'],
-                  )),
-              width: indent,
-            ),
-            Text(
-              personal['value'],
-              style: TextStyle(
-                fontSize: 14.0,
-                fontWeight: FontWeight.w500,
-                color: issuer['color'],
-              ),
-            ),
-          ],
-        ),
-      );
-    }));
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: textLines,
-    );
-  }
+  @override
+  _IrmaCardState createState() => _IrmaCardState();
 }
 
 class _IrmaCardState extends State<IrmaCard>
@@ -68,6 +29,7 @@ class _IrmaCardState extends State<IrmaCard>
   static const padding = 15.0;
   static const transparentWhite = Color(0xaaffffff);
 
+  // State
   bool isUnfolded = false;
 
   @override
@@ -198,12 +160,51 @@ class _IrmaCardState extends State<IrmaCard>
       });
 }
 
-class IrmaCard extends StatefulWidget {
+class _personalData extends StatelessWidget {
+  static const transparentWhite = Color(0xaaffffff);
+  static const indent = 100.0;
+
   List<Map<String, String>> personalData;
   Map<String, Object> issuer; // Object is String | Color
 
-  IrmaCard(this.personalData, this.issuer);
+  _personalData(this.personalData, this.issuer);
 
-  @override
-  _IrmaCardState createState() => _IrmaCardState();
+  Widget build(BuildContext context) {
+    List<Widget> textLines = <Widget>[
+      Divider(color: transparentWhite),
+    ];
+
+    textLines.addAll(personalData.map((personal) {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          children: [
+            Container(
+              child: Text(personal['key'],
+                  style: TextStyle(
+                    fontSize: 14.0,
+                    fontWeight: FontWeight.w300,
+                    color: issuer['color'],
+                  )),
+              width: indent,
+            ),
+            Text(
+              personal['value'],
+              style: TextStyle(
+                fontSize: 14.0,
+                fontWeight: FontWeight.w500,
+                color: issuer['color'],
+              ),
+            ),
+          ],
+        ),
+      );
+    }));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: textLines,
+    );
+  }
 }
