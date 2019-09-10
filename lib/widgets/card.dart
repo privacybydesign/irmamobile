@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/animation.dart';
@@ -7,6 +8,10 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 class IrmaCard extends StatefulWidget {
   List<Map<String, String>> personalData;
   Map<String, Object> issuer; // Object is String | Color
+
+  StreamController<bool> unfoldStream = StreamController();
+  StreamController<void> updateStream = StreamController();
+  StreamController<void> removeStream = StreamController();
 
   IrmaCard(this.personalData, this.issuer);
 
@@ -38,7 +43,6 @@ class _IrmaCardState extends State<IrmaCard>
   void initState() {
     controller = AnimationController(
         duration: const Duration(milliseconds: animationDuration), vsync: this);
-
     animation = CurvedAnimation(parent: controller, curve: Curves.easeInOut);
     super.initState();
   }
@@ -103,6 +107,7 @@ class _IrmaCardState extends State<IrmaCard>
                               setState(() {
                                 isUnfolded = !isUnfolded;
                               });
+                              widget.unfoldStream.sink.add(isUnfolded);
                             },
                           ),
                         ),
@@ -118,7 +123,7 @@ class _IrmaCardState extends State<IrmaCard>
                           icon: SvgPicture.asset('assets/icons/update.svg'),
                           padding: EdgeInsets.only(right: padding),
                           onPressed: () {
-                            print('update');
+                            widget.updateStream.sink.add(true);
                           },
                         ),
                       ),
@@ -133,7 +138,7 @@ class _IrmaCardState extends State<IrmaCard>
                           icon: SvgPicture.asset('assets/icons/delete.svg'),
                           padding: EdgeInsets.only(right: padding),
                           onPressed: () {
-                            print('delete');
+                            widget.removeStream.sink.add(true);
                           },
                         ),
                       ),

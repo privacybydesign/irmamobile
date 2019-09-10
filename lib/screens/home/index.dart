@@ -16,6 +16,21 @@ class _IrmaHomeState extends State<IrmaHome> {
     {'key': 'E-mail', 'value': 'anouk.meijer@gmail.com'},
   ];
 
+  IrmaCard irmaCard = IrmaCard(personalData, issuers["amsterdam"]);
+
+  @override
+  void initState() {
+      irmaCard.unfoldStream.stream.listen((data) {
+          print('unfoldStream $data');
+      });
+      irmaCard.updateStream.stream.listen((data) {
+          print('updateStream');
+      });
+      irmaCard.removeStream.stream.listen((data) {
+          print('removeStream');
+      });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,7 +40,7 @@ class _IrmaHomeState extends State<IrmaHome> {
             icon: Icon(Icons.arrow_back),
             onPressed: () => Navigator.pop(context, false),
           )),
-      body: Center(child: IrmaCard(personalData, issuers["amsterdam"])),
+      body: Center(child: irmaCard),
     );
   }
 }
