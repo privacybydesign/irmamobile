@@ -135,7 +135,7 @@ class _IrmaCardState extends State<IrmaCard>
                       child: Opacity(
                         opacity: _opacityTween.evaluate(animation),
                         child: IconButton(
-                          icon: SvgPicture.asset('assets/icons/delete.svg'),
+                          icon: SvgPicture.asset('assets/icons/remove.svg'),
                           padding: EdgeInsets.only(right: padding),
                           onPressed: () {
                             widget.removeStream.sink.add(true);
