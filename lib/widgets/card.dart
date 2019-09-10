@@ -3,6 +3,55 @@ import 'package:flutter/animation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:math' as math;
 
+class _personalData extends StatelessWidget {
+  static const transparentWhite = Color(0xaaffffff);
+  static const indent = 100.0;
+
+  List<Map<String, String>> personalData;
+  Map<String, Object> issuer; // Object is String | Color
+
+  _personalData(this.personalData, this.issuer);
+
+  Widget build(BuildContext context) {
+    List<Widget> textLines = <Widget>[
+      Divider(color: transparentWhite),
+    ];
+
+    textLines.addAll(personalData.map((personal) {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          children: [
+            Container(
+              child: Text(personal['key'],
+                  style: TextStyle(
+                    fontSize: 14.0,
+                    fontWeight: FontWeight.w300,
+                    color: issuer['color'],
+                  )),
+              width: indent,
+            ),
+            Text(
+              personal['value'],
+              style: TextStyle(
+                fontSize: 14.0,
+                fontWeight: FontWeight.w500,
+                color: issuer['color'],
+              ),
+            ),
+          ],
+        ),
+      );
+    }));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: textLines,
+    );
+  }
+}
+
 class _IrmaCardState extends State<IrmaCard>
     with SingleTickerProviderStateMixin {
   Animation<double> animation;
@@ -34,41 +83,6 @@ class _IrmaCardState extends State<IrmaCard>
   Widget build(BuildContext context) => AnimatedBuilder(
       animation: animation,
       builder: (buildContext, child) {
-        List<Widget> getDataLines() {
-          var textLines = <Widget>[
-            Divider(color: transparentWhite),
-          ];
-
-          textLines.addAll(widget.personalData.map((personal) {
-            return Padding(
-              padding: EdgeInsets.symmetric(vertical: 4),
-              child: Row(
-                children: [
-                  Container(
-                    child: Text(personal['key'],
-                        style: TextStyle(
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.w300,
-                          color: widget.issuer['color'],
-                        )),
-                    width: indent,
-                  ),
-                  Text(
-                    personal['value'],
-                    style: TextStyle(
-                      fontSize: 14.0,
-                      fontWeight: FontWeight.w500,
-                      color: widget.issuer['color'],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }));
-
-          return textLines;
-        }
-
         return Container(
           child: Column(
             children: <Widget>[
@@ -94,11 +108,7 @@ class _IrmaCardState extends State<IrmaCard>
                   padding: const EdgeInsets.all(padding),
                   child: Opacity(
                       opacity: _opacityTween.evaluate(animation),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: getDataLines(),
-                      )),
+                      child: _personalData(widget.personalData, widget.issuer)),
                 ),
               ),
               Container(
