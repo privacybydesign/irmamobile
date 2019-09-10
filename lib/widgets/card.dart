@@ -28,7 +28,8 @@ class _IrmaCardState extends State<IrmaCard>
   static const headerBottom = 30.0;
   static const borderRadius = Radius.circular(15.0);
   static const padding = 15.0;
-  static const transparentWhite = Color(0xaaffffff);
+  static const transparentWhiteLine = Color(0xaaffffff);
+  static const transparentWhiteBackground = Color(0x55ffffff);
 
   // State
   bool isUnfolded = false;
@@ -141,6 +142,7 @@ class _IrmaCardState extends State<IrmaCard>
                 ),
                 height: 50,
                 decoration: BoxDecoration(
+                  color: transparentWhiteBackground,
                   borderRadius: BorderRadius.only(
                     bottomLeft: borderRadius,
                     bottomRight: borderRadius,
