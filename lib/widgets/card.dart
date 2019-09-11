@@ -266,9 +266,7 @@ class _personalData extends StatelessWidget {
       );
     }));
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
+    return ListView(
       children: textLines,
     );
   }
