@@ -5,6 +5,8 @@ import 'package:flutter/animation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
+import 'button.dart';
+
 class IrmaCard extends StatefulWidget {
   Map<String, List<Map<String, String>>> personalData;
   Map<String, Object> issuer; // Object is String | Color
@@ -113,36 +115,10 @@ class _IrmaCardState extends State<IrmaCard>
                         ),
                       ),
                     ),
-                    Semantics(
-                      button: true,
-                      label: FlutterI18n.translate(
-                          context, 'accessibility.update'),
-                      child: Opacity(
-                        opacity: _opacityTween.evaluate(animation),
-                        child: IconButton(
-                          icon: SvgPicture.asset('assets/icons/update.svg'),
-                          padding: EdgeInsets.only(right: padding),
-                          onPressed: () {
-                            widget.updateStream.sink.add(true);
-                          },
-                        ),
-                      ),
-                    ),
-                    Semantics(
-                      button: true,
-                      label: FlutterI18n.translate(
-                          context, 'accessibility.remove'),
-                      child: Opacity(
-                        opacity: _opacityTween.evaluate(animation),
-                        child: IconButton(
-                          icon: SvgPicture.asset('assets/icons/remove.svg'),
-                          padding: EdgeInsets.only(right: padding),
-                          onPressed: () {
-                            widget.removeStream.sink.add(true);
-                          },
-                        ),
-                      ),
-                    ),
+                    Button(animation, 'assets/icons/update.svg',
+                        'accessibility.update', widget.updateStream.sink),
+                    Button(animation, 'assets/icons/remove.svg',
+                        'accessibility.remove', widget.removeStream.sink)
                   ],
                 ),
                 height: 50,
@@ -271,3 +247,4 @@ class _personalData extends StatelessWidget {
     );
   }
 }
+
