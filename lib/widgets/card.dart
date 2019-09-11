@@ -6,7 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 class IrmaCard extends StatefulWidget {
-  List<Map<String, String>> personalData;
+  Map<String, List<Map<String, String>>> personalData;
   Map<String, Object> issuer; // Object is String | Color
 
   StreamController<bool> unfoldStream = StreamController();
@@ -175,7 +175,7 @@ class _personalData extends StatelessWidget {
   static const transparentWhite = Color(0xaaffffff);
   static const indent = 100.0;
 
-  List<Map<String, String>> personalData;
+  Map<String, List<Map<String, String>>> personalData;
   Map<String, Object> issuer; // Object is String | Color
 
   _personalData(this.personalData, this.issuer);
@@ -185,7 +185,61 @@ class _personalData extends StatelessWidget {
       Divider(color: transparentWhite),
     ];
 
-    textLines.addAll(personalData.map((personal) {
+    textLines.addAll(personalData['data'].map((personal) {
+      return Padding(
+        padding: EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          children: [
+            Container(
+              child: Text(personal['key'],
+                  style: TextStyle(
+                    fontSize: 14.0,
+                    fontWeight: FontWeight.w300,
+                    color: issuer['color'],
+                  )),
+              width: indent,
+            ),
+            Text(
+              personal['value'],
+              style: TextStyle(
+                fontSize: 14.0,
+                fontWeight: FontWeight.w500,
+                color: issuer['color'],
+              ),
+            ),
+          ],
+        ),
+      );
+    }));
+
+    textLines.add(Divider(color: transparentWhite));
+
+    textLines.add(Padding(
+      padding: EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Container(
+            child: Text('Uitgifte',
+                style: TextStyle(
+                  fontSize: 14.0,
+                  fontWeight: FontWeight.w300,
+                  color: issuer['color'],
+                )),
+            width: indent,
+          ),
+          Text(
+            issuer['name'],
+            style: TextStyle(
+              fontSize: 14.0,
+              fontWeight: FontWeight.w500,
+              color: issuer['color'],
+            ),
+          ),
+        ],
+      ),
+    ));
+
+    textLines.addAll(personalData['metadata'].map((personal) {
       return Padding(
         padding: EdgeInsets.symmetric(vertical: 4),
         child: Row(
