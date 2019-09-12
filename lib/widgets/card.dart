@@ -65,7 +65,7 @@ class _IrmaCardState extends State<IrmaCard>
                   ),
                   child: Text(
                     FlutterI18n.translate(context, 'card.personaldata'),
-                    style: Style.heading1,
+                    style: Theme.of(context).textTheme.headline,
                   ),
                 ),
               ),
@@ -163,12 +163,16 @@ class _personalData extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              child: Text(personal['key'], style: Style.light),
+              child: Text(personal['key'],
+                  style: Theme.of(context).textTheme.body1),
               width: indent,
             ),
             Text(
               personal['value'],
-              style: Style.bold,
+              style: Theme.of(context)
+                  .textTheme
+                  .body1
+                  .copyWith(fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -182,12 +186,15 @@ class _personalData extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            child: Text('Uitgifte', style: Style.light),
+            child: Text('Uitgifte', style: Theme.of(context).textTheme.body1),
             width: indent,
           ),
           Text(
             issuer['name'],
-            style: Style.bold,
+            style: Theme.of(context)
+                .textTheme
+                .body1
+                .copyWith(fontWeight: FontWeight.w500),
           ),
         ],
       ),
@@ -199,12 +206,16 @@ class _personalData extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              child: Text(personal['key'], style: Style.light),
+              child: Text(personal['key'],
+                  style: Theme.of(context).textTheme.body1),
               width: indent,
             ),
             Text(
               personal['value'],
-              style: Style.bold,
+              style: Theme.of(context)
+                  .textTheme
+                  .body1
+                  .copyWith(fontWeight: FontWeight.w500),
             ),
           ],
         ),
@@ -215,24 +226,4 @@ class _personalData extends StatelessWidget {
       children: textLines,
     );
   }
-}
-
-class Style {
-  static const TextStyle heading1 = TextStyle(
-    fontSize: 18.0,
-    fontWeight: FontWeight.w700,
-    color: Colors.white,
-  );
-
-  static const TextStyle bold = TextStyle(
-    fontSize: 14.0,
-    fontWeight: FontWeight.w500,
-    color: Colors.white,
-  );
-
-  static const TextStyle light = TextStyle(
-    fontSize: 14.0,
-    fontWeight: FontWeight.w300,
-    color: Colors.white,
-  );
 }

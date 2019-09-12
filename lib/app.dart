@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:irmamobile/src/prototypes/prototypes_menu_page.dart';
 
 import 'screens/enrollment/enrollment.dart';
+import 'theme.dart';
 
 class App extends StatelessWidget {
   final String initialRoute;
@@ -42,6 +43,7 @@ class App extends StatelessWidget {
         providers: providers,
         child: MaterialApp(
           title: 'IRMA',
+          theme: themeData,
           localizationsDelegates: [
             FlutterI18nDelegate(
               fallbackFile: 'nl',
