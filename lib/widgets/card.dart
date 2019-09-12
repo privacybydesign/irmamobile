@@ -65,7 +65,10 @@ class _IrmaCardState extends State<IrmaCard>
                   ),
                   child: Text(
                     FlutterI18n.translate(context, 'card.personaldata'),
-                    style: Theme.of(context).textTheme.headline.copyWith(color: widget.issuer['color']),
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline
+                        .copyWith(color: widget.issuer['color']),
                   ),
                 ),
               ),
@@ -164,7 +167,10 @@ class _personalData extends StatelessWidget {
           children: [
             Container(
               child: Text(personal['key'],
-                  style: Theme.of(context).textTheme.body1.copyWith(color: issuer['color'])),
+                  style: Theme.of(context)
+                      .textTheme
+                      .body1
+                      .copyWith(color: issuer['color'])),
               width: indent,
             ),
             Text(
@@ -172,7 +178,8 @@ class _personalData extends StatelessWidget {
               style: Theme.of(context)
                   .textTheme
                   .body1
-                  .copyWith(fontWeight: FontWeight.w700).copyWith(color: issuer['color']),
+                  .copyWith(fontWeight: FontWeight.w700)
+                  .copyWith(color: issuer['color']),
             ),
           ],
         ),
@@ -186,7 +193,11 @@ class _personalData extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            child: Text('Uitgifte', style: Theme.of(context).textTheme.body1.copyWith(color: issuer['color'])),
+            child: Text('Uitgifte',
+                style: Theme.of(context)
+                    .textTheme
+                    .body1
+                    .copyWith(color: issuer['color'])),
             width: indent,
           ),
           Text(
@@ -194,7 +205,8 @@ class _personalData extends StatelessWidget {
             style: Theme.of(context)
                 .textTheme
                 .body1
-                .copyWith(fontWeight: FontWeight.w700).copyWith(color: issuer['color']),
+                .copyWith(fontWeight: FontWeight.w700)
+                .copyWith(color: issuer['color']),
           ),
         ],
       ),
@@ -207,7 +219,10 @@ class _personalData extends StatelessWidget {
           children: [
             Container(
               child: Text(personal['key'],
-                  style: Theme.of(context).textTheme.body1.copyWith(color: issuer['color'])),
+                  style: Theme.of(context)
+                      .textTheme
+                      .body1
+                      .copyWith(color: issuer['color'])),
               width: indent,
             ),
             Text(
@@ -215,7 +230,8 @@ class _personalData extends StatelessWidget {
               style: Theme.of(context)
                   .textTheme
                   .body1
-                  .copyWith(fontWeight: FontWeight.w700).copyWith(color: issuer['color']),
+                  .copyWith(fontWeight: FontWeight.w700)
+                  .copyWith(color: issuer['color']),
             ),
           ],
         ),
