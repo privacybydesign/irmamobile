@@ -7,6 +7,8 @@ import 'choose_pin.dart';
 import '../../home/index.dart';
 
 class Welcome extends StatelessWidget {
+  static const String routeName = 'enrollment/welcome';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

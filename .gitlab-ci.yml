@@ -1,0 +1,30 @@
+stages:
+  - lint
+  - test
+
+variables:
+  ANDROID_SDK_PACKAGES: "\"build-tools;28.0.3\" \"platforms;android-28\""
+  PACKAGE_NAME: github.com/privacybydesign/irmamobile
+
+image:
+  name: privacybydesign/android_golang_dep_mobile_flutter:latest
+
+before_script:
+  - mkdir -p "$GOPATH/src/$(dirname "$PACKAGE_NAME")"
+  - rm -f "$GOPATH/src/$PACKAGE_NAME"
+  - ln -s "$CI_PROJECT_DIR" "$GOPATH/src/$PACKAGE_NAME"
+  - cd "$GOPATH/src/$PACKAGE_NAME"
+
+cache:
+  paths:
+    - vendor/
+
+lint:dart:
+  script:
+    - flutter format --set-exit-if-changed lib/ test/
+  stage: lint
+
+test:flutter:
+  script:
+    - flutter test
+  stage: test

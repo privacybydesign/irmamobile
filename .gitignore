@@ -20,6 +20,9 @@
 *.iws
 .idea/
 
+# Local go build
+gobuild/
+
 # The .vscode folder contains launch configuration and tasks you configure in
 # VS Code which you may wish to be included in version control, so this line
 # is commented out by default.
@@ -33,6 +36,7 @@
 .pub-cache/
 .pub/
 /build/
+/coverage/
 
 # Project related
 android/irmagobridge/irmagobridge.aar
@@ -72,6 +76,7 @@ android/irmagobridge/irmagobridge-sources.jar
 **/ios/Flutter/flutter_assets/
 **/ios/ServiceDefinitions.json
 **/ios/Runner/GeneratedPluginRegistrant.*
+**/ios/Flutter/flutter_export_environment.sh
 
 # Exceptions to above rules.
 !**/ios/**/default.mode1v3

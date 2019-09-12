@@ -1,0 +1,17 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Real app",
+			"program": "lib/main.dart",
+			"request": "launch",
+			"type": "dart"
+		},
+		{
+			"name": "Prototypes",
+			"program": "lib/main_prototypes.dart",
+			"request": "launch",
+			"type": "dart"
+		}
+	]
+}
