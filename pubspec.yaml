@@ -57,22 +57,22 @@ flutter:
     fonts:
         - family: Karla
           fonts:
-              - asset: fonts/Karla-Regular.ttf
-              - asset: fonts/Karla-RegularItalic.ttf
+              - asset: fonts/karla/Karla-Regular.ttf
+              - asset: fonts/karla/Karla-RegularItalic.ttf
                 style: italic
-              - asset: fonts/Karla-Bold.ttf
+              - asset: fonts/karla/Karla-Bold.ttf
                 weight: 700
-              - asset: fonts/Karla-BoldItalic.ttf
+              - asset: fonts/karla/Karla-BoldItalic.ttf
                 style: italic
                 weight: 700
         - family: Montserrat
           fonts:
-              - asset: fonts/Montserrat-Medium.ttf
-              - asset: fonts/Montserrat-MediumItalic.ttf
+              - asset: fonts/montserrat/Montserrat-Medium.ttf
+              - asset: fonts/montserrat/Montserrat-MediumItalic.ttf
                 style: italic
-              - asset: fonts/Montserrat-Bold.ttf
+              - asset: fonts/montserrat/Montserrat-Bold.ttf
                 weight: 700
-              - asset: fonts/Montserrat-BoldItalic.ttf
+              - asset: fonts/montserrat/Montserrat-BoldItalic.ttf
                 style: italic
                 weight: 700
 
