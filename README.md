@@ -114,3 +114,4 @@ guideline:
 * Run `gomobile bind -target android -o android/irmagobridge/irmagobridge.aar github.com/privacybydesign/irmamobile/irmagobridge`.
 * Start an emulator or connect a device via USB and run the flutter project: `flutter run`. You can
   also use Android Studio or Visual Studio Code for this step.
+* Run `flutter run -t lib/main_prototypes.dart` to start the app in the prototypes menu.

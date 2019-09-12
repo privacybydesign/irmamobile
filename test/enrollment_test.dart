@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:irmamobile/main.dart';
+import 'package:irmamobile/app.dart';
 import 'package:irmamobile/screens/enrollment/enrollment.dart';
 import 'package:irmamobile/screens/enrollment/models/enrollment_bloc.dart';
 import 'package:irmamobile/screens/enrollment/models/enrollment_state.dart';
