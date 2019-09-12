@@ -70,23 +70,6 @@ class Welcome extends StatelessWidget {
                       context, 'enrollment.welcome.choose_pin_button'),
                   style: TextStyle(fontSize: 20)),
             ),
-            const SizedBox(height: 20),
-            FlatButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => IrmaHome()),
-                );
-              },
-              child: Text(
-                'Skip',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w400,
-                  decoration: TextDecoration.underline,
-                ),
-              ),
-            ),
           ])),
     );
   }
