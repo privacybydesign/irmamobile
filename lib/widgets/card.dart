@@ -65,11 +65,7 @@ class _IrmaCardState extends State<IrmaCard>
                   ),
                   child: Text(
                     FlutterI18n.translate(context, 'card.personaldata'),
-                    style: TextStyle(
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.w700,
-                      color: widget.issuer['color'],
-                    ),
+                    style: Style.heading1,
                   ),
                 ),
               ),
@@ -167,21 +163,12 @@ class _personalData extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              child: Text(personal['key'],
-                  style: TextStyle(
-                    fontSize: 14.0,
-                    fontWeight: FontWeight.w300,
-                    color: issuer['color'],
-                  )),
+              child: Text(personal['key'], style: Style.light),
               width: indent,
             ),
             Text(
               personal['value'],
-              style: TextStyle(
-                fontSize: 14.0,
-                fontWeight: FontWeight.w500,
-                color: issuer['color'],
-              ),
+              style: Style.bold,
             ),
           ],
         ),
@@ -195,21 +182,12 @@ class _personalData extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            child: Text('Uitgifte',
-                style: TextStyle(
-                  fontSize: 14.0,
-                  fontWeight: FontWeight.w300,
-                  color: issuer['color'],
-                )),
+            child: Text('Uitgifte', style: Style.light),
             width: indent,
           ),
           Text(
             issuer['name'],
-            style: TextStyle(
-              fontSize: 14.0,
-              fontWeight: FontWeight.w500,
-              color: issuer['color'],
-            ),
+            style: Style.bold,
           ),
         ],
       ),
@@ -221,21 +199,12 @@ class _personalData extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              child: Text(personal['key'],
-                  style: TextStyle(
-                    fontSize: 14.0,
-                    fontWeight: FontWeight.w300,
-                    color: issuer['color'],
-                  )),
+              child: Text(personal['key'], style: Style.light),
               width: indent,
             ),
             Text(
               personal['value'],
-              style: TextStyle(
-                fontSize: 14.0,
-                fontWeight: FontWeight.w500,
-                color: issuer['color'],
-              ),
+              style: Style.bold,
             ),
           ],
         ),
@@ -248,3 +217,22 @@ class _personalData extends StatelessWidget {
   }
 }
 
+class Style {
+  static const TextStyle heading1 = TextStyle(
+    fontSize: 18.0,
+    fontWeight: FontWeight.w700,
+    color: Colors.white,
+  );
+
+  static const TextStyle bold = TextStyle(
+    fontSize: 14.0,
+    fontWeight: FontWeight.w500,
+    color: Colors.white,
+  );
+
+  static const TextStyle light = TextStyle(
+    fontSize: 14.0,
+    fontWeight: FontWeight.w300,
+    color: Colors.white,
+  );
+}
