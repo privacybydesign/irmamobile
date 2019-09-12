@@ -3,9 +3,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 
+import 'cancel_button.dart';
 import 'choose_pin.dart';
+import 'welcome.dart';
 
 class Introduction extends StatefulWidget {
+  static const String routeName = 'enrollment/introduction';
+
   @override
   _IntroductionState createState() => _IntroductionState();
 }
@@ -25,12 +29,9 @@ class _IntroductionState extends State<Introduction> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            automaticallyImplyLeading: true,
-            title: Text('Wat is IRMA?'),
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: () => Navigator.pop(context, false),
-            )),
+          leading: CancelButton(routeName: Welcome.routeName),
+          title: Text('Wat is IRMA?'),
+        ),
         body: Stack(
           children: <Widget>[
             PageView(
@@ -38,17 +39,17 @@ class _IntroductionState extends State<Introduction> {
                 Walkthrougth(
                   imagePath: 'assets/enrollment/load_data.svg',
                   textContent: FlutterI18n.translate(
-                      context, 'enrollment.welcome.load_data'),
+                      context, 'enrollment.introduction.load_data'),
                 ),
                 Walkthrougth(
                   imagePath: 'assets/enrollment/use_irma_for_login.svg',
                   textContent: FlutterI18n.translate(
-                      context, 'enrollment.welcome.login'),
+                      context, 'enrollment.introduction.login'),
                 ),
                 Walkthrougth(
                   imagePath: 'assets/enrollment/use_irma_to_reveal_age.svg',
                   textContent: FlutterI18n.translate(
-                      context, 'enrollment.welcome.reveal'),
+                      context, 'enrollment.introduction.reveal'),
                 ),
               ],
               onPageChanged: (value) {
@@ -71,10 +72,7 @@ class _IntroductionState extends State<Introduction> {
                     padding: EdgeInsets.only(top: 10, bottom: 30),
                     child: RaisedButton(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => ChoosePin()),
-                        );
+                        Navigator.of(context).pushNamed(ChoosePin.routeName);
                       },
                       textColor: currentIndexPage == 2 ? Colors.white : null,
                       color: currentIndexPage == 2
