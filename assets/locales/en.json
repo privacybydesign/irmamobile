@@ -16,7 +16,15 @@
       "confirm_title": "Herhaal je pincode",
       "instruction": "Kies een pincode van minimaal 5 cijfers",
       "confirm_instruction": "Vul ter controle nogmaals je pincode in.",
-      "next": "Volgende"
+      "next": "Volgende",
+      "error": "De pincodes kwamen niet overeen, probeer het nog eens."
+    },
+    "provide_email": {
+      "title": "Voeg je e-mailadres toe",
+      "instruction": "Geef een e-mailadres op. Dan kun je bij verlies of diefstal van je telefoon, zorgen dat niemand jouw persoonlijke gegevens kan zien.",
+      "placeholder": "E-mailadres",
+      "next": "Volgende",
+      "error": "Het ingevulde e-mailadres is niet geldig."
     }
   }
 }
