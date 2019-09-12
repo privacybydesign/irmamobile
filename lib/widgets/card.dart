@@ -172,7 +172,7 @@ class _personalData extends StatelessWidget {
               style: Theme.of(context)
                   .textTheme
                   .body1
-                  .copyWith(fontWeight: FontWeight.w500).copyWith(color: issuer['color']),
+                  .copyWith(fontWeight: FontWeight.w700).copyWith(color: issuer['color']),
             ),
           ],
         ),
@@ -194,7 +194,7 @@ class _personalData extends StatelessWidget {
             style: Theme.of(context)
                 .textTheme
                 .body1
-                .copyWith(fontWeight: FontWeight.w500).copyWith(color: issuer['color']),
+                .copyWith(fontWeight: FontWeight.w700).copyWith(color: issuer['color']),
           ),
         ],
       ),
@@ -215,7 +215,7 @@ class _personalData extends StatelessWidget {
               style: Theme.of(context)
                   .textTheme
                   .body1
-                  .copyWith(fontWeight: FontWeight.w500).copyWith(color: issuer['color']),
+                  .copyWith(fontWeight: FontWeight.w700).copyWith(color: issuer['color']),
             ),
           ],
         ),
