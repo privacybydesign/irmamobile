@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../widgets/card.dart';
-import '../../data/issuers.dart';
+import 'package:irmamobile/widgets/card.dart';
+import 'package:irmamobile/data/issuers.dart';
 
 class IrmaHome extends StatefulWidget {
   IrmaHome() : super();

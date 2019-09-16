@@ -8,9 +8,9 @@ class Button extends StatefulWidget {
   Animation<double> animation;
   String svgFile;
   String accessibleName;
-  StreamSink sink;
+  StreamSink clickStreamSink;
 
-  Button(this.animation, this.svgFile, this.accessibleName, this.sink);
+  Button(this.animation, this.svgFile, this.accessibleName, this.clickStreamSink);
 
   @override
   _ButtonState createState() => _ButtonState();
@@ -39,7 +39,7 @@ class _ButtonState extends State<Button> with SingleTickerProviderStateMixin {
                   color: buttonPressedState ? Colors.grey[700] : Colors.white),
               padding: EdgeInsets.only(right: padding),
               onPressed: () {
-                widget.sink.add(true);
+                widget.clickStreamSink.add(true);
                 setState(() {
                   buttonPressedState = true;
                 });

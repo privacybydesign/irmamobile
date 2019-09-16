@@ -4,7 +4,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import 'introduction.dart';
 import 'choose_pin.dart';
-import '../../home/index.dart';
 
 class Welcome extends StatelessWidget {
   static const String routeName = 'enrollment/welcome';

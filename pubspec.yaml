@@ -14,26 +14,26 @@ description: IRMA Authentication
 version: 1.0.0+1
 
 environment:
-    sdk: ">=2.2.2 <3.0.0"
+  sdk: ">=2.2.2 <3.0.0"
 
 dependencies:
-    flutter:
-        sdk: flutter
+  flutter:
+    sdk: flutter
 
-    # The following adds the Cupertino Icons font to your application.
-    # Use with the CupertinoIcons class for iOS style icons.
-    cupertino_icons: ^0.1.2
-    dots_indicator: ^1.0.0
-    flutter_svg: ^0.14.0
-    flutter_i18n: ^0.6.4
-    bloc: ^0.15.0
-    flutter_bloc: ^0.21.0
-    equatable: ^0.2.0
-    email_validator: ^1.0.0
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^0.1.2
+  dots_indicator: ^1.0.0
+  flutter_svg: ^0.14.0
+  flutter_i18n: ^0.6.4
+  bloc: ^0.15.0
+  flutter_bloc: ^0.21.0
+  equatable: ^0.2.0
+  email_validator: ^1.0.0
 
 dev_dependencies:
-    flutter_test:
-        sdk: flutter
+  flutter_test:
+    sdk: flutter
 
 
 # For information on the generic Dart part of this file, see the
@@ -42,47 +42,47 @@ dev_dependencies:
 # The following section is specific to Flutter.
 flutter:
 
-    # The following line ensures that the Material Icons font is
-    # included with your application, so that you can use the icons in
-    # the material Icons class.
-    uses-material-design: true
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
 
-    # To add assets to your application, add an assets section, like this:
-    assets:
-        - assets/
-        - assets/locales/
-        - assets/enrollment/
-        - assets/icons/
-    
-    fonts:
-        - family: Karla
-          fonts:
-              - asset: fonts/karla/Karla-Regular.ttf
-              - asset: fonts/karla/Karla-RegularItalic.ttf
-                style: italic
-              - asset: fonts/karla/Karla-Bold.ttf
-                weight: 700
-              - asset: fonts/karla/Karla-BoldItalic.ttf
-                style: italic
-                weight: 700
-        - family: Montserrat
-          fonts:
-              - asset: fonts/montserrat/Montserrat-Medium.ttf
-              - asset: fonts/montserrat/Montserrat-MediumItalic.ttf
-                style: italic
-              - asset: fonts/montserrat/Montserrat-Bold.ttf
-                weight: 700
-              - asset: fonts/montserrat/Montserrat-BoldItalic.ttf
-                style: italic
-                weight: 700
+  # To add assets to your application, add an assets section, like this:
+  assets:
+    - assets/
+    - assets/locales/
+    - assets/enrollment/
+    - assets/icons/
 
-    # For details regarding fonts from package dependencies,
-    # see https://flutter.dev/custom-fonts/#from-packages
+  fonts:
+    - family: Karla
+      fonts:
+        - asset: fonts/karla/Karla-Regular.ttf
+        - asset: fonts/karla/Karla-RegularItalic.ttf
+          style: italic
+        - asset: fonts/karla/Karla-Bold.ttf
+          weight: 700
+        - asset: fonts/karla/Karla-BoldItalic.ttf
+          style: italic
+          weight: 700
+    - family: Montserrat
+      fonts:
+        - asset: fonts/montserrat/Montserrat-Medium.ttf
+        - asset: fonts/montserrat/Montserrat-MediumItalic.ttf
+          style: italic
+        - asset: fonts/montserrat/Montserrat-Bold.ttf
+          weight: 700
+        - asset: fonts/montserrat/Montserrat-BoldItalic.ttf
+          style: italic
+          weight: 700
 
-    # An image asset can refer to one or more resolution-specific "variants", see
-    # https://flutter.dev/assets-and-images/#resolution-aware.
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/custom-fonts/#from-packages
 
-    # For details regarding adding assets from package dependencies, see
-    # https://flutter.dev/assets-and-images/#from-packages
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/assets-and-images/#resolution-aware.
+
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/assets-and-images/#from-packages
 
 
