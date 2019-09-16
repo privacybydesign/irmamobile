@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import 'package:irmamobile/screens/home/index.dart';
+
 import 'introduction.dart';
 import 'choose_pin.dart';
 
@@ -68,6 +70,23 @@ class Welcome extends StatelessWidget {
                   FlutterI18n.translate(
                       context, 'enrollment.welcome.choose_pin_button'),
                   style: TextStyle(fontSize: 20)),
+            ),
+            const SizedBox(height: 20),
+            FlatButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => IrmaHome()),
+                );
+              },
+              child: Text(
+                'Skip',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w400,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
             ),
           ])),
     );
