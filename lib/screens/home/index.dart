@@ -12,9 +12,9 @@ class IrmaHome extends StatefulWidget {
 class _IrmaHomeState extends State<IrmaHome> {
   static const Map<String, List<Map<String, String>>> personalData = {
     'data': [
-      {'key': 'Naam', 'value': 'Anouk Meijer'},
-      {'key': 'Geboren', 'value': '4 juli 1990'},
-      {'key': 'E-mail', 'value': 'anouk.meijer@gmail.com'},
+      {'key': 'Naam', 'value': 'Anouk Meijer', 'hidden': 'true'},
+      {'key': 'Geboren', 'value': '4 juli 1990', 'hidden': 'true'},
+      {'key': 'E-mail', 'value': 'anouk.meijer@gmail.com', 'hidden': 'false'},
     ],
     'metadata': [
       {'key': 'Geldig tot', 'value': '18 november 2019'}

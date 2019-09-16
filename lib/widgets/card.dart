@@ -173,14 +173,42 @@ class _personalData extends StatelessWidget {
                       .copyWith(color: issuer['color'])),
               width: indent,
             ),
-            Text(
-              personal['value'],
-              style: Theme.of(context)
-                  .textTheme
-                  .body1
-                  .copyWith(fontWeight: FontWeight.w700)
-                  .copyWith(color: issuer['color']),
-            ),
+            personal['hidden'] == 'true'
+                ? Opacity(
+                    opacity: 0.6,
+                    child: Text(
+                      personal['value'],
+                      style: Theme.of(context)
+                          .textTheme
+                          .body1
+                          .copyWith(fontWeight: FontWeight.w700)
+                          .copyWith(color: Color(0x00ffffff))
+                          .copyWith(shadows: [
+                        Shadow(
+                          blurRadius: 8.0,
+                          color: issuer['color'],
+                        ),
+                        Shadow(
+                          blurRadius: 8.0,
+                          color: issuer['color'],
+                        ),
+                        Shadow(
+                          blurRadius: 20.0,
+                          color: issuer['color'],
+                        ),
+                        Shadow(
+                          blurRadius: 20.0,
+                          color: issuer['color'],
+                        ),
+                      ]),
+                    ),
+                  )
+                : Text(personal['value'],
+                    style: Theme.of(context)
+                        .textTheme
+                        .body1
+                        .copyWith(fontWeight: FontWeight.w700)
+                        .copyWith(color: issuer['color'])),
           ],
         ),
       );
