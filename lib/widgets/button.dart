@@ -10,7 +10,8 @@ class Button extends StatefulWidget {
   String accessibleName;
   StreamSink clickStreamSink;
 
-  Button(this.animation, this.svgFile, this.accessibleName, this.clickStreamSink);
+  Button(
+      this.animation, this.svgFile, this.accessibleName, this.clickStreamSink);
 
   @override
   _ButtonState createState() => _ButtonState();
