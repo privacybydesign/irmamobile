@@ -3,9 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n_delegate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:irmamobile/src/prototypes/prototypes_menu_page.dart';
-
-import 'screens/enrollment/enrollment.dart';
-import 'theme.dart';
+import 'package:irmamobile/src/screens/enrollment/enrollment.dart';
+import 'package:irmamobile/src/theme/theme.dart';
 
 class App extends StatelessWidget {
   final String initialRoute;
@@ -43,7 +42,7 @@ class App extends StatelessWidget {
         providers: providers,
         child: MaterialApp(
           title: 'IRMA',
-          theme: themeData,
+          theme: irmaTheme,
           localizationsDelegates: [
             FlutterI18nDelegate(
               fallbackFile: 'nl',

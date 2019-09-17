@@ -1,11 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/app.dart';
-import 'package:irmamobile/screens/enrollment/enrollment.dart';
-import 'package:irmamobile/screens/enrollment/models/enrollment_bloc.dart';
-import 'package:irmamobile/screens/enrollment/models/enrollment_state.dart';
-import 'package:irmamobile/screens/enrollment/widgets/provide_email.dart';
-import 'package:irmamobile/widgets/pin_field.dart';
+import 'package:irmamobile/src/screens/enrollment/enrollment.dart';
+import 'package:irmamobile/src/screens/enrollment/models/enrollment_bloc.dart';
+import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
+import 'package:irmamobile/src/screens/enrollment/widgets/provide_email.dart';
+import 'package:irmamobile/src/widgets/pin_field.dart';
 
 void main() {
   setUp(() {});

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:irmamobile/screens/enrollment/models/enrollment_bloc.dart';
-import 'package:irmamobile/screens/enrollment/models/enrollment_event.dart';
+import 'package:irmamobile/src/screens/enrollment/models/enrollment_bloc.dart';
+import 'package:irmamobile/src/screens/enrollment/models/enrollment_event.dart';
 
 class CancelButton extends StatelessWidget {
   final String routeName;
