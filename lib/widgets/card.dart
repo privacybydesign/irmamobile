@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 import 'button.dart';
+import 'blurtext.dart';
 
 class IrmaCard extends StatefulWidget {
   Map<String, List<Map<String, String>>> personalData;
@@ -173,42 +174,8 @@ class _personalData extends StatelessWidget {
                       .copyWith(color: issuer['color'])),
               width: indent,
             ),
-            personal['hidden'] == 'true'
-                ? Opacity(
-                    opacity: 0.6,
-                    child: Text(
-                      personal['value'],
-                      style: Theme.of(context)
-                          .textTheme
-                          .body1
-                          .copyWith(fontWeight: FontWeight.w700)
-                          .copyWith(color: Color(0x00ffffff))
-                          .copyWith(shadows: [
-                        Shadow(
-                          blurRadius: 8.0,
-                          color: issuer['color'],
-                        ),
-                        Shadow(
-                          blurRadius: 8.0,
-                          color: issuer['color'],
-                        ),
-                        Shadow(
-                          blurRadius: 20.0,
-                          color: issuer['color'],
-                        ),
-                        Shadow(
-                          blurRadius: 20.0,
-                          color: issuer['color'],
-                        ),
-                      ]),
-                    ),
-                  )
-                : Text(personal['value'],
-                    style: Theme.of(context)
-                        .textTheme
-                        .body1
-                        .copyWith(fontWeight: FontWeight.w700)
-                        .copyWith(color: issuer['color'])),
+            BlurText(personal['value'], issuer['color'],
+                personal['hidden'] == 'true' ? 0 : 1),
           ],
         ),
       );
@@ -271,3 +238,4 @@ class _personalData extends StatelessWidget {
     );
   }
 }
+
