@@ -35,7 +35,10 @@ void main() {
 
     await tester.enterText(find.byType(PinField), "87129");
     await tester.pumpAndSettle();
-    expect(find.text('Voeg je e-mailadres toe'), findsOneWidget);
+    expect(
+        find.text(
+            'Geef een e-mailadres op. Dan kun je bij verlies of diefstal van je telefoon, zorgen dat niemand jouw persoonlijke gegevens kan zien.'),
+        findsOneWidget);
   });
 
   testWidgets('Email input shows no warning when requesting email',
@@ -48,7 +51,10 @@ void main() {
     ]));
     await tester.pumpAndSettle();
 
-    expect(find.text('Voeg je e-mailadres toe'), findsOneWidget);
+    expect(
+        find.text(
+            'Geef een e-mailadres op. Dan kun je bij verlies of diefstal van je telefoon, zorgen dat niemand jouw persoonlijke gegevens kan zien.'),
+        findsOneWidget);
     expect(
         find.text('Het ingevulde e-mailadres is niet geldig.'), findsNothing);
   });
