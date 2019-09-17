@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/screens/enrollment/models/enrollment_bloc.dart';
-import 'package:irmamobile/screens/enrollment/models/enrollment_event.dart';
-import 'package:irmamobile/screens/enrollment/models/enrollment_state.dart';
-import 'package:irmamobile/screens/enrollment/widgets/welcome.dart';
-import 'package:irmamobile/widgets/error_message.dart';
-import 'package:irmamobile/widgets/pin_field.dart';
+import 'package:irmamobile/src/screens/enrollment/models/enrollment_bloc.dart';
+import 'package:irmamobile/src/screens/enrollment/models/enrollment_event.dart';
+import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
+import 'package:irmamobile/src/screens/enrollment/widgets/welcome.dart';
+import 'package:irmamobile/src/widgets/error_message.dart';
+import 'package:irmamobile/src/widgets/pin_field.dart';
 
 import 'cancel_button.dart';
 import 'confirm_pin.dart';

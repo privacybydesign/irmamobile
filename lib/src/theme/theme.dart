@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-ThemeData themeData = ThemeData(
+ThemeData irmaTheme = ThemeData(
   brightness: Brightness.light,
   primaryColor: Color(0xff004c92),
   accentColor: Color(0xffd44454),
