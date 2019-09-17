@@ -41,6 +41,7 @@ class _IrmaCardState extends State<IrmaCard>
 
   // State
   bool isUnfolded = false;
+  bool isBlurred = true;
 
   @override
   void initState() {
@@ -54,96 +55,109 @@ class _IrmaCardState extends State<IrmaCard>
   Widget build(BuildContext context) => AnimatedBuilder(
       animation: animation,
       builder: (buildContext, child) {
-        return Container(
-          child: Column(
-            children: <Widget>[
-              Container(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    top: padding,
-                    right: padding,
-                    bottom: headerBottom,
-                  ),
-                  child: Text(
-                    FlutterI18n.translate(context, 'card.personaldata'),
-                    style: Theme.of(context)
-                        .textTheme
-                        .headline
-                        .copyWith(color: widget.issuer['color']),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(padding),
-                  child: Opacity(
-                      opacity: _opacityTween.evaluate(animation),
-                      child: _personalData(widget.personalData, widget.issuer)),
-                ),
-              ),
-              Container(
-                child: Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Semantics(
-                        button: true,
-                        enabled: false,
-                        label: FlutterI18n.translate(
-                            context, 'accessibility.unfold'),
-                        child: Transform(
-                          origin: Offset(27, 24),
-                          transform: Matrix4.rotationZ(
-                            _rotateTween.evaluate(animation),
-                          ),
-                          child: IconButton(
-                            icon:
-                                SvgPicture.asset('assets/icons/arrow-down.svg'),
-                            padding: EdgeInsets.only(left: padding),
-                            alignment: Alignment.centerLeft,
-                            onPressed: () {
-                              if (isUnfolded) {
-                                controller.reverse();
-                              } else {
-                                controller.forward();
-                              }
-                              setState(() {
-                                isUnfolded = !isUnfolded;
-                              });
-                              widget.unfoldStream.sink.add(isUnfolded);
-                            },
-                          ),
-                        ),
+        return GestureDetector(
+            onTap: () {
+              if (isUnfolded) {
+                controller.reverse();
+              } else {
+                controller.forward();
+              }
+              setState(() {
+                isUnfolded = !isUnfolded;
+              });
+              widget.unfoldStream.sink.add(isUnfolded);
+            },
+            onLongPress: () {
+              setState(() {
+                isBlurred = false;
+              });
+            },
+            onLongPressUp: () {
+              setState(() {
+                isBlurred = true;
+              });
+            },
+            child: Container(
+              child: Column(
+                children: <Widget>[
+                  Container(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        top: padding,
+                        right: padding,
+                        bottom: headerBottom,
+                      ),
+                      child: Text(
+                        FlutterI18n.translate(context, 'card.personaldata'),
+                        style: Theme.of(context)
+                            .textTheme
+                            .headline
+                            .copyWith(color: widget.issuer['color']),
                       ),
                     ),
-                    Button(animation, 'assets/icons/update.svg',
-                        'accessibility.update', widget.updateStream.sink),
-                    Button(animation, 'assets/icons/remove.svg',
-                        'accessibility.remove', widget.removeStream.sink)
-                  ],
-                ),
-                height: 50,
-                decoration: BoxDecoration(
-                  color: transparentWhiteBackground,
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: borderRadius,
-                    bottomRight: borderRadius,
                   ),
-                ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(padding),
+                      child: Opacity(
+                          opacity: _opacityTween.evaluate(animation),
+                          child: _personalData(
+                              widget.personalData, widget.issuer, isBlurred ? 0 : 1)),
+                    ),
+                  ),
+                  Container(
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Semantics(
+                            button: true,
+                            enabled: false,
+                            label: FlutterI18n.translate(
+                                context, 'accessibility.unfold'),
+                            child: Transform(
+                              origin: Offset(27, 24),
+                              transform: Matrix4.rotationZ(
+                                _rotateTween.evaluate(animation),
+                              ),
+                              child: IconButton(
+                                icon: SvgPicture.asset(
+                                    'assets/icons/arrow-down.svg'),
+                                padding: EdgeInsets.only(left: padding),
+                                alignment: Alignment.centerLeft,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Button(animation, 'assets/icons/update.svg',
+                            'accessibility.update', widget.updateStream.sink),
+                        Button(animation, 'assets/icons/remove.svg',
+                            'accessibility.remove', widget.removeStream.sink)
+                      ],
+                    ),
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: transparentWhiteBackground,
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: borderRadius,
+                        bottomRight: borderRadius,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          height: _heightTween.evaluate(animation),
-          margin: const EdgeInsets.symmetric(horizontal: 20),
-          decoration: BoxDecoration(
-              color: widget.issuer['bg-color'],
-              borderRadius: BorderRadius.all(
-                borderRadius,
-              ),
-              image: DecorationImage(
-                  image: AssetImage("assets/issuers/${widget.issuer['bg']}"),
-                  fit: BoxFit.fitWidth,
-                  alignment: Alignment.topCenter)),
-        );
+              height: _heightTween.evaluate(animation),
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              decoration: BoxDecoration(
+                  color: widget.issuer['bg-color'],
+                  borderRadius: BorderRadius.all(
+                    borderRadius,
+                  ),
+                  image: DecorationImage(
+                      image:
+                          AssetImage("assets/issuers/${widget.issuer['bg']}"),
+                      fit: BoxFit.fitWidth,
+                      alignment: Alignment.topCenter)),
+            ));
       });
 }
 
@@ -153,8 +167,9 @@ class _personalData extends StatelessWidget {
 
   Map<String, List<Map<String, String>>> personalData;
   Map<String, Object> issuer; // Object is String | Color
+  double blur;
 
-  _personalData(this.personalData, this.issuer);
+  _personalData(this.personalData, this.issuer, this.blur);
 
   Widget build(BuildContext context) {
     List<Widget> textLines = <Widget>[
@@ -175,7 +190,7 @@ class _personalData extends StatelessWidget {
               width: indent,
             ),
             BlurText(personal['value'], issuer['color'],
-                personal['hidden'] == 'true' ? 0 : 1),
+                personal['hidden'] == 'true' ? 0 : 1, blur),
           ],
         ),
       );
@@ -238,4 +253,3 @@ class _personalData extends StatelessWidget {
     );
   }
 }
-

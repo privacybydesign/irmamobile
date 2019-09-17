@@ -5,11 +5,12 @@ class BlurText extends StatelessWidget {
   String text;
   Color color;
   double opacity;
+  double blur;
 
-  BlurText(this.text, this.color, this.opacity);
+  BlurText(this.text, this.color, this.opacity, this.blur);
 
   Widget build(BuildContext context) {
-    return opacity == 0
+    return opacity == 0 && blur == 0
         ? Opacity(
       opacity: 0.8,
       child: Text(
