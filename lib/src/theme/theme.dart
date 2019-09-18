@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 
+// TODO: I'd think this color should also be in the ThemeData, but it doesn't
+// seem to have support for arbitrary keys
+class IrmaTheme {
+  static final linkColor = Colors.blue;
+}
+
 ThemeData irmaTheme = ThemeData(
   brightness: Brightness.light,
   primaryColor: Color(0xff004c92),
