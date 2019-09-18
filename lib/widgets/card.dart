@@ -41,7 +41,7 @@ class _IrmaCardState extends State<IrmaCard>
 
   // State
   bool isUnfolded = false;
-  bool isBlurred = true;
+  bool isCardUnblurred = false;
 
   @override
   void initState() {
@@ -69,12 +69,12 @@ class _IrmaCardState extends State<IrmaCard>
             },
             onLongPress: () {
               setState(() {
-                isBlurred = false;
+                isCardUnblurred = true;
               });
             },
             onLongPressUp: () {
               setState(() {
-                isBlurred = true;
+                isCardUnblurred = false;
               });
             },
             child: Container(
@@ -101,8 +101,8 @@ class _IrmaCardState extends State<IrmaCard>
                       padding: const EdgeInsets.all(padding),
                       child: Opacity(
                           opacity: _opacityTween.evaluate(animation),
-                          child: _personalData(
-                              widget.personalData, widget.issuer, isBlurred ? 0 : 1)),
+                          child: _personalData(widget.personalData,
+                              widget.issuer, isCardUnblurred)),
                     ),
                   ),
                   Container(
@@ -167,9 +167,9 @@ class _personalData extends StatelessWidget {
 
   Map<String, List<Map<String, String>>> personalData;
   Map<String, Object> issuer; // Object is String | Color
-  double blur;
+  bool isCardUnblurred;
 
-  _personalData(this.personalData, this.issuer, this.blur);
+  _personalData(this.personalData, this.issuer, this.isCardUnblurred);
 
   Widget build(BuildContext context) {
     List<Widget> textLines = <Widget>[
@@ -190,7 +190,7 @@ class _personalData extends StatelessWidget {
               width: indent,
             ),
             BlurText(personal['value'], issuer['color'],
-                personal['hidden'] == 'true' ? 0 : 1, blur),
+                personal['hidden'] == 'true' && !isCardUnblurred),
           ],
         ),
       );
