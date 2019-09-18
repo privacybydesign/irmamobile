@@ -4,6 +4,7 @@ import 'package:flutter_i18n/flutter_i18n_delegate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:irmamobile/src/prototypes/prototypes_menu_page.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment.dart';
+import 'package:irmamobile/src/screens/home/home.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class App extends StatelessWidget {
@@ -16,7 +17,7 @@ class App extends StatelessWidget {
   App()
       : initialRoute = '/enrollment',
         routes = {
-          '/': (BuildContext context) => Text('Home'),
+          '/': (BuildContext context) => Home(),
           '/enrollment': (BuildContext context) => Enrollment(),
         },
         providers = [];
