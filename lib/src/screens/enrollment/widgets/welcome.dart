@@ -3,7 +3,6 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/choose_pin.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/introduction.dart';
-import 'package:irmamobile/src/screens/home/index.dart';
 
 class Welcome extends StatelessWidget {
   static const String routeName = 'enrollment/welcome';
