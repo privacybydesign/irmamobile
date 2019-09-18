@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/screens/enrollment/enrollment.dart';
+import 'package:irmamobile/src/screens/enrollment/enrollment.dart';
 
 void startSchermflow1(BuildContext context) {
   // TODO: Let this Enrollment screen act on mock data.

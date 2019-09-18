@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const Map<String, Map<String, Object>> issuers = {
+const Map<String, Map<String, Object>> mockIssuers = {
   "amsterdam": {
     "name": "Gemeente Amsterdam",
     "color": Colors.white,

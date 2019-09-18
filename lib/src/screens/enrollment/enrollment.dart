@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:irmamobile/screens/enrollment/models/enrollment_bloc.dart';
-import 'package:irmamobile/screens/enrollment/models/enrollment_state.dart';
-import 'package:irmamobile/screens/enrollment/widgets/welcome.dart';
-import 'package:irmamobile/screens/enrollment/widgets/introduction.dart';
-import 'package:irmamobile/screens/enrollment/widgets/choose_pin.dart';
-import 'package:irmamobile/screens/enrollment/widgets/confirm_pin.dart';
-import 'package:irmamobile/screens/enrollment/widgets/provide_email.dart';
+import 'package:irmamobile/src/screens/enrollment/models/enrollment_bloc.dart';
+import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
+import 'package:irmamobile/src/screens/enrollment/widgets/choose_pin.dart';
+import 'package:irmamobile/src/screens/enrollment/widgets/confirm_pin.dart';
+import 'package:irmamobile/src/screens/enrollment/widgets/introduction.dart';
+import 'package:irmamobile/src/screens/enrollment/widgets/provide_email.dart';
+import 'package:irmamobile/src/screens/enrollment/widgets/welcome.dart';
 
 class Enrollment extends StatelessWidget {
   @override

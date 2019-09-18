@@ -24,7 +24,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
   dots_indicator: ^1.0.0
-  flutter_svg: ^0.14.0
+  flutter_svg: ^0.14.1
   flutter_i18n: ^0.6.4
   bloc: ^0.15.0
   flutter_bloc: ^0.21.0

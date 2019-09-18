@@ -1,8 +1,9 @@
 import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:irmamobile/screens/enrollment/models/enrollment_event.dart';
-import 'package:irmamobile/screens/enrollment/models/enrollment_state.dart';
+import 'package:irmamobile/src/screens/enrollment/models/enrollment_event.dart';
+import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
 
 class EnrollmentBloc extends Bloc<EnrollmentEvent, EnrollmentState> {
   final EnrollmentState startingState;

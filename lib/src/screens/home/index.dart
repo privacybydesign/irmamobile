@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/widgets/card.dart';
-import 'package:irmamobile/data/issuers.dart';
+import 'package:irmamobile/src/mockdata/issuers.dart';
+import 'package:irmamobile/src/widgets/card.dart';
 
 class IrmaHome extends StatefulWidget {
   IrmaHome() : super();
@@ -21,7 +21,7 @@ class _IrmaHomeState extends State<IrmaHome> {
     ]
   };
 
-  IrmaCard irmaCard = IrmaCard(personalData, issuers["amsterdam"]);
+  IrmaCard irmaCard = IrmaCard(personalData, mockIssuers["amsterdam"]);
 
   @override
   void initState() {
