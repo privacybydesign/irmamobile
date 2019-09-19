@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/app.dart';
@@ -8,7 +11,10 @@ import 'package:irmamobile/src/screens/enrollment/widgets/provide_email.dart';
 import 'package:irmamobile/src/widgets/pin_field.dart';
 
 void main() {
-  setUp(() {});
+  setUp(() {
+    WidgetsBinding.instance.renderView.configuration =
+        new TestViewConfiguration(size: const Size(1200.0, 1980.0));
+  });
 
   testWidgets('Enrollment basic flow test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
