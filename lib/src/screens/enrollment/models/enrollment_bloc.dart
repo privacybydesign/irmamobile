@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_event.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
 
@@ -41,6 +42,16 @@ class EnrollmentBloc extends Bloc<Object, EnrollmentState> {
       yield currentState.copyWith(
         showEmailValidation: true,
       );
+
+      if (currentState.pinConfirmed && (currentState.email.trim() == "" || currentState.emailValid)) {
+        // TODO: get a future back and change the state based on it, which can
+        // be used by animation/outro?
+        IrmaRepository.get().enroll(
+          email: currentState.email.trim(),
+          pin: currentState.pin,
+          language: 'nl',
+        );
+      }
     }
   }
 }

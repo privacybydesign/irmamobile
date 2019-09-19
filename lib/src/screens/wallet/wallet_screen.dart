@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:irmamobile/src/models/credential.dart';
+import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/screens/wallet/models/wallet_bloc.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet_drawer.dart';
-import 'package:irmamobile/src/store/irma_client/irma_client_bloc.dart';
 import 'package:irmamobile/src/widgets/card.dart';
 
 class WalletScreen extends StatelessWidget {
   static final routeName = "/";
 
   Widget build(BuildContext context) {
-    IrmaClientBloc irmaClientBloc = BlocProvider.of<IrmaClientBloc>(context);
-    WalletBloc bloc = WalletBloc(irmaClientBloc: irmaClientBloc);
+    WalletBloc bloc = WalletBloc();
 
     return BlocProvider<WalletBloc>.value(value: bloc, child: _WalletScreen(bloc: bloc));
   }
@@ -41,12 +39,11 @@ class _WalletScreenState extends State<_WalletScreen> {
           )),
       body: StreamBuilder(
           stream: widget.bloc.credentials,
-          builder: (context, AsyncSnapshot<List<RichCredential>> snapshot) {
+          builder: (context, AsyncSnapshot<Credentials> snapshot) {
             if (snapshot.hasData) {
               return ListView(
-                  children: snapshot.data
-                      .map((credential) => IrmaCard(credential: credential, onRefresh: () => {}, onRemove: () => {}))
-                      .toList());
+                  children: snapshot.data.entries.map<Widget>(
+                      (entry) => IrmaCard(credential: entry.value, onRefresh: () => {}, onRemove: () => {})));
             } else
               return Center(child: Text('Loading...'));
           }),

@@ -1,13 +1,13 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'credential.dart';
+part of 'raw_credential.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-Credential _$CredentialFromJson(Map<String, dynamic> json) {
-  return Credential(
+RawCredential _$RawCredentialFromJson(Map<String, dynamic> json) {
+  return RawCredential(
     id: json['ID'] as String,
     issuerId: json['IssuerID'] as String,
     schemeManagerId: json['SchemeManagerID'] as String,
@@ -20,7 +20,7 @@ Credential _$CredentialFromJson(Map<String, dynamic> json) {
   );
 }
 
-Map<String, dynamic> _$CredentialToJson(Credential instance) => <String, dynamic>{
+Map<String, dynamic> _$RawCredentialToJson(RawCredential instance) => <String, dynamic>{
       'ID': instance.id,
       'IssuerID': instance.issuerId,
       'SchemeManagerID': instance.schemeManagerId,

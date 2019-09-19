@@ -4,14 +4,14 @@ import 'package:meta/meta.dart';
 
 @immutable
 class WalletState with EquatableMixin {
-  final List<RichCredential> credentials;
+  final List<Credential> credentials;
 
   WalletState({
     this.credentials,
   });
 
   WalletState copyWith({
-    List<RichCredential> credentials,
+    List<Credential> credentials,
   }) {
     return new WalletState(
       credentials: credentials ?? this.credentials,
