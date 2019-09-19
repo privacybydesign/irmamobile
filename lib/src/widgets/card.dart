@@ -41,7 +41,7 @@ class _IrmaCardState extends State<IrmaCard>
 
   // State
   bool isUnfolded = false;
-  bool isCardUnblurred = false;
+  bool isCardReadable = false;
 
   @override
   void initState() {
@@ -70,12 +70,12 @@ class _IrmaCardState extends State<IrmaCard>
             },
             onLongPress: () {
               setState(() {
-                isCardUnblurred = true;
+                isCardReadable = true;
               });
             },
             onLongPressUp: () {
               setState(() {
-                isCardUnblurred = false;
+                isCardReadable = false;
               });
             },
             child: Container(
@@ -103,7 +103,7 @@ class _IrmaCardState extends State<IrmaCard>
                       child: Opacity(
                           opacity: _opacityTween.evaluate(animation),
                           child: _personalData(widget.personalData,
-                              widget.issuer, isCardUnblurred)),
+                              widget.issuer, isCardReadable)),
                     ),
                   ),
                   Container(
