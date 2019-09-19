@@ -56,6 +56,7 @@ class _IrmaCardState extends State<IrmaCard>
       animation: animation,
       builder: (buildContext, child) {
         return GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () {
               if (isUnfolded) {
                 controller.reverse();
