@@ -68,16 +68,6 @@ class Welcome extends StatelessWidget {
                       context, 'enrollment.welcome.choose_pin_button'),
                   style: TextStyle(fontSize: 20)),
             ),
-            const SizedBox(height: 20),
-            RaisedButton(
-              color: Colors.white,
-              textColor: Colors.black,
-              onPressed: () {
-                Navigator.of(context, rootNavigator: true)
-                    .pushReplacementNamed('/');
-              },
-              child: Text('Not now', style: TextStyle(fontSize: 20)),
-            ),
           ])),
     );
   }
