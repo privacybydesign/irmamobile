@@ -24,9 +24,9 @@ const Map<String, Map<String, Object>> mockIssuers = {
 const Map<String, Map<String, List<Map<String, String>>>> mockCredentials = {
   'personalData': {
     'data': [
-      {'key': 'Naam', 'value': 'Anouk Meijer'},
-      {'key': 'Geboren', 'value': '4 juli 1990'},
-      {'key': 'E-mail', 'value': 'anouk.meijer@gmail.com'},
+      {'key': 'Naam', 'value': 'Anouk Meijer', 'hidden': 'true'},
+      {'key': 'Geboren', 'value': '4 juli 1990', 'hidden': 'true'},
+      {'key': 'E-mail', 'value': 'anouk.meijer@gmail.com', 'hidden': 'false'},
     ],
     'metadata': [
       {'key': 'Geldig tot', 'value': '18 november 2019'}
