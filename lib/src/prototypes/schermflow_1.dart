@@ -6,6 +6,5 @@ void startSchermflow1(BuildContext context) {
   //
   // TODO: Detect when Enrollment is done, then return from this navigation,
   // back to prototypes menu.
-  Navigator.of(context)
-      .push(MaterialPageRoute(builder: (context) => Enrollment()));
+  Navigator.of(context).push(MaterialPageRoute(builder: (context) => Enrollment()));
 }

@@ -10,8 +10,7 @@ class Button extends StatefulWidget {
   String accessibleName;
   StreamSink clickStreamSink;
 
-  Button(
-      this.animation, this.svgFile, this.accessibleName, this.clickStreamSink);
+  Button(this.animation, this.svgFile, this.accessibleName, this.clickStreamSink);
 
   @override
   _ButtonState createState() => _ButtonState();
@@ -36,8 +35,7 @@ class _ButtonState extends State<Button> with SingleTickerProviderStateMixin {
           child: Opacity(
             opacity: _opacityTween.evaluate(widget.animation),
             child: IconButton(
-              icon: SvgPicture.asset(widget.svgFile,
-                  color: buttonPressedState ? Colors.grey[700] : Colors.white),
+              icon: SvgPicture.asset(widget.svgFile, color: buttonPressedState ? Colors.grey[700] : Colors.white),
               padding: EdgeInsets.only(right: padding),
               onPressed: () {
                 widget.clickStreamSink.add(true);

@@ -86,8 +86,7 @@ class _PinFieldState extends State<PinField> {
 
   @override
   Widget build(BuildContext context) {
-    final int len =
-        min(widget.maxLength, max(value.length + 1, widget.minLength));
+    final int len = min(widget.maxLength, max(value.length + 1, widget.minLength));
     final boxes = List<Widget>(len);
 
     for (int i = 0; i < len; i++) {
@@ -127,9 +126,7 @@ class _PinFieldState extends State<PinField> {
           focusNode: focusNode,
           onEditingComplete: () {
             final val = controller.text;
-            if (val.length >= widget.minLength &&
-                val.length <= widget.maxLength &&
-                widget.onSubmit != null) {
+            if (val.length >= widget.minLength && val.length <= widget.maxLength && widget.onSubmit != null) {
               widget.onSubmit(val);
             }
           },
@@ -137,8 +134,7 @@ class _PinFieldState extends State<PinField> {
             WhitelistingTextInputFormatter(RegExp('[0-9]')),
           ],
           autofocus: true,
-          keyboardType:
-              TextInputType.numberWithOptions(signed: false, decimal: false),
+          keyboardType: TextInputType.numberWithOptions(signed: false, decimal: false),
           obscureText: true,
           style: TextStyle(
             height: 0.1,
@@ -164,39 +160,35 @@ class _PinFieldState extends State<PinField> {
           maxLength: widget.maxLength,
         ),
       ),
-      Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const SizedBox(width: 48, height: 48),
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () {
-                FocusScope.of(context).requestFocus(FocusNode());
-                Future.delayed(Duration(milliseconds: 100), () {
-                  FocusScope.of(context).requestFocus(focusNode);
-                });
-              },
-              child: Container(
-                constraints: BoxConstraints(
-                    maxWidth: MediaQuery.of(context).size.width - 80),
-                child: Wrap(children: boxes),
-              ),
-            ),
-            IconButton(
-              iconSize: 20,
-              padding: EdgeInsets.all(5.0),
-              icon: Icon(
-                obscureText ? Icons.visibility : Icons.visibility_off,
-                color: Theme.of(context).primaryColorDark,
-              ),
-              onPressed: () {
-                setState(() {
-                  obscureText = !obscureText;
-                });
-              },
-            ),
-          ]),
+      Row(mainAxisSize: MainAxisSize.max, mainAxisAlignment: MainAxisAlignment.center, children: [
+        const SizedBox(width: 48, height: 48),
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            FocusScope.of(context).requestFocus(FocusNode());
+            Future.delayed(Duration(milliseconds: 100), () {
+              FocusScope.of(context).requestFocus(focusNode);
+            });
+          },
+          child: Container(
+            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 80),
+            child: Wrap(children: boxes),
+          ),
+        ),
+        IconButton(
+          iconSize: 20,
+          padding: EdgeInsets.all(5.0),
+          icon: Icon(
+            obscureText ? Icons.visibility : Icons.visibility_off,
+            color: Theme.of(context).primaryColorDark,
+          ),
+          onPressed: () {
+            setState(() {
+              obscureText = !obscureText;
+            });
+          },
+        ),
+      ]),
     ]);
   }
 }

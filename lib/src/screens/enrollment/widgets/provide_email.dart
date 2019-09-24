@@ -14,17 +14,14 @@ class ProvideEmail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final EnrollmentBloc enrollmentBloc =
-        BlocProvider.of<EnrollmentBloc>(context);
+    final EnrollmentBloc enrollmentBloc = BlocProvider.of<EnrollmentBloc>(context);
 
     return Scaffold(
         appBar: AppBar(
           leading: CancelButton(routeName: ChoosePin.routeName),
-          title: Text(
-              FlutterI18n.translate(context, 'enrollment.provide_email.title')),
+          title: Text(FlutterI18n.translate(context, 'enrollment.provide_email.title')),
         ),
-        body: BlocBuilder<EnrollmentBloc, EnrollmentState>(
-            builder: (context, state) {
+        body: BlocBuilder<EnrollmentBloc, EnrollmentState>(builder: (context, state) {
           return SingleChildScrollView(
               child: Padding(
                   padding: EdgeInsets.all(20),
@@ -34,18 +31,15 @@ class ProvideEmail extends StatelessWidget {
                       const SizedBox(height: 20)
                     ],
                     Text(
-                      FlutterI18n.translate(
-                          context, 'enrollment.provide_email.instruction'),
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.w300),
+                      FlutterI18n.translate(context, 'enrollment.provide_email.instruction'),
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w300),
                       textAlign: TextAlign.left,
                     ),
                     const SizedBox(height: 20),
                     TextField(
                       autofocus: true,
                       decoration: InputDecoration(
-                          hintText: FlutterI18n.translate(
-                              context, 'enrollment.provide_email.placeholder')),
+                          hintText: FlutterI18n.translate(context, 'enrollment.provide_email.placeholder')),
                       keyboardType: TextInputType.emailAddress,
                       onChanged: (String email) {
                         enrollmentBloc.dispatch(EmailChanged(email: email));
@@ -61,9 +55,7 @@ class ProvideEmail extends StatelessWidget {
                       onPressed: () {
                         enrollmentBloc.dispatch(EmailSubmitted());
                       },
-                      child: Text(
-                          FlutterI18n.translate(
-                              context, 'enrollment.provide_email.next'),
+                      child: Text(FlutterI18n.translate(context, 'enrollment.provide_email.next'),
                           style: TextStyle(fontSize: 20)),
                     ),
                   ])));

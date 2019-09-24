@@ -16,24 +16,21 @@ class _SettingsState extends State<Settings> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:
-          AppBar(title: Text(FlutterI18n.translate(context, 'settings.title'))),
+      appBar: AppBar(title: Text(FlutterI18n.translate(context, 'settings.title'))),
       //drawer: NavigationDrawer(),
       body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12),
         color: Theme.of(context).canvasColor,
         child: ListView(children: <Widget>[
-          SettingsHeader(
-              headerText:
-                  FlutterI18n.translate(context, 'settings.pin.header')),
+          SettingsHeader(headerText: FlutterI18n.translate(context, 'settings.pin.header')),
           SwitchListTile(
             onChanged: (bool value) {
               setState(() {
                 _longPin = value;
               });
             },
-            title: Text(FlutterI18n.translate(context, 'settings.pin.header'),
-                style: Theme.of(context).textTheme.body1),
+            title:
+                Text(FlutterI18n.translate(context, 'settings.pin.header'), style: Theme.of(context).textTheme.body1),
             value: _longPin,
             subtitle: Text(
               FlutterI18n.translate(context, 'settings.pin.long_pin'),
@@ -50,9 +47,7 @@ class _SettingsState extends State<Settings> {
             trailing: Icon(Icons.keyboard_arrow_right),
           ),
           Divider(),
-          SettingsHeader(
-              headerText:
-                  FlutterI18n.translate(context, 'settings.behavior.header')),
+          SettingsHeader(headerText: FlutterI18n.translate(context, 'settings.behavior.header')),
           SwitchListTile(
             title: Text(
               FlutterI18n.translate(context, 'settings.behavior.start_qr'),
@@ -79,8 +74,7 @@ class _SettingsState extends State<Settings> {
           ),
           Divider(),
           SettingsHeader(
-            headerText:
-                FlutterI18n.translate(context, 'settings.advanced.header'),
+            headerText: FlutterI18n.translate(context, 'settings.advanced.header'),
           ),
           ListTile(
             title: Text(
@@ -88,8 +82,7 @@ class _SettingsState extends State<Settings> {
               style: Theme.of(context).textTheme.body1,
             ),
             subtitle: Text(
-              FlutterI18n.translate(
-                  context, 'settings.advanced.delete_details'),
+              FlutterI18n.translate(context, 'settings.advanced.delete_details'),
               style: TextStyle(
                 fontSize: 15.0,
               ),

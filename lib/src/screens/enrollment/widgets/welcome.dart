@@ -44,8 +44,7 @@ class Welcome extends StatelessWidget {
                 );
               },
               child: Text(
-                FlutterI18n.translate(
-                    context, 'enrollment.welcome.intro_button'),
+                FlutterI18n.translate(context, 'enrollment.welcome.intro_button'),
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w400,
@@ -63,9 +62,7 @@ class Welcome extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => ChoosePin()),
                 );
               },
-              child: Text(
-                  FlutterI18n.translate(
-                      context, 'enrollment.welcome.choose_pin_button'),
+              child: Text(FlutterI18n.translate(context, 'enrollment.welcome.choose_pin_button'),
                   style: TextStyle(fontSize: 20)),
             ),
             const SizedBox(height: 20),
@@ -73,8 +70,7 @@ class Welcome extends StatelessWidget {
               color: Colors.white,
               textColor: Colors.black,
               onPressed: () {
-                Navigator.of(context, rootNavigator: true)
-                    .pushReplacementNamed('/');
+                Navigator.of(context, rootNavigator: true).pushReplacementNamed('/');
               },
               child: Text('Not now', style: TextStyle(fontSize: 20)),
             ),

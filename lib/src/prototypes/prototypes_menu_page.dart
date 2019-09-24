@@ -28,8 +28,7 @@ class PrototypesMenuPage extends StatelessWidget {
                   "Schermflows",
                   style: Theme.of(context).textTheme.display1,
                 ),
-                Text("op basis van UX designs",
-                    style: Theme.of(context).textTheme.subhead),
+                Text("op basis van UX designs", style: Theme.of(context).textTheme.subhead),
               ],
             ),
           ),
@@ -43,28 +42,21 @@ class PrototypesMenuPage extends StatelessWidget {
           _buildListItem(context, "5. Gegevens toevoegen", null),
           _buildListItem(context, "6. Meerdere gegevenskaarten", null),
           _buildListItem(context, "7. Vrijgeven leeftijd 18+", null),
-          _buildListItem(
-              context, "8. Vrijgeven leeftijd 18+ & contactgegevens", null),
+          _buildListItem(context, "8. Vrijgeven leeftijd 18+ & contactgegevens", null),
           _buildListItem(context, "9. Stemmen Weesperstraat", null),
-          _buildListItem(
-              context, "10. Vrijgeven met eerst kaart ophalen", null),
+          _buildListItem(context, "10. Vrijgeven met eerst kaart ophalen", null),
           _buildListItem(context, "11. Pincode resetten", null),
           _buildListItem(context, "12. Gegevens bijna niet meer geldig", null),
           _buildListItem(context, "13. Gegevens verouders", null),
           _buildListItem(context, "14. eID kaart toevoegen vanuit IRMA", null),
           _buildListItem(context, "15. eID kaart delen met IRMA", null),
-          _buildListItem(
-              context, "16. Uitvraag samenstellen door politie", null),
-          _buildListItem(
-              context, "17. Leeftijd 18+ bewijzen via QR-code", null),
+          _buildListItem(context, "16. Uitvraag samenstellen door politie", null),
+          _buildListItem(context, "17. Leeftijd 18+ bewijzen via QR-code", null),
           _buildListItem(context, "18. Bevoegdheid politie opvragen", null),
           _buildListItem(context, "19. Rijbewijs toevoegen met ID", null),
-          _buildListItem(
-              context, "20. Rijvaardigheid bewijzen via NFC & FaceID", null),
-          _buildListItem(
-              context, "21. Leeftijd 21+ bewijzen via NFC & FraceID", null),
-          _buildListItem(
-              context, "22. Leeftijd 21+ bewijzen via NFC & Pincode", null),
+          _buildListItem(context, "20. Rijvaardigheid bewijzen via NFC & FaceID", null),
+          _buildListItem(context, "21. Leeftijd 21+ bewijzen via NFC & FraceID", null),
+          _buildListItem(context, "22. Leeftijd 21+ bewijzen via NFC & Pincode", null),
           _buildListItem(context, "23. ID en rijbewijs landscape", null),
           SizedBox(height: 12),
           Padding(
@@ -86,8 +78,7 @@ class PrototypesMenuPage extends StatelessWidget {
     );
   }
 
-  Widget _buildListItem(
-      BuildContext context, String name, void Function() onTap) {
+  Widget _buildListItem(BuildContext context, String name, void Function() onTap) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -104,8 +95,7 @@ class PrototypesMenuPage extends StatelessWidget {
           ),
           onTap: () {
             if (onTap == null) {
-              Scaffold.of(context).showSnackBar(
-                  new SnackBar(content: new Text("Not implemented yet.")));
+              Scaffold.of(context).showSnackBar(new SnackBar(content: new Text("Not implemented yet.")));
               return;
             }
             onTap();

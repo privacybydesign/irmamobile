@@ -17,9 +17,7 @@ class Home extends StatelessWidget {
             icon: Icon(Icons.menu),
             onPressed: () => _scaffoldKey.currentState.openDrawer(),
           )),
-      body: Center(
-          child: IrmaCard(
-              mockCredentials["personalData"], mockIssuers["amsterdam"])),
+      body: Center(child: IrmaCard(mockCredentials["personalData"], mockIssuers["amsterdam"])),
       drawer: HomeDrawer(),
     );
   }

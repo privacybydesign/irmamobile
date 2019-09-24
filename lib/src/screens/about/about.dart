@@ -11,8 +11,7 @@ class About extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:
-          AppBar(title: Text(FlutterI18n.translate(context, 'about.title'))),
+      appBar: AppBar(title: Text(FlutterI18n.translate(context, 'about.title'))),
       // drawer: NavigationDrawer(),
       body: Container(
         padding: const EdgeInsets.all(32.0),
@@ -26,8 +25,7 @@ class About extends StatelessWidget {
                   width: 180.0,
                   height: 150.0,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 16.0, horizontal: 24.0),
+                    padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
                     child: SvgPicture.asset('assets/non-free/irma_logo.svg'),
                   ),
                 ),
@@ -63,13 +61,11 @@ class About extends StatelessWidget {
                   onTap: () {
                     try {
                       launch(
-                        FlutterI18n.translate(
-                            context, 'about.privacy_policy_link'),
+                        FlutterI18n.translate(context, 'about.privacy_policy_link'),
                       );
                     } on PlatformException catch (e) {
                       print(e.toString());
-                      print(
-                          "error on launch of url - probably bad certificate?");
+                      print("error on launch of url - probably bad certificate?");
                     }
                   }),
               SizedBox(
@@ -104,13 +100,11 @@ class About extends StatelessWidget {
                   onTap: () {
                     try {
                       launch(
-                        FlutterI18n.translate(
-                            context, 'about.pbdf_website_link'),
+                        FlutterI18n.translate(context, 'about.pbdf_website_link'),
                       );
                     } on PlatformException catch (e) {
                       print(e.toString());
-                      print(
-                          "error on launch of url - probably bad certificate?");
+                      print("error on launch of url - probably bad certificate?");
                     }
                   }),
               SizedBox(
