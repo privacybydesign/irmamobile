@@ -3,6 +3,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter/services.dart';
 import 'dart:math';
 
+import 'package:irmamobile/src/theme/theme.dart';
+
 class PinField extends StatefulWidget {
   final bool autofocus;
   final bool autosubmit;
@@ -97,17 +99,16 @@ class _PinFieldState extends State<PinField> {
       }
 
       boxes[i] = Container(
-        margin: const EdgeInsets.all(5.0),
-        padding: const EdgeInsets.all(5.0),
-        width: 40.0,
-        height: 40.0,
+        margin: EdgeInsets.all(IrmaTheme.spacing / 2),
+        width: IrmaTheme.spacing * 2,
+        height: IrmaTheme.spacing * 2,
         alignment: Alignment.center,
         decoration: new BoxDecoration(
           border: new Border.all(color: Colors.black),
-          borderRadius: BorderRadius.all(Radius.circular(20)),
-          color: char == ' ' ? Colors.black : Colors.white,
+          borderRadius: BorderRadius.all(Radius.circular(IrmaTheme.spacing)),
+          color: char == ' ' ? Colors.black : Colors.transparent,
         ),
-        child: new Text(char, style: TextStyle(fontSize: 20)),
+        child: new Text(char, style: Theme.of(context).textTheme.body2),
       );
     }
 
@@ -161,7 +162,7 @@ class _PinFieldState extends State<PinField> {
         ),
       ),
       Row(mainAxisSize: MainAxisSize.max, mainAxisAlignment: MainAxisAlignment.center, children: [
-        const SizedBox(width: 48, height: 48),
+        SizedBox(width: IrmaTheme.spacing * 2, height: IrmaTheme.spacing * 2),
         GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () {
@@ -175,19 +176,22 @@ class _PinFieldState extends State<PinField> {
             child: Wrap(children: boxes),
           ),
         ),
-        IconButton(
-          iconSize: 20,
-          padding: EdgeInsets.all(5.0),
-          icon: Icon(
-            obscureText ? Icons.visibility : Icons.visibility_off,
-            color: Theme.of(context).primaryColorDark,
+        SizedBox(
+          width: IrmaTheme.spacing * 2,
+          height: IrmaTheme.spacing * 2,
+          child: IconButton(
+            iconSize: IrmaTheme.spacing,
+            icon: Icon(
+              obscureText ? Icons.visibility : Icons.visibility_off,
+              color: Theme.of(context).primaryColorDark,
+            ),
+            onPressed: () {
+              setState(() {
+                obscureText = !obscureText;
+              });
+            },
           ),
-          onPressed: () {
-            setState(() {
-              obscureText = !obscureText;
-            });
-          },
-        ),
+        )
       ]),
     ]);
   }

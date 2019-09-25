@@ -5,6 +5,7 @@ import 'package:irmamobile/src/screens/enrollment/models/enrollment_bloc.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_event.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/cancel_button.dart';
+import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/error_message.dart';
 
 import 'choose_pin.dart';
@@ -24,18 +25,18 @@ class ProvideEmail extends StatelessWidget {
         body: BlocBuilder<EnrollmentBloc, EnrollmentState>(builder: (context, state) {
           return SingleChildScrollView(
               child: Padding(
-                  padding: EdgeInsets.all(20),
+                  padding: EdgeInsets.all(IrmaTheme.spacing * 2),
                   child: Column(children: [
                     if (state.emailValidated == false) ...[
                       ErrorMessage(message: 'enrollment.provide_email.error'),
-                      const SizedBox(height: 20)
+                      SizedBox(height: IrmaTheme.spacing)
                     ],
                     Text(
                       FlutterI18n.translate(context, 'enrollment.provide_email.instruction'),
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w300),
+                      style: Theme.of(context).textTheme.body1,
                       textAlign: TextAlign.left,
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: IrmaTheme.spacing),
                     TextField(
                       autofocus: true,
                       decoration: InputDecoration(
@@ -48,15 +49,14 @@ class ProvideEmail extends StatelessWidget {
                         enrollmentBloc.dispatch(EmailSubmitted());
                       },
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: IrmaTheme.spacing),
                     RaisedButton(
                       color: Theme.of(context).primaryColor,
-                      textColor: Colors.white,
                       onPressed: () {
                         enrollmentBloc.dispatch(EmailSubmitted());
                       },
                       child: Text(FlutterI18n.translate(context, 'enrollment.provide_email.next'),
-                          style: TextStyle(fontSize: 20)),
+                          style: Theme.of(context).textTheme.button.copyWith(color: Colors.white)),
                     ),
                   ])));
         }));

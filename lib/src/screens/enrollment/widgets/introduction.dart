@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:dots_indicator/dots_indicator.dart';
+import 'package:irmamobile/src/theme/theme.dart';
 
 import 'cancel_button.dart';
 import 'choose_pin.dart';
@@ -30,7 +31,7 @@ class _IntroductionState extends State<Introduction> {
     return Scaffold(
         appBar: AppBar(
           leading: CancelButton(routeName: Welcome.routeName),
-          title: Text('Wat is IRMA?'),
+          title: Text(FlutterI18n.translate(context, 'enrollment.introduction.title')),
         ),
         body: Stack(
           children: <Widget>[
@@ -65,15 +66,15 @@ class _IntroductionState extends State<Introduction> {
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.only(top: 10, bottom: 30),
+                    padding: EdgeInsets.only(top: IrmaTheme.spacing, bottom: IrmaTheme.spacing * 2),
                     child: RaisedButton(
                       onPressed: () {
                         Navigator.of(context).pushNamed(ChoosePin.routeName);
                       },
                       textColor: currentIndexPage == 2 ? Colors.white : null,
-                      color: currentIndexPage == 2 ? Theme.of(context).primaryColor : null,
+                      color: currentIndexPage == 2 ? Theme.of(context).primaryColor : Theme.of(context).disabledColor,
                       child: Text(FlutterI18n.translate(context, 'enrollment.welcome.choose_pin_button'),
-                          style: TextStyle(fontSize: 20)),
+                          style: Theme.of(context).textTheme.button),
                     ),
                   )
                 ]))
@@ -95,15 +96,15 @@ class Walkthrougth extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(children: <Widget>[
-      const SizedBox(height: 20),
+      SizedBox(height: IrmaTheme.spacing),
       SvgPicture.asset(imagePath),
-      const SizedBox(height: 20),
+      SizedBox(height: IrmaTheme.spacing),
       Container(
         alignment: Alignment.center,
-        constraints: BoxConstraints(maxWidth: 280),
+        constraints: BoxConstraints(maxWidth: IrmaTheme.spacing * 18),
         child: Text(
           textContent,
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w300),
+          style: Theme.of(context).textTheme.body1,
           textAlign: TextAlign.center,
         ),
       )

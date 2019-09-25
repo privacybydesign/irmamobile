@@ -5,6 +5,7 @@ import 'package:irmamobile/src/screens/enrollment/models/enrollment_bloc.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_event.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/welcome.dart';
+import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/error_message.dart';
 import 'package:irmamobile/src/widgets/pin_field.dart';
 
@@ -26,39 +27,24 @@ class ChoosePin extends StatelessWidget {
         body: BlocBuilder<EnrollmentBloc, EnrollmentState>(builder: (context, state) {
           return SingleChildScrollView(
             child: Padding(
-                padding: EdgeInsets.all(20),
+                padding: EdgeInsets.only(top: IrmaTheme.spacing * 2),
                 child: Column(children: [
                   if (state.pinConfirmed == false) ...[
                     ErrorMessage(message: 'enrollment.choose_pin.error'),
-                    const SizedBox(height: 20)
+                    SizedBox(height: IrmaTheme.spacing)
                   ],
                   Text(
                     FlutterI18n.translate(context, 'enrollment.choose_pin.instruction'),
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w300),
+                    style: Theme.of(context).textTheme.body1,
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: IrmaTheme.spacing),
                   PinField(
                       maxLength: 5,
-                      autosubmit: false,
-                      autoclear: false,
                       onSubmit: (String pin) {
-                        Navigator.of(context).pushReplacementNamed(ConfirmPin.routeName);
-                      },
-                      onFull: (String pin) {
                         enrollmentBloc.dispatch(PinChosen(pin: pin));
-                      }),
-                  const SizedBox(height: 20),
-                  if (state.pin != null)
-                    RaisedButton(
-                      color: Theme.of(context).primaryColor,
-                      textColor: Colors.white,
-                      onPressed: () {
                         Navigator.of(context).pushReplacementNamed(ConfirmPin.routeName);
-                      },
-                      child: Text(FlutterI18n.translate(context, 'enrollment.choose_pin.next'),
-                          style: TextStyle(fontSize: 20)),
-                    )
+                      })
                 ])),
           );
         }));

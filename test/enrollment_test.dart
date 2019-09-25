@@ -31,10 +31,7 @@ void main() {
     expect(find.text('Kies een pincode van minimaal 5 cijfers'), findsOneWidget);
     await tester.enterText(find.byType(PinField), "87129");
     await tester.pumpAndSettle();
-    expect(find.text('Volgende'), findsOneWidget);
 
-    await tester.tap(find.text('Volgende'));
-    await tester.pumpAndSettle();
     expect(find.text('Herhaal je pincode'), findsOneWidget);
 
     await tester.enterText(find.byType(PinField), "87129");
