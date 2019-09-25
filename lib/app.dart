@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n_delegate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:irmamobile/src/prototypes/prototypes_menu_page.dart';
-import 'package:irmamobile/src/screens/about/about.dart';
-import 'package:irmamobile/src/screens/enrollment/enrollment.dart';
-import 'package:irmamobile/src/screens/home/home.dart';
-import 'package:irmamobile/src/screens/settings/settings.dart';
+import 'package:irmamobile/src/prototypes/prototypes_screen.dart';
+import 'package:irmamobile/src/screens/about/about_screen.dart';
+import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
+import 'package:irmamobile/src/screens/home/home_screen.dart';
+import 'package:irmamobile/src/screens/settings/settings_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class App extends StatelessWidget {
@@ -17,19 +17,19 @@ class App extends StatelessWidget {
   final List<BlocProvider> providers;
 
   App()
-      : initialRoute = '/enrollment',
+      : initialRoute = EnrollmentScreen.routeName,
         routes = {
-          '/': (BuildContext context) => Home(),
-          '/enrollment': (BuildContext context) => Enrollment(),
-          '/about': (BuildContext context) => About(),
-          '/settings': (BuildContext context) => Settings(),
+          HomeScreen.routeName: (BuildContext context) => HomeScreen(),
+          EnrollmentScreen.routeName: (BuildContext context) => EnrollmentScreen(),
+          AboutScreen.routeName: (BuildContext context) => AboutScreen(),
+          SettingsScreen.routeName: (BuildContext context) => SettingsScreen(),
         },
         providers = [];
 
   App.prototypes()
-      : initialRoute = '/',
+      : initialRoute = PrototypesScreen.routeName,
         routes = {
-          '/': (BuildContext context) => PrototypesMenuPage(),
+          PrototypesScreen.routeName: (BuildContext context) => PrototypesScreen(),
         },
         providers = [];
 
