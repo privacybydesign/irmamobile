@@ -5,6 +5,7 @@ import 'package:irmamobile/src/screens/enrollment/models/enrollment_bloc.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_event.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/cancel_button.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/choose_pin.dart';
+import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/pin_field.dart';
 
 class ConfirmPin extends StatelessWidget {
@@ -21,14 +22,14 @@ class ConfirmPin extends StatelessWidget {
         ),
         body: SingleChildScrollView(
           child: Padding(
-              padding: EdgeInsets.all(20),
+              padding: EdgeInsets.only(top: IrmaTheme.spacing * 2),
               child: Column(children: [
                 Text(
                   FlutterI18n.translate(context, 'enrollment.choose_pin.confirm_instruction'),
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w300),
+                  style: Theme.of(context).textTheme.body1,
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: IrmaTheme.spacing),
                 PinField(
                   maxLength: 5,
                   onSubmit: (String pin) {

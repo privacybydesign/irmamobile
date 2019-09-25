@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 // seem to have support for arbitrary keys
 class IrmaTheme {
   static final linkColor = Colors.blue;
+
+  static final spacing = 16.0;
 }
 
 ThemeData irmaTheme = ThemeData(
