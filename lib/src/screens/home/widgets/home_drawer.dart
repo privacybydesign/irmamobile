@@ -24,23 +24,13 @@ class HomeDrawer extends StatelessWidget {
         children: <Widget>[
           DrawerHeader(
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
+              padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
               child: SvgPicture.asset('assets/non-free/irma_logo.svg'),
             ),
           ),
-          _createDrawerItem(
-              icon: Icons.lock,
-              text: FlutterI18n.translate(context, 'drawer.lock_wallet'),
-              onTap: () {}),
-          _createDrawerItem(
-              icon: Icons.add,
-              text: FlutterI18n.translate(context, 'drawer.add_cards'),
-              onTap: () {}),
-          _createDrawerItem(
-              icon: Icons.history,
-              text: FlutterI18n.translate(context, 'drawer.history'),
-              onTap: () {}),
+          _createDrawerItem(icon: Icons.lock, text: FlutterI18n.translate(context, 'drawer.lock_wallet'), onTap: () {}),
+          _createDrawerItem(icon: Icons.add, text: FlutterI18n.translate(context, 'drawer.add_cards'), onTap: () {}),
+          _createDrawerItem(icon: Icons.history, text: FlutterI18n.translate(context, 'drawer.history'), onTap: () {}),
           _createDrawerItem(
               icon: Icons.settings,
               text: FlutterI18n.translate(context, 'drawer.settings'),
@@ -54,8 +44,7 @@ class HomeDrawer extends StatelessWidget {
     );
   }
 
-  Widget _createDrawerItem(
-      {IconData icon, String text, GestureTapCallback onTap}) {
+  Widget _createDrawerItem({IconData icon, String text, GestureTapCallback onTap}) {
     return ListTile(
       title: Text(
         text,

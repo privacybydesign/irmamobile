@@ -21,8 +21,7 @@ class IrmaCard extends StatefulWidget {
   _IrmaCardState createState() => _IrmaCardState();
 }
 
-class _IrmaCardState extends State<IrmaCard>
-    with SingleTickerProviderStateMixin {
+class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin {
   Animation<double> animation;
   AnimationController controller;
 
@@ -44,8 +43,7 @@ class _IrmaCardState extends State<IrmaCard>
 
   @override
   void initState() {
-    controller = AnimationController(
-        duration: const Duration(milliseconds: animationDuration), vsync: this);
+    controller = AnimationController(duration: const Duration(milliseconds: animationDuration), vsync: this);
     animation = CurvedAnimation(parent: controller, curve: Curves.easeInOut);
     super.initState();
   }
@@ -89,10 +87,7 @@ class _IrmaCardState extends State<IrmaCard>
                       ),
                       child: Text(
                         FlutterI18n.translate(context, 'card.personaldata'),
-                        style: Theme.of(context)
-                            .textTheme
-                            .headline
-                            .copyWith(color: widget.issuer['color']),
+                        style: Theme.of(context).textTheme.headline.copyWith(color: widget.issuer['color']),
                       ),
                     ),
                   ),
@@ -101,8 +96,7 @@ class _IrmaCardState extends State<IrmaCard>
                       padding: const EdgeInsets.all(padding),
                       child: Opacity(
                           opacity: _opacityTween.evaluate(animation),
-                          child: _personalData(widget.personalData,
-                              widget.issuer, isCardReadable)),
+                          child: _personalData(widget.personalData, widget.issuer, isCardReadable)),
                     ),
                   ),
                   Container(
@@ -112,26 +106,22 @@ class _IrmaCardState extends State<IrmaCard>
                           child: Semantics(
                             button: true,
                             enabled: false,
-                            label: FlutterI18n.translate(
-                                context, 'accessibility.unfold'),
+                            label: FlutterI18n.translate(context, 'accessibility.unfold'),
                             child: Transform(
                               origin: Offset(27, 24),
                               transform: Matrix4.rotationZ(
                                 _rotateTween.evaluate(animation),
                               ),
                               child: IconButton(
-                                icon: SvgPicture.asset(
-                                    'assets/icons/arrow-down.svg'),
+                                icon: SvgPicture.asset('assets/icons/arrow-down.svg'),
                                 padding: EdgeInsets.only(left: padding),
                                 alignment: Alignment.centerLeft,
                               ),
                             ),
                           ),
                         ),
-                        Button(animation, 'assets/icons/update.svg',
-                            'accessibility.update', widget.updateStream.sink),
-                        Button(animation, 'assets/icons/remove.svg',
-                            'accessibility.remove', widget.removeStream.sink)
+                        Button(animation, 'assets/icons/update.svg', 'accessibility.update', widget.updateStream.sink),
+                        Button(animation, 'assets/icons/remove.svg', 'accessibility.remove', widget.removeStream.sink)
                       ],
                     ),
                     height: 50,
@@ -153,8 +143,7 @@ class _IrmaCardState extends State<IrmaCard>
                     borderRadius,
                   ),
                   image: DecorationImage(
-                      image:
-                          AssetImage("assets/issuers/${widget.issuer['bg']}"),
+                      image: AssetImage("assets/issuers/${widget.issuer['bg']}"),
                       fit: BoxFit.fitWidth,
                       alignment: Alignment.topCenter)),
             ));
@@ -182,15 +171,10 @@ class _personalData extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              child: Text(personal['key'],
-                  style: Theme.of(context)
-                      .textTheme
-                      .body1
-                      .copyWith(color: issuer['color'])),
+              child: Text(personal['key'], style: Theme.of(context).textTheme.body1.copyWith(color: issuer['color'])),
               width: indent,
             ),
-            _BlurText(personal['value'], issuer['color'],
-                personal['hidden'] == 'true' && !isCardUnblurred),
+            _BlurText(personal['value'], issuer['color'], personal['hidden'] == 'true' && !isCardUnblurred),
           ],
         ),
       );
@@ -203,11 +187,7 @@ class _personalData extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            child: Text('Uitgifte',
-                style: Theme.of(context)
-                    .textTheme
-                    .body1
-                    .copyWith(color: issuer['color'])),
+            child: Text('Uitgifte', style: Theme.of(context).textTheme.body1.copyWith(color: issuer['color'])),
             width: indent,
           ),
           Text(
@@ -228,11 +208,7 @@ class _personalData extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              child: Text(personal['key'],
-                  style: Theme.of(context)
-                      .textTheme
-                      .body1
-                      .copyWith(color: issuer['color'])),
+              child: Text(personal['key'], style: Theme.of(context).textTheme.body1.copyWith(color: issuer['color'])),
               width: indent,
             ),
             Text(
@@ -289,10 +265,6 @@ class _BlurText extends StatelessWidget {
             ),
           )
         : Text(text,
-            style: Theme.of(context)
-                .textTheme
-                .body1
-                .copyWith(fontWeight: FontWeight.w700)
-                .copyWith(color: color));
+            style: Theme.of(context).textTheme.body1.copyWith(fontWeight: FontWeight.w700).copyWith(color: color));
   }
 }

@@ -14,8 +14,7 @@ class Enrollment extends StatelessWidget {
     final buildListener = (BuildContext context, Widget child) {
       return BlocListener<EnrollmentBloc, EnrollmentState>(
         condition: (EnrollmentState previous, EnrollmentState current) {
-          return current.pinConfirmed != previous.pinConfirmed ||
-              current.emailValidated != previous.emailValidated;
+          return current.pinConfirmed != previous.pinConfirmed || current.emailValidated != previous.emailValidated;
         },
         listener: (BuildContext context, EnrollmentState state) {
           if (state.emailValidated == true) {

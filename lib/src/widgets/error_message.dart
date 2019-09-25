@@ -14,7 +14,6 @@ class ErrorMessage extends StatelessWidget {
         padding: EdgeInsets.all(10),
         margin: EdgeInsets.only(bottom: 20),
         color: Colors.red,
-        child: Text(FlutterI18n.translate(context, message),
-            style: TextStyle(color: Colors.white, fontSize: 20)));
+        child: Text(FlutterI18n.translate(context, message), style: TextStyle(color: Colors.white, fontSize: 20)));
   }
 }

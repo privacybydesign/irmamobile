@@ -21,7 +21,7 @@ cache:
 
 lint:dart:
   script:
-    - flutter format --set-exit-if-changed lib/ test/
+    - flutter format --line-length=120 --set-exit-if-changed lib/ test/
   stage: lint
 
 test:flutter:

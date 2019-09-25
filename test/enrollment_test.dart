@@ -12,8 +12,7 @@ import 'package:irmamobile/src/widgets/pin_field.dart';
 
 void main() {
   setUp(() {
-    WidgetsBinding.instance.renderView.configuration =
-        new TestViewConfiguration(size: const Size(1200.0, 1980.0));
+    WidgetsBinding.instance.renderView.configuration = new TestViewConfiguration(size: const Size(1200.0, 1980.0));
   });
 
   testWidgets('Enrollment basic flow test', (WidgetTester tester) async {
@@ -29,8 +28,7 @@ void main() {
     await tester.pump();
 
     // expect the choose pin screen to appear
-    expect(
-        find.text('Kies een pincode van minimaal 5 cijfers'), findsOneWidget);
+    expect(find.text('Kies een pincode van minimaal 5 cijfers'), findsOneWidget);
     await tester.enterText(find.byType(PinField), "87129");
     await tester.pumpAndSettle();
     expect(find.text('Volgende'), findsOneWidget);
@@ -47,8 +45,7 @@ void main() {
         findsOneWidget);
   });
 
-  testWidgets('Email input shows no warning when requesting email',
-      (WidgetTester tester) async {
+  testWidgets('Email input shows no warning when requesting email', (WidgetTester tester) async {
     await tester.pumpWidget(App.test((_) => ProvideEmail(), [
       BlocProvider<EnrollmentBloc>(
           builder: (_) => EnrollmentBloc.test(EnrollmentState().copyWith(
@@ -61,12 +58,10 @@ void main() {
         find.text(
             'Geef een e-mailadres op. Dan kun je bij verlies of diefstal van je telefoon, zorgen dat niemand jouw persoonlijke gegevens kan zien.'),
         findsOneWidget);
-    expect(
-        find.text('Het ingevulde e-mailadres is niet geldig.'), findsNothing);
+    expect(find.text('Het ingevulde e-mailadres is niet geldig.'), findsNothing);
   });
 
-  testWidgets('Show a failed email validation message',
-      (WidgetTester tester) async {
+  testWidgets('Show a failed email validation message', (WidgetTester tester) async {
     await tester.pumpWidget(App.test((_) => ProvideEmail(), [
       BlocProvider<EnrollmentBloc>(
           builder: (_) => EnrollmentBloc.test(EnrollmentState().copyWith(
@@ -77,7 +72,6 @@ void main() {
     ]));
     await tester.pumpAndSettle();
 
-    expect(
-        find.text('Het ingevulde e-mailadres is niet geldig.'), findsOneWidget);
+    expect(find.text('Het ingevulde e-mailadres is niet geldig.'), findsOneWidget);
   });
 }

@@ -16,17 +16,14 @@ class ChoosePin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final EnrollmentBloc enrollmentBloc =
-        BlocProvider.of<EnrollmentBloc>(context);
+    final EnrollmentBloc enrollmentBloc = BlocProvider.of<EnrollmentBloc>(context);
 
     return Scaffold(
         appBar: AppBar(
           leading: CancelButton(routeName: Welcome.routeName),
-          title: Text(
-              FlutterI18n.translate(context, 'enrollment.choose_pin.title')),
+          title: Text(FlutterI18n.translate(context, 'enrollment.choose_pin.title')),
         ),
-        body: BlocBuilder<EnrollmentBloc, EnrollmentState>(
-            builder: (context, state) {
+        body: BlocBuilder<EnrollmentBloc, EnrollmentState>(builder: (context, state) {
           return SingleChildScrollView(
             child: Padding(
                 padding: EdgeInsets.all(20),
@@ -36,8 +33,7 @@ class ChoosePin extends StatelessWidget {
                     const SizedBox(height: 20)
                   ],
                   Text(
-                    FlutterI18n.translate(
-                        context, 'enrollment.choose_pin.instruction'),
+                    FlutterI18n.translate(context, 'enrollment.choose_pin.instruction'),
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w300),
                     textAlign: TextAlign.center,
                   ),
@@ -47,8 +43,7 @@ class ChoosePin extends StatelessWidget {
                       autosubmit: false,
                       autoclear: false,
                       onSubmit: (String pin) {
-                        Navigator.of(context)
-                            .pushReplacementNamed(ConfirmPin.routeName);
+                        Navigator.of(context).pushReplacementNamed(ConfirmPin.routeName);
                       },
                       onFull: (String pin) {
                         enrollmentBloc.dispatch(PinChosen(pin: pin));
@@ -59,12 +54,9 @@ class ChoosePin extends StatelessWidget {
                       color: Theme.of(context).primaryColor,
                       textColor: Colors.white,
                       onPressed: () {
-                        Navigator.of(context)
-                            .pushReplacementNamed(ConfirmPin.routeName);
+                        Navigator.of(context).pushReplacementNamed(ConfirmPin.routeName);
                       },
-                      child: Text(
-                          FlutterI18n.translate(
-                              context, 'enrollment.choose_pin.next'),
+                      child: Text(FlutterI18n.translate(context, 'enrollment.choose_pin.next'),
                           style: TextStyle(fontSize: 20)),
                     )
                 ])),

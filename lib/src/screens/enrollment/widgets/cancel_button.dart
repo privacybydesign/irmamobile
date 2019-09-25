@@ -12,8 +12,7 @@ class CancelButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final EnrollmentBloc enrollmentBloc =
-        BlocProvider.of<EnrollmentBloc>(context);
+    final EnrollmentBloc enrollmentBloc = BlocProvider.of<EnrollmentBloc>(context);
 
     return IconButton(
       icon: const Icon(Icons.arrow_back),
