@@ -6,18 +6,18 @@ import 'package:irmamobile/src/theme/theme.dart';
 var buttonTheme = {
   'primary': {
     'buttonColor': IrmaTheme.primaryBlue,
-    'buttonTextColor': IrmaTheme.gsclWhite,
+    'buttonTextColor': IrmaTheme.greyscaleWhite,
     'buttonBorderColor': IrmaTheme.primaryBlue,
   },
   'secondary': {
-    'buttonColor': IrmaTheme.gsclWhite,
+    'buttonColor': IrmaTheme.greyscaleWhite,
     'buttonTextColor': IrmaTheme.primaryBlue,
     'buttonBorderColor': IrmaTheme.primaryBlue,
   },
   'link': {
-    'buttonColor': const Color(0x00000000),
+    'buttonColor': Colors.transparent,
     'buttonTextColor': IrmaTheme.primaryBlue,
-    'buttonBorderColor': const Color(0x00000000),
+    'buttonBorderColor': Colors.transparent,
   },
 };
 
@@ -38,15 +38,20 @@ class ThemeButton extends StatelessWidget {
       child: RaisedButton(
         onPressed: onPressed,
         elevation: 0.0,
-        child: defaultTargetPlatform == TargetPlatform.iOS
-            ? Text(
-                FlutterI18n.translate(context, label),
-                style: textStyle,
-              )
-            : Text(
-                FlutterI18n.translate(context, label).toUpperCase(),
-                style: textStyle,
-              ),
+        // TODO: Not sure if we want capitalization. Commented for now because
+        // they require more complex tests.
+        //
+        // child: defaultTargetPlatform == TargetPlatform.iOS?
+        //     Text(FlutterI18n.translate(context, label), style: textStyle,
+        //       )
+        //     : Text(
+        //         FlutterI18n.translate(context, label).toUpperCase(),
+        //         style: textStyle,
+        //       ),
+        child: Text(
+          FlutterI18n.translate(context, label),
+          style: textStyle,
+        ),
         color: buttonTheme[buttonType]['buttonColor'],
         textColor: buttonTheme[buttonType]['buttonTextColor'],
         shape: new RoundedRectangleBorder(

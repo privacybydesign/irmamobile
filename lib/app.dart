@@ -47,7 +47,7 @@ class App extends StatelessWidget {
         providers: providers,
         child: MaterialApp(
           title: 'IRMA',
-          theme: irmaTheme,
+          theme: IrmaTheme.themeData,
           localizationsDelegates: [
             FlutterI18nDelegate(
               fallbackFile: 'nl',
