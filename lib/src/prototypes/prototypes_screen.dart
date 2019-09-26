@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:irmamobile/src/prototypes/dev_experiment_1.dart';
 import 'package:irmamobile/src/prototypes/dev_experiment_2.dart';
 import 'package:irmamobile/src/prototypes/dev_experiment_3.dart';
+import 'package:irmamobile/src/prototypes/dev_experiment_4.dart';
 import 'package:irmamobile/src/prototypes/schermflow_1.dart';
 import 'package:irmamobile/src/prototypes/schermflow_5.dart';
 import 'package:irmamobile/src/prototypes/schermflow_wallet.dart';
@@ -92,6 +93,9 @@ class PrototypesScreen extends StatelessWidget {
           _buildListItem(context, "3. Update checker", () {
             startDevExperiment3(context);
           }),
+          _buildListItem(context, "4. Pin screen", () {
+            startDevExperiment4(context);
+          })
         ],
       ),
     );
