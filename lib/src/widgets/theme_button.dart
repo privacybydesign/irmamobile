@@ -32,8 +32,7 @@ class ThemeButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ButtonTheme(
-      textTheme: ButtonTextTheme.primary, // todo make it use the style specified in the irmaTheme
-      minWidth: 160.0,
+      textTheme: ButtonTextTheme.primary,
       height: 45.0,
       padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
       child: RaisedButton(
