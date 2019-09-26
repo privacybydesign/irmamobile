@@ -38,7 +38,7 @@ class IrmaTheme {
     fontSize: 16.0,
     fontWeight: FontWeight.w400,
     fontFamily: 'Montserrat',
-    color: IrmaTheme.gsclWhite,
+    color: gsclWhite,
   );
 }
 
