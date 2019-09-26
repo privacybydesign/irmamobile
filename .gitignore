@@ -39,12 +39,16 @@ gobuild/
 /coverage/
 
 # Project related
+android/irmagobridge/.project
+android/irmagobridge/.settings
 android/irmagobridge/irmagobridge.aar
 android/irmagobridge/irmagobridge-sources.jar
 
 # Android related
 **/android/**/gradle-wrapper.jar
 **/android/.gradle
+**/android/.settings
+**/android/app/.settings
 **/android/captures/
 **/android/gradlew
 **/android/gradlew.bat

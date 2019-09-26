@@ -69,12 +69,22 @@
         "behavior" : {
           "header": "Behavior",
           "start_qr": "Open QR scanner on startup",
-          "report_errors": "Report errors about IRMA",
+          "report_errors": "Report errors about IRMA"
         },
         "advanced" : {
           "header": "Advanced",
           "delete": "Delete wallet contents",
           "delete_details": "All cards will be removed"
         }
+    },
+    "issuance": {
+        "title": "Add data",
+        "header": "Choose the data you want to retrieve",
+        "hint_search": "search",
+        "loading" : {
+            "title": "Loading data",
+            "body": "Your data is being loaded"
+        }
+
     }
 }
