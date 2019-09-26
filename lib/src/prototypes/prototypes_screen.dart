@@ -3,7 +3,7 @@ import 'package:irmamobile/src/prototypes/schermflow_1.dart';
 import 'package:irmamobile/src/prototypes/schermflow_5.dart';
 
 class PrototypesScreen extends StatelessWidget {
-  static final routeName = "/prototypes";
+  static final routeName = "/";
 
   @override
   Widget build(BuildContext context) {
@@ -95,9 +95,9 @@ class PrototypesScreen extends StatelessWidget {
               children: <Widget>[
                 Text(
                   name,
-                  style: Theme.of(context).textTheme.button,
+                  style: Theme.of(context).textTheme.body2,
                 ),
-                Text(">", style: Theme.of(context).textTheme.button),
+                Text(">", style: Theme.of(context).textTheme.body2),
               ],
             ),
           ),
