@@ -116,7 +116,7 @@ ThemeData irmaTheme = ThemeData(
     // button is used for text on RaisedButton and FlatButton
     button: TextStyle(
       fontSize: 16.0,
-      fontWeight: FontWeight.w700,
+      fontWeight: FontWeight.w600,
       fontFamily: 'Montserrat',
       color: IrmaTheme.gsclWhite,
     ),
