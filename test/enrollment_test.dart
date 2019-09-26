@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/app.dart';
-import 'package:irmamobile/src/screens/enrollment/enrollment.dart';
+import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_bloc.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/provide_email.dart';
@@ -17,7 +17,7 @@ void main() {
 
   testWidgets('Enrollment basic flow test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(App.test((_) => Enrollment()));
+    await tester.pumpWidget(App.test((_) => EnrollmentScreen()));
     await tester.pumpAndSettle();
 
     // expect a choose pin button

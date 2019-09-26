@@ -5,7 +5,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class About extends StatelessWidget {
+class AboutScreen extends StatelessWidget {
+  static final routeName = "/about";
+
   static const double paragraphSpace = 10.0;
 
   @override

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:irmamobile/src/prototypes/schermflow_1.dart';
 import 'package:irmamobile/src/prototypes/schermflow_5.dart';
 
-class PrototypesMenuPage extends StatelessWidget {
+class PrototypesScreen extends StatelessWidget {
+  static final routeName = "/prototypes";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
