@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/screens/settings/widgets/settings_header.dart';
 
-import './widgets/settings_header.dart';
+class SettingsScreen extends StatefulWidget {
+  static final routeName = "/settings";
 
-class Settings extends StatefulWidget {
   @override
-  _SettingsState createState() => _SettingsState();
+  _SettingsScreenState createState() => _SettingsScreenState();
 }
 
-class _SettingsState extends State<Settings> {
+class _SettingsScreenState extends State<SettingsScreen> {
   bool _longPin = false;
   bool _startQRScan = false;
   bool _reportErrors = false;

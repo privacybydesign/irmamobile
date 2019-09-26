@@ -8,7 +8,9 @@ import 'package:irmamobile/src/screens/enrollment/widgets/introduction.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/provide_email.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/welcome.dart';
 
-class Enrollment extends StatelessWidget {
+class EnrollmentScreen extends StatelessWidget {
+  static final routeName = "/enrollment";
+
   @override
   Widget build(BuildContext context) {
     final buildListener = (BuildContext context, Widget child) {

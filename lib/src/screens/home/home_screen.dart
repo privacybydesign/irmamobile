@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/mockdata/card.dart';
+import 'package:irmamobile/src/screens/home/widgets/home_drawer.dart';
 import 'package:irmamobile/src/widgets/card.dart';
 
-import './widgets/home_drawer.dart';
+class HomeScreen extends StatelessWidget {
+  static final routeName = "/";
 
-class Home extends StatelessWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
