@@ -25,18 +25,18 @@ class ProvideEmail extends StatelessWidget {
         body: BlocBuilder<EnrollmentBloc, EnrollmentState>(builder: (context, state) {
           return SingleChildScrollView(
               child: Padding(
-                  padding: EdgeInsets.all(IrmaTheme.spacing * 2),
+                  padding: EdgeInsets.all(IrmaTheme.of(context).spacing * 2),
                   child: Column(children: [
                     if (state.emailValidated == false) ...[
                       ErrorMessage(message: 'enrollment.provide_email.error'),
-                      SizedBox(height: IrmaTheme.spacing)
+                      SizedBox(height: IrmaTheme.of(context).spacing)
                     ],
                     Text(
                       FlutterI18n.translate(context, 'enrollment.provide_email.instruction'),
                       style: Theme.of(context).textTheme.body1,
                       textAlign: TextAlign.left,
                     ),
-                    SizedBox(height: IrmaTheme.spacing),
+                    SizedBox(height: IrmaTheme.of(context).spacing),
                     TextField(
                       autofocus: true,
                       decoration: InputDecoration(
@@ -49,7 +49,7 @@ class ProvideEmail extends StatelessWidget {
                         enrollmentBloc.dispatch(EmailSubmitted());
                       },
                     ),
-                    SizedBox(height: IrmaTheme.spacing),
+                    SizedBox(height: IrmaTheme.of(context).spacing),
                     RaisedButton(
                       color: Theme.of(context).primaryColor,
                       onPressed: () {

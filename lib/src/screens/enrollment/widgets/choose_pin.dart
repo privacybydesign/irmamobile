@@ -27,18 +27,18 @@ class ChoosePin extends StatelessWidget {
         body: BlocBuilder<EnrollmentBloc, EnrollmentState>(builder: (context, state) {
           return SingleChildScrollView(
             child: Padding(
-                padding: EdgeInsets.only(top: IrmaTheme.spacing * 2),
+                padding: EdgeInsets.only(top: IrmaTheme.of(context).spacing * 2),
                 child: Column(children: [
                   if (state.pinConfirmed == false) ...[
                     ErrorMessage(message: 'enrollment.choose_pin.error'),
-                    SizedBox(height: IrmaTheme.spacing)
+                    SizedBox(height: IrmaTheme.of(context).spacing)
                   ],
                   Text(
                     FlutterI18n.translate(context, 'enrollment.choose_pin.instruction'),
                     style: Theme.of(context).textTheme.body1,
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: IrmaTheme.spacing),
+                  SizedBox(height: IrmaTheme.of(context).spacing),
                   PinField(
                       maxLength: 5,
                       onSubmit: (String pin) {

@@ -3,24 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
-var buttonTheme = {
-  'primary': {
-    'buttonColor': IrmaTheme.primaryBlue,
-    'buttonTextColor': IrmaTheme.greyscaleWhite,
-    'buttonBorderColor': IrmaTheme.primaryBlue,
-  },
-  'secondary': {
-    'buttonColor': IrmaTheme.greyscaleWhite,
-    'buttonTextColor': IrmaTheme.primaryBlue,
-    'buttonBorderColor': IrmaTheme.primaryBlue,
-  },
-  'link': {
-    'buttonColor': Colors.transparent,
-    'buttonTextColor': IrmaTheme.primaryBlue,
-    'buttonBorderColor': Colors.transparent,
-  },
-};
-
 class ThemeButton extends StatelessWidget {
   ThemeButton({@required this.label, @required this.onPressed, @required this.buttonType, this.textStyle});
 
@@ -31,6 +13,24 @@ class ThemeButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var buttonTheme = {
+      'primary': {
+        'buttonColor': IrmaTheme.of(context).primaryBlue,
+        'buttonTextColor': IrmaTheme.of(context).greyscaleWhite,
+        'buttonBorderColor': IrmaTheme.of(context).primaryBlue,
+      },
+      'secondary': {
+        'buttonColor': IrmaTheme.of(context).greyscaleWhite,
+        'buttonTextColor': IrmaTheme.of(context).primaryBlue,
+        'buttonBorderColor': IrmaTheme.of(context).primaryBlue,
+      },
+      'link': {
+        'buttonColor': Colors.transparent,
+        'buttonTextColor': IrmaTheme.of(context).primaryBlue,
+        'buttonBorderColor': Colors.transparent,
+      },
+    };
+
     return ButtonTheme(
       textTheme: ButtonTextTheme.primary,
       height: 45.0,
