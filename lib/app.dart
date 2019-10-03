@@ -43,21 +43,27 @@ class App extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-        providers: providers,
-        child: MaterialApp(
-          title: 'IRMA',
-          theme: IrmaTheme.themeData,
-          localizationsDelegates: [
-            FlutterI18nDelegate(
-              fallbackFile: 'nl',
-              path: 'assets/locales',
-            ),
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate
-          ],
-          initialRoute: initialRoute,
-          routes: routes,
-        ));
+    return IrmaTheme(
+      data: IrmaThemeData(),
+      child: Builder(builder: (context) {
+        return MultiBlocProvider(
+          providers: providers,
+          child: MaterialApp(
+            title: 'IRMA',
+            theme: IrmaTheme.of(context).themeData,
+            localizationsDelegates: [
+              FlutterI18nDelegate(
+                fallbackFile: 'nl',
+                path: 'assets/locales',
+              ),
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate
+            ],
+            initialRoute: initialRoute,
+            routes: routes,
+          ),
+        );
+      }),
+    );
   }
 }

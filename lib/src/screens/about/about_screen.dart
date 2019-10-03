@@ -58,7 +58,7 @@ class AboutScreen extends StatelessWidget {
               InkWell(
                   child: Text(
                     FlutterI18n.translate(context, 'about.privacy_policy_link'),
-                    style: TextStyle(color: IrmaTheme.linkColor),
+                    style: TextStyle(color: IrmaTheme.of(context).linkColor),
                   ),
                   onTap: () {
                     try {
@@ -97,7 +97,7 @@ class AboutScreen extends StatelessWidget {
               InkWell(
                   child: Text(
                     FlutterI18n.translate(context, 'about.pbdf_website_link'),
-                    style: TextStyle(color: IrmaTheme.linkColor),
+                    style: TextStyle(color: IrmaTheme.of(context).linkColor),
                   ),
                   onTap: () {
                     try {
@@ -118,7 +118,7 @@ class AboutScreen extends StatelessWidget {
               InkWell(
                 child: Text(
                   FlutterI18n.translate(context, 'about.source_code_link'),
-                  style: TextStyle(color: IrmaTheme.linkColor),
+                  style: TextStyle(color: IrmaTheme.of(context).linkColor),
                 ),
                 onTap: () {
                   try {

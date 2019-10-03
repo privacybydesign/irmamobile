@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:dots_indicator/dots_indicator.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 import 'cancel_button.dart';
@@ -66,7 +66,8 @@ class _IntroductionState extends State<Introduction> {
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsets.only(top: IrmaTheme.spacing, bottom: IrmaTheme.spacing * 2),
+                    padding:
+                        EdgeInsets.only(top: IrmaTheme.of(context).spacing, bottom: IrmaTheme.of(context).spacing * 2),
                     child: RaisedButton(
                       onPressed: () {
                         Navigator.of(context).pushNamed(ChoosePin.routeName);
@@ -96,12 +97,12 @@ class Walkthrougth extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(children: <Widget>[
-      SizedBox(height: IrmaTheme.spacing),
+      SizedBox(height: IrmaTheme.of(context).spacing),
       SvgPicture.asset(imagePath),
-      SizedBox(height: IrmaTheme.spacing),
+      SizedBox(height: IrmaTheme.of(context).spacing),
       Container(
         alignment: Alignment.center,
-        constraints: BoxConstraints(maxWidth: IrmaTheme.spacing * 18),
+        constraints: BoxConstraints(maxWidth: IrmaTheme.of(context).spacing * 18),
         child: Text(
           textContent,
           style: Theme.of(context).textTheme.body1,

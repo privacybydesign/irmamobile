@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:flutter/services.dart';
 import 'dart:math';
 
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class PinField extends StatefulWidget {
@@ -99,13 +99,13 @@ class _PinFieldState extends State<PinField> {
       }
 
       boxes[i] = Container(
-        margin: EdgeInsets.all(IrmaTheme.spacing / 2),
-        width: IrmaTheme.spacing * 2,
-        height: IrmaTheme.spacing * 2,
+        margin: EdgeInsets.all(IrmaTheme.of(context).spacing / 2),
+        width: IrmaTheme.of(context).spacing * 2,
+        height: IrmaTheme.of(context).spacing * 2,
         alignment: Alignment.center,
         decoration: new BoxDecoration(
           border: new Border.all(color: Colors.black),
-          borderRadius: BorderRadius.all(Radius.circular(IrmaTheme.spacing)),
+          borderRadius: BorderRadius.all(Radius.circular(IrmaTheme.of(context).spacing)),
           color: char == ' ' ? Colors.black : Colors.transparent,
         ),
         child: new Text(char, style: Theme.of(context).textTheme.body2),
@@ -162,7 +162,7 @@ class _PinFieldState extends State<PinField> {
         ),
       ),
       Row(mainAxisSize: MainAxisSize.max, mainAxisAlignment: MainAxisAlignment.center, children: [
-        SizedBox(width: IrmaTheme.spacing * 2, height: IrmaTheme.spacing * 2),
+        SizedBox(width: IrmaTheme.of(context).spacing * 2, height: IrmaTheme.of(context).spacing * 2),
         GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () {
@@ -177,10 +177,10 @@ class _PinFieldState extends State<PinField> {
           ),
         ),
         SizedBox(
-          width: IrmaTheme.spacing * 2,
-          height: IrmaTheme.spacing * 2,
+          width: IrmaTheme.of(context).spacing * 2,
+          height: IrmaTheme.of(context).spacing * 2,
           child: IconButton(
-            iconSize: IrmaTheme.spacing,
+            iconSize: IrmaTheme.of(context).spacing,
             icon: Icon(
               obscureText ? Icons.visibility : Icons.visibility_off,
               color: Theme.of(context).primaryColorDark,
