@@ -77,6 +77,9 @@ flutter:
         - asset: fonts/montserrat/Montserrat-BoldItalic.ttf
           style: italic
           weight: 700
+    - family: IrmaIcons
+      fonts:
+        - asset: fonts/irma-icons/IrmaIcons.ttf
 
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
