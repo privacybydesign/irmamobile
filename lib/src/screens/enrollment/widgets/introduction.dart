@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/theme_button.dart';
 
 import 'cancel_button.dart';
 import 'choose_pin.dart';
@@ -68,14 +69,12 @@ class _IntroductionState extends State<Introduction> {
                   Padding(
                     padding:
                         EdgeInsets.only(top: IrmaTheme.of(context).spacing, bottom: IrmaTheme.of(context).spacing * 2),
-                    child: RaisedButton(
+                    child: ThemeButton(
                       onPressed: () {
                         Navigator.of(context).pushNamed(ChoosePin.routeName);
                       },
-                      textColor: currentIndexPage == 2 ? Colors.white : null,
-                      color: currentIndexPage == 2 ? Theme.of(context).primaryColor : Theme.of(context).disabledColor,
-                      child: Text(FlutterI18n.translate(context, 'enrollment.welcome.choose_pin_button'),
-                          style: Theme.of(context).textTheme.button),
+                      buttonType: currentIndexPage == 2 ? 'primary' : 'secondary',
+                      label: 'enrollment.welcome.choose_pin_button',
                     ),
                   )
                 ]))
