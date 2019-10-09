@@ -30,12 +30,12 @@ void main() {
     // expect the choose pin screen to appear
     expect(find.text('Kies een pincode van minimaal 5 cijfers'), findsOneWidget);
     await tester.enterText(find.byType(PinField), "87129");
-    await tester.pumpAndSettle();
+    await tester.pumpAndSettle(const Duration(milliseconds: 1000));
 
     expect(find.text('Herhaal je pincode'), findsOneWidget);
 
     await tester.enterText(find.byType(PinField), "87129");
-    await tester.pumpAndSettle();
+    await tester.pumpAndSettle(const Duration(milliseconds: 1000));
     expect(
         find.text(
             'Geef een e-mailadres op. Dan kun je bij verlies of diefstal van je telefoon, zorgen dat niemand jouw persoonlijke gegevens kan zien.'),
