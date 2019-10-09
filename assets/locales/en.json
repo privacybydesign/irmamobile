@@ -5,10 +5,10 @@
             "abstract": "Met IRMA kun je jezelf bekendmaken zonder meer over jezelf prijs te geven dan nodig is.",
             "intro_button": "Hoe werkt IRMA?",
             "choose_pin_button": "Kies je pincode",
-            "later": "Later"
+            "not_now": "Not now"
         },
         "introduction": {
-          "title": "Hoe werkt IRMA?",
+            "title": "Hoe werkt IRMA?",
             "load_data": "Je haalt jouw gegevens op bij verschillende organisaties.\n\nDeze gegevens komen in IRMA op jouw telefoon te staan.\n\nAlleen jij kan erbij.",
             "login": "Je kunt IRMA gebruiken om in te loggen bij websites.\n\nJe hoeft nooit meer wachtwoorden te onthouden.",
             "reveal": "Je kunt IRMA gebruiken in situaties waarin je nu een document moet overleggen.\n\nJe deelt alleen wat nodig is."

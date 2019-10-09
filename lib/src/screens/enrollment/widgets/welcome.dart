@@ -45,21 +45,21 @@ class Welcome extends StatelessWidget {
             onPressed: () {
               Navigator.of(context).pushNamed(Introduction.routeName);
             },
-            label: FlutterI18n.translate(context, 'enrollment.welcome.intro_button'),
+            label: 'enrollment.welcome.intro_button',
           ),
           SizedBox(height: IrmaTheme.of(context).spacing),
           PrimaryButton(
             onPressed: () {
               Navigator.of(context).pushNamed(ChoosePin.routeName);
             },
-            label: FlutterI18n.translate(context, 'enrollment.welcome.choose_pin_button'),
+            label: 'enrollment.welcome.choose_pin_button',
           ),
           SizedBox(height: IrmaTheme.of(context).spacing),
           SecondaryButton(
             onPressed: () {
               Navigator.of(context, rootNavigator: true).pushReplacementNamed('/');
             },
-            label: 'Not now',
+            label: 'enrollment.welcome.not_now',
           ),
         ]),
       )),

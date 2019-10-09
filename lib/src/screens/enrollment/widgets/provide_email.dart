@@ -7,6 +7,7 @@ import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/cancel_button.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/error_message.dart';
+import 'package:irmamobile/src/widgets/primary_button.dart';
 
 import 'choose_pin.dart';
 
@@ -50,13 +51,11 @@ class ProvideEmail extends StatelessWidget {
                       },
                     ),
                     SizedBox(height: IrmaTheme.of(context).spacing),
-                    RaisedButton(
-                      color: Theme.of(context).primaryColor,
+                    PrimaryButton(
                       onPressed: () {
                         enrollmentBloc.dispatch(EmailSubmitted());
                       },
-                      child: Text(FlutterI18n.translate(context, 'enrollment.provide_email.next'),
-                          style: Theme.of(context).textTheme.button.copyWith(color: Colors.white)),
+                      label: 'enrollment.provide_email.next',
                     ),
                   ])));
         }));
