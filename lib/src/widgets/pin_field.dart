@@ -54,15 +54,17 @@ class _PinFieldState extends State<PinField> {
     final len = val.length;
 
     if (len != lastLength && len == widget.maxLength) {
-      Future.delayed(const Duration(milliseconds: 100), () {
-        if (widget.onFull != null) {
-          widget.onFull(val);
-        }
+      if (widget.onFull != null) {
+        widget.onFull(val);
+      }
 
+      Future.delayed(const Duration(milliseconds: 500), () {
         if (widget.onSubmit != null && widget.autosubmit) {
           widget.onSubmit(val);
         }
+      });
 
+      Future.delayed(const Duration(milliseconds: 1000), () {
         if (widget.autoclear) {
           controller.clear();
         }
@@ -90,25 +92,35 @@ class _PinFieldState extends State<PinField> {
   Widget build(BuildContext context) {
     final int len = min(widget.maxLength, max(value.length + 1, widget.minLength));
     final boxes = List<Widget>(len);
+    final bool complete = value.length == widget.maxLength;
 
     for (int i = 0; i < len; i++) {
       String char = i < value.length ? value[i] : '';
+      bool filled = char != '';
+      var grey = obscureText ? IrmaTheme.of(context).greyscale80 : IrmaTheme.of(context).greyscale90;
+      var primary = obscureText ? IrmaTheme.of(context).primaryBlue : IrmaTheme.of(context).greyscale90;
+      var background = (obscureText && filled) ? IrmaTheme.of(context).primaryDark : grey;
 
-      if (obscureText && char != '') {
+      if (obscureText && filled) {
         char = ' ';
       }
 
-      boxes[i] = Container(
-        margin: EdgeInsets.all(IrmaTheme.of(context).spacing / 2),
-        width: IrmaTheme.of(context).spacing * 2,
-        height: IrmaTheme.of(context).spacing * 2,
+      boxes[i] = AnimatedContainer(
+        margin: EdgeInsets.all(IrmaTheme.of(context).spacing * (filled ? 0.25 : 0.5)),
+        width: IrmaTheme.of(context).spacing * (filled ? 2 : 1.5),
+        height: IrmaTheme.of(context).spacing * (filled ? 2 : 1.5),
         alignment: Alignment.center,
+        duration: Duration(milliseconds: 800),
+        curve: Curves.elasticOut,
         decoration: new BoxDecoration(
-          border: new Border.all(color: Colors.black),
           borderRadius: BorderRadius.all(Radius.circular(IrmaTheme.of(context).spacing)),
-          color: char == ' ' ? Colors.black : Colors.transparent,
+          color: complete ? primary : background,
         ),
-        child: new Text(char, style: Theme.of(context).textTheme.body2),
+        child: new Text(char,
+            style: Theme.of(context).textTheme.body2.copyWith(
+                  fontSize: IrmaTheme.of(context).spacing * 1.5,
+                  color: complete ? IrmaTheme.of(context).primaryBlue : IrmaTheme.of(context).primaryDark,
+                )),
       );
     }
 
