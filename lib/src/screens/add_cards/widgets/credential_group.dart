@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/screens/issuance/widgets/credential.dart';
+import 'package:irmamobile/src/screens/add_cards/widgets/credential.dart';
+import 'package:irmamobile/src/theme/theme.dart';
 
 class CredentialGroup extends StatelessWidget {
   final List<Credential> credentials;
@@ -21,10 +22,7 @@ class CredentialGroup extends StatelessWidget {
             ),
             child: Text(
               title,
-              //TODO: fix style as soon as #17 is merged
-              style: Theme.of(context).textTheme.title.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+              style: IrmaTheme.of(context).textTheme.title,
             ),
           );
         }

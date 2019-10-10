@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:irmamobile/src/theme/theme.dart';
 
 class Credential extends StatelessWidget {
-  final Icon icon;
+  final Widget icon;
   final String title;
   final String subTitle;
   final bool obtained;
@@ -23,7 +24,15 @@ class Credential extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          icon,
+          ConstrainedBox(
+            constraints: new BoxConstraints(
+              minHeight: 20.0,
+              minWidth: 20.0,
+              maxHeight: 40.0,
+              maxWidth: 40.0,
+            ),
+            child: icon,
+          ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
@@ -31,7 +40,7 @@ class Credential extends StatelessWidget {
               children: <Widget>[
                 Text(
                   title,
-                  style: Theme.of(context).textTheme.title.copyWith(
+                  style: IrmaTheme.of(context).textTheme.title.copyWith(
                         fontWeight: FontWeight.w600,
                         fontSize: 16,
                       ),
@@ -40,7 +49,7 @@ class Credential extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 4.0),
                   child: Text(
                     subTitle,
-                    style: Theme.of(context).textTheme.caption,
+                    style: IrmaTheme.of(context).textTheme.caption,
                   ),
                 ),
               ],
