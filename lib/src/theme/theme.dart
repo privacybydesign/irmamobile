@@ -156,6 +156,11 @@ class IrmaThemeData extends Equatable {
         elevation: 0,
         brightness: Brightness.light,
         color: primaryLight,
+        textTheme: textTheme.copyWith(
+          body1: textTheme.body1.copyWith(
+            color: primaryDark,
+          ),
+        ),
         iconTheme: IconThemeData(
           color: greyscale40,
         ),
