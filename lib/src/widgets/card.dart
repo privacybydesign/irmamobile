@@ -4,7 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:irmamobile/src/theme/irma-icons.dart';
 import 'package:irmamobile/src/widgets/button.dart';
 
 class IrmaCard extends StatefulWidget {
@@ -113,15 +113,15 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
                                 _rotateTween.evaluate(animation),
                               ),
                               child: IconButton(
-                                icon: SvgPicture.asset('assets/icons/arrow-down.svg'),
+                                icon: Icon(IrmaIcons.chevronDown),
                                 padding: EdgeInsets.only(left: padding),
                                 alignment: Alignment.centerLeft,
                               ),
                             ),
                           ),
                         ),
-                        Button(animation, 'assets/icons/update.svg', 'accessibility.update', widget.updateStream.sink),
-                        Button(animation, 'assets/icons/remove.svg', 'accessibility.remove', widget.removeStream.sink)
+                        Button(animation, IrmaIcons.synchronize, 'accessibility.update', widget.updateStream.sink),
+                        Button(animation, IrmaIcons.delete, 'accessibility.remove', widget.removeStream.sink)
                       ],
                     ),
                     height: 50,
