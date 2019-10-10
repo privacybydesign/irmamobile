@@ -1,11 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
-enum ValidationState {
-  initial,
-  valid,
-  invalid
-}
+enum ValidationState { initial, valid, invalid }
 
 @immutable
 class EnrollmentState with EquatableMixinBase, EquatableMixin {
