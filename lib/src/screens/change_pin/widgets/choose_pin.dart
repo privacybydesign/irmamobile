@@ -23,27 +23,25 @@ class ChoosePin extends StatelessWidget {
         ),
         body: BlocBuilder<ChangePinBloc, ChangePinState>(builder: (context, state) {
           return SingleChildScrollView(
-            child: Padding(
-                padding: EdgeInsets.only(top: IrmaTheme.of(context).spacing * 2),
-                child: Column(children: [
-                  if (state.newPinConfirmed == false) ...[
-                    ErrorMessage(message: 'change_pin.choose_pin.error'),
-                    SizedBox(height: IrmaTheme.of(context).spacing)
-                  ],
-                  Text(
-                    FlutterI18n.translate(context, 'change_pin.choose_pin.instruction'),
-                    style: Theme.of(context).textTheme.body1,
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: IrmaTheme.of(context).spacing),
-                  PinField(
-                      maxLength: 5,
-                      onSubmit: (String pin) {
-                        changePinBloc.dispatch(NewPinChosen(pin: pin));
-                        Navigator.of(context).pushReplacementNamed(ConfirmPin.routeName);
-                      })
-                ])),
-          );
+              child: Column(children: [
+            if (state.newPinConfirmed == false) ...[
+              SizedBox(height: IrmaTheme.of(context).spacing),
+              ErrorMessage(message: 'change_pin.choose_pin.error')
+            ],
+            SizedBox(height: IrmaTheme.of(context).spacing),
+            Text(
+              FlutterI18n.translate(context, 'change_pin.choose_pin.instruction'),
+              style: Theme.of(context).textTheme.body1,
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: IrmaTheme.of(context).spacing),
+            PinField(
+                maxLength: 5,
+                onSubmit: (String pin) {
+                  changePinBloc.dispatch(NewPinChosen(pin: pin));
+                  Navigator.of(context).pushNamed(ConfirmPin.routeName);
+                })
+          ]));
         }));
   }
 }

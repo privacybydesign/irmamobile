@@ -5,6 +5,7 @@ import 'package:irmamobile/src/screens/change_pin/models/change_pin_state.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/choose_pin.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/confirm_pin.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/enter_pin.dart';
+import 'package:irmamobile/src/screens/change_pin/widgets/success.dart';
 
 class ChangePinScreen extends StatelessWidget {
   static final routeName = "/change_pin";
@@ -14,18 +15,16 @@ class ChangePinScreen extends StatelessWidget {
     final buildListener = (BuildContext context, Widget child) {
       return BlocListener<ChangePinBloc, ChangePinState>(
         condition: (ChangePinState previous, ChangePinState current) {
-          print(current.toString());
-
           return current.newPinConfirmed != previous.newPinConfirmed ||
               current.oldPinVerified != previous.oldPinVerified;
         },
         listener: (BuildContext context, ChangePinState state) {
-          if (state.oldPinVerified == true) {
-            Navigator.of(context).pushNamed(ChoosePin.routeName);
+          if (state.newPinConfirmed == true) {
+            Navigator.of(context).pushNamed(Success.routeName);
           } else if (state.newPinConfirmed == false) {
             Navigator.of(context).pushNamed(ChoosePin.routeName);
-          } else if (state.newPinConfirmed == true) {
-            Navigator.of(context, rootNavigator: true).pushReplacementNamed('/');
+          } else if (state.oldPinVerified == true) {
+            Navigator.of(context).pushNamed(ChoosePin.routeName);
           }
         },
         child: child,
@@ -47,6 +46,9 @@ class ChangePinScreen extends StatelessWidget {
                 break;
               case ConfirmPin.routeName:
                 builder = (BuildContext c) => buildListener(c, ConfirmPin());
+                break;
+              case Success.routeName:
+                builder = (BuildContext c) => buildListener(c, Success());
                 break;
               default:
                 throw Exception('Invalid route: ${settings.name}');

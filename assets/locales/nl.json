@@ -101,6 +101,11 @@
     "confirm_pin": {
       "title": "Herhaal je pincode",
       "instruction": "Vul ter controle nogmaals je nieuwe pincode in."
+    },
+    "success": {
+      "title": "Pin code veranderd",
+      "message": "Je pincode is succesvol veranderd.",
+      "continue": "Verder"
     }
   }
 }

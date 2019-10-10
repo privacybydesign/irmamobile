@@ -11,7 +11,7 @@ class OldPinEntered extends ChangePinEvent {
   OldPinEntered({@required this.pin}) : super([pin]);
 
   @override
-  String toString() => 'PinEntered { pin: $pin }';
+  String toString() => 'OldPinEntered { pin: $pin }';
 }
 
 class NewPinChosen extends ChangePinEvent {
@@ -20,7 +20,7 @@ class NewPinChosen extends ChangePinEvent {
   NewPinChosen({@required this.pin}) : super([pin]);
 
   @override
-  String toString() => 'PinChosen { pin: $pin }';
+  String toString() => 'NewPinChosen { pin: $pin }';
 }
 
 class NewPinConfirmed extends ChangePinEvent {
@@ -29,7 +29,7 @@ class NewPinConfirmed extends ChangePinEvent {
   NewPinConfirmed({@required this.pin}) : super([pin]);
 
   @override
-  String toString() => 'PinConfirmed { pin: $pin }';
+  String toString() => 'NewPinConfirmed { pin: $pin }';
 }
 
 class ChangePinCanceled extends ChangePinEvent {

@@ -101,6 +101,11 @@
     "confirm_pin": {
       "title": "Confirm pin code",
       "instruction": "Confirm your new pin code."
+    },
+    "success": {
+      "title": "Changed pin code",
+      "message": "Your pin code was changed successfully.",
+      "continue": "Continue"
     }
   }
 }

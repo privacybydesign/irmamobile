@@ -18,7 +18,7 @@ class CancelButton extends StatelessWidget {
       icon: const Icon(Icons.arrow_back),
       onPressed: () {
         enrollmentBloc.dispatch(EnrollmentCanceled());
-        Navigator.of(context).pushNamed(routeName);
+        Navigator.of(context).pushReplacementNamed(routeName);
       },
       tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
     );

@@ -23,14 +23,12 @@ class ChangePinBloc extends Bloc<ChangePinEvent, ChangePinState> {
 
   @override
   Stream<ChangePinState> mapEventToState(ChangePinEvent event) async* {
-    print(event.toString());
-
     if (event is ChangePinCanceled) {
       yield ChangePinState();
     }
 
     if (event is OldPinEntered) {
-      // TODO check pin in correct (event.pin)
+      // TODO: check pin in correct (event.pin)
       yield currentState.copyWith(
         oldPinVerified: true,
       );
@@ -44,6 +42,7 @@ class ChangePinBloc extends Bloc<ChangePinEvent, ChangePinState> {
 
     if (event is NewPinConfirmed) {
       final bool pinConfirmed = event.pin == currentState.newPin;
+      // TODO: update the pin
       yield currentState.copyWith(
         newPinConfirmed: pinConfirmed,
       );

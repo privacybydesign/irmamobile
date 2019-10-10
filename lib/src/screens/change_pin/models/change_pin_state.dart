@@ -35,13 +35,7 @@ class ChangePinState with EquatableMixinBase, EquatableMixin {
 
   @override
   String toString() {
-    if (newPin == null) {
-      return 'ChangePinState {pin: <null>}';
-    }
-
-    final String code = '*' * newPin.length;
-
-    return 'ChangePinState {pin: $code}';
+    return 'ChangePinState {new pin: $newPin, old verified: $oldPinVerified, new confirmed: $newPinConfirmed}';
   }
 
   @override
