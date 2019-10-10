@@ -23,9 +23,9 @@ class IssuanceWebviewScreen extends StatefulWidget {
 
 class _IssuanceWebviewScreenState extends State<IssuanceWebviewScreen> {
   final String url;
-  _IssuanceWebviewScreenState(
-    this.url,
-  );
+  bool _isLoading;
+
+  _IssuanceWebviewScreenState(this.url) : this._isLoading = true;
   SessionPointer _sessionPointer;
 
   @override
@@ -48,27 +48,41 @@ class _IssuanceWebviewScreenState extends State<IssuanceWebviewScreen> {
           Navigator.of(context).pop();
           launch(url);
         },
+        isLoading: _isLoading,
       ),
       body: _sessionPointer == null
-          ? WebView(
-              javascriptMode: JavascriptMode.unrestricted,
-              initialUrl: url,
-              navigationDelegate: (navrequest) {
-                print("received nav request ${navrequest.url}");
-                var decodedUri = Uri.decodeFull(navrequest.url);
-                if (_isIRMAURI(decodedUri)) {
-                  setState(() {
-                    try {
-                      _sessionPointer = SessionPointer.fromURI(decodedUri);
-                      widget._sessionStreamController.sink.add(_sessionPointer);
-                    } catch (err) {
-                      print(err);
+          ? Stack(
+              children: <Widget>[
+                WebView(
+                  javascriptMode: JavascriptMode.unrestricted,
+                  initialUrl: url,
+                  onPageFinished: (url) {
+                    setState(() {
+                      _isLoading = false;
+                    });
+                  },
+                  navigationDelegate: (navrequest) {
+                    print("received nav request ${navrequest.url}");
+                    var decodedUri = Uri.decodeFull(navrequest.url);
+                    if (_isIRMAURI(decodedUri)) {
+                      setState(() {
+                        try {
+                          _sessionPointer = SessionPointer.fromURI(decodedUri);
+                          widget._sessionStreamController.sink.add(_sessionPointer);
+                        } catch (err) {
+                          print(err);
+                        }
+                      });
+                      return NavigationDecision.prevent;
                     }
-                  });
-                  return NavigationDecision.prevent;
-                }
-                return NavigationDecision.navigate;
-              },
+                    setState(() {
+                      _isLoading = true;
+                    });
+
+                    return NavigationDecision.navigate;
+                  },
+                ),
+              ],
             )
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
