@@ -42,7 +42,7 @@ class ChoosePin extends StatelessWidget {
                       maxLength: 5,
                       onSubmit: (String pin) {
                         enrollmentBloc.dispatch(PinChosen(pin: pin));
-                        Navigator.of(context).pushReplacementNamed(ConfirmPin.routeName);
+                        Navigator.of(context).pushNamed(ConfirmPin.routeName);
                       })
                 ])),
           );

@@ -8,8 +8,23 @@ import 'package:irmamobile/src/screens/enrollment/widgets/introduction.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/provide_email.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/welcome.dart';
 
-class EnrollmentScreen extends StatelessWidget {
+class EnrollmentScreen extends StatefulWidget {
   static final routeName = "/enrollment";
+
+  @override
+  State<StatefulWidget> createState() => EnrollmentScreenState();
+}
+
+class EnrollmentScreenState extends State<EnrollmentScreen> {
+  GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+  static final _routeBuilders = {
+    Welcome.routeName: (_) => Welcome(),
+    Introduction.routeName: (_) => Introduction(),
+    ChoosePin.routeName: (_) => ChoosePin(),
+    ConfirmPin.routeName: (_) => ConfirmPin(),
+    ProvideEmail.routeName: (_) => ProvideEmail(),
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -21,11 +36,11 @@ class EnrollmentScreen extends StatelessWidget {
         listener: (BuildContext context, EnrollmentState state) {
           if (state.emailValidated == true) {
             // TODO navigate top the correct route
-            Navigator.of(context).pushNamed(Welcome.routeName);
+            Navigator.of(context).popUntil((route) => route.settings.name == Welcome.routeName);
           } else if (state.pinConfirmed == true) {
-            Navigator.of(context).pushNamed(ProvideEmail.routeName);
+            Navigator.of(context).pushReplacementNamed(ProvideEmail.routeName);
           } else if (state.pinConfirmed == false) {
-            Navigator.of(context).pushNamed(ChoosePin.routeName);
+            Navigator.of(context).pushReplacementNamed(ChoosePin.routeName);
           }
         },
         child: child,
@@ -34,32 +49,16 @@ class EnrollmentScreen extends StatelessWidget {
 
     return BlocProvider<EnrollmentBloc>(
         builder: (context) => EnrollmentBloc(),
-        child: Navigator(
-          initialRoute: Welcome.routeName,
-          onGenerateRoute: (RouteSettings settings) {
-            WidgetBuilder builder;
-            switch (settings.name) {
-              case Welcome.routeName:
-                builder = (BuildContext c) => buildListener(c, Welcome());
-                break;
-              case Introduction.routeName:
-                builder = (BuildContext c) => buildListener(c, Introduction());
-                break;
-              case ChoosePin.routeName:
-                builder = (BuildContext c) => buildListener(c, ChoosePin());
-                break;
-              case ConfirmPin.routeName:
-                builder = (BuildContext c) => buildListener(c, ConfirmPin());
-                break;
-              case ProvideEmail.routeName:
-                builder = (BuildContext c) => buildListener(c, ProvideEmail());
-                break;
-              default:
-                throw Exception('Invalid route: ${settings.name}');
-            }
-
-            return MaterialPageRoute(builder: builder, settings: settings);
-          },
-        ));
+        child: WillPopScope(
+            onWillPop: () async => !await navigatorKey.currentState.maybePop(),
+            child: Navigator(
+              key: navigatorKey,
+              initialRoute: Welcome.routeName,
+              onGenerateRoute: (RouteSettings settings) {
+                return MaterialPageRoute(
+                    builder: (BuildContext c) => buildListener(c, _routeBuilders[settings.name](c)),
+                    settings: settings);
+              },
+            )));
   }
 }
