@@ -1,4 +1,4 @@
-package foundation.privacybydesign.irmamobile;
+package foundation.privacybydesign.irmamobile.plugins.irma_mobile_bridge;
 
 import java.io.File;
 import java.util.Arrays;

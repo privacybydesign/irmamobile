@@ -1,30 +1,28 @@
-package foundation.privacybydesign.irmamobile;
+package foundation.privacybydesign.irmamobile.plugins.irma_mobile_bridge;
 
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
-
-import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-
 import irmagobridge.Irmagobridge;
 
-/** IrmaMobileBridgePlugin */
-public class IrmaMobileBridgePlugin implements MethodCallHandler, irmagobridge.IrmaBridge {
-  private static MethodChannel channel;
+public class IrmaMobileBridgePlugin implements MethodCallHandler, irmagobridge.IrmaMobileBridge {
+  private Context context;
+  private MethodChannel channel;
 
   public static void registerWith(Registrar registrar) {
-    MethodChannel channel = new MethodChannel(registrar.messenger(), "irma_mobile_bridge");
+    MethodChannel channel = new MethodChannel(registrar.messenger(), "irma.app/irma_mobile_bridge");
     channel.setMethodCallHandler(new IrmaMobileBridgePlugin(registrar, channel));
   }
 
   public IrmaMobileBridgePlugin(Registrar registrar, MethodChannel channel) {
     this.channel = channel;
+    this.context = registrar.context();
 
-    Context context = registrar.context();
     IrmaConfigurationCopier copier = new IrmaConfigurationCopier(context);
 
     try {
@@ -37,20 +35,18 @@ public class IrmaMobileBridgePlugin implements MethodCallHandler, irmagobridge.I
 
   @Override
   public void onMethodCall(MethodCall call, Result result) {
-    /*if (call.method.equals("")) {
-      result.success("");
-    } else*/ {
-      result.notImplemented();
-    }
+    Irmagobridge.dispatchFromNative(call.method, (String)call.arguments);
+    result.success(null);
   }
 
   @Override
-  public void sendEvent(String channel, String message) {
-      debugLog(channel + ": " + message);
+  public void dispatchFromGo(String name, String payload) {
+      this.channel.invokeMethod(name, payload);
   }
 
   @Override
   public void debugLog(String message) {
-      System.out.printf("irmagobridge: %s\n", message);
+      // TODO: Only make this print in development
+      System.out.printf("[IrmaMobileBridgePlugin] %s\n", message);
   }
 }
