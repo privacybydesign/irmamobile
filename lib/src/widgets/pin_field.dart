@@ -66,7 +66,7 @@ class _PinFieldState extends State<PinField> {
 
       Future.delayed(const Duration(milliseconds: 1000), () {
         if (widget.autoclear) {
-          controller.clear();
+//          controller.clear();
         }
       });
     }

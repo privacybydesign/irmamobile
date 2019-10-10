@@ -4,6 +4,7 @@ import 'package:flutter_i18n/flutter_i18n_delegate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:irmamobile/src/prototypes/prototypes_screen.dart';
 import 'package:irmamobile/src/screens/about/about_screen.dart';
+import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
@@ -21,6 +22,7 @@ class App extends StatelessWidget {
         routes = {
           HomeScreen.routeName: (BuildContext context) => HomeScreen(),
           EnrollmentScreen.routeName: (BuildContext context) => EnrollmentScreen(),
+          ChangePinScreen.routeName: (BuildContext context) => ChangePinScreen(),
           AboutScreen.routeName: (BuildContext context) => AboutScreen(),
           SettingsScreen.routeName: (BuildContext context) => SettingsScreen(),
         },

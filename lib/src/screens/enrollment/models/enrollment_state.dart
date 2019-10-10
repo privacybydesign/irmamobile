@@ -39,6 +39,10 @@ class EnrollmentState with EquatableMixinBase, EquatableMixin {
 
   @override
   String toString() {
+    if (pin == null) {
+      return 'EnrollmentState {pin: <null>}';
+    }
+
     final String code = '*' * pin.length;
 
     return 'EnrollmentState {pin: $code, email: $email}';

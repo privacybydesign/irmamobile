@@ -2,12 +2,11 @@ import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:irmamobile/src/screens/enrollment/widgets/cancel_button.dart';
+import 'package:irmamobile/src/screens/enrollment/widgets/choose_pin.dart';
+import 'package:irmamobile/src/screens/enrollment/widgets/welcome.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/theme_button.dart';
-
-import 'cancel_button.dart';
-import 'choose_pin.dart';
-import 'welcome.dart';
 
 class Introduction extends StatefulWidget {
   static const String routeName = 'enrollment/introduction';
