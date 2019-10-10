@@ -27,7 +27,7 @@ class ProvideEmail extends StatelessWidget {
               child: Padding(
                   padding: EdgeInsets.all(IrmaTheme.of(context).spacing * 2),
                   child: Column(children: [
-                    if (state.emailValidated == false) ...[
+                    if (state.emailValidated == ValidationState.invalid) ...[
                       ErrorMessage(message: 'enrollment.provide_email.error'),
                       SizedBox(height: IrmaTheme.of(context).spacing)
                     ],

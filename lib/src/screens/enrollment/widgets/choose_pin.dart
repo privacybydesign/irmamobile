@@ -28,7 +28,7 @@ class ChoosePin extends StatelessWidget {
             child: Padding(
                 padding: EdgeInsets.only(top: IrmaTheme.of(context).spacing * 2),
                 child: Column(children: [
-                  if (state.pinConfirmed == false) ...[
+                  if (state.pinConfirmed == ValidationState.invalid) ...[
                     ErrorMessage(message: 'enrollment.choose_pin.error'),
                     SizedBox(height: IrmaTheme.of(context).spacing)
                   ],

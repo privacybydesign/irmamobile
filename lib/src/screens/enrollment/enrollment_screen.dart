@@ -31,15 +31,15 @@ class EnrollmentScreenState extends State<EnrollmentScreen> {
     final buildListener = (BuildContext context, Widget child) {
       return BlocListener<EnrollmentBloc, EnrollmentState>(
         condition: (EnrollmentState previous, EnrollmentState current) {
+          print(current.toString());
           return current.pinConfirmed != previous.pinConfirmed || current.emailValidated != previous.emailValidated;
         },
         listener: (BuildContext context, EnrollmentState state) {
-          if (state.emailValidated == true) {
-            // TODO navigate top the correct route
-            Navigator.of(context).popUntil((route) => route.settings.name == Welcome.routeName);
-          } else if (state.pinConfirmed == true) {
+          if (state.emailValidated == ValidationState.valid) {
+            Navigator.of(context, rootNavigator: true).pushReplacementNamed('/');
+          } else if (state.pinConfirmed == ValidationState.valid) {
             Navigator.of(context).pushReplacementNamed(ProvideEmail.routeName);
-          } else if (state.pinConfirmed == false) {
+          } else if (state.pinConfirmed == ValidationState.invalid) {
             Navigator.of(context).pushReplacementNamed(ChoosePin.routeName);
           }
         },

@@ -24,7 +24,7 @@ class ChoosePin extends StatelessWidget {
         body: BlocBuilder<ChangePinBloc, ChangePinState>(builder: (context, state) {
           return SingleChildScrollView(
               child: Column(children: [
-            if (state.newPinConfirmed == false) ...[
+            if (state.newPinConfirmed == ValidationState.invalid) ...[
               SizedBox(height: IrmaTheme.of(context).spacing),
               ErrorMessage(message: 'change_pin.choose_pin.error')
             ],

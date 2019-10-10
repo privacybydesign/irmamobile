@@ -23,6 +23,8 @@ class EnrollmentBloc extends Bloc<EnrollmentEvent, EnrollmentState> {
 
   @override
   Stream<EnrollmentState> mapEventToState(EnrollmentEvent event) async* {
+    print(event.toString());
+
     if (event is EnrollmentCanceled) {
       yield EnrollmentState();
     }
@@ -30,19 +32,21 @@ class EnrollmentBloc extends Bloc<EnrollmentEvent, EnrollmentState> {
     if (event is PinChosen) {
       yield currentState.copyWith(
         pin: event.pin,
+        pinConfirmed: ValidationState.initial,
       );
     }
 
     if (event is PinConfirmed) {
       final bool pinConfirmed = event.pin == currentState.pin;
       yield currentState.copyWith(
-        pinConfirmed: pinConfirmed,
+        pinConfirmed: pinConfirmed ? ValidationState.valid : ValidationState.invalid,
       );
     }
 
     if (event is EmailChanged) {
       yield currentState.copyWith(
         email: event.email,
+        emailValidated: ValidationState.initial,
       );
     }
 
@@ -56,7 +60,7 @@ class EnrollmentBloc extends Bloc<EnrollmentEvent, EnrollmentState> {
       }
 
       yield currentState.copyWith(
-        emailValidated: emailValidated,
+        emailValidated: emailValidated ? ValidationState.valid : ValidationState.invalid,
       );
 
       if (emailValidated == true) {

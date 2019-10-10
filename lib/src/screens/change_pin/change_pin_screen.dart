@@ -7,8 +7,22 @@ import 'package:irmamobile/src/screens/change_pin/widgets/confirm_pin.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/enter_pin.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/success.dart';
 
-class ChangePinScreen extends StatelessWidget {
+class ChangePinScreen extends StatefulWidget {
   static final routeName = "/change_pin";
+
+  @override
+  State<StatefulWidget> createState() => ChangePinScreenState();
+}
+
+class ChangePinScreenState extends State<ChangePinScreen> {
+  GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+  static final _routeBuilders = {
+    EnterPin.routeName: (_) => EnterPin(),
+    ChoosePin.routeName: (_) => ChoosePin(),
+    ConfirmPin.routeName: (_) => ConfirmPin(),
+    Success.routeName: (_) => Success(),
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -19,11 +33,11 @@ class ChangePinScreen extends StatelessWidget {
               current.oldPinVerified != previous.oldPinVerified;
         },
         listener: (BuildContext context, ChangePinState state) {
-          if (state.newPinConfirmed == true) {
+          if (state.newPinConfirmed == ValidationState.valid) {
             Navigator.of(context).pushNamed(Success.routeName);
-          } else if (state.newPinConfirmed == false) {
+          } else if (state.newPinConfirmed == ValidationState.invalid) {
             Navigator.of(context).pushNamed(ChoosePin.routeName);
-          } else if (state.oldPinVerified == true) {
+          } else if (state.oldPinVerified == ValidationState.valid) {
             Navigator.of(context).pushNamed(ChoosePin.routeName);
           }
         },
@@ -33,29 +47,16 @@ class ChangePinScreen extends StatelessWidget {
 
     return BlocProvider<ChangePinBloc>(
         builder: (context) => ChangePinBloc(),
-        child: Navigator(
-          initialRoute: EnterPin.routeName,
-          onGenerateRoute: (RouteSettings settings) {
-            WidgetBuilder builder;
-            switch (settings.name) {
-              case EnterPin.routeName:
-                builder = (BuildContext c) => buildListener(c, EnterPin());
-                break;
-              case ChoosePin.routeName:
-                builder = (BuildContext c) => buildListener(c, ChoosePin());
-                break;
-              case ConfirmPin.routeName:
-                builder = (BuildContext c) => buildListener(c, ConfirmPin());
-                break;
-              case Success.routeName:
-                builder = (BuildContext c) => buildListener(c, Success());
-                break;
-              default:
-                throw Exception('Invalid route: ${settings.name}');
-            }
-
-            return MaterialPageRoute(builder: builder, settings: settings);
-          },
-        ));
+        child: WillPopScope(
+            onWillPop: () async => !await navigatorKey.currentState.maybePop(),
+            child: Navigator(
+              key: navigatorKey,
+              initialRoute: EnterPin.routeName,
+              onGenerateRoute: (RouteSettings settings) {
+                return MaterialPageRoute(
+                    builder: (BuildContext c) => buildListener(c, _routeBuilders[settings.name](c)),
+                    settings: settings);
+              },
+            )));
   }
 }

@@ -13,7 +13,7 @@ class ErrorMessage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
         padding: EdgeInsets.all(IrmaTheme.of(context).spacing),
-        margin: EdgeInsets.all(IrmaTheme.of(context).spacing),
+        margin: EdgeInsets.only(top: IrmaTheme.of(context).spacing, bottom: IrmaTheme.of(context).spacing),
         color: IrmaTheme.of(context).interactionInvalid,
         child: Text(
           FlutterI18n.translate(context, message),

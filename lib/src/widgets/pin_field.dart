@@ -68,12 +68,10 @@ class _PinFieldState extends State<PinField> {
       });
     }
 
-    if (value != val) {
-      setState(() {
-        value = val;
-        lastLength = len;
-      });
-    }
+    setState(() {
+      value = val;
+      lastLength = len;
+    });
 
     if (widget.onChange != null) {
       widget.onChange(val);

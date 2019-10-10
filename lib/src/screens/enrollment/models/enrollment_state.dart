@@ -1,33 +1,39 @@
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
+enum ValidationState {
+  initial,
+  valid,
+  invalid
+}
+
 @immutable
 class EnrollmentState with EquatableMixinBase, EquatableMixin {
   final String pin;
   final String email;
 
-  // This value is null initially.
-  // When the pin is confirmed this value will be true.
-  // When the confirm pin did not match this value will be false
-  final bool pinConfirmed;
+  // This value is "initial" initially
+  // When the pin is confirmed this value will be "valid"
+  // When the confirm pin did not match this value will be "invalid"
+  final ValidationState pinConfirmed;
 
-  // This value is null initially.
-  // When a valid email address is entered this value is true.
-  // When a invalid email address is entered this value will be false
-  final bool emailValidated;
+  // This value is "initial" initially
+  // When a valid email address is entered this value is "valid"
+  // When a invalid email address is entered this value will be "invalid"
+  final ValidationState emailValidated;
 
   EnrollmentState({
     this.pin,
     this.email,
-    this.pinConfirmed,
-    this.emailValidated,
+    this.pinConfirmed = ValidationState.initial,
+    this.emailValidated = ValidationState.initial,
   });
 
   EnrollmentState copyWith({
     String pin,
     String email,
-    bool pinConfirmed,
-    bool emailValidated,
+    ValidationState pinConfirmed,
+    ValidationState emailValidated,
   }) {
     return new EnrollmentState(
       pin: pin ?? this.pin,
@@ -39,13 +45,7 @@ class EnrollmentState with EquatableMixinBase, EquatableMixin {
 
   @override
   String toString() {
-    if (pin == null) {
-      return 'EnrollmentState {pin: <null>}';
-    }
-
-    final String code = '*' * pin.length;
-
-    return 'EnrollmentState {pin: $code, email: $email}';
+    return 'EnrollmentState {pin: $pin, email: $email, pin confirmed: $pinConfirmed, email validated: $emailValidated}';
   }
 
   @override

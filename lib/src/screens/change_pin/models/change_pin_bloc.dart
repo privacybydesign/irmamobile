@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:email_validator/email_validator.dart';
 import 'package:irmamobile/src/screens/change_pin/models/change_pin_event.dart';
 import 'package:irmamobile/src/screens/change_pin/models/change_pin_state.dart';
 
@@ -30,13 +29,14 @@ class ChangePinBloc extends Bloc<ChangePinEvent, ChangePinState> {
     if (event is OldPinEntered) {
       // TODO: check pin in correct (event.pin)
       yield currentState.copyWith(
-        oldPinVerified: true,
+        oldPinVerified: ValidationState.valid,
       );
     }
 
     if (event is NewPinChosen) {
       yield currentState.copyWith(
         newPin: event.pin,
+        newPinConfirmed: ValidationState.initial,
       );
     }
 
@@ -44,7 +44,7 @@ class ChangePinBloc extends Bloc<ChangePinEvent, ChangePinState> {
       final bool pinConfirmed = event.pin == currentState.newPin;
       // TODO: update the pin
       yield currentState.copyWith(
-        newPinConfirmed: pinConfirmed,
+        newPinConfirmed: pinConfirmed ? ValidationState.valid : ValidationState.invalid,
       );
     }
   }

@@ -1,6 +1,12 @@
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
+enum ValidationState {
+  initial,
+  valid,
+  invalid
+}
+
 @immutable
 class ChangePinState with EquatableMixinBase, EquatableMixin {
   final String newPin;
@@ -8,12 +14,12 @@ class ChangePinState with EquatableMixinBase, EquatableMixin {
   // This value is null initially.
   // When the old pin is entered correctly this value will be true
   // When the old pin is entered incorrectly this value will be false
-  final bool oldPinVerified;
+  final ValidationState oldPinVerified;
 
   // This value is null initially.
   // When the new pin is confirmed this value will be true
   // When the confirm pin did not match this value will be false
-  final bool newPinConfirmed;
+  final ValidationState newPinConfirmed;
 
   ChangePinState({
     this.newPin,
@@ -23,8 +29,8 @@ class ChangePinState with EquatableMixinBase, EquatableMixin {
 
   ChangePinState copyWith({
     String newPin,
-    bool oldPinVerified,
-    bool newPinConfirmed,
+    ValidationState oldPinVerified = ValidationState.initial,
+    ValidationState newPinConfirmed = ValidationState.initial,
   }) {
     return new ChangePinState(
       newPin: newPin ?? this.newPin,
