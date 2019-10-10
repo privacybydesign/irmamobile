@@ -70,7 +70,7 @@ void main() {
     await tester.pumpWidget(App.test((_) => ProvideEmail(), [
       BlocProvider<EnrollmentBloc>(
           builder: (_) => EnrollmentBloc.test(EnrollmentState().copyWith(
-                emailValidated: true,
+                emailValidated: ValidationState.valid,
               )))
     ]));
     await tester.pumpAndSettle();
@@ -87,8 +87,8 @@ void main() {
       BlocProvider<EnrollmentBloc>(
           builder: (_) => EnrollmentBloc.test(EnrollmentState().copyWith(
                 pin: '1234',
-                pinConfirmed: true,
-                emailValidated: false,
+                pinConfirmed: ValidationState.valid,
+                emailValidated: ValidationState.invalid,
               )))
     ]));
     await tester.pumpAndSettle();
