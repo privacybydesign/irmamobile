@@ -59,6 +59,25 @@
   "card": {
     "personaldata": "Persoonsgegevens"
   },
+  "card_store": {
+    "app_bar": "Gegevens ophalen",
+    "choose": "Kies de gegevens die je wilt ophalen.",
+    "search": "Zoek...",
+    "personal_data": "Persoonsgegevens",
+    "identity_cards": "Identiteitsbewijzen",
+    "education": "Onderwijs",
+    "health": "Zorg",
+    "card_info": {
+      "obtain": "ophalen",
+      "issuer": "Uitgifte",
+      "general_info": "Uitleg tekst...Lorem ipsum.",
+      "issuer_question": "Waar haal ik de gegevens op?",
+      "provided_attributes_question": "Welke gegevens ontvang ik?",
+      "expiration_question": "Hoe lang zijn de gegevens geldig?",
+      "back_button": "Later",
+      "get_button": "Ophalen"
+    }
+  },
   "settings": {
     "title": "Instellingen",
     "pin": {

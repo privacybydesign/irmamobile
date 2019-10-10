@@ -4,7 +4,7 @@ import 'package:meta/meta.dart';
 enum ValidationState { initial, valid, invalid }
 
 @immutable
-class ChangePinState with EquatableMixinBase, EquatableMixin {
+class ChangePinState with EquatableMixin {
   final String newPin;
 
   // This value is null initially.

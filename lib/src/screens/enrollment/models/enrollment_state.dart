@@ -4,7 +4,7 @@ import 'package:meta/meta.dart';
 enum ValidationState { initial, valid, invalid }
 
 @immutable
-class EnrollmentState with EquatableMixinBase, EquatableMixin {
+class EnrollmentState with EquatableMixin {
   final String pin;
   final String email;
 

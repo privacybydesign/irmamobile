@@ -1,4 +1,4 @@
-package foundation.privacybydesign.irmamobile;
+package foundation.privacybydesign.irmamobile.plugins.irma_mobile_bridge;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,9 +20,8 @@ import android.util.Log;
 import android.content.res.AssetManager;
 import android.content.Context;
 
-// TODO: Fix unchecked operations, and perhaps use a more reasonable approach to path handling,
-// rather than reinventing a couple of classes due to the complete implementation missing 
-// from some Android versions
+// TODO: Use a more reasonable approach to path handling, rather than reinventing a couple
+// of classes due to the complete implementation missing from some Android versions
 
 public class IrmaConfigurationCopier {
 
@@ -108,7 +107,7 @@ public class IrmaConfigurationCopier {
         Manifest manifest = new JarFile(this.context.getApplicationInfo().sourceDir).getManifest();
         Set<String> manifestEntries = manifest.getEntries().keySet();
 
-        this.configurationFilePaths = new ArrayList(manifestEntries.size());
+        this.configurationFilePaths = new ArrayList<Path>(manifestEntries.size());
         Path manifestPrefix = Paths.get("assets").resolve(this.sourceConfigurationPath);
 
         for(String manifestEntry : manifestEntries) {
