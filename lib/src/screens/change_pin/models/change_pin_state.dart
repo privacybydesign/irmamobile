@@ -7,6 +7,8 @@ enum ValidationState { initial, valid, invalid }
 class ChangePinState with EquatableMixin {
   final String newPin;
 
+  final int retry;
+
   // This value is null initially.
   // When the old pin is entered correctly this value will be true
   // When the old pin is entered incorrectly this value will be false
@@ -19,29 +21,32 @@ class ChangePinState with EquatableMixin {
 
   ChangePinState({
     this.newPin,
-    this.oldPinVerified,
-    this.newPinConfirmed,
+    this.oldPinVerified = ValidationState.initial,
+    this.newPinConfirmed = ValidationState.initial,
+    this.retry = 0,
   });
 
   ChangePinState copyWith({
     String newPin,
-    ValidationState oldPinVerified = ValidationState.initial,
-    ValidationState newPinConfirmed = ValidationState.initial,
+    ValidationState oldPinVerified,
+    ValidationState newPinConfirmed,
+    int retry,
   }) {
     return new ChangePinState(
       newPin: newPin ?? this.newPin,
       oldPinVerified: oldPinVerified ?? this.oldPinVerified,
       newPinConfirmed: newPinConfirmed ?? this.newPinConfirmed,
+      retry: retry ?? this.retry,
     );
   }
 
   @override
   String toString() {
-    return 'ChangePinState {new pin: $newPin, old verified: $oldPinVerified, new confirmed: $newPinConfirmed}';
+    return 'ChangePinState {new pin: $newPin, old verified: $oldPinVerified, new confirmed: $newPinConfirmed, retry: $retry}';
   }
 
   @override
   List<Object> get props {
-    return [newPin, oldPinVerified, newPinConfirmed];
+    return [newPin, oldPinVerified, newPinConfirmed, retry];
   }
 }

@@ -29,7 +29,9 @@ class ChangePinBloc extends Bloc<ChangePinEvent, ChangePinState> {
     if (event is OldPinEntered) {
       // TODO: check pin in correct (event.pin)
       yield currentState.copyWith(
+        retry: currentState.retry + 1,
         oldPinVerified: ValidationState.valid,
+        newPinConfirmed: ValidationState.initial,
       );
     }
 
