@@ -3,49 +3,53 @@ import 'package:meta/meta.dart';
 
 @immutable
 class EnrollmentState with EquatableMixin {
+  // Pin and email values as submitted
   final String pin;
   final String email;
 
-  // This value is null initially.
-  // When the pin is confirmed this value will be true.
-  // When the confirm pin did not match this value will be false
+  // Booleans that indicate:
+  //  - Whether the submitted confirmation pin matches the initially given pin (initially false)
+  //  - Whether the email address that is submitted is valid (initially false)
+  //  - Whether to show the validation status of the email address or pin (initially false)
   final bool pinConfirmed;
-
-  // This value is null initially.
-  // When a valid email address is entered this value is true.
-  // When a invalid email address is entered this value will be false
-  final bool emailValidated;
+  final bool emailValid;
+  final bool showEmailValidation;
+  final bool showPinValidation;
 
   EnrollmentState({
     this.pin,
     this.email,
-    this.pinConfirmed,
-    this.emailValidated,
+    this.pinConfirmed = false,
+    this.emailValid = false,
+    this.showEmailValidation = false,
+    this.showPinValidation = false,
   });
 
   EnrollmentState copyWith({
     String pin,
     String email,
     bool pinConfirmed,
-    bool emailValidated,
+    bool emailValid,
+    bool showEmailValidation,
+    bool showPinValidation,
   }) {
     return new EnrollmentState(
       pin: pin ?? this.pin,
       email: email ?? this.email,
       pinConfirmed: pinConfirmed ?? this.pinConfirmed,
-      emailValidated: emailValidated ?? this.emailValidated,
+      emailValid: emailValid ?? this.emailValid,
+      showEmailValidation: showEmailValidation ?? this.showEmailValidation,
+      showPinValidation: showPinValidation ?? this.showPinValidation,
     );
   }
 
   @override
   String toString() {
-    final String code = '*' * pin.length;
-
-    return 'EnrollmentState {pin: $code, email: $email}';
+    return 'EnrollmentState {pin: ${'*' * pin.length}, email: $email}';
   }
 
   @override
   List<Object> get props {
-    return [pin, email, pinConfirmed, emailValidated];
+    return [pin, email, pinConfirmed, emailValid];
   }
 }

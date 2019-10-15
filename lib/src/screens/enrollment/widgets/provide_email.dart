@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_bloc.dart';
-import 'package:irmamobile/src/screens/enrollment/models/enrollment_event.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/cancel_button.dart';
 import 'package:irmamobile/src/theme/theme.dart';
@@ -14,10 +13,13 @@ import 'choose_pin.dart';
 class ProvideEmail extends StatelessWidget {
   static const String routeName = 'enrollment/provide_email';
 
+  final void Function() submitEmail;
+  final void Function(String) changeEmail;
+
+  ProvideEmail({this.submitEmail, this.changeEmail});
+
   @override
   Widget build(BuildContext context) {
-    final EnrollmentBloc enrollmentBloc = BlocProvider.of<EnrollmentBloc>(context);
-
     return Scaffold(
         appBar: AppBar(
           leading: CancelButton(routeName: ChoosePin.routeName),
@@ -28,7 +30,7 @@ class ProvideEmail extends StatelessWidget {
               child: Padding(
                   padding: EdgeInsets.all(IrmaTheme.of(context).spacing * 2),
                   child: Column(children: [
-                    if (state.emailValidated == false) ...[
+                    if (state.emailValid == false && state.showEmailValidation) ...[
                       ErrorMessage(message: 'enrollment.provide_email.error'),
                       SizedBox(height: IrmaTheme.of(context).spacing)
                     ],
@@ -43,18 +45,12 @@ class ProvideEmail extends StatelessWidget {
                       decoration: InputDecoration(
                           hintText: FlutterI18n.translate(context, 'enrollment.provide_email.placeholder')),
                       keyboardType: TextInputType.emailAddress,
-                      onChanged: (String email) {
-                        enrollmentBloc.dispatch(EmailChanged(email: email));
-                      },
-                      onEditingComplete: () {
-                        enrollmentBloc.dispatch(EmailSubmitted());
-                      },
+                      onChanged: changeEmail,
+                      onEditingComplete: submitEmail,
                     ),
                     SizedBox(height: IrmaTheme.of(context).spacing),
                     PrimaryButton(
-                      onPressed: () {
-                        enrollmentBloc.dispatch(EmailSubmitted());
-                      },
+                      onPressed: submitEmail,
                       label: 'enrollment.provide_email.next',
                     ),
                   ])));

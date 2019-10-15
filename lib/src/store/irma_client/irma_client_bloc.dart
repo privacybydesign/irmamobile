@@ -27,8 +27,6 @@ class IrmaClientBloc extends Bloc<Object, IrmaClientState> {
       yield currentState.copyWith(
         credentials: credentials,
       );
-    } else {
-      yield currentState;
     }
   }
 }

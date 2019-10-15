@@ -4,6 +4,7 @@ import 'package:irmamobile/src/plugins/irma_mobile_bridge/irma_mobile_bridge_plu
 
 class AppBlocDelegate extends BlocDelegate {
   List<Bloc> _appBlocs = [];
+  Object _lastEvent;
 
   // Maintain a registry of global blocs that can be statically dispatched,
   // mainly from the IrmaMobileBridge plugin. Widgets should use BlocBuilder instead.
@@ -13,17 +14,22 @@ class AppBlocDelegate extends BlocDelegate {
   }
 
   // Intercept any event that is sent to any bloc, and dispatch it to global blocs
-  // If the event is bridgable, send it to the bridge
   @override
   void onEvent(Bloc originatingBloc, Object event) {
     super.onEvent(originatingBloc, event);
 
+    // Check if we already handled this event (TODO: this is very ugly, will fix)
+    if (event == _lastEvent) return;
+    _lastEvent = event;
+
+    // Send the event to every bloc exchep
     _appBlocs.forEach((appBloc) {
       if (originatingBloc != appBloc) {
         appBloc.dispatch(event);
       }
     });
 
+    // If the event is bridgable, send it to the bridge
     if (event is BridgeableEvent) {
       IrmaMobileBridgePlugin().dispatch(event);
     }
