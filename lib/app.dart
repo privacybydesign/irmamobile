@@ -6,8 +6,8 @@ import 'package:irmamobile/src/plugins/irma_mobile_bridge/irma_mobile_bridge_plu
 import 'package:irmamobile/src/prototypes/prototypes_screen.dart';
 import 'package:irmamobile/src/screens/about/about_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
-import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
+import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 abstract class AppEvent {}
@@ -23,7 +23,7 @@ class App extends StatelessWidget {
   App(List<BlocProvider> providers)
       : initialRoute = EnrollmentScreen.routeName,
         routes = {
-          HomeScreen.routeName: (BuildContext context) => HomeScreen(),
+          WalletScreen.routeName: (BuildContext context) => WalletScreen(),
           EnrollmentScreen.routeName: (BuildContext context) => EnrollmentScreen(),
           AboutScreen.routeName: (BuildContext context) => AboutScreen(),
           SettingsScreen.routeName: (BuildContext context) => SettingsScreen(),

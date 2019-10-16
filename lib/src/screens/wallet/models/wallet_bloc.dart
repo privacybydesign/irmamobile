@@ -2,16 +2,16 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:irmamobile/src/models/credential.dart';
-import 'package:irmamobile/src/screens/home/models/home_state.dart';
+import 'package:irmamobile/src/screens/wallet/models/Wallet_state.dart';
 import 'package:irmamobile/src/store/irma_client/irma_client_bloc.dart';
 import 'package:irmamobile/src/store/irma_client/irma_client_state.dart';
 
-class HomeBloc extends Bloc<Object, HomeState> {
-  final HomeState initialState;
+class WalletBloc extends Bloc<Object, WalletState> {
+  final WalletState initialState;
 
   final IrmaClientBloc irmaClientBloc;
 
-  HomeBloc({this.irmaClientBloc}) : initialState = HomeState();
+  WalletBloc({this.irmaClientBloc}) : initialState = WalletState();
 
   Stream<List<RichCredential>> get credentials =>
       irmaClientBloc.state.map((IrmaClientState irmaClientState) => irmaClientState.credentials.values
@@ -19,5 +19,5 @@ class HomeBloc extends Bloc<Object, HomeState> {
           .toList());
 
   @override
-  Stream<HomeState> mapEventToState(Object event) async* {}
+  Stream<WalletState> mapEventToState(Object event) async* {}
 }

@@ -3,17 +3,17 @@ import 'package:irmamobile/src/models/credential.dart';
 import 'package:meta/meta.dart';
 
 @immutable
-class HomeState with EquatableMixin {
+class WalletState with EquatableMixin {
   final List<RichCredential> credentials;
 
-  HomeState({
+  WalletState({
     this.credentials,
   });
 
-  HomeState copyWith({
+  WalletState copyWith({
     List<RichCredential> credentials,
   }) {
-    return new HomeState(
+    return new WalletState(
       credentials: credentials ?? this.credentials,
     );
   }

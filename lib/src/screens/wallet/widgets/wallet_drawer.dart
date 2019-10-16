@@ -11,7 +11,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 //"about": "About IRMA"
 //},
 
-class HomeDrawer extends StatelessWidget {
+class WalletDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
