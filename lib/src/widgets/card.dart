@@ -1,21 +1,19 @@
-import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/widgets/button.dart';
 
+const tempColor = Colors.white;
+const tempBgColor = Color(0xffec0000);
+
 class IrmaCard extends StatefulWidget {
-  Map<String, List<Map<String, String>>> personalData;
-  Map<String, Object> issuer; // Object is String | Color
+  final RichCredential credential;
 
-  StreamController<bool> unfoldStream = StreamController();
-  StreamController<void> updateStream = StreamController();
-  StreamController<void> removeStream = StreamController();
-
-  IrmaCard(this.personalData, this.issuer);
+  IrmaCard({this.credential});
 
   @override
   _IrmaCardState createState() => _IrmaCardState();
@@ -63,7 +61,6 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
               setState(() {
                 isUnfolded = !isUnfolded;
               });
-              widget.unfoldStream.sink.add(isUnfolded);
             },
             onLongPress: () {
               setState(() {
@@ -86,8 +83,8 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
                         bottom: headerBottom,
                       ),
                       child: Text(
-                        FlutterI18n.translate(context, 'card.personaldata'),
-                        style: Theme.of(context).textTheme.headline.copyWith(color: widget.issuer['color']),
+                        widget.credential.credentialType.name['nl'],
+                        style: Theme.of(context).textTheme.headline.copyWith(color: tempColor),
                       ),
                     ),
                   ),
@@ -96,7 +93,7 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
                       padding: const EdgeInsets.all(padding),
                       child: Opacity(
                           opacity: _opacityTween.evaluate(animation),
-                          child: _personalData(widget.personalData, widget.issuer, isCardReadable)),
+                          child: _personalData(widget.credential, isCardReadable)),
                     ),
                   ),
                   Container(
@@ -116,12 +113,21 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
                                 icon: SvgPicture.asset('assets/icons/arrow-down.svg'),
                                 padding: EdgeInsets.only(left: padding),
                                 alignment: Alignment.centerLeft,
+                                /*onPressed: () => null,*/
                               ),
                             ),
                           ),
                         ),
-                        Button(animation, 'assets/icons/update.svg', 'accessibility.update', widget.updateStream.sink),
-                        Button(animation, 'assets/icons/remove.svg', 'accessibility.remove', widget.removeStream.sink)
+                        Button(
+                            animation: animation,
+                            svgFile: 'assets/icons/refresh.svg',
+                            accessibleName: 'accessibility.refresh',
+                            onPressed: () => null),
+                        Button(
+                            animation: animation,
+                            svgFile: 'assets/icons/remove.svg',
+                            accessibleName: 'accessibility.remove',
+                            onPressed: () => null)
                       ],
                     ),
                     height: 50,
@@ -138,12 +144,12 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
               height: _heightTween.evaluate(animation),
               margin: const EdgeInsets.symmetric(horizontal: 20),
               decoration: BoxDecoration(
-                  color: widget.issuer['bg-color'],
+                  color: tempBgColor,
                   borderRadius: BorderRadius.all(
                     borderRadius,
                   ),
                   image: DecorationImage(
-                      image: AssetImage("assets/issuers/${widget.issuer['bg']}"),
+                      image: AssetImage("assets/issuers/amsterdam.png"),
                       fit: BoxFit.fitWidth,
                       alignment: Alignment.topCenter)),
             ));
@@ -154,31 +160,29 @@ class _personalData extends StatelessWidget {
   static const transparentWhite = Color(0xaaffffff);
   static const indent = 100.0;
 
-  Map<String, List<Map<String, String>>> personalData;
-  Map<String, Object> issuer; // Object is String | Color
+  final RichCredential credential;
   bool isCardUnblurred;
 
-  _personalData(this.personalData, this.issuer, this.isCardUnblurred);
+  _personalData(this.credential, this.isCardUnblurred);
 
   Widget build(BuildContext context) {
     List<Widget> textLines = <Widget>[
       Divider(color: transparentWhite),
     ];
 
-    textLines.addAll(personalData['data'].map((personal) {
-      return Padding(
-        padding: EdgeInsets.symmetric(vertical: 4),
-        child: Row(
-          children: [
-            Container(
-              child: Text(personal['key'], style: Theme.of(context).textTheme.body1.copyWith(color: issuer['color'])),
-              width: indent,
-            ),
-            _BlurText(personal['value'], issuer['color'], personal['hidden'] == 'true' && !isCardUnblurred),
-          ],
-        ),
-      );
-    }));
+    textLines.addAll(credential.attributes.map((attribute) => Padding(
+          padding: EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            children: [
+              Container(
+                child: Text(attribute.type.name['nl'],
+                    style: Theme.of(context).textTheme.body1.copyWith(color: tempColor)),
+                width: indent,
+              ),
+              _BlurText(attribute.value['nl'], tempColor, false && !isCardUnblurred),
+            ],
+          ),
+        )));
 
     textLines.add(Divider(color: transparentWhite));
 
@@ -187,42 +191,32 @@ class _personalData extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            child: Text('Uitgifte', style: Theme.of(context).textTheme.body1.copyWith(color: issuer['color'])),
+            child: Text('Uitgifte', style: Theme.of(context).textTheme.body1.copyWith(color: tempColor)),
             width: indent,
           ),
           Text(
-            issuer['name'],
-            style: Theme.of(context)
-                .textTheme
-                .body1
-                .copyWith(fontWeight: FontWeight.w700)
-                .copyWith(color: issuer['color']),
+            credential.issuer.name['nl'],
+            style: Theme.of(context).textTheme.body1.copyWith(fontWeight: FontWeight.w700).copyWith(color: tempColor),
           ),
         ],
       ),
     ));
 
-    textLines.addAll(personalData['metadata'].map((personal) {
-      return Padding(
-        padding: EdgeInsets.symmetric(vertical: 4),
-        child: Row(
-          children: [
-            Container(
-              child: Text(personal['key'], style: Theme.of(context).textTheme.body1.copyWith(color: issuer['color'])),
-              width: indent,
-            ),
-            Text(
-              personal['value'],
-              style: Theme.of(context)
-                  .textTheme
-                  .body1
-                  .copyWith(fontWeight: FontWeight.w700)
-                  .copyWith(color: issuer['color']),
-            ),
-          ],
-        ),
-      );
-    }));
+    textLines.add(Padding(
+      padding: EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Container(
+            child: Text("Geldig tot", style: Theme.of(context).textTheme.body1.copyWith(color: tempColor)),
+            width: indent,
+          ),
+          Text(
+            credential.expires.toString(),
+            style: Theme.of(context).textTheme.body1.copyWith(fontWeight: FontWeight.w700).copyWith(color: tempColor),
+          ),
+        ],
+      ),
+    ));
 
     return ListView(
       children: textLines,

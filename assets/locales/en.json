@@ -53,7 +53,7 @@
     },
     "accessibility": {
         "unfold": "Unfold",
-        "update": "Update",
+        "refresh": "Update",
         "remove": "Remove"
     },
     "card": {
