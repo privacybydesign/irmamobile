@@ -15,7 +15,8 @@ class WalletBloc extends Bloc<Object, WalletState> {
 
   Stream<List<RichCredential>> get credentials =>
       irmaClientBloc.state.map((IrmaClientState irmaClientState) => irmaClientState.credentials.values
-          .map((Credential credential) => RichCredential(irmaConfiguration: irmaClientState.irmaConfiguration, credential: credential))
+          .map((Credential credential) =>
+              RichCredential(irmaConfiguration: irmaClientState.irmaConfiguration, credential: credential))
           .toList());
 
   @override

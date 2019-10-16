@@ -56,7 +56,7 @@
     "remove": "Verwijderen"
   },
   "card": {
-    "personaldata": "Persoonsgegevens"
+    "expiresAt": "Geldig tot"
   },
   "card_store": {
     "app_bar": "Gegevens ophalen",
