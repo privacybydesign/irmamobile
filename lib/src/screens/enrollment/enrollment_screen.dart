@@ -20,14 +20,34 @@ class EnrollmentScreen extends StatelessWidget {
   }
 }
 
-class ProvidedEnrollmentScreen extends StatelessWidget {
+class ProvidedEnrollmentScreen extends StatefulWidget {
   final EnrollmentBloc bloc;
 
   ProvidedEnrollmentScreen({this.bloc}) : super();
 
+  @override
+  State<StatefulWidget> createState() => ProvidedEnrollmentScreenState(bloc: bloc);
+}
+
+class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
+  final EnrollmentBloc bloc;
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+  ProvidedEnrollmentScreenState({this.bloc}) : super();
+
+  Map<String, WidgetBuilder> _routeBuilders() {
+    return {
+      Welcome.routeName: (_) => Welcome(),
+      Introduction.routeName: (_) => Introduction(),
+      ChoosePin.routeName: (_) => ChoosePin(submitPin: submitPin, cancel: cancel),
+      ConfirmPin.routeName: (_) => ConfirmPin(submitConfirmationPin: submitConfirmationPin, cancel: cancel),
+      ProvideEmail.routeName: (_) => ProvideEmail(submitEmail: submitEmail, changeEmail: changeEmail, cancel: cancel),
+    };
+  }
+
   submitPin(BuildContext context, String pin) {
     bloc.dispatch(PinSubmitted(pin: pin));
-    Navigator.of(context).pushReplacementNamed(ConfirmPin.routeName);
+    Navigator.of(context).pushNamed(ConfirmPin.routeName);
   }
 
   submitConfirmationPin(pin) {
@@ -37,8 +57,8 @@ class ProvidedEnrollmentScreen extends StatelessWidget {
   submitEmail() {
     bloc.dispatch(EmailSubmitted());
 
-    if (bloc.currentState.pinConfirmed && bloc.currentState.emailValid) {
-      bloc.dispatch(EnrollEvent(email: bloc.currentState.email, pin: bloc.currentState.pin, language: 'nl'));
+    if (bloc.currentState.pinConfirmed && (bloc.currentState.email.trim() == "" || bloc.currentState.emailValid)) {
+      bloc.dispatch(EnrollEvent(email: bloc.currentState.email.trim(), pin: bloc.currentState.pin, language: 'nl'));
     }
   }
 
@@ -46,51 +66,44 @@ class ProvidedEnrollmentScreen extends StatelessWidget {
     bloc.dispatch(EmailChanged(email: email));
   }
 
+  cancel() {
+    bloc.dispatch(EnrollmentCanceled());
+  }
+
   @override
   Widget build(BuildContext context) {
-    final buildListener = (BuildContext context, Widget child) {
-      return BlocListener<EnrollmentBloc, EnrollmentState>(
-        condition: (EnrollmentState previous, EnrollmentState current) {
-          return current.pinConfirmed != previous.pinConfirmed;
-        },
-        listener: (BuildContext context, EnrollmentState state) {
-          if (state.pinConfirmed == true) {
-            Navigator.of(context).pushNamed(ProvideEmail.routeName);
-          } else if (state.pinConfirmed == false) {
-            Navigator.of(context).pushNamed(ChoosePin.routeName);
-          }
-        },
-        child: child,
-      );
-    };
+    final routeBuilders = _routeBuilders();
 
-    return Navigator(
-      initialRoute: Welcome.routeName,
-      onGenerateRoute: (RouteSettings settings) {
-        WidgetBuilder builder;
-        switch (settings.name) {
-          case Welcome.routeName:
-            builder = (BuildContext c) => buildListener(c, Welcome());
-            break;
-          case Introduction.routeName:
-            builder = (BuildContext c) => buildListener(c, Introduction());
-            break;
-          case ChoosePin.routeName:
-            builder = (BuildContext c) => buildListener(c, ChoosePin(submitPin: submitPin));
-            break;
-          case ConfirmPin.routeName:
-            builder = (BuildContext c) => buildListener(c, ConfirmPin(submitConfirmationPin: submitConfirmationPin));
-            break;
-          case ProvideEmail.routeName:
-            builder =
-                (BuildContext c) => buildListener(c, ProvideEmail(submitEmail: submitEmail, changeEmail: changeEmail));
-            break;
-          default:
-            throw Exception('Invalid route: ${settings.name}');
-        }
+    return WillPopScope(
+        onWillPop: () async {
+          cancel();
+          return !await navigatorKey.currentState.maybePop();
+        },
+        child: Navigator(
+          key: navigatorKey,
+          initialRoute: Welcome.routeName,
+          onGenerateRoute: (RouteSettings settings) {
+            if (!routeBuilders.containsKey(settings.name)) {
+              throw Exception('Invalid route: ${settings.name}');
+            }
 
-        return MaterialPageRoute(builder: builder, settings: settings);
-      },
-    );
+            final child = routeBuilders[settings.name];
+            final builder = (context) => BlocListener<EnrollmentBloc, EnrollmentState>(
+                  condition: (EnrollmentState previous, EnrollmentState current) {
+                    return current.pinConfirmed != previous.pinConfirmed;
+                  },
+                  listener: (BuildContext context, EnrollmentState state) {
+                    if (state.pinConfirmed == true) {
+                      Navigator.of(context).pushReplacementNamed(ProvideEmail.routeName);
+                    } else if (state.pinConfirmed == false) {
+                      Navigator.of(context).pushReplacementNamed(ChoosePin.routeName);
+                    }
+                  },
+                  child: child(context),
+                );
+
+            return MaterialPageRoute(builder: builder, settings: settings);
+          },
+        ));
   }
 }

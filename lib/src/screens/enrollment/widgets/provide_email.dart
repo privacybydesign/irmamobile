@@ -15,14 +15,15 @@ class ProvideEmail extends StatelessWidget {
 
   final void Function() submitEmail;
   final void Function(String) changeEmail;
+  final void Function() cancel;
 
-  ProvideEmail({this.submitEmail, this.changeEmail});
+  ProvideEmail({@required this.submitEmail, @required this.changeEmail, @required this.cancel});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          leading: CancelButton(routeName: ChoosePin.routeName),
+          leading: CancelButton(routeName: ChoosePin.routeName, cancel: cancel),
           title: Text(FlutterI18n.translate(context, 'enrollment.provide_email.title')),
         ),
         body: BlocBuilder<EnrollmentBloc, EnrollmentState>(builder: (context, state) {

@@ -18,7 +18,7 @@ class EnrollmentState with EquatableMixin {
 
   EnrollmentState({
     this.pin,
-    this.email,
+    this.email = "",
     this.pinConfirmed = false,
     this.emailValid = false,
     this.showEmailValidation = false,
@@ -45,7 +45,7 @@ class EnrollmentState with EquatableMixin {
 
   @override
   String toString() {
-    return 'EnrollmentState {pin: ${'*' * pin.length}, email: $email}';
+    return 'EnrollmentState {pin: ${pin == null ? null : '*' * pin.length}, email: $email, pinConfirmed: $pinConfirmed, emailValid: $emailValid, showEmailValidation: $showEmailValidation, showPinValidation: $showPinValidation}';
   }
 
   @override
