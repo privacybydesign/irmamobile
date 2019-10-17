@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/screens/change_pin/models/change_pin_bloc.dart';
-import 'package:irmamobile/src/screens/change_pin/models/change_pin_event.dart';
 import 'package:irmamobile/src/screens/change_pin/models/change_pin_state.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/cancel_button.dart';
 import 'package:irmamobile/src/theme/theme.dart';

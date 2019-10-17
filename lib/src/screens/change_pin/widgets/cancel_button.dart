@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:irmamobile/src/screens/settings/settings_screen.dart';
 
 class CancelButton extends StatelessWidget {
   final void Function() cancel;
@@ -13,7 +14,7 @@ class CancelButton extends StatelessWidget {
         if (cancel != null) {
           cancel();
         }
-        Navigator.of(context, rootNavigator: true).pushReplacementNamed('/');
+        Navigator.of(context, rootNavigator: true).pushReplacementNamed(SettingsScreen.routeName);
       },
       tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
     );
