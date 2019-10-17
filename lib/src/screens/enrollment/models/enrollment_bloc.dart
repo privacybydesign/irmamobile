@@ -19,12 +19,18 @@ class EnrollmentBloc extends Bloc<Object, EnrollmentState> {
     } else if (event is PinSubmitted) {
       yield currentState.copyWith(
         pin: event.pin,
+        pinConfirmed: false,
+        showPinValidation: false,
+        emailValid: false,
+        showEmailValidation: false,
       );
     } else if (event is ConfirmationPinSubmitted) {
       final bool pinConfirmed = event.pin == currentState.pin;
       yield currentState.copyWith(
         pinConfirmed: pinConfirmed,
         showPinValidation: true,
+        showEmailValidation: false,
+        emailValid: false,
       );
     } else if (event is EmailChanged) {
       yield currentState.copyWith(

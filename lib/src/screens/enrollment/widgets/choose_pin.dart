@@ -14,14 +14,15 @@ class ChoosePin extends StatelessWidget {
   static const String routeName = 'enrollment/choose_pin';
 
   final void Function(BuildContext, String) submitPin;
+  final void Function() cancel;
 
-  ChoosePin({this.submitPin});
+  ChoosePin({@required this.submitPin, @required this.cancel});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          leading: CancelButton(routeName: Welcome.routeName),
+          leading: CancelButton(routeName: Welcome.routeName, cancel: cancel),
           title: Text(FlutterI18n.translate(context, 'enrollment.choose_pin.title')),
         ),
         body: BlocBuilder<EnrollmentBloc, EnrollmentState>(builder: (context, state) {

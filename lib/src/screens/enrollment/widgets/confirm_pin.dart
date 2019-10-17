@@ -9,14 +9,15 @@ class ConfirmPin extends StatelessWidget {
   static const String routeName = 'enrollment/confirm_pin';
 
   final Function(String) submitConfirmationPin;
+  final void Function() cancel;
 
-  ConfirmPin({this.submitConfirmationPin});
+  ConfirmPin({@required this.submitConfirmationPin, @required this.cancel});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          leading: CancelButton(routeName: ChoosePin.routeName),
+          leading: CancelButton(routeName: ChoosePin.routeName, cancel: cancel),
           title: Text(FlutterI18n.translate(context, 'enrollment.choose_pin.confirm_title')),
         ),
         body: SingleChildScrollView(
