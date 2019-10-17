@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:irmamobile/src/models/credential.dart';
-import 'package:irmamobile/src/screens/wallet/models/Wallet_state.dart';
+import 'package:irmamobile/src/screens/wallet/models/wallet_state.dart';
 import 'package:irmamobile/src/store/irma_client/irma_client_bloc.dart';
 import 'package:irmamobile/src/store/irma_client/irma_client_state.dart';
 
