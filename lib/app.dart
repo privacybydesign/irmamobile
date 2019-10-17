@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:irmamobile/src/plugins/irma_mobile_bridge/irma_mobile_bridge_plugin.dart';
 import 'package:irmamobile/src/prototypes/prototypes_screen.dart';
 import 'package:irmamobile/src/screens/about/about_screen.dart';
+import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
@@ -25,6 +26,7 @@ class App extends StatelessWidget {
         routes = {
           WalletScreen.routeName: (BuildContext context) => WalletScreen(),
           EnrollmentScreen.routeName: (BuildContext context) => EnrollmentScreen(),
+          ChangePinScreen.routeName: (BuildContext context) => ChangePinScreen(),
           AboutScreen.routeName: (BuildContext context) => AboutScreen(),
           SettingsScreen.routeName: (BuildContext context) => SettingsScreen(),
         },
