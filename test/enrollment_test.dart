@@ -42,6 +42,31 @@ void main() {
         findsOneWidget);
   });
 
+  testWidgets('Enrollment error flow test', (WidgetTester tester) async {
+    // Build our app and trigger a frame.
+    await tester.pumpWidget(App.test((_) => EnrollmentScreen()));
+    await tester.pumpAndSettle();
+
+    // expect a choose pin button
+    expect(find.text('Kies je pincode'), findsOneWidget);
+
+    // tap the choose pin button
+    await tester.tap(find.text('Kies je pincode'));
+    await tester.pump();
+
+    // expect the choose pin screen to appear
+    expect(find.text('Kies een pincode van minimaal 5 cijfers'), findsOneWidget);
+    await tester.enterText(find.byType(PinField), "87129");
+    await tester.pumpAndSettle(const Duration(milliseconds: 1000));
+
+    expect(find.text('Herhaal je pincode'), findsOneWidget);
+
+    await tester.enterText(find.byType(PinField), "97684");
+    await tester.pumpAndSettle(const Duration(milliseconds: 1000));
+    expect(find.text('De pincodes kwamen niet overeen, probeer het nog eens.'), findsOneWidget);
+  });
+
+
   testWidgets('Email input shows no warning when requesting email', (WidgetTester tester) async {
     await tester.pumpWidget(App.test((_) => ProvideEmail(), [
       BlocProvider<EnrollmentBloc>(

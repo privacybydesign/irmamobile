@@ -7,14 +7,7 @@ enum ValidationState { initial, valid, invalid }
 class ChangePinState with EquatableMixin {
   final String newPin;
 
-  // This value is null initially.
-  // When the old pin is entered correctly this value will be true
-  // When the old pin is entered incorrectly this value will be false
   final ValidationState oldPinVerified;
-
-  // This value is null initially.
-  // When the new pin is confirmed this value will be true
-  // When the confirm pin did not match this value will be false
   final ValidationState newPinConfirmed;
 
   ChangePinState({
@@ -37,7 +30,7 @@ class ChangePinState with EquatableMixin {
 
   @override
   String toString() {
-    return 'ChangePinState {new pin: $newPin, old verified: $oldPinVerified, new confirmed: $newPinConfirmed}';
+    return 'ChangePinState {new pin: ${newPin == null ? null : '*' * newPin.length}, old verified: $oldPinVerified, new confirmed: $newPinConfirmed';
   }
 
   @override
