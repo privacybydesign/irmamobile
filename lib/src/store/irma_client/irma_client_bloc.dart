@@ -19,7 +19,7 @@ class IrmaClientBloc extends Bloc<Object, IrmaClientState> {
         schemeManagers: Map<String, SchemeManager>.from(currentState.schemeManagers)..addAll(event.schemeManagers),
         issuers: Map<String, Issuer>.from(currentState.issuers)..addAll(event.issuers),
         credentialTypes: Map<String, CredentialType>.from(currentState.credentialTypes)..addAll(event.credentialTypes),
-        attributeTypes: Map<String, AttributeType>.from(currentState.credentialTypes)..addAll(event.attributeTypes),
+        attributeTypes: Map<String, AttributeType>.from(currentState.attributeTypes)..addAll(event.attributeTypes),
       );
     } else if (appEvent is CredentialsEvent) {
       CredentialsEvent event = appEvent;
