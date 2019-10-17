@@ -41,8 +41,8 @@ class ChoosePin extends StatelessWidget {
             ),
             SizedBox(height: IrmaTheme.of(context).spacing),
             PinField(
-                maxLength: 5,
-                onSubmit: (String pin) => chooseNewPin(context, pin),
+              maxLength: 5,
+              onSubmit: (String pin) => chooseNewPin(context, pin),
             ),
           ]));
         }));

@@ -66,7 +66,6 @@ void main() {
     expect(find.text('De pincodes kwamen niet overeen, probeer het nog eens.'), findsOneWidget);
   });
 
-
   testWidgets('Email input shows no warning when requesting email', (WidgetTester tester) async {
     await tester.pumpWidget(App.test((_) => ProvideEmail(), [
       BlocProvider<EnrollmentBloc>(
