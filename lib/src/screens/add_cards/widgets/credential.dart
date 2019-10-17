@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:irmamobile/src/theme/irma-icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class Credential extends StatelessWidget {
@@ -60,11 +61,11 @@ class Credential extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: obtained
                 ? Icon(
-                    Icons.refresh,
+                    IrmaIcons.synchronize,
                     color: Colors.black,
                   )
                 : Icon(
-                    Icons.add,
+                    IrmaIcons.add,
                     size: 32,
                     color: Colors.black,
                   ),

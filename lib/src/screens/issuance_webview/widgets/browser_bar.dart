@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:irmamobile/src/theme/irma-icons.dart';
 
 class BrowserBar extends StatelessWidget implements PreferredSizeWidget {
   final String url;
@@ -18,7 +19,7 @@ class BrowserBar extends StatelessWidget implements PreferredSizeWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   IconButton(
-                    icon: Icon(Icons.arrow_back),
+                    icon: Icon(IrmaIcons.arrowBack),
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
@@ -31,7 +32,7 @@ class BrowserBar extends StatelessWidget implements PreferredSizeWidget {
                       children: <Widget>[
                         Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Icon(Icons.lock),
+                          child: Icon(IrmaIcons.lock),
                         ),
                         Flexible(
                           child: Text(

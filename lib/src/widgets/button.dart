@@ -1,16 +1,16 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
+
 import 'package:flutter/animation.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 class Button extends StatefulWidget {
   Animation<double> animation;
-  String svgFile;
+  IconData iconData;
   String accessibleName;
   StreamSink clickStreamSink;
 
-  Button(this.animation, this.svgFile, this.accessibleName, this.clickStreamSink);
+  Button(this.animation, this.iconData, this.accessibleName, this.clickStreamSink);
 
   @override
   _ButtonState createState() => _ButtonState();
@@ -35,7 +35,7 @@ class _ButtonState extends State<Button> with SingleTickerProviderStateMixin {
           child: Opacity(
             opacity: _opacityTween.evaluate(widget.animation),
             child: IconButton(
-              icon: SvgPicture.asset(widget.svgFile, color: buttonPressedState ? Colors.grey[700] : Colors.white),
+              icon: Icon(widget.iconData, color: buttonPressedState ? Colors.grey[700] : Colors.white),
               padding: EdgeInsets.only(right: padding),
               onPressed: () {
                 widget.clickStreamSink.add(true);
