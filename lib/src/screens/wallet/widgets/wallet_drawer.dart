@@ -12,7 +12,7 @@ import 'package:irmamobile/src/theme/irma-icons.dart';
 //"about": "About IRMA"
 //},
 
-class HomeDrawer extends StatelessWidget {
+class WalletDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(

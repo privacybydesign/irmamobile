@@ -1,29 +1,25 @@
-import 'package:meta/meta.dart';
 import 'package:equatable/equatable.dart';
+import 'package:meta/meta.dart';
 
-abstract class EnrollmentEvent extends Equatable {
-  EnrollmentEvent([List props = const []]) : super(props);
-}
-
-class PinChosen extends EnrollmentEvent {
+class PinSubmitted extends Equatable {
   final String pin;
 
-  PinChosen({@required this.pin}) : super([pin]);
+  PinSubmitted({@required this.pin}) : super([pin]);
 
   @override
-  String toString() => 'PinChosen { pin: $pin }';
+  String toString() => 'PinSubmitted { pin: ${'*' * pin.length} }';
 }
 
-class PinConfirmed extends EnrollmentEvent {
+class ConfirmationPinSubmitted extends Equatable {
   final String pin;
 
-  PinConfirmed({@required this.pin}) : super([pin]);
+  ConfirmationPinSubmitted({@required this.pin}) : super([pin]);
 
   @override
-  String toString() => 'PinConfirmed { pin: $pin }';
+  String toString() => 'ConfirmationPinSubmitted { pin: ${'*' * pin.length} }';
 }
 
-class EmailChanged extends EnrollmentEvent {
+class EmailChanged extends Equatable {
   final String email;
 
   EmailChanged({@required this.email}) : super([email]);
@@ -32,12 +28,12 @@ class EmailChanged extends EnrollmentEvent {
   String toString() => 'EmailChanged';
 }
 
-class EmailSubmitted extends EnrollmentEvent {
+class EmailSubmitted extends Equatable {
   @override
   String toString() => 'EmailSubmitted';
 }
 
-class EnrollmentCanceled extends EnrollmentEvent {
+class EnrollmentCanceled extends Equatable {
   @override
   String toString() => 'EnrollmentCanceled';
 }

@@ -3,7 +3,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'events.g.dart';
 
-abstract class BridgeEvent {}
+abstract class BridgeableEvent {}
 
 @JsonSerializable(nullable: false)
 class CredentialsEvent {
@@ -17,7 +17,7 @@ class CredentialsEvent {
 }
 
 @JsonSerializable(nullable: false)
-class AppReadyEvent extends BridgeEvent {
+class AppReadyEvent extends BridgeableEvent {
   AppReadyEvent();
 
   factory AppReadyEvent.fromJson(Map<String, dynamic> json) => _$AppReadyEventFromJson(json);
@@ -25,7 +25,7 @@ class AppReadyEvent extends BridgeEvent {
 }
 
 @JsonSerializable(nullable: false)
-class EnrollEvent extends BridgeEvent {
+class EnrollEvent extends BridgeableEvent {
   EnrollEvent({
     this.email,
     this.pin,

@@ -1,39 +1,18 @@
-import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n_delegate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:irmamobile/src/plugins/irma_mobile_bridge/events.dart';
 import 'package:irmamobile/src/plugins/irma_mobile_bridge/irma_mobile_bridge_plugin.dart';
 import 'package:irmamobile/src/prototypes/prototypes_screen.dart';
 import 'package:irmamobile/src/screens/about/about_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
-import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
-import 'package:irmamobile/src/store/irma_client/irma_client_bloc.dart';
+import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 abstract class AppEvent {}
 
 class App extends StatelessWidget {
-  // Maintain a registry of global blocs that can be statically dispatched,
-  // mainly from the IrmaMobileBridge plugin. Widgets should use BlocBuilder instead.
-  static List<Bloc> _blocs = [];
-
-  static Bloc _registerBloc(Bloc bloc) {
-    _blocs.add(bloc);
-    return bloc;
-  }
-
-  static dispatch(dynamic event) {
-    _blocs.forEach((bloc) => bloc.dispatch(event));
-
-    if (event is BridgeEvent) {
-      debugPrint('going to send event');
-      IrmaMobileBridgePlugin().dispatch(event);
-    }
-  }
-
   // Widget definition
   final String initialRoute;
 
@@ -41,17 +20,15 @@ class App extends StatelessWidget {
 
   final List<BlocProvider> providers;
 
-  App()
+  App(List<BlocProvider> providers)
       : initialRoute = EnrollmentScreen.routeName,
         routes = {
-          HomeScreen.routeName: (BuildContext context) => HomeScreen(),
+          WalletScreen.routeName: (BuildContext context) => WalletScreen(),
           EnrollmentScreen.routeName: (BuildContext context) => EnrollmentScreen(),
           AboutScreen.routeName: (BuildContext context) => AboutScreen(),
           SettingsScreen.routeName: (BuildContext context) => SettingsScreen(),
         },
-        providers = [
-          BlocProvider<IrmaClientBloc>.value(value: _registerBloc(IrmaClientBloc())),
-        ] {
+        providers = providers {
     IrmaMobileBridgePlugin();
   }
 

@@ -32,6 +32,7 @@ class PinField extends StatefulWidget {
 
 class _PinFieldState extends State<PinField> {
   final controller = TextEditingController();
+  bool _isDisposed = false;
 
   bool obscureText;
   String value;
@@ -59,13 +60,13 @@ class _PinFieldState extends State<PinField> {
       }
 
       Future.delayed(const Duration(milliseconds: 500), () {
-        if (widget.onSubmit != null && widget.autosubmit) {
+        if (!_isDisposed && widget.onSubmit != null && widget.autosubmit) {
           widget.onSubmit(val);
         }
       });
 
       Future.delayed(const Duration(milliseconds: 1000), () {
-        if (widget.autoclear) {
+        if (!_isDisposed && widget.autoclear) {
           controller.clear();
         }
       });
@@ -85,6 +86,8 @@ class _PinFieldState extends State<PinField> {
   void dispose() {
     focusNode.dispose();
     controller.dispose();
+    _isDisposed = true;
+
     super.dispose();
   }
 

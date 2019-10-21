@@ -1,110 +1,114 @@
 {
-    "enrollment": {
-        "welcome": {
-            "header": "Word weer baas over je eigen gegevens!",
-            "abstract": "Met IRMA kun je jezelf bekendmaken zonder meer over jezelf prijs te geven dan nodig is.",
-            "intro_button": "Hoe werkt IRMA?",
-            "choose_pin_button": "Kies je pincode",
-            "not_now": "Not now"
-        },
-        "introduction": {
-            "title": "Hoe werkt IRMA?",
-            "load_data": "Je haalt jouw gegevens op bij verschillende organisaties.\n\nDeze gegevens komen in IRMA op jouw telefoon te staan.\n\nAlleen jij kan erbij.",
-            "login": "Je kunt IRMA gebruiken om in te loggen bij websites.\n\nJe hoeft nooit meer wachtwoorden te onthouden.",
-            "reveal": "Je kunt IRMA gebruiken in situaties waarin je nu een document moet overleggen.\n\nJe deelt alleen wat nodig is."
-        },
-        "choose_pin": {
-            "title": "Kies je pincode",
-            "confirm_title": "Herhaal je pincode",
-            "instruction": "Kies een pincode van minimaal 5 cijfers",
-            "confirm_instruction": "Vul ter controle nogmaals je pincode in.",
-            "next": "Volgende",
-            "error": "De pincodes kwamen niet overeen, probeer het nog eens."
-        },
-        "provide_email": {
-            "title": "Voeg je e-mailadres toe",
-            "instruction": "Geef een e-mailadres op. Dan kun je bij verlies of diefstal van je telefoon, zorgen dat niemand jouw persoonlijke gegevens kan zien.",
-            "placeholder": "E-mailadres",
-            "next": "Volgende",
-            "error": "Het ingevulde e-mailadres is niet geldig."
-        }
+  "enrollment": {
+    "welcome": {
+      "header": "Word weer baas over je eigen gegevens!",
+      "abstract": "Met IRMA kun je jezelf bekendmaken zonder meer over jezelf prijs te geven dan nodig is.",
+      "intro_button": "Hoe werkt IRMA?",
+      "choose_pin_button": "Kies je pincode",
+      "not_now": "Not now"
     },
-    "about": {
-        "title": "About IRMA",
-        "header": "Authentication and digital signing made easy, privacy-friendly, and secure.",
-        "what_is_irma": "The IRMA app manages your personal IRMA attributes: you can receive new attributes, selectively disclose them to others, and attach them to signed statements. IRMA is made and maintained by the Privacy by Design Foundation, and freely available and open-source.",
-        "privacy_benefits": "Your attributes will be stored exclusively in the IRMA app on your phone. However, in order to operate the IRMA platform, the Privacy by Design Foundation processes a limited amount of personal data, as explained in its privacy policy:",
-        "privacy_policy_link": "https://privacybydesign.foundation/privacy-policy-en",
-        "url_launch_error": "error on launch of url - probably bad certificate?",
-        "processing_agreement": "By starting the registration process of the IRMA app you agree to this processing.",
-        "signatures_information": "Signatures, also in digital form, may have (legal) effects, and bind (commit) you to the content of the message that you sign. Whatever you sign with your IRMA app is your own personal responsibility. By using the IRMA app you agree that the Privacy by Design foundation is no party in whatever agreement you enter into via an IRMA signature. In particular, the Privacy by Design foundation is not responsible or liable.",
-        "problems": "If you encounter any problems while using the app, please let us know.",
-        "more_information": "More information:",
-        "pbdf_website_link": "https://privacybydesign.foundation/en",
-        "source_code": "Source code",
-        "source_code_link": "https://github.com/privacybydesign"
+    "introduction": {
+      "title": "Hoe werkt IRMA?",
+      "load_data": "Je haalt jouw gegevens op bij verschillende organisaties.\n\nDeze gegevens komen in IRMA op jouw telefoon te staan.\n\nAlleen jij kan erbij.",
+      "login": "Je kunt IRMA gebruiken om in te loggen bij websites.\n\nJe hoeft nooit meer wachtwoorden te onthouden.",
+      "reveal": "Je kunt IRMA gebruiken in situaties waarin je nu een document moet overleggen.\n\nJe deelt alleen wat nodig is."
     },
-    "drawer": {
-        "lock_wallet": "Lock wallet",
-        "add_cards": "Add cards",
-        "settings": "Settings",
-        "history": "Usage history",
-        "about": "About IRMA"
+    "choose_pin": {
+      "title": "Kies je pincode",
+      "confirm_title": "Herhaal je pincode",
+      "instruction": "Kies een pincode van minimaal 5 cijfers",
+      "confirm_instruction": "Vul ter controle nogmaals je pincode in.",
+      "next": "Volgende",
+      "error": "De pincodes kwamen niet overeen, probeer het nog eens."
     },
-    "accessibility": {
-        "unfold": "Unfold",
-        "update": "Update",
-        "remove": "Remove"
-    },
-    "card": {
-        "personaldata": "Personal data"
-    },
-    "card_store": {
-        "app_bar": "Gegevens ophalen",
-        "choose": "Kies de gegevens die je wilt ophalen.",
-        "search": "Zoek...",
-        "personal_data": "Persoonsgegevens",
-        "identity_cards":  "Identiteitsbewijzen",
-        "education" : "Onderwijs",
-        "health": "Zorg",
-        "card_info": {
-          "obtain": "ophalen",
-          "issuer": "Uitgifte",
-          "general_info": "Uitleg tekst...Lorem ipsum.",
-          "issuer_question":  "Waar haal ik de gegevens op?",
-          "provided_attributes_question":  "Welke gegevens ontvang ik?",
-          "expiration_question":  "Hoe lang zijn de gegevens geldig?",
-          "back_button":  "Later",
-          "get_button":  "Ophalen"
-        }
-      },
-    "settings": {
-        "title": "Settings",
-        "pin": {
-          "header": "PIN Settings",
-          "long_pin": "Allow for more than 5 digits",
-          "long_pin_detail": "Enables a PIN of up to 16 digits",
-          "change_pin": "Change PIN"
-        },
-        "behavior" : {
-          "header": "Behavior",
-          "start_qr": "Open QR scanner on startup",
-          "report_errors": "Report errors about IRMA"
-        },
-        "advanced" : {
-          "header": "Advanced",
-          "delete": "Delete wallet contents",
-          "delete_details": "All cards will be removed"
-        }
-    },
-    "issuance": {
-        "title": "Add data",
-        "header": "Choose the data you want to retrieve",
-        "hint_search": "search",
-        "loading" : {
-            "title": "Loading data",
-            "body": "Your data is being loaded"
-        }
-
+    "provide_email": {
+      "title": "Voeg je e-mailadres toe",
+      "instruction": "Geef een e-mailadres op. Dan kun je bij verlies of diefstal van je telefoon, zorgen dat niemand jouw persoonlijke gegevens kan zien.",
+      "placeholder": "E-mailadres",
+      "next": "Volgende",
+      "error": "Het ingevulde e-mailadres is niet geldig."
     }
+  },
+  "about": {
+    "title": "About IRMA",
+    "header": "Authentication and digital signing made easy, privacy-friendly, and secure.",
+    "what_is_irma": "The IRMA app manages your personal IRMA attributes: you can receive new attributes, selectively disclose them to others, and attach them to signed statements. IRMA is made and maintained by the Privacy by Design Foundation, and freely available and open-source.",
+    "privacy_benefits": "Your attributes will be stored exclusively in the IRMA app on your phone. However, in order to operate the IRMA platform, the Privacy by Design Foundation processes a limited amount of personal data, as explained in its privacy policy:",
+    "privacy_policy_link": "https://privacybydesign.foundation/privacy-policy-en",
+    "url_launch_error": "error on launch of url - probably bad certificate?",
+    "processing_agreement": "By starting the registration process of the IRMA app you agree to this processing.",
+    "signatures_information": "Signatures, also in digital form, may have (legal) effects, and bind (commit) you to the content of the message that you sign. Whatever you sign with your IRMA app is your own personal responsibility. By using the IRMA app you agree that the Privacy by Design foundation is no party in whatever agreement you enter into via an IRMA signature. In particular, the Privacy by Design foundation is not responsible or liable.",
+    "problems": "If you encounter any problems while using the app, please let us know.",
+    "more_information": "More information:",
+    "pbdf_website_link": "https://privacybydesign.foundation/en",
+    "source_code": "Source code",
+    "source_code_link": "https://github.com/privacybydesign"
+  },
+  "drawer": {
+    "lock_wallet": "Lock wallet",
+    "add_cards": "Add cards",
+    "settings": "Settings",
+    "history": "Usage history",
+    "about": "About IRMA"
+  },
+  "accessibility": {
+    "unfold": "Unfold",
+    "update": "Update",
+    "remove": "Remove"
+  },
+  "card": {
+    "expiresAt": "Usable until"
+  },
+  "card_store": {
+    "app_bar": "Gegevens ophalen",
+    "choose": "Kies de gegevens die je wilt ophalen.",
+    "search": "Zoek...",
+    "personal_data": "Persoonsgegevens",
+    "identity_cards": "Identiteitsbewijzen",
+    "education": "Onderwijs",
+    "health": "Zorg",
+    "card_info": {
+      "obtain": "ophalen",
+      "issuer": "Uitgifte",
+      "general_info": "Uitleg tekst...Lorem ipsum.",
+      "issuer_question": "Waar haal ik de gegevens op?",
+      "provided_attributes_question": "Welke gegevens ontvang ik?",
+      "expiration_question": "Hoe lang zijn de gegevens geldig?",
+      "back_button": "Later",
+      "get_button": "Ophalen"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "pin": {
+      "header": "PIN Settings",
+      "long_pin": "Allow for more than 5 digits",
+      "long_pin_detail": "Enables a PIN of up to 16 digits",
+      "change_pin": "Change PIN"
+    },
+    "behavior": {
+      "header": "Behavior",
+      "start_qr": "Open QR scanner on startup",
+      "report_errors": "Report errors about IRMA"
+    },
+    "advanced": {
+      "header": "Advanced",
+      "delete": "Delete wallet contents",
+      "delete_details": "All cards will be removed"
+    }
+  },
+  "issuance": {
+    "title": "Add data",
+    "header": "Choose the data you want to retrieve",
+    "hint_search": "search",
+    "loading": {
+      "title": "Loading data",
+      "body": "Your data is being loaded"
+    }
+  },
+  "wallet": {
+    "scan_qr_code": "Scan QR code",
+    "issuer": "Issuer",
+    "expiration": "Expiration"
+  }
 }
