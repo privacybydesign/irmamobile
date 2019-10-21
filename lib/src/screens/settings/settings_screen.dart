@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/screens/settings/widgets/settings_header.dart';
+import 'package:irmamobile/src/theme/irma-icons.dart';
 
 class SettingsScreen extends StatefulWidget {
   static final routeName = "/settings";
@@ -45,7 +46,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               FlutterI18n.translate(context, 'settings.pin.change_pin'),
               style: Theme.of(context).textTheme.body1,
             ),
-            trailing: Icon(Icons.keyboard_arrow_right),
+            trailing: Icon(IrmaIcons.arrowFront),
           ),
           Divider(),
           SettingsHeader(headerText: FlutterI18n.translate(context, 'settings.behavior.header')),
@@ -88,7 +89,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 fontSize: 15.0,
               ),
             ),
-            trailing: Icon(Icons.delete),
+            trailing: Icon(IrmaIcons.delete),
             onTap: () {
               debugPrint("Confirmation message"); // TODO confirmation message
             },

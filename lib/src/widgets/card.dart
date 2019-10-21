@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:irmamobile/src/models/credential.dart';
+import 'package:irmamobile/src/theme/irma-icons.dart';
 import 'package:irmamobile/src/widgets/button.dart';
 
 class CardStyle {
@@ -189,13 +190,13 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
                         Opacity(
                             opacity: _opacityTween.evaluate(animation),
                             child: Button(
-                                svgFile: 'assets/icons/refresh.svg',
+                                iconData: IrmaIcons.synchronize,
                                 accessibleName: 'accessibility.refresh',
                                 onPressed: widget.onRefresh)),
                         Opacity(
                             opacity: _opacityTween.evaluate(animation),
                             child: Button(
-                                svgFile: 'assets/icons/remove.svg',
+                                iconData: IrmaIcons.delete,
                                 accessibleName: 'accessibility.remove',
                                 onPressed: widget.onRemove))
                       ],

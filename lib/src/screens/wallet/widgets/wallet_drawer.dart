@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:irmamobile/src/theme/irma-icons.dart';
 
 // TODO:
 //"drawer": {
@@ -28,15 +29,17 @@ class WalletDrawer extends StatelessWidget {
               child: SvgPicture.asset('assets/non-free/irma_logo.svg'),
             ),
           ),
-          _createDrawerItem(icon: Icons.lock, text: FlutterI18n.translate(context, 'drawer.lock_wallet'), onTap: () {}),
-          _createDrawerItem(icon: Icons.add, text: FlutterI18n.translate(context, 'drawer.add_cards'), onTap: () {}),
+          _createDrawerItem(
+              icon: IrmaIcons.lock, text: FlutterI18n.translate(context, 'drawer.lock_wallet'), onTap: () {}),
+          _createDrawerItem(
+              icon: IrmaIcons.add, text: FlutterI18n.translate(context, 'drawer.add_cards'), onTap: () {}),
           _createDrawerItem(icon: Icons.history, text: FlutterI18n.translate(context, 'drawer.history'), onTap: () {}),
           _createDrawerItem(
               icon: Icons.settings,
               text: FlutterI18n.translate(context, 'drawer.settings'),
               onTap: () => Navigator.pushNamed(context, '/settings')),
           _createDrawerItem(
-              icon: Icons.help_outline,
+              icon: IrmaIcons.question,
               text: FlutterI18n.translate(context, 'drawer.about'),
               onTap: () => Navigator.pushNamed(context, '/about')),
         ],

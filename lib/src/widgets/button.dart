@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class Button extends StatefulWidget {
-  final String svgFile;
+  IconData iconData;
   final String accessibleName;
   final Function() onPressed;
 
-  Button({this.svgFile, this.accessibleName, this.onPressed});
+  Button({this.iconData, this.accessibleName, this.onPressed});
 
   @override
   _ButtonState createState() => _ButtonState();
@@ -40,7 +39,7 @@ class _ButtonState extends State<Button> with SingleTickerProviderStateMixin {
               },
               child: Padding(
                 padding: EdgeInsets.only(right: _padding),
-                child: SvgPicture.asset(widget.svgFile, color: _isBeingPressed ? Colors.grey[700] : Colors.white),
+                child: Icon(widget.iconData, color: _isBeingPressed ? Colors.grey[700] : Colors.white),
               ))),
     );
   }

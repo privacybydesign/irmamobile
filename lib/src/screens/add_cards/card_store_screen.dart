@@ -4,6 +4,7 @@ import 'package:irmamobile/src/screens/add_cards/card_info_screen.dart';
 import 'package:irmamobile/src/screens/add_cards/widgets/credential.dart';
 import 'package:irmamobile/src/screens/add_cards/widgets/credential_group.dart';
 import 'package:irmamobile/src/screens/issuance_webview/issuance_webview_screen.dart';
+import 'package:irmamobile/src/theme/irma-icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class CardStoreScreen extends StatelessWidget {
@@ -83,7 +84,7 @@ class CardStoreScreen extends StatelessWidget {
                 decoration: InputDecoration(
                     fillColor: IrmaTheme.of(context).greyscale90,
                     filled: true,
-                    prefixIcon: Icon(Icons.search),
+                    prefixIcon: Icon(IrmaIcons.search),
                     suffixIcon: IconButton(
                         icon: Icon(Icons.cancel),
                         onPressed: () {
