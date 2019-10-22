@@ -57,7 +57,8 @@
     "remove": "Verwijderen"
   },
   "card": {
-    "personaldata": "Persoonsgegevens"
+    "personaldata": "Persoonsgegevens",
+    "expiresAt": "Geldig tot"
   },
   "card_store": {
     "app_bar": "Gegevens ophalen",
@@ -126,5 +127,10 @@
       "message": "Je pincode is succesvol veranderd.",
       "continue": "Verder"
     }
+  },
+  "wallet": {
+    "scan_qr_code": "Scan QR code",
+    "issuer": "Uitgifte",
+    "expiration": "Geldig tot"
   }
 }

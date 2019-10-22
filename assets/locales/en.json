@@ -57,7 +57,8 @@
     "remove": "Remove"
   },
   "card": {
-    "personaldata": "Personal data"
+    "personaldata": "Personal data",
+    "expiresAt": "Usable until"
   },
   "card_store": {
     "app_bar": "Gegevens ophalen",
@@ -126,5 +127,10 @@
       "message": "Your pin code was changed successfully.",
       "continue": "Continue"
     }
+  },
+  "wallet": {
+    "scan_qr_code": "Scan QR code",
+    "issuer": "Issuer",
+    "expiration": "Expiration"
   }
 }

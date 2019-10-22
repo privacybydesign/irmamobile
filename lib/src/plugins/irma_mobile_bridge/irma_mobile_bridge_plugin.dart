@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:irmamobile/app.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/plugins/irma_mobile_bridge/events.dart';
 
@@ -27,7 +27,7 @@ class IrmaMobileBridgePlugin {
     this._methodChannel.setMethodCallHandler(_onMethodCall);
   }
 
-  void dispatch(BridgeEvent event) {
+  void dispatch(BridgeableEvent event) {
     String eventName = event.runtimeType.toString();
     String payload = jsonEncode(event);
 
@@ -52,7 +52,7 @@ class IrmaMobileBridgePlugin {
       var payload = jsonDecode(call.arguments);
 
       dynamic event = _eventConverters[eventName](payload);
-      App.dispatch(event);
+      BlocSupervisor.delegate.onEvent(null, event);
     } catch (e, stacktrace) {
       debugPrint("Error receiving or parsing method call from native: " + e.toString());
       debugPrint(stacktrace.toString());

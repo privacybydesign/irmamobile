@@ -1,5 +1,6 @@
 package foundation.privacybydesign.irmamobile.plugins.irma_mobile_bridge;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -13,6 +14,7 @@ import irmagobridge.Irmagobridge;
 public class IrmaMobileBridgePlugin implements MethodCallHandler, irmagobridge.IrmaMobileBridge {
   private Context context;
   private MethodChannel channel;
+  private Activity activity;
 
   public static void registerWith(Registrar registrar) {
     MethodChannel channel = new MethodChannel(registrar.messenger(), "irma.app/irma_mobile_bridge");
@@ -22,6 +24,7 @@ public class IrmaMobileBridgePlugin implements MethodCallHandler, irmagobridge.I
   public IrmaMobileBridgePlugin(Registrar registrar, MethodChannel channel) {
     this.channel = channel;
     this.context = registrar.context();
+    this.activity = registrar.activity();
 
     IrmaConfigurationCopier copier = new IrmaConfigurationCopier(context);
 
@@ -41,7 +44,12 @@ public class IrmaMobileBridgePlugin implements MethodCallHandler, irmagobridge.I
 
   @Override
   public void dispatchFromGo(String name, String payload) {
-      this.channel.invokeMethod(name, payload);
+    activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        channel.invokeMethod(name, payload);
+      }
+    });
   }
 
   @Override

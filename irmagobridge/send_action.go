@@ -25,6 +25,16 @@ type preferencesEvent struct {
 	Preferences irmaclient.Preferences
 }
 
+type enrollmentStatusEvent struct {
+	EnrolledSchemeManagerIds   []irma.SchemeManagerIdentifier
+	UnenrolledSchemeManagerIds []irma.SchemeManagerIdentifier
+}
+
+type authenticationFailedEvent struct {
+	RemainingAttempts int
+	BlockedDuration   int
+}
+
 func sendConfiguration() {
 	dispatchEvent("IrmaConfigurationEvent", &irmaConfigurationEvent{
 		SchemeManagers:  client.Configuration.SchemeManagers,
@@ -47,18 +57,16 @@ func sendPreferences() {
 }
 
 func sendEnrollmentStatus() {
-	sendAction(&OutgoingAction{
-		"type": "IrmaClient.EnrollmentStatus",
-		"enrolledSchemeManagerIds":   client.EnrolledSchemeManagers(),
-		"unenrolledSchemeManagerIds": client.UnenrolledSchemeManagers(),
+	dispatchEvent("EnrollmentStatusEvent", &enrollmentStatusEvent{
+		EnrolledSchemeManagerIds:   client.EnrolledSchemeManagers(),
+		UnenrolledSchemeManagerIds: client.UnenrolledSchemeManagers(),
 	})
 }
 
 func sendAuthenticateFailure(tries, blocked int) {
-	sendAction(&OutgoingAction{
-		"type":              "IrmaClient.AuthenticateFailure",
-		"remainingAttempts": tries,
-		"blockedDuration":   blocked,
+	dispatchEvent("AuthenticationFailedEvent", &authenticationFailedEvent{
+		RemainingAttempts: tries,
+		BlockedDuration:   blocked,
 	})
 }
 

@@ -67,11 +67,9 @@ void main() {
   });
 
   testWidgets('Email input shows no warning when requesting email', (WidgetTester tester) async {
-    await tester.pumpWidget(App.test((_) => ProvideEmail(), [
-      BlocProvider<EnrollmentBloc>(
-          builder: (_) => EnrollmentBloc.test(EnrollmentState().copyWith(
-                emailValidated: ValidationState.valid,
-              )))
+    await tester.pumpWidget(App.test(
+        (_) => ProvideEmail(submitEmail: () => {}, changeEmail: (_) => {}, cancel: () => {}), [
+      BlocProvider<EnrollmentBloc>(builder: (_) => EnrollmentBloc.test(EnrollmentState().copyWith(emailValid: true)))
     ]));
     await tester.pumpAndSettle();
 
@@ -83,13 +81,11 @@ void main() {
   });
 
   testWidgets('Show a failed email validation message', (WidgetTester tester) async {
-    await tester.pumpWidget(App.test((_) => ProvideEmail(), [
+    await tester
+        .pumpWidget(App.test((_) => ProvideEmail(submitEmail: () => {}, changeEmail: (_) => {}, cancel: () => {}), [
       BlocProvider<EnrollmentBloc>(
-          builder: (_) => EnrollmentBloc.test(EnrollmentState().copyWith(
-                pin: '1234',
-                pinConfirmed: ValidationState.valid,
-                emailValidated: ValidationState.invalid,
-              )))
+          builder: (_) => EnrollmentBloc.test(EnrollmentState()
+              .copyWith(pin: '1234', pinConfirmed: true, emailValid: false, showEmailValidation: true)))
     ]));
     await tester.pumpAndSettle();
 

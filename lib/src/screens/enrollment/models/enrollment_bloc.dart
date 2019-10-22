@@ -5,68 +5,42 @@ import 'package:email_validator/email_validator.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_event.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
 
-class EnrollmentBloc extends Bloc<EnrollmentEvent, EnrollmentState> {
-  final EnrollmentState startingState;
+class EnrollmentBloc extends Bloc<Object, EnrollmentState> {
+  final EnrollmentState initialState;
 
-  EnrollmentBloc() : startingState = null;
+  EnrollmentBloc() : initialState = EnrollmentState();
 
-  EnrollmentBloc.test(this.startingState);
-
-  @override
-  EnrollmentState get initialState {
-    if (startingState == null) {
-      return EnrollmentState();
-    } else {
-      return startingState.copyWith();
-    }
-  }
+  EnrollmentBloc.test(this.initialState);
 
   @override
-  Stream<EnrollmentState> mapEventToState(EnrollmentEvent event) async* {
-    print(event.toString());
-
+  Stream<EnrollmentState> mapEventToState(Object event) async* {
     if (event is EnrollmentCanceled) {
       yield EnrollmentState();
-    }
-
-    if (event is PinChosen) {
+    } else if (event is PinSubmitted) {
       yield currentState.copyWith(
         pin: event.pin,
-        pinConfirmed: ValidationState.initial,
+        pinConfirmed: false,
+        showPinValidation: false,
+        emailValid: false,
+        showEmailValidation: false,
       );
-    }
-
-    if (event is PinConfirmed) {
+    } else if (event is ConfirmationPinSubmitted) {
       final bool pinConfirmed = event.pin == currentState.pin;
       yield currentState.copyWith(
-        pinConfirmed: pinConfirmed ? ValidationState.valid : ValidationState.invalid,
+        pinConfirmed: pinConfirmed,
+        showPinValidation: true,
+        showEmailValidation: false,
+        emailValid: false,
       );
-    }
-
-    if (event is EmailChanged) {
+    } else if (event is EmailChanged) {
       yield currentState.copyWith(
         email: event.email,
-        emailValidated: ValidationState.initial,
+        emailValid: EmailValidator.validate(event.email),
       );
-    }
-
-    if (event is EmailSubmitted) {
-      bool emailValidated;
-
-      if (currentState.email == null || currentState.email == '') {
-        emailValidated = true;
-      } else {
-        emailValidated = EmailValidator.validate(currentState.email) == true;
-      }
-
+    } else if (event is EmailSubmitted) {
       yield currentState.copyWith(
-        emailValidated: emailValidated ? ValidationState.valid : ValidationState.invalid,
+        showEmailValidation: true,
       );
-
-      if (emailValidated == true) {
-        // TODO submit enrollment pin/email to backend
-        yield EnrollmentState();
-      }
     }
   }
 }

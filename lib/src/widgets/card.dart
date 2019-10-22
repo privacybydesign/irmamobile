@@ -1,21 +1,76 @@
-import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:irmamobile/src/models/credential.dart';
+import 'package:irmamobile/src/theme/irma-icons.dart';
 import 'package:irmamobile/src/widgets/button.dart';
 
+class CardStyle {
+  static final defaultStyles = [
+    [
+      CardStyle("darkblue1.png", Color(0xff777777), Color(0xffffffff)),
+      CardStyle("darkblue2.png", Color(0xff777777), Color(0xffffffff)),
+      CardStyle("darkblue3.png", Color(0xff777777), Color(0xffffffff)),
+      CardStyle("darkblue4.png", Color(0xff777777), Color(0xffffffff)),
+      CardStyle("darkblue5.png", Color(0xff777777), Color(0xffffffff)),
+    ],
+    [
+      CardStyle("green1.png", Color(0xff777777), Color(0xff000000)),
+      CardStyle("green2.png", Color(0xff777777), Color(0xff000000)),
+      CardStyle("green3.png", Color(0xff777777), Color(0xff000000)),
+      CardStyle("green4.png", Color(0xff777777), Color(0xff000000)),
+      CardStyle("green5.png", Color(0xff777777), Color(0xff000000)),
+      CardStyle("green6.png", Color(0xff777777), Color(0xff000000)),
+    ],
+    [
+      CardStyle("lightblue1.png", Color(0xff777777), Color(0xff000000)),
+      CardStyle("lightblue2.png", Color(0xff777777), Color(0xff000000)),
+      CardStyle("lightblue3.png", Color(0xff777777), Color(0xff000000)),
+      CardStyle("lightblue4.png", Color(0xff777777), Color(0xff000000)),
+      CardStyle("lightblue5.png", Color(0xff777777), Color(0xff000000)),
+      CardStyle("lightblue6.png", Color(0xff777777), Color(0xff000000)),
+    ],
+    [
+      CardStyle("orange1.png", Color(0xff777777), Color(0xff000000)),
+      CardStyle("orange2.png", Color(0xff777777), Color(0xff000000)),
+      CardStyle("orange3.png", Color(0xff777777), Color(0xff000000)),
+      CardStyle("orange4.png", Color(0xff777777), Color(0xff000000)),
+      CardStyle("orange5.png", Color(0xff777777), Color(0xff000000)),
+      CardStyle("orange6.png", Color(0xff777777), Color(0xff000000)),
+      CardStyle("orange7.png", Color(0xff777777), Color(0xff000000)),
+    ],
+    [
+      CardStyle("red1.png", Color(0xff777777), Color(0xff000000)),
+      CardStyle("red2.png", Color(0xff777777), Color(0xff000000)),
+      CardStyle("red3.png", Color(0xff777777), Color(0xff000000)),
+      CardStyle("red4.png", Color(0xff777777), Color(0xff000000)),
+      CardStyle("red5.png", Color(0xff777777), Color(0xff000000)),
+      CardStyle("red6.png", Color(0xff777777), Color(0xff000000)),
+      CardStyle("red7.png", Color(0xff777777), Color(0xff000000)),
+      CardStyle("red8.png", Color(0xff777777), Color(0xff000000)),
+    ]
+  ];
+
+  String _bgImagePath;
+  Color bgColor;
+  Color fgColor;
+
+  CardStyle(this._bgImagePath, this.bgColor, this.fgColor);
+
+  getBackgroundImage() {
+    return AssetImage("assets/backgrounds/$_bgImagePath");
+  }
+}
+
 class IrmaCard extends StatefulWidget {
-  Map<String, List<Map<String, String>>> personalData;
-  Map<String, Object> issuer; // Object is String | Color
+  final RichCredential credential;
+  final Function() onRefresh;
+  final Function() onRemove;
 
-  StreamController<bool> unfoldStream = StreamController();
-  StreamController<void> updateStream = StreamController();
-  StreamController<void> removeStream = StreamController();
-
-  IrmaCard(this.personalData, this.issuer);
+  IrmaCard({this.credential, this.onRefresh, this.onRemove});
 
   @override
   _IrmaCardState createState() => _IrmaCardState();
@@ -25,27 +80,52 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
   Animation<double> animation;
   AnimationController controller;
 
-  static final _opacityTween = Tween<double>(begin: 0, end: 1);
-  static final _heightTween = Tween<double>(begin: 240, end: 500);
-  static final _rotateTween = Tween<double>(begin: 0, end: math.pi);
+  final _opacityTween = Tween<double>(begin: 0, end: 1);
+  final _rotateTween = Tween<double>(begin: 0, end: math.pi);
 
-  static const animationDuration = 250;
-  static const indent = 100.0;
-  static const headerBottom = 30.0;
-  static const borderRadius = Radius.circular(15.0);
-  static const padding = 15.0;
-  static const transparentWhiteLine = Color(0xaaffffff);
-  static const transparentWhiteBackground = Color(0x55ffffff);
+  final animationDuration = 250;
+  final indent = 100.0;
+  final headerBottom = 30.0;
+  final borderRadius = Radius.circular(15.0);
+  final padding = 15.0;
+  final transparentWhiteLine = Color(0xaaffffff);
+  final transparentWhiteBackground = Color(0x55ffffff);
+
+  Tween<double> _heightTween = Tween<double>(begin: 240, end: 400);
 
   // State
   bool isUnfolded = false;
-  bool isCardReadable = false;
 
   @override
   void initState() {
-    controller = AnimationController(duration: const Duration(milliseconds: animationDuration), vsync: this);
+    controller = AnimationController(duration: Duration(milliseconds: animationDuration), vsync: this);
     animation = CurvedAnimation(parent: controller, curve: Curves.easeInOut);
     super.initState();
+  }
+
+  // TODO: Cache the style and adjust the calculation based on credential name
+  CardStyle get _cardStyle {
+    int strNum = widget.credential.credentialType.name['nl'].runes.reduce((oldChar, newChar) {
+      return oldChar ^ newChar;
+    });
+
+    List<CardStyle> cardStyleSection = CardStyle.defaultStyles[strNum % CardStyle.defaultStyles.length];
+    return cardStyleSection[(strNum ~/ CardStyle.defaultStyles.length) % cardStyleSection.length];
+  }
+
+  open({double height}) {
+    // _heightTween = Tween<double>(begin: 240, end: height);
+    controller.forward();
+    setState(() {
+      isUnfolded = true;
+    });
+  }
+
+  close() {
+    controller.reverse();
+    setState(() {
+      isUnfolded = false;
+    });
   }
 
   @override
@@ -55,25 +135,10 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
         return GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () {
-              if (isUnfolded) {
-                controller.reverse();
-              } else {
-                controller.forward();
-              }
-              setState(() {
-                isUnfolded = !isUnfolded;
-              });
-              widget.unfoldStream.sink.add(isUnfolded);
-            },
-            onLongPress: () {
-              setState(() {
-                isCardReadable = true;
-              });
-            },
-            onLongPressUp: () {
-              setState(() {
-                isCardReadable = false;
-              });
+              if (isUnfolded)
+                close();
+              else
+                open();
             },
             child: Container(
               child: Column(
@@ -86,17 +151,19 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
                         bottom: headerBottom,
                       ),
                       child: Text(
-                        FlutterI18n.translate(context, 'card.personaldata'),
-                        style: Theme.of(context).textTheme.headline.copyWith(color: widget.issuer['color']),
+                        widget.credential.credentialType.name['nl'],
+                        style: Theme.of(context).textTheme.headline.copyWith(color: _cardStyle.fgColor),
                       ),
                     ),
                   ),
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.all(padding),
+                      padding: EdgeInsets.all(padding),
                       child: Opacity(
                           opacity: _opacityTween.evaluate(animation),
-                          child: _personalData(widget.personalData, widget.issuer, isCardReadable)),
+                          child: _opacityTween.evaluate(animation) == 0
+                              ? Text("")
+                              : _PersonalData(credential: widget.credential, cardStyle: _cardStyle)),
                     ),
                   ),
                   Container(
@@ -113,15 +180,25 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
                                 _rotateTween.evaluate(animation),
                               ),
                               child: IconButton(
-                                icon: SvgPicture.asset('assets/icons/arrow-down.svg'),
-                                padding: EdgeInsets.only(left: padding),
-                                alignment: Alignment.centerLeft,
-                              ),
+                                  icon: SvgPicture.asset('assets/icons/arrow-down.svg'),
+                                  padding: EdgeInsets.only(left: padding),
+                                  alignment: Alignment.centerLeft,
+                                  onPressed: () => {}),
                             ),
                           ),
                         ),
-                        Button(animation, 'assets/icons/update.svg', 'accessibility.update', widget.updateStream.sink),
-                        Button(animation, 'assets/icons/remove.svg', 'accessibility.remove', widget.removeStream.sink)
+                        Opacity(
+                            opacity: _opacityTween.evaluate(animation),
+                            child: Button(
+                                iconData: IrmaIcons.synchronize,
+                                accessibleName: 'accessibility.refresh',
+                                onPressed: widget.onRefresh)),
+                        Opacity(
+                            opacity: _opacityTween.evaluate(animation),
+                            child: Button(
+                                iconData: IrmaIcons.delete,
+                                accessibleName: 'accessibility.remove',
+                                onPressed: widget.onRemove))
                       ],
                     ),
                     height: 50,
@@ -138,47 +215,43 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
               height: _heightTween.evaluate(animation),
               margin: const EdgeInsets.symmetric(horizontal: 20),
               decoration: BoxDecoration(
-                  color: widget.issuer['bg-color'],
+                  color: _cardStyle.bgColor,
                   borderRadius: BorderRadius.all(
                     borderRadius,
                   ),
                   image: DecorationImage(
-                      image: AssetImage("assets/issuers/${widget.issuer['bg']}"),
-                      fit: BoxFit.fitWidth,
-                      alignment: Alignment.topCenter)),
+                      image: _cardStyle.getBackgroundImage(), fit: BoxFit.fitWidth, alignment: Alignment.topCenter)),
             ));
       });
 }
 
-class _personalData extends StatelessWidget {
+class _PersonalData extends StatelessWidget {
   static const transparentWhite = Color(0xaaffffff);
   static const indent = 100.0;
 
-  Map<String, List<Map<String, String>>> personalData;
-  Map<String, Object> issuer; // Object is String | Color
-  bool isCardUnblurred;
+  final RichCredential credential;
+  final CardStyle cardStyle;
 
-  _personalData(this.personalData, this.issuer, this.isCardUnblurred);
+  _PersonalData({this.credential, this.cardStyle});
 
   Widget build(BuildContext context) {
     List<Widget> textLines = <Widget>[
       Divider(color: transparentWhite),
     ];
 
-    textLines.addAll(personalData['data'].map((personal) {
-      return Padding(
-        padding: EdgeInsets.symmetric(vertical: 4),
-        child: Row(
-          children: [
-            Container(
-              child: Text(personal['key'], style: Theme.of(context).textTheme.body1.copyWith(color: issuer['color'])),
-              width: indent,
-            ),
-            _BlurText(personal['value'], issuer['color'], personal['hidden'] == 'true' && !isCardUnblurred),
-          ],
-        ),
-      );
-    }));
+    textLines.addAll(credential.attributes.map((attribute) => Padding(
+          padding: EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            children: [
+              Container(
+                child: Text(attribute.type.name['nl'],
+                    style: Theme.of(context).textTheme.body1.copyWith(color: cardStyle.fgColor)),
+                width: indent,
+              ),
+              _BlurText(attribute.value['nl'], cardStyle.fgColor, false),
+            ],
+          ),
+        )));
 
     textLines.add(Divider(color: transparentWhite));
 
@@ -187,53 +260,53 @@ class _personalData extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            child: Text('Uitgifte', style: Theme.of(context).textTheme.body1.copyWith(color: issuer['color'])),
+            child: Text('Uitgever', style: Theme.of(context).textTheme.body1.copyWith(color: cardStyle.fgColor)),
             width: indent,
           ),
           Text(
-            issuer['name'],
+            credential.issuer.name['nl'],
             style: Theme.of(context)
                 .textTheme
                 .body1
                 .copyWith(fontWeight: FontWeight.w700)
-                .copyWith(color: issuer['color']),
+                .copyWith(color: cardStyle.fgColor),
           ),
         ],
       ),
     ));
 
-    textLines.addAll(personalData['metadata'].map((personal) {
-      return Padding(
-        padding: EdgeInsets.symmetric(vertical: 4),
-        child: Row(
-          children: [
-            Container(
-              child: Text(personal['key'], style: Theme.of(context).textTheme.body1.copyWith(color: issuer['color'])),
-              width: indent,
-            ),
-            Text(
-              personal['value'],
-              style: Theme.of(context)
-                  .textTheme
-                  .body1
-                  .copyWith(fontWeight: FontWeight.w700)
-                  .copyWith(color: issuer['color']),
-            ),
-          ],
-        ),
-      );
-    }));
+    textLines.add(Padding(
+      padding: EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Container(
+            child: Text(FlutterI18n.translate(context, 'card.expiresAt'),
+                style: Theme.of(context).textTheme.body1.copyWith(color: cardStyle.fgColor)),
+            width: indent,
+          ),
+          Text(
+            credential.expires.toString(),
+            style: Theme.of(context)
+                .textTheme
+                .body1
+                .copyWith(fontWeight: FontWeight.w700)
+                .copyWith(color: cardStyle.fgColor),
+          ),
+        ],
+      ),
+    ));
 
-    return ListView(
+    return Scrollbar(
+        child: ListView(
       children: textLines,
-    );
+    ));
   }
 }
 
 class _BlurText extends StatelessWidget {
-  String text;
-  Color color;
-  bool isTextBlurred;
+  final String text;
+  final Color color;
+  final bool isTextBlurred;
 
   _BlurText(this.text, this.color, this.isTextBlurred);
 
