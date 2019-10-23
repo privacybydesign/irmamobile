@@ -1,4 +1,10 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
 part of 'enroll_event.dart';
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
 
 EnrollEvent _$EnrollEventFromJson(Map<String, dynamic> json) {
   return EnrollEvent(

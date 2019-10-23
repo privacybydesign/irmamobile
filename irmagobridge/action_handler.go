@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/go-errors/errors"
-	"github.com/privacybydesign/irmago"
+	irma "github.com/privacybydesign/irmago"
 )
 
 type EventHandler struct {
@@ -39,7 +39,7 @@ type AuthenticateAction struct {
 func (ah *EventHandler) Authenticate(action *AuthenticateAction) (err error) {
 	enrolled := client.EnrolledSchemeManagers()
 	if len(enrolled) == 0 {
-		sendAuthenticateError(&irma.SessionError{
+		sendAuthenticationError(&irma.SessionError{
 			Err:       errors.Errorf("Can't verify PIN, not enrolled"),
 			ErrorType: irma.ErrorUnknownSchemeManager,
 			Info:      "Can't verify PIN, not enrolled",
@@ -51,13 +51,13 @@ func (ah *EventHandler) Authenticate(action *AuthenticateAction) (err error) {
 		success, tries, blocked, err := client.KeyshareVerifyPin(action.Pin, enrolled[0])
 		if err != nil {
 			logDebug(err.Error())
-			sendAuthenticateError(err.(*irma.SessionError))
+			sendAuthenticationError(err.(*irma.SessionError))
 		} else if success {
 			logDebug("ok")
-			sendAuthenticateSuccess()
+			sendAuthenticationSuccess()
 		} else {
 			logDebug(fmt.Sprint("fail: ", tries, " ", blocked))
-			sendAuthenticateFailure(tries, blocked)
+			sendAuthenticationFailed(tries, blocked)
 		}
 	}()
 

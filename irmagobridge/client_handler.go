@@ -1,6 +1,12 @@
 package irmagobridge
 
-import "github.com/privacybydesign/irmago"
+import (
+	irma "github.com/privacybydesign/irmago"
+	"github.com/privacybydesign/irmago/irmaclient"
+)
+
+// compile-time type-check ClientHandler to implement irmaclient.ClientHandler
+var _ irmaclient.ClientHandler = (*ClientHandler)(nil)
 
 type ClientHandler struct {
 }
@@ -91,7 +97,7 @@ func (ch *ClientHandler) ChangePinIncorrect(managerIdentifier irma.SchemeManager
 	logDebug("Handling ChangePinIncorrect")
 
 	action := &OutgoingAction{
-		"type": "IrmaClient.ChangePinIncorrect",
+		"type":              "IrmaClient.ChangePinIncorrect",
 		"remainingAttempts": attempts,
 	}
 
@@ -102,7 +108,7 @@ func (ch *ClientHandler) ChangePinBlocked(managerIdentifier irma.SchemeManagerId
 	logDebug("Handling ChangePinBlocked")
 
 	action := &OutgoingAction{
-		"type": "IrmaClient.ChangePinBlocked",
+		"type":    "IrmaClient.ChangePinBlocked",
 		"timeout": timeout,
 	}
 

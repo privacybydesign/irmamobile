@@ -1,16 +1,16 @@
-irmamobile
-==========
+# irmamobile
 
 ## Authentication made easy, privacy-friendly, and secure
+
 IRMA offers a privacy-friendly, flexible and secure solution to many authentication problems,
 putting the user in full control over his/her data.
 
-The IRMA app manages the user's IRMA attributes: receiving new attributes, selectively disclosing
-them to others, and attaching them to signed statements. These attributes can be relevant
-properties, such as: "I am over 18", "my name is ..." and "I am entitled to access ....". They are
-only stored on the user's device and nowhere else.
+The IRMA app manages the user's IRMA attributes: receiving new attributes, selectively disclosing them to others, and
+attaching them to signed statements. These attributes can be relevant properties, such as: "I am over 18", "my name is
+..." and "I am entitled to access ....". They are only stored on the user's device and nowhere else.
 
 ## Development setup
+
 To start developing the irmamobile app you will need to setup a development environment. Most of
 the environment can be installed automatically by using the included makefile, but you will have to
 do some work yourself, please read the instructions below carefully. If you want to use the included
@@ -78,6 +78,7 @@ makefile you will need to install `make` (included in the developer tools on Mac
   also use Android Studio or Visual Studio Code for this step.
 
 ### Installation without the makefile
+
 If you are running an unsupported OS/Platform combination you can't use the makefile, in that case
 you will have to install everything manually, you can do so using these instructions as a general
 guideline:
@@ -115,3 +116,13 @@ guideline:
 * Start an emulator or connect a device via USB and run the flutter project: `flutter run`. You can
   also use Android Studio or Visual Studio Code for this step.
 * Run `flutter run -t lib/main_prototypes.dart` to start the app in the prototypes menu.
+
+## JSON serialization code
+
+This project uses json_serializer. To re-generate serialization code, run the
+following commands:
+
+```bash
+flutter pub run build_runner build --delete-conflicting-outputs
+flutter format --line-length=120 lib/ test/
+```
