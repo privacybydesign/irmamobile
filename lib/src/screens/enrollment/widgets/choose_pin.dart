@@ -25,8 +25,6 @@ class ChoosePin extends StatelessWidget {
           title: Text(FlutterI18n.translate(context, 'enrollment.choose_pin.title')),
         ),
         body: BlocBuilder<EnrollmentBloc, EnrollmentState>(builder: (context, state) {
-          print("State in choose pin widget");
-          print(state);
           return SingleChildScrollView(
             child: Padding(
                 padding: EdgeInsets.only(top: IrmaTheme.of(context).spacing * 2),

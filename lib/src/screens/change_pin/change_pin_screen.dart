@@ -47,7 +47,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
 
   chooseNewPin(BuildContext context, String pin) {
     bloc.dispatch(NewPinChosen(pin: pin));
-    Navigator.of(context).pushNamed(ConfirmPin.routeName);
+    navigatorKey.currentState.pushNamed(ConfirmPin.routeName);
   }
 
   confirmNewPin(String pin) {
@@ -67,35 +67,32 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
           cancel();
           return !await navigatorKey.currentState.maybePop();
         },
-        child: Navigator(
-          key: navigatorKey,
-          initialRoute: EnterPin.routeName,
-          onGenerateRoute: (RouteSettings settings) {
-            if (!routeBuilders.containsKey(settings.name)) {
-              throw Exception('Invalid route: ${settings.name}');
-            }
+        child: BlocListener<ChangePinBloc, ChangePinState>(
+            condition: (ChangePinState previous, ChangePinState current) {
+              return current.newPinConfirmed != previous.newPinConfirmed ||
+                  current.oldPinVerified != previous.oldPinVerified ||
+                  current.retry != previous.retry;
+            },
+            listener: (BuildContext context, ChangePinState state) {
+              if (state.newPinConfirmed == ValidationState.valid) {
+                navigatorKey.currentState.pushNamed(Success.routeName);
+              } else if (state.newPinConfirmed == ValidationState.invalid) {
+                navigatorKey.currentState.pushNamed(ChoosePin.routeName);
+              } else if (state.oldPinVerified == ValidationState.valid) {
+                navigatorKey.currentState.pushNamed(ChoosePin.routeName);
+              }
+            },
+            child: Navigator(
+              key: navigatorKey,
+              initialRoute: EnterPin.routeName,
+              onGenerateRoute: (RouteSettings settings) {
+                if (!routeBuilders.containsKey(settings.name)) {
+                  throw Exception('Invalid route: ${settings.name}');
+                }
+                final child = routeBuilders[settings.name];
 
-            final child = routeBuilders[settings.name];
-            final builder = (context) => BlocListener<ChangePinBloc, ChangePinState>(
-                  condition: (ChangePinState previous, ChangePinState current) {
-                    return current.newPinConfirmed != previous.newPinConfirmed ||
-                        current.oldPinVerified != previous.oldPinVerified ||
-                        current.retry != previous.retry;
-                  },
-                  listener: (BuildContext context, ChangePinState state) {
-                    if (state.newPinConfirmed == ValidationState.valid) {
-                      Navigator.of(context).pushNamed(Success.routeName);
-                    } else if (state.newPinConfirmed == ValidationState.invalid) {
-                      Navigator.of(context).pushNamed(ChoosePin.routeName);
-                    } else if (state.oldPinVerified == ValidationState.valid) {
-                      Navigator.of(context).pushNamed(ChoosePin.routeName);
-                    }
-                  },
-                  child: child(context),
-                );
-
-            return MaterialPageRoute(builder: builder, settings: settings);
-          },
-        ));
+                return MaterialPageRoute(builder: child, settings: settings);
+              },
+            )));
   }
 }

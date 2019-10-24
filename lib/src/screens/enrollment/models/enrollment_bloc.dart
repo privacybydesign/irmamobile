@@ -15,8 +15,6 @@ class EnrollmentBloc extends Bloc<Object, EnrollmentState> {
 
   @override
   Stream<EnrollmentState> mapEventToState(Object event) async* {
-    print("Got new event");
-    print(event);
     if (event is EnrollmentCanceled) {
       yield EnrollmentState();
     } else if (event is PinSubmitted) {

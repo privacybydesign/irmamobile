@@ -19,18 +19,16 @@ class ChangePinState with EquatableMixin {
     this.retry = 0,
   });
 
-  ChangePinState copyWith({
-    String newPin,
-    ValidationState oldPinVerified = ValidationState.initial,
-    ValidationState newPinConfirmed = ValidationState.initial,
-    int retry
-  }) {
+  ChangePinState copyWith(
+      {String newPin,
+      ValidationState oldPinVerified = ValidationState.initial,
+      ValidationState newPinConfirmed = ValidationState.initial,
+      int retry}) {
     return new ChangePinState(
-      newPin: newPin ?? this.newPin,
-      oldPinVerified: oldPinVerified ?? this.oldPinVerified,
-      newPinConfirmed: newPinConfirmed ?? this.newPinConfirmed,
-      retry: retry ?? this.retry
-    );
+        newPin: newPin ?? this.newPin,
+        oldPinVerified: oldPinVerified ?? this.oldPinVerified,
+        newPinConfirmed: newPinConfirmed ?? this.newPinConfirmed,
+        retry: retry ?? this.retry);
   }
 
   @override
