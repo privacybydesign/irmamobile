@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/go-errors/errors"
-	"github.com/privacybydesign/irmago"
+	irma "github.com/privacybydesign/irmago"
 	"github.com/privacybydesign/irmago/irmaclient"
 )
 
@@ -35,6 +35,10 @@ type authenticationFailedEvent struct {
 	BlockedDuration   int
 }
 
+type authenticationErrorEvent struct {
+	Error string
+}
+
 func sendConfiguration() {
 	dispatchEvent("IrmaConfigurationEvent", &irmaConfigurationEvent{
 		SchemeManagers:  client.Configuration.SchemeManagers,
@@ -63,23 +67,20 @@ func sendEnrollmentStatus() {
 	})
 }
 
-func sendAuthenticateFailure(tries, blocked int) {
+func sendAuthenticationFailed(tries, blocked int) {
 	dispatchEvent("AuthenticationFailedEvent", &authenticationFailedEvent{
 		RemainingAttempts: tries,
 		BlockedDuration:   blocked,
 	})
 }
 
-func sendAuthenticateSuccess() {
-	sendAction(&OutgoingAction{
-		"type": "IrmaClient.AuthenticateSuccess",
-	})
+func sendAuthenticationSuccess() {
+	dispatchEvent("AuthenticationSuccess", nil)
 }
 
-func sendAuthenticateError(err *irma.SessionError) {
-	sendAction(&OutgoingAction{
-		"type":  "IrmaClient.AuthenticateError",
-		"error": err,
+func sendAuthenticationError(err *irma.SessionError) {
+	dispatchEvent("AuthenticationError", &authenticationErrorEvent{
+		Error: err.Error(),
 	})
 }
 

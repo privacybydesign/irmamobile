@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:irmamobile/src/data/irma_client.dart';
+import 'package:irmamobile/src/models/authentication_result.dart';
 import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/enroll_event.dart';
@@ -22,6 +23,12 @@ class IrmaClientBridge implements IrmaClient {
     methodChannel = const MethodChannel('irma.app/irma_mobile_bridge');
     methodChannel.setMethodCallHandler(_handleMethodCall);
     methodChannel.invokeMethod<void>("AppReadyEvent", "{}");
+
+    authenticationSubject.listen((result) {
+      if (result is AuthenticationResultSuccess) {
+        lockedSubject.add(true);
+      }
+    });
   }
 
   final irmaConfigurationStream = BehaviorSubject<IrmaConfiguration>();
@@ -41,6 +48,15 @@ class IrmaClientBridge implements IrmaClient {
             irmaConfiguration: await irmaConfigurationStream.firstWhere((irmaConfig) => irmaConfig != null),
             rawCredentials: RawCredentials.fromJson(data),
           ));
+          break;
+        case 'AuthenticationFailedEvent':
+          authenticationSubject.add(AuthenticationResultFailed.fromJson(data));
+          break;
+        case 'AuthenticationSuccess':
+          authenticationSubject.add(AuthenticationResultSuccess());
+          break;
+        case 'AuthenticationError':
+          authenticationSubject.add(AuthenticationResultError.fromJson(data));
           break;
         default:
           debugPrint('Unrecognized bridge event name received: ' + call.method);
@@ -128,5 +144,24 @@ class IrmaClientBridge implements IrmaClient {
           pin: pin,
           language: language,
         ).toJson()));
+  }
+
+  final authenticationSubject = PublishSubject<AuthenticationResult>();
+  final lockedSubject = BehaviorSubject<bool>.seeded(true);
+
+  @override
+  void lock() {
+    lockedSubject.add(true);
+  }
+
+  @override
+  Future<AuthenticationResult> unlock(String pin) {
+    this.methodChannel.invokeMethod("AuthenticateEvent", jsonEncode({'pin': pin}));
+    return authenticationSubject.first;
+  }
+
+  @override
+  Stream<bool> getLocked() {
+    return lockedSubject.stream;
   }
 }
