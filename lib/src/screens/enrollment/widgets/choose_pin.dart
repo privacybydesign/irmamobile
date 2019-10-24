@@ -10,7 +10,7 @@ import 'package:irmamobile/src/widgets/error_message.dart';
 import 'package:irmamobile/src/widgets/pin_field.dart';
 
 class ChoosePin extends StatelessWidget {
-  static const String routeName = 'enrollment/choose_pin';
+  static const String routeName = 'choose_pin';
 
   final void Function(BuildContext, String) submitPin;
   final void Function() cancel;
@@ -25,6 +25,8 @@ class ChoosePin extends StatelessWidget {
           title: Text(FlutterI18n.translate(context, 'enrollment.choose_pin.title')),
         ),
         body: BlocBuilder<EnrollmentBloc, EnrollmentState>(builder: (context, state) {
+          print("State in choose pin widget");
+          print(state);
           return SingleChildScrollView(
             child: Padding(
                 padding: EdgeInsets.only(top: IrmaTheme.of(context).spacing * 2),

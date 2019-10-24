@@ -9,7 +9,7 @@ import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/theme_button.dart';
 
 class Introduction extends StatefulWidget {
-  static const String routeName = 'enrollment/introduction';
+  static const String routeName = 'introduction';
 
   @override
   _IntroductionState createState() => _IntroductionState();

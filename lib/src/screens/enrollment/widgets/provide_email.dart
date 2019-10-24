@@ -10,7 +10,7 @@ import 'package:irmamobile/src/widgets/error_message.dart';
 import 'package:irmamobile/src/widgets/primary_button.dart';
 
 class ProvideEmail extends StatelessWidget {
-  static const String routeName = 'enrollment/provide_email';
+  static const String routeName = 'provide_email';
 
   final void Function() submitEmail;
   final void Function(String) changeEmail;

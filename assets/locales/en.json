@@ -16,7 +16,7 @@
     "choose_pin": {
       "title": "Kies je pincode",
       "confirm_title": "Herhaal je pincode",
-      "instruction": "Kies een pincode van minimaal 5 cijfers",
+      "instruction": "Kies een pincode van 5 cijfers",
       "confirm_instruction": "Vul ter controle nogmaals je pincode in.",
       "next": "Volgende",
       "error": "De pincodes kwamen niet overeen, probeer het nog eens."
@@ -98,27 +98,6 @@
       "delete_details": "All cards will be removed"
     }
   },
-  "change_pin": {
-    "enter_pin": {
-      "title": "Current pin code",
-      "instruction": "Enter your current pin code.",
-      "error": "The pin code is incorrect, Try again."
-    },
-    "choose_pin": {
-      "title": "Choose pin code",
-      "instruction": "Choose a new pin code of at least 5 digits.",
-      "error": "The pin codes dod not match. Try again."
-    },
-    "confirm_pin": {
-      "title": "Confirm pin code",
-      "instruction": "Confirm your new pin code."
-    },
-    "success": {
-      "title": "Changed pin code",
-      "message": "Your pin code was changed successfully.",
-      "continue": "Continue"
-    }
-  },
   "issuance": {
     "title": "Add data",
     "header": "Choose the data you want to retrieve",
@@ -136,7 +115,7 @@
     },
     "choose_pin": {
       "title": "Choose pin code",
-      "instruction": "Choose a new pin code of at least 5 digits.",
+      "instruction": "Choose a new pin code consisting of 5 digits.",
       "error": "The pin codes dod not match. Try again."
     },
     "confirm_pin": {

@@ -104,7 +104,7 @@ class App extends StatelessWidget {
                   case ConnectionState.done:
                     break;
                 }
-                if (snapshot.data.updateRequired()) {
+                if (snapshot.data != null && snapshot.data.updateRequired()) {
                   return MaterialApp(
                     key: Key("update-required"),
                     theme: IrmaTheme.of(context).themeData,

@@ -79,7 +79,8 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
             final builder = (context) => BlocListener<ChangePinBloc, ChangePinState>(
                   condition: (ChangePinState previous, ChangePinState current) {
                     return current.newPinConfirmed != previous.newPinConfirmed ||
-                        current.oldPinVerified != previous.oldPinVerified;
+                        current.oldPinVerified != previous.oldPinVerified ||
+                        current.retry != previous.retry;
                   },
                   listener: (BuildContext context, ChangePinState state) {
                     if (state.newPinConfirmed == ValidationState.valid) {

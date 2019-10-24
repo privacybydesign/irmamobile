@@ -17,6 +17,7 @@ class EnrollmentState with EquatableMixin {
   final bool emailValid;
   final bool showEmailValidation;
   final bool showPinValidation;
+  final int retry;
 
   EnrollmentState({
     this.pin,
@@ -25,6 +26,7 @@ class EnrollmentState with EquatableMixin {
     this.emailValid = false,
     this.showEmailValidation = false,
     this.showPinValidation = false,
+    this.retry = 0,
   });
 
   EnrollmentState copyWith({
@@ -34,6 +36,7 @@ class EnrollmentState with EquatableMixin {
     bool emailValid,
     bool showEmailValidation,
     bool showPinValidation,
+    int retry,
   }) {
     return new EnrollmentState(
       pin: pin ?? this.pin,
@@ -42,16 +45,17 @@ class EnrollmentState with EquatableMixin {
       emailValid: emailValid ?? this.emailValid,
       showEmailValidation: showEmailValidation ?? this.showEmailValidation,
       showPinValidation: showPinValidation ?? this.showPinValidation,
+      retry: retry ?? this.retry,
     );
   }
 
   @override
   String toString() {
-    return 'EnrollmentState {pin: ${pin == null ? null : '*' * pin.length}, email: $email, pinConfirmed: $pinConfirmed, emailValid: $emailValid, showEmailValidation: $showEmailValidation, showPinValidation: $showPinValidation}';
+    return 'EnrollmentState {pin: ${pin == null ? null : '*' * pin.length}, email: $email, pinConfirmed: $pinConfirmed, emailValid: $emailValid, showEmailValidation: $showEmailValidation, showPinValidation: $showPinValidation, retry: $retry}';
   }
 
   @override
   List<Object> get props {
-    return [pin, email, pinConfirmed, emailValid];
+    return [pin, email, pinConfirmed, emailValid, showEmailValidation, showPinValidation, retry];
   }
 }

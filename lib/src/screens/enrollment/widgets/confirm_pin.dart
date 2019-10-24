@@ -6,7 +6,7 @@ import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/pin_field.dart';
 
 class ConfirmPin extends StatelessWidget {
-  static const String routeName = 'enrollment/confirm_pin';
+  static const String routeName = 'confirm_pin';
 
   final Function(String) submitConfirmationPin;
   final void Function() cancel;

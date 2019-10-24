@@ -85,12 +85,12 @@ class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
             final child = routeBuilders[settings.name];
             final builder = (context) => BlocListener<EnrollmentBloc, EnrollmentState>(
                   condition: (EnrollmentState previous, EnrollmentState current) {
-                    return current.pinConfirmed != previous.pinConfirmed;
+                    return current.pinConfirmed != previous.pinConfirmed || current.showPinValidation != previous.showPinValidation;
                   },
                   listener: (BuildContext context, EnrollmentState state) {
                     if (state.pinConfirmed == true) {
                       Navigator.of(context).pushReplacementNamed(ProvideEmail.routeName);
-                    } else if (state.pinConfirmed == false) {
+                    } else if (state.pinConfirmed == false && state.showPinValidation == true) {
                       Navigator.of(context).pushReplacementNamed(ChoosePin.routeName);
                     }
                   },

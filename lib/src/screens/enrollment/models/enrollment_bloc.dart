@@ -15,6 +15,8 @@ class EnrollmentBloc extends Bloc<Object, EnrollmentState> {
 
   @override
   Stream<EnrollmentState> mapEventToState(Object event) async* {
+    print("Got new event");
+    print(event);
     if (event is EnrollmentCanceled) {
       yield EnrollmentState();
     } else if (event is PinSubmitted) {
@@ -32,6 +34,7 @@ class EnrollmentBloc extends Bloc<Object, EnrollmentState> {
         showPinValidation: true,
         showEmailValidation: false,
         emailValid: false,
+        retry: currentState.retry + 1,
       );
     } else if (event is EmailChanged) {
       yield currentState.copyWith(
