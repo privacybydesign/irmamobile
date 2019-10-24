@@ -61,7 +61,7 @@
     "expiresAt": "Usable until"
   },
   "card_store": {
-    "app_bar": "Gegevens ophalen",
+    "app_bar": "Gegevens toevoegen",
     "choose": "Kies de gegevens die je wilt ophalen.",
     "search": "Zoek...",
     "personal_data": "Persoonsgegevens",
@@ -69,14 +69,40 @@
     "education": "Onderwijs",
     "health": "Zorg",
     "card_info": {
+      "app_bar": "{card_type} toevoegen",
       "obtain": "ophalen",
       "issuer": "Uitgifte",
       "general_info": "Uitleg tekst...Lorem ipsum.",
       "issuer_question": "Waar haal ik de gegevens op?",
       "provided_attributes_question": "Welke gegevens ontvang ik?",
       "expiration_question": "Hoe lang zijn de gegevens geldig?",
+      "how_does_it_work_question": "Hoe werkt het?",
       "back_button": "Later",
-      "get_button": "Ophalen"
+      "get_button": "Haal mijn {card_type} op"
+    },
+    "email": {
+      "title": "E-mailadres toevoegen",
+      "description": "Voeg je e-mailadres toe. Je kunt meerdere e-mailaddressen toevoegen.",
+      "get_button": "E-mailadres toevoegen",
+      "hint_email": "E-mailadres",
+      "info_alert_title": "Voeg je e-mailadres toe",
+      "info_alert_body": "Je hebt je e-mailadres {e-mail} gebruikt om IRMA te beveiligen.\nVoeg dit e-mailadres ook toe aan je contactgegevens",
+      "invalid_email_address": "Dit is geen geldig e-mailadres.\n",
+      "empty_email_address": "Vul een geldig e-mailadres in.\n",
+      "success": {
+        "alert_title": "Gelukt!",
+        "alert_body": "Er is een email gestuurd naar {e-mail}",
+        "description": "Open je email. Daarin vind je een link om je e-mailadres toe te voegen aan IRMA",
+        "no_email_received_title": "Geen email ontvangen?",
+        "no_email_received_body_step1": "1. Controleer je spam folder\n2. ",
+        "no_email_received_body_step2_1": "Verstuur e-mail opnieuw ",
+        "no_email_received_body_step2_2": "naar\n    {e-mail}",
+        "open_email_button": "Open e-mail"
+      },
+      "fail": {
+        "alert_title": "Er is iets fout gegaan",
+        "alert_body": "Het is niet gelukt om een email te sturen naar {e-mail}.\nProbeer het opnieuw."
+      }
     }
   },
   "settings": {
