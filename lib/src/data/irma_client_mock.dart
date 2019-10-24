@@ -1,10 +1,12 @@
 import 'package:irmamobile/src/data/irma_client.dart';
 import 'package:irmamobile/src/models/attributes.dart';
+import 'package:irmamobile/src/models/authentication_result.dart';
 import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:irmamobile/src/models/version_information.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:version/version.dart';
 
 class CredentialNotFoundException implements Exception {}
@@ -151,5 +153,29 @@ class IrmaClientMock implements IrmaClient {
   void enroll({String email, String pin, String language}) {
     // TODO
     throw Exception("Unimplemented");
+  }
+
+  final lockedSubject = BehaviorSubject<bool>.seeded(false);
+
+  @override
+  void lock() {
+    lockedSubject.add(true);
+  }
+
+  @override
+  Future<AuthenticationResult> unlock(String pin) async {
+    if (pin == "12345") {
+      lockedSubject.add(false);
+      return AuthenticationResultSuccess();
+    }
+    return AuthenticationResultFailed(
+      blockedDuration: 0,
+      remainingAttempts: 2,
+    );
+  }
+
+  @override
+  Stream<bool> getLocked() {
+    return lockedSubject.stream;
   }
 }
