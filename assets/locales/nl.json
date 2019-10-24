@@ -64,18 +64,18 @@
     "choose": "Kies de gegevens die je wilt ophalen.",
     "search": "Zoek...",
     "personal_data": "Persoonsgegevens",
-    "identity_cards":  "Identiteitsbewijzen",
-    "education" : "Onderwijs",
+    "identity_cards": "Identiteitsbewijzen",
+    "education": "Onderwijs",
     "health": "Zorg",
     "card_info": {
       "obtain": "ophalen",
       "issuer": "Uitgifte",
       "general_info": "Uitleg tekst...Lorem ipsum.",
-      "issuer_question":  "Waar haal ik de gegevens op?",
-      "provided_attributes_question":  "Welke gegevens ontvang ik?",
-      "expiration_question":  "Hoe lang zijn de gegevens geldig?",
-      "back_button":  "Later",
-      "get_button":  "Ophalen"
+      "issuer_question": "Waar haal ik de gegevens op?",
+      "provided_attributes_question": "Welke gegevens ontvang ik?",
+      "expiration_question": "Hoe lang zijn de gegevens geldig?",
+      "back_button": "Later",
+      "get_button": "Ophalen"
     }
   },
   "settings": {
@@ -101,9 +101,20 @@
     "title": "Gegevens toevoegen",
     "header": "Kies de gegevens die je wilt ophalen",
     "hint_search": "zoek",
-    "loading" : {
+    "loading": {
       "title": "Gegevens ophalen",
       "body": "Je gegevens worden opgehaald."
+    }
+  },
+  "pin": {
+    "title": "Inloggen",
+    "subtitle": "Voer je pincode in",
+    "button_forgot": "Pincode vergeten",
+    "button_block": "IRMA blokkeren",
+    "invalid_pin": {
+      "attempts-0": "De ingevoerde pin is onjuist. U heeft nog {attemps} pogingen voordat uw account tijdelijk geblokkeerd wordt.",
+      "attempts-1": "De ingevoerde pin is onjuist. U heeft nog {attemps} poging voordat uw account tijdelijk geblokkeerd wordt.",
+      "attempts-2": "De ingevoerde pin is onjuist. U heeft nog {attemps} pogingen voordat uw account tijdelijk geblokkeerd wordt."
     }
   },
   "wallet": {

@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:irmamobile/src/data/irma_client.dart';
+import 'package:irmamobile/src/models/authentication_result.dart';
 import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
@@ -48,5 +49,17 @@ class IrmaRepository {
       pin: pin,
       language: language,
     );
+  }
+
+  void lock() {
+    client.lock();
+  }
+
+  Future<AuthenticationResult> unlock(String pin) {
+    return client.unlock(pin);
+  }
+
+  Stream<bool> getLocked() {
+    return client.getLocked();
   }
 }

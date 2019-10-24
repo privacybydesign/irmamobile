@@ -35,6 +35,15 @@ class App extends StatelessWidget {
     IrmaRepository.init(IrmaClientBridge());
   }
 
+  App.test(WidgetBuilder builder, [List<BlocProvider> providers])
+      : initialRoute = '/',
+        routes = {
+          '/': builder,
+        },
+        providers = providers == null ? [] : providers {
+    IrmaRepository.init(IrmaClientMock());
+  }
+
   App.prototypes()
       : initialRoute = PrototypesScreen.routeName,
         routes = {
@@ -56,15 +65,6 @@ class App extends StatelessWidget {
       versionUpdateAvailable: true,
       versionUpdateRequired: true,
     ));
-  }
-
-  App.test(WidgetBuilder builder, [List<BlocProvider> providers])
-      : initialRoute = '/',
-        routes = {
-          '/': builder,
-        },
-        providers = providers == null ? [] : providers {
-    IrmaRepository.init(IrmaClientMock());
   }
 
   // This widget is the root of your application.
