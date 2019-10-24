@@ -12,6 +12,12 @@
 			"program": "lib/main_prototypes.dart",
 			"request": "launch",
 			"type": "dart"
+		},
+		{
+			"name": "Update required",
+			"program": "lib/main_update_required.dart",
+			"request": "launch",
+			"type": "dart"
 		}
 	]
 }

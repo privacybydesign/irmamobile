@@ -16,6 +16,8 @@ part 'irma_configuration.g.dart';
 //   Map<String, dynamic> toJson() => _$FoobarToJson(this);
 // }
 
+// TODO: Change this to a RawIrmaConfiguration and create a typed
+// IrmaConfiguration that makes use of DateTime and TranslatedValue (and more).
 @JsonSerializable(nullable: false, explicitToJson: true)
 class IrmaConfiguration with EquatableMixin {
   IrmaConfiguration({this.schemeManagers, this.issuers, this.credentialTypes, this.attributeTypes, this.path});
@@ -118,6 +120,8 @@ class AppVersion {
   Map<String, dynamic> toJson() => _$AppVersionToJson(this);
 }
 
+// TODO: move to a RawIssuer type and re-introduce the issuer type which has
+// colors and backgrounds (not from irma scheme right now).
 @JsonSerializable(nullable: false)
 class Issuer {
   Issuer({this.id, this.name, this.shortName, this.schemeManagerId, this.contactAddress, this.contactEmail});
@@ -184,6 +188,8 @@ class CredentialType {
   Map<String, dynamic> toJson() => _$CredentialTypeToJson(this);
 }
 
+// TODO: Change this to RawAttributeType and move to a new AttributeType that
+// has TranslatedValues for `name` and `description`.
 @JsonSerializable(nullable: false)
 class AttributeType {
   AttributeType(
