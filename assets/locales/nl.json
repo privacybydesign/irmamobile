@@ -98,6 +98,27 @@
       "delete_details": "Alle gegevens worden verwijderd"
     }
   },
+  "change_pin": {
+    "enter_pin": {
+      "title": "Huidige pincode",
+      "instruction": "Vul ter controle je huidige pincode in.",
+      "error": "De pincode is niet correct. Probeer het nog eens."
+    },
+    "choose_pin": {
+      "title": "Kies je pincode",
+      "instruction": "Kies een nieuwe pincode van minimaal 5 cijfers.",
+      "error": "De pincodes kwamen niet overeen. Probeer het nog eens."
+    },
+    "confirm_pin": {
+      "title": "Herhaal je pincode",
+      "instruction": "Vul ter controle nogmaals je nieuwe pincode in."
+    },
+    "success": {
+      "title": "Pin code veranderd",
+      "message": "Je pincode is succesvol veranderd.",
+      "continue": "Verder"
+    }
+  },
   "issuance": {
     "title": "Gegevens toevoegen",
     "header": "Kies de gegevens die je wilt ophalen",

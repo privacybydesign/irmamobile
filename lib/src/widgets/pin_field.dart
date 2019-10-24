@@ -63,9 +63,6 @@ class _PinFieldState extends State<PinField> {
         if (!_isDisposed && widget.onSubmit != null && widget.autosubmit) {
           widget.onSubmit(val);
         }
-      });
-
-      Future.delayed(const Duration(milliseconds: 1000), () {
         if (!_isDisposed && widget.autoclear) {
           controller.clear();
         }
