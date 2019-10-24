@@ -27,6 +27,8 @@ class IrmaClientBridge implements IrmaClient {
     authenticationSubject.listen((result) {
       if (result is AuthenticationResultSuccess) {
         lockedSubject.add(true);
+      } else {
+        lockedSubject.add(false);
       }
     });
   }
@@ -162,6 +164,6 @@ class IrmaClientBridge implements IrmaClient {
 
   @override
   Stream<bool> getLocked() {
-    return lockedSubject.stream;
+    return lockedSubject.distinct().asBroadcastStream();
   }
 }

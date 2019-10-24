@@ -128,6 +128,17 @@
       "continue": "Verder"
     }
   },
+  "pin": {
+    "title": "Inloggen",
+    "subtitle": "Voer je pincode in",
+    "button_forgot": "Pincode vergeten",
+    "button_block": "IRMA blokkeren",
+    "invalid_pin": {
+      "attempts-0": "De ingevoerde pin is onjuist. U heeft nog {attemps} pogingen voordat uw account tijdelijk geblokkeerd wordt.",
+      "attempts-1": "De ingevoerde pin is onjuist. U heeft nog {attemps} poging voordat uw account tijdelijk geblokkeerd wordt.",
+      "attempts-2": "De ingevoerde pin is onjuist. U heeft nog {attemps} pogingen voordat uw account tijdelijk geblokkeerd wordt."
+    }
+  },
   "wallet": {
     "scan_qr_code": "Scan QR code",
     "issuer": "Uitgifte",

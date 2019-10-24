@@ -128,6 +128,17 @@
       "continue": "Continue"
     }
   },
+  "pin": {
+    "title": "Login",
+    "subtitle": "Enter your pin",
+    "button_forgot": "Forgot pin",
+    "button_block": "Block IRMA",
+    "invalid_pin": {
+      "attempts-0": "The pin you entered was invalid. {attemps} attempts remaining before your account will be temporarily blocked.",
+      "attempts-1": "The pin you entered was invalid. {attemps} attempt remaining before your account will be temporarily blocked.",
+      "attempts-2": "The pin you entered was invalid. {attemps} attempts remaining before your account will be temporarily blocked."
+    }
+  },
   "wallet": {
     "scan_qr_code": "Scan QR code",
     "issuer": "Issuer",
