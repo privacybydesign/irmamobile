@@ -66,7 +66,7 @@ class CardStyle {
 }
 
 class IrmaCard extends StatefulWidget {
-  final RichCredential credential;
+  final Credential credential;
   final Function() onRefresh;
   final Function() onRemove;
 
@@ -229,7 +229,7 @@ class _PersonalData extends StatelessWidget {
   static const transparentWhite = Color(0xaaffffff);
   static const indent = 100.0;
 
-  final RichCredential credential;
+  final Credential credential;
   final CardStyle cardStyle;
 
   _PersonalData({this.credential, this.cardStyle});
@@ -239,16 +239,16 @@ class _PersonalData extends StatelessWidget {
       Divider(color: transparentWhite),
     ];
 
-    textLines.addAll(credential.attributes.map((attribute) => Padding(
+    textLines.addAll(credential.attributes.entries.toList().map<Widget>((attribute) => Padding(
           padding: EdgeInsets.symmetric(vertical: 4),
           child: Row(
             children: [
               Container(
-                child: Text(attribute.type.name['nl'],
+                child: Text(attribute.key.name['nl'],
                     style: Theme.of(context).textTheme.body1.copyWith(color: cardStyle.fgColor)),
                 width: indent,
               ),
-              _BlurText(attribute.value['nl'], cardStyle.fgColor, false),
+              _BlurText(attribute.value.translate('nl'), cardStyle.fgColor, false),
             ],
           ),
         )));

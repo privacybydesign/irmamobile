@@ -1,0 +1,132 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:irmamobile/src/data/irma_client.dart';
+import 'package:irmamobile/src/models/credential.dart';
+import 'package:irmamobile/src/models/credentials.dart';
+import 'package:irmamobile/src/models/enroll_event.dart';
+import 'package:irmamobile/src/models/irma_configuration.dart';
+import 'package:irmamobile/src/models/raw_credentials.dart';
+import 'package:irmamobile/src/models/version_information.dart';
+import 'package:package_info/package_info.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:stream_transform/stream_transform.dart';
+import 'package:version/version.dart';
+
+class IrmaClientBridge implements IrmaClient {
+  MethodChannel methodChannel;
+
+  IrmaClientBridge() {
+    methodChannel = const MethodChannel('irma.app/irma_mobile_bridge');
+    methodChannel.setMethodCallHandler(_handleMethodCall);
+    methodChannel.invokeMethod<void>("AppReadyEvent", "{}");
+  }
+
+  final irmaConfigurationStream = BehaviorSubject<IrmaConfiguration>();
+  final credentialsStream = PublishSubject<Credentials>();
+
+  // _handleMethodCall handles incomming method calls from irmago and returns an
+  // answer to irmago.
+  Future<dynamic> _handleMethodCall(MethodCall call) async {
+    try {
+      var data = jsonDecode(call.arguments);
+      switch (call.method) {
+        case 'IrmaConfigurationEvent':
+          irmaConfigurationStream.add(IrmaConfiguration.fromJson(data));
+          break;
+        case 'CredentialsEvent':
+          credentialsStream.add(Credentials.fromRaw(
+            irmaConfiguration: await irmaConfigurationStream.firstWhere((irmaConfig) => irmaConfig != null),
+            rawCredentials: RawCredentials.fromJson(data),
+          ));
+          break;
+        default:
+          debugPrint('Unrecognized bridge event name received: ' + call.method);
+          return Future<dynamic>.value(null);
+      }
+    } catch (e, stacktrace) {
+      debugPrint("Error receiving or parsing method call from native: " + e.toString());
+      debugPrint(stacktrace.toString());
+      rethrow;
+    }
+
+    return Future<dynamic>.value(null);
+  }
+
+  @override
+  Stream<Credentials> getCredentials() {
+    return credentialsStream.stream;
+  }
+
+  @override
+  Stream<Credential> getCredential(String id) {
+    final filteredCredentialStream = credentialsStream
+        .map<Credential>((credentials) => credentials[id])
+        .where((credential) => credential != null)
+        .distinct();
+
+    // TODO: ask irmago for this credential
+    //
+    // this.methodChannel.invokeMethod<void>("getCredential", id);
+    //
+    // Perhaps this method is not available in irmago right now. Either we add
+    // it there, or register on the complete credentials list and filter a value
+    // from there.
+    return filteredCredentialStream;
+  }
+
+  @override
+  Stream<Map<String, Issuer>> getIssuers() {
+    return irmaConfigurationStream.stream.map<Map<String, Issuer>>(
+      (config) => config.issuers,
+    );
+  }
+
+  @override
+  Stream<VersionInformation> getVersionInformation() {
+    // Get two Streams before waiting on them to allow for asynchronicity.
+    final packageInfoStream = PackageInfo.fromPlatform().asStream();
+    final irmaVersionInfoStream = irmaConfigurationStream.stream; // TODO: add filtering
+
+    return packageInfoStream.transform<VersionInformation>(
+      combineLatest<PackageInfo, IrmaConfiguration, VersionInformation>(
+        irmaVersionInfoStream,
+        (packageInfo, irmaVersionInfo) {
+          final minimumAppVersions = irmaVersionInfo.schemeManagers['pbdf'].minimumAppVersion;
+          Version minimumVersion;
+          switch (Platform.operatingSystem) {
+            case "android":
+              minimumVersion = Version(minimumAppVersions.android, 0, 0);
+              break;
+            case "ios":
+              minimumVersion = Version(minimumAppVersions.iOS, 0, 0);
+              break;
+            default:
+              throw Exception("Unsupported Platfrom.operatingSystem");
+          }
+          final currentVersion = Version.parse(packageInfo.version);
+          return VersionInformation(
+            availableVersion: minimumVersion,
+            // TODO: use current version as required version until a good
+            // version is available from the scheme.
+            requiredVersion: currentVersion,
+            currentVersion: currentVersion,
+          );
+        },
+      ),
+    );
+  }
+
+  @override
+  void enroll({String email, String pin, String language}) {
+    this.methodChannel.invokeMethod(
+        "EnrollEvent",
+        jsonEncode(EnrollEvent(
+          email: email,
+          pin: pin,
+          language: language,
+        ).toJson()));
+  }
+}

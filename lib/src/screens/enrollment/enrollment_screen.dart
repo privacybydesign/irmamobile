@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:irmamobile/src/plugins/irma_mobile_bridge/events.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_bloc.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_event.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
@@ -56,10 +55,6 @@ class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
 
   submitEmail() {
     bloc.dispatch(EmailSubmitted());
-
-    if (bloc.currentState.pinConfirmed && (bloc.currentState.email.trim() == "" || bloc.currentState.emailValid)) {
-      bloc.dispatch(EnrollEvent(email: bloc.currentState.email.trim(), pin: bloc.currentState.pin, language: 'nl'));
-    }
   }
 
   changeEmail(email) {
