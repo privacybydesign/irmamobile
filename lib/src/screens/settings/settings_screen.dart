@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
 import 'package:irmamobile/src/screens/settings/widgets/settings_header.dart';
 import 'package:irmamobile/src/theme/irma-icons.dart';
 
@@ -42,6 +43,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           ListTile(
+            onTap: () {
+              Navigator.of(context).pushNamed(ChangePinScreen.routeName);
+            },
             title: Text(
               FlutterI18n.translate(context, 'settings.pin.change_pin'),
               style: Theme.of(context).textTheme.body1,

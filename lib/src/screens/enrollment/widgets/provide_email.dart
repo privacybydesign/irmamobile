@@ -4,14 +4,13 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_bloc.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/cancel_button.dart';
+import 'package:irmamobile/src/screens/enrollment/widgets/choose_pin.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/error_message.dart';
 import 'package:irmamobile/src/widgets/primary_button.dart';
 
-import 'choose_pin.dart';
-
 class ProvideEmail extends StatelessWidget {
-  static const String routeName = 'enrollment/provide_email';
+  static const String routeName = 'provide_email';
 
   final void Function() submitEmail;
   final void Function(String) changeEmail;

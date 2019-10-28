@@ -16,7 +16,7 @@
     "choose_pin": {
       "title": "Kies je pincode",
       "confirm_title": "Herhaal je pincode",
-      "instruction": "Kies een pincode van minimaal 5 cijfers",
+      "instruction": "Kies een pincode van 5 cijfers",
       "confirm_instruction": "Vul ter controle nogmaals je pincode in.",
       "next": "Volgende",
       "error": "De pincodes kwamen niet overeen, probeer het nog eens."
@@ -57,6 +57,7 @@
     "remove": "Verwijderen"
   },
   "card": {
+    "personaldata": "Persoonsgegevens",
     "expiresAt": "Geldig tot"
   },
   "card_store": {
@@ -104,6 +105,27 @@
     "loading": {
       "title": "Gegevens ophalen",
       "body": "Je gegevens worden opgehaald."
+    }
+  },
+  "change_pin": {
+    "enter_pin": {
+      "title": "Huidige pincode",
+      "instruction": "Vul ter controle je huidige pincode in.",
+      "error": "De pincode is niet correct. Probeer het nog eens."
+    },
+    "choose_pin": {
+      "title": "Kies je pincode",
+      "instruction": "Kies een nieuwe pincode van 5 cijfers.",
+      "error": "De pincodes kwamen niet overeen. Probeer het nog eens."
+    },
+    "confirm_pin": {
+      "title": "Herhaal je pincode",
+      "instruction": "Vul ter controle nogmaals je nieuwe pincode in."
+    },
+    "success": {
+      "title": "Pin code veranderd",
+      "message": "Je pincode is succesvol veranderd.",
+      "continue": "Verder"
     }
   },
   "pin": {

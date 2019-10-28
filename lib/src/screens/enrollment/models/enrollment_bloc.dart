@@ -32,6 +32,7 @@ class EnrollmentBloc extends Bloc<Object, EnrollmentState> {
         showPinValidation: true,
         showEmailValidation: false,
         emailValid: false,
+        retry: currentState.retry + 1,
       );
     } else if (event is EmailChanged) {
       yield currentState.copyWith(

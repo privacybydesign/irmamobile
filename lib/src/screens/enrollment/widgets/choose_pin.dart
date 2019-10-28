@@ -3,15 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_bloc.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
+import 'package:irmamobile/src/screens/enrollment/widgets/cancel_button.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/welcome.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/error_message.dart';
 import 'package:irmamobile/src/widgets/pin_field.dart';
 
-import 'cancel_button.dart';
-
 class ChoosePin extends StatelessWidget {
-  static const String routeName = 'enrollment/choose_pin';
+  static const String routeName = 'choose_pin';
 
   final void Function(BuildContext, String) submitPin;
   final void Function() cancel;

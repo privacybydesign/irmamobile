@@ -8,6 +8,7 @@ import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/version_information.dart';
 import 'package:irmamobile/src/prototypes/prototypes_screen.dart';
 import 'package:irmamobile/src/screens/about/about_screen.dart';
+import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/loading/loading_screen.dart';
 import 'package:irmamobile/src/screens/required_update/required_update_screen.dart';
@@ -28,6 +29,7 @@ class App extends StatelessWidget {
         routes = {
           WalletScreen.routeName: (BuildContext context) => WalletScreen(),
           EnrollmentScreen.routeName: (BuildContext context) => EnrollmentScreen(),
+          ChangePinScreen.routeName: (BuildContext context) => ChangePinScreen(),
           AboutScreen.routeName: (BuildContext context) => AboutScreen(),
           SettingsScreen.routeName: (BuildContext context) => SettingsScreen(),
         },
@@ -102,7 +104,7 @@ class App extends StatelessWidget {
                   case ConnectionState.done:
                     break;
                 }
-                if (snapshot.data.updateRequired()) {
+                if (snapshot.data != null && snapshot.data.updateRequired()) {
                   return MaterialApp(
                     key: Key("update-required"),
                     theme: IrmaTheme.of(context).themeData,

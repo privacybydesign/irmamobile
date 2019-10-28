@@ -41,12 +41,12 @@ class _PinFieldState extends State<PinField> {
 
   @override
   void initState() {
+    super.initState();
     value = '';
     lastLength = 0;
     obscureText = true;
 
     focusNode = FocusNode();
-    super.initState();
     controller.addListener(_updateLength);
   }
 
@@ -63,9 +63,6 @@ class _PinFieldState extends State<PinField> {
         if (!_isDisposed && widget.onSubmit != null && widget.autosubmit) {
           widget.onSubmit(val);
         }
-      });
-
-      Future.delayed(const Duration(milliseconds: 1000), () {
         if (!_isDisposed && widget.autoclear) {
           controller.clear();
         }
@@ -84,8 +81,8 @@ class _PinFieldState extends State<PinField> {
 
   @override
   void dispose() {
-    focusNode.dispose();
     controller.dispose();
+    focusNode.dispose();
     _isDisposed = true;
 
     super.dispose();

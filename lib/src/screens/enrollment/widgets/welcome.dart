@@ -9,7 +9,7 @@ import 'package:irmamobile/src/widgets/primary_button.dart';
 import 'package:irmamobile/src/widgets/secondary_button.dart';
 
 class Welcome extends StatelessWidget {
-  static const String routeName = 'enrollment/welcome';
+  static const String routeName = 'welcome';
 
   @override
   Widget build(BuildContext context) {
