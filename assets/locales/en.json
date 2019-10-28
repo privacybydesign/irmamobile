@@ -115,8 +115,8 @@
     },
     "choose_pin": {
       "title": "Choose pin code",
-      "instruction": "Choose a new pin code consisting of 5 digits.",
-      "error": "The pin codes dod not match. Try again."
+      "instruction": "Choose a new 5-digit pin code.",
+      "error": "The pin codes do not match. Try again."
     },
     "confirm_pin": {
       "title": "Confirm pin code",
