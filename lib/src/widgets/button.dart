@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
+@Deprecated("Use IrmaButton instead")
 class Button extends StatefulWidget {
   IconData iconData;
   final String accessibleName;

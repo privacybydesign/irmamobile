@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:irmamobile/src/prototypes/design_buttons.dart';
+import 'package:irmamobile/src/prototypes/design_colors.dart';
+import 'package:irmamobile/src/prototypes/design_fields.dart';
+import 'package:irmamobile/src/prototypes/design_icons.dart';
+import 'package:irmamobile/src/prototypes/design_typography.dart';
 import 'package:irmamobile/src/prototypes/dev_experiment_1.dart';
 import 'package:irmamobile/src/prototypes/dev_experiment_2.dart';
 import 'package:irmamobile/src/prototypes/dev_experiment_3.dart';
@@ -95,7 +100,36 @@ class PrototypesScreen extends StatelessWidget {
           }),
           _buildListItem(context, "4. Pin screen", () {
             startDevExperiment4(context);
-          })
+          }),
+          SizedBox(height: 12),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  "Design previews",
+                  style: Theme.of(context).textTheme.display1,
+                ),
+              ],
+            ),
+          ),
+          Divider(height: 0),
+          _buildListItem(context, "1. Colors", () {
+            startDesignColors(context);
+          }),
+          _buildListItem(context, "2. Typography", () {
+            startDesignTypography(context);
+          }),
+          _buildListItem(context, "3. Icons", () {
+            startDesignIcons(context);
+          }),
+          _buildListItem(context, "4. Buttons", () {
+            startDesignButtons(context);
+          }),
+          _buildListItem(context, "5. Fields", () {
+            startDesignFields(context);
+          }),
         ],
       ),
     );
