@@ -170,9 +170,15 @@ class IrmaThemeData extends Equatable {
 }
 
 class IrmaTheme extends InheritedWidget {
-  final IrmaThemeData data;
+  final data = IrmaThemeData();
 
-  IrmaTheme({Key key, Widget child, this.data}) : super(key: key, child: child);
+  // IrmaTheme provides the IRMA ThemeData to descendents. Therefore descendents
+  // must be wrapped in a Builder.
+  IrmaTheme({Key key, WidgetBuilder builder})
+      : super(
+          key: key,
+          child: Builder(builder: builder),
+        );
 
   @override
   bool updateShouldNotify(InheritedWidget oldWidget) {

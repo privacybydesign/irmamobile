@@ -80,49 +80,49 @@ class App extends StatelessWidget {
       GlobalMaterialLocalizations.delegate,
       GlobalWidgetsLocalizations.delegate
     ];
+    final versionInformationStream = IrmaRepository.get().getVersionInformation();
     return IrmaTheme(
-      data: IrmaThemeData(),
-      child: Builder(builder: (context) {
+      builder: (context) {
         return MultiBlocProvider(
           providers: providers,
-          child: StreamBuilder<VersionInformation>(
-              stream: IrmaRepository.get().getVersionInformation(),
-              builder: (context, snapshot) {
-                switch (snapshot.connectionState) {
-                  case ConnectionState.none:
-                    throw Exception('Unreachable');
-                    break;
-                  case ConnectionState.waiting:
-                    return MaterialApp(
-                      key: Key("loading"),
-                      theme: IrmaTheme.of(context).themeData,
-                      localizationsDelegates: localizationsDelegates,
-                      home: LoadingScreen(),
-                    );
-                    break;
-                  case ConnectionState.active:
-                  case ConnectionState.done:
-                    break;
-                }
-                if (snapshot.data != null && snapshot.data.updateRequired()) {
-                  return MaterialApp(
-                    key: Key("update-required"),
-                    theme: IrmaTheme.of(context).themeData,
-                    localizationsDelegates: localizationsDelegates,
-                    home: RequiredUpdateScreen(),
-                  );
-                }
-                return MaterialApp(
-                  key: Key("app"),
-                  title: 'IRMA',
-                  theme: IrmaTheme.of(context).themeData,
-                  localizationsDelegates: localizationsDelegates,
-                  initialRoute: initialRoute,
-                  routes: routes,
-                );
-              }),
+          child: MaterialApp(
+            key: Key("app"),
+            title: 'IRMA',
+            theme: IrmaTheme.of(context).themeData,
+            localizationsDelegates: localizationsDelegates,
+            initialRoute: initialRoute,
+            routes: routes,
+            builder: (context, child) {
+              // Use the MaterialApp builder to force an overlay when loading
+              // and when update required.
+              return Stack(
+                children: <Widget>[
+                  child,
+                  StreamBuilder<VersionInformation>(
+                      stream: versionInformationStream,
+                      builder: (context, snapshot) {
+                        switch (snapshot.connectionState) {
+                          case ConnectionState.none:
+                            throw Exception('Unreachable');
+                            break;
+                          case ConnectionState.waiting:
+                            return LoadingScreen();
+                            break;
+                          case ConnectionState.active:
+                          case ConnectionState.done:
+                            break;
+                        }
+                        if (snapshot.data != null && snapshot.data.updateRequired()) {
+                          return RequiredUpdateScreen();
+                        }
+                        return Container();
+                      }),
+                ],
+              );
+            },
+          ),
         );
-      }),
+      },
     );
   }
 }
