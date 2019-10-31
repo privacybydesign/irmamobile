@@ -5,6 +5,7 @@ import 'package:irmamobile/src/models/authentication_result.dart';
 import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/disclosed_attribute.dart';
+import 'package:irmamobile/src/models/enrollment_status.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/log.dart';
 import 'package:irmamobile/src/models/preferences.dart';
@@ -385,22 +386,27 @@ class IrmaClientMock implements IrmaClient {
   }
 
   @override
+  Stream<EnrollmentStatus> getEnrollmentStatus() {
+    throw new UnimplementedError();
+  }
+
+  @override
   void enroll({String email, String pin, String language}) {
     _isEnrolledSubject.add(true);
   }
 
-  final BehaviorSubject<bool> lockedSubject = BehaviorSubject<bool>.seeded(false);
   final PublishSubject<bool> _isEnrolledSubject = PublishSubject<bool>();
+  final _lockedSubject = BehaviorSubject<bool>.seeded(false);
 
   @override
   void lock() {
-    lockedSubject.add(true);
+    _lockedSubject.add(true);
   }
 
   @override
   Future<AuthenticationResult> unlock(String pin) async {
     if (pin == "12345") {
-      lockedSubject.add(false);
+      _lockedSubject.add(false);
       return AuthenticationResultSuccess();
     }
     return AuthenticationResultFailed(
@@ -411,7 +417,7 @@ class IrmaClientMock implements IrmaClient {
 
   @override
   Stream<bool> getLocked() {
-    return lockedSubject.stream;
+    return _lockedSubject.stream;
   }
 
   @override

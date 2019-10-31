@@ -15,6 +15,7 @@ import 'package:irmamobile/src/prototypes/schermflow_1.dart';
 import 'package:irmamobile/src/prototypes/schermflow_5.dart';
 import 'package:irmamobile/src/prototypes/schermflow_wallet.dart';
 import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
+<<<<<<< HEAD
 import 'package:irmamobile/src/screens/disclosure/disclosure.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/introduction.dart';
 import 'package:irmamobile/src/screens/error/error_screen.dart';
@@ -22,6 +23,9 @@ import 'package:irmamobile/src/screens/error/no_internet_screen.dart';
 import 'package:irmamobile/src/screens/history/history_screen.dart';
 import 'package:irmamobile/src/screens/loading/loading_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
+=======
+import 'package:irmamobile/src/screens/reset_pin/reset_pin_screen.dart';
+>>>>>>> Initial prototype of pin forgotten screen
 
 class PrototypesScreen extends StatelessWidget {
   static const routeName = "/";
@@ -73,7 +77,9 @@ class PrototypesScreen extends StatelessWidget {
           _buildListItem(context, "8. Vrijgeven leeftijd 18+ & contactgegevens", null),
           _buildListItem(context, "9. Stemmen Weesperstraat", null),
           _buildListItem(context, "10. Vrijgeven met eerst kaart ophalen", null),
-          _buildListItem(context, "11. Pincode resetten", null),
+          _buildListItem(context, "11. Pincode resetten", () {
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => ResetPinScreen()));
+          }),
           _buildListItem(context, "12. Gegevens bijna niet meer geldig", null),
           _buildListItem(context, "13. Gegevens verouders", null),
           _buildListItem(context, "14. eID kaart toevoegen vanuit IRMA", null),

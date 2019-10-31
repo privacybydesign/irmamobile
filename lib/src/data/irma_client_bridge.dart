@@ -8,6 +8,7 @@ import 'package:irmamobile/src/models/authentication_result.dart';
 import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/enroll_event.dart';
+import 'package:irmamobile/src/models/enrollment_status.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/log.dart';
 import 'package:irmamobile/src/models/preferences.dart';
@@ -39,6 +40,7 @@ class IrmaClientBridge implements IrmaClient {
   final _credentialsStream = BehaviorSubject<Credentials>();
   final _isEnrolledStream = PublishSubject<bool>();
   final _preferencesStream = BehaviorSubject<Preferences>();
+  final _enrollmentStatusStream = BehaviorSubject<EnrollmentStatus>();
 
   // _handleMethodCall handles incomming method calls from irmago and returns an
   // answer to irmago.
@@ -73,6 +75,9 @@ class IrmaClientBridge implements IrmaClient {
           break;
         case 'PreferencesEvent':
           _preferencesStream.add(Preferences.fromJson(data['Preferences'] as Map<String, dynamic>));
+          break;
+        case 'EnrollmentStatusEvent':
+          _enrollmentStatusStream.add(EnrollmentStatus.fromJson(data));
           break;
         default:
           debugPrint('Unrecognized bridge event name received: ${call.method} with payload: $data');
@@ -151,6 +156,10 @@ class IrmaClientBridge implements IrmaClient {
   @override
   void deleteAllCredentials() {
     methodChannel.invokeMethod("DeleteAllCredentialsEvent");
+  }
+
+  Stream<EnrollmentStatus> getEnrollmentStatus() {
+    return _enrollmentStatusStream;
   }
 
   @override

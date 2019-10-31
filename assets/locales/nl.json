@@ -303,5 +303,14 @@
       "title": "Kies welke gegevens je vrijgeeft",
       "body": "Je kunt kiezen welke gegevens je doorgeeft. Gebruik het pijltje of swipe en maak je keuze."
     }
+  },
+  "reset_pin": {
+    "title": "Pincode vergeten",
+    "message": "Pin vergeten? Dat is vervelend voor je. Als je IRMA wil blijven gebruiken moet je IRMA helaas opnieuw instellen.",
+    "existing_data_title": "Wat gebeurt er met mijn huidige gegevens?",
+    "existing_data_message": "Je huidige gegevens in IRMA worden uit je telefoon verwijderd. Je kunt al je gegevens opnieuw ophalen en IRMA weer gebruiken.",
+    "back": "Terug",
+    "reset": "IRMA opnieuw instellen",
+    "existing_data_removed": "Je bestaande IRMA wordt verwijderd."
   }
 }
