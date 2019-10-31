@@ -34,7 +34,7 @@ class IrmaClientBridge implements IrmaClient {
   }
 
   final irmaConfigurationStream = BehaviorSubject<IrmaConfiguration>();
-  final credentialsStream = PublishSubject<Credentials>();
+  final credentialsStream = BehaviorSubject<Credentials>();
 
   // _handleMethodCall handles incomming method calls from irmago and returns an
   // answer to irmago.

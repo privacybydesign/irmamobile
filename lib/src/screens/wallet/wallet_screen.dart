@@ -37,13 +37,13 @@ class _WalletScreenState extends State<_WalletScreen> {
             icon: Icon(Icons.menu),
             onPressed: () => _scaffoldKey.currentState.openDrawer(),
           )),
-      body: StreamBuilder(
+      body: StreamBuilder<Credentials>(
           stream: widget.bloc.credentials,
-          builder: (context, AsyncSnapshot<Credentials> snapshot) {
+          builder: (context, snapshot) {
             if (snapshot.hasData) {
               return ListView(
-                  children: snapshot.data.entries.map<Widget>(
-                      (entry) => IrmaCard(credential: entry.value, onRefresh: () => {}, onRemove: () => {})));
+                  children: snapshot.data.values.map<Widget>(
+                      (entry) => IrmaCard(credential: entry, onRefresh: () => {}, onRemove: () => {})).toList());
             } else
               return Center(child: Text('Loading...'));
           }),
