@@ -40,7 +40,7 @@ class IrmaClientBridge implements IrmaClient {
   final _credentialsStream = BehaviorSubject<Credentials>();
   final _isEnrolledStream = PublishSubject<bool>();
   final _preferencesStream = BehaviorSubject<Preferences>();
-  final _enrollmentStatusStream = BehaviorSubject<EnrollmentStatus>();
+  final _enrollmentStatusStream = BehaviorSubject<EnrollmentStatus>.seeded(EnrollmentStatus.empty());
 
   // _handleMethodCall handles incomming method calls from irmago and returns an
   // answer to irmago.

@@ -3,6 +3,7 @@ import 'package:irmamobile/src/data/irma_client.dart';
 import 'package:irmamobile/src/models/authentication_result.dart';
 import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/models/credentials.dart';
+import 'package:irmamobile/src/models/enrollment_status.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/log.dart';
 import 'package:irmamobile/src/models/preferences.dart';
@@ -54,6 +55,10 @@ class IrmaRepository {
 
   void deleteAllCredentials() {
     client.deleteAllCredentials();
+  }
+  
+  Stream<EnrollmentStatus> getEnrollmentStatus() {
+    return client.getEnrollmentStatus();
   }
 
   void enroll({String email, String pin, String language}) {

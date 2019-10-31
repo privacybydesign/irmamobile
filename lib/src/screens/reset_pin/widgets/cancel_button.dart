@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/screens/settings/settings_screen.dart';
-import 'package:irmamobile/src/theme/irma-icons.dart';
+import 'package:irmamobile/src/theme/irma_icons.dart';
 
 class CancelButton extends StatelessWidget {
   final void Function(BuildContext) cancel;

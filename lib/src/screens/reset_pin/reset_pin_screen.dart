@@ -3,10 +3,10 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/screens/reset_pin/widgets/cancel_button.dart';
-import 'package:irmamobile/src/theme/irma-icons.dart';
+import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/link_button.dart';
-import 'package:irmamobile/src/widgets/primary_button.dart';
+import 'package:irmamobile/src/widgets/irma_button.dart';
+import 'package:irmamobile/src/widgets/irma_text_button.dart';
 
 class ResetPinScreen extends StatelessWidget {
   void cancel(BuildContext context) {
@@ -57,13 +57,13 @@ class ResetPinScreen extends StatelessWidget {
               runSpacing: IrmaTheme.of(context).spacing,
               spacing: IrmaTheme.of(context).spacing,
               children: <Widget>[
-                LinkButton(
+                IrmaTextButton(
                   onPressed: () => cancel(context),
                   label: 'reset_pin.back',
                 ),
                 Column(
                   children: <Widget>[
-                    PrimaryButton(
+                    IrmaButton(
                       onPressed: () => confirm(context),
                       label: 'reset_pin.reset',
                     ),
