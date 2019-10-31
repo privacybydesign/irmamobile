@@ -21,6 +21,7 @@ class Success extends StatelessWidget {
       ),
       body: SingleChildScrollView(
           child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+        SizedBox(height: IrmaTheme.of(context).spacing),
         SuccessMessage(message: 'change_pin.success.message'),
         SizedBox(height: IrmaTheme.of(context).spacing),
         PrimaryButton(
