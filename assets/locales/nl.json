@@ -54,7 +54,9 @@
   "accessibility": {
     "unfold": "Uitvouwen",
     "update": "Bijwerken",
-    "remove": "Verwijderen"
+    "remove": "Verwijderen",
+    "expand": "Uitklappen",
+    "refresh": "Verversen"
   },
   "card": {
     "personaldata": "Persoonsgegevens",

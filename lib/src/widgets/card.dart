@@ -3,7 +3,6 @@ import 'dart:math' as math;
 import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/theme/irma-icons.dart';
 import 'package:irmamobile/src/widgets/button.dart';
@@ -179,10 +178,9 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
                               transform: Matrix4.rotationZ(
                                 _rotateTween.evaluate(animation),
                               ),
-                              child: IconButton(
-                                  icon: SvgPicture.asset('assets/icons/arrow-down.svg'),
-                                  padding: EdgeInsets.only(left: padding),
-                                  alignment: Alignment.centerLeft,
+                              child: Button(
+                                  iconData: IrmaIcons.chevronDown,
+                                  accessibleName: 'accessibility.expand',
                                   onPressed: () => {}),
                             ),
                           ),

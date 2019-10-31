@@ -54,7 +54,9 @@
   "accessibility": {
     "unfold": "Unfold",
     "update": "Update",
-    "remove": "Remove"
+    "remove": "Remove",
+    "expand": "Expand",
+    "refresh": "Refresh"
   },
   "card": {
     "personaldata": "Personal data",
