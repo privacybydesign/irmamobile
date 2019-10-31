@@ -1,9 +1,12 @@
 package irmagobridge
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
+	"strings"
 
 	"github.com/go-errors/errors"
 	"github.com/privacybydesign/irmago/irmaclient"
@@ -21,12 +24,12 @@ var appDataVersion = "v2"
 
 // eventHandler maintains a sessionLookup for actions incoming
 // from irma_mobile (see action_handler.go)
-var eventHandler = &EventHandler{
-	sessionLookup: map[int]*SessionHandler{},
+var bridgeEventHandler = &eventHandler{
+	sessionLookup: map[int]*sessionHandler{},
 }
 
 // clientHandler is used for messages coming in from irmago (see client_handler.go)
-var clientHandler = &ClientHandler{}
+var bridgeClientHandler = &clientHandler{}
 
 // Prestart is invoked only on Android in MainActivity's onCreate, to initialize
 // the Go binding at the earliest moment, instead of inside the Flutter plugin
@@ -36,12 +39,6 @@ func Prestart() {
 
 // Start is invoked from the native side, when the app starts
 func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) {
-	// raven.CapturePanic(func() {
-	recoveredStart(givenBridge, appDataPath, assetsPath)
-	// }, nil)
-}
-
-func recoveredStart(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) {
 	bridge = givenBridge
 
 	// Check for user data directory, and create version-specific directory
@@ -63,23 +60,30 @@ func recoveredStart(givenBridge IrmaMobileBridge, appDataPath string, assetsPath
 	}
 
 	// Initialize the client
-	// TODO: Deprecate third argument (androidPath) of irmaclient.New
 	configurationPath := filepath.Join(assetsPath, "irma_configuration")
-	client, err = irmaclient.New(appVersionDataPath, configurationPath, "", clientHandler)
+	client, err = irmaclient.New(appVersionDataPath, configurationPath, bridgeClientHandler)
 	if err != nil {
 		logError(errors.WrapPrefix(err, "Cannot initialize client", 0))
 		return
 	}
 }
 
+func dispatchEvent(event interface{}) {
+	jsonBytes, err := json.Marshal(event)
+	if err != nil {
+		logError(errors.Errorf("Cannot marshal event payload: %s", err))
+		return
+	}
+
+	eventName := strings.Title(reflect.TypeOf(event).Elem().Name())
+	bridge.DebugLog("Sending event " + eventName)
+	bridge.DispatchFromGo(eventName, string(jsonBytes))
+}
+
 func logError(err error) {
 	message := fmt.Sprintf("%s\n%s", err.Error(), err.(*errors.Error).ErrorStack())
 
 	// raven.CaptureError(err, nil)
-	bridge.DebugLog(message)
-}
-
-func logDebug(message string) {
 	bridge.DebugLog(message)
 }
 
