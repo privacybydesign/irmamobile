@@ -79,20 +79,11 @@ class IrmaClientBridge implements IrmaClient {
   }
 
   @override
-  Stream<Credential> getCredential(String id) {
-    final filteredCredentialStream = credentialsStream
-        .map<Credential>((credentials) => credentials[id])
+  Stream<Credential> getCredential(String hash) {
+    return credentialsStream
+        .map<Credential>((credentials) => credentials[hash])
         .where((credential) => credential != null)
         .distinct();
-
-    // TODO: ask irmago for this credential
-    //
-    // this.methodChannel.invokeMethod<void>("getCredential", id);
-    //
-    // Perhaps this method is not available in irmago right now. Either we add
-    // it there, or register on the complete credentials list and filter a value
-    // from there.
-    return filteredCredentialStream;
   }
 
   @override

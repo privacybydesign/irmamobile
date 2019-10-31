@@ -16,7 +16,7 @@ class Credentials extends UnmodifiableMapView<String, Credential> {
           irmaConfiguration: irmaConfiguration,
           rawCredential: rawCredential,
         );
-        return MapEntry(credential.id, credential);
+        return MapEntry(credential.hash, credential);
       }),
     );
   }
