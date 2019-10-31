@@ -1,12 +1,13 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 class Button extends StatefulWidget {
-  IconData iconData;
+  final IconData iconData;
   final String accessibleName;
   final Function() onPressed;
 
-  Button({this.iconData, this.accessibleName, this.onPressed});
+  Button({@required this.iconData, @required this.accessibleName, @required this.onPressed});
 
   @override
   _ButtonState createState() => _ButtonState();

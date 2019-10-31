@@ -42,8 +42,9 @@ class _WalletScreenState extends State<_WalletScreen> {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return ListView(
-                  children: snapshot.data.values.map<Widget>(
-                      (entry) => IrmaCard(credential: entry, onRefresh: () => {}, onRemove: () => {})).toList());
+                  children: snapshot.data.values
+                      .map<Widget>((entry) => IrmaCard(credential: entry, onRefresh: () => {}, onRemove: () => {}))
+                      .toList());
             } else
               return Center(child: Text('Loading...'));
           }),
