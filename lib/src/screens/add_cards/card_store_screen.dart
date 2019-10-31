@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/screens/add_card_email/add_email_card_screen.dart';
 import 'package:irmamobile/src/screens/add_cards/card_info_screen.dart';
 import 'package:irmamobile/src/screens/add_cards/widgets/credential.dart';
 import 'package:irmamobile/src/screens/add_cards/widgets/credential_group.dart';
@@ -18,10 +19,30 @@ class CardStoreScreen extends StatelessWidget {
         title: FlutterI18n.translate(context, 'card_store.personal_data'),
         credentials: <Credential>[
           _buildCredential(context, "Persoonsgegevens", "Gemeente(BRP)", "assets/non-free/irmalogo.png", () {
-            _openURL(context, "https://services.nijmegen.nl/irma/gemeente/start");
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CardInfoScreen(
+                  "Persoonsgegevens",
+                  "Gemeente(BRP)",
+                  "assets/non-free/irmalogo.png",
+                  () {
+                    _openURL(context, "https://services.nijmegen.nl/irma/gemeente/start");
+                  },
+                ),
+              ),
+            );
           }),
-          _buildCredential(context, "Contactgegevens", "Privacy by Design Foundation", "assets/non-free/irmalogo.png", () {}),
-          _buildCredential(context, "Persoonsgegevens", "iDin", "assets/non-free/irmalogo.png", () {})
+          _buildCredential(context, "E-mail", "Privacy by Design Foundation", "assets/non-free/irmalogo.png", () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => AddEmailCardScreen(
+                  "https://privacybydesign.foundation/tomcat/irma_email_issuer/api//send-email-token",
+                ),
+              ),
+            );
+          }),
+          _buildCredential(context, "Persoonsgegevens", "iDin", "assets/non-free/irmalogo.png", null)
         ],
       ),
       SizedBox(
@@ -30,9 +51,9 @@ class CardStoreScreen extends StatelessWidget {
       CredentialGroup(
         title: FlutterI18n.translate(context, 'card_store.identity_cards'),
         credentials: <Credential>[
-          _buildCredential(context, "Paspoort", "Gemeente(BRP)", "assets/non-free/irmalogo.png", () {}),
-          _buildCredential(context, "Rijbewijs", "RDW", "assets/non-free/irmalogo.png", () {}),
-          _buildCredential(context, "Identiteitskaart", "Privacy by Design Foundation", "assets/non-free/irmalogo.png", () {})
+          _buildCredential(context, "Paspoort", "Gemeente(BRP)", "assets/non-free/irmalogo.png", null),
+          _buildCredential(context, "Rijbewijs", "RDW", "assets/non-free/irmalogo.png", null),
+          _buildCredential(context, "Identiteitskaart", "Privacy by Design Foundation", "assets/non-free/irmalogo.png", null)
         ],
       ),
       SizedBox(
@@ -41,9 +62,9 @@ class CardStoreScreen extends StatelessWidget {
       CredentialGroup(
         title: FlutterI18n.translate(context, 'card_store.education'),
         credentials: <Credential>[
-          _buildCredential(context, "Inloggegevens", "SURF Hoger Onderwijs", "assets/non-free/irmalogo.png", () {}),
-          _buildCredential(context, "Inloggegevens", "EduGAIN", "assets/non-free/irmalogo.png", () {}),
-          _buildCredential(context, "Diploma's", "DUO", "assets/non-free/irmalogo.png", () {})
+          _buildCredential(context, "Inloggegevens", "SURF Hoger Onderwijs", "assets/non-free/irmalogo.png", null),
+          _buildCredential(context, "Inloggegevens", "EduGAIN", "assets/non-free/irmalogo.png", null),
+          _buildCredential(context, "Diploma's", "DUO", "assets/non-free/irmalogo.png", null)
         ],
       ),
       SizedBox(
@@ -53,9 +74,21 @@ class CardStoreScreen extends StatelessWidget {
         title: FlutterI18n.translate(context, 'card_store.health'),
         credentials: <Credential>[
           _buildCredential(context, "Zorgregistratiegegevens", "BIG", "assets/non-free/irmalogo.png", () {
-            _openURL(context, "https://privacybydesign.foundation/uitgifte/big/");
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CardInfoScreen(
+                  "Zorgregistratiegegevens",
+                  "BIG",
+                  "assets/non-free/irmalogo.png",
+                  () {
+                    _openURL(context, "https://privacybydesign.foundation/uitgifte/big/");
+                  },
+                ),
+              ),
+            );
           }),
-          _buildCredential(context, "Zorgregistratiegegevens", "Stichting Nuts Vektis", "assets/non-free/irmalogo.png", () {}),
+          _buildCredential(context, "Zorgregistratiegegevens", "Stichting Nuts Vektis", "assets/non-free/irmalogo.png", null),
         ],
       ),
     ];
@@ -119,20 +152,13 @@ class CardStoreScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCredential(
-      BuildContext context, String title, String issuer, String iconAsset, VoidCallback onStartIssuane) {
+  Widget _buildCredential(BuildContext context, String title, String issuer, String iconAsset, VoidCallback onTap) {
     return Credential(
       icon: Image.asset(iconAsset),
       title: title,
       subTitle: issuer,
       obtained: false,
-      onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CardInfoScreen(title, issuer, iconAsset, onStartIssuane),
-            ));
-      },
+      onTap: onTap,
     );
   }
 
