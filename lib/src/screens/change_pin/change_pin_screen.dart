@@ -12,8 +12,12 @@ class ChangePinScreen extends StatelessWidget {
   static final routeName = "/change_pin";
 
   Widget build(BuildContext context) {
-    ChangePinBloc changePinBloc = ChangePinBloc();
-    return BlocProvider<ChangePinBloc>.value(value: changePinBloc, child: ProvidedChangePinScreen(bloc: changePinBloc));
+    return BlocProvider<ChangePinBloc>(
+        builder: (_) => ChangePinBloc(),
+        child: BlocBuilder<ChangePinBloc, ChangePinState>(builder: (context, _) {
+          final bloc = BlocProvider.of<ChangePinBloc>(context);
+          return ProvidedChangePinScreen(bloc: bloc);
+        }));
   }
 }
 
@@ -36,7 +40,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
     return {
       EnterPin.routeName: (_) => EnterPin(submitOldPin: submitOldPin, cancel: cancel),
       ChoosePin.routeName: (_) => ChoosePin(chooseNewPin: chooseNewPin, cancel: cancel),
-      ConfirmPin.routeName: (_) => ConfirmPin(confirmNewPin: confirmNewPin, cancel: cancel),
+      ConfirmPin.routeName: (_) => ConfirmPin(confirmNewPin: confirmNewPin, cancel: () => {}),
       Success.routeName: (_) => Success(cancel: cancel),
     };
   }
@@ -75,11 +79,11 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
             },
             listener: (BuildContext context, ChangePinState state) {
               if (state.newPinConfirmed == ValidationState.valid) {
-                navigatorKey.currentState.pushNamed(Success.routeName);
+                navigatorKey.currentState.pushNamedAndRemoveUntil(Success.routeName, (_) => false);
               } else if (state.newPinConfirmed == ValidationState.invalid) {
-                navigatorKey.currentState.pushNamed(ChoosePin.routeName);
+                navigatorKey.currentState.pop();
               } else if (state.oldPinVerified == ValidationState.valid) {
-                navigatorKey.currentState.pushNamed(ChoosePin.routeName);
+                navigatorKey.currentState.pushReplacementNamed(ChoosePin.routeName);
               }
             },
             child: Navigator(

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/screens/settings/settings_screen.dart';
+import 'package:irmamobile/src/screens/change_pin/widgets/choose_pin.dart';
 import 'package:irmamobile/src/theme/irma-icons.dart';
 
 class CancelButton extends StatelessWidget {
@@ -11,11 +11,13 @@ class CancelButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
       icon: const Icon(IrmaIcons.arrowBack),
-      onPressed: () {
+      onPressed: () async {
         if (cancel != null) {
           cancel();
         }
-        Navigator.of(context, rootNavigator: true).pushReplacementNamed(SettingsScreen.routeName);
+        if (!await Navigator.of(context).maybePop()) {
+          Navigator.of(context, rootNavigator: true).pop();
+        }
       },
       tooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
     );
