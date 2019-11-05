@@ -76,33 +76,41 @@ class IrmaClientMock implements IrmaClient {
 
   @override
   Stream<Credentials> getCredentials() {
-    return getCredential(myCredentialFoo).map<Credentials>(
-      (credential) => Credentials({
-        credential.id: credential,
-      }),
-    );
+    return Stream.fromIterable(["amsterdam", "idin", "duo", "amsterdam2", "idin2", "duo2", "amsterdam3", "idin3", "duo3"])
+        .asyncMap<Credential>((id) => getCredential(id).first)
+        .fold<Map<String, Credential>>(Map(), (credentialMap, credential) {
+          credentialMap[credential.id] = credential;
+          return credentialMap;
+        })
+        .asStream()
+        .map<Credentials>((credentialMap) => Credentials(credentialMap));
   }
 
   @override
   Stream<Credential> getCredential(String id) {
-    if (id != myCredentialFoo) {
-      return Future.delayed(Duration(seconds: 1), throw CredentialNotFoundException()).asStream();
+    if (id == "") {
+      return Future.delayed(Duration(milliseconds: 100), throw CredentialNotFoundException()).asStream();
     }
     return Future.delayed(
-      Duration(seconds: 1),
+      Duration(milliseconds: 100),
       () => Credential(
-        id: myCredentialFoo, // TODO: realistic value
-        issuer: irmaConfiguration.issuers[myIssuerId], // TODO: realistic value
-        schemeManager: irmaConfiguration.schemeManagers[mySchemeManagerId], // TODO: realistic value
+        id: id,
+        // TODO: realistic value
+        // TODO: use irmaConfiguration.issuers[myIssuerId],
+        issuer: Issuer(id: id, name: {'nl': id}),
+        // TODO: realistic value
+        schemeManager: irmaConfiguration.schemeManagers[mySchemeManagerId],
+        // TODO: realistic value
         signedOn: DateTime.now(),
         expires: DateTime.now().add(Duration(minutes: 5)),
         attributes: Attributes({
-          irmaConfiguration.attributeTypes[myCredentialFoo + ".name"]: TranslatedValue({'nl': 'Anouk Meijer'}),
-          irmaConfiguration.attributeTypes[myCredentialFoo + ".birthdate"]: TranslatedValue({'nl': '4 juli 1990'}),
+          irmaConfiguration.attributeTypes[myCredentialFoo + ".name"]: TranslatedValue({'nl': 'Anouk Meijer', 'en': 'Anouk Meijer'}),
+          irmaConfiguration.attributeTypes[myCredentialFoo + ".birthdate"]: TranslatedValue({'nl': '4 juli 1990', 'en': 'Juli 4th, 1990'}),
           irmaConfiguration.attributeTypes[myCredentialFoo + ".email"]:
-              TranslatedValue({'nl': 'anouk.meijer@gmail.com'}),
+              TranslatedValue({'nl': 'anouk.meijer@gmail.com', 'en': 'anouk.meijer@gmail.com'}),
         }),
-        hash: "foobar", // TODO: realistic value
+        hash: "foobar",
+        // TODO: realistic value
         credentialType: myCredentialType,
       ),
     ).asStream();
@@ -113,25 +121,16 @@ class IrmaClientMock implements IrmaClient {
     return Future.delayed(
         Duration(seconds: 1),
         () => {
-              // // TODO: use legit demo names
-              // 'foobar.amsterdam': Issuer(
-              //   name: {'nl': 'Gemeente Amsterdam'},
-              //   // color: Colors.white,
-              //   // backgroundColor: Color(0xffec0000),
-              //   // backgroundImageFilename: 'amsterdam.png',
-              // ),
-              // 'foobar.duo': Issuer(
-              //   name: {'nl': 'Dienst Uitvoering Onderwijs'},
-              //   // color: Colors.white,
-              //   // backgroundColor: Color(0xff82a2b9),
-              //   // backgroundImageFilename: 'duo.png',
-              // ),
-              // 'foobar.idin': Issuer(
-              //   name: {'nl': 'iDIN'},
-              //   // color: Color(0xff424242), // darkgrey
-              //   // backgroundColor: Color(0xff4ca9d6),
-              //   // backgroundImageFilename: 'idin.png',
-              // ),
+              // TODO: use legit demo names
+              'foobar.amsterdam': Issuer(
+                name: {'nl': 'Gemeente Amsterdam'},
+              ),
+              'foobar.duo': Issuer(
+                name: {'nl': 'Dienst Uitvoering Onderwijs'},
+              ),
+              'foobar.idin': Issuer(
+                name: {'nl': 'iDIN'},
+              ),
               myIssuerId: myIssuer,
             }).asStream();
   }
