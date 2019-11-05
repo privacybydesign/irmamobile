@@ -54,13 +54,6 @@ class Welcome extends StatelessWidget {
             },
             label: 'enrollment.welcome.choose_pin_button',
           ),
-          SizedBox(height: IrmaTheme.of(context).spacing),
-          SecondaryButton(
-            onPressed: () {
-              Navigator.of(context, rootNavigator: true).pushReplacementNamed('/');
-            },
-            label: 'enrollment.welcome.not_now',
-          ),
         ]),
       )),
     );
