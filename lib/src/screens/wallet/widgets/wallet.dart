@@ -12,7 +12,7 @@ class Wallet extends StatefulWidget {
 
   final List<Credential> credentials;
 
-  Wallet(this.credentials);
+  Wallet({this.credentials});
 
   @protected
   @mustCallSuper
@@ -39,7 +39,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final screenTopOffset = 110;
 
   Credential currentCard;
-  List<IrmaCard> irmaCards;
 
   AnimationController drawController;
   Animation<double> drawAnimation;
@@ -110,10 +109,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         double cardTop;
         int bottomCardIndex;
 
-        irmaCards = [];
         cardWidgets.addAll(widget.credentials.map((credential) {
-          irmaCards.add(IrmaCard(credential, currentCard == credential));
-
           // TODO for performance: positions can be cached
           double oldTop = getCardPosition(
               position: oldState, size: size, index: index, isDrawnCard: credential == currentCard, scroll: scroll);
@@ -164,7 +160,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                   onVerticalDragCancel: () {
                     print("onVerticalDragCancel");
                   },
-                  child: irmaCards[index]));
+                  child: IrmaCard(credential, currentCard == credential)));
 
           if (cardTop >= 0) {
             bottomCardIndex = index;

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/screens/wallet/models/wallet_bloc.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet.dart';
@@ -38,11 +37,11 @@ class _WalletScreenState extends State<_WalletScreen> {
             icon: Icon(Icons.menu),
             onPressed: () => _scaffoldKey.currentState.openDrawer(),
           )),
-      body: StreamBuilder(
+      body: StreamBuilder<Credentials>(
           stream: widget.bloc.credentials,
-          builder: (context, AsyncSnapshot<Credentials> snapshot) {
+          builder: (context, snapshot) {
             if (snapshot.hasData) {
-              return Wallet(snapshot.data.entries.map<Credential>((entry) => entry.value).toList());
+              return Wallet(credentials: snapshot.data.values.toList());
             } else
               return Center(child: Text('Loading...'));
           }),
