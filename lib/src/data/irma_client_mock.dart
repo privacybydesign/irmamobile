@@ -76,7 +76,8 @@ class IrmaClientMock implements IrmaClient {
 
   @override
   Stream<Credentials> getCredentials() {
-    return Stream.fromIterable(["amsterdam", "idin", "duo", "amsterdam2", "idin2", "duo2", "amsterdam3", "idin3", "duo3"])
+    return Stream.fromIterable(
+            ["amsterdam", "idin", "duo", "amsterdam2", "idin2", "duo2", "amsterdam3", "idin3", "duo3"])
         .asyncMap<Credential>((id) => getCredential(id).first)
         .fold<Map<String, Credential>>(Map(), (credentialMap, credential) {
           credentialMap[credential.id] = credential;
@@ -104,8 +105,10 @@ class IrmaClientMock implements IrmaClient {
         signedOn: DateTime.now(),
         expires: DateTime.now().add(Duration(minutes: 5)),
         attributes: Attributes({
-          irmaConfiguration.attributeTypes[myCredentialFoo + ".name"]: TranslatedValue({'nl': 'Anouk Meijer', 'en': 'Anouk Meijer'}),
-          irmaConfiguration.attributeTypes[myCredentialFoo + ".birthdate"]: TranslatedValue({'nl': '4 juli 1990', 'en': 'Juli 4th, 1990'}),
+          irmaConfiguration.attributeTypes[myCredentialFoo + ".name"]:
+              TranslatedValue({'nl': 'Anouk Meijer', 'en': 'Anouk Meijer'}),
+          irmaConfiguration.attributeTypes[myCredentialFoo + ".birthdate"]:
+              TranslatedValue({'nl': '4 juli 1990', 'en': 'Juli 4th, 1990'}),
           irmaConfiguration.attributeTypes[myCredentialFoo + ".email"]:
               TranslatedValue({'nl': 'anouk.meijer@gmail.com', 'en': 'anouk.meijer@gmail.com'}),
         }),

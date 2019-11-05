@@ -33,7 +33,8 @@ class CardPersonalData extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              child: Text(personal.key.name['nl'], style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor)),
+              child: Text(personal.key.name['nl'],
+                  style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor)),
               width: indent,
             ),
             BlurText(personal.value['nl'], irmaCardTheme.fgColor, false),
@@ -52,16 +53,16 @@ class CardPersonalData extends StatelessWidget {
         children: [
           Container(
             child: Text(FlutterI18n.translate(context, 'wallet.issuer'),
-              style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor)),
+                style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor)),
             width: indent,
           ),
           Text(
             issuer.name['nl'],
             style: Theme.of(context)
-              .textTheme
-              .body1
-              .copyWith(fontWeight: FontWeight.w700)
-              .copyWith(color: irmaCardTheme.fgColor),
+                .textTheme
+                .body1
+                .copyWith(fontWeight: FontWeight.w700)
+                .copyWith(color: irmaCardTheme.fgColor),
           ),
         ],
       ),
@@ -73,24 +74,24 @@ class CardPersonalData extends StatelessWidget {
         children: [
           Container(
             child: Text(FlutterI18n.translate(context, 'wallet.expiration'),
-              style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor)),
+                style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor)),
             width: indent,
           ),
           Text(
             formatter.format(personalData.expires),
             style: Theme.of(context)
-              .textTheme
-              .body1
-              .copyWith(fontWeight: FontWeight.w700)
-              .copyWith(color: irmaCardTheme.fgColor),
+                .textTheme
+                .body1
+                .copyWith(fontWeight: FontWeight.w700)
+                .copyWith(color: irmaCardTheme.fgColor),
           ),
         ],
       ),
     ));
 
     return Scrollbar(
-      child: ListView(
-        children: textLines,
-      ));
+        child: ListView(
+      children: textLines,
+    ));
   }
 }
