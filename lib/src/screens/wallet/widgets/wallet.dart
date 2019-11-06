@@ -68,21 +68,16 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
   cardTapped(int index, Credential credential, Size size) {
     setState(() {
-      oldState = currentState;
-
       if (currentState != WalletState.drawn) {
         if (isStacked(currentState, index)) {
-          currentState = WalletState.full;
-          drawController.forward();
+          setNewState(WalletState.full);
         } else {
           drawnCardIndex = index;
-          currentState = WalletState.drawn;
-          drawController.forward();
+          setNewState(WalletState.drawn);
           openCurrentCard(size);
         }
       } else {
-        currentState = expiredState;
-        drawController.forward();
+        setNewState(expiredState);
       }
     });
   }
