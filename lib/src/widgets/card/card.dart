@@ -135,8 +135,8 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
                           opacity: _opacityTween.evaluate(animation),
                           child: _opacityTween.evaluate(animation) == 0
                               ? Text("")
-                              : CardAttributes(widget.attributes, widget.attributes.issuer, isCardReadable,
-                                  widget.lang, irmaCardTheme)),
+                              : CardAttributes(widget.attributes, widget.attributes.issuer, isCardReadable, widget.lang,
+                                  irmaCardTheme)),
                     ),
                   ),
                   Container(
@@ -163,12 +163,11 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
                         ),
                         Opacity(
                             opacity: _opacityTween.evaluate(animation),
-                            child: CardButton(
-                                'assets/icons/update.svg', 'accessibility.update', widget.updateCallback)),
+                            child:
+                                CardButton('assets/icons/update.svg', 'accessibility.update', widget.updateCallback)),
                         Opacity(
                             opacity: _opacityTween.evaluate(animation),
-                            child:
-                                CardButton('assets/icons/remove.svg', 'accessibility.remove', widget.removeCallback))
+                            child: CardButton('assets/icons/remove.svg', 'accessibility.remove', widget.removeCallback))
                       ],
                     ),
                     height: 50,
