@@ -45,7 +45,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
   WalletState expiredState = WalletState.halfway;
   WalletState oldState = WalletState.halfway;
-  WalletState newState = WalletState.halfway;
+  WalletState currentState = WalletState.halfway;
   double scroll = 0;
 
   final Tween _walletShrinkTween = Tween<double>(begin: 0, end: 1);
@@ -57,7 +57,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       ..addStatusListener((state) {
         if (state == AnimationStatus.completed) {
           expiredState = oldState;
-          oldState = newState;
+          oldState = currentState;
           drawController.reset();
           scroll = 0;
         }
@@ -68,20 +68,20 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
   cardTapped(int index, Credential credential, Size size) {
     setState(() {
-      oldState = newState;
+      oldState = currentState;
 
-      if (newState != WalletState.drawn) {
-        if (isStacked(newState, index)) {
-          newState = WalletState.full;
+      if (currentState != WalletState.drawn) {
+        if (isStacked(currentState, index)) {
+          currentState = WalletState.full;
           drawController.forward();
         } else {
           drawnCardIndex = index;
-          newState = WalletState.drawn;
+          currentState = WalletState.drawn;
           drawController.forward();
           openCurrentCard(size);
         }
       } else {
-        newState = expiredState;
+        currentState = expiredState;
         drawController.forward();
       }
     });
@@ -112,11 +112,13 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
           double oldTop = getCardPosition(
               state: oldState, size: size, index: index, drawnCardIndex: drawnCardIndex, scroll: scroll);
 
-          double newTop = walletShrinkTween > 0.0
-              ? getCardPosition(state: newState, size: size, index: index, drawnCardIndex: drawnCardIndex, scroll: 0)
-              : 0;
-
-          cardTop = interpolate(oldTop, newTop, walletShrinkTween);
+          if (walletShrinkTween == 0.0) {
+            cardTop = oldTop;
+          } else {
+            double newTop = getCardPosition(
+                state: currentState, size: size, index: index, drawnCardIndex: drawnCardIndex, scroll: 0);
+            cardTop = interpolate(oldTop, newTop, walletShrinkTween);
+          }
 
           Widget card = Positioned(
               left: 0,
@@ -137,9 +139,11 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                   onVerticalDragEnd: (int _index) {
                     return (DragEndDetails details) {
 //                      print("onVerticalDragEnd");
-                      if ((scroll < -scrollTipping && newState != WalletState.drawn) ||
-                          (scroll > scrollTipping && newState == WalletState.drawn)) {
+                      if ((scroll < -scrollTipping && currentState != WalletState.drawn) ||
+                          (scroll > scrollTipping && currentState == WalletState.drawn)) {
                         cardTapped(_index, credential, size);
+                      } else if (scroll > scrollTipping && currentState == WalletState.full) {
+                        setNewState(WalletState.halfway);
                       } else {
                         drawController.forward();
                       }
@@ -187,9 +191,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                       cardTapped(bottomCardIndex, widget.credentials[bottomCardIndex], size);
                     } else {
                       setState(() {
-                        oldState = newState;
-                        newState = WalletState.halfway;
-                        drawController.forward();
+                        setNewState(WalletState.halfway);
                       });
                     }
                   },
@@ -217,6 +219,12 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
         return Stack(children: cardWidgets);
       });
+
+  setNewState(WalletState newState) {
+    oldState = currentState;
+    currentState = newState;
+    drawController.forward();
+  }
 
   getCardPosition({WalletState state, Size size, int index, int drawnCardIndex, double scroll}) {
     double cardPosition;
@@ -259,7 +267,13 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         if (index == drawnCardIndex) {
           cardPosition -= scroll;
         } else if (scroll > 30) {
-          cardPosition -= scroll - 30;
+          if (index > drawnCardIndex) {
+            cardPosition -= scroll *
+                    (1 - (index - drawnCardIndex - 1) / (getWalletTop(size) / cardUnshrunkHeight - drawnCardIndex)) -
+                30;
+          } else {
+            cardPosition -= scroll - 30;
+          }
         }
         break;
     }
