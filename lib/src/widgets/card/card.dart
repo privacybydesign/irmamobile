@@ -1,50 +1,29 @@
-import 'dart:async';
 import 'dart:math' as math;
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+
 import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'dart:ui' as ui;
-
-import 'button.dart';
-import 'backgrounds.dart';
-import 'card-personal-data.dart';
-import 'open-close-event.dart';
+import 'package:irmamobile/src/widgets/card/button.dart';
+import 'package:irmamobile/src/widgets/card/backgrounds.dart';
+import 'package:irmamobile/src/widgets/card/card-attributes.dart';
 
 class IrmaCard extends StatefulWidget {
-  final StreamController<bool> unfoldStream = StreamController();
-  final StreamController<void> updateStream = StreamController();
-  final StreamController<void> removeStream = StreamController();
-  final StreamController<OpenCloseEvent> openCloseStream = StreamController();
-
   final String lang = ui.window.locale.languageCode;
 
-  final Credential personalData;
+  final Credential attributes;
   final bool isOpen;
+  final VoidCallback updateCallback;
+  final VoidCallback removeCallback;
 
-  IrmaCard(this.personalData, this.isOpen);
-
-  @protected
-  @mustCallSuper
-  void dispose() {
-    unfoldStream.close();
-    updateStream.close();
-    removeStream.close();
-    openCloseStream.close();
-  }
+  IrmaCard({this.attributes, this.isOpen, this.updateCallback, this.removeCallback});
 
   @override
   _IrmaCardState createState() => _IrmaCardState();
-
-  open({double height}) {
-    openCloseStream.sink.add(OpenCloseEvent(OpenCloseStatus.open, height));
-  }
-
-  close() {
-    openCloseStream.sink.add(OpenCloseEvent(OpenCloseStatus.close, 0));
-  }
 }
 
 class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin {
@@ -75,15 +54,7 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
   void initState() {
     controller = AnimationController(duration: const Duration(milliseconds: animationDuration), vsync: this);
     animation = CurvedAnimation(parent: controller, curve: Curves.easeInOut);
-    widget.openCloseStream.stream.listen((OpenCloseEvent event) {
-      if (event.name == OpenCloseStatus.open) {
-        open(height: event.height);
-      } else if (event.name == OpenCloseStatus.close) {
-        close();
-      }
-    });
-
-    irmaCardTheme = calculateIrmaCardTheme(widget.personalData.issuer);
+    irmaCardTheme = calculateIrmaCardTheme(widget.attributes.issuer);
     IrmaCardThemeImage = irmaCardTheme.getBackgroundImage();
 
     super.initState();
@@ -117,7 +88,6 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
     setState(() {
       isUnfolded = true;
     });
-    widget.unfoldStream.sink.add(true);
   }
 
   close() {
@@ -125,7 +95,6 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
     setState(() {
       isUnfolded = false;
     });
-    widget.unfoldStream.sink.add(false);
   }
 
   @override
@@ -166,7 +135,7 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
                           opacity: _opacityTween.evaluate(animation),
                           child: _opacityTween.evaluate(animation) == 0
                               ? Text("")
-                              : CardPersonalData(widget.personalData, widget.personalData.issuer, isCardReadable,
+                              : CardAttributes(widget.attributes, widget.attributes.issuer, isCardReadable,
                                   widget.lang, irmaCardTheme)),
                     ),
                   ),
@@ -195,11 +164,11 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
                         Opacity(
                             opacity: _opacityTween.evaluate(animation),
                             child: CardButton(
-                                'assets/icons/update.svg', 'accessibility.update', widget.updateStream.sink)),
+                                'assets/icons/update.svg', 'accessibility.update', widget.updateCallback)),
                         Opacity(
                             opacity: _opacityTween.evaluate(animation),
                             child:
-                                CardButton('assets/icons/remove.svg', 'accessibility.remove', widget.removeStream.sink))
+                                CardButton('assets/icons/remove.svg', 'accessibility.remove', widget.removeCallback))
                       ],
                     ),
                     height: 50,

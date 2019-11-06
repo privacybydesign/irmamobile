@@ -1,28 +1,27 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+
 import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/widgets/card/card.dart';
 
 class Wallet extends StatefulWidget {
-  final StreamController<void> qrClickStreamSink = StreamController();
-  final StreamController<String> eventStream = StreamController();
-
   final List<Credential> credentials;
+  final VoidCallback qrCallback;
 
-  Wallet({this.credentials});
-
-  @protected
-  @mustCallSuper
-  void dispose() {
-    qrClickStreamSink.close();
-    eventStream.close();
-  }
+  Wallet({this.credentials, this.qrCallback});
 
   @override
   _WalletState createState() => _WalletState();
+
+  void updateCard() {
+    print("update card");
+  }
+
+  void removeCard() {
+    print("remove card");
+  }
 }
 
 class _WalletState extends State<Wallet> with TickerProviderStateMixin {
@@ -63,10 +62,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         }
       });
 
-    widget.eventStream.sink.add('Started');
-    widget.qrClickStreamSink.stream.listen((_) {
-      print('QR clicked');
-    });
     super.initState();
   }
 
@@ -129,14 +124,14 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                     };
                   }(index),
                   onVerticalDragStart: (DragStartDetails details) {
-                    print("onVerticalDragStart");
+//                    print("onVerticalDragStart");
                     setState(() {
                       scroll = details.localPosition.dy;
                     });
                   },
                   onVerticalDragEnd: (int _pos) {
                     return (DragEndDetails details) {
-                      print("onVerticalDragEnd");
+//                      print("onVerticalDragEnd");
                       if ((scroll < -scrollTipping && newState != WalletState.drawn) ||
                           (scroll > scrollTipping && newState == WalletState.drawn)) {
                         cardTapped(_pos, credential, size);
@@ -152,15 +147,19 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                     });
                   },
                   onVerticalDragUpdate: (DragUpdateDetails details) {
-                    print("onVerticalDragUpdate");
+//                    print("onVerticalDragUpdate");
                     setState(() {
                       scroll = details.localPosition.dy;
                     });
                   },
                   onVerticalDragCancel: () {
-                    print("onVerticalDragCancel");
+//                    print("onVerticalDragCancel");
                   },
-                  child: IrmaCard(credential, currentCard == credential)));
+                  child: IrmaCard(
+                      attributes: credential,
+                      isOpen: currentCard == credential,
+                      updateCallback: widget.updateCard,
+                      removeCallback: widget.removeCard)));
 
           if (cardTop >= 0) {
             bottomCardIndex = index;
@@ -198,7 +197,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                   top: (size.width - 2 * padding) * walletAspectRatio * 0.18,
                   child: GestureDetector(
                       onTap: () {
-                        widget.qrClickStreamSink.add(true);
+                        widget.qrCallback();
                       },
                       child: Semantics(
                           button: true,

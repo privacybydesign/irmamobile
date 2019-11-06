@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/screens/wallet/models/wallet_bloc.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet.dart';
@@ -41,11 +42,15 @@ class _WalletScreenState extends State<_WalletScreen> {
           stream: widget.bloc.credentials,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              return Wallet(credentials: snapshot.data.values.toList());
+              return Wallet(credentials: snapshot.data.values.toList(), qrCallback: qrActivate);
             } else
               return Center(child: Text('Loading...'));
           }),
       drawer: WalletDrawer(),
     );
+  }
+
+  qrActivate() {
+    print("QR button pressed.");
   }
 }

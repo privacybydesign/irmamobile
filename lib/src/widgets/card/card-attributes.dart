@@ -1,13 +1,14 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/models/credential.dart';
-import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:intl/intl.dart';
 
-import 'backgrounds.dart';
-import 'blurtext.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 
-class CardPersonalData extends StatelessWidget {
+import 'package:irmamobile/src/models/credential.dart';
+import 'package:irmamobile/src/models/irma_configuration.dart';
+import 'package:irmamobile/src/widgets/card/backgrounds.dart';
+import 'package:irmamobile/src/widgets/card/blurtext.dart';
+
+class CardAttributes extends StatelessWidget {
   static const transparentWhite = Color(0xaaffffff);
   static const indent = 100.0;
 
@@ -18,7 +19,7 @@ class CardPersonalData extends StatelessWidget {
   final IrmaCardTheme irmaCardTheme;
   final formatter = new DateFormat.yMd();
 
-  CardPersonalData(this.personalData, this.issuer, this.isCardUnblurred, this.lang, this.irmaCardTheme);
+  CardAttributes(this.personalData, this.issuer, this.isCardUnblurred, this.lang, this.irmaCardTheme);
 
   Widget build(BuildContext context) {
     List<Widget> textLines = <Widget>[

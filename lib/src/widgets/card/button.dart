@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -7,9 +8,9 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 class CardButton extends StatefulWidget {
   final String svgFile;
   final String accessibleName;
-  final StreamSink clickStreamSink;
+  final VoidCallback clickCallback;
 
-  CardButton(this.svgFile, this.accessibleName, this.clickStreamSink);
+  CardButton(this.svgFile, this.accessibleName, this.clickCallback);
 
   @override
   _CardButtonState createState() => _CardButtonState();
@@ -31,7 +32,7 @@ class _CardButtonState extends State<CardButton> with SingleTickerProviderStateM
       child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () {
-            widget.clickStreamSink.add(true);
+            widget.clickCallback();
           },
           child: Listener(
               behavior: HitTestBehavior.opaque,
