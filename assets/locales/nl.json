@@ -4,7 +4,8 @@
       "header": "Word weer baas over je eigen gegevens!",
       "abstract": "Met IRMA kun je jezelf bekendmaken zonder meer over jezelf prijs te geven dan nodig is.",
       "intro_button": "Hoe werkt IRMA?",
-      "choose_pin_button": "Kies je pincode"
+      "choose_pin_button": "Kies je pincode",
+      "not_now": "Niet nu"
     },
     "introduction": {
       "title": "Hoe werkt IRMA?",
