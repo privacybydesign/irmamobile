@@ -61,6 +61,8 @@ flutter:
     - assets/locales/
     - assets/enrollment/
     - assets/backgrounds/
+    - assets/wallet/
+    - assets/icons/
 
   fonts:
     - family: Karla
