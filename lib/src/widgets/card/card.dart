@@ -113,86 +113,87 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
               });
             },
             child: Container(
-              child: Column(
-                children: <Widget>[
-                  Container(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        top: padding,
-                        right: padding,
-                        bottom: headerBottom,
-                      ),
-                      child: Text(
-                        FlutterI18n.translate(context, 'card.personaldata'),
-                        style: Theme.of(context).textTheme.headline.copyWith(color: irmaCardTheme.fgColor),
+                child: Column(
+                  children: <Widget>[
+                    Container(
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                          top: padding,
+                          right: padding,
+                          bottom: headerBottom,
+                        ),
+                        child: Text(
+                          FlutterI18n.translate(context, 'card.personaldata'),
+                          style: Theme.of(context).textTheme.headline.copyWith(color: irmaCardTheme.fgColor),
+                        ),
                       ),
                     ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(padding),
-                      child: Opacity(
-                          opacity: _opacityTween.evaluate(animation),
-                          child: _opacityTween.evaluate(animation) == 0
-                              ? Text("")
-                              : CardAttributes(widget.attributes, widget.attributes.issuer, isCardReadable, widget.lang,
-                                  irmaCardTheme)),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(padding),
+                        child: Opacity(
+                            opacity: _opacityTween.evaluate(animation),
+                            child: _opacityTween.evaluate(animation) == 0
+                                ? Text("")
+                                : CardAttributes(widget.attributes, widget.attributes.issuer, isCardReadable,
+                                    widget.lang, irmaCardTheme)),
+                      ),
                     ),
-                  ),
-                  Container(
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: Semantics(
-                            button: true,
-                            enabled: false,
-                            label: FlutterI18n.translate(context, 'accessibility.unfold'),
-                            child: Transform(
-                              origin: Offset(27, 24),
-                              transform: Matrix4.rotationZ(
-                                _rotateTween.evaluate(animation),
-                              ),
-                              child: IconButton(
-                                onPressed: () {},
-                                icon: SvgPicture.asset('assets/icons/arrow-down.svg'),
-                                padding: EdgeInsets.only(left: padding),
-                                alignment: Alignment.centerLeft,
+                    Container(
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: Semantics(
+                              button: true,
+                              enabled: false,
+                              label: FlutterI18n.translate(context, 'accessibility.unfold'),
+                              child: Transform(
+                                origin: Offset(27, 24),
+                                transform: Matrix4.rotationZ(
+                                  _rotateTween.evaluate(animation),
+                                ),
+                                child: IconButton(
+                                  onPressed: () {},
+                                  icon: SvgPicture.asset('assets/icons/arrow-down.svg'),
+                                  padding: EdgeInsets.only(left: padding),
+                                  alignment: Alignment.centerLeft,
+                                ),
                               ),
                             ),
                           ),
+                          Opacity(
+                              opacity: _opacityTween.evaluate(animation),
+                              child:
+                                  CardButton('assets/icons/update.svg', 'accessibility.update', widget.updateCallback)),
+                          Opacity(
+                              opacity: _opacityTween.evaluate(animation),
+                              child:
+                                  CardButton('assets/icons/remove.svg', 'accessibility.remove', widget.removeCallback))
+                        ],
+                      ),
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: transparentWhiteBackground,
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: borderRadius,
+                          bottomRight: borderRadius,
                         ),
-                        Opacity(
-                            opacity: _opacityTween.evaluate(animation),
-                            child:
-                                CardButton('assets/icons/update.svg', 'accessibility.update', widget.updateCallback)),
-                        Opacity(
-                            opacity: _opacityTween.evaluate(animation),
-                            child: CardButton('assets/icons/remove.svg', 'accessibility.remove', widget.removeCallback))
-                      ],
-                    ),
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: transparentWhiteBackground,
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: borderRadius,
-                        bottomRight: borderRadius,
                       ),
                     ),
-                  ),
-                ],
-              ),
-              height: _heightTween.evaluate(animation),
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              decoration: BoxDecoration(
+                  ],
+                ),
+                height: _heightTween.evaluate(animation),
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                decoration: BoxDecoration(
                   color: irmaCardTheme.bgColor,
                   borderRadius: BorderRadius.all(
                     borderRadius,
                   ),
-                  image: DecorationImage(
-                      image: irmaCardThemeImage,
-                      fit: BoxFit.fitWidth,
-                      alignment: Alignment.topCenter,
-                      repeat: ImageRepeat.noRepeat)),
-            ));
+//                  image: DecorationImage(
+//                      image: irmaCardThemeImage,
+//                      fit: BoxFit.fitWidth,
+//                      alignment: Alignment.topCenter,
+//                      repeat: ImageRepeat.noRepeat)),
+                )));
       });
 }
