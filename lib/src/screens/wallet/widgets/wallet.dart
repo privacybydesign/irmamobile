@@ -32,7 +32,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final cardShrunkHeight = 10;
   final cardUnshrunkHeight = 40;
   final cardsMaxExtended = 5;
-  final scrollTipping = 100;
+  final scrollTipping = 50;
 
   // Might need tweaking depending on screen size
   final screenTopOffset = 110;
@@ -232,19 +232,35 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
       case WalletState.halfway:
         double top = 1.0 * (widget.credentials.length - 1 - index);
+
+        // Many cards
         if (widget.credentials.length >= cardsMaxExtended) {
+          // Top small border cards
           if (index < cardUnshrunkHeight / cardShrunkHeight) {
             cardPosition = 1.0 * (cardsMaxExtended - cardUnshrunkHeight / cardShrunkHeight + 2) * cardUnshrunkHeight -
                 index * cardShrunkHeight;
+
+            // Other cards
           } else {
             cardPosition = 1.0 * (cardsMaxExtended + 1 - index) * cardUnshrunkHeight;
           }
+
+          // Dragging top small border cards
+          if (drawnCardIndex < 4 && index != drawnCardIndex) {
+            cardPosition -= scroll;
+          }
+
+          // Few cards
         } else {
           cardPosition = 1.0 * top * cardUnshrunkHeight;
         }
+
+        // Drag drawn card
         if (index == drawnCardIndex) {
           cardPosition -= scroll;
         }
+
+        // No cards lower than wallet
         if (cardPosition < 0) {
           cardPosition = 0;
         }
