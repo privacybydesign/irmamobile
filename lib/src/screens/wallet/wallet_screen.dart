@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/screens/wallet/models/wallet_bloc.dart';
+import 'package:irmamobile/src/screens/wallet/widgets/wallet.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet_drawer.dart';
-import 'package:irmamobile/src/widgets/card.dart';
 
 class WalletScreen extends StatelessWidget {
   static final routeName = "/";
@@ -41,14 +42,15 @@ class _WalletScreenState extends State<_WalletScreen> {
           stream: widget.bloc.credentials,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              return ListView(
-                  children: snapshot.data.values
-                      .map<Widget>((entry) => IrmaCard(credential: entry, onRefresh: () => {}, onRemove: () => {}))
-                      .toList());
+              return Wallet(credentials: snapshot.data.values.toList(), qrCallback: qrActivate);
             } else
               return Center(child: Text('Loading...'));
           }),
       drawer: WalletDrawer(),
     );
+  }
+
+  qrActivate() {
+    print("QR button pressed.");
   }
 }
