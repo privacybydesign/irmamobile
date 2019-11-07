@@ -29,56 +29,57 @@ class _IntroductionState extends State<Introduction> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          leading: CancelButton(routeName: Welcome.routeName),
-          title: Text(FlutterI18n.translate(context, 'enrollment.introduction.title')),
-        ),
-        body: Stack(
-          children: <Widget>[
-            PageView(
-              children: <Widget>[
-                Walkthrougth(
-                  imagePath: 'assets/enrollment/load_data.svg',
-                  textContent: FlutterI18n.translate(context, 'enrollment.introduction.load_data'),
+      appBar: AppBar(
+        leading: CancelButton(routeName: Welcome.routeName),
+        title: Text(FlutterI18n.translate(context, 'enrollment.introduction.title')),
+      ),
+      body: Stack(
+        children: <Widget>[
+          PageView(
+            children: <Widget>[
+              Walkthrougth(
+                imagePath: 'assets/enrollment/load_data.svg',
+                textContent: FlutterI18n.translate(context, 'enrollment.introduction.load_data'),
+              ),
+              Walkthrougth(
+                imagePath: 'assets/enrollment/use_irma_for_login.svg',
+                textContent: FlutterI18n.translate(context, 'enrollment.introduction.login'),
+              ),
+              Walkthrougth(
+                imagePath: 'assets/enrollment/use_irma_to_reveal_age.svg',
+                textContent: FlutterI18n.translate(context, 'enrollment.introduction.reveal'),
+              ),
+            ],
+            onPageChanged: (value) {
+              setState(() => currentIndexPage = value);
+            },
+          ),
+          Container(
+            alignment: Alignment.bottomCenter,
+            child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+              new DotsIndicator(
+                dotsCount: pageLength,
+                position: currentIndexPage,
+                decorator: DotsDecorator(
+                  color: Colors.grey[400],
+                  activeColor: Colors.grey[700],
                 ),
-                Walkthrougth(
-                  imagePath: 'assets/enrollment/use_irma_for_login.svg',
-                  textContent: FlutterI18n.translate(context, 'enrollment.introduction.login'),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: IrmaTheme.of(context).spacing, bottom: IrmaTheme.of(context).spacing * 2),
+                child: ThemeButton(
+                  onPressed: () {
+                    Navigator.of(context).pushNamed(ChoosePin.routeName);
+                  },
+                  buttonType: currentIndexPage == 2 ? 'primary' : 'secondary',
+                  label: 'enrollment.welcome.choose_pin_button',
                 ),
-                Walkthrougth(
-                  imagePath: 'assets/enrollment/use_irma_to_reveal_age.svg',
-                  textContent: FlutterI18n.translate(context, 'enrollment.introduction.reveal'),
-                ),
-              ],
-              onPageChanged: (value) {
-                setState(() => currentIndexPage = value);
-              },
-            ),
-            Container(
-                alignment: Alignment.bottomCenter,
-                child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                  new DotsIndicator(
-                    dotsCount: pageLength,
-                    position: currentIndexPage,
-                    decorator: DotsDecorator(
-                      color: Colors.grey[400],
-                      activeColor: Colors.grey[700],
-                    ),
-                  ),
-                  Padding(
-                    padding:
-                        EdgeInsets.only(top: IrmaTheme.of(context).spacing, bottom: IrmaTheme.of(context).spacing * 2),
-                    child: ThemeButton(
-                      onPressed: () {
-                        Navigator.of(context).pushNamed(ChoosePin.routeName);
-                      },
-                      buttonType: currentIndexPage == 2 ? 'primary' : 'secondary',
-                      label: 'enrollment.welcome.choose_pin_button',
-                    ),
-                  )
-                ]))
-          ],
-        ));
+              )
+            ]),
+          )
+        ],
+      ),
+    );
   }
 }
 
