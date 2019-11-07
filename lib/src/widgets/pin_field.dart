@@ -150,7 +150,7 @@ class _PinFieldState extends State<PinField> {
         curve: Curves.easeInOutExpo,
         decoration: new BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(theme.spacing)),
-          color: obscureText ? theme.primaryBlue : theme.greyscale90,
+          color: obscureText ? theme.primaryBlue : theme.grayscale90,
         ),
       ),
     );
@@ -158,7 +158,7 @@ class _PinFieldState extends State<PinField> {
     for (int i = 0; i < len; i++) {
       String char = i < value.length ? value[i] : '';
       bool filled = char != '';
-      var grey = obscureText ? theme.greyscale80 : theme.greyscale90;
+      var grey = obscureText ? theme.grayscale80 : theme.grayscale90;
 
       if (obscureText && filled) {
         char = ' ';

@@ -4,9 +4,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/choose_pin.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/introduction.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/link_button.dart';
-import 'package:irmamobile/src/widgets/primary_button.dart';
-import 'package:irmamobile/src/widgets/secondary_button.dart';
+import 'package:irmamobile/src/widgets/irma_button.dart';
+import 'package:irmamobile/src/widgets/irma_outlined_button.dart';
+import 'package:irmamobile/src/widgets/irma_text_button.dart';
 
 class Welcome extends StatelessWidget {
   static const String routeName = 'welcome';
@@ -43,21 +43,21 @@ class Welcome extends StatelessWidget {
                 ),
               ),
               SizedBox(height: IrmaTheme.of(context).spacing),
-              LinkButton(
+              IrmaTextButton(
                 onPressed: () {
                   Navigator.of(context).pushNamed(Introduction.routeName);
                 },
                 label: 'enrollment.welcome.intro_button',
               ),
               SizedBox(height: IrmaTheme.of(context).spacing),
-              PrimaryButton(
+              IrmaButton(
                 onPressed: () {
                   Navigator.of(context).pushNamed(ChoosePin.routeName);
                 },
                 label: 'enrollment.welcome.choose_pin_button',
               ),
               SizedBox(height: IrmaTheme.of(context).spacing),
-              SecondaryButton(
+              IrmaOutlinedButton(
                 onPressed: () {
                   Navigator.of(context, rootNavigator: true).pushReplacementNamed('/');
                 },

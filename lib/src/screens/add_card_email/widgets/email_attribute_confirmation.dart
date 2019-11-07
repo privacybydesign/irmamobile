@@ -8,7 +8,7 @@ import 'package:irmamobile/src/screens/add_card_email/model/request_email_bloc.d
 import 'package:irmamobile/src/screens/add_card_email/model/request_email_events.dart';
 import 'package:irmamobile/src/theme/irma-icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/primary_button.dart';
+import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/success_alert.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -105,7 +105,7 @@ class EmailAttributeConfirmation extends StatelessWidget {
                       ),
                       Container(
                         width: MediaQuery.of(context).size.width,
-                        child: PrimaryButton(
+                        child: IrmaButton(
                             label: FlutterI18n.translate(
                               context,
                               "card_store.email.success.open_email_button",

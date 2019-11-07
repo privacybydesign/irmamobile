@@ -7,7 +7,7 @@ import 'package:irmamobile/src/screens/enrollment/widgets/cancel_button.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/choose_pin.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/error_message.dart';
-import 'package:irmamobile/src/widgets/primary_button.dart';
+import 'package:irmamobile/src/widgets/irma_button.dart';
 
 class ProvideEmail extends StatelessWidget {
   static const String routeName = 'provide_email';
@@ -50,7 +50,7 @@ class ProvideEmail extends StatelessWidget {
                   onEditingComplete: submitEmail,
                 ),
                 SizedBox(height: IrmaTheme.of(context).spacing),
-                PrimaryButton(
+                IrmaButton(
                   onPressed: submitEmail,
                   label: 'enrollment.provide_email.next',
                 ),
