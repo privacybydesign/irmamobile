@@ -158,8 +158,8 @@
   revision = "ce779395f4c98898f21f8c49f71f4b3353995127"
 
 [[projects]]
-  branch = "master"
-  digest = "1:2a16e9f1a5e33330d36395e3f80f46361d734eeb8ac4b187217cdc6cd10099f8"
+  branch = "irmamobile"
+  digest = "1:e6090b10f4c524da7578cdf627ee77f8091ddc2976cdf9737f97344a68fc7ba4"
   name = "github.com/privacybydesign/irmago"
   packages = [
     ".",
@@ -168,7 +168,7 @@
     "irmaclient",
   ]
   pruneopts = "UT"
-  revision = "5578f2e2f385a8753a3c98d70ea0ce6c6715f040"
+  revision = "8b4e1bf85f4a596ab3419d6b4fac2b9f376fc133"
 
 [[projects]]
   digest = "1:04457f9f6f3ffc5fea48e71d62f2ca256637dee0a04d710288e27e05c8b41976"
@@ -238,7 +238,6 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/getsentry/raven-go",
     "github.com/go-errors/errors",
     "github.com/privacybydesign/irmago",
     "github.com/privacybydesign/irmago/irmaclient",

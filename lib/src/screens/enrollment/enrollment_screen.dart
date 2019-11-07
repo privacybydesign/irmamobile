@@ -13,9 +13,12 @@ class EnrollmentScreen extends StatelessWidget {
   static final routeName = "/enrollment";
 
   Widget build(BuildContext context) {
-    EnrollmentBloc enrollmentBloc = EnrollmentBloc();
-    return BlocProvider<EnrollmentBloc>.value(
-        value: enrollmentBloc, child: ProvidedEnrollmentScreen(bloc: enrollmentBloc));
+    return BlocProvider<EnrollmentBloc>(
+        builder: (_) => EnrollmentBloc(),
+        child: BlocBuilder<EnrollmentBloc, EnrollmentState>(builder: (context, _) {
+          final bloc = BlocProvider.of<EnrollmentBloc>(context);
+          return ProvidedEnrollmentScreen(bloc: bloc);
+        }));
   }
 }
 

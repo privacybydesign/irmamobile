@@ -26,7 +26,7 @@ class Success extends StatelessWidget {
         SizedBox(height: IrmaTheme.of(context).spacing),
         PrimaryButton(
           onPressed: () {
-            Navigator.of(context, rootNavigator: true).pushReplacementNamed('/');
+            Navigator.of(context, rootNavigator: true).pop();
           },
           label: 'change_pin.success.continue',
         ),

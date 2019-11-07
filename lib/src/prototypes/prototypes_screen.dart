@@ -6,6 +6,7 @@ import 'package:irmamobile/src/prototypes/dev_experiment_4.dart';
 import 'package:irmamobile/src/prototypes/schermflow_1.dart';
 import 'package:irmamobile/src/prototypes/schermflow_5.dart';
 import 'package:irmamobile/src/prototypes/schermflow_wallet.dart';
+import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
 
 class PrototypesScreen extends StatelessWidget {
   static final routeName = "/";
@@ -70,6 +71,9 @@ class PrototypesScreen extends StatelessWidget {
           _buildListItem(context, "21. Leeftijd 21+ bewijzen via NFC & FraceID", null),
           _buildListItem(context, "22. Leeftijd 21+ bewijzen via NFC & Pincode", null),
           _buildListItem(context, "23. ID en rijbewijs landscape", null),
+          _buildListItem(context, "24. Pincode veranderen", () {
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChangePinScreen()));
+          }),
           SizedBox(height: 12),
           Padding(
             padding: const EdgeInsets.only(bottom: 4),

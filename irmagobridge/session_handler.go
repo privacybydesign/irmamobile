@@ -5,19 +5,21 @@ import (
 	"github.com/privacybydesign/irmago/irmaclient"
 )
 
-type SessionHandler struct {
+type sessionHandler struct {
 	sessionID         int
 	dismisser         irmaclient.SessionDismisser
 	permissionHandler irmaclient.PermissionHandler
 	pinHandler        irmaclient.PinHandler
 }
 
-// SessionHandler implements irmaclient.Handler
-var _ irmaclient.Handler = (*SessionHandler)(nil)
+// TODO: Convert all the sendActions below to dispatchEvent
+func sendAction(interface{}) {}
 
-func (sh *SessionHandler) StatusUpdate(irmaAction irma.Action, status irma.Status) {
-	logDebug("Handling StatusUpdate")
-	action := &OutgoingAction{
+// SessionHandler implements irmaclient.Handler
+var _ irmaclient.Handler = (*sessionHandler)(nil)
+
+func (sh *sessionHandler) StatusUpdate(irmaAction irma.Action, status irma.Status) {
+	action := &map[string]interface{}{
 		"type":       "IrmaSession.StatusUpdate",
 		"sessionId":  sh.sessionID,
 		"irmaAction": irmaAction,
@@ -27,9 +29,18 @@ func (sh *SessionHandler) StatusUpdate(irmaAction irma.Action, status irma.Statu
 	sendAction(action)
 }
 
-func (sh *SessionHandler) Success(result string) {
-	logDebug("Handling Success")
-	action := &OutgoingAction{
+func (sh *sessionHandler) ClientReturnURLSet(clientReturnURL string) {
+	action := &map[string]interface{}{
+		"type":            "IrmaSession.ClientReturnURLSet",
+		"sessionId":       sh.sessionID,
+		"clientReturnUrl": clientReturnURL,
+	}
+
+	sendAction(action)
+}
+
+func (sh *sessionHandler) Success(result string) {
+	action := &map[string]interface{}{
 		"type":      "IrmaSession.Success",
 		"sessionId": sh.sessionID,
 		"result":    result,
@@ -38,13 +49,11 @@ func (sh *SessionHandler) Success(result string) {
 	sendAction(action)
 }
 
-func (sh *SessionHandler) Failure(err *irma.SessionError) {
-	logDebug("Handling Failure")
-
-	action := &OutgoingAction{
+func (sh *sessionHandler) Failure(err *irma.SessionError) {
+	action := &map[string]interface{}{
 		"type":      "IrmaSession.Failure",
 		"sessionId": sh.sessionID,
-		"error": &OutgoingAction{
+		"error": &map[string]interface{}{
 			"type":         err.ErrorType,
 			"wrappedError": err.WrappedError(),
 			"info":         err.Info,
@@ -57,9 +66,8 @@ func (sh *SessionHandler) Failure(err *irma.SessionError) {
 	sendAction(action)
 }
 
-func (sh *SessionHandler) Cancelled() {
-	logDebug("Handling Cancelled")
-	action := &OutgoingAction{
+func (sh *sessionHandler) Cancelled() {
+	action := &map[string]interface{}{
 		"type":      "IrmaSession.Cancelled",
 		"sessionId": sh.sessionID,
 	}
@@ -67,10 +75,9 @@ func (sh *SessionHandler) Cancelled() {
 	sendAction(action)
 }
 
-func (sh *SessionHandler) UnsatisfiableRequest(request irma.SessionRequest,
+func (sh *sessionHandler) UnsatisfiableRequest(request irma.SessionRequest,
 	serverName irma.TranslatedString, missing irmaclient.MissingAttributes) {
-	logDebug("Handling UnsatisfiableRequest")
-	action := &OutgoingAction{
+	action := &map[string]interface{}{
 		"type":               "IrmaSession.UnsatisfiableRequest",
 		"sessionId":          sh.sessionID,
 		"serverName":         serverName,
@@ -81,13 +88,12 @@ func (sh *SessionHandler) UnsatisfiableRequest(request irma.SessionRequest,
 	sendAction(action)
 }
 
-func (sh *SessionHandler) RequestIssuancePermission(request *irma.IssuanceRequest, candidates [][][]*irma.AttributeIdentifier, serverName irma.TranslatedString, ph irmaclient.PermissionHandler) {
-	logDebug("Handling RequestIssuancePermission")
+func (sh *sessionHandler) RequestIssuancePermission(request *irma.IssuanceRequest, candidates [][][]*irma.AttributeIdentifier, serverName irma.TranslatedString, ph irmaclient.PermissionHandler) {
 	disclose := request.Disclose
 	if disclose == nil {
 		disclose = irma.AttributeConDisCon{}
 	}
-	action := &OutgoingAction{
+	action := &map[string]interface{}{
 		"type":                  "IrmaSession.RequestIssuancePermission",
 		"sessionId":             sh.sessionID,
 		"serverName":            serverName,
@@ -101,9 +107,8 @@ func (sh *SessionHandler) RequestIssuancePermission(request *irma.IssuanceReques
 	sendAction(action)
 }
 
-func (sh *SessionHandler) RequestVerificationPermission(request *irma.DisclosureRequest, candidates [][][]*irma.AttributeIdentifier, serverName irma.TranslatedString, ph irmaclient.PermissionHandler) {
-	logDebug("Handling RequestVerificationPermission")
-	action := &OutgoingAction{
+func (sh *sessionHandler) RequestVerificationPermission(request *irma.DisclosureRequest, candidates [][][]*irma.AttributeIdentifier, serverName irma.TranslatedString, ph irmaclient.PermissionHandler) {
+	action := &map[string]interface{}{
 		"type":                  "IrmaSession.RequestVerificationPermission",
 		"sessionId":             sh.sessionID,
 		"serverName":            serverName,
@@ -116,9 +121,8 @@ func (sh *SessionHandler) RequestVerificationPermission(request *irma.Disclosure
 	sendAction(action)
 }
 
-func (sh *SessionHandler) RequestSignaturePermission(request *irma.SignatureRequest, candidates [][][]*irma.AttributeIdentifier, serverName irma.TranslatedString, ph irmaclient.PermissionHandler) {
-	logDebug("Handling RequestSignaturePermission")
-	action := &OutgoingAction{
+func (sh *sessionHandler) RequestSignaturePermission(request *irma.SignatureRequest, candidates [][][]*irma.AttributeIdentifier, serverName irma.TranslatedString, ph irmaclient.PermissionHandler) {
+	action := &map[string]interface{}{
 		"type":                  "IrmaSession.RequestSignaturePermission",
 		"sessionId":             sh.sessionID,
 		"serverName":            serverName,
@@ -132,9 +136,8 @@ func (sh *SessionHandler) RequestSignaturePermission(request *irma.SignatureRequ
 	sendAction(action)
 }
 
-func (sh *SessionHandler) RequestPin(remainingAttempts int, ph irmaclient.PinHandler) {
-	logDebug("Handling RequestPin")
-	action := &OutgoingAction{
+func (sh *sessionHandler) RequestPin(remainingAttempts int, ph irmaclient.PinHandler) {
+	action := &map[string]interface{}{
 		"type":              "IrmaSession.RequestPin",
 		"sessionId":         sh.sessionID,
 		"remainingAttempts": remainingAttempts,
@@ -144,14 +147,12 @@ func (sh *SessionHandler) RequestPin(remainingAttempts int, ph irmaclient.PinHan
 	sendAction(action)
 }
 
-func (sh *SessionHandler) RequestSchemeManagerPermission(manager *irma.SchemeManager, callback func(proceed bool)) {
-	logDebug("Handling RequestSchemeManagerPermission")
+func (sh *sessionHandler) RequestSchemeManagerPermission(manager *irma.SchemeManager, callback func(proceed bool)) {
 	callback(false)
 }
 
-func (sh *SessionHandler) KeyshareEnrollmentMissing(manager irma.SchemeManagerIdentifier) {
-	logDebug("Handling KeyshareEnrollmentMissing")
-	action := &OutgoingAction{
+func (sh *sessionHandler) KeyshareEnrollmentMissing(manager irma.SchemeManagerIdentifier) {
+	action := &map[string]interface{}{
 		"type":            "IrmaSession.KeyshareEnrollmentMissing",
 		"sessionId":       sh.sessionID,
 		"schemeManagerId": manager,
@@ -160,9 +161,8 @@ func (sh *SessionHandler) KeyshareEnrollmentMissing(manager irma.SchemeManagerId
 	sendAction(action)
 }
 
-func (sh *SessionHandler) KeyshareEnrollmentDeleted(manager irma.SchemeManagerIdentifier) {
-	logDebug("Handling KeyshareEnrollmentDeleted")
-	action := &OutgoingAction{
+func (sh *sessionHandler) KeyshareEnrollmentDeleted(manager irma.SchemeManagerIdentifier) {
+	action := &map[string]interface{}{
 		"type":            "IrmaSession.KeyshareEnrollmentDeleted",
 		"sessionId":       sh.sessionID,
 		"schemeManagerId": manager,
@@ -171,9 +171,8 @@ func (sh *SessionHandler) KeyshareEnrollmentDeleted(manager irma.SchemeManagerId
 	sendAction(action)
 }
 
-func (sh *SessionHandler) KeyshareBlocked(manager irma.SchemeManagerIdentifier, duration int) {
-	logDebug("Handling KeyshareBlocked")
-	action := &OutgoingAction{
+func (sh *sessionHandler) KeyshareBlocked(manager irma.SchemeManagerIdentifier, duration int) {
+	action := &map[string]interface{}{
 		"type":            "IrmaSession.KeyshareBlocked",
 		"sessionId":       sh.sessionID,
 		"schemeManagerId": manager,
@@ -183,9 +182,8 @@ func (sh *SessionHandler) KeyshareBlocked(manager irma.SchemeManagerIdentifier, 
 	sendAction(action)
 }
 
-func (sh *SessionHandler) KeyshareEnrollmentIncomplete(manager irma.SchemeManagerIdentifier) {
-	logDebug("Handling KeyshareEnrollmentIncomplete")
-	action := &OutgoingAction{
+func (sh *sessionHandler) KeyshareEnrollmentIncomplete(manager irma.SchemeManagerIdentifier) {
+	action := &map[string]interface{}{
 		"type":            "IrmaSession.KeyshareEnrollmentIncomplete",
 		"sessionId":       sh.sessionID,
 		"schemeManagerId": manager,
