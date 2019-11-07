@@ -29,31 +29,33 @@ class ProvideEmail extends StatelessWidget {
         return SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.all(IrmaTheme.of(context).spacing * 2),
-            child: Column(children: [
-              if (state.emailValid == false && state.showEmailValidation) ...[
-                ErrorMessage(message: 'enrollment.provide_email.error'),
-                SizedBox(height: IrmaTheme.of(context).spacing)
+            child: Column(
+              children: [
+                if (state.emailValid == false && state.showEmailValidation) ...[
+                  ErrorMessage(message: 'enrollment.provide_email.error'),
+                  SizedBox(height: IrmaTheme.of(context).spacing)
+                ],
+                Text(
+                  FlutterI18n.translate(context, 'enrollment.provide_email.instruction'),
+                  style: Theme.of(context).textTheme.body1,
+                  textAlign: TextAlign.left,
+                ),
+                SizedBox(height: IrmaTheme.of(context).spacing),
+                TextField(
+                  autofocus: true,
+                  decoration:
+                      InputDecoration(hintText: FlutterI18n.translate(context, 'enrollment.provide_email.placeholder')),
+                  keyboardType: TextInputType.emailAddress,
+                  onChanged: changeEmail,
+                  onEditingComplete: submitEmail,
+                ),
+                SizedBox(height: IrmaTheme.of(context).spacing),
+                PrimaryButton(
+                  onPressed: submitEmail,
+                  label: 'enrollment.provide_email.next',
+                ),
               ],
-              Text(
-                FlutterI18n.translate(context, 'enrollment.provide_email.instruction'),
-                style: Theme.of(context).textTheme.body1,
-                textAlign: TextAlign.left,
-              ),
-              SizedBox(height: IrmaTheme.of(context).spacing),
-              TextField(
-                autofocus: true,
-                decoration:
-                    InputDecoration(hintText: FlutterI18n.translate(context, 'enrollment.provide_email.placeholder')),
-                keyboardType: TextInputType.emailAddress,
-                onChanged: changeEmail,
-                onEditingComplete: submitEmail,
-              ),
-              SizedBox(height: IrmaTheme.of(context).spacing),
-              PrimaryButton(
-                onPressed: submitEmail,
-                label: 'enrollment.provide_email.next',
-              ),
-            ]),
+            ),
           ),
         );
       }),

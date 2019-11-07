@@ -20,19 +20,21 @@ class ConfirmPin extends StatelessWidget {
         title: Text(FlutterI18n.translate(context, 'change_pin.confirm_pin.title')),
       ),
       body: SingleChildScrollView(
-        child: Column(children: [
-          SizedBox(height: IrmaTheme.of(context).spacing),
-          Text(
-            FlutterI18n.translate(context, 'change_pin.confirm_pin.instruction'),
-            style: Theme.of(context).textTheme.body1,
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: IrmaTheme.of(context).spacing),
-          PinField(
-            maxLength: 5,
-            onSubmit: (String pin) => confirmNewPin(pin),
-          )
-        ]),
+        child: Column(
+          children: [
+            SizedBox(height: IrmaTheme.of(context).spacing),
+            Text(
+              FlutterI18n.translate(context, 'change_pin.confirm_pin.instruction'),
+              style: Theme.of(context).textTheme.body1,
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: IrmaTheme.of(context).spacing),
+            PinField(
+              maxLength: 5,
+              onSubmit: (String pin) => confirmNewPin(pin),
+            )
+          ],
+        ),
       ),
     );
   }

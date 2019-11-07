@@ -56,26 +56,30 @@ class _IntroductionState extends State<Introduction> {
           ),
           Container(
             alignment: Alignment.bottomCenter,
-            child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-              new DotsIndicator(
-                dotsCount: pageLength,
-                position: currentIndexPage,
-                decorator: DotsDecorator(
-                  color: Colors.grey[400],
-                  activeColor: Colors.grey[700],
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                new DotsIndicator(
+                  dotsCount: pageLength,
+                  position: currentIndexPage,
+                  decorator: DotsDecorator(
+                    color: Colors.grey[400],
+                    activeColor: Colors.grey[700],
+                  ),
                 ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: IrmaTheme.of(context).spacing, bottom: IrmaTheme.of(context).spacing * 2),
-                child: ThemeButton(
-                  onPressed: () {
-                    Navigator.of(context).pushNamed(ChoosePin.routeName);
-                  },
-                  buttonType: currentIndexPage == 2 ? 'primary' : 'secondary',
-                  label: 'enrollment.welcome.choose_pin_button',
-                ),
-              )
-            ]),
+                Padding(
+                  padding:
+                      EdgeInsets.only(top: IrmaTheme.of(context).spacing, bottom: IrmaTheme.of(context).spacing * 2),
+                  child: ThemeButton(
+                    onPressed: () {
+                      Navigator.of(context).pushNamed(ChoosePin.routeName);
+                    },
+                    buttonType: currentIndexPage == 2 ? 'primary' : 'secondary',
+                    label: 'enrollment.welcome.choose_pin_button',
+                  ),
+                )
+              ],
+            ),
           )
         ],
       ),

@@ -123,9 +123,11 @@ class _PinFieldState extends State<PinField> {
                   color: Theme.of(context).primaryColorDark,
                 ),
                 onPressed: () {
-                  setState(() {
-                    obscureText = !obscureText;
-                  });
+                  setState(
+                    () {
+                      obscureText = !obscureText;
+                    },
+                  );
                 },
               )
             ],
@@ -139,18 +141,19 @@ class _PinFieldState extends State<PinField> {
     final bool complete = value.length == widget.maxLength;
 
     final filler = AnimatedOpacity(
-        opacity: value.length == 0 ? 0.0 : 1.0,
-        duration: Duration(milliseconds: 150),
-        child: AnimatedContainer(
-          width: (theme.spacing * 2.5 * max(value.length, 1)) - (theme.spacing * 0.5),
-          height: theme.spacing * 2,
-          duration: Duration(milliseconds: 250),
-          curve: Curves.easeInOutExpo,
-          decoration: new BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(theme.spacing)),
-            color: obscureText ? theme.primaryBlue : theme.greyscale90,
-          ),
-        ));
+      opacity: value.length == 0 ? 0.0 : 1.0,
+      duration: Duration(milliseconds: 150),
+      child: AnimatedContainer(
+        width: (theme.spacing * 2.5 * max(value.length, 1)) - (theme.spacing * 0.5),
+        height: theme.spacing * 2,
+        duration: Duration(milliseconds: 250),
+        curve: Curves.easeInOutExpo,
+        decoration: new BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(theme.spacing)),
+          color: obscureText ? theme.primaryBlue : theme.greyscale90,
+        ),
+      ),
+    );
 
     for (int i = 0; i < len; i++) {
       String char = i < value.length ? value[i] : '';
@@ -170,11 +173,13 @@ class _PinFieldState extends State<PinField> {
           borderRadius: BorderRadius.all(Radius.circular(theme.spacing)),
           color: grey,
         ),
-        child: new Text(char,
-            style: Theme.of(context).textTheme.body2.copyWith(
-                  fontSize: theme.spacing * 1.5,
-                  color: complete ? theme.primaryBlue : theme.primaryDark,
-                )),
+        child: new Text(
+          char,
+          style: Theme.of(context).textTheme.body2.copyWith(
+                fontSize: theme.spacing * 1.5,
+                color: complete ? theme.primaryBlue : theme.primaryDark,
+              ),
+        ),
       );
     }
 
@@ -185,84 +190,94 @@ class _PinFieldState extends State<PinField> {
       ),
     );
 
-    return Stack(children: [
-      Container(
-        width: 0.1,
-        child: TextFormField(
-          controller: controller,
-          focusNode: focusNode,
-          onEditingComplete: () {
-            final val = controller.text;
-            if (val.length >= widget.minLength && val.length <= widget.maxLength && widget.onSubmit != null) {
-              widget.onSubmit(val);
-            }
-          },
-          inputFormatters: [
-            WhitelistingTextInputFormatter(RegExp('[0-9]')),
-          ],
-          autofocus: true,
-          keyboardType: TextInputType.numberWithOptions(signed: false, decimal: false),
-          obscureText: true,
-          style: TextStyle(
-            height: 0.1,
-            color: Colors.transparent,
-          ),
-          decoration: InputDecoration(
-            focusedErrorBorder: transparentBorder,
-            errorBorder: transparentBorder,
-            disabledBorder: transparentBorder,
-            enabledBorder: transparentBorder,
-            focusedBorder: transparentBorder,
-            counterText: null,
-            counterStyle: null,
-            helperStyle: TextStyle(
-              height: 0.0,
+    return Stack(
+      children: [
+        Container(
+          width: 0.1,
+          child: TextFormField(
+            controller: controller,
+            focusNode: focusNode,
+            onEditingComplete: () {
+              final val = controller.text;
+              if (val.length >= widget.minLength && val.length <= widget.maxLength && widget.onSubmit != null) {
+                widget.onSubmit(val);
+              }
+            },
+            inputFormatters: [
+              WhitelistingTextInputFormatter(RegExp('[0-9]')),
+            ],
+            autofocus: true,
+            keyboardType: TextInputType.numberWithOptions(signed: false, decimal: false),
+            obscureText: true,
+            style: TextStyle(
+              height: 0.1,
               color: Colors.transparent,
             ),
-            labelStyle: TextStyle(height: 0.1),
-            fillColor: Colors.transparent,
-            border: InputBorder.none,
-          ),
-          cursorColor: Colors.transparent,
-          maxLength: widget.maxLength,
-        ),
-      ),
-      Row(mainAxisSize: MainAxisSize.max, mainAxisAlignment: MainAxisAlignment.center, children: [
-        SizedBox(width: theme.spacing * 2, height: theme.spacing * 2),
-        GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () {
-            FocusScope.of(context).requestFocus(FocusNode());
-            Future.delayed(Duration(milliseconds: 100), () {
-              FocusScope.of(context).requestFocus(focusNode);
-            });
-          },
-          child: Container(
-            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 80),
-            child: Stack(children: [
-              if (!obscureText) ...[filler],
-              Wrap(children: boxes),
-              if (obscureText) ...[filler],
-            ]),
-          ),
-        ),
-        SizedBox(
-          width: theme.spacing * 2,
-          height: theme.spacing * 2,
-          child: IconButton(
-            iconSize: theme.spacing,
-            icon: Icon(
-              obscureText ? Icons.visibility : Icons.visibility_off,
-              color: Theme.of(context).primaryColorDark,
+            decoration: InputDecoration(
+              focusedErrorBorder: transparentBorder,
+              errorBorder: transparentBorder,
+              disabledBorder: transparentBorder,
+              enabledBorder: transparentBorder,
+              focusedBorder: transparentBorder,
+              counterText: null,
+              counterStyle: null,
+              helperStyle: TextStyle(
+                height: 0.0,
+                color: Colors.transparent,
+              ),
+              labelStyle: TextStyle(height: 0.1),
+              fillColor: Colors.transparent,
+              border: InputBorder.none,
             ),
-            onPressed: () {
-              setState(() {
-                obscureText = !obscureText;
-              });
-            },
+            cursorColor: Colors.transparent,
+            maxLength: widget.maxLength,
           ),
-        )
-      ]),
-    ]);
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(width: theme.spacing * 2, height: theme.spacing * 2),
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                FocusScope.of(context).requestFocus(FocusNode());
+                Future.delayed(Duration(milliseconds: 100), () {
+                  FocusScope.of(context).requestFocus(focusNode);
+                });
+              },
+              child: Container(
+                constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 80),
+                child: Stack(
+                  children: [
+                    if (!obscureText) ...[filler],
+                    Wrap(children: boxes),
+                    if (obscureText) ...[filler],
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(
+              width: theme.spacing * 2,
+              height: theme.spacing * 2,
+              child: IconButton(
+                iconSize: theme.spacing,
+                icon: Icon(
+                  obscureText ? Icons.visibility : Icons.visibility_off,
+                  color: Theme.of(context).primaryColorDark,
+                ),
+                onPressed: () {
+                  setState(
+                    () {
+                      obscureText = !obscureText;
+                    },
+                  );
+                },
+              ),
+            )
+          ],
+        ),
+      ],
+    );
   }
 }
