@@ -56,7 +56,9 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
     drawAnimation = CurvedAnimation(parent: drawController, curve: Curves.easeInOut)
       ..addStatusListener((state) {
         if (state == AnimationStatus.completed) {
-          expiredState = oldState;
+          if (oldState != currentState) {
+            expiredState = oldState;
+          }
           oldState = currentState;
           drawController.reset();
           scroll = 0;
@@ -107,13 +109,10 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
           double oldTop = getCardPosition(
               state: oldState, size: size, index: index, drawnCardIndex: drawnCardIndex, scroll: scroll);
 
-          if (walletShrinkTween == 0.0) {
-            cardTop = oldTop;
-          } else {
-            double newTop = getCardPosition(
-                state: currentState, size: size, index: index, drawnCardIndex: drawnCardIndex, scroll: 0);
-            cardTop = interpolate(oldTop, newTop, walletShrinkTween);
-          }
+          double newTop =
+              getCardPosition(state: currentState, size: size, index: index, drawnCardIndex: drawnCardIndex, scroll: 0);
+
+          cardTop = interpolate(oldTop, newTop, walletShrinkTween);
 
           Widget card = Positioned(
               left: 0,
@@ -126,14 +125,12 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                     };
                   }(index),
                   onVerticalDragStart: (DragStartDetails details) {
-//                    print("onVerticalDragStart");
                     setState(() {
                       scroll = details.localPosition.dy;
                     });
                   },
                   onVerticalDragEnd: (int _index) {
                     return (DragEndDetails details) {
-//                      print("onVerticalDragEnd");
                       if ((scroll < -scrollTipping && currentState != WalletState.drawn) ||
                           (scroll > scrollTipping && currentState == WalletState.drawn)) {
                         cardTapped(_index, credential, size);
@@ -153,13 +150,9 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                     };
                   }(index),
                   onVerticalDragUpdate: (DragUpdateDetails details) {
-//                    print("onVerticalDragUpdate");
                     setState(() {
                       scroll = details.localPosition.dy;
                     });
-                  },
-                  onVerticalDragCancel: () {
-//                    print("onVerticalDragCancel");
                   },
                   child: IrmaCard(
                       attributes: credential,
@@ -259,9 +252,12 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
       case WalletState.full:
         cardPosition = getWalletTop(size) - index * cardUnshrunkHeight;
+        // Active card
         if (index == drawnCardIndex) {
           cardPosition -= scroll;
-        } else if (scroll > 30) {
+
+          // Drag down
+        } else if (scroll > cardUnshrunkHeight - cardShrunkHeight) {
           if (index > drawnCardIndex) {
             cardPosition -= scroll *
                     (1 - (index - drawnCardIndex - 1) / (getWalletTop(size) / cardUnshrunkHeight - drawnCardIndex)) -
