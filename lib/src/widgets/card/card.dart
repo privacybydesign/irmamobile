@@ -188,8 +188,11 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
                   borderRadius: BorderRadius.all(
                     borderRadius,
                   ),
-                  image:
-                      DecorationImage(image: irmaCardThemeImage, fit: BoxFit.fitWidth, alignment: Alignment.topCenter)),
+                  image: DecorationImage(
+                      image: irmaCardThemeImage,
+                      fit: BoxFit.fitWidth,
+                      alignment: Alignment.topCenter,
+                      repeat: ImageRepeat.noRepeat)),
             ));
       });
 }

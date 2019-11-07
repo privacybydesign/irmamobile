@@ -45,7 +45,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
   WalletState expiredState = WalletState.halfway;
   WalletState oldState = WalletState.halfway;
-  WalletState currentState = WalletState.halfway;
+  WalletState currentState = WalletState.minimal;
   double scroll = 0;
 
   final Tween _walletShrinkTween = Tween<double>(begin: 0, end: 1);
@@ -64,6 +64,8 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
           scroll = 0;
         }
       });
+
+    setNewState(WalletState.halfway);
 
     super.initState();
   }
@@ -230,6 +232,13 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         }
         break;
 
+      case WalletState.minimal:
+        cardPosition = -1.0 * (index + 1) * cardShrunkHeight;
+        if (cardPosition < -4.0 * cardShrunkHeight) {
+          cardPosition = -4.0 * cardShrunkHeight;
+        }
+        break;
+
       case WalletState.halfway:
         double top = 1.0 * (widget.credentials.length - 1 - index);
 
@@ -297,4 +306,4 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   }
 }
 
-enum WalletState { drawn, halfway, full }
+enum WalletState { drawn, halfway, full, minimal }
