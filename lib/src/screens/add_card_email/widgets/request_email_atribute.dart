@@ -10,7 +10,7 @@ import 'package:irmamobile/src/theme/irma-icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/error_alert.dart';
 import 'package:irmamobile/src/widgets/info_alert.dart';
-import 'package:irmamobile/src/widgets/primary_button.dart';
+import 'package:irmamobile/src/widgets/irma_button.dart';
 
 class RequestEmailAttribute extends StatefulWidget {
   RequestEmailAttribute(this.name, this.issuer, this.logoPath) : super(key: myKey);
@@ -138,7 +138,7 @@ class RequestEmailAttributeState extends State<RequestEmailAttribute> {
                       ),
                       state.inProgress
                           ? CircularProgressIndicator()
-                          : PrimaryButton(
+                          : IrmaButton(
                               label: FlutterI18n.translate(
                                 context,
                                 "card_store.email.get_button",

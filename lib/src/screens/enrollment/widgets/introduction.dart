@@ -6,7 +6,8 @@ import 'package:irmamobile/src/screens/enrollment/widgets/cancel_button.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/choose_pin.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/welcome.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/theme_button.dart';
+import 'package:irmamobile/src/widgets/irma_button.dart';
+import 'package:irmamobile/src/widgets/irma_outlined_button.dart';
 
 class Introduction extends StatefulWidget {
   static const String routeName = 'introduction';
@@ -68,13 +69,19 @@ class _IntroductionState extends State<Introduction> {
                   Padding(
                     padding:
                         EdgeInsets.only(top: IrmaTheme.of(context).spacing, bottom: IrmaTheme.of(context).spacing * 2),
-                    child: ThemeButton(
-                      onPressed: () {
-                        Navigator.of(context).pushNamed(ChoosePin.routeName);
-                      },
-                      buttonType: currentIndexPage == 2 ? 'primary' : 'secondary',
-                      label: 'enrollment.welcome.choose_pin_button',
-                    ),
+                    child: currentIndexPage == 2
+                        ? IrmaButton(
+                            onPressed: () {
+                              Navigator.of(context).pushNamed(ChoosePin.routeName);
+                            },
+                            label: 'enrollment.welcome.choose_pin_button',
+                          )
+                        : IrmaOutlinedButton(
+                            onPressed: () {
+                              Navigator.of(context).pushNamed(ChoosePin.routeName);
+                            },
+                            label: 'enrollment.welcome.choose_pin_button',
+                          ),
                   )
                 ]))
           ],

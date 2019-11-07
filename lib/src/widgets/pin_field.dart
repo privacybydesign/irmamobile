@@ -97,8 +97,8 @@ class _PinFieldState extends State<PinField> {
     for (int i = 0; i < len; i++) {
       String char = i < value.length ? value[i] : '';
       bool filled = char != '';
-      var grey = obscureText ? IrmaTheme.of(context).greyscale80 : IrmaTheme.of(context).greyscale90;
-      var primary = obscureText ? IrmaTheme.of(context).primaryBlue : IrmaTheme.of(context).greyscale90;
+      var grey = obscureText ? IrmaTheme.of(context).grayscale80 : IrmaTheme.of(context).grayscale90;
+      var primary = obscureText ? IrmaTheme.of(context).primaryBlue : IrmaTheme.of(context).grayscale90;
       var background = (obscureText && filled) ? IrmaTheme.of(context).primaryDark : grey;
 
       if (obscureText && filled) {

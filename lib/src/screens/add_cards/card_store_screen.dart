@@ -115,7 +115,7 @@ class CardStoreScreen extends StatelessWidget {
               child: TextField(
                 //onChanged: ,
                 decoration: InputDecoration(
-                    fillColor: IrmaTheme.of(context).greyscale90,
+                    fillColor: IrmaTheme.of(context).grayscale90,
                     filled: true,
                     prefixIcon: Icon(IrmaIcons.search),
                     suffixIcon: IconButton(
@@ -132,7 +132,7 @@ class CardStoreScreen extends StatelessWidget {
               ),
               // Theme data to control the color of the icons in the search bar when the search bar is active
               data: Theme.of(context).copyWith(
-                primaryColor: IrmaTheme.of(context).greyscale40,
+                primaryColor: IrmaTheme.of(context).grayscale40,
               ),
             ),
           ),
