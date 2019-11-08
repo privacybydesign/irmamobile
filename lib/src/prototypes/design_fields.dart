@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/card_suggestion.dart';
+import 'package:irmamobile/src/widgets/card_suggestion_group.dart';
 
 void startDesignFields(BuildContext context) {
   Navigator.of(context).push(
@@ -214,6 +217,39 @@ class _DesignFieldsState extends State<DesignFields> {
                       onChanged: null,
                       items: null,
                     ),
+                  ),
+                ],
+              ),
+              Text("Card Group", style: IrmaTheme.of(context).textTheme.display3),
+              CardSuggestionGroup(
+                title: FlutterI18n.translate(context, 'card_store.personal_data'),
+                credentials: <CardSuggestion>[
+                  CardSuggestion(
+                    icon: Image.asset("assets/non-free/irmalogo.png"),
+                    title: "Persoonsgegevens",
+                    subTitle: "Gemeente(BRP)",
+                    obtained: false,
+                    onTap: () {
+                      debugPrint("clicked");
+                    },
+                  ),
+                  CardSuggestion(
+                    icon: Image.asset("assets/non-free/irmalogo.png"),
+                    title: "Persoonsgegevens",
+                    subTitle: "Gemeente(BRP)",
+                    obtained: false,
+                    onTap: () {
+                      debugPrint("clicked");
+                    },
+                  ),
+                  CardSuggestion(
+                    icon: Image.asset("assets/non-free/irmalogo.png"),
+                    title: "Persoonsgegevens",
+                    subTitle: "Gemeente(BRP)",
+                    obtained: true,
+                    onTap: () {
+                      debugPrint("clicked");
+                    },
                   ),
                 ],
               ),
