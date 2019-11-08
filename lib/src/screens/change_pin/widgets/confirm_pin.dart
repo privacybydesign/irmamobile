@@ -15,25 +15,27 @@ class ConfirmPin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          leading: CancelButton(cancel: cancel),
-          title: Text(FlutterI18n.translate(context, 'change_pin.confirm_pin.title')),
+      appBar: AppBar(
+        leading: CancelButton(cancel: cancel),
+        title: Text(FlutterI18n.translate(context, 'change_pin.confirm_pin.title')),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            SizedBox(height: IrmaTheme.of(context).spacing),
+            Text(
+              FlutterI18n.translate(context, 'change_pin.confirm_pin.instruction'),
+              style: Theme.of(context).textTheme.body1,
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: IrmaTheme.of(context).spacing),
+            PinField(
+              maxLength: 5,
+              onSubmit: (String pin) => confirmNewPin(pin),
+            )
+          ],
         ),
-        body: SingleChildScrollView(
-          child: Padding(
-              padding: EdgeInsets.only(top: IrmaTheme.of(context).spacing * 2),
-              child: Column(children: [
-                Text(
-                  FlutterI18n.translate(context, 'change_pin.confirm_pin.instruction'),
-                  style: Theme.of(context).textTheme.body1,
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: IrmaTheme.of(context).spacing),
-                PinField(
-                  maxLength: 5,
-                  onSubmit: (String pin) => confirmNewPin(pin),
-                )
-              ])),
-        ));
+      ),
+    );
   }
 }

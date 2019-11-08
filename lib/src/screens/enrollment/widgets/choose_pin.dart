@@ -20,15 +20,17 @@ class ChoosePin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          leading: CancelButton(routeName: Welcome.routeName, cancel: cancel),
-          title: Text(FlutterI18n.translate(context, 'enrollment.choose_pin.title')),
-        ),
-        body: BlocBuilder<EnrollmentBloc, EnrollmentState>(builder: (context, state) {
+      appBar: AppBar(
+        leading: CancelButton(routeName: Welcome.routeName, cancel: cancel),
+        title: Text(FlutterI18n.translate(context, 'enrollment.choose_pin.title')),
+      ),
+      body: BlocBuilder<EnrollmentBloc, EnrollmentState>(
+        builder: (context, state) {
           return SingleChildScrollView(
             child: Padding(
-                padding: EdgeInsets.only(top: IrmaTheme.of(context).spacing * 2),
-                child: Column(children: [
+              padding: EdgeInsets.only(top: IrmaTheme.of(context).spacing * 2),
+              child: Column(
+                children: [
                   if (state.showPinValidation && !state.pinConfirmed) ...[
                     ErrorMessage(message: 'enrollment.choose_pin.error'),
                     SizedBox(height: IrmaTheme.of(context).spacing)
@@ -40,8 +42,12 @@ class ChoosePin extends StatelessWidget {
                   ),
                   SizedBox(height: IrmaTheme.of(context).spacing),
                   PinField(maxLength: 5, onSubmit: (pin) => submitPin(context, pin))
-                ])),
+                ],
+              ),
+            ),
           );
-        }));
+        },
+      ),
+    );
   }
 }

@@ -19,29 +19,35 @@ class ChoosePin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          leading: CancelButton(cancel: cancel),
-          title: Text(FlutterI18n.translate(context, 'change_pin.choose_pin.title')),
-        ),
-        body: BlocBuilder<ChangePinBloc, ChangePinState>(builder: (context, state) {
+      appBar: AppBar(
+        leading: CancelButton(cancel: cancel),
+        title: Text(FlutterI18n.translate(context, 'change_pin.choose_pin.title')),
+      ),
+      body: BlocBuilder<ChangePinBloc, ChangePinState>(
+        builder: (context, state) {
           return SingleChildScrollView(
-              child: Column(children: [
-            if (state.newPinConfirmed == ValidationState.invalid) ...[
-              SizedBox(height: IrmaTheme.of(context).spacing),
-              ErrorMessage(message: 'change_pin.choose_pin.error')
-            ],
-            SizedBox(height: IrmaTheme.of(context).spacing),
-            Text(
-              FlutterI18n.translate(context, 'change_pin.choose_pin.instruction'),
-              style: Theme.of(context).textTheme.body1,
-              textAlign: TextAlign.center,
+            child: Column(
+              children: [
+                if (state.newPinConfirmed == ValidationState.invalid) ...[
+                  SizedBox(height: IrmaTheme.of(context).spacing),
+                  ErrorMessage(message: 'change_pin.choose_pin.error')
+                ],
+                SizedBox(height: IrmaTheme.of(context).spacing),
+                Text(
+                  FlutterI18n.translate(context, 'change_pin.choose_pin.instruction'),
+                  style: Theme.of(context).textTheme.body1,
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: IrmaTheme.of(context).spacing),
+                PinField(
+                  maxLength: 5,
+                  onSubmit: (String pin) => chooseNewPin(context, pin),
+                ),
+              ],
             ),
-            SizedBox(height: IrmaTheme.of(context).spacing),
-            PinField(
-              maxLength: 5,
-              onSubmit: (String pin) => chooseNewPin(context, pin),
-            ),
-          ]));
-        }));
+          );
+        },
+      ),
+    );
   }
 }

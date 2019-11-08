@@ -20,16 +20,21 @@ class Success extends StatelessWidget {
         title: Text(FlutterI18n.translate(context, 'change_pin.success.title')),
       ),
       body: SingleChildScrollView(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-        SuccessMessage(message: 'change_pin.success.message'),
-        SizedBox(height: IrmaTheme.of(context).spacing),
-        IrmaButton(
-          onPressed: () {
-            Navigator.of(context, rootNavigator: true).pop();
-          },
-          label: 'change_pin.success.continue',
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(height: IrmaTheme.of(context).spacing),
+            SuccessMessage(message: 'change_pin.success.message'),
+            SizedBox(height: IrmaTheme.of(context).spacing),
+            IrmaButton(
+              onPressed: () {
+                Navigator.of(context, rootNavigator: true).pop();
+              },
+              label: 'change_pin.success.continue',
+            ),
+          ],
         ),
-      ])),
+      ),
     );
   }
 }
