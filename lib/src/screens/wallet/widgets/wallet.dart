@@ -43,7 +43,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   AnimationController drawController;
   Animation<double> drawAnimation;
 
-  WalletState expiredState = WalletState.halfway;
+  WalletState unfoldState = WalletState.halfway;
   WalletState oldState = WalletState.halfway;
   WalletState currentState = WalletState.minimal;
   double scroll = 0;
@@ -56,8 +56,8 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
     drawAnimation = CurvedAnimation(parent: drawController, curve: Curves.easeInOut)
       ..addStatusListener((state) {
         if (state == AnimationStatus.completed) {
-          if (oldState != currentState) {
-            expiredState = oldState;
+          if (oldState == WalletState.halfway || oldState == WalletState.full) {
+            unfoldState = oldState;
           }
           oldState = currentState;
           drawController.reset();
@@ -81,7 +81,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
           openCurrentCard(size);
         }
       } else {
-        setNewState(expiredState);
+        setNewState(unfoldState);
       }
     });
   }
