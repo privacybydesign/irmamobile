@@ -48,14 +48,12 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
   bool isCardReadable = false;
 
   IrmaCardTheme irmaCardTheme;
-  AssetImage irmaCardThemeImage;
 
   @override
   void initState() {
     controller = AnimationController(duration: const Duration(milliseconds: animationDuration), vsync: this);
     animation = CurvedAnimation(parent: controller, curve: Curves.easeInOut);
     irmaCardTheme = calculateIrmaCardTheme(widget.attributes.issuer);
-    irmaCardThemeImage = irmaCardTheme.getBackgroundImage();
 
     super.initState();
   }
@@ -189,11 +187,6 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
                   borderRadius: BorderRadius.all(
                     borderRadius,
                   ),
-//                  image: DecorationImage(
-//                      image: irmaCardThemeImage,
-//                      fit: BoxFit.fitWidth,
-//                      alignment: Alignment.topCenter,
-//                      repeat: ImageRepeat.noRepeat)),
                 )));
       });
 }
