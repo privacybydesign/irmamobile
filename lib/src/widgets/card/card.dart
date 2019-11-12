@@ -19,8 +19,9 @@ class IrmaCard extends StatefulWidget {
   final bool isOpen;
   final VoidCallback updateCallback;
   final VoidCallback removeCallback;
+  final void Function(double) scrollOverflowCallback;
 
-  IrmaCard({this.attributes, this.isOpen, this.updateCallback, this.removeCallback});
+  IrmaCard({this.attributes, this.isOpen, this.updateCallback, this.removeCallback, this.scrollOverflowCallback});
 
   @override
   _IrmaCardState createState() => _IrmaCardState();
@@ -134,7 +135,7 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
                             child: _opacityTween.evaluate(animation) == 0
                                 ? Text("")
                                 : CardAttributes(widget.attributes, widget.attributes.issuer, isCardReadable,
-                                    widget.lang, irmaCardTheme)),
+                                    widget.lang, irmaCardTheme, widget.scrollOverflowCallback)),
                       ),
                     ),
                     Container(

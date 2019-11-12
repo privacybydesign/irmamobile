@@ -43,7 +43,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   AnimationController drawController;
   Animation<double> drawAnimation;
 
-  WalletState unfoldState = WalletState.halfway;
+  WalletState cardInStackState = WalletState.halfway;
   WalletState oldState = WalletState.halfway;
   WalletState currentState = WalletState.minimal;
   double scroll = 0;
@@ -57,7 +57,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       ..addStatusListener((state) {
         if (state == AnimationStatus.completed) {
           if (oldState == WalletState.halfway || oldState == WalletState.full) {
-            unfoldState = oldState;
+            cardInStackState = oldState;
           }
           oldState = currentState;
           drawController.reset();
@@ -72,7 +72,9 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
   cardTapped(int index, Credential credential, Size size) {
     setState(() {
-      if (currentState != WalletState.drawn) {
+      if (currentState == WalletState.drawn) {
+        setNewState(cardInStackState);
+      } else {
         if (isStacked(currentState, index)) {
           setNewState(WalletState.full);
         } else {
@@ -80,8 +82,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
           setNewState(WalletState.drawn);
           openCurrentCard(size);
         }
-      } else {
-        setNewState(unfoldState);
       }
     });
   }
@@ -91,6 +91,12 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   }
 
   openCurrentCard(Size size) {}
+
+  scrollOverflow(y) {
+    if (y > 20 && currentState == WalletState.drawn) {
+      setNewState(cardInStackState);
+    }
+  }
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
@@ -160,7 +166,8 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                       attributes: credential,
                       isOpen: drawnCardIndex == index,
                       updateCallback: widget.updateCard,
-                      removeCallback: widget.removeCard)));
+                      removeCallback: widget.removeCard,
+                      scrollOverflowCallback: scrollOverflow)));
 
           if (cardTop >= 0) {
             bottomCardIndex = index;
@@ -211,9 +218,11 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       });
 
   setNewState(WalletState newState) {
-    oldState = currentState;
-    currentState = newState;
-    drawController.forward();
+    setState(() {
+      oldState = currentState;
+      currentState = newState;
+      drawController.forward();
+    });
   }
 
   getCardPosition({WalletState state, Size size, int index, int drawnCardIndex, double scroll}) {

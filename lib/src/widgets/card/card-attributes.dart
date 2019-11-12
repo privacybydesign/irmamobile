@@ -12,14 +12,17 @@ class CardAttributes extends StatelessWidget {
   static const transparentWhite = Color(0xaaffffff);
   static const indent = 100.0;
 
+  final formatter = new DateFormat.yMd();
+
   final Credential personalData;
   final Issuer issuer; // Object is String | Color
   final bool isCardUnblurred;
   final String lang;
   final IrmaCardTheme irmaCardTheme;
-  final formatter = new DateFormat.yMd();
+  final void Function(double) scrollOverflowCallback;
 
-  CardAttributes(this.personalData, this.issuer, this.isCardUnblurred, this.lang, this.irmaCardTheme);
+  CardAttributes(
+      this.personalData, this.issuer, this.isCardUnblurred, this.lang, this.irmaCardTheme, this.scrollOverflowCallback);
 
   Widget build(BuildContext context) {
     List<Widget> textLines = <Widget>[
@@ -90,8 +93,155 @@ class CardAttributes extends StatelessWidget {
       ),
     ));
 
+////////////
+    textLines.add(Padding(
+      padding: EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Container(
+            child: Text("Filler", style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor)),
+            width: indent,
+          ),
+          Text(
+            "Filler",
+            style: Theme.of(context)
+                .textTheme
+                .body1
+                .copyWith(fontWeight: FontWeight.w700)
+                .copyWith(color: irmaCardTheme.fgColor),
+          ),
+        ],
+      ),
+    ));
+    textLines.add(Padding(
+      padding: EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Container(
+            child: Text("Filler", style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor)),
+            width: indent,
+          ),
+          Text(
+            "Filler",
+            style: Theme.of(context)
+                .textTheme
+                .body1
+                .copyWith(fontWeight: FontWeight.w700)
+                .copyWith(color: irmaCardTheme.fgColor),
+          ),
+        ],
+      ),
+    ));
+    textLines.add(Padding(
+      padding: EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Container(
+            child: Text("Filler", style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor)),
+            width: indent,
+          ),
+          Text(
+            "Filler",
+            style: Theme.of(context)
+                .textTheme
+                .body1
+                .copyWith(fontWeight: FontWeight.w700)
+                .copyWith(color: irmaCardTheme.fgColor),
+          ),
+        ],
+      ),
+    ));
+    textLines.add(Padding(
+      padding: EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Container(
+            child: Text("Filler", style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor)),
+            width: indent,
+          ),
+          Text(
+            "Filler",
+            style: Theme.of(context)
+                .textTheme
+                .body1
+                .copyWith(fontWeight: FontWeight.w700)
+                .copyWith(color: irmaCardTheme.fgColor),
+          ),
+        ],
+      ),
+    ));
+    textLines.add(Padding(
+      padding: EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Container(
+            child: Text("Filler", style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor)),
+            width: indent,
+          ),
+          Text(
+            "Filler",
+            style: Theme.of(context)
+                .textTheme
+                .body1
+                .copyWith(fontWeight: FontWeight.w700)
+                .copyWith(color: irmaCardTheme.fgColor),
+          ),
+        ],
+      ),
+    ));
+    textLines.add(Padding(
+      padding: EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Container(
+            child: Text("Filler", style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor)),
+            width: indent,
+          ),
+          Text(
+            "Filler",
+            style: Theme.of(context)
+                .textTheme
+                .body1
+                .copyWith(fontWeight: FontWeight.w700)
+                .copyWith(color: irmaCardTheme.fgColor),
+          ),
+        ],
+      ),
+    ));
+    textLines.add(Padding(
+      padding: EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Container(
+            child: Text("Filler", style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor)),
+            width: indent,
+          ),
+          Text(
+            "Filler",
+            style: Theme.of(context)
+                .textTheme
+                .body1
+                .copyWith(fontWeight: FontWeight.w700)
+                .copyWith(color: irmaCardTheme.fgColor),
+          ),
+        ],
+      ),
+    ));
+////////////
+
+    ScrollController scrollController = ScrollController();
+    scrollController.addListener(() {
+//      print(
+//          "offset ${scrollController.offset}, maxScrollExtent ${scrollController.position.maxScrollExtent}, outOfRange ${scrollController.position.outOfRange}");
+      if (scrollController.offset < 0) {
+        scrollOverflowCallback(-scrollController.offset);
+      }
+    });
+
     return Scrollbar(
         child: ListView(
+      controller: scrollController,
+      physics: BouncingScrollPhysics(),
       children: textLines,
     ));
   }
