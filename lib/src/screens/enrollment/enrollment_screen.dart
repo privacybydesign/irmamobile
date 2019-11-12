@@ -10,8 +10,9 @@ import 'package:irmamobile/src/screens/enrollment/widgets/provide_email.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/welcome.dart';
 
 class EnrollmentScreen extends StatelessWidget {
-  static final routeName = "/enrollment";
+  static const routeName = "/enrollment";
 
+  @override
   Widget build(BuildContext context) {
     return BlocProvider<EnrollmentBloc>(
         builder: (_) => EnrollmentBloc(),
@@ -25,7 +26,7 @@ class EnrollmentScreen extends StatelessWidget {
 class ProvidedEnrollmentScreen extends StatefulWidget {
   final EnrollmentBloc bloc;
 
-  ProvidedEnrollmentScreen({this.bloc}) : super();
+  const ProvidedEnrollmentScreen({this.bloc}) : super();
 
   @override
   State<StatefulWidget> createState() => ProvidedEnrollmentScreenState(bloc: bloc);
@@ -47,24 +48,24 @@ class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
     };
   }
 
-  submitPin(BuildContext context, String pin) {
+  void submitPin(BuildContext context, String pin) {
     bloc.dispatch(PinSubmitted(pin: pin));
     navigatorKey.currentState.pushNamed(ConfirmPin.routeName);
   }
 
-  submitConfirmationPin(pin) {
+  void submitConfirmationPin(String pin) {
     bloc.dispatch(ConfirmationPinSubmitted(pin: pin));
   }
 
-  submitEmail() {
+  void submitEmail() {
     bloc.dispatch(EmailSubmitted());
   }
 
-  changeEmail(email) {
+  void changeEmail(String email) {
     bloc.dispatch(EmailChanged(email: email));
   }
 
-  cancel() {
+  void cancel() {
     bloc.dispatch(EnrollmentCanceled());
   }
 

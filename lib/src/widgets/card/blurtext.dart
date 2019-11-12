@@ -5,8 +5,9 @@ class BlurText extends StatelessWidget {
   final Color color;
   final bool isTextBlurred;
 
-  BlurText(this.text, this.color, this.isTextBlurred);
+  const BlurText({this.text, this.color, this.isTextBlurred});
 
+  @override
   Widget build(BuildContext context) {
     return isTextBlurred
         ? Opacity(
@@ -17,7 +18,7 @@ class BlurText extends StatelessWidget {
                   .textTheme
                   .body1
                   .copyWith(fontWeight: FontWeight.w700)
-                  .copyWith(color: Color(0x00ffffff))
+                  .copyWith(color: const Color(0x00ffffff))
                   .copyWith(shadows: [
                 Shadow(
                   blurRadius: 7.0,

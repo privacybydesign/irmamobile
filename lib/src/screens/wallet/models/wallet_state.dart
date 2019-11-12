@@ -13,7 +13,7 @@ class WalletState with EquatableMixin {
   WalletState copyWith({
     List<Credential> credentials,
   }) {
-    return new WalletState(
+    return WalletState(
       credentials: credentials ?? this.credentials,
     );
   }

@@ -5,8 +5,15 @@ part 'raw_credential.g.dart';
 
 @JsonSerializable(nullable: false)
 class RawCredential extends Equatable {
-  RawCredential(
-      {this.id, this.issuerId, this.schemeManagerId, this.signedOn, this.expires, this.attributes, this.hash});
+  const RawCredential({
+    this.id,
+    this.issuerId,
+    this.schemeManagerId,
+    this.signedOn,
+    this.expires,
+    this.attributes,
+    this.hash,
+  });
 
   @JsonKey(name: 'ID')
   final String id;

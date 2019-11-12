@@ -9,8 +9,9 @@ import 'package:irmamobile/src/screens/change_pin/widgets/enter_pin.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/success.dart';
 
 class ChangePinScreen extends StatelessWidget {
-  static final routeName = "/change_pin";
+  static const routeName = "/change_pin";
 
+  @override
   Widget build(BuildContext context) {
     return BlocProvider<ChangePinBloc>(
         builder: (_) => ChangePinBloc(),
@@ -24,7 +25,7 @@ class ChangePinScreen extends StatelessWidget {
 class ProvidedChangePinScreen extends StatefulWidget {
   final ChangePinBloc bloc;
 
-  ProvidedChangePinScreen({this.bloc}) : super();
+  const ProvidedChangePinScreen({this.bloc}) : super();
 
   @override
   State<StatefulWidget> createState() => ProvidedChangePinScreenState(bloc: bloc);
@@ -45,20 +46,20 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
     };
   }
 
-  submitOldPin(String pin) {
+  void submitOldPin(String pin) {
     bloc.dispatch(OldPinEntered(pin: pin));
   }
 
-  chooseNewPin(BuildContext context, String pin) {
+  void chooseNewPin(BuildContext context, String pin) {
     bloc.dispatch(NewPinChosen(pin: pin));
     navigatorKey.currentState.pushNamed(ConfirmPin.routeName);
   }
 
-  confirmNewPin(String pin) {
+  void confirmNewPin(String pin) {
     bloc.dispatch(NewPinConfirmed(pin: pin));
   }
 
-  cancel() {
+  void cancel() {
     bloc.dispatch(ChangePinCanceled());
   }
 

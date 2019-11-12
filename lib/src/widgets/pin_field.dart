@@ -15,7 +15,7 @@ class PinField extends StatefulWidget {
   final ValueChanged<String> onSubmit;
   final ValueChanged<String> onFull;
 
-  PinField({
+  const PinField({
     this.minLength = 5,
     this.maxLength = 16,
     this.autofocus = true,
@@ -31,7 +31,7 @@ class PinField extends StatefulWidget {
 }
 
 class _PinFieldState extends State<PinField> {
-  final controller = TextEditingController();
+  final _textEditingController = TextEditingController();
   bool _isDisposed = false;
 
   bool obscureText;
@@ -47,11 +47,11 @@ class _PinFieldState extends State<PinField> {
     obscureText = true;
 
     focusNode = FocusNode();
-    controller.addListener(_updateLength);
+    _textEditingController.addListener(_updateLength);
   }
 
-  _updateLength() {
-    final val = controller.text;
+  void _updateLength() {
+    final val = _textEditingController.text;
     final len = val.length;
 
     if (len != lastLength && len == widget.maxLength) {
@@ -64,7 +64,7 @@ class _PinFieldState extends State<PinField> {
           widget.onSubmit(val);
         }
         if (!_isDisposed && widget.autoclear) {
-          controller.clear();
+          _textEditingController.clear();
         }
       });
     }
@@ -81,7 +81,7 @@ class _PinFieldState extends State<PinField> {
 
   @override
   void dispose() {
-    controller.dispose();
+    _textEditingController.dispose();
     focusNode.dispose();
     _isDisposed = true;
 
@@ -95,14 +95,14 @@ class _PinFieldState extends State<PinField> {
     if (widget.maxLength > 5) {
       return Center(
         child: Container(
-          width: (MediaQuery.of(context).size.width - theme.spacing * 4),
+          width: MediaQuery.of(context).size.width - theme.spacing * 4,
           child: Row(
             children: <Widget>[
               Flexible(
                 child: TextFormField(
-                  controller: controller,
+                  controller: _textEditingController,
                   onEditingComplete: () {
-                    final val = controller.text;
+                    final val = _textEditingController.text;
                     if (val.length >= widget.minLength && val.length <= widget.maxLength && widget.onSubmit != null) {
                       widget.onSubmit(val);
                     }
@@ -111,7 +111,7 @@ class _PinFieldState extends State<PinField> {
                     WhitelistingTextInputFormatter(RegExp('[0-9]')),
                   ],
                   autofocus: true,
-                  keyboardType: TextInputType.numberWithOptions(signed: false, decimal: false),
+                  keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
                   obscureText: obscureText,
                   maxLength: widget.maxLength,
                 ),
@@ -141,14 +141,14 @@ class _PinFieldState extends State<PinField> {
     final bool complete = value.length == widget.maxLength;
 
     final filler = AnimatedOpacity(
-      opacity: value.length == 0 ? 0.0 : 1.0,
-      duration: Duration(milliseconds: 150),
+      opacity: value.isEmpty ? 0.0 : 1.0,
+      duration: const Duration(milliseconds: 150),
       child: AnimatedContainer(
         width: (theme.spacing * 2.5 * max(value.length, 1)) - (theme.spacing * 0.5),
         height: theme.spacing * 2,
-        duration: Duration(milliseconds: 250),
+        duration: const Duration(milliseconds: 250),
         curve: Curves.easeInOutExpo,
-        decoration: new BoxDecoration(
+        decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(theme.spacing)),
           color: obscureText ? theme.primaryBlue : theme.grayscale90,
         ),
@@ -157,8 +157,8 @@ class _PinFieldState extends State<PinField> {
 
     for (int i = 0; i < len; i++) {
       String char = i < value.length ? value[i] : '';
-      bool filled = char != '';
-      var grey = obscureText ? theme.grayscale80 : theme.grayscale90;
+      final bool filled = char != '';
+      final Color grey = obscureText ? theme.grayscale80 : theme.grayscale90;
 
       if (obscureText && filled) {
         char = ' ';
@@ -169,11 +169,11 @@ class _PinFieldState extends State<PinField> {
         width: theme.spacing * 2,
         height: theme.spacing * 2,
         alignment: Alignment.center,
-        decoration: new BoxDecoration(
+        decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(theme.spacing)),
           color: grey,
         ),
-        child: new Text(
+        child: Text(
           char,
           style: Theme.of(context).textTheme.body2.copyWith(
                 fontSize: theme.spacing * 1.5,
@@ -183,7 +183,7 @@ class _PinFieldState extends State<PinField> {
       );
     }
 
-    var transparentBorder = OutlineInputBorder(
+    final transparentBorder = OutlineInputBorder(
       borderSide: BorderSide(
         color: Colors.transparent,
         width: 0.0,
@@ -195,10 +195,10 @@ class _PinFieldState extends State<PinField> {
         Container(
           width: 0.1,
           child: TextFormField(
-            controller: controller,
+            controller: _textEditingController,
             focusNode: focusNode,
             onEditingComplete: () {
-              final val = controller.text;
+              final val = _textEditingController.text;
               if (val.length >= widget.minLength && val.length <= widget.maxLength && widget.onSubmit != null) {
                 widget.onSubmit(val);
               }
@@ -207,7 +207,7 @@ class _PinFieldState extends State<PinField> {
               WhitelistingTextInputFormatter(RegExp('[0-9]')),
             ],
             autofocus: true,
-            keyboardType: TextInputType.numberWithOptions(signed: false, decimal: false),
+            keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
             obscureText: true,
             style: TextStyle(
               height: 0.1,
@@ -225,7 +225,7 @@ class _PinFieldState extends State<PinField> {
                 height: 0.0,
                 color: Colors.transparent,
               ),
-              labelStyle: TextStyle(height: 0.1),
+              labelStyle: const TextStyle(height: 0.1),
               fillColor: Colors.transparent,
               border: InputBorder.none,
             ),
@@ -242,7 +242,7 @@ class _PinFieldState extends State<PinField> {
               behavior: HitTestBehavior.opaque,
               onTap: () {
                 FocusScope.of(context).requestFocus(FocusNode());
-                Future.delayed(Duration(milliseconds: 100), () {
+                Future.delayed(const Duration(milliseconds: 100), () {
                   FocusScope.of(context).requestFocus(focusNode);
                 });
               },

@@ -12,7 +12,7 @@ class ErrorAlert extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: IrmaTheme.of(context).grayscale90,
-        border: Border.all(color: Color(0xffbbbbbb)),
+        border: Border.all(color: const Color(0xffbbbbbb)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(8.0),

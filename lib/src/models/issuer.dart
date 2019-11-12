@@ -6,5 +6,10 @@ class Issuer {
   Color backgroundColor;
   String backgroundImageFilename;
 
-  Issuer({this.name, this.color, this.backgroundColor, this.backgroundImageFilename}) : assert(name != null);
+  Issuer({
+    @required this.name,
+    this.color,
+    this.backgroundColor,
+    this.backgroundImageFilename,
+  }) : assert(name != null);
 }

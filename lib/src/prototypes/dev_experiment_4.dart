@@ -13,13 +13,13 @@ void startDevExperiment4(BuildContext context) {
         return PinScreen(
           child: Scaffold(
             appBar: AppBar(
-              title: Text('App unlocked'),
+              title: const Text('App unlocked'),
             ),
             body: Center(
               child: Container(
                 color: IrmaTheme.of(context).interactionInformation,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                child: const Padding(
+                  padding: EdgeInsets.all(8.0),
                   child: Text("The app is now unlocked"),
                 ),
               ),

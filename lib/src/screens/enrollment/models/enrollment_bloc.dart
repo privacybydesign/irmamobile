@@ -7,6 +7,7 @@ import 'package:irmamobile/src/screens/enrollment/models/enrollment_event.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
 
 class EnrollmentBloc extends Bloc<Object, EnrollmentState> {
+  @override
   final EnrollmentState initialState;
 
   EnrollmentBloc() : initialState = EnrollmentState();

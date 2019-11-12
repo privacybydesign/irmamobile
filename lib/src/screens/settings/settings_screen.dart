@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
 import 'package:irmamobile/src/screens/settings/widgets/settings_header.dart';
-import 'package:irmamobile/src/theme/irma-icons.dart';
+import 'package:irmamobile/src/theme/irma_icons.dart';
 
 class SettingsScreen extends StatefulWidget {
-  static final routeName = "/settings";
+  static const routeName = "/settings";
 
   @override
   _SettingsScreenState createState() => _SettingsScreenState();
@@ -37,7 +37,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             value: _longPin,
             subtitle: Text(
               FlutterI18n.translate(context, 'settings.pin.long_pin'),
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 15.0,
               ),
             ),
@@ -52,7 +52,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             trailing: Icon(IrmaIcons.arrowFront),
           ),
-          Divider(),
+          const Divider(),
           SettingsHeader(headerText: FlutterI18n.translate(context, 'settings.behavior.header')),
           SwitchListTile(
             title: Text(
@@ -78,7 +78,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               });
             },
           ),
-          Divider(),
+          const Divider(),
           SettingsHeader(
             headerText: FlutterI18n.translate(context, 'settings.advanced.header'),
           ),
@@ -89,7 +89,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             subtitle: Text(
               FlutterI18n.translate(context, 'settings.advanced.delete_details'),
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 15.0,
               ),
             ),

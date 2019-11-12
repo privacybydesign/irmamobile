@@ -5,7 +5,7 @@ import 'package:irmamobile/src/screens/add_cards/widgets/card_questions.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class CardInfo extends StatefulWidget {
-  CardInfo(this.name, this.issuer, this.logoPath, this.parentKey, this.parentScrollController);
+  const CardInfo(this.name, this.issuer, this.logoPath, this.parentKey, this.parentScrollController);
 
   final String name;
   final String issuer;

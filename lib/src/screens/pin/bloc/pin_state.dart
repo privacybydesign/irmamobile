@@ -32,5 +32,5 @@ class PinState {
     );
   }
 
-  get isBlocked => blockedUntil?.isAfter(DateTime.now()) ?? false;
+  bool get isBlocked => blockedUntil?.isAfter(DateTime.now()) ?? false;
 }

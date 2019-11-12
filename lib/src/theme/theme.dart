@@ -2,43 +2,43 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
 class IrmaThemeData extends Equatable {
-  final spacing = 20.0;
+  final double spacing = 20.0;
 
   // Primary colors
-  final primaryBlue = const Color(0xFF004C92);
-  final primaryDark = const Color(0xFF15222E);
-  final primaryLight = const Color(0xFFF2F5F8);
+  final Color primaryBlue = const Color(0xFF004C92);
+  final Color primaryDark = const Color(0xFF15222E);
+  final Color primaryLight = const Color(0xFFF2F5F8);
 
   // Grayscale colors (used for text, background colors, lines and icons)
-  final grayscaleWhite = const Color(0xFFFFFFFF);
-  final grayscale90 = const Color(0xFFE8ECF0);
-  final grayscale80 = const Color(0xFFB7C2CC);
-  final grayscale60 = const Color(0xFF71808F);
-  final grayscale40 = const Color(0xFF3C4B5A);
+  final Color grayscaleWhite = const Color(0xFFFFFFFF);
+  final Color grayscale90 = const Color(0xFFE8ECF0);
+  final Color grayscale80 = const Color(0xFFB7C2CC);
+  final Color grayscale60 = const Color(0xFF71808F);
+  final Color grayscale40 = const Color(0xFF3C4B5A);
 
-  final disabled = const Color(0xFFE8ECF0);
+  final Color disabled = const Color(0xFFE8ECF0);
 
   // Supplementary colors (for card backgrounds)
-  final cardRed = const Color(0xFFD44454);
-  final cardBlue = const Color(0xFF00B1E6);
-  final cardOrange = const Color(0xFFFFBB58);
-  final cardGreen = const Color(0xFF2BC194);
+  final Color cardRed = const Color(0xFFD44454);
+  final Color cardBlue = const Color(0xFF00B1E6);
+  final Color cardOrange = const Color(0xFFFFBB58);
+  final Color cardGreen = const Color(0xFF2BC194);
 
   // Support colors (for alerts and feedback on form elements)
-  final interactionValid = const Color(0xFF079268);
-  final interactionInvalid = const Color(0xFFD44454);
-  final interactionAlert = const Color(0xFFFFBB58);
-  final interactionInformation = const Color(0xFF004C92);
+  final Color interactionValid = const Color(0xFF079268);
+  final Color interactionInvalid = const Color(0xFFD44454);
+  final Color interactionAlert = const Color(0xFFFFBB58);
+  final Color interactionInformation = const Color(0xFF004C92);
 
   // Link colors
-  final linkColor = const Color(0xFF004C92);
-  final linkVisitedColor = const Color(0xFF71808F);
+  final Color linkColor = const Color(0xFF004C92);
+  final Color linkVisitedColor = const Color(0xFF71808F);
 
   // Overlay color
-  final overlay50 = const Color(0xFF3C4B5A);
+  final Color overlay50 = const Color(0xFF3C4B5A);
 
-  final fontFamilyKarla = "Karla";
-  final fontFamilyMontserrat = "Montserrat";
+  final String fontFamilyKarla = "Karla";
+  final String fontFamilyMontserrat = "Montserrat";
 
   TextTheme textTheme;
   TextStyle issuerNameTextStyle;
@@ -285,7 +285,7 @@ class IrmaThemeData extends Equatable {
 }
 
 class IrmaTheme extends InheritedWidget {
-  final data = IrmaThemeData();
+  final IrmaThemeData data = IrmaThemeData();
 
   // IrmaTheme provides the IRMA ThemeData to descendents. Therefore descendents
   // must be wrapped in a Builder.

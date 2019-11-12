@@ -4,9 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/screens/add_card_email/model/request_email_bloc.dart';
 import 'package:irmamobile/src/screens/add_card_email/model/request_email_events.dart';
+import 'package:irmamobile/src/screens/add_card_email/model/request_email_state.dart';
 import 'package:irmamobile/src/screens/add_cards/customs/future_card.dart';
 import 'package:irmamobile/src/screens/add_cards/widgets/card_questions.dart';
-import 'package:irmamobile/src/theme/irma-icons.dart';
+import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/error_alert.dart';
 import 'package:irmamobile/src/widgets/info_alert.dart';
@@ -28,10 +29,10 @@ class RequestEmailAttribute extends StatefulWidget {
 }
 
 class RequestEmailAttributeState extends State<RequestEmailAttribute> {
-  var _emailTextController = TextEditingController();
-  var _scrollController = ScrollController();
-  var _scrollViewKey = GlobalKey();
-  GlobalKey<FormState> _formKey = GlobalKey();
+  final _emailTextController = TextEditingController();
+  final _scrollController = ScrollController();
+  final _scrollViewKey = GlobalKey();
+  final GlobalKey<FormState> _formKey = GlobalKey();
 
   @override
   void initState() {
@@ -54,7 +55,7 @@ class RequestEmailAttributeState extends State<RequestEmailAttribute> {
           ),
         ),
         leading: IconButton(
-            icon: Icon(IrmaIcons.arrowBack),
+            icon: const Icon(IrmaIcons.arrowBack),
             onPressed: () => Navigator.of(
                   context,
                   rootNavigator: true,
@@ -62,7 +63,7 @@ class RequestEmailAttributeState extends State<RequestEmailAttribute> {
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).spacing),
-        child: BlocBuilder(
+        child: BlocBuilder<RequestEmailBloc, RequestEmailState>(
             bloc: bloc,
             builder: (context, state) {
               return SingleChildScrollView(
@@ -136,24 +137,27 @@ class RequestEmailAttributeState extends State<RequestEmailAttribute> {
                       SizedBox(
                         height: IrmaTheme.of(context).spacing,
                       ),
-                      state.inProgress
-                          ? CircularProgressIndicator()
-                          : IrmaButton(
-                              label: FlutterI18n.translate(
-                                context,
-                                "card_store.email.get_button",
+                      if (state.inProgress) ...[
+                        const CircularProgressIndicator(),
+                      ] else ...[
+                        IrmaButton(
+                          label: FlutterI18n.translate(
+                            context,
+                            "card_store.email.get_button",
+                          ),
+                          onPressed: () {
+                            if (!_formKey.currentState.validate()) {
+                              return;
+                            }
+                            bloc.dispatch(
+                              RequestAttribute(
+                                email: _emailTextController.value.text,
+                                language: Localizations.localeOf(context).languageCode,
                               ),
-                              onPressed: () {
-                                if (!_formKey.currentState.validate()) {
-                                  return;
-                                }
-                                bloc.dispatch(
-                                  RequestAttribute(
-                                    email: _emailTextController.value.text,
-                                    language: Localizations.localeOf(context).languageCode,
-                                  ),
-                                );
-                              }),
+                            );
+                          },
+                        ),
+                      ],
                       SizedBox(
                         height: IrmaTheme.of(context).spacing,
                       ),
@@ -169,7 +173,7 @@ class RequestEmailAttributeState extends State<RequestEmailAttribute> {
   }
 
   String _validateEmail(String value) {
-    if (value.length == 0) {
+    if (value.isEmpty) {
       return FlutterI18n.translate(context, "card_store.email.empty_email_address");
     }
 

@@ -14,7 +14,7 @@ class DesignTypography extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Typography"),
+        title: const Text("Typography"),
       ),
       body: SafeArea(
         child: Padding(
@@ -45,7 +45,7 @@ class DesignTypography extends StatelessWidget {
 
   Widget _buildFontExample(BuildContext context, String name, TextStyle style) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[

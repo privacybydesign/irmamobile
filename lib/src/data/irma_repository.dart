@@ -16,7 +16,7 @@ class IrmaRepository {
   }
 
   // init must be called during the startup of the application lifecycle.
-  static init(IrmaClient client) {
+  static void init(IrmaClient client) {
     _instance = IrmaRepository._internal(client: client);
   }
 

@@ -37,6 +37,9 @@ class _IntroductionState extends State<Introduction> {
       body: Stack(
         children: <Widget>[
           PageView(
+            onPageChanged: (value) {
+              setState(() => currentIndexPage = value);
+            },
             children: <Widget>[
               Walkthrougth(
                 imagePath: 'assets/enrollment/load_data.svg',
@@ -51,16 +54,13 @@ class _IntroductionState extends State<Introduction> {
                 textContent: FlutterI18n.translate(context, 'enrollment.introduction.reveal'),
               ),
             ],
-            onPageChanged: (value) {
-              setState(() => currentIndexPage = value);
-            },
           ),
           Container(
             alignment: Alignment.bottomCenter,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                new DotsIndicator(
+                DotsIndicator(
                   dotsCount: pageLength,
                   position: currentIndexPage,
                   decorator: DotsDecorator(
@@ -98,7 +98,7 @@ class Walkthrougth extends StatelessWidget {
   final String textContent;
   final String imagePath;
 
-  Walkthrougth({
+  const Walkthrougth({
     Key key,
     @required this.textContent,
     @required this.imagePath,

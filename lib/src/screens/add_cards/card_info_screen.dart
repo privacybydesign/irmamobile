@@ -22,7 +22,7 @@ class CardInfoScreen extends StatefulWidget {
 class _CardInfoScreenState extends State<CardInfoScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey _scrollviewKey = GlobalKey();
-  ScrollController _controller = ScrollController();
+  final ScrollController _controller = ScrollController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,12 +63,12 @@ class _CardInfoScreenState extends State<CardInfoScreen> {
                   IrmaTextButton(
                       label: FlutterI18n.translate(context, 'card_store.card_info.back_button'),
                       onPressed: () {
-                        print('Clicked');
+                        debugPrint('Clicked');
                       }),
                   IrmaButton(
                     label: FlutterI18n.translate(
-                        context, 'card_store.card_info.get_button', {"card_type": this.widget.name.toLowerCase()}),
-                    onPressed: this.widget.onStartIssuance,
+                        context, 'card_store.card_info.get_button', {"card_type": widget.name.toLowerCase()}),
+                    onPressed: widget.onStartIssuance,
                   ),
                 ],
               ),

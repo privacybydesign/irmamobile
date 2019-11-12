@@ -9,7 +9,7 @@ void startDevExperiment1(BuildContext context) {
       builder: (context) {
         return Scaffold(
           appBar: AppBar(
-            title: Text('IrmaRepository voorbeeld'),
+            title: const Text('IrmaRepository voorbeeld'),
           ),
           // We're going to obtain a credential from the repository. We don't
           // know if this is mock data or the real stuff, this widget doesn't
@@ -25,7 +25,7 @@ void startDevExperiment1(BuildContext context) {
             builder: (context, snapshot) {
               if (snapshot.connectionState != ConnectionState.done) {
                 // We're waiting for the Future to resolve, show a loading screen.
-                return Center(child: Text("Loading..."));
+                return Center(child: const Text("Loading..."));
               }
 
               if (snapshot.error != null) {
@@ -37,10 +37,10 @@ void startDevExperiment1(BuildContext context) {
                 child: ListView.builder(
                   itemCount: snapshot.data.attributes.length,
                   itemBuilder: (BuildContext context, int index) {
-                    AttributeType key = snapshot.data.attributes.keys.elementAt(index);
+                    final AttributeType key = snapshot.data.attributes.keys.elementAt(index);
                     return Row(children: [
                       Text(key.name['nl']), // TODO: use TranslatedValue
-                      Text(" = "),
+                      const Text(" = "),
                       Text(snapshot.data.attributes[key].translate('nl')),
                     ]);
                   },

@@ -14,7 +14,7 @@ class DesignColors extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Colors"),
+        title: const Text("Colors"),
       ),
       body: SafeArea(
         child: ListView(
@@ -90,7 +90,7 @@ class DesignColors extends StatelessWidget {
             ),
           ),
           Text(name, style: IrmaTheme.of(context).textTheme.body1),
-          Text("#" + color.value.toRadixString(16), style: IrmaTheme.of(context).textTheme.caption),
+          Text("#${color.value.toRadixString(16)}", style: IrmaTheme.of(context).textTheme.caption),
         ],
       ),
     );

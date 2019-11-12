@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/theme/irma-icons.dart';
+import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class Credential extends StatelessWidget {
@@ -21,12 +21,13 @@ class Credential extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
+      onTap: onTap,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           ConstrainedBox(
-            constraints: new BoxConstraints(
+            constraints: const BoxConstraints(
               minHeight: 20.0,
               minWidth: 20.0,
               maxHeight: 40.0,
@@ -72,7 +73,6 @@ class Credential extends StatelessWidget {
           ))
         ],
       ),
-      onTap: onTap,
     );
   }
 }

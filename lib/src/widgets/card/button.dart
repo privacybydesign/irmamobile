@@ -1,16 +1,16 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter/animation.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class CardButton extends StatefulWidget {
   final String svgFile;
   final String accessibleName;
   final VoidCallback clickCallback;
 
-  CardButton(this.svgFile, this.accessibleName, this.clickCallback);
+  const CardButton(this.svgFile, this.accessibleName, this.clickCallback);
 
   @override
   _CardButtonState createState() => _CardButtonState();
@@ -47,7 +47,7 @@ class _CardButtonState extends State<CardButton> with SingleTickerProviderStateM
                 });
               },
               child: Padding(
-                padding: EdgeInsets.only(right: padding),
+                padding: const EdgeInsets.only(right: padding),
                 child: SvgPicture.asset(widget.svgFile, color: buttonPressedState ? Colors.grey[700] : Colors.white),
               ))),
     );
