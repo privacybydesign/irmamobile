@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n_delegate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-
 import 'package:irmamobile/src/data/irma_client_bridge.dart';
 import 'package:irmamobile/src/data/irma_client_mock.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
@@ -43,7 +42,7 @@ class App extends StatelessWidget {
         routes = {
           '/': builder,
         },
-        providers = providers == null ? [] : providers {
+        providers = providers ?? [] {
     IrmaRepository.init(IrmaClientMock());
   }
 
@@ -87,7 +86,7 @@ class App extends StatelessWidget {
         return MultiBlocProvider(
           providers: providers,
           child: MaterialApp(
-            key: Key("app"),
+            key: const Key("app"),
             title: 'IRMA',
             theme: IrmaTheme.of(context).themeData,
             localizationsDelegates: localizationsDelegates,

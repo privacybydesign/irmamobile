@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/theme/irma-icons.dart';
+import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 void startDesignIcons(BuildContext context) {
@@ -15,7 +15,7 @@ class DesignIcons extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Icons"),
+        title: const Text("Icons"),
       ),
       body: SafeArea(
         child: Padding(
@@ -68,13 +68,13 @@ class DesignIcons extends StatelessWidget {
 
   Widget _buildIcon(BuildContext context, IconData icon) {
     return Padding(
-      padding: EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(8.0),
       child: Container(
+        color: IrmaTheme.of(context).grayscale80,
         child: Icon(
           icon,
           size: 48.0,
         ),
-        color: IrmaTheme.of(context).grayscale80,
       ),
     );
   }

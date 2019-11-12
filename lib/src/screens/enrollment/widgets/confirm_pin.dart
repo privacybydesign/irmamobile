@@ -11,7 +11,7 @@ class ConfirmPin extends StatelessWidget {
   final Function(String) submitConfirmationPin;
   final void Function() cancel;
 
-  ConfirmPin({@required this.submitConfirmationPin, @required this.cancel});
+  const ConfirmPin({@required this.submitConfirmationPin, @required this.cancel});
 
   @override
   Widget build(BuildContext context) {

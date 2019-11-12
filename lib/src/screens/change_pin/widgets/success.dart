@@ -10,7 +10,7 @@ class Success extends StatelessWidget {
 
   final void Function() cancel;
 
-  Success({@required this.cancel});
+  const Success({@required this.cancel});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,7 @@ class Success extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SizedBox(height: IrmaTheme.of(context).spacing),
-            SuccessMessage(message: 'change_pin.success.message'),
+            const SuccessMessage(message: 'change_pin.success.message'),
             SizedBox(height: IrmaTheme.of(context).spacing),
             IrmaButton(
               onPressed: () {

@@ -5,12 +5,12 @@ import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 
 class IrmaOutlinedButton extends StatelessWidget {
   final String label;
-  final Function onPressed;
+  final VoidCallback onPressed;
   final TextStyle textStyle;
   final IrmaButtonSize size;
   final IconData icon;
 
-  IrmaOutlinedButton({
+  const IrmaOutlinedButton({
     @required this.label,
     this.onPressed,
     this.textStyle,
@@ -30,7 +30,7 @@ class IrmaOutlinedButton extends StatelessWidget {
       disabledColor: Colors.white,
       textColor: IrmaTheme.of(context).primaryBlue,
       shape: RoundedRectangleBorder(
-        borderRadius: new BorderRadius.circular(30.0),
+        borderRadius: BorderRadius.circular(30.0),
         side: BorderSide(
           color: onPressed != null ? IrmaTheme.of(context).primaryBlue : IrmaTheme.of(context).disabled,
           width: 2,

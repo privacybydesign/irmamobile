@@ -142,12 +142,11 @@ class ConfigurableExpansionTile extends StatefulWidget {
 }
 
 class _ConfigurableExpansionTileState extends State<ConfigurableExpansionTile> with SingleTickerProviderStateMixin {
-  AnimationController _controller;
+  AnimationController _animationController;
   Animation<double> _iconTurns;
   Animation<double> _heightFactor;
 
   Animation<Color> _borderColor;
-  Animation<Color> _headerColor;
 
   final ColorTween _borderColorTween = ColorTween();
   final ColorTween _headerColorTween = ColorTween();
@@ -157,25 +156,23 @@ class _ConfigurableExpansionTileState extends State<ConfigurableExpansionTile> w
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(duration: widget.kExpand, vsync: this);
-    _heightFactor = _controller.drive(ConfigurableExpansionTile._easeInTween);
-    _iconTurns = _controller.drive((widget.animatedWidgetTurnTween ?? ConfigurableExpansionTile._halfTween)
+    _animationController = AnimationController(duration: widget.kExpand, vsync: this);
+    _heightFactor = _animationController.drive(ConfigurableExpansionTile._easeInTween);
+    _iconTurns = _animationController.drive((widget.animatedWidgetTurnTween ?? ConfigurableExpansionTile._halfTween)
         .chain(widget.animatedWidgetTween ?? ConfigurableExpansionTile._easeInTween));
 
-    _borderColor = _controller
+    _borderColor = _animationController
         .drive(_borderColorTween.chain(widget.borderAnimationTween ?? ConfigurableExpansionTile._easeOutTween));
     _borderColorTween.end = widget.borderColorEnd;
 
-    _headerColor = _controller
-        .drive(_headerColorTween.chain(widget.headerAnimationTween ?? ConfigurableExpansionTile._easeInTween));
     _headerColorTween.end = widget.headerBackgroundColorEnd ?? widget.headerBackgroundColorStart;
-    _isExpanded = PageStorage.of(context)?.readState(context) ?? widget.initiallyExpanded;
-    if (_isExpanded) _controller.value = 1.0;
+    _isExpanded = PageStorage.of(context)?.readState(context) as bool ?? widget.initiallyExpanded;
+    if (_isExpanded) _animationController.value = 1.0;
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -183,9 +180,9 @@ class _ConfigurableExpansionTileState extends State<ConfigurableExpansionTile> w
     setState(() {
       _isExpanded = !_isExpanded;
       if (_isExpanded) {
-        _controller.forward();
+        _animationController.forward();
       } else {
-        _controller.reverse().then<void>((void value) {
+        _animationController.reverse().then<void>((void value) {
           if (!mounted) return;
           setState(() {
             // Rebuild without widget.children.
@@ -199,8 +196,6 @@ class _ConfigurableExpansionTileState extends State<ConfigurableExpansionTile> w
 
   Widget _buildChildren(BuildContext context, Widget child) {
     final Color borderSideColor = _borderColor.value ?? widget.borderColorStart;
-    // final Color headerColor =
-    //     _headerColor?.value ?? widget.headerBackgroundColorStart;
     final Color headerColor = widget.headerBackgroundColorStart;
 
     return Container(
@@ -253,9 +248,9 @@ class _ConfigurableExpansionTileState extends State<ConfigurableExpansionTile> w
 
   @override
   Widget build(BuildContext context) {
-    final bool closed = !_isExpanded && _controller.isDismissed;
+    final bool closed = !_isExpanded && _animationController.isDismissed;
     return AnimatedBuilder(
-      animation: _controller.view,
+      animation: _animationController.view,
       builder: _buildChildren,
       child: closed
           ? null

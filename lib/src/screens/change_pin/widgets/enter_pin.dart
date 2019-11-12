@@ -14,7 +14,7 @@ class EnterPin extends StatelessWidget {
   final void Function(String) submitOldPin;
   final void Function() cancel;
 
-  EnterPin({@required this.submitOldPin, @required this.cancel});
+  const EnterPin({@required this.submitOldPin, @required this.cancel});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +30,7 @@ class EnterPin extends StatelessWidget {
               children: [
                 SizedBox(height: IrmaTheme.of(context).spacing),
                 if (state.oldPinVerified == ValidationState.invalid) ...[
-                  ErrorMessage(message: 'change_pin.enter_pin.error'),
+                  const ErrorMessage(message: 'change_pin.enter_pin.error'),
                   SizedBox(height: IrmaTheme.of(context).spacing)
                 ],
                 Text(

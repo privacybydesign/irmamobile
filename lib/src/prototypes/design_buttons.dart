@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/theme/irma-icons.dart';
+import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_outlined_button.dart';
@@ -19,7 +19,7 @@ class DesignButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Buttons"),
+        title: const Text("Buttons"),
       ),
       body: SafeArea(
         child: Padding(
@@ -40,7 +40,7 @@ class DesignButtons extends StatelessWidget {
                   _buildButtonExample(
                     context,
                     "disabled",
-                    IrmaButton(
+                    const IrmaButton(
                       label: "Sign up",
                     ),
                   ),
@@ -60,14 +60,14 @@ class DesignButtons extends StatelessWidget {
                   _buildButtonExample(
                     context,
                     "disabled",
-                    IrmaOutlinedButton(
+                    const IrmaOutlinedButton(
                       label: "Sign up",
                     ),
                   ),
                 ],
               ),
               Text("Text", style: IrmaTheme.of(context).textTheme.display3),
-              Text(
+              const Text(
                 "These do not work properly yet, text color changes are not available in Material Design Buttons so we need to build a custom component for that. IrmaTextButton is currently implemented using a Material FlatButton.",
               ),
               Wrap(
@@ -83,7 +83,7 @@ class DesignButtons extends StatelessWidget {
                   _buildButtonExample(
                     context,
                     "disabled",
-                    IrmaTextButton(
+                    const IrmaTextButton(
                       label: "Sign up",
                     ),
                   ),
@@ -145,7 +145,7 @@ class DesignButtons extends StatelessWidget {
                 ],
               ),
               Text("Icon button", style: IrmaTheme.of(context).textTheme.display3),
-              Text("Not implemented yet."),
+              const Text("Not implemented yet."),
             ],
           ),
         ),
@@ -155,11 +155,11 @@ class DesignButtons extends StatelessWidget {
 
   Widget _buildButtonExample(BuildContext context, String name, Widget button) {
     return Padding(
-      padding: EdgeInsets.all(12.0),
+      padding: const EdgeInsets.all(12.0),
       child: Column(
         children: <Widget>[
           button,
-          SizedBox(height: 8.0),
+          const SizedBox(height: 8.0),
           Text(name, style: IrmaTheme.of(context).textTheme.caption.copyWith(color: IrmaTheme.of(context).grayscale80)),
         ],
       ),

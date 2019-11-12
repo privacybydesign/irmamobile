@@ -90,7 +90,7 @@ class IrmaClientMock implements IrmaClient {
   @override
   Stream<Credential> getCredential(String id) {
     if (id == "") {
-      return Future.delayed(Duration(milliseconds: 100), throw CredentialNotFoundException()).asStream();
+      return Future<Credential>.delayed(Duration(milliseconds: 100), throw CredentialNotFoundException()).asStream();
     }
     return Future.delayed(
       Duration(milliseconds: 100),

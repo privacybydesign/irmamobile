@@ -16,7 +16,7 @@ class ProvideEmail extends StatelessWidget {
   final void Function(String) changeEmail;
   final void Function() cancel;
 
-  ProvideEmail({@required this.submitEmail, @required this.changeEmail, @required this.cancel});
+  const ProvideEmail({@required this.submitEmail, @required this.changeEmail, @required this.cancel});
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +32,7 @@ class ProvideEmail extends StatelessWidget {
             child: Column(
               children: [
                 if (state.emailValid == false && state.showEmailValidation) ...[
-                  ErrorMessage(message: 'enrollment.provide_email.error'),
+                  const ErrorMessage(message: 'enrollment.provide_email.error'),
                   SizedBox(height: IrmaTheme.of(context).spacing)
                 ],
                 Text(

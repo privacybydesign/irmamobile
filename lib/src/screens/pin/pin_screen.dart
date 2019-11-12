@@ -11,7 +11,7 @@ import 'package:irmamobile/src/widgets/pin_field.dart';
 class PinScreen extends StatefulWidget {
   final Widget child;
 
-  PinScreen({@required this.child, Key key}) : super(key: key);
+  const PinScreen({@required this.child, Key key}) : super(key: key);
 
   @override
   _PinScreenState createState() => _PinScreenState();
@@ -27,7 +27,7 @@ class _PinScreenState extends State<PinScreen> {
       builder: (context, state) {
         if (state.isBlocked) {
           return Scaffold(
-            body: Center(child: Text("blocked")),
+            body: Center(child: const Text("blocked")),
           );
         }
 
@@ -68,36 +68,37 @@ class _PinScreenState extends State<PinScreen> {
                       height: 2 * IrmaTheme.of(context).spacing,
                     ),
                     GestureDetector(
+                      onTap: () {
+                        debugPrint("on forgot pin press");
+                      },
                       child: Text(
                         FlutterI18n.translate(context, "pin.button_forgot"),
                         style: IrmaTheme.of(context).textTheme.body1.copyWith(
                               decoration: TextDecoration.underline,
                             ),
                       ),
-                      onTap: () {
-                        print("on forgot pin press");
-                      },
                     ),
                     SizedBox(
                       height: IrmaTheme.of(context).spacing,
                     ),
                     GestureDetector(
+                      onTap: () {
+                        debugPrint("on block press");
+                      },
                       child: Text(
                         FlutterI18n.translate(context, "pin.button_block"),
                         style: IrmaTheme.of(context).textTheme.body1.copyWith(
                               decoration: TextDecoration.underline,
                             ),
                       ),
-                      onTap: () {
-                        print("on block press");
-                      },
                     ),
                     SizedBox(
                       height: IrmaTheme.of(context).spacing,
                     ),
                     if (state.unlockInProgress)
                       Padding(
-                          padding: EdgeInsets.all(IrmaTheme.of(context).spacing), child: CircularProgressIndicator()),
+                          padding: EdgeInsets.all(IrmaTheme.of(context).spacing),
+                          child: const CircularProgressIndicator()),
                     if (state.pinInvalid)
                       Text(
                         FlutterI18n.plural(context, "pin.invalid_pin.attempts", state.remainingAttempts),

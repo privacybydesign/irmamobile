@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/theme/irma-icons.dart';
+import 'package:irmamobile/src/theme/irma_icons.dart';
 
 class BrowserBar extends StatelessWidget implements PreferredSizeWidget {
   final String url;
@@ -19,7 +19,7 @@ class BrowserBar extends StatelessWidget implements PreferredSizeWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   IconButton(
-                    icon: Icon(IrmaIcons.arrowBack),
+                    icon: const Icon(IrmaIcons.arrowBack),
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
@@ -50,14 +50,16 @@ class BrowserBar extends StatelessWidget implements PreferredSizeWidget {
                   )
                 ],
               ),
-              isLoading
-                  ? SizedBox(
-                      height: 4,
-                      child: LinearProgressIndicator(),
-                    )
-                  : SizedBox(
-                      height: 4,
-                    )
+              if (isLoading) ...[
+                const SizedBox(
+                  height: 4,
+                  child: LinearProgressIndicator(),
+                ),
+              ] else ...[
+                const SizedBox(
+                  height: 4,
+                ),
+              ],
             ],
           ),
         ),
@@ -66,11 +68,11 @@ class BrowserBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(52);
+  Size get preferredSize => const Size.fromHeight(52);
 
   String stripHostnameFromURL() {
     try {
-      var uri = Uri.parse(url);
+      final uri = Uri.parse(url);
       return uri.host;
     } catch (FormatException) {
       return "";

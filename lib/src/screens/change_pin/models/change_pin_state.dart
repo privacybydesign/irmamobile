@@ -24,7 +24,7 @@ class ChangePinState with EquatableMixin {
       ValidationState oldPinVerified = ValidationState.initial,
       ValidationState newPinConfirmed = ValidationState.initial,
       int retry}) {
-    return new ChangePinState(
+    return ChangePinState(
         newPin: newPin ?? this.newPin,
         oldPinVerified: oldPinVerified ?? this.oldPinVerified,
         newPinConfirmed: newPinConfirmed ?? this.newPinConfirmed,

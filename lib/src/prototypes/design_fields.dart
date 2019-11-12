@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/theme/irma-icons.dart';
+import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 void startDesignFields(BuildContext context) {
@@ -16,37 +16,37 @@ class DesignFields extends StatefulWidget {
 }
 
 class _DesignFieldsState extends State<DesignFields> {
-  final enabledWithValueTextEditingController = TextEditingController.fromValue(
+  final _enabledWithValueTextEditingController = TextEditingController.fromValue(
     TextEditingValue(text: "Value"),
   );
-  final disabledWithValueTextEditingController = TextEditingController.fromValue(
+  final _disabledWithValueTextEditingController = TextEditingController.fromValue(
     TextEditingValue(text: "Value"),
   );
 
-  final validTextEditingController = TextEditingController(
+  final _validTextEditingController = TextEditingController(
     text: "valid value",
   );
-  final warningTextEditingController = TextEditingController(
+  final _warningTextEditingController = TextEditingController(
     text: "valid value (but warning)",
   );
-  final invalidTextEditingController = TextEditingController(
+  final _invalidTextEditingController = TextEditingController(
     text: "invalid value",
   );
 
-  final multilineTextEditingController = TextEditingController.fromValue(
+  final _multilineTextEditingController = TextEditingController.fromValue(
     TextEditingValue(
       text:
           "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean scelerisque vulputate ipsum, ac euismod libero ultricies vitae. Duis vel lorem congue, imperdiet orci eget, egestas eros.",
     ),
   );
 
-  var selectedValue = -1;
+  var _selectedValue = -1;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Fields"),
+        title: const Text("Fields"),
       ),
       body: SafeArea(
         child: Padding(
@@ -83,7 +83,7 @@ class _DesignFieldsState extends State<DesignFields> {
                       decoration: InputDecoration(
                         labelText: "Label",
                       ),
-                      controller: enabledWithValueTextEditingController,
+                      controller: _enabledWithValueTextEditingController,
                     ),
                   ),
                 ],
@@ -109,7 +109,7 @@ class _DesignFieldsState extends State<DesignFields> {
                         labelText: "Label",
                       ),
                       enabled: false,
-                      controller: disabledWithValueTextEditingController,
+                      controller: _disabledWithValueTextEditingController,
                     ),
                   ),
                 ],
@@ -125,7 +125,7 @@ class _DesignFieldsState extends State<DesignFields> {
                         labelText: "Label",
                         suffixIcon: Icon(IrmaIcons.valid, color: IrmaTheme.of(context).primaryDark),
                       ),
-                      controller: validTextEditingController,
+                      controller: _validTextEditingController,
                     ),
                   ),
                   _buildTextFieldExample(
@@ -136,7 +136,7 @@ class _DesignFieldsState extends State<DesignFields> {
                         labelText: "Label",
                         suffixIcon: Icon(IrmaIcons.warning, color: IrmaTheme.of(context).interactionAlert),
                       ),
-                      controller: warningTextEditingController,
+                      controller: _warningTextEditingController,
                     ),
                   ),
                   _buildTextFieldExample(
@@ -148,7 +148,7 @@ class _DesignFieldsState extends State<DesignFields> {
                         suffixIcon: Icon(IrmaIcons.invalid, color: IrmaTheme.of(context).interactionInvalid),
                         errorText: "This is an error message",
                       ),
-                      controller: invalidTextEditingController,
+                      controller: _invalidTextEditingController,
                     ),
                   ),
                 ],
@@ -163,7 +163,7 @@ class _DesignFieldsState extends State<DesignFields> {
                       decoration: InputDecoration(
                         labelText: "Label",
                       ),
-                      controller: multilineTextEditingController,
+                      controller: _multilineTextEditingController,
                       maxLines: 4,
                     ),
                   ),
@@ -175,25 +175,25 @@ class _DesignFieldsState extends State<DesignFields> {
                   _buildTextFieldExample(
                     context,
                     "enabled",
-                    DropdownButtonFormField(
+                    DropdownButtonFormField<int>(
                       decoration: InputDecoration(
                         labelText: "Label",
                       ),
-                      hint: Text("Label"),
-                      value: selectedValue,
+                      hint: const Text("Label"),
+                      value: _selectedValue,
                       onChanged: (value) {
                         setState(() {
-                          selectedValue = value;
+                          _selectedValue = value;
                         });
-                        print(value);
+                        debugPrint(value.toString());
                       },
-                      items: [
-                        DropdownMenuItem(child: Text("Maak een keuze"), value: -1),
-                        DropdownMenuItem(child: Text("Eerste optie"), value: 0),
-                        DropdownMenuItem(child: Text("Tweede optie"), value: 1),
-                        DropdownMenuItem(child: Text("Derde optie"), value: 2),
-                        DropdownMenuItem(child: Text("Vierde optie"), value: 3),
-                        DropdownMenuItem(child: Text("Laatste optie"), value: 4),
+                      items: const [
+                        DropdownMenuItem(value: -1, child: Text("Maak een keuze")),
+                        DropdownMenuItem(value: 0, child: Text("Eerste optie")),
+                        DropdownMenuItem(value: 1, child: Text("Tweede optie")),
+                        DropdownMenuItem(value: 2, child: Text("Derde optie")),
+                        DropdownMenuItem(value: 3, child: Text("Vierde optie")),
+                        DropdownMenuItem(value: 4, child: Text("Laatste optie")),
                       ],
                     ),
                   ),
@@ -226,11 +226,11 @@ class _DesignFieldsState extends State<DesignFields> {
 
   Widget _buildTextFieldExample(BuildContext context, String name, Widget textField) {
     return Padding(
-      padding: EdgeInsets.all(12.0),
+      padding: const EdgeInsets.all(12.0),
       child: Column(
         children: <Widget>[
           textField,
-          SizedBox(height: 8.0),
+          const SizedBox(height: 8.0),
           Text(name, style: IrmaTheme.of(context).textTheme.caption.copyWith(color: IrmaTheme.of(context).grayscale80)),
         ],
       ),

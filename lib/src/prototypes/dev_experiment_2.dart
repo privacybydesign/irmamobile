@@ -27,7 +27,7 @@ class MyBloc extends Bloc<MyEvent, MyState> {
 }
 
 void startDevExperiment2(BuildContext context) {
-  var myBloc = MyBloc();
+  final myBloc = MyBloc();
   myBloc.dispatch(MyEvent());
 
   Navigator.of(context).push(
@@ -35,22 +35,22 @@ void startDevExperiment2(BuildContext context) {
       builder: (context) {
         return Scaffold(
           appBar: AppBar(
-            title: Text('IrmaRepository BLoC voorbeeld'),
+            title: const Text('IrmaRepository BLoC voorbeeld'),
           ),
           body: BlocBuilder<MyBloc, MyState>(
             bloc: myBloc,
             builder: (context, state) {
               if (state.credential == null) {
-                return Center(child: Text("Loading..."));
+                return Center(child: const Text("Loading..."));
               }
               return Center(
                 child: ListView.builder(
                   itemCount: state.credential.attributes.length,
                   itemBuilder: (BuildContext context, int index) {
-                    AttributeType key = state.credential.attributes.keys.elementAt(index);
+                    final AttributeType key = state.credential.attributes.keys.elementAt(index);
                     return Row(children: [
                       Text(key.name['nl']), // TODO: use TranslatedValue
-                      Text(" = "),
+                      const Text(" = "),
                       Text(state.credential.attributes[key].translate('nl')),
                     ]);
                   },

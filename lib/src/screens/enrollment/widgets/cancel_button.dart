@@ -5,7 +5,7 @@ class CancelButton extends StatelessWidget {
   final String routeName;
   final void Function() cancel;
 
-  CancelButton({@required this.routeName, this.cancel});
+  const CancelButton({@required this.routeName, this.cancel});
 
   @override
   Widget build(BuildContext context) {

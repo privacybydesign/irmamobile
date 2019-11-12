@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/theme/irma-icons.dart';
+import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class SuccessAlert extends StatelessWidget {
@@ -13,7 +13,7 @@ class SuccessAlert extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: IrmaTheme.of(context).interactionValid,
-        border: Border.all(color: Color(0xffbbbbbb)),
+        border: Border.all(color: const Color(0xffbbbbbb)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(8.0),

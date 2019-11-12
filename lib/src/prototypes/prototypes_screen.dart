@@ -14,13 +14,13 @@ import 'package:irmamobile/src/prototypes/schermflow_wallet.dart';
 import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
 
 class PrototypesScreen extends StatelessWidget {
-  static final routeName = "/";
+  static const routeName = "/";
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("IRMA Prototypes"),
+        title: const Text("IRMA Prototypes"),
       ),
       body: Builder(builder: (context) {
         return _buildList(context);
@@ -46,7 +46,7 @@ class PrototypesScreen extends StatelessWidget {
               ],
             ),
           ),
-          Divider(height: 0),
+          const Divider(height: 0),
           _buildListItem(context, "1. Introductie en aanmelden", () {
             startSchermflow1(context);
           }),
@@ -79,7 +79,7 @@ class PrototypesScreen extends StatelessWidget {
           _buildListItem(context, "24. Pincode veranderen", () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChangePinScreen()));
           }),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Padding(
             padding: const EdgeInsets.only(bottom: 4),
             child: Column(
@@ -92,7 +92,7 @@ class PrototypesScreen extends StatelessWidget {
               ],
             ),
           ),
-          Divider(height: 0),
+          const Divider(height: 0),
           _buildListItem(context, "1. IrmaRepository voorbeeld", () {
             startDevExperiment1(context);
           }),
@@ -105,7 +105,7 @@ class PrototypesScreen extends StatelessWidget {
           _buildListItem(context, "4. Pin screen", () {
             startDevExperiment4(context);
           }),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Padding(
             padding: const EdgeInsets.only(bottom: 4),
             child: Column(
@@ -118,7 +118,7 @@ class PrototypesScreen extends StatelessWidget {
               ],
             ),
           ),
-          Divider(height: 0),
+          const Divider(height: 0),
           _buildListItem(context, "1. Colors", () {
             startDesignColors(context);
           }),
@@ -144,6 +144,13 @@ class PrototypesScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         InkWell(
+          onTap: () {
+            if (onTap == null) {
+              Scaffold.of(context).showSnackBar(SnackBar(content: const Text("Not implemented yet.")));
+              return;
+            }
+            onTap();
+          },
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
             child: Row(
@@ -157,15 +164,8 @@ class PrototypesScreen extends StatelessWidget {
               ],
             ),
           ),
-          onTap: () {
-            if (onTap == null) {
-              Scaffold.of(context).showSnackBar(new SnackBar(content: new Text("Not implemented yet.")));
-              return;
-            }
-            onTap();
-          },
         ),
-        Divider(height: 0),
+        const Divider(height: 0),
       ],
     );
   }

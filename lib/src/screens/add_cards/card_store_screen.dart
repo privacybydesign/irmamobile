@@ -5,7 +5,7 @@ import 'package:irmamobile/src/screens/add_cards/card_info_screen.dart';
 import 'package:irmamobile/src/screens/add_cards/widgets/credential.dart';
 import 'package:irmamobile/src/screens/add_cards/widgets/credential_group.dart';
 import 'package:irmamobile/src/screens/issuance_webview/issuance_webview_screen.dart';
-import 'package:irmamobile/src/theme/irma-icons.dart';
+import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class CardStoreScreen extends StatelessWidget {
@@ -36,7 +36,7 @@ class CardStoreScreen extends StatelessWidget {
           _buildCredential(context, "E-mail", "Privacy by Design Foundation", "assets/non-free/irmalogo.png", () {
             Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => AddEmailCardScreen(
+                builder: (context) => const AddEmailCardScreen(
                   "https://privacybydesign.foundation/tomcat/irma_email_issuer/api//send-email-token",
                 ),
               ),
@@ -112,6 +112,10 @@ class CardStoreScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Theme(
+              // Theme data to control the color of the icons in the search bar when the search bar is active
+              data: Theme.of(context).copyWith(
+                primaryColor: IrmaTheme.of(context).grayscale40,
+              ),
               child: TextField(
                 //onChanged: ,
                 decoration: InputDecoration(
@@ -129,10 +133,6 @@ class CardStoreScreen extends StatelessWidget {
                       borderSide: BorderSide.none,
                     ),
                     contentPadding: EdgeInsets.zero),
-              ),
-              // Theme data to control the color of the icons in the search bar when the search bar is active
-              data: Theme.of(context).copyWith(
-                primaryColor: IrmaTheme.of(context).grayscale40,
               ),
             ),
           ),
@@ -152,7 +152,7 @@ class CardStoreScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCredential(BuildContext context, String title, String issuer, String iconAsset, VoidCallback onTap) {
+  Credential _buildCredential(BuildContext context, String title, String issuer, String iconAsset, VoidCallback onTap) {
     return Credential(
       icon: Image.asset(iconAsset),
       title: title,
@@ -162,7 +162,7 @@ class CardStoreScreen extends StatelessWidget {
     );
   }
 
-  _openURL(BuildContext context, String url) {
+  void _openURL(BuildContext context, String url) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) {

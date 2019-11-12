@@ -4,7 +4,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 
 class IrmaThemedButton extends StatelessWidget {
   final String label;
-  final Function onPressed;
+  final VoidCallback onPressed;
   final Color color;
   final Color disabledColor;
   final Color textColor;
@@ -13,7 +13,7 @@ class IrmaThemedButton extends StatelessWidget {
   final TextStyle textStyle;
   final IconData icon;
 
-  IrmaThemedButton({
+  const IrmaThemedButton({
     @required this.label,
     @required this.onPressed,
     @required this.color,
@@ -35,26 +35,26 @@ class IrmaThemedButton extends StatelessWidget {
       textTheme: ButtonTextTheme.primary,
       height: size?.value ?? IrmaButtonSize.medium.value,
       minWidth: 232,
-      padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
       child: RaisedButton(
         onPressed: onPressed,
         elevation: 0.0,
+        color: color,
+        disabledColor: disabledColor,
+        textColor: textColor,
+        shape: shape,
         child: icon == null
             ? text
             : Row(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
                   Icon(icon),
-                  SizedBox(
+                  const SizedBox(
                     width: 10.0,
                   ),
                   text,
                 ],
               ),
-        color: color,
-        disabledColor: disabledColor,
-        textColor: textColor,
-        shape: shape,
       ),
     );
   }
@@ -65,7 +65,7 @@ class IrmaButtonSize {
   const IrmaButtonSize._internal(this._value);
   double get value => _value;
 
-  static const large = const IrmaButtonSize._internal(54);
-  static const medium = const IrmaButtonSize._internal(48);
-  static const small = const IrmaButtonSize._internal(40);
+  static const large = IrmaButtonSize._internal(54);
+  static const medium = IrmaButtonSize._internal(48);
+  static const small = IrmaButtonSize._internal(40);
 }

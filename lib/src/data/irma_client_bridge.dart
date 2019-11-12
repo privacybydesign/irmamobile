@@ -24,48 +24,48 @@ class IrmaClientBridge implements IrmaClient {
     methodChannel.setMethodCallHandler(_handleMethodCall);
     methodChannel.invokeMethod<void>("AppReadyEvent", "{}");
 
-    authenticationSubject.listen((result) {
+    _authenticationSubject.listen((result) {
       if (result is AuthenticationResultSuccess) {
-        lockedSubject.add(true);
+        _lockedSubject.add(true);
       } else {
-        lockedSubject.add(false);
+        _lockedSubject.add(false);
       }
     });
   }
 
-  final irmaConfigurationStream = BehaviorSubject<IrmaConfiguration>();
-  final credentialsStream = BehaviorSubject<Credentials>();
+  final _irmaConfigurationStream = BehaviorSubject<IrmaConfiguration>();
+  final _credentialsStream = BehaviorSubject<Credentials>();
 
   // _handleMethodCall handles incomming method calls from irmago and returns an
   // answer to irmago.
   Future<dynamic> _handleMethodCall(MethodCall call) async {
     try {
-      var data = jsonDecode(call.arguments);
+      final data = jsonDecode(call.arguments as String) as Map<String, String>;
       switch (call.method) {
         case 'IrmaConfigurationEvent':
-          irmaConfigurationStream.add(IrmaConfiguration.fromJson(data));
+          _irmaConfigurationStream.add(IrmaConfiguration.fromJson(data));
           break;
         case 'CredentialsEvent':
-          credentialsStream.add(Credentials.fromRaw(
-            irmaConfiguration: await irmaConfigurationStream.firstWhere((irmaConfig) => irmaConfig != null),
+          _credentialsStream.add(Credentials.fromRaw(
+            irmaConfiguration: await _irmaConfigurationStream.firstWhere((irmaConfig) => irmaConfig != null),
             rawCredentials: RawCredentials.fromJson(data),
           ));
           break;
         case 'AuthenticationFailedEvent':
-          authenticationSubject.add(AuthenticationResultFailed.fromJson(data));
+          _authenticationSubject.add(AuthenticationResultFailed.fromJson(data));
           break;
         case 'AuthenticationSuccess':
-          authenticationSubject.add(AuthenticationResultSuccess());
+          _authenticationSubject.add(AuthenticationResultSuccess());
           break;
         case 'AuthenticationError':
-          authenticationSubject.add(AuthenticationResultError.fromJson(data));
+          _authenticationSubject.add(AuthenticationResultError.fromJson(data));
           break;
         default:
-          debugPrint('Unrecognized bridge event name received: ' + call.method);
+          debugPrint('Unrecognized bridge event name received: ${call.method}');
           return Future<dynamic>.value(null);
       }
     } catch (e, stacktrace) {
-      debugPrint("Error receiving or parsing method call from native: " + e.toString());
+      debugPrint("Error receiving or parsing method call from native: ${e.toString()}");
       debugPrint(stacktrace.toString());
       rethrow;
     }
@@ -75,12 +75,12 @@ class IrmaClientBridge implements IrmaClient {
 
   @override
   Stream<Credentials> getCredentials() {
-    return credentialsStream.stream;
+    return _credentialsStream.stream;
   }
 
   @override
   Stream<Credential> getCredential(String hash) {
-    return credentialsStream
+    return _credentialsStream
         .map<Credential>((credentials) => credentials[hash])
         .where((credential) => credential != null)
         .distinct();
@@ -88,7 +88,7 @@ class IrmaClientBridge implements IrmaClient {
 
   @override
   Stream<Map<String, Issuer>> getIssuers() {
-    return irmaConfigurationStream.stream.map<Map<String, Issuer>>(
+    return _irmaConfigurationStream.stream.map<Map<String, Issuer>>(
       (config) => config.issuers,
     );
   }
@@ -97,7 +97,7 @@ class IrmaClientBridge implements IrmaClient {
   Stream<VersionInformation> getVersionInformation() {
     // Get two Streams before waiting on them to allow for asynchronicity.
     final packageInfoStream = PackageInfo.fromPlatform().asStream();
-    final irmaVersionInfoStream = irmaConfigurationStream.stream; // TODO: add filtering
+    final irmaVersionInfoStream = _irmaConfigurationStream.stream; // TODO: add filtering
 
     return packageInfoStream.transform<VersionInformation>(
       combineLatest<PackageInfo, IrmaConfiguration, VersionInformation>(
@@ -130,7 +130,7 @@ class IrmaClientBridge implements IrmaClient {
 
   @override
   void enroll({String email, String pin, String language}) {
-    this.methodChannel.invokeMethod(
+    methodChannel.invokeMethod(
         "EnrollEvent",
         jsonEncode(EnrollEvent(
           email: email,
@@ -139,22 +139,22 @@ class IrmaClientBridge implements IrmaClient {
         ).toJson()));
   }
 
-  final authenticationSubject = PublishSubject<AuthenticationResult>();
-  final lockedSubject = BehaviorSubject<bool>.seeded(true);
+  final _authenticationSubject = PublishSubject<AuthenticationResult>();
+  final _lockedSubject = BehaviorSubject<bool>.seeded(true);
 
   @override
   void lock() {
-    lockedSubject.add(true);
+    _lockedSubject.add(true);
   }
 
   @override
   Future<AuthenticationResult> unlock(String pin) {
-    this.methodChannel.invokeMethod("AuthenticateEvent", jsonEncode({'pin': pin}));
-    return authenticationSubject.first;
+    methodChannel.invokeMethod("AuthenticateEvent", jsonEncode({'pin': pin}));
+    return _authenticationSubject.first;
   }
 
   @override
   Stream<bool> getLocked() {
-    return lockedSubject.distinct().asBroadcastStream();
+    return _lockedSubject.distinct().asBroadcastStream();
   }
 }

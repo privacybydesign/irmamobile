@@ -47,7 +47,7 @@ class IrmaConfiguration with EquatableMixin {
     Map<String, AttributeType> attributeTypes,
     String path,
   }) {
-    return new IrmaConfiguration(
+    return IrmaConfiguration(
       schemeManagers: schemeManagers ?? this.schemeManagers,
       issuers: issuers ?? this.issuers,
       credentialTypes: credentialTypes ?? this.credentialTypes,

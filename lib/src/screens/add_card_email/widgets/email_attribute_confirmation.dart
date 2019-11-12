@@ -6,7 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/screens/add_card_email/model/request_email_bloc.dart';
 import 'package:irmamobile/src/screens/add_card_email/model/request_email_events.dart';
-import 'package:irmamobile/src/theme/irma-icons.dart';
+import 'package:irmamobile/src/screens/add_card_email/model/request_email_state.dart';
+import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/success_alert.dart';
@@ -30,7 +31,7 @@ class EmailAttributeConfirmation extends StatelessWidget {
           ),
         ),
         leading: IconButton(
-            icon: Icon(IrmaIcons.arrowBack),
+            icon: const Icon(IrmaIcons.arrowBack),
             onPressed: () => Navigator.of(
                   context,
                   rootNavigator: true,
@@ -38,7 +39,7 @@ class EmailAttributeConfirmation extends StatelessWidget {
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).spacing),
-        child: BlocBuilder(
+        child: BlocBuilder<RequestEmailBloc, RequestEmailState>(
             bloc: _bloc,
             builder: (context, state) {
               return SingleChildScrollView(
@@ -84,7 +85,7 @@ class EmailAttributeConfirmation extends StatelessWidget {
                                     .textTheme
                                     .body1
                                     .copyWith(decoration: TextDecoration.underline),
-                                recognizer: new TapGestureRecognizer()
+                                recognizer: TapGestureRecognizer()
                                   ..onTap = () {
                                     _bloc.dispatch(RequestAgain());
                                   },
@@ -122,8 +123,8 @@ class EmailAttributeConfirmation extends StatelessWidget {
                       ),
                       if (state.inProgress)
                         Center(
-                            child: Padding(
-                          padding: const EdgeInsets.all(8.0),
+                            child: const Padding(
+                          padding: EdgeInsets.all(8.0),
                           child: CircularProgressIndicator(),
                         )),
                     ],

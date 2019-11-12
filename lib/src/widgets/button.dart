@@ -8,7 +8,7 @@ class Button extends StatefulWidget {
   final String accessibleName;
   final Function() onPressed;
 
-  Button({@required this.iconData, @required this.accessibleName, @required this.onPressed});
+  const Button({@required this.iconData, @required this.accessibleName, @required this.onPressed});
 
   @override
   _ButtonState createState() => _ButtonState();
@@ -40,7 +40,7 @@ class _ButtonState extends State<Button> with SingleTickerProviderStateMixin {
                 });
               },
               child: Padding(
-                padding: EdgeInsets.only(right: _padding),
+                padding: const EdgeInsets.only(right: _padding),
                 child: Icon(widget.iconData, color: _isBeingPressed ? Colors.grey[700] : Colors.white),
               ))),
     );

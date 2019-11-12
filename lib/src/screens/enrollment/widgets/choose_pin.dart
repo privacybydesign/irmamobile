@@ -15,7 +15,7 @@ class ChoosePin extends StatelessWidget {
   final void Function(BuildContext, String) submitPin;
   final void Function() cancel;
 
-  ChoosePin({@required this.submitPin, @required this.cancel});
+  const ChoosePin({@required this.submitPin, @required this.cancel});
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +32,7 @@ class ChoosePin extends StatelessWidget {
               child: Column(
                 children: [
                   if (state.showPinValidation && !state.pinConfirmed) ...[
-                    ErrorMessage(message: 'enrollment.choose_pin.error'),
+                    const ErrorMessage(message: 'enrollment.choose_pin.error'),
                     SizedBox(height: IrmaTheme.of(context).spacing)
                   ],
                   Text(
