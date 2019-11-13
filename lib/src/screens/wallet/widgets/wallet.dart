@@ -90,7 +90,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   }
 
   scrollOverflow(y) {
-    if (y > 20 && currentState == WalletState.drawn) {
+    if (y > 40 && currentState == WalletState.drawn) {
       setNewState(cardInStackState);
     }
   }
