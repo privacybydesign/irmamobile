@@ -114,10 +114,10 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
             decoration: BoxDecoration(
               color: irmaCardTheme.bgColorLight,
               gradient: LinearGradient(
-                colors: [irmaCardTheme.bgColorLight, irmaCardTheme.bgColorDark],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter
-              ),
+                  colors: [irmaCardTheme.bgColorLight, irmaCardTheme.bgColorDark],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter),
+              border: Border.all(width: 1.0, color: irmaCardTheme.bgColorDark),
               borderRadius: BorderRadius.all(
                 _borderRadius,
               ),
