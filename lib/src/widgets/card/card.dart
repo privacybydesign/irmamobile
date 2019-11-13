@@ -75,8 +75,7 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
       return (oldChar << 2) ^ newChar;
     });
 
-    final List<IrmaCardTheme> bgSection = backgrounds[strNum % backgrounds.length];
-    return bgSection[(strNum ~/ backgrounds.length) % bgSection.length];
+    return backgrounds[strNum % backgrounds.length];
   }
 
   void open({double height}) {
@@ -113,7 +112,7 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
             height: _heightTween.evaluate(animation),
             margin: const EdgeInsets.symmetric(horizontal: 20),
             decoration: BoxDecoration(
-              color: irmaCardTheme.bgColor,
+              color: irmaCardTheme.bgColorLight,
               borderRadius: BorderRadius.all(
                 _borderRadius,
               ),
