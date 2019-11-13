@@ -80,7 +80,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         } else {
           drawnCardIndex = index;
           setNewState(WalletState.drawn);
-          openCurrentCard(size);
         }
       }
     });
@@ -89,8 +88,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   isStacked(newState, index) {
     return newState == WalletState.halfway && widget.credentials.length >= cardsMaxExtended && index < 4;
   }
-
-  openCurrentCard(Size size) {}
 
   scrollOverflow(y) {
     if (y > 20 && currentState == WalletState.drawn) {
