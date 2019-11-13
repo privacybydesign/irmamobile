@@ -40,7 +40,7 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
   final _padding = 15.0;
   final _transparentWhiteBackground = Color(0x55ffffff);
 
-  Tween _heightTween = Tween<double>(begin: 240, end: 400);
+  var _heightTween = Tween<double>(begin: 240, end: 400);
 
   // State
   bool isUnfolded = false;
@@ -110,7 +110,7 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
             });
           },
           child: Container(
-            height: _heightTween.evaluate(animation) as double,
+            height: _heightTween.evaluate(animation),
             margin: const EdgeInsets.symmetric(horizontal: 20),
             decoration: BoxDecoration(
               color: irmaCardTheme.bgColor,

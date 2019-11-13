@@ -48,7 +48,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   WalletState currentState = WalletState.minimal;
   double scroll = 0;
 
-  final Tween _walletShrinkTween = Tween<double>(begin: 0.0, end: 1.0);
+  final _walletShrinkTween = Tween<double>(begin: 0.0, end: 1.0);
 
   @override
   void initState() {
@@ -108,7 +108,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         int bottomCardIndex;
 
         cardWidgets.addAll(widget.credentials.map((credential) {
-          final double walletShrinkInterpolation = _walletShrinkTween.evaluate(drawAnimation) as double;
+          final double walletShrinkInterpolation = _walletShrinkTween.evaluate(drawAnimation);
 
           // TODO for performance: positions can be cached
           final double oldTop = getCardPosition(
