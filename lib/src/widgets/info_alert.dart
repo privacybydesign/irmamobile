@@ -25,32 +25,33 @@ class InfoAlert extends StatelessWidget {
         ),
       ),
     ];
-    if (this.widgets != null) boxWidgets.addAll(this.widgets);
+    if (widgets != null) boxWidgets.addAll(widgets);
     return DecoratedBox(
       decoration: BoxDecoration(
         color: IrmaTheme.of(context).interactionInformation,
-        border: Border.all(color: Color(0xffbbbbbb)),
+        border: Border.all(color: const Color(0xffbbbbbb)),
       ),
       child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Icon(
-                Icons.info_outline,
-                size: 24,
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Icon(
+              Icons.info_outline,
+              size: 24,
+            ),
+            SizedBox(
+              width: 0.5 * IrmaTheme.of(context).spacing,
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: boxWidgets,
               ),
-              SizedBox(
-                width: 0.5 * IrmaTheme.of(context).spacing,
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: boxWidgets,
-                ),
-              ),
-            ],
-          )),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

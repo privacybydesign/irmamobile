@@ -31,16 +31,14 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
   Animation<double> animation;
   AnimationController controller;
 
-  static final _opacityTween = Tween<double>(begin: 0, end: 1);
-  static final _rotateTween = Tween<double>(begin: 0, end: math.pi);
+  final _opacityTween = Tween<double>(begin: 0, end: 1);
+  final _rotateTween = Tween<double>(begin: 0, end: math.pi);
 
-  static const animationDuration = 250;
-  static const indent = 100.0;
-  static const headerBottom = 30.0;
-  static const borderRadius = Radius.circular(15.0);
-  static const padding = 15.0;
-  static const transparentWhiteLine = Color(0xaaffffff);
-  static const transparentWhiteBackground = Color(0x55ffffff);
+  final _animationDuration = 250;
+  final _headerBottom = 30.0;
+  final _borderRadius = Radius.circular(15.0);
+  final _padding = 15.0;
+  final _transparentWhiteBackground = Color(0x55ffffff);
 
   Tween _heightTween = Tween<double>(begin: 240, end: 400);
 
@@ -52,7 +50,7 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
 
   @override
   void initState() {
-    controller = AnimationController(duration: const Duration(milliseconds: animationDuration), vsync: this);
+    controller = AnimationController(duration: Duration(milliseconds: _animationDuration), vsync: this);
     animation = CurvedAnimation(parent: controller, curve: Curves.easeInOut);
     irmaCardTheme = calculateIrmaCardTheme(widget.attributes.issuer);
 
@@ -60,7 +58,7 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
   }
 
   @override
-  void didUpdateWidget(oldWidget) {
+  void didUpdateWidget(IrmaCard oldWidget) {
     if (widget.isOpen != oldWidget.isOpen) {
       if (widget.isOpen) {
         open(height: 400);
@@ -72,16 +70,16 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
     super.didUpdateWidget(oldWidget);
   }
 
-  calculateIrmaCardTheme(Issuer issuer) {
-    int strNum = issuer.id.runes.reduce((oldChar, newChar) {
+  IrmaCardTheme calculateIrmaCardTheme(Issuer issuer) {
+    final int strNum = issuer.id.runes.reduce((oldChar, newChar) {
       return (oldChar << 2) ^ newChar;
     });
 
-    List<IrmaCardTheme> bgSection = backgrounds[strNum % backgrounds.length];
+    final List<IrmaCardTheme> bgSection = backgrounds[strNum % backgrounds.length];
     return bgSection[(strNum ~/ backgrounds.length) % bgSection.length];
   }
 
-  open({double height}) {
+  void open({double height}) {
     _heightTween = Tween<double>(begin: 240, end: height);
     controller.forward();
     setState(() {
@@ -89,7 +87,7 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
     });
   }
 
-  close() {
+  void close() {
     controller.reverse();
     setState(() {
       isUnfolded = false;
@@ -112,14 +110,22 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
               });
             },
             child: Container(
+              height: _heightTween.evaluate(animation) as double,
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              decoration: BoxDecoration(
+                color: irmaCardTheme.bgColor,
+                borderRadius: BorderRadius.all(
+                  _borderRadius,
+                ),
+              ),
                 child: Column(
                   children: <Widget>[
                     Container(
                       child: Padding(
                         padding: EdgeInsets.only(
-                          top: padding,
-                          right: padding,
-                          bottom: headerBottom,
+                          top: _padding,
+                          right: _padding,
+                          bottom: _headerBottom,
                         ),
                         child: Text(
                           FlutterI18n.translate(context, 'card.personaldata'),
@@ -129,16 +135,24 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
                     ),
                     Expanded(
                       child: Padding(
-                        padding: const EdgeInsets.all(padding),
+                        padding: EdgeInsets.all(_padding),
                         child: Opacity(
                             opacity: _opacityTween.evaluate(animation),
                             child: _opacityTween.evaluate(animation) == 0
-                                ? Text("")
+                                ? const Text("")
                                 : CardAttributes(widget.attributes, widget.attributes.issuer, isCardReadable,
                                     widget.lang, irmaCardTheme, widget.scrollOverflowCallback)),
                       ),
                     ),
                     Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: _transparentWhiteBackground,
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: _borderRadius,
+                          bottomRight: _borderRadius,
+                        ),
+                      ),
                       child: Row(
                         children: <Widget>[
                           Expanded(
@@ -147,14 +161,14 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
                               enabled: false,
                               label: FlutterI18n.translate(context, 'accessibility.unfold'),
                               child: Transform(
-                                origin: Offset(27, 24),
+                                origin: const Offset(27, 24),
                                 transform: Matrix4.rotationZ(
                                   _rotateTween.evaluate(animation),
                                 ),
                                 child: IconButton(
                                   onPressed: () {},
                                   icon: SvgPicture.asset('assets/icons/arrow-down.svg'),
-                                  padding: EdgeInsets.only(left: padding),
+                                  padding: EdgeInsets.only(left: _padding),
                                   alignment: Alignment.centerLeft,
                                 ),
                               ),
@@ -170,24 +184,10 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
                                   CardButton('assets/icons/remove.svg', 'accessibility.remove', widget.removeCallback))
                         ],
                       ),
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: transparentWhiteBackground,
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: borderRadius,
-                          bottomRight: borderRadius,
-                        ),
-                      ),
                     ),
                   ],
                 ),
-                height: _heightTween.evaluate(animation),
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                  color: irmaCardTheme.bgColor,
-                  borderRadius: BorderRadius.all(
-                    borderRadius,
-                  ),
-                )));
+            ),
+        );
       });
 }

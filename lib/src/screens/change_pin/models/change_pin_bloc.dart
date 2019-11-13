@@ -5,6 +5,7 @@ import 'package:irmamobile/src/screens/change_pin/models/change_pin_event.dart';
 import 'package:irmamobile/src/screens/change_pin/models/change_pin_state.dart';
 
 class ChangePinBloc extends Bloc<Object, ChangePinState> {
+  @override
   final ChangePinState initialState;
 
   ChangePinBloc() : initialState = ChangePinState();

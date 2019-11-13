@@ -38,7 +38,7 @@ class EnrollmentState with EquatableMixin {
     bool showPinValidation,
     int retry,
   }) {
-    return new EnrollmentState(
+    return EnrollmentState(
       pin: pin ?? this.pin,
       email: email ?? this.email,
       pinConfirmed: pinConfirmed ?? this.pinConfirmed,

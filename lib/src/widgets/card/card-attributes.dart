@@ -41,7 +41,7 @@ class CardAttributes extends StatelessWidget {
                   style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor)),
               width: indent,
             ),
-            BlurText(personal.value['nl'], irmaCardTheme.fgColor, false),
+            BlurText(text: personal.value['nl'], color: irmaCardTheme.fgColor, isTextBlurred: false),
 //            _BlurText(personal.value, IrmaCardTheme.fgColor,
 //              personal.hidden == 'true' && !isCardUnblurred),
           ],

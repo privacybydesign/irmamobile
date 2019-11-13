@@ -7,7 +7,7 @@ class IrmaCardTheme {
   IrmaCardTheme(this.bgColor, this.fgColor);
 }
 
-final backgrounds = [
+final List<List<IrmaCardTheme>> backgrounds = [
   [
     IrmaCardTheme(Color(0xff004C92), Color(0xffffffff)),
     IrmaCardTheme(Color(0xff004C92), Color(0xffffffff)),

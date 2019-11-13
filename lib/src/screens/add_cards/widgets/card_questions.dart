@@ -4,7 +4,7 @@ import 'package:irmamobile/src/screens/add_cards/customs/configurable_expansion_
 import 'package:irmamobile/src/theme/theme.dart';
 
 class CardQuestions extends StatefulWidget {
-  CardQuestions(this.parentKey, this.parentScrollController);
+  const CardQuestions(this.parentKey, this.parentScrollController);
 
   final GlobalKey parentKey;
   final ScrollController parentScrollController;
@@ -14,15 +14,15 @@ class CardQuestions extends StatefulWidget {
 }
 
 class _CardQuestionsState extends State<CardQuestions> with TickerProviderStateMixin {
-  final List<GlobalKey> _collapsableKeys = new List<GlobalKey>.generate(4, (int index) => GlobalKey());
+  final List<GlobalKey> _collapsableKeys = List<GlobalKey>.generate(4, (int index) => GlobalKey());
   Duration expandDuration = const Duration(milliseconds: 200); // expand duration of _Collapsible
 
   void _jumpToCollapsable(int index) {
-    final RenderBox scrollview = widget.parentKey.currentContext.findRenderObject();
-    final RenderBox collapsable = _collapsableKeys[index].currentContext.findRenderObject();
+    final RenderObject scrollview = widget.parentKey.currentContext.findRenderObject();
+    final RenderBox collapsable = _collapsableKeys[index].currentContext.findRenderObject() as RenderBox;
     widget.parentScrollController.animateTo(
       collapsable.localToGlobal(Offset(0, widget.parentScrollController.offset), ancestor: scrollview).dy,
-      duration: Duration(
+      duration: const Duration(
         milliseconds: 500,
       ),
       curve: Curves.ease,
@@ -72,10 +72,10 @@ class _Collapsible extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ConfigurableExpansionTile(
-      onExpansionChanged: this.onExpansionChanged,
-      animatedWidgetFollowingHeader: Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: const Icon(
+      onExpansionChanged: onExpansionChanged,
+      animatedWidgetFollowingHeader: const Padding(
+        padding: EdgeInsets.all(4.0),
+        child: Icon(
           Icons.expand_more,
           color: Colors.black,
         ),
@@ -90,7 +90,7 @@ class _Collapsible extends StatelessWidget {
           ),
         ),
       ),
-      headerBackgroundColorStart: IrmaTheme.of(context).greyscale90, // TODO: determine color
+      headerBackgroundColorStart: IrmaTheme.of(context).grayscale90, // TODO: determine color
       expandedBackgroundColor: const Color(0x00000000), // TODO: define transparent in theme
       children: <Widget>[
         Padding(

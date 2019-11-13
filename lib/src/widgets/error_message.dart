@@ -5,7 +5,7 @@ import 'package:irmamobile/src/theme/theme.dart';
 class ErrorMessage extends StatelessWidget {
   final String message;
 
-  ErrorMessage({
+  const ErrorMessage({
     @required this.message,
   });
 

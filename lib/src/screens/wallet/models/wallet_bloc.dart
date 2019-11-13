@@ -6,6 +6,7 @@ import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/screens/wallet/models/wallet_state.dart';
 
 class WalletBloc extends Bloc<Object, WalletState> {
+  @override
   final WalletState initialState;
 
   WalletBloc() : initialState = WalletState();

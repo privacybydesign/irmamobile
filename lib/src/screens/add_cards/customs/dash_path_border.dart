@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:path_drawing/path_drawing.dart';
 
 class DashPathBorder extends Border {
-  DashPathBorder({
+  const DashPathBorder({
     @required this.dashArray,
     BorderSide top = BorderSide.none,
     BorderSide left = BorderSide.none,

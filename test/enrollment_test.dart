@@ -12,7 +12,7 @@ import 'package:irmamobile/src/widgets/pin_field.dart';
 
 void main() {
   setUp(() {
-    WidgetsBinding.instance.renderView.configuration = new TestViewConfiguration(size: const Size(1200.0, 1980.0));
+    WidgetsBinding.instance.renderView.configuration = TestViewConfiguration(size: const Size(1200.0, 1980.0));
   });
 
   testWidgets('Enrollment basic flow test', (WidgetTester tester) async {

@@ -8,8 +8,8 @@ class LoadingData extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: Color(0xffe6e6e6),
-        border: Border.all(color: Color(0xffbbbbbb)),
+        color: const Color(0xffe6e6e6),
+        border: Border.all(color: const Color(0xffbbbbbb)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -20,7 +20,7 @@ class LoadingData extends StatelessWidget {
               FlutterI18n.translate(context, "issuance.loading.title"),
               style: Theme.of(context).textTheme.title,
             ),
-            SizedBox(
+            const SizedBox(
               height: 8,
             ),
             Text(

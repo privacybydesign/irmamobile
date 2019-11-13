@@ -16,6 +16,7 @@ class IssuanceWebviewScreen extends StatefulWidget {
 
   IssuanceWebviewScreen(this.url, {Key key}) : super(key: key);
 
+  @override
   _IssuanceWebviewScreenState createState() => _IssuanceWebviewScreenState(url);
 
   Stream get sessionStream => _sessionStreamController.stream;
@@ -25,7 +26,7 @@ class _IssuanceWebviewScreenState extends State<IssuanceWebviewScreen> {
   final String url;
   bool _isLoading;
 
-  _IssuanceWebviewScreenState(this.url) : this._isLoading = true;
+  _IssuanceWebviewScreenState(this.url) : _isLoading = true;
   SessionPointer _sessionPointer;
 
   @override
@@ -43,7 +44,7 @@ class _IssuanceWebviewScreenState extends State<IssuanceWebviewScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: BrowserBar(
-        url: this.url,
+        url: url,
         onOpenInBrowserPress: () {
           Navigator.of(context).pop();
           launch(url);
@@ -62,15 +63,15 @@ class _IssuanceWebviewScreenState extends State<IssuanceWebviewScreen> {
                     });
                   },
                   navigationDelegate: (navrequest) {
-                    print("received nav request ${navrequest.url}");
-                    var decodedUri = Uri.decodeFull(navrequest.url);
+                    debugPrint("received nav request ${navrequest.url}");
+                    final decodedUri = Uri.decodeFull(navrequest.url);
                     if (_isIRMAURI(decodedUri)) {
                       setState(() {
                         try {
                           _sessionPointer = SessionPointer.fromURI(decodedUri);
                           widget._sessionStreamController.sink.add(_sessionPointer);
                         } catch (err) {
-                          print(err);
+                          debugPrint(err.toString());
                         }
                       });
                       return NavigationDecision.prevent;
@@ -91,10 +92,10 @@ class _IssuanceWebviewScreenState extends State<IssuanceWebviewScreen> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Center(
-                    child: LoadingData(),
+                    child: const LoadingData(),
                   ),
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 8,
                 ),
                 Text("sessionType: ${_sessionPointer.irmaqr}"),
@@ -105,9 +106,9 @@ class _IssuanceWebviewScreenState extends State<IssuanceWebviewScreen> {
   }
 
   bool _isIRMAURI(String uri) {
-    var regexIrma = RegExp("^irma:\/\/qr\/json\/{");
-    var regexIntent = RegExp("^intent:\/\/qr\/json\/{");
-    var regexHttp = RegExp("^https:\/\/irma.app\/.+\/session#{");
+    final regexIrma = RegExp("^irma:\/\/qr\/json\/{");
+    final regexIntent = RegExp("^intent:\/\/qr\/json\/{");
+    final regexHttp = RegExp("^https:\/\/irma.app\/.+\/session#{");
     return regexIntent.hasMatch(uri) || regexHttp.hasMatch(uri) || regexIrma.hasMatch(uri);
   }
 }

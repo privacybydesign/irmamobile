@@ -43,7 +43,7 @@ class App extends StatelessWidget {
         routes = {
           '/': builder,
         },
-        providers = providers == null ? [] : providers {
+        providers = providers ?? [] {
     IrmaRepository.init(IrmaClientMock());
   }
 
@@ -87,7 +87,7 @@ class App extends StatelessWidget {
         return MultiBlocProvider(
           providers: providers,
           child: MaterialApp(
-            key: Key("app"),
+            key: const Key("app"),
             title: 'IRMA',
             theme: IrmaTheme.of(context).themeData,
             localizationsDelegates: localizationsDelegates,

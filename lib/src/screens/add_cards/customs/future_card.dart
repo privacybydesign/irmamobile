@@ -8,12 +8,12 @@ class FutureCard extends StatelessWidget {
   final String issuer;
   final String logoPath;
 
-  FutureCard(this.name, this.issuer, this.logoPath);
+  const FutureCard(this.name, this.issuer, this.logoPath);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 0.5),
+      padding: const EdgeInsets.symmetric(horizontal: 0.5),
       child: AspectRatio(
         aspectRatio: 1.585,
         child: Container(
@@ -72,7 +72,7 @@ class FutureCard extends StatelessWidget {
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
                           issuer,
-                          style: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w700),
+                          style: const TextStyle(fontSize: 14.0, fontWeight: FontWeight.w700),
                         ),
                       ))),
                 ],

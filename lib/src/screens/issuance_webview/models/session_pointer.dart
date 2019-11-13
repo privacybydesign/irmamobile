@@ -7,33 +7,33 @@ class SessionPointer {
   SessionPointer({this.u, this.irmaqr});
 
   SessionPointer.fromJson(Map<String, dynamic> json) {
-    u = json['u'];
-    irmaqr = json['irmaqr'];
+    u = json['u'] as String;
+    irmaqr = json['irmaqr'] as String;
   }
 
   SessionPointer.fromURI(String uri) {
-    var pointer;
-    if (uri.indexOf("json/{") > -1) {
-      var jsonString = uri.substring(uri.indexOf("json/{") + 5);
+    SessionPointer pointer;
+    if (uri.contains("json/{")) {
+      final jsonString = uri.substring(uri.indexOf("json/{") + 5);
       pointer = SessionPointer.fromJson(
         jsonDecode(
           jsonString.substring(
             0,
             jsonString.indexOf("}") + 1,
           ),
-        ),
+        ) as Map<String, dynamic>,
       );
     }
 
-    if (uri.indexOf("session#{") > -1) {
-      var jsonString = uri.substring(uri.indexOf("session#{") + 8);
+    if (uri.contains("session#{")) {
+      final jsonString = uri.substring(uri.indexOf("session#{") + 8);
       pointer = SessionPointer.fromJson(
         jsonDecode(
           jsonString.substring(
             0,
             jsonString.indexOf("}") + 1,
           ),
-        ),
+        ) as Map<String, dynamic>,
       );
       u = pointer.u;
       irmaqr = pointer.irmaqr;
@@ -48,9 +48,9 @@ class SessionPointer {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['u'] = this.u;
-    data['irmaqr'] = this.irmaqr;
+    final Map<String, dynamic> data = {};
+    data['u'] = u;
+    data['irmaqr'] = irmaqr;
     return data;
   }
 }

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/screens/add_cards/widgets/card_info.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/link_button.dart';
-import 'package:irmamobile/src/widgets/primary_button.dart';
+import 'package:irmamobile/src/widgets/irma_button.dart';
+import 'package:irmamobile/src/widgets/irma_text_button.dart';
 
 class CardInfoScreen extends StatefulWidget {
   CardInfoScreen(this.name, this.issuer, this.logoPath, this.onStartIssuance) : super(key: myKey);
@@ -22,7 +22,7 @@ class CardInfoScreen extends StatefulWidget {
 class _CardInfoScreenState extends State<CardInfoScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey _scrollviewKey = GlobalKey();
-  ScrollController _controller = ScrollController();
+  final ScrollController _controller = ScrollController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,15 +60,15 @@ class _CardInfoScreenState extends State<CardInfoScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  LinkButton(
+                  IrmaTextButton(
                       label: FlutterI18n.translate(context, 'card_store.card_info.back_button'),
                       onPressed: () {
-                        print('Clicked');
+                        debugPrint('Clicked');
                       }),
-                  PrimaryButton(
+                  IrmaButton(
                     label: FlutterI18n.translate(
-                        context, 'card_store.card_info.get_button', {"card_type": this.widget.name.toLowerCase()}),
-                    onPressed: this.widget.onStartIssuance,
+                        context, 'card_store.card_info.get_button', {"card_type": widget.name.toLowerCase()}),
+                    onPressed: widget.onStartIssuance,
                   ),
                 ],
               ),

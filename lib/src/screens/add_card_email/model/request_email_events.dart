@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 abstract class RequestEmailEvent extends Equatable {
-  RequestEmailEvent([List props = const []]) : super(props);
+  const RequestEmailEvent([List props = const []]) : super(props);
 }
 
 class RequestAttribute extends RequestEmailEvent {

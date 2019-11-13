@@ -72,5 +72,5 @@ icon_font_generator \
     --from=fonts/irma-icons/icons \
     --class-name=IrmaIcons \
     --out-font=fonts/irma-icons/IrmaIcons.ttf \
-    --out-flutter=lib/src/theme/irma-icons.dart
+    --out-flutter=lib/src/theme/irma_icons.dart
 ```

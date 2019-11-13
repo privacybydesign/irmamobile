@@ -9,7 +9,7 @@ class RequestEmailBloc extends Bloc<RequestEmailEvent, RequestEmailState> {
   final RequestEmailState startingState;
   final EmailAttributeRequester attributeRequester;
   final String registrationEmail;
-  final Duration showSuccessAlertDuration = Duration(seconds: 3);
+  final Duration showSuccessAlertDuration = const Duration(seconds: 3);
   String _selectedLanguage;
 
   RequestEmailBloc(this.registrationEmail, this.attributeRequester) : startingState = null;
@@ -41,7 +41,7 @@ class RequestEmailBloc extends Bloc<RequestEmailEvent, RequestEmailState> {
         irmaEmail: event.email,
       );
       _selectedLanguage = event.language;
-      var success = await attributeRequester.requestAttribute(event.email, _selectedLanguage);
+      final success = await attributeRequester.requestAttribute(event.email, _selectedLanguage);
       yield currentState.copyWith(
           emailAttributeRequested: success,
           inProgress: false,
@@ -57,7 +57,7 @@ class RequestEmailBloc extends Bloc<RequestEmailEvent, RequestEmailState> {
     if (event is RequestAgain) {
       if (!currentState.inProgress) {
         yield currentState.copyWith(inProgress: true);
-        bool success = await attributeRequester.requestAttribute(
+        final success = await attributeRequester.requestAttribute(
           currentState.enteredEmail,
           _selectedLanguage,
         );

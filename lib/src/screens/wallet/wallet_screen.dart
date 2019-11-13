@@ -7,10 +7,11 @@ import 'package:irmamobile/src/screens/wallet/widgets/wallet.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet_drawer.dart';
 
 class WalletScreen extends StatelessWidget {
-  static final routeName = "/";
+  static const routeName = "/";
 
+  @override
   Widget build(BuildContext context) {
-    WalletBloc bloc = WalletBloc();
+    final WalletBloc bloc = WalletBloc();
 
     return BlocProvider<WalletBloc>.value(value: bloc, child: _WalletScreen(bloc: bloc));
   }
@@ -19,7 +20,7 @@ class WalletScreen extends StatelessWidget {
 class _WalletScreen extends StatefulWidget {
   final WalletBloc bloc;
 
-  _WalletScreen({this.bloc}) : super();
+  const _WalletScreen({this.bloc}) : super();
 
   @override
   _WalletScreenState createState() => _WalletScreenState();
@@ -33,7 +34,7 @@ class _WalletScreenState extends State<_WalletScreen> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-          title: Text('IRMA Wallet'),
+          title: const Text('IRMA Wallet'),
           leading: IconButton(
             icon: Icon(Icons.menu),
             onPressed: () => _scaffoldKey.currentState.openDrawer(),
@@ -50,7 +51,7 @@ class _WalletScreenState extends State<_WalletScreen> {
     );
   }
 
-  qrActivate() {
-    print("QR button pressed.");
+  void qrActivate() {
+    debugPrint("QR button pressed.");
   }
 }

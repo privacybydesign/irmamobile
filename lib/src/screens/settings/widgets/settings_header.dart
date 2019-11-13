@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class SettingsHeader extends StatelessWidget {
-  SettingsHeader({@required this.headerText});
+  const SettingsHeader({@required this.headerText});
 
   final String headerText;
 

@@ -6,7 +6,7 @@ import 'package:irmamobile/src/theme/theme.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AboutScreen extends StatelessWidget {
-  static final routeName = "/about";
+  static const routeName = "/about";
 
   static const double paragraphSpace = 10.0;
 
@@ -32,7 +32,7 @@ class AboutScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: paragraphSpace,
               ),
               Text(
@@ -40,96 +40,98 @@ class AboutScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 2 * paragraphSpace,
               ),
               Text(
                 FlutterI18n.translate(context, 'about.what_is_irma'),
               ),
-              SizedBox(
+              const SizedBox(
                 height: paragraphSpace,
               ),
               Text(
                 FlutterI18n.translate(context, 'about.privacy_benefits'),
               ),
-              SizedBox(
+              const SizedBox(
                 height: paragraphSpace,
               ),
               InkWell(
-                  child: Text(
-                    FlutterI18n.translate(context, 'about.privacy_policy_link'),
-                    style: TextStyle(color: IrmaTheme.of(context).linkColor),
-                  ),
-                  onTap: () {
-                    try {
-                      launch(
-                        FlutterI18n.translate(context, 'about.privacy_policy_link'),
-                      );
-                    } on PlatformException catch (e) {
-                      print(e.toString());
-                      print("error on launch of url - probably bad certificate?");
-                    }
-                  }),
-              SizedBox(
+                onTap: () {
+                  try {
+                    launch(
+                      FlutterI18n.translate(context, 'about.privacy_policy_link'),
+                    );
+                  } on PlatformException catch (e) {
+                    debugPrint(e.toString());
+                    debugPrint("error on launch of url - probably bad certificate?");
+                  }
+                },
+                child: Text(
+                  FlutterI18n.translate(context, 'about.privacy_policy_link'),
+                  style: TextStyle(color: IrmaTheme.of(context).linkColor),
+                ),
+              ),
+              const SizedBox(
                 height: paragraphSpace,
               ),
               Text(
                 FlutterI18n.translate(context, 'about.processing_agreement'),
               ),
-              SizedBox(
+              const SizedBox(
                 height: paragraphSpace,
               ),
               Text(
                 FlutterI18n.translate(context, 'about.signatures_information'),
               ),
-              SizedBox(
+              const SizedBox(
                 height: paragraphSpace,
               ),
               Text(
                 FlutterI18n.translate(context, 'about.problems'),
               ),
-              SizedBox(
+              const SizedBox(
                 height: paragraphSpace,
               ),
               Text(
                 FlutterI18n.translate(context, 'about.more_information'),
               ),
               InkWell(
-                  child: Text(
-                    FlutterI18n.translate(context, 'about.pbdf_website_link'),
-                    style: TextStyle(color: IrmaTheme.of(context).linkColor),
-                  ),
-                  onTap: () {
-                    try {
-                      launch(
-                        FlutterI18n.translate(context, 'about.pbdf_website_link'),
-                      );
-                    } on PlatformException catch (e) {
-                      print(e.toString());
-                      print("error on launch of url - probably bad certificate?");
-                    }
-                  }),
-              SizedBox(
+                onTap: () {
+                  try {
+                    launch(
+                      FlutterI18n.translate(context, 'about.pbdf_website_link'),
+                    );
+                  } on PlatformException catch (e) {
+                    debugPrint(e.toString());
+                    debugPrint("error on launch of url - probably bad certificate?");
+                  }
+                },
+                child: Text(
+                  FlutterI18n.translate(context, 'about.pbdf_website_link'),
+                  style: TextStyle(color: IrmaTheme.of(context).linkColor),
+                ),
+              ),
+              const SizedBox(
                 height: paragraphSpace,
               ),
               Text(
                 FlutterI18n.translate(context, 'about.source_code'),
               ),
               InkWell(
-                child: Text(
-                  FlutterI18n.translate(context, 'about.source_code_link'),
-                  style: TextStyle(color: IrmaTheme.of(context).linkColor),
-                ),
                 onTap: () {
                   try {
                     launch(
                       FlutterI18n.translate(context, 'about.source_code_link'),
                     );
                   } on PlatformException catch (e) {
-                    print(e.toString());
-                    print("error on launch of url - probably bad certificate?");
+                    debugPrint(e.toString());
+                    debugPrint("error on launch of url - probably bad certificate?");
                   }
                 },
+                child: Text(
+                  FlutterI18n.translate(context, 'about.source_code_link'),
+                  style: TextStyle(color: IrmaTheme.of(context).linkColor),
+                ),
               ),
             ],
           ),

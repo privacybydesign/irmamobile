@@ -3,10 +3,10 @@ import 'package:irmamobile/src/screens/issuance_webview/models/session_pointer.d
 
 void main() {
   test('Create session pointer from URI', () {
-    var url =
+    const url =
         'https://privacybydesign.foundation/tomcat/irma_api_server/api/v2/verification/DhimFIgKWVhGjBgUOihzIHKQsMMTDHIbULI0xEpWXAx';
-    var irmaQr = 'disclosing';
-    var positiveTestCases = [
+    const irmaQr = 'disclosing';
+    final positiveTestCases = [
       'intent://qr/json/{"u":"$url","v":"2.0","vmax":"2.4","irmaqr":"disclosing"}',
       'https://irma.app/testcase/session#{"u":"$url","v":"2.0","vmax":"2.4","irmaqr":"$irmaQr"}'
     ];

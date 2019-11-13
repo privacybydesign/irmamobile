@@ -9,7 +9,7 @@ void startDevExperiment3(BuildContext context) {
       builder: (context) {
         return Scaffold(
           appBar: AppBar(
-            title: Text('Update available voorbeeld'),
+            title: const Text('Update available voorbeeld'),
           ),
           body: StreamBuilder<VersionInformation>(
             stream: IrmaRepository.get().getVersionInformation(),
@@ -19,8 +19,8 @@ void startDevExperiment3(BuildContext context) {
                   return Center(
                     child: Container(
                       color: IrmaTheme.of(context).interactionInformation,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
+                      child: const Padding(
+                        padding: EdgeInsets.all(8.0),
                         child: Text("No update available"),
                       ),
                     ),
@@ -29,8 +29,8 @@ void startDevExperiment3(BuildContext context) {
                   return Center(
                     child: Container(
                       color: IrmaTheme.of(context).interactionAlert,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
+                      child: const Padding(
+                        padding: EdgeInsets.all(8.0),
                         child: Text("Update available"),
                       ),
                     ),

@@ -15,7 +15,7 @@ class PinField extends StatefulWidget {
   final ValueChanged<String> onSubmit;
   final ValueChanged<String> onFull;
 
-  PinField({
+  const PinField({
     this.minLength = 5,
     this.maxLength = 16,
     this.autofocus = true,
@@ -31,7 +31,7 @@ class PinField extends StatefulWidget {
 }
 
 class _PinFieldState extends State<PinField> {
-  final controller = TextEditingController();
+  final _textEditingController = TextEditingController();
   bool _isDisposed = false;
 
   bool obscureText;
@@ -47,11 +47,11 @@ class _PinFieldState extends State<PinField> {
     obscureText = true;
 
     focusNode = FocusNode();
-    controller.addListener(_updateLength);
+    _textEditingController.addListener(_updateLength);
   }
 
-  _updateLength() {
-    final val = controller.text;
+  void _updateLength() {
+    final val = _textEditingController.text;
     final len = val.length;
 
     if (len != lastLength && len == widget.maxLength) {
@@ -64,7 +64,7 @@ class _PinFieldState extends State<PinField> {
           widget.onSubmit(val);
         }
         if (!_isDisposed && widget.autoclear) {
-          controller.clear();
+          _textEditingController.clear();
         }
       });
     }
@@ -81,7 +81,7 @@ class _PinFieldState extends State<PinField> {
 
   @override
   void dispose() {
-    controller.dispose();
+    _textEditingController.dispose();
     focusNode.dispose();
     _isDisposed = true;
 
@@ -90,121 +90,194 @@ class _PinFieldState extends State<PinField> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
+    if (widget.maxLength > 5) {
+      return Center(
+        child: Container(
+          width: MediaQuery.of(context).size.width - theme.spacing * 4,
+          child: Row(
+            children: <Widget>[
+              Flexible(
+                child: TextFormField(
+                  controller: _textEditingController,
+                  onEditingComplete: () {
+                    final val = _textEditingController.text;
+                    if (val.length >= widget.minLength && val.length <= widget.maxLength && widget.onSubmit != null) {
+                      widget.onSubmit(val);
+                    }
+                  },
+                  inputFormatters: [
+                    WhitelistingTextInputFormatter(RegExp('[0-9]')),
+                  ],
+                  autofocus: true,
+                  keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
+                  obscureText: obscureText,
+                  maxLength: widget.maxLength,
+                ),
+              ),
+              IconButton(
+                iconSize: theme.spacing,
+                icon: Icon(
+                  obscureText ? Icons.visibility : Icons.visibility_off,
+                  color: Theme.of(context).primaryColorDark,
+                ),
+                onPressed: () {
+                  setState(
+                    () {
+                      obscureText = !obscureText;
+                    },
+                  );
+                },
+              )
+            ],
+          ),
+        ),
+      );
+    }
+
     final int len = min(widget.maxLength, max(value.length + 1, widget.minLength));
     final boxes = List<Widget>(len);
     final bool complete = value.length == widget.maxLength;
 
+    final filler = AnimatedOpacity(
+      opacity: value.isEmpty ? 0.0 : 1.0,
+      duration: const Duration(milliseconds: 150),
+      child: AnimatedContainer(
+        width: (theme.spacing * 2.5 * max(value.length, 1)) - (theme.spacing * 0.5),
+        height: theme.spacing * 2,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeInOutExpo,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(theme.spacing)),
+          color: obscureText ? theme.primaryBlue : theme.grayscale90,
+        ),
+      ),
+    );
+
     for (int i = 0; i < len; i++) {
       String char = i < value.length ? value[i] : '';
-      bool filled = char != '';
-      var grey = obscureText ? IrmaTheme.of(context).greyscale80 : IrmaTheme.of(context).greyscale90;
-      var primary = obscureText ? IrmaTheme.of(context).primaryBlue : IrmaTheme.of(context).greyscale90;
-      var background = (obscureText && filled) ? IrmaTheme.of(context).primaryDark : grey;
+      final bool filled = char != '';
+      final Color grey = obscureText ? theme.grayscale80 : theme.grayscale90;
 
       if (obscureText && filled) {
         char = ' ';
       }
 
-      boxes[i] = AnimatedContainer(
-        margin: EdgeInsets.all(IrmaTheme.of(context).spacing * (filled ? 0.25 : 0.5)),
-        width: IrmaTheme.of(context).spacing * (filled ? 2 : 1.5),
-        height: IrmaTheme.of(context).spacing * (filled ? 2 : 1.5),
+      boxes[i] = Container(
+        margin: EdgeInsets.only(right: i == len - 1 ? 0 : theme.spacing * 0.5),
+        width: theme.spacing * 2,
+        height: theme.spacing * 2,
         alignment: Alignment.center,
-        duration: Duration(milliseconds: 800),
-        curve: Curves.elasticOut,
-        decoration: new BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(IrmaTheme.of(context).spacing)),
-          color: complete ? primary : background,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(theme.spacing)),
+          color: grey,
         ),
-        child: new Text(char,
-            style: Theme.of(context).textTheme.body2.copyWith(
-                  fontSize: IrmaTheme.of(context).spacing * 1.5,
-                  color: complete ? IrmaTheme.of(context).primaryBlue : IrmaTheme.of(context).primaryDark,
-                )),
+        child: Text(
+          char,
+          style: Theme.of(context).textTheme.body2.copyWith(
+                fontSize: theme.spacing * 1.5,
+                color: complete ? theme.primaryBlue : theme.primaryDark,
+              ),
+        ),
       );
     }
 
-    var transparentBorder = OutlineInputBorder(
+    final transparentBorder = OutlineInputBorder(
       borderSide: BorderSide(
         color: Colors.transparent,
         width: 0.0,
       ),
     );
 
-    return Stack(children: [
-      Container(
-        width: 0.1,
-        child: TextFormField(
-          controller: controller,
-          focusNode: focusNode,
-          onEditingComplete: () {
-            final val = controller.text;
-            if (val.length >= widget.minLength && val.length <= widget.maxLength && widget.onSubmit != null) {
-              widget.onSubmit(val);
-            }
-          },
-          inputFormatters: [
-            WhitelistingTextInputFormatter(RegExp('[0-9]')),
-          ],
-          autofocus: true,
-          keyboardType: TextInputType.numberWithOptions(signed: false, decimal: false),
-          obscureText: true,
-          style: TextStyle(
-            height: 0.1,
-            color: Colors.transparent,
-          ),
-          decoration: InputDecoration(
-            focusedErrorBorder: transparentBorder,
-            errorBorder: transparentBorder,
-            disabledBorder: transparentBorder,
-            enabledBorder: transparentBorder,
-            focusedBorder: transparentBorder,
-            counterText: null,
-            counterStyle: null,
-            helperStyle: TextStyle(
-              height: 0.0,
+    return Stack(
+      children: [
+        Container(
+          width: 0.1,
+          child: TextFormField(
+            controller: _textEditingController,
+            focusNode: focusNode,
+            onEditingComplete: () {
+              final val = _textEditingController.text;
+              if (val.length >= widget.minLength && val.length <= widget.maxLength && widget.onSubmit != null) {
+                widget.onSubmit(val);
+              }
+            },
+            inputFormatters: [
+              WhitelistingTextInputFormatter(RegExp('[0-9]')),
+            ],
+            autofocus: true,
+            keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
+            obscureText: true,
+            style: TextStyle(
+              height: 0.1,
               color: Colors.transparent,
             ),
-            labelStyle: TextStyle(height: 0.1),
-            fillColor: Colors.transparent,
-            border: InputBorder.none,
-          ),
-          cursorColor: Colors.transparent,
-          maxLength: widget.maxLength,
-        ),
-      ),
-      Row(mainAxisSize: MainAxisSize.max, mainAxisAlignment: MainAxisAlignment.center, children: [
-        SizedBox(width: IrmaTheme.of(context).spacing * 2, height: IrmaTheme.of(context).spacing * 2),
-        GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () {
-            FocusScope.of(context).requestFocus(FocusNode());
-            Future.delayed(Duration(milliseconds: 100), () {
-              FocusScope.of(context).requestFocus(focusNode);
-            });
-          },
-          child: Container(
-            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 80),
-            child: Wrap(children: boxes),
-          ),
-        ),
-        SizedBox(
-          width: IrmaTheme.of(context).spacing * 2,
-          height: IrmaTheme.of(context).spacing * 2,
-          child: IconButton(
-            iconSize: IrmaTheme.of(context).spacing,
-            icon: Icon(
-              obscureText ? Icons.visibility : Icons.visibility_off,
-              color: Theme.of(context).primaryColorDark,
+            decoration: InputDecoration(
+              focusedErrorBorder: transparentBorder,
+              errorBorder: transparentBorder,
+              disabledBorder: transparentBorder,
+              enabledBorder: transparentBorder,
+              focusedBorder: transparentBorder,
+              counterText: null,
+              counterStyle: null,
+              helperStyle: TextStyle(
+                height: 0.0,
+                color: Colors.transparent,
+              ),
+              labelStyle: const TextStyle(height: 0.1),
+              fillColor: Colors.transparent,
+              border: InputBorder.none,
             ),
-            onPressed: () {
-              setState(() {
-                obscureText = !obscureText;
-              });
-            },
+            cursorColor: Colors.transparent,
+            maxLength: widget.maxLength,
           ),
-        )
-      ]),
-    ]);
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(width: theme.spacing * 2, height: theme.spacing * 2),
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                FocusScope.of(context).requestFocus(FocusNode());
+                Future.delayed(const Duration(milliseconds: 100), () {
+                  FocusScope.of(context).requestFocus(focusNode);
+                });
+              },
+              child: Container(
+                constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 80),
+                child: Stack(
+                  children: [
+                    if (!obscureText) ...[filler],
+                    Wrap(children: boxes),
+                    if (obscureText) ...[filler],
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(
+              width: theme.spacing * 2,
+              height: theme.spacing * 2,
+              child: IconButton(
+                iconSize: theme.spacing,
+                icon: Icon(
+                  obscureText ? Icons.visibility : Icons.visibility_off,
+                  color: Theme.of(context).primaryColorDark,
+                ),
+                onPressed: () {
+                  setState(
+                    () {
+                      obscureText = !obscureText;
+                    },
+                  );
+                },
+              ),
+            )
+          ],
+        ),
+      ],
+    );
   }
 }

@@ -13,10 +13,10 @@ class TranslatedValue extends UnmodifiableMapView<String, String> {
   // `lang`, so that it can be ignored as argument and this becomes a simpler
   // function.
   String translate(String lang, {String fallbackLang = 'nl'}) {
-    if (this.containsKey(lang)) {
+    if (containsKey(lang)) {
       return this[lang];
     }
-    if (fallbackLang != null && this.containsKey(fallbackLang)) {
+    if (fallbackLang != null && containsKey(fallbackLang)) {
       return this[fallbackLang];
     }
     return null;
