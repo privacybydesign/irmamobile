@@ -184,7 +184,7 @@ class _PinFieldState extends State<PinField> {
     }
 
     final transparentBorder = OutlineInputBorder(
-      borderSide: BorderSide(
+      borderSide: const BorderSide(
         color: Colors.transparent,
         width: 0.0,
       ),
@@ -209,7 +209,7 @@ class _PinFieldState extends State<PinField> {
             autofocus: true,
             keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
             obscureText: true,
-            style: TextStyle(
+            style: const TextStyle(
               height: 0.1,
               color: Colors.transparent,
             ),
@@ -221,7 +221,7 @@ class _PinFieldState extends State<PinField> {
               focusedBorder: transparentBorder,
               counterText: null,
               counterStyle: null,
-              helperStyle: TextStyle(
+              helperStyle: const TextStyle(
                 height: 0.0,
                 color: Colors.transparent,
               ),

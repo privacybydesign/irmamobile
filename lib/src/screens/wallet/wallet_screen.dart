@@ -44,8 +44,9 @@ class _WalletScreenState extends State<_WalletScreen> {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return Wallet(credentials: snapshot.data.values.toList(), qrCallback: qrActivate);
-            } else
-              return Center(child: Text('Loading...'));
+            } else {
+              return Center(child: const Text('Loading...'));
+            }
           }),
       drawer: WalletDrawer(),
     );
