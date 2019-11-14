@@ -10,7 +10,7 @@ import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/widgets/card/button.dart';
 import 'package:irmamobile/src/widgets/card/backgrounds.dart';
-import 'package:irmamobile/src/widgets/card/card-attributes.dart';
+import 'package:irmamobile/src/widgets/card/card_attributes.dart';
 
 class IrmaCard extends StatefulWidget {
   final String lang = ui.window.locale.languageCode;
@@ -36,9 +36,9 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
 
   final _animationDuration = 250;
   final _headerBottom = 30.0;
-  final _borderRadius = Radius.circular(15.0);
+  final _borderRadius = const Radius.circular(15.0);
   final _padding = 15.0;
-  final _transparentWhiteBackground = Color(0x55ffffff);
+  final _transparentWhiteBackground = const Color(0x55ffffff);
 
   var _heightTween = Tween<double>(begin: 240, end: 400);
 
@@ -144,8 +144,13 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
                         opacity: _opacityTween.evaluate(animation),
                         child: _opacityTween.evaluate(animation) == 0
                             ? const Text("")
-                            : CardAttributes(widget.attributes, widget.attributes.issuer, isCardReadable, widget.lang,
-                                irmaCardTheme, widget.scrollOverflowCallback)),
+                            : CardAttributes(
+                                personalData: widget.attributes,
+                                issuer: widget.attributes.issuer,
+                                isCardUnblurred: isCardReadable,
+                                lang: widget.lang,
+                                irmaCardTheme: irmaCardTheme,
+                                scrollOverflowCallback: widget.scrollOverflowCallback)),
                   ),
                 ),
                 Container(
