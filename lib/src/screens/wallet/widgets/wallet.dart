@@ -5,6 +5,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 
 import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/widgets/card/card.dart';
+import 'package:irmamobile/src/screens/wallet/widgets/wallet_button.dart';
 
 class Wallet extends StatefulWidget {
   final List<Credential> credentials;
@@ -204,30 +205,18 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
               Positioned(
                 left: 16,
                 bottom: 12,
-                child: GestureDetector(
-                    onTap: () {
-                      widget.helpCallback();
-                    },
-                    child: Semantics(
-                        button: true,
-                        label: FlutterI18n.translate(context, 'wallet.help'),
-                        child: SvgPicture.asset(
-                          'assets/wallet/btn_help.svg',
-                        ))),
+                child: WalletButton(
+                    svgFile: 'assets/wallet/btn_help.svg',
+                    accessibleName: "wallet.help",
+                    clickStreamSink: widget.helpCallback),
               ),
               Positioned(
                 right: 16,
                 bottom: 12,
-                child: GestureDetector(
-                    onTap: () {
-                      widget.qrCallback();
-                    },
-                    child: Semantics(
-                        button: true,
-                        label: FlutterI18n.translate(context, 'wallet.scan_qr_code'),
-                        child: SvgPicture.asset(
-                          'assets/wallet/btn_qrscan.svg',
-                        ))),
+                child: WalletButton(
+                    svgFile: 'assets/wallet/btn_qrscan.svg',
+                    accessibleName: "wallet.scan_qr_code",
+                    clickStreamSink: widget.qrCallback),
               ),
             ],
           ),
