@@ -77,14 +77,14 @@ class IrmaClientMock implements IrmaClient {
   @override
   Stream<Credentials> getCredentials() {
     return Stream.fromIterable(
-      ["amsterdam", "idin", "duo", "amsterdam2", "idin2", "duo2", "amsterdam3", "idin3", "duo3"])
-      .asyncMap<Credential>((id) => getCredential(id).first)
-      .fold<Map<String, Credential>>(<String, Credential>{}, (credentialMap, credential) {
-      credentialMap[credential.id] = credential;
-      return credentialMap;
-    })
-      .asStream()
-      .map<Credentials>((credentialMap) => Credentials(credentialMap));
+            ["amsterdam", "idin", "duo", "amsterdam2", "idin2", "duo2", "amsterdam3", "idin3", "duo3"])
+        .asyncMap<Credential>((id) => getCredential(id).first)
+        .fold<Map<String, Credential>>(<String, Credential>{}, (credentialMap, credential) {
+          credentialMap[credential.id] = credential;
+          return credentialMap;
+        })
+        .asStream()
+        .map<Credentials>((credentialMap) => Credentials(credentialMap));
   }
 
   @override
@@ -94,7 +94,7 @@ class IrmaClientMock implements IrmaClient {
     }
     return Future.delayed(
       Duration(milliseconds: 100),
-        () => Credential(
+      () => Credential(
         id: id,
         // TODO: realistic value
         // TODO: use irmaConfiguration.issuers[myIssuerId],
@@ -106,11 +106,11 @@ class IrmaClientMock implements IrmaClient {
         expires: DateTime.now().add(Duration(minutes: 5)),
         attributes: Attributes({
           irmaConfiguration.attributeTypes["$myCredentialFoo.name"]:
-          TranslatedValue({'nl': 'Anouk Meijer', 'en': 'Anouk Meijer'}),
+              TranslatedValue({'nl': 'Anouk Meijer', 'en': 'Anouk Meijer'}),
           irmaConfiguration.attributeTypes["$myCredentialFoo.birthdate"]:
-          TranslatedValue({'nl': '4 juli 1990', 'en': 'Juli 4th, 1990'}),
+              TranslatedValue({'nl': '4 juli 1990', 'en': 'Juli 4th, 1990'}),
           irmaConfiguration.attributeTypes["$myCredentialFoo.email"]:
-          TranslatedValue({'nl': 'anouk.meijer@gmail.com', 'en': 'anouk.meijer@gmail.com'}),
+              TranslatedValue({'nl': 'anouk.meijer@gmail.com', 'en': 'anouk.meijer@gmail.com'}),
         }),
         hash: "foobar",
         // TODO: realistic value
@@ -122,20 +122,20 @@ class IrmaClientMock implements IrmaClient {
   @override
   Stream<Map<String, Issuer>> getIssuers() {
     return Future.delayed(
-      Duration(seconds: 1),
+        Duration(seconds: 1),
         () => {
-        // TODO: use legit demo names
-        'foobar.amsterdam': Issuer(
-          name: {'nl': 'Gemeente Amsterdam'},
-        ),
-        'foobar.duo': Issuer(
-          name: {'nl': 'Dienst Uitvoering Onderwijs'},
-        ),
-        'foobar.idin': Issuer(
-          name: {'nl': 'iDIN'},
-        ),
-        myIssuerId: myIssuer,
-      }).asStream();
+              // TODO: use legit demo names
+              'foobar.amsterdam': Issuer(
+                name: {'nl': 'Gemeente Amsterdam'},
+              ),
+              'foobar.duo': Issuer(
+                name: {'nl': 'Dienst Uitvoering Onderwijs'},
+              ),
+              'foobar.idin': Issuer(
+                name: {'nl': 'iDIN'},
+              ),
+              myIssuerId: myIssuer,
+            }).asStream();
   }
 
   @override
@@ -143,7 +143,7 @@ class IrmaClientMock implements IrmaClient {
     final currentVersion = Version.parse("1.0.0");
     return Future.delayed(
       Duration(milliseconds: versionUpdateRequired ? 2000 : 300),
-        () => VersionInformation(
+      () => VersionInformation(
         availableVersion: versionUpdateAvailable ? Version.parse("1.1.1") : currentVersion,
         requiredVersion: versionUpdateRequired ? Version.parse("1.1.0") : currentVersion,
         currentVersion: currentVersion,

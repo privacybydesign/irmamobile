@@ -30,26 +30,26 @@ class _WalletButtonState extends State<WalletButton> with SingleTickerProviderSt
       button: true,
       label: FlutterI18n.translate(context, widget.accessibleName),
       child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () {
-          widget.clickStreamSink();
-        },
-        child: Listener(
           behavior: HitTestBehavior.opaque,
-          onPointerDown: (tapDownDetails) {
-            setState(() {
-              buttonPressedState = true;
-            });
+          onTap: () {
+            widget.clickStreamSink();
           },
-          onPointerUp: (tapUpDetails) {
-            setState(() {
-              buttonPressedState = false;
-            });
-          },
-          child: Padding(
-            padding: const EdgeInsets.only(right: padding),
-            child: SvgPicture.asset(widget.svgFile, color: buttonPressedState ? Colors.grey[700] : Colors.white),
-          ))),
+          child: Listener(
+              behavior: HitTestBehavior.opaque,
+              onPointerDown: (tapDownDetails) {
+                setState(() {
+                  buttonPressedState = true;
+                });
+              },
+              onPointerUp: (tapUpDetails) {
+                setState(() {
+                  buttonPressedState = false;
+                });
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(right: padding),
+                child: SvgPicture.asset(widget.svgFile, color: buttonPressedState ? Colors.grey[700] : Colors.white),
+              ))),
     );
   }
 }

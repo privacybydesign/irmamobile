@@ -22,7 +22,12 @@ class CardAttributes extends StatelessWidget {
   final void Function(double) scrollOverflowCallback;
 
   CardAttributes(
-  {this.personalData, this.issuer, this.isCardUnblurred, this.lang, this.irmaCardTheme, this.scrollOverflowCallback});
+      {this.personalData,
+      this.issuer,
+      this.isCardUnblurred,
+      this.lang,
+      this.irmaCardTheme,
+      this.scrollOverflowCallback});
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +45,7 @@ class CardAttributes extends StatelessWidget {
             Container(
               width: indent,
               child: Text(personal.key.name['nl'],
-                style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor)),
+                  style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor)),
             ),
             BlurText(text: personal.value['nl'], color: irmaCardTheme.fgColor, isTextBlurred: false),
 //            _BlurText(personal.value, IrmaCardTheme.fgColor,
@@ -59,15 +64,15 @@ class CardAttributes extends StatelessWidget {
           Container(
             width: indent,
             child: Text(FlutterI18n.translate(context, 'wallet.issuer'),
-              style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor)),
+                style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor)),
           ),
           Text(
             issuer.name['nl'],
             style: Theme.of(context)
-              .textTheme
-              .body1
-              .copyWith(fontWeight: FontWeight.w700)
-              .copyWith(color: irmaCardTheme.fgColor),
+                .textTheme
+                .body1
+                .copyWith(fontWeight: FontWeight.w700)
+                .copyWith(color: irmaCardTheme.fgColor),
           ),
         ],
       ),
@@ -80,15 +85,15 @@ class CardAttributes extends StatelessWidget {
           Container(
             width: indent,
             child: Text(FlutterI18n.translate(context, 'wallet.expiration'),
-              style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor)),
+                style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor)),
           ),
           Text(
             _formatter.format(personalData.expires),
             style: Theme.of(context)
-              .textTheme
-              .body1
-              .copyWith(fontWeight: FontWeight.w700)
-              .copyWith(color: irmaCardTheme.fgColor),
+                .textTheme
+                .body1
+                .copyWith(fontWeight: FontWeight.w700)
+                .copyWith(color: irmaCardTheme.fgColor),
           ),
         ],
       ),
@@ -106,10 +111,10 @@ class CardAttributes extends StatelessWidget {
           Text(
             "Filler",
             style: Theme.of(context)
-              .textTheme
-              .body1
-              .copyWith(fontWeight: FontWeight.w700)
-              .copyWith(color: irmaCardTheme.fgColor),
+                .textTheme
+                .body1
+                .copyWith(fontWeight: FontWeight.w700)
+                .copyWith(color: irmaCardTheme.fgColor),
           ),
         ],
       ),
@@ -125,10 +130,10 @@ class CardAttributes extends StatelessWidget {
           Text(
             "Filler",
             style: Theme.of(context)
-              .textTheme
-              .body1
-              .copyWith(fontWeight: FontWeight.w700)
-              .copyWith(color: irmaCardTheme.fgColor),
+                .textTheme
+                .body1
+                .copyWith(fontWeight: FontWeight.w700)
+                .copyWith(color: irmaCardTheme.fgColor),
           ),
         ],
       ),
@@ -144,10 +149,10 @@ class CardAttributes extends StatelessWidget {
           Text(
             "Filler",
             style: Theme.of(context)
-              .textTheme
-              .body1
-              .copyWith(fontWeight: FontWeight.w700)
-              .copyWith(color: irmaCardTheme.fgColor),
+                .textTheme
+                .body1
+                .copyWith(fontWeight: FontWeight.w700)
+                .copyWith(color: irmaCardTheme.fgColor),
           ),
         ],
       ),
@@ -163,10 +168,10 @@ class CardAttributes extends StatelessWidget {
           Text(
             "Filler",
             style: Theme.of(context)
-              .textTheme
-              .body1
-              .copyWith(fontWeight: FontWeight.w700)
-              .copyWith(color: irmaCardTheme.fgColor),
+                .textTheme
+                .body1
+                .copyWith(fontWeight: FontWeight.w700)
+                .copyWith(color: irmaCardTheme.fgColor),
           ),
         ],
       ),
@@ -182,10 +187,10 @@ class CardAttributes extends StatelessWidget {
           Text(
             "Filler",
             style: Theme.of(context)
-              .textTheme
-              .body1
-              .copyWith(fontWeight: FontWeight.w700)
-              .copyWith(color: irmaCardTheme.fgColor),
+                .textTheme
+                .body1
+                .copyWith(fontWeight: FontWeight.w700)
+                .copyWith(color: irmaCardTheme.fgColor),
           ),
         ],
       ),
@@ -201,10 +206,10 @@ class CardAttributes extends StatelessWidget {
           Text(
             "Filler",
             style: Theme.of(context)
-              .textTheme
-              .body1
-              .copyWith(fontWeight: FontWeight.w700)
-              .copyWith(color: irmaCardTheme.fgColor),
+                .textTheme
+                .body1
+                .copyWith(fontWeight: FontWeight.w700)
+                .copyWith(color: irmaCardTheme.fgColor),
           ),
         ],
       ),
@@ -220,10 +225,10 @@ class CardAttributes extends StatelessWidget {
           Text(
             "Filler",
             style: Theme.of(context)
-              .textTheme
-              .body1
-              .copyWith(fontWeight: FontWeight.w700)
-              .copyWith(color: irmaCardTheme.fgColor),
+                .textTheme
+                .body1
+                .copyWith(fontWeight: FontWeight.w700)
+                .copyWith(color: irmaCardTheme.fgColor),
           ),
         ],
       ),
@@ -240,10 +245,10 @@ class CardAttributes extends StatelessWidget {
     });
 
     return Scrollbar(
-      child: ListView(
-        controller: scrollController,
-        physics: const BouncingScrollPhysics(),
-        children: _textLines,
-      ));
+        child: ListView(
+      controller: scrollController,
+      physics: const BouncingScrollPhysics(),
+      children: _textLines,
+    ));
   }
 }
