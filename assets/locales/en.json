@@ -170,6 +170,7 @@
   "wallet": {
     "scan_qr_code": "Scan QR code",
     "issuer": "Issuer",
-    "expiration": "Expiration"
+    "expiration": "Expiration",
+    "help": "Help"
   }
 }

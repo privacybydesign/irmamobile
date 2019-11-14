@@ -9,8 +9,9 @@ import 'package:irmamobile/src/widgets/card/card.dart';
 class Wallet extends StatefulWidget {
   final List<Credential> credentials;
   final VoidCallback qrCallback;
+  final VoidCallback helpCallback;
 
-  const Wallet({this.credentials, this.qrCallback});
+  const Wallet({this.credentials, this.qrCallback, this.helpCallback});
 
   @override
   _WalletState createState() => _WalletState();
@@ -27,8 +28,7 @@ class Wallet extends StatefulWidget {
 class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _padding = 15.0;
   final _animationDuration = 250;
-  final _walletAspectRatio = 185 / 406; // wallet.svg
-  final _qrButtonSize = 94; // qr-button.svg
+  final _walletAspectRatio = 87 / 360; // wallet.svg
   final _cardShrunkHeight = 10;
   final _cardUnshrunkHeight = 40;
   final _cardsMaxExtended = 5;
@@ -106,6 +106,13 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         int index = 0;
         double cardTop;
         int bottomCardIndex;
+
+        cardWidgets.add(Align(
+            alignment: Alignment.bottomCenter,
+            child: SvgPicture.asset(
+              'assets/wallet/wallet_back.svg',
+              width: size.width,
+            )));
 
         cardWidgets.addAll(widget.credentials.map((credential) {
           final double walletShrinkInterpolation = _walletShrinkTween.evaluate(drawAnimation);
@@ -190,23 +197,38 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                     }
                   },
                   child: SvgPicture.asset(
-                    'assets/wallet/wallet.svg',
+                    'assets/wallet/wallet_front.svg',
                     width: size.width,
                     height: size.width * _walletAspectRatio,
                   )),
               Positioned(
-                  left: (size.width - _qrButtonSize) / 2,
-                  top: (size.width - 2 * _padding) * _walletAspectRatio * 0.18,
-                  child: GestureDetector(
-                      onTap: () {
-                        widget.qrCallback();
-                      },
-                      child: Semantics(
-                          button: true,
-                          label: FlutterI18n.translate(context, 'wallet.scan_qr_code'),
-                          child: SvgPicture.asset(
-                            'assets/wallet/qr-button.svg',
-                          ))))
+                left: 16,
+                bottom: 12,
+                child: GestureDetector(
+                    onTap: () {
+                      widget.helpCallback();
+                    },
+                    child: Semantics(
+                        button: true,
+                        label: FlutterI18n.translate(context, 'wallet.help'),
+                        child: SvgPicture.asset(
+                          'assets/wallet/btn_help.svg',
+                        ))),
+              ),
+              Positioned(
+                right: 16,
+                bottom: 12,
+                child: GestureDetector(
+                    onTap: () {
+                      widget.qrCallback();
+                    },
+                    child: Semantics(
+                        button: true,
+                        label: FlutterI18n.translate(context, 'wallet.scan_qr_code'),
+                        child: SvgPicture.asset(
+                          'assets/wallet/btn_qrscan.svg',
+                        ))),
+              ),
             ],
           ),
         ));

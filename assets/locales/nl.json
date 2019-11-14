@@ -170,6 +170,7 @@
   "wallet": {
     "scan_qr_code": "Scan QR code",
     "issuer": "Uitgifte",
-    "expiration": "Geldig tot"
+    "expiration": "Geldig tot",
+    "help": "Help"
   }
 }

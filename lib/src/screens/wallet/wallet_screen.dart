@@ -43,7 +43,8 @@ class _WalletScreenState extends State<_WalletScreen> {
           stream: widget.bloc.credentials,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              return Wallet(credentials: snapshot.data.values.toList(), qrCallback: qrActivate);
+              return Wallet(
+                  credentials: snapshot.data.values.toList(), qrCallback: qrActivate, helpCallback: helpActivate);
             } else {
               return Center(child: const Text('Loading...'));
             }
@@ -54,5 +55,9 @@ class _WalletScreenState extends State<_WalletScreen> {
 
   void qrActivate() {
     debugPrint("QR button pressed.");
+  }
+
+  void helpActivate() {
+    debugPrint("Help button pressed.");
   }
 }
