@@ -1,4 +1,7 @@
 {
+  "ui": {
+    "loading": "Loading…"
+  },
   "enrollment": {
     "welcome": {
       "header": "Word weer baas over je eigen gegevens!",
@@ -168,6 +171,7 @@
     }
   },
   "wallet": {
+    "title": "IRMA Wallet",
     "scan_qr_code": "Scan QR code",
     "issuer": "Issuer",
     "expiration": "Expiration"

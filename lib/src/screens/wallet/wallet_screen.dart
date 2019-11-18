@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/screens/wallet/models/wallet_bloc.dart';
@@ -34,7 +35,7 @@ class _WalletScreenState extends State<_WalletScreen> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-          title: const Text('IRMA Wallet'),
+          title: Text(FlutterI18n.translate(context, 'wallet.title')),
           leading: IconButton(
             icon: Icon(Icons.menu),
             onPressed: () => _scaffoldKey.currentState.openDrawer(),
@@ -45,7 +46,7 @@ class _WalletScreenState extends State<_WalletScreen> {
             if (snapshot.hasData) {
               return Wallet(credentials: snapshot.data.values.toList(), qrCallback: qrActivate);
             } else {
-              return Center(child: const Text('Loading...'));
+              return Center(child: Text(FlutterI18n.translate(context, 'ui.loading')));
             }
           }),
       drawer: WalletDrawer(),

@@ -70,9 +70,14 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
     super.didUpdateWidget(oldWidget);
   }
 
+  // Calculate a card color dependent of the issuer id
+  //
+  // This is to prevent all cards getting a different
+  // color when a card is added or removed and confusing
+  // the user.
   IrmaCardTheme calculateIrmaCardTheme(Issuer issuer) {
     final int strNum = issuer.id.runes.reduce((oldChar, newChar) {
-      return (oldChar << 2) ^ newChar;
+      return (oldChar << 1) ^ newChar;
     });
 
     return backgrounds[strNum % backgrounds.length];
@@ -179,11 +184,13 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
                         ),
                       ),
                       Opacity(
-                          opacity: _opacityTween.evaluate(animation),
-                          child: CardButton('assets/icons/update.svg', 'accessibility.update', widget.updateCallback)),
+                        opacity: _opacityTween.evaluate(animation),
+                        child: CardButton('assets/icons/update.svg', 'accessibility.update', widget.updateCallback),
+                      ),
                       Opacity(
-                          opacity: _opacityTween.evaluate(animation),
-                          child: CardButton('assets/icons/remove.svg', 'accessibility.remove', widget.removeCallback))
+                        opacity: _opacityTween.evaluate(animation),
+                        child: CardButton('assets/icons/remove.svg', 'accessibility.remove', widget.removeCallback),
+                      )
                     ],
                   ),
                 ),
