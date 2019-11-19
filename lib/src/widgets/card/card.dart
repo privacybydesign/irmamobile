@@ -76,9 +76,7 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
   // color when a card is added or removed and confusing
   // the user.
   IrmaCardTheme calculateIrmaCardTheme(Issuer issuer) {
-    final int strNum = issuer.id.runes.reduce((oldChar, newChar) {
-      return (oldChar << 1) ^ newChar;
-    });
+    final int strNum = issuer.id.runes.reduce((oldChar, newChar) => (oldChar << 1) ^ newChar);
 
     return backgrounds[strNum % backgrounds.length];
   }
@@ -101,107 +99,105 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
       animation: animation,
-      builder: (buildContext, child) {
-        return GestureDetector(
-          onLongPress: () {
-            setState(() {
-              isCardReadable = true;
-            });
-          },
-          onLongPressUp: () {
-            setState(() {
-              isCardReadable = false;
-            });
-          },
-          child: Container(
-            height: _heightTween.evaluate(animation),
-            margin: const EdgeInsets.symmetric(horizontal: 20),
-            decoration: BoxDecoration(
-              color: irmaCardTheme.bgColorLight,
-              gradient: LinearGradient(
-                  colors: [irmaCardTheme.bgColorLight, irmaCardTheme.bgColorDark],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter),
-              border: Border.all(width: 1.0, color: irmaCardTheme.bgColorDark),
-              borderRadius: BorderRadius.all(
-                _borderRadius,
+      builder: (buildContext, child) => GestureDetector(
+            onLongPress: () {
+              setState(() {
+                isCardReadable = true;
+              });
+            },
+            onLongPressUp: () {
+              setState(() {
+                isCardReadable = false;
+              });
+            },
+            child: Container(
+              height: _heightTween.evaluate(animation),
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              decoration: BoxDecoration(
+                color: irmaCardTheme.bgColorLight,
+                gradient: LinearGradient(
+                    colors: [irmaCardTheme.bgColorLight, irmaCardTheme.bgColorDark],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter),
+                border: Border.all(width: 1.0, color: irmaCardTheme.bgColorDark),
+                borderRadius: BorderRadius.all(
+                  _borderRadius,
+                ),
               ),
-            ),
-            child: Column(
-              children: <Widget>[
-                Container(
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      top: _padding,
-                      right: _padding,
-                      bottom: _headerBottom,
-                    ),
-                    child: Text(
-                      FlutterI18n.translate(context, 'card.personaldata'),
-                      style: Theme.of(context).textTheme.headline.copyWith(color: irmaCardTheme.fgColor),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.all(_padding),
-                    child: Opacity(
-                        opacity: _opacityTween.evaluate(animation),
-                        child: _opacityTween.evaluate(animation) == 0
-                            ? const Text("")
-                            : CardAttributes(
-                                personalData: widget.attributes,
-                                issuer: widget.attributes.issuer,
-                                isCardUnblurred: isCardReadable,
-                                lang: widget.lang,
-                                irmaCardTheme: irmaCardTheme,
-                                scrollOverflowCallback: widget.scrollOverflowCallback)),
-                  ),
-                ),
-                Container(
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: _transparentWhiteBackground,
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: _borderRadius,
-                      bottomRight: _borderRadius,
+              child: Column(
+                children: <Widget>[
+                  Container(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        top: _padding,
+                        right: _padding,
+                        bottom: _headerBottom,
+                      ),
+                      child: Text(
+                        FlutterI18n.translate(context, 'card.personaldata'),
+                        style: Theme.of(context).textTheme.headline.copyWith(color: irmaCardTheme.fgColor),
+                      ),
                     ),
                   ),
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Semantics(
-                          button: true,
-                          enabled: false,
-                          label: FlutterI18n.translate(context, 'accessibility.unfold'),
-                          child: Transform(
-                            origin: const Offset(27, 24),
-                            transform: Matrix4.rotationZ(
-                              _rotateTween.evaluate(animation),
-                            ),
-                            child: IconButton(
-                              onPressed: () {},
-                              icon: SvgPicture.asset('assets/icons/arrow-down.svg'),
-                              padding: EdgeInsets.only(left: _padding),
-                              alignment: Alignment.centerLeft,
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.all(_padding),
+                      child: Opacity(
+                          opacity: _opacityTween.evaluate(animation),
+                          child: _opacityTween.evaluate(animation) == 0
+                              ? const Text("")
+                              : CardAttributes(
+                                  personalData: widget.attributes,
+                                  issuer: widget.attributes.issuer,
+                                  isCardUnblurred: isCardReadable,
+                                  lang: widget.lang,
+                                  irmaCardTheme: irmaCardTheme,
+                                  scrollOverflowCallback: widget.scrollOverflowCallback)),
+                    ),
+                  ),
+                  Container(
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: _transparentWhiteBackground,
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: _borderRadius,
+                        bottomRight: _borderRadius,
+                      ),
+                    ),
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Semantics(
+                            button: true,
+                            enabled: false,
+                            label: FlutterI18n.translate(context, 'accessibility.unfold'),
+                            child: Transform(
+                              origin: const Offset(27, 24),
+                              transform: Matrix4.rotationZ(
+                                _rotateTween.evaluate(animation),
+                              ),
+                              child: IconButton(
+                                onPressed: () {},
+                                icon: SvgPicture.asset('assets/icons/arrow-down.svg'),
+                                padding: EdgeInsets.only(left: _padding),
+                                alignment: Alignment.centerLeft,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      Opacity(
-                        opacity: _opacityTween.evaluate(animation),
-                        child: CardButton('assets/icons/update.svg', 'accessibility.update', widget.updateCallback),
-                      ),
-                      Opacity(
-                        opacity: _opacityTween.evaluate(animation),
-                        child: CardButton('assets/icons/remove.svg', 'accessibility.remove', widget.removeCallback),
-                      )
-                    ],
+                        Opacity(
+                          opacity: _opacityTween.evaluate(animation),
+                          child: CardButton('assets/icons/update.svg', 'accessibility.update', widget.updateCallback),
+                        ),
+                        Opacity(
+                          opacity: _opacityTween.evaluate(animation),
+                          child: CardButton('assets/icons/remove.svg', 'accessibility.remove', widget.removeCallback),
+                        )
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
-      });
+          ));
 }
