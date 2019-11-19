@@ -158,13 +158,27 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
             child: Stack(
               children: <Widget>[
                 GestureDetector(
-                    onTapUp: (TapUpDetails details) {
-                      if (details.localPosition.dy < _topOfWalletThatIsInteractionWithCard) {
-                        // Tap on top of wallet simulates tap on bottom card
-                        cardTapped(bottomCardIndex, widget.credentials[bottomCardIndex], size);
-                      } else {
+                    onVerticalDragStart: (DragStartDetails details) {
+                      if (currentState != WalletState.drawn) {
                         setState(() {
-                          setNewState(WalletState.halfway);
+                          drawnCardIndex = widget.credentials.length > 7 ? 6 : widget.credentials.length - 1;
+                          scroll = details.localPosition.dy;
+                        });
+                      }
+                    },
+                    onVerticalDragEnd: (DragEndDetails details) {
+                      if (scroll < -_scrollTipping && currentState != WalletState.drawn) {
+                        cardTapped(drawnCardIndex, widget.credentials[drawnCardIndex], size);
+                      } else if (scroll > _scrollTipping && currentState == WalletState.full) {
+                        setNewState(WalletState.halfway);
+                      } else {
+                        drawController.forward();
+                      }
+                    },
+                    onVerticalDragUpdate: (DragUpdateDetails details) {
+                      if (currentState != WalletState.drawn) {
+                        setState(() {
+                          scroll = details.localPosition.dy;
                         });
                       }
                     },
@@ -278,10 +292,8 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         // Drag drawn card
         if (index == drawnCardIndex) {
           cardPosition -= scroll;
-        }
-
-        // No cards lower than wallet
-        if (cardPosition < 0) {
+        } else if (cardPosition < 0) {
+          // No cards lower than wallet
           cardPosition = -1000; // Out of view
         }
         break;
