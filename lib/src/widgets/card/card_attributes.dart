@@ -12,7 +12,7 @@ class CardAttributes extends StatelessWidget {
   static const _transparentWhite = Color(0xaaffffff);
   final _indent = 100.0;
 
-  final _formatter = DateFormat.yMd();
+  final _dateFormatter = DateFormat.yMd();
 
   final Credential personalData;
   final Issuer issuer;
@@ -31,16 +31,7 @@ class CardAttributes extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    TextStyle bodyTheme = Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor);
-
-    final List<Widget> _textLines = <Widget>[
-      const Divider(color: _transparentWhite),
-    ];
-
-    _textLines.addAll(getAttributes(context, bodyTheme));
-    _textLines.add(const Divider(color: _transparentWhite));
-    _textLines.add(getIssuer(context, bodyTheme));
-    _textLines.add(getExpiration(context, bodyTheme));
+    final TextStyle bodyTheme = Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor);
 
     final ScrollController scrollController = ScrollController();
     scrollController.addListener(() {
@@ -53,77 +44,77 @@ class CardAttributes extends StatelessWidget {
         child: ListView(
       controller: scrollController,
       physics: const BouncingScrollPhysics(),
-      children: _textLines,
+      children: [
+        const Divider(color: _transparentWhite),
+        ...getAttributes(context, bodyTheme),
+        const Divider(color: _transparentWhite),
+        getIssuer(context, bodyTheme),
+        getExpiration(context, bodyTheme)
+      ],
     ));
   }
 
-  List<Widget> getAttributes(BuildContext context, TextStyle bodyTheme) {
-    return personalData.attributes.entries.map((personal) {
-      return Padding(
+  List<Widget> getAttributes(BuildContext context, TextStyle bodyTheme) => personalData.attributes.entries
+      .map((personal) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              children: [
+                Container(
+                  width: _indent,
+                  child: Text(
+                    personal.key.name['nl'],
+                    style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor),
+                  ),
+                ),
+                BlurText(text: personal.value['nl'], color: irmaCardTheme.fgColor, isTextBlurred: false),
+              ],
+            ),
+          ))
+      .toList();
+
+  Widget getIssuer(BuildContext context, TextStyle bodyTheme) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 4),
         child: Row(
           children: [
             Container(
               width: _indent,
               child: Text(
-                personal.key.name['nl'],
+                FlutterI18n.translate(context, 'wallet.issuer'),
                 style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor),
               ),
             ),
-            BlurText(text: personal.value['nl'], color: irmaCardTheme.fgColor, isTextBlurred: false),
+            Text(
+              issuer.name['nl'],
+              style: Theme.of(context)
+                  .textTheme
+                  .body1
+                  .copyWith(fontWeight: FontWeight.w700)
+                  .copyWith(color: irmaCardTheme.fgColor),
+            ),
           ],
         ),
       );
-    }).toList();
-  }
 
-  Widget getIssuer(BuildContext context, TextStyle bodyTheme) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Container(
-            width: _indent,
-            child: Text(
-              FlutterI18n.translate(context, 'wallet.issuer'),
-              style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor),
+  Widget getExpiration(BuildContext context, TextStyle bodyTheme) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          children: [
+            Container(
+              width: _indent,
+              child: Text(
+                FlutterI18n.translate(context, 'wallet.expiration'),
+                style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor),
+              ),
             ),
-          ),
-          Text(
-            issuer.name['nl'],
-            style: Theme.of(context)
-                .textTheme
-                .body1
-                .copyWith(fontWeight: FontWeight.w700)
-                .copyWith(color: irmaCardTheme.fgColor),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget getExpiration(BuildContext context, TextStyle bodyTheme) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Container(
-            width: _indent,
-            child: Text(
-              FlutterI18n.translate(context, 'wallet.expiration'),
-              style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor),
+            Text(
+              _dateFormatter.format(personalData.expires),
+              style: Theme.of(context)
+                  .textTheme
+                  .body1
+                  .copyWith(fontWeight: FontWeight.w700)
+                  .copyWith(color: irmaCardTheme.fgColor),
             ),
-          ),
-          Text(
-            _formatter.format(personalData.expires),
-            style: Theme.of(context)
-                .textTheme
-                .body1
-                .copyWith(fontWeight: FontWeight.w700)
-                .copyWith(color: irmaCardTheme.fgColor),
-          ),
-        ],
-      ),
-    );
-  }
+          ],
+        ),
+      );
 }
