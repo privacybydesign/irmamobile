@@ -155,6 +155,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
             }
 
             index++;
+
             return card;
           }),
           Align(
@@ -286,7 +287,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
         // No cards lower than wallet
         if (cardPosition < 0) {
-          cardPosition = 0;
+          cardPosition = -1000; // Out of view
         }
         break;
 
