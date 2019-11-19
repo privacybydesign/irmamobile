@@ -113,11 +113,14 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                         cardTapped(_pos, credential, size);
                       };
                     }(index),
-                    onVerticalDragStart: (DragStartDetails details) {
-                      setState(() {
-                        scroll = details.localPosition.dy;
-                      });
-                    },
+                    onVerticalDragStart: (int _index) {
+                      return (DragStartDetails details) {
+                        setState(() {
+                          drawnCardIndex = _index;
+                          scroll = details.localPosition.dy;
+                        });
+                      };
+                    }(index),
                     onVerticalDragEnd: (int _index) {
                       return (DragEndDetails details) {
                         if ((scroll < -_scrollTipping && currentState != WalletState.drawn) ||
@@ -128,14 +131,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                         } else {
                           drawController.forward();
                         }
-                      };
-                    }(index),
-                    onVerticalDragDown: (int _index) {
-                      return (DragDownDetails details) {
-                        setState(() {
-                          drawnCardIndex = _index;
-                          scroll = 0;
-                        });
                       };
                     }(index),
                     onVerticalDragUpdate: (DragUpdateDetails details) {
