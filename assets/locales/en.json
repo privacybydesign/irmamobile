@@ -175,6 +175,8 @@
     "scan_qr_code": "Scan QR code",
     "issuer": "Issuer",
     "expiration": "Expiration",
-    "help": "Help"
+    "help": "Help",
+    "caption": "Your data securely on your phone",
+    "add_data": "Add more data"
   }
 }

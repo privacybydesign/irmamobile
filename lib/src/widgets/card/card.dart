@@ -126,17 +126,15 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
               ),
               child: Column(
                 children: <Widget>[
-                  Container(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        top: _padding,
-                        right: _padding,
-                        bottom: _headerBottom,
-                      ),
-                      child: Text(
-                        FlutterI18n.translate(context, 'card.personaldata'),
-                        style: Theme.of(context).textTheme.headline.copyWith(color: irmaCardTheme.fgColor),
-                      ),
+                  Padding(
+                    padding: EdgeInsets.only(
+                      top: _padding,
+                      right: _padding,
+                      bottom: _headerBottom,
+                    ),
+                    child: Text(
+                      FlutterI18n.translate(context, 'card.personaldata'),
+                      style: Theme.of(context).textTheme.headline.copyWith(color: irmaCardTheme.fgColor),
                     ),
                   ),
                   Expanded(

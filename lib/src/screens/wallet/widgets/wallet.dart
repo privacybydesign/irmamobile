@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 
 import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/widgets/card/card.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet_button.dart';
+import 'package:irmamobile/src/theme/theme.dart';
 
 class Wallet extends StatefulWidget {
   final List<Credential> credentials;
@@ -23,6 +25,10 @@ class Wallet extends StatefulWidget {
   void removeCard() {
     debugPrint("remove card");
   }
+
+  void addCard() {
+    debugPrint("add card");
+  }
 }
 
 class _WalletState extends State<Wallet> with TickerProviderStateMixin {
@@ -33,7 +39,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _cardUnshrunkHeight = 40;
   final _cardsMaxExtended = 5;
   final _scrollTipping = 50;
-  final _topOfWalletThatIsInteractionWithCard = 30;
 
   // Might need tweaking depending on screen size
   final _screenTopOffset = 110;
@@ -80,9 +85,38 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
         int index = 0;
         double cardTop;
-        int bottomCardIndex;
 
         return Stack(children: [
+          Align(
+            alignment: Alignment.topCenter,
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: _padding * 2, horizontal: _padding * 2),
+              child: ListView(
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(bottom: _padding),
+                    child: SvgPicture.asset(
+                      'assets/wallet/wallet_illustration.svg',
+                      width: size.width / 2,
+                    ),
+                  ),
+                  Text(
+                    FlutterI18n.translate(context, 'wallet.caption'),
+                    textAlign: TextAlign.center,
+                    style: IrmaTheme.of(context).textTheme.body1,
+                  ),
+                  GestureDetector(
+                    onTap: widget.addCard,
+                    child: Text(
+                      FlutterI18n.translate(context, 'wallet.add_data'),
+                      textAlign: TextAlign.center,
+                      style: IrmaTheme.of(context).hyperlinkTextStyle,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
           Align(
             alignment: Alignment.bottomCenter,
             child: SvgPicture.asset(
@@ -102,7 +136,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
             cardTop = interpolate(oldTop, newTop, walletShrinkInterpolation);
 
-            final Widget card = Positioned(
+            return Positioned(
                 left: 0,
                 right: 0,
                 top: walletTop - cardTop,
@@ -139,18 +173,10 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                     },
                     child: IrmaCard(
                         attributes: credential,
-                        isOpen: drawnCardIndex == index,
+                        isOpen: drawnCardIndex == index++,
                         updateCallback: widget.updateCard,
                         removeCallback: widget.removeCard,
                         scrollOverflowCallback: scrollOverflow)));
-
-            if (cardTop >= 0) {
-              bottomCardIndex = index;
-            }
-
-            index++;
-
-            return card;
           }),
           Align(
             alignment: Alignment.bottomCenter,

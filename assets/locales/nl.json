@@ -175,6 +175,8 @@
     "scan_qr_code": "Scan QR code",
     "issuer": "Uitgifte",
     "expiration": "Geldig tot",
-    "help": "Help"
+    "help": "Help",
+    "caption": "Jouw gegevens veilig op jouw telefoon",
+    "add_data": "Voeg meer gegevens toe"
   }
 }
