@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 
 import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/widgets/card/card.dart';
@@ -158,7 +157,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
             child: Stack(
               children: <Widget>[
                 IgnorePointer(
-                  ignoring: true,
+                    ignoring: true,
                     child: SvgPicture.asset(
                       'assets/wallet/wallet_front.svg',
                       width: size.width,
@@ -269,10 +268,13 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         // Drag drawn card
         if (index == drawnCardIndex) {
           cardPosition -= scroll;
-        } else if (cardPosition < 0) {
-          // No cards lower than wallet
-          cardPosition = -1000; // Out of view
         }
+
+        // Bottom cards are deeper in wallet
+        if (cardPosition < 0) {
+          cardPosition *= 2;
+        }
+
         break;
 
       case WalletState.full:
