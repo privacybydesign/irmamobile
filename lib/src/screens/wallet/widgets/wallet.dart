@@ -150,10 +150,15 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                       return (DragStartDetails details) {
                         setState(() {
                           drawnCardIndex = _index;
-                          scroll = details.localPosition.dy;
+                          scroll = details.localPosition.dy - _cardUnshrunkHeight / 2;
                         });
                       };
                     }(index),
+                    onVerticalDragUpdate: (DragUpdateDetails details) {
+                      setState(() {
+                        scroll = details.localPosition.dy - _cardUnshrunkHeight / 2;
+                      });
+                    },
                     onVerticalDragEnd: (int _index) {
                       return (DragEndDetails details) {
                         if ((scroll < -_scrollTipping && currentState != WalletState.drawn) ||
@@ -166,11 +171,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                         }
                       };
                     }(index),
-                    onVerticalDragUpdate: (DragUpdateDetails details) {
-                      setState(() {
-                        scroll = details.localPosition.dy;
-                      });
-                    },
                     child: IrmaCard(
                         attributes: credential,
                         isOpen: drawnCardIndex == index++,
