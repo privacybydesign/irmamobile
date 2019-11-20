@@ -157,31 +157,8 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
             alignment: Alignment.bottomCenter,
             child: Stack(
               children: <Widget>[
-                GestureDetector(
-                    onVerticalDragStart: (DragStartDetails details) {
-                      if (currentState != WalletState.drawn) {
-                        setState(() {
-                          drawnCardIndex = widget.credentials.length > 7 ? 6 : widget.credentials.length - 1;
-                          scroll = details.localPosition.dy;
-                        });
-                      }
-                    },
-                    onVerticalDragEnd: (DragEndDetails details) {
-                      if (scroll < -_scrollTipping && currentState != WalletState.drawn) {
-                        cardTapped(drawnCardIndex, widget.credentials[drawnCardIndex], size);
-                      } else if (scroll > _scrollTipping && currentState == WalletState.full) {
-                        setNewState(WalletState.halfway);
-                      } else {
-                        drawController.forward();
-                      }
-                    },
-                    onVerticalDragUpdate: (DragUpdateDetails details) {
-                      if (currentState != WalletState.drawn) {
-                        setState(() {
-                          scroll = details.localPosition.dy;
-                        });
-                      }
-                    },
+                IgnorePointer(
+                  ignoring: true,
                     child: SvgPicture.asset(
                       'assets/wallet/wallet_front.svg',
                       width: size.width,
