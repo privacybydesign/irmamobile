@@ -123,6 +123,16 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
                 borderRadius: BorderRadius.all(
                   _borderRadius,
                 ),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x77000000),
+                    blurRadius: 4.0,
+                    offset: Offset(
+                      0.0,
+                      2.0,
+                    ),
+                  )
+                ],
               ),
               child: Column(
                 children: <Widget>[
