@@ -22,9 +22,8 @@ class IrmaCard extends StatefulWidget {
 }
 
 class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin {
-  final _headerBottom = 30.0;
   final _borderRadius = const Radius.circular(15.0);
-  final _padding = 15.0;
+  final _padding = 16.0;
 
   // State
   bool isCardReadable = false;
@@ -92,7 +91,7 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
                 padding: EdgeInsets.only(
                   top: _padding/2,
                   left: _padding,
-                  bottom: _headerBottom,
+                  bottom: 0,
                 ),
                 child: Text(
                   widget.attributes.issuer.id,

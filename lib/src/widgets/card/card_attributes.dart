@@ -9,7 +9,6 @@ import 'package:irmamobile/src/widgets/card/backgrounds.dart';
 import 'package:irmamobile/src/widgets/card/blurtext.dart';
 
 class CardAttributes extends StatelessWidget {
-  static const _transparentWhite = Color(0xaaffffff);
   final _indent = 100.0;
 
   final _dateFormatter = DateFormat.yMd();
@@ -40,18 +39,24 @@ class CardAttributes extends StatelessWidget {
       }
     });
 
-    return Scrollbar(
-        child: ListView(
-      controller: scrollController,
-      physics: const BouncingScrollPhysics(),
+    return Column(
       children: [
-        const Divider(color: _transparentWhite),
-        ...getAttributes(context, bodyTheme),
-        const Divider(color: _transparentWhite),
-        getIssuer(context, bodyTheme),
-        getExpiration(context, bodyTheme)
+        Expanded(
+          child: Scrollbar(
+            child: ListView(
+              controller: scrollController,
+              physics: const BouncingScrollPhysics(),
+              children: [
+                ...getAttributes(context, bodyTheme),
+              ],
+            ),
+          ),
+        ),
+        Column(
+          children: <Widget>[getIssuer(context, bodyTheme), getExpiration(context, bodyTheme)],
+        ),
       ],
-    ));
+    );
   }
 
   List<Widget> getAttributes(BuildContext context, TextStyle bodyTheme) => personalData.attributes.entries
@@ -88,8 +93,7 @@ class CardAttributes extends StatelessWidget {
               issuer.name['nl'],
               style: Theme.of(context)
                   .textTheme
-                  .body1
-                  .copyWith(fontWeight: FontWeight.w700)
+                  .body2
                   .copyWith(color: irmaCardTheme.fgColor),
             ),
           ],
@@ -111,8 +115,7 @@ class CardAttributes extends StatelessWidget {
               _dateFormatter.format(personalData.expires),
               style: Theme.of(context)
                   .textTheme
-                  .body1
-                  .copyWith(fontWeight: FontWeight.w700)
+                  .body2
                   .copyWith(color: irmaCardTheme.fgColor),
             ),
           ],

@@ -16,8 +16,7 @@ class BlurText extends StatelessWidget {
               text,
               style: Theme.of(context)
                   .textTheme
-                  .body1
-                  .copyWith(fontWeight: FontWeight.w700)
+                  .body2
                   .copyWith(color: const Color(0x00ffffff))
                   .copyWith(shadows: [
                 Shadow(
@@ -36,6 +35,6 @@ class BlurText extends StatelessWidget {
             ),
           )
         : Text(text,
-            style: Theme.of(context).textTheme.body1.copyWith(fontWeight: FontWeight.w700).copyWith(color: color));
+            style: Theme.of(context).textTheme.body2.copyWith(color: color));
   }
 }
