@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n_delegate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+
 import 'package:irmamobile/src/data/irma_client_bridge.dart';
 import 'package:irmamobile/src/data/irma_client_mock.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';

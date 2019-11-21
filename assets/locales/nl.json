@@ -1,4 +1,7 @@
 {
+  "ui": {
+    "loading": "Laden…"
+  },
   "enrollment": {
     "welcome": {
       "header": "Word weer baas over je eigen gegevens!",
@@ -168,8 +171,12 @@
     }
   },
   "wallet": {
+    "title": "IRMA Wallet",
     "scan_qr_code": "Scan QR code",
     "issuer": "Uitgifte",
-    "expiration": "Geldig tot"
+    "expiration": "Geldig tot",
+    "help": "Help",
+    "caption": "Jouw gegevens veilig op jouw telefoon",
+    "add_data": "Voeg meer gegevens toe"
   }
 }

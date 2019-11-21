@@ -1,15 +1,19 @@
-import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:flutter/animation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
+
 import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/widgets/card/card.dart';
+import 'package:irmamobile/src/screens/wallet/widgets/wallet_button.dart';
+import 'package:irmamobile/src/theme/theme.dart';
 
 class Wallet extends StatefulWidget {
   final List<Credential> credentials;
   final VoidCallback qrCallback;
+  final VoidCallback helpCallback;
 
-  const Wallet({this.credentials, this.qrCallback});
+  const Wallet({this.credentials, this.qrCallback, this.helpCallback});
 
   @override
   _WalletState createState() => _WalletState();
@@ -21,32 +25,37 @@ class Wallet extends StatefulWidget {
   void removeCard() {
     debugPrint("remove card");
   }
+
+  void addCard() {
+    debugPrint("add card");
+  }
 }
 
 class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _padding = 15.0;
   final _animationDuration = 250;
-  final _walletAspectRatio = 185 / 406; // wallet.svg
-  final _qrButtonSize = 94; // qr-button.svg
+  final _walletAspectRatio = 87 / 360; // wallet.svg
   final _cardShrunkHeight = 10;
   final _cardUnshrunkHeight = 40;
   final _cardsMaxExtended = 5;
-  final _scrollTipping = 100;
+  final _scrollTipping = 50;
+  final _scrollOverflowThreshold = 40;
 
   // Might need tweaking depending on screen size
   final _screenTopOffset = 110;
 
-  Credential currentCard;
+  //  Credential currentCard;
+  int drawnCardIndex = 0;
 
   AnimationController drawController;
   Animation<double> drawAnimation;
 
-  WalletState expiredState = WalletState.halfway;
+  WalletState cardInStackState = WalletState.halfway;
   WalletState oldState = WalletState.halfway;
-  WalletState newState = WalletState.halfway;
+  WalletState currentState = WalletState.minimal;
   double scroll = 0;
 
-  final Tween _walletShrinkTween = Tween<double>(begin: 0, end: 1);
+  final _walletShrinkTween = Tween<double>(begin: 0.0, end: 1.0);
 
   @override
   void initState() {
@@ -54,217 +63,264 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
     drawAnimation = CurvedAnimation(parent: drawController, curve: Curves.easeInOut)
       ..addStatusListener((state) {
         if (state == AnimationStatus.completed) {
-          expiredState = oldState;
-          oldState = newState;
+          if (oldState == WalletState.halfway || oldState == WalletState.full) {
+            cardInStackState = oldState;
+          }
+          oldState = currentState;
           drawController.reset();
           scroll = 0;
         }
       });
 
+    setNewState(WalletState.halfway);
+
     super.initState();
   }
-
-  void cardTapped(int position, Credential credential, Size size) {
-    setState(() {
-      oldState = newState;
-
-      if (newState != WalletState.drawn) {
-        if (isStacked(newState, position)) {
-          newState = WalletState.full;
-          drawController.forward();
-        } else {
-          currentCard = credential;
-          newState = WalletState.drawn;
-          drawController.forward();
-          openCurrentCard(size);
-        }
-      } else {
-        newState = expiredState;
-        drawController.forward();
-      }
-    });
-  }
-
-  bool isStacked(WalletState newState, int position) {
-    return (newState == WalletState.halfway) && (widget.credentials.length >= _cardsMaxExtended) && (position < 4);
-  }
-
-  void openCurrentCard(Size size) {}
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
       animation: drawAnimation,
-      builder: (buildContext, child) {
+      builder: (BuildContext buildContext, Widget child) {
         final size = MediaQuery.of(buildContext).size;
         final walletTop = size.height - (size.width - 2 * _padding) * _walletAspectRatio - _screenTopOffset;
 
-        final List<Widget> cardWidgets = [];
         int index = 0;
         double cardTop;
-        int bottomCardIndex;
 
-        cardWidgets.addAll(widget.credentials.map((credential) {
-          // TODO for performance: positions can be cached
-          final double oldTop = getCardPosition(
-            position: oldState,
-            size: size,
-            index: index,
-            isDrawnCard: credential == currentCard,
-            scroll: scroll,
-          );
-          final double newTop = getCardPosition(
-            position: newState,
-            size: size,
-            index: index,
-            isDrawnCard: credential == currentCard,
-            scroll: 0,
-          );
-
-          cardTop = interpolate(
-            oldTop,
-            newTop,
-            _walletShrinkTween.evaluate(drawAnimation) as double,
-          );
-
-          final Widget card = Positioned(
-              left: 0,
-              right: 0,
-              top: walletTop - cardTop,
-              child: GestureDetector(
-                  onTap: (int _pos) {
-                    return () {
-                      cardTapped(_pos, credential, size);
-                    };
-                  }(index),
-                  onVerticalDragStart: (DragStartDetails details) {
-//                    debugPrint("onVerticalDragStart");
-                    setState(() {
-                      scroll = details.localPosition.dy;
-                    });
-                  },
-                  onVerticalDragEnd: (int _pos) {
-                    return (DragEndDetails details) {
-//                      debugPrint("onVerticalDragEnd");
-                      if ((scroll < -_scrollTipping && newState != WalletState.drawn) ||
-                          (scroll > _scrollTipping && newState == WalletState.drawn)) {
-                        cardTapped(_pos, credential, size);
-                      } else {
-                        drawController.forward();
-                      }
-                    };
-                  }(index),
-                  onVerticalDragDown: (DragDownDetails details) {
-                    setState(() {
-                      currentCard = credential;
-                      scroll = 0;
-                    });
-                  },
-                  onVerticalDragUpdate: (DragUpdateDetails details) {
-//                    debugPrint("onVerticalDragUpdate");
-                    setState(() {
-                      scroll = details.localPosition.dy;
-                    });
-                  },
-                  onVerticalDragCancel: () {
-//                    debugPrint("onVerticalDragCancel");
-                  },
-                  child: IrmaCard(
-                      attributes: credential,
-                      isOpen: currentCard == credential,
-                      updateCallback: widget.updateCard,
-                      removeCallback: widget.removeCard)));
-
-          if (cardTop >= 0) {
-            bottomCardIndex = index;
-          }
-
-          index++;
-          return card;
-        }));
-
-        cardWidgets.add(Align(
-          alignment: Alignment.bottomCenter,
-          child: Stack(
-            children: <Widget>[
-              GestureDetector(
-                  onTapUp: (TapUpDetails details) {
-                    if (details.localPosition.dy < 30) {
-                      // Tap on top of wallet simulates tap on bottom card
-                      cardTapped(bottomCardIndex, widget.credentials[bottomCardIndex], size);
-                    } else {
-                      setState(() {
-                        oldState = newState;
-                        newState = WalletState.halfway;
-                        drawController.reset();
-                        drawController.forward();
-                      });
-                    }
-                  },
-                  child: SvgPicture.asset(
-                    'assets/wallet/wallet.svg',
-                    width: size.width,
-                    height: size.width * _walletAspectRatio,
-                  )),
-              Positioned(
-                  left: (size.width - _qrButtonSize) / 2,
-                  top: (size.width - 2 * _padding) * _walletAspectRatio * 0.18,
-                  child: GestureDetector(
-                      onTap: () {
-                        widget.qrCallback();
-                      },
-                      child: Semantics(
-                          button: true,
-                          label: FlutterI18n.translate(context, 'wallet.scan_qr_code'),
-                          child: SvgPicture.asset(
-                            'assets/wallet/qr-button.svg',
-                          ))))
-            ],
+        return Stack(children: [
+          Align(
+            alignment: Alignment.topCenter,
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: _padding * 2, horizontal: _padding * 2),
+              child: ListView(
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(bottom: _padding),
+                    child: SvgPicture.asset(
+                      'assets/wallet/wallet_illustration.svg',
+                      width: size.width / 2,
+                    ),
+                  ),
+                  Text(
+                    FlutterI18n.translate(context, 'wallet.caption'),
+                    textAlign: TextAlign.center,
+                    style: IrmaTheme.of(context).textTheme.body1,
+                  ),
+                  GestureDetector(
+                    onTap: widget.addCard,
+                    child: Text(
+                      FlutterI18n.translate(context, 'wallet.add_data'),
+                      textAlign: TextAlign.center,
+                      style: IrmaTheme.of(context).hyperlinkTextStyle,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ));
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: SvgPicture.asset(
+              'assets/wallet/wallet_back.svg',
+              width: size.width,
+            ),
+          ),
+          ...widget.credentials.map((credential) {
+            final double walletShrinkInterpolation = _walletShrinkTween.evaluate(drawAnimation);
 
-        return Stack(children: cardWidgets);
+            // TODO for performance: positions can be cached
+            final double oldTop = getCardPosition(
+                state: oldState, size: size, index: index, drawnCardIndex: drawnCardIndex, scroll: scroll);
+
+            final double newTop = getCardPosition(
+                state: currentState, size: size, index: index, drawnCardIndex: drawnCardIndex, scroll: 0);
+
+            cardTop = interpolate(oldTop, newTop, walletShrinkInterpolation);
+
+            return Positioned(
+                left: 0,
+                right: 0,
+                top: walletTop - cardTop,
+                child: GestureDetector(
+                    onTap: (int _pos) {
+                      return () {
+                        cardTapped(_pos, credential, size);
+                      };
+                    }(index),
+                    onVerticalDragStart: (int _index) {
+                      return (DragStartDetails details) {
+                        setState(() {
+                          drawnCardIndex = _index;
+                          scroll = details.localPosition.dy - _cardUnshrunkHeight / 2;
+                        });
+                      };
+                    }(index),
+                    onVerticalDragUpdate: (DragUpdateDetails details) {
+                      setState(() {
+                        scroll = details.localPosition.dy - _cardUnshrunkHeight / 2;
+                      });
+                    },
+                    onVerticalDragEnd: (int _index) {
+                      return (DragEndDetails details) {
+                        if ((scroll < -_scrollTipping && currentState != WalletState.drawn) ||
+                            (scroll > _scrollTipping && currentState == WalletState.drawn)) {
+                          cardTapped(_index, credential, size);
+                        } else if (scroll > _scrollTipping && currentState == WalletState.full) {
+                          setNewState(WalletState.halfway);
+                        } else {
+                          drawController.forward();
+                        }
+                      };
+                    }(index),
+                    child: IrmaCard(
+                        attributes: credential,
+                        isOpen: drawnCardIndex == index++,
+                        updateCallback: widget.updateCard,
+                        removeCallback: widget.removeCard,
+                        scrollOverflowCallback: scrollOverflow)));
+          }),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Stack(
+              children: <Widget>[
+                IgnorePointer(
+                    ignoring: true,
+                    child: SvgPicture.asset(
+                      'assets/wallet/wallet_front.svg',
+                      width: size.width,
+                      height: size.width * _walletAspectRatio,
+                    )),
+                Positioned(
+                  left: 16,
+                  bottom: 12,
+                  child: WalletButton(
+                      svgFile: 'assets/wallet/btn_help.svg',
+                      accessibleName: "wallet.help",
+                      clickStreamSink: widget.helpCallback),
+                ),
+                Positioned(
+                  right: 16,
+                  bottom: 12,
+                  child: WalletButton(
+                      svgFile: 'assets/wallet/btn_qrscan.svg',
+                      accessibleName: "wallet.scan_qr_code",
+                      clickStreamSink: widget.qrCallback),
+                ),
+              ],
+            ),
+          )
+        ]);
       });
 
-  double getCardPosition({WalletState position, Size size, int index, bool isDrawnCard, double scroll}) {
+  void cardTapped(int index, Credential credential, Size size) {
+    setState(() {
+      if (currentState == WalletState.drawn) {
+        setNewState(cardInStackState);
+      } else {
+        if (isStacked(currentState, index)) {
+          setNewState(WalletState.full);
+        } else {
+          drawnCardIndex = index;
+          setNewState(WalletState.drawn);
+        }
+      }
+    });
+  }
+
+  bool isStacked(WalletState newState, int index) =>
+      newState == WalletState.halfway &&
+      widget.credentials.length >= _cardsMaxExtended &&
+      index < _cardUnshrunkHeight / _cardShrunkHeight;
+
+  void scrollOverflow(double y) {
+    if (y > _scrollOverflowThreshold && currentState == WalletState.drawn) {
+      setNewState(cardInStackState);
+    }
+  }
+
+  void setNewState(WalletState newState) {
+    setState(() {
+      oldState = currentState;
+      currentState = newState;
+      drawController.forward();
+    });
+  }
+
+  double getCardPosition({WalletState state, Size size, int index, int drawnCardIndex, double scroll}) {
     double cardPosition;
-    switch (position) {
+
+    switch (state) {
       case WalletState.drawn:
-        if (isDrawnCard) {
+        if (index == drawnCardIndex) {
           cardPosition = getWalletTop(size);
           cardPosition -= scroll;
         } else {
-          cardPosition = -1.0 * (index + 1) * _cardShrunkHeight;
-          if (cardPosition < -4.0 * _cardShrunkHeight) {
-            cardPosition = -4.0 * _cardShrunkHeight;
+          cardPosition = -(index + 1) * _cardShrunkHeight.toDouble();
+          if (cardPosition < -_cardUnshrunkHeight) {
+            cardPosition = -_cardUnshrunkHeight.toDouble();
           }
+        }
+        break;
+
+      case WalletState.minimal:
+        cardPosition = -(index + 1) * _cardShrunkHeight.toDouble();
+        if (cardPosition < -_cardUnshrunkHeight) {
+          cardPosition = -_cardUnshrunkHeight.toDouble();
         }
         break;
 
       case WalletState.halfway:
-        final double top = 1.0 * (widget.credentials.length - 1 - index);
+        final double top = (widget.credentials.length - 1 - index).toDouble();
+
+        // Many cards
         if (widget.credentials.length >= _cardsMaxExtended) {
+          // Top small border cards
           if (index < _cardUnshrunkHeight / _cardShrunkHeight) {
-            cardPosition =
-                1.0 * (_cardsMaxExtended - _cardUnshrunkHeight / _cardShrunkHeight + 2) * _cardUnshrunkHeight -
-                    index * _cardShrunkHeight;
+            cardPosition = (_cardsMaxExtended - _cardUnshrunkHeight / _cardShrunkHeight + 2) * _cardUnshrunkHeight -
+                index * _cardShrunkHeight;
+
+            // Other cards
           } else {
-            cardPosition = 1.0 * (_cardsMaxExtended + 1 - index) * _cardUnshrunkHeight;
+            cardPosition = (_cardsMaxExtended + 1 - index) * _cardUnshrunkHeight.toDouble();
           }
+
+          // Dragging top small border cards
+          if (drawnCardIndex < _cardUnshrunkHeight / _cardShrunkHeight && index != drawnCardIndex) {
+            cardPosition -= scroll;
+          }
+
+          // Few cards
         } else {
-          cardPosition = 1.0 * top * _cardUnshrunkHeight;
+          cardPosition = top * _cardUnshrunkHeight.toDouble();
         }
-        if (isDrawnCard) {
+
+        // Drag drawn card
+        if (index == drawnCardIndex) {
           cardPosition -= scroll;
         }
+
+        // Bottom cards are deeper in wallet
         if (cardPosition < 0) {
-          cardPosition = 0;
+          cardPosition *= 2;
         }
+
         break;
 
       case WalletState.full:
         cardPosition = getWalletTop(size) - index * _cardUnshrunkHeight;
-        if (isDrawnCard) {
+        // Active card
+        if (index == drawnCardIndex) {
           cardPosition -= scroll;
+
+          // Drag down
+        } else if (scroll > _cardUnshrunkHeight - _cardShrunkHeight) {
+          if (index > drawnCardIndex) {
+            cardPosition -= scroll *
+                    (1 - (index - drawnCardIndex - 1) / (getWalletTop(size) / _cardUnshrunkHeight - drawnCardIndex)) -
+                (_cardUnshrunkHeight - _cardShrunkHeight);
+          } else {
+            cardPosition -= scroll - (_cardUnshrunkHeight - _cardShrunkHeight);
+          }
         }
         break;
     }
@@ -272,13 +328,9 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
     return cardPosition;
   }
 
-  double getWalletTop(Size size) {
-    return size.height - size.width * _walletAspectRatio - _screenTopOffset;
-  }
+  double getWalletTop(Size size) => size.height - size.width * _walletAspectRatio - _screenTopOffset;
 
-  double interpolate(double x1, double x2, double p) {
-    return x1 + p * (x2 - x1);
-  }
+  double interpolate(double x1, double x2, double p) => x1 + p * (x2 - x1);
 }
 
-enum WalletState { drawn, halfway, full }
+enum WalletState { drawn, halfway, full, minimal }

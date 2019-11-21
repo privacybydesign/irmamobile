@@ -61,7 +61,6 @@ flutter:
     - assets/
     - assets/locales/
     - assets/enrollment/
-    - assets/backgrounds/
     - assets/wallet/
     - assets/icons/
 

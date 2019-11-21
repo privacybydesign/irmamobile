@@ -62,7 +62,7 @@ class _IntroductionState extends State<Introduction> {
               children: <Widget>[
                 DotsIndicator(
                   dotsCount: pageLength,
-                  position: currentIndexPage,
+                  position: currentIndexPage.toDouble(),
                   decorator: DotsDecorator(
                     color: Colors.grey[400],
                     activeColor: Colors.grey[700],
