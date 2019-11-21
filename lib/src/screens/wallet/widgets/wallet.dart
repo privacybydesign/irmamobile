@@ -174,8 +174,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                     child: IrmaCard(
                         attributes: credential,
                         isOpen: drawnCardIndex == index++,
-                        updateCallback: widget.updateCard,
-                        removeCallback: widget.removeCard,
                         scrollOverflowCallback: scrollOverflow)));
           }),
           Align(
