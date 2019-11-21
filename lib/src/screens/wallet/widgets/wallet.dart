@@ -39,6 +39,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _cardUnshrunkHeight = 40;
   final _cardsMaxExtended = 5;
   final _scrollTipping = 50;
+  final _scrollOverflowThreshold = 40;
 
   // Might need tweaking depending on screen size
   final _screenTopOffset = 110;
@@ -227,10 +228,12 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   }
 
   bool isStacked(WalletState newState, int index) =>
-      newState == WalletState.halfway && widget.credentials.length >= _cardsMaxExtended && index < 4;
+      newState == WalletState.halfway &&
+      widget.credentials.length >= _cardsMaxExtended &&
+      index < _cardUnshrunkHeight / _cardShrunkHeight;
 
   void scrollOverflow(double y) {
-    if (y > 40 && currentState == WalletState.drawn) {
+    if (y > _scrollOverflowThreshold && currentState == WalletState.drawn) {
       setNewState(cardInStackState);
     }
   }
