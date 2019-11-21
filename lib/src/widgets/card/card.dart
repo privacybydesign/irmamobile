@@ -89,7 +89,7 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
             children: <Widget>[
               Padding(
                 padding: EdgeInsets.only(
-                  top: _padding/2,
+                  top: _padding / 2,
                   left: _padding,
                   bottom: 0,
                 ),

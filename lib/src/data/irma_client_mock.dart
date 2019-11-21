@@ -125,8 +125,8 @@ class IrmaClientMock implements IrmaClient {
               TranslatedValue({'nl': 'Vrouwelijk', 'en': 'Female'}),
           irmaConfiguration.attributeTypes["$myCredentialFoo.birthdate"]:
               TranslatedValue({'nl': '4 juli 1990', 'en': 'Juli 4th, 1990'}),
-          irmaConfiguration.attributeTypes["$myCredentialFoo.address"]:
-              TranslatedValue({'nl': 'Pieter Aertszstraat 5\n1073 SH Amsterdam', 'en': 'Pieter Aertszstraat 5\n1073 SH Amsterdam'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.address"]: TranslatedValue(
+              {'nl': 'Pieter Aertszstraat 5\n1073 SH Amsterdam', 'en': 'Pieter Aertszstraat 5\n1073 SH Amsterdam'}),
           irmaConfiguration.attributeTypes["$myCredentialFoo.bsn"]:
               TranslatedValue({'nl': '1907.54.629', 'en': '1907.54.629'}),
         }),

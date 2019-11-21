@@ -91,10 +91,7 @@ class CardAttributes extends StatelessWidget {
             ),
             Text(
               issuer.name['nl'],
-              style: Theme.of(context)
-                  .textTheme
-                  .body2
-                  .copyWith(color: irmaCardTheme.fgColor),
+              style: Theme.of(context).textTheme.body2.copyWith(color: irmaCardTheme.fgColor),
             ),
           ],
         ),
@@ -113,10 +110,7 @@ class CardAttributes extends StatelessWidget {
             ),
             Text(
               _dateFormatter.format(personalData.expires),
-              style: Theme.of(context)
-                  .textTheme
-                  .body2
-                  .copyWith(color: irmaCardTheme.fgColor),
+              style: Theme.of(context).textTheme.body2.copyWith(color: irmaCardTheme.fgColor),
             ),
           ],
         ),

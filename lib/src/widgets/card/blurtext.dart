@@ -14,11 +14,7 @@ class BlurText extends StatelessWidget {
             opacity: 0.8,
             child: Text(
               text,
-              style: Theme.of(context)
-                  .textTheme
-                  .body2
-                  .copyWith(color: const Color(0x00ffffff))
-                  .copyWith(shadows: [
+              style: Theme.of(context).textTheme.body2.copyWith(color: const Color(0x00ffffff)).copyWith(shadows: [
                 Shadow(
                   blurRadius: 7.0,
                   color: color,
@@ -34,7 +30,6 @@ class BlurText extends StatelessWidget {
               ]),
             ),
           )
-        : Text(text,
-            style: Theme.of(context).textTheme.body2.copyWith(color: color));
+        : Text(text, style: Theme.of(context).textTheme.body2.copyWith(color: color));
   }
 }
