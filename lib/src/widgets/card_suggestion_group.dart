@@ -19,7 +19,7 @@ class CardSuggestionGroup extends StatelessWidget {
               padding: const EdgeInsets.only(
                 left: 8.0,
                 top: 8.0,
-                bottom: 8.0,
+                bottom: 16.0,
               ),
               child: Text(
                 title,
