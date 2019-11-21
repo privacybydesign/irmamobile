@@ -63,7 +63,7 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
         },
         child: Container(
           height: widget._height,
-          margin: const EdgeInsets.symmetric(horizontal: 20),
+          margin: const EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
             color: irmaCardTheme.bgColorDark,
             gradient: LinearGradient(
