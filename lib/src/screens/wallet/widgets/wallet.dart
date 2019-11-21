@@ -136,45 +136,47 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
             cardTop = interpolate(oldTop, newTop, walletShrinkInterpolation);
 
-            return Positioned(
-                left: 0,
-                right: 0,
-                top: walletTop - cardTop,
-                child: GestureDetector(
-                    onTap: (int _pos) {
-                      return () {
-                        cardTapped(_pos, credential, size);
-                      };
-                    }(index),
-                    onVerticalDragStart: (int _index) {
-                      return (DragStartDetails details) {
-                        setState(() {
-                          drawnCardIndex = _index;
-                          scroll = details.localPosition.dy - _cardUnshrunkHeight / 2;
-                        });
-                      };
-                    }(index),
-                    onVerticalDragUpdate: (DragUpdateDetails details) {
-                      setState(() {
-                        scroll = details.localPosition.dy - _cardUnshrunkHeight / 2;
-                      });
-                    },
-                    onVerticalDragEnd: (int _index) {
-                      return (DragEndDetails details) {
-                        if ((scroll < -_scrollTipping && currentState != WalletState.drawn) ||
-                            (scroll > _scrollTipping && currentState == WalletState.drawn)) {
-                          cardTapped(_index, credential, size);
-                        } else if (scroll > _scrollTipping && currentState == WalletState.full) {
-                          setNewState(WalletState.halfway);
-                        } else {
-                          drawController.forward();
-                        }
-                      };
-                    }(index),
-                    child: IrmaCard(
-                        attributes: credential,
-                        isOpen: drawnCardIndex == index++,
-                        scrollOverflowCallback: scrollOverflow)));
+            final card = Positioned(
+              left: 0,
+              right: 0,
+              top: walletTop - cardTop,
+              child: GestureDetector(
+                onTap: (int _pos) {
+                  return () {
+                    cardTapped(_pos, credential, size);
+                  };
+                }(index),
+                onVerticalDragStart: (int _index) {
+                  return (DragStartDetails details) {
+                    setState(() {
+                      drawnCardIndex = _index;
+                      scroll = details.localPosition.dy - _cardUnshrunkHeight / 2;
+                    });
+                  };
+                }(index),
+                onVerticalDragUpdate: (DragUpdateDetails details) {
+                  setState(() {
+                    scroll = details.localPosition.dy - _cardUnshrunkHeight / 2;
+                  });
+                },
+                onVerticalDragEnd: (int _index) {
+                  return (DragEndDetails details) {
+                    if ((scroll < -_scrollTipping && currentState != WalletState.drawn) ||
+                        (scroll > _scrollTipping && currentState == WalletState.drawn)) {
+                      cardTapped(_index, credential, size);
+                    } else if (scroll > _scrollTipping && currentState == WalletState.full) {
+                      setNewState(WalletState.halfway);
+                    } else {
+                      drawController.forward();
+                    }
+                  };
+                }(index),
+                child: IrmaCard(attributes: credential, scrollOverflowCallback: scrollOverflow),
+              ),
+            );
+            index++;
+
+            return card;
           }),
           Align(
             alignment: Alignment.bottomCenter,
