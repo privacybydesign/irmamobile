@@ -29,18 +29,18 @@ class CardSuggestion extends StatelessWidget {
         borderRadius: borderRadius,
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.only(top: 8.0, left: 24.0, bottom: 8.0, right: 8.0),
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(
-                    minHeight: 20.0,
+                    minHeight: 54.0,
                     minWidth: 20.0,
-                    maxHeight: 40.0,
+                    maxHeight: 54.0,
                     maxWidth: 40.0,
                   ),
                   child: obtained
@@ -72,12 +72,15 @@ class CardSuggestion extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(
-                      title,
-                      style: IrmaTheme.of(context).textTheme.body1,
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Text(
+                        title,
+                        style: IrmaTheme.of(context).textTheme.display2,
+                      ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(top: 4.0),
+                      padding: const EdgeInsets.only(top: 4.0, left: 8.0),
                       child: obtained
                           ? Text(
                               "Expires in π days",
@@ -87,7 +90,9 @@ class CardSuggestion extends StatelessWidget {
                             )
                           : Text(
                               subTitle,
-                              style: IrmaTheme.of(context).textTheme.overline,
+                              style: IrmaTheme.of(context).textTheme.body1.copyWith(
+                                    color: IrmaTheme.of(context).linkVisitedColor,
+                                  ),
                             ),
                     ),
                   ],

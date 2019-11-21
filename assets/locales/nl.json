@@ -73,6 +73,7 @@
     "identity_cards": "Identiteitsbewijzen",
     "education": "Onderwijs",
     "health": "Zorg",
+    "popular": "Populair",
     "card_info": {
       "app_bar": "{card_type} toevoegen",
       "obtain": "ophalen",

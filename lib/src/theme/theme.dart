@@ -12,9 +12,11 @@ class IrmaThemeData extends Equatable {
   // Grayscale colors (used for text, background colors, lines and icons)
   final Color grayscaleWhite = const Color(0xFFFFFFFF);
   final Color grayscale90 = const Color(0xFFE8ECF0);
+  final Color grayscale85 = const Color(0xFFE3E9F0); 
   final Color grayscale80 = const Color(0xFFB7C2CC);
   final Color grayscale60 = const Color(0xFF71808F);
   final Color grayscale40 = const Color(0xFF3C4B5A);
+
 
   final Color disabled = const Color(0xFFE8ECF0);
 
@@ -138,8 +140,8 @@ class IrmaThemeData extends Equatable {
       // md2018: headline6
       title: TextStyle(
         fontFamily: fontFamilyKarla,
-        fontSize: 24.0,
-        height: 28.0 / 24.0,
+        fontSize: 18.0,
+        height: 28.0 / 18.0,
         fontWeight: FontWeight.bold,
         color: grayscale40,
       ),
@@ -246,7 +248,7 @@ class IrmaThemeData extends Equatable {
         appBarTheme: AppBarTheme(
           elevation: 0,
           brightness: Brightness.light,
-          color: primaryLight,
+          color: grayscale85,
           // TODO: validate
           textTheme: textTheme,
           iconTheme: IconThemeData(

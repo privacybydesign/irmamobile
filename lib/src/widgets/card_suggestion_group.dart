@@ -17,12 +17,13 @@ class CardSuggestionGroup extends StatelessWidget {
           if (index == 0) {
             return Padding(
               padding: const EdgeInsets.only(
+                left: 8.0,
                 top: 8.0,
                 bottom: 8.0,
               ),
               child: Text(
                 title,
-                style: IrmaTheme.of(context).textTheme.title,
+                style: IrmaTheme.of(context).textTheme.display3,
               ),
             );
           }

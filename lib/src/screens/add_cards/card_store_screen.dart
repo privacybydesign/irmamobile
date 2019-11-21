@@ -3,7 +3,6 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/screens/add_card_email/add_email_card_screen.dart';
 import 'package:irmamobile/src/screens/add_cards/card_info_screen.dart';
 import 'package:irmamobile/src/screens/issuance_webview/issuance_webview_screen.dart';
-import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/card_suggestion.dart';
 import 'package:irmamobile/src/widgets/card_suggestion_group.dart';
@@ -16,7 +15,7 @@ class CardStoreScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<Widget> widgets = [
       CardSuggestionGroup(
-        title: FlutterI18n.translate(context, 'card_store.personal_data'),
+        title: FlutterI18n.translate(context, 'card_store.popular'),
         credentials: <CardSuggestion>[
           _buildCardSuggestion(context, "Persoonsgegevens", "Gemeente(BRP)", "assets/non-free/irmalogo.png", () {
             Navigator.push(
@@ -106,6 +105,7 @@ class CardStoreScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text(
           FlutterI18n.translate(context, 'card_store.app_bar'),
         ),
@@ -114,42 +114,46 @@ class CardStoreScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Text(
-              FlutterI18n.translate(context, 'card_store.choose'),
-              textAlign: TextAlign.left,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Theme(
-              // Theme data to control the color of the icons in the search bar when the search bar is active
-              data: Theme.of(context).copyWith(
-                primaryColor: IrmaTheme.of(context).grayscale40,
-              ),
-              child: TextField(
-                //onChanged: ,
-                decoration: InputDecoration(
-                    fillColor: IrmaTheme.of(context).grayscale90,
-                    filled: true,
-                    prefixIcon: Icon(IrmaIcons.search),
-                    suffixIcon: IconButton(
-                        icon: Icon(Icons.cancel),
-                        onPressed: () {
-                          debugPrint('remove search term');
-                        }),
-                    hintText: FlutterI18n.translate(context, 'card_store.search'),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: EdgeInsets.zero),
+            padding: const EdgeInsets.only(top: 24.0, left: 16.0, bottom: 16.0),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                FlutterI18n.translate(context, 'card_store.choose'),
+                style: IrmaTheme.of(context).textTheme.body1,
               ),
             ),
           ),
+          // // Search
+          // Padding(
+          //   padding: const EdgeInsets.all(16.0),
+          //   child: Theme(
+          //     // Theme data to control the color of the icons in the search bar when the search bar is active
+          //     data: Theme.of(context).copyWith(
+          //       primaryColor: IrmaTheme.of(context).grayscale40,
+          //     ),
+          //     child: TextField(
+          //       //onChanged: ,
+          //       decoration: InputDecoration(
+          //           fillColor: IrmaTheme.of(context).grayscale90,
+          //           filled: true,
+          //           prefixIcon: Icon(IrmaIcons.search),
+          //           suffixIcon: IconButton(
+          //               icon: Icon(Icons.cancel),
+          //               onPressed: () {
+          //                 debugPrint('remove search term');
+          //               }),
+          //           hintText: FlutterI18n.translate(context, 'card_store.search'),
+          //           border: OutlineInputBorder(
+          //             borderRadius: BorderRadius.circular(10),
+          //             borderSide: BorderSide.none,
+          //           ),
+          //           contentPadding: EdgeInsets.zero),
+          //     ),
+          //   ),
+          // ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(left: 32.0, right: 32.0),
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: ListView.builder(
                 itemCount: widgets.length,
                 itemBuilder: (context, index) {
