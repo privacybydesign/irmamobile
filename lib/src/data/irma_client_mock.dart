@@ -50,21 +50,35 @@ class IrmaClientMock implements IrmaClient {
         issuerId: myIssuerId,
         credentialTypeId: myCredentialFoo,
         displayIndex: 1,
-        name: {'nl': "Name"},
+        name: {'nl': "Naam", 'en': "Name"},
+      ),
+      "$myCredentialFoo.sex": AttributeType(
+        schemeManagerId: mySchemeManagerId,
+        issuerId: myIssuerId,
+        credentialTypeId: myCredentialFoo,
+        displayIndex: 2,
+        name: {'nl': "Geslacht", 'en': "Sex"},
       ),
       "$myCredentialFoo.birthdate": AttributeType(
         schemeManagerId: mySchemeManagerId,
         issuerId: myIssuerId,
         credentialTypeId: myCredentialFoo,
         displayIndex: 2,
-        name: {'nl': "Geboortedatum"},
+        name: {'nl': "Geboren", 'en': "Birthday"},
       ),
-      "$myCredentialFoo.email": AttributeType(
+      "$myCredentialFoo.address": AttributeType(
         schemeManagerId: mySchemeManagerId,
         issuerId: myIssuerId,
         credentialTypeId: myCredentialFoo,
-        displayIndex: 3,
-        name: {'nl': "E-Mail"},
+        displayIndex: 2,
+        name: {'nl': "Adres", 'en': "Address"},
+      ),
+      "$myCredentialFoo.bsn": AttributeType(
+        schemeManagerId: mySchemeManagerId,
+        issuerId: myIssuerId,
+        credentialTypeId: myCredentialFoo,
+        displayIndex: 2,
+        name: {'nl': "BSN", 'en': "BSN"},
       ),
     },
   );
@@ -77,7 +91,7 @@ class IrmaClientMock implements IrmaClient {
   @override
   Stream<Credentials> getCredentials() {
     return Stream.fromIterable(
-            ["amsterdam", "idin", "duo", "amsterdam2", "idin2", "duo2", "amsterdam3", "idin3", "duo3"])
+            ["Amsterdam1", "iDIN1", "DUO1", "Amsterdam2", "iDIN2", "DUO2", "Amsterdam3", "iDIN3", "DUO3"])
         .asyncMap<Credential>((id) => getCredential(id).first)
         .fold<Map<String, Credential>>(<String, Credential>{}, (credentialMap, credential) {
           credentialMap[credential.id] = credential;
@@ -107,10 +121,14 @@ class IrmaClientMock implements IrmaClient {
         attributes: Attributes({
           irmaConfiguration.attributeTypes["$myCredentialFoo.name"]:
               TranslatedValue({'nl': 'Anouk Meijer', 'en': 'Anouk Meijer'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.sex"]:
+              TranslatedValue({'nl': 'Vrouwelijk', 'en': 'Female'}),
           irmaConfiguration.attributeTypes["$myCredentialFoo.birthdate"]:
               TranslatedValue({'nl': '4 juli 1990', 'en': 'Juli 4th, 1990'}),
-          irmaConfiguration.attributeTypes["$myCredentialFoo.email"]:
-              TranslatedValue({'nl': 'anouk.meijer@gmail.com', 'en': 'anouk.meijer@gmail.com'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.address"]:
+              TranslatedValue({'nl': 'Pieter Aertszstraat 5\n1073 SH Amsterdam', 'en': 'Pieter Aertszstraat 5\n1073 SH Amsterdam'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.bsn"]:
+              TranslatedValue({'nl': '1907.54.629', 'en': '1907.54.629'}),
         }),
         hash: "foobar",
         // TODO: realistic value

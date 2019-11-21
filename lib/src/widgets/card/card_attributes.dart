@@ -58,6 +58,7 @@ class CardAttributes extends StatelessWidget {
       .map((personal) => Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
                   width: _indent,
