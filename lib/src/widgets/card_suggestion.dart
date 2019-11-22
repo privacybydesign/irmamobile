@@ -7,13 +7,16 @@ class CardSuggestion extends StatelessWidget {
   final String title;
   final String subTitle;
   final bool obtained;
+  final int daysUntilExpiration;
   final VoidCallback onTap;
+
 
   const CardSuggestion({
     @required this.icon,
     @required this.title,
     @required this.subTitle,
     @required this.obtained,
+    this.daysUntilExpiration = 40, // TODO get this info from scheme
     this.onTap,
     Key key,
   }) : super(key: key);
@@ -86,19 +89,29 @@ class CardSuggestion extends StatelessWidget {
                       ),
                       Padding(
                         padding: const EdgeInsets.only(top: 4.0, left: 8.0),
-                        child: obtained
-                            ? Text(
-                                "Expires in π days",
-                                style: IrmaTheme.of(context).textTheme.body1.copyWith(
-                                      color: IrmaTheme.of(context).interactionInvalid,
-                                    ),
-                              )
-                            : Text(
-                                subTitle,
-                                style: IrmaTheme.of(context).textTheme.body1.copyWith(
-                                      color: IrmaTheme.of(context).linkVisitedColor,
-                                    ),
+                        child: Text(
+                          subTitle,
+                          style: IrmaTheme.of(context).textTheme.body1.copyWith(
+                                color: IrmaTheme.of(context).linkVisitedColor,
                               ),
+                        ),
+                      ),
+                      if (daysUntilExpiration <= 0) Padding(
+                        padding: const EdgeInsets.only(top: 4.0, left: 8.0),
+                        child : Text(
+                          "Your card has expired", // TODO add text in en/nl file and get info from scheme
+                          style: IrmaTheme.of(context).textTheme.body1.copyWith(
+                                color: IrmaTheme.of(context).interactionInvalid,
+                              ),
+                        ),
+                      ) else if (daysUntilExpiration < 30) Padding(
+                        padding: const EdgeInsets.only(top: 4.0, left: 8.0),
+                        child : Text(
+                          "Expires in π days", // TODO add text in en/nl file and get info from scheme
+                          style: IrmaTheme.of(context).textTheme.body1.copyWith(
+                                color: IrmaTheme.of(context).interactionAlert,
+                              ),
+                        ),
                       ),
                     ],
                   ),
@@ -107,7 +120,7 @@ class CardSuggestion extends StatelessWidget {
                   child: Align(
                     alignment: Alignment.centerRight,
                     child: Padding(
-                      padding: const EdgeInsets.only(left: 0.0, top: 8.0, right: 16.0, bottom: 8.0),
+                      padding: const EdgeInsets.only(top: 8.0, right: 16.0, bottom: 8.0),
                       child: Icon(
                         obtained ? IrmaIcons.synchronize : IrmaIcons.add,
                         size: 20,
