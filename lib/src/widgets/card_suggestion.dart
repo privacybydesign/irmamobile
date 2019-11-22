@@ -7,16 +7,13 @@ class CardSuggestion extends StatelessWidget {
   final String title;
   final String subTitle;
   final bool obtained;
-  final int daysUntilExpiration;
   final VoidCallback onTap;
-
 
   const CardSuggestion({
     @required this.icon,
     @required this.title,
     @required this.subTitle,
     @required this.obtained,
-    this.daysUntilExpiration = 40, // TODO get this info from scheme
     this.onTap,
     Key key,
   }) : super(key: key);
@@ -25,7 +22,7 @@ class CardSuggestion extends StatelessWidget {
   Widget build(BuildContext context) {
     final borderRadius = BorderRadius.circular(16);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 1.0),
+      padding: EdgeInsets.only(bottom: IrmaTheme.of(context).tinySpacing / 4),
       child: Card(
         elevation: 3.0,
         semanticContainer: true,
@@ -37,90 +34,109 @@ class CardSuggestion extends StatelessWidget {
           borderRadius: borderRadius,
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).smallSpacing),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0, left: 24.0, bottom: 8.0, right: 8.0),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      minHeight: 54.0,
-                      minWidth: 54.0,
-                      maxHeight: 54.0,
-                      maxWidth: 54.0,
-                    ),
-                    child: obtained
-                        ? Stack(
-                            children: <Widget>[
-                              Container(
-                                foregroundDecoration: BoxDecoration(
-                                  color: Colors.grey,
-                                  backgroundBlendMode: BlendMode.saturation,
-                                ),
-                                child: Opacity(
-                                  opacity: 0.3,
-                                  child: icon,
-                                ),
-                              ),
-                              Center(
-                                child: Icon(
-                                  IrmaIcons.alert,
-                                  color: IrmaTheme.of(context).interactionInvalid,
-                                ),
-                              ),
-                            ],
-                          )
-                        : icon,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
+                Expanded(
+                  flex: 4,
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Padding(
-                        padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-                        child: Text(
-                          title,
-                          style: IrmaTheme.of(context).textTheme.display2,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4.0, left: 8.0),
-                        child: Text(
-                          subTitle,
-                          style: IrmaTheme.of(context).textTheme.body1.copyWith(
-                                color: IrmaTheme.of(context).linkVisitedColor,
-                              ),
-                        ),
-                      ),
-                      if (daysUntilExpiration <= 0) Padding(
-                        padding: const EdgeInsets.only(top: 4.0, left: 8.0),
-                        child : Text(
-                          "Your card has expired", // TODO add text in en/nl file and get info from scheme
-                          style: IrmaTheme.of(context).textTheme.body1.copyWith(
-                                color: IrmaTheme.of(context).interactionInvalid,
-                              ),
-                        ),
-                      ) else if (daysUntilExpiration < 30) Padding(
-                        padding: const EdgeInsets.only(top: 4.0, left: 8.0),
-                        child : Text(
-                          "Expires in π days", // TODO add text in en/nl file and get info from scheme
-                          style: IrmaTheme.of(context).textTheme.body1.copyWith(
-                                color: IrmaTheme.of(context).interactionAlert,
-                              ),
+                        padding: EdgeInsets.only(
+                            top: IrmaTheme.of(context).smallSpacing,
+                            left: IrmaTheme.of(context).spacing,
+                            bottom: IrmaTheme.of(context).smallSpacing,
+                            right: IrmaTheme.of(context).smallSpacing),
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(
+                            minHeight: 54.0,
+                            minWidth: 54.0,
+                            maxHeight: 54.0,
+                            maxWidth: 54.0,
+                          ),
+                          child: obtained
+                              ? Stack(
+                                  children: <Widget>[
+                                    Container(
+                                      foregroundDecoration: BoxDecoration(
+                                        color: Colors.grey,
+                                        backgroundBlendMode: BlendMode.saturation,
+                                      ),
+                                      child: Opacity(
+                                        opacity: 0.3,
+                                        child: icon,
+                                      ),
+                                    ),
+                                    Center(
+                                      child: Icon(
+                                        IrmaIcons.alert,
+                                        color: IrmaTheme.of(context).interactionInvalid,
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : icon,
                         ),
                       ),
                     ],
                   ),
                 ),
                 Expanded(
+                  flex: 13,
+                  child: Padding(
+                    padding: EdgeInsets.all(IrmaTheme.of(context).smallSpacing),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          title,
+                          style: IrmaTheme.of(context).textTheme.display2,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(top: IrmaTheme.of(context).tinySpacing),
+                          child: Text(
+                            subTitle,
+                            style: IrmaTheme.of(context).textTheme.body1.copyWith(
+                                  color: IrmaTheme.of(context).linkVisitedColor,
+                                ),
+                          ),
+                        ),
+//                        // Expiration warnings
+//                        if (daysUntilExpiration <= 0)
+//                          Padding(
+//                            padding: EdgeInsets.only(top: IrmaTheme.of(context).tinySpacing),
+//                            child: Text(
+//                              "Your card has expired", // TODO add text in en/nl file and get info from scheme
+//                              style: IrmaTheme.of(context).textTheme.body1.copyWith(
+//                                    color: IrmaTheme.of(context).interactionInvalid,
+//                                  ),
+//                            ),
+//                          )
+//                        else if (daysUntilExpiration < 30)
+//                          Padding(
+//                            padding: EdgeInsets.only(top: IrmaTheme.of(context).tinySpacing),
+//                            child: Text(
+//                              "Expires in π days", // TODO add text in en/nl file and get info from scheme
+//                              style: IrmaTheme.of(context).textTheme.body1.copyWith(
+//                                    color: IrmaTheme.of(context).interactionAlert,
+//                                  ),
+//                            ),
+//                          ),
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
                   child: Align(
                     alignment: Alignment.centerRight,
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 8.0, right: 16.0, bottom: 8.0),
+                      padding: EdgeInsets.only(
+                          top: IrmaTheme.of(context).smallSpacing,
+                          right: IrmaTheme.of(context).spacing,
+                          bottom: IrmaTheme.of(context).smallSpacing),
                       child: Icon(
                         obtained ? IrmaIcons.synchronize : IrmaIcons.add,
                         size: 20,

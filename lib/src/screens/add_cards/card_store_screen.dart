@@ -114,7 +114,10 @@ class CardStoreScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.only(top: 24.0, left: 16.0, bottom: 16.0),
+            padding: EdgeInsets.only(
+                top: (IrmaTheme.of(context).spacing / 4) * 5,
+                left: IrmaTheme.of(context).spacing,
+                bottom: IrmaTheme.of(context).spacing),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -125,7 +128,7 @@ class CardStoreScreen extends StatelessWidget {
           ),
           // // Search
           // Padding(
-          //   padding: const EdgeInsets.all(16.0),
+          //   padding: EdgeInsets.all(IrmaTheme.of(context).spacing),
           //   child: Theme(
           //     // Theme data to control the color of the icons in the search bar when the search bar is active
           //     data: Theme.of(context).copyWith(
@@ -153,7 +156,7 @@ class CardStoreScreen extends StatelessWidget {
           // ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
               child: ListView.builder(
                 itemCount: widgets.length,
                 itemBuilder: (context, index) {
