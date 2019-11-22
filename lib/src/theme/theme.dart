@@ -2,7 +2,12 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
 class IrmaThemeData extends Equatable {
-  final double spacing = 20.0;
+  static double space = 16.0;
+  final double spacing = space;
+  final double defaultSpacing = space;
+  final double tinySpacing = space / 4;
+  final double smallSpacing = space / 2;
+  final double largeSpacing = space * 2;
 
   // Primary colors
   final Color primaryBlue = const Color(0xFF004C92);
@@ -12,6 +17,7 @@ class IrmaThemeData extends Equatable {
   // Grayscale colors (used for text, background colors, lines and icons)
   final Color grayscaleWhite = const Color(0xFFFFFFFF);
   final Color grayscale90 = const Color(0xFFE8ECF0);
+  final Color grayscale85 = const Color(0xFFE3E9F0);
   final Color grayscale80 = const Color(0xFFB7C2CC);
   final Color grayscale60 = const Color(0xFF71808F);
   final Color grayscale40 = const Color(0xFF3C4B5A);
@@ -138,8 +144,8 @@ class IrmaThemeData extends Equatable {
       // md2018: headline6
       title: TextStyle(
         fontFamily: fontFamilyKarla,
-        fontSize: 24.0,
-        height: 28.0 / 24.0,
+        fontSize: 18.0,
+        height: 28.0 / 18.0,
         fontWeight: FontWeight.bold,
         color: grayscale40,
       ),
@@ -246,7 +252,7 @@ class IrmaThemeData extends Equatable {
         appBarTheme: AppBarTheme(
           elevation: 0,
           brightness: Brightness.light,
-          color: primaryLight,
+          color: grayscale85,
           // TODO: validate
           textTheme: textTheme,
           iconTheme: IconThemeData(
