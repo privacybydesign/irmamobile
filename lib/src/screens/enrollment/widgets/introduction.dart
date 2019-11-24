@@ -1,13 +1,10 @@
-import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:irmamobile/src/screens/enrollment/widgets/cancel_button.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/choose_pin.dart';
-import 'package:irmamobile/src/screens/enrollment/widgets/welcome.dart';
+import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
-import 'package:irmamobile/src/widgets/irma_outlined_button.dart';
 
 class Introduction extends StatefulWidget {
   static const String routeName = 'introduction';
@@ -20,6 +17,10 @@ class _IntroductionState extends State<Introduction> {
   int currentIndexPage;
   int pageLength;
 
+  final _controller = PageController(
+    initialPage: 0,
+  );
+
   @override
   void initState() {
     currentIndexPage = 0;
@@ -30,95 +31,100 @@ class _IntroductionState extends State<Introduction> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: CancelButton(routeName: Welcome.routeName),
-        title: Text(FlutterI18n.translate(context, 'enrollment.introduction.title')),
-      ),
-      body: Stack(
-        children: <Widget>[
-          PageView(
-            onPageChanged: (value) {
-              setState(() => currentIndexPage = value);
-            },
-            children: <Widget>[
-              Walkthrougth(
-                imagePath: 'assets/enrollment/load_data.svg',
-                textContent: FlutterI18n.translate(context, 'enrollment.introduction.load_data'),
-              ),
-              Walkthrougth(
-                imagePath: 'assets/enrollment/use_irma_for_login.svg',
-                textContent: FlutterI18n.translate(context, 'enrollment.introduction.login'),
-              ),
-              Walkthrougth(
-                imagePath: 'assets/enrollment/use_irma_to_reveal_age.svg',
-                textContent: FlutterI18n.translate(context, 'enrollment.introduction.reveal'),
-              ),
-            ],
-          ),
-          Container(
-            alignment: Alignment.bottomCenter,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                DotsIndicator(
-                  dotsCount: pageLength,
-                  position: currentIndexPage.toDouble(),
-                  decorator: DotsDecorator(
-                    color: Colors.grey[400],
-                    activeColor: Colors.grey[700],
-                  ),
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.only(top: IrmaTheme.of(context).spacing, bottom: IrmaTheme.of(context).spacing * 2),
-                  child: currentIndexPage == 2
-                      ? IrmaButton(
-                          onPressed: () {
-                            Navigator.of(context).pushNamed(ChoosePin.routeName);
-                          },
-                          label: 'enrollment.welcome.choose_pin_button',
-                        )
-                      : IrmaOutlinedButton(
-                          onPressed: () {
-                            Navigator.of(context).pushNamed(ChoosePin.routeName);
-                          },
-                          label: 'enrollment.welcome.choose_pin_button',
-                        ),
-                )
-              ],
-            ),
-          )
-        ],
-      ),
-    );
+        body: PageView(
+      controller: _controller,
+      scrollDirection: Axis.vertical,
+      onPageChanged: (value) {
+        setState(() => currentIndexPage = value);
+      },
+      children: <Widget>[
+        Walkthrough(
+          image: SvgPicture.asset('assets/enrollment/introduction_screen1.svg', width: 280, height: 245),
+          titleContent: FlutterI18n.translate(context, 'enrollment.introduction.screen1.title'),
+          textContent: FlutterI18n.translate(context, 'enrollment.introduction.screen1.text'),
+          onNextScreen: () => _controller.nextPage(curve: Curves.ease, duration: Duration(milliseconds: 800)),
+        ),
+        Walkthrough(
+          image: SvgPicture.asset('assets/enrollment/introduction_screen2.svg', width: 280, height: 231),
+          titleContent: FlutterI18n.translate(context, 'enrollment.introduction.screen2.title'),
+          textContent: FlutterI18n.translate(context, 'enrollment.introduction.screen2.text'),
+          onNextScreen: () => _controller.nextPage(curve: Curves.ease, duration: Duration(milliseconds: 800)),
+        ),
+        Walkthrough(
+          image: SvgPicture.asset('assets/enrollment/introduction_screen3.svg', width: 341, height: 247),
+          titleContent: FlutterI18n.translate(context, 'enrollment.introduction.screen3.title'),
+          textContent: FlutterI18n.translate(context, 'enrollment.introduction.screen3.text'),
+          onNextScreen: () => {},
+          onPressButton: () => Navigator.of(context).pushReplacementNamed(ChoosePin.routeName),
+          finalScreen: true,
+        ),
+      ],
+    ));
   }
 }
 
-class Walkthrougth extends StatelessWidget {
+class Walkthrough extends StatelessWidget {
+  final String titleContent;
   final String textContent;
-  final String imagePath;
+  final SvgPicture image;
+  final bool finalScreen;
+  final void Function() onNextScreen;
+  final void Function() onPressButton;
 
-  const Walkthrougth({
+  const Walkthrough({
     Key key,
+    @required this.titleContent,
     @required this.textContent,
-    @required this.imagePath,
+    @required this.image,
+    @required this.onNextScreen,
+    this.onPressButton,
+    this.finalScreen = false,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: <Widget>[
-      SizedBox(height: IrmaTheme.of(context).spacing),
-      SvgPicture.asset(imagePath),
-      SizedBox(height: IrmaTheme.of(context).spacing),
-      Container(
-        alignment: Alignment.center,
-        constraints: BoxConstraints(maxWidth: IrmaTheme.of(context).spacing * 18),
-        child: Text(
-          textContent,
-          style: Theme.of(context).textTheme.body1,
-          textAlign: TextAlign.center,
+    return Stack(alignment: Alignment.center, children: [
+      Column(children: [
+        SizedBox(height: IrmaTheme.of(context).spacing * 5),
+        image,
+        SizedBox(height: IrmaTheme.of(context).spacing * 3),
+        Container(
+          alignment: Alignment.center,
+          constraints: BoxConstraints(maxWidth: IrmaTheme.of(context).spacing * 16),
+          child: Text(
+            titleContent,
+            style: Theme.of(context).textTheme.display2,
+            textAlign: TextAlign.center,
+          ),
         ),
-      )
+        SizedBox(height: IrmaTheme.of(context).spacing),
+        Container(
+            alignment: Alignment.center,
+            constraints: BoxConstraints(maxWidth: IrmaTheme.of(context).spacing * 16),
+            child: Text(
+              textContent,
+              style: Theme.of(context).textTheme.body1,
+              textAlign: TextAlign.center,
+            ))
+      ]),
+      Positioned(
+          child: Align(
+              alignment: FractionalOffset.bottomCenter,
+              child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  padding: EdgeInsets.all(IrmaTheme.of(context).spacing),
+                  color: finalScreen ? IrmaTheme.of(context).backgroundBlue : null,
+                  child: finalScreen
+                      ? IrmaButton(
+                          label: 'enrollment.introduction.button_text',
+                          onPressed: onPressButton,
+                        )
+                      : IconButton(
+                          onPressed: onNextScreen,
+                          icon: Icon(IrmaIcons.chevronDown, color: IrmaTheme.of(context).grayscale60),
+                          iconSize: 16,
+                          alignment: Alignment.center,
+                        ))))
     ]);
   }
 }

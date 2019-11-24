@@ -11,10 +11,19 @@
       "not_now": "Not now"
     },
     "introduction": {
-      "title": "Hoe werkt IRMA?",
-      "load_data": "Je haalt jouw gegevens op bij verschillende organisaties.\n\nDeze gegevens komen in IRMA op jouw telefoon te staan.\n\nAlleen jij kan erbij.",
-      "login": "Je kunt IRMA gebruiken om in te loggen bij websites.\n\nJe hoeft nooit meer wachtwoorden te onthouden.",
-      "reveal": "Je kunt IRMA gebruiken in situaties waarin je nu een document moet overleggen.\n\nJe deelt alleen wat nodig is."
+      "button_text": "Choose your pin",
+      "screen1": {
+        "title": "IRMA is jouw identiteit op jouw telefoon",
+        "text": "Je officiële naam, geboortedatum, adres, BSN en meer. Alles bij elkaar in IRMA."
+      },
+      "screen2": {
+        "title": "Met IRMA laat je zien dat jij het bent",
+        "text": "Eenvoudig en snel.\nOnline of aan iemand anders."
+      },
+      "screen3": {
+        "title": "IRMA geeft jou en anderen zekerheid",
+        "text": "Je gegevens staan alleen op jouw telefoon. IRMA versleutelt en niemand kijkt mee. Ook IRMA niet."
+      }
     },
     "choose_pin": {
       "title": "Pincode kiezen",
