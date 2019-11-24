@@ -21,8 +21,13 @@ class ChoosePin extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: IrmaTheme.of(context).grayscale85,
         leading: CancelButton(routeName: Welcome.routeName, cancel: cancel),
-        title: Text(FlutterI18n.translate(context, 'enrollment.choose_pin.title')),
+        title: Text(
+          FlutterI18n.translate(context, 'enrollment.choose_pin.title'),
+          style: IrmaTheme.of(context).textTheme.subhead,
+        ),
       ),
       body: BlocBuilder<EnrollmentBloc, EnrollmentState>(
         builder: (context, state) {
@@ -36,12 +41,18 @@ class ChoosePin extends StatelessWidget {
                     SizedBox(height: IrmaTheme.of(context).spacing)
                   ],
                   Text(
-                    FlutterI18n.translate(context, 'enrollment.choose_pin.instruction'),
+                    FlutterI18n.translate(context, 'enrollment.choose_pin.insert_pin'),
                     style: Theme.of(context).textTheme.body1,
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: IrmaTheme.of(context).spacing),
-                  PinField(maxLength: 5, onSubmit: (pin) => submitPin(context, pin))
+                  PinField(maxLength: 5, onSubmit: (pin) => submitPin(context, pin)),
+                  SizedBox(height: IrmaTheme.of(context).spacing),
+                  Text(
+                    FlutterI18n.translate(context, 'enrollment.choose_pin.instruction'),
+                    style: Theme.of(context).textTheme.body1,
+                    textAlign: TextAlign.center,
+                  ),
                 ],
               ),
             ),

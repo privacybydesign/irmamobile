@@ -22,8 +22,13 @@ class ProvideEmail extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
+        backgroundColor: IrmaTheme.of(context).grayscale85,
         leading: CancelButton(routeName: ChoosePin.routeName, cancel: cancel),
-        title: Text(FlutterI18n.translate(context, 'enrollment.provide_email.title')),
+        title: Text(
+          FlutterI18n.translate(context, 'enrollment.provide_email.title'),
+          style: IrmaTheme.of(context).textTheme.subhead,
+        ),
       ),
       body: BlocBuilder<EnrollmentBloc, EnrollmentState>(builder: (context, state) {
         return SingleChildScrollView(
