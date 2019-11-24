@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class PinField extends StatefulWidget {
@@ -94,7 +95,8 @@ class _PinFieldState extends State<PinField> {
 
     if (widget.maxLength > 5) {
       return Center(
-        child: Container(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
           width: MediaQuery.of(context).size.width - theme.spacing * 4,
           child: Row(
             children: <Widget>[
@@ -140,43 +142,27 @@ class _PinFieldState extends State<PinField> {
     final boxes = List<Widget>(len);
     final bool complete = value.length == widget.maxLength;
 
-    final filler = AnimatedOpacity(
-      opacity: value.isEmpty ? 0.0 : 1.0,
-      duration: const Duration(milliseconds: 150),
-      child: AnimatedContainer(
-        width: (theme.spacing * 2.5 * max(value.length, 1)) - (theme.spacing * 0.5),
-        height: theme.spacing * 2,
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeInOutExpo,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(theme.spacing)),
-          color: obscureText ? theme.primaryBlue : theme.grayscale90,
-        ),
-      ),
-    );
-
     for (int i = 0; i < len; i++) {
       String char = i < value.length ? value[i] : '';
       final bool filled = char != '';
-      final Color grey = obscureText ? theme.grayscale80 : theme.grayscale90;
 
       if (obscureText && filled) {
-        char = ' ';
+        char = '●';
       }
 
       boxes[i] = Container(
         margin: EdgeInsets.only(right: i == len - 1 ? 0 : theme.spacing * 0.5),
-        width: theme.spacing * 2,
+        width: theme.spacing * 1.5,
         height: theme.spacing * 2,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(theme.spacing)),
-          color: grey,
+          borderRadius: BorderRadius.all(Radius.circular(theme.spacing * 0.25)),
+          border: Border.all(color: theme.primaryDark),
+          color: theme.grayscaleWhite,
         ),
         child: Text(
           char,
           style: Theme.of(context).textTheme.body2.copyWith(
-                fontSize: theme.spacing * 1.5,
                 color: complete ? theme.primaryBlue : theme.primaryDark,
               ),
         ),
@@ -248,23 +234,18 @@ class _PinFieldState extends State<PinField> {
               },
               child: Container(
                 constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 80),
-                child: Stack(
-                  children: [
-                    if (!obscureText) ...[filler],
-                    Wrap(children: boxes),
-                    if (obscureText) ...[filler],
-                  ],
-                ),
+                child: Wrap(children: boxes),
               ),
             ),
             SizedBox(
               width: theme.spacing * 2,
               height: theme.spacing * 2,
               child: IconButton(
-                iconSize: theme.spacing,
+                iconSize: theme.spacing * 0.75,
                 icon: Icon(
-                  obscureText ? Icons.visibility : Icons.visibility_off,
-                  color: Theme.of(context).primaryColorDark,
+                  // TODO: add irma icon
+                  obscureText ? IrmaIcons.view : Icons.visibility_off,
+                  color: theme.grayscale40,
                 ),
                 onPressed: () {
                   setState(

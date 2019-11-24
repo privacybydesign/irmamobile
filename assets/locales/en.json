@@ -17,7 +17,8 @@
       "reveal": "Je kunt IRMA gebruiken in situaties waarin je nu een document moet overleggen.\n\nJe deelt alleen wat nodig is."
     },
     "choose_pin": {
-      "title": "Kies je pincode",
+      "title": "Pincode kiezen",
+      "insert_pin": "Voer je pincode in",
       "confirm_title": "Herhaal je pincode",
       "instruction": "Kies een pincode van 5 cijfers",
       "confirm_instruction": "Vul ter controle nogmaals je pincode in.",
