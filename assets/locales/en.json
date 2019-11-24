@@ -51,6 +51,7 @@
     "lock_wallet": "Lock wallet",
     "add_cards": "Add cards",
     "settings": "Settings",
+    "help": "Help",
     "history": "Usage history",
     "about": "About IRMA"
   },
