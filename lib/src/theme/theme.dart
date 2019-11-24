@@ -44,6 +44,9 @@ class IrmaThemeData extends Equatable {
   // Overlay color
   final Color overlay50 = const Color(0xFF3C4B5A);
 
+  // background color
+  final Color backgroundBlue = const Color(0xFFDFE6EE);
+
   final String fontFamilyKarla = "Karla";
   final String fontFamilyMontserrat = "Montserrat";
 
