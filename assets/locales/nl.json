@@ -48,11 +48,12 @@
     "source_code_link": "https://github.com/privacybydesign"
   },
   "drawer": {
-    "lock_wallet": "Lock wallet",
-    "add_cards": "Add cards",
-    "settings": "Settings",
-    "history": "Usage history",
-    "about": "About IRMA"
+    "lock_wallet": "Uitloggen",
+    "add_cards": "Kaartjes toevoegen",
+    "settings": "Instellingen",
+    "help": "Help",
+    "history": "Gebruikshistorie",
+    "about": "Over IRMA"
   },
   "accessibility": {
     "unfold": "Uitvouwen",
