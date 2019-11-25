@@ -7,6 +7,7 @@ import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/widgets/card/backgrounds.dart';
 import 'package:irmamobile/src/widgets/card/blurtext.dart';
+import 'package:irmamobile/src/theme/theme.dart';
 
 class CardAttributes extends StatelessWidget {
   final _indent = 100.0;
@@ -30,7 +31,7 @@ class CardAttributes extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle bodyTheme = Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor);
+    final TextStyle bodyTheme = IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor);
 
     final ScrollController scrollController = ScrollController();
     scrollController.addListener(() {
@@ -69,11 +70,18 @@ class CardAttributes extends StatelessWidget {
                   width: _indent,
                   child: Text(
                     personal.key.name['nl'],
-                    style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor),
+                    style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 14),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                BlurText(text: personal.value['nl'], color: irmaCardTheme.fgColor, isTextBlurred: false),
+                BlurText(
+                    text: personal.value['nl'],
+                    theme: IrmaTheme.of(context)
+                        .textTheme
+                        .body2
+                        .copyWith(color: irmaCardTheme.fgColor, fontWeight: FontWeight.w700),
+                    color: irmaCardTheme.fgColor,
+                    isTextBlurred: false),
               ],
             ),
           ))
@@ -87,12 +95,12 @@ class CardAttributes extends StatelessWidget {
               width: _indent,
               child: Text(
                 FlutterI18n.translate(context, 'wallet.issuer'),
-                style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor),
+                style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 12),
               ),
             ),
             Text(
               issuer.name['nl'],
-              style: Theme.of(context).textTheme.body2.copyWith(color: irmaCardTheme.fgColor),
+              style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 12),
             ),
           ],
         ),
@@ -106,12 +114,12 @@ class CardAttributes extends StatelessWidget {
               width: _indent,
               child: Text(
                 FlutterI18n.translate(context, 'wallet.expiration'),
-                style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor),
+                style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 12),
               ),
             ),
             Text(
               _dateFormatter.format(personalData.expires),
-              style: Theme.of(context).textTheme.body2.copyWith(color: irmaCardTheme.fgColor),
+              style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 12),
             ),
           ],
         ),

@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 
 class BlurText extends StatelessWidget {
   final String text;
+  final TextStyle theme;
   final Color color;
   final bool isTextBlurred;
 
-  const BlurText({this.text, this.color, this.isTextBlurred});
+  const BlurText({this.text, this.theme, this.color, this.isTextBlurred});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +16,7 @@ class BlurText extends StatelessWidget {
             child: Flexible(
               child: Text(
                 text,
-                style: Theme.of(context).textTheme.body2.copyWith(color: const Color(0x00ffffff)).copyWith(shadows: [
+                style: theme.copyWith(color: const Color(0x00ffffff)).copyWith(shadows: [
                   Shadow(
                     blurRadius: 7.0,
                     color: color,
@@ -32,6 +33,6 @@ class BlurText extends StatelessWidget {
               ),
             ),
           )
-        : Flexible(child: Text(text, style: Theme.of(context).textTheme.body2.copyWith(color: color)));
+        : Flexible(child: Text(text, style: theme));
   }
 }
