@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -314,7 +316,8 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         break;
 
       case WalletState.full:
-        cardPosition = getWalletTop(size) - index * _cardUnshrunkHeight;
+        final top = min(getWalletTop(size), (widget.credentials.length - 1) * _cardUnshrunkHeight.toDouble());
+        cardPosition = top - index * _cardUnshrunkHeight;
         // Active card
         if (index == drawnCardIndex) {
           cardPosition -= scroll;
@@ -322,8 +325,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
           // Drag down
         } else if (scroll > _cardUnshrunkHeight - _cardShrunkHeight) {
           if (index > drawnCardIndex) {
-            cardPosition -= scroll *
-                    (1 - (index - drawnCardIndex - 1) / (getWalletTop(size) / _cardUnshrunkHeight - drawnCardIndex)) -
+            cardPosition -= scroll * (1 - (index - drawnCardIndex - 1) / (top / _cardUnshrunkHeight - drawnCardIndex)) -
                 (_cardUnshrunkHeight - _cardShrunkHeight);
           } else {
             cardPosition -= scroll - (_cardUnshrunkHeight - _cardShrunkHeight);
