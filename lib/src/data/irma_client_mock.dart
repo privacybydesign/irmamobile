@@ -64,7 +64,7 @@ class IrmaClientMock implements IrmaClient {
         issuerId: myIssuerId,
         credentialTypeId: myCredentialFoo,
         displayIndex: 2,
-        name: {'nl': "Geboren", 'en': "Birthday"},
+        name: {'nl': "Geboortedatum", 'en': "Birthday"},
       ),
       "$myCredentialFoo.address": AttributeType(
         schemeManagerId: mySchemeManagerId,
@@ -120,7 +120,7 @@ class IrmaClientMock implements IrmaClient {
         expires: DateTime.now().add(Duration(minutes: 5)),
         attributes: Attributes({
           irmaConfiguration.attributeTypes["$myCredentialFoo.name"]:
-              TranslatedValue({'nl': 'Anouk Meijer', 'en': 'Anouk Meijer'}),
+              TranslatedValue({'nl': 'Anouk Janine Marianne Carla Meijer van Schoonhoven', 'en': 'Anouk Janine Marianne Carla Meijer van Schoonhoven'}),
           irmaConfiguration.attributeTypes["$myCredentialFoo.sex"]:
               TranslatedValue({'nl': 'Vrouwelijk', 'en': 'Female'}),
           irmaConfiguration.attributeTypes["$myCredentialFoo.birthdate"]:

@@ -70,6 +70,7 @@ class CardAttributes extends StatelessWidget {
                   child: Text(
                     personal.key.name['nl'],
                     style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 BlurText(text: personal.value['nl'], color: irmaCardTheme.fgColor, isTextBlurred: false),
