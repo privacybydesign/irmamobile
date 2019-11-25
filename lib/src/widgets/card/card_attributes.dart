@@ -12,8 +12,6 @@ import 'package:irmamobile/src/theme/theme.dart';
 class CardAttributes extends StatelessWidget {
   final _indent = 100.0;
 
-  final _dateFormatter = DateFormat.yMd();
-
   final Credential personalData;
   final Issuer issuer;
   final bool isCardUnblurred;
@@ -118,10 +116,14 @@ class CardAttributes extends StatelessWidget {
               ),
             ),
             Text(
-              _dateFormatter.format(personalData.expires),
+              getReadableDate(personalData.expires, 'nl'),
               style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 12),
             ),
           ],
         ),
       );
+
+  String getReadableDate(DateTime date, String lang) {
+    return DateFormat.yMMMMd(lang).format(date);
+  }
 }
