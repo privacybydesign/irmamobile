@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -23,43 +21,27 @@ class _WalletButtonState extends State<WalletButton> with SingleTickerProviderSt
 
   static const padding = 8.0;
 
-  bool buttonPressedState = false;
-  Timer timer;
-
   @override
   Widget build(BuildContext context) {
     return Semantics(
       button: true,
       label: FlutterI18n.translate(context, widget.accessibleName),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () {
-          widget.clickStreamSink();
-        },
-        child: Listener(
-          behavior: HitTestBehavior.opaque,
-          onPointerDown: (tapDownDetails) {
-            setState(() {
-              buttonPressedState = true;
-            });
-          },
-          onPointerUp: (tapUpDetails) {
-            setState(() {
-              buttonPressedState = false;
-            });
-          },
-          child: Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              color: const Color(0xfff6f8fc),
-              borderRadius: const BorderRadius.all(Radius.circular(12.0)),
-            ),
+      child: Container(
+        width: 60,
+        height: 60,
+        child: Material(
+          color: const Color(0xfff6f8fc),
+          borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+          child: InkWell(
+            borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+            onTap: () {
+              widget.clickStreamSink();
+            },
             child: Padding(
               padding: const EdgeInsets.all(padding),
               child: SvgPicture.asset(
                 widget.svgFile,
-                color: buttonPressedState ? IrmaThemeData().primaryBlue : IrmaThemeData().overlay50,
+                color: IrmaThemeData().overlay50,
               ),
             ),
           ),
