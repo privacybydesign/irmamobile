@@ -9,7 +9,7 @@ import 'package:irmamobile/src/screens/wallet/widgets/wallet_button.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class Wallet extends StatefulWidget {
-  final List<Credential> credentials;
+  final List<Credential> credentials; // null when pending
   final VoidCallback qrCallback;
   final VoidCallback helpCallback;
 
@@ -70,10 +70,18 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
           scroll = 0;
         }
       });
-
-    setNewState(WalletState.halfway);
-
     super.initState();
+  }
+
+  @mustCallSuper
+  @protected
+  @override
+  void didUpdateWidget(Wallet oldWidget) {
+    if (oldWidget.credentials == null && widget.credentials != null) {
+      setNewState(WalletState.halfway);
+    }
+
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -124,60 +132,62 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
               width: size.width,
             ),
           ),
-          ...widget.credentials.map((credential) {
-            final double walletShrinkInterpolation = _walletShrinkTween.evaluate(drawAnimation);
+          ...widget.credentials != null
+              ? widget.credentials.map((credential) {
+                  final double walletShrinkInterpolation = _walletShrinkTween.evaluate(drawAnimation);
 
-            // TODO for performance: positions can be cached
-            final double oldTop = getCardPosition(
-                state: oldState, size: size, index: index, drawnCardIndex: drawnCardIndex, scroll: scroll);
+                  // TODO for performance: positions can be cached
+                  final double oldTop = getCardPosition(
+                      state: oldState, size: size, index: index, drawnCardIndex: drawnCardIndex, scroll: scroll);
 
-            final double newTop = getCardPosition(
-                state: currentState, size: size, index: index, drawnCardIndex: drawnCardIndex, scroll: 0);
+                  final double newTop = getCardPosition(
+                      state: currentState, size: size, index: index, drawnCardIndex: drawnCardIndex, scroll: 0);
 
-            cardTop = interpolate(oldTop, newTop, walletShrinkInterpolation);
+                  cardTop = interpolate(oldTop, newTop, walletShrinkInterpolation);
 
-            final card = Positioned(
-              left: 0,
-              right: 0,
-              top: walletTop - cardTop,
-              child: GestureDetector(
-                onTap: (int _pos) {
-                  return () {
-                    cardTapped(_pos, credential, size);
-                  };
-                }(index),
-                onVerticalDragStart: (int _index) {
-                  return (DragStartDetails details) {
-                    setState(() {
-                      drawnCardIndex = _index;
-                      scroll = details.localPosition.dy - _cardUnshrunkHeight / 2;
-                    });
-                  };
-                }(index),
-                onVerticalDragUpdate: (DragUpdateDetails details) {
-                  setState(() {
-                    scroll = details.localPosition.dy - _cardUnshrunkHeight / 2;
-                  });
-                },
-                onVerticalDragEnd: (int _index) {
-                  return (DragEndDetails details) {
-                    if ((scroll < -_scrollTipping && currentState != WalletState.drawn) ||
-                        (scroll > _scrollTipping && currentState == WalletState.drawn)) {
-                      cardTapped(_index, credential, size);
-                    } else if (scroll > _scrollTipping && currentState == WalletState.full) {
-                      setNewState(WalletState.halfway);
-                    } else {
-                      drawController.forward();
-                    }
-                  };
-                }(index),
-                child: IrmaCard(attributes: credential, scrollOverflowCallback: scrollOverflow),
-              ),
-            );
-            index++;
+                  final card = Positioned(
+                    left: 0,
+                    right: 0,
+                    top: walletTop - cardTop,
+                    child: GestureDetector(
+                      onTap: (int _pos) {
+                        return () {
+                          cardTapped(_pos, credential, size);
+                        };
+                      }(index),
+                      onVerticalDragStart: (int _index) {
+                        return (DragStartDetails details) {
+                          setState(() {
+                            drawnCardIndex = _index;
+                            scroll = details.localPosition.dy - _cardUnshrunkHeight / 2;
+                          });
+                        };
+                      }(index),
+                      onVerticalDragUpdate: (DragUpdateDetails details) {
+                        setState(() {
+                          scroll = details.localPosition.dy - _cardUnshrunkHeight / 2;
+                        });
+                      },
+                      onVerticalDragEnd: (int _index) {
+                        return (DragEndDetails details) {
+                          if ((scroll < -_scrollTipping && currentState != WalletState.drawn) ||
+                              (scroll > _scrollTipping && currentState == WalletState.drawn)) {
+                            cardTapped(_index, credential, size);
+                          } else if (scroll > _scrollTipping && currentState == WalletState.full) {
+                            setNewState(WalletState.halfway);
+                          } else {
+                            drawController.forward();
+                          }
+                        };
+                      }(index),
+                      child: IrmaCard(attributes: credential, scrollOverflowCallback: scrollOverflow),
+                    ),
+                  );
+                  index++;
 
-            return card;
-          }),
+                  return card;
+                })
+              : [Align(alignment: Alignment.center, child: Text(FlutterI18n.translate(context, 'ui.loading')))],
           Align(
             alignment: Alignment.bottomCenter,
             child: Stack(
