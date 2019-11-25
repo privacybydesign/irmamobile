@@ -34,7 +34,7 @@ class _WalletButtonState extends State<WalletButton> with SingleTickerProviderSt
           borderRadius: const BorderRadius.all(Radius.circular(12.0)),
           child: InkWell(
             focusColor: const Color(0xfff6f8fc),
-            splashColor:  IrmaThemeData().primaryBlue,
+            splashColor: IrmaThemeData().primaryBlue,
             borderRadius: const BorderRadius.all(Radius.circular(12.0)),
             onTap: () {
               widget.clickStreamSink();
