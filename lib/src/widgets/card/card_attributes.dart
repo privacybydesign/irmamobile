@@ -69,10 +69,14 @@ class CardAttributes extends StatelessWidget {
               children: [
                 Container(
                   width: _indent,
-                  child: Text(
-                    personal.key.name[_lang],
-                    style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 14),
-                    overflow: TextOverflow.ellipsis,
+                  margin: const EdgeInsets.only(top: 2),
+                  child: Opacity(
+                    opacity: 0.8,
+                    child: Text(
+                      personal.key.name[_lang],
+                      style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 14),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
                 BlurText(
@@ -90,12 +94,15 @@ class CardAttributes extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: _indent,
-              child: Text(
-                FlutterI18n.translate(context, 'wallet.issuer'),
-                style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 12),
-              ),
-            ),
+                width: _indent,
+                margin: const EdgeInsets.only(top: 1),
+                child: Opacity(
+                  opacity: 0.8,
+                  child: Text(
+                    FlutterI18n.translate(context, 'wallet.issuer'),
+                    style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 12),
+                  ),
+                )),
             Text(
               issuer.name[_lang],
               style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 12),
@@ -110,9 +117,13 @@ class CardAttributes extends StatelessWidget {
           children: [
             Container(
               width: _indent,
-              child: Text(
-                FlutterI18n.translate(context, 'wallet.expiration'),
-                style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 12),
+              margin: const EdgeInsets.only(top: 1),
+              child: Opacity(
+                opacity: 0.8,
+                child: Text(
+                  FlutterI18n.translate(context, 'wallet.expiration'),
+                  style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 12),
+                ),
               ),
             ),
             Text(
