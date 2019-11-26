@@ -44,6 +44,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _scrollOverflowTipping = 40;
   final _screenTopOffset = 110; // Might need tweaking depending on screen size
   final _walletShrinkTween = Tween<double>(begin: 0.0, end: 1.0);
+  final _walletIconHeight = 60;
 
   int drawnCardIndex = 0;
   AnimationController drawController;
@@ -191,7 +192,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                     )),
                 Positioned(
                   left: 16,
-                  bottom: 12,
+                  bottom: ((size.width - 2 * _padding) * _walletAspectRatio - _walletIconHeight) / 2,
                   child: WalletButton(
                       svgFile: 'assets/wallet/btn_help.svg',
                       accessibleName: "wallet.help",
@@ -199,7 +200,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                 ),
                 Positioned(
                   right: 16,
-                  bottom: 12,
+                  bottom: ((size.width - 2 * _padding) * _walletAspectRatio - _walletIconHeight) / 2,
                   child: WalletButton(
                       svgFile: 'assets/wallet/btn_qrscan.svg',
                       accessibleName: "wallet.scan_qr_code",
