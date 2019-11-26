@@ -112,7 +112,7 @@ class IrmaClientMock implements IrmaClient {
         id: id,
         // TODO: realistic value
         // TODO: use irmaConfiguration.issuers[myIssuerId],
-        issuer: Issuer(id: id, name: {'nl': id}),
+        issuer: Issuer(id: id, name: {'nl': id, 'en': id}),
         // TODO: realistic value
         schemeManager: irmaConfiguration.schemeManagers[mySchemeManagerId],
         // TODO: realistic value
@@ -144,13 +144,13 @@ class IrmaClientMock implements IrmaClient {
         () => {
               // TODO: use legit demo names
               'foobar.amsterdam': Issuer(
-                name: {'nl': 'Gemeente Amsterdam'},
+                name: {'nl': 'Gemeente Amsterdam', 'en': 'Gemeente Amsterdam'},
               ),
               'foobar.duo': Issuer(
-                name: {'nl': 'Dienst Uitvoering Onderwijs'},
+                name: {'nl': 'Dienst Uitvoering Onderwijs', 'en': 'Dienst Uitvoering Onderwijs'},
               ),
               'foobar.idin': Issuer(
-                name: {'nl': 'iDIN'},
+                name: {'nl': 'iDIN', 'en': 'iDIN'},
               ),
               myIssuerId: myIssuer,
             }).asStream();

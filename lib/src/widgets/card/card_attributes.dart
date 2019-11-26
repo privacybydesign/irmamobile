@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
@@ -10,6 +12,7 @@ import 'package:irmamobile/src/widgets/card/blurtext.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class CardAttributes extends StatelessWidget {
+  final _lang = ui.window.locale.languageCode;
   final _indent = 100.0;
 
   final Credential personalData;
@@ -67,13 +70,13 @@ class CardAttributes extends StatelessWidget {
                 Container(
                   width: _indent,
                   child: Text(
-                    personal.key.name['nl'],
+                    personal.key.name[_lang],
                     style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 14),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 BlurText(
-                    text: personal.value['nl'],
+                    text: personal.value[_lang],
                     theme: IrmaTheme.of(context).textTheme.body2.copyWith(color: irmaCardTheme.fgColor),
                     color: irmaCardTheme.fgColor,
                     isTextBlurred: false),
@@ -94,7 +97,7 @@ class CardAttributes extends StatelessWidget {
               ),
             ),
             Text(
-              issuer.name['nl'],
+              issuer.name[_lang],
               style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 12),
             ),
           ],
@@ -113,7 +116,7 @@ class CardAttributes extends StatelessWidget {
               ),
             ),
             Text(
-              getReadableDate(personalData.expires, 'nl'),
+              getReadableDate(personalData.expires, _lang),
               style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 12),
             ),
           ],
