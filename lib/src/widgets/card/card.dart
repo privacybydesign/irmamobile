@@ -9,12 +9,12 @@ import 'package:irmamobile/src/widgets/card/card_attributes.dart';
 
 class IrmaCard extends StatefulWidget {
   final String lang = ui.window.locale.languageCode;
+  final _fullCardHeight = 400.0;
 
   final Credential attributes;
-  final void Function(double) scrollOverflowCallback;
-  final _height = 400.0;
+  final void Function(double) scrollBeyondBoundsCallback;
 
-  IrmaCard({this.attributes, this.scrollOverflowCallback});
+  IrmaCard({this.attributes, this.scrollBeyondBoundsCallback});
 
   @override
   _IrmaCardState createState() => _IrmaCardState();
@@ -26,25 +26,13 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
 
   // State
   bool isCardReadable = false;
-
   IrmaCardTheme irmaCardTheme;
 
   @override
   void initState() {
-    irmaCardTheme = calculateIrmaCardTheme(widget.attributes.issuer);
+    irmaCardTheme = calculateIrmaCardColor(widget.attributes.issuer);
 
     super.initState();
-  }
-
-  // Calculate a card color dependent of the issuer id
-  //
-  // This is to prevent all cards getting a different
-  // color when a card is added or removed and confusing
-  // the user.
-  IrmaCardTheme calculateIrmaCardTheme(Issuer issuer) {
-    final int strNum = issuer.id.runes.reduce((oldChar, newChar) => (oldChar << 1) ^ newChar);
-
-    return backgrounds[strNum % backgrounds.length];
   }
 
   @override
@@ -60,7 +48,7 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
           });
         },
         child: Container(
-          height: widget._height,
+          height: widget._fullCardHeight,
           margin: const EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
             color: irmaCardTheme.bgColorDark,
@@ -106,11 +94,22 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
                       isCardUnblurred: isCardReadable,
                       lang: widget.lang,
                       irmaCardTheme: irmaCardTheme,
-                      scrollOverflowCallback: widget.scrollOverflowCallback),
+                      scrollOverflowCallback: widget.scrollBeyondBoundsCallback),
                 ),
               ),
             ],
           ),
         ),
       );
+
+  // Calculate a card color dependent of the issuer id
+  //
+  // This is to prevent all cards getting a different
+  // color when a card is added or removed and confusing
+  // the user.
+  IrmaCardTheme calculateIrmaCardColor(Issuer issuer) {
+    final int strNum = issuer.id.runes.reduce((oldChar, newChar) => (oldChar << 1) ^ newChar);
+
+    return backgrounds[strNum % backgrounds.length];
+  }
 }
