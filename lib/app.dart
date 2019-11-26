@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n_delegate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-
 import 'package:irmamobile/src/data/irma_client_bridge.dart';
 import 'package:irmamobile/src/data/irma_client_mock.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/version_information.dart';
 import 'package:irmamobile/src/prototypes/prototypes_screen.dart';
 import 'package:irmamobile/src/screens/about/about_screen.dart';
+import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
 import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/loading/loading_screen.dart';
@@ -26,13 +26,14 @@ class App extends StatelessWidget {
   final List<BlocProvider> providers;
 
   App()
-      : initialRoute = EnrollmentScreen.routeName,
+      : initialRoute = CardStoreScreen.routeName,
         routes = {
           WalletScreen.routeName: (BuildContext context) => WalletScreen(),
           EnrollmentScreen.routeName: (BuildContext context) => EnrollmentScreen(),
           ChangePinScreen.routeName: (BuildContext context) => ChangePinScreen(),
           AboutScreen.routeName: (BuildContext context) => AboutScreen(),
           SettingsScreen.routeName: (BuildContext context) => SettingsScreen(),
+          CardStoreScreen.routeName: (BuildContext context) => CardStoreScreen(),
         },
         providers = [] {
     IrmaRepository.init(IrmaClientBridge());

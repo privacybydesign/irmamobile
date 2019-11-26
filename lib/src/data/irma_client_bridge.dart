@@ -40,7 +40,7 @@ class IrmaClientBridge implements IrmaClient {
   // answer to irmago.
   Future<dynamic> _handleMethodCall(MethodCall call) async {
     try {
-      final data = jsonDecode(call.arguments as String) as Map<String, String>;
+      final data = jsonDecode(call.arguments as String) as Map<String, dynamic>;
       switch (call.method) {
         case 'IrmaConfigurationEvent':
           _irmaConfigurationStream.add(IrmaConfiguration.fromJson(data));

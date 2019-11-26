@@ -28,11 +28,11 @@ void main() {
     await tester.pump();
 
     // expect the choose pin screen to appear
-    expect(find.text('Kies een pincode van 5 cijfers'), findsOneWidget);
+    expect(find.text('Voer je pincode in'), findsOneWidget);
     await tester.enterText(find.byType(PinField), "87129");
     await tester.pumpAndSettle(const Duration(milliseconds: 1000));
 
-    expect(find.text('Herhaal je pincode'), findsOneWidget);
+    expect(find.text('Pincode kiezen'), findsOneWidget);
 
     await tester.enterText(find.byType(PinField), "87129");
     await tester.pumpAndSettle(const Duration(milliseconds: 1000));
@@ -59,7 +59,7 @@ void main() {
     await tester.enterText(find.byType(PinField), "87129");
     await tester.pumpAndSettle(const Duration(milliseconds: 1000));
 
-    expect(find.text('Herhaal je pincode'), findsOneWidget);
+    expect(find.text('Pincode kiezen'), findsOneWidget);
 
     await tester.enterText(find.byType(PinField), "97684");
     await tester.pumpAndSettle(const Duration(milliseconds: 1000));

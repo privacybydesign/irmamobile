@@ -11,13 +11,23 @@
       "not_now": "Not now"
     },
     "introduction": {
-      "title": "Hoe werkt IRMA?",
-      "load_data": "Je haalt jouw gegevens op bij verschillende organisaties.\n\nDeze gegevens komen in IRMA op jouw telefoon te staan.\n\nAlleen jij kan erbij.",
-      "login": "Je kunt IRMA gebruiken om in te loggen bij websites.\n\nJe hoeft nooit meer wachtwoorden te onthouden.",
-      "reveal": "Je kunt IRMA gebruiken in situaties waarin je nu een document moet overleggen.\n\nJe deelt alleen wat nodig is."
+      "button_text": "Choose your pin",
+      "screen1": {
+        "title": "IRMA is jouw identiteit op jouw telefoon",
+        "text": "Je officiële naam, geboortedatum, adres, BSN en meer. Alles bij elkaar in IRMA."
+      },
+      "screen2": {
+        "title": "Met IRMA laat je zien dat jij het bent",
+        "text": "Eenvoudig en snel.\nOnline of aan iemand anders."
+      },
+      "screen3": {
+        "title": "IRMA geeft jou en anderen zekerheid",
+        "text": "Je gegevens staan alleen op jouw telefoon. IRMA versleutelt en niemand kijkt mee. Ook IRMA niet."
+      }
     },
     "choose_pin": {
-      "title": "Kies je pincode",
+      "title": "Pincode kiezen",
+      "insert_pin": "Voer je pincode in",
       "confirm_title": "Herhaal je pincode",
       "instruction": "Kies een pincode van 5 cijfers",
       "confirm_instruction": "Vul ter controle nogmaals je pincode in.",
@@ -51,6 +61,7 @@
     "lock_wallet": "Lock wallet",
     "add_cards": "Add cards",
     "settings": "Settings",
+    "help": "Help",
     "history": "Usage history",
     "about": "About IRMA"
   },
@@ -73,6 +84,7 @@
     "identity_cards": "Identiteitsbewijzen",
     "education": "Onderwijs",
     "health": "Zorg",
+    "popular": "Populair",
     "card_info": {
       "app_bar": "{card_type} toevoegen",
       "obtain": "ophalen",
