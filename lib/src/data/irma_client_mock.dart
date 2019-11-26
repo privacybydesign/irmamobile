@@ -80,6 +80,27 @@ class IrmaClientMock implements IrmaClient {
         displayIndex: 2,
         name: {'nl': "BSN", 'en': "BSN"},
       ),
+      "$myCredentialFoo.tel": AttributeType(
+        schemeManagerId: mySchemeManagerId,
+        issuerId: myIssuerId,
+        credentialTypeId: myCredentialFoo,
+        displayIndex: 2,
+        name: {'nl': "Telefoon", 'en': "Phone"},
+      ),
+      "$myCredentialFoo.email": AttributeType(
+        schemeManagerId: mySchemeManagerId,
+        issuerId: myIssuerId,
+        credentialTypeId: myCredentialFoo,
+        displayIndex: 2,
+        name: {'nl': "E-mail", 'en': "E-mail"},
+      ),
+      "$myCredentialFoo.filler": AttributeType(
+        schemeManagerId: mySchemeManagerId,
+        issuerId: myIssuerId,
+        credentialTypeId: myCredentialFoo,
+        displayIndex: 2,
+        name: {'nl': "Lorum", 'en': "Lorum"},
+      ),
     },
   );
 
@@ -106,6 +127,64 @@ class IrmaClientMock implements IrmaClient {
     if (id == "") {
       return Future<Credential>.delayed(Duration(milliseconds: 100), throw CredentialNotFoundException()).asStream();
     }
+
+    Attributes attributes;
+
+    switch (id) {
+      case "Amsterdam1":
+      case "Amsterdam2":
+      case "Amsterdam3":
+        attributes = Attributes({
+          irmaConfiguration.attributeTypes["$myCredentialFoo.name"]:
+              TranslatedValue({'nl': 'Anouk Meijer', 'en': 'Anouk Meijer'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.sex"]:
+              TranslatedValue({'nl': 'Vrouwelijk', 'en': 'Female'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.birthdate"]:
+              TranslatedValue({'nl': '4 juli 1990', 'en': 'Juli 4th, 1990'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.address"]: TranslatedValue(
+              {'nl': 'Pieter Aertszstraat 5\n1073 SH Amsterdam', 'en': 'Pieter Aertszstraat 5\n1073 SH Amsterdam'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.bsn"]:
+              TranslatedValue({'nl': '1907.54.629', 'en': '1907.54.629'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.tel"]:
+              TranslatedValue({'nl': '06 8723 9064', 'en': '06 8723 9064'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.email"]:
+              TranslatedValue({'nl': 'anoukm71@gmail.com', 'en': 'anoukm71@gmail.com'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.filler"]: TranslatedValue({
+            'nl':
+                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec consectetur leo at suscipit egestas. Curabitur eget elementum tellus. Pellentesque viverra semper sapien, vitae convallis eros euismod at. Suspendisse tempus sollicitudin massa ut semper. Phasellus rhoncus sem et iaculis ultricies. In eros dui, fringilla a congue non, fermentum sit amet dui. Proin ligula tortor, scelerisque quis faucibus eget, condimentum non sapien.',
+            'en':
+                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec consectetur leo at suscipit egestas. Curabitur eget elementum tellus. Pellentesque viverra semper sapien, vitae convallis eros euismod at. Suspendisse tempus sollicitudin massa ut semper. Phasellus rhoncus sem et iaculis ultricies. In eros dui, fringilla a congue non, fermentum sit amet dui. Proin ligula tortor, scelerisque quis faucibus eget, condimentum non sapien.'
+          }),
+        });
+        break;
+      case "iDIN1":
+      case "iDIN2":
+      case "iDIN3":
+        attributes = Attributes({
+          irmaConfiguration.attributeTypes["$myCredentialFoo.name"]:
+              TranslatedValue({'nl': 'Anouk Meijer', 'en': 'Anouk Meijer'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.sex"]:
+              TranslatedValue({'nl': 'Vrouwelijk', 'en': 'Female'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.birthdate"]:
+              TranslatedValue({'nl': '4 juli 1990', 'en': 'Juli 4th, 1990'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.bsn"]:
+              TranslatedValue({'nl': '1907.54.629', 'en': '1907.54.629'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.address"]: TranslatedValue(
+              {'nl': 'Pieter Aertszstraat 5\n1073 SH Amsterdam', 'en': 'Pieter Aertszstraat 5\n1073 SH Amsterdam'}),
+        });
+        break;
+      default:
+        attributes = Attributes({
+          irmaConfiguration.attributeTypes["$myCredentialFoo.name"]:
+              TranslatedValue({'nl': 'Anouk Meijer', 'en': 'Anouk Meijer'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.sex"]:
+              TranslatedValue({'nl': 'Vrouwelijk', 'en': 'Female'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.birthdate"]:
+              TranslatedValue({'nl': '4 juli 1990', 'en': 'Juli 4th, 1990'}),
+        });
+        break;
+    }
+
     return Future.delayed(
       Duration(milliseconds: 100),
       () => Credential(
@@ -118,18 +197,7 @@ class IrmaClientMock implements IrmaClient {
         // TODO: realistic value
         signedOn: DateTime.now(),
         expires: DateTime.now().add(Duration(minutes: 5)),
-        attributes: Attributes({
-          irmaConfiguration.attributeTypes["$myCredentialFoo.name"]:
-              TranslatedValue({'nl': 'Anouk Meijer', 'en': 'Anouk Meijer'}),
-          irmaConfiguration.attributeTypes["$myCredentialFoo.sex"]:
-              TranslatedValue({'nl': 'Vrouwelijk', 'en': 'Female'}),
-          irmaConfiguration.attributeTypes["$myCredentialFoo.birthdate"]:
-              TranslatedValue({'nl': '4 juli 1990', 'en': 'Juli 4th, 1990'}),
-          irmaConfiguration.attributeTypes["$myCredentialFoo.address"]: TranslatedValue(
-              {'nl': 'Pieter Aertszstraat 5\n1073 SH Amsterdam', 'en': 'Pieter Aertszstraat 5\n1073 SH Amsterdam'}),
-          irmaConfiguration.attributeTypes["$myCredentialFoo.bsn"]:
-              TranslatedValue({'nl': '1907.54.629', 'en': '1907.54.629'}),
-        }),
+        attributes: attributes,
         hash: "foobar",
         // TODO: realistic value
         credentialType: myCredentialType,
