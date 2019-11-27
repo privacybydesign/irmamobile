@@ -11,7 +11,7 @@ class IrmaIconsData extends IconData {
 
 @immutable
 class IrmaIcons {
-  const IrmaIcons._();
+  IrmaIcons._();
 
   // Generated code: do not hand-edit.
   static const IconData add = IrmaIconsData(0xe000);
@@ -52,39 +52,43 @@ class IrmaIcons {
 
   static const IconData flag = IrmaIconsData(0xe012);
 
-  static const IconData info = IrmaIconsData(0xe013);
+  static const IconData hide = IrmaIconsData(0xe013);
 
-  static const IconData invalid = IrmaIconsData(0xe014);
+  static const IconData info = IrmaIconsData(0xe014);
 
-  static const IconData lock = IrmaIconsData(0xe015);
+  static const IconData invalid = IrmaIconsData(0xe015);
 
-  static const IconData logout = IrmaIconsData(0xe016);
+  static const IconData lock = IrmaIconsData(0xe016);
 
-  static const IconData menu = IrmaIconsData(0xe017);
+  static const IconData logout = IrmaIconsData(0xe017);
 
-  static const IconData minus = IrmaIconsData(0xe018);
+  static const IconData menu = IrmaIconsData(0xe018);
 
-  static const IconData personal = IrmaIconsData(0xe019);
+  static const IconData minus = IrmaIconsData(0xe019);
 
-  static const IconData phone = IrmaIconsData(0xe01a);
+  static const IconData personal = IrmaIconsData(0xe01a);
 
-  static const IconData question = IrmaIconsData(0xe01b);
+  static const IconData phone = IrmaIconsData(0xe01b);
 
-  static const IconData scanQrcode = IrmaIconsData(0xe01c);
+  static const IconData question = IrmaIconsData(0xe01c);
 
-  static const IconData search = IrmaIconsData(0xe01d);
+  static const IconData scanQrcode = IrmaIconsData(0xe01d);
 
-  static const IconData shrink = IrmaIconsData(0xe01e);
+  static const IconData search = IrmaIconsData(0xe01e);
 
-  static const IconData synchronize = IrmaIconsData(0xe01f);
+  static const IconData settings = IrmaIconsData(0xe01f);
 
-  static const IconData time = IrmaIconsData(0xe020);
+  static const IconData shrink = IrmaIconsData(0xe020);
 
-  static const IconData valid = IrmaIconsData(0xe021);
+  static const IconData synchronize = IrmaIconsData(0xe021);
 
-  static const IconData verticalNav = IrmaIconsData(0xe022);
+  static const IconData time = IrmaIconsData(0xe022);
 
-  static const IconData view = IrmaIconsData(0xe023);
+  static const IconData valid = IrmaIconsData(0xe023);
 
-  static const IconData warning = IrmaIconsData(0xe024);
+  static const IconData verticalNav = IrmaIconsData(0xe024);
+
+  static const IconData view = IrmaIconsData(0xe025);
+
+  static const IconData warning = IrmaIconsData(0xe026);
 }
