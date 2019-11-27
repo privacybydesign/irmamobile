@@ -171,6 +171,20 @@
       "continue": "Continue"
     }
   },
+  "qr_scanner": {
+    "instruction": {
+      "title": "Start scanning!",
+      "message": "Point the phone to a QR code"
+    },
+    "success": {
+      "title": "Success!",
+      "message": "The QR code is scanned"
+    },
+    "error": {
+      "title": "Error!",
+      "message": "Point the phone on an IRMA QR code"
+    }
+  },
   "pin": {
     "title": "Login",
     "subtitle": "Enter your pin",

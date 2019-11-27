@@ -13,6 +13,7 @@ import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/loading/loading_screen.dart';
 import 'package:irmamobile/src/screens/required_update/required_update_screen.dart';
+import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
@@ -29,6 +30,7 @@ class App extends StatelessWidget {
       : initialRoute = CardStoreScreen.routeName,
         routes = {
           WalletScreen.routeName: (BuildContext context) => WalletScreen(),
+          ScannerScreen.routeName: (BuildContext context) => ScannerScreen(),
           EnrollmentScreen.routeName: (BuildContext context) => EnrollmentScreen(),
           ChangePinScreen.routeName: (BuildContext context) => ChangePinScreen(),
           AboutScreen.routeName: (BuildContext context) => AboutScreen(),
