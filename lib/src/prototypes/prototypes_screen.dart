@@ -8,12 +8,12 @@ import 'package:irmamobile/src/prototypes/dev_experiment_1.dart';
 import 'package:irmamobile/src/prototypes/dev_experiment_2.dart';
 import 'package:irmamobile/src/prototypes/dev_experiment_3.dart';
 import 'package:irmamobile/src/prototypes/dev_experiment_4.dart';
+import 'package:irmamobile/src/prototypes/prototype_26.dart';
 import 'package:irmamobile/src/prototypes/schermflow_1.dart';
 import 'package:irmamobile/src/prototypes/schermflow_5.dart';
 import 'package:irmamobile/src/prototypes/schermflow_wallet.dart';
 import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/introduction.dart';
-import 'package:irmamobile/src/screens/wallet/widgets/wallet_drawer.dart';
 
 class PrototypesScreen extends StatelessWidget {
   static const routeName = "/";
@@ -85,7 +85,7 @@ class PrototypesScreen extends StatelessWidget {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => Introduction()));
           }),
           _buildListItem(context, "26. Hoofdmenu", () {
-            Navigator.of(context).push(MaterialPageRoute(builder: (context) => WalletDrawer()));
+            startPrototype26(context);
           }),
           const SizedBox(height: 12),
           Padding(
