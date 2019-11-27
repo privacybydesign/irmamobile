@@ -50,21 +50,56 @@ class IrmaClientMock implements IrmaClient {
         issuerId: myIssuerId,
         credentialTypeId: myCredentialFoo,
         displayIndex: 1,
-        name: {'nl': "Name"},
+        name: {'nl': "Naam", 'en': "Name"},
+      ),
+      "$myCredentialFoo.sex": AttributeType(
+        schemeManagerId: mySchemeManagerId,
+        issuerId: myIssuerId,
+        credentialTypeId: myCredentialFoo,
+        displayIndex: 2,
+        name: {'nl': "Geslacht", 'en': "Sex"},
       ),
       "$myCredentialFoo.birthdate": AttributeType(
         schemeManagerId: mySchemeManagerId,
         issuerId: myIssuerId,
         credentialTypeId: myCredentialFoo,
         displayIndex: 2,
-        name: {'nl': "Geboortedatum"},
+        name: {'nl': "Geboren", 'en': "Birthday"},
+      ),
+      "$myCredentialFoo.address": AttributeType(
+        schemeManagerId: mySchemeManagerId,
+        issuerId: myIssuerId,
+        credentialTypeId: myCredentialFoo,
+        displayIndex: 2,
+        name: {'nl': "Adres", 'en': "Address"},
+      ),
+      "$myCredentialFoo.bsn": AttributeType(
+        schemeManagerId: mySchemeManagerId,
+        issuerId: myIssuerId,
+        credentialTypeId: myCredentialFoo,
+        displayIndex: 2,
+        name: {'nl': "BSN", 'en': "BSN"},
+      ),
+      "$myCredentialFoo.tel": AttributeType(
+        schemeManagerId: mySchemeManagerId,
+        issuerId: myIssuerId,
+        credentialTypeId: myCredentialFoo,
+        displayIndex: 2,
+        name: {'nl': "Telefoon", 'en': "Phone"},
       ),
       "$myCredentialFoo.email": AttributeType(
         schemeManagerId: mySchemeManagerId,
         issuerId: myIssuerId,
         credentialTypeId: myCredentialFoo,
-        displayIndex: 3,
-        name: {'nl': "E-Mail"},
+        displayIndex: 2,
+        name: {'nl': "E-mail", 'en': "E-mail"},
+      ),
+      "$myCredentialFoo.filler": AttributeType(
+        schemeManagerId: mySchemeManagerId,
+        issuerId: myIssuerId,
+        credentialTypeId: myCredentialFoo,
+        displayIndex: 2,
+        name: {'nl': "Lorum", 'en': "Lorum"},
       ),
     },
   );
@@ -77,7 +112,7 @@ class IrmaClientMock implements IrmaClient {
   @override
   Stream<Credentials> getCredentials() {
     return Stream.fromIterable(
-            ["amsterdam", "idin", "duo", "amsterdam2", "idin2", "duo2", "amsterdam3", "idin3", "duo3"])
+            ["Amsterdam1", "iDIN1", "DUO1", "Amsterdam2", "iDIN2", "DUO2", "Amsterdam3", "iDIN3", "DUO3"])
         .asyncMap<Credential>((id) => getCredential(id).first)
         .fold<Map<String, Credential>>(<String, Credential>{}, (credentialMap, credential) {
           credentialMap[credential.id] = credential;
@@ -92,26 +127,77 @@ class IrmaClientMock implements IrmaClient {
     if (id == "") {
       return Future<Credential>.delayed(Duration(milliseconds: 100), throw CredentialNotFoundException()).asStream();
     }
+
+    Attributes attributes;
+
+    switch (id) {
+      case "Amsterdam1":
+      case "Amsterdam2":
+      case "Amsterdam3":
+        attributes = Attributes({
+          irmaConfiguration.attributeTypes["$myCredentialFoo.name"]:
+              TranslatedValue({'nl': 'Anouk Meijer', 'en': 'Anouk Meijer'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.sex"]:
+              TranslatedValue({'nl': 'Vrouwelijk', 'en': 'Female'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.birthdate"]:
+              TranslatedValue({'nl': '4 juli 1990', 'en': 'Juli 4th, 1990'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.address"]: TranslatedValue(
+              {'nl': 'Pieter Aertszstraat 5\n1073 SH Amsterdam', 'en': 'Pieter Aertszstraat 5\n1073 SH Amsterdam'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.bsn"]:
+              TranslatedValue({'nl': '1907.54.629', 'en': '1907.54.629'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.tel"]:
+              TranslatedValue({'nl': '06 8723 9064', 'en': '06 8723 9064'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.email"]:
+              TranslatedValue({'nl': 'anoukm71@gmail.com', 'en': 'anoukm71@gmail.com'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.filler"]: TranslatedValue({
+            'nl':
+                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec consectetur leo at suscipit egestas. Curabitur eget elementum tellus. Pellentesque viverra semper sapien, vitae convallis eros euismod at. Suspendisse tempus sollicitudin massa ut semper. Phasellus rhoncus sem et iaculis ultricies. In eros dui, fringilla a congue non, fermentum sit amet dui. Proin ligula tortor, scelerisque quis faucibus eget, condimentum non sapien.',
+            'en':
+                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec consectetur leo at suscipit egestas. Curabitur eget elementum tellus. Pellentesque viverra semper sapien, vitae convallis eros euismod at. Suspendisse tempus sollicitudin massa ut semper. Phasellus rhoncus sem et iaculis ultricies. In eros dui, fringilla a congue non, fermentum sit amet dui. Proin ligula tortor, scelerisque quis faucibus eget, condimentum non sapien.'
+          }),
+        });
+        break;
+      case "iDIN1":
+      case "iDIN2":
+      case "iDIN3":
+        attributes = Attributes({
+          irmaConfiguration.attributeTypes["$myCredentialFoo.name"]:
+              TranslatedValue({'nl': 'Anouk Meijer', 'en': 'Anouk Meijer'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.sex"]:
+              TranslatedValue({'nl': 'Vrouwelijk', 'en': 'Female'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.birthdate"]:
+              TranslatedValue({'nl': '4 juli 1990', 'en': 'Juli 4th, 1990'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.bsn"]:
+              TranslatedValue({'nl': '1907.54.629', 'en': '1907.54.629'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.address"]: TranslatedValue(
+              {'nl': 'Pieter Aertszstraat 5\n1073 SH Amsterdam', 'en': 'Pieter Aertszstraat 5\n1073 SH Amsterdam'}),
+        });
+        break;
+      default:
+        attributes = Attributes({
+          irmaConfiguration.attributeTypes["$myCredentialFoo.name"]:
+              TranslatedValue({'nl': 'Anouk Meijer', 'en': 'Anouk Meijer'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.sex"]:
+              TranslatedValue({'nl': 'Vrouwelijk', 'en': 'Female'}),
+          irmaConfiguration.attributeTypes["$myCredentialFoo.birthdate"]:
+              TranslatedValue({'nl': '4 juli 1990', 'en': 'Juli 4th, 1990'}),
+        });
+        break;
+    }
+
     return Future.delayed(
       Duration(milliseconds: 100),
       () => Credential(
         id: id,
         // TODO: realistic value
         // TODO: use irmaConfiguration.issuers[myIssuerId],
-        issuer: Issuer(id: id, name: {'nl': id}),
+        issuer: Issuer(id: id, name: {'nl': id, 'en': id}),
         // TODO: realistic value
         schemeManager: irmaConfiguration.schemeManagers[mySchemeManagerId],
         // TODO: realistic value
         signedOn: DateTime.now(),
         expires: DateTime.now().add(Duration(minutes: 5)),
-        attributes: Attributes({
-          irmaConfiguration.attributeTypes["$myCredentialFoo.name"]:
-              TranslatedValue({'nl': 'Anouk Meijer', 'en': 'Anouk Meijer'}),
-          irmaConfiguration.attributeTypes["$myCredentialFoo.birthdate"]:
-              TranslatedValue({'nl': '4 juli 1990', 'en': 'Juli 4th, 1990'}),
-          irmaConfiguration.attributeTypes["$myCredentialFoo.email"]:
-              TranslatedValue({'nl': 'anouk.meijer@gmail.com', 'en': 'anouk.meijer@gmail.com'}),
-        }),
+        attributes: attributes,
         hash: "foobar",
         // TODO: realistic value
         credentialType: myCredentialType,
@@ -126,13 +212,13 @@ class IrmaClientMock implements IrmaClient {
         () => {
               // TODO: use legit demo names
               'foobar.amsterdam': Issuer(
-                name: {'nl': 'Gemeente Amsterdam'},
+                name: {'nl': 'Gemeente Amsterdam', 'en': 'Gemeente Amsterdam'},
               ),
               'foobar.duo': Issuer(
-                name: {'nl': 'Dienst Uitvoering Onderwijs'},
+                name: {'nl': 'Dienst Uitvoering Onderwijs', 'en': 'Dienst Uitvoering Onderwijs'},
               ),
               'foobar.idin': Issuer(
-                name: {'nl': 'iDIN'},
+                name: {'nl': 'iDIN', 'en': 'iDIN'},
               ),
               myIssuerId: myIssuer,
             }).asStream();

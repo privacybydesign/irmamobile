@@ -42,14 +42,10 @@ class _WalletScreenState extends State<_WalletScreen> {
           )),
       body: StreamBuilder<Credentials>(
           stream: widget.bloc.credentials,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return Wallet(
-                  credentials: snapshot.data.values.toList(), qrCallback: qrActivate, helpCallback: helpActivate);
-            } else {
-              return Center(child: Text(FlutterI18n.translate(context, 'ui.loading')));
-            }
-          }),
+          builder: (context, snapshot) => Wallet(
+              credentials: snapshot.hasData ? snapshot.data.values.toList() : null,
+              qrCallback: qrActivate,
+              helpCallback: helpActivate)),
       drawer: WalletDrawer(),
     );
   }

@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
@@ -7,12 +9,11 @@ import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/widgets/card/backgrounds.dart';
 import 'package:irmamobile/src/widgets/card/blurtext.dart';
+import 'package:irmamobile/src/theme/theme.dart';
 
 class CardAttributes extends StatelessWidget {
-  static const _transparentWhite = Color(0xaaffffff);
+  final _lang = ui.window.locale.languageCode;
   final _indent = 100.0;
-
-  final _dateFormatter = DateFormat.yMd();
 
   final Credential personalData;
   final Issuer issuer;
@@ -31,7 +32,7 @@ class CardAttributes extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle bodyTheme = Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor);
+    final TextStyle bodyTheme = IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor);
 
     final ScrollController scrollController = ScrollController();
     scrollController.addListener(() {
@@ -40,33 +41,49 @@ class CardAttributes extends StatelessWidget {
       }
     });
 
-    return Scrollbar(
-        child: ListView(
-      controller: scrollController,
-      physics: const BouncingScrollPhysics(),
+    return Column(
       children: [
-        const Divider(color: _transparentWhite),
-        ...getAttributes(context, bodyTheme),
-        const Divider(color: _transparentWhite),
-        getIssuer(context, bodyTheme),
-        getExpiration(context, bodyTheme)
+        Expanded(
+          child: Scrollbar(
+            child: ListView(
+              controller: scrollController,
+              physics: const BouncingScrollPhysics(),
+              children: [
+                ...getAttributes(context, bodyTheme),
+              ],
+            ),
+          ),
+        ),
+        Column(
+          children: <Widget>[getIssuer(context, bodyTheme), getExpiration(context, bodyTheme)],
+        ),
       ],
-    ));
+    );
   }
 
   List<Widget> getAttributes(BuildContext context, TextStyle bodyTheme) => personalData.attributes.entries
       .map((personal) => Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
                   width: _indent,
-                  child: Text(
-                    personal.key.name['nl'],
-                    style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor),
+                  margin: const EdgeInsets.only(top: 2),
+                  child: Opacity(
+                    opacity: 0.8,
+                    child: Text(
+                      personal.key.name[_lang],
+                      style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 14),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
-                BlurText(text: personal.value['nl'], color: irmaCardTheme.fgColor, isTextBlurred: false),
+                BlurText(
+                    text: personal.value[_lang],
+                    theme: IrmaTheme.of(context).textTheme.body2.copyWith(color: irmaCardTheme.fgColor),
+                    color: irmaCardTheme.fgColor,
+                    isTextBlurred: false),
               ],
             ),
           ))
@@ -77,19 +94,18 @@ class CardAttributes extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: _indent,
-              child: Text(
-                FlutterI18n.translate(context, 'wallet.issuer'),
-                style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor),
-              ),
-            ),
+                width: _indent,
+                margin: const EdgeInsets.only(top: 1),
+                child: Opacity(
+                  opacity: 0.8,
+                  child: Text(
+                    FlutterI18n.translate(context, 'wallet.issuer'),
+                    style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 12),
+                  ),
+                )),
             Text(
-              issuer.name['nl'],
-              style: Theme.of(context)
-                  .textTheme
-                  .body1
-                  .copyWith(fontWeight: FontWeight.w700)
-                  .copyWith(color: irmaCardTheme.fgColor),
+              issuer.name[_lang],
+              style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 12),
             ),
           ],
         ),
@@ -101,20 +117,24 @@ class CardAttributes extends StatelessWidget {
           children: [
             Container(
               width: _indent,
-              child: Text(
-                FlutterI18n.translate(context, 'wallet.expiration'),
-                style: Theme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor),
+              margin: const EdgeInsets.only(top: 1),
+              child: Opacity(
+                opacity: 0.8,
+                child: Text(
+                  FlutterI18n.translate(context, 'wallet.expiration'),
+                  style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 12),
+                ),
               ),
             ),
             Text(
-              _dateFormatter.format(personalData.expires),
-              style: Theme.of(context)
-                  .textTheme
-                  .body1
-                  .copyWith(fontWeight: FontWeight.w700)
-                  .copyWith(color: irmaCardTheme.fgColor),
+              getReadableDate(personalData.expires, _lang),
+              style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 12),
             ),
           ],
         ),
       );
+
+  String getReadableDate(DateTime date, String lang) {
+    return DateFormat.yMMMMd(lang).format(date);
+  }
 }
