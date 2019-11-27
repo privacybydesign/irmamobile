@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 class IrmaThemeData extends Equatable {
   static double space = 16.0;
+  @Deprecated(
+      "Move to tinySpacing, smallSpacing, defaultSpacing or largeSpacing, don't use local divisions/multiplications")
   final double spacing = space;
   final double defaultSpacing = space;
   final double tinySpacing = space / 4;
