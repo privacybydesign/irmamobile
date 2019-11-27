@@ -54,6 +54,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   WalletState oldState = WalletState.halfway;
   WalletState currentState = WalletState.minimal;
   double dragOffset = 0;
+  double cardDragOffset = 0;
 
   @override
   void initState() {
@@ -159,13 +160,24 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                         },
                         onVerticalDragStart: (DragStartDetails details) {
                           setState(() {
+                            if (currentState == WalletState.drawn) {
+                              cardDragOffset = details.localPosition.dy -
+                                calculateCardPosition(
+                                  state: currentState,
+                                  size: size,
+                                  index: index,
+                                  drawnCardIndex: drawnCardIndex,
+                                  dragOffset: 0);
+                            } else {
+                              cardDragOffset = 0;
+                            }
                             drawnCardIndex = _index;
-                            dragOffset = details.localPosition.dy - _cardTopHeight / 2;
+                            dragOffset = details.localPosition.dy - cardDragOffset;
                           });
                         },
                         onVerticalDragUpdate: (DragUpdateDetails details) {
                           setState(() {
-                            dragOffset = details.localPosition.dy - _cardTopHeight / 2;
+                            dragOffset = details.localPosition.dy - cardDragOffset;
                           });
                         },
                         onVerticalDragEnd: (DragEndDetails details) {
