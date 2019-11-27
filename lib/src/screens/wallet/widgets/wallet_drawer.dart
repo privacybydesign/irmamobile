@@ -68,7 +68,7 @@ class WalletDrawer extends StatelessWidget {
                   ),
                   _createDrawerItem(
                     context,
-                    icon: Icons.settings, // TODO: replace with irma icon
+                    icon: IrmaIcons.settings,
                     text: FlutterI18n.translate(context, 'drawer.settings'),
                     onTap: () => Navigator.pushNamed(context, SettingsScreen.routeName),
                   ),
