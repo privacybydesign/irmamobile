@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 import 'package:irmamobile/src/models/credentials.dart';
+import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/wallet/models/wallet_bloc.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet_drawer.dart';

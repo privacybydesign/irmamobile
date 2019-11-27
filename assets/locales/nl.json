@@ -171,6 +171,20 @@
       "continue": "Verder"
     }
   },
+  "qr_scanner": {
+    "instruction": {
+      "title": "Begin met scannen!",
+      "message": "Richt de telefoon op de QR code"
+    },
+    "success": {
+      "title": "Gelukt!",
+      "message": "De QR code is gescand"
+    },
+    "error": {
+      "title": "Mislukt!",
+      "message": "Richt de telefoon op een IRMA QR code"
+    }
+  },
   "pin": {
     "title": "Inloggen",
     "subtitle": "Voer je pincode in",

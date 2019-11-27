@@ -41,5 +41,14 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+  <key>io.flutter.embedded_views_preview</key>
+  <true/>
+  <key>UIBackgroundModes</key>
+  <array>
+    <string>fetch</string>
+    <string>remote-notification</string>
+  </array>
+  <key>NSCameraUsageDescription</key>
+  <string>Can we access your camera to scan a QR code?</string>
 </dict>
 </plist>
