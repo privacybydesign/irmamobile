@@ -41,7 +41,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _cardTopHeight = 40;
   final _cardsMaxExtended = 5;
   final _dragTipping = 50;
-  final _scrollOverflowTipping = 40;
+  final _scrollOverflowTipping = 50;
   final _screenTopOffset = 110; // Might need tweaking depending on screen size
   final _walletShrinkTween = Tween<double>(begin: 0.0, end: 1.0);
   final _walletIconHeight = 60;
@@ -54,6 +54,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   WalletState oldState = WalletState.halfway;
   WalletState currentState = WalletState.minimal;
   double dragOffset = 0;
+  double cardDragOffset = 0;
 
   @override
   void initState() {
@@ -159,13 +160,24 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                         },
                         onVerticalDragStart: (DragStartDetails details) {
                           setState(() {
+                            if (currentState == WalletState.drawn) {
+                              cardDragOffset = details.localPosition.dy -
+                                  calculateCardPosition(
+                                      state: currentState,
+                                      size: size,
+                                      index: index,
+                                      drawnCardIndex: drawnCardIndex,
+                                      dragOffset: 0);
+                            } else {
+                              cardDragOffset = _cardTopHeight / 2;
+                            }
                             drawnCardIndex = _index;
-                            dragOffset = details.localPosition.dy - _cardTopHeight / 2;
+                            dragOffset = details.localPosition.dy - cardDragOffset;
                           });
                         },
                         onVerticalDragUpdate: (DragUpdateDetails details) {
                           setState(() {
-                            dragOffset = details.localPosition.dy - _cardTopHeight / 2;
+                            dragOffset = details.localPosition.dy - cardDragOffset;
                           });
                         },
                         onVerticalDragEnd: (DragEndDetails details) {
@@ -265,6 +277,9 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
           if (cardPosition < -_cardTopHeight) {
             cardPosition = -_cardTopHeight.toDouble();
           }
+          if (index > drawnCardIndex) {
+            cardPosition += _cardTopBorderHeight;
+          }
         }
         break;
 
@@ -313,25 +328,23 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         break;
 
       case WalletState.full:
-        final top = min(getWalletTop(size), (widget.credentials.length - 1) * _cardTopHeight.toDouble());
-        cardPosition = top - index * _cardTopHeight;
-        // Active card
-        if (index == drawnCardIndex) {
-          cardPosition -= dragOffset;
+        cardPosition = min(getWalletTop(size), (widget.credentials.length - 1) * _cardTopHeight.toDouble()) -
+            index * _cardTopHeight;
 
-          // Drag down
-        } else if (dragOffset > _cardTopHeight - _cardTopBorderHeight) {
-          if (index > drawnCardIndex) {
+        if (dragOffset > _cardTopHeight - _cardTopBorderHeight) {
+          if (index >= drawnCardIndex) {
             cardPosition -= dragOffset *
                     ((drawnCardIndex - index) *
                             (1 / dragDownFactor - 1) /
                             (drawnCardIndex - (widget.credentials.length - 1)) +
                         1 / dragDownFactor) *
                     dragDownFactor -
-                (_cardTopHeight - _cardTopBorderHeight);
+                _cardTopHeight / 2;
           } else {
             cardPosition -= dragOffset - (_cardTopHeight - _cardTopBorderHeight);
           }
+        } else if (index == drawnCardIndex) {
+          cardPosition -= dragOffset;
         }
         break;
     }
