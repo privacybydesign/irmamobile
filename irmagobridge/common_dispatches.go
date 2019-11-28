@@ -6,6 +6,7 @@ func dispatchConfigurationEvent() {
 		Issuers:         client.Configuration.Issuers,
 		CredentialTypes: client.Configuration.CredentialTypes,
 		AttributeTypes:  client.Configuration.AttributeTypes,
+		Path:            client.Configuration.Path,
 	})
 }
 

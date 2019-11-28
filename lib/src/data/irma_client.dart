@@ -6,6 +6,7 @@ import 'package:irmamobile/src/models/version_information.dart';
 
 abstract class IrmaClient {
   Stream<Credentials> getCredentials();
+  Stream<IrmaConfiguration> getIrmaConfiguration();
 
   Stream<Credential> getCredential(String id);
 

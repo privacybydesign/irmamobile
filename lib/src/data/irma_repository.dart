@@ -31,6 +31,10 @@ class IrmaRepository {
     return client.getCredentials();
   }
 
+  Stream<IrmaConfiguration> getIrmaConfiguration() {
+    return client.getIrmaConfiguration();
+  }
+
   Stream<Credential> getCredential(String id) {
     return client.getCredential(id);
   }

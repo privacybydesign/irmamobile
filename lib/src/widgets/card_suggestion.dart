@@ -24,7 +24,7 @@ class CardSuggestion extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(bottom: IrmaTheme.of(context).tinySpacing / 4),
       child: Card(
-        elevation: 3.0,
+        elevation: 1.0,
         semanticContainer: true,
         shape: RoundedRectangleBorder(
           borderRadius: borderRadius,
@@ -51,10 +51,10 @@ class CardSuggestion extends StatelessWidget {
                             right: IrmaTheme.of(context).smallSpacing),
                         child: ConstrainedBox(
                           constraints: const BoxConstraints(
-                            minHeight: 54.0,
-                            minWidth: 54.0,
-                            maxHeight: 54.0,
-                            maxWidth: 54.0,
+                            minHeight: 42.0,
+                            minWidth: 42.0,
+                            maxHeight: 42.0,
+                            maxWidth: 42.0,
                           ),
                           child: obtained
                               ? Stack(

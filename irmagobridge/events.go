@@ -62,6 +62,7 @@ type irmaConfigurationEvent struct {
 	Issuers         map[irma.IssuerIdentifier]*irma.Issuer
 	CredentialTypes map[irma.CredentialTypeIdentifier]*irma.CredentialType
 	AttributeTypes  map[irma.AttributeTypeIdentifier]*irma.AttributeType
+	Path            string
 }
 
 type credentialsEvent struct {

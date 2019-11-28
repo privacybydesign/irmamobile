@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/screens/add_cards/customs/configurable_expansion_tile.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/util/language.dart';
 
 class CardQuestions extends StatefulWidget {
-  const CardQuestions(this.parentKey, this.parentScrollController);
+  const CardQuestions({this.credentialType, this.parentKey, this.parentScrollController});
 
+  final CredentialType credentialType;
   final GlobalKey parentKey;
   final ScrollController parentScrollController;
 
@@ -14,7 +17,7 @@ class CardQuestions extends StatefulWidget {
 }
 
 class _CardQuestionsState extends State<CardQuestions> with TickerProviderStateMixin {
-  final List<GlobalKey> _collapsableKeys = List<GlobalKey>.generate(4, (int index) => GlobalKey());
+  final List<GlobalKey> _collapsableKeys = List<GlobalKey>.generate(3, (int index) => GlobalKey());
   Duration expandDuration = const Duration(milliseconds: 200); // expand duration of _Collapsible
 
   void _jumpToCollapsable(int index) {
@@ -36,28 +39,20 @@ class _CardQuestionsState extends State<CardQuestions> with TickerProviderStateM
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         _Collapsible(
-            header: FlutterI18n.translate(context, 'card_store.card_info.issuer_question'),
+            header: FlutterI18n.translate(context, 'card_store.card_info.purpose_question'),
             onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(0))},
-            content: "De tekst hier komt uit het scheme. De tekst hier komt uit het scheme.",
+            content: getTranslation(widget.credentialType.faqPurpose).replaceAll('\\n', '\n'),
             key: _collapsableKeys[0]),
         _Collapsible(
-            header: FlutterI18n.translate(context, 'card_store.card_info.provided_attributes_question'),
+            header: FlutterI18n.translate(context, 'card_store.card_info.content_question'),
             onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(1))},
-            content:
-                " Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ac dolor vel eros dapibus lobortis. Nam ex metus, ultrices vitae dapibus id, maximus non tortor. Duis gravida varius orci consectetur congue. Donec molestie sit amet nisl et fringilla. In eu metus quis nunc laoreet suscipit. Donec vitae pretium libero, lobortis cursus ipsum. Integer pretium semper ex.Proin sed eleifend ipsum. Aenean sollicitudin arcu ut scelerisque varius. Mauris varius tortor massa, nec interdum mauris dignissim vel. Vestibulum ullamcorper facilisis lacus vel tincidunt. Aliquam erat volutpat. Fusce elit sapien, consectetur vitae nunc sit amet, suscipit tincidunt enim. Nunc turpis nisi, vestibulum id lacus ut, feugiat volutpat lorem. Integer hendrerit dolor pellentesque, lacinia dui ac, efficitur eros. Aliquam dignissim neque nec molestie consequat.Mauris ultrices quam eu arcu suscipit feugiat ultricies quis magna. Praesent auctor leo a vulputate imperdiet. Fusce eget dolor sagittis, elementum sapien feugiat, semper metus. Duis vel massa fermentum enim pharetra imperdiet. Nunc elementum sapien in metus porta, sed cursus justo consequat. Aenean vehicula diam eget elit auctor ultrices. Nulla tortor neque, lobortis vitae erat vel, pretium sodales tortor. Nulla aliquam faucibus bibendum. Proin eros nisi, porta nec euismod eget, accumsan eget odio. Nullam interdum in diam ut mattis. Duis ac nunc pulvinar, varius dui et, consectetur neque. Quisque aliquam urna orci, id vehicula nibh interdum eget. Donec ullamcorper ante et est interdum, a congue nulla varius. Vivamus a sollicitudin elit. ",
+            content: getTranslation(widget.credentialType.faqContent).replaceAll('\\n', '\n'),
             key: _collapsableKeys[1]),
         _Collapsible(
-            header: FlutterI18n.translate(context, 'card_store.card_info.expiration_question'),
+            header: FlutterI18n.translate(context, 'card_store.card_info.howto_question'),
             onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(2))},
-            content:
-                " Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ac dolor vel eros dapibus lobortis. Nam ex metus, ultrices vitae dapibus id, maximus non tortor. Duis gravida varius orci consectetur congue. Donec molestie sit amet nisl et fringilla. In eu metus quis nunc laoreet suscipit. Donec vitae pretium libero, lobortis cursus ipsum. Integer pretium semper ex.Proin sed eleifend ipsum. Aenean sollicitudin arcu ut scelerisque varius. Mauris varius tortor massa, nec interdum mauris dignissim vel. Vestibulum ullamcorper facilisis lacus vel tincidunt. Aliquam erat volutpat. Fusce elit sapien, consectetur vitae nunc sit amet, suscipit tincidunt enim. Nunc turpis nisi, vestibulum id lacus ut, feugiat volutpat lorem. Integer hendrerit dolor pellentesque, lacinia dui ac, efficitur eros. Aliquam dignissim neque nec molestie consequat.Mauris ultrices quam eu arcu suscipit feugiat ultricies quis magna. Praesent auctor leo a vulputate imperdiet. Fusce eget dolor sagittis, elementum sapien feugiat, semper metus. Duis vel massa fermentum enim pharetra imperdiet. Nunc elementum sapien in metus porta, sed cursus justo consequat. Aenean vehicula diam eget elit auctor ultrices. Nulla tortor neque, lobortis vitae erat vel, pretium sodales tortor. Nulla aliquam faucibus bibendum. Proin eros nisi, porta nec euismod eget, accumsan eget odio. Nullam interdum in diam ut mattis. Duis ac nunc pulvinar, varius dui et, consectetur neque. Quisque aliquam urna orci, id vehicula nibh interdum eget. Donec ullamcorper ante et est interdum, a congue nulla varius. Vivamus a sollicitudin elit. ",
+            content: getTranslation(widget.credentialType.faqHowto).replaceAll('\\n', '\n'),
             key: _collapsableKeys[2]),
-        _Collapsible(
-            header: FlutterI18n.translate(context, 'card_store.card_info.how_does_it_work_question'),
-            onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(3))},
-            content:
-                " Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ac dolor vel eros dapibus lobortis. Nam ex metus, ultrices vitae dapibus id, maximus non tortor. Duis gravida varius orci consectetur congue. Donec molestie sit amet nisl et fringilla. In eu metus quis nunc laoreet suscipit. Donec vitae pretium libero, lobortis cursus ipsum. Integer pretium semper ex.Proin sed eleifend ipsum. Aenean sollicitudin arcu ut scelerisque varius. Mauris varius tortor massa, nec interdum mauris dignissim vel. Vestibulum ullamcorper facilisis lacus vel tincidunt. Aliquam erat volutpat. Fusce elit sapien, consectetur vitae nunc sit amet, suscipit tincidunt enim. Nunc turpis nisi, vestibulum id lacus ut, feugiat volutpat lorem. Integer hendrerit dolor pellentesque, lacinia dui ac, efficitur eros. Aliquam dignissim neque nec molestie consequat.Mauris ultrices quam eu arcu suscipit feugiat ultricies quis magna. Praesent auctor leo a vulputate imperdiet. Fusce eget dolor sagittis, elementum sapien feugiat, semper metus. Duis vel massa fermentum enim pharetra imperdiet. Nunc elementum sapien in metus porta, sed cursus justo consequat. Aenean vehicula diam eget elit auctor ultrices. Nulla tortor neque, lobortis vitae erat vel, pretium sodales tortor. Nulla aliquam faucibus bibendum. Proin eros nisi, porta nec euismod eget, accumsan eget odio. Nullam interdum in diam ut mattis. Duis ac nunc pulvinar, varius dui et, consectetur neque. Quisque aliquam urna orci, id vehicula nibh interdum eget. Donec ullamcorper ante et est interdum, a congue nulla varius. Vivamus a sollicitudin elit. ",
-            key: _collapsableKeys[3]),
       ],
     );
   }
@@ -73,6 +68,7 @@ class _Collapsible extends StatelessWidget {
   Widget build(BuildContext context) {
     return ConfigurableExpansionTile(
       onExpansionChanged: onExpansionChanged,
+      initiallyExpanded: true,
       animatedWidgetFollowingHeader: const Padding(
         padding: EdgeInsets.all(4.0),
         child: Icon(
@@ -83,18 +79,18 @@ class _Collapsible extends StatelessWidget {
 
       header: Expanded(
         child: Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: EdgeInsets.all(IrmaTheme.of(context).tinySpacing * 3),
           child: Text(
             header,
             style: Theme.of(context).textTheme.body2,
           ),
         ),
       ),
-      headerBackgroundColorStart: IrmaTheme.of(context).grayscale90, // TODO: determine color
+      headerBackgroundColorStart: IrmaTheme.of(context).grayscale90,
       expandedBackgroundColor: const Color(0x00000000), // TODO: define transparent in theme
       children: <Widget>[
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.all(IrmaTheme.of(context).smallSpacing),
           child: Text(
             content,
             style: Theme.of(context).textTheme.body1,
