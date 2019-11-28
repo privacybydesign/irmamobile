@@ -9,6 +9,7 @@ class IrmaThemeData extends Equatable {
   final double defaultSpacing = space;
   final double tinySpacing = space / 4;
   final double smallSpacing = space / 2;
+  final double mediumSpacing = space * 1.5;
   final double largeSpacing = space * 2;
 
   // Primary colors

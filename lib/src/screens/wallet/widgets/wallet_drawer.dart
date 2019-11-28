@@ -24,12 +24,15 @@ class WalletDrawer extends StatelessWidget {
                 padding: EdgeInsets.zero,
                 children: <Widget>[
                   Container(
-                    color: IrmaTheme.of(context).grayscale85,
-                    height: IrmaTheme.of(context).spacing * 4,
+                    height: 90.0,
                     child: DrawerHeader(
+                      decoration: BoxDecoration(
+                        border: Border.all(width: 0.0, color: Colors.white),
+                        color: IrmaTheme.of(context).grayscale85,
+                      ),
                       padding: EdgeInsets.only(
-                        left: IrmaTheme.of(context).spacing * 1.5,
-                        right: IrmaTheme.of(context).spacing * 0.5,
+                        left: IrmaTheme.of(context).mediumSpacing,
+                        right: IrmaTheme.of(context).defaultSpacing,
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -99,7 +102,7 @@ class WalletDrawer extends StatelessWidget {
                 child: Container(
                   color: IrmaTheme.of(context).primaryBlue,
                   child: ListTile(
-                    contentPadding: EdgeInsets.only(left: IrmaTheme.of(context).spacing * 1.5),
+                    contentPadding: EdgeInsets.only(left: IrmaTheme.of(context).mediumSpacing),
                     title: Text(
                       FlutterI18n.translate(context, 'drawer.lock_wallet'),
                       style: TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
