@@ -36,6 +36,7 @@ dependencies:
   version: ^1.0.3
   package_info: ^0.4.0
   stream_transform: ^0.0.19
+  collection: ^1.14.11
   qr_code_scanner: ^0.0.12
 
 dev_dependencies:

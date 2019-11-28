@@ -79,6 +79,11 @@ class IrmaClientBridge implements IrmaClient {
   }
 
   @override
+  Stream<IrmaConfiguration> getIrmaConfiguration() {
+    return _irmaConfigurationStream.stream;
+  }
+
+  @override
   Stream<Credential> getCredential(String hash) {
     return _credentialsStream
         .map<Credential>((credentials) => credentials[hash])

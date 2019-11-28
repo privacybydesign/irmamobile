@@ -32,7 +32,14 @@ class IrmaClientMock implements IrmaClient {
     id: myCredentialTypeId,
     name: {'nl': "MyCredentialType"},
     shortName: {'nl': "MCT"},
-    description: {'nl': 'My Credential Type'},
+    description: {'nl': 'My Credential Type mock description'},
+    issueUrl: {'nl': 'https://mock.url.nl'},
+    isInCredentialStore: true,
+    category: {'nl': 'TODO'},
+    faqIntro: {'nl': 'TODO'},
+    faqPurpose: {'nl': 'TODO'},
+    faqContent: {'nl': 'TODO'},
+    faqHowto: {'nl': 'TODO'},
     schemeManagerId: mySchemeManagerId,
     issuerId: myIssuerId,
   );
@@ -120,6 +127,11 @@ class IrmaClientMock implements IrmaClient {
         })
         .asStream()
         .map<Credentials>((credentialMap) => Credentials(credentialMap));
+  }
+
+  @override
+  Stream<IrmaConfiguration> getIrmaConfiguration() {
+    return Stream.value(irmaConfiguration);
   }
 
   @override
