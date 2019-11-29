@@ -47,6 +47,13 @@ class _CardInfoState extends State<CardInfo> with TickerProviderStateMixin {
             Align(
               alignment: Alignment.center,
               child: Container(
+                decoration: BoxDecoration(
+                  color: IrmaTheme.of(context).grayscaleWhite,
+                  border: Border.all(
+                    color: IrmaTheme.of(context).grayscale90,
+                    width: 3,
+                  ),
+                ),
                 margin: const EdgeInsets.only(top: 60),
                 width: 75,
                 height: 75,
@@ -72,7 +79,7 @@ class _CardInfoState extends State<CardInfo> with TickerProviderStateMixin {
           ),
         ),
         SizedBox(
-          height: IrmaTheme.of(context).spacing,
+          height: IrmaTheme.of(context).defaultSpacing,
         ),
         Padding(
           padding: paddingText,
@@ -81,7 +88,7 @@ class _CardInfoState extends State<CardInfo> with TickerProviderStateMixin {
           ),
         ),
         SizedBox(
-          height: IrmaTheme.of(context).spacing,
+          height: IrmaTheme.of(context).defaultSpacing,
         ),
         Padding(
           padding: paddingQuestions,

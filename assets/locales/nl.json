@@ -86,14 +86,14 @@
     "health": "Zorg",
     "popular": "Populair",
     "card_info": {
-      "app_bar": "Gegevens ophalen",
-      "header_credential_type": "{credential_type} ophalen",
+      "app_bar": "Gegevens toevoegen",
+      "header_credential_type": "{credential_type} toevoegen",
       "obtain": "ophalen",
       "issuer": "Uitgifte",
       "purpose_question": "Wat kan ik met deze gegevens?",
       "content_question": "Welke gegevens haal ik op?",
       "howto_question": "How werkt het?",
-      "back_button": "Later",
+      "back_button": "Annuleren",
       "get_button": "Ophalen"
     },
     "email": {

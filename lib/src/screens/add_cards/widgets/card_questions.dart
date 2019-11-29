@@ -86,7 +86,7 @@ class _Collapsible extends StatelessWidget {
           ),
         ),
       ),
-      headerBackgroundColorStart: IrmaTheme.of(context).grayscale90,
+      headerBackgroundColorStart: IrmaTheme.of(context).backgroundBlue,
       expandedBackgroundColor: const Color(0x00000000), // TODO: define transparent in theme
       children: <Widget>[
         Padding(
