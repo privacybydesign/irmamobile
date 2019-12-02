@@ -80,6 +80,13 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    drawController.dispose();
+    loaderController.dispose();
+    super.dispose();
+  }
+
   @mustCallSuper
   @protected
   @override
