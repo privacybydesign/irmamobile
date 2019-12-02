@@ -198,7 +198,7 @@ class IrmaClientMock implements IrmaClient {
     }
 
     return Future.delayed(
-      Duration(milliseconds: 1000),
+      Duration(milliseconds: 100),
       () => Credential(
         id: id,
         // TODO: realistic value
