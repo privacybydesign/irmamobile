@@ -136,6 +136,10 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                       style: IrmaTheme.of(context).hyperlinkTextStyle,
                     ),
                   ),
+                  Opacity(
+                    opacity: 1 - loaderController.value,
+                    child: Align(alignment: Alignment.center, child: LoadingIndicator()),
+                  ),
                 ],
               ),
             ),
@@ -206,11 +210,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                 );
               }(index++);
             }),
-          if (loaderController.value < 1.0)
-            Opacity(
-              opacity: 1 - loaderController.value,
-              child: Align(alignment: Alignment.center, child: LoadingIndicator()),
-            ),
           Align(
             alignment: Alignment.bottomCenter,
             child: Stack(
