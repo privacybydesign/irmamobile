@@ -36,13 +36,17 @@ class Wallet extends StatefulWidget {
 class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _padding = 15.0;
   final _animationDuration = 250;
-  final _walletAspectRatio = 87 / 360; // wallet.svg
+  final _walletAspectRatio = 87 / 360; // wallet.svg | 360 / 620, 620 - 87 = 533
+  final _walletFullWidth = 360;
+  final _walletFullHeight = 620;
   final _cardTopBorderHeight = 10;
   final _cardTopHeight = 40;
   final _cardsMaxExtended = 5;
   final _dragTipping = 50;
   final _scrollOverflowTipping = 50;
   final _screenTopOffset = 110; // Might need tweaking depending on screen size
+  final _walletOffset = 35; // Might need tweaking depending on screen size
+  final _walletBackOffset = 8; // Might need tweaking depending on screen size
   final _walletShrinkTween = Tween<double>(begin: 0.0, end: 1.0);
   final _walletIconHeight = 60;
   final double dragDownFactor = 1.5;
@@ -89,7 +93,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       animation: drawAnimation,
       builder: (BuildContext buildContext, Widget child) {
         final size = MediaQuery.of(buildContext).size;
-        final walletTop = size.height - (size.width - 2 * _padding) * _walletAspectRatio - _screenTopOffset;
+        final walletTop = size.height - size.width * _walletAspectRatio - _screenTopOffset;
 
         int index = 0;
         double cardTop;
@@ -125,8 +129,8 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
               ),
             ),
           ),
-          Align(
-            alignment: Alignment.bottomCenter,
+          Positioned(
+            top: _walletFullHeight - size.width * _walletAspectRatio + _walletOffset - _walletBackOffset,
             child: SvgPicture.asset(
               'assets/wallet/wallet_back.svg',
               width: size.width,
@@ -196,36 +200,32 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                   }(index++);
                 })
               : [Align(alignment: Alignment.center, child: Text(FlutterI18n.translate(context, 'ui.loading')))],
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Stack(
-              children: <Widget>[
-                IgnorePointer(
-                    ignoring: true,
-                    child: SvgPicture.asset(
-                      'assets/wallet/wallet_front.svg',
-                      width: size.width,
-                      height: size.width * _walletAspectRatio,
-                    )),
-                Positioned(
-                  left: 16,
-                  bottom: ((size.width - 2 * _padding) * _walletAspectRatio - _walletIconHeight) / 2,
-                  child: WalletButton(
-                      svgFile: 'assets/wallet/btn_help.svg',
-                      accessibleName: "wallet.help",
-                      clickStreamSink: widget.helpCallback),
-                ),
-                Positioned(
-                  right: 16,
-                  bottom: ((size.width - 2 * _padding) * _walletAspectRatio - _walletIconHeight) / 2,
-                  child: WalletButton(
-                      svgFile: 'assets/wallet/btn_qrscan.svg',
-                      accessibleName: "wallet.scan_qr_code",
-                      clickStreamSink: widget.qrCallback),
-                ),
-              ],
+          Positioned(
+            top: _walletFullHeight - size.width * _walletAspectRatio + _walletOffset,
+            child: IgnorePointer(
+              ignoring: true,
+              child: SvgPicture.asset(
+                'assets/wallet/wallet_front.svg',
+                width: size.width,
+              ),
             ),
-          )
+          ),
+          Positioned(
+            left: 16,
+            bottom: (size.width * _walletAspectRatio - _walletIconHeight) / 2,
+            child: WalletButton(
+                svgFile: 'assets/wallet/btn_help.svg',
+                accessibleName: "wallet.help",
+                clickStreamSink: widget.helpCallback),
+          ),
+          Positioned(
+            right: 16,
+            bottom: (size.width * _walletAspectRatio - _walletIconHeight) / 2,
+            child: WalletButton(
+                svgFile: 'assets/wallet/btn_qrscan.svg',
+                accessibleName: "wallet.scan_qr_code",
+                clickStreamSink: widget.qrCallback),
+          ),
         ]);
       });
 
