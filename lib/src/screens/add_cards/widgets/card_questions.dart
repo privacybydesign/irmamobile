@@ -68,7 +68,7 @@ class _Collapsible extends StatelessWidget {
   Widget build(BuildContext context) {
     return ConfigurableExpansionTile(
       onExpansionChanged: onExpansionChanged,
-      initiallyExpanded: true,
+      initiallyExpanded: false,
       animatedWidgetFollowingHeader: const Padding(
         padding: EdgeInsets.all(4.0),
         child: Icon(
@@ -82,7 +82,16 @@ class _Collapsible extends StatelessWidget {
           padding: EdgeInsets.all(IrmaTheme.of(context).tinySpacing * 3),
           child: Text(
             header,
-            style: Theme.of(context).textTheme.body2,
+            style: IrmaTheme.of(context).collapseTextStyle,
+          ),
+        ),
+      ),
+      headerExpanded: Expanded(
+        child: Padding(
+          padding: EdgeInsets.all(IrmaTheme.of(context).tinySpacing * 3),
+          child: Text(
+            header,
+            style: IrmaTheme.of(context).textTheme.display2,
           ),
         ),
       ),
@@ -93,7 +102,7 @@ class _Collapsible extends StatelessWidget {
           padding: EdgeInsets.all(IrmaTheme.of(context).smallSpacing),
           child: Text(
             content,
-            style: Theme.of(context).textTheme.body1,
+            style: IrmaTheme.of(context).textTheme.body1,
           ),
         )
       ],

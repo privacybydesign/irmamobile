@@ -30,6 +30,7 @@ class _CardInfoScreenState extends State<CardInfoScreen> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
+        centerTitle: true,
         title: Text(
           FlutterI18n.translate(
             context,
