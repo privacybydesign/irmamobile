@@ -61,20 +61,26 @@ class _CardInfoScreenState extends State<CardInfoScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
-                    child: IrmaTextButton(
-                      label: FlutterI18n.translate(context, 'card_store.card_info.back_button'),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
+                      child: IrmaTextButton(
+                        label: FlutterI18n.translate(context, 'card_store.card_info.back_button'),
+                        textStyle: IrmaTheme.of(context).textButtonTextStyle,
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
                     ),
                   ),
                   Expanded(
+                    flex: 1,
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
+                      padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).defaultSpacing),
                       child: IrmaButton(
                         label: FlutterI18n.translate(context, 'card_store.card_info.get_button'),
+                        textStyle: IrmaTheme.of(context).textTheme.button,
                         onPressed: widget.onStartIssuance,
                       ),
                     ),
