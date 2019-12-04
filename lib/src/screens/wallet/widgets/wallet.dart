@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/animation.dart';
@@ -46,28 +47,33 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _dragTipping = 50;
   final _scrollOverflowTipping = 50;
   final _screenTopOffset = 110; // Might need tweaking depending on screen size
-  final _walletOffset = 35; // Might need tweaking depending on screen size
+  final _walletOffset = -20; // Might need tweaking depending on screen size
   final _walletBackOffset = 8; // Might need tweaking depending on screen size
   final _walletShrinkTween = Tween<double>(begin: 0.0, end: 1.0);
-
   final _walletIconHeight = 60;
-  final double dragDownFactor = 1.5;
+  final _dragDownFactor = 1.5;
+  final _cardsLoaded = Completer();
+  final _loggedinAnimation = Completer();
 
   int drawnCardIndex = 0;
   AnimationController drawController;
   AnimationController loaderController;
+  AnimationController loginLogoutController;
   Animation<double> drawAnimation;
 
   WalletState cardInStackState = WalletState.halfway;
   WalletState oldState = WalletState.halfway;
   WalletState currentState = WalletState.minimal;
+
   double dragOffset = 0;
   double cardDragOffset = 0;
+  int showCardsCounter = 0;
 
   @override
   void initState() {
     drawController = AnimationController(duration: Duration(milliseconds: _animationDuration), vsync: this);
     loaderController = AnimationController(duration: Duration(milliseconds: _animationDuration), vsync: this);
+    loginLogoutController = AnimationController(duration: Duration(milliseconds: _animationDuration), vsync: this);
 
     drawAnimation = CurvedAnimation(parent: drawController, curve: Curves.easeInOut)
       ..addStatusListener((state) {
@@ -80,6 +86,17 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
           dragOffset = 0;
         }
       });
+    loginLogoutController
+      ..addStatusListener((state) {
+        if (state == AnimationStatus.completed) {
+          _loggedinAnimation.complete();
+        }
+      })
+      ..forward();
+
+    Future.wait([_cardsLoaded.future, _loggedinAnimation.future]).then((_) {
+      loaderController.forward();
+    });
 
     super.initState();
   }
@@ -97,7 +114,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   void didUpdateWidget(Wallet oldWidget) {
     if (oldWidget.credentials == null && widget.credentials != null) {
       setNewState(WalletState.halfway);
-      loaderController.forward();
+      _cardsLoaded.complete();
     }
 
     super.didUpdateWidget(oldWidget);
@@ -105,10 +122,12 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
-      animation: Listenable.merge([drawAnimation, loaderController]),
+      animation: Listenable.merge([drawAnimation, loaderController, loginLogoutController]),
       builder: (BuildContext buildContext, Widget child) {
         final size = MediaQuery.of(buildContext).size;
-        final walletTop = size.height - size.width * _walletAspectRatio - _screenTopOffset;
+        final walletTop = getWalletTop(size);
+
+        //        print("size $size");
 
         int index = 0;
         double cardTop;
@@ -149,7 +168,10 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
             ),
           ),
           Positioned(
-            top: _walletFullHeight - size.width * _walletAspectRatio + _walletOffset - _walletBackOffset,
+            top: size.width * _walletFullHeight / _walletFullWidth -
+                size.width * _walletAspectRatio +
+                _walletOffset -
+                _walletBackOffset,
             child: SvgPicture.asset(
               'assets/wallet/wallet_back.svg',
               width: size.width,
@@ -215,7 +237,9 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
               }(index++);
             }),
           Positioned(
-            top: _walletFullHeight - size.width * _walletAspectRatio + _walletOffset,
+            top: loginLogoutController.value * size.width * _walletFullHeight / _walletFullWidth -
+                size.width * _walletAspectRatio +
+                _walletOffset,
             child: IgnorePointer(
               ignoring: true,
               child: SvgPicture.asset(
@@ -349,10 +373,10 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
           if (index >= drawnCardIndex) {
             cardPosition -= dragOffset *
                     ((drawnCardIndex - index) *
-                            (1 / dragDownFactor - 1) /
+                            (1 / _dragDownFactor - 1) /
                             (drawnCardIndex - (widget.credentials.length - 1)) +
-                        1 / dragDownFactor) *
-                    dragDownFactor -
+                        1 / _dragDownFactor) *
+                    _dragDownFactor -
                 _cardTopHeight / 2;
           } else {
             cardPosition -= dragOffset - (_cardTopHeight - _cardTopBorderHeight);
