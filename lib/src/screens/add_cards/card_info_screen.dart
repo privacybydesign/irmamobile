@@ -55,7 +55,16 @@ class _CardInfoScreenState extends State<CardInfoScreen> {
             ),
           ),
           Container(
-            color: IrmaTheme.of(context).backgroundBlue,
+            decoration: BoxDecoration(
+              color: IrmaTheme.of(context).backgroundBlue,
+              border: Border(
+                top: BorderSide(
+                  color: IrmaTheme.of(context).primaryLight,
+                  width: 2.0,
+                ),
+              ),
+            ),
+            // color: IrmaTheme.of(context).backgroundBlue,
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).mediumSpacing),
               child: Row(

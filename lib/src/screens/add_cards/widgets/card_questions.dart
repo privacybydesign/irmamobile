@@ -76,10 +76,13 @@ class _Collapsible extends StatelessWidget {
           color: Colors.black,
         ),
       ),
-
       header: Expanded(
         child: Padding(
-          padding: EdgeInsets.all(IrmaTheme.of(context).tinySpacing * 3),
+          padding: EdgeInsets.only(
+              top: IrmaTheme.of(context).tinySpacing * 3,
+              bottom: IrmaTheme.of(context).tinySpacing * 3,
+              left: IrmaTheme.of(context).defaultSpacing,
+              right: IrmaTheme.of(context).defaultSpacing),
           child: Text(
             header,
             style: IrmaTheme.of(context).collapseTextStyle,
@@ -88,7 +91,11 @@ class _Collapsible extends StatelessWidget {
       ),
       headerExpanded: Expanded(
         child: Padding(
-          padding: EdgeInsets.all(IrmaTheme.of(context).tinySpacing * 3),
+          padding: EdgeInsets.only(
+              top: IrmaTheme.of(context).tinySpacing * 3,
+              bottom: IrmaTheme.of(context).tinySpacing * 3,
+              left: IrmaTheme.of(context).defaultSpacing,
+              right: IrmaTheme.of(context).defaultSpacing),
           child: Text(
             header,
             style: IrmaTheme.of(context).textTheme.display2,
@@ -99,7 +106,8 @@ class _Collapsible extends StatelessWidget {
       expandedBackgroundColor: const Color(0x00000000), // TODO: define transparent in theme
       children: <Widget>[
         Padding(
-          padding: EdgeInsets.all(IrmaTheme.of(context).smallSpacing),
+          padding: EdgeInsets.symmetric(
+              vertical: IrmaTheme.of(context).smallSpacing, horizontal: IrmaTheme.of(context).defaultSpacing),
           child: Text(
             content,
             style: IrmaTheme.of(context).textTheme.body1,

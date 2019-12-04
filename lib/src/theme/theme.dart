@@ -133,7 +133,7 @@ class IrmaThemeData extends Equatable {
       body1: TextStyle(
         fontFamily: fontFamilyMontserrat,
         fontSize: 16.0,
-        height: 19.0 / 16.0,
+        height: 24.0 / 16.0,
         fontWeight: FontWeight.normal,
         color: primaryDark,
       ),
