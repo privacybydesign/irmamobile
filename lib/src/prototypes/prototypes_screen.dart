@@ -14,6 +14,7 @@ import 'package:irmamobile/src/prototypes/schermflow_5.dart';
 import 'package:irmamobile/src/prototypes/schermflow_wallet.dart';
 import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/introduction.dart';
+import 'package:irmamobile/src/screens/loading/loading_screen.dart';
 
 class PrototypesScreen extends StatelessWidget {
   static const routeName = "/";
@@ -86,6 +87,9 @@ class PrototypesScreen extends StatelessWidget {
           }),
           _buildListItem(context, "26. Hoofdmenu", () {
             startPrototype26(context);
+          }),
+          _buildListItem(context, "27. Loading screen", () {
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoadingScreen()));
           }),
           const SizedBox(height: 12),
           Padding(
