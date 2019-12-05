@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/animation.dart';
@@ -38,6 +37,7 @@ class Wallet extends StatefulWidget {
 class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _padding = 15.0;
   final _animationDuration = 250;
+  final _loginDuration = 500;
   final _walletAspectRatio = 87 / 360; // wallet.svg | 360 / 620, 620 - 87 = 533
   final _walletFullWidth = 360;
   final _walletFullHeight = 620;
@@ -59,7 +59,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   Animation<double> drawAnimation;
 
   WalletState cardInStackState = WalletState.halfway;
-  WalletState oldState = WalletState.halfway;
+  WalletState oldState = WalletState.minimal;
   WalletState currentState = WalletState.minimal;
 
   double dragOffset = 0;
@@ -69,7 +69,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   @override
   void initState() {
     drawController = AnimationController(duration: Duration(milliseconds: _animationDuration), vsync: this);
-    loginLogoutController = AnimationController(duration: Duration(milliseconds: _animationDuration), vsync: this);
+    loginLogoutController = AnimationController(duration: Duration(milliseconds: _loginDuration), vsync: this);
 
     drawAnimation = CurvedAnimation(parent: drawController, curve: Curves.easeInOut)
       ..addStatusListener((state) {
@@ -111,8 +111,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         final size = MediaQuery.of(buildContext).size;
         final walletTop = size.height - size.width * _walletAspectRatio - _screenTopOffset;
 
-        //        print("size $size");
-
         int index = 0;
         double cardTop;
 
@@ -123,17 +121,17 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
               padding: EdgeInsets.symmetric(vertical: _padding * 2, horizontal: _padding * 2),
               child: ListView(
                 children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.only(bottom: _padding),
-                    child: SvgPicture.asset(
-                      'assets/wallet/wallet_illustration.svg',
-                      width: size.width / 2,
-                    ),
+                  SvgPicture.asset(
+                    'assets/wallet/wallet_illustration.svg',
+                    width: size.width / 2,
                   ),
-                  Text(
-                    FlutterI18n.translate(context, 'wallet.caption'),
-                    textAlign: TextAlign.center,
-                    style: IrmaTheme.of(context).textTheme.body1,
+                  Padding(
+                    padding: EdgeInsets.all(_padding),
+                    child: Text(
+                      FlutterI18n.translate(context, 'wallet.caption'),
+                      textAlign: TextAlign.center,
+                      style: IrmaTheme.of(context).textTheme.body1,
+                    ),
                   ),
                   GestureDetector(
                     onTap: widget.addCard,
