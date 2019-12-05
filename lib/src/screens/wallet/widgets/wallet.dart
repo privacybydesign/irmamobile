@@ -52,12 +52,9 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _walletShrinkTween = Tween<double>(begin: 0.0, end: 1.0);
   final _walletIconHeight = 60;
   final _dragDownFactor = 1.5;
-  final _cardsLoaded = Completer();
-  final _loggedinAnimation = Completer();
 
   int drawnCardIndex = 0;
   AnimationController drawController;
-  AnimationController loaderController;
   AnimationController loginLogoutController;
   Animation<double> drawAnimation;
 
@@ -72,7 +69,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   @override
   void initState() {
     drawController = AnimationController(duration: Duration(milliseconds: _animationDuration), vsync: this);
-    loaderController = AnimationController(duration: Duration(milliseconds: _animationDuration), vsync: this);
     loginLogoutController = AnimationController(duration: Duration(milliseconds: _animationDuration), vsync: this);
 
     drawAnimation = CurvedAnimation(parent: drawController, curve: Curves.easeInOut)
@@ -86,17 +82,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
           dragOffset = 0;
         }
       });
-    loginLogoutController
-      ..addStatusListener((state) {
-        if (state == AnimationStatus.completed) {
-          _loggedinAnimation.complete();
-        }
-      })
-      ..forward();
-
-    Future.wait([_cardsLoaded.future, _loggedinAnimation.future]).then((_) {
-      loaderController.forward();
-    });
+    loginLogoutController.forward();
 
     super.initState();
   }
@@ -104,7 +90,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   @override
   void dispose() {
     drawController.dispose();
-    loaderController.dispose();
     super.dispose();
   }
 
@@ -114,7 +99,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   void didUpdateWidget(Wallet oldWidget) {
     if (oldWidget.credentials == null && widget.credentials != null) {
       setNewState(WalletState.halfway);
-      _cardsLoaded.complete();
     }
 
     super.didUpdateWidget(oldWidget);
@@ -122,7 +106,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
-      animation: Listenable.merge([drawAnimation, loaderController, loginLogoutController]),
+      animation: Listenable.merge([drawAnimation, loginLogoutController]),
       builder: (BuildContext buildContext, Widget child) {
         final size = MediaQuery.of(buildContext).size;
         final walletTop = size.height - size.width * _walletAspectRatio - _screenTopOffset;
@@ -159,10 +143,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                       style: IrmaTheme.of(context).hyperlinkTextStyle,
                     ),
                   ),
-                  Opacity(
-                    opacity: 1 - loaderController.value,
-                    child: Align(alignment: Alignment.center, child: LoadingIndicator()),
-                  ),
+                  if (widget.credentials == null) Align(alignment: Alignment.center, child: LoadingIndicator()),
                 ],
               ),
             ),
@@ -183,10 +164,18 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
               // TODO for performance: positions can be cached
               final double oldTop = calculateCardPosition(
-                  state: oldState, walletTop: walletTop, index: index, drawnCardIndex: drawnCardIndex, dragOffset: dragOffset);
+                  state: oldState,
+                  walletTop: walletTop,
+                  index: index,
+                  drawnCardIndex: drawnCardIndex,
+                  dragOffset: dragOffset);
 
               final double newTop = calculateCardPosition(
-                  state: currentState, walletTop: walletTop, index: index, drawnCardIndex: drawnCardIndex, dragOffset: 0);
+                  state: currentState,
+                  walletTop: walletTop,
+                  index: index,
+                  drawnCardIndex: drawnCardIndex,
+                  dragOffset: 0);
 
               cardTop = interpolate(oldTop, newTop, walletShrinkInterpolation);
 
@@ -302,7 +291,8 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
     });
   }
 
-  double calculateCardPosition({WalletState state, double walletTop, int index, int drawnCardIndex, double dragOffset}) {
+  double calculateCardPosition(
+      {WalletState state, double walletTop, int index, int drawnCardIndex, double dragOffset}) {
     double cardPosition;
 
     switch (state) {
@@ -366,8 +356,8 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         break;
 
       case WalletState.full:
-        cardPosition = min(walletTop, (widget.credentials.length - 1) * _cardTopHeight.toDouble()) -
-            index * _cardTopHeight;
+        cardPosition =
+            min(walletTop, (widget.credentials.length - 1) * _cardTopHeight.toDouble()) - index * _cardTopHeight;
 
         if (dragOffset > _cardTopHeight - _cardTopBorderHeight) {
           if (index >= drawnCardIndex) {
