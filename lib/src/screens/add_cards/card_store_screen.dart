@@ -31,9 +31,9 @@ class CardStoreScreen extends StatelessWidget {
         children: <Widget>[
           Padding(
             padding: EdgeInsets.only(
-                top: (IrmaTheme.of(context).spacing / 4) * 5,
-                left: IrmaTheme.of(context).spacing,
-                bottom: IrmaTheme.of(context).spacing),
+                top: IrmaTheme.of(context).tinySpacing * 5,
+                left: IrmaTheme.of(context).defaultSpacing,
+                bottom: IrmaTheme.of(context).defaultSpacing),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(

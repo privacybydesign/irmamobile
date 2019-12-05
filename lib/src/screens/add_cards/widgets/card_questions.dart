@@ -68,7 +68,7 @@ class _Collapsible extends StatelessWidget {
   Widget build(BuildContext context) {
     return ConfigurableExpansionTile(
       onExpansionChanged: onExpansionChanged,
-      initiallyExpanded: true,
+      initiallyExpanded: false,
       animatedWidgetFollowingHeader: const Padding(
         padding: EdgeInsets.all(4.0),
         child: Icon(
@@ -76,24 +76,41 @@ class _Collapsible extends StatelessWidget {
           color: Colors.black,
         ),
       ),
-
       header: Expanded(
         child: Padding(
-          padding: EdgeInsets.all(IrmaTheme.of(context).tinySpacing * 3),
+          padding: EdgeInsets.only(
+              top: IrmaTheme.of(context).tinySpacing * 3,
+              bottom: IrmaTheme.of(context).tinySpacing * 3,
+              left: IrmaTheme.of(context).defaultSpacing,
+              right: IrmaTheme.of(context).defaultSpacing),
           child: Text(
             header,
-            style: Theme.of(context).textTheme.body2,
+            style: IrmaTheme.of(context).collapseTextStyle,
           ),
         ),
       ),
-      headerBackgroundColorStart: IrmaTheme.of(context).grayscale90,
+      headerExpanded: Expanded(
+        child: Padding(
+          padding: EdgeInsets.only(
+              top: IrmaTheme.of(context).tinySpacing * 3,
+              bottom: IrmaTheme.of(context).tinySpacing * 3,
+              left: IrmaTheme.of(context).defaultSpacing,
+              right: IrmaTheme.of(context).defaultSpacing),
+          child: Text(
+            header,
+            style: IrmaTheme.of(context).textTheme.display2,
+          ),
+        ),
+      ),
+      headerBackgroundColorStart: IrmaTheme.of(context).backgroundBlue,
       expandedBackgroundColor: const Color(0x00000000), // TODO: define transparent in theme
       children: <Widget>[
         Padding(
-          padding: EdgeInsets.all(IrmaTheme.of(context).smallSpacing),
+          padding: EdgeInsets.symmetric(
+              vertical: IrmaTheme.of(context).smallSpacing, horizontal: IrmaTheme.of(context).defaultSpacing),
           child: Text(
             content,
-            style: Theme.of(context).textTheme.body1,
+            style: IrmaTheme.of(context).textTheme.body1,
           ),
         )
       ],

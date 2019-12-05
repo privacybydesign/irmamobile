@@ -87,7 +87,7 @@
     "popular": "Populair",
     "card_info": {
       "app_bar": "Gegevens toevoegen",
-      "header_credential_type": "{credential_type} ophalen",
+      "header_credential_type": "{credential_type} toevoegen",
       "obtain": "ophalen",
       "issuer": "Uitgifte",
       "purpose_question": "TODO",
