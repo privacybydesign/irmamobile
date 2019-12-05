@@ -33,6 +33,9 @@ test:flutter:
 
 build_bridge:
   stage: build_bridge
+  interruptible: true
+  only: 
+    - master
   artifacts:
     paths:
       - android/irmagobridge/irmagobridge.aar
@@ -42,8 +45,12 @@ build_bridge:
   
 build_app:
   stage: build_app
+  interruptible: true
+  only: 
+    - master
   artifacts:
     paths:
-      - build/app/outputs/release/*.apk
+      - build/app/outputs/apk/release/*.apk
   script:
     - flutter build apk --target-platform android-arm,android-arm64 --split-per-abi
+
