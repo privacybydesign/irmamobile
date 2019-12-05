@@ -1,6 +1,8 @@
 stages:
   - lint
   - test
+  - build_bridge
+  - build_app
 
 variables:
   ANDROID_SDK_PACKAGES: "\"build-tools;28.0.3\" \"platforms;android-28\""
@@ -28,3 +30,20 @@ test:flutter:
   script:
     - flutter test
   stage: test
+
+build_bridge:
+  stage: build_bridge
+  artifacts:
+    paths:
+      - android/irmagobridge/irmagobridge.aar
+  script:
+    - dep ensure -v
+    - gomobile bind -target android -o android/irmagobridge/irmagobridge.aar github.com/privacybydesign/irmamobile/irmagobridge
+  
+build_app:
+  stage: build_app
+  artifacts:
+    paths:
+      - build/app/outputs/release/*.apk
+  script:
+    - flutter build apk --target-platform android-arm,android-arm64 --split-per-abi
