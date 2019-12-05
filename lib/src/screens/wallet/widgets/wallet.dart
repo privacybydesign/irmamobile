@@ -39,15 +39,13 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _animationDuration = 250;
   final _loginDuration = 500;
   final _walletAspectRatio = 87 / 360; // wallet.svg | 360 / 620, 620 - 87 = 533
-  final _walletFullWidth = 360;
-  final _walletFullHeight = 620;
+  final _walletYPos = 25;
   final _cardTopBorderHeight = 10;
   final _cardTopHeight = 40;
   final _cardsMaxExtended = 5;
   final _dragTipping = 50;
   final _scrollOverflowTipping = 50;
   final _screenTopOffset = 110; // Might need tweaking depending on screen size
-  final _walletOffset = -20; // Might need tweaking depending on screen size
   final _walletBackOffset = 8; // Might need tweaking depending on screen size
   final _walletShrinkTween = Tween<double>(begin: 0.0, end: 1.0);
   final _walletIconHeight = 60;
@@ -147,10 +145,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
             ),
           ),
           Positioned(
-            top: size.width * _walletFullHeight / _walletFullWidth -
-                size.width * _walletAspectRatio +
-                _walletOffset -
-                _walletBackOffset,
+            top: walletTop + _walletYPos - _walletBackOffset,
             child: SvgPicture.asset(
               'assets/wallet/wallet_back.svg',
               width: size.width,
@@ -224,9 +219,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
               }(index++);
             }),
           Positioned(
-            top: loginLogoutController.value * size.width * _walletFullHeight / _walletFullWidth -
-                size.width * _walletAspectRatio +
-                _walletOffset,
+            top: loginLogoutController.value * (walletTop + _walletYPos),
             child: IgnorePointer(
               ignoring: true,
               child: SvgPicture.asset(
