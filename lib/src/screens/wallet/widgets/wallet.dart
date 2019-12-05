@@ -51,7 +51,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
   int drawnCardIndex = 0;
   AnimationController drawController;
-  AnimationController loaderController;
   Animation<double> drawAnimation;
 
   WalletState cardInStackState = WalletState.halfway;
@@ -63,7 +62,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   @override
   void initState() {
     drawController = AnimationController(duration: Duration(milliseconds: _animationDuration), vsync: this);
-    loaderController = AnimationController(duration: Duration(milliseconds: _animationDuration), vsync: this);
 
     drawAnimation = CurvedAnimation(parent: drawController, curve: Curves.easeInOut)
       ..addStatusListener((state) {
@@ -83,7 +81,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   @override
   void dispose() {
     drawController.dispose();
-    loaderController.dispose();
     super.dispose();
   }
 
@@ -93,7 +90,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   void didUpdateWidget(Wallet oldWidget) {
     if (oldWidget.credentials == null && widget.credentials != null) {
       setNewState(WalletState.halfway);
-      loaderController.forward();
     }
 
     super.didUpdateWidget(oldWidget);
@@ -101,7 +97,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
-      animation: Listenable.merge([drawAnimation, loaderController]),
+      animation: drawAnimation,
       builder: (BuildContext buildContext, Widget child) {
         final size = MediaQuery.of(buildContext).size;
         final walletTop = size.height - (size.width - 2 * _padding) * _walletAspectRatio - _screenTopOffset;
@@ -136,10 +132,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                       style: IrmaTheme.of(context).hyperlinkTextStyle,
                     ),
                   ),
-                  Opacity(
-                    opacity: 1 - loaderController.value,
-                    child: Align(alignment: Alignment.center, child: LoadingIndicator()),
-                  ),
+                  if (widget.credentials == null) Align(alignment: Alignment.center, child: LoadingIndicator()),
                 ],
               ),
             ),
