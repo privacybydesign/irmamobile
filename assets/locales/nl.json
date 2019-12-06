@@ -195,6 +195,17 @@
       "attempts-2": "De ingevoerde pin is onjuist. U heeft nog {attemps} pogingen voordat uw account tijdelijk geblokkeerd wordt."
     }
   },
+  "error": {
+    "title" : "Fout opgetreden",
+    "button_ok":"Ok",
+    "button_send_to_irma": "Stuur naar IRMA",
+    "button_show_error":"Fout tonen", 
+    "button_retry":"Probeer opnieuw",
+    "types": {
+      "general": "Er is iets misgegaan tijdens de communicatie met de IRMA server.\n\nHeeft u een werkende internet verbinding?\n\nAls hjet pobleem zich blijft voordoen meldt u dat alstublieft met de knoppen hieronder.",
+      "no_internet": "Er is iets misgegaan tijdens de communicatie met de IRMA server.\n\nControleer je internetverbinding. IRMA heeft een internetverbinding nodig om gegevens te kunnen versleutelen"
+    }
+  },
   "wallet": {
     "title": "IRMA Wallet",
     "scan_qr_code": "Scan QR code",
