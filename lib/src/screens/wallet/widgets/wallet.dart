@@ -300,9 +300,9 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
           cardPosition = walletTop;
           cardPosition -= dragOffset;
         } else {
-          cardPosition = -(index - 1) * _cardTopBorderHeight.toDouble();
+          cardPosition = -(index - 1) * _cardTopBorderHeight.toDouble() + 2;
           if (cardPosition < -_cardTopHeight) {
-            cardPosition = -_cardTopHeight.toDouble() + _cardTopBorderHeight.toDouble();
+            cardPosition = -_cardTopHeight.toDouble() + _cardTopBorderHeight.toDouble() + 2;
           }
           if (index > drawnCardIndex) {
             cardPosition += _cardTopBorderHeight;
