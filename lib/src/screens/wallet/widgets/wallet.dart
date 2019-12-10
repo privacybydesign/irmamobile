@@ -195,16 +195,21 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                                           index: index,
                                           drawnCardIndex: drawnCardIndex,
                                           dragOffset: 0);
+                                  if (drawnCardIndex == _index) {
+                                    dragOffset = details.localPosition.dy - cardDragOffset;
+                                  }
                                 } else {
                                   cardDragOffset = _cardTopHeight / 2;
+                                  drawnCardIndex = _index;
+                                  dragOffset = details.localPosition.dy - cardDragOffset;
                                 }
-                                drawnCardIndex = _index;
-                                dragOffset = details.localPosition.dy - cardDragOffset;
                               });
                             },
                             onVerticalDragUpdate: (DragUpdateDetails details) {
                               setState(() {
-                                dragOffset = details.localPosition.dy - cardDragOffset;
+                                if (drawnCardIndex == _index) {
+                                  dragOffset = details.localPosition.dy - cardDragOffset;
+                                }
                               });
                             },
                             onVerticalDragEnd: (DragEndDetails details) {
