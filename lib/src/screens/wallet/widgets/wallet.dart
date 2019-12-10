@@ -45,8 +45,9 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _cardsMaxExtended = 5;
   final _dragTipping = 50;
   final _scrollOverflowTipping = 50;
-  final _screenTopOffset = 110; // Might need tweaking depending on screen size
-  final _walletBackOffset = 8; // Might need tweaking depending on screen size
+  final _walletBoxHeight = 120;
+  final _screenTopOffset = 30;
+  final _walletBackOffset = 8;
   final _walletShrinkTween = Tween<double>(begin: 0.0, end: 1.0);
   final _walletIconHeight = 60;
   final _dragDownFactor = 1.5;
@@ -107,143 +108,150 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       animation: Listenable.merge([drawAnimation, loginLogoutController]),
       builder: (BuildContext buildContext, Widget child) {
         final size = MediaQuery.of(buildContext).size;
-        final walletTop = size.height - size.width * _walletAspectRatio - _screenTopOffset;
+        final walletTop = size.height - _walletBoxHeight - size.width * _walletAspectRatio - _screenTopOffset;
 
         int index = 0;
         double cardTop;
 
         return Stack(children: [
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: _padding * 3, horizontal: _padding * 2),
+            child: ListView(
+              children: <Widget>[
+                SvgPicture.asset(
+                  'assets/wallet/wallet_illustration.svg',
+                  width: size.width / 2,
+                ),
+                Padding(
+                  padding: EdgeInsets.all(_padding),
+                  child: Text(
+                    FlutterI18n.translate(context, 'wallet.caption'),
+                    textAlign: TextAlign.center,
+                    style: IrmaTheme.of(context).textTheme.body1,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: widget.addCard,
+                  child: Text(
+                    FlutterI18n.translate(context, 'wallet.add_data'),
+                    textAlign: TextAlign.center,
+                    style: IrmaTheme.of(context).hyperlinkTextStyle,
+                  ),
+                ),
+                if (widget.credentials == null) Align(alignment: Alignment.center, child: LoadingIndicator()),
+              ],
+            ),
+          ),
           Align(
-            alignment: Alignment.topCenter,
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: _padding * 2, horizontal: _padding * 2),
-              child: ListView(
-                children: <Widget>[
-                  SvgPicture.asset(
-                    'assets/wallet/wallet_illustration.svg',
-                    width: size.width / 2,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.all(_padding),
-                    child: Text(
-                      FlutterI18n.translate(context, 'wallet.caption'),
-                      textAlign: TextAlign.center,
-                      style: IrmaTheme.of(context).textTheme.body1,
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              height: size.height - _walletBoxHeight,
+              child: Stack(
+                children: [
+                  Positioned(
+                    top: walletTop + _walletYPos - _walletBackOffset,
+                    child: SvgPicture.asset(
+                      'assets/wallet/wallet_back.svg',
+                      width: size.width,
                     ),
                   ),
-                  GestureDetector(
-                    onTap: widget.addCard,
-                    child: Text(
-                      FlutterI18n.translate(context, 'wallet.add_data'),
-                      textAlign: TextAlign.center,
-                      style: IrmaTheme.of(context).hyperlinkTextStyle,
+                  if (widget.credentials != null)
+                    ...widget.credentials.map((credential) {
+                      final double walletShrinkInterpolation = _walletShrinkTween.evaluate(drawAnimation);
+
+                      // TODO for performance: positions can be cached
+                      final double oldTop = calculateCardPosition(
+                          state: oldState,
+                          walletTop: walletTop,
+                          index: index,
+                          drawnCardIndex: drawnCardIndex,
+                          dragOffset: dragOffset);
+
+                      final double newTop = calculateCardPosition(
+                          state: currentState,
+                          walletTop: walletTop,
+                          index: index,
+                          drawnCardIndex: drawnCardIndex,
+                          dragOffset: 0);
+
+                      cardTop = interpolate(oldTop, newTop, walletShrinkInterpolation);
+
+                      return (int _index) {
+                        return Positioned(
+                          left: 0,
+                          right: 0,
+                          top: walletTop - cardTop,
+                          child: GestureDetector(
+                            onTap: () {
+                              cardTapped(_index, credential, size);
+                            },
+                            onVerticalDragStart: (DragStartDetails details) {
+                              setState(() {
+                                if (currentState == WalletState.drawn) {
+                                  cardDragOffset = details.localPosition.dy -
+                                      calculateCardPosition(
+                                          state: currentState,
+                                          walletTop: walletTop,
+                                          index: index,
+                                          drawnCardIndex: drawnCardIndex,
+                                          dragOffset: 0);
+                                } else {
+                                  cardDragOffset = _cardTopHeight / 2;
+                                }
+                                drawnCardIndex = _index;
+                                dragOffset = details.localPosition.dy - cardDragOffset;
+                              });
+                            },
+                            onVerticalDragUpdate: (DragUpdateDetails details) {
+                              setState(() {
+                                dragOffset = details.localPosition.dy - cardDragOffset;
+                              });
+                            },
+                            onVerticalDragEnd: (DragEndDetails details) {
+                              if ((dragOffset < -_dragTipping && currentState != WalletState.drawn) ||
+                                  (dragOffset > _dragTipping && currentState == WalletState.drawn)) {
+                                cardTapped(_index, credential, size);
+                              } else if (dragOffset > _dragTipping && currentState == WalletState.full) {
+                                setNewState(WalletState.halfway);
+                              } else {
+                                drawController.forward();
+                              }
+                            },
+                            child: IrmaCard(attributes: credential, scrollBeyondBoundsCallback: scrollBeyondBound),
+                          ),
+                        );
+                      }(index++);
+                    }),
+                  Positioned(
+                    top: loginLogoutController.value * (walletTop + _walletYPos),
+                    child: IgnorePointer(
+                      ignoring: true,
+                      child: SvgPicture.asset(
+                        'assets/wallet/wallet_front.svg',
+                        width: size.width,
+                      ),
                     ),
                   ),
-                  if (widget.credentials == null) Align(alignment: Alignment.center, child: LoadingIndicator()),
+                  Positioned(
+                    left: 16,
+                    bottom: (size.width * _walletAspectRatio - _walletIconHeight) / 2,
+                    child: WalletButton(
+                        svgFile: 'assets/wallet/btn_help.svg',
+                        accessibleName: "wallet.help",
+                        clickStreamSink: widget.helpCallback),
+                  ),
+                  Positioned(
+                    right: 16,
+                    bottom: (size.width * _walletAspectRatio - _walletIconHeight) / 2,
+                    child: WalletButton(
+                        svgFile: 'assets/wallet/btn_qrscan.svg',
+                        accessibleName: "wallet.scan_qr_code",
+                        clickStreamSink: widget.qrCallback),
+                  ),
                 ],
               ),
             ),
-          ),
-          Positioned(
-            top: walletTop + _walletYPos - _walletBackOffset,
-            child: SvgPicture.asset(
-              'assets/wallet/wallet_back.svg',
-              width: size.width,
-            ),
-          ),
-          if (widget.credentials != null)
-            ...widget.credentials.map((credential) {
-              final double walletShrinkInterpolation = _walletShrinkTween.evaluate(drawAnimation);
-
-              // TODO for performance: positions can be cached
-              final double oldTop = calculateCardPosition(
-                  state: oldState,
-                  walletTop: walletTop,
-                  index: index,
-                  drawnCardIndex: drawnCardIndex,
-                  dragOffset: dragOffset);
-
-              final double newTop = calculateCardPosition(
-                  state: currentState,
-                  walletTop: walletTop,
-                  index: index,
-                  drawnCardIndex: drawnCardIndex,
-                  dragOffset: 0);
-
-              cardTop = interpolate(oldTop, newTop, walletShrinkInterpolation);
-
-              return (int _index) {
-                return Positioned(
-                  left: 0,
-                  right: 0,
-                  top: walletTop - cardTop,
-                  child: GestureDetector(
-                    onTap: () {
-                      cardTapped(_index, credential, size);
-                    },
-                    onVerticalDragStart: (DragStartDetails details) {
-                      setState(() {
-                        if (currentState == WalletState.drawn) {
-                          cardDragOffset = details.localPosition.dy -
-                              calculateCardPosition(
-                                  state: currentState,
-                                  walletTop: walletTop,
-                                  index: index,
-                                  drawnCardIndex: drawnCardIndex,
-                                  dragOffset: 0);
-                        } else {
-                          cardDragOffset = _cardTopHeight / 2;
-                        }
-                        drawnCardIndex = _index;
-                        dragOffset = details.localPosition.dy - cardDragOffset;
-                      });
-                    },
-                    onVerticalDragUpdate: (DragUpdateDetails details) {
-                      setState(() {
-                        dragOffset = details.localPosition.dy - cardDragOffset;
-                      });
-                    },
-                    onVerticalDragEnd: (DragEndDetails details) {
-                      if ((dragOffset < -_dragTipping && currentState != WalletState.drawn) ||
-                          (dragOffset > _dragTipping && currentState == WalletState.drawn)) {
-                        cardTapped(_index, credential, size);
-                      } else if (dragOffset > _dragTipping && currentState == WalletState.full) {
-                        setNewState(WalletState.halfway);
-                      } else {
-                        drawController.forward();
-                      }
-                    },
-                    child: IrmaCard(attributes: credential, scrollBeyondBoundsCallback: scrollBeyondBound),
-                  ),
-                );
-              }(index++);
-            }),
-          Positioned(
-            top: loginLogoutController.value * (walletTop + _walletYPos),
-            child: IgnorePointer(
-              ignoring: true,
-              child: SvgPicture.asset(
-                'assets/wallet/wallet_front.svg',
-                width: size.width,
-              ),
-            ),
-          ),
-          Positioned(
-            left: 16,
-            bottom: (size.width * _walletAspectRatio - _walletIconHeight) / 2,
-            child: WalletButton(
-                svgFile: 'assets/wallet/btn_help.svg',
-                accessibleName: "wallet.help",
-                clickStreamSink: widget.helpCallback),
-          ),
-          Positioned(
-            right: 16,
-            bottom: (size.width * _walletAspectRatio - _walletIconHeight) / 2,
-            child: WalletButton(
-                svgFile: 'assets/wallet/btn_qrscan.svg',
-                accessibleName: "wallet.scan_qr_code",
-                clickStreamSink: widget.qrCallback),
-          ),
+          )
         ]);
       });
 
