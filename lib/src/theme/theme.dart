@@ -58,6 +58,8 @@ class IrmaThemeData extends Equatable {
   final String fontFamilyMontserrat = "Montserrat";
 
   TextTheme textTheme;
+  TextStyle collapseTextStyle;
+  TextStyle textButtonTextStyle;
   TextStyle issuerNameTextStyle;
   TextStyle newCardButtonTextStyle;
   TextStyle hyperlinkTextStyle;
@@ -131,7 +133,7 @@ class IrmaThemeData extends Equatable {
       body1: TextStyle(
         fontFamily: fontFamilyMontserrat,
         fontSize: 16.0,
-        height: 19.0 / 16.0,
+        height: 24.0 / 16.0,
         fontWeight: FontWeight.normal,
         color: primaryDark,
       ),
@@ -225,6 +227,22 @@ class IrmaThemeData extends Equatable {
       height: 19.0 / 16.0,
       fontWeight: FontWeight.normal,
       color: Colors.white,
+    );
+
+    collapseTextStyle = TextStyle(
+      fontFamily: fontFamilyKarla,
+      fontSize: 18.0,
+      height: 22.0 / 18.0,
+      fontWeight: FontWeight.normal,
+      color: grayscale40,
+    );
+
+    textButtonTextStyle = TextStyle(
+      fontFamily: fontFamilyMontserrat,
+      fontSize: 16.0,
+      height: 19.0 / 16.0,
+      fontWeight: FontWeight.w600,
+      color: primaryBlue,
     );
 
     newCardButtonTextStyle = TextStyle(

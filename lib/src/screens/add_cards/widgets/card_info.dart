@@ -24,13 +24,13 @@ class _CardInfoState extends State<CardInfo> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final logoFile = File(widget.credentialType.logoPath(widget.irmaConfiguration.path));
     final paddingText = EdgeInsets.only(
-      left: IrmaTheme.of(context).smallSpacing,
-      right: IrmaTheme.of(context).smallSpacing,
+      left: IrmaTheme.of(context).defaultSpacing,
+      right: IrmaTheme.of(context).defaultSpacing,
     );
 
     final paddingQuestions = EdgeInsets.only(
-      left: IrmaTheme.of(context).tinySpacing,
-      right: IrmaTheme.of(context).tinySpacing,
+      left: IrmaTheme.of(context).smallSpacing,
+      right: IrmaTheme.of(context).smallSpacing,
     );
 
     return Column(
@@ -41,15 +41,22 @@ class _CardInfoState extends State<CardInfo> with TickerProviderStateMixin {
           children: <Widget>[
             Container(
               width: MediaQuery.of(context).size.width,
-              height: 100,
+              height: 112,
               color: IrmaTheme.of(context).grayscale60,
             ),
             Align(
               alignment: Alignment.center,
               child: Container(
-                margin: const EdgeInsets.only(top: 60),
-                width: 75,
-                height: 75,
+                decoration: BoxDecoration(
+                  color: IrmaTheme.of(context).grayscaleWhite,
+                  border: Border.all(
+                    color: IrmaTheme.of(context).grayscale90,
+                    width: 3,
+                  ),
+                ),
+                margin: const EdgeInsets.only(top: 78),
+                width: 68,
+                height: 68,
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
                   child: logoFile.existsSync() ? Image.file(logoFile) : Image.asset("assets/non-free/irmalogo.png"),
@@ -57,6 +64,9 @@ class _CardInfoState extends State<CardInfo> with TickerProviderStateMixin {
               ),
             ),
           ],
+        ),
+        SizedBox(
+          height: IrmaTheme.of(context).mediumSpacing,
         ),
         Padding(
           padding: paddingText,
@@ -72,16 +82,17 @@ class _CardInfoState extends State<CardInfo> with TickerProviderStateMixin {
           ),
         ),
         SizedBox(
-          height: IrmaTheme.of(context).spacing,
+          height: IrmaTheme.of(context).defaultSpacing,
         ),
         Padding(
           padding: paddingText,
           child: Text(
             getTranslation(widget.credentialType.faqIntro),
+            style: IrmaTheme.of(context).textTheme.body1,
           ),
         ),
         SizedBox(
-          height: IrmaTheme.of(context).spacing,
+          height: IrmaTheme.of(context).defaultSpacing,
         ),
         Padding(
           padding: paddingQuestions,
