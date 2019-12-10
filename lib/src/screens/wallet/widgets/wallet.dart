@@ -68,7 +68,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   @override
   void initState() {
     drawController = AnimationController(duration: Duration(milliseconds: _animationDuration), vsync: this);
-    loginLogoutController = AnimationController(duration: Duration(milliseconds: _loginDuration), vsync: this);
+    loginLogoutController = AnimationController(duration: Duration(milliseconds: _loginDuration * 2), vsync: this);
 
     drawAnimation = CurvedAnimation(parent: drawController, curve: Curves.easeInOut)
       ..addStatusListener((state) {
