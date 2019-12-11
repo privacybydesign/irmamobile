@@ -41,6 +41,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _cardTopBorderHeight = 10;
   final _cardTopHeight = 40;
   final _cardsMaxExtended = 5;
+  final _walletBottomInteractive = 50.0;
   final _dragTipping = 50;
   final _scrollOverflowTipping = 50;
   final _screenTopOffset = 110; // Might need tweaking depending on screen size
@@ -214,6 +215,25 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                       width: size.width,
                       height: size.width * _walletAspectRatio,
                     )),
+                Positioned(
+                    bottom: 0,
+                    height: _walletBottomInteractive,
+                    width: size.width,
+                    child: GestureDetector(
+                        onTap: () {
+                          switch(currentState) {
+                            case WalletState.halfway:
+                              setNewState(WalletState.full);
+                              break;
+                            case WalletState.full:
+                              setNewState(WalletState.halfway);
+                              break;
+                            default:
+                              setNewState(cardInStackState);
+                              break;
+                          }
+                        },
+                        child: const Text(""))),
                 Positioned(
                   left: 16,
                   bottom: ((size.width - 2 * _padding) * _walletAspectRatio - _walletIconHeight) / 2,
