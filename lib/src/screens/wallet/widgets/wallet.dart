@@ -221,7 +221,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                     width: size.width,
                     child: GestureDetector(
                         onTap: () {
-                          switch(currentState) {
+                          switch (currentState) {
                             case WalletState.halfway:
                               setNewState(WalletState.full);
                               break;
