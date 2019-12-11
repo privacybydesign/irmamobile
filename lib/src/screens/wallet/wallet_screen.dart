@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-
 import 'package:irmamobile/src/models/credentials.dart';
+import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/wallet/models/wallet_bloc.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet.dart';
@@ -45,17 +45,20 @@ class _WalletScreenState extends State<_WalletScreen> {
           stream: widget.bloc.credentials,
           builder: (context, snapshot) => Wallet(
               credentials: snapshot.hasData ? snapshot.data.values.toList() : null,
-              qrCallback: qrActivate,
-              helpCallback: helpActivate)),
+              onQRScannerPressed: qrScannerPressed,
+              onHelpPressed: helpPressed,
+              onAddCardsPressed: addCardsPressed)),
       drawer: WalletDrawer(),
     );
   }
 
-  void qrActivate() {
-    debugPrint("QR button pressed.");
+  void qrScannerPressed() {
+    Navigator.pushNamed(context, ScannerScreen.routeName);
   }
 
-  void helpActivate() {
-    debugPrint("Help button pressed.");
+  void helpPressed() {}
+
+  void addCardsPressed() {
+    Navigator.pushNamed(context, CardStoreScreen.routeName);
   }
 }

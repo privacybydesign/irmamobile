@@ -1,37 +1,25 @@
 import 'dart:math';
 
-import 'package:flutter/material.dart';
 import 'package:flutter/animation.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:irmamobile/src/models/credential.dart';
-import 'package:irmamobile/src/widgets/card/card.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet_button.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/card/card.dart';
 import 'package:irmamobile/src/widgets/loading_indicator.dart';
 
 class Wallet extends StatefulWidget {
-  final List<Credential> credentials; // null when pending
-  final VoidCallback qrCallback;
-  final VoidCallback helpCallback;
+  const Wallet({this.credentials, this.onQRScannerPressed, this.onHelpPressed, this.onAddCardsPressed});
 
-  const Wallet({this.credentials, this.qrCallback, this.helpCallback});
+  final List<Credential> credentials; // null when pending
+  final VoidCallback onQRScannerPressed;
+  final VoidCallback onHelpPressed;
+  final VoidCallback onAddCardsPressed;
 
   @override
   _WalletState createState() => _WalletState();
-
-  void updateCard() {
-    debugPrint("update card");
-  }
-
-  void removeCard() {
-    debugPrint("remove card");
-  }
-
-  void addCard() {
-    debugPrint("add card");
-  }
 }
 
 class _WalletState extends State<Wallet> with TickerProviderStateMixin {
@@ -125,7 +113,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                     style: IrmaTheme.of(context).textTheme.body1,
                   ),
                   GestureDetector(
-                    onTap: widget.addCard,
+                    onTap: widget.onAddCardsPressed,
                     child: Text(
                       FlutterI18n.translate(context, 'wallet.add_data'),
                       textAlign: TextAlign.center,
@@ -220,7 +208,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                   child: WalletButton(
                       svgFile: 'assets/wallet/btn_help.svg',
                       accessibleName: "wallet.help",
-                      clickStreamSink: widget.helpCallback),
+                      clickStreamSink: widget.onHelpPressed),
                 ),
                 Positioned(
                   right: 16,
@@ -228,7 +216,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                   child: WalletButton(
                       svgFile: 'assets/wallet/btn_qrscan.svg',
                       accessibleName: "wallet.scan_qr_code",
-                      clickStreamSink: widget.qrCallback),
+                      clickStreamSink: widget.onQRScannerPressed),
                 ),
               ],
             ),

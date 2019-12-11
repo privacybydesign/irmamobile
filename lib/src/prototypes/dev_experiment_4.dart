@@ -10,8 +10,8 @@ void startDevExperiment4(BuildContext context) {
   Navigator.of(context).push(
     MaterialPageRoute(
       builder: (context) {
-        return PinScreen(
-          child: Scaffold(
+        return Stack(children: <Widget>[
+          Scaffold(
             appBar: AppBar(
               title: const Text('App unlocked'),
             ),
@@ -25,7 +25,10 @@ void startDevExperiment4(BuildContext context) {
               ),
             ),
           ),
-        );
+          PinScreen(
+            isEnrolled: true,
+          )
+        ]);
       },
     ),
   );

@@ -251,11 +251,11 @@ class IrmaClientMock implements IrmaClient {
 
   @override
   void enroll({String email, String pin, String language}) {
-    // TODO
-    throw Exception("Unimplemented");
+    _isEnrolledSubject.add(true);
   }
 
   final BehaviorSubject<bool> lockedSubject = BehaviorSubject<bool>.seeded(false);
+  final PublishSubject<bool> _isEnrolledSubject = PublishSubject<bool>();
 
   @override
   void lock() {
@@ -278,4 +278,12 @@ class IrmaClientMock implements IrmaClient {
   Stream<bool> getLocked() {
     return lockedSubject.stream;
   }
+
+  @override
+  Stream<bool> getIsEnrolled() {
+    return _isEnrolledSubject.stream;
+  }
+
+  @override
+  void startSession(String request) {}
 }

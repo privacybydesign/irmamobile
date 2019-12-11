@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
+import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/widgets/card/backgrounds.dart';
 import 'package:irmamobile/src/widgets/card/card_attributes.dart';
 
@@ -81,7 +82,7 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
                   bottom: 0,
                 ),
                 child: Text(
-                  widget.attributes.issuer.id,
+                  getTranslation(widget.attributes.credentialType.name),
                   style: Theme.of(context).textTheme.subhead.copyWith(color: irmaCardTheme.fgColor),
                 ),
               ),

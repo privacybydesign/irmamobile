@@ -8,24 +8,23 @@ import 'package:irmamobile/src/models/version_information.dart';
 
 class IrmaRepository {
   static IrmaRepository _instance;
+  factory IrmaRepository({@required IrmaClient client}) {
+    return _instance = IrmaRepository._internal(client: client);
+  }
+
+  // _internal is a named constructor only used by the factory
+  IrmaRepository._internal({
+    @required this.client,
+  }) : assert(client != null);
+
   static IrmaRepository get() {
     if (_instance == null) {
-      throw Exception("IrmaRepository has not been initialized");
+      throw Exception('IrmaRepository has not been initialized');
     }
     return _instance;
   }
 
-  // init must be called during the startup of the application lifecycle.
-  static void init(IrmaClient client) {
-    _instance = IrmaRepository._internal(client: client);
-  }
-
   final IrmaClient client;
-
-// _internal is a named constructor that is only used by `init`.
-  IrmaRepository._internal({
-    @required this.client,
-  }) : assert(client != null);
 
   Stream<Credentials> getCredentials() {
     return client.getCredentials();
@@ -65,5 +64,13 @@ class IrmaRepository {
 
   Stream<bool> getLocked() {
     return client.getLocked();
+  }
+
+  Stream<bool> getIsEnrolled() {
+    return client.getIsEnrolled();
+  }
+
+  void startSession(String request) {
+    client.startSession(request);
   }
 }
