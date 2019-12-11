@@ -13,10 +13,11 @@ import 'package:irmamobile/src/widgets/loading_indicator.dart';
 
 class Wallet extends StatefulWidget {
   final List<Credential> credentials; // null when pending
+  final bool isOpen;
   final VoidCallback qrCallback;
   final VoidCallback helpCallback;
 
-  const Wallet({this.credentials, this.qrCallback, this.helpCallback});
+  const Wallet({this.credentials, this.isOpen, this.qrCallback, this.helpCallback});
 
   @override
   _WalletState createState() => _WalletState();
@@ -68,7 +69,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   @override
   void initState() {
     drawController = AnimationController(duration: Duration(milliseconds: _animationDuration), vsync: this);
-    loginLogoutController = AnimationController(duration: Duration(milliseconds: _loginDuration * 2), vsync: this);
+    loginLogoutController = AnimationController(duration: Duration(milliseconds: _loginDuration), vsync: this);
 
     drawAnimation = CurvedAnimation(parent: drawController, curve: Curves.easeInOut)
       ..addStatusListener((state) {
@@ -98,6 +99,9 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   void didUpdateWidget(Wallet oldWidget) {
     if (oldWidget.credentials == null && widget.credentials != null) {
       setNewState(WalletState.halfway);
+    }
+    if (oldWidget.isOpen && !widget.isOpen) {
+      loginLogoutController.reverse();
     }
 
     super.didUpdateWidget(oldWidget);
