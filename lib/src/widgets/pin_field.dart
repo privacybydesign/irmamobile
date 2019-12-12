@@ -97,7 +97,7 @@ class _PinFieldState extends State<PinField> {
       return Center(
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          width: MediaQuery.of(context).size.width - theme.spacing * 4,
+          width: MediaQuery.of(context).size.width - theme.largeSpacing,
           child: Row(
             children: <Widget>[
               Flexible(
@@ -119,9 +119,9 @@ class _PinFieldState extends State<PinField> {
                 ),
               ),
               IconButton(
-                iconSize: theme.spacing,
+                iconSize: theme.mediumSpacing,
                 icon: Icon(
-                  obscureText ? Icons.visibility : Icons.visibility_off,
+                  obscureText ? IrmaIcons.hide : IrmaIcons.view,
                   color: Theme.of(context).primaryColorDark,
                 ),
                 onPressed: () {
@@ -152,11 +152,11 @@ class _PinFieldState extends State<PinField> {
 
       boxes[i] = Container(
         margin: EdgeInsets.only(right: i == len - 1 ? 0 : theme.spacing * 0.5),
-        width: theme.spacing * 1.5,
-        height: theme.spacing * 2,
+        width: 30.0,
+        height: 41.0,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(theme.spacing * 0.25)),
+          borderRadius: BorderRadius.all(Radius.circular(5.0)),
           border: Border.all(color: theme.primaryDark),
           color: theme.grayscaleWhite,
         ),

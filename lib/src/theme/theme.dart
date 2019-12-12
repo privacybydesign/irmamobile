@@ -6,11 +6,11 @@ class IrmaThemeData extends Equatable {
   @Deprecated(
       "Move to tinySpacing, smallSpacing, defaultSpacing or largeSpacing, don't use local divisions/multiplications")
   final double spacing = space;
-  final double defaultSpacing = space;
-  final double tinySpacing = space / 4;
-  final double smallSpacing = space / 2;
-  final double mediumSpacing = space * 1.5;
-  final double largeSpacing = space * 2;
+  final double tinySpacing = space / 4; // 4
+  final double smallSpacing = space / 2; // 8
+  final double defaultSpacing = space; // 16
+  final double mediumSpacing = space * 1.5; // 24
+  final double largeSpacing = space * 2; // 32
 
   // Primary colors
   final Color primaryBlue = const Color(0xFF004C92);

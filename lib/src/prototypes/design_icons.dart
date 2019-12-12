@@ -58,6 +58,7 @@ class DesignIcons extends StatelessWidget {
               _buildIcon(context, IrmaIcons.valid),
               _buildIcon(context, IrmaIcons.verticalNav),
               _buildIcon(context, IrmaIcons.view),
+              _buildIcon(context, IrmaIcons.hide),
               _buildIcon(context, IrmaIcons.warning),
             ],
           ),
