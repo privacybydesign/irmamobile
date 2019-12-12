@@ -152,12 +152,12 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                           setState(() {
                             if (currentState == WalletState.drawn) {
                               cardDragOffset = details.localPosition.dy -
-                                calculateCardPosition(
-                                  state: currentState,
-                                  size: size,
-                                  index: index,
-                                  drawnCardIndex: drawnCardIndex,
-                                  dragOffset: 0);
+                                  calculateCardPosition(
+                                      state: currentState,
+                                      size: size,
+                                      index: index,
+                                      drawnCardIndex: drawnCardIndex,
+                                      dragOffset: 0);
                             } else {
                               cardDragOffset = 0;
                             }
@@ -198,24 +198,25 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                       height: size.width * _walletAspectRatio,
                     )),
                 Positioned(
-                    bottom: 0,
-                    height: size.width * _walletAspectRatio * _walletBottomInteractive,
-                    width: size.width,
-                    child: GestureDetector(
-                        onTap: () {
-                          switch (currentState) {
-                            case WalletState.halfway:
-                              setNewState(WalletState.full);
-                              break;
-                            case WalletState.full:
-                              setNewState(WalletState.halfway);
-                              break;
-                            default:
-                              setNewState(cardInStackState);
-                              break;
-                          }
-                        },
-                        child: const Text(""))),
+                  bottom: 0,
+                  height: size.width * _walletAspectRatio * _walletBottomInteractive,
+                  width: size.width,
+                  child: GestureDetector(
+                    onTap: () {
+                      switch (currentState) {
+                        case WalletState.halfway:
+                          setNewState(WalletState.full);
+                          break;
+                        case WalletState.full:
+                          setNewState(WalletState.halfway);
+                          break;
+                        default:
+                          setNewState(cardInStackState);
+                          break;
+                      }
+                    },
+                  ),
+                ),
                 Positioned(
                   left: 16,
                   bottom: ((size.width - 2 * _padding) * _walletAspectRatio - _walletIconHeight) / 2,
