@@ -91,7 +91,7 @@ type authenticationErrorEvent struct {
 
 type enrollmentFailureEvent struct {
 	SchemeManagerID irma.SchemeManagerIdentifier
-	error           *sessionError
+	Error           *sessionError
 }
 
 type enrollmentSuccessEvent struct {
@@ -100,7 +100,7 @@ type enrollmentSuccessEvent struct {
 
 type changePinFailureEvent struct {
 	SchemeManagerID irma.SchemeManagerIdentifier
-	error           *sessionError
+	Error           *sessionError
 }
 
 type changePinSuccessEvent struct {

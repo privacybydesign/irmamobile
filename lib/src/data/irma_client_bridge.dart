@@ -26,15 +26,16 @@ class IrmaClientBridge implements IrmaClient {
 
     _authenticationSubject.listen((result) {
       if (result is AuthenticationResultSuccess) {
-        _lockedSubject.add(true);
-      } else {
         _lockedSubject.add(false);
+      } else {
+        _lockedSubject.add(true);
       }
     });
   }
 
   final _irmaConfigurationStream = BehaviorSubject<IrmaConfiguration>();
   final _credentialsStream = BehaviorSubject<Credentials>();
+  final _isEnrolledStream = PublishSubject<bool>();
 
   // _handleMethodCall handles incomming method calls from irmago and returns an
   // answer to irmago.
@@ -54,14 +55,22 @@ class IrmaClientBridge implements IrmaClient {
         case 'AuthenticationFailedEvent':
           _authenticationSubject.add(AuthenticationResultFailed.fromJson(data));
           break;
-        case 'AuthenticationSuccess':
+        case 'AuthenticationSuccessEvent':
           _authenticationSubject.add(AuthenticationResultSuccess());
           break;
-        case 'AuthenticationError':
+        case 'AuthenticationErrorEvent':
           _authenticationSubject.add(AuthenticationResultError.fromJson(data));
           break;
+        case 'EnrollmentStatusEvent':
+          // TODO: Add model for this
+          debugPrint(jsonEncode(data));
+          final unenrolledSchemeManagers = data['UnenrolledSchemeManagerIds'] as List<dynamic>;
+          _isEnrolledStream.add(unenrolledSchemeManagers.isEmpty);
+
+          break;
         default:
-          debugPrint('Unrecognized bridge event name received: ${call.method}');
+          debugPrint('Unrecognized bridge event name received: ${call.method} with payload: $data');
+
           return Future<dynamic>.value(null);
       }
     } catch (e, stacktrace) {
@@ -135,6 +144,7 @@ class IrmaClientBridge implements IrmaClient {
 
   @override
   void enroll({String email, String pin, String language}) {
+    _lockedSubject.add(false);
     methodChannel.invokeMethod(
         "EnrollEvent",
         jsonEncode(EnrollEvent(
@@ -161,5 +171,18 @@ class IrmaClientBridge implements IrmaClient {
   @override
   Stream<bool> getLocked() {
     return _lockedSubject.distinct().asBroadcastStream();
+  }
+
+  @override
+  Stream<bool> getIsEnrolled() {
+    return _isEnrolledStream.stream;
+  }
+
+  int _sessionId = 0;
+
+  @override
+  void startSession(String request) {
+    methodChannel.invokeMethod("NewSessionEvent", '{"SessionID": $_sessionId, "Request": $request}');
+    _sessionId++;
   }
 }

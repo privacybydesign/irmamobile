@@ -9,9 +9,9 @@ import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/pin_field.dart';
 
 class PinScreen extends StatefulWidget {
-  final Widget child;
+  const PinScreen({@required this.isEnrolled, Key key}) : super(key: key);
 
-  const PinScreen({@required this.child, Key key}) : super(key: key);
+  final bool isEnrolled;
 
   @override
   _PinScreenState createState() => _PinScreenState();
@@ -31,96 +31,95 @@ class _PinScreenState extends State<PinScreen> {
           );
         }
 
-        if (state.locked) {
-          return Scaffold(
-            body: SafeArea(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: <Widget>[
-                    SizedBox(
-                      height: IrmaTheme.of(context).spacing,
-                    ),
-                    SvgPicture.asset('assets/non-free/irma_logo.svg'),
-                    SizedBox(
-                      height: 2 * IrmaTheme.of(context).spacing,
-                    ),
-                    Text(
-                      FlutterI18n.translate(context, "pin.title"),
-                      style: IrmaTheme.of(context).textTheme.display1,
-                    ),
-                    SizedBox(
-                      height: IrmaTheme.of(context).spacing,
-                    ),
-                    Text(FlutterI18n.translate(context, "pin.subtitle")),
-                    SizedBox(
-                      height: IrmaTheme.of(context).spacing,
-                    ),
-                    PinField(
-                      maxLength: 5,
-                      onSubmit: (pin) {
-                        FocusScope.of(context).requestFocus();
-                        _pinBloc.dispatch(
-                          Unlock(pin),
-                        );
-                      },
-                    ),
-                    SizedBox(
-                      height: 2 * IrmaTheme.of(context).spacing,
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        debugPrint("on forgot pin press");
-                      },
-                      child: Text(
-                        FlutterI18n.translate(context, "pin.button_forgot"),
-                        style: IrmaTheme.of(context).textTheme.body1.copyWith(
-                              decoration: TextDecoration.underline,
-                            ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: IrmaTheme.of(context).spacing,
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        debugPrint("on block press");
-                      },
-                      child: Text(
-                        FlutterI18n.translate(context, "pin.button_block"),
-                        style: IrmaTheme.of(context).textTheme.body1.copyWith(
-                              decoration: TextDecoration.underline,
-                            ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: IrmaTheme.of(context).spacing,
-                    ),
-                    if (state.unlockInProgress)
-                      Padding(
-                          padding: EdgeInsets.all(IrmaTheme.of(context).spacing),
-                          child: const CircularProgressIndicator()),
-                    if (state.pinInvalid)
-                      Text(
-                        FlutterI18n.plural(context, "pin.invalid_pin.attempts", state.remainingAttempts),
-                        style: IrmaTheme.of(context).textTheme.body1.copyWith(
-                              color: Colors.red,
-                            ),
-                        textAlign: TextAlign.center,
-                      ),
-                    if (state.errorMessage != null)
-                      Text(
-                        FlutterI18n.translate(context, state.errorMessage),
-                        style: IrmaTheme.of(context).textTheme.body1.copyWith(
-                              color: Colors.red,
-                            ),
-                      )
-                  ],
-                ),
-              ),
-            ),
-          );
+        if (!widget.isEnrolled || !state.locked) {
+          return Container();
         }
-        return widget.child;
+
+        return Scaffold(
+            body: SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                SizedBox(
+                  height: IrmaTheme.of(context).spacing,
+                ),
+                SvgPicture.asset('assets/non-free/irma_logo.svg'),
+                SizedBox(
+                  height: 2 * IrmaTheme.of(context).spacing,
+                ),
+                Text(
+                  FlutterI18n.translate(context, "pin.title"),
+                  style: IrmaTheme.of(context).textTheme.display1,
+                ),
+                SizedBox(
+                  height: IrmaTheme.of(context).spacing,
+                ),
+                Text(FlutterI18n.translate(context, "pin.subtitle")),
+                SizedBox(
+                  height: IrmaTheme.of(context).spacing,
+                ),
+                PinField(
+                  maxLength: 5,
+                  onSubmit: (pin) {
+                    FocusScope.of(context).requestFocus();
+                    _pinBloc.dispatch(
+                      Unlock(pin),
+                    );
+                  },
+                ),
+                SizedBox(
+                  height: 2 * IrmaTheme.of(context).spacing,
+                ),
+                GestureDetector(
+                  onTap: () {
+                    debugPrint("on forgot pin press");
+                  },
+                  child: Text(
+                    FlutterI18n.translate(context, "pin.button_forgot"),
+                    style: IrmaTheme.of(context).textTheme.body1.copyWith(
+                          decoration: TextDecoration.underline,
+                        ),
+                  ),
+                ),
+                SizedBox(
+                  height: IrmaTheme.of(context).spacing,
+                ),
+                GestureDetector(
+                  onTap: () {
+                    debugPrint("on block press");
+                  },
+                  child: Text(
+                    FlutterI18n.translate(context, "pin.button_block"),
+                    style: IrmaTheme.of(context).textTheme.body1.copyWith(
+                          decoration: TextDecoration.underline,
+                        ),
+                  ),
+                ),
+                SizedBox(
+                  height: IrmaTheme.of(context).spacing,
+                ),
+                if (state.unlockInProgress)
+                  Padding(
+                      padding: EdgeInsets.all(IrmaTheme.of(context).spacing), child: const CircularProgressIndicator()),
+                if (state.pinInvalid)
+                  Text(
+                    FlutterI18n.plural(context, "pin.invalid_pin.attempts", state.remainingAttempts),
+                    style: IrmaTheme.of(context).textTheme.body1.copyWith(
+                          color: Colors.red,
+                        ),
+                    textAlign: TextAlign.center,
+                  ),
+                if (state.errorMessage != null)
+                  Text(
+                    FlutterI18n.translate(context, state.errorMessage),
+                    style: IrmaTheme.of(context).textTheme.body1.copyWith(
+                          color: Colors.red,
+                        ),
+                  )
+              ],
+            ),
+          ),
+        ));
       },
     );
   }

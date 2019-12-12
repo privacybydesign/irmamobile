@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/screens/about/about_screen.dart';
 import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
@@ -109,7 +110,7 @@ class WalletDrawer extends StatelessWidget {
                     ),
                     leading: Icon(IrmaIcons.lock, color: Colors.white),
                     onTap: () {
-                      // TODO: call logout action
+                      IrmaRepository.get().lock();
                     },
                   ),
                 ),
