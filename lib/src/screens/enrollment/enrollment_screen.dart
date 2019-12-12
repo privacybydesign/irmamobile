@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_bloc.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_event.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
@@ -8,12 +11,23 @@ import 'package:irmamobile/src/screens/enrollment/widgets/confirm_pin.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/introduction.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/provide_email.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/welcome.dart';
+import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 
 class EnrollmentScreen extends StatelessWidget {
   static const routeName = "/enrollment";
 
+  StreamSubscription<bool> sub;
+
   @override
   Widget build(BuildContext context) {
+    // TODO: This is probably not how we should respond to this state change
+    sub = IrmaRepository.get().getIsEnrolled().listen((isEnrolled) {
+      if (isEnrolled) {
+        Navigator.of(context).pushReplacementNamed(WalletScreen.routeName);
+        sub.cancel();
+      }
+    });
+
     return BlocProvider<EnrollmentBloc>(
         builder: (_) => EnrollmentBloc(),
         child: BlocBuilder<EnrollmentBloc, EnrollmentState>(builder: (context, _) {

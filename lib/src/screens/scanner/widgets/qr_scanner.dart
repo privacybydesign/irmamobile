@@ -60,37 +60,44 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
   /// -> on error
   ///      set error = true
   ///      set timer for 500 milliseconds -> after set error = false
-  void _onQRViewCreated(QRViewController controller) {
-    controller.scannedDataStream.listen((code) {
-      if (_errorTimer != null && _errorTimer.isActive) {
-        _errorTimer.cancel();
-      }
+  void foundQR(String qr) {
+    if (_errorTimer != null && _errorTimer.isActive) {
+      _errorTimer.cancel();
+    }
 
-      if (found) {
-        return;
-      }
+    if (found) {
+      return;
+    }
 
-      // TODO: validate code
-      const isValid = false;
+    bool isValid = false;
+    try {
+      final qrContents = jsonDecode(qr) as Map<String, dynamic>;
+      isValid = qrContents != null && qrContents.containsKey('irmaqr');
+    } catch (e) {
+      // pass
+    }
 
-      if (isValid) {
+    if (isValid) {
+      setState(() {
+        found = true;
+        error = false;
+      });
+      Future.delayed(const Duration(milliseconds: 500), () {
+        widget.onFound(qr);
+      });
+    } else {
+      setState(() {
+        error = true;
+      });
+      _errorTimer = Timer(const Duration(milliseconds: 2000), () {
         setState(() {
-          found = true;
           error = false;
         });
-        Future.delayed(const Duration(milliseconds: 500), () {
-          widget.onFound(code);
-        });
-      } else {
-        setState(() {
-          error = true;
-        });
-        _errorTimer = Timer(const Duration(milliseconds: 500), () {
-          setState(() {
-            error = false;
-          });
-        });
-      }
-    });
+      });
+    }
+  }
+
+  void _onQRViewCreated(QRViewController controller) {
+    controller.scannedDataStream.listen(foundQR);
   }
 }

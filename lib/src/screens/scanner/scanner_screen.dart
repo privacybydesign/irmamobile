@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/screens/scanner/widgets/qr_scanner.dart';
 
 class ScannerScreen extends StatelessWidget {
@@ -23,8 +24,9 @@ class ScannerScreen extends StatelessWidget {
           QRScanner(
             onClose: () => _onClose(context),
             onFound: (String code) {
-              // TODO handle scanned QR code + navigate
-              print(code);
+              Future.delayed(Duration(seconds: 2), () {
+                Navigator.of(context).pop();
+              });
             },
           ),
         ],
