@@ -124,7 +124,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                   ),
                 ),
                 GestureDetector(
-                    onTap: widget.onAddCardsPressed,
+                  onTap: widget.onAddCardsPressed,
                   child: Text(
                     FlutterI18n.translate(context, 'wallet.add_data'),
                     textAlign: TextAlign.center,
@@ -236,7 +236,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                     child: WalletButton(
                         svgFile: 'assets/wallet/btn_help.svg',
                         accessibleName: "wallet.help",
-                      clickStreamSink: widget.onHelpPressed),
+                        clickStreamSink: widget.onHelpPressed),
                   ),
                   Positioned(
                     right: 16,
@@ -244,7 +244,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                     child: WalletButton(
                         svgFile: 'assets/wallet/btn_qrscan.svg',
                         accessibleName: "wallet.scan_qr_code",
-                      clickStreamSink: widget.onQRScannerPressed),
+                        clickStreamSink: widget.onQRScannerPressed),
                   ),
                 ],
               ),

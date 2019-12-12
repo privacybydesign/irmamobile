@@ -36,19 +36,19 @@ class _WalletScreenState extends State<_WalletScreen> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text(FlutterI18n.translate(context, 'wallet.title')),
-        leading: IconButton(
-          icon: Icon(Icons.menu),
-          onPressed: () => _scaffoldKey.currentState.openDrawer(),
-        )),
+          title: Text(FlutterI18n.translate(context, 'wallet.title')),
+          leading: IconButton(
+            icon: Icon(Icons.menu),
+            onPressed: () => _scaffoldKey.currentState.openDrawer(),
+          )),
       body: StreamBuilder<Credentials>(
-        stream: widget.bloc.credentials,
-        builder: (context, snapshot) => Wallet(
-          credentials: snapshot.hasData ? snapshot.data.values.toList() : null,
-          isOpen: true,
-          onQRScannerPressed: qrScannerPressed,
-          onHelpPressed: helpPressed,
-          onAddCardsPressed: addCardsPressed)),
+          stream: widget.bloc.credentials,
+          builder: (context, snapshot) => Wallet(
+              credentials: snapshot.hasData ? snapshot.data.values.toList() : null,
+              isOpen: true,
+              onQRScannerPressed: qrScannerPressed,
+              onHelpPressed: helpPressed,
+              onAddCardsPressed: addCardsPressed)),
       drawer: WalletDrawer(),
     );
   }
