@@ -33,6 +33,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _cardTopBorderHeight = 10;
   final _cardTopHeight = 40;
   final _cardsMaxExtended = 5;
+  final _walletBottomInteractive = 0.7;
   final _dragTipping = 50;
   final _scrollOverflowTipping = 50;
   final _walletBoxHeight = 120;
@@ -228,6 +229,26 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                         'assets/wallet/wallet_front.svg',
                         width: size.width,
                       ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    height: size.width * _walletAspectRatio * _walletBottomInteractive,
+                    width: size.width,
+                    child: GestureDetector(
+                      onTap: () {
+                        switch (currentState) {
+                          case WalletState.halfway:
+                            setNewState(WalletState.full);
+                            break;
+                          case WalletState.full:
+                            setNewState(WalletState.halfway);
+                            break;
+                          default:
+                            setNewState(cardInStackState);
+                            break;
+                        }
+                      },
                     ),
                   ),
                   Positioned(
