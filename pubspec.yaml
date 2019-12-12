@@ -36,6 +36,8 @@ dependencies:
   version: ^1.0.3
   package_info: ^0.4.0
   stream_transform: ^0.0.19
+  collection: ^1.14.11
+  qr_code_scanner: ^0.0.12
 
 dev_dependencies:
   flutter_test:
@@ -61,6 +63,7 @@ flutter:
     - assets/locales/
     - assets/enrollment/
     - assets/wallet/
+    - assets/generic/
 
   fonts:
     - family: Karla
@@ -80,6 +83,8 @@ flutter:
           style: italic
         - asset: fonts/montserrat/Montserrat-Bold.ttf
           weight: 700
+        - asset: fonts/montserrat/Montserrat-SemiBold.ttf
+          weight: 600
         - asset: fonts/montserrat/Montserrat-BoldItalic.ttf
           style: italic
           weight: 700

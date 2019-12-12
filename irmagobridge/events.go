@@ -62,6 +62,7 @@ type irmaConfigurationEvent struct {
 	Issuers         map[irma.IssuerIdentifier]*irma.Issuer
 	CredentialTypes map[irma.CredentialTypeIdentifier]*irma.CredentialType
 	AttributeTypes  map[irma.AttributeTypeIdentifier]*irma.AttributeType
+	Path            string
 }
 
 type credentialsEvent struct {
@@ -90,7 +91,7 @@ type authenticationErrorEvent struct {
 
 type enrollmentFailureEvent struct {
 	SchemeManagerID irma.SchemeManagerIdentifier
-	error           *sessionError
+	Error           *sessionError
 }
 
 type enrollmentSuccessEvent struct {
@@ -99,7 +100,7 @@ type enrollmentSuccessEvent struct {
 
 type changePinFailureEvent struct {
 	SchemeManagerID irma.SchemeManagerIdentifier
-	error           *sessionError
+	Error           *sessionError
 }
 
 type changePinSuccessEvent struct {

@@ -12,25 +12,14 @@ import 'package:irmamobile/src/theme/theme.dart';
 
 class Wallet extends StatefulWidget {
   final List<Credential> credentials; // null when pending
-  final VoidCallback qrCallback;
-  final VoidCallback helpCallback;
+  final VoidCallback onQRScannerPressed;
+  final VoidCallback onHelpPressed;
+  final VoidCallback onAddCardsPressed;
 
-  const Wallet({this.credentials, this.qrCallback, this.helpCallback});
+  const Wallet({this.credentials, this.onQRScannerPressed, this.onHelpPressed, this.onAddCardsPressed});
 
   @override
   _WalletState createState() => _WalletState();
-
-  void updateCard() {
-    debugPrint("update card");
-  }
-
-  void removeCard() {
-    debugPrint("remove card");
-  }
-
-  void addCard() {
-    debugPrint("add card");
-  }
 }
 
 class _WalletState extends State<Wallet> with TickerProviderStateMixin {
@@ -114,7 +103,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                     style: IrmaTheme.of(context).textTheme.body1,
                   ),
                   GestureDetector(
-                    onTap: widget.addCard,
+                    onTap: widget.onAddCardsPressed,
                     child: Text(
                       FlutterI18n.translate(context, 'wallet.add_data'),
                       textAlign: TextAlign.center,
@@ -213,7 +202,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                   child: WalletButton(
                       svgFile: 'assets/wallet/btn_help.svg',
                       accessibleName: "wallet.help",
-                      clickStreamSink: widget.helpCallback),
+                      clickStreamSink: widget.onHelpPressed),
                 ),
                 Positioned(
                   right: 16,
@@ -221,7 +210,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                   child: WalletButton(
                       svgFile: 'assets/wallet/btn_qrscan.svg',
                       accessibleName: "wallet.scan_qr_code",
-                      clickStreamSink: widget.qrCallback),
+                      clickStreamSink: widget.onQRScannerPressed),
                 ),
               ],
             ),

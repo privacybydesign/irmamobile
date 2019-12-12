@@ -6,6 +6,7 @@ import 'package:irmamobile/src/models/version_information.dart';
 
 abstract class IrmaClient {
   Stream<Credentials> getCredentials();
+  Stream<IrmaConfiguration> getIrmaConfiguration();
 
   Stream<Credential> getCredential(String id);
 
@@ -13,7 +14,9 @@ abstract class IrmaClient {
 
   Stream<VersionInformation> getVersionInformation();
 
-// TODO: return a Future with state update for this specific enroll action.
+  Stream<bool> getIsEnrolled();
+
+  // TODO: return a Future with state update for this specific enroll action.
   void enroll({String email, String pin, String language});
 
   // lock locks the irma user session
@@ -26,4 +29,6 @@ abstract class IrmaClient {
   // getLocked returns a stream of lock state changes (boolean; true=locked
   // false=unlocked).
   Stream<bool> getLocked();
+
+  void startSession(String request);
 }

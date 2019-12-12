@@ -2,5 +2,6 @@
 	"editor.codeActionsOnSave": {
 		"source.organizeImports": true
 	},
-	"dart.lineLength": 120
+	"dart.lineLength": 120,
+	"dart.previewFlutterGutterIcons" : true
 }

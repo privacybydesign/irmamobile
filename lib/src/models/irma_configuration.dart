@@ -146,6 +146,8 @@ class Issuer {
 
   factory Issuer.fromJson(Map<String, dynamic> json) => _$IssuerFromJson(json);
   Map<String, dynamic> toJson() => _$IssuerToJson(this);
+
+  String get fullId => "$schemeManagerId.$id";
 }
 
 @JsonSerializable(nullable: false, explicitToJson: true)
@@ -158,7 +160,14 @@ class CredentialType {
       this.schemeManagerId,
       this.isSingleton,
       this.description,
-      this.issueUrl});
+      this.issueUrl,
+      this.backgroundColor,
+      this.isInCredentialStore,
+      this.category,
+      this.faqIntro,
+      this.faqPurpose,
+      this.faqContent,
+      this.faqHowto});
 
   @JsonKey(name: 'ID')
   final String id;
@@ -184,8 +193,36 @@ class CredentialType {
   @JsonKey(name: 'IssueURL', nullable: true)
   final Map<String, String> issueUrl;
 
+  @JsonKey(name: 'BackgroundColor', nullable: true)
+  final String backgroundColor;
+
+  @JsonKey(name: 'IsInCredentialStore', nullable: true)
+  final bool isInCredentialStore;
+
+  @JsonKey(name: 'Category', nullable: true)
+  final Map<String, String> category;
+
+  @JsonKey(name: 'FAQIntro', nullable: true)
+  final Map<String, String> faqIntro;
+
+  @JsonKey(name: 'FAQPurpose', nullable: true)
+  final Map<String, String> faqPurpose;
+
+  @JsonKey(name: 'FAQContent', nullable: true)
+  final Map<String, String> faqContent;
+
+  @JsonKey(name: 'FAQHowto', nullable: true)
+  final Map<String, String> faqHowto;
+
   factory CredentialType.fromJson(Map<String, dynamic> json) => _$CredentialTypeFromJson(json);
   Map<String, dynamic> toJson() => _$CredentialTypeToJson(this);
+
+  String get fullId => "$schemeManagerId.$issuerId.$id";
+  String get fullIssuerId => "$schemeManagerId.$issuerId";
+
+  String logoPath(String irmaConfigurationPath) {
+    return "$irmaConfigurationPath/$schemeManagerId/$issuerId/Issues/$id/logo.png";
+  }
 }
 
 // TODO: Change this to RawAttributeType and move to a new AttributeType that

@@ -102,6 +102,23 @@ CredentialType _$CredentialTypeFromJson(Map<String, dynamic> json) {
     issueUrl: (json['IssueURL'] as Map<String, dynamic>)?.map(
       (k, e) => MapEntry(k, e as String),
     ),
+    backgroundColor: json['BackgroundColor'] as String,
+    isInCredentialStore: json['IsInCredentialStore'] as bool,
+    category: (json['Category'] as Map<String, dynamic>)?.map(
+      (k, e) => MapEntry(k, e as String),
+    ),
+    faqIntro: (json['FAQIntro'] as Map<String, dynamic>)?.map(
+      (k, e) => MapEntry(k, e as String),
+    ),
+    faqPurpose: (json['FAQPurpose'] as Map<String, dynamic>)?.map(
+      (k, e) => MapEntry(k, e as String),
+    ),
+    faqContent: (json['FAQContent'] as Map<String, dynamic>)?.map(
+      (k, e) => MapEntry(k, e as String),
+    ),
+    faqHowto: (json['FAQHowto'] as Map<String, dynamic>)?.map(
+      (k, e) => MapEntry(k, e as String),
+    ),
   );
 }
 
@@ -114,6 +131,13 @@ Map<String, dynamic> _$CredentialTypeToJson(CredentialType instance) => <String,
       'IsSingleton': instance.isSingleton,
       'Description': instance.description,
       'IssueURL': instance.issueUrl,
+      'BackgroundColor': instance.backgroundColor,
+      'IsInCredentialStore': instance.isInCredentialStore,
+      'Category': instance.category,
+      'FAQIntro': instance.faqIntro,
+      'FAQPurpose': instance.faqPurpose,
+      'FAQContent': instance.faqContent,
+      'FAQHowto': instance.faqHowto,
     };
 
 AttributeType _$AttributeTypeFromJson(Map<String, dynamic> json) {

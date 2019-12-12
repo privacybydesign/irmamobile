@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 
 class IrmaThemeData extends Equatable {
   static double space = 16.0;
+  @Deprecated(
+      "Move to tinySpacing, smallSpacing, defaultSpacing or largeSpacing, don't use local divisions/multiplications")
   final double spacing = space;
   final double defaultSpacing = space;
   final double tinySpacing = space / 4;
   final double smallSpacing = space / 2;
+  final double mediumSpacing = space * 1.5;
   final double largeSpacing = space * 2;
 
   // Primary colors
@@ -37,6 +40,10 @@ class IrmaThemeData extends Equatable {
   final Color interactionAlert = const Color(0xFFFFBB58);
   final Color interactionInformation = const Color(0xFF004C92);
 
+  // Support colors (qr scanner)
+  final Color overlayValid = const Color(0xFF029B17);
+  final Color overlayInvalid = const Color(0xFFC8192C);
+
   // Link colors
   final Color linkColor = const Color(0xFF004C92);
   final Color linkVisitedColor = const Color(0xFF71808F);
@@ -51,6 +58,8 @@ class IrmaThemeData extends Equatable {
   final String fontFamilyMontserrat = "Montserrat";
 
   TextTheme textTheme;
+  TextStyle collapseTextStyle;
+  TextStyle textButtonTextStyle;
   TextStyle issuerNameTextStyle;
   TextStyle newCardButtonTextStyle;
   TextStyle hyperlinkTextStyle;
@@ -124,7 +133,7 @@ class IrmaThemeData extends Equatable {
       body1: TextStyle(
         fontFamily: fontFamilyMontserrat,
         fontSize: 16.0,
-        height: 19.0 / 16.0,
+        height: 24.0 / 16.0,
         fontWeight: FontWeight.normal,
         color: primaryDark,
       ),
@@ -218,6 +227,22 @@ class IrmaThemeData extends Equatable {
       height: 19.0 / 16.0,
       fontWeight: FontWeight.normal,
       color: Colors.white,
+    );
+
+    collapseTextStyle = TextStyle(
+      fontFamily: fontFamilyKarla,
+      fontSize: 18.0,
+      height: 22.0 / 18.0,
+      fontWeight: FontWeight.normal,
+      color: grayscale40,
+    );
+
+    textButtonTextStyle = TextStyle(
+      fontFamily: fontFamilyMontserrat,
+      fontSize: 16.0,
+      height: 19.0 / 16.0,
+      fontWeight: FontWeight.w600,
+      color: primaryBlue,
     );
 
     newCardButtonTextStyle = TextStyle(

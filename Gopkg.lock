@@ -159,7 +159,7 @@
 
 [[projects]]
   branch = "irmamobile"
-  digest = "1:e6090b10f4c524da7578cdf627ee77f8091ddc2976cdf9737f97344a68fc7ba4"
+  digest = "1:89c10ead2c838eedc673e7b37b4c64f01a32d43a7c97a7cdb52eb9b3a1085047"
   name = "github.com/privacybydesign/irmago"
   packages = [
     ".",
@@ -168,7 +168,7 @@
     "irmaclient",
   ]
   pruneopts = "UT"
-  revision = "8b4e1bf85f4a596ab3419d6b4fac2b9f376fc133"
+  revision = "73ac99e7910150a8e5b66247fdb5c024d0e00adc"
 
 [[projects]]
   digest = "1:04457f9f6f3ffc5fea48e71d62f2ca256637dee0a04d710288e27e05c8b41976"

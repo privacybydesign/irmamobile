@@ -32,7 +32,14 @@ class IrmaClientMock implements IrmaClient {
     id: myCredentialTypeId,
     name: {'nl': "MyCredentialType"},
     shortName: {'nl': "MCT"},
-    description: {'nl': 'My Credential Type'},
+    description: {'nl': 'My Credential Type mock description'},
+    issueUrl: {'nl': 'https://mock.url.nl'},
+    isInCredentialStore: true,
+    category: {'nl': 'TODO'},
+    faqIntro: {'nl': 'TODO'},
+    faqPurpose: {'nl': 'TODO'},
+    faqContent: {'nl': 'TODO'},
+    faqHowto: {'nl': 'TODO'},
     schemeManagerId: mySchemeManagerId,
     issuerId: myIssuerId,
   );
@@ -120,6 +127,11 @@ class IrmaClientMock implements IrmaClient {
         })
         .asStream()
         .map<Credentials>((credentialMap) => Credentials(credentialMap));
+  }
+
+  @override
+  Stream<IrmaConfiguration> getIrmaConfiguration() {
+    return Stream.value(irmaConfiguration);
   }
 
   @override
@@ -239,11 +251,11 @@ class IrmaClientMock implements IrmaClient {
 
   @override
   void enroll({String email, String pin, String language}) {
-    // TODO
-    throw Exception("Unimplemented");
+    _isEnrolledSubject.add(true);
   }
 
   final BehaviorSubject<bool> lockedSubject = BehaviorSubject<bool>.seeded(false);
+  final PublishSubject<bool> _isEnrolledSubject = PublishSubject<bool>();
 
   @override
   void lock() {
@@ -266,4 +278,12 @@ class IrmaClientMock implements IrmaClient {
   Stream<bool> getLocked() {
     return lockedSubject.stream;
   }
+
+  @override
+  Stream<bool> getIsEnrolled() {
+    return _isEnrolledSubject.stream;
+  }
+
+  @override
+  void startSession(String request) {}
 }

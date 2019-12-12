@@ -6,7 +6,6 @@ import 'package:irmamobile/src/screens/add_card_email/model/request_email_bloc.d
 import 'package:irmamobile/src/screens/add_card_email/model/request_email_events.dart';
 import 'package:irmamobile/src/screens/add_card_email/model/request_email_state.dart';
 import 'package:irmamobile/src/screens/add_cards/customs/future_card.dart';
-import 'package:irmamobile/src/screens/add_cards/widgets/card_questions.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/error_alert.dart';
@@ -161,7 +160,6 @@ class RequestEmailAttributeState extends State<RequestEmailAttribute> {
                       SizedBox(
                         height: IrmaTheme.of(context).spacing,
                       ),
-                      CardQuestions(_scrollViewKey, _scrollController),
                       SizedBox(
                         height: IrmaTheme.of(context).spacing,
                       ),

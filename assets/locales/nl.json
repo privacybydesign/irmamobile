@@ -77,8 +77,8 @@
     "expiresAt": "Geldig tot"
   },
   "card_store": {
-    "app_bar": "Gegevens toevoegen",
-    "choose": "Kies de gegevens die je wilt ophalen.",
+    "app_bar": "Kaartjes toevoegen",
+    "choose": "Kies de kaartjes die je wilt toevoegen.",
     "search": "Zoek...",
     "personal_data": "Persoonsgegevens",
     "identity_cards": "Identiteitsbewijzen",
@@ -86,16 +86,15 @@
     "health": "Zorg",
     "popular": "Populair",
     "card_info": {
-      "app_bar": "{card_type} toevoegen",
+      "app_bar": "Gegevens toevoegen",
+      "header_credential_type": "{credential_type} toevoegen",
       "obtain": "ophalen",
       "issuer": "Uitgifte",
-      "general_info": "Uitleg tekst...Lorem ipsum.",
-      "issuer_question": "Waar haal ik de gegevens op?",
-      "provided_attributes_question": "Welke gegevens ontvang ik?",
-      "expiration_question": "Hoe lang zijn de gegevens geldig?",
-      "how_does_it_work_question": "Hoe werkt het?",
-      "back_button": "Later",
-      "get_button": "Haal mijn {card_type} op"
+      "purpose_question": "Wat kan ik met deze gegevens?",
+      "content_question": "Welke gegevens haal ik op?",
+      "howto_question": "How werkt het?",
+      "back_button": "Annuleren",
+      "get_button": "Ophalen"
     },
     "email": {
       "title": "E-mailadres toevoegen",
@@ -169,6 +168,20 @@
       "title": "Pin code veranderd",
       "message": "Je pincode is succesvol veranderd.",
       "continue": "Verder"
+    }
+  },
+  "qr_scanner": {
+    "instruction": {
+      "title": "Begin met scannen!",
+      "message": "Richt de telefoon op de QR code"
+    },
+    "success": {
+      "title": "Gelukt!",
+      "message": "De QR code is gescand"
+    },
+    "error": {
+      "title": "Mislukt!",
+      "message": "Richt de telefoon op een IRMA QR code"
     }
   },
   "pin": {

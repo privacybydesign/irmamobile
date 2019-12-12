@@ -5,17 +5,9 @@ class LoadingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const <Widget>[
-            CircularProgressIndicator(),
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text("Loading... (UI TODO)"),
-            ),
-          ],
-        ),
-      ),
+          child:
+              const CircularProgressIndicator() //LoadingIndicator(), TODO: find out why tests fail when using LoadingIndicator
+          ),
     );
   }
 }

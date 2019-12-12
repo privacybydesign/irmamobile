@@ -28,7 +28,7 @@ func (ch *clientHandler) EnrollmentFailure(managerIdentifier irma.SchemeManagerI
 
 	dispatchEvent(&enrollmentFailureEvent{
 		SchemeManagerID: managerIdentifier,
-		error:           &sessionError{err},
+		Error:           &sessionError{err},
 	})
 }
 
@@ -48,7 +48,7 @@ func (ch *clientHandler) ChangePinFailure(managerIdentifier irma.SchemeManagerId
 
 	dispatchEvent(&changePinFailureEvent{
 		SchemeManagerID: managerIdentifier,
-		error:           &sessionError{err},
+		Error:           &sessionError{err},
 	})
 }
 
