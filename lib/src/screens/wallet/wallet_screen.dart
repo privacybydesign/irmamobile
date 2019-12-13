@@ -45,6 +45,7 @@ class _WalletScreenState extends State<_WalletScreen> {
           stream: widget.bloc.credentials,
           builder: (context, snapshot) => Wallet(
               credentials: snapshot.hasData ? snapshot.data.values.toList() : null,
+              isOpen: true,
               onQRScannerPressed: qrScannerPressed,
               onHelpPressed: helpPressed,
               onAddCardsPressed: addCardsPressed)),
