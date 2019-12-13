@@ -44,14 +44,19 @@ class CardAttributes extends StatelessWidget {
       children: [
         LimitedBox(
           maxHeight: _height,
-          child: Scrollbar(
-            child: ListView(
-              shrinkWrap: true,
-              controller: scrollController,
-              physics: const BouncingScrollPhysics(),
-              children: [
-                ...getAttributes(context, bodyTheme),
-              ],
+          child: Container(
+            constraints: BoxConstraints(
+              minHeight: 120.0,
+            ),
+            child: Scrollbar(
+              child: ListView(
+                shrinkWrap: true,
+                controller: scrollController,
+                physics: const BouncingScrollPhysics(),
+                children: [
+                  ...getAttributes(context, bodyTheme),
+                ],
+              ),
             ),
           ),
         ),
