@@ -1,16 +1,15 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-
 import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/widgets/card/backgrounds.dart';
-import 'package:irmamobile/src/widgets/card/card_attributes.dart';
+
+import 'card_attributes.dart';
 
 class IrmaCard extends StatefulWidget {
   final String lang = ui.window.locale.languageCode;
-  final _fullCardHeight = 400.0;
 
   final Credential attributes;
   final void Function(double) scrollBeyondBoundsCallback;
@@ -49,7 +48,6 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
           });
         },
         child: Container(
-          height: widget._fullCardHeight,
           margin: const EdgeInsets.symmetric(horizontal: 8),
           decoration: BoxDecoration(
             color: irmaCardTheme.bgColorDark,
@@ -86,7 +84,7 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
                   style: Theme.of(context).textTheme.subhead.copyWith(color: irmaCardTheme.fgColor),
                 ),
               ),
-              Expanded(
+              Container(
                 child: Padding(
                   padding: EdgeInsets.all(_padding),
                   child: CardAttributes(
@@ -104,6 +102,7 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
       );
 
   // Calculate a card color dependent of the issuer id
+
   //
   // This is to prevent all cards getting a different
   // color when a card is added or removed and confusing
