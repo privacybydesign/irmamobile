@@ -64,6 +64,7 @@ flutter:
     - assets/enrollment/
     - assets/wallet/
     - assets/generic/
+    - assets/error/
 
   fonts:
     - family: Karla
