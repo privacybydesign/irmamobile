@@ -36,6 +36,7 @@ class _WalletScreenState extends State<_WalletScreen> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
+          centerTitle: true,
           title: Text(FlutterI18n.translate(context, 'wallet.title')),
           leading: IconButton(
             icon: Icon(Icons.menu),

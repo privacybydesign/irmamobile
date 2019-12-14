@@ -54,7 +54,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   double dragOffset = 0;
   double cardDragOffset = 0;
   int showCardsCounter = 0;
-  bool _visible = true;
+  bool _nudgeVisible = true;
 
   @override
   void initState() {
@@ -114,9 +114,8 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
             child: AnimatedOpacity(
               // If the widget is visible, animate to 0.0 (invisible).
               // If the widget is hidden, animate to 1.0 (fully visible).
-              opacity: _visible ? 1.0 : 0.0,
+              opacity: _nudgeVisible ? 1.0 : 0.0,
               duration: const Duration(milliseconds: 300),
-              // The green box must be a child of the AnimatedOpacity widget.
               child: Container(
                 child: ListView(
                   children: <Widget>[
@@ -133,9 +132,9 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                       ),
                     ),
                     GestureDetector(
-                      onTap: _visible
+                      onTap: _nudgeVisible
                           ? onAddCardsPressed
-                          : null, // TODO please check if this is fine to prevent link from workinng when it is invisible
+                          : null, // TODO please check if this is fine to prevent link from working when it is invisible
                       child: Text(
                         FlutterI18n.translate(context, 'wallet.add_data'),
                         textAlign: TextAlign.center,
@@ -315,10 +314,9 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
   void setNewState(WalletState newState, {bool nudgeIsVisible = true}) {
     setState(() {
-      _visible = nudgeIsVisible;
+      _nudgeVisible = nudgeIsVisible;
       oldState = currentState;
       currentState = newState;
-      print(currentState);
       drawController.forward();
     });
   }
