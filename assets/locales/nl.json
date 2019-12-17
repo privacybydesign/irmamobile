@@ -203,7 +203,7 @@
     "button_retry":"Probeer opnieuw",
     "types": {
       "general": "Er is iets misgegaan tijdens de communicatie met de IRMA server.\n\nHeeft u een werkende internet verbinding?\n\nAls hjet pobleem zich blijft voordoen meldt u dat alstublieft met de knoppen hieronder.",
-      "no_internet": "Er is iets misgegaan tijdens de communicatie met de IRMA server.\n\nControleer je internetverbinding. IRMA heeft een internetverbinding nodig om gegevens te kunnen versleutelen"
+      "no_internet": "Er is iets misgegaan tijdens de communicatie met de IRMA server.\n\nControleer je internetverbinding. IRMA heeft een internetverbinding nodig om gegevens te kunnen versleutelen."
     }
   },
   "wallet": {
