@@ -5,7 +5,6 @@ import 'package:irmamobile/src/screens/change_pin/models/change_pin_bloc.dart';
 import 'package:irmamobile/src/screens/change_pin/models/change_pin_state.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/cancel_button.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/error_message.dart';
 import 'package:irmamobile/src/widgets/pin_field.dart';
 
 class EnterPin extends StatelessWidget {
@@ -29,10 +28,6 @@ class EnterPin extends StatelessWidget {
             child: Column(
               children: [
                 SizedBox(height: IrmaTheme.of(context).spacing),
-                if (state.oldPinVerified == ValidationState.invalid) ...[
-                  const ErrorMessage(message: 'change_pin.enter_pin.error'),
-                  SizedBox(height: IrmaTheme.of(context).spacing)
-                ],
                 Text(
                   FlutterI18n.translate(context, 'change_pin.enter_pin.instruction'),
                   style: Theme.of(context).textTheme.body1,

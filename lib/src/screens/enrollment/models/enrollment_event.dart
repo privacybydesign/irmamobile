@@ -33,6 +33,11 @@ class EmailSubmitted extends Equatable {
   String toString() => 'EmailSubmitted';
 }
 
+class EmailSkipped extends Equatable {
+  @override
+  String toString() => 'EmailSkipped';
+}
+
 class EnrollmentCanceled extends Equatable {
   @override
   String toString() => 'EnrollmentCanceled';

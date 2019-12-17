@@ -22,32 +22,30 @@ class ConfirmPin extends StatelessWidget {
         leading: CancelButton(routeName: ChoosePin.routeName, cancel: cancel),
         title: Text(
           FlutterI18n.translate(context, 'enrollment.choose_pin.title'),
-          style: IrmaTheme.of(context).textTheme.subhead,
+          style: IrmaTheme.of(context).textTheme.display2,
         ),
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.only(top: IrmaTheme.of(context).spacing * 2),
-          child: Column(
-            children: [
-              Text(
-                FlutterI18n.translate(context, 'enrollment.choose_pin.confirm_instruction'),
-                style: Theme.of(context).textTheme.body1,
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: IrmaTheme.of(context).spacing),
-              PinField(
-                maxLength: 5,
-                onSubmit: submitConfirmationPin,
-              ),
-              SizedBox(height: IrmaTheme.of(context).spacing),
-              Text(
-                FlutterI18n.translate(context, 'enrollment.choose_pin.instruction'),
-                style: Theme.of(context).textTheme.body1,
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
+        child: Column(
+          children: [
+            SizedBox(height: IrmaTheme.of(context).hugeSpacing),
+            Text(
+              FlutterI18n.translate(context, 'enrollment.choose_pin.confirm_instruction'),
+              style: IrmaTheme.of(context).textTheme.body1,
+              textAlign: TextAlign.center,
+            ),
+            SizedBox(height: IrmaTheme.of(context).mediumSpacing),
+            PinField(
+              maxLength: 5,
+              onSubmit: submitConfirmationPin,
+            ),
+            SizedBox(height: IrmaTheme.of(context).smallSpacing),
+            Text(
+              FlutterI18n.translate(context, 'enrollment.choose_pin.instruction'),
+              style: IrmaTheme.of(context).textTheme.body1,
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
     );

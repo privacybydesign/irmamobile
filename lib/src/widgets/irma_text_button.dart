@@ -5,6 +5,7 @@ import 'package:irmamobile/src/theme/theme.dart';
 
 class IrmaTextButton extends StatelessWidget {
   final String label;
+  final double minWidth;
   final VoidCallback onPressed;
   final TextStyle textStyle;
 
@@ -12,6 +13,7 @@ class IrmaTextButton extends StatelessWidget {
     @required this.label,
     this.onPressed,
     this.textStyle,
+    this.minWidth = 232.0,
   });
 
   @override
@@ -19,7 +21,7 @@ class IrmaTextButton extends StatelessWidget {
     return ButtonTheme(
       textTheme: ButtonTextTheme.primary,
       height: 45.0,
-      minWidth: 232,
+      minWidth: minWidth,
       padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
       child: FlatButton(
         onPressed: onPressed,

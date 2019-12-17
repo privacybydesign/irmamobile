@@ -13,7 +13,7 @@ class CancelButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
       icon: const Icon(IrmaIcons.arrowBack),
-      iconSize: IrmaTheme.of(context).spacing,
+      iconSize: IrmaTheme.of(context).defaultSpacing * 1.25,
       onPressed: () {
         if (cancel != null) {
           cancel();

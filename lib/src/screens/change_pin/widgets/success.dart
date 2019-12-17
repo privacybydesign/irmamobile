@@ -3,7 +3,6 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/cancel_button.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
-import 'package:irmamobile/src/widgets/success_message.dart';
 
 class Success extends StatelessWidget {
   static const String routeName = 'change_pin/success';
@@ -24,7 +23,7 @@ class Success extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SizedBox(height: IrmaTheme.of(context).spacing),
-            const SuccessMessage(message: 'change_pin.success.message'),
+            Text('change_pin.success.message'),
             SizedBox(height: IrmaTheme.of(context).spacing),
             IrmaButton(
               onPressed: () {

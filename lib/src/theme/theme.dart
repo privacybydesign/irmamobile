@@ -11,6 +11,7 @@ class IrmaThemeData extends Equatable {
   final double defaultSpacing = space; // 16
   final double mediumSpacing = space * 1.5; // 24
   final double largeSpacing = space * 2; // 32
+  final double hugeSpacing = space * 4; // 64
 
   // Primary colors
   final Color primaryBlue = const Color(0xFF004C92);
@@ -19,7 +20,6 @@ class IrmaThemeData extends Equatable {
 
   // Grayscale colors (used for text, background colors, lines and icons)
   final Color grayscaleWhite = const Color(0xFFFFFFFF);
-  final Color grayscale95 = const Color(0xFFF2F5F8);
   final Color grayscale90 = const Color(0xFFE8ECF0);
   final Color grayscale85 = const Color(0xFFE3E9F0);
   final Color grayscale80 = const Color(0xFFB7C2CC);
@@ -98,7 +98,7 @@ class IrmaThemeData extends Equatable {
       display2: TextStyle(
         fontFamily: fontFamilyKarla,
         fontSize: 18.0,
-        height: 22.0 / 18.0,
+        height: 24.0 / 18.0,
         fontWeight: FontWeight.bold,
         color: grayscale40,
       ),
@@ -109,7 +109,7 @@ class IrmaThemeData extends Equatable {
       display1: TextStyle(
         fontFamily: fontFamilyKarla,
         fontSize: 16.0,
-        height: 19.0 / 16.0,
+        height: 24.0 / 16.0,
         fontWeight: FontWeight.bold,
         color: grayscale40,
       ),
@@ -122,7 +122,7 @@ class IrmaThemeData extends Equatable {
       body2: TextStyle(
         fontFamily: fontFamilyMontserrat,
         fontSize: 16.0,
-        height: 19.0 / 16.0,
+        height: 24.0 / 16.0,
         fontWeight: FontWeight.w500, // medium
         color: primaryDark,
       ),
@@ -192,7 +192,7 @@ class IrmaThemeData extends Equatable {
       caption: TextStyle(
         fontFamily: fontFamilyMontserrat,
         fontSize: 14.0,
-        height: 18.0 / 14.0,
+        height: 20.0 / 14.0,
         fontWeight: FontWeight.normal,
         color: primaryDark,
       ),
@@ -214,7 +214,7 @@ class IrmaThemeData extends Equatable {
       overline: TextStyle(
         fontFamily: fontFamilyMontserrat,
         fontSize: 12.0,
-        height: 15.0 / 12.0,
+        height: 16.0 / 12.0,
         fontWeight: FontWeight.w600,
         color: grayscale40,
       ),
