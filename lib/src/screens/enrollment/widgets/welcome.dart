@@ -19,30 +19,30 @@ class Welcome extends StatelessWidget {
       body: SingleChildScrollView(
         child: Container(
           alignment: Alignment.center,
-          padding: EdgeInsets.only(top: IrmaTheme.of(context).spacing * 2),
+          padding: EdgeInsets.only(top: IrmaTheme.of(context).largeSpacing),
           child: Column(
             children: [
-              SizedBox(height: IrmaTheme.of(context).spacing * 2),
+              SizedBox(height: IrmaTheme.of(context).largeSpacing),
               SvgPicture.asset('assets/non-free/irma_logo.svg'),
-              SizedBox(height: IrmaTheme.of(context).spacing),
+              SizedBox(height: IrmaTheme.of(context).defaultSpacing),
               Container(
-                constraints: BoxConstraints(maxWidth: IrmaTheme.of(context).spacing * 16),
+                constraints: BoxConstraints(maxWidth: IrmaTheme.of(context).defaultSpacing * 16),
                 child: Text(
                   FlutterI18n.translate(context, 'enrollment.welcome.header'),
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.display1,
+                  style: IrmaTheme.of(context).textTheme.display1,
                 ),
               ),
-              SizedBox(height: IrmaTheme.of(context).spacing),
+              SizedBox(height: IrmaTheme.of(context).defaultSpacing),
               Container(
-                constraints: BoxConstraints(maxWidth: IrmaTheme.of(context).spacing * 20),
+                constraints: BoxConstraints(maxWidth: IrmaTheme.of(context).defaultSpacing * 20),
                 child: Text(
                   FlutterI18n.translate(context, 'enrollment.welcome.abstract'),
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.body1,
+                  style: IrmaTheme.of(context).textTheme.body1,
                 ),
               ),
-              SizedBox(height: IrmaTheme.of(context).spacing),
+              SizedBox(height: IrmaTheme.of(context).defaultSpacing),
               IrmaTextButton(
                 onPressed: () {
                   Navigator.of(context).pushNamed(Introduction.routeName);

@@ -32,14 +32,20 @@
       "instruction": "Kies een pincode van 5 cijfers",
       "confirm_instruction": "Voer je pincode nog een keer in",
       "next": "Volgende",
-      "error": "De pincodes kwamen niet overeen, probeer het nog eens."
+      "error_title": "Pin verkeerd",
+      "error": "De pincodes kwamen niet overeen, probeer het nog eens.",
+      "error_action": "Ok"
     },
     "provide_email": {
       "title": "E-mailadres toevoegen",
-      "instruction": "Geef een e-mailadres op. Dan kun je bij verlies of diefstal van je telefoon, zorgen dat niemand jouw persoonlijke gegevens kan zien.",
+      "instruction": "Vul nu je e-mailadres in, dan kun je bij verlies of diefstal van je telefoon, IRMA op je telefoon blokkeren.",
       "placeholder": "E-mailadres",
+      "skip": "Overslaan",
       "next": "Volgende",
-      "error": "Het ingevulde e-mailadres is niet geldig."
+      "error": "Dit is geen geldig e-mailadres",
+      "skip_title": "Weet je het zeker?",
+      "skip_content": "Zonder e-mailadres is het niet mogelijk de IRMA app te blokkeren na het verlies van je mobiel.",
+      "insert_email": "E-mail invoeren"
     }
   },
   "about": {

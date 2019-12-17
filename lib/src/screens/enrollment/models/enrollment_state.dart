@@ -15,6 +15,7 @@ class EnrollmentState with EquatableMixin {
   //  - Whether to show the validation status of the email address or pin (initially false)
   final bool pinConfirmed;
   final bool emailValid;
+  final bool emailSkipped;
   final bool showEmailValidation;
   final bool showPinValidation;
   final int retry;
@@ -24,6 +25,7 @@ class EnrollmentState with EquatableMixin {
     this.email = "",
     this.pinConfirmed = false,
     this.emailValid = false,
+    this.emailSkipped = false,
     this.showEmailValidation = false,
     this.showPinValidation = false,
     this.retry = 0,
@@ -34,6 +36,7 @@ class EnrollmentState with EquatableMixin {
     String email,
     bool pinConfirmed,
     bool emailValid,
+    bool emailSkipped,
     bool showEmailValidation,
     bool showPinValidation,
     int retry,
@@ -43,6 +46,7 @@ class EnrollmentState with EquatableMixin {
       email: email ?? this.email,
       pinConfirmed: pinConfirmed ?? this.pinConfirmed,
       emailValid: emailValid ?? this.emailValid,
+      emailSkipped: emailSkipped ?? this.emailSkipped,
       showEmailValidation: showEmailValidation ?? this.showEmailValidation,
       showPinValidation: showPinValidation ?? this.showPinValidation,
       retry: retry ?? this.retry,
@@ -51,11 +55,11 @@ class EnrollmentState with EquatableMixin {
 
   @override
   String toString() {
-    return 'EnrollmentState {pin: ${pin == null ? null : '*' * pin.length}, email: $email, pinConfirmed: $pinConfirmed, emailValid: $emailValid, showEmailValidation: $showEmailValidation, showPinValidation: $showPinValidation, retry: $retry}';
+    return 'EnrollmentState {pin: ${pin == null ? null : '*' * pin.length}, email: $email, pinConfirmed: $pinConfirmed, emailValid: $emailValid, emailSkipped: $emailSkipped, showEmailValidation: $showEmailValidation, showPinValidation: $showPinValidation, retry: $retry}';
   }
 
   @override
   List<Object> get props {
-    return [pin, email, pinConfirmed, emailValid, showEmailValidation, showPinValidation, retry];
+    return [pin, email, pinConfirmed, emailValid, emailSkipped, showEmailValidation, showPinValidation, retry];
   }
 }

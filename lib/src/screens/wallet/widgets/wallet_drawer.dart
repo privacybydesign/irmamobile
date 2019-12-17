@@ -16,7 +16,7 @@ class WalletDrawer extends StatelessWidget {
       // through the options in the drawer if there isn't enough vertical
       // space to fit everything.
       child: Container(
-        color: IrmaTheme.of(context).grayscale95,
+        color: IrmaTheme.of(context).primaryLight,
         child: Column(
           children: <Widget>[
             Expanded(

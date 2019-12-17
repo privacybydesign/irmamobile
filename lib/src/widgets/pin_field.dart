@@ -10,6 +10,7 @@ class PinField extends StatefulWidget {
   final bool autofocus;
   final bool autosubmit;
   final bool autoclear;
+  final FocusNode focusNode;
   final int maxLength;
   final int minLength;
   final ValueChanged<String> onChange;
@@ -22,6 +23,7 @@ class PinField extends StatefulWidget {
     this.autofocus = true,
     this.autosubmit = true,
     this.autoclear = true,
+    this.focusNode,
     this.onChange,
     this.onSubmit,
     this.onFull,
@@ -47,7 +49,7 @@ class _PinFieldState extends State<PinField> {
     lastLength = 0;
     obscureText = true;
 
-    focusNode = FocusNode();
+    focusNode = widget.focusNode ?? FocusNode();
     _textEditingController.addListener(_updateLength);
   }
 
@@ -81,9 +83,14 @@ class _PinFieldState extends State<PinField> {
   }
 
   @override
+  void didUpdateWidget(PinField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    focusNode = widget.focusNode ?? focusNode;
+  }
+
+  @override
   void dispose() {
     _textEditingController.dispose();
-    focusNode.dispose();
     _isDisposed = true;
 
     super.dispose();
@@ -97,7 +104,7 @@ class _PinFieldState extends State<PinField> {
       return Center(
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          width: MediaQuery.of(context).size.width - theme.largeSpacing,
+          width: MediaQuery.of(context).size.width - theme.hugeSpacing,
           child: Row(
             children: <Widget>[
               Flexible(
@@ -119,7 +126,7 @@ class _PinFieldState extends State<PinField> {
                 ),
               ),
               IconButton(
-                iconSize: theme.mediumSpacing,
+                iconSize: theme.defaultSpacing,
                 icon: Icon(
                   obscureText ? IrmaIcons.hide : IrmaIcons.view,
                   color: Theme.of(context).primaryColorDark,
@@ -150,20 +157,22 @@ class _PinFieldState extends State<PinField> {
         char = '●';
       }
 
-      boxes[i] = Container(
-        margin: EdgeInsets.only(right: i == len - 1 ? 0 : theme.spacing * 0.5),
+      boxes[i] = AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        margin: EdgeInsets.only(right: i == len - 1 ? 0 : theme.smallSpacing),
         width: 30.0,
-        height: 41.0,
+        height: 40.0,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(5.0)),
-          border: Border.all(color: theme.primaryDark),
+          borderRadius: BorderRadius.all(Radius.circular(theme.tinySpacing)),
+          border: Border.all(color: i > value.length ? Colors.transparent : theme.grayscale40),
           color: theme.grayscaleWhite,
         ),
         child: Text(
           char,
-          style: Theme.of(context).textTheme.body2.copyWith(
-                color: complete ? theme.primaryBlue : theme.primaryDark,
+          style: Theme.of(context).textTheme.display2.copyWith(
+                height: 22.0 / 18.0,
+                color: complete ? theme.primaryBlue : theme.grayscale40,
               ),
         ),
       );
@@ -223,7 +232,7 @@ class _PinFieldState extends State<PinField> {
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(width: theme.spacing * 2, height: theme.spacing * 2),
+            SizedBox(width: theme.largeSpacing, height: theme.largeSpacing),
             GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () {
@@ -233,26 +242,23 @@ class _PinFieldState extends State<PinField> {
                 });
               },
               child: Container(
-                constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 80),
+                constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 64),
                 child: Wrap(children: boxes),
               ),
             ),
             SizedBox(
-              width: theme.spacing * 2,
-              height: theme.spacing * 2,
+              width: theme.largeSpacing,
+              height: theme.largeSpacing,
               child: IconButton(
-                iconSize: theme.spacing * 0.75,
+                iconSize: obscureText ? theme.defaultSpacing : theme.mediumSpacing,
                 icon: Icon(
-                  // TODO: add irma icon
-                  obscureText ? IrmaIcons.view : Icons.visibility_off,
+                  obscureText ? IrmaIcons.view : IrmaIcons.hide,
                   color: theme.grayscale40,
                 ),
                 onPressed: () {
-                  setState(
-                    () {
-                      obscureText = !obscureText;
-                    },
-                  );
+                  setState(() {
+                    obscureText = !obscureText;
+                  });
                 },
               ),
             )

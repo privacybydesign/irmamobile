@@ -12,6 +12,7 @@ class IrmaThemedButton extends StatelessWidget {
   final IrmaButtonSize size;
   final TextStyle textStyle;
   final IconData icon;
+  final double minWidth;
 
   const IrmaThemedButton({
     @required this.label,
@@ -23,6 +24,7 @@ class IrmaThemedButton extends StatelessWidget {
     this.size,
     this.textStyle,
     this.icon,
+    this.minWidth = 232.0,
   });
 
   @override
@@ -34,7 +36,7 @@ class IrmaThemedButton extends StatelessWidget {
     return ButtonTheme(
       textTheme: ButtonTextTheme.primary,
       height: size?.value ?? IrmaButtonSize.medium.value,
-      minWidth: 232,
+      minWidth: minWidth,
       padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
       child: RaisedButton(
         onPressed: onPressed,

@@ -5,18 +5,42 @@ import 'package:irmamobile/src/screens/enrollment/models/enrollment_bloc.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/cancel_button.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/choose_pin.dart';
+import 'package:irmamobile/src/screens/enrollment/widgets/provide_email_actions.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/error_message.dart';
-import 'package:irmamobile/src/widgets/irma_button.dart';
 
-class ProvideEmail extends StatelessWidget {
+class ProvideEmail extends StatefulWidget {
   static const String routeName = 'provide_email';
 
   final void Function() submitEmail;
+  final void Function() skipEmail;
   final void Function(String) changeEmail;
   final void Function() cancel;
 
-  const ProvideEmail({@required this.submitEmail, @required this.changeEmail, @required this.cancel});
+  const ProvideEmail({
+    @required this.submitEmail,
+    @required this.changeEmail,
+    @required this.skipEmail,
+    @required this.cancel,
+  });
+
+  @override
+  _ProvideEmailState createState() => _ProvideEmailState();
+}
+
+class _ProvideEmailState extends State<ProvideEmail> {
+  FocusNode inputFocusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    inputFocusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    inputFocusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,46 +48,69 @@ class ProvideEmail extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: IrmaTheme.of(context).grayscale85,
-        leading: CancelButton(routeName: ChoosePin.routeName, cancel: cancel),
+        leading: CancelButton(routeName: ChoosePin.routeName, cancel: widget.cancel),
         title: Text(
           FlutterI18n.translate(context, 'enrollment.provide_email.title'),
-          style: IrmaTheme.of(context).textTheme.subhead,
+          style: IrmaTheme.of(context).textTheme.display2,
         ),
       ),
-      body: BlocBuilder<EnrollmentBloc, EnrollmentState>(builder: (context, state) {
-        return SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.all(IrmaTheme.of(context).spacing * 2),
-            child: Column(
-              children: [
-                if (state.emailValid == false && state.showEmailValidation) ...[
-                  const ErrorMessage(message: 'enrollment.provide_email.error'),
-                  SizedBox(height: IrmaTheme.of(context).spacing)
-                ],
-                Text(
-                  FlutterI18n.translate(context, 'enrollment.provide_email.instruction'),
-                  style: Theme.of(context).textTheme.body1,
-                  textAlign: TextAlign.left,
+      body: BlocBuilder<EnrollmentBloc, EnrollmentState>(
+        builder: (context, state) {
+          String error;
+
+          if (state.emailValid == false && state.showEmailValidation) {
+            error = FlutterI18n.translate(context, 'enrollment.provide_email.error');
+          }
+
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: constraints.maxWidth, minHeight: constraints.maxHeight),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
+                          child: Column(
+                            children: <Widget>[
+                              Text(
+                                FlutterI18n.translate(context, 'enrollment.provide_email.instruction'),
+                                style: IrmaTheme.of(context).textTheme.body1,
+                                textAlign: TextAlign.left,
+                              ),
+                              SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+                              TextField(
+                                autofocus: true,
+                                focusNode: inputFocusNode,
+                                decoration: InputDecoration(
+                                  labelStyle: IrmaTheme.of(context).textTheme.overline,
+                                  labelText: FlutterI18n.translate(context, 'enrollment.provide_email.placeholder'),
+                                  errorText: error,
+                                ),
+                                keyboardType: TextInputType.emailAddress,
+                                onChanged: widget.changeEmail,
+                                onEditingComplete: widget.submitEmail,
+                              ),
+                            ],
+                          ),
+                        ),
+                        ProvideEmailActions(
+                          submitEmail: widget.submitEmail,
+                          skipEmail: widget.skipEmail,
+                          enterEmail: () {
+                            FocusScope.of(context).requestFocus(inputFocusNode);
+                          },
+                        )
+                      ],
+                    ),
+                  ),
                 ),
-                SizedBox(height: IrmaTheme.of(context).spacing),
-                TextField(
-                  autofocus: true,
-                  decoration:
-                      InputDecoration(hintText: FlutterI18n.translate(context, 'enrollment.provide_email.placeholder')),
-                  keyboardType: TextInputType.emailAddress,
-                  onChanged: changeEmail,
-                  onEditingComplete: submitEmail,
-                ),
-                SizedBox(height: IrmaTheme.of(context).spacing),
-                IrmaButton(
-                  onPressed: submitEmail,
-                  label: 'enrollment.provide_email.next',
-                ),
-              ],
-            ),
-          ),
-        );
-      }),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }

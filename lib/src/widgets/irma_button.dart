@@ -5,6 +5,7 @@ import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 
 class IrmaButton extends StatelessWidget {
   final String label;
+  final double minWidth;
   final VoidCallback onPressed;
   final TextStyle textStyle;
   final IrmaButtonSize size;
@@ -16,6 +17,7 @@ class IrmaButton extends StatelessWidget {
     this.textStyle,
     this.size,
     this.icon,
+    this.minWidth = 232.0,
   });
 
   @override
@@ -24,6 +26,7 @@ class IrmaButton extends StatelessWidget {
       label: label,
       onPressed: onPressed,
       textStyle: textStyle,
+      minWidth: minWidth,
       size: size,
       icon: icon,
       color: IrmaTheme.of(context).primaryBlue,

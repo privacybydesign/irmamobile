@@ -24,6 +24,7 @@ class EnrollmentBloc extends Bloc<Object, EnrollmentState> {
         pinConfirmed: false,
         showPinValidation: false,
         emailValid: false,
+        emailSkipped: false,
         showEmailValidation: false,
       );
     } else if (event is ConfirmationPinSubmitted) {
@@ -33,6 +34,7 @@ class EnrollmentBloc extends Bloc<Object, EnrollmentState> {
         showPinValidation: true,
         showEmailValidation: false,
         emailValid: false,
+        emailSkipped: false,
         retry: currentState.retry + 1,
       );
     } else if (event is EmailChanged) {
@@ -40,12 +42,18 @@ class EnrollmentBloc extends Bloc<Object, EnrollmentState> {
         email: event.email,
         emailValid: EmailValidator.validate(event.email),
       );
-    } else if (event is EmailSubmitted) {
-      yield currentState.copyWith(
-        showEmailValidation: true,
-      );
+    } else if (event is EmailSubmitted || event is EmailSkipped) {
+      if (event is EmailSkipped) {
+        yield currentState.copyWith(
+          emailSkipped: true,
+        );
+      } else {
+        yield currentState.copyWith(
+          showEmailValidation: true,
+        );
+      }
 
-      if (currentState.pinConfirmed && (currentState.email.trim() == "" || currentState.emailValid)) {
+      if (currentState.pinConfirmed && (event is EmailSkipped || currentState.emailValid)) {
         // TODO: get a future back and change the state based on it, which can
         // be used by animation/outro?
         IrmaRepository.get().enroll(
