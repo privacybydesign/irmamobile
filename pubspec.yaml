@@ -41,6 +41,7 @@ dependencies:
   stream_transform: ^0.0.19
   collection: ^1.14.11
   qr_code_scanner: ^0.0.12
+  intl: ^0.15.8
 
 dev_dependencies:
   flutter_test:
@@ -65,6 +66,7 @@ flutter:
     - assets/
     - assets/locales/
     - assets/enrollment/
+    - assets/history/
     - assets/wallet/
     - assets/generic/
     - assets/error/

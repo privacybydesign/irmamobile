@@ -16,6 +16,7 @@ import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/introduction.dart';
 import 'package:irmamobile/src/screens/error/error_screen.dart';
 import 'package:irmamobile/src/screens/error/no_internet_screen.dart';
+import 'package:irmamobile/src/screens/history/history_screen.dart';
 import 'package:irmamobile/src/screens/loading/loading_screen.dart';
 
 class PrototypesScreen extends StatelessWidget {
@@ -93,12 +94,15 @@ class PrototypesScreen extends StatelessWidget {
           _buildListItem(context, "27. Loading screen", () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoadingScreen()));
           }),
-          _buildListItem(context, "28. Error screen", () {
+          _buildListItem(context, "29. History", () {
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => HistoryScreen()));
+          }),
+          _buildListItem(context, "30. Error screen", () {
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => const ErrorScreen(
                     "Nam vitae hendrerit velit, quis aliquam diam. Donec ut facilisis risus, quis venenatis sapien. Vestibulum elementum euismod quam, sed scelerisque purus vehicula semper. ")));
           }),
-          _buildListItem(context, "29. No internet screen", () {
+          _buildListItem(context, "31. No internet screen", () {
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => NoInternetScreen(() {
                       print("retry callback");

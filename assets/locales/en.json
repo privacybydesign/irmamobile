@@ -220,5 +220,26 @@
     "help": "Help",
     "caption": "Your data securely on your phone",
     "add_data": "Add more data"
+  },
+  "history": {
+    "title": "Gebruikshistorie",
+    "type": {
+      "removal": "Kaart verwijderd",
+      "issuing": {
+        "data-0": "{data} gegeven ontvangen van",
+        "data-1": "{data} gegeven ontvangen van",
+        "data-2": "{data} gegevens ontvangen van"
+      },
+      "disclosing": {
+        "data-0": "{data} gegeven vrijgegeven aan",
+        "data-1": "{data} gegeven vrijgegeven aan",
+        "data-2": "{data} gegevens vrijgegeven aan"
+      },
+      "signing": {
+        "data-0": "getekend met {data} gegeven voor",
+        "data-1": "getekend met {data} gegeven voor",
+        "data-2": "getekend met {data} gegevens voor"
+      }
+    }
   }
 }

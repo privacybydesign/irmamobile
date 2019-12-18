@@ -3,7 +3,9 @@ import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/authentication_result.dart';
 import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/models/credentials.dart';
+import 'package:irmamobile/src/models/disclosed_attribute.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
+import 'package:irmamobile/src/models/log.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:irmamobile/src/models/version_information.dart';
 import 'package:rxdart/rxdart.dart';
@@ -293,4 +295,66 @@ class IrmaClientMock implements IrmaClient {
 
   @override
   void startSession(String request) {}
+
+  @override
+  Stream<List<Log>> loadLogs(int before, int max) {
+    return Future<List<Log>>.delayed(const Duration(seconds: 1), () {
+      return List.generate(
+        max,
+        (i) {
+          if (i % 4 == 0) {
+            return Log(
+              id: 1,
+              serverName: "mock",
+              time: DateTime.now(),
+              type: "issuing",
+              issuedCredentials: Credentials({
+                "": Credential(
+                  id: "id",
+                  issuer: Issuer(id: "id", name: {'nl': "mock issuer", 'en': "mock issuer"}),
+                  schemeManager: SchemeManager(
+                    id: "pbdf",
+                    name: {'nl': "My Scheme Manager"},
+                    description: {'nl': "Mocked scheme manager using fake data to render the app."},
+                  ),
+                  attributes: Attributes({}),
+                  signedOn: DateTime.now(),
+                  expires: DateTime.now().add(Duration(minutes: 5)),
+                  hash: "foobar",
+                  credentialType: CredentialType(),
+                )
+              }),
+            );
+          } else if (i % 3 == 0) {
+            return Log(
+              id: 1,
+              serverName: "mock",
+              time: DateTime.now(),
+              type: "removal",
+              removedCredentials: {"mock card": "mock card"},
+            );
+          } else if (i % 2 == 0) {
+            return Log(
+              id: 1,
+              serverName: "mock",
+              time: DateTime.now(),
+              type: "disclosing",
+              disclosedAttributes: [
+                DisclosedAttribute(
+                    identifier: "mock", issuanceTime: DateTime.now(), rawValue: "mock", status: "mock", value: "mock")
+              ],
+            );
+          } else {
+            return Log(
+              id: 1,
+              serverName: "mock",
+              time: DateTime.now(),
+              type: "signing",
+              signedMessage: "mock message",
+            );
+          }
+        },
+      );
+    }).asStream();
+  }
 }

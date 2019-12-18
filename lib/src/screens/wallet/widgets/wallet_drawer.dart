@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/screens/about/about_screen.dart';
 import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
+import 'package:irmamobile/src/screens/history/history_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
@@ -66,9 +67,7 @@ class WalletDrawer extends StatelessWidget {
                     context,
                     icon: IrmaIcons.time,
                     text: FlutterI18n.translate(context, 'drawer.history'),
-                    onTap: () {
-                      // TODO: navigate to correct route
-                    },
+                    onTap: () => Navigator.pushNamed(context, HistoryScreen.routeName),
                   ),
                   _createDrawerItem(
                     context,
