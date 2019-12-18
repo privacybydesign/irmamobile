@@ -42,6 +42,8 @@ dependencies:
   stream_transform: ^0.0.19
   collection: ^1.14.11
   qr_code_scanner: ^0.0.12
+  font_awesome_flutter: ^8.5.0 # TODO remove once this package is no longer used
+  share: ^0.6.3
   intl: ^0.16.0
 
 dev_dependencies:
@@ -71,6 +73,7 @@ flutter:
     - assets/wallet/
     - assets/generic/
     - assets/error/
+    - assets/non-free/
 
   fonts:
     - family: Karla

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'package:irmamobile/src/screens/add_cards/customs/configurable_expansion_tile.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/language.dart';
+import 'package:irmamobile/src/widgets/collapsible.dart';
 
 class CardQuestions extends StatefulWidget {
   const CardQuestions({this.credentialType, this.parentKey, this.parentScrollController});
@@ -38,81 +38,24 @@ class _CardQuestionsState extends State<CardQuestions> with TickerProviderStateM
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        _Collapsible(
+        Collapsible(
             header: FlutterI18n.translate(context, 'card_store.card_info.purpose_question'),
             onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(0))},
-            content: getTranslation(widget.credentialType.faqPurpose).replaceAll('\\n', '\n'),
+            content: Text(getTranslation(widget.credentialType.faqPurpose).replaceAll('\\n', '\n'),
+                style: IrmaTheme.of(context).textTheme.body1),
             key: _collapsableKeys[0]),
-        _Collapsible(
+        Collapsible(
             header: FlutterI18n.translate(context, 'card_store.card_info.content_question'),
             onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(1))},
-            content: getTranslation(widget.credentialType.faqContent).replaceAll('\\n', '\n'),
+            content: Text(getTranslation(widget.credentialType.faqContent).replaceAll('\\n', '\n'),
+                style: IrmaTheme.of(context).textTheme.body1),
             key: _collapsableKeys[1]),
-        _Collapsible(
+        Collapsible(
             header: FlutterI18n.translate(context, 'card_store.card_info.howto_question'),
             onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(2))},
-            content: getTranslation(widget.credentialType.faqHowto).replaceAll('\\n', '\n'),
+            content: Text(getTranslation(widget.credentialType.faqHowto).replaceAll('\\n', '\n'),
+                style: IrmaTheme.of(context).textTheme.body1),
             key: _collapsableKeys[2]),
-      ],
-    );
-  }
-}
-
-class _Collapsible extends StatelessWidget {
-  final String header;
-  final String content;
-  const _Collapsible({Key key, this.header, this.content, this.onExpansionChanged}) : super(key: key);
-  final ValueChanged<bool> onExpansionChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return ConfigurableExpansionTile(
-      onExpansionChanged: onExpansionChanged,
-      initiallyExpanded: false,
-      animatedWidgetFollowingHeader: const Padding(
-        padding: EdgeInsets.all(4.0),
-        child: Icon(
-          Icons.expand_more,
-          color: Colors.black,
-        ),
-      ),
-      header: Expanded(
-        child: Padding(
-          padding: EdgeInsets.only(
-              top: IrmaTheme.of(context).tinySpacing * 3,
-              bottom: IrmaTheme.of(context).tinySpacing * 3,
-              left: IrmaTheme.of(context).defaultSpacing,
-              right: IrmaTheme.of(context).defaultSpacing),
-          child: Text(
-            header,
-            style: IrmaTheme.of(context).collapseTextStyle,
-          ),
-        ),
-      ),
-      headerExpanded: Expanded(
-        child: Padding(
-          padding: EdgeInsets.only(
-              top: IrmaTheme.of(context).tinySpacing * 3,
-              bottom: IrmaTheme.of(context).tinySpacing * 3,
-              left: IrmaTheme.of(context).defaultSpacing,
-              right: IrmaTheme.of(context).defaultSpacing),
-          child: Text(
-            header,
-            style: IrmaTheme.of(context).textTheme.display2,
-          ),
-        ),
-      ),
-      headerBackgroundColorStart: IrmaTheme.of(context).backgroundBlue,
-      expandedBackgroundColor: const Color(0x00000000), // TODO: define transparent in theme
-      children: <Widget>[
-        Padding(
-          padding: EdgeInsets.symmetric(
-              vertical: IrmaTheme.of(context).smallSpacing, horizontal: IrmaTheme.of(context).defaultSpacing),
-          child: Text(
-            content,
-            style: IrmaTheme.of(context).textTheme.body1,
-          ),
-        )
       ],
     );
   }
