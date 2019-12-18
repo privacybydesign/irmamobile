@@ -9,6 +9,7 @@ import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/enroll_event.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
+import 'package:irmamobile/src/models/log.dart';
 import 'package:irmamobile/src/models/raw_credentials.dart';
 import 'package:irmamobile/src/models/version_information.dart';
 import 'package:package_info/package_info.dart';
@@ -184,5 +185,11 @@ class IrmaClientBridge implements IrmaClient {
   void startSession(String request) {
     methodChannel.invokeMethod("NewSessionEvent", '{"SessionID": $_sessionId, "Request": $request}');
     _sessionId++;
+  }
+
+  @override
+  Stream<List<Log>> loadLogs(int before, int max) {
+    // TODO: implement loadLogs
+    return null;
   }
 }
