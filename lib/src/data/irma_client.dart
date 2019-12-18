@@ -19,7 +19,10 @@ abstract class IrmaClient {
 
   Stream<List<Log>> loadLogs(int before, int max);
 
-  // TODO: return a Future with state update for this specific enroll action.
+  // Deletes all credentials on the phone.
+  void deleteAllCredentials();
+
+// TODO: return a Future with state update for this specific enroll action.
   void enroll({String email, String pin, String language});
 
   // lock locks the irma user session

@@ -144,6 +144,11 @@ class IrmaClientBridge implements IrmaClient {
   }
 
   @override
+  void deleteAllCredentials() {
+    methodChannel.invokeMethod("DeleteAllCredentialsEvent");
+  }
+
+  @override
   void enroll({String email, String pin, String language}) {
     _lockedSubject.add(false);
     methodChannel.invokeMethod(

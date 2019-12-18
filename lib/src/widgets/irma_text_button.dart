@@ -4,6 +4,8 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class IrmaTextButton extends StatelessWidget {
+  static const double _defaultMinWidth = 232;
+
   final String label;
   final double minWidth;
   final VoidCallback onPressed;
@@ -13,7 +15,7 @@ class IrmaTextButton extends StatelessWidget {
     @required this.label,
     this.onPressed,
     this.textStyle,
-    this.minWidth = 232.0,
+    this.minWidth = _defaultMinWidth,
   });
 
   @override
@@ -21,7 +23,7 @@ class IrmaTextButton extends StatelessWidget {
     return ButtonTheme(
       textTheme: ButtonTextTheme.primary,
       height: 45.0,
-      minWidth: minWidth,
+      minWidth: minWidth ?? _defaultMinWidth,
       padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
       child: FlatButton(
         onPressed: onPressed,
@@ -31,7 +33,7 @@ class IrmaTextButton extends StatelessWidget {
         focusColor: Colors.transparent,
         // highlightColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30.0),
+          borderRadius: BorderRadius.circular(0.0),
         ),
         child: Text(
           FlutterI18n.translate(context, label),

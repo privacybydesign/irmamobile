@@ -3,6 +3,7 @@ import 'package:flutter_i18n/flutter_i18n_delegate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:irmamobile/src/data/irma_client_bridge.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
+import 'package:irmamobile/src/data/settings/irma_settings.dart';
 import 'package:irmamobile/src/models/version_information.dart';
 import 'package:irmamobile/src/prototypes/prototypes_screen.dart';
 import 'package:irmamobile/src/screens/about/about_screen.dart';
@@ -17,14 +18,21 @@ import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 
-void main() => {runApp(App())};
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final preferences = await StreamingSharedPreferences.instance;
+  // Run the application
+  runApp(App(preferences));
+}
 
 class App extends StatelessWidget {
   final String initialRoute;
   final Map<String, WidgetBuilder> routes;
+  final IrmaSettings _settings;
 
-  App()
+  App(StreamingSharedPreferences prefs)
       : initialRoute = null,
         routes = {
           WalletScreen.routeName: (BuildContext context) => WalletScreen(),
@@ -35,13 +43,19 @@ class App extends StatelessWidget {
           SettingsScreen.routeName: (BuildContext context) => SettingsScreen(),
           CardStoreScreen.routeName: (BuildContext context) => CardStoreScreen(),
           HistoryScreen.routeName: (BuildContext context) => HistoryScreen(),
-        };
+        },
+        _settings = IrmaSettings(prefs)
+  {
+    IrmaRepository(client: IrmaClientBridge());
+    //IrmaSettingsRepository(settings: _settings);
+  }
 
-  App.updateRequired()
+  App.updateRequired(StreamingSharedPreferences prefs)
       : initialRoute = PrototypesScreen.routeName,
         routes = {
           PrototypesScreen.routeName: (BuildContext context) => PrototypesScreen(),
-        };
+        },
+        _settings = IrmaSettings(prefs);
 
   static List<LocalizationsDelegate> defaultLocalizationsDelegates([Locale forcedLocale]) {
     return [
@@ -65,8 +79,6 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    IrmaRepository(client: IrmaClientBridge());
-
     final versionInformationStream = IrmaRepository.get().getVersionInformation();
     return IrmaTheme(
       builder: (BuildContext context) {

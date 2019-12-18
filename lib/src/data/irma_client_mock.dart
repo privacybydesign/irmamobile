@@ -7,8 +7,8 @@ import 'package:irmamobile/src/models/disclosed_attribute.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/log.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
-import 'package:irmamobile/src/models/version_information.dart';
 import 'package:irmamobile/src/models/verifier.dart';
+import 'package:irmamobile/src/models/version_information.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:version/version.dart';
 
@@ -135,6 +135,8 @@ class IrmaClientMock implements IrmaClient {
     },
   );
 
+  static List<String> loadedCredentialIds = ["Amsterdam1", "iDIN1", "DUO1", "Amsterdam2", "iDIN2", "DUO2", "Amsterdam3", "iDIN3", "DUO3"];
+
   IrmaClientMock({
     this.versionUpdateAvailable = false,
     this.versionUpdateRequired = false,
@@ -142,8 +144,7 @@ class IrmaClientMock implements IrmaClient {
 
   @override
   Stream<Credentials> getCredentials() {
-    return Stream.fromIterable(
-            ["Amsterdam1", "iDIN1", "DUO1", "Amsterdam2", "iDIN2", "DUO2", "Amsterdam3", "iDIN3", "DUO3"])
+    return Stream.fromIterable(loadedCredentialIds)
         .asyncMap<Credential>((id) => getCredential(id).first)
         .fold<Map<String, Credential>>(<String, Credential>{}, (credentialMap, credential) {
           credentialMap[credential.id] = credential;
@@ -225,9 +226,8 @@ class IrmaClientMock implements IrmaClient {
 
   @override
   Stream<Credential> getCredential(String id) {
-    if (id == "") {
-      return Future<Credential>.delayed(const Duration(milliseconds: 100), throw CredentialNotFoundException())
-          .asStream();
+    if (loadedCredentialIds.contains(id) == false) {
+      return Future<Credential>.delayed(const Duration(milliseconds: 100), throw CredentialNotFoundException()).asStream();
     }
 
     Attributes attributes;
@@ -337,6 +337,11 @@ class IrmaClientMock implements IrmaClient {
         currentVersion: currentVersion,
       ),
     ).asStream();
+  }
+
+  @override
+  void deleteAllCredentials() {
+    loadedCredentialIds.clear();
   }
 
   @override

@@ -51,6 +51,10 @@ class IrmaRepository {
     return client.loadLogs(before, max);
   }
 
+  void deleteAllCredentials() {
+    client.deleteAllCredentials();
+  }
+
   void enroll({String email, String pin, String language}) {
     client.enroll(
       email: email,

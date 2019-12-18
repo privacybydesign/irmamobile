@@ -169,21 +169,17 @@
   },
   "settings": {
     "title": "Instellingen",
-    "pin": {
-      "header": "Toegang",
-      "long_pin": "Gebruik een lange pincode",
-      "long_pin_detail": "Maakt een pincode mogelijk van maximaal 16 cijfers",
-      "change_pin": "Pincode wijzigen"
-    },
-    "behavior": {
-      "header": "Voorkeuren",
-      "start_qr": "Open de QR scanner bij opstarten",
-      "report_errors": "Stuur fouten naar IRMA"
-    },
+    "start_qr": "Open de QR scanner na opstarten",
+    "change_pin": "Pincode wijzigen",
     "advanced": {
-      "header": "Opnieuw instellen",
-      "delete": "Verwijder IRMA",
-      "delete_details": "Alle gegevens worden verwijderd"
+      "header": "Geavanceerd",
+      "experimental_data": "Maak het mogelijk experimentele gegevens toe te voegen.",
+      "report_errors": "Stuur fouten naar IRMA",
+      "delete": "Verwijder al mijn kaartjes",
+      "delete_title": "Weet jij het zeker?",
+      "delete_content": "Als je doorgaat, verwijder je al je kaartjes van deze telefoon. Haal daarna de kaartjes opnieuw op en je kunt IRMA weer gebruiken.",
+      "delete_confirm": "Ja, verwijder alles",
+      "delete_deny": "Annuleer"
     }
   },
   "issuance": {
