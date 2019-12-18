@@ -19,29 +19,31 @@ class IrmaMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color color;
+    Color backgroundColor;
+    Color foregroundColor = Colors.white;
     IconData icon;
     switch (type) {
       case IrmaMessageType.valid:
-        color = IrmaTheme.of(context).interactionValid;
+        backgroundColor = IrmaTheme.of(context).interactionValid;
         icon = IrmaIcons.valid;
         break;
       case IrmaMessageType.invalid:
-        color = IrmaTheme.of(context).interactionInvalid;
+        backgroundColor = IrmaTheme.of(context).interactionInvalid;
         icon = IrmaIcons.invalid;
         break;
       case IrmaMessageType.alert:
-        color = IrmaTheme.of(context).interactionAlert;
+        backgroundColor = IrmaTheme.of(context).interactionAlert;
         icon = IrmaIcons.alert;
+        foregroundColor = IrmaTheme.of(context).primaryDark;
         break;
       case IrmaMessageType.info:
-        color = IrmaTheme.of(context).interactionInformation;
+        backgroundColor = IrmaTheme.of(context).interactionInformation;
         icon = IrmaIcons.info;
         break;
     }
     return Container(
       child: Card(
-        color: color,
+        color: backgroundColor,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -50,7 +52,7 @@ class IrmaMessage extends StatelessWidget {
               child: Icon(
                 icon,
                 size: 16.0,
-                color: Colors.white,
+                color: foregroundColor,
               ),
             ),
             Expanded(
@@ -61,13 +63,13 @@ class IrmaMessage extends StatelessWidget {
                   children: <Widget>[
                     Text(
                       title,
-                      style: IrmaTheme.of(context).textTheme.body2.copyWith(color: Colors.white),
+                      style: IrmaTheme.of(context).textTheme.body2.copyWith(color: foregroundColor),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 5, bottom: 11),
                       child: Text(
                         description,
-                        style: IrmaTheme.of(context).textTheme.body1.copyWith(color: Colors.white),
+                        style: IrmaTheme.of(context).textTheme.body1.copyWith(color: foregroundColor),
                       ),
                     ),
                   ],
