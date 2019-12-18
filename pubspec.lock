@@ -209,15 +209,22 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.21.0"
+  flutter_cupertino_localizations:
+    dependency: "direct main"
+    description:
+      name: flutter_cupertino_localizations
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.1"
   flutter_i18n:
     dependency: "direct main"
     description:
       name: flutter_i18n
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.6.4"
+    version: "0.8.2"
   flutter_localizations:
-    dependency: transitive
+    dependency: "direct main"
     description: flutter
     source: sdk
     version: "0.0.0"

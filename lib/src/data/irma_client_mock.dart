@@ -21,13 +21,16 @@ class IrmaClientMock implements IrmaClient {
     name: {'nl': "My Scheme Manager"},
     description: {'nl': "Mocked scheme manager using fake data to render the app."},
   );
-  static const String myIssuerId = "$mySchemeManagerId.myIssuer";
+  static const String myIssuerId = "myIssuer";
+  static const String myFullIssuerId = "$mySchemeManagerId.$myIssuerId";
   static final Issuer myIssuer = Issuer(
     id: myIssuerId,
-    shortName: {'nl': "MI"},
-    name: {'nl': "My Issuer"},
+    schemeManagerId: mySchemeManagerId,
+    shortName: {'nl': "MI", 'en': "MI"},
+    name: {'nl': "My Issuer", 'en': "My Issuer"},
   );
-  static const String myCredentialTypeId = "$myIssuerId.myCredentialType";
+  static const String myCredentialTypeId = "myCredentialType";
+  static const String myFullCredentialTypeId = "$myFullIssuerId.$myCredentialTypeId";
   static final CredentialType myCredentialType = CredentialType(
     id: myCredentialTypeId,
     name: {'nl': "MyCredentialType"},
@@ -44,70 +47,74 @@ class IrmaClientMock implements IrmaClient {
     issuerId: myIssuerId,
   );
 
-  static const String myCredentialFoo = "$myIssuerId.myCredentialFoo";
+  static const String myCredentialFoo = "myCredentialFoo";
+  static const String myFullCredentialFoo = "$myIssuerId.$myCredentialFoo";
 
   final IrmaConfiguration irmaConfiguration = IrmaConfiguration(
     schemeManagers: {mySchemeManagerId: mySchemeManager},
     issuers: {
-      myIssuerId: myIssuer,
+      myFullIssuerId: myIssuer,
     },
     attributeTypes: {
-      "$myCredentialFoo.name": AttributeType(
+      "$myFullCredentialFoo.name": AttributeType(
         schemeManagerId: mySchemeManagerId,
         issuerId: myIssuerId,
         credentialTypeId: myCredentialFoo,
         displayIndex: 1,
         name: {'nl': "Naam", 'en': "Name"},
       ),
-      "$myCredentialFoo.sex": AttributeType(
+      "$myFullCredentialFoo.sex": AttributeType(
         schemeManagerId: mySchemeManagerId,
         issuerId: myIssuerId,
         credentialTypeId: myCredentialFoo,
         displayIndex: 2,
         name: {'nl': "Geslacht", 'en': "Sex"},
       ),
-      "$myCredentialFoo.birthdate": AttributeType(
+      "$myFullCredentialFoo.birthdate": AttributeType(
         schemeManagerId: mySchemeManagerId,
         issuerId: myIssuerId,
         credentialTypeId: myCredentialFoo,
         displayIndex: 2,
         name: {'nl': "Geboren", 'en': "Birthday"},
       ),
-      "$myCredentialFoo.address": AttributeType(
+      "$myFullCredentialFoo.address": AttributeType(
         schemeManagerId: mySchemeManagerId,
         issuerId: myIssuerId,
         credentialTypeId: myCredentialFoo,
         displayIndex: 2,
         name: {'nl': "Adres", 'en': "Address"},
       ),
-      "$myCredentialFoo.bsn": AttributeType(
+      "$myFullCredentialFoo.bsn": AttributeType(
         schemeManagerId: mySchemeManagerId,
         issuerId: myIssuerId,
         credentialTypeId: myCredentialFoo,
         displayIndex: 2,
         name: {'nl': "BSN", 'en': "BSN"},
       ),
-      "$myCredentialFoo.tel": AttributeType(
+      "$myFullCredentialFoo.tel": AttributeType(
         schemeManagerId: mySchemeManagerId,
         issuerId: myIssuerId,
         credentialTypeId: myCredentialFoo,
         displayIndex: 2,
         name: {'nl': "Telefoon", 'en': "Phone"},
       ),
-      "$myCredentialFoo.email": AttributeType(
+      "$myFullCredentialFoo.email": AttributeType(
         schemeManagerId: mySchemeManagerId,
         issuerId: myIssuerId,
         credentialTypeId: myCredentialFoo,
         displayIndex: 2,
         name: {'nl': "E-mail", 'en': "E-mail"},
       ),
-      "$myCredentialFoo.filler": AttributeType(
+      "$myFullCredentialFoo.filler": AttributeType(
         schemeManagerId: mySchemeManagerId,
         issuerId: myIssuerId,
         credentialTypeId: myCredentialFoo,
         displayIndex: 2,
         name: {'nl': "Lorum", 'en': "Lorum"},
       ),
+    },
+    credentialTypes: {
+      myCredentialTypeId: myCredentialType,
     },
   );
 
@@ -147,21 +154,21 @@ class IrmaClientMock implements IrmaClient {
       case "Amsterdam2":
       case "Amsterdam3":
         attributes = Attributes({
-          irmaConfiguration.attributeTypes["$myCredentialFoo.name"]:
+          irmaConfiguration.attributeTypes["$myFullCredentialFoo.name"]:
               TranslatedValue({'nl': 'Anouk Meijer', 'en': 'Anouk Meijer'}),
-          irmaConfiguration.attributeTypes["$myCredentialFoo.sex"]:
+          irmaConfiguration.attributeTypes["$myFullCredentialFoo.sex"]:
               TranslatedValue({'nl': 'Vrouwelijk', 'en': 'Female'}),
-          irmaConfiguration.attributeTypes["$myCredentialFoo.birthdate"]:
+          irmaConfiguration.attributeTypes["$myFullCredentialFoo.birthdate"]:
               TranslatedValue({'nl': '4 juli 1990', 'en': 'Juli 4th, 1990'}),
-          irmaConfiguration.attributeTypes["$myCredentialFoo.address"]: TranslatedValue(
+          irmaConfiguration.attributeTypes["$myFullCredentialFoo.address"]: TranslatedValue(
               {'nl': 'Pieter Aertszstraat 5\n1073 SH Amsterdam', 'en': 'Pieter Aertszstraat 5\n1073 SH Amsterdam'}),
-          irmaConfiguration.attributeTypes["$myCredentialFoo.bsn"]:
+          irmaConfiguration.attributeTypes["$myFullCredentialFoo.bsn"]:
               TranslatedValue({'nl': '1907.54.629', 'en': '1907.54.629'}),
-          irmaConfiguration.attributeTypes["$myCredentialFoo.tel"]:
+          irmaConfiguration.attributeTypes["$myFullCredentialFoo.tel"]:
               TranslatedValue({'nl': '06 8723 9064', 'en': '06 8723 9064'}),
-          irmaConfiguration.attributeTypes["$myCredentialFoo.email"]:
+          irmaConfiguration.attributeTypes["$myFullCredentialFoo.email"]:
               TranslatedValue({'nl': 'anoukm71@gmail.com', 'en': 'anoukm71@gmail.com'}),
-          irmaConfiguration.attributeTypes["$myCredentialFoo.filler"]: TranslatedValue({
+          irmaConfiguration.attributeTypes["$myFullCredentialFoo.filler"]: TranslatedValue({
             'nl':
                 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec consectetur leo at suscipit egestas. Curabitur eget elementum tellus. Pellentesque viverra semper sapien, vitae convallis eros euismod at. Suspendisse tempus sollicitudin massa ut semper. Phasellus rhoncus sem et iaculis ultricies. In eros dui, fringilla a congue non, fermentum sit amet dui. Proin ligula tortor, scelerisque quis faucibus eget, condimentum non sapien.',
             'en':
@@ -173,25 +180,25 @@ class IrmaClientMock implements IrmaClient {
       case "iDIN2":
       case "iDIN3":
         attributes = Attributes({
-          irmaConfiguration.attributeTypes["$myCredentialFoo.name"]:
+          irmaConfiguration.attributeTypes["$myFullCredentialFoo.name"]:
               TranslatedValue({'nl': 'Anouk Meijer', 'en': 'Anouk Meijer'}),
-          irmaConfiguration.attributeTypes["$myCredentialFoo.sex"]:
+          irmaConfiguration.attributeTypes["$myFullCredentialFoo.sex"]:
               TranslatedValue({'nl': 'Vrouwelijk', 'en': 'Female'}),
-          irmaConfiguration.attributeTypes["$myCredentialFoo.birthdate"]:
+          irmaConfiguration.attributeTypes["$myFullCredentialFoo.birthdate"]:
               TranslatedValue({'nl': '4 juli 1990', 'en': 'Juli 4th, 1990'}),
-          irmaConfiguration.attributeTypes["$myCredentialFoo.bsn"]:
+          irmaConfiguration.attributeTypes["$myFullCredentialFoo.bsn"]:
               TranslatedValue({'nl': '1907.54.629', 'en': '1907.54.629'}),
-          irmaConfiguration.attributeTypes["$myCredentialFoo.address"]: TranslatedValue(
+          irmaConfiguration.attributeTypes["$myFullCredentialFoo.address"]: TranslatedValue(
               {'nl': 'Pieter Aertszstraat 5\n1073 SH Amsterdam', 'en': 'Pieter Aertszstraat 5\n1073 SH Amsterdam'}),
         });
         break;
       default:
         attributes = Attributes({
-          irmaConfiguration.attributeTypes["$myCredentialFoo.name"]:
+          irmaConfiguration.attributeTypes["$myFullCredentialFoo.name"]:
               TranslatedValue({'nl': 'Anouk Meijer', 'en': 'Anouk Meijer'}),
-          irmaConfiguration.attributeTypes["$myCredentialFoo.sex"]:
+          irmaConfiguration.attributeTypes["$myFullCredentialFoo.sex"]:
               TranslatedValue({'nl': 'Vrouwelijk', 'en': 'Female'}),
-          irmaConfiguration.attributeTypes["$myCredentialFoo.birthdate"]:
+          irmaConfiguration.attributeTypes["$myFullCredentialFoo.birthdate"]:
               TranslatedValue({'nl': '4 juli 1990', 'en': 'Juli 4th, 1990'}),
         });
         break;
