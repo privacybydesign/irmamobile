@@ -35,30 +35,35 @@ class App extends StatelessWidget {
           CardStoreScreen.routeName: (BuildContext context) => CardStoreScreen(),
         };
 
-  App.test(WidgetBuilder builder)
-      : initialRoute = '/',
-        routes = {
-          '/': builder,
-        };
-
   App.updateRequired()
       : initialRoute = PrototypesScreen.routeName,
         routes = {
           PrototypesScreen.routeName: (BuildContext context) => PrototypesScreen(),
         };
 
-  @override
-  Widget build(BuildContext context) {
-    IrmaRepository(client: IrmaClientBridge());
-
-    final List<LocalizationsDelegate> localizationsDelegates = [
+  static List<LocalizationsDelegate> defaultLocalizationsDelegates([Locale forcedLocale]) {
+    return [
       FlutterI18nDelegate(
         fallbackFile: 'nl',
         path: 'assets/locales',
+        forcedLocale: forcedLocale,
       ),
       GlobalMaterialLocalizations.delegate,
-      GlobalWidgetsLocalizations.delegate
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate
     ];
+  }
+
+  static List<Locale> defaultSupportedLocales() {
+    return const [
+      Locale('nl', 'NL'),
+      Locale('en', 'US'),
+    ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    IrmaRepository(client: IrmaClientBridge());
 
     final versionInformationStream = IrmaRepository.get().getVersionInformation();
     return IrmaTheme(
@@ -74,8 +79,8 @@ class App extends StatelessWidget {
                 key: const Key("app"),
                 title: 'IRMA',
                 theme: IrmaTheme.of(context).themeData,
-                localizationsDelegates: localizationsDelegates,
-                supportedLocales: const [Locale('nl')],
+                localizationsDelegates: defaultLocalizationsDelegates(),
+                supportedLocales: defaultSupportedLocales(),
                 initialRoute: snapshot.data ? WalletScreen.routeName : EnrollmentScreen.routeName,
                 routes: routes,
                 builder: (context, child) {

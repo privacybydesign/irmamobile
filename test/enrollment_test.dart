@@ -1,10 +1,15 @@
 import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
+import 'package:irmamobile/src/screens/enrollment/models/enrollment_bloc.dart';
+import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
+import 'package:irmamobile/src/screens/enrollment/widgets/provide_email.dart';
 import 'package:irmamobile/src/widgets/pin_field.dart';
+
+import 'testing_app.dart';
 
 void main() {
   setUp(() {
@@ -13,7 +18,7 @@ void main() {
 
   testWidgets('Enrollment basic flow test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(App.test((_) => EnrollmentScreen()));
+    await tester.pumpWidget(TestingApp(builder: (_) => EnrollmentScreen()));
     await tester.pumpAndSettle();
 
     // expect a choose pin button
@@ -40,7 +45,7 @@ void main() {
 
   testWidgets('Enrollment error flow test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(App.test((_) => EnrollmentScreen()));
+    await tester.pumpWidget(TestingApp(builder: (_) => EnrollmentScreen()));
     await tester.pumpAndSettle();
 
     // expect a choose pin button
@@ -62,11 +67,24 @@ void main() {
     expect(find.text('De pincodes kwamen niet overeen, probeer het nog eens.'), findsOneWidget);
   });
 
+  testWidgets('Show a failed email validation message', (WidgetTester tester) async {
+    await tester.pumpWidget(TestingApp(
+        builder: (_) => BlocProvider<EnrollmentBloc>(
+            builder: (_) => EnrollmentBloc.test(EnrollmentState()
+                .copyWith(pin: '1234', pinConfirmed: true, emailValid: false, showEmailValidation: true)),
+            child:
+                ProvideEmail(submitEmail: () => {}, skipEmail: () => {}, changeEmail: (_) => {}, cancel: () => {}))));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Dit is geen geldig e-mailadres'), findsOneWidget);
+  });
+
   testWidgets('Email input shows no warning when requesting email', (WidgetTester tester) async {
-    await tester.pumpWidget(App.test(
-        (_) => ProvideEmail(submitEmail: () => {}, changeEmail: (_) => {}, cancel: () => {}), [
-      BlocProvider<EnrollmentBloc>(builder: (_) => EnrollmentBloc.test(EnrollmentState().copyWith(emailValid: true)))
-    ]));
+    await tester.pumpWidget(TestingApp(
+        builder: (_) => BlocProvider<EnrollmentBloc>(
+            builder: (_) => EnrollmentBloc.test(EnrollmentState().copyWith(emailValid: true)),
+            child:
+                ProvideEmail(submitEmail: () => {}, skipEmail: () => {}, changeEmail: (_) => {}, cancel: () => {}))));
     await tester.pumpAndSettle();
 
     expect(
@@ -77,12 +95,12 @@ void main() {
   });
 
   testWidgets('Show a failed email validation message', (WidgetTester tester) async {
-    await tester
-        .pumpWidget(App.test((_) => ProvideEmail(submitEmail: () => {}, changeEmail: (_) => {}, cancel: () => {}), [
-      BlocProvider<EnrollmentBloc>(
-          builder: (_) => EnrollmentBloc.test(EnrollmentState()
-              .copyWith(pin: '1234', pinConfirmed: true, emailValid: false, showEmailValidation: true)))
-    ]));
+    await tester.pumpWidget(TestingApp(
+        builder: (_) => BlocProvider<EnrollmentBloc>(
+            builder: (_) => EnrollmentBloc.test(EnrollmentState()
+                .copyWith(pin: '1234', pinConfirmed: true, emailValid: false, showEmailValidation: true)),
+            child:
+                ProvideEmail(submitEmail: () => {}, skipEmail: () => {}, changeEmail: (_) => {}, cancel: () => {}))));
     await tester.pumpAndSettle();
 
     expect(find.text('Dit is geen geldig e-mailadres'), findsOneWidget);

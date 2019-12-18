@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n_delegate.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/data/irma_client_mock.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/prototypes/prototypes_screen.dart';
@@ -18,23 +17,15 @@ class PrototypesApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<LocalizationsDelegate> localizationsDelegates = [
-      FlutterI18nDelegate(
-        fallbackFile: 'nl',
-        path: 'assets/locales',
-      ),
-      GlobalMaterialLocalizations.delegate,
-      GlobalWidgetsLocalizations.delegate
-    ];
-
     return IrmaTheme(
       builder: (context) {
         return MaterialApp(
           key: const Key("app"),
           title: 'IRMA',
           theme: IrmaTheme.of(context).themeData,
-          localizationsDelegates: localizationsDelegates,
-          supportedLocales: const [Locale('nl')],
+          localizationsDelegates: App.defaultLocalizationsDelegates(),
+          supportedLocales: App.defaultSupportedLocales(),
+          locale: const Locale('nl', 'NL'),
           initialRoute: PrototypesScreen.routeName,
           routes: routes,
         );
