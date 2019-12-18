@@ -24,11 +24,15 @@ IrmaConfiguration _$IrmaConfigurationFromJson(Map<String, dynamic> json) {
   );
 }
 
-Map<String, dynamic> _$IrmaConfigurationToJson(IrmaConfiguration instance) => <String, dynamic>{
-      'SchemeManagers': instance.schemeManagers.map((k, e) => MapEntry(k, e.toJson())),
+Map<String, dynamic> _$IrmaConfigurationToJson(IrmaConfiguration instance) =>
+    <String, dynamic>{
+      'SchemeManagers':
+          instance.schemeManagers.map((k, e) => MapEntry(k, e.toJson())),
       'Issuers': instance.issuers.map((k, e) => MapEntry(k, e.toJson())),
-      'CredentialTypes': instance.credentialTypes.map((k, e) => MapEntry(k, e.toJson())),
-      'AttributeTypes': instance.attributeTypes.map((k, e) => MapEntry(k, e.toJson())),
+      'CredentialTypes':
+          instance.credentialTypes.map((k, e) => MapEntry(k, e.toJson())),
+      'AttributeTypes':
+          instance.attributeTypes.map((k, e) => MapEntry(k, e.toJson())),
       'Path': instance.path,
     };
 
@@ -38,7 +42,8 @@ SchemeManager _$SchemeManagerFromJson(Map<String, dynamic> json) {
     name: Map<String, String>.from(json['Name'] as Map),
     url: json['URL'] as String,
     description: Map<String, String>.from(json['Description'] as Map),
-    minimumAppVersion: AppVersion.fromJson(json['MinimumAppVersion'] as Map<String, dynamic>),
+    minimumAppVersion:
+        AppVersion.fromJson(json['MinimumAppVersion'] as Map<String, dynamic>),
     keyshareServer: json['KeyshareServer'] as String,
     keyshareWebsite: json['KeyshareWebsite'] as String,
     keyshareAttribute: json['KeyshareAttribute'] as String,
@@ -46,7 +51,8 @@ SchemeManager _$SchemeManagerFromJson(Map<String, dynamic> json) {
   );
 }
 
-Map<String, dynamic> _$SchemeManagerToJson(SchemeManager instance) => <String, dynamic>{
+Map<String, dynamic> _$SchemeManagerToJson(SchemeManager instance) =>
+    <String, dynamic>{
       'ID': instance.id,
       'Name': instance.name,
       'URL': instance.url,
@@ -65,7 +71,8 @@ AppVersion _$AppVersionFromJson(Map<String, dynamic> json) {
   );
 }
 
-Map<String, dynamic> _$AppVersionToJson(AppVersion instance) => <String, dynamic>{
+Map<String, dynamic> _$AppVersionToJson(AppVersion instance) =>
+    <String, dynamic>{
       'Android': instance.android,
       'IOS': instance.iOS,
     };
@@ -122,7 +129,8 @@ CredentialType _$CredentialTypeFromJson(Map<String, dynamic> json) {
   );
 }
 
-Map<String, dynamic> _$CredentialTypeToJson(CredentialType instance) => <String, dynamic>{
+Map<String, dynamic> _$CredentialTypeToJson(CredentialType instance) =>
+    <String, dynamic>{
       'ID': instance.id,
       'Name': instance.name,
       'ShortName': instance.shortName,
@@ -154,7 +162,8 @@ AttributeType _$AttributeTypeFromJson(Map<String, dynamic> json) {
   );
 }
 
-Map<String, dynamic> _$AttributeTypeToJson(AttributeType instance) => <String, dynamic>{
+Map<String, dynamic> _$AttributeTypeToJson(AttributeType instance) =>
+    <String, dynamic>{
       'ID': instance.id,
       'Optional': instance.optional,
       'Name': instance.name,

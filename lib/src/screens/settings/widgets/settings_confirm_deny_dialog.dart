@@ -22,7 +22,7 @@ class ConfirmDenyDialog extends StatelessWidget {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
       child: Container(
-        height: 200.0,
+        height: 246.0,
         padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

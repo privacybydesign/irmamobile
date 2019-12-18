@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/data/irma_client_mock.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/data/settings/irma_settings_mock.dart';
-import 'package:irmamobile/src/data/settings/irma_settings_repository.dart';
 import 'package:irmamobile/src/prototypes/prototypes_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
@@ -11,7 +9,6 @@ void main() => runApp(PrototypesApp());
 
 class PrototypesApp extends StatelessWidget {
   final IrmaRepository repository = IrmaRepository(client: IrmaClientMock(versionUpdateAvailable: true));
-  final IrmaSettingsRepository settings = IrmaSettingsRepository(settings: IrmaSettingsMock());
   final Map<String, WidgetBuilder> routes = {
     PrototypesScreen.routeName: (BuildContext context) => PrototypesScreen(),
   };

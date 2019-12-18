@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:irmamobile/src/data/irma_client.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/authentication_result.dart';
@@ -6,6 +7,7 @@ import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/disclosed_attribute.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/log.dart';
+import 'package:irmamobile/src/models/preferences.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:irmamobile/src/models/verifier.dart';
 import 'package:irmamobile/src/models/version_information.dart';
@@ -337,6 +339,48 @@ class IrmaClientMock implements IrmaClient {
         currentVersion: currentVersion,
       ),
     ).asStream();
+  }
+
+  Preferences _current_prefs = Preferences(
+    enableCrashReporting: true,
+    qrScannerOnStartup: false
+  );
+  final BehaviorSubject<Preferences> _preferencesStream
+    = BehaviorSubject<Preferences>.seeded(const Preferences(
+      enableCrashReporting: true,
+      qrScannerOnStartup: false
+    ));
+
+  @override
+  Stream<Preferences> getPreferences()
+  {
+    return _preferencesStream.stream;
+  }
+
+  @override
+  void setCrashReportingPreference({@required bool value})
+  {
+    final newPrefs = Preferences(
+      enableCrashReporting: value,
+      qrScannerOnStartup: _current_prefs.qrScannerOnStartup
+    );
+
+    _current_prefs = newPrefs;
+
+    _preferencesStream.add(_current_prefs);
+  }
+
+  @override
+  void setQrScannerOnStartupPreference({@required bool value})
+  {
+    final newPrefs = Preferences(
+      enableCrashReporting: _current_prefs.enableCrashReporting,
+      qrScannerOnStartup: value
+    );
+
+    _current_prefs = newPrefs;
+
+    _preferencesStream.add(_current_prefs);
   }
 
   @override

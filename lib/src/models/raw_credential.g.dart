@@ -20,7 +20,8 @@ RawCredential _$RawCredentialFromJson(Map<String, dynamic> json) {
   );
 }
 
-Map<String, dynamic> _$RawCredentialToJson(RawCredential instance) => <String, dynamic>{
+Map<String, dynamic> _$RawCredentialToJson(RawCredential instance) =>
+    <String, dynamic>{
       'ID': instance.id,
       'IssuerID': instance.issuerId,
       'SchemeManagerID': instance.schemeManagerId,

@@ -1,8 +1,10 @@
+import 'package:flutter/widgets.dart';
 import 'package:irmamobile/src/models/authentication_result.dart';
 import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/log.dart';
+import 'package:irmamobile/src/models/preferences.dart';
 import 'package:irmamobile/src/models/version_information.dart';
 
 abstract class IrmaClient {
@@ -18,6 +20,14 @@ abstract class IrmaClient {
   Stream<bool> getIsEnrolled();
 
   Stream<List<Log>> loadLogs(int before, int max);
+
+  Stream<Preferences> getPreferences();
+
+  // set whether crash reporting is turned on.
+  void setCrashReportingPreference({@required bool value});
+
+  // set whether the qr scanner is opened on app start
+  void setQrScannerOnStartupPreference({@required bool value});
 
   // Deletes all credentials on the phone.
   void deleteAllCredentials();

@@ -14,7 +14,8 @@ EnrollEvent _$EnrollEventFromJson(Map<String, dynamic> json) {
   );
 }
 
-Map<String, dynamic> _$EnrollEventToJson(EnrollEvent instance) => <String, dynamic>{
+Map<String, dynamic> _$EnrollEventToJson(EnrollEvent instance) =>
+    <String, dynamic>{
       'Email': instance.email,
       'Pin': instance.pin,
       'Language': instance.language,

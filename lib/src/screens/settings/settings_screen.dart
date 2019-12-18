@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/data/settings/irma_app_settings.dart';
-import 'package:irmamobile/src/data/settings/irma_settings_repository.dart';
 import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
 import 'package:irmamobile/src/screens/settings/widgets/settings_confirm_deny_dialog.dart';
 import 'package:irmamobile/src/screens/settings/widgets/settings_header.dart';
@@ -32,12 +30,10 @@ Future<bool> _asyncConfirmDialog(BuildContext context) async {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-
-
-
   @override
   Widget build(BuildContext context) {
-    final IrmaAppSettings settings = IrmaSettingsRepository.get();
+    final irmaClient = IrmaRepository.get();
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -51,19 +47,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 12),
         color: Theme.of(context).canvasColor,
         child: ListView(children: <Widget>[
+          SizedBox(height: IrmaTheme.of(context).largeSpacing),
           StreamBuilder(
-            stream: settings.getStartQRScan(),
+            stream: irmaClient.getPreferences().map((p) => p.qrScannerOnStartup),
             builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
               return SwitchListTile(
                 title: Text(
                   FlutterI18n.translate(context, 'settings.start_qr'),
-                  style: IrmaTheme.of(context).textTheme.body2,
+                  style: IrmaTheme.of(context).textTheme.body1,
                 ),
+                activeColor: IrmaTheme.of(context).interactionValid,
                 value: snapshot.data != null && snapshot.data,
-                onChanged: settings.setStartQRScan,
+                onChanged: (v) => irmaClient.setQrScannerOnStartupPreference(value: v),
                 secondary: Icon(
                   IrmaIcons.scanQrcode,
-                  color: IrmaTheme.of(context).textTheme.body2.color
+                  color: IrmaTheme.of(context).textTheme.body1.color
                 ),
               );
             },
@@ -74,33 +72,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
             title: Text(
               FlutterI18n.translate(context, 'settings.change_pin'),
-              style: IrmaTheme.of(context).textTheme.body2,
+              style: IrmaTheme.of(context).textTheme.body1,
             ),
             leading: Icon(
               IrmaIcons.edit,
-              color: IrmaTheme.of(context).textTheme.body2.color
+              color: IrmaTheme.of(context).textTheme.body1.color
             ),
             trailing: Icon(
               IrmaIcons.chevronRight,
-              color: IrmaTheme.of(context).textTheme.body2.color),
+              color: IrmaTheme.of(context).textTheme.body1.color),
           ),
           const Divider(),
           SettingsHeader(
             headerText: FlutterI18n.translate(context, 'settings.advanced.header'),
           ),
           StreamBuilder(
-            stream: settings.getReportErrors(),
+            stream: irmaClient.getPreferences().map((p) => p.enableCrashReporting),
             builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
               return SwitchListTile(
                 title: Text(
                   FlutterI18n.translate(context, 'settings.advanced.report_errors'),
-                  style: IrmaTheme.of(context).textTheme.body2,
+                  style: IrmaTheme.of(context).textTheme.body1,
                 ),
+                activeColor: IrmaTheme.of(context).interactionValid,
                 value: snapshot.data != null && snapshot.data,
-                onChanged: settings.setReportErrors,
+                onChanged: (v) => irmaClient.setCrashReportingPreference(value: v),
                 secondary: Icon(
                   IrmaIcons.invalid,
-                  color: IrmaTheme.of(context).textTheme.body2.color
+                  color: IrmaTheme.of(context).textTheme.body1.color
                 ),
               );
             },
@@ -108,7 +107,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ListTile(
             title: Text(
               FlutterI18n.translate(context, 'settings.advanced.delete'),
-              style: IrmaTheme.of(context).textTheme.body2,
+              style: IrmaTheme.of(context).textTheme.body1,
             ),
             onTap: () {
               _asyncConfirmDialog(context)
@@ -120,7 +119,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
             leading: Icon(
               IrmaIcons.delete,
-              color: IrmaTheme.of(context).textTheme.body2.color
+              color: IrmaTheme.of(context).textTheme.body1.color
             ),
           ),
         ]),
