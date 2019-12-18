@@ -1,14 +1,13 @@
 import 'dart:math';
 
-import 'package:flutter/material.dart';
 import 'package:flutter/animation.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:irmamobile/src/models/credential.dart';
-import 'package:irmamobile/src/widgets/card/card.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet_button.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/card/card.dart';
 import 'package:irmamobile/src/widgets/loading_indicator.dart';
 
 class Wallet extends StatefulWidget {
@@ -55,6 +54,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   double dragOffset = 0;
   double cardDragOffset = 0;
   int showCardsCounter = 0;
+  bool _nudgeVisible = true;
 
   @override
   void initState() {
@@ -107,33 +107,44 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         int index = 0;
         double cardTop;
 
+        final onAddCardsPressed = widget.onAddCardsPressed;
         return Stack(children: [
           Padding(
             padding: EdgeInsets.symmetric(vertical: _padding * 3, horizontal: _padding * 2),
-            child: ListView(
-              children: <Widget>[
-                SvgPicture.asset(
-                  'assets/wallet/wallet_illustration.svg',
-                  width: size.width / 2,
+            child: AnimatedOpacity(
+              // If the widget is visible, animate to 0.0 (invisible).
+              // If the widget is hidden, animate to 1.0 (fully visible).
+              opacity: _nudgeVisible ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 300),
+              child: Container(
+                child: ListView(
+                  children: <Widget>[
+                    SvgPicture.asset(
+                      'assets/wallet/wallet_illustration.svg',
+                      width: size.width / 2,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(_padding),
+                      child: Text(
+                        FlutterI18n.translate(context, 'wallet.caption'),
+                        textAlign: TextAlign.center,
+                        style: IrmaTheme.of(context).textTheme.body1,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: _nudgeVisible
+                          ? onAddCardsPressed
+                          : null, // TODO please check if this is fine to prevent link from working when it is invisible
+                      child: Text(
+                        FlutterI18n.translate(context, 'wallet.add_data'),
+                        textAlign: TextAlign.center,
+                        style: IrmaTheme.of(context).hyperlinkTextStyle,
+                      ),
+                    ),
+                    if (widget.credentials == null) Align(alignment: Alignment.center, child: LoadingIndicator()),
+                  ],
                 ),
-                Padding(
-                  padding: EdgeInsets.all(_padding),
-                  child: Text(
-                    FlutterI18n.translate(context, 'wallet.caption'),
-                    textAlign: TextAlign.center,
-                    style: IrmaTheme.of(context).textTheme.body1,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: widget.onAddCardsPressed,
-                  child: Text(
-                    FlutterI18n.translate(context, 'wallet.add_data'),
-                    textAlign: TextAlign.center,
-                    style: IrmaTheme.of(context).hyperlinkTextStyle,
-                  ),
-                ),
-                if (widget.credentials == null) Align(alignment: Alignment.center, child: LoadingIndicator()),
-              ],
+              ),
             ),
           ),
           Align(
@@ -282,7 +293,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         setNewState(WalletState.full);
       } else {
         drawnCardIndex = index;
-        setNewState(WalletState.drawn);
+        setNewState(WalletState.drawn, nudgeIsVisible: false);
       }
     }
   }
@@ -301,8 +312,9 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
     }
   }
 
-  void setNewState(WalletState newState) {
+  void setNewState(WalletState newState, {bool nudgeIsVisible = true}) {
     setState(() {
+      _nudgeVisible = nudgeIsVisible;
       oldState = currentState;
       currentState = newState;
       drawController.forward();

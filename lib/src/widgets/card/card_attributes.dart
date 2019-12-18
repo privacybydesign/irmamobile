@@ -1,19 +1,19 @@
 import 'dart:ui' as ui;
 
-import 'package:intl/intl.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-
+import 'package:intl/intl.dart';
 import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
+import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/card/backgrounds.dart';
 import 'package:irmamobile/src/widgets/card/blurtext.dart';
-import 'package:irmamobile/src/theme/theme.dart';
 
 class CardAttributes extends StatelessWidget {
   final _lang = ui.window.locale.languageCode;
   final _indent = 100.0;
+  final _maxHeight = 300.0;
+  final _minHeight = 120.0; // TODO: perfect aspect ratio
 
   final Credential personalData;
   final Issuer issuer;
@@ -43,14 +43,21 @@ class CardAttributes extends StatelessWidget {
 
     return Column(
       children: [
-        Expanded(
-          child: Scrollbar(
-            child: ListView(
-              controller: scrollController,
-              physics: const BouncingScrollPhysics(),
-              children: [
-                ...getAttributes(context, bodyTheme),
-              ],
+        LimitedBox(
+          maxHeight: _maxHeight,
+          child: Container(
+            constraints: BoxConstraints(
+              minHeight: _minHeight,
+            ),
+            child: Scrollbar(
+              child: ListView(
+                shrinkWrap: true,
+                controller: scrollController,
+                physics: const BouncingScrollPhysics(),
+                children: [
+                  ...getAttributes(context, bodyTheme),
+                ],
+              ),
             ),
           ),
         ),
