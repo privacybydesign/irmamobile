@@ -185,9 +185,13 @@ class PrototypesScreen extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Text(
-                  name,
-                  style: Theme.of(context).textTheme.body2,
+                Flexible(
+                  child: Text(
+                    name,
+                    style: Theme.of(context).textTheme.body2,
+                    overflow: TextOverflow.clip,
+                    maxLines: 1,
+                  ),
                 ),
                 Text(">", style: Theme.of(context).textTheme.body2),
               ],
