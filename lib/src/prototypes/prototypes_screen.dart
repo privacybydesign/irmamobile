@@ -3,6 +3,7 @@ import 'package:irmamobile/src/prototypes/design_buttons.dart';
 import 'package:irmamobile/src/prototypes/design_colors.dart';
 import 'package:irmamobile/src/prototypes/design_fields.dart';
 import 'package:irmamobile/src/prototypes/design_icons.dart';
+import 'package:irmamobile/src/prototypes/design_messages.dart';
 import 'package:irmamobile/src/prototypes/design_typography.dart';
 import 'package:irmamobile/src/prototypes/dev_experiment_1.dart';
 import 'package:irmamobile/src/prototypes/dev_experiment_2.dart';
@@ -162,6 +163,9 @@ class PrototypesScreen extends StatelessWidget {
           }),
           _buildListItem(context, "5. Fields", () {
             startDesignFields(context);
+          }),
+          _buildListItem(context, "6. Messages", () {
+            startDesignMessages(context);
           }),
         ],
       ),
