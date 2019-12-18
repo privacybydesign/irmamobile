@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/welcome.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
-import 'package:irmamobile/src/theme/theme.dart';
 
 class CancelButton extends StatelessWidget {
   final String routeName;
@@ -13,7 +12,7 @@ class CancelButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return IconButton(
       icon: const Icon(IrmaIcons.arrowBack),
-      iconSize: IrmaTheme.of(context).defaultSpacing * 1.25,
+      iconSize: 20.0,
       onPressed: () {
         if (cancel != null) {
           cancel();

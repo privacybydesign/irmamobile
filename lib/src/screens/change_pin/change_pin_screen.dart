@@ -4,9 +4,12 @@ import 'package:irmamobile/src/screens/change_pin/models/change_pin_bloc.dart';
 import 'package:irmamobile/src/screens/change_pin/models/change_pin_event.dart';
 import 'package:irmamobile/src/screens/change_pin/models/change_pin_state.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/choose_pin.dart';
+import 'package:irmamobile/src/screens/change_pin/widgets/confirm_error_dialog.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/confirm_pin.dart';
+import 'package:irmamobile/src/screens/change_pin/widgets/enter_error_dialog.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/enter_pin.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/success.dart';
+import 'package:irmamobile/src/screens/change_pin/widgets/valdating_pin.dart';
 
 class ChangePinScreen extends StatelessWidget {
   static const routeName = "/change_pin";
@@ -34,13 +37,18 @@ class ProvidedChangePinScreen extends StatefulWidget {
 class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
   final ChangePinBloc bloc;
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  final FocusNode currentPinFocusNode = FocusNode();
+  final FocusNode newPinFocusNode = FocusNode();
 
   ProvidedChangePinScreenState({this.bloc}) : super();
 
   Map<String, WidgetBuilder> _routeBuilders() {
     return {
-      EnterPin.routeName: (_) => EnterPin(submitOldPin: submitOldPin, cancel: cancel),
-      ChoosePin.routeName: (_) => ChoosePin(chooseNewPin: chooseNewPin, cancel: cancel),
+      EnterPin.routeName: (_) =>
+          EnterPin(pinFocusNode: currentPinFocusNode, submitOldPin: submitOldPin, cancel: cancel),
+      ValidatingPin.routeName: (_) => ValidatingPin(cancel: cancel),
+      ChoosePin.routeName: (_) => ChoosePin(
+          pinFocusNode: newPinFocusNode, chooseNewPin: chooseNewPin, toggleLongPin: toggleLongPin, cancel: cancel),
       ConfirmPin.routeName: (_) => ConfirmPin(confirmNewPin: confirmNewPin, cancel: () => {}),
       Success.routeName: (_) => Success(cancel: cancel),
     };
@@ -48,6 +56,10 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
 
   void submitOldPin(String pin) {
     bloc.dispatch(OldPinEntered(pin: pin));
+  }
+
+  void toggleLongPin() {
+    bloc.dispatch(ToggleLongPin());
   }
 
   void chooseNewPin(BuildContext context, String pin) {
@@ -68,36 +80,63 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
     final routeBuilders = _routeBuilders();
 
     return WillPopScope(
-        onWillPop: () async {
-          cancel();
-          return !await navigatorKey.currentState.maybePop();
+      onWillPop: () async {
+        cancel();
+        return !await navigatorKey.currentState.maybePop();
+      },
+      child: BlocListener<ChangePinBloc, ChangePinState>(
+        condition: (ChangePinState previous, ChangePinState current) {
+          return current.newPinConfirmed != previous.newPinConfirmed ||
+              current.oldPinVerified != previous.oldPinVerified ||
+              current.validatingPin != previous.validatingPin ||
+              current.retry != previous.retry;
         },
-        child: BlocListener<ChangePinBloc, ChangePinState>(
-            condition: (ChangePinState previous, ChangePinState current) {
-              return current.newPinConfirmed != previous.newPinConfirmed ||
-                  current.oldPinVerified != previous.oldPinVerified ||
-                  current.retry != previous.retry;
-            },
-            listener: (BuildContext context, ChangePinState state) {
-              if (state.newPinConfirmed == ValidationState.valid) {
-                navigatorKey.currentState.pushNamedAndRemoveUntil(Success.routeName, (_) => false);
-              } else if (state.newPinConfirmed == ValidationState.invalid) {
-                navigatorKey.currentState.pop();
-              } else if (state.oldPinVerified == ValidationState.valid) {
-                navigatorKey.currentState.pushReplacementNamed(ChoosePin.routeName);
-              }
-            },
-            child: Navigator(
-              key: navigatorKey,
-              initialRoute: EnterPin.routeName,
-              onGenerateRoute: (RouteSettings settings) {
-                if (!routeBuilders.containsKey(settings.name)) {
-                  throw Exception('Invalid route: ${settings.name}');
-                }
-                final child = routeBuilders[settings.name];
+        listener: (BuildContext context, ChangePinState state) {
+          if (state.newPinConfirmed == ValidationState.valid) {
+            navigatorKey.currentState.pushNamedAndRemoveUntil(Success.routeName, (_) => false);
+          } else if (state.newPinConfirmed == ValidationState.invalid) {
+            navigatorKey.currentState.pop();
+            // show error overlay
+            showDialog(
+              context: context,
+              builder: (BuildContext context) => ConfirmErrorDialog(onClose: () async {
+                // close the overlay
+                Navigator.of(context).pop();
+                newPinFocusNode.requestFocus();
+              }),
+            );
+          } else if (state.oldPinVerified == ValidationState.valid) {
+            navigatorKey.currentState.pushReplacementNamed(ChoosePin.routeName);
+          } else if (state.oldPinVerified == ValidationState.invalid) {
+            // show error overlay
+            showDialog(
+              context: context,
+              builder: (BuildContext context) => EnterErrorDialog(onClose: () async {
+                // close the overlay
+                Navigator.of(context).pop();
+                currentPinFocusNode.requestFocus();
+              }),
+            );
+          } else if (state.validatingPin == true) {
+            navigatorKey.currentState.pushNamed(ValidatingPin.routeName);
+            Future.delayed(const Duration(seconds: 1), () {
+              bloc.dispatch(OldPinValidated(valid: true));
+            });
+          }
+        },
+        child: Navigator(
+          key: navigatorKey,
+          initialRoute: EnterPin.routeName,
+          onGenerateRoute: (RouteSettings settings) {
+            if (!routeBuilders.containsKey(settings.name)) {
+              throw Exception('Invalid route: ${settings.name}');
+            }
+            final child = routeBuilders[settings.name];
 
-                return MaterialPageRoute(builder: child, settings: settings);
-              },
-            )));
+            return MaterialPageRoute(builder: child, settings: settings);
+          },
+        ),
+      ),
+    );
   }
 }
