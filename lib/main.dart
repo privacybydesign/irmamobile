@@ -77,70 +77,65 @@ class App extends StatelessWidget {
     return IrmaTheme(
       builder: (BuildContext context) {
         return StreamBuilder<bool>(
-          stream: IrmaRepository.get().getIsEnrolled(),
-          builder: (context, enrolledSnapshot) {
-            if (!enrolledSnapshot.hasData) {
-              return Container();
-            }
-            return StreamBuilder<bool>(
-              stream: startQrStream,
-              builder: (context, startQrSnapshot) {
-                if (!startQrSnapshot.hasData) {
-                  return Container();
-                }
-
-                var initialRoute = WalletScreen.routeName;
-                if (enrolledSnapshot.data == false)
-                {
-                  initialRoute = EnrollmentScreen.routeName;
-                }
-                else if (startQrSnapshot.data == true)
-                {
-                  initialRoute = ScannerScreen.routeName;
-                }
-
-                return MaterialApp(
-                  key: const Key("app"),
-                  title: 'IRMA',
-                  theme: IrmaTheme.of(context).themeData,
-                  localizationsDelegates: defaultLocalizationsDelegates(),
-                  supportedLocales: defaultSupportedLocales(),
-                  initialRoute: initialRoute,
-                  routes: routes,
-                  builder: (context, child) {
-                    // Use the MaterialApp builder to force an overlay when loading
-                    // and when update required.
-                    return Stack(
-                      children: <Widget>[
-                        child,
-                        PinScreen(isEnrolled: enrolledSnapshot.data),
-                        StreamBuilder<VersionInformation>(
-                            stream: versionInformationStream,
-                            builder: (context, snapshot) {
-                              switch (snapshot.connectionState) {
-                                case ConnectionState.none:
-                                  throw Exception('Unreachable');
-                                  break;
-                                case ConnectionState.waiting:
-                                  return LoadingScreen();
-                                  break;
-                                case ConnectionState.active:
-                                case ConnectionState.done:
-                                  break;
-                              }
-                              if (snapshot.data != null && snapshot.data.updateRequired()) {
-                                return RequiredUpdateScreen();
-                              }
-                              return Container();
-                            }),
-                      ],
-                    );
-                  },
-                );
+            stream: IrmaRepository.get().getIsEnrolled(),
+            builder: (context, enrolledSnapshot) {
+              if (!enrolledSnapshot.hasData) {
+                return Container();
               }
-            );
-          }
-        );
+              return StreamBuilder<bool>(
+                  stream: startQrStream,
+                  builder: (context, startQrSnapshot) {
+                    if (!startQrSnapshot.hasData) {
+                      return Container();
+                    }
+
+                    var initialRoute = WalletScreen.routeName;
+                    if (enrolledSnapshot.data == false) {
+                      initialRoute = EnrollmentScreen.routeName;
+                    } else if (startQrSnapshot.data == true) {
+                      initialRoute = ScannerScreen.routeName;
+                    }
+
+                    return MaterialApp(
+                      key: const Key("app"),
+                      title: 'IRMA',
+                      theme: IrmaTheme.of(context).themeData,
+                      localizationsDelegates: defaultLocalizationsDelegates(),
+                      supportedLocales: defaultSupportedLocales(),
+                      initialRoute: initialRoute,
+                      routes: routes,
+                      builder: (context, child) {
+                        // Use the MaterialApp builder to force an overlay when loading
+                        // and when update required.
+                        return Stack(
+                          children: <Widget>[
+                            child,
+                            PinScreen(isEnrolled: enrolledSnapshot.data),
+                            StreamBuilder<VersionInformation>(
+                                stream: versionInformationStream,
+                                builder: (context, snapshot) {
+                                  switch (snapshot.connectionState) {
+                                    case ConnectionState.none:
+                                      throw Exception('Unreachable');
+                                      break;
+                                    case ConnectionState.waiting:
+                                      return LoadingScreen();
+                                      break;
+                                    case ConnectionState.active:
+                                    case ConnectionState.done:
+                                      break;
+                                  }
+                                  if (snapshot.data != null && snapshot.data.updateRequired()) {
+                                    return RequiredUpdateScreen();
+                                  }
+                                  return Container();
+                                }),
+                          ],
+                        );
+                      },
+                    );
+                  });
+            });
       },
     );
   }

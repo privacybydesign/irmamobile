@@ -4,7 +4,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 
 class IrmaThemedButton extends StatelessWidget {
   static const double _defaultMinWidth = 232;
-  
+
   final String label;
   final VoidCallback onPressed;
   final Color color;

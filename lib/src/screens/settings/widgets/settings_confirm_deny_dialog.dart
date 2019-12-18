@@ -5,12 +5,8 @@ import 'package:irmamobile/src/widgets/irma_text_button.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 
 class ConfirmDenyDialog extends StatelessWidget {
-  const ConfirmDenyDialog({
-    @required this.title,
-    @required this.content,
-    @required this.confirmContent,
-    @required this.denyContent
-  });
+  const ConfirmDenyDialog(
+      {@required this.title, @required this.content, @required this.confirmContent, @required this.denyContent});
 
   final String title;
   final String content;
@@ -41,7 +37,7 @@ class ConfirmDenyDialog extends StatelessWidget {
                     Text(
                       content,
                       style: Theme.of(context).textTheme.body1,
-                      ),
+                    ),
                   ],
                 ),
               ),

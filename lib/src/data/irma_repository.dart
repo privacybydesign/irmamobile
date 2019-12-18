@@ -84,18 +84,15 @@ class IrmaRepository {
     client.startSession(request);
   }
 
-  Stream<Preferences> getPreferences()
-  {
+  Stream<Preferences> getPreferences() {
     return client.getPreferences();
   }
 
-  void setCrashReportingPreference({@required bool value})
-  {
+  void setCrashReportingPreference({@required bool value}) {
     return client.setCrashReportingPreference(value: value);
   }
 
-  void setQrScannerOnStartupPreference({@required bool value})
-  {
+  void setQrScannerOnStartupPreference({@required bool value}) {
     return client.setQrScannerOnStartupPreference(value: value);
   }
 }

@@ -137,7 +137,17 @@ class IrmaClientMock implements IrmaClient {
     },
   );
 
-  static List<String> loadedCredentialIds = ["Amsterdam1", "iDIN1", "DUO1", "Amsterdam2", "iDIN2", "DUO2", "Amsterdam3", "iDIN3", "DUO3"];
+  static List<String> loadedCredentialIds = [
+    "Amsterdam1",
+    "iDIN1",
+    "DUO1",
+    "Amsterdam2",
+    "iDIN2",
+    "DUO2",
+    "Amsterdam3",
+    "iDIN3",
+    "DUO3"
+  ];
 
   IrmaClientMock({
     this.versionUpdateAvailable = false,
@@ -341,29 +351,18 @@ class IrmaClientMock implements IrmaClient {
     ).asStream();
   }
 
-  Preferences _current_prefs = Preferences(
-    enableCrashReporting: true,
-    qrScannerOnStartup: false
-  );
-  final BehaviorSubject<Preferences> _preferencesStream
-    = BehaviorSubject<Preferences>.seeded(const Preferences(
-      enableCrashReporting: true,
-      qrScannerOnStartup: false
-    ));
+  Preferences _current_prefs = Preferences(enableCrashReporting: true, qrScannerOnStartup: false);
+  final BehaviorSubject<Preferences> _preferencesStream =
+      BehaviorSubject<Preferences>.seeded(const Preferences(enableCrashReporting: true, qrScannerOnStartup: false));
 
   @override
-  Stream<Preferences> getPreferences()
-  {
+  Stream<Preferences> getPreferences() {
     return _preferencesStream.stream;
   }
 
   @override
-  void setCrashReportingPreference({@required bool value})
-  {
-    final newPrefs = Preferences(
-      enableCrashReporting: value,
-      qrScannerOnStartup: _current_prefs.qrScannerOnStartup
-    );
+  void setCrashReportingPreference({@required bool value}) {
+    final newPrefs = Preferences(enableCrashReporting: value, qrScannerOnStartup: _current_prefs.qrScannerOnStartup);
 
     _current_prefs = newPrefs;
 
@@ -371,12 +370,8 @@ class IrmaClientMock implements IrmaClient {
   }
 
   @override
-  void setQrScannerOnStartupPreference({@required bool value})
-  {
-    final newPrefs = Preferences(
-      enableCrashReporting: _current_prefs.enableCrashReporting,
-      qrScannerOnStartup: value
-    );
+  void setQrScannerOnStartupPreference({@required bool value}) {
+    final newPrefs = Preferences(enableCrashReporting: _current_prefs.enableCrashReporting, qrScannerOnStartup: value);
 
     _current_prefs = newPrefs;
 

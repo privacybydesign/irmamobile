@@ -72,9 +72,7 @@ class IrmaClientBridge implements IrmaClient {
 
           break;
         case 'PreferencesEvent':
-          _preferencesStream.add(
-            Preferences.fromJson(data['Preferences'] as Map<String, dynamic>)
-          );
+          _preferencesStream.add(Preferences.fromJson(data['Preferences'] as Map<String, dynamic>));
           break;
         default:
           debugPrint('Unrecognized bridge event name received: ${call.method} with payload: $data');
@@ -205,26 +203,17 @@ class IrmaClientBridge implements IrmaClient {
   }
 
   @override
-  Stream<Preferences> getPreferences()
-  {
+  Stream<Preferences> getPreferences() {
     return _preferencesStream.stream;
   }
 
-    @override
-  void setCrashReportingPreference({@required bool value})
-  {
-    methodChannel.invokeMethod(
-      "SetCrashReportingPreferenceEvent",
-      jsonEncode({'EnableCrashReporting': value})
-    );
+  @override
+  void setCrashReportingPreference({@required bool value}) {
+    methodChannel.invokeMethod("SetCrashReportingPreferenceEvent", jsonEncode({'EnableCrashReporting': value}));
   }
 
   @override
-  void setQrScannerOnStartupPreference({@required bool value})
-  {
-    methodChannel.invokeMethod(
-      "SetQrScannerOnStartupPreferenceEvent",
-      jsonEncode({'QrScannerOnStartup': value})
-    );
+  void setQrScannerOnStartupPreference({@required bool value}) {
+    methodChannel.invokeMethod("SetQrScannerOnStartupPreferenceEvent", jsonEncode({'QrScannerOnStartup': value}));
   }
 }

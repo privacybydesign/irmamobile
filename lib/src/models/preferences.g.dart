@@ -13,8 +13,7 @@ Preferences _$PreferencesFromJson(Map<String, dynamic> json) {
   );
 }
 
-Map<String, dynamic> _$PreferencesToJson(Preferences instance) =>
-    <String, dynamic>{
+Map<String, dynamic> _$PreferencesToJson(Preferences instance) => <String, dynamic>{
       'EnableCrashReporting': instance.enableCrashReporting,
       'QrScannerOnStartup': instance.qrScannerOnStartup,
     };

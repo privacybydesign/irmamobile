@@ -59,10 +59,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 activeColor: IrmaTheme.of(context).interactionValid,
                 value: snapshot.data != null && snapshot.data,
                 onChanged: (v) => irmaClient.setQrScannerOnStartupPreference(value: v),
-                secondary: Icon(
-                  IrmaIcons.scanQrcode,
-                  color: IrmaTheme.of(context).textTheme.body1.color
-                ),
+                secondary: Icon(IrmaIcons.scanQrcode, color: IrmaTheme.of(context).textTheme.body1.color),
               );
             },
           ),
@@ -74,13 +71,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               FlutterI18n.translate(context, 'settings.change_pin'),
               style: IrmaTheme.of(context).textTheme.body1,
             ),
-            leading: Icon(
-              IrmaIcons.edit,
-              color: IrmaTheme.of(context).textTheme.body1.color
-            ),
-            trailing: Icon(
-              IrmaIcons.chevronRight,
-              color: IrmaTheme.of(context).textTheme.body1.color),
+            leading: Icon(IrmaIcons.edit, color: IrmaTheme.of(context).textTheme.body1.color),
+            trailing: Icon(IrmaIcons.chevronRight, color: IrmaTheme.of(context).textTheme.body1.color),
           ),
           const Divider(),
           SettingsHeader(
@@ -97,10 +89,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 activeColor: IrmaTheme.of(context).interactionValid,
                 value: snapshot.data != null && snapshot.data,
                 onChanged: (v) => irmaClient.setCrashReportingPreference(value: v),
-                secondary: Icon(
-                  IrmaIcons.invalid,
-                  color: IrmaTheme.of(context).textTheme.body1.color
-                ),
+                secondary: Icon(IrmaIcons.invalid, color: IrmaTheme.of(context).textTheme.body1.color),
               );
             },
           ),
@@ -110,17 +99,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               style: IrmaTheme.of(context).textTheme.body1,
             ),
             onTap: () {
-              _asyncConfirmDialog(context)
-                .then((confirmed) => {
-                  if (confirmed) {
-                    IrmaRepository.get().deleteAllCredentials()
-                  }
-                });
+              _asyncConfirmDialog(context).then((confirmed) => {
+                    if (confirmed) {IrmaRepository.get().deleteAllCredentials()}
+                  });
             },
-            leading: Icon(
-              IrmaIcons.delete,
-              color: IrmaTheme.of(context).textTheme.body1.color
-            ),
+            leading: Icon(IrmaIcons.delete, color: IrmaTheme.of(context).textTheme.body1.color),
           ),
         ]),
       ),

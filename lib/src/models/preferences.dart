@@ -10,12 +10,8 @@ class Preferences {
   @JsonKey(name: "QrScannerOnStartup")
   final bool qrScannerOnStartup;
 
-  const Preferences({
-    @required this.enableCrashReporting,
-    @required this.qrScannerOnStartup
-  });
+  const Preferences({@required this.enableCrashReporting, @required this.qrScannerOnStartup});
 
   factory Preferences.fromJson(Map<String, dynamic> json) => _$PreferencesFromJson(json);
   Map<String, dynamic> toJson() => _$PreferencesToJson(this);
 }
-
