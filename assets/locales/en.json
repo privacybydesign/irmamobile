@@ -197,23 +197,33 @@
   },
   "change_pin": {
     "enter_pin": {
-      "title": "Current pin code",
+      "title": "Change pin code",
       "instruction": "Enter your current pin code.",
-      "error": "The pin code is incorrect, Try again."
+      "error_title": "Incorrect pin code",
+      "error": "The pin code is incorrect, Try again.",
+      "error_action": "Ok"
+    },
+    "validating_pin": {
+      "header": "Please wait",
+      "details": "Your pin code is being validated"
     },
     "choose_pin": {
-      "title": "Choose pin code",
+      "title": "Change pin code",
       "instruction": "Choose a new 5-digit pin code.",
-      "error": "The pin codes do not match. Try again."
+      "switch_long": "I want a longer pin code",
+      "switch_short": "I want a shorter pin code",
+      "error_title": "Incorrect pin code",
+      "error": "The pin codes do not match. Try again.",
+      "error_action": "Ok"
     },
     "confirm_pin": {
-      "title": "Confirm pin code",
+      "title": "Change pin code",
       "instruction": "Confirm your new pin code."
     },
     "success": {
-      "title": "Changed pin code",
+      "title": "Success!",
       "message": "Your pin code was changed successfully.",
-      "continue": "Continue"
+      "continue": "Ok"
     }
   },
   "qr_scanner": {

@@ -17,9 +17,19 @@ class ChangePinBloc extends Bloc<Object, ChangePinState> {
     if (event is ChangePinCanceled) {
       yield ChangePinState();
     } else if (event is OldPinEntered) {
-      // TODO: check pin in correct (event.pin)
       yield currentState.copyWith(
-        oldPinVerified: ValidationState.valid,
+        validatingPin: true,
+      );
+    } else if (event is OldPinValidated) {
+      yield currentState.copyWith(
+        validatingPin: false,
+        oldPinVerified: event.valid ? ValidationState.valid : ValidationState.invalid,
+      );
+    } else if (event is ToggleLongPin) {
+      yield currentState.copyWith(
+        longPin: !currentState.longPin,
+        newPin: '',
+        newPinConfirmed: ValidationState.initial,
       );
     } else if (event is NewPinChosen) {
       yield currentState.copyWith(

@@ -86,6 +86,10 @@ class _PinFieldState extends State<PinField> {
   void didUpdateWidget(PinField oldWidget) {
     super.didUpdateWidget(oldWidget);
     focusNode = widget.focusNode ?? focusNode;
+
+    if (oldWidget.maxLength != widget.maxLength) {
+      focusNode.requestFocus();
+    }
   }
 
   @override
@@ -109,6 +113,7 @@ class _PinFieldState extends State<PinField> {
             children: <Widget>[
               Flexible(
                 child: TextFormField(
+                  focusNode: focusNode,
                   controller: _textEditingController,
                   onEditingComplete: () {
                     final val = _textEditingController.text;

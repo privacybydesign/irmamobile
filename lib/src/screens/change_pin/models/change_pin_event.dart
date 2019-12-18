@@ -10,6 +10,15 @@ class OldPinEntered extends Equatable {
   String toString() => 'OldPinEntered { pin: ${'*' * pin.length} }';
 }
 
+class OldPinValidated extends Equatable {
+  final bool valid;
+
+  OldPinValidated({@required this.valid}) : super([valid]);
+
+  @override
+  String toString() => 'OldPinValidated { valid: $valid }';
+}
+
 class NewPinChosen extends Equatable {
   final String pin;
 
@@ -17,6 +26,11 @@ class NewPinChosen extends Equatable {
 
   @override
   String toString() => 'NewPinChosen { pin: ${'*' * pin.length} }';
+}
+
+class ToggleLongPin extends Equatable {
+  @override
+  String toString() => 'ToggleLongPin';
 }
 
 class NewPinConfirmed extends Equatable {
