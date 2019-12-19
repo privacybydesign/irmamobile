@@ -18,17 +18,11 @@ class CardAttributes extends StatelessWidget {
   final Credential personalData;
   final Issuer issuer;
   final bool isCardUnblurred;
-  final String lang;
   final IrmaCardTheme irmaCardTheme;
   final void Function(double) scrollOverflowCallback;
 
   CardAttributes(
-      {this.personalData,
-      this.issuer,
-      this.isCardUnblurred,
-      this.lang,
-      this.irmaCardTheme,
-      this.scrollOverflowCallback});
+      {this.personalData, this.issuer, this.isCardUnblurred, this.irmaCardTheme, this.scrollOverflowCallback});
 
   @override
   Widget build(BuildContext context) {

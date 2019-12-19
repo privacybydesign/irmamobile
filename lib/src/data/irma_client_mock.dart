@@ -8,6 +8,7 @@ import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/log.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:irmamobile/src/models/version_information.dart';
+import 'package:irmamobile/src/models/verifier.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:version/version.dart';
 
@@ -86,6 +87,20 @@ class IrmaClientMock implements IrmaClient {
         displayIndex: 2,
         name: {'nl': "Adres", 'en': "Address"},
       ),
+      "$myFullCredentialFoo.residence": AttributeType(
+        schemeManagerId: mySchemeManagerId,
+        issuerId: myIssuerId,
+        credentialTypeId: myCredentialFoo,
+        displayIndex: 2,
+        name: {'nl': "Woonplaats", 'en': "Residence"},
+      ),
+      "$myFullCredentialFoo.postcode": AttributeType(
+        schemeManagerId: mySchemeManagerId,
+        issuerId: myIssuerId,
+        credentialTypeId: myCredentialFoo,
+        displayIndex: 2,
+        name: {'nl': "Postcode", 'en': "Postcode"},
+      ),
       "$myFullCredentialFoo.bsn": AttributeType(
         schemeManagerId: mySchemeManagerId,
         issuerId: myIssuerId,
@@ -138,6 +153,71 @@ class IrmaClientMock implements IrmaClient {
         .map<Credentials>((credentialMap) => Credentials(credentialMap));
   }
 
+  List<List<VerifierCredential>> getVerify() {
+    return [
+      [
+        VerifierCredential(
+          issuer: 'Rijksoverheid',
+          attributes: Attributes({
+            irmaConfiguration.attributeTypes["$myFullCredentialFoo.name"]:
+                TranslatedValue({'nl': 'Anouk Meijer', 'en': 'Anouk Meijer'}),
+            irmaConfiguration.attributeTypes["$myFullCredentialFoo.sex"]:
+                TranslatedValue({'nl': 'Vrouwelijk', 'en': 'Female'}),
+            irmaConfiguration.attributeTypes["$myFullCredentialFoo.birthdate"]:
+                TranslatedValue({'nl': 'Ouder dan 18', 'en': 'Older than 18'}),
+          }),
+        )
+      ],
+      [
+        VerifierCredential(
+          issuer: 'Gemeente Almere',
+          attributes: Attributes({
+            irmaConfiguration.attributeTypes["$myFullCredentialFoo.address"]:
+                TranslatedValue({'nl': 'Pieter Aertszstraat 5', 'en': 'Pieter Aertszstraat 5'}),
+            irmaConfiguration.attributeTypes["$myFullCredentialFoo.postcode"]:
+                TranslatedValue({'nl': '1073 SH', 'en': '1073 SH'}),
+            irmaConfiguration.attributeTypes["$myFullCredentialFoo.residence"]:
+                TranslatedValue({'nl': 'Amsterdam', 'en': 'Amsterdam'}),
+          }),
+        ),
+        VerifierCredential(
+          issuer: 'Rabobank',
+          attributes: Attributes({
+            irmaConfiguration.attributeTypes["$myFullCredentialFoo.address"]:
+                TranslatedValue({'nl': 'Pieter Aertszstraat 5', 'en': 'Pieter Aertszstraat 5'}),
+            irmaConfiguration.attributeTypes["$myFullCredentialFoo.postcode"]:
+                TranslatedValue({'nl': '1073 SH', 'en': '1073 SH'}),
+            irmaConfiguration.attributeTypes["$myFullCredentialFoo.residence"]:
+                TranslatedValue({'nl': 'Amsterdam', 'en': 'Amsterdam'}),
+          }),
+        )
+      ],
+      [
+        VerifierCredential(
+          issuer: 'Privacy by Design',
+          attributes: Attributes({
+            irmaConfiguration.attributeTypes["$myFullCredentialFoo.email"]:
+                TranslatedValue({'nl': 'anoukm71@gmail.com', 'en': 'anoukm71@gmail.com'}),
+          }),
+        ),
+        VerifierCredential(
+          issuer: 'Xs4all',
+          attributes: Attributes({
+            irmaConfiguration.attributeTypes["$myFullCredentialFoo.email"]:
+                TranslatedValue({'nl': 'anoukm.meijer@xs4all.nl', 'en': 'anoukm.meijer@xs4all.nl'}),
+          }),
+        ),
+        VerifierCredential(
+          issuer: 'Ziggo',
+          attributes: Attributes({
+            irmaConfiguration.attributeTypes["$myFullCredentialFoo.email"]:
+                TranslatedValue({'nl': 'ameijer@ziggo.com', 'en': 'ameijer@ziggo.com'}),
+          }),
+        )
+      ]
+    ];
+  }
+
   @override
   Stream<IrmaConfiguration> getIrmaConfiguration() {
     return Stream.value(irmaConfiguration);
@@ -146,7 +226,8 @@ class IrmaClientMock implements IrmaClient {
   @override
   Stream<Credential> getCredential(String id) {
     if (id == "") {
-      return Future<Credential>.delayed(Duration(milliseconds: 100), throw CredentialNotFoundException()).asStream();
+      return Future<Credential>.delayed(const Duration(milliseconds: 100), throw CredentialNotFoundException())
+          .asStream();
     }
 
     Attributes attributes;
@@ -207,7 +288,7 @@ class IrmaClientMock implements IrmaClient {
     }
 
     return Future.delayed(
-      Duration(milliseconds: 100),
+      const Duration(milliseconds: 100),
       () => Credential(
         id: id,
         // TODO: realistic value
@@ -217,7 +298,7 @@ class IrmaClientMock implements IrmaClient {
         schemeManager: irmaConfiguration.schemeManagers[mySchemeManagerId],
         // TODO: realistic value
         signedOn: DateTime.now(),
-        expires: DateTime.now().add(Duration(minutes: 5)),
+        expires: DateTime.now().add(const Duration(minutes: 5)),
         attributes: attributes,
         hash: "foobar",
         // TODO: realistic value
@@ -229,7 +310,7 @@ class IrmaClientMock implements IrmaClient {
   @override
   Stream<Map<String, Issuer>> getIssuers() {
     return Future.delayed(
-        Duration(seconds: 1),
+        const Duration(seconds: 1),
         () => {
               // TODO: use legit demo names
               'foobar.amsterdam': Issuer(
@@ -319,7 +400,7 @@ class IrmaClientMock implements IrmaClient {
                   ),
                   attributes: Attributes({}),
                   signedOn: DateTime.now(),
-                  expires: DateTime.now().add(Duration(minutes: 5)),
+                  expires: DateTime.now().add(const Duration(minutes: 5)),
                   hash: "foobar",
                   credentialType: CredentialType(),
                 )

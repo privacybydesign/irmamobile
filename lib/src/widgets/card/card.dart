@@ -91,7 +91,6 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
                       personalData: widget.attributes,
                       issuer: widget.attributes.issuer,
                       isCardUnblurred: isCardReadable,
-                      lang: widget.lang,
                       irmaCardTheme: irmaCardTheme,
                       scrollOverflowCallback: widget.scrollBeyondBoundsCallback),
                 ),

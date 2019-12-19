@@ -19,6 +19,8 @@ import 'package:irmamobile/src/screens/error/error_screen.dart';
 import 'package:irmamobile/src/screens/error/no_internet_screen.dart';
 import 'package:irmamobile/src/screens/history/history_screen.dart';
 import 'package:irmamobile/src/screens/loading/loading_screen.dart';
+import 'package:irmamobile/src/screens/disclosure/disclosure.dart';
+import 'package:irmamobile/src/data/irma_client_mock.dart';
 
 class PrototypesScreen extends StatelessWidget {
   static const routeName = "/";
@@ -95,13 +97,17 @@ class PrototypesScreen extends StatelessWidget {
           _buildListItem(context, "27. Loading screen", () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoadingScreen()));
           }),
-          _buildListItem(context, "29. History", () {
-            Navigator.of(context).push(MaterialPageRoute(builder: (context) => HistoryScreen()));
-          }),
-          _buildListItem(context, "30. Error screen", () {
+          _buildListItem(context, "28. Error screen", () {
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => const ErrorScreen(
                     "Nam vitae hendrerit velit, quis aliquam diam. Donec ut facilisis risus, quis venenatis sapien. Vestibulum elementum euismod quam, sed scelerisque purus vehicula semper. ")));
+          }),
+          _buildListItem(context, "29. History", () {
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => HistoryScreen()));
+          }),
+          _buildListItem(context, "30. Disclosure screen", () {
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (context) => DisclosureScreen(IrmaClientMock().getVerify())));
           }),
           _buildListItem(context, "31. No internet screen", () {
             Navigator.of(context).push(MaterialPageRoute(
@@ -179,7 +185,7 @@ class PrototypesScreen extends StatelessWidget {
         InkWell(
           onTap: () {
             if (onTap == null) {
-              Scaffold.of(context).showSnackBar(SnackBar(content: const Text("Not implemented yet.")));
+              Scaffold.of(context).showSnackBar(const SnackBar(content: Text("Not implemented yet.")));
               return;
             }
             onTap();

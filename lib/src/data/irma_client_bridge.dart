@@ -187,7 +187,6 @@ class IrmaClientBridge implements IrmaClient {
     _sessionId++;
   }
 
-  @override
   Stream<List<Log>> loadLogs(int before, int max) {
     // TODO: implement loadLogs
     return null;
