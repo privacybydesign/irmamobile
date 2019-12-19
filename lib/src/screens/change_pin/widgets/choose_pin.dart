@@ -38,11 +38,10 @@ class ChoosePin extends StatelessWidget {
               children: [
                 Padding(
                   padding: EdgeInsets.only(
-                    left: IrmaTheme.of(context).defaultSpacing,
-                    right: IrmaTheme.of(context).defaultSpacing,
-                    top: IrmaTheme.of(context).hugeSpacing,
-                    bottom: IrmaTheme.of(context).mediumSpacing
-                  ),
+                      left: IrmaTheme.of(context).defaultSpacing,
+                      right: IrmaTheme.of(context).defaultSpacing,
+                      top: IrmaTheme.of(context).hugeSpacing,
+                      bottom: IrmaTheme.of(context).mediumSpacing),
                   child: Text(
                     FlutterI18n.translate(context, 'change_pin.choose_pin.instruction'),
                     style: IrmaTheme.of(context).textTheme.body1,
