@@ -92,10 +92,10 @@ class _PinFieldState extends State<PinField> {
   void didUpdateWidget(PinField oldWidget) {
     super.didUpdateWidget(oldWidget);
     focusNode = widget.focusNode ?? focusNode;
-
-    if (oldWidget.maxLength != widget.maxLength) {
-      focusNode.requestFocus();
+    if (widget.longPin != oldWidget.longPin) {
+      _textEditingController.clear();
     }
+
   }
 
   @override
@@ -109,97 +109,58 @@ class _PinFieldState extends State<PinField> {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-
-    if (widget.longPin) {
-      return Center(
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          width: MediaQuery.of(context).size.width - theme.hugeSpacing,
-          child: Row(
-            children: <Widget>[
-              Flexible(
-                child: TextFormField(
-                  focusNode: focusNode,
-                  controller: _textEditingController,
-                  onEditingComplete: () {
-                    final val = _textEditingController.text;
-                    if (val.length >= widget.minLength && val.length <= widget.maxLength && widget.onSubmit != null) {
-                      widget.onSubmit(val);
-                    }
-                  },
-                  inputFormatters: [
-                    WhitelistingTextInputFormatter(RegExp('[0-9]')),
-                  ],
-                  autofocus: true,
-                  keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
-                  obscureText: obscureText,
-                  maxLength: widget.maxLength,
-                ),
-              ),
-              IconButton(
-                iconSize: theme.defaultSpacing,
-                icon: Icon(
-                  obscureText ? IrmaIcons.hide : IrmaIcons.view,
-                  color: Theme.of(context).primaryColorDark,
-                ),
-                onPressed: () {
-                  setState(
-                    () {
-                      obscureText = !obscureText;
-                    },
-                  );
-                },
-              )
-            ],
-          ),
-        ),
-      );
-    }
-
     final int len = min(widget.maxLength, max(value.length + 1, widget.minLength));
     final boxes = List<Widget>(len);
     final bool complete = value.length == widget.maxLength;
 
-    for (int i = 0; i < len; i++) {
-      String char = i < value.length ? value[i] : '';
-      final bool filled = char != '';
+    if (!widget.longPin) {
+      for (int i = 0; i < len; i++) {
+        String char = i < value.length ? value[i] : '';
+        final bool filled = char != '';
 
-      if (obscureText && filled) {
-        char = '●';
+        if (obscureText && filled) {
+          char = '●';
+        }
+
+        boxes[i] = AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          margin: EdgeInsets.only(right: i == len - 1 ? 0 : theme.smallSpacing),
+          width: 30.0,
+          height: 40.0,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(theme.tinySpacing)),
+            border: Border.all(color: i > value.length ? Colors.transparent : theme.grayscale40),
+            color: theme.grayscaleWhite,
+          ),
+          child: Text(
+            char,
+            style: Theme
+              .of(context)
+              .textTheme
+              .display2
+              .copyWith(
+              height: 22.0 / 18.0,
+              color: complete ? theme.primaryBlue : theme.grayscale40,
+            ),
+          ),
+        );
       }
-
-      boxes[i] = AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        margin: EdgeInsets.only(right: i == len - 1 ? 0 : theme.smallSpacing),
-        width: 30.0,
-        height: 40.0,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(theme.tinySpacing)),
-          border: Border.all(color: i > value.length ? Colors.transparent : theme.grayscale40),
-          color: theme.grayscaleWhite,
-        ),
-        child: Text(
-          char,
-          style: Theme.of(context).textTheme.display2.copyWith(
-                height: 22.0 / 18.0,
-                color: complete ? theme.primaryBlue : theme.grayscale40,
-              ),
-        ),
-      );
     }
 
-    final transparentBorder = OutlineInputBorder(
-      borderSide: const BorderSide(
+    const transparentBorder = OutlineInputBorder(
+      borderSide: BorderSide(
         color: Colors.transparent,
         width: 0.0,
       ),
     );
 
-    return Stack(
-      children: [
-        Container(
-          width: 0.1,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        AnimatedContainer(
+          duration: Duration(milliseconds: widget.longPin ? 200 : 0),
+          width: widget.longPin ? MediaQuery.of(context).size.width - theme.hugeSpacing : 0.1,
           child: TextFormField(
             controller: _textEditingController,
             focusNode: focusNode,
@@ -214,12 +175,12 @@ class _PinFieldState extends State<PinField> {
             ],
             autofocus: true,
             keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
-            obscureText: true,
-            style: const TextStyle(
+            obscureText: obscureText,
+            style: widget.longPin ? null : const TextStyle(
               height: 0.1,
               color: Colors.transparent,
             ),
-            decoration: InputDecoration(
+            decoration: widget.longPin ? const InputDecoration() : InputDecoration(
               focusedErrorBorder: transparentBorder,
               errorBorder: transparentBorder,
               disabledBorder: transparentBorder,
@@ -239,7 +200,7 @@ class _PinFieldState extends State<PinField> {
             maxLength: widget.maxLength,
           ),
         ),
-        Row(
+        if (!widget.longPin) Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -257,23 +218,23 @@ class _PinFieldState extends State<PinField> {
                 child: Wrap(children: boxes),
               ),
             ),
-            SizedBox(
-              width: theme.largeSpacing,
-              height: theme.largeSpacing,
-              child: IconButton(
-                iconSize: obscureText ? theme.defaultSpacing : theme.mediumSpacing,
-                icon: Icon(
-                  obscureText ? IrmaIcons.view : IrmaIcons.hide,
-                  color: theme.grayscale40,
-                ),
-                onPressed: () {
-                  setState(() {
-                    obscureText = !obscureText;
-                  });
-                },
-              ),
-            )
           ],
+        ),
+        SizedBox(
+          width: theme.largeSpacing,
+          height: theme.largeSpacing,
+          child: IconButton(
+            iconSize: obscureText ? theme.defaultSpacing : theme.mediumSpacing,
+            icon: Icon(
+              obscureText ? IrmaIcons.view : IrmaIcons.hide,
+              color: theme.grayscale40,
+            ),
+            onPressed: () {
+              setState(() {
+                obscureText = !obscureText;
+              });
+            },
+          ),
         ),
       ],
     );
