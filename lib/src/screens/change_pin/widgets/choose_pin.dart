@@ -36,13 +36,19 @@ class ChoosePin extends StatelessWidget {
           return SingleChildScrollView(
             child: Column(
               children: [
-                SizedBox(height: IrmaTheme.of(context).hugeSpacing),
-                Text(
-                  FlutterI18n.translate(context, 'change_pin.choose_pin.instruction'),
-                  style: IrmaTheme.of(context).textTheme.body1,
-                  textAlign: TextAlign.center,
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: IrmaTheme.of(context).defaultSpacing,
+                    right: IrmaTheme.of(context).defaultSpacing,
+                    top: IrmaTheme.of(context).hugeSpacing,
+                    bottom: IrmaTheme.of(context).mediumSpacing
+                  ),
+                  child: Text(
+                    FlutterI18n.translate(context, 'change_pin.choose_pin.instruction'),
+                    style: IrmaTheme.of(context).textTheme.body1,
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-                SizedBox(height: IrmaTheme.of(context).mediumSpacing),
                 PinField(
                   focusNode: pinFocusNode,
                   maxLength: state.longPin ? 16 : 5,
