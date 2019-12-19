@@ -26,8 +26,8 @@ class _PinScreenState extends State<PinScreen> {
       bloc: _pinBloc,
       builder: (context, state) {
         if (state.isBlocked) {
-          return Scaffold(
-            body: Center(child: const Text("blocked")),
+          return const Scaffold(
+            body: Center(child: Text("blocked")),
           );
         }
 
@@ -41,25 +41,25 @@ class _PinScreenState extends State<PinScreen> {
             child: Column(
               children: <Widget>[
                 SizedBox(
-                  height: IrmaTheme.of(context).spacing,
+                  height: IrmaTheme.of(context).defaultSpacing,
                 ),
                 SvgPicture.asset('assets/non-free/irma_logo.svg'),
                 SizedBox(
-                  height: 2 * IrmaTheme.of(context).spacing,
+                  height: IrmaTheme.of(context).largeSpacing,
                 ),
                 Text(
                   FlutterI18n.translate(context, "pin.title"),
                   style: IrmaTheme.of(context).textTheme.display1,
                 ),
                 SizedBox(
-                  height: IrmaTheme.of(context).spacing,
+                  height: IrmaTheme.of(context).defaultSpacing,
                 ),
                 Text(FlutterI18n.translate(context, "pin.subtitle")),
                 SizedBox(
-                  height: IrmaTheme.of(context).spacing,
+                  height: IrmaTheme.of(context).defaultSpacing,
                 ),
                 PinField(
-                  maxLength: 5,
+                  longPin: false,
                   onSubmit: (pin) {
                     FocusScope.of(context).requestFocus();
                     _pinBloc.dispatch(
@@ -68,7 +68,7 @@ class _PinScreenState extends State<PinScreen> {
                   },
                 ),
                 SizedBox(
-                  height: 2 * IrmaTheme.of(context).spacing,
+                  height: IrmaTheme.of(context).largeSpacing,
                 ),
                 GestureDetector(
                   onTap: () {
@@ -82,7 +82,7 @@ class _PinScreenState extends State<PinScreen> {
                   ),
                 ),
                 SizedBox(
-                  height: IrmaTheme.of(context).spacing,
+                  height: IrmaTheme.of(context).defaultSpacing,
                 ),
                 GestureDetector(
                   onTap: () {
@@ -96,11 +96,12 @@ class _PinScreenState extends State<PinScreen> {
                   ),
                 ),
                 SizedBox(
-                  height: IrmaTheme.of(context).spacing,
+                  height: IrmaTheme.of(context).defaultSpacing,
                 ),
                 if (state.unlockInProgress)
                   Padding(
-                      padding: EdgeInsets.all(IrmaTheme.of(context).spacing), child: const CircularProgressIndicator()),
+                      padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
+                      child: const CircularProgressIndicator()),
                 if (state.pinInvalid)
                   Text(
                     FlutterI18n.plural(context, "pin.invalid_pin.attempts", state.remainingAttempts),

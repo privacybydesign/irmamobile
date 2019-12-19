@@ -36,7 +36,7 @@ class ConfirmPin extends StatelessWidget {
             ),
             SizedBox(height: IrmaTheme.of(context).mediumSpacing),
             PinField(
-              maxLength: 5,
+              longPin: false,
               onSubmit: submitConfirmationPin,
             ),
             SizedBox(height: IrmaTheme.of(context).smallSpacing),

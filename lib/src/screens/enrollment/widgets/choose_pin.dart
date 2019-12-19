@@ -44,7 +44,7 @@ class ChoosePin extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: IrmaTheme.of(context).mediumSpacing),
-                PinField(focusNode: pinFocusNode, maxLength: 5, onSubmit: (pin) => submitPin(context, pin)),
+                PinField(focusNode: pinFocusNode, longPin: false, onSubmit: (pin) => submitPin(context, pin)),
                 SizedBox(height: IrmaTheme.of(context).smallSpacing),
                 Text(
                   FlutterI18n.translate(context, 'enrollment.choose_pin.instruction'),
