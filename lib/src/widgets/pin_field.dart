@@ -95,7 +95,6 @@ class _PinFieldState extends State<PinField> {
     if (widget.longPin != oldWidget.longPin) {
       _textEditingController.clear();
     }
-
   }
 
   @override
@@ -135,14 +134,10 @@ class _PinFieldState extends State<PinField> {
           ),
           child: Text(
             char,
-            style: Theme
-              .of(context)
-              .textTheme
-              .display2
-              .copyWith(
-              height: 22.0 / 18.0,
-              color: complete ? theme.primaryBlue : theme.grayscale40,
-            ),
+            style: Theme.of(context).textTheme.display2.copyWith(
+                  height: 22.0 / 18.0,
+                  color: complete ? theme.primaryBlue : theme.grayscale40,
+                ),
           ),
         );
       }
@@ -176,50 +171,55 @@ class _PinFieldState extends State<PinField> {
             autofocus: true,
             keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
             obscureText: obscureText,
-            style: widget.longPin ? null : const TextStyle(
-              height: 0.1,
-              color: Colors.transparent,
-            ),
-            decoration: widget.longPin ? const InputDecoration() : InputDecoration(
-              focusedErrorBorder: transparentBorder,
-              errorBorder: transparentBorder,
-              disabledBorder: transparentBorder,
-              enabledBorder: transparentBorder,
-              focusedBorder: transparentBorder,
-              counterText: null,
-              counterStyle: null,
-              helperStyle: const TextStyle(
-                height: 0.0,
-                color: Colors.transparent,
-              ),
-              labelStyle: const TextStyle(height: 0.1),
-              fillColor: Colors.transparent,
-              border: InputBorder.none,
-            ),
+            style: widget.longPin
+                ? null
+                : const TextStyle(
+                    height: 0.1,
+                    color: Colors.transparent,
+                  ),
+            decoration: widget.longPin
+                ? const InputDecoration()
+                : InputDecoration(
+                    focusedErrorBorder: transparentBorder,
+                    errorBorder: transparentBorder,
+                    disabledBorder: transparentBorder,
+                    enabledBorder: transparentBorder,
+                    focusedBorder: transparentBorder,
+                    counterText: null,
+                    counterStyle: null,
+                    helperStyle: const TextStyle(
+                      height: 0.0,
+                      color: Colors.transparent,
+                    ),
+                    labelStyle: const TextStyle(height: 0.1),
+                    fillColor: Colors.transparent,
+                    border: InputBorder.none,
+                  ),
             cursorColor: Colors.transparent,
             maxLength: widget.maxLength,
           ),
         ),
-        if (!widget.longPin) Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(width: theme.largeSpacing, height: theme.largeSpacing),
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () {
-                FocusScope.of(context).requestFocus(FocusNode());
-                Future.delayed(const Duration(milliseconds: 100), () {
-                  FocusScope.of(context).requestFocus(focusNode);
-                });
-              },
-              child: Container(
-                constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 64),
-                child: Wrap(children: boxes),
+        if (!widget.longPin)
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(width: theme.largeSpacing, height: theme.largeSpacing),
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  FocusScope.of(context).requestFocus(FocusNode());
+                  Future.delayed(const Duration(milliseconds: 100), () {
+                    FocusScope.of(context).requestFocus(focusNode);
+                  });
+                },
+                child: Container(
+                  constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 64),
+                  child: Wrap(children: boxes),
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
         SizedBox(
           width: theme.largeSpacing,
           height: theme.largeSpacing,

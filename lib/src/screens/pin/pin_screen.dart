@@ -100,7 +100,8 @@ class _PinScreenState extends State<PinScreen> {
                 ),
                 if (state.unlockInProgress)
                   Padding(
-                      padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing), child: const CircularProgressIndicator()),
+                      padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
+                      child: const CircularProgressIndicator()),
                 if (state.pinInvalid)
                   Text(
                     FlutterI18n.plural(context, "pin.invalid_pin.attempts", state.remainingAttempts),
