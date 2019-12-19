@@ -4,6 +4,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/cancel_button.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/loading_indicator.dart';
 
 class ValidatingPin extends StatelessWidget {
   static const String routeName = 'change_pin/validating_pin';
@@ -30,7 +31,7 @@ class ValidatingPin extends StatelessWidget {
                 padding: EdgeInsets.only(top: IrmaTheme.of(context).largeSpacing),
                 child: Column(children: [
                   SizedBox(height: IrmaTheme.of(context).hugeSpacing),
-                  SvgPicture.asset('assets/non-free/irma_logo.svg'),
+                  LoadingIndicator(),
                   SizedBox(height: IrmaTheme.of(context).largeSpacing),
                   Container(
                     constraints: BoxConstraints(maxWidth: IrmaTheme.of(context).defaultSpacing * 16),
