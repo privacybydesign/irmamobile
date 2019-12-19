@@ -77,7 +77,7 @@ class App extends StatelessWidget {
     return IrmaTheme(
       builder: (BuildContext context) {
         return StreamBuilder<bool>(
-            stream: IrmaRepository.get().getIsEnrolled(),
+            stream: irmaRepo.getIsEnrolled(),
             builder: (context, enrolledSnapshot) {
               if (!enrolledSnapshot.hasData) {
                 return Container();

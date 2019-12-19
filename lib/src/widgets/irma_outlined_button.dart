@@ -15,7 +15,7 @@ class IrmaOutlinedButton extends StatelessWidget {
     @required this.label,
     this.onPressed,
     this.textStyle,
-    this.minWidth,
+    this.minWidth = 232,
     this.size,
     this.icon,
   });

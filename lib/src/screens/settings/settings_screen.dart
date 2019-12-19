@@ -2,31 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
-import 'package:irmamobile/src/screens/settings/widgets/settings_confirm_deny_dialog.dart';
+import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/settings/widgets/settings_header.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/irma_button.dart';
+import 'package:irmamobile/src/widgets/irma_dialog.dart';
+import 'package:irmamobile/src/widgets/irma_text_button.dart';
+import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 
 class SettingsScreen extends StatefulWidget {
   static const routeName = "/settings";
 
   @override
   _SettingsScreenState createState() => _SettingsScreenState();
-}
-
-Future<bool> _asyncConfirmDialog(BuildContext context) async {
-  return showDialog<bool>(
-    context: context,
-    barrierDismissible: false,
-    builder: (BuildContext context) {
-      return ConfirmDenyDialog(
-        title: FlutterI18n.translate(context, 'settings.advanced.delete_title'),
-        content: FlutterI18n.translate(context, 'settings.advanced.delete_content'),
-        confirmContent: FlutterI18n.translate(context, 'settings.advanced.delete_confirm'),
-        denyContent: FlutterI18n.translate(context, 'settings.advanced.delete_deny'),
-      );
-    },
-  );
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
@@ -98,10 +87,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
               FlutterI18n.translate(context, 'settings.advanced.delete'),
               style: IrmaTheme.of(context).textTheme.body1,
             ),
-            onTap: () {
-              _asyncConfirmDialog(context).then((confirmed) => {
-                    if (confirmed) {IrmaRepository.get().deleteAllCredentials()}
-                  });
+            onTap: () async {
+              await showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (BuildContext context) => IrmaDialog(
+                  height: 200,
+                  title: 'settings.advanced.delete_title',
+                  content: 'settings.advanced.delete_content',
+                  child: Wrap(
+                    direction: Axis.horizontal,
+                    verticalDirection: VerticalDirection.up,
+                    alignment: WrapAlignment.spaceEvenly,
+                    children: <Widget>[
+                      IrmaTextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        minWidth: 0.0,
+                        label: 'settings.advanced.delete_deny',
+                      ),
+                      IrmaButton(
+                        size: IrmaButtonSize.small,
+                        minWidth: 0.0,
+                        onPressed: () {
+                          irmaClient.deleteAllCredentials();
+
+                          Navigator.of(context).popUntil((p) => p.isFirst);
+                          Navigator.of(context).pop();
+                          Navigator.of(context).pushNamed(EnrollmentScreen.routeName);
+                        },
+                        label: 'settings.advanced.delete_confirm',
+                      ),
+                    ],
+                  ),
+                ),
+              );
             },
             leading: Icon(IrmaIcons.delete, color: IrmaTheme.of(context).textTheme.body1.color),
           ),

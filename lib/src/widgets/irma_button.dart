@@ -11,7 +11,7 @@ class IrmaButton extends StatelessWidget {
   final double minWidth;
   final IconData icon;
 
-  const IrmaButton({@required this.label, this.onPressed, this.textStyle, this.size, this.minWidth, this.icon});
+  const IrmaButton({@required this.label, this.onPressed, this.textStyle, this.size, this.minWidth = 232, this.icon});
 
   @override
   Widget build(BuildContext context) {

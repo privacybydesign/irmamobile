@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 class IrmaThemedButton extends StatelessWidget {
-  static const double _defaultMinWidth = 232;
-
   final String label;
   final VoidCallback onPressed;
   final Color color;
@@ -24,7 +22,7 @@ class IrmaThemedButton extends StatelessWidget {
     @required this.textColor,
     @required this.shape,
     this.size,
-    this.minWidth = _defaultMinWidth,
+    this.minWidth = 232,
     this.textStyle,
     this.icon,
   });
@@ -35,10 +33,11 @@ class IrmaThemedButton extends StatelessWidget {
       FlutterI18n.translate(context, label),
       style: textStyle,
     );
+
     return ButtonTheme(
       textTheme: ButtonTextTheme.primary,
       height: size?.value ?? IrmaButtonSize.medium.value,
-      minWidth: minWidth ?? _defaultMinWidth,
+      minWidth: minWidth,
       padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
       child: RaisedButton(
         onPressed: onPressed,
