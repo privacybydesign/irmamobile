@@ -26,24 +26,27 @@ class EnterPin extends StatelessWidget {
         ),
       ),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(height: IrmaTheme.of(context).hugeSpacing),
-            Text(
-              FlutterI18n.translate(context, 'change_pin.enter_pin.instruction'),
-              style: IrmaTheme.of(context).textTheme.body1,
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: IrmaTheme.of(context).mediumSpacing),
-            PinField(
-              focusNode: pinFocusNode,
-              maxLength: 5,
-              onSubmit: (String pin) {
-                // TODO: show loading screen
-                submitOldPin(pin);
-              },
-            ),
-          ],
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).defaultSpacing),
+          child: Column(
+            children: [
+              SizedBox(height: IrmaTheme.of(context).hugeSpacing),
+              Text(
+                FlutterI18n.translate(context, 'change_pin.enter_pin.instruction'),
+                style: IrmaTheme.of(context).textTheme.body1,
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: IrmaTheme.of(context).mediumSpacing),
+              PinField(
+                focusNode: pinFocusNode,
+                maxLength: 5,
+                onSubmit: (String pin) {
+                  // TODO: show loading screen
+                  submitOldPin(pin);
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );
