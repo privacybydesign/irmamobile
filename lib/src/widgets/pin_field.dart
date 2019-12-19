@@ -11,15 +11,21 @@ class PinField extends StatefulWidget {
   final bool autosubmit;
   final bool autoclear;
   final FocusNode focusNode;
-  final int maxLength;
-  final int minLength;
+  final bool longPin;
   final ValueChanged<String> onChange;
   final ValueChanged<String> onSubmit;
   final ValueChanged<String> onFull;
 
+  int get maxLength {
+    return longPin ? 16 : 5;
+  }
+
+  int get minLength {
+    return 5;
+  }
+
   const PinField({
-    this.minLength = 5,
-    this.maxLength = 16,
+    this.longPin = false,
     this.autofocus = true,
     this.autosubmit = true,
     this.autoclear = true,
@@ -104,7 +110,7 @@ class _PinFieldState extends State<PinField> {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    if (widget.maxLength > 5) {
+    if (widget.longPin) {
       return Center(
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),

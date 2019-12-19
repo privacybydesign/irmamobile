@@ -59,7 +59,7 @@ class _PinScreenState extends State<PinScreen> {
                   height: IrmaTheme.of(context).spacing,
                 ),
                 PinField(
-                  maxLength: 5,
+                  longPin: false,
                   onSubmit: (pin) {
                     FocusScope.of(context).requestFocus();
                     _pinBloc.dispatch(

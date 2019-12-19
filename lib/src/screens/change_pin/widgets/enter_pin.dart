@@ -39,9 +39,8 @@ class EnterPin extends StatelessWidget {
               SizedBox(height: IrmaTheme.of(context).mediumSpacing),
               PinField(
                 focusNode: pinFocusNode,
-                maxLength: 5,
+                longPin: false,
                 onSubmit: (String pin) {
-                  // TODO: show loading screen
                   submitOldPin(pin);
                 },
               ),
