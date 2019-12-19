@@ -291,5 +291,21 @@
         "data-2": "getekend met {data} gegevens voor"
       }
     }
+  },
+  "disclosure": {
+    "title": "Disclosure",
+    "intro": {
+      "start": "Do you want to pass this on to ",
+      "end": "?"
+    },
+    "footer": "You only pass on the data above.",
+    "issuer": "Issuer",
+    "choices": "{choices} choices",
+    "next": "choose the next one",
+    "previous": "choose the previous one",
+    "info": {
+      "title": "Choose which data you pass on",
+      "body": "You can choose which data you provide. Use the arrow or swipe and make your choice."
+    }
   }
 }
