@@ -36,6 +36,7 @@ build_bridge:
   interruptible: true
   only: 
     - master
+    - merge_requests
   artifacts:
     paths:
       - android/irmagobridge/irmagobridge.aar
@@ -48,6 +49,7 @@ build_app:
   interruptible: true
   only: 
     - master
+    - merge_requests
   artifacts:
     paths:
       - build/app/outputs/apk/release/*.apk
