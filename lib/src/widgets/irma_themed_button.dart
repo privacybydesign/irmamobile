@@ -10,9 +10,9 @@ class IrmaThemedButton extends StatelessWidget {
   final Color textColor;
   final ShapeBorder shape;
   final IrmaButtonSize size;
+  final double minWidth;
   final TextStyle textStyle;
   final IconData icon;
-  final double minWidth;
 
   const IrmaThemedButton({
     @required this.label,
@@ -22,9 +22,9 @@ class IrmaThemedButton extends StatelessWidget {
     @required this.textColor,
     @required this.shape,
     this.size,
+    this.minWidth = 232,
     this.textStyle,
     this.icon,
-    this.minWidth = 232.0,
   });
 
   @override
@@ -33,6 +33,7 @@ class IrmaThemedButton extends StatelessWidget {
       FlutterI18n.translate(context, label),
       style: textStyle,
     );
+
     return ButtonTheme(
       textTheme: ButtonTextTheme.primary,
       height: size?.value ?? IrmaButtonSize.medium.value,
