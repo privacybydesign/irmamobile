@@ -42,13 +42,13 @@ class _IntroductionState extends State<Introduction> {
             image: SvgPicture.asset('assets/enrollment/introduction_screen1.svg', width: 280, height: 245),
             titleContent: FlutterI18n.translate(context, 'enrollment.introduction.screen1.title'),
             textContent: FlutterI18n.translate(context, 'enrollment.introduction.screen1.text'),
-            onNextScreen: () => _controller.nextPage(curve: Curves.ease, duration: Duration(milliseconds: 800)),
+            onNextScreen: () => _controller.nextPage(curve: Curves.ease, duration: const Duration(milliseconds: 800)),
           ),
           Walkthrough(
             image: SvgPicture.asset('assets/enrollment/introduction_screen2.svg', width: 280, height: 231),
             titleContent: FlutterI18n.translate(context, 'enrollment.introduction.screen2.title'),
             textContent: FlutterI18n.translate(context, 'enrollment.introduction.screen2.text'),
-            onNextScreen: () => _controller.nextPage(curve: Curves.ease, duration: Duration(milliseconds: 800)),
+            onNextScreen: () => _controller.nextPage(curve: Curves.ease, duration: const Duration(milliseconds: 800)),
           ),
           Walkthrough(
             image: SvgPicture.asset('assets/enrollment/introduction_screen3.svg', width: 341, height: 247),
@@ -84,53 +84,51 @@ class Walkthrough extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.center,
+    return Column(
       children: [
-        Column(children: [
-          SizedBox(height: IrmaTheme.of(context).spacing * 5),
-          image,
-          SizedBox(height: IrmaTheme.of(context).spacing * 3),
-          Container(
-            alignment: Alignment.center,
-            constraints: BoxConstraints(maxWidth: IrmaTheme.of(context).spacing * 16),
-            child: Text(
-              titleContent,
-              style: IrmaTheme.of(context).textTheme.display2,
-              textAlign: TextAlign.center,
-            ),
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              image,
+              const SizedBox(height: 44.0),
+              Container(
+                alignment: Alignment.center,
+                constraints: const BoxConstraints(maxWidth: 256.0),
+                child: Text(
+                  titleContent,
+                  style: IrmaTheme.of(context).textTheme.display2,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              Container(
+                alignment: Alignment.center,
+                constraints: const BoxConstraints(maxWidth: 256.0),
+                child: Text(
+                  textContent,
+                  style: IrmaTheme.of(context).textTheme.body1,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
           ),
-          SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-          Container(
-            alignment: Alignment.center,
-            constraints: BoxConstraints(maxWidth: IrmaTheme.of(context).spacing * 16),
-            child: Text(
-              textContent,
-              style: IrmaTheme.of(context).textTheme.body1,
-              textAlign: TextAlign.center,
-            ),
-          )
-        ]),
-        Positioned(
-          child: Align(
-            alignment: FractionalOffset.bottomCenter,
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
-              color: finalScreen ? IrmaTheme.of(context).backgroundBlue : null,
-              child: finalScreen
-                  ? IrmaButton(
-                      label: 'enrollment.introduction.button_text',
-                      onPressed: onPressButton,
-                    )
-                  : IconButton(
-                      onPressed: onNextScreen,
-                      icon: Icon(IrmaIcons.chevronDown, color: IrmaTheme.of(context).grayscale60),
-                      iconSize: 16,
-                      alignment: Alignment.center,
-                    ),
-            ),
-          ),
+        ),
+        Container(
+          width: MediaQuery.of(context).size.width,
+          padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
+          color: finalScreen ? IrmaTheme.of(context).backgroundBlue : null,
+          child: finalScreen
+              ? IrmaButton(
+                  label: 'enrollment.introduction.button_text',
+                  onPressed: onPressButton,
+                )
+              : IconButton(
+                  onPressed: onNextScreen,
+                  icon: Icon(IrmaIcons.chevronDown, color: IrmaTheme.of(context).grayscale60),
+                  iconSize: 16,
+                  alignment: Alignment.center,
+                ),
         ),
       ],
     );
