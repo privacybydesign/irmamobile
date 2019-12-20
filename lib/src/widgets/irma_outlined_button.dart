@@ -9,13 +9,11 @@ class IrmaOutlinedButton extends StatelessWidget {
   final TextStyle textStyle;
   final IrmaButtonSize size;
   final IconData icon;
-  final double minWidth;
 
   const IrmaOutlinedButton({
     @required this.label,
     this.onPressed,
     this.textStyle,
-    this.minWidth = 232,
     this.size,
     this.icon,
   });
@@ -26,7 +24,6 @@ class IrmaOutlinedButton extends StatelessWidget {
       label: label,
       onPressed: onPressed,
       textStyle: textStyle,
-      minWidth: minWidth,
       size: size,
       icon: icon,
       color: IrmaTheme.of(context).grayscaleWhite,

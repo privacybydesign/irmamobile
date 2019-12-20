@@ -1,4 +1,3 @@
-import 'package:flutter/widgets.dart';
 import 'package:irmamobile/src/data/irma_client.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/authentication_result.dart';
@@ -7,10 +6,9 @@ import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/disclosed_attribute.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/log.dart';
-import 'package:irmamobile/src/models/preferences.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
-import 'package:irmamobile/src/models/verifier.dart';
 import 'package:irmamobile/src/models/version_information.dart';
+import 'package:irmamobile/src/models/verifier.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:version/version.dart';
 
@@ -137,18 +135,6 @@ class IrmaClientMock implements IrmaClient {
     },
   );
 
-  static List<String> loadedCredentialIds = [
-    "Amsterdam1",
-    "iDIN1",
-    "DUO1",
-    "Amsterdam2",
-    "iDIN2",
-    "DUO2",
-    "Amsterdam3",
-    "iDIN3",
-    "DUO3"
-  ];
-
   IrmaClientMock({
     this.versionUpdateAvailable = false,
     this.versionUpdateRequired = false,
@@ -156,7 +142,8 @@ class IrmaClientMock implements IrmaClient {
 
   @override
   Stream<Credentials> getCredentials() {
-    return Stream.fromIterable(loadedCredentialIds)
+    return Stream.fromIterable(
+            ["Amsterdam1", "iDIN1", "DUO1", "Amsterdam2", "iDIN2", "DUO2", "Amsterdam3", "iDIN3", "DUO3"])
         .asyncMap<Credential>((id) => getCredential(id).first)
         .fold<Map<String, Credential>>(<String, Credential>{}, (credentialMap, credential) {
           credentialMap[credential.id] = credential;
@@ -238,7 +225,7 @@ class IrmaClientMock implements IrmaClient {
 
   @override
   Stream<Credential> getCredential(String id) {
-    if (loadedCredentialIds.contains(id) == false) {
+    if (id == "") {
       return Future<Credential>.delayed(const Duration(milliseconds: 100), throw CredentialNotFoundException())
           .asStream();
     }
@@ -350,38 +337,6 @@ class IrmaClientMock implements IrmaClient {
         currentVersion: currentVersion,
       ),
     ).asStream();
-  }
-
-  Preferences _current_prefs = Preferences(enableCrashReporting: true, qrScannerOnStartup: false);
-  final BehaviorSubject<Preferences> _preferencesStream =
-      BehaviorSubject<Preferences>.seeded(const Preferences(enableCrashReporting: true, qrScannerOnStartup: false));
-
-  @override
-  Stream<Preferences> getPreferences() {
-    return _preferencesStream.stream;
-  }
-
-  @override
-  void setCrashReportingPreference({@required bool value}) {
-    final newPrefs = Preferences(enableCrashReporting: value, qrScannerOnStartup: _current_prefs.qrScannerOnStartup);
-
-    _current_prefs = newPrefs;
-
-    _preferencesStream.add(_current_prefs);
-  }
-
-  @override
-  void setQrScannerOnStartupPreference({@required bool value}) {
-    final newPrefs = Preferences(enableCrashReporting: _current_prefs.enableCrashReporting, qrScannerOnStartup: value);
-
-    _current_prefs = newPrefs;
-
-    _preferencesStream.add(_current_prefs);
-  }
-
-  @override
-  void deleteAllCredentials() {
-    loadedCredentialIds.clear();
   }
 
   @override

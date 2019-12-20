@@ -5,7 +5,6 @@ import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/log.dart';
-import 'package:irmamobile/src/models/preferences.dart';
 import 'package:irmamobile/src/models/version_information.dart';
 
 class IrmaRepository {
@@ -52,10 +51,6 @@ class IrmaRepository {
     return client.loadLogs(before, max);
   }
 
-  void deleteAllCredentials() {
-    client.deleteAllCredentials();
-  }
-
   void enroll({String email, String pin, String language}) {
     client.enroll(
       email: email,
@@ -82,17 +77,5 @@ class IrmaRepository {
 
   void startSession(String request) {
     client.startSession(request);
-  }
-
-  Stream<Preferences> getPreferences() {
-    return client.getPreferences();
-  }
-
-  void setCrashReportingPreference({@required bool value}) {
-    return client.setCrashReportingPreference(value: value);
-  }
-
-  void setQrScannerOnStartupPreference({@required bool value}) {
-    return client.setQrScannerOnStartupPreference(value: value);
   }
 }

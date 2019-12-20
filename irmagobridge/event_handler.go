@@ -150,17 +150,9 @@ func (ah *eventHandler) dismissSession(event *dismissSessionEvent) error {
 	return nil
 }
 
-// Set the crash reporting preference, and returns the current preferences to irma_mobile
+// Set the crash reporting preference, and return the current preferences to irma_mobile
 func (ah *eventHandler) setCrashReportingPreference(event *setCrashReportingPreferenceEvent) error {
 	client.SetCrashReportingPreference(event.EnableCrashReporting)
-
-	dispatchPreferencesEvent()
-	return nil
-}
-
-// Set the qrScannOnStartup preference, and returns the current preferences to irma_mobile
-func (ah *eventHandler) setQrScannerOnStartupPreference(event *setQrScannerOnStartupPreferenceEvent) error {
-	client.SetQrScannerOnStartupPreference(event.QrScannerOnStartup);
 
 	dispatchPreferencesEvent()
 	return nil
