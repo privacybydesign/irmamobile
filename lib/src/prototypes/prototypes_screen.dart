@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/data/irma_client_mock.dart';
 import 'package:irmamobile/src/prototypes/design_buttons.dart';
 import 'package:irmamobile/src/prototypes/design_colors.dart';
 import 'package:irmamobile/src/prototypes/design_fields.dart';
@@ -15,13 +14,13 @@ import 'package:irmamobile/src/prototypes/schermflow_1.dart';
 import 'package:irmamobile/src/prototypes/schermflow_5.dart';
 import 'package:irmamobile/src/prototypes/schermflow_wallet.dart';
 import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
-import 'package:irmamobile/src/screens/disclosure/disclosure.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/introduction.dart';
 import 'package:irmamobile/src/screens/error/error_screen.dart';
 import 'package:irmamobile/src/screens/error/no_internet_screen.dart';
 import 'package:irmamobile/src/screens/history/history_screen.dart';
 import 'package:irmamobile/src/screens/loading/loading_screen.dart';
-import 'package:irmamobile/src/screens/settings/settings_screen.dart';
+import 'package:irmamobile/src/screens/disclosure/disclosure.dart';
+import 'package:irmamobile/src/data/irma_client_mock.dart';
 
 class PrototypesScreen extends StatelessWidget {
   static const routeName = "/";
@@ -115,9 +114,6 @@ class PrototypesScreen extends StatelessWidget {
                 builder: (context) => NoInternetScreen(() {
                       print("retry callback");
                     })));
-          }),
-          _buildListItem(context, "32. Settings", () {
-            Navigator.of(context).push(MaterialPageRoute(builder: (context) => SettingsScreen()));
           }),
           const SizedBox(height: 12),
           Padding(
