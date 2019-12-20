@@ -1,8 +1,10 @@
+import 'package:flutter/widgets.dart';
 import 'package:irmamobile/src/models/authentication_result.dart';
 import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/log.dart';
+import 'package:irmamobile/src/models/preferences.dart';
 import 'package:irmamobile/src/models/version_information.dart';
 
 abstract class IrmaClient {
@@ -19,7 +21,18 @@ abstract class IrmaClient {
 
   Stream<List<Log>> loadLogs(int before, int max);
 
-  // TODO: return a Future with state update for this specific enroll action.
+  Stream<Preferences> getPreferences();
+
+  // set whether crash reporting is turned on.
+  void setCrashReportingPreference({@required bool value});
+
+  // set whether the qr scanner is opened on app start
+  void setQrScannerOnStartupPreference({@required bool value});
+
+  // Deletes all credentials on the phone.
+  void deleteAllCredentials();
+
+// TODO: return a Future with state update for this specific enroll action.
   void enroll({String email, String pin, String language});
 
   // lock locks the irma user session
