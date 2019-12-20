@@ -167,23 +167,20 @@
       }
     }
   },
+  
   "settings": {
     "title": "Settings",
-    "pin": {
-      "header": "PIN Settings",
-      "long_pin": "Allow for more than 5 digits",
-      "long_pin_detail": "Enables a PIN of up to 16 digits",
-      "change_pin": "Change PIN"
-    },
-    "behavior": {
-      "header": "Behavior",
-      "start_qr": "Open QR scanner on startup",
-      "report_errors": "Report errors about IRMA"
-    },
+    "start_qr": "Open QR scanner on startup",
+    "change_pin": "Change PIN",
     "advanced": {
       "header": "Advanced",
-      "delete": "Delete wallet contents",
-      "delete_details": "All cards will be removed"
+      "experimental_data": "Make it possible to add experimental data.",
+      "report_errors": "Report errors to IRMA",
+      "delete": "Delete all my cards",
+      "delete_title": "Are you sure?",
+      "delete_content": "If you continue all cards will be deleted from this phone. Re-retrieve the cards and you can use IRMA again.",
+      "delete_confirm": "Yes, delete cards",
+      "delete_deny": "Cancel"
     }
   },
   "issuance": {
