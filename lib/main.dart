@@ -10,6 +10,7 @@ import 'package:irmamobile/src/screens/about/about_screen.dart';
 import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
 import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
+import 'package:irmamobile/src/screens/help/help_screen.dart';
 import 'package:irmamobile/src/screens/history/history_screen.dart';
 import 'package:irmamobile/src/screens/loading/loading_screen.dart';
 import 'package:irmamobile/src/screens/pin/pin_screen.dart';
@@ -39,6 +40,7 @@ class App extends StatelessWidget {
           SettingsScreen.routeName: (BuildContext context) => SettingsScreen(),
           CardStoreScreen.routeName: (BuildContext context) => CardStoreScreen(),
           HistoryScreen.routeName: (BuildContext context) => HistoryScreen(),
+          HelpScreen.routeName: (BuildContext context) => HistoryScreen(),
         };
 
   App.updateRequired()

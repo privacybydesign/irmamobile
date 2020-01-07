@@ -103,6 +103,14 @@
     "pbdf": "Privacy by Design",
     "pbdf_link": "https://privacybydesign.foundation/"
   },
+  "help": {
+    "title": "Help",
+    "faq": "Veelgestelde vragen",
+    "ask": "Vraag stellen",
+    "more": "Meer vragen en antwoorden",
+    "more_link": "https://irma.app/?lang=en#faqs",
+    "send": "Stuur je vraag. Je krijgt zo snel mogelijk aantwoord, meestal binnen een week."
+  },
   "drawer": {
     "lock_wallet": "Lock wallet",
     "add_cards": "Add cards",
@@ -167,7 +175,6 @@
       }
     }
   },
-  
   "settings": {
     "title": "Settings",
     "start_qr": "Open QR scanner on startup",
