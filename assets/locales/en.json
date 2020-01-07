@@ -111,7 +111,9 @@
     "more_link": "https://irma.app/?lang=en#faqs",
     "send": "Stuur je vraag. Je krijgt zo snel mogelijk aantwoord, meestal binnen een week.",
     "back_button": "Terug",
-    "email": "Stuur een email"
+    "email": "Stuur een email",
+    "contact": "info@privacybydesign.foundation",
+    "mail_subject": "Hulp met IRMA"
   },
   "drawer": {
     "lock_wallet": "Lock wallet",

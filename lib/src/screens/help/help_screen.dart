@@ -96,10 +96,12 @@ class _HelpScreenState extends State<HelpScreen> {
                       FlutterI18n.translate(context, 'help.send'),
                       style: Theme.of(context).textTheme.body1,
                     ),
-                    SizedBox(height: IrmaTheme.of(context).smallSpacing),
+                    SizedBox(height: IrmaTheme.of(context).tinySpacing),
                     GestureDetector(
                       onTap: () {
-                        launch("mailto:info@privacybydesign.foundation?subject=Hulp met IRMA");
+                        final String address = FlutterI18n.translate(context, 'help.contact');
+                        final String subject = FlutterI18n.translate(context, 'help.mail_subject');
+                        launch("mailto:$address?subject=$subject");
                       },
                       child: Center(
                         child: Text(
