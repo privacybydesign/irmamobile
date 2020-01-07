@@ -1,12 +1,26 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/screens/about/widgets/links.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/collapsible.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+const String _markdownData = """
+# Markdown Example
+
+
+Lists now work well:
+- One
+- Two
+- Three
+
+And we can finally mix **bold** and non-bold and *italics*.
+
+""";
 
 class HelpItems extends StatefulWidget {
   const HelpItems({this.credentialType, this.parentKey, this.parentScrollController});
@@ -44,7 +58,13 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
         Collapsible(
             header: FlutterI18n.translate(context, 'about.who_is_behind_irma_item'),
             onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(0))},
-            content: WhoIsBehindIrma(),
+            content: Container(
+              child: MarkdownBody(
+                selectable: false,
+                data: FlutterI18n.translate(context, 'help.how_item'),
+                imageDirectory: 'https://raw.githubusercontent.com',
+              ),
+            ),
             key: _collapsableKeys[0]),
         Collapsible(
             header: FlutterI18n.translate(context, 'about.why_irma_item'),
@@ -62,48 +82,6 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
 }
 
 // TODO: The order of the bold and non-bold elements might differ in another language!
-class WhoIsBehindIrma extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        RichText(
-          text: TextSpan(
-              text: FlutterI18n.translate(context, 'about.who_is_behind_irma_explanation_1'),
-              style: IrmaTheme.of(context).textTheme.body1,
-              children: <TextSpan>[
-                TextSpan(text: FlutterI18n.translate(context, 'about.pbdf'), style: IrmaTheme.of(context).boldBody),
-                TextSpan(
-                    text: FlutterI18n.translate(context, 'about.who_is_behind_irma_explanation_2'),
-                    style: IrmaTheme.of(context).textTheme.body1),
-              ]),
-        ),
-        SizedBox(height: IrmaTheme.of(context).smallSpacing),
-        Text(FlutterI18n.translate(context, 'about.who_is_behind_irma_explanation_3'),
-            style: IrmaTheme.of(context).textTheme.body1),
-        SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-        SizedBox(
-          width: double.infinity,
-          child: Container(
-            child: Text(
-              FlutterI18n.translate(context, 'about.check_out'),
-              textAlign: TextAlign.left,
-            ),
-          ),
-        ),
-        SizedBox(height: IrmaTheme.of(context).smallSpacing),
-        ExternalLink("about.pbdf_link", "about.pbdf",
-            SizedBox(width: 50.0, child: Image.asset("assets/non-free/pbdf_logo.png"))),
-        SizedBox(height: IrmaTheme.of(context).smallSpacing),
-        ExternalLink("about.award_link", "about.award",
-            SizedBox(width: 50.0, child: Image.asset("assets/non-free/award_logo.png"))),
-        SizedBox(height: IrmaTheme.of(context).smallSpacing),
-      ],
-    );
-  }
-}
-
-// TODO: The order of the bold and non-bold elements might differ in another language!
 class WhyIrma extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -114,12 +92,14 @@ class WhyIrma extends StatelessWidget {
               text: FlutterI18n.translate(context, 'about.why_irma_item_1'),
               style: IrmaTheme.of(context).boldBody,
               children: <TextSpan>[
-                TextSpan(
-                    text: FlutterI18n.translate(context, 'about.why_irma_item_2'),
-                    style: IrmaTheme.of(context).textTheme.body1),
+                TextSpan(text: "\nLLLLlllll", style: IrmaTheme.of(context).textTheme.body1),
               ]),
         ),
-        SizedBox(height: IrmaTheme.of(context).smallSpacing),
+        MarkdownBody(
+          selectable: false,
+          data: FlutterI18n.translate(context, 'help.how_item'),
+          imageDirectory: 'https://raw.githubusercontent.com',
+        ),
         RichText(
           text: TextSpan(
               text: FlutterI18n.translate(context, 'about.why_irma_item_3'),
