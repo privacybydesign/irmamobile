@@ -62,7 +62,9 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
               child: MarkdownBody(
                 selectable: false,
                 data: FlutterI18n.translate(context, 'help.how_item'),
-                imageDirectory: 'https://raw.githubusercontent.com',
+                styleSheet: MarkdownStyleSheet(
+                  strong: IrmaTheme.of(context).textTheme.body2,
+                ),
               ),
             ),
             key: _collapsableKeys[0]),
