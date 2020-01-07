@@ -5,6 +5,8 @@ import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/screens/about/about_items.dart';
 import 'package:irmamobile/src/screens/issuance_webview/issuance_webview_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/irma_button.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HelpScreen extends StatefulWidget {
   static const String routeName = '/help';
@@ -94,9 +96,36 @@ class _HelpScreenState extends State<HelpScreen> {
                       FlutterI18n.translate(context, 'help.send'),
                       style: Theme.of(context).textTheme.body1,
                     ),
-                    SizedBox(height: IrmaTheme.of(context).largeSpacing),
+                    SizedBox(height: IrmaTheme.of(context).smallSpacing),
+                    GestureDetector(
+                      onTap: () {
+                        launch("mailto:info@privacybydesign.foundation?subject=Hulp met IRMA");
+                      },
+                      child: Center(
+                        child: Text(
+                          FlutterI18n.translate(context, 'help.email'),
+                          style: IrmaTheme.of(context).hyperlinkTextStyle.copyWith(
+                                decoration: TextDecoration.underline,
+                              ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
+              ),
+            ),
+          ),
+          Align(
+            alignment: FractionalOffset.bottomCenter,
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
+              color: IrmaTheme.of(context).backgroundBlue,
+              child: IrmaButton(
+                label: 'help.back_button',
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
               ),
             ),
           ),

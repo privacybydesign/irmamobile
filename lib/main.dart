@@ -40,7 +40,7 @@ class App extends StatelessWidget {
           SettingsScreen.routeName: (BuildContext context) => SettingsScreen(),
           CardStoreScreen.routeName: (BuildContext context) => CardStoreScreen(),
           HistoryScreen.routeName: (BuildContext context) => HistoryScreen(),
-          HelpScreen.routeName: (BuildContext context) => HistoryScreen(),
+          HelpScreen.routeName: (BuildContext context) => HelpScreen(),
         };
 
   App.updateRequired()
