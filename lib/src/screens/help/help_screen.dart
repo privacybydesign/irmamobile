@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'package:irmamobile/src/screens/about/about_items.dart';
 import 'package:irmamobile/src/screens/issuance_webview/issuance_webview_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import 'help_items.dart';
 
 class HelpScreen extends StatefulWidget {
   static const String routeName = '/help';
@@ -57,7 +58,7 @@ class _HelpScreenState extends State<HelpScreen> {
                       style: Theme.of(context).textTheme.display3,
                     ),
                     SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-                    AboutItems(
+                    HelpItems(
                       credentialType: widget.credentialType,
                       parentKey: _scrollviewKey,
                       parentScrollController: _controller,
