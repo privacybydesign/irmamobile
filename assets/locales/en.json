@@ -109,7 +109,9 @@
     "ask": "Vraag stellen",
     "more": "Meer vragen en antwoorden",
     "more_link": "https://irma.app/?lang=en#faqs",
-    "send": "Stuur je vraag. Je krijgt zo snel mogelijk aantwoord, meestal binnen een week."
+    "send": "Stuur je vraag. Je krijgt zo snel mogelijk aantwoord, meestal binnen een week.",
+    "back_button": "Terug",
+    "email": "Stuur een email"
   },
   "drawer": {
     "lock_wallet": "Lock wallet",
