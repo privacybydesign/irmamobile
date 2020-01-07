@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n_delegate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:irmamobile/src/data/irma_client_bridge.dart';
@@ -73,6 +74,12 @@ class App extends StatelessWidget {
     final irmaRepo = IrmaRepository.get();
     final versionInformationStream = irmaRepo.getVersionInformation();
     final startQrStream = irmaRepo.getPreferences().map((p) => p.qrScannerOnStartup);
+
+    // Device orientation: force portrait mode
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
 
     return IrmaTheme(
       builder: (BuildContext context) {
