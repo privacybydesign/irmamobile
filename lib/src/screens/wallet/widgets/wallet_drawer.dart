@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/screens/about/about_screen.dart';
 import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
+import 'package:irmamobile/src/screens/help/help_screen.dart';
 import 'package:irmamobile/src/screens/history/history_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
@@ -79,9 +80,7 @@ class WalletDrawer extends StatelessWidget {
                     context,
                     icon: IrmaIcons.question,
                     text: FlutterI18n.translate(context, 'drawer.help'),
-                    onTap: () => {
-                      // TODO: navigate to correct route
-                    },
+                    onTap: () => Navigator.pushNamed(context, HelpScreen.routeName),
                   ),
                   _createDrawerItem(
                     context,
