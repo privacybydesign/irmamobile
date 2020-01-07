@@ -113,7 +113,8 @@
     "back_button": "Terug",
     "email": "Stuur een email",
     "contact": "info@privacybydesign.foundation",
-    "mail_subject": "Hulp met IRMA"
+    "mail_subject": "Hulp met IRMA",
+    "how_item": "Lists now work well:\n - One \n - Two \n - Three\n\nAnd we can finally mix **bold** and non-bold and *italics*."
   },
   "drawer": {
     "lock_wallet": "Lock wallet",
