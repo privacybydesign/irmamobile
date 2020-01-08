@@ -73,6 +73,7 @@ flutter:
     - assets/wallet/
     - assets/generic/
     - assets/error/
+    - assets/reset/
     - assets/non-free/
 
   fonts:
