@@ -2,16 +2,16 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 
 class IrmaThemeData extends Equatable {
-  static double space = 16.0;
+  static const double _spaceBase = 16.0;
   @Deprecated(
       "Move to tinySpacing, smallSpacing, defaultSpacing or largeSpacing, don't use local divisions/multiplications")
-  final double spacing = space;
-  final double tinySpacing = space / 4; // 4
-  final double smallSpacing = space / 2; // 8
-  final double defaultSpacing = space; // 16
-  final double mediumSpacing = space * 1.5; // 24
-  final double largeSpacing = space * 2; // 32
-  final double hugeSpacing = space * 4; // 64
+  final double spacing = _spaceBase;
+  final double tinySpacing = _spaceBase / 4; // 4
+  final double smallSpacing = _spaceBase / 2; // 8
+  final double defaultSpacing = _spaceBase; // 16
+  final double mediumSpacing = _spaceBase * 1.5; // 24
+  final double largeSpacing = _spaceBase * 2; // 32
+  final double hugeSpacing = _spaceBase * 4; // 64
 
   // Primary colors
   final Color primaryBlue = const Color(0xFF004C92);
