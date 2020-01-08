@@ -40,7 +40,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           StreamBuilder(
             stream: irmaClient.getPreferences().map((p) => p.qrScannerOnStartup),
             builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-              return SwitchListTile(
+              return SwitchListTile.adaptive(
                 title: Text(
                   FlutterI18n.translate(context, 'settings.start_qr'),
                   style: IrmaTheme.of(context).textTheme.body1,
@@ -70,7 +70,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           StreamBuilder(
             stream: irmaClient.getPreferences().map((p) => p.enableCrashReporting),
             builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-              return SwitchListTile(
+              return SwitchListTile.adaptive(
                 title: Text(
                   FlutterI18n.translate(context, 'settings.advanced.report_errors'),
                   style: IrmaTheme.of(context).textTheme.body1,
