@@ -53,9 +53,28 @@ class _HelpScreenState extends State<HelpScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-                    Text(
-                      FlutterI18n.translate(context, 'help.faq'),
-                      style: Theme.of(context).textTheme.display3,
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
+                      child: Column(
+                        children: <Widget>[
+                          SizedBox(
+                            width: double.infinity,
+                            child: Container(
+                              child: Text(
+                                FlutterI18n.translate(context, 'help.faq'),
+                                style: Theme.of(context).textTheme.display2,
+                                textAlign: TextAlign.left,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: IrmaTheme.of(context).smallSpacing),
+                          Text(
+                            FlutterI18n.translate(context, 'help.faq_info'),
+                            style: Theme.of(context).textTheme.body1,
+                          ),
+                          SizedBox(height: IrmaTheme.of(context).tinySpacing),
+                        ],
+                      ),
                     ),
                     SizedBox(height: IrmaTheme.of(context).defaultSpacing),
                     HelpItems(
@@ -87,30 +106,44 @@ class _HelpScreenState extends State<HelpScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-                    Text(
-                      FlutterI18n.translate(context, 'help.ask'),
-                      style: Theme.of(context).textTheme.display3,
-                    ),
-                    SizedBox(height: IrmaTheme.of(context).smallSpacing),
-                    Text(
-                      FlutterI18n.translate(context, 'help.send'),
-                      style: Theme.of(context).textTheme.body1,
-                    ),
-                    SizedBox(height: IrmaTheme.of(context).tinySpacing),
-                    GestureDetector(
-                      onTap: () {
-                        final String address = FlutterI18n.translate(context, 'help.contact');
-                        final String subject = FlutterI18n.translate(context, 'help.mail_subject');
-                        launch("mailto:$address?subject=$subject");
-                      },
-                      child: Center(
-                        child: Text(
-                          FlutterI18n.translate(context, 'help.email'),
-                          style: IrmaTheme.of(context).hyperlinkTextStyle.copyWith(
-                                decoration: TextDecoration.underline,
+                    SizedBox(height: IrmaTheme.of(context).largeSpacing),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
+                      child: Column(
+                        children: <Widget>[
+                          SizedBox(
+                            width: double.infinity,
+                            child: Container(
+                              child: Text(
+                                FlutterI18n.translate(context, 'help.ask'),
+                                style: Theme.of(context).textTheme.display2,
+                                textAlign: TextAlign.left,
                               ),
-                        ),
+                            ),
+                          ),
+                          SizedBox(height: IrmaTheme.of(context).smallSpacing),
+                          Text(
+                            FlutterI18n.translate(context, 'help.send'),
+                            style: Theme.of(context).textTheme.body1,
+                          ),
+                          SizedBox(height: IrmaTheme.of(context).smallSpacing),
+                          GestureDetector(
+                            onTap: () {
+                              final String address = FlutterI18n.translate(context, 'help.contact');
+                              final String subject = FlutterI18n.translate(context, 'help.mail_subject');
+                              launch("mailto:$address?subject=$subject");
+                            },
+                            child: Center(
+                              child: Text(
+                                FlutterI18n.translate(context, 'help.email'),
+                                style: IrmaTheme.of(context).hyperlinkTextStyle.copyWith(
+                                      decoration: TextDecoration.underline,
+                                    ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+                        ],
                       ),
                     ),
                   ],
@@ -121,9 +154,18 @@ class _HelpScreenState extends State<HelpScreen> {
           Align(
             alignment: FractionalOffset.bottomCenter,
             child: Container(
+              decoration: BoxDecoration(
+                color: IrmaTheme.of(context).backgroundBlue,
+                border: Border(
+                  top: BorderSide(
+                    color: IrmaTheme.of(context).primaryLight,
+                    width: 2.0,
+                  ),
+                ),
+              ),
               width: MediaQuery.of(context).size.width,
-              padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
-              color: IrmaTheme.of(context).backgroundBlue,
+              padding: EdgeInsets.symmetric(
+                  vertical: IrmaTheme.of(context).defaultSpacing * 1.5, horizontal: IrmaTheme.of(context).largeSpacing),
               child: IrmaButton(
                 label: 'help.back_button',
                 onPressed: () {

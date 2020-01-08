@@ -40,12 +40,12 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Collapsible(
-            header: FlutterI18n.translate(context, 'about.who_is_behind_irma_item'),
+            header: FlutterI18n.translate(context, 'help.question_1'),
             onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(0))},
             content: Container(
               child: MarkdownBody(
                 selectable: false,
-                data: FlutterI18n.translate(context, 'help.how_item'),
+                data: FlutterI18n.translate(context, 'help.answer_1'),
                 styleSheet: MarkdownStyleSheet(
                   strong: IrmaTheme.of(context).textTheme.body2,
                 ),
@@ -53,12 +53,12 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
             ),
             key: _collapsableKeys[0]),
         Collapsible(
-            header: FlutterI18n.translate(context, 'about.who_is_behind_irma_item'),
-            onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(0))},
+            header: FlutterI18n.translate(context, 'help.question_2'),
+            onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(1))},
             content: Container(
               child: MarkdownBody(
                 selectable: false,
-                data: FlutterI18n.translate(context, 'help.how_item'),
+                data: FlutterI18n.translate(context, 'help.answer_2'),
                 styleSheet: MarkdownStyleSheet(
                   strong: IrmaTheme.of(context).textTheme.body2,
                 ),
@@ -66,12 +66,12 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
             ),
             key: _collapsableKeys[1]),
         Collapsible(
-            header: FlutterI18n.translate(context, 'about.who_is_behind_irma_item'),
-            onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(0))},
+            header: FlutterI18n.translate(context, 'help.question_3'),
+            onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(2))},
             content: Container(
               child: MarkdownBody(
                 selectable: false,
-                data: FlutterI18n.translate(context, 'help.how_item'),
+                data: FlutterI18n.translate(context, 'help.answer_3'),
                 styleSheet: MarkdownStyleSheet(
                   strong: IrmaTheme.of(context).textTheme.body2,
                 ),

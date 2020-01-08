@@ -51,77 +51,94 @@ class _AboutScreenState extends State<AboutScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Center(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: IrmaTheme.of(context).largeSpacing,
-                            vertical: IrmaTheme.of(context).largeSpacing),
-                        child: SizedBox(width: 98, child: SvgPicture.asset('assets/non-free/irma_logo.svg')),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Center(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: IrmaTheme.of(context).largeSpacing,
+                                  vertical: IrmaTheme.of(context).largeSpacing),
+                              child: SizedBox(width: 98, child: SvgPicture.asset('assets/non-free/irma_logo.svg')),
+                            ),
+                          ),
+                          Text(
+                            FlutterI18n.translate(context, 'about.header'),
+                            style: Theme.of(context).textTheme.display2,
+                            textAlign: TextAlign.left,
+                          ),
+                          SizedBox(height: IrmaTheme.of(context).smallSpacing),
+                          Text(
+                            FlutterI18n.translate(context, 'about.slogan'),
+                            style: Theme.of(context).textTheme.body1,
+                          ),
+                          SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+                        ],
                       ),
                     ),
-                    Text(
-                      FlutterI18n.translate(context, 'about.header'),
-                      style: Theme.of(context).textTheme.display2,
-                    ),
-                    SizedBox(height: IrmaTheme.of(context).smallSpacing),
-                    Text(
-                      FlutterI18n.translate(context, 'about.slogan'),
-                      style: Theme.of(context).textTheme.body1,
-                    ),
-                    SizedBox(height: IrmaTheme.of(context).defaultSpacing),
                     AboutItems(
                       credentialType: widget.credentialType,
                       parentKey: _scrollviewKey,
                       parentScrollController: _controller,
                     ),
-                    SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-                    Text(
-                      FlutterI18n.translate(context, 'about.learn_more'),
-                      style: Theme.of(context).textTheme.display2,
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+                          Text(
+                            FlutterI18n.translate(context, 'about.learn_more'),
+                            style: Theme.of(context).textTheme.display2,
+                          ),
+                          SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+                          const ExternalLink(
+                              "about.irma_website_link", "about.more_information", Icon(IrmaIcons.info, size: 24.0)),
+                          SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+                          const ExternalLink("about.contact_link", "about.contact", Icon(IrmaIcons.email, size: 16.0)),
+                          SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+                          const InternalLink('/', "about.demo",
+                              Icon(IrmaIcons.question, size: 24.0)), // TODO update when Help screen exists
+                          SizedBox(height: IrmaTheme.of(context).largeSpacing),
+                          Text(
+                            FlutterI18n.translate(context, 'about.get_involved'),
+                            style: Theme.of(context).textTheme.display2,
+                          ),
+                          SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+                          const ExternalLink("about.meetups_link", "about.meetups",
+                              Icon(IrmaIcons.personal, size: 25.0)), // TODO replace icon with correct one
+                          SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+                          const ExternalLink("about.twitter_link", "about.twitter",
+                              Icon(FontAwesomeIcons.twitter, size: 25.0)), // TODO fix icon and update this
+                          SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+                          const ExternalLink("about.github_link", "about.github",
+                              Icon(FontAwesomeIcons.github, size: 25.0)), // TODO fix icon and update this
+                          SizedBox(height: IrmaTheme.of(context).largeSpacing),
+                          Text(
+                            FlutterI18n.translate(context, 'about.share_slogan'),
+                            style: Theme.of(context).textTheme.display2,
+                          ),
+                          SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+                          ShareLink(
+                              FlutterI18n.translate(context, 'about.share_text'),
+                              FlutterI18n.translate(context, 'about.share'),
+                              Icon(FontAwesomeIcons.shareAlt, size: 25.0)), // TODO fix icon and update this
+                          SizedBox(height: IrmaTheme.of(context).largeSpacing),
+                          Text(
+                            FlutterI18n.translate(context, 'about.version'),
+                            style: Theme.of(context).textTheme.body1,
+                          ),
+                          SizedBox(height: IrmaTheme.of(context).tinySpacing),
+                          Text(
+                            FlutterI18n.translate(context, 'about.copyright'),
+                            style: Theme.of(context).textTheme.body1,
+                          ),
+                          SizedBox(height: IrmaTheme.of(context).largeSpacing),
+                        ],
+                      ),
                     ),
-                    SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-                    const ExternalLink(
-                        "about.irma_website_link", "about.more_information", Icon(IrmaIcons.info, size: 24.0)),
-                    SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-                    const ExternalLink("about.contact_link", "about.contact", Icon(IrmaIcons.email, size: 16.0)),
-                    SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-                    const InternalLink(
-                        '/', "about.demo", Icon(IrmaIcons.question, size: 24.0)), // TODO update when Help screen exists
-                    SizedBox(height: IrmaTheme.of(context).largeSpacing),
-                    Text(
-                      FlutterI18n.translate(context, 'about.get_involved'),
-                      style: Theme.of(context).textTheme.display2,
-                    ),
-                    SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-                    const ExternalLink("about.meetups_link", "about.meetups",
-                        Icon(IrmaIcons.personal, size: 25.0)), // TODO replace icon with correct one
-                    SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-                    const ExternalLink("about.twitter_link", "about.twitter",
-                        Icon(FontAwesomeIcons.twitter, size: 25.0)), // TODO fix icon and update this
-                    SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-                    const ExternalLink("about.github_link", "about.github",
-                        Icon(FontAwesomeIcons.github, size: 25.0)), // TODO fix icon and update this
-                    SizedBox(height: IrmaTheme.of(context).largeSpacing),
-                    Text(
-                      FlutterI18n.translate(context, 'about.share_slogan'),
-                      style: Theme.of(context).textTheme.display2,
-                    ),
-                    SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-                    ShareLink(
-                        FlutterI18n.translate(context, 'about.share_text'),
-                        FlutterI18n.translate(context, 'about.share'),
-                        Icon(FontAwesomeIcons.shareAlt, size: 25.0)), // TODO fix icon and update this
-                    SizedBox(height: IrmaTheme.of(context).largeSpacing),
-                    Text(
-                      FlutterI18n.translate(context, 'about.version'),
-                      style: Theme.of(context).textTheme.body1,
-                    ),
-                    SizedBox(height: IrmaTheme.of(context).tinySpacing),
-                    Text(
-                      FlutterI18n.translate(context, 'about.copyright'),
-                      style: Theme.of(context).textTheme.body1,
-                    ),
-                    SizedBox(height: IrmaTheme.of(context).largeSpacing),
                   ],
                 ),
               ),

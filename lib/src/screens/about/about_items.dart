@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/screens/about/widgets/links.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
@@ -67,20 +68,15 @@ class WhoIsBehindIrma extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        RichText(
-          text: TextSpan(
-              text: FlutterI18n.translate(context, 'about.who_is_behind_irma_explanation_1'),
-              style: IrmaTheme.of(context).textTheme.body1,
-              children: <TextSpan>[
-                TextSpan(text: FlutterI18n.translate(context, 'about.pbdf'), style: IrmaTheme.of(context).boldBody),
-                TextSpan(
-                    text: FlutterI18n.translate(context, 'about.who_is_behind_irma_explanation_2'),
-                    style: IrmaTheme.of(context).textTheme.body1),
-              ]),
+        Container(
+          child: MarkdownBody(
+            selectable: true,
+            data: FlutterI18n.translate(context, 'about.who_is_behind_irma_explanation'),
+            styleSheet: MarkdownStyleSheet(
+              strong: IrmaTheme.of(context).textTheme.body2,
+            ),
+          ),
         ),
-        SizedBox(height: IrmaTheme.of(context).smallSpacing),
-        Text(FlutterI18n.translate(context, 'about.who_is_behind_irma_explanation_3'),
-            style: IrmaTheme.of(context).textTheme.body1),
         SizedBox(height: IrmaTheme.of(context).defaultSpacing),
         SizedBox(
           width: double.infinity,
@@ -109,45 +105,19 @@ class WhyIrma extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        RichText(
-          text: TextSpan(
-              text: FlutterI18n.translate(context, 'about.why_irma_item_1'),
-              style: IrmaTheme.of(context).boldBody,
-              children: <TextSpan>[
-                TextSpan(
-                    text: FlutterI18n.translate(context, 'about.why_irma_item_2'),
-                    style: IrmaTheme.of(context).textTheme.body1),
-              ]),
-        ),
-        SizedBox(height: IrmaTheme.of(context).smallSpacing),
-        RichText(
-          text: TextSpan(
-              text: FlutterI18n.translate(context, 'about.why_irma_item_3'),
-              style: IrmaTheme.of(context).textTheme.body1,
-              children: <TextSpan>[
-                TextSpan(
-                  text: FlutterI18n.translate(context, 'about.avg'),
-                  style: IrmaTheme.of(context).hyperlinkTextStyle,
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = () {
-                      launch(FlutterI18n.translate(context, 'about.avg_link'));
-                    },
-                ),
-                TextSpan(
-                    text: FlutterI18n.translate(context, 'about.why_irma_item_4'),
-                    style: IrmaTheme.of(context).textTheme.body1),
-              ]),
-        ),
-        SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-        RichText(
-          text: TextSpan(
-              text: FlutterI18n.translate(context, 'about.why_irma_item_5'),
-              style: IrmaTheme.of(context).boldBody,
-              children: <TextSpan>[
-                TextSpan(
-                    text: FlutterI18n.translate(context, 'about.why_irma_item_6'),
-                    style: IrmaTheme.of(context).textTheme.body1),
-              ]),
+        Container(
+          child: MarkdownBody(
+            // selectable: true,
+            data: FlutterI18n.translate(context, 'about.why_irma_explanation'),
+            // data: '[test](https://www.google.nl)',
+            styleSheet: MarkdownStyleSheet(
+              strong: IrmaTheme.of(context).textTheme.body2,
+              a: IrmaTheme.of(context).hyperlinkTextStyle,
+            ),
+            onTapLink: (href) {
+              launch(href);
+            },
+          ),
         ),
         SizedBox(height: IrmaTheme.of(context).smallSpacing),
       ],
@@ -161,39 +131,21 @@ class PrivacyAndSecurity extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        Text(FlutterI18n.translate(context, 'about.privacy_explanation_1'),
-            style: IrmaTheme.of(context).textTheme.body1),
-        SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-        RichText(
-          text: TextSpan(
-              text: FlutterI18n.translate(context, 'about.privacy_explanation_2'),
-              style: IrmaTheme.of(context).textTheme.body1,
-              children: <TextSpan>[
-                TextSpan(
-                  text: FlutterI18n.translate(context, 'about.privacy_explanation_3'),
-                  style: IrmaTheme.of(context).boldBody,
-                ),
-                TextSpan(
-                  text: FlutterI18n.translate(context, 'about.privacy_explanation_4'),
-                  style: IrmaTheme.of(context).textTheme.body1,
-                ),
-              ]),
-        ),
-        SizedBox(height: IrmaTheme.of(context).smallSpacing),
-        RichText(
-          text: TextSpan(
-              text: FlutterI18n.translate(context, 'about.privacy_explanation_5'),
-              style: IrmaTheme.of(context).textTheme.body1,
-              children: <TextSpan>[
-                TextSpan(
-                    text: FlutterI18n.translate(context, 'about.privacy_explanation_6'),
-                    style: IrmaTheme.of(context).boldBody),
-              ]),
+        Container(
+          child: MarkdownBody(
+            // selectable: true,
+            data: FlutterI18n.translate(context, 'about.privacy_explanation'),
+            // data: '[test](https://www.google.nl)',
+            styleSheet: MarkdownStyleSheet(
+              strong: IrmaTheme.of(context).textTheme.body2,
+              a: IrmaTheme.of(context).hyperlinkTextStyle,
+            ),
+            onTapLink: (href) {
+              launch(href);
+            },
+          ),
         ),
         SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-        Text(FlutterI18n.translate(context, 'about.privacy_explanation_7'),
-            style: IrmaTheme.of(context).textTheme.body1),
-        SizedBox(height: IrmaTheme.of(context).smallSpacing),
         SizedBox(
           width: double.infinity,
           child: Container(
