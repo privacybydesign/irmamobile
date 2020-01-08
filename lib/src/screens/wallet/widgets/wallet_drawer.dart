@@ -57,24 +57,21 @@ class WalletDrawer extends StatelessWidget {
                       ),
                     ),
                   ),
-                  _createDrawerItem(
-                    context,
-                    icon: IrmaIcons.add,
-                    text: FlutterI18n.translate(context, 'drawer.add_cards'),
-                    onTap: () => Navigator.pushNamed(context, CardStoreScreen.routeName),
-                  ),
-                  _createDrawerItem(
-                    context,
-                    icon: IrmaIcons.time,
-                    text: FlutterI18n.translate(context, 'drawer.history'),
-                    onTap: () => Navigator.pushNamed(context, HistoryScreen.routeName),
-                  ),
-                  _createDrawerItem(
-                    context,
-                    icon: IrmaIcons.settings,
-                    text: FlutterI18n.translate(context, 'drawer.settings'),
-                    onTap: () => Navigator.pushNamed(context, SettingsScreen.routeName),
-                  ),
+                  _createDrawerItem(context,
+                      icon: IrmaIcons.add, text: FlutterI18n.translate(context, 'drawer.add_cards'), onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pushNamed(CardStoreScreen.routeName);
+                  }),
+                  _createDrawerItem(context,
+                      icon: IrmaIcons.time, text: FlutterI18n.translate(context, 'drawer.history'), onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pushNamed(HistoryScreen.routeName);
+                  }),
+                  _createDrawerItem(context,
+                      icon: IrmaIcons.settings, text: FlutterI18n.translate(context, 'drawer.settings'), onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pushNamed(SettingsScreen.routeName);
+                  }),
                   _createDrawerItem(
                     context,
                     icon: IrmaIcons.question,
@@ -83,12 +80,11 @@ class WalletDrawer extends StatelessWidget {
                       // TODO: navigate to correct route
                     },
                   ),
-                  _createDrawerItem(
-                    context,
-                    icon: IrmaIcons.info,
-                    text: FlutterI18n.translate(context, 'drawer.about'),
-                    onTap: () => Navigator.pushNamed(context, AboutScreen.routeName),
-                  ),
+                  _createDrawerItem(context, icon: IrmaIcons.info, text: FlutterI18n.translate(context, 'drawer.about'),
+                      onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pushNamed(AboutScreen.routeName);
+                  }),
                 ],
               ),
             ),
@@ -109,6 +105,7 @@ class WalletDrawer extends StatelessWidget {
                     ),
                     leading: Icon(IrmaIcons.lock, color: Colors.white),
                     onTap: () {
+                      Navigator.of(context).pop();
                       IrmaRepository.get().lock();
                     },
                   ),

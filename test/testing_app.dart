@@ -11,7 +11,7 @@ class TestingApp extends StatelessWidget {
   TestingApp({this.builder, bool versionUpdateAvailable = true, bool versionUpdateRequired = false})
       : repository = IrmaRepository(
             client: IrmaClientMock(
-                versionUpdateAvailable: versionUpdateAvailable, versionUpdateRequired: versionUpdateRequired)) {}
+                versionUpdateAvailable: versionUpdateAvailable, versionUpdateRequired: versionUpdateRequired));
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +23,8 @@ class TestingApp extends StatelessWidget {
           key: const Key("app"),
           title: 'IRMA',
           theme: IrmaTheme.of(context).themeData,
-          localizationsDelegates: App.defaultLocalizationsDelegates(forcedLocale),
-          supportedLocales: App.defaultSupportedLocales(),
+          localizationsDelegates: AppState.defaultLocalizationsDelegates(forcedLocale),
+          supportedLocales: AppState.defaultSupportedLocales(),
           // We need to use the system locale here because of a bug in FlutterI18n
           locale: forcedLocale,
           initialRoute: '/',
