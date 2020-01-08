@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'package:irmamobile/src/screens/add_card_email/add_email_card_screen.dart';
 import 'package:irmamobile/src/screens/issuance_webview/issuance_webview_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/language.dart';
@@ -68,35 +67,20 @@ class CardStoreScreen extends StatelessWidget {
                                 title: category,
                                 credentials: credentialTypesByCategory[category].map((credentialType) {
                                   VoidCallback navigationCallBack;
-                                  if (_isEmailCredential(credentialType)) {
-                                    navigationCallBack = () {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (context) => const AddEmailCardScreen(
-                                            "https://privacybydesign.foundation/tomcat/irma_email_issuer/api/send-email-token",
-                                          ),
+                                  navigationCallBack = () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => CardInfoScreen(
+                                          irmaConfiguration: irmaConfiguration,
+                                          credentialType: credentialType,
+                                          onStartIssuance: () {
+                                            _openURL(context, getTranslation(credentialType.issueUrl));
+                                          },
                                         ),
-                                      );
-                                    };
-                                  } else if (_isPhonenumberCredential(credentialType)) {
-                                    // TODO: set navigation callback to navigate to phonenumber screen
-
-                                  } else {
-                                    navigationCallBack = () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => CardInfoScreen(
-                                            irmaConfiguration: irmaConfiguration,
-                                            credentialType: credentialType,
-                                            onStartIssuance: () {
-                                              _openURL(context, getTranslation(credentialType.issueUrl));
-                                            },
-                                          ),
-                                        ),
-                                      );
-                                    };
-                                  }
+                                      ),
+                                    );
+                                  };
 
                                   final File logoFile = File(credentialType.logoPath(irmaConfiguration.path));
                                   return CardSuggestion(
