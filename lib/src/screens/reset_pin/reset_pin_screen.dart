@@ -87,7 +87,7 @@ class ResetPinScreen extends StatelessWidget {
                 children: <Widget>[
                   Expanded(
                     child: IrmaTextButton(
-                      onPressed: () {},
+                      onPressed: () {}, // TODO
                       minWidth: 0.0,
                       label: FlutterI18n.translate(context, 'reset_pin.back'),
                     ),
@@ -96,7 +96,7 @@ class ResetPinScreen extends StatelessWidget {
                   Expanded(
                     child: IrmaButton(
                       minWidth: 0.0,
-                      onPressed: () {},
+                      onPressed: () {}, // TODO
                       label: FlutterI18n.translate(context, 'reset_pin.reset'),
                     ),
                   ),
