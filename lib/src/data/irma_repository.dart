@@ -56,7 +56,7 @@ class IrmaRepository {
   void deleteAllCredentials() {
     client.deleteAllCredentials();
   }
-  
+
   Stream<EnrollmentStatus> getEnrollmentStatus() {
     return client.getEnrollmentStatus();
   }

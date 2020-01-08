@@ -11,21 +11,20 @@ class RedirectScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<EnrollmentStatus>(
-      stream: IrmaRepository.get().getEnrollmentStatus(),
-      builder: (context, snapshot) {
-        if (snapshot.data != null && !snapshot.data.isEmpty()) {
-          if (snapshot.data.isEnrolled()) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              Navigator.of(context).pushReplacementNamed(WalletScreen.routeName);
-            });
-          } else {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              Navigator.of(context).pushReplacementNamed(EnrollmentScreen.routeName);
-            });
+        stream: IrmaRepository.get().getEnrollmentStatus(),
+        builder: (context, snapshot) {
+          if (snapshot.data != null && !snapshot.data.isEmpty()) {
+            if (snapshot.data.isEnrolled()) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                Navigator.of(context).pushReplacementNamed(WalletScreen.routeName);
+              });
+            } else {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                Navigator.of(context).pushReplacementNamed(EnrollmentScreen.routeName);
+              });
+            }
           }
-        }
-        return LoadingScreen();
-      }
-    );
+          return LoadingScreen();
+        });
   }
 }
