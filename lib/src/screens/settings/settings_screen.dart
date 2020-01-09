@@ -27,7 +27,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.popUntil(context, ModalRoute.withName(Navigator.defaultRouteName)),
+          onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(FlutterI18n.translate(context, 'settings.title')),
         centerTitle: true,
@@ -92,7 +92,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 context: context,
                 barrierDismissible: false,
                 builder: (BuildContext context) => IrmaDialog(
-                  height: 200,
                   title: 'settings.advanced.delete_title',
                   content: 'settings.advanced.delete_content',
                   child: Wrap(

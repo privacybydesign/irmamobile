@@ -5,7 +5,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:irmamobile/src/data/irma_client_bridge.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/version_information.dart';
-import 'package:irmamobile/src/prototypes/prototypes_screen.dart';
 import 'package:irmamobile/src/screens/about/about_screen.dart';
 import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
 import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
@@ -19,17 +18,29 @@ import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/util/navigator_service.dart';
 
 void main() {
   // Run the application
-  runApp(App());
+  runApp(const App());
 }
 
-class App extends StatelessWidget {
+class App extends StatefulWidget {
+  const App({Key key}) : super(key: key);
+
+  @override
+  AppState createState() => AppState();
+}
+
+class AppState extends State<App> with WidgetsBindingObserver {
   final String initialRoute;
   final Map<String, WidgetBuilder> routes;
 
-  App()
+  // We keep track of the last two life cycle states
+  // to be able to determine the flow
+  List<AppLifecycleState> prevLifeCycleStates = List<AppLifecycleState>(2);
+
+  AppState()
       : initialRoute = null,
         routes = {
           WalletScreen.routeName: (BuildContext context) => WalletScreen(),
@@ -41,12 +52,6 @@ class App extends StatelessWidget {
           CardStoreScreen.routeName: (BuildContext context) => CardStoreScreen(),
           HistoryScreen.routeName: (BuildContext context) => HistoryScreen(),
           HelpScreen.routeName: (BuildContext context) => HelpScreen(),
-        };
-
-  App.updateRequired()
-      : initialRoute = PrototypesScreen.routeName,
-        routes = {
-          PrototypesScreen.routeName: (BuildContext context) => PrototypesScreen(),
         };
 
   static List<LocalizationsDelegate> defaultLocalizationsDelegates([Locale forcedLocale]) {
@@ -70,12 +75,46 @@ class App extends StatelessWidget {
   }
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  Future<Null> didChangeAppLifecycleState(AppLifecycleState state) async {
+    final startQrScanner = await IrmaRepository.get().getPreferences().map((p) => p.qrScannerOnStartup).first;
+
+    final navState = NavigatorService.get();
+
+    // We check the transition goes from paused -> inactive -> resumed
+    // because the transition inactive -> resumed can also happen
+    // in scenarios where the app is not closed. Like an apple pay
+    // authentication request or a phone call that interrupts
+    // the app but doesn't pause it. In those cases we don't open
+    // the QR scanner.
+    if (prevLifeCycleStates[0] == AppLifecycleState.paused &&
+        prevLifeCycleStates[1] == AppLifecycleState.inactive &&
+        state == AppLifecycleState.resumed &&
+        startQrScanner) {
+      navState.pushNamed(ScannerScreen.routeName);
+    }
+
+    prevLifeCycleStates[0] = prevLifeCycleStates[1];
+    prevLifeCycleStates[1] = state;
+  }
+
+  @override
   Widget build(BuildContext context) {
     IrmaRepository(client: IrmaClientBridge());
 
     final irmaRepo = IrmaRepository.get();
     final versionInformationStream = irmaRepo.getVersionInformation();
-    final startQrStream = irmaRepo.getPreferences().map((p) => p.qrScannerOnStartup);
 
     // Device orientation: force portrait mode
     SystemChrome.setPreferredOrientations([
@@ -91,59 +130,51 @@ class App extends StatelessWidget {
               if (!enrolledSnapshot.hasData) {
                 return Container();
               }
-              return StreamBuilder<bool>(
-                  stream: startQrStream,
-                  builder: (context, startQrSnapshot) {
-                    if (!startQrSnapshot.hasData) {
-                      return Container();
-                    }
 
-                    var initialRoute = WalletScreen.routeName;
-                    if (enrolledSnapshot.data == false) {
-                      initialRoute = EnrollmentScreen.routeName;
-                    } else if (startQrSnapshot.data == true) {
-                      initialRoute = ScannerScreen.routeName;
-                    }
+              var initialRoute = WalletScreen.routeName;
+              if (enrolledSnapshot.data == false) {
+                initialRoute = EnrollmentScreen.routeName;
+              }
 
-                    return MaterialApp(
-                      key: const Key("app"),
-                      title: 'IRMA',
-                      theme: IrmaTheme.of(context).themeData,
-                      localizationsDelegates: defaultLocalizationsDelegates(),
-                      supportedLocales: defaultSupportedLocales(),
-                      initialRoute: initialRoute,
-                      routes: routes,
-                      builder: (context, child) {
-                        // Use the MaterialApp builder to force an overlay when loading
-                        // and when update required.
-                        return Stack(
-                          children: <Widget>[
-                            child,
-                            PinScreen(isEnrolled: enrolledSnapshot.data),
-                            StreamBuilder<VersionInformation>(
-                                stream: versionInformationStream,
-                                builder: (context, snapshot) {
-                                  switch (snapshot.connectionState) {
-                                    case ConnectionState.none:
-                                      throw Exception('Unreachable');
-                                      break;
-                                    case ConnectionState.waiting:
-                                      return LoadingScreen();
-                                      break;
-                                    case ConnectionState.active:
-                                    case ConnectionState.done:
-                                      break;
-                                  }
-                                  if (snapshot.data != null && snapshot.data.updateRequired()) {
-                                    return RequiredUpdateScreen();
-                                  }
-                                  return Container();
-                                }),
-                          ],
-                        );
-                      },
-                    );
-                  });
+              return MaterialApp(
+                key: const Key("app"),
+                title: 'IRMA',
+                theme: IrmaTheme.of(context).themeData,
+                localizationsDelegates: defaultLocalizationsDelegates(),
+                supportedLocales: defaultSupportedLocales(),
+                navigatorKey: NavigatorService.navigatorKey,
+                initialRoute: initialRoute,
+                routes: routes,
+                builder: (context, child) {
+                  // Use the MaterialApp builder to force an overlay when loading
+                  // and when update required.
+                  return Stack(
+                    children: <Widget>[
+                      child,
+                      PinScreen(isEnrolled: enrolledSnapshot.data),
+                      StreamBuilder<VersionInformation>(
+                          stream: versionInformationStream,
+                          builder: (context, snapshot) {
+                            switch (snapshot.connectionState) {
+                              case ConnectionState.none:
+                                throw Exception('Unreachable');
+                                break;
+                              case ConnectionState.waiting:
+                                return LoadingScreen();
+                                break;
+                              case ConnectionState.active:
+                              case ConnectionState.done:
+                                break;
+                            }
+                            if (snapshot.data != null && snapshot.data.updateRequired()) {
+                              return RequiredUpdateScreen();
+                            }
+                            return Container();
+                          }),
+                    ],
+                  );
+                },
+              );
             });
       },
     );

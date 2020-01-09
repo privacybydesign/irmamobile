@@ -4,16 +4,16 @@ import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class IrmaDialog extends StatelessWidget {
-  final double height;
   final String title;
   final String content;
   final Widget child;
+  final String image;
 
   const IrmaDialog({
     @required this.title,
     @required this.content,
     @required this.child,
-    this.height = 200.0,
+    this.image,
   });
 
   @override
@@ -34,7 +34,7 @@ class IrmaDialog extends StatelessWidget {
           child: ConstrainedBox(
             constraints: const BoxConstraints(minWidth: 280.0),
             child: Material(
-              color: IrmaTheme.of(context).primaryLight,
+              color: IrmaTheme.of(context).grayscaleWhite,
               elevation: 24.0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(IrmaTheme.of(context).smallSpacing),
@@ -43,12 +43,12 @@ class IrmaDialog extends StatelessWidget {
               child: Stack(
                 children: <Widget>[
                   Container(
-                    height: height,
                     margin: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                    child: ListView(
+                      shrinkWrap: true,
+                      // crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: <Widget>[
-                        Flexible(
+                        Container(
                           child: Padding(
                             padding: EdgeInsets.only(bottom: IrmaTheme.of(context).defaultSpacing),
                             child: Column(
@@ -63,6 +63,15 @@ class IrmaDialog extends StatelessWidget {
                                   FlutterI18n.translate(context, content),
                                   style: IrmaTheme.of(context).textTheme.body1,
                                 ),
+                                if (image != null) ...[
+                                  SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+                                  Center(
+                                    child: Image.asset(
+                                      image,
+                                      width: 240,
+                                    ),
+                                  ),
+                                ]
                               ],
                             ),
                           ),
