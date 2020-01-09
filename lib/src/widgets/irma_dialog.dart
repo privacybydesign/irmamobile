@@ -7,11 +7,13 @@ class IrmaDialog extends StatelessWidget {
   final String title;
   final String content;
   final Widget child;
+  final String image;
 
   const IrmaDialog({
     @required this.title,
     @required this.content,
     @required this.child,
+    this.image,
   });
 
   @override
@@ -32,7 +34,7 @@ class IrmaDialog extends StatelessWidget {
           child: ConstrainedBox(
             constraints: const BoxConstraints(minWidth: 280.0),
             child: Material(
-              color: IrmaTheme.of(context).primaryLight,
+              color: IrmaTheme.of(context).grayscaleWhite,
               elevation: 24.0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(IrmaTheme.of(context).smallSpacing),
@@ -61,6 +63,15 @@ class IrmaDialog extends StatelessWidget {
                                   FlutterI18n.translate(context, content),
                                   style: IrmaTheme.of(context).textTheme.body1,
                                 ),
+                                if (image != null) ...[
+                                  SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+                                  Center(
+                                    child: Image.asset(
+                                      image,
+                                      width: 240,
+                                    ),
+                                  ),
+                                ]
                               ],
                             ),
                           ),

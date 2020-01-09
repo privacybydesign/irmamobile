@@ -294,14 +294,15 @@
       "start": "Wil je dit aan ",
       "end": " doorgeven?"
     },
-    "footer": "Je geeft alleen bovenstaande gegevens door.",
     "issuer": "Uitgever",
     "choices": "{choices} keuzes",
     "next": "volgende kiezen",
     "previous": "vorige kiezen",
-    "info": {
-      "title": "Kies welke gegevens je vrijgeeft",
-      "body": "Je kunt kiezen welke gegevens je doorgeeft. Gebruik het pijltje of swipe en maak je keuze."
+    "explanation": {
+      "title": "Kies welke gegevens je deelt",
+      "body": "Je kunt kiezen welke gegevens je doorgeeft. Gebruik het pijltje of swipe en maak je keuze.",
+      "dismiss": "OK",
+      "dismiss-remember": "Niet meer tonen"
     }
   },
   "reset_pin": {
