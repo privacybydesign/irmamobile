@@ -9,7 +9,7 @@ import 'package:irmamobile/src/screens/wallet/widgets/wallet.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet_drawer.dart';
 
 class WalletScreen extends StatelessWidget {
-  static const routeName = "/";
+  static final routeName = "/wallet";
 
   @override
   Widget build(BuildContext context) {

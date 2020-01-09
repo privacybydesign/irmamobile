@@ -72,7 +72,7 @@ class _PinScreenState extends State<PinScreen> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    debugPrint("on forgot pin press");
+                    // TODO navigate to screen
                   },
                   child: Text(
                     FlutterI18n.translate(context, "pin.button_forgot"),

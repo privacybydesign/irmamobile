@@ -304,5 +304,14 @@
       "title": "Choose which data you pass on",
       "body": "You can choose which data you provide. Use the arrow or swipe and make your choice."
     }
+  },
+  "reset_pin": {
+    "title": "Forgot pin",
+    "message": "Forgot your pin code? Unfortunately you will have to reset IRMA to keep using it.",
+    "existing_data_title": "What happens to my existing data?",
+    "existing_data_message": "Your existing data will be removed from your phone. To keep using IRMA you will have to download your data again.",
+    "back": "Back",
+    "reset": "Reset IRMA",
+    "existing_data_removed": "Your existing IRMA wallet will be removed."
   }
 }

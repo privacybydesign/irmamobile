@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:irmamobile/src/models/authentication_result.dart';
 import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/models/credentials.dart';
+import 'package:irmamobile/src/models/enrollment_status.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/log.dart';
 import 'package:irmamobile/src/models/preferences.dart';
@@ -47,4 +48,5 @@ abstract class IrmaClient {
   Stream<bool> getLocked();
 
   void startSession(String request);
+  Stream<EnrollmentStatus> getEnrollmentStatus();
 }
