@@ -6,10 +6,6 @@ import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_state.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/irma_button.dart';
-import 'package:irmamobile/src/widgets/irma_dialog.dart';
-import 'package:irmamobile/src/widgets/irma_text_button.dart';
-import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 import 'package:irmamobile/src/widgets/pin_field.dart';
 
 class PinScreen extends StatefulWidget {
@@ -91,31 +87,14 @@ class _PinScreenState extends State<PinScreen> {
                           padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
                           child: const CircularProgressIndicator()),
                     if (state.pinInvalid)
-                      IrmaDialog(
-                        height: 250,
-                        title: 'settings.advanced.delete_title',
-                        content: 'settings.advanced.delete_content',
-                        child: Wrap(
-                          direction: Axis.horizontal,
-                          verticalDirection: VerticalDirection.up,
-                          alignment: WrapAlignment.spaceEvenly,
-                          children: <Widget>[
-                            IrmaTextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              minWidth: 0.0,
-                              label: 'settings.advanced.delete_deny',
-                            ),
-                            IrmaButton(
-                              size: IrmaButtonSize.small,
-                              minWidth: 0.0,
-                              onPressed: () {},
-                              label: 'settings.advanced.delete_confirm',
-                            ),
-                          ],
+                      if (state.pinInvalid)
+                        Text(
+                          FlutterI18n.plural(context, "pin.invalid_pin.attempts", state.remainingAttempts),
+                          style: IrmaTheme.of(context).textTheme.body1.copyWith(
+                                color: Colors.red,
+                              ),
+                          textAlign: TextAlign.center,
                         ),
-                      ),
                     if (state.errorMessage != null)
                       Text(
                         FlutterI18n.translate(context, state.errorMessage),
