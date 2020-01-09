@@ -74,6 +74,8 @@ class WhoIsBehindIrma extends StatelessWidget {
             data: FlutterI18n.translate(context, 'about.who_is_behind_irma_explanation'),
             styleSheet: MarkdownStyleSheet(
               strong: IrmaTheme.of(context).textTheme.body2,
+              textScaleFactor: MediaQuery.textScaleFactorOf(
+                  context), // TODO remove that addition when "https://github.com/flutter/flutter_markdown/pull/162" is merged
             ),
           ),
         ),
@@ -111,6 +113,8 @@ class WhyIrma extends StatelessWidget {
             styleSheet: MarkdownStyleSheet(
               strong: IrmaTheme.of(context).textTheme.body2,
               a: IrmaTheme.of(context).hyperlinkTextStyle,
+              textScaleFactor: MediaQuery.textScaleFactorOf(
+                  context), // TODO remove that addition when "https://github.com/flutter/flutter_markdown/pull/162" is merged
             ),
             onTapLink: (href) {
               launch(href);
@@ -135,6 +139,8 @@ class PrivacyAndSecurity extends StatelessWidget {
             styleSheet: MarkdownStyleSheet(
               strong: IrmaTheme.of(context).textTheme.body2,
               a: IrmaTheme.of(context).hyperlinkTextStyle,
+              textScaleFactor: MediaQuery.textScaleFactorOf(
+                  context), // TODO remove that addition when "https://github.com/flutter/flutter_markdown/pull/162" is merged
             ),
             onTapLink: (href) {
               launch(href);

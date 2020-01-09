@@ -92,7 +92,14 @@
     "faq": "Veelgestelde vragen",
     "faq_info": "Hier vind je antwoorden op veelgestelde vragen over IRMA.",
     "question_1": "Hoe moet ik met IRMA inloggen op een website?",
-    "answer_1": "Websites waar je met IRMA in kunt loggen hebben een knop daarvoor, waar bijvoorbeeld op staat *Log in met IRMA*.\n\nEr zijn twee verschillende situaties:\n- Als je de website bekijkt op je computer of laptop en je drukt op die login knop verschijnt er een QR code. Je opent dan de IRMA app op je telefoon met je PIN. Onderaan in de app zit een knopje waarmee je de QR code kunt scannen. In de app krijg je dan de vraag of je gegevens waarom de website vraagt wil vrijgeven. Als je op *Ja* klikt, ben je ingelogd.\n- Als je de website op je telefoon bekijkt wordt na het indrukken van de login knop automatisch overgeschakeld naar de IRMA app. Daarin verschijnt de vraag of je de gevraagde gegevens wil vrijgeven. Nadat je op *Ja* hebt gedrukt ga je terug naar de website en ben je ingelogd. Als het goed is gaat je telefoon automatisch terug, maar soms moet je dat met de hand doen.\n\nHet kan zijn dat de website vraagt om gegevens die je nog niet in je IRMA app geladen hebt. Dan moet je die eerst toevoegen voordat je in kunt loggen.",
+    "answer_1": {
+      "title": "Hieronder zie je hoe je IRMA kunt gebruiken om jezelf bekend te maken op een website.",
+      "step_1": "Open een website en kies voor inloggen met IRMA.",
+      "step_2": "De IRMA start vervolgens op.",
+      "step_3": "Geef toestemming je gegevens vrij te geven en wacht op de bevestiging.",
+      "step_4": "Vanaf nu kan je de website gebriuiken, je bent ingelogd.",
+      "step_5": "Wil je meer weten? Klik dan hieronder voor meer vragen."
+    },
     "question_2": "Welke kaartjes kan ik in IRMA zetten?",
     "answer_2": "Vanuit gemeenten kun je zelf kaartjes met persoonsgegevens (zoals je naam, adres, geboortedatum, BSN) in je IRMA app zetten, maar ook of je bijvoorbeeld ouder dan 18 of 65 bent. Daarnaast kun je een of meer e-mail adressen en mobiele telefoonnummers, na controle, toevoegen. Studenten en medewerkers in het (hoger) onderwijs kunnen ook hun registratie kaartjes toevoegen. Medewerkers in de zorg kunnen zogenaamde AGB kaartje toevoegen. Hiermee kun je in veel situaties voldoende van jezelf bekend maken.\n\nNaar verwachting zullen de komende tijd nog veel andere bronnen van persoonsgegevens aan IRMA toegevoegd worden, voor gebruikers in het algemeen en ook voor speciale (beroeps)groepen.",
     "question_3": "Ik heb een vraag; waar kan ik terecht?",

@@ -75,6 +75,7 @@ flutter:
     - assets/wallet/
     - assets/generic/
     - assets/error/
+    - assets/help/
     - assets/non-free/
 
   fonts:
