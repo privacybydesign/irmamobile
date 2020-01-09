@@ -6,8 +6,10 @@ import 'package:irmamobile/src/theme/theme.dart';
 class Illustrator extends StatefulWidget {
   final List<Widget> imageSet;
   final List<Widget> textSet;
+  final double height;
+  final double width;
 
-  const Illustrator({@required this.imageSet, @required this.textSet});
+  const Illustrator({@required this.imageSet, @required this.textSet, @required this.height, @required this.width});
 
   @override
   _IllustratorState createState() => _IllustratorState();
@@ -31,7 +33,7 @@ class _IllustratorState extends State<Illustrator> {
 
   Widget navBar() {
     return Container(
-      height: 200.0,
+      height: widget.height,
       child: Stack(
         alignment: AlignmentDirectional.center,
         children: <Widget>[
@@ -104,8 +106,8 @@ class _IllustratorState extends State<Illustrator> {
           children: <Widget>[
             Center(
               child: Container(
-                height: 220.0,
-                width: 280.0,
+                height: widget.height,
+                width: widget.width,
                 child: PageView.builder(
                   itemCount: widget.imageSet.length,
                   physics: const AlwaysScrollableScrollPhysics(),

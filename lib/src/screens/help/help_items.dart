@@ -115,6 +115,8 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
                 Illustrator(
                   imageSet: _helpPages,
                   textSet: _helpTexts,
+                  width: 280.0,
+                  height: 220.0,
                 ),
               ],
             ),
