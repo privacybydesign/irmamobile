@@ -43,12 +43,13 @@ class IrmaDialog extends StatelessWidget {
               child: Stack(
                 children: <Widget>[
                   Container(
-                    height: height,
+                    // height: height,
                     margin: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                    child: ListView(
+                      shrinkWrap: true,
+                      // crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: <Widget>[
-                        Flexible(
+                        Container(
                           child: Padding(
                             padding: EdgeInsets.only(bottom: IrmaTheme.of(context).defaultSpacing),
                             child: Column(
