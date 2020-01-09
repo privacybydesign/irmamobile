@@ -207,7 +207,7 @@ class PrivacyAndSecurity extends StatelessWidget {
         const ExternalLink(
           "about.privacy_policy_link",
           "about.privacy_policy",
-          Icon(IrmaIcons.view, size: 16.0),
+          Icon(IrmaIcons.view),
         ),
         SizedBox(height: IrmaTheme.of(context).defaultSpacing),
       ],

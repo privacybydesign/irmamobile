@@ -126,7 +126,7 @@ class Walkthrough extends StatelessWidget {
               : IconButton(
                   onPressed: onNextScreen,
                   icon: Icon(IrmaIcons.chevronDown, color: IrmaTheme.of(context).grayscale60),
-                  iconSize: 16,
+                  iconSize: 32,
                   alignment: Alignment.center,
                 ),
         ),

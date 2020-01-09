@@ -23,6 +23,7 @@ import 'package:irmamobile/src/screens/history/history_screen.dart';
 import 'package:irmamobile/src/screens/loading/loading_screen.dart';
 import 'package:irmamobile/src/screens/reset_pin/reset_pin_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
+import 'package:irmamobile/src/theme/theme.dart';
 
 class PrototypesScreen extends StatelessWidget {
   static const routeName = "/";
@@ -186,6 +187,12 @@ class PrototypesScreen extends StatelessWidget {
   }
 
   Widget _buildListItem(BuildContext context, String name, void Function() onTap) {
+    var itemTextTheme = Theme.of(context).textTheme.body2;
+    if (onTap == null) {
+      itemTextTheme = itemTextTheme.copyWith(
+        color: IrmaTheme.of(context).grayscale60,
+      );
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -205,7 +212,7 @@ class PrototypesScreen extends StatelessWidget {
                 Flexible(
                   child: Text(
                     name,
-                    style: Theme.of(context).textTheme.body2,
+                    style: itemTextTheme,
                     overflow: TextOverflow.clip,
                     maxLines: 1,
                   ),
