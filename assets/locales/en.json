@@ -205,17 +205,17 @@
       "details": "Your pin code is being validated"
     },
     "choose_pin": {
-      "title": "Change pin code",
-      "instruction": "Choose a new 5-digit pin code.",
-      "switch_long": "I want a longer pin code",
-      "switch_short": "I want a shorter pin code",
-      "error_title": "Incorrect pin code",
-      "error": "The pin codes do not match. Try again.",
+      "title": "Verander je pincode",
+      "instruction": "Kies je nieuwe pincode.",
+      "switch_long": "Ik wil een langere pincode",
+      "switch_short": "Ik wil een kortere pincode",
+      "error_title": "Verkeerde pincode",
+      "error": "De pincodes kwamen niet overeen. Probeer het nog eens.",
       "error_action": "Ok"
     },
     "confirm_pin": {
-      "title": "Change pin code",
-      "instruction": "Confirm your new pin code."
+      "title": "Verander je pincode",
+      "instruction": "Vul je nieuwe pincode nogmaals in."
     },
     "success": {
       "title": "Success!",

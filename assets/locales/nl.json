@@ -205,7 +205,7 @@
     },
     "choose_pin": {
       "title": "Verander je pincode",
-      "instruction": "Kies een nieuwe pincode van 5 cijfers.",
+      "instruction": "Kies je nieuwe pincode.",
       "switch_long": "Ik wil een langere pincode",
       "switch_short": "Ik wil een kortere pincode",
       "error_title": "Verkeerde pincode",
@@ -214,7 +214,7 @@
     },
     "confirm_pin": {
       "title": "Verander je pincode",
-      "instruction": "Vul ter controle nogmaals je nieuwe pincode in."
+      "instruction": "Vul je nieuwe pincode nogmaals in."
     },
     "success": {
       "title": "Gelukt!",
