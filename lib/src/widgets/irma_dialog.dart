@@ -4,7 +4,6 @@ import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class IrmaDialog extends StatelessWidget {
-  final double height;
   final String title;
   final String content;
   final Widget child;
@@ -13,7 +12,6 @@ class IrmaDialog extends StatelessWidget {
     @required this.title,
     @required this.content,
     @required this.child,
-    this.height = 200.0,
   });
 
   @override
@@ -43,7 +41,6 @@ class IrmaDialog extends StatelessWidget {
               child: Stack(
                 children: <Widget>[
                   Container(
-                    // height: height,
                     margin: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
                     child: ListView(
                       shrinkWrap: true,

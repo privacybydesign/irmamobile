@@ -33,7 +33,6 @@ class ProvideEmailActions extends StatelessWidget {
                     showDialog(
                       context: context,
                       builder: (BuildContext context) => IrmaDialog(
-                        height: 240,
                         title: 'enrollment.provide_email.skip_title',
                         content: 'enrollment.provide_email.skip_content',
                         child: Wrap(

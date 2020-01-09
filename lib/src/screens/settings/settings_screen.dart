@@ -92,7 +92,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 context: context,
                 barrierDismissible: false,
                 builder: (BuildContext context) => IrmaDialog(
-                  // height: 200,
                   title: 'settings.advanced.delete_title',
                   content: 'settings.advanced.delete_content',
                   child: Wrap(
