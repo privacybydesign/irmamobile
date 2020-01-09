@@ -58,9 +58,7 @@ class _AboutScreenState extends State<AboutScreen> {
                         children: <Widget>[
                           Center(
                             child: Padding(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: IrmaTheme.of(context).largeSpacing,
-                                  vertical: IrmaTheme.of(context).largeSpacing),
+                              padding: EdgeInsets.all(IrmaTheme.of(context).largeSpacing),
                               child: SizedBox(width: 98, child: SvgPicture.asset('assets/non-free/irma_logo.svg')),
                             ),
                           ),
@@ -97,10 +95,8 @@ class _AboutScreenState extends State<AboutScreen> {
                           const ExternalLink(
                               "about.irma_website_link", "about.more_information", Icon(IrmaIcons.info, size: 24.0)),
                           SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-                          const ExternalLink("about.contact_link", "about.contact", Icon(IrmaIcons.email, size: 16.0)),
-                          SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-                          const InternalLink('/', "about.demo",
-                              Icon(IrmaIcons.question, size: 24.0)), // TODO update when Help screen exists
+                          const ContactLink(
+                              "help.contact", "help.mail_subject", "about.contact", Icon(IrmaIcons.email, size: 16.0)),
                           SizedBox(height: IrmaTheme.of(context).largeSpacing),
                           Text(
                             FlutterI18n.translate(context, 'about.get_involved'),

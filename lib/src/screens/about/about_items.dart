@@ -107,9 +107,7 @@ class WhyIrma extends StatelessWidget {
       children: <Widget>[
         Container(
           child: MarkdownBody(
-            // selectable: true,
             data: FlutterI18n.translate(context, 'about.why_irma_explanation'),
-            // data: '[test](https://www.google.nl)',
             styleSheet: MarkdownStyleSheet(
               strong: IrmaTheme.of(context).textTheme.body2,
               a: IrmaTheme.of(context).hyperlinkTextStyle,
@@ -133,9 +131,7 @@ class PrivacyAndSecurity extends StatelessWidget {
       children: <Widget>[
         Container(
           child: MarkdownBody(
-            // selectable: true,
             data: FlutterI18n.translate(context, 'about.privacy_explanation'),
-            // data: '[test](https://www.google.nl)',
             styleSheet: MarkdownStyleSheet(
               strong: IrmaTheme.of(context).textTheme.body2,
               a: IrmaTheme.of(context).hyperlinkTextStyle,
