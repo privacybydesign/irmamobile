@@ -51,138 +51,134 @@ class _CarouselState extends State<Carousel> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        /* An offstage IndexedStack is used because an IndexedStack always has 
+  Widget build(BuildContext context) => Column(
+        children: <Widget>[
+          /* An offstage IndexedStack is used because an IndexedStack always has
         the height of the highest element. The height is then used to determine
         the height of a PageViewer (who needs to be in an element of pre-determined height).
         FUTURE: implement a more elegant solution */
-        Offstage(
-          offstage: true,
-          child: IndexedStack(key: _keyStackedIndex, index: currentPage, children: widget.credentialSet),
-        ),
-        _buildPageViewer(),
-      ],
-    );
-  }
+          Offstage(
+            offstage: true,
+            child: IndexedStack(key: _keyStackedIndex, index: currentPage, children: widget.credentialSet),
+          ),
+          _buildPageViewer(),
+        ],
+      );
 
-  Widget _buildPageViewer() {
-    Widget pageViewElement;
-    if (height == null) {
-      // on the very first frame we do not know the height yet
-      pageViewElement = Container();
-    } else {
-      // as soon as height is known we make a PageView that has the same height as the IndexedStack
-      // (and thus the height of the highest child)
-      pageViewElement = Column(children: <Widget>[
-        Container(
-          height: height,
-          child: PageView.builder(
-            itemCount: widget.credentialSet.length,
-            physics: const AlwaysScrollableScrollPhysics(),
-            controller: _controller,
-            onPageChanged: (int page) {
-              getChangedPageAndMoveBar(page);
-            },
-            itemBuilder: (BuildContext context, int index) {
-              return widget.credentialSet[index % widget.credentialSet.length];
+  Widget _buildPageViewer() => height == null
+      ? Container()
+      : Column(
+          children: <Widget>[
+            Container(
+              height: height,
+              child: PageView.builder(
+                itemCount: widget.credentialSet.length,
+                physics: const AlwaysScrollableScrollPhysics(),
+                controller: _controller,
+                onPageChanged: (int page) {
+                  getChangedPageAndMoveBar(page);
+                },
+                itemBuilder: (BuildContext context, int index) {
+                  return widget.credentialSet[index % widget.credentialSet.length];
+                },
+              ),
+            ),
+            if (widget.credentialSet.length > 1) navBar(),
+          ],
+        );
+
+  Widget navBar() => Container(
+        height: 60.0,
+        child: Stack(
+          alignment: AlignmentDirectional.center,
+          children: <Widget>[
+            Positioned(
+              left: 0,
+              child: arrowButton(
+                icon: IrmaIcons.chevronLeft,
+                label: "disclosure.previous",
+                isVisible: currentPage > 0,
+                delta: -1,
+                size: widget.credentialSet.length,
+              ),
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                const Spacer(flex: 15),
+                Row(
+                  children: <Widget>[
+                    const Spacer(),
+                    ...List.generate(widget.credentialSet.length, (i) => dotsIndicator(isActive: i == currentPage)),
+                    const Spacer(),
+                  ],
+                ),
+                const Spacer(flex: 3),
+                Center(
+                  child: Text(
+                    FlutterI18n.translate(
+                        context, 'disclosure.choices', {"choices": widget.credentialSet.length.toString()}),
+                    style: IrmaTheme.of(context)
+                        .textTheme
+                        .body1
+                        .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
+                  ),
+                ),
+                const Spacer(flex: 2),
+              ],
+            ),
+            Positioned(
+              right: 0,
+              child: arrowButton(
+                icon: IrmaIcons.chevronRight,
+                label: "disclosure.next",
+                isVisible: currentPage < widget.credentialSet.length - 1,
+                delta: 1,
+                size: widget.credentialSet.length,
+              ),
+            ),
+          ],
+        ),
+      );
+
+  Widget dotsIndicator({bool isActive}) => AnimatedContainer(
+        duration: Duration(milliseconds: _animationDuration),
+        margin: const EdgeInsets.symmetric(horizontal: 8.0),
+        height: 5,
+        width: 5,
+        decoration: BoxDecoration(
+          color: isActive ? IrmaTheme.of(context).grayscale40 : IrmaTheme.of(context).grayscale80,
+          borderRadius: const BorderRadius.all(
+            Radius.circular(3),
+          ),
+        ),
+      );
+
+  Widget arrowButton({IconData icon, String label, bool isVisible, int delta, int size}) => AnimatedOpacity(
+        opacity: isVisible ? 1 : 0,
+        duration: Duration(milliseconds: _animationDuration),
+        child: Semantics(
+          button: true,
+          label: FlutterI18n.translate(context, label),
+          child: IconButton(
+            icon: Icon(icon, color: IrmaTheme.of(context).interactionInformation),
+            iconSize: 20.0,
+            splashColor: isVisible ? const Color(0xffcccccc) : const Color(0x00000000),
+            onPressed: () {
+              setState(
+                () {
+                  if (currentPage + delta >= 0 && currentPage + delta <= size - 1) {
+                    currentPage += delta;
+                    _controller.animateToPage(
+                      currentPage,
+                      duration: Duration(milliseconds: _animationDuration),
+                      curve: Curves.easeInOut,
+                    );
+                  }
+                },
+              );
             },
           ),
         ),
-        if (widget.credentialSet.length > 1) navBar(),
-      ]);
-    }
-    return pageViewElement;
-  }
-
-  Widget navBar() {
-    return Container(
-      height: 60.0,
-      child: Stack(
-        alignment: AlignmentDirectional.center,
-        children: <Widget>[
-          if (currentPage > 0)
-            Positioned(
-              left: 0,
-              child: Semantics(
-                button: true,
-                label: FlutterI18n.translate(context, "disclosure.previous"),
-                child: IconButton(
-                  icon: Icon(IrmaIcons.chevronLeft, color: IrmaTheme.of(context).interactionInformation),
-                  iconSize: 20.0,
-                  onPressed: () {
-                    currentPage--;
-                    if (_controller.hasClients) {
-                      _controller.animateToPage(
-                        currentPage,
-                        duration: const Duration(milliseconds: 400),
-                        curve: Curves.easeInOut,
-                      );
-                    }
-                  },
-                ),
-              ),
-            ),
-          Column(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-            const Spacer(flex: 15),
-            Row(
-              children: <Widget>[
-                const Spacer(),
-                for (int i = 0; i < widget.credentialSet.length; i++)
-                  if (i == currentPage) ...[dotsIndicator(isActive: true)] else dotsIndicator(isActive: false),
-                const Spacer(),
-              ],
-            ),
-            const Spacer(flex: 3),
-            Center(
-              child: Text(
-                FlutterI18n.translate(
-                    context, 'disclosure.choices', {"choices": widget.credentialSet.length.toString()}),
-                style: IrmaTheme.of(context)
-                    .textTheme
-                    .body1
-                    .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
-              ),
-            ),
-            const Spacer(flex: 2),
-          ]),
-          if (currentPage < widget.credentialSet.length - 1)
-            Positioned(
-              right: 0,
-              child: Semantics(
-                button: true,
-                label: FlutterI18n.translate(context, "disclosure.next"),
-                child: IconButton(
-                  icon: Icon(IrmaIcons.chevronRight, color: IrmaTheme.of(context).interactionInformation),
-                  iconSize: 20.0,
-                  onPressed: () {
-                    currentPage++;
-                    if (_controller.hasClients) {
-                      _controller.animateToPage(
-                        currentPage,
-                        duration: Duration(milliseconds: _animationDuration),
-                        curve: Curves.easeInOut,
-                      );
-                    }
-                  },
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget dotsIndicator({bool isActive}) {
-    return AnimatedContainer(
-      duration: Duration(milliseconds: _animationDuration ~/ 2),
-      margin: const EdgeInsets.symmetric(horizontal: 8.0),
-      height: 5,
-      width: 5,
-      decoration: BoxDecoration(
-          color: isActive ? IrmaTheme.of(context).grayscale40 : IrmaTheme.of(context).grayscale80,
-          borderRadius: const BorderRadius.all(Radius.circular(3))),
-    );
-  }
+      );
 }
