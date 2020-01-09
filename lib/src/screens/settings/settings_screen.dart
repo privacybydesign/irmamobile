@@ -27,7 +27,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.popUntil(context, ModalRoute.withName(Navigator.defaultRouteName)),
+          onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(FlutterI18n.translate(context, 'settings.title')),
         centerTitle: true,

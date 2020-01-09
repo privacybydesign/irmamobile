@@ -3,6 +3,8 @@ import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/authentication_result.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_state.dart';
+import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
+import 'package:irmamobile/src/util/navigator_service.dart';
 
 class PinBloc extends Bloc<PinEvent, PinState> {
   PinBloc() {
@@ -50,6 +52,12 @@ class PinBloc extends Bloc<PinEvent, PinState> {
           );
           break;
         case AuthenticationResultSuccess:
+          final startQrScanner = await IrmaRepository.get().getPreferences().map((p) => p.qrScannerOnStartup).first;
+
+          if (startQrScanner) {
+            NavigatorService.get().pushNamed(ScannerScreen.routeName);
+          }
+
           yield currentState.copyWith(
             locked: false,
             unlockInProgress: false,
