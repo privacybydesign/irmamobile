@@ -11,7 +11,6 @@ void startDesignIcons(BuildContext context) {
 }
 
 class DesignIcons extends StatelessWidget {
-
   static double iconSize = 60.0;
 
   @override
