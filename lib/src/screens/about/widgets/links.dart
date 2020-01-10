@@ -5,6 +5,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/screens/issuance_webview/issuance_webview_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:share/share.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ExternalLink extends StatelessWidget {
   final String link;
@@ -117,16 +118,19 @@ class ShareLink extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: <Widget>[
-        Expanded(
-          flex: 1,
-          child: Padding(
-            padding:
-                EdgeInsets.only(left: IrmaTheme.of(context).smallSpacing, right: IrmaTheme.of(context).defaultSpacing),
-            child: icon,
+        ConstrainedBox(
+          constraints: BoxConstraints(
+            minWidth: IrmaTheme.of(context).defaultSpacing * 3,
+          ),
+          child: Container(
+            child: Padding(
+              padding: EdgeInsets.only(
+                  left: IrmaTheme.of(context).smallSpacing, right: IrmaTheme.of(context).defaultSpacing),
+              child: icon,
+            ),
           ),
         ),
         Expanded(
-          flex: 5,
           child: Container(
             child: InkWell(
               onTap: () {
@@ -135,6 +139,50 @@ class ShareLink extends StatelessWidget {
               },
               child: Text(
                 FlutterI18n.translate(context, displayText),
+                style: TextStyle(color: IrmaTheme.of(context).linkColor),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class ContactLink extends StatelessWidget {
+  final String mailto;
+  final String subjectLine;
+  final String linkText;
+  final Widget icon;
+
+  const ContactLink(this.mailto, this.subjectLine, this.linkText, this.icon);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        ConstrainedBox(
+          constraints: BoxConstraints(
+            minWidth: IrmaTheme.of(context).defaultSpacing * 3,
+          ),
+          child: Container(
+            child: Padding(
+              padding: EdgeInsets.only(
+                  left: IrmaTheme.of(context).smallSpacing, right: IrmaTheme.of(context).defaultSpacing),
+              child: icon,
+            ),
+          ),
+        ),
+        Expanded(
+          child: Container(
+            child: InkWell(
+              onTap: () {
+                final String address = FlutterI18n.translate(context, mailto);
+                final String subject = FlutterI18n.translate(context, subjectLine);
+                launch("mailto:$address?subject=$subject");
+              },
+              child: Text(
+                FlutterI18n.translate(context, linkText),
                 style: TextStyle(color: IrmaTheme.of(context).linkColor),
               ),
             ),

@@ -45,6 +45,7 @@ dependencies:
   font_awesome_flutter: ^8.5.0 # TODO remove once this package is no longer used
   share: ^0.6.3
   intl: ^0.16.0
+  flutter_markdown: ^0.3.2
   shared_preferences: ^0.5.6
 
 dev_dependencies:
@@ -74,6 +75,7 @@ flutter:
     - assets/wallet/
     - assets/generic/
     - assets/error/
+    - assets/help/
     - assets/reset/
     - assets/non-free/
     - assets/disclosure/
