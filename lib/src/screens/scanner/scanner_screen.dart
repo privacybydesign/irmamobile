@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/screens/scanner/widgets/qr_scanner.dart';
 
 class ScannerScreen extends StatelessWidget {
@@ -14,6 +13,7 @@ class ScannerScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('QR code scan'),
+        centerTitle: true,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () => _onClose(context),

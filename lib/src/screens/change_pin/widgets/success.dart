@@ -26,31 +26,36 @@ class Success extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Center(
-          child: Column(
-            children: [
-              SizedBox(height: IrmaTheme.of(context).hugeSpacing),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).defaultSpacing),
+            child: Column(
+              children: [
+                SizedBox(height: IrmaTheme.of(context).hugeSpacing),
 
-              // TODO: This should be added as an icon to the IrmaIcon font
-              SvgPicture.asset('assets/generic/check.svg'),
+                // TODO: This should be added as an icon to the IrmaIcon font
+                SvgPicture.asset('assets/generic/check.svg'),
 
-              SizedBox(height: IrmaTheme.of(context).largeSpacing),
-              Text(
-                FlutterI18n.translate(context, 'change_pin.success.title'),
-                style: IrmaTheme.of(context).textTheme.display2,
-              ),
-              SizedBox(height: IrmaTheme.of(context).smallSpacing),
-              Text(
-                FlutterI18n.translate(context, 'change_pin.success.message'),
-                style: IrmaTheme.of(context).textTheme.body1,
-              ),
-              SizedBox(height: IrmaTheme.of(context).hugeSpacing),
-              IrmaButton(
-                onPressed: () {
-                  Navigator.of(context, rootNavigator: true).pop();
-                },
-                label: 'change_pin.success.continue',
-              ),
-            ],
+                SizedBox(height: IrmaTheme.of(context).largeSpacing),
+                Text(
+                  FlutterI18n.translate(context, 'change_pin.success.title'),
+                  style: IrmaTheme.of(context).textTheme.display2,
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: IrmaTheme.of(context).smallSpacing),
+                Text(
+                  FlutterI18n.translate(context, 'change_pin.success.message'),
+                  style: IrmaTheme.of(context).textTheme.body1,
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: IrmaTheme.of(context).hugeSpacing),
+                IrmaButton(
+                  onPressed: () {
+                    Navigator.of(context, rootNavigator: true).pop();
+                  },
+                  label: 'change_pin.success.continue',
+                ),
+              ],
+            ),
           ),
         ),
       ),

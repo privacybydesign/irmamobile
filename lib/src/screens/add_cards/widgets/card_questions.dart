@@ -41,20 +41,38 @@ class _CardQuestionsState extends State<CardQuestions> with TickerProviderStateM
         Collapsible(
             header: FlutterI18n.translate(context, 'card_store.card_info.purpose_question'),
             onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(0))},
-            content: Text(getTranslation(widget.credentialType.faqPurpose).replaceAll('\\n', '\n'),
-                style: IrmaTheme.of(context).textTheme.body1),
+            content: SizedBox(
+              width: double.infinity,
+              child: Text(
+                getTranslation(widget.credentialType.faqPurpose).replaceAll('\\n', '\n'),
+                style: IrmaTheme.of(context).textTheme.body1,
+                textAlign: TextAlign.left,
+              ),
+            ),
             key: _collapsableKeys[0]),
         Collapsible(
             header: FlutterI18n.translate(context, 'card_store.card_info.content_question'),
             onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(1))},
-            content: Text(getTranslation(widget.credentialType.faqContent).replaceAll('\\n', '\n'),
-                style: IrmaTheme.of(context).textTheme.body1),
+            content: SizedBox(
+              width: double.infinity,
+              child: Text(
+                getTranslation(widget.credentialType.faqContent).replaceAll('\\n', '\n'),
+                style: IrmaTheme.of(context).textTheme.body1,
+                textAlign: TextAlign.left,
+              ),
+            ),
             key: _collapsableKeys[1]),
         Collapsible(
             header: FlutterI18n.translate(context, 'card_store.card_info.howto_question'),
             onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(2))},
-            content: Text(getTranslation(widget.credentialType.faqHowto).replaceAll('\\n', '\n'),
-                style: IrmaTheme.of(context).textTheme.body1),
+            content: SizedBox(
+              width: double.infinity,
+              child: Text(
+                getTranslation(widget.credentialType.faqHowto).replaceAll('\\n', '\n'),
+                style: IrmaTheme.of(context).textTheme.body1,
+                textAlign: TextAlign.left,
+              ),
+            ),
             key: _collapsableKeys[2]),
       ],
     );
