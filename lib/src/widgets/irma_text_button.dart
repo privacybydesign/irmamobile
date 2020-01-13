@@ -8,12 +8,14 @@ class IrmaTextButton extends StatelessWidget {
   final double minWidth;
   final VoidCallback onPressed;
   final TextStyle textStyle;
+  final int alpha;
 
   const IrmaTextButton({
     @required this.label,
     this.onPressed,
     this.textStyle,
     this.minWidth = 232,
+    this.alpha = 255
   });
 
   @override
@@ -25,7 +27,7 @@ class IrmaTextButton extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
       child: FlatButton(
         onPressed: onPressed,
-        textColor: IrmaTheme.of(context).primaryBlue,
+        textColor: IrmaTheme.of(context).primaryBlue.withAlpha(alpha),
         // splashColor: Colors.transparent,
         focusColor: Colors.transparent,
         // highlightColor: Colors.transparent,

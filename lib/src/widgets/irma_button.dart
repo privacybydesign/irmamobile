@@ -10,8 +10,9 @@ class IrmaButton extends StatelessWidget {
   final IrmaButtonSize size;
   final double minWidth;
   final IconData icon;
+  final int alpha;
 
-  const IrmaButton({@required this.label, this.onPressed, this.textStyle, this.size, this.minWidth = 232, this.icon});
+  const IrmaButton({@required this.label, this.onPressed, this.textStyle, this.size, this.minWidth = 232, this.icon, this.alpha = 255});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +23,7 @@ class IrmaButton extends StatelessWidget {
       size: size,
       minWidth: minWidth,
       icon: icon,
-      color: IrmaTheme.of(context).primaryBlue,
+      color: IrmaTheme.of(context).primaryBlue.withAlpha(alpha),
       disabledColor: IrmaTheme.of(context).disabled,
       textColor: IrmaTheme.of(context).grayscaleWhite,
       shape: RoundedRectangleBorder(
