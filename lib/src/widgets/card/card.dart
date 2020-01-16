@@ -85,15 +85,12 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
                 ),
               ),
               Container(
-                child: Padding(
-                  padding: EdgeInsets.all(_padding),
-                  child: CardAttributes(
-                      personalData: widget.attributes,
-                      issuer: widget.attributes.issuer,
-                      isCardUnblurred: isCardReadable,
-                      irmaCardTheme: irmaCardTheme,
-                      scrollOverflowCallback: widget.scrollBeyondBoundsCallback),
-                ),
+                child: CardAttributes(
+                    personalData: widget.attributes,
+                    issuer: widget.attributes.issuer,
+                    isCardUnblurred: isCardReadable,
+                    irmaCardTheme: irmaCardTheme,
+                    scrollOverflowCallback: widget.scrollBeyondBoundsCallback),
               ),
             ],
           ),

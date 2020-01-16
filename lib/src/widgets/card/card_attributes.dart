@@ -40,6 +40,11 @@ class CardAttributes extends StatelessWidget {
         LimitedBox(
           maxHeight: _maxHeight,
           child: Container(
+            padding: EdgeInsets.only(
+              top: IrmaTheme.of(context).defaultSpacing,
+              left: IrmaTheme.of(context).defaultSpacing,
+              right: IrmaTheme.of(context).smallSpacing,
+            ),
             constraints: BoxConstraints(
               minHeight: _minHeight,
             ),
@@ -48,77 +53,102 @@ class CardAttributes extends StatelessWidget {
                 shrinkWrap: true,
                 controller: scrollController,
                 physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.only(left: IrmaTheme.of(context).defaultSpacing),
                 children: [
                   ...getAttributes(context, bodyTheme),
+                  SizedBox(
+                    height: IrmaTheme.of(context).defaultSpacing,
+                  ),
                 ],
               ),
             ),
           ),
         ),
         Column(
-          children: <Widget>[getIssuer(context, bodyTheme), getExpiration(context, bodyTheme)],
+          children: <Widget>[
+            Container(
+              decoration: const BoxDecoration(
+                border: Border(
+                  top: BorderSide(width: 1.0, color: Color(0x77000000)),
+                  bottom: BorderSide(width: 1.0, color: Color(0x77FFFFFF)),
+                ),
+              ),
+            ),
+            Container(
+              color: const Color(0x11FFFFFF),
+              child: Column(
+                children: <Widget>[getIssuer(context, bodyTheme), getExpiration(context, bodyTheme)],
+              ),
+            )
+          ],
         ),
       ],
     );
   }
 
   List<Widget> getAttributes(BuildContext context, TextStyle bodyTheme) => personalData.attributes.entries
-      .map((personal) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: _indent,
-                  margin: const EdgeInsets.only(top: 2),
-                  child: Opacity(
-                    opacity: 0.8,
-                    child: Text(
-                      personal.key.name[_lang],
-                      style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 14),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ),
-                BlurText(
-                    text: personal.value[_lang],
-                    theme: IrmaTheme.of(context).textTheme.body2.copyWith(color: irmaCardTheme.fgColor),
-                    color: irmaCardTheme.fgColor,
-                    isTextBlurred: false),
-              ],
+      .expand(
+        (personal) => [
+          Opacity(
+            opacity: 0.8,
+            child: Text(
+              personal.key.name[_lang],
+              style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 14),
+              overflow: TextOverflow.ellipsis,
             ),
-          ))
+          ),
+          BlurText(
+            text: personal.value[_lang],
+            theme: IrmaTheme.of(context).textTheme.body2.copyWith(color: irmaCardTheme.fgColor),
+            color: irmaCardTheme.fgColor,
+            isTextBlurred: false,
+          ),
+          SizedBox(
+            height: IrmaTheme.of(context).smallSpacing,
+          ),
+        ],
+      )
       .toList();
 
   Widget getIssuer(BuildContext context, TextStyle bodyTheme) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
+        padding: EdgeInsets.only(
+          top: IrmaTheme.of(context).smallSpacing,
+          left: IrmaTheme.of(context).defaultSpacing,
+          right: IrmaTheme.of(context).defaultSpacing,
+        ),
         child: Row(
           children: [
             Container(
-                width: _indent,
-                margin: const EdgeInsets.only(top: 1),
-                child: Opacity(
-                  opacity: 0.8,
-                  child: Text(
-                    FlutterI18n.translate(context, 'wallet.issuer'),
-                    style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 12),
-                  ),
-                )),
-            Text(
-              issuer.name[_lang],
-              style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 12),
+              width: _indent,
+              child: Opacity(
+                opacity: 0.8,
+                child: Text(
+                  FlutterI18n.translate(context, 'wallet.issuer'),
+                  style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 12),
+                ),
+              ),
+            ),
+            Expanded(
+              child: Text(
+                issuer.name[_lang],
+                style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 12),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),
       );
 
   Widget getExpiration(BuildContext context, TextStyle bodyTheme) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
+        padding: EdgeInsets.only(
+          bottom: IrmaTheme.of(context).smallSpacing,
+          left: IrmaTheme.of(context).defaultSpacing,
+          right: IrmaTheme.of(context).defaultSpacing,
+        ),
         child: Row(
           children: [
             Container(
               width: _indent,
-              margin: const EdgeInsets.only(top: 1),
               child: Opacity(
                 opacity: 0.8,
                 child: Text(
@@ -127,9 +157,12 @@ class CardAttributes extends StatelessWidget {
                 ),
               ),
             ),
-            Text(
-              getReadableDate(personalData.expires, _lang),
-              style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 12),
+            Expanded(
+              child: Text(
+                getReadableDate(personalData.expires, _lang),
+                style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 12),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),

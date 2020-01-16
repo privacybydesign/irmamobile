@@ -13,10 +13,10 @@ class BlurText extends StatelessWidget {
     return isTextBlurred
         ? Opacity(
             opacity: 0.8,
-            child: Flexible(
-              child: Text(
-                text,
-                style: theme.copyWith(color: const Color(0x00ffffff)).copyWith(shadows: [
+            child: Text(
+              text,
+              style: theme.copyWith(color: const Color(0x00ffffff)).copyWith(
+                shadows: [
                   Shadow(
                     blurRadius: 7.0,
                     color: color,
@@ -29,10 +29,11 @@ class BlurText extends StatelessWidget {
                     blurRadius: 20.0,
                     color: color,
                   ),
-                ]),
+                ],
               ),
+              overflow: TextOverflow.ellipsis,
             ),
           )
-        : Flexible(child: Text(text, style: theme));
+        : Text(text, style: theme);
   }
 }
