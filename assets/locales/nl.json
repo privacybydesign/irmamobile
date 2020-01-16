@@ -246,11 +246,11 @@
       "message": "Richt de telefoon op de QR code"
     },
     "success": {
-      "title": "Gelukt!",
+      "title": "Gelukt",
       "message": "De QR code is gescand"
     },
     "error": {
-      "title": "Mislukt!",
+      "title": "Mislukt",
       "message": "Richt de telefoon op een IRMA QR code"
     }
   },
