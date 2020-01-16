@@ -34,14 +34,19 @@ class DesignButtons extends StatelessWidget {
                     "enabled",
                     IrmaButton(
                       label: "Sign up",
-                      onPressed: () {},
+                      onPressed: () {
+                        debugPrint("pressed enabled button");
+                      },
                     ),
                   ),
                   _buildButtonExample(
                     context,
                     "disabled",
-                    const IrmaButton(
+                    IrmaButton(
                       label: "Sign up",
+                      onPressedDisabled: () {
+                        debugPrint("pressed disabled button");
+                      },
                     ),
                   ),
                 ],
@@ -54,14 +59,19 @@ class DesignButtons extends StatelessWidget {
                     "enabled",
                     IrmaOutlinedButton(
                       label: "Sign up",
-                      onPressed: () {},
+                      onPressed: () {
+                        debugPrint("pressed enabled button (outlined)");
+                      },
                     ),
                   ),
                   _buildButtonExample(
                     context,
                     "disabled",
-                    const IrmaOutlinedButton(
+                    IrmaOutlinedButton(
                       label: "Sign up",
+                      onPressedDisabled: () {
+                        debugPrint("pressed disabled button (outlined)");
+                      },
                     ),
                   ),
                 ],

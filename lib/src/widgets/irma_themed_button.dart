@@ -5,6 +5,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 class IrmaThemedButton extends StatelessWidget {
   final String label;
   final VoidCallback onPressed;
+  final VoidCallback onPressedDisabled;
   final Color color;
   final Color disabledColor;
   final Color textColor;
@@ -17,6 +18,7 @@ class IrmaThemedButton extends StatelessWidget {
   const IrmaThemedButton({
     @required this.label,
     @required this.onPressed,
+    this.onPressedDisabled,
     @required this.color,
     @required this.disabledColor,
     @required this.textColor,
@@ -34,30 +36,37 @@ class IrmaThemedButton extends StatelessWidget {
       style: textStyle,
     );
 
-    return ButtonTheme(
-      textTheme: ButtonTextTheme.primary,
-      height: size?.value ?? IrmaButtonSize.medium.value,
-      minWidth: minWidth,
-      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-      child: RaisedButton(
-        onPressed: onPressed,
-        elevation: 0.0,
-        color: color,
-        disabledColor: disabledColor,
-        textColor: textColor,
-        shape: shape,
-        child: icon == null
-            ? text
-            : Row(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Icon(icon),
-                  const SizedBox(
-                    width: 10.0,
-                  ),
-                  text,
-                ],
-              ),
+    return GestureDetector(
+      onTapUp: (_) {
+        if (onPressed == null && onPressedDisabled != null) {
+          onPressedDisabled();
+        }
+      },
+      child: ButtonTheme(
+        textTheme: ButtonTextTheme.primary,
+        height: size?.value ?? IrmaButtonSize.medium.value,
+        minWidth: minWidth,
+        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+        child: RaisedButton(
+          onPressed: onPressed,
+          elevation: 0.0,
+          color: color,
+          disabledColor: disabledColor,
+          textColor: textColor,
+          shape: shape,
+          child: icon == null
+              ? text
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Icon(icon),
+                    const SizedBox(
+                      width: 10.0,
+                    ),
+                    text,
+                  ],
+                ),
+        ),
       ),
     );
   }
