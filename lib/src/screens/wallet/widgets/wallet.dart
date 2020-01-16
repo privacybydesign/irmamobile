@@ -4,6 +4,7 @@ import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet_button.dart';
 import 'package:irmamobile/src/theme/theme.dart';
@@ -36,12 +37,14 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _dragTipping = 50;
   final _scrollOverflowTipping = 50;
   final _walletBoxHeight = 120;
-  final _screenTopOffset = 30;
   final _walletBackOffset = 8;
   final _walletShrinkTween = Tween<double>(begin: 0.0, end: 1.0);
   final _walletIconHeight = 60;
   final _dragDownFactor = 1.5;
+  final _heightOffset = 94.0;
+  final _containerKey = GlobalKey();
 
+  double renderBoxHeight = 0;
   int drawnCardIndex = 0;
   AnimationController drawController;
   AnimationController loginLogoutController;
@@ -74,6 +77,14 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       });
     loginLogoutController.forward();
 
+    WidgetsBinding.instance.addPostFrameCallback((Duration dur) {
+      final BuildContext currentContext = _containerKey.currentContext;
+
+      if (currentContext != null) {
+        renderBoxHeight = currentContext.size.height;
+      }
+    });
+
     super.initState();
   }
 
@@ -102,13 +113,14 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       animation: Listenable.merge([drawAnimation, loginLogoutController]),
       builder: (BuildContext buildContext, Widget child) {
         final size = MediaQuery.of(buildContext).size;
-        final walletTop = size.height - _walletBoxHeight - size.width * _walletAspectRatio - _screenTopOffset;
+        final onAddCardsPressed = widget.onAddCardsPressed;
+        final double screenTopOffset = renderBoxHeight == 0 ? 0 : size.height - renderBoxHeight - _heightOffset;
+        final walletTop = size.height - _walletBoxHeight - size.width * _walletAspectRatio - screenTopOffset;
 
         int index = 0;
         double cardTop;
 
-        final onAddCardsPressed = widget.onAddCardsPressed;
-        return Stack(children: [
+        return Stack(key: _containerKey, children: [
           Padding(
             padding: EdgeInsets.symmetric(vertical: _padding * 3, horizontal: _padding * 2),
             child: AnimatedOpacity(
@@ -150,7 +162,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
-              height: size.height - _walletBoxHeight,
               child: Stack(
                 children: [
                   Positioned(
@@ -190,7 +201,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                             onTap: () {
                               cardTapped(_index, credential, size);
                             },
-                            onVerticalDragStart: (DragStartDetails details) {
+                            onVerticalDragDown: (DragDownDetails details) {
                               setState(() {
                                 if (currentState == WalletState.drawn) {
                                   cardDragOffset = details.localPosition.dy -

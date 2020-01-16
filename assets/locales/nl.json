@@ -144,7 +144,7 @@
       "app_bar": "Gegevens toevoegen",
       "header_credential_type": "{credential_type} toevoegen",
       "obtain": "ophalen",
-      "issuer": "Uitgifte",
+      "issuer": "Bron",
       "purpose_question": "Wat kan ik met deze gegevens?",
       "content_question": "Welke gegevens haal ik op?",
       "howto_question": "How werkt het?",
