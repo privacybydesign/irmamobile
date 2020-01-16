@@ -121,6 +121,15 @@
     "history": "Usage history",
     "about": "About IRMA"
   },
+  "webview": {
+    "open_iOS": "Open in Safari",
+    "open_browser": "Open in browser",
+    "cancel": "Annuleren",
+    "select": "Selecteer",
+    "alert_title": "Website niet veilig",
+    "alert_message": "De website die je wilt bezoeken is niet veilig. Je kunt deze website niet binnen IRMA bekijken. Open de website in je browser als je de website toch wilt bezoeken.",
+    "alert_button": "Sluiten"
+  },
   "accessibility": {
     "unfold": "Unfold",
     "update": "Update",
