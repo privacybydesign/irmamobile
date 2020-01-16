@@ -11,7 +11,6 @@ class IrmaButton extends StatelessWidget {
   final IrmaButtonSize size;
   final double minWidth;
   final IconData icon;
-  final int alpha;
 
   const IrmaButton({
     @required this.label,
@@ -21,7 +20,6 @@ class IrmaButton extends StatelessWidget {
     this.size,
     this.minWidth = 232,
     this.icon,
-    this.alpha = 255, // TODO: remove
   });
 
   @override

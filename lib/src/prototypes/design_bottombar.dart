@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 import 'package:irmamobile/src/widgets/irma_message.dart';
-import 'package:irmamobile/src/widgets/irma_sticky_bottom_bar_scaffold.dart';
 
 void startBottombarMessages(BuildContext context) {
   Navigator.of(context).push(
@@ -14,7 +14,7 @@ void startBottombarMessages(BuildContext context) {
 class BottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return IrmaStickyBottomBarScaffold(
+    return Scaffold(
       appBar: AppBar(
         title: const Text("Messages"),
       ),
@@ -62,13 +62,15 @@ class BottomBar extends StatelessWidget {
           ),
         ),
       ),
-      primaryBtnLabel: 'settings.advanced.delete_confirm',
-      onPrimaryPressed: () => print("pressed confirm"),
-      secondaryBtnLabel: 'settings.advanced.delete_deny',
-      onSecondaryPressed: () => print("pressed back"),
-      disabled: true,
-      tooltipOnPrimaryBtn: true,
-      toolTipLabel: 'settings.advanced.delete_deny',
+      bottomNavigationBar: IrmaBottomBar(
+        primaryBtnLabel: 'settings.advanced.delete_confirm',
+        onPrimaryPressed: () => print("pressed confirm"),
+        onPrimaryDisabledPressed: () => print("pressed disabled confirm"),
+        secondaryBtnLabel: 'settings.advanced.delete_deny',
+        onSecondaryPressed: () => print("pressed back"),
+        tooltipOnPrimaryBtn: true,
+        toolTipLabel: 'settings.advanced.delete_deny',
+      ),
     );
   }
 
