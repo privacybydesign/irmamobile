@@ -43,13 +43,16 @@ class _WalletScreenState extends State<_WalletScreen> {
             onPressed: () => _scaffoldKey.currentState.openDrawer(),
           )),
       body: StreamBuilder<Credentials>(
-          stream: widget.bloc.credentials,
-          builder: (context, snapshot) => Wallet(
-              credentials: snapshot.hasData ? snapshot.data.values.toList() : null,
-              isOpen: true,
-              onQRScannerPressed: qrScannerPressed,
-              onHelpPressed: helpPressed,
-              onAddCardsPressed: addCardsPressed)),
+        stream: widget.bloc.credentials,
+        builder: (context, snapshot) => Wallet(
+            credentials: snapshot.hasData ? snapshot.data.values.toList() : null,
+            newCardIndex: 3,
+            hasLoginLogoutAnimation: true,
+            isOpen: true,
+            onQRScannerPressed: qrScannerPressed,
+            onHelpPressed: helpPressed,
+            onAddCardsPressed: addCardsPressed),
+      ),
       drawer: WalletDrawer(),
     );
   }
