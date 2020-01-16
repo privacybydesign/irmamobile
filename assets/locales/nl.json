@@ -27,14 +27,14 @@
     },
     "choose_pin": {
       "title": "Pincode kiezen",
-      "insert_pin": "Voer je pincode in",
+      "insert_pin": "Vul je pincode in",
       "confirm_title": "Herhaal je pincode",
       "instruction": "Kies een pincode van 5 cijfers",
       "confirm_instruction": "Voer je pincode nog een keer in",
       "next": "Volgende",
       "error_title": "Pin verkeerd",
       "error": "De pincodes kwamen niet overeen, probeer het nog eens.",
-      "error_action": "Ok"
+      "error_action": "OK"
     },
     "provide_email": {
       "title": "E-mailadres toevoegen",
@@ -120,6 +120,15 @@
     "history": "Gebruikshistorie",
     "about": "Over IRMA"
   },
+  "webview": {
+    "open_iOS": "Open in Safari",
+    "open_browser": "Open in browser",
+    "cancel": "Annuleren",
+    "select": "Selecteer",
+    "alert_title": "Website niet veilig",
+    "alert_message": "De website die je wilt bezoeken is niet veilig. Je kunt deze website niet binnen IRMA bekijken. Open de website in je browser als je de website toch wilt bezoeken.",
+    "alert_button": "Sluiten"
+  },
   "accessibility": {
     "unfold": "Uitvouwen",
     "update": "Bijwerken",
@@ -202,11 +211,11 @@
   },
   "change_pin": {
     "enter_pin": {
-      "title": "Verander je pincode",
+      "title": "Pincode veranderen",
       "instruction": "Vul eerst je huidige pincode in. Daarna kun je een nieuw pincode kiezen.",
       "error_title": "Verkeerde pincode",
-      "error": "Voer je huidige pincode in. Je kunt het nog drie keer proberen.",
-      "error_action": "Ok"
+      "error": "Vul je huidige pincode in. Je kunt het nog drie keer proberen.",
+      "error_action": "OK"
     },
     "validating_pin": {
       "header": "Even geduld",
@@ -219,7 +228,7 @@
       "switch_short": "Ik wil een kortere pincode",
       "error_title": "Verkeerde pincode",
       "error": "De pincodes kwamen niet overeen. Probeer het nog eens.",
-      "error_action": "Ok"
+      "error_action": "OK"
     },
     "confirm_pin": {
       "title": "Verander je pincode",
@@ -228,7 +237,7 @@
     "success": {
       "title": "Gelukt!",
       "message": "Je pincode is aangepast.",
-      "continue": "Ok"
+      "continue": "OK"
     }
   },
   "qr_scanner": {
@@ -237,17 +246,17 @@
       "message": "Richt de telefoon op de QR code"
     },
     "success": {
-      "title": "Gelukt!",
+      "title": "Gelukt",
       "message": "De QR code is gescand"
     },
     "error": {
-      "title": "Mislukt!",
+      "title": "Mislukt",
       "message": "Richt de telefoon op een IRMA QR code"
     }
   },
   "pin": {
     "title": "Inloggen",
-    "subtitle": "Voer je pincode in",
+    "subtitle": "Vul je pincode in",
     "button_forgot": "Pincode vergeten",
     "button_block": "IRMA blokkeren",
     "invalid_pin": {
@@ -258,7 +267,7 @@
   },
   "error": {
     "title": "Fout opgetreden",
-    "button_ok": "Ok",
+    "button_ok": "OK",
     "button_send_to_irma": "Stuur naar IRMA",
     "button_show_error": "Fout tonen",
     "button_retry": "Probeer opnieuw",
