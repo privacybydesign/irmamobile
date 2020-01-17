@@ -67,12 +67,15 @@ class _HelpScreenState extends State<HelpScreen> {
                               ),
                             ),
                           ),
-                          SizedBox(height: IrmaTheme.of(context).smallSpacing),
-                          Text(
-                            FlutterI18n.translate(context, 'help.faq_info'),
-                            style: Theme.of(context).textTheme.body1,
-                          ),
                           SizedBox(height: IrmaTheme.of(context).tinySpacing),
+                          SizedBox(
+                            width: double.infinity,
+                            child: Text(
+                              FlutterI18n.translate(context, 'help.faq_info'),
+                              style: Theme.of(context).textTheme.body1,
+                              textAlign: TextAlign.left,
+                            ),
+                          ),
                         ],
                       ),
                     ),
