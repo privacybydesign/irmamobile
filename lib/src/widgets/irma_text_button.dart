@@ -2,17 +2,20 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 
 class IrmaTextButton extends StatelessWidget {
   final String label;
   final double minWidth;
   final VoidCallback onPressed;
   final TextStyle textStyle;
+  final IrmaButtonSize size;
 
   const IrmaTextButton({
     @required this.label,
     this.onPressed,
     this.textStyle,
+    this.size,
     this.minWidth = 232,
   });
 
@@ -20,7 +23,7 @@ class IrmaTextButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ButtonTheme(
       textTheme: ButtonTextTheme.primary,
-      height: 45.0,
+      height: size?.value ?? 45.0,
       minWidth: minWidth,
       padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
       child: FlatButton(
