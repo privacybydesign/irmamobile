@@ -85,7 +85,6 @@ class _ProvideEmailState extends State<ProvideEmail> {
                                 focusNode: inputFocusNode,
                                 decoration: InputDecoration(
                                   labelStyle: IrmaTheme.of(context).textTheme.overline,
-                                  labelText: FlutterI18n.translate(context, 'enrollment.provide_email.placeholder'),
                                   errorText: error,
                                 ),
                                 keyboardType: TextInputType.emailAddress,

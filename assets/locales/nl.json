@@ -4,25 +4,25 @@
   },
   "enrollment": {
     "welcome": {
-      "header": "Word weer baas over je eigen gegevens!",
-      "abstract": "Met IRMA kun je jezelf bekendmaken zonder meer over jezelf prijs te geven dan nodig is.",
-      "intro_button": "Hoe werkt IRMA?",
-      "choose_pin_button": "Kies je pincode",
+      "header": "Tijdelijk opstartscherm",
+      "abstract": "Dit scherm moet nog opgeruimd worden.",
+      "intro_button": "Introductiescherm",
+      "choose_pin_button": "Pincode kiezen",
       "not_now": "Niet nu"
     },
     "introduction": {
       "button_text": "Kies je pincode",
       "screen1": {
         "title": "IRMA is jouw identiteit op jouw telefoon",
-        "text": "Je officiële naam, geboortedatum, adres, BSN en meer. Alles bij elkaar in IRMA."
+        "text": "Je officiële naam, geboortedatum, adres, BSN en meer. Alles bij elkaar in jouw IRMA-app."
       },
       "screen2": {
-        "title": "Met IRMA laat je zien dat jij het bent",
-        "text": "Eenvoudig en snel.\nOnline of aan iemand anders."
+        "title": "Met IRMA maak je jezelf bekend",
+        "text": "Je hebt het zelf in de hand."
       },
       "screen3": {
         "title": "IRMA geeft jou en anderen zekerheid",
-        "text": "Je gegevens staan alleen op jouw telefoon. IRMA versleutelt en niemand kijkt mee. Ook IRMA niet."
+        "text": "Je gegevens staan alleen in jouw IRMA-app. Alleen jij kan erbij"
       }
     },
     "choose_pin": {
@@ -30,16 +30,15 @@
       "insert_pin": "Vul je pincode in",
       "confirm_title": "Herhaal je pincode",
       "instruction": "Kies een pincode van 5 cijfers",
-      "confirm_instruction": "Voer je pincode nog een keer in",
+      "confirm_instruction": "Vul je pincode nog een keer in",
       "next": "Volgende",
       "error_title": "Pin verkeerd",
-      "error": "De pincodes kwamen niet overeen, probeer het nog eens.",
+      "error": "De pincodes komen niet overeen. Probeer het nog eens.",
       "error_action": "OK"
     },
     "provide_email": {
       "title": "E-mailadres toevoegen",
-      "instruction": "Vul nu je e-mailadres in, dan kun je bij verlies of diefstal van je telefoon, IRMA op je telefoon blokkeren.",
-      "placeholder": "E-mailadres",
+      "instruction": "Vul nu je e-mailadres in. Daarmee kun je je IRMA-app blokkeren bij verlies of diefstal van je mobiel.",
       "skip": "Overslaan",
       "next": "Volgende",
       "error": "Dit is geen geldig e-mailadres",
@@ -88,29 +87,37 @@
     "pbdf_link": "https://privacybydesign.foundation/"
   },
   "help": {
-    "title": "Hulp",
+    "title": "Help",
     "faq": "Veelgestelde vragen",
-    "faq_info": "Hier vind je antwoorden op veelgestelde vragen over IRMA.",
+    "faq_info": "Bekijk of je vraag hierbij staat.",
+    "question_1": "Hoe kan ik met de IRMA-app inloggen op een mobiele website?",
     "answer_1": {
-      "title": "Hieronder zie je hoe je jezelf met IRMA bekend kan maken op een website.",
       "step_1": "Open een website en kies voor inloggen met IRMA.",
-      "step_2": "De IRMA start vervolgens op.",
-      "step_3": "Geef toestemming je gegevens vrij te geven en wacht op de bevestiging.",
-      "step_4": "Vanaf nu kan je de website gebriuiken, je bent ingelogd.",
+      "step_2": "De IRMA-app start op. Vul je pincode in.",
+      "step_3": "Geef toestemming je gegevens door te geven. Wacht op de bevestiging.",
+      "step_4": "Je bent ingelogd. Je kunt de website gebruiken.",
       "step_5": "Wil je meer weten? Klik dan hieronder voor meer vragen."
     },
-    "question_2": "Welke kaartjes kan ik in IRMA zetten?",
-    "answer_2": "Vanuit gemeenten kun je zelf kaartjes met persoonsgegevens (zoals je naam, adres, geboortedatum, BSN) in je IRMA app zetten, maar ook of je bijvoorbeeld ouder dan 18 of 65 bent. Daarnaast kun je een of meer e-mail adressen en mobiele telefoonnummers, na controle, toevoegen. Studenten en medewerkers in het (hoger) onderwijs kunnen ook hun registratie kaartjes toevoegen. Medewerkers in de zorg kunnen zogenaamde AGB kaartje toevoegen. Hiermee kun je in veel situaties voldoende van jezelf bekend maken.\n\nNaar verwachting zullen de komende tijd nog veel andere bronnen van persoonsgegevens aan IRMA toegevoegd worden, voor gebruikers in het algemeen en ook voor speciale (beroeps)groepen.",
-    "question_3": "Ik heb een vraag; waar kan ik terecht?",
-    "answer_3": "Als je een vraag hebt over inloggen met IRMA bij webwinkel *De Hippe Kip*, dan kun je die vraag het beste stellen aan *De Hippe Kip* zelf. Ook als die website je vraagt IRMA te installeren en dat lukt niet, dan kun je het beste daar met je vragen naar toegaan. Meestal staat er op zulke webpagina's informatie over hoe je vragen kunt stellen en contact op kunt nemen.\n\nAls je tenslotte een vraag hebt over het systeem IRMA zelf, dan kun je ons via deze pagina een berichtje sturen. Leg AUB duidelijk uit wat de vraag is en geef door om welk model telefoon het gaat, en voeg zo mogelijk screen shots toe als er iets fout gaat.",
+    "question_2": "Hoe kan ik met de IRMA-app inloggen op een website op mijn computer?",
+    "answer_2": {
+      "step_1": "Open een website en kies voor inloggen met IRMA.",
+      "step_2": "Open de IRMA-app op je mobiel. Vul je pincode in.",
+      "step_3": "Start de QR-code scanner in de IRMA-app. Scan de QR-code op het scherm van je computer.",
+      "step_4": "Geef toestemming je gegevens door te geven. Wacht op de bevestiging.",
+      "step_5": "Je bent ingelogd. Vanaf nu kun je de website gebruiken."
+    },
+    "question_3": "Wat maakt de IRMA-app privacy-vriendelijk en veilig?",
+    "answer_3": "Vanuit gemeenten kun je zelf kaartjes met persoonsgegevens (zoals je naam, adres, geboortedatum, BSN) in je IRMA app zetten.\nVolgende\nmaar ook of je bijvoorbeeld ouder dan 18 of 65 bent. Daarnaast kun je een of meer e-mail adressen en mobiele telefoonnummers, na controle, toevoegen. Studenten en medewerkers in het (hoger) onderwijs kunnen ook hun registratie kaartjes toevoegen. Medewerkers in de zorg kunnen zogenaamde AGB kaartje toevoegen. Hiermee kun je in veel situaties voldoende van jezelf bekend maken.\n\nNaar verwachting zullen de komende tijd nog veel andere bronnen van persoonsgegevens aan IRMA toegevoegd worden, voor gebruikers in het algemeen en ook voor speciale (beroeps)groepen.",
+    "question_4": "Ik heb een vraag; waar kan ik terecht?",
+    "answer_4": "Als je een vraag hebt over inloggen met IRMA bij webwinkel *De Hippe Kip*, dan kun je die vraag het beste stellen aan *De Hippe Kip* zelf. Ook als die website je vraagt IRMA te installeren en dat lukt niet, dan kun je het beste daar met je vragen naar toegaan. Meestal staat er op zulke webpagina's informatie over hoe je vragen kunt stellen en contact op kunt nemen.\n\nAls je tenslotte een vraag hebt over het systeem IRMA zelf, dan kun je ons via deze pagina een berichtje sturen. Leg AUB duidelijk uit wat de vraag is en geef door om welk model telefoon het gaat, en voeg zo mogelijk screen shots toe als er iets fout gaat.",
     "ask": "Vraag stellen",
     "more": "Meer vragen en antwoorden",
     "more_link": "https://irma.app/?lang=nl#faqs",
-    "send": "Stuur je vraag. Je krijgt zo snel mogelijk aantwoord, meestal binnen een week.",
+    "send": "Heb je een andere vraag? Stuur een e-mail. Houd er rekening mee dat het enkele dagen kan duren voor je antwoord krijgt.",
     "back_button": "Terug naar mijn kaartjes",
     "email": "Stuur een email",
     "contact": "info@privacybydesign.foundation",
-    "mail_subject": "Hulp met IRMA"
+    "mail_subject": "Hulp met de IRMA-app"
   },
   "drawer": {
     "lock_wallet": "Uitloggen",
@@ -126,7 +133,7 @@
     "cancel": "Annuleren",
     "select": "Selecteer",
     "alert_title": "Website niet veilig",
-    "alert_message": "De website die je wilt bezoeken is niet veilig. Je kunt deze website niet binnen IRMA bekijken. Open de website in je browser als je de website toch wilt bezoeken.",
+    "alert_message": "De website die je wilt bezoeken is niet veilig. Je kunt deze website niet binnen de IRMA-app bekijken. Open een andere app als je de website toch wilt bezoeken.",
     "alert_button": "Sluiten"
   },
   "accessibility": {
@@ -156,9 +163,9 @@
       "issuer": "Bron",
       "purpose_question": "Wat kan ik met deze gegevens?",
       "content_question": "Welke gegevens haal ik op?",
-      "howto_question": "How werkt het?",
-      "back_button": "Annuleren",
-      "get_button": "Ophalen"
+      "howto_question": "Hoe werkt het?",
+      "back_button": "Annuleer",
+      "get_button": "Haal op"
     },
     "email": {
       "title": "E-mailadres toevoegen",

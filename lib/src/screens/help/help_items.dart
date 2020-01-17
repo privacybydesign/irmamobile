@@ -20,7 +20,7 @@ class HelpItems extends StatefulWidget {
 }
 
 class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
-  final List<GlobalKey> _collapsableKeys = List<GlobalKey>.generate(3, (int index) => GlobalKey());
+  final List<GlobalKey> _collapsableKeys = List<GlobalKey>.generate(4, (int index) => GlobalKey());
   Duration expandDuration = const Duration(milliseconds: 200); // expand duration of _Collapsible
 
   void _jumpToCollapsable(int index) {
@@ -35,9 +35,10 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
     );
   }
 
+  // Content for question 1
   @override
   Widget build(BuildContext context) {
-    final List<Widget> _helpPages = <Widget>[
+    final List<Widget> _helpPagesQuestion1 = <Widget>[
       Container(
         child: Center(
           child: SizedBox(child: SvgPicture.asset('assets/help/step_1.svg')),
@@ -65,7 +66,7 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
       ),
     ];
 
-    final List<Widget> _helpTexts = [
+    final List<Widget> _helpTextsQuestion1 = [
       Text(
         FlutterI18n.translate(context, 'help.answer_1.step_1'),
         textAlign: TextAlign.center,
@@ -88,6 +89,58 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
       ),
     ];
 
+    // Content for question 2
+    final List<Widget> _helpPagesQuestion2 = <Widget>[
+      Container(
+        child: Center(
+          child: SizedBox(child: SvgPicture.asset('assets/help/step_1.svg')),
+        ),
+      ),
+      Container(
+        child: Center(
+          child: SizedBox(child: SvgPicture.asset('assets/help/step_2.svg')),
+        ),
+      ),
+      Container(
+        child: Center(
+          child: SizedBox(child: SvgPicture.asset('assets/help/step_3.svg')),
+        ),
+      ),
+      Container(
+        child: Center(
+          child: SizedBox(child: SvgPicture.asset('assets/help/step_4.svg')),
+        ),
+      ),
+      Container(
+        child: Center(
+          child: SizedBox(child: SvgPicture.asset('assets/help/step_5.svg')),
+        ),
+      ),
+    ];
+
+    final List<Widget> _helpTextsQuestion2 = [
+      Text(
+        FlutterI18n.translate(context, 'help.answer_2.step_1'),
+        textAlign: TextAlign.center,
+      ),
+      Text(
+        FlutterI18n.translate(context, 'help.answer_2.step_2'),
+        textAlign: TextAlign.center,
+      ),
+      Text(
+        FlutterI18n.translate(context, 'help.answer_2.step_3'),
+        textAlign: TextAlign.center,
+      ),
+      Text(
+        FlutterI18n.translate(context, 'help.answer_2.step_4'),
+        textAlign: TextAlign.center,
+      ),
+      Text(
+        FlutterI18n.translate(context, 'help.answer_2.step_5'),
+        textAlign: TextAlign.center,
+      ),
+    ];
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,21 +153,9 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
                 SizedBox(
                   height: IrmaTheme.of(context).smallSpacing,
                 ),
-                MarkdownBody(
-                  selectable: false,
-                  data: FlutterI18n.translate(context, 'help.answer_1.title'),
-                  styleSheet: MarkdownStyleSheet(
-                    strong: IrmaTheme.of(context).textTheme.body2,
-                    textScaleFactor: MediaQuery.textScaleFactorOf(
-                        context), // TODO remove that addition when "https://github.com/flutter/flutter_markdown/pull/162" is merged
-                  ),
-                ),
-                SizedBox(
-                  height: IrmaTheme.of(context).defaultSpacing,
-                ),
                 Illustrator(
-                  imageSet: _helpPages,
-                  textSet: _helpTexts,
+                  imageSet: _helpPagesQuestion1,
+                  textSet: _helpTextsQuestion1,
                   width: 280.0,
                   height: 220.0,
                 ),
@@ -124,16 +165,18 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
         Collapsible(
             header: FlutterI18n.translate(context, 'help.question_2'),
             onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(1))},
-            content: Container(
-              child: MarkdownBody(
-                selectable: false,
-                data: FlutterI18n.translate(context, 'help.answer_2'),
-                styleSheet: MarkdownStyleSheet(
-                  strong: IrmaTheme.of(context).textTheme.body2,
-                  textScaleFactor: MediaQuery.textScaleFactorOf(
-                      context), // TODO remove that addition when "https://github.com/flutter/flutter_markdown/pull/162" is merged
+            content: Column(
+              children: <Widget>[
+                SizedBox(
+                  height: IrmaTheme.of(context).smallSpacing,
                 ),
-              ),
+                Illustrator(
+                  imageSet: _helpPagesQuestion2,
+                  textSet: _helpTextsQuestion2,
+                  width: 280.0,
+                  height: 220.0,
+                ),
+              ],
             ),
             key: _collapsableKeys[1]),
         Collapsible(
@@ -151,6 +194,21 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
               ),
             ),
             key: _collapsableKeys[2]),
+        Collapsible(
+            header: FlutterI18n.translate(context, 'help.question_4'),
+            onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(3))},
+            content: Container(
+              child: MarkdownBody(
+                selectable: false,
+                data: FlutterI18n.translate(context, 'help.answer_4'),
+                styleSheet: MarkdownStyleSheet(
+                  strong: IrmaTheme.of(context).textTheme.body2,
+                  textScaleFactor: MediaQuery.textScaleFactorOf(
+                      context), // TODO remove that addition when "https://github.com/flutter/flutter_markdown/pull/162" is merged
+                ),
+              ),
+            ),
+            key: _collapsableKeys[3]),
       ],
     );
   }
