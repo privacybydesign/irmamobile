@@ -463,7 +463,9 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         cardPosition =
             min(walletTop, (widget.credentials.length - 1) * _cardTopHeight.toDouble()) - index * _cardTopHeight;
 
-        if (dragOffset > _cardTopHeight - _cardTopBorderHeight) {
+        if (index == drawnCardIndex) {
+          cardPosition -= dragOffset;
+        } else if (dragOffset > _cardTopHeight - _cardTopBorderHeight) {
           if (index >= drawnCardIndex) {
             cardPosition -= dragOffset *
                     ((drawnCardIndex - index) *
@@ -475,8 +477,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
           } else {
             cardPosition -= dragOffset - (_cardTopHeight - _cardTopBorderHeight);
           }
-        } else if (index == drawnCardIndex) {
-          cardPosition -= dragOffset;
         }
         break;
     }
