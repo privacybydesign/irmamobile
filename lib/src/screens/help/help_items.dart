@@ -59,11 +59,6 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
           child: SizedBox(child: SvgPicture.asset('assets/help/step_4.svg')),
         ),
       ),
-      Container(
-        child: Center(
-          child: SizedBox(child: SvgPicture.asset('assets/help/step_5.svg')),
-        ),
-      ),
     ];
 
     final List<Widget> _helpTextsQuestion1 = [
@@ -81,10 +76,6 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
       ),
       Text(
         FlutterI18n.translate(context, 'help.answer_1.step_4'),
-        textAlign: TextAlign.center,
-      ),
-      Text(
-        FlutterI18n.translate(context, 'help.answer_1.step_5'),
         textAlign: TextAlign.center,
       ),
     ];

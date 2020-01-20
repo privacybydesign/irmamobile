@@ -22,7 +22,7 @@
       },
       "screen3": {
         "title": "IRMA geeft jou en anderen zekerheid",
-        "text": "Je gegevens staan alleen in jouw IRMA-app. Alleen jij kan erbij"
+        "text": "Je gegevens staan alleen in jouw IRMA-app. Alleen jij kan erbij."
       }
     },
     "choose_pin": {
@@ -38,12 +38,12 @@
     },
     "provide_email": {
       "title": "E-mailadres toevoegen",
-      "instruction": "Vul nu je e-mailadres in. Daarmee kun je je IRMA-app blokkeren bij verlies of diefstal van je mobiel.",
+      "instruction": "Vul je e-mailadres in. Daarmee kun je je IRMA-app blokkeren bij verlies of diefstal van je mobiel.",
       "skip": "Overslaan",
       "next": "Volgende",
       "error": "Dit is geen geldig e-mailadres",
       "skip_title": "Weet je het zeker?",
-      "skip_content": "Zonder e-mailadres is het niet mogelijk de IRMA app te blokkeren na het verlies van je mobiel.",
+      "skip_content": "Bescherm jezelf. Als je een e-mailadres invult, kun je deze IRMA-app blokkeren na het verlies van je mobiel.",
       "insert_email": "E-mail invoeren"
     }
   },
@@ -96,7 +96,6 @@
       "step_2": "De IRMA-app start op. Vul je pincode in.",
       "step_3": "Geef toestemming je gegevens door te geven. Wacht op de bevestiging.",
       "step_4": "Je bent ingelogd. Je kunt de website gebruiken.",
-      "step_5": "Wil je meer weten? Klik dan hieronder voor meer vragen."
     },
     "question_2": "Hoe kan ik met de IRMA-app inloggen op een website op mijn computer?",
     "answer_2": {
@@ -115,7 +114,7 @@
     "more_link": "https://irma.app/?lang=nl#faqs",
     "send": "Heb je een andere vraag? Stuur een e-mail. Houd er rekening mee dat het enkele dagen kan duren voor je antwoord krijgt.",
     "back_button": "Terug naar mijn kaartjes",
-    "email": "Stuur een email",
+    "email": "Stuur een e-mail",
     "contact": "info@privacybydesign.foundation",
     "mail_subject": "Hulp met de IRMA-app"
   },
@@ -130,7 +129,7 @@
   "webview": {
     "open_iOS": "Open in Safari",
     "open_browser": "Open in browser",
-    "cancel": "Annuleren",
+    "cancel": "Annuleer",
     "select": "Selecteer",
     "alert_title": "Website niet veilig",
     "alert_message": "De website die je wilt bezoeken is niet veilig. Je kunt deze website niet binnen de IRMA-app bekijken. Open een andere app als je de website toch wilt bezoeken.",
@@ -178,9 +177,9 @@
       "empty_email_address": "Vul een geldig e-mailadres in.\n",
       "success": {
         "alert_title": "Gelukt!",
-        "alert_body": "Er is een email gestuurd naar {e-mail}",
-        "description": "Open je email. Daarin vind je een link om je e-mailadres toe te voegen aan IRMA",
-        "no_email_received_title": "Geen email ontvangen?",
+        "alert_body": "Er is een e-mail gestuurd naar {e-mail}",
+        "description": "Open je e-mail. Daarin vind je een link om je e-mailadres toe te voegen aan IRMA",
+        "no_email_received_title": "Geen e-mail ontvangen?",
         "no_email_received_body_step1": "1. Controleer je spam folder\n2. ",
         "no_email_received_body_step2_1": "Verstuur e-mail opnieuw ",
         "no_email_received_body_step2_2": "naar\n    {e-mail}",
@@ -188,13 +187,13 @@
       },
       "fail": {
         "alert_title": "Er is iets fout gegaan",
-        "alert_body": "Het is niet gelukt om een email te sturen naar {e-mail}.\nProbeer het opnieuw."
+        "alert_body": "Het is niet gelukt om een e-mail te sturen naar {e-mail}.\nProbeer het opnieuw."
       }
     }
   },
   "settings": {
     "title": "Instellingen",
-    "start_qr": "Open de QR scanner na opstarten",
+    "start_qr": "Open de QR-scanner na opstarten",
     "change_pin": "Pincode wijzigen",
     "advanced": {
       "header": "Geavanceerd",
@@ -202,7 +201,7 @@
       "report_errors": "Stuur fouten naar IRMA",
       "delete": "Verwijder al mijn kaartjes",
       "delete_title": "Weet jij het zeker?",
-      "delete_content": "Als je doorgaat, verwijder je al je kaartjes van deze telefoon. Haal daarna de kaartjes opnieuw op en je kunt IRMA weer gebruiken.",
+      "delete_content": "Als je doorgaat, verwijder je al je kaartjes van de IRMA-app. Wil je de IRMA-app opnieuw gebruiken? Haal dan je kaartjes opnieuw op.",
       "delete_confirm": "Ja, verwijder alles",
       "delete_deny": "Annuleer"
     }
@@ -219,9 +218,9 @@
   "change_pin": {
     "enter_pin": {
       "title": "Pincode veranderen",
-      "instruction": "Vul eerst je huidige pincode in. Daarna kun je een nieuw pincode kiezen.",
+      "instruction": "Vul eerst je huidige pincode in.",
       "error_title": "Verkeerde pincode",
-      "error": "Vul je huidige pincode in. Je kunt het nog drie keer proberen.",
+      "error": "Vul je huidige pincode in.",
       "error_action": "OK"
     },
     "validating_pin": {
@@ -231,10 +230,10 @@
     "choose_pin": {
       "title": "Verander je pincode",
       "instruction": "Kies je nieuwe pincode.",
-      "switch_long": "Ik wil een langere pincode",
-      "switch_short": "Ik wil een kortere pincode",
+      "switch_long": "Kies een langere pincode",
+      "switch_short": "Kies een kortere pincode",
       "error_title": "Verkeerde pincode",
-      "error": "De pincodes kwamen niet overeen. Probeer het nog eens.",
+      "error": "De pincodes komen niet overeen. Probeer het nog eens.",
       "error_action": "OK"
     },
     "confirm_pin": {
@@ -243,22 +242,22 @@
     },
     "success": {
       "title": "Gelukt!",
-      "message": "Je pincode is aangepast.",
+      "message": "Je pincode is veranderd.",
       "continue": "OK"
     }
   },
   "qr_scanner": {
     "instruction": {
-      "title": "Begin met scannen!",
-      "message": "Richt de telefoon op de QR code"
+      "title": "Begin met scannen",
+      "message": "Richt je mobiel op de QR-code"
     },
     "success": {
       "title": "Gelukt",
-      "message": "De QR code is gescand"
+      "message": "De QR-code is gescand"
     },
     "error": {
-      "title": "Mislukt",
-      "message": "Richt de telefoon op een IRMA QR code"
+      "title": "Sorry",
+      "message": "Dit is geen IRMA QR-code"
     }
   },
   "pin": {
@@ -267,9 +266,9 @@
     "button_forgot": "Pincode vergeten",
     "button_block": "IRMA blokkeren",
     "invalid_pin": {
-      "attempts-0": "De ingevoerde pin is onjuist. U heeft nog {attemps} pogingen voordat uw account tijdelijk geblokkeerd wordt.",
-      "attempts-1": "De ingevoerde pin is onjuist. U heeft nog {attemps} poging voordat uw account tijdelijk geblokkeerd wordt.",
-      "attempts-2": "De ingevoerde pin is onjuist. U heeft nog {attemps} pogingen voordat uw account tijdelijk geblokkeerd wordt."
+      "attempts-0": "Deze pincode is niet juist. Je hebt nog {attemps} pogingen voordat je IRMA-app tijdelijk geblokkeerd wordt.",
+      "attempts-1": "Deze pincode is niet juist. Je hebt nog {attemps} poging voordat je IRMA-app tijdelijk geblokkeerd wordt.",
+      "attempts-2": "Deze pincode is niet juist. Je hebt nog {attemps} pogingen voordat je IRMA-app tijdelijk geblokkeerd wordt."
     }
   },
   "error": {
@@ -279,14 +278,14 @@
     "button_show_error": "Fout tonen",
     "button_retry": "Probeer opnieuw",
     "types": {
-      "general": "Er is iets misgegaan tijdens de communicatie met de IRMA server.\n\nHeeft u een werkende internet verbinding?\n\nAls hjet pobleem zich blijft voordoen meldt u dat alstublieft met de knoppen hieronder.",
-      "no_internet": "Er is iets misgegaan tijdens de communicatie met de IRMA server.\n\nControleer je internetverbinding. IRMA heeft een internetverbinding nodig om gegevens te kunnen versleutelen."
+      "general": "Er is iets misgegaan. Er kan geen verbinding gemaakt worden met de IRMA server.\n\nControleer je internetverbinding.\n\nAls het pobleem zich blijft voordoen, meld deze fout dan aan IRMA.",
+      "no_internet": "Er is iets misgegaan. Er kan geen verbinding gemaakt worden met de IRMA server.\n\nControleer je internetverbinding. IRMA heeft een internetverbinding nodig om gegevens te kunnen versleutelen."
     }
   },
   "wallet": {
-    "title": "IRMA Wallet",
-    "scan_qr_code": "Scan QR code",
-    "issuer": "Uitgifte",
+    "title": "Mijn kaartjes",
+    "scan_qr_code": "Scan QR-code",
+    "issuer": "Bron",
     "expiration": "Geldig tot",
     "help": "Help",
     "caption": "Jouw gegevens veilig op jouw telefoon",
@@ -319,24 +318,24 @@
       "start": "Wil je dit aan ",
       "end": " doorgeven?"
     },
-    "issuer": "Uitgever",
+    "issuer": "Bron",
     "choices": "{choices} keuzes",
     "next": "volgende kiezen",
     "previous": "vorige kiezen",
     "explanation": {
-      "title": "Kies welke gegevens je deelt",
-      "body": "Je kunt kiezen welke gegevens je doorgeeft. Gebruik het pijltje of swipe en maak je keuze.",
+      "title": "Je hebt een keuze",
+      "body": "Selecteer welke gegevens je doorgeeft.",
       "dismiss": "OK",
       "dismiss-remember": "Niet meer tonen"
     }
   },
   "reset_pin": {
     "title": "Pincode vergeten",
-    "message": "Pin vergeten? Dat is vervelend voor je. Als je IRMA wil blijven gebruiken moet je IRMA helaas opnieuw instellen.",
+    "message": "Pin vergeten? Dat is vervelend voor je. Als je de IRMA-app wilt blijven gebruiken moet je deze helaas opnieuw instellen.",
     "existing_data_title": "Wat gebeurt er met mijn huidige gegevens?",
-    "existing_data_message": "Je huidige gegevens in IRMA worden uit je telefoon verwijderd. Je kunt al je gegevens opnieuw ophalen en IRMA weer gebruiken.",
-    "back": "Annuleren",
-    "reset": "Opnieuw vullen",
-    "existing_data_removed": "Je bestaande IRMA wordt verwijderd."
+    "existing_data_message": "Je huidige gegevens in je IRMA-app worden uit je mobiel verwijderd. Je kunt al je gegevens opnieuw ophalen en je IRMA-app weer gebruiken.",
+    "back": "Annuleer",
+    "reset": "Begin opnieuw",
+    "existing_data_removed": "Alle gegevens in je IRMA-app worden verwijderd."
   }
 }
