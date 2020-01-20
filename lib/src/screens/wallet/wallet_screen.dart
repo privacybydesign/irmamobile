@@ -47,7 +47,7 @@ class _WalletScreenState extends State<_WalletScreen> {
         builder: (context, snapshot) => Wallet(
             credentials: snapshot.hasData ? snapshot.data.values.toList() : null,
             newCardIndex: 3,
-            hasLoginLogoutAnimation: true,
+            hasLoginLogoutAnimation: false,
             isOpen: true,
             onQRScannerPressed: qrScannerPressed,
             onHelpPressed: helpPressed,
