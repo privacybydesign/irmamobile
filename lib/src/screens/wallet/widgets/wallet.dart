@@ -402,7 +402,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
     switch (state) {
       case WalletState.drawn:
         if (index == drawnCardIndex) {
-          cardPosition = walletTop;
+          cardPosition = walletTop - IrmaTheme.of(context).mediumSpacing;
           cardPosition -= dragOffset;
         } else {
           cardPosition = -(index - 1) * _cardTopBorderHeight.toDouble() + 2;
