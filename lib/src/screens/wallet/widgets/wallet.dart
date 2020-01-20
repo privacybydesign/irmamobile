@@ -73,6 +73,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   WalletState oldState = WalletState.minimal;
   WalletState currentState = WalletState.minimal;
 
+  double dragOffsetSave = 0;
   double dragOffset = 0;
   double cardDragOffset = 0;
   int showCardsCounter = 0;
@@ -263,15 +264,18 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                                                   drawnCardIndex: drawnCardIndex,
                                                   dragOffset: 0);
                                           if (drawnCardIndex == _index) {
-                                            dragOffset = details.localPosition.dy - cardDragOffset;
+                                            dragOffsetSave = details.localPosition.dy - cardDragOffset;
                                           }
                                         } else {
                                           cardDragOffset = _cardTopHeight / 2;
                                           drawnCardIndex = _index;
-                                          dragOffset = details.localPosition.dy - cardDragOffset;
+                                          dragOffsetSave = details.localPosition.dy - cardDragOffset;
                                         }
                                       },
                                     );
+                                  },
+                                  onVerticalDragStart: (DragStartDetails details) {
+                                    dragOffset = dragOffsetSave;
                                   },
                                   onVerticalDragUpdate: (DragUpdateDetails details) {
                                     setState(() {
