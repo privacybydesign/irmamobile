@@ -37,8 +37,8 @@ class Credential {
         schemeManager = irmaConfiguration.schemeManagers[rawCredential.schemeManagerId],
         issuer = irmaConfiguration.issuers[rawCredential.fullIssuerId],
         credentialType = irmaConfiguration.credentialTypes[rawCredential.fullId],
-        signedOn = DateTime.fromMillisecondsSinceEpoch(rawCredential.signedOn),
-        expires = DateTime.fromMillisecondsSinceEpoch(rawCredential.expires),
+        signedOn = DateTime.fromMillisecondsSinceEpoch(rawCredential.signedOn*1000),
+        expires = DateTime.fromMillisecondsSinceEpoch(rawCredential.expires*1000),
         attributes = Attributes.fromRaw(
           irmaConfiguration: irmaConfiguration,
           rawAttributes: rawCredential.attributes,
