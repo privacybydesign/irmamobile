@@ -136,6 +136,10 @@
     "alert_button": "Sluiten"
   },
   "accessibility": {
+    "back": "Terug",
+    "close": "Sluiten",
+    "next": "Volgende",
+    "previous": "Vorige",
     "unfold": "Uitvouwen",
     "update": "Bijwerken",
     "remove": "Verwijderen",
@@ -264,6 +268,8 @@
     "title": "Inloggen",
     "subtitle": "Vul je pincode in",
     "button_forgot": "Pincode vergeten",
+    "view": "Pin tonen",
+    "hide": "Pin verbergen",
     "button_block": "IRMA blokkeren",
     "invalid_pin": {
       "attempts-0": "Deze pincode is niet juist. Je hebt nog {attemps} pogingen voordat je IRMA-app tijdelijk geblokkeerd wordt.",
@@ -285,6 +291,8 @@
   "wallet": {
     "title": "Mijn kaartjes",
     "scan_qr_code": "Scan QR-code",
+    "open_menu": "Menu openen",
+    "close_menu": "Menu sluiten",
     "issuer": "Bron",
     "expiration": "Geldig tot",
     "help": "Help",

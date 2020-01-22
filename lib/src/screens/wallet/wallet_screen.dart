@@ -39,7 +39,10 @@ class _WalletScreenState extends State<_WalletScreen> {
           centerTitle: true,
           title: Text(FlutterI18n.translate(context, 'wallet.title')),
           leading: IconButton(
-            icon: Icon(Icons.menu),
+            icon: Icon(
+              Icons.menu,
+              semanticLabel: FlutterI18n.translate(context, "wallet.open_menu"),
+            ),
             onPressed: () => _scaffoldKey.currentState.openDrawer(),
           )),
       body: StreamBuilder<Credentials>(

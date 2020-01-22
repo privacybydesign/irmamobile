@@ -52,7 +52,8 @@ class WalletDrawer extends StatelessWidget {
                             ),
                             IconButton(
                               iconSize: 18.0,
-                              icon: Icon(IrmaIcons.close),
+                              icon: Icon(IrmaIcons.close,
+                                  semanticLabel: FlutterI18n.translate(context, "wallet.close_menu")),
                               onPressed: () => Navigator.pop(context),
                             )
                           ],

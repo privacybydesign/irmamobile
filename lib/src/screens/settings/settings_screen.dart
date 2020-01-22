@@ -26,7 +26,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(
+            Icons.arrow_back,
+            color: Colors.black,
+            semanticLabel: FlutterI18n.translate(context, "accessibility.back"),
+          ),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(FlutterI18n.translate(context, 'settings.title')),

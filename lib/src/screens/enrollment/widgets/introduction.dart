@@ -125,7 +125,9 @@ class Walkthrough extends StatelessWidget {
                 )
               : IconButton(
                   onPressed: onNextScreen,
-                  icon: Icon(IrmaIcons.chevronDown, color: IrmaTheme.of(context).grayscale60),
+                  icon: Icon(IrmaIcons.chevronDown,
+                      semanticLabel: FlutterI18n.translate(context, "accessibility.next"),
+                      color: IrmaTheme.of(context).grayscale60),
                   iconSize: 32,
                   alignment: Alignment.center,
                 ),

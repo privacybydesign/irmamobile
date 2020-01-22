@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/screens/scanner/widgets/qr_scanner.dart';
 
 class ScannerScreen extends StatelessWidget {
@@ -15,7 +16,10 @@ class ScannerScreen extends StatelessWidget {
         title: const Text('QR code scan'),
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: Icon(
+            Icons.arrow_back,
+            semanticLabel: FlutterI18n.translate(context, "accessibility.back"),
+          ),
           onPressed: () => _onClose(context),
         ),
       ),

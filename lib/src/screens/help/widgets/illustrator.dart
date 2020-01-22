@@ -40,45 +40,41 @@ class _IllustratorState extends State<Illustrator> {
           if (currentPage > 0)
             Positioned(
               left: 0,
-              child: Semantics(
-                button: true,
-                label: FlutterI18n.translate(context, "disclosure.previous"),
-                child: IconButton(
-                  icon: Icon(IrmaIcons.chevronLeft, color: IrmaTheme.of(context).interactionInformation),
-                  iconSize: 20.0,
-                  onPressed: () {
-                    currentPage--;
-                    if (_controller.hasClients) {
-                      _controller.animateToPage(
-                        currentPage,
-                        duration: const Duration(milliseconds: 400),
-                        curve: Curves.easeInOut,
-                      );
-                    }
-                  },
-                ),
+              child: IconButton(
+                icon: Icon(IrmaIcons.chevronLeft,
+                    semanticLabel: FlutterI18n.translate(context, "disclosure.previous"),
+                    color: IrmaTheme.of(context).interactionInformation),
+                iconSize: 20.0,
+                onPressed: () {
+                  currentPage--;
+                  if (_controller.hasClients) {
+                    _controller.animateToPage(
+                      currentPage,
+                      duration: const Duration(milliseconds: 400),
+                      curve: Curves.easeInOut,
+                    );
+                  }
+                },
               ),
             ),
           if (currentPage < widget.imageSet.length - 1)
             Positioned(
               right: 0,
-              child: Semantics(
-                button: true,
-                label: FlutterI18n.translate(context, "disclosure.next"),
-                child: IconButton(
-                  icon: Icon(IrmaIcons.chevronRight, color: IrmaTheme.of(context).interactionInformation),
-                  iconSize: 20.0,
-                  onPressed: () {
-                    currentPage++;
-                    if (_controller.hasClients) {
-                      _controller.animateToPage(
-                        currentPage,
-                        duration: Duration(milliseconds: _animationDuration),
-                        curve: Curves.easeInOut,
-                      );
-                    }
-                  },
-                ),
+              child: IconButton(
+                icon: Icon(IrmaIcons.chevronRight,
+                    semanticLabel: FlutterI18n.translate(context, "disclosure.next"),
+                    color: IrmaTheme.of(context).interactionInformation),
+                iconSize: 20.0,
+                onPressed: () {
+                  currentPage++;
+                  if (_controller.hasClients) {
+                    _controller.animateToPage(
+                      currentPage,
+                      duration: Duration(milliseconds: _animationDuration),
+                      curve: Curves.easeInOut,
+                    );
+                  }
+                },
               ),
             ),
         ],

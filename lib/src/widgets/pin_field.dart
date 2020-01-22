@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
@@ -227,6 +228,7 @@ class _PinFieldState extends State<PinField> {
             iconSize: obscureText ? theme.defaultSpacing : theme.mediumSpacing,
             icon: Icon(
               obscureText ? IrmaIcons.view : IrmaIcons.hide,
+              semanticLabel: FlutterI18n.translate(context, obscureText ? "pin.view" : "pin.hide"),
               color: theme.grayscale40,
             ),
             onPressed: () {

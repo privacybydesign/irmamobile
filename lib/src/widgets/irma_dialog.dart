@@ -85,7 +85,7 @@ class IrmaDialog extends StatelessWidget {
                     top: 0,
                     child: IconButton(
                       iconSize: 18.0,
-                      icon: Icon(IrmaIcons.close),
+                      icon: Icon(IrmaIcons.close, semanticLabel: FlutterI18n.translate(context, "accessibility.close")),
                       color: IrmaTheme.of(context).primaryBlue,
                       onPressed: () => Navigator.pop(context),
                     ),

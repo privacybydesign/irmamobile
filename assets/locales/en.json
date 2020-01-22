@@ -131,6 +131,10 @@
     "alert_button": "Sluiten"
   },
   "accessibility": {
+    "back": "Back",
+    "close": "Close",
+    "next": "Next",
+    "previous": "Previous",
     "unfold": "Unfold",
     "update": "Update",
     "remove": "Remove",
@@ -259,6 +263,8 @@
     "title": "Login",
     "subtitle": "Enter your pin",
     "button_forgot": "Forgot pin",
+    "view": "View pin",
+    "hide": "Hide pin",
     "button_block": "Block IRMA",
     "invalid_pin": {
       "attempts-0": "The pin you entered was invalid. {attemps} attempts remaining before your account will be temporarily blocked.",
@@ -280,6 +286,8 @@
   "wallet": {
     "title": "IRMA Wallet",
     "scan_qr_code": "Scan QR code",
+    "open_menu": "Open menu",
+    "close_menu": "Close menu",
     "issuer": "Issuer",
     "expiration": "Expiration",
     "help": "Help",

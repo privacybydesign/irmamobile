@@ -54,7 +54,7 @@ class RequestEmailAttributeState extends State<RequestEmailAttribute> {
           ),
         ),
         leading: IconButton(
-            icon: const Icon(IrmaIcons.arrowBack),
+            icon: Icon(IrmaIcons.arrowBack, semanticLabel: FlutterI18n.translate(context, "accessibility.back")),
             onPressed: () => Navigator.of(
                   context,
                   rootNavigator: true,
@@ -125,7 +125,8 @@ class RequestEmailAttributeState extends State<RequestEmailAttribute> {
                           ),
                           IconButton(
                             color: Colors.grey,
-                            icon: Icon(Icons.close),
+                            icon:
+                                Icon(Icons.close, semanticLabel: FlutterI18n.translate(context, "accessibility.close")),
                             onPressed: () {
                               _emailTextController.clear();
                               bloc.dispatch(ClearEmail());

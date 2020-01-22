@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/welcome.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 
@@ -11,7 +12,7 @@ class CancelButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      icon: const Icon(IrmaIcons.arrowBack),
+      icon: Icon(IrmaIcons.arrowBack, semanticLabel: FlutterI18n.translate(context, "accessibility.back")),
       iconSize: 20.0,
       onPressed: () {
         if (cancel != null) {

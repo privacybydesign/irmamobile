@@ -31,7 +31,7 @@ class EmailAttributeConfirmation extends StatelessWidget {
           ),
         ),
         leading: IconButton(
-            icon: const Icon(IrmaIcons.arrowBack),
+            icon: Icon(IrmaIcons.arrowBack, semanticLabel: FlutterI18n.translate(context, "accessibility.back")),
             onPressed: () => Navigator.of(
                   context,
                   rootNavigator: true,

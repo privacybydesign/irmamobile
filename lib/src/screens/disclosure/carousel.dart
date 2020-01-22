@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
@@ -96,7 +95,7 @@ class _CarouselState extends State<Carousel> {
               left: 0,
               child: arrowButton(
                 icon: IrmaIcons.chevronLeft,
-                label: "disclosure.previous",
+                semanticLabel: "disclosure.previous",
                 isVisible: currentPage > 0,
                 delta: -1,
                 size: widget.credentialSet.length,
@@ -131,7 +130,7 @@ class _CarouselState extends State<Carousel> {
               right: 0,
               child: arrowButton(
                 icon: IrmaIcons.chevronRight,
-                label: "disclosure.next",
+                semanticLabel: "disclosure.next",
                 isVisible: currentPage < widget.credentialSet.length - 1,
                 delta: 1,
                 size: widget.credentialSet.length,
@@ -154,31 +153,29 @@ class _CarouselState extends State<Carousel> {
         ),
       );
 
-  Widget arrowButton({IconData icon, String label, bool isVisible, int delta, int size}) => AnimatedOpacity(
+  Widget arrowButton({IconData icon, String semanticLabel, bool isVisible, int delta, int size}) => AnimatedOpacity(
         opacity: isVisible ? 1 : 0,
         duration: Duration(milliseconds: _animationDuration),
-        child: Semantics(
-          button: true,
-          label: FlutterI18n.translate(context, label),
-          child: IconButton(
-            icon: Icon(icon, color: IrmaTheme.of(context).interactionInformation),
-            iconSize: 20.0,
-            splashColor: isVisible ? const Color(0xffcccccc) : const Color(0x00000000),
-            onPressed: () {
-              setState(
-                () {
-                  if (currentPage + delta >= 0 && currentPage + delta <= size - 1) {
-                    currentPage += delta;
-                    _controller.animateToPage(
-                      currentPage,
-                      duration: Duration(milliseconds: _animationDuration),
-                      curve: Curves.easeInOut,
-                    );
-                  }
-                },
-              );
-            },
-          ),
+        child: IconButton(
+          icon: Icon(icon,
+              color: IrmaTheme.of(context).interactionInformation,
+              semanticLabel: FlutterI18n.translate(context, semanticLabel)),
+          iconSize: 20.0,
+          splashColor: isVisible ? const Color(0xffcccccc) : const Color(0x00000000),
+          onPressed: () {
+            setState(
+              () {
+                if (currentPage + delta >= 0 && currentPage + delta <= size - 1) {
+                  currentPage += delta;
+                  _controller.animateToPage(
+                    currentPage,
+                    duration: Duration(milliseconds: _animationDuration),
+                    curve: Curves.easeInOut,
+                  );
+                }
+              },
+            );
+          },
         ),
       );
 }
