@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/log.dart' as log_model;
+import 'package:irmamobile/src/screens/history/detail_screen.dart';
 import 'package:irmamobile/src/screens/history/model/history_bloc.dart';
 import 'package:irmamobile/src/screens/history/model/history_events.dart';
 import 'package:irmamobile/src/screens/history/widgets/log.dart';
@@ -93,6 +94,9 @@ class HistoryScreenState extends State<HistoryScreen> {
       type: logType,
       dataCount: dataCount,
       subTitle: subTitle,
+      onTap: () {
+        Navigator.of(context).push(MaterialPageRoute(builder: (context) => DetailScreen(logModel, logType)));
+      },
     );
   }
 

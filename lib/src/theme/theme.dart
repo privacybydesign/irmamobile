@@ -20,6 +20,7 @@ class IrmaThemeData extends Equatable {
 
   // Grayscale colors (used for text, background colors, lines and icons)
   final Color grayscaleWhite = const Color(0xFFFFFFFF);
+  final Color grayscale95 = const Color(0xFFF2F5F8);
   final Color grayscale90 = const Color(0xFFE8ECF0);
   final Color grayscale85 = const Color(0xFFE3E9F0);
   final Color grayscale80 = const Color(0xFFB7C2CC);

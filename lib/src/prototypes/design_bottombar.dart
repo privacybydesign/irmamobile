@@ -63,12 +63,12 @@ class BottomBar extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
-        primaryBtnLabel: 'settings.advanced.delete_confirm',
+        primaryButtonLabel: 'settings.advanced.delete_confirm',
         onPrimaryPressed: () => print("pressed confirm"),
         onPrimaryDisabledPressed: () => print("pressed disabled confirm"),
-        secondaryBtnLabel: 'settings.advanced.delete_deny',
+        secondaryButtonLabel: 'settings.advanced.delete_deny',
         onSecondaryPressed: () => print("pressed back"),
-        tooltipOnPrimaryBtn: true,
+        tooltipOnPrimaryButton: true,
         toolTipLabel: 'settings.advanced.delete_deny',
       ),
     );

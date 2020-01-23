@@ -437,7 +437,7 @@ class IrmaClientMock implements IrmaClient {
           if (i % 4 == 0) {
             return Log(
               id: 1,
-              serverName: "mock",
+              serverName: "mock servername",
               time: DateTime.now(),
               type: "issuing",
               issuedCredentials: Credentials({
@@ -453,14 +453,14 @@ class IrmaClientMock implements IrmaClient {
                   signedOn: DateTime.now(),
                   expires: DateTime.now().add(const Duration(minutes: 5)),
                   hash: "foobar",
-                  credentialType: CredentialType(),
+                  credentialType: CredentialType(name: {"nl": "mijn type"}),
                 )
               }),
             );
           } else if (i % 3 == 0) {
             return Log(
               id: 1,
-              serverName: "mock",
+              serverName: "mock servername",
               time: DateTime.now(),
               type: "removal",
               removedCredentials: {"mock card": "mock card"},
@@ -468,7 +468,7 @@ class IrmaClientMock implements IrmaClient {
           } else if (i % 2 == 0) {
             return Log(
               id: 1,
-              serverName: "mock",
+              serverName: "mock servername",
               time: DateTime.now(),
               type: "disclosing",
               disclosedAttributes: [
@@ -479,7 +479,7 @@ class IrmaClientMock implements IrmaClient {
           } else {
             return Log(
               id: 1,
-              serverName: "mock",
+              serverName: "mock servername",
               time: DateTime.now(),
               type: "signing",
               signedMessage: "mock message",
