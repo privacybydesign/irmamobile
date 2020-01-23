@@ -19,11 +19,12 @@ import 'package:irmamobile/src/screens/disclosure/disclosure.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/introduction.dart';
 import 'package:irmamobile/src/screens/error/error_screen.dart';
 import 'package:irmamobile/src/screens/error/no_internet_screen.dart';
+import 'package:irmamobile/src/screens/help/help_screen.dart';
 import 'package:irmamobile/src/screens/history/history_screen.dart';
 import 'package:irmamobile/src/screens/loading/loading_screen.dart';
-import 'package:irmamobile/src/screens/help/help_screen.dart';
 import 'package:irmamobile/src/screens/reset_pin/reset_pin_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
+import 'package:irmamobile/src/screens/splash_screen/splash_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class PrototypesScreen extends StatelessWidget {
@@ -126,6 +127,9 @@ class PrototypesScreen extends StatelessWidget {
           }),
           _buildListItem(context, "33. Help screen", () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => HelpScreen()));
+          }),
+          _buildListItem(context, "34. Splash screen", () {
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => SplashScreen()));
           }),
           const SizedBox(height: 12),
           Padding(

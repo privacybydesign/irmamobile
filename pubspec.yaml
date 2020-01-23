@@ -79,6 +79,7 @@ flutter:
     - assets/reset/
     - assets/non-free/
     - assets/disclosure/
+    - assets/splash/
 
   fonts:
     - family: Karla
