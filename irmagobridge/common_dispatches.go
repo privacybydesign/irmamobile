@@ -2,11 +2,7 @@ package irmagobridge
 
 func dispatchConfigurationEvent() {
 	dispatchEvent(&irmaConfigurationEvent{
-		SchemeManagers:  client.Configuration.SchemeManagers,
-		Issuers:         client.Configuration.Issuers,
-		CredentialTypes: client.Configuration.CredentialTypes,
-		AttributeTypes:  client.Configuration.AttributeTypes,
-		Path:            client.Configuration.Path,
+		IrmaConfiguration: client.Configuration,
 	})
 }
 

@@ -17,3 +17,13 @@ Map<String, dynamic> _$PreferencesToJson(Preferences instance) => <String, dynam
       'EnableCrashReporting': instance.enableCrashReporting,
       'QrScannerOnStartup': instance.qrScannerOnStartup,
     };
+
+PreferencesEvent _$PreferencesEventFromJson(Map<String, dynamic> json) {
+  return PreferencesEvent(
+    preferences: json['Preferences'] == null ? null : Preferences.fromJson(json['Preferences'] as Map<String, dynamic>),
+  );
+}
+
+Map<String, dynamic> _$PreferencesEventToJson(PreferencesEvent instance) => <String, dynamic>{
+      'Preferences': instance.preferences,
+    };

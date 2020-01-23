@@ -1,11 +1,126 @@
-package irmagobridge
+package main
 
 import (
 	"encoding/json"
+	"fmt"
+	"reflect"
+	"strings"
 
+	"github.com/privacybydesign/gabi/big"
 	irma "github.com/privacybydesign/irmago"
-	"github.com/privacybydesign/irmago/irmaclient"
+	irmaclient "github.com/privacybydesign/irmago/irmaclient"
 )
+
+func main() {
+	structs := []interface{}{irmaclient.MissingAttribute{}}
+
+	for i := 0; i < len(structs); i++ {
+		fmt.Println(structToDart(structs[i]))
+	}
+
+}
+
+func structToDart(x interface{}) string {
+	t := reflect.TypeOf(x)
+	for t.Kind() == reflect.Ptr || t.Kind() == reflect.Interface {
+		// dereference pointers or interfaces
+		t = t.Elem()
+	}
+	if t.Kind() != reflect.Struct {
+		panic("only structs supported")
+	}
+	return fmt.Sprintf("class %s {\n  %s\n%s\n%s}\n", strings.Title(t.Name()), memberInitializer(t), members(t), jsonGenerator(t))
+}
+
+func memberInitializer(t reflect.Type) string {
+	b := strings.Builder{}
+
+	b.WriteString(strings.Title(t.Name()) + "({")
+	for i := 0; i < t.NumField(); i++ {
+		b.WriteString("this." + detitle(t.Field(i).Name))
+
+		if i < t.NumField()-1 {
+			b.WriteString(", ")
+		}
+	}
+	b.WriteString("})\n")
+	return b.String()
+}
+
+func members(t reflect.Type) string {
+	b := strings.Builder{}
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+
+		b.WriteString("  ")
+		b.WriteString("@JsonKey(name: '" + field.Name + "')")
+		b.WriteString("\n")
+
+		if field.Type.Kind() == reflect.Struct && field.Anonymous {
+			// if the field is anonymous, embed its fields
+			b.WriteString(members(field.Type))
+		} else {
+			b.WriteString("  ")
+			b.WriteString(member(field))
+			b.WriteString("\n")
+
+			if i < t.NumField()-1 {
+				b.WriteString("\n")
+			}
+		}
+	}
+	return b.String()
+}
+
+func jsonGenerator(t reflect.Type) string {
+	b := strings.Builder{}
+	className := strings.Title(t.Name())
+
+	b.WriteString("  factory " + className + ".fromJson(Map<String, dynamic> json) => _$" + className + "FromJson(json);\n")
+	b.WriteString("  Map<String, dynamic> toJson() => _$" + className + "ToJson(this);\n")
+	return b.String()
+}
+
+// ---
+
+func member(field reflect.StructField) string {
+	return typename(field.Type) + " " + detitle(field.Name) + ";"
+}
+
+func typename(typ reflect.Type) string {
+	switch typ.Kind() {
+	case reflect.Struct:
+		return typ.Name()
+	case reflect.Ptr:
+		switch typ {
+		case reflect.TypeOf((*big.Int)(nil)):
+			return "BigInt"
+		}
+		return typename(typ.Elem()) // discard pointer, just use its type
+	case reflect.String:
+		return "String"
+	case reflect.Slice, reflect.Array:
+		return "List<" + typename(typ.Elem()) + ">"
+	case reflect.Map:
+		return fmt.Sprintf("Map<%s, %s>", typename(typ.Key()), typename(typ.Elem()))
+	case reflect.Interface:
+		// Type is unknown at compile time
+		// Instead we could also (1) panic, or (2) emit the interface name,
+		// and then elsewhere also emit a Dart interface definition
+		return "dynamic"
+	case reflect.Func, reflect.Chan, reflect.Invalid:
+		panic("unsupported type: " + typ.Kind().String())
+	default:
+		// don't know what can end up here, so always check the output
+		return typ.Name()
+	}
+}
+
+func detitle(s string) string {
+	return strings.ToLower(s[0:1]) + s[1:]
+}
+
+/// -----
 
 // //
 // Incoming events
@@ -54,15 +169,15 @@ type setCrashReportingPreferenceEvent struct {
 	EnableCrashReporting bool
 }
 
-type setQrScannerOnStartupPreferenceEvent struct {
-	QrScannerOnStartup bool
-}
-
 // //
 // Outgoing events
 // //
 type irmaConfigurationEvent struct {
-	IrmaConfiguration *irma.Configuration
+	SchemeManagers  map[irma.SchemeManagerIdentifier]*irma.SchemeManager
+	Issuers         map[irma.IssuerIdentifier]*irma.Issuer
+	CredentialTypes map[irma.CredentialTypeIdentifier]*irma.CredentialType
+	AttributeTypes  map[irma.AttributeTypeIdentifier]*irma.AttributeType
+	Path            string
 }
 
 type credentialsEvent struct {
@@ -213,7 +328,7 @@ type sessionError struct {
 	*irma.SessionError
 }
 
-func (err *sessionError) MarshalJSON() ([]byte, error) {
+func (err *sessionError) marshalSessionError() ([]byte, error) {
 	return json.Marshal(&map[string]interface{}{
 		"ErrorType":    err.ErrorType,
 		"WrappedError": err.WrappedError(),

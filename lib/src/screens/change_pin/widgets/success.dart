@@ -19,7 +19,7 @@ class Success extends StatelessWidget {
         title: Text(
           FlutterI18n.translate(context, 'change_pin.confirm_pin.title'),
         ),
-        iconAction: () async {
+        leadingAction: () async {
           if (cancel != null) {
             cancel();
           }
@@ -27,7 +27,7 @@ class Success extends StatelessWidget {
             Navigator.of(context, rootNavigator: true).pop();
           }
         },
-        iconTooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+        leadingTooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
       ),
       body: SingleChildScrollView(
         child: Center(

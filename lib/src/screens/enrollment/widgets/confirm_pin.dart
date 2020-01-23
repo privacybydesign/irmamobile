@@ -21,12 +21,12 @@ class ConfirmPin extends StatelessWidget {
         title: Text(
           FlutterI18n.translate(context, 'enrollment.choose_pin.title'),
         ),
-        cancel: cancel,
-        iconAction: () {
+        leadingCancel: cancel,
+        leadingAction: () {
           Navigator.of(context).popUntil(
               (route) => route.settings.name == ChoosePin.routeName || route.settings.name == Welcome.routeName);
         },
-        iconTooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+        leadingTooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
       ),
       body: SingleChildScrollView(
         child: Column(

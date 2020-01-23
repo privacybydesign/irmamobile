@@ -20,8 +20,8 @@ class EnterPin extends StatelessWidget {
         title: Text(
           FlutterI18n.translate(context, 'change_pin.enter_pin.title'),
         ),
-        iconTooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
-        iconAction: () async {
+        leadingTooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+        leadingAction: () async {
           if (cancel != null) {
             cancel();
           }

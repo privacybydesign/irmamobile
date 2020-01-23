@@ -19,9 +19,9 @@ class EnrollmentStatus {
   @JsonKey(name: 'UnenrolledSchemeManagerIds')
   final List<String> unenrolledSchemeManagers;
 
-  bool isEnrolled() => enrolledSchemeManagers.length > 0;
-  bool isUnenrolled() => !isEnrolled() && unenrolledSchemeManagers.length > 0;
-  bool isEmpty() => enrolledSchemeManagers.length == 0 && unenrolledSchemeManagers.length == 0;
+  bool isEnrolled() => enrolledSchemeManagers.isNotEmpty;
+  bool isUnenrolled() => !isEnrolled() && unenrolledSchemeManagers.isNotEmpty;
+  bool isEmpty() => enrolledSchemeManagers.isEmpty && unenrolledSchemeManagers.isEmpty;
 
   factory EnrollmentStatus.fromJson(Map<String, dynamic> json) => _$EnrollmentStatusFromJson(json);
   Map<String, dynamic> toJson() => _$EnrollmentStatusToJson(this);

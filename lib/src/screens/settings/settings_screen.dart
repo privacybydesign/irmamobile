@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
+import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/settings/widgets/settings_header.dart';
@@ -43,7 +44,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 activeColor: IrmaTheme.of(context).interactionValid,
                 value: snapshot.data != null && snapshot.data,
-                onChanged: (v) => irmaClient.setQrScannerOnStartupPreference(value: v),
+                onChanged: (v) => irmaClient.dispatch(SetQrScannerOnStartupPreferenceEvent(qrScannerOnStartup: v)),
                 secondary: Icon(IrmaIcons.scanQrcode, color: IrmaTheme.of(context).textTheme.body1.color),
               );
             },
@@ -73,7 +74,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 activeColor: IrmaTheme.of(context).interactionValid,
                 value: snapshot.data != null && snapshot.data,
-                onChanged: (v) => irmaClient.setCrashReportingPreference(value: v),
+                onChanged: (v) => irmaClient.dispatch(SetCrashReportingPreferenceEvent(enableCrashReporting: v)),
                 secondary: Icon(IrmaIcons.invalid, color: IrmaTheme.of(context).textTheme.body1.color),
               );
             },

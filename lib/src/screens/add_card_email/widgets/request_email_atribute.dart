@@ -53,7 +53,7 @@ class RequestEmailAttributeState extends State<RequestEmailAttribute> {
               },
             ),
           ),
-          iconAction: () => Navigator.of(
+          leadingAction: () => Navigator.of(
                 context,
                 rootNavigator: true,
               ).pop()),

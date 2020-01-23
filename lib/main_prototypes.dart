@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:irmamobile/main.dart';
-import 'package:irmamobile/src/data/irma_client_mock.dart';
+import 'package:irmamobile/src/data/irma_mock_bridge.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/prototypes/prototypes_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
@@ -8,7 +8,6 @@ import 'package:irmamobile/src/theme/theme.dart';
 void main() => runApp(PrototypesApp());
 
 class PrototypesApp extends StatelessWidget {
-  final IrmaRepository repository = IrmaRepository(client: IrmaClientMock(versionUpdateAvailable: true));
   final Map<String, WidgetBuilder> routes = {
     PrototypesScreen.routeName: (BuildContext context) => PrototypesScreen(),
   };
@@ -17,6 +16,8 @@ class PrototypesApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    IrmaRepository(client: IrmaMockBridge());
+
     return IrmaTheme(
       builder: (context) {
         return MaterialApp(

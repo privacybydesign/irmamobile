@@ -1,18 +1,22 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class Carousel extends StatefulWidget {
-  final List<Widget> credentialSet;
+  final DisCon<CredentialAttribute> candidatesDisCon;
 
-  const Carousel({@required this.credentialSet});
+  const Carousel({@required this.candidatesDisCon});
 
   @override
   _CarouselState createState() => _CarouselState();
 }
 
 class _CarouselState extends State<Carousel> {
+  final _lang = ui.window.locale.languageCode;
   final GlobalKey _keyStackedIndex = GlobalKey();
   final _animationDuration = 250;
 
@@ -45,7 +49,7 @@ class _CarouselState extends State<Carousel> {
   // https://medium.com/aubergine-solutions/create-an-onboarding-page-indicator-in-3-minutes-in-flutter-a2bd97ceeaff
   void getChangedPageAndMoveBar(int page) {
     setState(() {
-      currentPage = page % widget.credentialSet.length;
+      currentPage = page % widget.candidatesDisCon.length;
     });
   }
 
@@ -58,7 +62,10 @@ class _CarouselState extends State<Carousel> {
         FUTURE: implement a more elegant solution */
           Offstage(
             offstage: true,
-            child: IndexedStack(key: _keyStackedIndex, index: currentPage, children: widget.credentialSet),
+            child: IndexedStack(
+                key: _keyStackedIndex,
+                index: currentPage,
+                children: widget.candidatesDisCon.map(carouselWidget).toList()),
           ),
           _buildPageViewer(),
         ],
@@ -71,18 +78,18 @@ class _CarouselState extends State<Carousel> {
             Container(
               height: height,
               child: PageView.builder(
-                itemCount: widget.credentialSet.length,
+                itemCount: widget.candidatesDisCon.length,
                 physics: const AlwaysScrollableScrollPhysics(),
                 controller: _controller,
                 onPageChanged: (int page) {
                   getChangedPageAndMoveBar(page);
                 },
                 itemBuilder: (BuildContext context, int index) {
-                  return widget.credentialSet[index % widget.credentialSet.length];
+                  return carouselWidget(widget.candidatesDisCon[index % widget.candidatesDisCon.length]);
                 },
               ),
             ),
-            if (widget.credentialSet.length > 1) navBar(),
+            if (widget.candidatesDisCon.length > 1) navBar(),
           ],
         );
 
@@ -98,7 +105,7 @@ class _CarouselState extends State<Carousel> {
                 semanticLabel: "disclosure.previous",
                 isVisible: currentPage > 0,
                 delta: -1,
-                size: widget.credentialSet.length,
+                size: widget.candidatesDisCon.length,
               ),
             ),
             Column(
@@ -108,7 +115,7 @@ class _CarouselState extends State<Carousel> {
                 Row(
                   children: <Widget>[
                     const Spacer(),
-                    ...List.generate(widget.credentialSet.length, (i) => dotsIndicator(isActive: i == currentPage)),
+                    ...List.generate(widget.candidatesDisCon.length, (i) => dotsIndicator(isActive: i == currentPage)),
                     const Spacer(),
                   ],
                 ),
@@ -116,7 +123,7 @@ class _CarouselState extends State<Carousel> {
                 Center(
                   child: Text(
                     FlutterI18n.translate(
-                        context, 'disclosure.choices', {"choices": widget.credentialSet.length.toString()}),
+                        context, 'disclosure.choices', {"choices": widget.candidatesDisCon.length.toString()}),
                     style: IrmaTheme.of(context)
                         .textTheme
                         .body1
@@ -131,9 +138,9 @@ class _CarouselState extends State<Carousel> {
               child: arrowButton(
                 icon: IrmaIcons.chevronRight,
                 semanticLabel: "disclosure.next",
-                isVisible: currentPage < widget.credentialSet.length - 1,
+                isVisible: currentPage < widget.candidatesDisCon.length - 1,
                 delta: 1,
-                size: widget.credentialSet.length,
+                size: widget.candidatesDisCon.length,
               ),
             ),
           ],
@@ -178,4 +185,75 @@ class _CarouselState extends State<Carousel> {
           },
         ),
       );
+
+  Widget carouselWidget(Con<CredentialAttribute> candidatesCon) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).mediumSpacing),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          ...candidatesCon
+              .map(
+                (candidate) => Padding(
+                  padding: EdgeInsets.only(
+                    top: IrmaTheme.of(context).smallSpacing,
+                    left: IrmaTheme.of(context).defaultSpacing,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        candidate.attributeType.name[_lang],
+                        style: IrmaTheme.of(context)
+                            .textTheme
+                            .body1
+                            .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 14),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        candidate.value[_lang],
+                        style: IrmaTheme.of(context).textTheme.body1,
+                      ),
+                    ],
+                  ),
+                ),
+              )
+              .toList(),
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).smallSpacing),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  child: Opacity(
+                    opacity: 0.5,
+                    child: Text(
+                      FlutterI18n.translate(context, 'disclosure.issuer'),
+                      style: IrmaTheme.of(context)
+                          .textTheme
+                          .body1
+                          .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: IrmaTheme.of(context).smallSpacing),
+                  child: Text(
+                    candidatesCon.first.credential.issuer.name[_lang], // TODO: This is wrong
+                    style: IrmaTheme.of(context)
+                        .textTheme
+                        .body1
+                        .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
 }

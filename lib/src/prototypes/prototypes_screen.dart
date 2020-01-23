@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/data/irma_client_mock.dart';
 import 'package:irmamobile/src/prototypes/design_bottombar.dart';
 import 'package:irmamobile/src/prototypes/design_buttons.dart';
 import 'package:irmamobile/src/prototypes/design_colors.dart';
 import 'package:irmamobile/src/prototypes/design_fields.dart';
 import 'package:irmamobile/src/prototypes/design_icons.dart';
+import 'package:irmamobile/src/prototypes/design_messages.dart';
 import 'package:irmamobile/src/prototypes/design_typography.dart';
-import 'package:irmamobile/src/prototypes/dev_experiment_1.dart';
-import 'package:irmamobile/src/prototypes/dev_experiment_2.dart';
-import 'package:irmamobile/src/prototypes/dev_experiment_3.dart';
-import 'package:irmamobile/src/prototypes/dev_experiment_4.dart';
 import 'package:irmamobile/src/prototypes/prototype_26.dart';
 import 'package:irmamobile/src/prototypes/schermflow_1.dart';
 import 'package:irmamobile/src/prototypes/schermflow_5.dart';
@@ -62,74 +58,54 @@ class PrototypesScreen extends StatelessWidget {
             ),
           ),
           const Divider(height: 0),
-          _buildListItem(context, "1. Introductie en aanmelden", () {
+          _buildListItem(context, "Introductie en aanmelden", () {
             startSchermflow1(context);
           }),
-          _buildListItem(context, "2. IRMA Account aangemaakt", null),
-          _buildListItem(context, "3. Gemeentegegevens opgehaald", null),
-          _buildListItem(context, "4. Contactgegevens toevoegen", null),
-          _buildListItem(context, "5. Gegevens toevoegen", () {
+          _buildListItem(context, "Gegevens toevoegen", () {
             startSchermflow5(context);
           }),
-          _buildListItem(context, "6. Meerdere gegevenskaarten", () {
+          _buildListItem(context, "Meerdere gegevenskaarten", () {
             startSchermflowWallet(context);
           }),
-          _buildListItem(context, "7. Vrijgeven leeftijd 18+", null),
-          _buildListItem(context, "8. Vrijgeven leeftijd 18+ & contactgegevens", null),
-          _buildListItem(context, "9. Stemmen Weesperstraat", null),
-          _buildListItem(context, "10. Vrijgeven met eerst kaart ophalen", null),
-          _buildListItem(context, "11. Pincode resetten", () {
-            Navigator.of(context).push(MaterialPageRoute(builder: (context) => ResetPinScreen()));
-          }),
-          _buildListItem(context, "12. Gegevens bijna niet meer geldig", null),
-          _buildListItem(context, "13. Gegevens verouders", null),
-          _buildListItem(context, "14. eID kaart toevoegen vanuit IRMA", null),
-          _buildListItem(context, "15. eID kaart delen met IRMA", null),
-          _buildListItem(context, "16. Uitvraag samenstellen door politie", null),
-          _buildListItem(context, "17. Leeftijd 18+ bewijzen via QR-code", null),
-          _buildListItem(context, "18. Bevoegdheid politie opvragen", null),
-          _buildListItem(context, "19. Rijbewijs toevoegen met ID", null),
-          _buildListItem(context, "20. Rijvaardigheid bewijzen via NFC & FaceID", null),
-          _buildListItem(context, "21. Leeftijd 21+ bewijzen via NFC & FraceID", null),
-          _buildListItem(context, "22. Leeftijd 21+ bewijzen via NFC & Pincode", null),
-          _buildListItem(context, "23. ID en rijbewijs landscape", null),
-          _buildListItem(context, "24. Pincode veranderen", () {
+          _buildListItem(context, "Pincode veranderen", () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChangePinScreen()));
           }),
-          _buildListItem(context, "25. Introductie", () {
+          _buildListItem(context, "Pincode resetten", () {
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => ResetPinScreen()));
+          }),
+          _buildListItem(context, "Introductie", () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => Introduction()));
           }),
-          _buildListItem(context, "26. Hoofdmenu", () {
+          _buildListItem(context, "Hoofdmenu", () {
             startPrototype26(context);
           }),
-          _buildListItem(context, "27. Loading screen", () {
+          _buildListItem(context, "Loading screen", () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoadingScreen()));
           }),
-          _buildListItem(context, "28. Error screen", () {
+          _buildListItem(context, "Error screen", () {
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => const ErrorScreen(
                     "Nam vitae hendrerit velit, quis aliquam diam. Donec ut facilisis risus, quis venenatis sapien. Vestibulum elementum euismod quam, sed scelerisque purus vehicula semper. ")));
           }),
-          _buildListItem(context, "29. History", () {
+          _buildListItem(context, "History", () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => HistoryScreen()));
           }),
-          _buildListItem(context, "30. Disclosure screen", () {
-            Navigator.of(context)
-                .push(MaterialPageRoute(builder: (context) => DisclosureScreen(IrmaClientMock().getVerify())));
+          _buildListItem(context, "Disclosure screen", () {
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => const DisclosureScreen([])));
           }),
-          _buildListItem(context, "31. No internet screen", () {
+          _buildListItem(context, "No internet screen", () {
             Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => NoInternetScreen(() {
                       print("retry callback");
                     })));
           }),
-          _buildListItem(context, "32. Settings", () {
+          _buildListItem(context, "Settings", () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => SettingsScreen()));
           }),
-          _buildListItem(context, "33. Help screen", () {
+          _buildListItem(context, "Help screen", () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => HelpScreen()));
           }),
-          _buildListItem(context, "34. Splash screen", () {
+          _buildListItem(context, "Splash screen", () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => SplashScreen()));
           }),
           const SizedBox(height: 12),
@@ -146,18 +122,6 @@ class PrototypesScreen extends StatelessWidget {
             ),
           ),
           const Divider(height: 0),
-          _buildListItem(context, "1. IrmaRepository voorbeeld", () {
-            startDevExperiment1(context);
-          }),
-          _buildListItem(context, "2. IrmaRepository Bloc voorbeeld", () {
-            startDevExperiment2(context);
-          }),
-          _buildListItem(context, "3. Update checker", () {
-            startDevExperiment3(context);
-          }),
-          _buildListItem(context, "4. Pin screen", () {
-            startDevExperiment4(context);
-          }),
           const SizedBox(height: 12),
           Padding(
             padding: const EdgeInsets.only(bottom: 4),
@@ -172,23 +136,26 @@ class PrototypesScreen extends StatelessWidget {
             ),
           ),
           const Divider(height: 0),
-          _buildListItem(context, "1. Colors", () {
+          _buildListItem(context, "Colors", () {
             startDesignColors(context);
           }),
-          _buildListItem(context, "2. Typography", () {
+          _buildListItem(context, "Typography", () {
             startDesignTypography(context);
           }),
-          _buildListItem(context, "3. Icons", () {
+          _buildListItem(context, "Icons", () {
             startDesignIcons(context);
           }),
-          _buildListItem(context, "4. Buttons", () {
+          _buildListItem(context, "Buttons", () {
             startDesignButtons(context);
           }),
-          _buildListItem(context, "5. Fields", () {
+          _buildListItem(context, "Fields", () {
             startDesignFields(context);
           }),
-          _buildListItem(context, "7. Bottombar", () {
+          _buildListItem(context, "Bottombar", () {
             startBottombarMessages(context);
+          }),
+          _buildListItem(context, "Messages", () {
+            startDesignMessages(context);
           }),
         ],
       ),

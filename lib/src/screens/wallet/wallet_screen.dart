@@ -12,7 +12,7 @@ import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 class WalletScreen extends StatelessWidget {
-  static final routeName = "/wallet";
+  static const routeName = "/wallet";
 
   @override
   Widget build(BuildContext context) {
@@ -40,8 +40,8 @@ class _WalletScreenState extends State<_WalletScreen> {
       key: _scaffoldKey,
       appBar: IrmaAppBar(
         title: Text(FlutterI18n.translate(context, 'wallet.title')),
-        icon: Icon(IrmaIcons.menu, size: 20.0),
-        iconAction: () {
+        leadingIcon: Icon(IrmaIcons.menu, size: 20.0),
+        leadingAction: () {
           _scaffoldKey.currentState.openDrawer();
         },
       ),
