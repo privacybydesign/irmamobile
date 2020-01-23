@@ -18,6 +18,8 @@ class EnrollmentState with EquatableMixin {
   final bool emailSkipped;
   final bool showEmailValidation;
   final bool showPinValidation;
+  final bool isSubmitting;
+  final bool enrollementFailed; //TODO: implement as soon as the bridge is able to handle EnrollmentFailureEvent
   final int retry;
 
   EnrollmentState({
@@ -28,6 +30,8 @@ class EnrollmentState with EquatableMixin {
     this.emailSkipped = false,
     this.showEmailValidation = false,
     this.showPinValidation = false,
+    this.isSubmitting = false,
+    this.enrollementFailed = false,
     this.retry = 0,
   });
 
@@ -39,6 +43,8 @@ class EnrollmentState with EquatableMixin {
     bool emailSkipped,
     bool showEmailValidation,
     bool showPinValidation,
+    bool isSubmitting,
+    bool enrollementFailed,
     int retry,
   }) {
     return EnrollmentState(
@@ -49,17 +55,40 @@ class EnrollmentState with EquatableMixin {
       emailSkipped: emailSkipped ?? this.emailSkipped,
       showEmailValidation: showEmailValidation ?? this.showEmailValidation,
       showPinValidation: showPinValidation ?? this.showPinValidation,
+      isSubmitting: isSubmitting ?? this.isSubmitting,
+      enrollementFailed: enrollementFailed ?? this.enrollementFailed,
       retry: retry ?? this.retry,
     );
   }
 
   @override
   String toString() {
-    return 'EnrollmentState {pin: ${pin == null ? null : '*' * pin.length}, email: $email, pinConfirmed: $pinConfirmed, emailValid: $emailValid, emailSkipped: $emailSkipped, showEmailValidation: $showEmailValidation, showPinValidation: $showPinValidation, retry: $retry}';
+    return '''EnrollmentState
+     {
+        pin: ${pin == null ? null : '*' * pin.length}, 
+        email: $email, pinConfirmed: $pinConfirmed, 
+        emailValid: $emailValid, emailSkipped: $emailSkipped, 
+        showEmailValidation: $showEmailValidation, 
+        showPinValidation: $showPinValidation, 
+        retry: $retry, 
+        isSubmitting: $isSubmitting, 
+        enrollementFailed: $enrollementFailed 
+    }''';
   }
 
   @override
   List<Object> get props {
-    return [pin, email, pinConfirmed, emailValid, emailSkipped, showEmailValidation, showPinValidation, retry];
+    return [
+      pin,
+      email,
+      pinConfirmed,
+      emailValid,
+      emailSkipped,
+      showEmailValidation,
+      showPinValidation,
+      retry,
+      isSubmitting,
+      enrollementFailed
+    ];
   }
 }

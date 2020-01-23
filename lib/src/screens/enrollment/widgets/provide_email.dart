@@ -7,6 +7,7 @@ import 'package:irmamobile/src/screens/enrollment/widgets/cancel_button.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/choose_pin.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/provide_email_actions.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/loading_indicator.dart';
 
 class ProvideEmail extends StatefulWidget {
   static const String routeName = 'provide_email';
@@ -62,6 +63,10 @@ class _ProvideEmailState extends State<ProvideEmail> {
             error = FlutterI18n.translate(context, 'enrollment.provide_email.error');
           }
 
+          if (state.isSubmitting) {
+            _hideKeyboard(context);
+          }
+
           return LayoutBuilder(
             builder: (context, constraints) {
               return SingleChildScrollView(
@@ -94,13 +99,16 @@ class _ProvideEmailState extends State<ProvideEmail> {
                             ],
                           ),
                         ),
-                        ProvideEmailActions(
-                          submitEmail: widget.submitEmail,
-                          skipEmail: widget.skipEmail,
-                          enterEmail: () {
-                            FocusScope.of(context).requestFocus(inputFocusNode);
-                          },
-                        )
+                        if (state.isSubmitting)
+                          LoadingIndicator()
+                        else
+                          ProvideEmailActions(
+                            submitEmail: widget.submitEmail,
+                            skipEmail: widget.skipEmail,
+                            enterEmail: () {
+                              FocusScope.of(context).requestFocus(inputFocusNode);
+                            },
+                          )
                       ],
                     ),
                   ),
@@ -112,4 +120,8 @@ class _ProvideEmailState extends State<ProvideEmail> {
       ),
     );
   }
+}
+
+void _hideKeyboard(BuildContext context) {
+  FocusScope.of(context).requestFocus(FocusNode());
 }
