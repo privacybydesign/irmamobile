@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 void startDesignTypography(BuildContext context) {
   Navigator.of(context).push(
@@ -13,7 +14,7 @@ class DesignTypography extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: IrmaAppBar(
         title: const Text("Typography"),
       ),
       body: SafeArea(

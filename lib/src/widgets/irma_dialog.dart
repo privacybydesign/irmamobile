@@ -9,12 +9,7 @@ class IrmaDialog extends StatelessWidget {
   final Widget child;
   final String image;
 
-  const IrmaDialog({
-    @required this.title,
-    @required this.content,
-    @required this.child,
-    this.image,
-  });
+  const IrmaDialog({@required this.title, @required this.content, @required this.child, this.image});
 
   @override
   Widget build(BuildContext context) {

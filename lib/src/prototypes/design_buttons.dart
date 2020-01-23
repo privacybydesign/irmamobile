@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_outlined_button.dart';
 import 'package:irmamobile/src/widgets/irma_text_button.dart';
@@ -18,7 +19,7 @@ class DesignButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: IrmaAppBar(
         title: const Text("Buttons"),
       ),
       body: SafeArea(

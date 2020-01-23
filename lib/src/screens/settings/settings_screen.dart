@@ -6,6 +6,7 @@ import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/settings/widgets/settings_header.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
 import 'package:irmamobile/src/widgets/irma_text_button.dart';
@@ -24,17 +25,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final irmaClient = IrmaRepository.get();
 
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: Colors.black,
-            semanticLabel: FlutterI18n.translate(context, "accessibility.back"),
-          ),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+      appBar: IrmaAppBar(
         title: Text(FlutterI18n.translate(context, 'settings.title')),
-        centerTitle: true,
       ),
       body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12),

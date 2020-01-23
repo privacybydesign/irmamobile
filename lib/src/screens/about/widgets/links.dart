@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/screens/issuance_webview/issuance_webview_screen.dart';
+import 'package:irmamobile/src/screens/webview/webview_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -18,7 +18,7 @@ class ExternalLink extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) {
-        return IssuanceWebviewScreen(url);
+        return WebviewScreen(url);
       }),
     );
   }

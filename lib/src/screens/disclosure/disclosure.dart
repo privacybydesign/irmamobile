@@ -5,6 +5,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/models/verifier.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/disclosure_card.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
 import 'package:irmamobile/src/widgets/irma_text_button.dart';
@@ -34,8 +35,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
+        appBar: IrmaAppBar(
           title: Text(FlutterI18n.translate(context, 'disclosure.title')),
         ),
         backgroundColor: IrmaTheme.of(context).grayscaleWhite,

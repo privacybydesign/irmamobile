@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/version_information.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 void startDevExperiment3(BuildContext context) {
   Navigator.of(context).push(
     MaterialPageRoute(
       builder: (context) {
         return Scaffold(
-          appBar: AppBar(
+          appBar: IrmaAppBar(
             title: const Text('Update available voorbeeld'),
           ),
           body: StreamBuilder<VersionInformation>(

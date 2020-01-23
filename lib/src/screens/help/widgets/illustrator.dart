@@ -5,7 +5,7 @@ import 'package:irmamobile/src/theme/theme.dart';
 
 class Illustrator extends StatefulWidget {
   final List<Widget> imageSet;
-  final List<Widget> textSet;
+  final List<String> textSet;
   final double height;
   final double width;
 
@@ -15,7 +15,7 @@ class Illustrator extends StatefulWidget {
   _IllustratorState createState() => _IllustratorState();
 }
 
-class _IllustratorState extends State<Illustrator> {
+class _IllustratorState extends State<Illustrator> with SingleTickerProviderStateMixin {
   final _animationDuration = 250;
 
   double height;
@@ -124,7 +124,18 @@ class _IllustratorState extends State<Illustrator> {
           height: IrmaTheme.of(context).defaultSpacing,
         ),
         Container(
-          child: widget.textSet[currentPage],
+          child: AnimatedSize(
+            duration: const Duration(milliseconds: 300),
+            child: Container(
+              width: widget.width,
+              child: Text(
+                widget.textSet[currentPage],
+                key: ValueKey<int>(currentPage),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            vsync: this,
+          ),
         ),
         SizedBox(
           height: IrmaTheme.of(context).defaultSpacing,

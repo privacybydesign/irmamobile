@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 void startDevExperiment4(BuildContext context) {
   // Start this experiment in locked state
@@ -12,7 +13,7 @@ void startDevExperiment4(BuildContext context) {
       builder: (context) {
         return Stack(children: <Widget>[
           Scaffold(
-            appBar: AppBar(
+            appBar: IrmaAppBar(
               title: const Text('App unlocked'),
             ),
             body: Center(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet_drawer.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 
 void startPrototype26(BuildContext context) {
@@ -13,7 +14,7 @@ void startPrototype26(BuildContext context) {
       builder: (context) {
         return Scaffold(
           drawer: WalletDrawer(),
-          appBar: AppBar(
+          appBar: IrmaAppBar(
             title: const Text('Drawer example'),
           ),
           body: Column(

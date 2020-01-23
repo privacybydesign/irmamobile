@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 class MyEvent {}
 
@@ -34,7 +35,7 @@ void startDevExperiment2(BuildContext context) {
     MaterialPageRoute(
       builder: (context) {
         return Scaffold(
-          appBar: AppBar(
+          appBar: IrmaAppBar(
             title: const Text('IrmaRepository BLoC voorbeeld'),
           ),
           body: BlocBuilder<MyBloc, MyState>(

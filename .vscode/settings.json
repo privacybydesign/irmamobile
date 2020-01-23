@@ -3,5 +3,7 @@
 		"source.organizeImports": true
 	},
 	"dart.lineLength": 120,
-	"dart.previewFlutterGutterIcons" : true
+	"dart.previewFlutterGutterIcons": true,
+	"editor.formatOnSave": true,
+	"files.insertFinalNewline": true
 }

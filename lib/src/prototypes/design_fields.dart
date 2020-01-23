@@ -4,6 +4,7 @@ import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/card_suggestion.dart';
 import 'package:irmamobile/src/widgets/card_suggestion_group.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 void startDesignFields(BuildContext context) {
   Navigator.of(context).push(
@@ -48,7 +49,7 @@ class _DesignFieldsState extends State<DesignFields> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: IrmaAppBar(
         title: const Text("Fields"),
       ),
       body: SafeArea(

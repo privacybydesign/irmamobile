@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_message.dart';
 
 void startDesignMessages(BuildContext context) {
@@ -14,7 +15,7 @@ class DesignMessages extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: IrmaAppBar(
         title: const Text("Messages"),
       ),
       body: SafeArea(

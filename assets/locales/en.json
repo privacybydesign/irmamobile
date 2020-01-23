@@ -302,7 +302,6 @@
     "button_back": "Terug",
     "type": {
       "removal": "Kaart verwijderd",
-    
       "issuing": {
         "header": "Gegevens ontvangen van",
         "subtitle": "Ontvangen gegevens",
@@ -313,7 +312,7 @@
       "disclosing_header": "Gegevens vrijgegeven aan",
       "disclosing": {
         "header": "Gegevens vrijgegeven aan",
-        "subtitle":"Vrijgegeven gegevens",
+        "subtitle": "Vrijgegeven gegevens",
         "data-0": "{data} Gegeven vrijgegeven aan",
         "data-1": "{data} Gegeven vrijgegeven aan",
         "data-2": "{data} Gegevens vrijgegeven aan"
@@ -321,7 +320,7 @@
       "siging_header": "Getekend met gegevens voor",
       "signing": {
         "header": "Gegevens ondertekend van",
-        "subtitle":"Ondertekend bericht",
+        "subtitle": "Ondertekend bericht",
         "subtitle_used_data": "Vrijgegeven gegevens",
         "data-0": "Getekend met {data} gegeven voor",
         "data-1": "Getekend met {data} gegeven voor",

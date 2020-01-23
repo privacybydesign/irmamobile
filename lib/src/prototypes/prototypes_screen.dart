@@ -26,6 +26,7 @@ import 'package:irmamobile/src/screens/reset_pin/reset_pin_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
 import 'package:irmamobile/src/screens/splash_screen/splash_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 class PrototypesScreen extends StatelessWidget {
   static const routeName = "/";
@@ -33,7 +34,7 @@ class PrototypesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: IrmaAppBar(
         title: const Text("IRMA Prototypes"),
       ),
       body: Builder(builder: (context) {

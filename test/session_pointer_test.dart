@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:irmamobile/src/screens/issuance_webview/models/session_pointer.dart';
+import 'package:irmamobile/src/screens/webview/models/session_pointer.dart';
 
 void main() {
   test('Create session pointer from URI', () {
