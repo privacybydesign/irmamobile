@@ -86,10 +86,9 @@
     "pbdf": "Privacy by Design",
     "pbdf_link": "https://privacybydesign.foundation/"
   },
-  "help": {
-    "title": "Help",
-    "faq": "Veelgestelde vragen",
-    "faq_info": "Bekijk of je vraag hierbij staat.",
+  "demo": {
+    "faq": "Demo's",
+    "faq_info": "Bekijk de demo's.",
     "question_1": "Hoe kan ik met de IRMA-app inloggen op een mobiele website?",
     "answer_1": {
       "step_1": "Open een website en kies voor inloggen met IRMA.",
@@ -104,11 +103,22 @@
       "step_3": "Start de QR-code scanner in de IRMA-app. Scan de QR-code op het scherm van je computer.",
       "step_4": "Geef toestemming je gegevens door te geven. Wacht op de bevestiging.",
       "step_5": "Je bent ingelogd. Vanaf nu kun je de website gebruiken."
-    },
-    "question_3": "Wat maakt de IRMA-app privacy-vriendelijk en veilig?",
-    "answer_3": "Vanuit gemeenten kun je zelf kaartjes met persoonsgegevens (zoals je naam, adres, geboortedatum, BSN) in je IRMA app zetten.\nVolgende\nmaar ook of je bijvoorbeeld ouder dan 18 of 65 bent. Daarnaast kun je een of meer e-mail adressen en mobiele telefoonnummers, na controle, toevoegen. Studenten en medewerkers in het (hoger) onderwijs kunnen ook hun registratie kaartjes toevoegen. Medewerkers in de zorg kunnen zogenaamde AGB kaartje toevoegen. Hiermee kun je in veel situaties voldoende van jezelf bekend maken.\n\nNaar verwachting zullen de komende tijd nog veel andere bronnen van persoonsgegevens aan IRMA toegevoegd worden, voor gebruikers in het algemeen en ook voor speciale (beroeps)groepen.",
-    "question_4": "Ik heb een vraag; waar kan ik terecht?",
-    "answer_4": "Als je een vraag hebt over inloggen met IRMA bij webwinkel *De Hippe Kip*, dan kun je die vraag het beste stellen aan *De Hippe Kip* zelf. Ook als die website je vraagt IRMA te installeren en dat lukt niet, dan kun je het beste daar met je vragen naar toegaan. Meestal staat er op zulke webpagina's informatie over hoe je vragen kunt stellen en contact op kunt nemen.\n\nAls je tenslotte een vraag hebt over het systeem IRMA zelf, dan kun je ons via deze pagina een berichtje sturen. Leg AUB duidelijk uit wat de vraag is en geef door om welk model telefoon het gaat, en voeg zo mogelijk screen shots toe als er iets fout gaat.",
+    }
+  },
+  "help": {
+    "title": "Help",
+    "faq": "Veelgestelde vragen",
+    "faq_info": "Bekijk of je vraag hierbij staat.",
+    "question_1": "Wat maakt de IRMA-app privacy-vriendelijk en veilig?",
+    "answer_1": "Jouw persoonsgegevens zijn beschermd met een pincode en staan alleen in de IRMA-app, níet in de cloud.\n\nIn de IRMA-app zijn jouw persoonsgegevens digitaal ondertekend door de bron (uitgever) waar de gegevens vandaan komen (bijvoorbeeld de Rijksoverheid of de gemeente).\n\nDaardoor kan een website of winkel, waar je jezelf bekend maakt, cryptografisch controleren dat de gegevens echt zijn. \nDeze uitwisseling van persoonskenmerken vindt rechtstreeks plaats, tussen je telefoon en deze website. Niemand anders kan zien dat jij je daar bekendmaakt. Ook IRMA kijkt niet mee.",
+    "question_2": "Waar staan jouw IRMA gegevens opgeslagen?",
+    "answer_2": "De persoonsgegevens die je in de IRMA-app verzamelt, staan alleen in de app zelf en worden door IRMA nergens anders opgeslagen. Ze staan dus niet ook nog ergens in een cloud.\n\nJij geeft zelf steeds expliciet toestemming voordat persoonsgegevens vanuit de IRMA-app aan een website doorgegeven worden.\nAls je jouw gegevens uit de IRMA-app verwijdert zijn ze ook echt weg.",
+    "question_3": "Wat doe je als je jouw mobiel verliest?",
+    "answer_3": "De IRMA-app op je mobiel is beschermd met een persoonlijk pincode, net als je app voor internetbankieren.\n\nJe kunt jezelf echter nog beter beschermen: bij het openen van een IRMA-account heb je de optie gekregen om een e-mail adres toe te voegen. Als je dat gedaan hebt, kun je via de MijnIRMA-omgeving je oude IRMA-account blokkeren. Dan kan er echt helemaal niks meer met de IRMA-app op je oude, verloren telefoon gebeuren. Als je nog geen e-mail adres toegevoegd hebt in MijnIRMA kun je dat alsnog doen, door daar met IRMA zelf in te loggen. Het is verstandig dat te doen.",
+    "question_4": "Waarom zijn gegevens in de IRMA-app beperkt geldig?",
+    "answer_4": "In de IRMA-app kun je op elk kaartje zien hoe lang ze geldig zijn. Die geldigheidsduur hangt af van het soort gegevens, namelijk van hoe veranderlijk ze zijn. Je naam en geboortedatum zijn vijf jaar geldig, maar je adres slechts één jaar. De uitgever (bron) van de gegevensnmerken bepaalt de geldigheidsduur. De geldigheid van gegevens kan dus verlopen. De IRMA-app geeft je daar een waarschuwing voor. Je kunt je gegevens altijd, ook zonder waarschuwing, verversen door ze opnieuw op te halen bij de bron, net zo als je de eerste keer doet. Bijvoorbeeld, na je 18e verjaardag kun je opnieuw je gegevens bij je gemeente ophalen en heb je als nieuw kenmerk dat je ouder dan 18 bent.",
+    "question_5": "Kan ik IRMA op een tweede telefoon of tablet zetten?",
+    "answer_5": "Jazeker, op ieder (Android en iOS) apparaat kun je een apart IRMA-account openen en vullen met kaartjes met jouw gegevens. Het is verstandig omdat te doen. Als je het ene apparaat kwijt bent, kun je nog met een ander inloggen.",
     "ask": "Vraag stellen",
     "more": "Meer vragen en antwoorden",
     "more_link": "https://irma.app/?lang=nl#faqs",

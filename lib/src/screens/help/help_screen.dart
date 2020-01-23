@@ -7,6 +7,7 @@ import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'demo_items.dart';
 import 'help_items.dart';
 
 class HelpScreen extends StatefulWidget {
@@ -52,6 +53,39 @@ class _HelpScreenState extends State<HelpScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
+                    SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
+                      child: Column(
+                        children: <Widget>[
+                          SizedBox(
+                            width: double.infinity,
+                            child: Container(
+                              child: Text(
+                                FlutterI18n.translate(context, 'demo.faq'),
+                                style: Theme.of(context).textTheme.display2,
+                                textAlign: TextAlign.left,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: IrmaTheme.of(context).tinySpacing),
+                          SizedBox(
+                            width: double.infinity,
+                            child: Text(
+                              FlutterI18n.translate(context, 'demo.faq_info'),
+                              style: Theme.of(context).textTheme.body1,
+                              textAlign: TextAlign.left,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+                    DemoItems(
+                      credentialType: widget.credentialType,
+                      parentKey: _scrollviewKey,
+                      parentScrollController: _controller,
+                    ),
                     SizedBox(height: IrmaTheme.of(context).defaultSpacing),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
