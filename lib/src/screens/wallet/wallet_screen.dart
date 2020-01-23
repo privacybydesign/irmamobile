@@ -4,6 +4,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
+import 'package:irmamobile/src/screens/help/help_screen.dart';
 import 'package:irmamobile/src/screens/wallet/models/wallet_bloc.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet_drawer.dart';
@@ -63,7 +64,9 @@ class _WalletScreenState extends State<_WalletScreen> {
     Navigator.pushNamed(context, ScannerScreen.routeName);
   }
 
-  void helpPressed() {}
+  void helpPressed() {
+    Navigator.pushNamed(context, HelpScreen.routeName);
+  }
 
   void addCardsPressed() {
     Navigator.pushNamed(context, CardStoreScreen.routeName);

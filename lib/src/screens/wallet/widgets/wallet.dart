@@ -5,11 +5,11 @@ import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
 import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet_button.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/card/card.dart';
+import 'package:irmamobile/src/widgets/irma_text_button.dart';
 import 'package:irmamobile/src/widgets/loading_indicator.dart';
 
 ///  Show Wallet widget
@@ -186,24 +186,27 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                           width: size.width / 2,
                         ),
                         Padding(
-                          padding: EdgeInsets.all(_padding),
+                          padding: EdgeInsets.only(
+                            top: _padding,
+                            right: _padding,
+                            left: _padding,
+                          ),
                           child: Text(
                             FlutterI18n.translate(context, 'wallet.caption'),
                             textAlign: TextAlign.center,
                             style: IrmaTheme.of(context).textTheme.body1,
                           ),
                         ),
-                        GestureDetector(
-                          onTap: _nudgeVisible
-                              ? onAddCardsPressed
-                              : null, // TODO please check if this is fine to prevent link from working when invisible
-                          child: Text(
-                            FlutterI18n.translate(context, 'wallet.add_data'),
-                            textAlign: TextAlign.center,
-                            style: IrmaTheme.of(context).hyperlinkTextStyle,
-                          ),
+                        IrmaTextButton(
+                          label: FlutterI18n.translate(context, 'wallet.add_data'),
+                          onPressed: onAddCardsPressed,
                         ),
-                        if (widget.credentials == null) Align(alignment: Alignment.center, child: LoadingIndicator()),
+                        if (widget.credentials == null) ...[
+                          Align(
+                            alignment: Alignment.center,
+                            child: LoadingIndicator(),
+                          )
+                        ],
                       ],
                     ),
                   ),
