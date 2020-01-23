@@ -5,6 +5,8 @@ import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/screens/issuance_webview/issuance_webview_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
+import 'package:irmamobile/src/widgets/irma_dialog.dart';
+import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'demo_items.dart';
@@ -165,10 +167,32 @@ class _HelpScreenState extends State<HelpScreen> {
                           ),
                           SizedBox(height: IrmaTheme.of(context).smallSpacing),
                           GestureDetector(
-                            onTap: () {
+                            onTap: () async {
                               final String address = FlutterI18n.translate(context, 'help.contact');
-                              final String subject = FlutterI18n.translate(context, 'help.mail_subject');
-                              launch("mailto:$address?subject=$subject");
+                              final String subject =
+                                  Uri.encodeComponent(FlutterI18n.translate(context, 'help.mail_subject'));
+                              final mail = 'mailto:$address?subject=$subject';
+                              if (await canLaunch(mail)) {
+                                await launch(mail);
+                              } else {
+                                showDialog(
+                                  context: context,
+                                  // TODO I am not sure whether it should be  builder: (_) instead (also seems to work)
+                                  builder: (BuildContext context) {
+                                    return IrmaDialog(
+                                      title: FlutterI18n.translate(context, 'help.mail_error_title'),
+                                      content: FlutterI18n.translate(context, 'help.mail_error'),
+                                      child: IrmaButton(
+                                        size: IrmaButtonSize.small,
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        label: FlutterI18n.translate(context, 'help.mail_error_button'),
+                                      ),
+                                    );
+                                  },
+                                );
+                              }
                             },
                             child: Center(
                               child: Text(

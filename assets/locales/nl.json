@@ -126,7 +126,10 @@
     "back_button": "Terug naar mijn kaartjes",
     "email": "Stuur een e-mail",
     "contact": "info@privacybydesign.foundation",
-    "mail_subject": "Hulp met de IRMA-app"
+    "mail_subject": "Hulp met de IRMA-app",
+    "mail_error_title": "Sorry",
+    "mail_error": "Mail applicatie kan niet worden geopend",
+    "mail_error_button": "OK"
   },
   "drawer": {
     "lock_wallet": "Uitloggen",

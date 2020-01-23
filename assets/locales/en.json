@@ -106,12 +106,15 @@
     "answer_3": "Als je een vraag hebt over inloggen met IRMA bij webwinkel *De Hippe Kip*, dan kun je die vraag het beste stellen aan *De Hippe Kip* zelf. Ook als die website je vraagt IRMA te installeren en dat lukt niet, dan kun je het beste daar met je vragen naar toegaan. Meestal staat er op zulke webpagina's informatie over hoe je vragen kunt stellen en contact op kunt nemen.\n\nAls je tenslotte een vraag hebt over het systeem IRMA zelf, dan kun je ons via deze pagina een berichtje sturen. Leg AUB duidelijk uit wat de vraag is en geef door om welk model telefoon het gaat, en voeg zo mogelijk screen shots toe als er iets fout gaat.",
     "ask": "Vraag stellen",
     "more": "Meer vragen en antwoorden",
-    "more_link": "https://irma.app/?lang=en#faqs",
+    "more_link": "https://irma.app/?lang=nl#faqs",
     "send": "Stuur je vraag. Je krijgt zo snel mogelijk aantwoord, meestal binnen een week.",
     "back_button": "Terug naar mijn kaartjes",
     "email": "Stuur een email",
     "contact": "info@privacybydesign.foundation",
-    "mail_subject": "Hulp met IRMA"
+    "mail_subject": "Hulp met IRMA",
+    "mail_error_title": "Sorry",
+    "mail_error": "Mail applicatie kan niet worden geopend",
+    "mail_error_button": "OK"
   },
   "drawer": {
     "lock_wallet": "Lock wallet",
