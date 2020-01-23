@@ -50,10 +50,15 @@ class EnrollmentBloc extends Bloc<Object, EnrollmentState> {
       } else {
         yield currentState.copyWith(
           showEmailValidation: true,
+          isSubmitting: true,
         );
       }
 
       if (currentState.pinConfirmed && (event is EmailSkipped || currentState.emailValid)) {
+        yield currentState.copyWith(
+          isSubmitting: true,
+        );
+
         // TODO: get a future back and change the state based on it, which can
         // be used by animation/outro?
         IrmaRepository.get().enroll(
