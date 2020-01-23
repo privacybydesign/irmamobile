@@ -134,6 +134,7 @@
     "alert_button": "Sluiten"
   },
   "accessibility": {
+    "irma_logo": "IRMA Logo",
     "back": "Back",
     "close": "Close",
     "next": "Next",
@@ -291,6 +292,7 @@
     "scan_qr_code": "Scan QR code",
     "open_menu": "Open menu",
     "close_menu": "Close menu",
+    "toggle": "Change view",
     "issuer": "Issuer",
     "expiration": "Expiration",
     "help": "Help",

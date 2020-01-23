@@ -40,22 +40,38 @@ class _DemoItemsState extends State<DemoItems> with TickerProviderStateMixin {
     final List<Widget> _demoPagesQuestion1 = <Widget>[
       Container(
         child: Center(
-          child: SizedBox(child: SvgPicture.asset('assets/help/q1_step_1.svg')),
+          child: SizedBox(
+              child: SvgPicture.asset(
+            'assets/help/q1_step_1.svg',
+            excludeFromSemantics: false,
+          )),
         ),
       ),
       Container(
         child: Center(
-          child: SizedBox(child: SvgPicture.asset('assets/help/q1_step_2.svg')),
+          child: SizedBox(
+              child: SvgPicture.asset(
+            'assets/help/q1_step_2.svg',
+            excludeFromSemantics: false,
+          )),
         ),
       ),
       Container(
         child: Center(
-          child: SizedBox(child: SvgPicture.asset('assets/help/q1_step_3.svg')),
+          child: SizedBox(
+              child: SvgPicture.asset(
+            'assets/help/q1_step_3.svg',
+            excludeFromSemantics: false,
+          )),
         ),
       ),
       Container(
         child: Center(
-          child: SizedBox(child: SvgPicture.asset('assets/help/q1_step_4.svg')),
+          child: SizedBox(
+              child: SvgPicture.asset(
+            'assets/help/q1_step_4.svg',
+            excludeFromSemantics: false,
+          )),
         ),
       ),
     ];
@@ -71,27 +87,47 @@ class _DemoItemsState extends State<DemoItems> with TickerProviderStateMixin {
     final List<Widget> _demoPagesQuestion2 = <Widget>[
       Container(
         child: Center(
-          child: SizedBox(child: SvgPicture.asset('assets/help/q2_step_1.svg')),
+          child: SizedBox(
+              child: SvgPicture.asset(
+            'assets/help/q2_step_1.svg',
+            excludeFromSemantics: false,
+          )),
         ),
       ),
       Container(
         child: Center(
-          child: SizedBox(child: SvgPicture.asset('assets/help/q2_step_2.svg')),
+          child: SizedBox(
+              child: SvgPicture.asset(
+            'assets/help/q2_step_2.svg',
+            excludeFromSemantics: false,
+          )),
         ),
       ),
       Container(
         child: Center(
-          child: SizedBox(child: SvgPicture.asset('assets/help/q2_step_3.svg')),
+          child: SizedBox(
+              child: SvgPicture.asset(
+            'assets/help/q2_step_3.svg',
+            excludeFromSemantics: false,
+          )),
         ),
       ),
       Container(
         child: Center(
-          child: SizedBox(child: SvgPicture.asset('assets/help/q2_step_4.svg')),
+          child: SizedBox(
+              child: SvgPicture.asset(
+            'assets/help/q2_step_4.svg',
+            excludeFromSemantics: false,
+          )),
         ),
       ),
       Container(
         child: Center(
-          child: SizedBox(child: SvgPicture.asset('assets/help/q2_step_5.svg')),
+          child: SizedBox(
+              child: SvgPicture.asset(
+            'assets/help/q2_step_5.svg',
+            excludeFromSemantics: false,
+          )),
         ),
       ),
     ];

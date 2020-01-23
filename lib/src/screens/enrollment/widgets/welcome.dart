@@ -23,7 +23,10 @@ class Welcome extends StatelessWidget {
           child: Column(
             children: [
               SizedBox(height: IrmaTheme.of(context).largeSpacing),
-              SvgPicture.asset('assets/non-free/irma_logo.svg'),
+              SvgPicture.asset(
+                'assets/non-free/irma_logo.svg',
+                semanticsLabel: FlutterI18n.translate(context, 'accessibility.irma_logo'),
+              ),
               SizedBox(height: IrmaTheme.of(context).defaultSpacing),
               Container(
                 constraints: BoxConstraints(maxWidth: IrmaTheme.of(context).defaultSpacing * 16),

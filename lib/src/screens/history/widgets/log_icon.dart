@@ -10,7 +10,7 @@ class LogIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SvgPicture.asset(_eventIconAssetName());
+    return SvgPicture.asset(_eventIconAssetName(), excludeFromSemantics: true);
   }
 
   String _eventIconAssetName() {

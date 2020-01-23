@@ -46,6 +46,7 @@ class WalletDrawer extends StatelessWidget {
                               size: const Size(50.0, 32.0),
                               child: SvgPicture.asset(
                                 'assets/non-free/irma_logo.svg',
+                                excludeFromSemantics: true,
                                 fit: BoxFit.scaleDown,
                                 alignment: Alignment.topLeft,
                               ),

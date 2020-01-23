@@ -51,7 +51,12 @@ class _PinScreenState extends State<PinScreen> {
                     SizedBox(
                       height: IrmaTheme.of(context).largeSpacing,
                     ),
-                    SizedBox(width: 76.0, child: SvgPicture.asset('assets/non-free/irma_logo.svg')),
+                    SizedBox(
+                        width: 76.0,
+                        child: SvgPicture.asset(
+                          'assets/non-free/irma_logo.svg',
+                          semanticsLabel: FlutterI18n.translate(context, 'accessibility.irma_logo'),
+                        )),
                     SizedBox(
                       height: IrmaTheme.of(context).largeSpacing,
                     ),

@@ -32,6 +32,7 @@ class ErrorScreen extends StatelessWidget {
           Center(
             child: SvgPicture.asset(
               'assets/error/general.svg',
+              excludeFromSemantics: false,
               fit: BoxFit.scaleDown,
             ),
           ),

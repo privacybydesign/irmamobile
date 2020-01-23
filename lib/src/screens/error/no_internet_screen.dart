@@ -31,6 +31,7 @@ class NoInternetScreen extends StatelessWidget {
           Center(
             child: SvgPicture.asset(
               'assets/error/no_internet.svg',
+              excludeFromSemantics: false,
               fit: BoxFit.scaleDown,
             ),
           ),
