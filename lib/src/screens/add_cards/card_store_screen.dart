@@ -5,11 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'package:irmamobile/src/screens/issuance_webview/issuance_webview_screen.dart';
+import 'package:irmamobile/src/screens/webview/webview_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/widgets/card_suggestion.dart';
 import 'package:irmamobile/src/widgets/card_suggestion_group.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 import 'card_info_screen.dart';
 
@@ -19,8 +20,7 @@ class CardStoreScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
+      appBar: IrmaAppBar(
         title: Text(
           FlutterI18n.translate(context, 'card_store.app_bar'),
         ),
@@ -152,7 +152,7 @@ class CardStoreScreen extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) {
-        return IssuanceWebviewScreen(url);
+        return WebviewScreen(url);
       }),
     );
   }

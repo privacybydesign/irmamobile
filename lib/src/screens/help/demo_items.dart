@@ -1,7 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/screens/help/widgets/illustrator.dart';
@@ -61,23 +60,11 @@ class _DemoItemsState extends State<DemoItems> with TickerProviderStateMixin {
       ),
     ];
 
-    final List<Widget> _demoTextsQuestion1 = [
-      Text(
-        FlutterI18n.translate(context, 'demo.answer_1.step_1'),
-        textAlign: TextAlign.center,
-      ),
-      Text(
-        FlutterI18n.translate(context, 'demo.answer_1.step_2'),
-        textAlign: TextAlign.center,
-      ),
-      Text(
-        FlutterI18n.translate(context, 'demo.answer_1.step_3'),
-        textAlign: TextAlign.center,
-      ),
-      Text(
-        FlutterI18n.translate(context, 'demo.answer_1.step_4'),
-        textAlign: TextAlign.center,
-      ),
+    final List<String> _demoTextsQuestion1 = [
+      FlutterI18n.translate(context, 'demo.answer_1.step_1'),
+      FlutterI18n.translate(context, 'demo.answer_1.step_2'),
+      FlutterI18n.translate(context, 'demo.answer_1.step_3'),
+      FlutterI18n.translate(context, 'demo.answer_1.step_4'),
     ];
 
     // Content for question 2
@@ -109,27 +96,12 @@ class _DemoItemsState extends State<DemoItems> with TickerProviderStateMixin {
       ),
     ];
 
-    final List<Widget> _demoTextsQuestion2 = [
-      Text(
-        FlutterI18n.translate(context, 'demo.answer_2.step_1'),
-        textAlign: TextAlign.center,
-      ),
-      Text(
-        FlutterI18n.translate(context, 'demo.answer_2.step_2'),
-        textAlign: TextAlign.center,
-      ),
-      Text(
-        FlutterI18n.translate(context, 'demo.answer_2.step_3'),
-        textAlign: TextAlign.center,
-      ),
-      Text(
-        FlutterI18n.translate(context, 'demo.answer_2.step_4'),
-        textAlign: TextAlign.center,
-      ),
-      Text(
-        FlutterI18n.translate(context, 'demo.answer_2.step_5'),
-        textAlign: TextAlign.center,
-      ),
+    final List<String> _demoTextsQuestion2 = [
+      FlutterI18n.translate(context, 'demo.answer_2.step_1'),
+      FlutterI18n.translate(context, 'demo.answer_2.step_2'),
+      FlutterI18n.translate(context, 'demo.answer_2.step_3'),
+      FlutterI18n.translate(context, 'demo.answer_2.step_4'),
+      FlutterI18n.translate(context, 'demo.answer_2.step_5'),
     ];
 
     return Column(

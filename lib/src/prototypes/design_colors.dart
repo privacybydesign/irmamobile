@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 void startDesignColors(BuildContext context) {
   Navigator.of(context).push(
@@ -13,7 +14,7 @@ class DesignColors extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: IrmaAppBar(
         title: const Text("Colors"),
       ),
       body: SafeArea(

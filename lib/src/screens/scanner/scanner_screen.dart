@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/screens/scanner/widgets/qr_scanner.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 class ScannerScreen extends StatelessWidget {
   static const routeName = "/scanner";
@@ -12,16 +12,9 @@ class ScannerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: IrmaAppBar(
         title: const Text('QR code scan'),
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            semanticLabel: FlutterI18n.translate(context, "accessibility.back"),
-          ),
-          onPressed: () => _onClose(context),
-        ),
+        iconAction: () => _onClose(context),
       ),
       body: Stack(
         children: <Widget>[

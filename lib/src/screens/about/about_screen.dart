@@ -7,6 +7,7 @@ import 'package:irmamobile/src/screens/about/about_items.dart';
 import 'package:irmamobile/src/screens/about/widgets/links.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 class AboutScreen extends StatefulWidget {
   static const String routeName = '/about';
@@ -29,8 +30,7 @@ class _AboutScreenState extends State<AboutScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      appBar: AppBar(
-        centerTitle: true,
+      appBar: IrmaAppBar(
         title: Text(
           FlutterI18n.translate(
             context,

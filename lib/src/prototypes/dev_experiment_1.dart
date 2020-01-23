@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/credential.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 void startDevExperiment1(BuildContext context) {
   Navigator.of(context).push(
     MaterialPageRoute(
       builder: (context) {
         return Scaffold(
-          appBar: AppBar(
+          appBar: IrmaAppBar(
             title: const Text('IrmaRepository voorbeeld'),
           ),
           // We're going to obtain a credential from the repository. We don't

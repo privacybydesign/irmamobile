@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'package:irmamobile/src/screens/issuance_webview/issuance_webview_screen.dart';
+import 'package:irmamobile/src/screens/webview/webview_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
@@ -33,8 +34,7 @@ class _HelpScreenState extends State<HelpScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      appBar: AppBar(
-        centerTitle: true,
+      appBar: IrmaAppBar(
         title: Text(
           FlutterI18n.translate(
             context,
@@ -128,7 +128,7 @@ class _HelpScreenState extends State<HelpScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) {
-                              return IssuanceWebviewScreen(FlutterI18n.translate(context, 'help.more_link'));
+                              return WebviewScreen(FlutterI18n.translate(context, 'help.more_link'));
                             }),
                           );
                         } on PlatformException catch (e) {

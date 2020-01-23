@@ -9,6 +9,7 @@ import 'package:irmamobile/src/screens/history/model/history_events.dart';
 import 'package:irmamobile/src/screens/history/widgets/log.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/language.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/loading_indicator.dart';
 
 import 'model/history_state.dart';
@@ -30,8 +31,7 @@ class HistoryScreenState extends State<HistoryScreen> {
   Widget build(BuildContext context) {
     _scrollController.addListener(_listenToScroll);
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
+      appBar: IrmaAppBar(
         title: Text(
           FlutterI18n.translate(context, 'history.title'),
         ),

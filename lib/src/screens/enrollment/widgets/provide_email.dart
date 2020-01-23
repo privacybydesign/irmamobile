@@ -3,10 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_bloc.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
-import 'package:irmamobile/src/screens/enrollment/widgets/cancel_button.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/choose_pin.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/provide_email_actions.dart';
+import 'package:irmamobile/src/screens/enrollment/widgets/welcome.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/loading_indicator.dart';
 
 class ProvideEmail extends StatefulWidget {
@@ -46,14 +47,16 @@ class _ProvideEmailState extends State<ProvideEmail> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        backgroundColor: IrmaTheme.of(context).grayscale85,
-        leading: CancelButton(routeName: ChoosePin.routeName, cancel: widget.cancel),
+      appBar: IrmaAppBar(
         title: Text(
           FlutterI18n.translate(context, 'enrollment.provide_email.title'),
-          style: IrmaTheme.of(context).textTheme.display2,
         ),
+        cancel: widget.cancel,
+        iconAction: () {
+          Navigator.of(context).popUntil(
+              (route) => route.settings.name == ChoosePin.routeName || route.settings.name == Welcome.routeName);
+        },
+        iconTooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
       ),
       body: BlocBuilder<EnrollmentBloc, EnrollmentState>(
         builder: (context, state) {

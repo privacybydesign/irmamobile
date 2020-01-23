@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 void startDesignIcons(BuildContext context) {
   Navigator.of(context).push(
@@ -16,7 +17,7 @@ class DesignIcons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      appBar: IrmaAppBar(
         title: const Text("Icons"),
       ),
       body: SafeArea(

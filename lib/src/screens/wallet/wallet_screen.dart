@@ -3,11 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
-import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/help/help_screen.dart';
+import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/wallet/models/wallet_bloc.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet_drawer.dart';
+import 'package:irmamobile/src/theme/irma_icons.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 class WalletScreen extends StatelessWidget {
   static final routeName = "/wallet";
@@ -36,16 +38,13 @@ class _WalletScreenState extends State<_WalletScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      appBar: AppBar(
-          centerTitle: true,
-          title: Text(FlutterI18n.translate(context, 'wallet.title')),
-          leading: IconButton(
-            icon: Icon(
-              Icons.menu,
-              semanticLabel: FlutterI18n.translate(context, "wallet.open_menu"),
-            ),
-            onPressed: () => _scaffoldKey.currentState.openDrawer(),
-          )),
+      appBar: IrmaAppBar(
+        title: Text(FlutterI18n.translate(context, 'wallet.title')),
+        icon: Icon(IrmaIcons.menu, size: 20.0),
+        iconAction: () {
+          _scaffoldKey.currentState.openDrawer();
+        },
+      ),
       body: StreamBuilder<Credentials>(
         stream: widget.bloc.credentials,
         builder: (context, snapshot) => Wallet(

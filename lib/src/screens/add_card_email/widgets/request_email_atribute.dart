@@ -6,10 +6,10 @@ import 'package:irmamobile/src/screens/add_card_email/model/request_email_bloc.d
 import 'package:irmamobile/src/screens/add_card_email/model/request_email_events.dart';
 import 'package:irmamobile/src/screens/add_card_email/model/request_email_state.dart';
 import 'package:irmamobile/src/screens/add_cards/customs/future_card.dart';
-import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/error_alert.dart';
 import 'package:irmamobile/src/widgets/info_alert.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 
 class RequestEmailAttribute extends StatefulWidget {
@@ -43,23 +43,20 @@ class RequestEmailAttributeState extends State<RequestEmailAttribute> {
     final RequestEmailBloc bloc = BlocProvider.of<RequestEmailBloc>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          FlutterI18n.translate(
-            context,
-            'card_store.app_bar',
-            {
-              "card_type": widget.name,
-            },
+      appBar: IrmaAppBar(
+          title: Text(
+            FlutterI18n.translate(
+              context,
+              'card_store.app_bar',
+              {
+                "card_type": widget.name,
+              },
+            ),
           ),
-        ),
-        leading: IconButton(
-            icon: Icon(IrmaIcons.arrowBack, semanticLabel: FlutterI18n.translate(context, "accessibility.back")),
-            onPressed: () => Navigator.of(
-                  context,
-                  rootNavigator: true,
-                ).pop()),
-      ),
+          iconAction: () => Navigator.of(
+                context,
+                rootNavigator: true,
+              ).pop()),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).spacing),
         child: BlocBuilder<RequestEmailBloc, RequestEmailState>(

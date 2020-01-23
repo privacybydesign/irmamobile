@@ -7,8 +7,8 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/screens/add_card_email/model/request_email_bloc.dart';
 import 'package:irmamobile/src/screens/add_card_email/model/request_email_events.dart';
 import 'package:irmamobile/src/screens/add_card_email/model/request_email_state.dart';
-import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/success_alert.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -23,19 +23,17 @@ class EmailAttributeConfirmation extends StatelessWidget {
   Widget build(BuildContext context) {
     final RequestEmailBloc _bloc = BlocProvider.of<RequestEmailBloc>(context);
     return Scaffold(
-      appBar: AppBar(
+      appBar: IrmaAppBar(
         title: Text(
           FlutterI18n.translate(
             context,
             'card_store.email.title',
           ),
         ),
-        leading: IconButton(
-            icon: Icon(IrmaIcons.arrowBack, semanticLabel: FlutterI18n.translate(context, "accessibility.back")),
-            onPressed: () => Navigator.of(
-                  context,
-                  rootNavigator: true,
-                ).pop()),
+        iconAction: () => Navigator.of(
+          context,
+          rootNavigator: true,
+        ).pop(),
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).spacing),
