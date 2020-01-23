@@ -191,6 +191,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                       children: <Widget>[
                         SvgPicture.asset(
                           'assets/wallet/wallet_illustration.svg',
+                          excludeFromSemantics: true,
                           width: size.width / 2,
                         ),
                         Padding(
@@ -229,6 +230,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                         top: walletTop + _walletYPos - IrmaTheme.of(context).smallSpacing,
                         child: SvgPicture.asset(
                           'assets/wallet/wallet_back.svg',
+                          excludeFromSemantics: true,
                           width: size.width,
                         ),
                       ),
@@ -321,6 +323,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                           ignoring: true,
                           child: SvgPicture.asset(
                             'assets/wallet/wallet_front.svg',
+                            excludeFromSemantics: true,
                             width: size.width,
                           ),
                         ),
@@ -329,21 +332,24 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                         bottom: 0,
                         height: size.width * _walletAspectRatio * _walletBottomInteractive,
                         width: size.width,
-                        child: GestureDetector(
-                          onTap: () {
-                            switch (currentState) {
-                              case WalletState.halfway:
-                                setNewState(WalletState.full);
-                                break;
-                              case WalletState.full:
-                                setNewState(WalletState.halfway);
-                                break;
-                              default:
-                                setNewState(cardInStackState);
-                                break;
-                            }
-                          },
-                        ),
+                        child: Semantics(
+                            button: true,
+                            label: FlutterI18n.translate(context, 'wallet.toggle'),
+                            child: GestureDetector(
+                              onTap: () {
+                                switch (currentState) {
+                                  case WalletState.halfway:
+                                    setNewState(WalletState.full);
+                                    break;
+                                  case WalletState.full:
+                                    setNewState(WalletState.halfway);
+                                    break;
+                                  default:
+                                    setNewState(cardInStackState);
+                                    break;
+                                }
+                              },
+                            )),
                       ),
                       Positioned(
                         left: 16,

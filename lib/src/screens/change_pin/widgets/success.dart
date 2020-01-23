@@ -38,7 +38,7 @@ class Success extends StatelessWidget {
                 SizedBox(height: IrmaTheme.of(context).hugeSpacing),
 
                 // TODO: This should be added as an icon to the IrmaIcon font
-                SvgPicture.asset('assets/generic/check.svg'),
+                SvgPicture.asset('assets/generic/check.svg', excludeFromSemantics: true),
 
                 SizedBox(height: IrmaTheme.of(context).largeSpacing),
                 Text(

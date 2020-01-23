@@ -59,7 +59,12 @@ class _AboutScreenState extends State<AboutScreen> {
                           Center(
                             child: Padding(
                               padding: EdgeInsets.all(IrmaTheme.of(context).largeSpacing),
-                              child: SizedBox(width: 98, child: SvgPicture.asset('assets/non-free/irma_logo.svg')),
+                              child: SizedBox(
+                                  width: 98,
+                                  child: SvgPicture.asset(
+                                    'assets/non-free/irma_logo.svg',
+                                    semanticsLabel: FlutterI18n.translate(context, 'accessibility.irma_logo'),
+                                  )),
                             ),
                           ),
                           Text(

@@ -20,7 +20,6 @@ class ResetPinScreen extends StatelessWidget {
   }
 
   @override
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: IrmaAppBar(
@@ -49,6 +48,7 @@ class ResetPinScreen extends StatelessWidget {
                         height: 113,
                         child: SvgPicture.asset(
                           'assets/reset/prullenbak.svg',
+                          excludeFromSemantics: true,
                         ),
                       ),
                     ),

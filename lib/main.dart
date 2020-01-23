@@ -140,7 +140,7 @@ class AppState extends State<App> with WidgetsBindingObserver {
                 key: const Key("app"),
                 title: 'IRMA',
                 theme: IrmaTheme.of(context).themeData,
-                // set showSemanticsDebugger to view semantics in emulator.
+                // set showSemanticsDebugger to true to view semantics in emulator.
                 showSemanticsDebugger: false,
                 localizationsDelegates: defaultLocalizationsDelegates(),
                 supportedLocales: defaultSupportedLocales(),

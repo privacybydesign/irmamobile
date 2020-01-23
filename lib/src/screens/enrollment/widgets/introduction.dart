@@ -39,19 +39,22 @@ class _IntroductionState extends State<Introduction> {
         },
         children: <Widget>[
           Walkthrough(
-            image: SvgPicture.asset('assets/enrollment/introduction_screen1.svg', width: 280, height: 245),
+            image: SvgPicture.asset('assets/enrollment/introduction_screen1.svg',
+                excludeFromSemantics: true, width: 280, height: 245),
             titleContent: FlutterI18n.translate(context, 'enrollment.introduction.screen1.title'),
             textContent: FlutterI18n.translate(context, 'enrollment.introduction.screen1.text'),
             onNextScreen: () => _controller.nextPage(curve: Curves.ease, duration: const Duration(milliseconds: 800)),
           ),
           Walkthrough(
-            image: SvgPicture.asset('assets/enrollment/introduction_screen2.svg', width: 280, height: 231),
+            image: SvgPicture.asset('assets/enrollment/introduction_screen2.svg',
+                excludeFromSemantics: true, width: 280, height: 231),
             titleContent: FlutterI18n.translate(context, 'enrollment.introduction.screen2.title'),
             textContent: FlutterI18n.translate(context, 'enrollment.introduction.screen2.text'),
             onNextScreen: () => _controller.nextPage(curve: Curves.ease, duration: const Duration(milliseconds: 800)),
           ),
           Walkthrough(
-            image: SvgPicture.asset('assets/enrollment/introduction_screen3.svg', width: 341, height: 247),
+            image: SvgPicture.asset('assets/enrollment/introduction_screen3.svg',
+                excludeFromSemantics: true, width: 341, height: 247),
             titleContent: FlutterI18n.translate(context, 'enrollment.introduction.screen3.title'),
             textContent: FlutterI18n.translate(context, 'enrollment.introduction.screen3.text'),
             onNextScreen: () => {},

@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/animation.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 @immutable
@@ -43,6 +43,7 @@ class _WalletButtonState extends State<WalletButton> with SingleTickerProviderSt
               padding: const EdgeInsets.all(padding),
               child: SvgPicture.asset(
                 widget.svgFile,
+                excludeFromSemantics: true,
                 color: IrmaThemeData().overlay50,
               ),
             ),
