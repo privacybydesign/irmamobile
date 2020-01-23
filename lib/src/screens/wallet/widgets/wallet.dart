@@ -44,7 +44,6 @@ class Wallet extends StatefulWidget {
 }
 
 class _WalletState extends State<Wallet> with TickerProviderStateMixin {
-  final _padding = 15.0;
   final _animationDuration = 250;
   final _loginDuration = 500;
   final _walletAspectRatio = 87 / 360; // wallet.svg | 360 / 620, 620 - 87 = 533
@@ -56,12 +55,12 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _dragTipping = 50;
   final _scrollOverflowTipping = 50;
   final _walletBoxHeight = 120;
-  final _walletBackOffset = 8;
   final _walletShrinkTween = Tween<double>(begin: 0.0, end: 1.0);
   final _walletIconHeight = 60;
   final _dragDownFactor = 1.5;
   final _heightOffset = 94.0;
   final _containerKey = GlobalKey();
+  final _cardVisibleDelay = 2000;
 
   double renderBoxHeight = 0;
   int drawnCardIndex = 0;
@@ -88,12 +87,16 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       ..addStatusListener(
         (state) {
           if (state == AnimationStatus.completed) {
-            if (oldState == WalletState.halfway || oldState == WalletState.full) {
-              cardInStackState = oldState;
-            }
-            oldState = currentState;
-            drawController.reset();
-            dragOffset = 0;
+            setState(
+              () {
+                if (oldState == WalletState.halfway || oldState == WalletState.full) {
+                  cardInStackState = oldState;
+                }
+                oldState = currentState;
+                drawController.reset();
+                dragOffset = 0;
+              },
+            );
           }
         },
       );
@@ -103,7 +106,11 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         final BuildContext currentContext = _containerKey.currentContext;
 
         if (currentContext != null) {
-          renderBoxHeight = currentContext.size.height;
+          setState(
+            () {
+              renderBoxHeight = currentContext.size.height;
+            },
+          );
         }
       },
     );
@@ -137,7 +144,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       } else {
         setNewState(WalletState.drawn);
         Timer(
-          const Duration(milliseconds: 2000),
+          Duration(milliseconds: _cardVisibleDelay),
           () {
             setNewState(WalletState.halfway);
           },
@@ -172,12 +179,13 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
             key: _containerKey,
             children: [
               Padding(
-                padding: EdgeInsets.symmetric(vertical: _padding * 3, horizontal: _padding * 2),
+                padding: EdgeInsets.symmetric(
+                    vertical: IrmaTheme.of(context).defaultSpacing * 3, horizontal: IrmaTheme.of(context).largeSpacing),
                 child: AnimatedOpacity(
                   // If the widget is visible, animate to 0.0 (invisible).
                   // If the widget is hidden, animate to 1.0 (fully visible).
                   opacity: _nudgeVisible ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 300),
+                  duration: Duration(milliseconds: _animationDuration),
                   child: Container(
                     child: ListView(
                       children: <Widget>[
@@ -187,9 +195,9 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                         ),
                         Padding(
                           padding: EdgeInsets.only(
-                            top: _padding,
-                            right: _padding,
-                            left: _padding,
+                            top: IrmaTheme.of(context).defaultSpacing,
+                            right: IrmaTheme.of(context).defaultSpacing,
+                            left: IrmaTheme.of(context).defaultSpacing,
                           ),
                           child: Text(
                             FlutterI18n.translate(context, 'wallet.caption'),
@@ -218,7 +226,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                   child: Stack(
                     children: [
                       Positioned(
-                        top: walletTop + _walletYPos - _walletBackOffset,
+                        top: walletTop + _walletYPos - IrmaTheme.of(context).smallSpacing,
                         child: SvgPicture.asset(
                           'assets/wallet/wallet_back.svg',
                           width: size.width,
@@ -297,8 +305,10 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                                       drawController.forward();
                                     }
                                   },
-                                  child:
-                                      IrmaCard(attributes: credential, scrollBeyondBoundsCallback: scrollBeyondBound),
+                                  child: IrmaCard(
+                                    attributes: credential,
+                                    scrollBeyondBoundsCallback: scrollBeyondBound,
+                                  ),
                                 ),
                               );
                             }(index++);
