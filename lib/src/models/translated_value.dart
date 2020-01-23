@@ -21,4 +21,7 @@ class TranslatedValue extends UnmodifiableMapView<String, String> {
     }
     return null;
   }
+
+  factory TranslatedValue.fromJson(Map<String, dynamic> json) => TranslatedValue(Map<String, String>.from(json));
+  Map<String, dynamic> toJson() => this;
 }

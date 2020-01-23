@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:irmamobile/src/models/credential.dart';
+import 'package:irmamobile/src/models/credentials.dart';
 import 'package:meta/meta.dart';
 
 @immutable

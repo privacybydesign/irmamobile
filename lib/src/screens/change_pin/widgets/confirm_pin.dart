@@ -23,7 +23,7 @@ class ConfirmPin extends StatelessWidget {
           FlutterI18n.translate(context, 'change_pin.confirm_pin.title'),
           style: IrmaTheme.of(context).textTheme.display2,
         ),
-        iconAction: () async {
+        leadingAction: () async {
           if (cancel != null) {
             cancel();
           }
@@ -31,7 +31,7 @@ class ConfirmPin extends StatelessWidget {
             Navigator.of(context, rootNavigator: true).pop();
           }
         },
-        iconTooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+        leadingTooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
       ),
       body: BlocBuilder<ChangePinBloc, ChangePinState>(builder: (context, state) {
         return SingleChildScrollView(

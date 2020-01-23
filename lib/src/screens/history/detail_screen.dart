@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/data/irma_client_mock.dart';
 import 'package:irmamobile/src/models/log.dart' as log_model;
 import 'package:irmamobile/src/models/verifier.dart';
 import 'package:irmamobile/src/screens/history/widgets/header.dart';
@@ -60,30 +59,18 @@ class DetailScreen extends StatelessWidget {
   }
 
   Widget _buildDetailWidget() {
+    // TODO: Re-enable this
     switch (logType) {
       case LogType.removal:
       // Removal not required for MVP
       case LogType.disclosing:
-        // Because it is unknown how the data eventually will look like.
-        // Data of the mock is manipulated to make it useable in the DisclosureCard
-        // TODO: get the data from the IrmaClient as soon as the correct datamodel is implemented
-        final attributes = IrmaClientMock().getVerify();
-        return DisclosureCard(
-          <List<VerifierCredential>>[
-            attributes[0],
-            <VerifierCredential>[attributes[1][0]],
-          ],
-        );
+        return const DisclosureCard(<List<VerifierCredential>>[]);
       case LogType.issuing:
         return IssuingDetail(log.issuedCredentials.values.toList());
       case LogType.signing:
-        // TODO: get the data from the IrmaClient as soon as the correct datamodel is implemented
-        final attributes = IrmaClientMock().getVerify();
         return SigningDetail(
           log.signedMessage,
-          <List<VerifierCredential>>[
-            attributes[0],
-          ],
+          const <List<VerifierCredential>>[],
         );
     }
     return null;

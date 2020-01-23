@@ -5,7 +5,7 @@ import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:irmamobile/src/models/credential.dart';
+import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet_button.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/card/card.dart';

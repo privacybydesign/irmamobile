@@ -30,7 +30,7 @@ class EmailAttributeConfirmation extends StatelessWidget {
             'card_store.email.title',
           ),
         ),
-        iconAction: () => Navigator.of(
+        leadingAction: () => Navigator.of(
           context,
           rootNavigator: true,
         ).pop(),

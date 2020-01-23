@@ -1,25 +1,22 @@
-import 'package:equatable/equatable.dart';
+import 'package:irmamobile/src/models/event.dart';
+import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'irma_configuration.g.dart';
 
-// Template:
-//
-// @JsonSerializable(nullable: false)
-// class Foobar {
-//   Foobar({});
-
-//   @JsonKey(name: 'omgwtf')
-//   final  omgwtf;
-
-//   factory Foobar.fromJson(Map<String, dynamic> json) => _$FoobarFromJson(json);
-//   Map<String, dynamic> toJson() => _$FoobarToJson(this);
-// }
-
-// TODO: Change this to a RawIrmaConfiguration and create a typed
-// IrmaConfiguration that makes use of DateTime and TranslatedValue (and more).
 @JsonSerializable(nullable: false, explicitToJson: true)
-class IrmaConfiguration with EquatableMixin {
+class IrmaConfigurationEvent extends Event {
+  IrmaConfigurationEvent({this.irmaConfiguration});
+
+  @JsonKey(name: 'IrmaConfiguration')
+  final IrmaConfiguration irmaConfiguration;
+
+  factory IrmaConfigurationEvent.fromJson(Map<String, dynamic> json) => _$IrmaConfigurationEventFromJson(json);
+  Map<String, dynamic> toJson() => _$IrmaConfigurationEventToJson(this);
+}
+
+@JsonSerializable(nullable: false, explicitToJson: true)
+class IrmaConfiguration {
   IrmaConfiguration({this.schemeManagers, this.issuers, this.credentialTypes, this.attributeTypes, this.path});
 
   @JsonKey(name: 'SchemeManagers')
@@ -39,27 +36,6 @@ class IrmaConfiguration with EquatableMixin {
 
   factory IrmaConfiguration.fromJson(Map<String, dynamic> json) => _$IrmaConfigurationFromJson(json);
   Map<String, dynamic> toJson() => _$IrmaConfigurationToJson(this);
-
-  IrmaConfiguration copyWith({
-    Map<String, SchemeManager> schemeManagers,
-    Map<String, Issuer> issuers,
-    Map<String, CredentialType> credentialTypes,
-    Map<String, AttributeType> attributeTypes,
-    String path,
-  }) {
-    return IrmaConfiguration(
-      schemeManagers: schemeManagers ?? this.schemeManagers,
-      issuers: issuers ?? this.issuers,
-      credentialTypes: credentialTypes ?? this.credentialTypes,
-      attributeTypes: attributeTypes ?? this.attributeTypes,
-      path: path ?? this.path,
-    );
-  }
-
-  @override
-  List<Object> get props {
-    return [schemeManagers, issuers, credentialTypes, attributeTypes, path];
-  }
 }
 
 @JsonSerializable(nullable: false, explicitToJson: true)
@@ -79,13 +55,13 @@ class SchemeManager {
   final String id;
 
   @JsonKey(name: 'Name')
-  final Map<String, String> name;
+  final TranslatedValue name;
 
   @JsonKey(name: 'URL')
   final String url;
 
   @JsonKey(name: 'Description')
-  final Map<String, String> description;
+  final TranslatedValue description;
 
   @JsonKey(name: 'MinimumAppVersion')
   final AppVersion minimumAppVersion;
@@ -130,10 +106,10 @@ class Issuer {
   final String id;
 
   @JsonKey(name: 'Name')
-  final Map<String, String> name;
+  final TranslatedValue name;
 
   @JsonKey(name: 'ShortName')
-  final Map<String, String> shortName;
+  final TranslatedValue shortName;
 
   @JsonKey(name: 'SchemeManagerID')
   final String schemeManagerId;
@@ -173,10 +149,10 @@ class CredentialType {
   final String id;
 
   @JsonKey(name: 'Name')
-  final Map<String, String> name;
+  final TranslatedValue name;
 
   @JsonKey(name: 'ShortName')
-  final Map<String, String> shortName;
+  final TranslatedValue shortName;
 
   @JsonKey(name: 'IssuerID')
   final String issuerId;
@@ -188,10 +164,10 @@ class CredentialType {
   final bool isSingleton;
 
   @JsonKey(name: 'Description')
-  final Map<String, String> description;
+  final TranslatedValue description;
 
   @JsonKey(name: 'IssueURL', nullable: true)
-  final Map<String, String> issueUrl;
+  final TranslatedValue issueUrl;
 
   @JsonKey(name: 'BackgroundColor', nullable: true)
   final String backgroundColor;
@@ -200,19 +176,19 @@ class CredentialType {
   final bool isInCredentialStore;
 
   @JsonKey(name: 'Category', nullable: true)
-  final Map<String, String> category;
+  final TranslatedValue category;
 
   @JsonKey(name: 'FAQIntro', nullable: true)
-  final Map<String, String> faqIntro;
+  final TranslatedValue faqIntro;
 
   @JsonKey(name: 'FAQPurpose', nullable: true)
-  final Map<String, String> faqPurpose;
+  final TranslatedValue faqPurpose;
 
   @JsonKey(name: 'FAQContent', nullable: true)
-  final Map<String, String> faqContent;
+  final TranslatedValue faqContent;
 
   @JsonKey(name: 'FAQHowto', nullable: true)
-  final Map<String, String> faqHowto;
+  final TranslatedValue faqHowto;
 
   factory CredentialType.fromJson(Map<String, dynamic> json) => _$CredentialTypeFromJson(json);
   Map<String, dynamic> toJson() => _$CredentialTypeToJson(this);
@@ -247,10 +223,10 @@ class AttributeType {
   final String optional;
 
   @JsonKey(name: 'Name')
-  final Map<String, String> name;
+  final TranslatedValue name;
 
   @JsonKey(name: 'Description')
-  final Map<String, String> description;
+  final TranslatedValue description;
 
   @JsonKey(name: 'Index')
   final int index;

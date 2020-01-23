@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/models/credential.dart';
+import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/widgets/card/card.dart';
 
 class IssuingDetail extends StatelessWidget {

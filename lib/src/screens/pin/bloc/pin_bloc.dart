@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/authentication_result.dart';
+import 'package:irmamobile/src/models/authentication.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_state.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
@@ -25,66 +25,52 @@ class PinBloc extends Bloc<PinEvent, PinState> {
       );
 
   @override
-  Stream<PinState> mapEventToState(PinEvent event) async* {
-    if (event is Unlock) {
+  Stream<PinState> mapEventToState(PinEvent pinEvent) async* {
+    if (pinEvent is Unlock) {
       yield currentState.copyWith(
         unlockInProgress: true,
         errorMessage: null,
       );
 
-      final authenticationResult = await IrmaRepository.get().unlock(event.pin);
+      final authenticationEvent = await IrmaRepository.get().unlock(pinEvent.pin);
 
-      switch (authenticationResult.runtimeType) {
-        case AuthenticationResultFailed:
-          final authenticationResultFailed = authenticationResult as AuthenticationResultFailed;
-          yield currentState.copyWith(
-            unlockInProgress: false,
-            pinInvalid: true,
-            blockedUntil: DateTime.now().add(Duration(seconds: authenticationResultFailed.blockedDuration)),
-            remainingAttempts: authenticationResultFailed.remainingAttempts,
-          );
-          break;
-        case AuthenticationResultError:
-          final authenticationResultError = authenticationResult as AuthenticationResultError;
-          yield currentState.copyWith(
-            unlockInProgress: false,
-            errorMessage: authenticationResultError.error,
-          );
-          break;
-        case AuthenticationResultSuccess:
-          final startQrScanner = await IrmaRepository.get().getPreferences().map((p) => p.qrScannerOnStartup).first;
+      if (authenticationEvent is AuthenticationSuccessEvent) {
+        final startQrScanner = await IrmaRepository.get().getPreferences().map((p) => p.qrScannerOnStartup).first;
 
-          if (startQrScanner) {
-            NavigatorService.get().pushNamed(ScannerScreen.routeName);
-          }
+        if (startQrScanner) {
+          NavigatorService.get().pushNamed(ScannerScreen.routeName);
+        }
 
-          yield currentState.copyWith(
-            locked: false,
-            unlockInProgress: false,
-          );
-          break;
-        default:
-          throw Exception("Unexpected subtype of AuthenticationResult");
+        yield currentState.copyWith(
+          locked: false,
+          unlockInProgress: false,
+        );
+      } else if (authenticationEvent is AuthenticationFailedEvent) {
+        yield currentState.copyWith(
+          unlockInProgress: false,
+          pinInvalid: true,
+          blockedUntil: DateTime.now().add(Duration(seconds: authenticationEvent.blockedDuration)),
+          remainingAttempts: authenticationEvent.remainingAttempts,
+        );
+      } else if (authenticationEvent is AuthenticationErrorEvent) {
+        yield currentState.copyWith(
+          unlockInProgress: false,
+          errorMessage: authenticationEvent.error,
+        );
       }
-    }
-
-    if (event is Lock) {
+    } else if (pinEvent is Lock) {
       // There is currently no feedback because there is no pro-active locking available in irmago.
       IrmaRepository.get().lock();
       yield currentState.copyWith(
         locked: true,
       );
-    }
-
-    if (event is Locked) {
+    } else if (pinEvent is Locked) {
       yield currentState.copyWith(
         locked: true,
         unlockInProgress: false,
         pinInvalid: false,
       );
-    }
-
-    if (event is Unlocked) {
+    } else if (pinEvent is Unlocked) {
       yield currentState.copyWith(
         locked: false,
         unlockInProgress: false,

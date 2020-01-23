@@ -1,17 +1,22 @@
 import 'dart:collection';
 
-import 'package:irmamobile/src/models/credential.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:irmamobile/src/models/attributes.dart';
+import 'package:irmamobile/src/models/event.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'package:irmamobile/src/models/raw_credentials.dart';
+import 'package:irmamobile/src/models/translated_value.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+part 'credentials.g.dart';
 
 class Credentials extends UnmodifiableMapView<String, Credential> {
   Credentials(Map<String, Credential> map)
       : assert(map != null),
         super(map);
 
-  factory Credentials.fromRaw({IrmaConfiguration irmaConfiguration, RawCredentials rawCredentials}) {
+  factory Credentials.fromRaw({IrmaConfiguration irmaConfiguration, List<RawCredential> rawCredentials}) {
     return Credentials(
-      rawCredentials.credentials.asMap().map<String, Credential>((_, rawCredential) {
+      rawCredentials.asMap().map<String, Credential>((_, rawCredential) {
         final credential = Credential.fromRaw(
           irmaConfiguration: irmaConfiguration,
           rawCredential: rawCredential,
@@ -20,4 +25,97 @@ class Credentials extends UnmodifiableMapView<String, Credential> {
       }),
     );
   }
+}
+
+class Credential {
+  final String id;
+  final SchemeManager schemeManager;
+  final Issuer issuer;
+  final CredentialType credentialType;
+  final DateTime signedOn;
+  final DateTime expires;
+  final Attributes attributes;
+  final String hash;
+
+  Credential({
+    @required this.id,
+    @required this.issuer,
+    @required this.schemeManager,
+    @required this.credentialType,
+    @required this.signedOn,
+    @required this.expires,
+    @required this.attributes,
+    @required this.hash,
+  })  : assert(id != null),
+        assert(issuer != null),
+        assert(schemeManager != null),
+        assert(credentialType != null),
+        assert(signedOn != null),
+        assert(expires != null),
+        assert(attributes != null),
+        assert(hash != null);
+
+  Credential.fromRaw({IrmaConfiguration irmaConfiguration, RawCredential rawCredential})
+      : id = rawCredential.id,
+        schemeManager = irmaConfiguration.schemeManagers[rawCredential.schemeManagerId],
+        issuer = irmaConfiguration.issuers[rawCredential.fullIssuerId],
+        credentialType = irmaConfiguration.credentialTypes[rawCredential.fullId],
+        signedOn = DateTime.fromMillisecondsSinceEpoch(rawCredential.signedOn * 1000),
+        expires = DateTime.fromMillisecondsSinceEpoch(rawCredential.expires * 1000),
+        attributes = Attributes.fromRaw(
+          irmaConfiguration: irmaConfiguration,
+          rawAttributes: rawCredential.attributes,
+        ),
+        hash = rawCredential.hash;
+}
+
+@JsonSerializable(nullable: false)
+class CredentialsEvent extends Event {
+  CredentialsEvent({this.credentials});
+
+  @JsonKey(name: 'Credentials')
+  final List<RawCredential> credentials;
+
+  factory CredentialsEvent.fromJson(Map<String, dynamic> json) => _$CredentialsEventFromJson(json);
+  Map<String, dynamic> toJson() => _$CredentialsEventToJson(this);
+}
+
+@JsonSerializable(nullable: false)
+class RawCredential {
+  const RawCredential({
+    this.id,
+    this.issuerId,
+    this.schemeManagerId,
+    this.signedOn,
+    this.expires,
+    this.attributes,
+    this.hash,
+  });
+
+  @JsonKey(name: 'ID')
+  final String id;
+
+  @JsonKey(name: 'IssuerID')
+  final String issuerId;
+
+  @JsonKey(name: 'SchemeManagerID')
+  final String schemeManagerId;
+
+  @JsonKey(name: 'SignedOn')
+  final int signedOn;
+
+  @JsonKey(name: 'Expires')
+  final int expires;
+
+  @JsonKey(name: 'Attributes')
+  final Map<String, TranslatedValue> attributes;
+
+  @JsonKey(name: 'Hash')
+  final String hash;
+
+  factory RawCredential.fromJson(Map<String, dynamic> json) => _$RawCredentialFromJson(json);
+  Map<String, dynamic> toJson() => _$RawCredentialToJson(this);
+
+  String get fullIssuerId => "$schemeManagerId.$issuerId";
+  String get fullId => "$fullIssuerId.$id";
 }

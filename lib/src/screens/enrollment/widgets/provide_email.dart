@@ -51,12 +51,12 @@ class _ProvideEmailState extends State<ProvideEmail> {
         title: Text(
           FlutterI18n.translate(context, 'enrollment.provide_email.title'),
         ),
-        cancel: widget.cancel,
-        iconAction: () {
+        leadingCancel: widget.cancel,
+        leadingAction: () {
           Navigator.of(context).popUntil(
               (route) => route.settings.name == ChoosePin.routeName || route.settings.name == Welcome.routeName);
         },
-        iconTooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+        leadingTooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
       ),
       body: BlocBuilder<EnrollmentBloc, EnrollmentState>(
         builder: (context, state) {

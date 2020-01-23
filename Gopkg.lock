@@ -159,7 +159,7 @@
 
 [[projects]]
   branch = "irmamobile"
-  digest = "1:9328a6aaf0313bfb262c32390fa0649ebfe4f4db0b99ff665dc2bb3429a4cfaa"
+  digest = "1:6ead6eb0c6e7b7347b08f3c527f11c82e71d4e66d20e6aeff08da1d95a0b3be0"
   name = "github.com/privacybydesign/irmago"
   packages = [
     ".",
@@ -168,7 +168,7 @@
     "irmaclient",
   ]
   pruneopts = "UT"
-  revision = "53845e504484cfe410a070bb94e23ff4330634f6"
+  revision = "0b2ca9b8bf1f158527b40f3137fa3c2ae527a5c0"
 
 [[projects]]
   digest = "1:04457f9f6f3ffc5fea48e71d62f2ca256637dee0a04d710288e27e05c8b41976"
@@ -239,6 +239,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/go-errors/errors",
+    "github.com/privacybydesign/gabi/big",
     "github.com/privacybydesign/irmago",
     "github.com/privacybydesign/irmago/irmaclient",
   ]

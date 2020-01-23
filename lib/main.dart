@@ -8,11 +8,11 @@ import 'package:irmamobile/src/models/version_information.dart';
 import 'package:irmamobile/src/screens/about/about_screen.dart';
 import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
 import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
+import 'package:irmamobile/src/screens/disclosure/disclosure_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/help/help_screen.dart';
 import 'package:irmamobile/src/screens/history/history_screen.dart';
 import 'package:irmamobile/src/screens/loading/loading_screen.dart';
-import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/screens/required_update/required_update_screen.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
@@ -52,6 +52,7 @@ class AppState extends State<App> with WidgetsBindingObserver {
           CardStoreScreen.routeName: (BuildContext context) => CardStoreScreen(),
           HistoryScreen.routeName: (BuildContext context) => HistoryScreen(),
           HelpScreen.routeName: (BuildContext context) => HelpScreen(),
+          DisclosureScreen.routeName: (BuildContext context) => DisclosureScreen(),
         };
 
   static List<LocalizationsDelegate> defaultLocalizationsDelegates([Locale forcedLocale]) {
@@ -87,7 +88,7 @@ class AppState extends State<App> with WidgetsBindingObserver {
   }
 
   @override
-  Future<Null> didChangeAppLifecycleState(AppLifecycleState state) async {
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     final startQrScanner = await IrmaRepository.get().getPreferences().map((p) => p.qrScannerOnStartup).first;
 
     final navState = NavigatorService.get();
@@ -131,8 +132,10 @@ class AppState extends State<App> with WidgetsBindingObserver {
                 return Container();
               }
 
+              final isEnrolled = enrolledSnapshot.data;
+
               var initialRoute = WalletScreen.routeName;
-              if (enrolledSnapshot.data == false) {
+              if (!isEnrolled) {
                 initialRoute = EnrollmentScreen.routeName;
               }
 
@@ -153,7 +156,7 @@ class AppState extends State<App> with WidgetsBindingObserver {
                   return Stack(
                     children: <Widget>[
                       child,
-                      PinScreen(isEnrolled: enrolledSnapshot.data),
+                      //PinScreen(isEnrolled: isEnrolled),
                       StreamBuilder<VersionInformation>(
                           stream: versionInformationStream,
                           builder: (context, snapshot) {

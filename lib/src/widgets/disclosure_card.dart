@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/verifier.dart';
 import 'package:irmamobile/src/screens/disclosure/carousel.dart';
 import 'package:irmamobile/src/theme/theme.dart';
@@ -40,7 +41,8 @@ class _DisclosureCardState extends State<DisclosureCard> {
                     Divider(
                       color: IrmaTheme.of(context).grayscale80,
                     ),
-                  Carousel(credentialSet: issuerList.map((issuer) => carouselWidget(issuer)).toList())
+                  // TODO: Re-enable this
+                  Carousel(candidatesDisCon: DisCon<CredentialAttribute>(const []))
                 ],
               )
               .toList(),

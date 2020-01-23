@@ -3,36 +3,39 @@ import 'package:irmamobile/src/theme/irma_icons.dart';
 
 class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Text title;
-  final Icon icon;
-  final void Function() iconAction;
-  final void Function() cancel;
-  final String iconTooltip;
+  final Icon leadingIcon;
+  final void Function() leadingAction;
+  final void Function() leadingCancel;
+  final String leadingTooltip;
+  final List<Widget> actions;
 
   const IrmaAppBar(
       {this.title,
-      this.icon = const Icon(IrmaIcons.arrowBack, size: 18.0),
-      this.iconAction,
-      this.iconTooltip,
-      this.cancel});
+      this.leadingIcon = const Icon(IrmaIcons.arrowBack, size: 18.0),
+      this.leadingAction,
+      this.leadingTooltip,
+      this.leadingCancel,
+      this.actions = const []});
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
       centerTitle: true,
       leading: IconButton(
-          icon: icon,
-          tooltip: iconTooltip,
+          icon: leadingIcon,
+          tooltip: leadingTooltip,
           onPressed: () {
-            if (cancel != null) {
-              cancel();
+            if (leadingCancel != null) {
+              leadingCancel();
             }
-            if (iconAction == null) {
+            if (leadingAction == null) {
               Navigator.of(context).pop();
             } else {
-              iconAction();
+              leadingAction();
             }
           }),
       title: title,
+      actions: actions,
     );
   }
 

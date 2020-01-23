@@ -39,7 +39,7 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
             onQRViewCreated: _onQRViewCreated,
           ),
           Container(
-            constraints: BoxConstraints.expand(),
+            constraints: const BoxConstraints.expand(),
             child: CustomPaint(
               painter: QROverlay(found: found, error: error, theme: IrmaTheme.of(context)),
             ),
@@ -50,25 +50,22 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
     );
   }
 
-  /// if valid code is found: return
-  /// cancel the current error timer
-  /// check whether code is valid
-  /// -> on valid
-  ///      set error = false
-  ///      set found = true
-  ///      cal onFound in 500 milliseconds
-  /// -> on error
-  ///      set error = true
-  ///      set timer for 500 milliseconds -> after set error = false
+  void _onQRViewCreated(QRViewController controller) {
+    controller.scannedDataStream.listen(foundQR);
+  }
+
   void foundQR(String qr) {
+    // If we already found a correct QR, cancel the current error message
     if (_errorTimer != null && _errorTimer.isActive) {
       _errorTimer.cancel();
     }
 
+    // Don't continue if this screen has already been 'used'
     if (found) {
       return;
     }
 
+    // Decode QR and determine if it's valid
     bool isValid = false;
     try {
       final qrContents = jsonDecode(qr) as Map<String, dynamic>;
@@ -77,15 +74,8 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
       // pass
     }
 
-    if (isValid) {
-      setState(() {
-        found = true;
-        error = false;
-      });
-      Future.delayed(const Duration(milliseconds: 500), () {
-        widget.onFound(qr);
-      });
-    } else {
+    // If invalid, show an error message for a certain time
+    if (!isValid) {
       setState(() {
         error = true;
       });
@@ -95,9 +85,15 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
         });
       });
     }
-  }
 
-  void _onQRViewCreated(QRViewController controller) {
-    controller.scannedDataStream.listen(foundQR);
+    // Signal success after a small timeout
+    setState(() {
+      found = true;
+      error = false;
+    });
+
+    Future.delayed(const Duration(milliseconds: 500), () {
+      widget.onFound(qr);
+    });
   }
 }
