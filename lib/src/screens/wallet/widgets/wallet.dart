@@ -196,7 +196,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                         GestureDetector(
                           onTap: _nudgeVisible
                               ? onAddCardsPressed
-                              : null, // TODO please check if this is fine to prevent link from working when it is invisible
+                              : null, // TODO please check if this is fine to prevent link from working when invisible
                           child: Text(
                             FlutterI18n.translate(context, 'wallet.add_data'),
                             textAlign: TextAlign.center,
@@ -397,6 +397,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
   double calculateCardPosition(
       {WalletState state, double walletTop, int index, int drawnCardIndex, double dragOffset}) {
+    const cardsHalfway = 3;
     double cardPosition;
 
     switch (state) {
@@ -423,18 +424,21 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         break;
 
       case WalletState.halfway:
-        final double top = (widget.credentials.length - 1 - index).toDouble();
-
         // Many cards
         if (widget.credentials.length >= _cardsMaxExtended) {
-          // Top small border cards
-          if (index < _cardTopHeight / _cardTopBorderHeight) {
-            cardPosition = (_cardsMaxExtended - _cardTopHeight / _cardTopBorderHeight + 2) * _cardTopHeight -
-                index * _cardTopBorderHeight;
+          // Hidden cards
+          if (index <= widget.credentials.length - 1 - cardsHalfway - _cardTopHeight / _cardTopBorderHeight) {
+            cardPosition = (widget.credentials.length - cardsHalfway - 2) * _cardTopHeight.toDouble();
+
+            // Top small border cards
+          } else if (index <= widget.credentials.length - 1 - cardsHalfway) {
+            cardPosition = (widget.credentials.length - cardsHalfway - 2) * _cardTopHeight.toDouble() -
+                (index - widget.credentials.length + cardsHalfway + _cardTopHeight / _cardTopBorderHeight + 1) *
+                    _cardTopBorderHeight.toDouble();
 
             // Other cards
           } else {
-            cardPosition = (_cardsMaxExtended + 1 - index) * _cardTopHeight.toDouble();
+            cardPosition = (widget.credentials.length - 1 - index) * _cardTopHeight.toDouble();
           }
 
           // Dragging top small border cards
@@ -444,17 +448,12 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
           // Few cards
         } else {
-          cardPosition = top * _cardTopHeight.toDouble();
+          cardPosition = (widget.credentials.length - 1 - index).toDouble() * _cardTopHeight.toDouble();
         }
 
         // Drag drawn card
         if (index == drawnCardIndex) {
           cardPosition -= dragOffset;
-        }
-
-        // Bottom cards are deeper in wallet
-        if (cardPosition < 0) {
-          cardPosition *= 2;
         }
 
         break;
