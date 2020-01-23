@@ -2,16 +2,14 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/models/verifier.dart';
+import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/disclosure_card.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
 import 'package:irmamobile/src/widgets/irma_text_button.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
-
-import 'carousel.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DisclosureScreen extends StatefulWidget {
   static const String routeName = '/disclosure';
@@ -59,32 +57,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
                 ]),
               ),
             ),
-            Card(
-              elevation: 1.0,
-              semanticContainer: true,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(IrmaTheme.of(context).defaultSpacing),
-                side: const BorderSide(color: Color(0xFFDFE3E9), width: 1),
-              ),
-              color: IrmaTheme.of(context).primaryLight,
-              child: Column(
-                children: [
-                  SizedBox(height: IrmaTheme.of(context).smallSpacing),
-                  ...widget.issuers
-                      .expand(
-                        (issuerList) => [
-                          if (issuerList != widget.issuers[0])
-                            Divider(
-                              color: IrmaTheme.of(context).grayscale80,
-                            ),
-                          Carousel(credentialSet: issuerList.map((issuer) => carouselWidget(issuer)).toList())
-                        ],
-                      )
-                      .toList(),
-                  SizedBox(height: IrmaTheme.of(context).smallSpacing),
-                ],
-              ),
-            ),
+            DisclosureCard(widget.issuers),
           ],
         ),
       );
