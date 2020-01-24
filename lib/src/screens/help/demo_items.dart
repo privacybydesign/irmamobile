@@ -1,10 +1,10 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/screens/help/widgets/illustrator.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/util/collapsible_helper.dart';
 import 'package:irmamobile/src/widgets/collapsible.dart';
 
 class DemoItems extends StatefulWidget {
@@ -20,19 +20,6 @@ class DemoItems extends StatefulWidget {
 
 class _DemoItemsState extends State<DemoItems> with TickerProviderStateMixin {
   final List<GlobalKey> _collapsableKeys = List<GlobalKey>.generate(4, (int index) => GlobalKey());
-  Duration expandDuration = const Duration(milliseconds: 200); // expand duration of _Collapsible
-
-  void _jumpToCollapsable(int index) {
-    final RenderObject scrollview = widget.parentKey.currentContext.findRenderObject();
-    final RenderBox collapsable = _collapsableKeys[index].currentContext.findRenderObject() as RenderBox;
-    widget.parentScrollController.animateTo(
-      collapsable.localToGlobal(Offset(0, widget.parentScrollController.offset), ancestor: scrollview).dy,
-      duration: const Duration(
-        milliseconds: 500,
-      ),
-      curve: Curves.ease,
-    );
-  }
 
   // Content for question 1
   @override
@@ -146,7 +133,8 @@ class _DemoItemsState extends State<DemoItems> with TickerProviderStateMixin {
       children: <Widget>[
         Collapsible(
             header: FlutterI18n.translate(context, 'demo.question_1'),
-            onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(0))},
+            onExpansionChanged: (v) =>
+                {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[0])},
             content: Column(
               children: <Widget>[
                 SizedBox(
@@ -163,7 +151,8 @@ class _DemoItemsState extends State<DemoItems> with TickerProviderStateMixin {
             key: _collapsableKeys[0]),
         Collapsible(
             header: FlutterI18n.translate(context, 'demo.question_2'),
-            onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(1))},
+            onExpansionChanged: (v) =>
+                {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[1])},
             content: Column(
               children: <Widget>[
                 SizedBox(

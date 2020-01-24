@@ -1,9 +1,9 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/util/collapsible_helper.dart';
 import 'package:irmamobile/src/widgets/collapsible.dart';
 
 class HelpItems extends StatefulWidget {
@@ -19,19 +19,6 @@ class HelpItems extends StatefulWidget {
 
 class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
   final List<GlobalKey> _collapsableKeys = List<GlobalKey>.generate(5, (int index) => GlobalKey());
-  Duration expandDuration = const Duration(milliseconds: 200); // expand duration of _Collapsible
-
-  void _jumpToCollapsable(int index) {
-    final RenderObject scrollview = widget.parentKey.currentContext.findRenderObject();
-    final RenderBox collapsable = _collapsableKeys[index].currentContext.findRenderObject() as RenderBox;
-    widget.parentScrollController.animateTo(
-      collapsable.localToGlobal(Offset(0, widget.parentScrollController.offset), ancestor: scrollview).dy,
-      duration: const Duration(
-        milliseconds: 500,
-      ),
-      curve: Curves.ease,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +28,8 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
       children: <Widget>[
         Collapsible(
             header: FlutterI18n.translate(context, 'help.question_1'),
-            onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(0))},
+            onExpansionChanged: (v) =>
+                {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[0])},
             content: Container(
               child: MarkdownBody(
                 selectable: false,
@@ -56,7 +44,8 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
             key: _collapsableKeys[0]),
         Collapsible(
             header: FlutterI18n.translate(context, 'help.question_2'),
-            onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(1))},
+            onExpansionChanged: (v) =>
+                {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[1])},
             content: Container(
               child: MarkdownBody(
                 selectable: false,
@@ -71,7 +60,8 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
             key: _collapsableKeys[1]),
         Collapsible(
             header: FlutterI18n.translate(context, 'help.question_3'),
-            onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(2))},
+            onExpansionChanged: (v) =>
+                {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[2])},
             content: Container(
               child: MarkdownBody(
                 selectable: false,
@@ -86,7 +76,8 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
             key: _collapsableKeys[2]),
         Collapsible(
             header: FlutterI18n.translate(context, 'help.question_4'),
-            onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(3))},
+            onExpansionChanged: (v) =>
+                {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[3])},
             content: Container(
               child: MarkdownBody(
                 selectable: false,
@@ -101,7 +92,8 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
             key: _collapsableKeys[3]),
         Collapsible(
             header: FlutterI18n.translate(context, 'help.question_5'),
-            onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(4))},
+            onExpansionChanged: (v) =>
+                {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[4])},
             content: Container(
               child: MarkdownBody(
                 selectable: false,
