@@ -11,7 +11,7 @@ import 'package:irmamobile/src/prototypes/schermflow_1.dart';
 import 'package:irmamobile/src/prototypes/schermflow_5.dart';
 import 'package:irmamobile/src/prototypes/schermflow_wallet.dart';
 import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
-import 'package:irmamobile/src/screens/disclosure/disclosure.dart';
+import 'package:irmamobile/src/screens/disclosure/disclosure_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/introduction.dart';
 import 'package:irmamobile/src/screens/error/error_screen.dart';
 import 'package:irmamobile/src/screens/error/no_internet_screen.dart';
@@ -91,7 +91,7 @@ class PrototypesScreen extends StatelessWidget {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => HistoryScreen()));
           }),
           _buildListItem(context, "Disclosure screen", () {
-            Navigator.of(context).push(MaterialPageRoute(builder: (context) => const DisclosureScreen([])));
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => DisclosureScreen()));
           }),
           _buildListItem(context, "No internet screen", () {
             Navigator.of(context).push(MaterialPageRoute(
