@@ -14,13 +14,18 @@ import 'package:irmamobile/src/screens/enrollment/widgets/provide_email.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/welcome.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 
-class EnrollmentScreen extends StatelessWidget {
+class EnrollmentScreen extends StatefulWidget {
   static const routeName = "/enrollment";
 
+  @override
+  _EnrollmentScreenState createState() => _EnrollmentScreenState();
+}
+
+class _EnrollmentScreenState extends State<EnrollmentScreen> {
   StreamSubscription<bool> sub;
 
   @override
-  Widget build(BuildContext context) {
+  void initState() {
     // TODO: This is probably not how we should respond to this state change
     sub = IrmaRepository.get().getIsEnrolled().listen((isEnrolled) {
       if (isEnrolled) {
@@ -29,6 +34,17 @@ class EnrollmentScreen extends StatelessWidget {
       }
     });
 
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    sub.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return BlocProvider<EnrollmentBloc>(
         builder: (_) => EnrollmentBloc(),
         child: BlocBuilder<EnrollmentBloc, EnrollmentState>(builder: (context, _) {

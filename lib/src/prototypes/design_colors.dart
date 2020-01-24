@@ -14,8 +14,8 @@ class DesignColors extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: IrmaAppBar(
-        title: const Text("Colors"),
+      appBar: const IrmaAppBar(
+        title: Text("Colors"),
       ),
       body: SafeArea(
         child: ListView(

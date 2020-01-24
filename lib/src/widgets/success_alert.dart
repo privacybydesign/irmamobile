@@ -26,7 +26,7 @@ class SuccessAlert extends StatelessWidget {
               color: Colors.white,
             ),
             SizedBox(
-              width: 0.5 * IrmaTheme.of(context).spacing,
+              width: IrmaTheme.of(context).smallSpacing,
             ),
             Expanded(
               child: Column(
@@ -39,7 +39,7 @@ class SuccessAlert extends StatelessWidget {
                         ),
                   ),
                   SizedBox(
-                    height: 0.5 * IrmaTheme.of(context).spacing,
+                    height: IrmaTheme.of(context).smallSpacing,
                   ),
                   Text(
                     body,

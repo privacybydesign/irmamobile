@@ -19,8 +19,8 @@ class DesignButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: IrmaAppBar(
-        title: const Text("Buttons"),
+      appBar: const IrmaAppBar(
+        title: Text("Buttons"),
       ),
       body: SafeArea(
         child: Padding(
@@ -45,6 +45,7 @@ class DesignButtons extends StatelessWidget {
                     "disabled",
                     IrmaButton(
                       label: "Sign up",
+                      onPressed: null,
                       onPressedDisabled: () {
                         debugPrint("pressed disabled button");
                       },

@@ -32,8 +32,8 @@ class QRInstruction extends StatelessWidget {
       children: [
         Container(
           width: MediaQuery.of(context).size.width,
-          margin: EdgeInsets.only(top: IrmaTheme.of(context).spacing * 2),
-          padding: EdgeInsets.all(IrmaTheme.of(context).spacing),
+          margin: EdgeInsets.only(top: IrmaTheme.of(context).largeSpacing),
+          padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
           color: color.withOpacity(0.2),
           child: Column(
             children: <Widget>[

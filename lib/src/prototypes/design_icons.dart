@@ -17,8 +17,8 @@ class DesignIcons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: IrmaAppBar(
-        title: const Text("Icons"),
+      appBar: const IrmaAppBar(
+        title: Text("Icons"),
       ),
       body: SafeArea(
         child: SingleChildScrollView(

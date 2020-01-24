@@ -21,10 +21,10 @@ class DesignFields extends StatefulWidget {
 
 class _DesignFieldsState extends State<DesignFields> {
   final _enabledWithValueTextEditingController = TextEditingController.fromValue(
-    TextEditingValue(text: "Value"),
+    const TextEditingValue(text: "Value"),
   );
   final _disabledWithValueTextEditingController = TextEditingController.fromValue(
-    TextEditingValue(text: "Value"),
+    const TextEditingValue(text: "Value"),
   );
 
   final _validTextEditingController = TextEditingController(
@@ -38,7 +38,7 @@ class _DesignFieldsState extends State<DesignFields> {
   );
 
   final _multilineTextEditingController = TextEditingController.fromValue(
-    TextEditingValue(
+    const TextEditingValue(
       text:
           "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean scelerisque vulputate ipsum, ac euismod libero ultricies vitae. Duis vel lorem congue, imperdiet orci eget, egestas eros.",
     ),
@@ -49,8 +49,8 @@ class _DesignFieldsState extends State<DesignFields> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: IrmaAppBar(
-        title: const Text("Fields"),
+      appBar: const IrmaAppBar(
+        title: Text("Fields"),
       ),
       body: SafeArea(
         child: Padding(
@@ -65,7 +65,7 @@ class _DesignFieldsState extends State<DesignFields> {
                     context,
                     "enabled empty",
                     TextFormField(
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: "Label",
                       ),
                     ),
@@ -74,7 +74,7 @@ class _DesignFieldsState extends State<DesignFields> {
                     context,
                     "enabled with hint on focus",
                     TextFormField(
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         hintText: "hint text",
                         labelText: "Label",
                       ),
@@ -84,7 +84,7 @@ class _DesignFieldsState extends State<DesignFields> {
                     context,
                     "enabled with value",
                     TextFormField(
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: "Label",
                       ),
                       controller: _enabledWithValueTextEditingController,
@@ -98,7 +98,7 @@ class _DesignFieldsState extends State<DesignFields> {
                   _buildTextFieldExample(
                     context,
                     "disabled empty",
-                    TextField(
+                    const TextField(
                       decoration: InputDecoration(
                         labelText: "Label",
                       ),
@@ -109,7 +109,7 @@ class _DesignFieldsState extends State<DesignFields> {
                     context,
                     "disabled with value",
                     TextField(
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: "Label",
                       ),
                       enabled: false,
@@ -164,7 +164,7 @@ class _DesignFieldsState extends State<DesignFields> {
                     context,
                     "multi-line",
                     TextField(
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: "Label",
                       ),
                       controller: _multilineTextEditingController,
@@ -180,7 +180,7 @@ class _DesignFieldsState extends State<DesignFields> {
                     context,
                     "enabled",
                     DropdownButtonFormField<int>(
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: "Label",
                       ),
                       hint: const Text("Label"),
@@ -209,7 +209,7 @@ class _DesignFieldsState extends State<DesignFields> {
                     context,
                     "disabled",
                     DropdownButtonFormField(
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: "Label",
                       ),
                       value: -1,

@@ -123,7 +123,7 @@ class WalletDrawer extends StatelessWidget {
 
   Widget _createDrawerItem(BuildContext context, {IconData icon, String text, GestureTapCallback onTap}) {
     return ListTile(
-      contentPadding: EdgeInsets.only(left: IrmaTheme.of(context).spacing * 1.5),
+      contentPadding: EdgeInsets.only(left: IrmaTheme.of(context).mediumSpacing),
       title: Text(
         text,
         style: IrmaTheme.of(context).textTheme.body1,

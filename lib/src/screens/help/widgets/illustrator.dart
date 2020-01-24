@@ -126,6 +126,7 @@ class _IllustratorState extends State<Illustrator> with SingleTickerProviderStat
         Container(
           child: AnimatedSize(
             duration: const Duration(milliseconds: 300),
+            vsync: this,
             child: Container(
               width: widget.width,
               child: Text(
@@ -134,7 +135,6 @@ class _IllustratorState extends State<Illustrator> with SingleTickerProviderStat
                 textAlign: TextAlign.center,
               ),
             ),
-            vsync: this,
           ),
         ),
         SizedBox(

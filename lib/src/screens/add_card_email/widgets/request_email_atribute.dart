@@ -58,7 +58,7 @@ class RequestEmailAttributeState extends State<RequestEmailAttribute> {
                 rootNavigator: true,
               ).pop()),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).spacing),
+        padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).defaultSpacing),
         child: BlocBuilder<RequestEmailBloc, RequestEmailState>(
             bloc: bloc,
             builder: (context, state) {
@@ -69,14 +69,14 @@ class RequestEmailAttributeState extends State<RequestEmailAttribute> {
                     children: <Widget>[
                       FutureCard(widget.name, widget.issuer, widget.logoPath),
                       SizedBox(
-                        height: IrmaTheme.of(context).spacing,
+                        height: IrmaTheme.of(context).defaultSpacing,
                       ),
                       Text(
                         FlutterI18n.translate(context, 'card_store.email.description'),
                       ),
                       if (state.enteredEmail == null && state.irmaEmail != null)
                         Container(
-                          padding: EdgeInsets.only(top: IrmaTheme.of(context).spacing),
+                          padding: EdgeInsets.only(top: IrmaTheme.of(context).defaultSpacing),
                           child: InfoAlert(
                             title: FlutterI18n.translate(context, 'card_store.email.info_alert_title'),
                             body: FlutterI18n.translate(
@@ -90,7 +90,7 @@ class RequestEmailAttributeState extends State<RequestEmailAttribute> {
                         ),
                       if (state.emailCouldNotBeSend)
                         Container(
-                          padding: EdgeInsets.only(top: IrmaTheme.of(context).spacing),
+                          padding: EdgeInsets.only(top: IrmaTheme.of(context).defaultSpacing),
                           child: ErrorAlert(
                             title: FlutterI18n.translate(context, 'card_store.email.fail.alert_title'),
                             body: FlutterI18n.translate(context, 'card_store.email.fail.alert_body', {
@@ -99,7 +99,7 @@ class RequestEmailAttributeState extends State<RequestEmailAttribute> {
                           ),
                         ),
                       SizedBox(
-                        height: IrmaTheme.of(context).spacing,
+                        height: IrmaTheme.of(context).defaultSpacing,
                       ),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -132,7 +132,7 @@ class RequestEmailAttributeState extends State<RequestEmailAttribute> {
                         ],
                       ),
                       SizedBox(
-                        height: IrmaTheme.of(context).spacing,
+                        height: IrmaTheme.of(context).defaultSpacing,
                       ),
                       if (state.inProgress) ...[
                         const CircularProgressIndicator(),
@@ -156,10 +156,10 @@ class RequestEmailAttributeState extends State<RequestEmailAttribute> {
                         ),
                       ],
                       SizedBox(
-                        height: IrmaTheme.of(context).spacing,
+                        height: IrmaTheme.of(context).defaultSpacing,
                       ),
                       SizedBox(
-                        height: IrmaTheme.of(context).spacing,
+                        height: IrmaTheme.of(context).defaultSpacing,
                       ),
                     ],
                   ));

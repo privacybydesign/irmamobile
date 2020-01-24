@@ -110,14 +110,6 @@ class CardStoreScreen extends StatelessWidget {
     );
   }
 
-  bool _isEmailCredential(CredentialType credentialType) {
-    return credentialType.fullId == "pbdf.pbdf.email";
-  }
-
-  bool _isPhonenumberCredential(CredentialType credentialType) {
-    return credentialType.fullId == "pbdf.pbdf.mobilenumber";
-  }
-
   // Widget _search(BuildContext context) {
   //   return Padding(
   //     padding: EdgeInsets.all(IrmaTheme.of(context).spacing),

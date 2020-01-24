@@ -20,7 +20,7 @@ class BrowserBar extends StatefulWidget implements PreferredSizeWidget {
 
   @override
   Size get preferredSize {
-    return new Size.fromHeight(kToolbarHeight);
+    return Size.fromHeight(kToolbarHeight);
   }
 }
 
@@ -36,7 +36,7 @@ class _BrowserBarState extends State<BrowserBar> {
               child: Row(
                 children: <Widget>[
                   IconButton(
-                    icon: Icon(IrmaIcons.close, size: 14.0),
+                    icon: const Icon(IrmaIcons.close, size: 14.0),
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
@@ -82,7 +82,7 @@ class _BrowserBarState extends State<BrowserBar> {
                                         title: Text(FlutterI18n.translate(context, 'webview.open_browser')),
                                         onTap: widget.onOpenInBrowserPress,
                                       ),
-                                      Divider(),
+                                      const Divider(),
                                       if (true)
                                         ListTile(
                                           title: Text(FlutterI18n.translate(context, 'webview.cancel')),
@@ -101,15 +101,15 @@ class _BrowserBarState extends State<BrowserBar> {
                                 title: Text(FlutterI18n.translate(context, 'webview.select')),
                                 actions: <Widget>[
                                   CupertinoActionSheetAction(
-                                    child: Text(FlutterI18n.translate(context, 'webview.open_iOS')),
                                     onPressed: widget.onOpenInBrowserPress,
+                                    child: Text(FlutterI18n.translate(context, 'webview.open_iOS')),
                                   ),
                                 ],
                                 cancelButton: CupertinoActionSheetAction(
-                                  child: Text(FlutterI18n.translate(context, 'webview.cancel')),
                                   onPressed: () {
                                     Navigator.pop(context);
                                   },
+                                  child: Text(FlutterI18n.translate(context, 'webview.cancel')),
                                 ));
                             showCupertinoModalPopup(context: context, builder: (BuildContext context) => act);
                           }

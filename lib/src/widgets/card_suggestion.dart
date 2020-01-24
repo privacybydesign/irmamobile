@@ -46,7 +46,7 @@ class CardSuggestion extends StatelessWidget {
                       Padding(
                         padding: EdgeInsets.only(
                             top: IrmaTheme.of(context).smallSpacing,
-                            left: IrmaTheme.of(context).spacing,
+                            left: IrmaTheme.of(context).defaultSpacing,
                             bottom: IrmaTheme.of(context).smallSpacing,
                             right: IrmaTheme.of(context).smallSpacing),
                         child: ConstrainedBox(
@@ -135,7 +135,7 @@ class CardSuggestion extends StatelessWidget {
                     child: Padding(
                       padding: EdgeInsets.only(
                           top: IrmaTheme.of(context).smallSpacing,
-                          right: IrmaTheme.of(context).spacing,
+                          right: IrmaTheme.of(context).defaultSpacing,
                           bottom: IrmaTheme.of(context).smallSpacing),
                       child: Icon(
                         obtained ? IrmaIcons.synchronize : IrmaIcons.add,

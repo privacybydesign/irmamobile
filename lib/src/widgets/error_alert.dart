@@ -24,7 +24,7 @@ class ErrorAlert extends StatelessWidget {
               size: 24,
             ),
             SizedBox(
-              width: 0.5 * IrmaTheme.of(context).spacing,
+              width: IrmaTheme.of(context).smallSpacing,
             ),
             Expanded(
               child: Column(
@@ -35,7 +35,7 @@ class ErrorAlert extends StatelessWidget {
                     style: Theme.of(context).textTheme.title,
                   ),
                   SizedBox(
-                    height: IrmaTheme.of(context).spacing,
+                    height: IrmaTheme.of(context).defaultSpacing,
                   ),
                   Text(
                     body,
