@@ -52,14 +52,14 @@
     "header": "Jezelf bekend maken",
     "slogan": "Met IRMA heb je in de hand wat er met jouw gegevens gebeurt.",
     "who_is_behind_irma_item": "Wie zit er achter IRMA",
-    "who_is_behind_irma_explanation": "IRMA wordt gemaakt door de stichting **Privacy by Design**.  Deze stichting is in 2016 voortgekomen uit de Digital Security onderzoeksgroep van de Radboud Universiteit in Nijmegen. De stichting is onafhankelijk en maakt geen winst.\n\nDe IRMA-app wordt open source ontwikkeld in samenwerking met SIDN, de beheerder van het .nl domein. Bij de ontwikkeling wordt ook samengewerkt met verschillende overheden en met de zorg. Zo zijn er zo 'n 30 gemeenten betrokken, waaronder Nijmegen, Amsterdam en Leiden. IRMA is winnaar van de Nederlandse Privacy Awards 2018.",
+    "who_is_behind_irma_explanation": "De IRMA-app wordt gemaakt door de stichting **Privacy by Design**.  Deze stichting is in 2016 voortgekomen uit de Digital Security onderzoeksgroep van de Radboud Universiteit in Nijmegen. De stichting is onafhankelijk en maakt geen winst.\n\nDe IRMA-app wordt open source ontwikkeld in samenwerking met SIDN, de beheerder van het .nl domein. Bij de ontwikkeling wordt ook samengewerkt met verschillende overheden en met de zorg. Zo zijn er zo'n 30 gemeenten betrokken, waaronder Nijmegen, Amsterdam en Leiden. IRMA is winnaar van de Nederlandse Privacy Awards 2018.",
     "check_out": "Bekijk ook: ",
     "award": "Nederlandse Privacy Awards",
     "award_link": "https://privacyawards.nl/2018-2/",
     "why_irma_item": "Waarom bestaat IRMA",
-    "why_irma_explanation": "**IRMA bestaat omdat jij het recht hebt op een online identiteit die echt van jou is.** IRMA is geen commerciële identiteit die gebruikt wordt om jou te volgen, te profileren en om jouw persoonsgegevens te verkopen aan derden.\n\nIRMA is ontworpen om te voldoen aan de [Algemene Verordening Persoonsgegevens (AVG)](https://wetten.overheid.nl/BWBR0040940/2019-02-19). Je laat via IRMA alleen die gegevens van jezelf zien die in een bepaalde situatie relevant en nodig zijn.\n\n**Met IRMA heb je jouw identiteit zelf in de hand, in de beveiligde IRMA-app op je eigen mobiel.** De IRMA-app is een krachtig middel om jezelf (online) bekend te maken en om digitaal je handtekening te zetten, met respect voor jouw privacy.",
-    "privacy_item": "Jouw privacy en veiligheid",
-    "privacy_explanation": "Jouw persoonsgegevens zijn beschermd met je eigen PIN en staan alleen in jouw eigen IRMA-app, niet ergens in de cloud.\n\nIn de IRMA-app zijn jouw persoonsgegevens **digitaal ondertekend door de bron** (uitgever) van de gegevens (bijvoorbeeld de Rijksoverheid of gemeenten).\n\nDaardoor kan een website of winkel, waar je jezelf bekend maakt, **cryptografisch controleren dat de gegevens die je toont echt en echt van jou zijn.**\n\nMet IRMA toon je jouw gegevens vanuit je telefoon rechtstreeks aan een website. Niemand anders kan zien dat jij jezelf daar bekendmaakt. Ook de organisatie achter IRMA kijkt niet mee.",
+    "why_irma_explanation": "**IRMA bestaat omdat jij het recht hebt op een online identiteit die echt van jou is.** IRMA is geen commerciële identiteit die gebruikt wordt om jou te volgen, te profileren en om jouw persoonsgegevens te verkopen aan derden.\n\nIRMA is ontworpen om te voldoen aan de [Algemene Verordening Persoonsgegevens (AVG)](https://wetten.overheid.nl/BWBR0040940/2019-02-19). Je laat via de IRMA-app alleen die gegevens van jezelf zien die in een bepaalde situatie relevant en nodig zijn.\n\n**Met de IRMA-app heb je jouw identiteit zelf in de hand, in de beveiligde IRMA-app op je eigen mobiel.** De IRMA-app is een krachtig middel om jezelf (online) bekend te maken en om digitaal je handtekening te zetten, met respect voor jouw privacy.",
+    "privacy_item": "IRMA, privacy en veiligheid",
+    "privacy_explanation": "De IRMA-app is zo gemaakt dat jij en jij alleen je persoonsgegevens in de app kunt zien en gebruiken. Je persoonsgegevens staan niet in de cloud.\n\nDe IRMA-app is zo gemaakt dat een website of winkel waar je jezelf bekend maakt, cryptografisch controleert dat de gegevens die je toont echt zijn en echt van jou zijn, én dat de gegevens die je toont van een officiële bron (uitgever) komen. Bijvoorbeeld van de Rijksoverheid of een gemeente.\n\nDe IRMA-app toont jouw gegevens vanuit je telefoon rechtstreeks aan een website. Niemand anders kan zien dat jij jezelf daar bekendmaakt. Ook de organisatie achter IRMA kijkt niet mee.",
     "learn_more": "Meer weten",
     "more_information": "IRMA website",
     "irma_website_link": "https://irma.app",
@@ -92,17 +92,17 @@
     "question_1": "Hoe kan ik met de IRMA-app inloggen op een mobiele website?",
     "answer_1": {
       "step_1": "Open een website en kies voor inloggen met IRMA.",
-      "step_2": "De IRMA-app start op. Vul je pincode in.",
-      "step_3": "Geef toestemming je gegevens door te geven. Wacht op de bevestiging.",
-      "step_4": "Je bent ingelogd. Je kunt de website gebruiken."
+      "step_2": "De IRMA-app start op.\nVul je pincode in.",
+      "step_3": "Geef toestemming je gegevens door te geven.\nWacht op de bevestiging.",
+      "step_4": "Je bent ingelogd.\nJe kunt de website gebruiken."
     },
     "question_2": "Hoe kan ik met de IRMA-app inloggen op een website op mijn computer?",
     "answer_2": {
       "step_1": "Open een website en kies voor inloggen met IRMA.",
-      "step_2": "Open de IRMA-app op je mobiel. Vul je pincode in.",
+      "step_2": "Open de IRMA-app op je mobiel.\nVul je pincode in.",
       "step_3": "Start de QR-code scanner in de IRMA-app. Scan de QR-code op het scherm van je computer.",
-      "step_4": "Geef toestemming je gegevens door te geven. Wacht op de bevestiging.",
-      "step_5": "Je bent ingelogd. Vanaf nu kun je de website gebruiken."
+      "step_4": "Geef toestemming je gegevens door te geven.\nWacht op de bevestiging.",
+      "step_5": "Je bent ingelogd.\nVanaf nu kun je de website gebruiken."
     }
   },
   "help": {
@@ -114,7 +114,7 @@
     "question_2": "Waar staan jouw IRMA gegevens opgeslagen?",
     "answer_2": "De persoonsgegevens die je in de IRMA-app verzamelt, staan alleen in de app zelf en worden door IRMA nergens anders opgeslagen. Ze staan dus niet ook nog ergens in een cloud.\n\nJij geeft zelf steeds expliciet toestemming voordat persoonsgegevens vanuit de IRMA-app aan een website doorgegeven worden.\nAls je jouw gegevens uit de IRMA-app verwijdert zijn ze ook echt weg.",
     "question_3": "Wat doe je als je jouw mobiel verliest?",
-    "answer_3": "De IRMA-app op je mobiel is beschermd met een persoonlijk pincode, net als je app voor internetbankieren.\n\nJe kunt jezelf echter nog beter beschermen: bij het openen van een IRMA-account heb je de optie gekregen om een e-mail adres toe te voegen. Als je dat gedaan hebt, kun je via de MijnIRMA-omgeving je oude IRMA-account blokkeren. Dan kan er echt helemaal niks meer met de IRMA-app op je oude, verloren telefoon gebeuren. Als je nog geen e-mail adres toegevoegd hebt in MijnIRMA kun je dat alsnog doen, door daar met IRMA zelf in te loggen. Het is verstandig dat te doen.",
+    "answer_3": "De IRMA-app op je mobiel is beschermd met een persoonlijk pincode, net als je app voor internetbankieren.\n\nJe kunt jezelf echter nog beter beschermen: bij het openen van een IRMA-account heb je de optie gekregen om een e-mail adres toe te voegen. Als je dat gedaan hebt, kun je via de (MijnIRMA-omgeving)](https://privacybydesign.foundation/mijnirma/) je oude IRMA-account blokkeren. Dan kan er echt helemaal niks meer met de IRMA-app op je oude, verloren telefoon gebeuren. Als je nog geen e-mail adres toegevoegd hebt in (MijnIRMA)](https://privacybydesign.foundation/mijnirma/) kun je dat alsnog doen, door daar met IRMA zelf in te loggen. Het is verstandig dat te doen.",
     "question_4": "Waarom zijn gegevens in de IRMA-app beperkt geldig?",
     "answer_4": "In de IRMA-app kun je op elk kaartje zien hoe lang ze geldig zijn. Die geldigheidsduur hangt af van het soort gegevens, namelijk van hoe veranderlijk ze zijn. Je naam en geboortedatum zijn vijf jaar geldig, maar je adres slechts één jaar. De uitgever (bron) van de gegevensnmerken bepaalt de geldigheidsduur. De geldigheid van gegevens kan dus verlopen. De IRMA-app geeft je daar een waarschuwing voor. Je kunt je gegevens altijd, ook zonder waarschuwing, verversen door ze opnieuw op te halen bij de bron, net zo als je de eerste keer doet. Bijvoorbeeld, na je 18e verjaardag kun je opnieuw je gegevens bij je gemeente ophalen en heb je als nieuw kenmerk dat je ouder dan 18 bent.",
     "question_5": "Kan ik IRMA op een tweede telefoon of tablet zetten?",
