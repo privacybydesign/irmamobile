@@ -22,6 +22,7 @@ class EnrollmentBloc extends Bloc<Object, EnrollmentState> {
       yield currentState.copyWith(
         pin: event.pin,
         pinConfirmed: false,
+        pinMismatch: false,
         showPinValidation: false,
         emailValid: false,
         emailSkipped: false,
@@ -31,42 +32,49 @@ class EnrollmentBloc extends Bloc<Object, EnrollmentState> {
       final bool pinConfirmed = event.pin == currentState.pin;
       yield currentState.copyWith(
         pinConfirmed: pinConfirmed,
+        pinMismatch: !pinConfirmed,
         showPinValidation: true,
         showEmailValidation: false,
         emailValid: false,
         emailSkipped: false,
         retry: currentState.retry + 1,
       );
-    } else if (event is EmailChanged) {
+    } else if (event is EmailSubmitted) {
+      final isEmailValid = EmailValidator.validate(event.email);
       yield currentState.copyWith(
         email: event.email,
-        emailValid: EmailValidator.validate(event.email),
+        emailValid: isEmailValid,
+        showEmailValidation: true,
       );
-    } else if (event is EmailSubmitted || event is EmailSkipped) {
-      if (event is EmailSkipped) {
-        yield currentState.copyWith(
-          emailSkipped: true,
-        );
-      } else {
-        yield currentState.copyWith(
-          showEmailValidation: true,
-          isSubmitting: true,
-        );
-      }
 
-      if (currentState.pinConfirmed && (event is EmailSkipped || currentState.emailValid)) {
-        yield currentState.copyWith(
-          isSubmitting: true,
-        );
-
-        // TODO: get a future back and change the state based on it, which can
-        // be used by animation/outro?
-        IrmaRepository.get().enroll(
-          email: currentState.email.trim(),
-          pin: currentState.pin,
-          language: 'nl',
-        );
+      if (isEmailValid) {
+        dispatch(Enroll());
       }
+    } else if (event is EmailSkipped) {
+      yield currentState.copyWith(
+        emailSkipped: true,
+      );
+
+      dispatch(Enroll());
+    } else if (event is Enroll) {
+      yield currentState.copyWith(
+        isSubmitting: true,
+        enrollementFailed: false,
+      );
+      // TODO: get a future back and change the state based on it, which can
+      // be used by animation/outro?
+      IrmaRepository.get().enroll(
+        email: currentState.email.trim(),
+        pin: currentState.pin,
+        language: 'nl',
+      );
+
+      // Once the enroll function on the repository is a future which could return an error
+      // The state below can be yielded to display the error state.
+      // yield currentState.copyWith(
+      //   isSubmitting: false,
+      //   enrollementFailed: true,
+      // );
     }
   }
 }
