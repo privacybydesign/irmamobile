@@ -145,7 +145,8 @@ class AppState extends State<App> with WidgetsBindingObserver {
                 theme: IrmaTheme.of(context).themeData,
                 // set showSemanticsDebugger to true to view semantics in emulator.
                 showSemanticsDebugger: false,
-                localizationsDelegates: defaultLocalizationsDelegates(),
+                // TODO: Remove the forced locale when texts are properly translated to English.
+                localizationsDelegates: defaultLocalizationsDelegates(const Locale('nl', 'NL')),
                 supportedLocales: defaultSupportedLocales(),
                 navigatorKey: NavigatorService.navigatorKey,
                 initialRoute: initialRoute,
