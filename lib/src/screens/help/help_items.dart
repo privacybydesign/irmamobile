@@ -41,7 +41,7 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
       children: <Widget>[
         Collapsible(
             header: FlutterI18n.translate(context, 'help.question_1'),
-            onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(2))},
+            onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(0))},
             content: Container(
               child: MarkdownBody(
                 selectable: false,
@@ -56,7 +56,7 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
             key: _collapsableKeys[0]),
         Collapsible(
             header: FlutterI18n.translate(context, 'help.question_2'),
-            onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(3))},
+            onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(1))},
             content: Container(
               child: MarkdownBody(
                 selectable: false,
@@ -71,7 +71,7 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
             key: _collapsableKeys[1]),
         Collapsible(
             header: FlutterI18n.translate(context, 'help.question_3'),
-            onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(4))},
+            onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(2))},
             content: Container(
               child: MarkdownBody(
                 selectable: false,
@@ -86,7 +86,7 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
             key: _collapsableKeys[2]),
         Collapsible(
             header: FlutterI18n.translate(context, 'help.question_4'),
-            onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(5))},
+            onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(3))},
             content: Container(
               child: MarkdownBody(
                 selectable: false,
@@ -101,7 +101,7 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
             key: _collapsableKeys[3]),
         Collapsible(
             header: FlutterI18n.translate(context, 'help.question_5'),
-            onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(6))},
+            onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(4))},
             content: Container(
               child: MarkdownBody(
                 selectable: false,
