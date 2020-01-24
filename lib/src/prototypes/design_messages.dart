@@ -15,8 +15,8 @@ class DesignMessages extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: IrmaAppBar(
-        title: const Text("Messages"),
+      appBar: const IrmaAppBar(
+        title: Text("Messages"),
       ),
       body: SafeArea(
         child: Padding(

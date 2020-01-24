@@ -60,7 +60,7 @@ class Log extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(IrmaIcons.chevronRight),
+              const Icon(IrmaIcons.chevronRight),
             ],
           ),
         ),

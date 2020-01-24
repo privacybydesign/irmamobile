@@ -5,7 +5,7 @@ import 'package:irmamobile/src/theme/irma_icons.dart';
 class CancelButton extends StatelessWidget {
   final void Function(BuildContext) cancel;
 
-  CancelButton({@required this.cancel});
+  const CancelButton({@required this.cancel});
 
   @override
   Widget build(BuildContext context) {

@@ -5,7 +5,7 @@ import 'package:irmamobile/src/screens/loading/loading_screen.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 
 class RedirectScreen extends StatelessWidget {
-  static final routeName = "/";
+  static const routeName = "/";
 
   @override
   Widget build(BuildContext context) {

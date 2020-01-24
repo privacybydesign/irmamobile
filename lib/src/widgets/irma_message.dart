@@ -11,11 +11,11 @@ enum IrmaMessageType {
 }
 
 class IrmaMessage extends StatelessWidget {
-  String title;
-  String description;
-  IrmaMessageType type;
+  final String title;
+  final String description;
+  final IrmaMessageType type;
 
-  IrmaMessage(this.title, this.description, {this.type = IrmaMessageType.info});
+  const IrmaMessage(this.title, this.description, {this.type = IrmaMessageType.info});
 
   @override
   Widget build(BuildContext context) {

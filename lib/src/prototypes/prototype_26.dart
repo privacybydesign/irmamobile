@@ -14,8 +14,8 @@ void startPrototype26(BuildContext context) {
       builder: (context) {
         return Scaffold(
           drawer: WalletDrawer(),
-          appBar: IrmaAppBar(
-            title: const Text('Drawer example'),
+          appBar: const IrmaAppBar(
+            title: Text('Drawer example'),
           ),
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.center,

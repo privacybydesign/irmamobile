@@ -14,8 +14,8 @@ class DesignTypography extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: IrmaAppBar(
-        title: const Text("Typography"),
+      appBar: const IrmaAppBar(
+        title: Text("Typography"),
       ),
       body: SafeArea(
         child: Padding(

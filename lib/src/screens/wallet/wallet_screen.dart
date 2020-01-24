@@ -40,7 +40,7 @@ class _WalletScreenState extends State<_WalletScreen> {
       key: _scaffoldKey,
       appBar: IrmaAppBar(
         title: Text(FlutterI18n.translate(context, 'wallet.title')),
-        leadingIcon: Icon(IrmaIcons.menu, size: 20.0),
+        leadingIcon: const Icon(IrmaIcons.menu, size: 20.0),
         leadingAction: () {
           _scaffoldKey.currentState.openDrawer();
         },

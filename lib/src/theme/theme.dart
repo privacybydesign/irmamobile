@@ -348,6 +348,6 @@ class IrmaTheme extends InheritedWidget {
   }
 
   static IrmaThemeData of(BuildContext context) {
-    return (context.inheritFromWidgetOfExactType(IrmaTheme) as IrmaTheme).data;
+    return context.dependOnInheritedWidgetOfExactType<IrmaTheme>().data;
   }
 }

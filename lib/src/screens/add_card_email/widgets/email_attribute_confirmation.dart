@@ -36,7 +36,7 @@ class EmailAttributeConfirmation extends StatelessWidget {
         ).pop(),
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).spacing),
+        padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).defaultSpacing),
         child: BlocBuilder<RequestEmailBloc, RequestEmailState>(
             bloc: _bloc,
             builder: (context, state) {
@@ -47,7 +47,7 @@ class EmailAttributeConfirmation extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       SizedBox(
-                        height: IrmaTheme.of(context).spacing,
+                        height: IrmaTheme.of(context).defaultSpacing,
                       ),
                       Text(
                         FlutterI18n.translate(
@@ -57,7 +57,7 @@ class EmailAttributeConfirmation extends StatelessWidget {
                         style: IrmaTheme.of(context).textTheme.body1,
                       ),
                       SizedBox(
-                        height: IrmaTheme.of(context).spacing,
+                        height: IrmaTheme.of(context).defaultSpacing,
                       ),
                       Text(
                         FlutterI18n.translate(
@@ -68,7 +68,7 @@ class EmailAttributeConfirmation extends StatelessWidget {
                       ),
                       Padding(
                         padding: EdgeInsets.only(
-                          left: 0.5 * IrmaTheme.of(context).spacing,
+                          left: IrmaTheme.of(context).smallSpacing,
                         ),
                         child: Text.rich(
                           TextSpan(
@@ -100,7 +100,7 @@ class EmailAttributeConfirmation extends StatelessWidget {
                         ),
                       ),
                       SizedBox(
-                        height: IrmaTheme.of(context).spacing,
+                        height: IrmaTheme.of(context).defaultSpacing,
                       ),
                       Container(
                         width: MediaQuery.of(context).size.width,
@@ -120,8 +120,8 @@ class EmailAttributeConfirmation extends StatelessWidget {
                             }),
                       ),
                       if (state.inProgress)
-                        Center(
-                            child: const Padding(
+                        const Center(
+                            child: Padding(
                           padding: EdgeInsets.all(8.0),
                           child: CircularProgressIndicator(),
                         )),

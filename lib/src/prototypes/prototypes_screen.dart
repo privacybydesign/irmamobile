@@ -30,8 +30,8 @@ class PrototypesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: IrmaAppBar(
-        title: const Text("IRMA Prototypes"),
+      appBar: const IrmaAppBar(
+        title: Text("IRMA Prototypes"),
       ),
       body: Builder(builder: (context) {
         return _buildList(context);
@@ -94,10 +94,13 @@ class PrototypesScreen extends StatelessWidget {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => DisclosureScreen()));
           }),
           _buildListItem(context, "No internet screen", () {
-            Navigator.of(context).push(MaterialPageRoute(
+            Navigator.of(context).push(
+              MaterialPageRoute(
                 builder: (context) => NoInternetScreen(() {
-                      print("retry callback");
-                    })));
+                  debugPrint("retry callback");
+                }),
+              ),
+            );
           }),
           _buildListItem(context, "Settings", () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => SettingsScreen()));
