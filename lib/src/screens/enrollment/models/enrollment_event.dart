@@ -19,16 +19,10 @@ class ConfirmationPinSubmitted extends Equatable {
   String toString() => 'ConfirmationPinSubmitted { pin: ${'*' * pin.length} }';
 }
 
-class EmailChanged extends Equatable {
+class EmailSubmitted extends Equatable {
   final String email;
 
-  EmailChanged({@required this.email}) : super([email]);
-
-  @override
-  String toString() => 'EmailChanged';
-}
-
-class EmailSubmitted extends Equatable {
+  EmailSubmitted({@required this.email}) : super([email]);
   @override
   String toString() => 'EmailSubmitted';
 }
@@ -36,6 +30,11 @@ class EmailSubmitted extends Equatable {
 class EmailSkipped extends Equatable {
   @override
   String toString() => 'EmailSkipped';
+}
+
+class Enroll extends Equatable {
+  @override
+  String toString() => 'Enroll';
 }
 
 class EnrollmentCanceled extends Equatable {

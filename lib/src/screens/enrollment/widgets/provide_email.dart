@@ -6,6 +6,7 @@ import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/choose_pin.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/provide_email_actions.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/welcome.dart';
+import 'package:irmamobile/src/screens/error/no_internet.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/loading_indicator.dart';
@@ -13,16 +14,16 @@ import 'package:irmamobile/src/widgets/loading_indicator.dart';
 class ProvideEmail extends StatefulWidget {
   static const String routeName = 'provide_email';
 
-  final void Function() submitEmail;
+  final void Function(String) submitEmail;
   final void Function() skipEmail;
-  final void Function(String) changeEmail;
   final void Function() cancel;
+  final void Function() retryEnrollment;
 
   const ProvideEmail({
     @required this.submitEmail,
-    @required this.changeEmail,
     @required this.skipEmail,
     @required this.cancel,
+    @required this.retryEnrollment,
   });
 
   @override
@@ -30,12 +31,15 @@ class ProvideEmail extends StatefulWidget {
 }
 
 class _ProvideEmailState extends State<ProvideEmail> {
+  String email = "";
   FocusNode inputFocusNode;
+  final TextEditingController _textEditingController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     inputFocusNode = FocusNode();
+    _textEditingController.text = email;
   }
 
   @override
@@ -62,19 +66,30 @@ class _ProvideEmailState extends State<ProvideEmail> {
         builder: (context, state) {
           String error;
 
-          if (state.emailValid == false && state.showEmailValidation) {
+          if (state.emailValid == false && state.showEmailValidation == true) {
             error = FlutterI18n.translate(context, 'enrollment.provide_email.error');
           }
 
-          if (state.isSubmitting) {
+          if (state.isSubmitting == true) {
             _hideKeyboard(context);
+          }
+
+          if (state.enrollementFailed == true) {
+            return NoInternet(
+              () {
+                widget.retryEnrollment();
+              },
+            );
           }
 
           return LayoutBuilder(
             builder: (context, constraints) {
               return SingleChildScrollView(
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(minWidth: constraints.maxWidth, minHeight: constraints.maxHeight),
+                  constraints: BoxConstraints(
+                    minWidth: constraints.maxWidth,
+                    minHeight: constraints.maxHeight,
+                  ),
                   child: IntrinsicHeight(
                     child: Column(
                       children: [
@@ -89,6 +104,7 @@ class _ProvideEmailState extends State<ProvideEmail> {
                               ),
                               SizedBox(height: IrmaTheme.of(context).defaultSpacing),
                               TextField(
+                                controller: _textEditingController,
                                 autofocus: true,
                                 focusNode: inputFocusNode,
                                 decoration: InputDecoration(
@@ -96,8 +112,12 @@ class _ProvideEmailState extends State<ProvideEmail> {
                                   errorText: error,
                                 ),
                                 keyboardType: TextInputType.emailAddress,
-                                onChanged: widget.changeEmail,
-                                onEditingComplete: widget.submitEmail,
+                                onEditingComplete: () {
+                                  widget.submitEmail(email);
+                                },
+                                onChanged: (value) {
+                                  email = value;
+                                },
                               ),
                             ],
                           ),
@@ -106,7 +126,9 @@ class _ProvideEmailState extends State<ProvideEmail> {
                           LoadingIndicator()
                         else
                           ProvideEmailActions(
-                            submitEmail: widget.submitEmail,
+                            submitEmail: () {
+                              widget.submitEmail(email);
+                            },
                             skipEmail: widget.skipEmail,
                             enterEmail: () {
                               FocusScope.of(context).requestFocus(inputFocusNode);

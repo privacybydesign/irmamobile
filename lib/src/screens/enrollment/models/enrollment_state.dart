@@ -18,6 +18,7 @@ class EnrollmentState with EquatableMixin {
   final bool emailSkipped;
   final bool showEmailValidation;
   final bool showPinValidation;
+  final bool pinMismatch;
   final bool isSubmitting;
   final bool enrollementFailed; //TODO: implement as soon as the bridge is able to handle EnrollmentFailureEvent
   final int retry;
@@ -26,6 +27,7 @@ class EnrollmentState with EquatableMixin {
     this.pin,
     this.email = "",
     this.pinConfirmed = false,
+    this.pinMismatch = false,
     this.emailValid = false,
     this.emailSkipped = false,
     this.showEmailValidation = false,
@@ -39,6 +41,7 @@ class EnrollmentState with EquatableMixin {
     String pin,
     String email,
     bool pinConfirmed,
+    bool pinMismatch,
     bool emailValid,
     bool emailSkipped,
     bool showEmailValidation,
@@ -51,6 +54,7 @@ class EnrollmentState with EquatableMixin {
       pin: pin ?? this.pin,
       email: email ?? this.email,
       pinConfirmed: pinConfirmed ?? this.pinConfirmed,
+      pinMismatch: pinMismatch ?? this.pinMismatch,
       emailValid: emailValid ?? this.emailValid,
       emailSkipped: emailSkipped ?? this.emailSkipped,
       showEmailValidation: showEmailValidation ?? this.showEmailValidation,
@@ -66,8 +70,11 @@ class EnrollmentState with EquatableMixin {
     return '''EnrollmentState
      {
         pin: ${pin == null ? null : '*' * pin.length}, 
-        email: $email, pinConfirmed: $pinConfirmed, 
-        emailValid: $emailValid, emailSkipped: $emailSkipped, 
+        email: $email, 
+        pinConfirmed: $pinConfirmed, 
+        pinMismatch: $pinMismatch,
+        emailValid: $emailValid, 
+        emailSkipped: $emailSkipped, 
         showEmailValidation: $showEmailValidation, 
         showPinValidation: $showPinValidation, 
         retry: $retry, 
@@ -82,6 +89,7 @@ class EnrollmentState with EquatableMixin {
       pin,
       email,
       pinConfirmed,
+      pinMismatch,
       emailValid,
       emailSkipped,
       showEmailValidation,
