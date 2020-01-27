@@ -178,8 +178,8 @@
       "header_credential_type": "{credential_type} toevoegen",
       "obtain": "ophalen",
       "issuer": "Bron",
-      "purpose_question": "Wat kan ik met deze gegevens?",
-      "content_question": "Welke gegevens haal ik op?",
+      "purpose_question": "Wat kun je met deze gegevens?",
+      "content_question": "Welke gegevens haal je op?",
       "howto_question": "Hoe werkt het?",
       "back_button": "Annuleer",
       "get_button": "Haal op"
