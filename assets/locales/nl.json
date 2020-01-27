@@ -328,7 +328,7 @@
         "data-1": "{data} Gegeven ontvangen van",
         "data-2": "{data} Gegevens ontvangen van"
       },
-      "disclosing_header": "Gegevens vrijgegeven aan",
+      "disclosing_header": "Gegevens doorgegeven aan",
       "disclosing": {
         "header": "Gegevens doorgegeven aan",
         "subtitle": "Doorgegeven gegevens",
@@ -340,7 +340,7 @@
       "signing": {
         "header": "Gegevens ondertekend van",
         "subtitle": "Ondertekend bericht",
-        "subtitle_used_data": "Doorgegeven gegevens",
+        "subtitle_used_data": "Ondertekende gegevens",
         "data-0": "Getekend met {data} gegeven voor",
         "data-1": "Getekend met {data} gegeven voor",
         "data-2": "Getekend met {data} gegevens voor"
