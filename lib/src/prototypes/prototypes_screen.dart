@@ -109,7 +109,11 @@ class PrototypesScreen extends StatelessWidget {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => HelpScreen()));
           }),
           _buildListItem(context, "Splash screen", () {
-            Navigator.of(context).push(MaterialPageRoute(builder: (context) => SplashScreen()));
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => SplashScreen(),
+              ),
+            );
           }),
           const SizedBox(height: 12),
           Padding(

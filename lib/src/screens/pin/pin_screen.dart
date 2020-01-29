@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_state.dart';
@@ -92,11 +92,12 @@ class _PinScreenState extends State<PinScreen> {
                       height: IrmaTheme.of(context).largeSpacing,
                     ),
                     SizedBox(
-                        width: 76.0,
-                        child: SvgPicture.asset(
-                          'assets/non-free/irma_logo.svg',
-                          semanticsLabel: FlutterI18n.translate(context, 'accessibility.irma_logo'),
-                        )),
+                      width: 76.0,
+                      child: SvgPicture.asset(
+                        'assets/non-free/irma_logo.svg',
+                        semanticsLabel: FlutterI18n.translate(context, 'accessibility.irma_logo'),
+                      ),
+                    ),
                     SizedBox(
                       height: IrmaTheme.of(context).largeSpacing,
                     ),

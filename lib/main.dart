@@ -13,15 +13,14 @@ import 'package:irmamobile/src/screens/disclosure/disclosure_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/help/help_screen.dart';
 import 'package:irmamobile/src/screens/history/history_screen.dart';
-import 'package:irmamobile/src/screens/loading/loading_screen.dart';
 import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/screens/required_update/required_update_screen.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
+import 'package:irmamobile/src/screens/splash_screen/splash_screen.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/navigator_service.dart';
-import 'package:irmamobile/src/widgets/loading_indicator.dart';
 
 void main() {
   // Run the application
@@ -78,10 +77,21 @@ class AppState extends State<App> with WidgetsBindingObserver {
     ];
   }
 
+  bool _showSplash = true;
+  bool _removeSplash = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    // TODO: the delay before splash is hidden is quite long. This is because we
+    // currently have a long startup time (although that may be because we run
+    // in debug). This value should eventually be lowered to 500.
+    Future.delayed(const Duration(milliseconds: 2500)).then((_) {
+      setState(() {
+        _showSplash = false;
+      });
+    });
   }
 
   @override
@@ -129,67 +139,72 @@ class AppState extends State<App> with WidgetsBindingObserver {
     return IrmaTheme(
       builder: (BuildContext context) {
         return StreamBuilder<bool>(
-            stream: irmaRepo.getIsEnrolled(),
-            builder: (context, enrolledSnapshot) {
-              if (!enrolledSnapshot.hasData) {
-                return Container(
-                  color: Colors.white,
-                  child: Center(child: LoadingIndicator()),
+          stream: irmaRepo.getIsEnrolled(),
+          builder: (context, enrolledSnapshot) {
+            // NOTE: isEnrolled can be null because there is no guarantee that
+            // enrolledSnapshot.data is not null.
+            final isEnrolled = enrolledSnapshot.data;
+            String initialRoute = WalletScreen.routeName;
+            if (isEnrolled == false) {
+              initialRoute = EnrollmentScreen.routeName;
+            }
+
+            return StreamBuilder<VersionInformation>(
+              stream: versionInformationStream,
+              builder: (context, versionInformationSnapshot) {
+                // NOTE: versionInformation can be null because there is no guarantee that
+                // versionInformationSnapshot.data is not null.
+                final versionInformation = versionInformationSnapshot.data;
+
+                return Stack(
+                  textDirection: TextDirection.ltr,
+                  children: <Widget>[
+                    MaterialApp(
+                      key: const Key("app"),
+                      title: 'IRMA',
+                      theme: IrmaTheme.of(context).themeData,
+                      // set showSemanticsDebugger to true to view semantics in emulator.
+                      showSemanticsDebugger: false,
+                      // TODO: Remove the forced locale when texts are properly translated to English.
+                      localizationsDelegates: defaultLocalizationsDelegates(const Locale('nl', 'NL')),
+                      supportedLocales: defaultSupportedLocales(),
+                      navigatorKey: NavigatorService.navigatorKey,
+                      initialRoute: initialRoute,
+                      routes: _routes,
+                      builder: (context, child) {
+                        // Use the MaterialApp builder to force an overlay when loading
+                        // and when update required.
+                        return Stack(
+                          children: <Widget>[
+                            child,
+                            if (isEnrolled == true) ...[
+                              const PinScreen(),
+                            ],
+                            if (versionInformation != null && versionInformation.updateRequired()) ...[
+                              RequiredUpdateScreen(),
+                            ],
+                            if (_removeSplash == false) ...[
+                              AnimatedOpacity(
+                                opacity: versionInformation == null || isEnrolled == null || _showSplash ? 1.0 : 0.0,
+                                duration: const Duration(milliseconds: 500),
+                                onEnd: () {
+                                  setState(() {
+                                    _removeSplash = true;
+                                  });
+                                },
+                                child: SplashScreen(),
+                              ),
+                            ],
+                          ],
+                        );
+                      },
+                    ),
+                  ],
                 );
-              }
-
-              final isEnrolled = enrolledSnapshot.data;
-
-              String initialRoute = WalletScreen.routeName;
-              if (!isEnrolled) {
-                initialRoute = EnrollmentScreen.routeName;
-              }
-
-              return MaterialApp(
-                key: const Key("app"),
-                title: 'IRMA',
-                theme: IrmaTheme.of(context).themeData,
-                // set showSemanticsDebugger to true to view semantics in emulator.
-                showSemanticsDebugger: false,
-                // TODO: Remove the forced locale when texts are properly translated to English.
-                localizationsDelegates: defaultLocalizationsDelegates(const Locale('nl', 'NL')),
-                supportedLocales: defaultSupportedLocales(),
-                navigatorKey: NavigatorService.navigatorKey,
-                initialRoute: initialRoute,
-                routes: _routes,
-                builder: (context, child) {
-                  // Use the MaterialApp builder to force an overlay when loading
-                  // and when update required.
-                  return Stack(
-                    children: <Widget>[
-                      child,
-                      if (isEnrolled) ...[
-                        const PinScreen(),
-                      ],
-                      StreamBuilder<VersionInformation>(
-                          stream: versionInformationStream,
-                          builder: (context, snapshot) {
-                            switch (snapshot.connectionState) {
-                              case ConnectionState.none:
-                                throw Exception('Unreachable');
-                                break;
-                              case ConnectionState.waiting:
-                                return LoadingScreen();
-                                break;
-                              case ConnectionState.active:
-                              case ConnectionState.done:
-                                break;
-                            }
-                            if (snapshot.data != null && snapshot.data.updateRequired()) {
-                              return RequiredUpdateScreen();
-                            }
-                            return Container();
-                          }),
-                    ],
-                  );
-                },
-              );
-            });
+              },
+            );
+          },
+        );
       },
     );
   }
