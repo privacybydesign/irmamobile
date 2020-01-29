@@ -314,7 +314,8 @@
     "expiration": "Geldig tot",
     "help": "Help",
     "caption": "Je gegevens veilig op je mobiel",
-    "add_data": "Voeg meer gegevens toe"
+    "add_data": "Voeg meer gegevens toe",
+    "lockTooltip": "Uitloggen knop"
   },
   "history": {
     "title": "Gebruikshistorie",
