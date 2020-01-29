@@ -9,13 +9,11 @@ part of 'preferences.dart';
 Preferences _$PreferencesFromJson(Map<String, dynamic> json) {
   return Preferences(
     enableCrashReporting: json['EnableCrashReporting'] as bool,
-    qrScannerOnStartup: json['QrScannerOnStartup'] as bool,
   );
 }
 
 Map<String, dynamic> _$PreferencesToJson(Preferences instance) => <String, dynamic>{
       'EnableCrashReporting': instance.enableCrashReporting,
-      'QrScannerOnStartup': instance.qrScannerOnStartup,
     };
 
 PreferencesEvent _$PreferencesEventFromJson(Map<String, dynamic> json) {

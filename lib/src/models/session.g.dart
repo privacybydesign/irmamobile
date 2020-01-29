@@ -71,17 +71,6 @@ Map<String, dynamic> _$DismissSessionEventToJson(DismissSessionEvent instance) =
       'SessionID': instance.sessionID,
     };
 
-SetQrScannerOnStartupPreferenceEvent _$SetQrScannerOnStartupPreferenceEventFromJson(Map<String, dynamic> json) {
-  return SetQrScannerOnStartupPreferenceEvent(
-    qrScannerOnStartup: json['QrScannerOnStartup'] as bool,
-  );
-}
-
-Map<String, dynamic> _$SetQrScannerOnStartupPreferenceEventToJson(SetQrScannerOnStartupPreferenceEvent instance) =>
-    <String, dynamic>{
-      'QrScannerOnStartup': instance.qrScannerOnStartup,
-    };
-
 DeleteCredentialEvent _$DeleteCredentialEventFromJson(Map<String, dynamic> json) {
   return DeleteCredentialEvent(
     hash: json['Hash'] as String,

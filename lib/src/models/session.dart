@@ -79,18 +79,6 @@ class DismissSessionEvent extends SessionEvent {
 }
 
 @JsonSerializable()
-class SetQrScannerOnStartupPreferenceEvent extends Event {
-  SetQrScannerOnStartupPreferenceEvent({this.qrScannerOnStartup});
-
-  @JsonKey(name: 'QrScannerOnStartup')
-  bool qrScannerOnStartup;
-
-  factory SetQrScannerOnStartupPreferenceEvent.fromJson(Map<String, dynamic> json) =>
-      _$SetQrScannerOnStartupPreferenceEventFromJson(json);
-  Map<String, dynamic> toJson() => _$SetQrScannerOnStartupPreferenceEventToJson(this);
-}
-
-@JsonSerializable()
 class DeleteCredentialEvent extends Event {
   DeleteCredentialEvent({this.hash});
 

@@ -158,14 +158,6 @@ func (ah *eventHandler) setCrashReportingPreference(event *setCrashReportingPref
 	return nil
 }
 
-// Set the qrScannOnStartup preference, and returns the current preferences to irma_mobile
-func (ah *eventHandler) setQrScannerOnStartupPreference(event *setQrScannerOnStartupPreferenceEvent) error {
-	client.SetQrScannerOnStartupPreference(event.QrScannerOnStartup);
-
-	dispatchPreferencesEvent()
-	return nil
-}
-
 // findSessionHandler is a helper function to find a session in the sessionLookup
 func (ah *eventHandler) findSessionHandler(sessionID int) (*sessionHandler, error) {
 	sh := ah.sessionLookup[sessionID]

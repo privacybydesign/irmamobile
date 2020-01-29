@@ -59,6 +59,8 @@ class IrmaRepository {
     } else if (event is EnrollmentStatusEvent) {
       final isEnrolled = event.unenrolledSchemeManagerIds.isEmpty;
       _isEnrolledSubject.add(isEnrolled);
+    } else if (event is PreferencesEvent) {
+      _preferencesSubject.add(event.preferences);
     }
   }
 
@@ -191,7 +193,6 @@ class IrmaRepository {
     return null;
   }
 
-  // TODO: remove these when setting screen can save crash reporting setting to irmago
   final _preferencesSubject = BehaviorSubject<Preferences>();
   Stream<Preferences> getPreferences() {
     return _preferencesSubject.stream;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/session.dart';
@@ -11,7 +12,6 @@ import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
 import 'package:irmamobile/src/widgets/irma_text_button.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'carousel.dart';
 
@@ -166,9 +166,9 @@ class _ProvidedDisclosureScreenState extends State<ProvidedDisclosureScreen> {
           }));
 
   Future<void> _showExplanation(ConDisCon<CredentialAttribute> candidatesConDisCon) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final irmaPrefs = IrmaPreferences.get();
 
-    final bool showDisclosureDialog = prefs.getBool('showDisclosureDialog') ?? true;
+    final bool showDisclosureDialog = await irmaPrefs.getShowDisclosureDialog().first;
     final hasChoice = candidatesConDisCon.any((candidatesDisCon) => candidatesDisCon.length > 1);
 
     if (showDisclosureDialog && hasChoice) {
@@ -185,7 +185,7 @@ class _ProvidedDisclosureScreenState extends State<ProvidedDisclosureScreen> {
             children: <Widget>[
               IrmaTextButton(
                 onPressed: () async {
-                  await prefs.setBool('showDisclosureDialog', false);
+                  await irmaPrefs.setShowDisclosureDialog(false);
                   Navigator.of(context).pop();
                 },
                 minWidth: 0.0,
