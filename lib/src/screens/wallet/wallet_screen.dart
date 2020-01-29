@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
 import 'package:irmamobile/src/screens/help/help_screen.dart';
@@ -44,6 +45,15 @@ class _WalletScreenState extends State<_WalletScreen> {
         leadingAction: () {
           _scaffoldKey.currentState.openDrawer();
         },
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(IrmaIcons.lock, size: 20),
+            tooltip: FlutterI18n.translate(context, "wallet.lockTooltip"),
+            onPressed: () {
+              IrmaRepository.get().lock();
+            },
+          ),
+        ],
       ),
       body: StreamBuilder<Credentials>(
         stream: widget.bloc.credentials,
