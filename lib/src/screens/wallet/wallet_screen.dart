@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
 import 'package:irmamobile/src/screens/help/help_screen.dart';
+import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
+import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/wallet/models/wallet_bloc.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet.dart';
@@ -53,7 +54,7 @@ class _WalletScreenState extends State<_WalletScreen> {
               semanticLabel: FlutterI18n.translate(context, "wallet.lockTooltip"),
             ),
             onPressed: () {
-              IrmaRepository.get().lock();
+              PinBloc().dispatch(Lock());
             },
           ),
         ],
