@@ -40,11 +40,7 @@ class _WalletScreenState extends State<_WalletScreen> {
       key: _scaffoldKey,
       appBar: IrmaAppBar(
         title: Text(FlutterI18n.translate(context, 'wallet.title')),
-        // TODO: This icon should be sized 20, but the icon we have in IrmaIcons
-        // doesn't match the VD icon. So as a temp fix I've increased the size
-        // of this icon, but it should be replaced by a bolder icon in the
-        // IrmaIcon set and put back to 20.
-        leadingIcon: const Icon(IrmaIcons.menu, size: 32.0),
+        leadingIcon: const Icon(IrmaIcons.menu, size: 20.0),
         leadingAction: () {
           _scaffoldKey.currentState.openDrawer();
         },

@@ -11,7 +11,7 @@ class IrmaIconsData extends IconData {
 
 @immutable
 class IrmaIcons {
-  const IrmaIcons._();
+  IrmaIcons._();
 
   // Generated code: do not hand-edit.
   static const IconData add = IrmaIconsData(0xe000);
