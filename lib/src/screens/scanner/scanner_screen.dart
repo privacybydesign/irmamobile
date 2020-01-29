@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/screens/disclosure/disclosure_screen.dart';
@@ -62,7 +63,7 @@ class ScannerScreen extends StatelessWidget {
       appBar: IrmaAppBar(
         title: const Text('QR code scan'),
         leadingAction: () => _onClose(context),
-        leadingIcon: Icon(Icons.arrow_back),
+        leadingIcon: Icon(Icons.arrow_back, semanticLabel: FlutterI18n.translate(context, "accessibility.back")),
         actions: <Widget>[
           if (!kReleaseMode) IconButton(icon: Icon(Icons.directions_walk), onPressed: () => _onDebugSession(context)),
         ],

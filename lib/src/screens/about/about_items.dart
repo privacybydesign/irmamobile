@@ -42,21 +42,33 @@ class _AboutItemsState extends State<AboutItems> with TickerProviderStateMixin {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Collapsible(
+        Semantics(
+          button: true,
+          child: Collapsible(
             header: FlutterI18n.translate(context, 'about.who_is_behind_irma_item'),
             onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(0))},
             content: WhoIsBehindIrma(),
-            key: _collapsableKeys[0]),
-        Collapsible(
+            key: _collapsableKeys[0],
+          ),
+        ),
+        Semantics(
+          button: true,
+          child: Collapsible(
             header: FlutterI18n.translate(context, 'about.why_irma_item'),
             onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(1))},
             content: WhyIrma(),
-            key: _collapsableKeys[1]),
-        Collapsible(
+            key: _collapsableKeys[1],
+          ),
+        ),
+        Semantics(
+          button: true,
+          child: Collapsible(
             header: FlutterI18n.translate(context, 'about.privacy_item'),
             onExpansionChanged: (v) => {if (v) Future.delayed(expandDuration, () => _jumpToCollapsable(2))},
             content: PrivacyAndSecurity(),
-            key: _collapsableKeys[2]),
+            key: _collapsableKeys[2],
+          ),
+        ),
       ],
     );
   }

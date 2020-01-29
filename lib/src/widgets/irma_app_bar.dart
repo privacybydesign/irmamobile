@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 
 class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -11,7 +12,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   const IrmaAppBar(
       {this.title,
-      this.leadingIcon = const Icon(IrmaIcons.arrowBack, size: 18.0),
+      this.leadingIcon,
       this.leadingAction,
       this.leadingTooltip,
       this.leadingCancel,
@@ -22,7 +23,9 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       centerTitle: true,
       leading: IconButton(
-          icon: leadingIcon,
+          icon: leadingIcon ??
+              Icon(IrmaIcons.arrowBack,
+                  semanticLabel: FlutterI18n.translate(context, "accessibility.back"), size: 18.0),
           tooltip: leadingTooltip,
           onPressed: () {
             if (leadingCancel != null) {

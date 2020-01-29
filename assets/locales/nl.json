@@ -150,6 +150,7 @@
   },
   "accessibility": {
     "irma_logo": "IRMA Logo",
+    "menu": "Menu",
     "back": "Terug",
     "close": "Sluiten",
     "next": "Volgende",
@@ -315,7 +316,7 @@
     "help": "Help",
     "caption": "Je gegevens veilig op je mobiel",
     "add_data": "Voeg meer gegevens toe",
-    "lockTooltip": "Uitloggen knop"
+    "lock": "Uitloggen"
   },
   "history": {
     "title": "Gebruikshistorie",

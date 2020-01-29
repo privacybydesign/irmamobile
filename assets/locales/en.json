@@ -135,6 +135,7 @@
   },
   "accessibility": {
     "irma_logo": "IRMA Logo",
+    "menu": "Menu",
     "back": "Back",
     "close": "Close",
     "next": "Next",
@@ -299,7 +300,8 @@
     "expiration": "Expiration",
     "help": "Help",
     "caption": "Your data securely on your phone",
-    "add_data": "Add more data"
+    "add_data": "Add more data",
+    "lock": "Log out"
   },
   "history": {
     "title": "Gebruikshistorie",
