@@ -100,18 +100,20 @@ class WalletDrawer extends StatelessWidget {
                   // on the bottom and should not scroll with the above ListView
                   child: Container(
                     color: IrmaTheme.of(context).primaryBlue,
-                    child: ListTile(
-                      contentPadding: EdgeInsets.only(left: IrmaTheme.of(context).mediumSpacing),
-                      title: Text(
-                        FlutterI18n.translate(context, 'drawer.lock_wallet'),
-                        style: TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
-                      ),
-                      leading: Icon(IrmaIcons.lock, color: Colors.white),
-                      onTap: () {
-                        PinBloc().dispatch(Lock());
-                        Navigator.of(context).pop();
-                      },
-                    ),
+                    child: Semantics(
+                        button: true,
+                        child: ListTile(
+                          contentPadding: EdgeInsets.only(left: IrmaTheme.of(context).mediumSpacing),
+                          title: Text(
+                            FlutterI18n.translate(context, 'drawer.lock_wallet'),
+                            style: TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
+                          ),
+                          leading: Icon(IrmaIcons.lock, color: Colors.white),
+                          onTap: () {
+                            PinBloc().dispatch(Lock());
+                            Navigator.of(context).pop();
+                          },
+                        )),
                   ),
                 ),
               ),
@@ -123,14 +125,16 @@ class WalletDrawer extends StatelessWidget {
   }
 
   Widget _createDrawerItem(BuildContext context, {IconData icon, String text, GestureTapCallback onTap}) {
-    return ListTile(
-      contentPadding: EdgeInsets.only(left: IrmaTheme.of(context).mediumSpacing),
-      title: Text(
-        text,
-        style: IrmaTheme.of(context).textTheme.body1,
-      ),
-      leading: Icon(icon, color: IrmaTheme.of(context).primaryDark),
-      onTap: onTap,
-    );
+    return Semantics(
+        button: true,
+        child: ListTile(
+          contentPadding: EdgeInsets.only(left: IrmaTheme.of(context).mediumSpacing),
+          title: Text(
+            text,
+            style: IrmaTheme.of(context).textTheme.body1,
+          ),
+          leading: Icon(icon, color: IrmaTheme.of(context).primaryDark),
+          onTap: onTap,
+        ));
   }
 }

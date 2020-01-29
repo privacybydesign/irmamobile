@@ -26,86 +26,101 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Collapsible(
-            header: FlutterI18n.translate(context, 'help.question_1'),
-            onExpansionChanged: (v) =>
-                {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[0])},
-            content: Container(
-              child: MarkdownBody(
-                selectable: false,
-                data: FlutterI18n.translate(context, 'help.answer_1'),
-                styleSheet: MarkdownStyleSheet(
-                  strong: IrmaTheme.of(context).textTheme.body2,
-                  textScaleFactor: MediaQuery.textScaleFactorOf(
-                      context), // TODO remove that addition when "https://github.com/flutter/flutter_markdown/pull/162" is merged
+        Semantics(
+          button: true,
+          child: Collapsible(
+              header: FlutterI18n.translate(context, 'help.question_1'),
+              onExpansionChanged: (v) =>
+                  {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[0])},
+              content: Container(
+                child: MarkdownBody(
+                  selectable: false,
+                  data: FlutterI18n.translate(context, 'help.answer_1'),
+                  styleSheet: MarkdownStyleSheet(
+                    strong: IrmaTheme.of(context).textTheme.body2,
+                    textScaleFactor: MediaQuery.textScaleFactorOf(
+                        context), // TODO remove that addition when "https://github.com/flutter/flutter_markdown/pull/162" is merged
+                  ),
                 ),
               ),
-            ),
-            key: _collapsableKeys[0]),
-        Collapsible(
-            header: FlutterI18n.translate(context, 'help.question_2'),
-            onExpansionChanged: (v) =>
-                {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[1])},
-            content: Container(
-              child: MarkdownBody(
-                selectable: false,
-                data: FlutterI18n.translate(context, 'help.answer_2'),
-                styleSheet: MarkdownStyleSheet(
-                  strong: IrmaTheme.of(context).textTheme.body2,
-                  textScaleFactor: MediaQuery.textScaleFactorOf(
-                      context), // TODO remove that addition when "https://github.com/flutter/flutter_markdown/pull/162" is merged
+              key: _collapsableKeys[0]),
+        ),
+        Semantics(
+          button: true,
+          child: Collapsible(
+              header: FlutterI18n.translate(context, 'help.question_2'),
+              onExpansionChanged: (v) =>
+                  {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[1])},
+              content: Container(
+                child: MarkdownBody(
+                  selectable: false,
+                  data: FlutterI18n.translate(context, 'help.answer_2'),
+                  styleSheet: MarkdownStyleSheet(
+                    strong: IrmaTheme.of(context).textTheme.body2,
+                    textScaleFactor: MediaQuery.textScaleFactorOf(
+                        context), // TODO remove that addition when "https://github.com/flutter/flutter_markdown/pull/162" is merged
+                  ),
                 ),
               ),
-            ),
-            key: _collapsableKeys[1]),
-        Collapsible(
-            header: FlutterI18n.translate(context, 'help.question_3'),
-            onExpansionChanged: (v) =>
-                {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[2])},
-            content: Container(
-              child: MarkdownBody(
-                selectable: false,
-                data: FlutterI18n.translate(context, 'help.answer_3'),
-                styleSheet: MarkdownStyleSheet(
-                  strong: IrmaTheme.of(context).textTheme.body2,
-                  textScaleFactor: MediaQuery.textScaleFactorOf(
-                      context), // TODO remove that addition when "https://github.com/flutter/flutter_markdown/pull/162" is merged
+              key: _collapsableKeys[1]),
+        ),
+        Semantics(
+          button: true,
+          child: Collapsible(
+              header: FlutterI18n.translate(context, 'help.question_3'),
+              onExpansionChanged: (v) =>
+                  {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[2])},
+              content: Container(
+                child: MarkdownBody(
+                  selectable: false,
+                  data: FlutterI18n.translate(context, 'help.answer_3'),
+                  styleSheet: MarkdownStyleSheet(
+                    strong: IrmaTheme.of(context).textTheme.body2,
+                    textScaleFactor: MediaQuery.textScaleFactorOf(
+                        context), // TODO remove that addition when "https://github.com/flutter/flutter_markdown/pull/162" is merged
+                  ),
                 ),
               ),
-            ),
-            key: _collapsableKeys[2]),
-        Collapsible(
-            header: FlutterI18n.translate(context, 'help.question_4'),
-            onExpansionChanged: (v) =>
-                {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[3])},
-            content: Container(
-              child: MarkdownBody(
-                selectable: false,
-                data: FlutterI18n.translate(context, 'help.answer_4'),
-                styleSheet: MarkdownStyleSheet(
-                  strong: IrmaTheme.of(context).textTheme.body2,
-                  textScaleFactor: MediaQuery.textScaleFactorOf(
-                      context), // TODO remove that addition when "https://github.com/flutter/flutter_markdown/pull/162" is merged
+              key: _collapsableKeys[2]),
+        ),
+        Semantics(
+          button: true,
+          child: Collapsible(
+              header: FlutterI18n.translate(context, 'help.question_4'),
+              onExpansionChanged: (v) =>
+                  {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[3])},
+              content: Container(
+                child: MarkdownBody(
+                  selectable: false,
+                  data: FlutterI18n.translate(context, 'help.answer_4'),
+                  styleSheet: MarkdownStyleSheet(
+                    strong: IrmaTheme.of(context).textTheme.body2,
+                    textScaleFactor: MediaQuery.textScaleFactorOf(
+                        context), // TODO remove that addition when "https://github.com/flutter/flutter_markdown/pull/162" is merged
+                  ),
                 ),
               ),
-            ),
-            key: _collapsableKeys[3]),
-        Collapsible(
-            header: FlutterI18n.translate(context, 'help.question_5'),
-            onExpansionChanged: (v) =>
-                {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[4])},
-            content: Container(
-              child: MarkdownBody(
-                selectable: false,
-                data: FlutterI18n.translate(context, 'help.answer_5'),
-                styleSheet: MarkdownStyleSheet(
-                  strong: IrmaTheme.of(context).textTheme.body2,
-                  textScaleFactor: MediaQuery.textScaleFactorOf(
-                      context), // TODO remove that addition when "https://github.com/flutter/flutter_markdown/pull/162" is merged
+              key: _collapsableKeys[3]),
+        ),
+        Semantics(
+          button: true,
+          child: Collapsible(
+              header: FlutterI18n.translate(context, 'help.question_5'),
+              onExpansionChanged: (v) =>
+                  {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[4])},
+              content: Container(
+                child: MarkdownBody(
+                  selectable: false,
+                  data: FlutterI18n.translate(context, 'help.answer_5'),
+                  styleSheet: MarkdownStyleSheet(
+                    strong: IrmaTheme.of(context).textTheme.body2,
+                    textScaleFactor: MediaQuery.textScaleFactorOf(
+                        context), // TODO remove that addition when "https://github.com/flutter/flutter_markdown/pull/162" is merged
+                  ),
                 ),
               ),
-            ),
-            key: _collapsableKeys[4]),
+              key: _collapsableKeys[4]),
+        ),
       ],
     );
   }

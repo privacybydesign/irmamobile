@@ -42,7 +42,8 @@ class _WalletScreenState extends State<_WalletScreen> {
       key: _scaffoldKey,
       appBar: IrmaAppBar(
         title: Text(FlutterI18n.translate(context, 'wallet.title')),
-        leadingIcon: const Icon(IrmaIcons.menu, size: 20.0),
+        leadingIcon:
+            Icon(IrmaIcons.menu, semanticLabel: FlutterI18n.translate(context, "accessibility.menu"), size: 20.0),
         leadingAction: () {
           _scaffoldKey.currentState.openDrawer();
         },
@@ -51,7 +52,7 @@ class _WalletScreenState extends State<_WalletScreen> {
             icon: Icon(
               IrmaIcons.lock,
               size: 20,
-              semanticLabel: FlutterI18n.translate(context, "wallet.lockTooltip"),
+              semanticLabel: FlutterI18n.translate(context, "wallet.lock"),
             ),
             onPressed: () {
               PinBloc().dispatch(Lock());

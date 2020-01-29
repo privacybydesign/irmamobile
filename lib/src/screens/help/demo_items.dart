@@ -30,7 +30,7 @@ class _DemoItemsState extends State<DemoItems> with TickerProviderStateMixin {
           child: SizedBox(
               child: SvgPicture.asset(
             'assets/help/q1_step_1.svg',
-            excludeFromSemantics: false,
+            excludeFromSemantics: true,
           )),
         ),
       ),
@@ -39,7 +39,7 @@ class _DemoItemsState extends State<DemoItems> with TickerProviderStateMixin {
           child: SizedBox(
               child: SvgPicture.asset(
             'assets/help/q1_step_2.svg',
-            excludeFromSemantics: false,
+            excludeFromSemantics: true,
           )),
         ),
       ),
@@ -48,7 +48,7 @@ class _DemoItemsState extends State<DemoItems> with TickerProviderStateMixin {
           child: SizedBox(
               child: SvgPicture.asset(
             'assets/help/q1_step_3.svg',
-            excludeFromSemantics: false,
+            excludeFromSemantics: true,
           )),
         ),
       ),
@@ -57,7 +57,7 @@ class _DemoItemsState extends State<DemoItems> with TickerProviderStateMixin {
           child: SizedBox(
               child: SvgPicture.asset(
             'assets/help/q1_step_4.svg',
-            excludeFromSemantics: false,
+            excludeFromSemantics: true,
           )),
         ),
       ),
@@ -77,7 +77,7 @@ class _DemoItemsState extends State<DemoItems> with TickerProviderStateMixin {
           child: SizedBox(
               child: SvgPicture.asset(
             'assets/help/q2_step_1.svg',
-            excludeFromSemantics: false,
+            excludeFromSemantics: true,
           )),
         ),
       ),
@@ -86,7 +86,7 @@ class _DemoItemsState extends State<DemoItems> with TickerProviderStateMixin {
           child: SizedBox(
               child: SvgPicture.asset(
             'assets/help/q2_step_2.svg',
-            excludeFromSemantics: false,
+            excludeFromSemantics: true,
           )),
         ),
       ),
@@ -95,7 +95,7 @@ class _DemoItemsState extends State<DemoItems> with TickerProviderStateMixin {
           child: SizedBox(
               child: SvgPicture.asset(
             'assets/help/q2_step_3.svg',
-            excludeFromSemantics: false,
+            excludeFromSemantics: true,
           )),
         ),
       ),
@@ -104,7 +104,7 @@ class _DemoItemsState extends State<DemoItems> with TickerProviderStateMixin {
           child: SizedBox(
               child: SvgPicture.asset(
             'assets/help/q2_step_4.svg',
-            excludeFromSemantics: false,
+            excludeFromSemantics: true,
           )),
         ),
       ),
@@ -113,7 +113,7 @@ class _DemoItemsState extends State<DemoItems> with TickerProviderStateMixin {
           child: SizedBox(
               child: SvgPicture.asset(
             'assets/help/q2_step_5.svg',
-            excludeFromSemantics: false,
+            excludeFromSemantics: true,
           )),
         ),
       ),
@@ -131,42 +131,48 @@ class _DemoItemsState extends State<DemoItems> with TickerProviderStateMixin {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Collapsible(
-            header: FlutterI18n.translate(context, 'demo.question_1'),
-            onExpansionChanged: (v) =>
-                {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[0])},
-            content: Column(
-              children: <Widget>[
-                SizedBox(
-                  height: IrmaTheme.of(context).smallSpacing,
-                ),
-                Illustrator(
-                  imageSet: _demoPagesQuestion1,
-                  textSet: _demoTextsQuestion1,
-                  width: 280.0,
-                  height: 220.0,
-                ),
-              ],
-            ),
-            key: _collapsableKeys[0]),
-        Collapsible(
-            header: FlutterI18n.translate(context, 'demo.question_2'),
-            onExpansionChanged: (v) =>
-                {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[1])},
-            content: Column(
-              children: <Widget>[
-                SizedBox(
-                  height: IrmaTheme.of(context).smallSpacing,
-                ),
-                Illustrator(
-                  imageSet: _demoPagesQuestion2,
-                  textSet: _demoTextsQuestion2,
-                  width: 280.0,
-                  height: 220.0,
-                ),
-              ],
-            ),
-            key: _collapsableKeys[1]),
+        Semantics(
+          button: true,
+          child: Collapsible(
+              header: FlutterI18n.translate(context, 'demo.question_1'),
+              onExpansionChanged: (v) =>
+                  {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[0])},
+              content: Column(
+                children: <Widget>[
+                  SizedBox(
+                    height: IrmaTheme.of(context).smallSpacing,
+                  ),
+                  Illustrator(
+                    imageSet: _demoPagesQuestion1,
+                    textSet: _demoTextsQuestion1,
+                    width: 280.0,
+                    height: 220.0,
+                  ),
+                ],
+              ),
+              key: _collapsableKeys[0]),
+        ),
+        Semantics(
+          button: true,
+          child: Collapsible(
+              header: FlutterI18n.translate(context, 'demo.question_2'),
+              onExpansionChanged: (v) =>
+                  {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[1])},
+              content: Column(
+                children: <Widget>[
+                  SizedBox(
+                    height: IrmaTheme.of(context).smallSpacing,
+                  ),
+                  Illustrator(
+                    imageSet: _demoPagesQuestion2,
+                    textSet: _demoTextsQuestion2,
+                    width: 280.0,
+                    height: 220.0,
+                  ),
+                ],
+              ),
+              key: _collapsableKeys[1]),
+        ),
       ],
     );
   }
