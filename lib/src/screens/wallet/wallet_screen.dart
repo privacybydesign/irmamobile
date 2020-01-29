@@ -47,8 +47,11 @@ class _WalletScreenState extends State<_WalletScreen> {
         },
         actions: <Widget>[
           IconButton(
-            icon: const Icon(IrmaIcons.lock, size: 20),
-            tooltip: FlutterI18n.translate(context, "wallet.lockTooltip"),
+            icon: Icon(
+              IrmaIcons.lock,
+              size: 20,
+              semanticLabel: FlutterI18n.translate(context, "wallet.lockTooltip"),
+            ),
             onPressed: () {
               IrmaRepository.get().lock();
             },
