@@ -9,7 +9,13 @@ import 'package:irmamobile/src/util/navigator_service.dart';
 import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 
 class PinBloc extends Bloc<PinEvent, PinState> {
-  PinBloc() {
+  static final PinBloc _singleton = PinBloc._internal();
+
+  factory PinBloc() {
+    return _singleton;
+  }
+
+  PinBloc._internal() {
     IrmaRepository.get().getLocked().listen((isLocked) {
       if (isLocked) {
         dispatch(Locked());
