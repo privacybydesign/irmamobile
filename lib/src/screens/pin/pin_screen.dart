@@ -6,12 +6,13 @@ import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_state.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/irma_text_button.dart';
 import 'package:irmamobile/src/widgets/pin_field.dart';
 
 class PinScreen extends StatefulWidget {
-  const PinScreen({@required this.isEnrolled, Key key}) : super(key: key);
+  static const String tag = '/pin-screen';
 
-  final bool isEnrolled;
+  const PinScreen({Key key}) : super(key: key);
 
   @override
   _PinScreenState createState() => _PinScreenState();
@@ -19,22 +20,61 @@ class PinScreen extends StatefulWidget {
 
 class _PinScreenState extends State<PinScreen> {
   final _pinBloc = PinBloc();
+  FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+
+    _pinBloc.state.listen((pinState) {
+      if (pinState.pinInvalid) {
+        showDialog(
+          context: context,
+          child: AlertDialog(
+            title: Text(
+              FlutterI18n.translate(context, "pin.invalid_pin_dialog_title"),
+            ),
+            actions: <Widget>[
+              IrmaTextButton(
+                label: FlutterI18n.translate(context, "pin.invalid_pin_dialog_close"),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<PinBloc, PinState>(
       bloc: _pinBloc,
       builder: (context, state) {
-        if (state.isBlocked) {
+        if (state.isBlocked == true) {
           return const Scaffold(
-            body: Center(child: Text("blocked")),
+            body: Center(
+              child: Text(
+                "Too many wrong pass tries. Your account has been blocked for a few minutes. Please try again later.",
+              ),
+            ),
           );
         }
 
-        if (!widget.isEnrolled || !state.locked) {
+        if (state.locked == false) {
           return Container();
         }
 
+        FocusScope.of(context).requestFocus(_focusNode);
         return Scaffold(
             backgroundColor: IrmaTheme.of(context).backgroundBlue,
             body: SafeArea(
@@ -65,6 +105,7 @@ class _PinScreenState extends State<PinScreen> {
                       height: IrmaTheme.of(context).defaultSpacing,
                     ),
                     PinField(
+                      focusNode: _focusNode,
                       longPin: false,
                       onSubmit: (pin) {
                         FocusScope.of(context).requestFocus();

@@ -270,6 +270,8 @@
     "view": "View pin",
     "hide": "Hide pin",
     "button_block": "Block IRMA",
+    "invalid_pin_dialog_title": "The pin you entered was invalid.",
+    "invalid_pin_dialog_close": "Try again.",
     "invalid_pin": {
       "attempts-0": "The pin you entered was invalid. {attemps} attempts remaining before your account will be temporarily blocked.",
       "attempts-1": "The pin you entered was invalid. {attemps} attempt remaining before your account will be temporarily blocked.",

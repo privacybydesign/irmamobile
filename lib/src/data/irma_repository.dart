@@ -55,7 +55,7 @@ class IrmaRepository {
         rawCredentials: event.credentials,
       ));
     } else if (event is AuthenticationEvent) {
-      _authenticationEventListener(event);
+      _authenticationEventSubject.add(event);
     } else if (event is EnrollmentStatusEvent) {
       final isEnrolled = event.unenrolledSchemeManagerIds.isEmpty;
       _isEnrolledSubject.add(isEnrolled);
@@ -132,7 +132,17 @@ class IrmaRepository {
   // TODO: Move getting of first authentication result to own method
   Future<AuthenticationEvent> unlock(String pin) {
     dispatch(AuthenticateEvent(pin: pin), isBridgedEvent: true);
-    return _authenticationEventSubject.first;
+    return _authenticationEventSubject.where((event) {
+      switch (event.runtimeType) {
+        case AuthenticationSuccessEvent:
+        case AuthenticationFailedEvent:
+        case AuthenticationErrorEvent:
+          return true;
+          break;
+        default:
+          return false;
+      }
+    }).first;
   }
 
   Stream<bool> getLocked() {
@@ -179,9 +189,8 @@ class IrmaRepository {
     return null;
   }
 
-  // -- Preferences
-  final _preferencesSubject = PublishSubject<Preferences>();
-
+  // TODO: remove these when setting screen can save crash reporting setting to irmago
+  final _preferencesSubject = BehaviorSubject<Preferences>();
   Stream<Preferences> getPreferences() {
     return _preferencesSubject.stream;
   }
