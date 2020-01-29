@@ -126,6 +126,8 @@ class IrmaRepository {
   }
 
   void lock() {
+    // TODO: this doesn't seem to actually cause a locking event anymore..
+    // Should maybe be reworked to go to irmago?
     _lockedSubject.add(true);
   }
 

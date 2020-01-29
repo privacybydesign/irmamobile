@@ -70,7 +70,8 @@ class PinBloc extends Bloc<PinEvent, PinState> {
         throw Exception("Unexpected subtype of AuthenticationResult");
       }
     } else if (pinEvent is Lock) {
-      // There is currently no feedback because there is no pro-active locking available in irmago.
+      // There is currently no feedback because there is no pro-active locking
+      // available in irmago.
       IrmaRepository.get().lock();
       yield PinState();
     } else if (pinEvent is Locked) {
