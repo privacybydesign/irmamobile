@@ -64,11 +64,6 @@ func DispatchFromNative(eventName, payloadString string) {
 		if err = json.Unmarshal(payloadBytes, &event); err == nil {
 			err = bridgeEventHandler.setCrashReportingPreference(event)
 		}
-	case "SetQrScannerOnStartupPreferenceEvent":
-		event := &setQrScannerOnStartupPreferenceEvent{}
-		if err = json.Unmarshal(payloadBytes, &event); err == nil {
-			err = bridgeEventHandler.setQrScannerOnStartupPreference(event)
-		}
 	case "UpdateSchemesEvent":
 		err = bridgeEventHandler.updateSchemes()
 

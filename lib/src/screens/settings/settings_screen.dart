@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/settings/widgets/settings_header.dart';
@@ -12,10 +12,6 @@ import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
 import 'package:irmamobile/src/widgets/irma_text_button.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
-import 'package:rxdart/rxdart.dart';
-import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
-
-const String sharedPrefKeyOpenQRScannerOnLaunch = "setting.open_qr_scanner_on_launch";
 
 class SettingsScreen extends StatefulWidget {
   static const routeName = "/settings";
@@ -25,25 +21,15 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  Preference<bool> _prefOpenQRScannerOnLaunch;
-
-  final BehaviorSubject<bool> _openQRScannerOnLaunch = BehaviorSubject<bool>.seeded(false);
-
   @override
   void initState() {
-    StreamingSharedPreferences.instance.then((preferences) {
-      _prefOpenQRScannerOnLaunch = preferences.getBool(
-        sharedPrefKeyOpenQRScannerOnLaunch,
-        defaultValue: false,
-      );
-      _prefOpenQRScannerOnLaunch.listen(_openQRScannerOnLaunch.add);
-    });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     final irmaClient = IrmaRepository.get();
+    final irmaPrefs = IrmaPreferences.get();
 
     return Scaffold(
       appBar: IrmaAppBar(
@@ -55,7 +41,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: ListView(children: <Widget>[
           SizedBox(height: IrmaTheme.of(context).largeSpacing),
           StreamBuilder(
-            stream: _openQRScannerOnLaunch,
+            stream: irmaPrefs.getStartQRScan(),
             builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
               return SwitchListTile.adaptive(
                 title: Text(
@@ -64,7 +50,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 activeColor: IrmaTheme.of(context).interactionValid,
                 value: snapshot.hasData && snapshot.data,
-                onChanged: _prefOpenQRScannerOnLaunch.setValue,
+                onChanged: irmaPrefs.setStartQRScan,
                 secondary: Icon(IrmaIcons.scanQrcode, color: IrmaTheme.of(context).textTheme.body1.color),
               );
             },
@@ -85,7 +71,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             headerText: FlutterI18n.translate(context, 'settings.advanced.header'),
           ),
           StreamBuilder(
-            stream: irmaClient.getPreferences().map((p) => p.enableCrashReporting),
+            stream: irmaPrefs.getReportErrors(),
             builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
               return SwitchListTile.adaptive(
                 title: Text(
@@ -94,7 +80,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 activeColor: IrmaTheme.of(context).interactionValid,
                 value: snapshot.data != null && snapshot.data,
-                onChanged: (v) => irmaClient.dispatch(SetCrashReportingPreferenceEvent(enableCrashReporting: v)),
+                onChanged: irmaPrefs.setReportErrors,
                 secondary: Icon(IrmaIcons.invalid, color: IrmaTheme.of(context).textTheme.body1.color),
               );
             },

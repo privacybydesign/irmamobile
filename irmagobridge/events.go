@@ -54,10 +54,6 @@ type setCrashReportingPreferenceEvent struct {
 	EnableCrashReporting bool
 }
 
-type setQrScannerOnStartupPreferenceEvent struct {
-	QrScannerOnStartup bool
-}
-
 // //
 // Outgoing events
 // //

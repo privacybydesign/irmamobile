@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n_delegate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:irmamobile/src/data/irma_client_bridge.dart';
+import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/version_information.dart';
 import 'package:irmamobile/src/screens/about/about_screen.dart';
@@ -91,7 +92,7 @@ class AppState extends State<App> with WidgetsBindingObserver {
 
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
-    final startQrScanner = await IrmaRepository.get().getPreferences().map((p) => p.qrScannerOnStartup).first;
+    final startQrScanner = await IrmaPreferences.get().getStartQRScan().first;
 
     final navState = NavigatorService.get();
 
