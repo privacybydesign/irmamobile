@@ -12,6 +12,10 @@ import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
 import 'package:irmamobile/src/widgets/irma_text_button.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
+
+const String sharedPrefKeyOpenQRScannerOnLaunch = "setting.open_qr_scanner_on_launch";
 
 class SettingsScreen extends StatefulWidget {
   static const routeName = "/settings";
@@ -21,6 +25,22 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  Preference<bool> _prefOpenQRScannerOnLaunch;
+
+  final BehaviorSubject<bool> _openQRScannerOnLaunch = BehaviorSubject<bool>.seeded(false);
+
+  @override
+  void initState() {
+    StreamingSharedPreferences.instance.then((preferences) {
+      _prefOpenQRScannerOnLaunch = preferences.getBool(
+        sharedPrefKeyOpenQRScannerOnLaunch,
+        defaultValue: false,
+      );
+      _prefOpenQRScannerOnLaunch.listen(_openQRScannerOnLaunch.add);
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final irmaClient = IrmaRepository.get();
@@ -35,7 +55,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: ListView(children: <Widget>[
           SizedBox(height: IrmaTheme.of(context).largeSpacing),
           StreamBuilder(
-            stream: irmaClient.getPreferences().map((p) => p.qrScannerOnStartup),
+            stream: _openQRScannerOnLaunch,
             builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
               return SwitchListTile.adaptive(
                 title: Text(
@@ -43,8 +63,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   style: IrmaTheme.of(context).textTheme.body1,
                 ),
                 activeColor: IrmaTheme.of(context).interactionValid,
-                value: snapshot.data != null && snapshot.data,
-                onChanged: (v) => irmaClient.dispatch(SetQrScannerOnStartupPreferenceEvent(qrScannerOnStartup: v)),
+                value: snapshot.hasData && snapshot.data,
+                onChanged: _prefOpenQRScannerOnLaunch.setValue,
                 secondary: Icon(IrmaIcons.scanQrcode, color: IrmaTheme.of(context).textTheme.body1.color),
               );
             },

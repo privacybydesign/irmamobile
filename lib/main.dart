@@ -13,12 +13,14 @@ import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/help/help_screen.dart';
 import 'package:irmamobile/src/screens/history/history_screen.dart';
 import 'package:irmamobile/src/screens/loading/loading_screen.dart';
+import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/screens/required_update/required_update_screen.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/navigator_service.dart';
+import 'package:irmamobile/src/widgets/loading_indicator.dart';
 
 void main() {
   // Run the application
@@ -34,7 +36,7 @@ class App extends StatefulWidget {
 
 class AppState extends State<App> with WidgetsBindingObserver {
   final String initialRoute;
-  final Map<String, WidgetBuilder> routes;
+  final Map<String, WidgetBuilder> _routes;
 
   // We keep track of the last two life cycle states
   // to be able to determine the flow
@@ -42,10 +44,10 @@ class AppState extends State<App> with WidgetsBindingObserver {
 
   AppState()
       : initialRoute = null,
-        routes = {
+        _routes = {
+          EnrollmentScreen.routeName: (BuildContext context) => EnrollmentScreen(),
           WalletScreen.routeName: (BuildContext context) => WalletScreen(),
           ScannerScreen.routeName: (BuildContext context) => ScannerScreen(),
-          EnrollmentScreen.routeName: (BuildContext context) => EnrollmentScreen(),
           ChangePinScreen.routeName: (BuildContext context) => ChangePinScreen(),
           AboutScreen.routeName: (BuildContext context) => AboutScreen(),
           SettingsScreen.routeName: (BuildContext context) => SettingsScreen(),
@@ -129,12 +131,15 @@ class AppState extends State<App> with WidgetsBindingObserver {
             stream: irmaRepo.getIsEnrolled(),
             builder: (context, enrolledSnapshot) {
               if (!enrolledSnapshot.hasData) {
-                return Container();
+                return Container(
+                  color: Colors.white,
+                  child: Center(child: LoadingIndicator()),
+                );
               }
 
               final isEnrolled = enrolledSnapshot.data;
 
-              var initialRoute = WalletScreen.routeName;
+              String initialRoute = WalletScreen.routeName;
               if (!isEnrolled) {
                 initialRoute = EnrollmentScreen.routeName;
               }
@@ -150,14 +155,16 @@ class AppState extends State<App> with WidgetsBindingObserver {
                 supportedLocales: defaultSupportedLocales(),
                 navigatorKey: NavigatorService.navigatorKey,
                 initialRoute: initialRoute,
-                routes: routes,
+                routes: _routes,
                 builder: (context, child) {
                   // Use the MaterialApp builder to force an overlay when loading
                   // and when update required.
                   return Stack(
                     children: <Widget>[
                       child,
-                      //PinScreen(isEnrolled: isEnrolled),
+                      if (isEnrolled) ...[
+                        const PinScreen(),
+                      ],
                       StreamBuilder<VersionInformation>(
                           stream: versionInformationStream,
                           builder: (context, snapshot) {

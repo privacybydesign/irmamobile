@@ -600,6 +600,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.0.20"
+  streaming_shared_preferences:
+    dependency: "direct main"
+    description:
+      name: streaming_shared_preferences
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.1"
   string_scanner:
     dependency: transitive
     description:
