@@ -119,7 +119,8 @@ class Walkthrough extends StatelessWidget {
         ),
         Container(
           width: MediaQuery.of(context).size.width,
-          padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
+          padding: EdgeInsets.symmetric(
+              vertical: IrmaTheme.of(context).mediumSpacing, horizontal: IrmaTheme.of(context).defaultSpacing),
           color: finalScreen ? IrmaTheme.of(context).backgroundBlue : null,
           child: finalScreen
               ? IrmaButton(
