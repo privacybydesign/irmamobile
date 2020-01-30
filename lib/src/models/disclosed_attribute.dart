@@ -1,5 +1,9 @@
+import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+part 'disclosed_attribute.g.dart';
+
+@JsonSerializable()
 class DisclosedAttribute {
   const DisclosedAttribute({
     this.rawValue,
@@ -13,7 +17,7 @@ class DisclosedAttribute {
   final String rawValue;
 
   @JsonKey(name: 'value')
-  final String value;
+  final TranslatedValue value;
 
   @JsonKey(name: 'id')
   final String identifier;
@@ -22,5 +26,8 @@ class DisclosedAttribute {
   final String status;
 
   @JsonKey(name: 'issuancetime')
-  final DateTime issuanceTime;
+  final int issuanceTime;
+
+  factory DisclosedAttribute.fromJson(Map<String, dynamic> json) => _$DisclosedAttributeFromJson(json);
+  Map<String, dynamic> toJson() => _$DisclosedAttributeToJson(this);
 }

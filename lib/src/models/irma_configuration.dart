@@ -237,12 +237,14 @@ class AttributeType {
   @JsonKey(name: 'CredentialTypeID')
   final String credentialTypeId;
 
-  @JsonKey(name: 'issuerId')
+  @JsonKey(name: 'IssuerID')
   final String issuerId;
 
-  @JsonKey(name: 'schemeManagerId')
+  @JsonKey(name: 'SchemeManagerID')
   final String schemeManagerId;
 
   factory AttributeType.fromJson(Map<String, dynamic> json) => _$AttributeTypeFromJson(json);
   Map<String, dynamic> toJson() => _$AttributeTypeToJson(this);
+
+  String get fullId => "$schemeManagerId.$issuerId.$credentialTypeId.$id";
 }

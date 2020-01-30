@@ -1,7 +1,7 @@
-import 'package:irmamobile/src/models/log.dart';
+import 'package:irmamobile/src/models/log_entry.dart';
 
 class HistoryState {
-  List<Log> logs;
+  List<LogEntry> logs;
 
   bool loading;
 
@@ -10,7 +10,7 @@ class HistoryState {
   HistoryState({this.logs, this.loading, this.moreLogsAvailable});
 
   HistoryState copyWith({
-    List<Log> logs,
+    List<LogEntry> logs,
     bool loading,
     bool moreLogsAvailable,
   }) {

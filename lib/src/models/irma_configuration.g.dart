@@ -149,8 +149,8 @@ AttributeType _$AttributeTypeFromJson(Map<String, dynamic> json) {
     index: json['Index'] as int,
     displayIndex: json['DisplayIndex'] as int,
     credentialTypeId: json['CredentialTypeID'] as String,
-    issuerId: json['issuerId'] as String,
-    schemeManagerId: json['schemeManagerId'] as String,
+    issuerId: json['IssuerID'] as String,
+    schemeManagerId: json['SchemeManagerID'] as String,
   );
 }
 
@@ -162,6 +162,6 @@ Map<String, dynamic> _$AttributeTypeToJson(AttributeType instance) => <String, d
       'Index': instance.index,
       'DisplayIndex': instance.displayIndex,
       'CredentialTypeID': instance.credentialTypeId,
-      'issuerId': instance.issuerId,
-      'schemeManagerId': instance.schemeManagerId,
+      'IssuerID': instance.issuerId,
+      'SchemeManagerID': instance.schemeManagerId,
     };

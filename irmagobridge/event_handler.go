@@ -3,6 +3,7 @@ package irmagobridge
 import (
 	"github.com/go-errors/errors"
 	irma "github.com/privacybydesign/irmago"
+	irmaclient "github.com/privacybydesign/irmago/irmaclient"
 )
 
 type eventHandler struct {
@@ -175,5 +176,58 @@ func (ah *eventHandler) updateSchemes() error {
 	}
 
 	dispatchConfigurationEvent()
+	return nil
+}
+
+func (ah *eventHandler) loadLogs(action *LoadLogsEvent) error {
+	var logEntries []*irmaclient.LogEntry
+	var err error
+
+	// When before is not sent, it gets Go's default value 0 and 0 is never a valid id
+	if action.Before == 0 {
+		logEntries, err = client.LoadNewestLogs(action.Max)
+	} else {
+		logEntries, err = client.LoadLogsBefore(action.Before, action.Max)
+	}
+	if err != nil {
+		return err
+	}
+
+	logsOutgoing := make([]*logEntry, len(logEntries))
+	for i, entry := range logEntries {
+		var removed map[irma.CredentialTypeIdentifier][]irma.TranslatedString
+		if entry.Type == irmaclient.ActionRemoval {
+			removed = entry.Removed
+		} else {
+			removed = make(map[irma.CredentialTypeIdentifier][]irma.TranslatedString)
+		}
+		disclosedCredentials, err := entry.GetDisclosedCredentials(client.Configuration)
+		if err != nil {
+			return err
+		}
+		issuedCredentials, err := entry.GetIssuedCredentials(client.Configuration)
+		if err != nil {
+			return err
+		}
+		signedMessage, err := entry.GetSignedMessage()
+		if err != nil {
+			return err
+		}
+		logsOutgoing[i] = &logEntry{
+			ID:                   entry.ID,
+			Type:                 entry.Type,
+			Time:                 entry.Time.String(),
+			ServerName:           entry.ServerName,
+			IssuedCredentials:    issuedCredentials,
+			DisclosedCredentials: disclosedCredentials,
+			SignedMessage:        signedMessage,
+			RemovedCredentials:   removed,
+		}
+	}
+
+	dispatchEvent(&logsEvent{
+		LogEntries: logsOutgoing,
+	})
+
 	return nil
 }

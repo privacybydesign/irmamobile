@@ -54,6 +54,11 @@ type setCrashReportingPreferenceEvent struct {
 	EnableCrashReporting bool
 }
 
+type LoadLogsEvent struct {
+	Before uint64
+	Max    int
+}
+
 // //
 // Outgoing events
 // //
@@ -131,7 +136,6 @@ type clientReturnURLSetSessionEvent struct {
 
 type successSessionEvent struct {
 	SessionID int
-	Result    string
 }
 
 type failureSessionEvent struct {
@@ -165,30 +169,23 @@ type requestVerificationPermissionSessionEvent struct {
 	Disclosures           irma.AttributeConDisCon
 	DisclosuresLabels     map[int]irma.TranslatedString
 	DisclosuresCandidates [][][]*irma.AttributeIdentifier
-}
-
-type requestSignaturePermissionSessionEvent struct {
-	SessionID             int
-	ServerName            irma.TranslatedString
-	Disclosures           irma.AttributeConDisCon
-	DisclosuresLabels     map[int]irma.TranslatedString
-	DisclosuresCandidates [][][]*irma.AttributeIdentifier
-	Message               string
+	IsSignatureSession    bool
+	SignedMessage         string
 }
 
 type requestPinSessionEvent struct {
-	sessionID         int
-	remainingAttempts int
+	SessionID         int
+	RemainingAttempts int
 }
 
 type keyshareEnrollmentMissingSessionEvent struct {
-	sessionID       int
-	schemeManagerID irma.SchemeManagerIdentifier
+	SessionID       int
+	SchemeManagerID irma.SchemeManagerIdentifier
 }
 
 type keyshareEnrollmentDeletedSessionEvent struct {
-	sessionID       int
-	schemeManagerID irma.SchemeManagerIdentifier
+	SessionID       int
+	SchemeManagerID irma.SchemeManagerIdentifier
 }
 
 type keyshareBlockedSessionEvent struct {
@@ -200,6 +197,21 @@ type keyshareBlockedSessionEvent struct {
 type keyshareEnrollmentIncompleteSessionEvent struct {
 	SessionID       int
 	SchemeManagerID irma.SchemeManagerIdentifier
+}
+
+type logsEvent struct {
+	LogEntries []*logEntry
+}
+
+type logEntry struct {
+	ID                   uint64
+	Type                 irma.Action
+	Time                 string
+	ServerName           irma.TranslatedString
+	IssuedCredentials    irma.CredentialInfoList
+	DisclosedCredentials [][]*irma.DisclosedAttribute
+	SignedMessage        *irma.SignedMessage
+	RemovedCredentials   map[irma.CredentialTypeIdentifier][]irma.TranslatedString
 }
 
 // //

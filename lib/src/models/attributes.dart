@@ -44,6 +44,12 @@ class DisCon<T> extends UnmodifiableListView<Con<T>> {
         super(list);
 }
 
+class ConCon<T> extends UnmodifiableListView<Con<T>> {
+  ConCon(Iterable<Con<T>> list)
+      : assert(list != null),
+        super(list);
+}
+
 class Con<T> extends UnmodifiableListView<T> {
   Con(Iterable<T> list)
       : assert(list != null),
@@ -79,6 +85,11 @@ class AttributeIdentifier {
 
   factory AttributeIdentifier.fromJson(Map<String, dynamic> json) => _$AttributeIdentifierFromJson(json);
   Map<String, dynamic> toJson() => _$AttributeIdentifierToJson(this);
+
+  AttributeIdentifier.fromCredentialAttribute(CredentialAttribute credentialAttribute) {
+    type = credentialAttribute.attributeType.fullId;
+    credentialHash = credentialAttribute.credential.hash;
+  }
 }
 
 class CredentialAttribute {

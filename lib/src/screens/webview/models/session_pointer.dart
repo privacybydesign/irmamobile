@@ -1,21 +1,22 @@
 import 'dart:convert';
 
-class SessionPointer {
+@Deprecated("Use SessionPointer and integrate parsing logic there")
+class DeprecateMeSessionPointer {
   String u;
   String irmaqr;
 
-  SessionPointer({this.u, this.irmaqr});
+  DeprecateMeSessionPointer({this.u, this.irmaqr});
 
-  SessionPointer.fromJson(Map<String, dynamic> json) {
+  DeprecateMeSessionPointer.fromJson(Map<String, dynamic> json) {
     u = json['u'] as String;
     irmaqr = json['irmaqr'] as String;
   }
 
-  SessionPointer.fromURI(String uri) {
-    SessionPointer pointer;
+  DeprecateMeSessionPointer.fromURI(String uri) {
+    DeprecateMeSessionPointer pointer;
     if (uri.contains("json/{")) {
       final jsonString = uri.substring(uri.indexOf("json/{") + 5);
-      pointer = SessionPointer.fromJson(
+      pointer = DeprecateMeSessionPointer.fromJson(
         jsonDecode(
           jsonString.substring(
             0,
@@ -27,7 +28,7 @@ class SessionPointer {
 
     if (uri.contains("session#{")) {
       final jsonString = uri.substring(uri.indexOf("session#{") + 8);
-      pointer = SessionPointer.fromJson(
+      pointer = DeprecateMeSessionPointer.fromJson(
         jsonDecode(
           jsonString.substring(
             0,

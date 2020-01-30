@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/log.dart' as log_model;
+import 'package:irmamobile/src/models/irma_configuration.dart';
+import 'package:irmamobile/src/models/log_entry.dart';
 import 'package:irmamobile/src/screens/history/detail_screen.dart';
-import 'package:irmamobile/src/screens/history/model/history_bloc.dart';
-import 'package:irmamobile/src/screens/history/model/history_events.dart';
 import 'package:irmamobile/src/screens/history/widgets/log.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/loading_indicator.dart';
-
-import 'model/history_state.dart';
 
 class HistoryScreen extends StatefulWidget {
   static const routeName = "/history";
@@ -25,20 +21,33 @@ class HistoryScreen extends StatefulWidget {
 
 class HistoryScreenState extends State<HistoryScreen> {
   final _scrollController = ScrollController();
-  final _bloc = HistoryBloc(IrmaRepository.get());
+  // final _bloc = HistoryBloc(IrmaRepository.get());
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
+  IrmaConfiguration irmaConfiguration;
+
+  @override
+  void initState() {
+    super.initState();
+
+    IrmaRepository.get().bridgedDispatch(LoadLogsEvent(max: 10));
+    IrmaRepository.get().getIrmaConfiguration().listen((irmaConfiguration) {
+      this.irmaConfiguration = irmaConfiguration;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     _scrollController.addListener(_listenToScroll);
+
     return Scaffold(
       appBar: IrmaAppBar(
         title: Text(
           FlutterI18n.translate(context, 'history.title'),
         ),
       ),
-      body: BlocBuilder(
-        bloc: _bloc,
-        builder: (context, HistoryState state) {
+      body: StreamBuilder<List<LogEntry>>(
+        stream: IrmaRepository.get().getLogs(),
+        builder: (context, snapshot) {
           return RefreshIndicator(
             key: _refreshIndicatorKey,
             onRefresh: _handleRefresh,
@@ -46,14 +55,14 @@ class HistoryScreenState extends State<HistoryScreen> {
               padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
               physics: const AlwaysScrollableScrollPhysics(),
               controller: _scrollController,
-              itemCount: state.loading ? state.logs.length + 1 : state.logs.length,
+              itemCount: snapshot.hasData ? snapshot.data.length : 1,
               itemBuilder: (context, index) {
-                if (state.loading && index == state.logs.length) {
+                if (!snapshot.hasData && index == 0) {
                   return Center(
                     child: LoadingIndicator(),
                   );
                 }
-                return _buildLog(state.logs[index]);
+                return _buildLog(snapshot.data[index]);
               },
             ),
           );
@@ -63,47 +72,47 @@ class HistoryScreenState extends State<HistoryScreen> {
   }
 
   Future<void> _handleRefresh() {
-    _bloc.dispatch(Refresh());
+    // _bloc.dispatch(Refresh());
     return Future.value();
   }
 
-  Log _buildLog(log_model.Log logModel) {
+  Log _buildLog(LogEntry logEntry) {
     LogType logType;
     int dataCount = 1;
     String subTitle;
-    switch (logModel.type) {
+    switch (logEntry.type) {
       case "issuing":
         logType = LogType.issuing;
-        dataCount = logModel.issuedCredentials.length;
-        subTitle = getTranslation(logModel.issuedCredentials.entries.first.value.issuer.name);
+        dataCount = logEntry.issuedCredentials.length;
+        subTitle = getTranslation(irmaConfiguration.issuers[logEntry.issuedCredentials.first.fullIssuerId].name);
         break;
       case "disclosing":
         logType = LogType.disclosing;
-        dataCount = logModel.disclosedAttributes.length;
-        subTitle = "gemeente x";
+        dataCount = logEntry.disclosedAttributes.length;
+        // subTitle = "gemeente x";
         break;
       case "signing":
         logType = LogType.signing;
-        subTitle = "gemeente x";
+        // subTitle = "gemeente x";
         break;
       case "removal":
         logType = LogType.removal;
-        subTitle = logModel.removedCredentials.entries.first.value;
+        subTitle = getTranslation(logEntry.removedCredentials.values.first);
     }
     return Log(
       type: logType,
       dataCount: dataCount,
       subTitle: subTitle,
       onTap: () {
-        Navigator.of(context).push(MaterialPageRoute(builder: (context) => DetailScreen(logModel, logType)));
+        Navigator.of(context).push(MaterialPageRoute(builder: (context) => DetailScreen(logEntry: logEntry)));
       },
     );
   }
 
   void _listenToScroll() {
-    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent &&
-        _bloc.startingState.moreLogsAvailable) {
-      _bloc.dispatch(LoadMore());
-    }
+    // if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent &&
+    //     _bloc.startingState.moreLogsAvailable) {
+    //   _bloc.dispatch(LoadMore());
+    // }
   }
 }
