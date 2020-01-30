@@ -36,26 +36,12 @@ class App extends StatefulWidget {
 
 class AppState extends State<App> with WidgetsBindingObserver {
   final String initialRoute;
-  final Map<String, WidgetBuilder> _routes;
 
   // We keep track of the last two life cycle states
   // to be able to determine the flow
   List<AppLifecycleState> prevLifeCycleStates = List<AppLifecycleState>(2);
 
-  AppState()
-      : initialRoute = null,
-        _routes = {
-          EnrollmentScreen.routeName: (BuildContext context) => EnrollmentScreen(),
-          WalletScreen.routeName: (BuildContext context) => WalletScreen(),
-          ScannerScreen.routeName: (BuildContext context) => ScannerScreen(),
-          ChangePinScreen.routeName: (BuildContext context) => ChangePinScreen(),
-          AboutScreen.routeName: (BuildContext context) => AboutScreen(),
-          SettingsScreen.routeName: (BuildContext context) => SettingsScreen(),
-          CardStoreScreen.routeName: (BuildContext context) => CardStoreScreen(),
-          HistoryScreen.routeName: (BuildContext context) => HistoryScreen(),
-          HelpScreen.routeName: (BuildContext context) => HelpScreen(),
-          DisclosureScreen.routeName: (BuildContext context) => DisclosureScreen(),
-        };
+  AppState() : initialRoute = null;
 
   static List<LocalizationsDelegate> defaultLocalizationsDelegates([Locale forcedLocale]) {
     return [
@@ -123,6 +109,33 @@ class AppState extends State<App> with WidgetsBindingObserver {
     prevLifeCycleStates[1] = state;
   }
 
+  Widget _determineRoute(String routeName, Object arguments) {
+    switch (routeName) {
+      case DisclosureScreen.routeName:
+        return DisclosureScreen(arguments: arguments as DisclosureScreenArguments);
+      case EnrollmentScreen.routeName:
+        return EnrollmentScreen();
+      case WalletScreen.routeName:
+        return WalletScreen();
+      case ScannerScreen.routeName:
+        return ScannerScreen();
+      case ChangePinScreen.routeName:
+        return ChangePinScreen();
+      case AboutScreen.routeName:
+        return AboutScreen();
+      case SettingsScreen.routeName:
+        return SettingsScreen();
+      case CardStoreScreen.routeName:
+        return CardStoreScreen();
+      case HistoryScreen.routeName:
+        return HistoryScreen();
+      case HelpScreen.routeName:
+        return HelpScreen();
+    }
+
+    throw "Unrecognized route was pushed";
+  }
+
   @override
   Widget build(BuildContext context) {
     IrmaRepository(client: IrmaClientBridge());
@@ -170,7 +183,10 @@ class AppState extends State<App> with WidgetsBindingObserver {
                       supportedLocales: defaultSupportedLocales(),
                       navigatorKey: NavigatorService.navigatorKey,
                       initialRoute: initialRoute,
-                      routes: _routes,
+                      onGenerateRoute: (settings) => MaterialPageRoute(
+                        builder: (_) => _determineRoute(settings.name, settings.arguments),
+                        settings: settings,
+                      ),
                       builder: (context, child) {
                         // Use the MaterialApp builder to force an overlay when loading
                         // and when update required.

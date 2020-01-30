@@ -6,8 +6,6 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'session.g.dart';
 
-class Session {}
-
 class SessionEvent extends Event {
   SessionEvent(this.sessionID);
 
@@ -19,10 +17,14 @@ class SessionEvent extends Event {
 class NewSessionEvent extends SessionEvent {
   static int sessionIDCounter = 42;
 
-  NewSessionEvent({this.request}) : super(sessionIDCounter++);
+  NewSessionEvent({this.request, this.continueOnSecondDevice = false}) : super(sessionIDCounter++);
 
   @JsonKey(name: 'Request')
   SessionPointer request;
+
+  // Whether the session should be continued on the mobile device,
+  // or on the device which has displayed a QR code
+  bool continueOnSecondDevice;
 
   factory NewSessionEvent.fromJson(Map<String, dynamic> json) => _$NewSessionEventFromJson(json);
   Map<String, dynamic> toJson() => _$NewSessionEventToJson(this);
@@ -274,6 +276,12 @@ class RequestVerificationPermissionSessionEvent extends SessionEvent {
 
   @JsonKey(name: 'DisclosuresCandidates')
   List<List<List<AttributeIdentifier>>> disclosuresCandidates;
+
+  @JsonKey(name: 'IsSignatureSession')
+  bool isSignatureSession;
+
+  @JsonKey(name: 'SignedMessage')
+  String signedMessage;
 
   factory RequestVerificationPermissionSessionEvent.fromJson(Map<String, dynamic> json) =>
       _$RequestVerificationPermissionSessionEventFromJson(json);

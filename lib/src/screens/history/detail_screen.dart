@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/models/log.dart' as log_model;
+import 'package:irmamobile/src/data/irma_repository.dart';
+import 'package:irmamobile/src/models/credentials.dart';
+import 'package:irmamobile/src/models/log_entry.dart';
 import 'package:irmamobile/src/models/verifier.dart';
 import 'package:irmamobile/src/screens/history/widgets/header.dart';
 import 'package:irmamobile/src/screens/history/widgets/issuing_detail.dart';
@@ -12,10 +14,13 @@ import 'package:irmamobile/src/widgets/disclosure_card.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 
 class DetailScreen extends StatelessWidget {
-  final log_model.Log log;
-  final LogType logType;
+  final String _lang = "nl";
+  final LogEntry logEntry;
+  LogType logType;
 
-  const DetailScreen(this.log, this.logType);
+  DetailScreen({this.logEntry}) {
+    logType = logEntry.type.toLogType();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +42,7 @@ class DetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Header(log.serverName, DateTime.now(), logType),
+            Header(logEntry.serverName.translate(_lang), DateTime.now(), logType),
             SizedBox(
               height: IrmaTheme.of(context).largeSpacing,
             ),
@@ -66,10 +71,17 @@ class DetailScreen extends StatelessWidget {
       case LogType.disclosing:
         return const DisclosureCard(<List<VerifierCredential>>[]);
       case LogType.issuing:
-        return IssuingDetail(log.issuedCredentials.values.toList());
+        return IssuingDetail(
+          logEntry.issuedCredentials
+              .map((rawCredential) => Credential.fromRaw(
+                    irmaConfiguration: IrmaRepository.get().irmaConfigurationSubject.value,
+                    rawCredential: rawCredential,
+                  ))
+              .toList(),
+        );
       case LogType.signing:
         return SigningDetail(
-          log.signedMessage,
+          logEntry.signedMessage,
           const <List<VerifierCredential>>[],
         );
     }

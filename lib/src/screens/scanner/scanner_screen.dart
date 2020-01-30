@@ -8,6 +8,7 @@ import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/screens/disclosure/disclosure_screen.dart';
 import 'package:irmamobile/src/screens/scanner/widgets/qr_scanner.dart';
+import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 class ScannerScreen extends StatelessWidget {
@@ -21,7 +22,7 @@ class ScannerScreen extends StatelessWidget {
     _startSessionAndNavigate(context, SessionPointer.fromJson(jsonDecode(code) as Map<String, dynamic>));
   }
 
-  Future<void> _onDebugSession(BuildContext context) async {
+  static Future<void> onDebugSession(BuildContext context) async {
     final Uri uri = Uri.parse("https://metrics.privacybydesign.foundation/irmaserver/session");
     const String sessionRequest = """
       {
@@ -49,12 +50,16 @@ class ScannerScreen extends StatelessWidget {
     });
   }
 
-  void _startSessionAndNavigate(BuildContext context, SessionPointer sessionPointer) {
-    final event = NewSessionEvent(request: sessionPointer);
+  static void _startSessionAndNavigate(BuildContext context, SessionPointer sessionPointer) {
+    final event = NewSessionEvent(request: sessionPointer, continueOnSecondDevice: true);
     IrmaRepository.get().dispatch(event, isBridgedEvent: true);
 
-    Navigator.pushNamed(context, DisclosureScreen.routeName,
-        arguments: DisclosureScreenArguments(sessionID: event.sessionID));
+    if (event.request.irmaqr == "disclosing") {
+      Navigator.pushNamed(context, DisclosureScreen.routeName,
+          arguments: DisclosureScreenArguments(sessionID: event.sessionID));
+    } else {
+      Navigator.popUntil(context, ModalRoute.withName(WalletScreen.routeName));
+    }
   }
 
   @override
@@ -65,7 +70,7 @@ class ScannerScreen extends StatelessWidget {
         leadingAction: () => _onClose(context),
         leadingIcon: Icon(Icons.arrow_back, semanticLabel: FlutterI18n.translate(context, "accessibility.back")),
         actions: <Widget>[
-          if (!kReleaseMode) IconButton(icon: Icon(Icons.directions_walk), onPressed: () => _onDebugSession(context)),
+          if (!kReleaseMode) IconButton(icon: Icon(Icons.directions_walk), onPressed: () => onDebugSession(context)),
         ],
       ),
       body: Stack(

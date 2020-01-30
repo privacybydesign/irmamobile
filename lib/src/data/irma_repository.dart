@@ -3,15 +3,17 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:irmamobile/src/data/irma_bridge.dart';
+import 'package:irmamobile/src/data/session_repository.dart';
 import 'package:irmamobile/src/models/app_ready_event.dart';
 import 'package:irmamobile/src/models/authentication.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/enroll_event.dart';
 import 'package:irmamobile/src/models/event.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'package:irmamobile/src/models/log.dart';
+import 'package:irmamobile/src/models/log_entry.dart';
 import 'package:irmamobile/src/models/preferences.dart';
 import 'package:irmamobile/src/models/session.dart';
+import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/models/version_information.dart';
 import 'package:package_info/package_info.dart';
 import 'package:rxdart/rxdart.dart';
@@ -35,23 +37,27 @@ class IrmaRepository {
   }
 
   final IrmaBridge bridge;
+  final _eventSubject = BehaviorSubject<Event>();
+
+  SessionRepository _sessionRepository;
 
   // _internal is a named constructor only used by the factory
   IrmaRepository._internal({
     @required this.bridge,
   }) : assert(bridge != null) {
     _eventSubject.listen(_eventListener);
-    _authenticationEventSubject.listen(_authenticationEventListener);
+    _sessionRepository = SessionRepository(
+      repo: this,
+      sessionEventStream: _eventSubject.where((event) => event is SessionEvent).cast<SessionEvent>(),
+    );
   }
 
-  // -- Events
-  final _eventSubject = ReplaySubject<Event>();
   Future<void> _eventListener(Event event) async {
     if (event is IrmaConfigurationEvent) {
-      _irmaConfigurationSubject.add(event.irmaConfiguration);
+      irmaConfigurationSubject.add(event.irmaConfiguration);
     } else if (event is CredentialsEvent) {
       _credentialsSubject.add(Credentials.fromRaw(
-        irmaConfiguration: await _irmaConfigurationSubject.firstWhere((irmaConfig) => irmaConfig != null),
+        irmaConfiguration: await irmaConfigurationSubject.first,
         rawCredentials: event.credentials,
       ));
     } else if (event is AuthenticationEvent) {
@@ -61,6 +67,8 @@ class IrmaRepository {
       _isEnrolledSubject.add(isEnrolled);
     } else if (event is PreferencesEvent) {
       _preferencesSubject.add(event.preferences);
+    } else if (event is LogsEvent) {
+      _logsSubject.add((event as LogsEvent).logEntries);
     }
   }
 
@@ -76,15 +84,19 @@ class IrmaRepository {
     }
   }
 
+  void bridgedDispatch(Event event) {
+    dispatch(event, isBridgedEvent: true);
+  }
+
   // -- Scheme manager, issuer, credential and attribute definitions
-  final _irmaConfigurationSubject = BehaviorSubject<IrmaConfiguration>();
+  final irmaConfigurationSubject = BehaviorSubject<IrmaConfiguration>();
 
   Stream<IrmaConfiguration> getIrmaConfiguration() {
-    return _irmaConfigurationSubject.stream;
+    return irmaConfigurationSubject.stream;
   }
 
   Stream<Map<String, Issuer>> getIssuers() {
-    return _irmaConfigurationSubject.stream.map<Map<String, Issuer>>(
+    return irmaConfigurationSubject.stream.map<Map<String, Issuer>>(
       (config) => config.issuers,
     );
   }
@@ -157,7 +169,7 @@ class IrmaRepository {
   Stream<VersionInformation> getVersionInformation() {
     // Get two Streams before waiting on them to allow for asynchronicity.
     final packageInfoStream = PackageInfo.fromPlatform().asStream();
-    final irmaVersionInfoStream = _irmaConfigurationSubject.stream; // TODO: add filtering
+    final irmaVersionInfoStream = irmaConfigurationSubject.stream; // TODO: add filtering
 
     return packageInfoStream.transform<VersionInformation>(
       combineLatest<PackageInfo, IrmaConfiguration, VersionInformation>(
@@ -189,8 +201,9 @@ class IrmaRepository {
   }
 
   // -- Logs
-  Stream<List<Log>> loadLogs(int before, int max) {
-    return null;
+  final _logsSubject = BehaviorSubject<List<LogEntry>>();
+  Stream<List<LogEntry>> getLogs() {
+    return _logsSubject.stream;
   }
 
   final _preferencesSubject = BehaviorSubject<Preferences>();
@@ -199,13 +212,7 @@ class IrmaRepository {
   }
 
   // -- Session
-  Stream<SessionEvent> getSessionEvents(int sessionID) {
-    return _eventSubject.where((event) {
-      if (event is SessionEvent) {
-        return event.sessionID == sessionID;
-      }
-
-      return false;
-    }).cast<SessionEvent>();
+  Stream<SessionState> getSessionState(int sessionID) {
+    return _sessionRepository.getSessionState(sessionID);
   }
 }

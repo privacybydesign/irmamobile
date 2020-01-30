@@ -33,7 +33,6 @@ func (sh *sessionHandler) ClientReturnURLSet(clientReturnURL string) {
 func (sh *sessionHandler) Success(result string) {
 	dispatchEvent(&successSessionEvent{
 		SessionID: sh.sessionID,
-		Result:    result,
 	})
 }
 
@@ -84,6 +83,7 @@ func (sh *sessionHandler) RequestVerificationPermission(request *irma.Disclosure
 		Disclosures:           request.Disclose,
 		DisclosuresLabels:     request.Labels,
 		DisclosuresCandidates: candidates,
+		IsSignatureSession:    false,
 	}
 
 	sh.permissionHandler = ph
@@ -92,21 +92,22 @@ func (sh *sessionHandler) RequestVerificationPermission(request *irma.Disclosure
 
 func (sh *sessionHandler) RequestSignaturePermission(request *irma.SignatureRequest, candidates [][][]*irma.AttributeIdentifier, serverName irma.TranslatedString, ph irmaclient.PermissionHandler) {
 	sh.permissionHandler = ph
-	dispatchEvent(&requestSignaturePermissionSessionEvent{
+	dispatchEvent(&requestVerificationPermissionSessionEvent{
 		SessionID:             sh.sessionID,
 		ServerName:            serverName,
 		Disclosures:           request.Disclose,
 		DisclosuresLabels:     request.Labels,
 		DisclosuresCandidates: candidates,
-		Message:               request.Message,
+		IsSignatureSession:    true,
+		SignedMessage:         request.Message,
 	})
 }
 
 func (sh *sessionHandler) RequestPin(remainingAttempts int, ph irmaclient.PinHandler) {
 	sh.pinHandler = ph
 	dispatchEvent(&requestPinSessionEvent{
-		sessionID:         sh.sessionID,
-		remainingAttempts: remainingAttempts,
+		SessionID:         sh.sessionID,
+		RemainingAttempts: remainingAttempts,
 	})
 }
 
@@ -116,15 +117,15 @@ func (sh *sessionHandler) RequestSchemeManagerPermission(manager *irma.SchemeMan
 
 func (sh *sessionHandler) KeyshareEnrollmentMissing(manager irma.SchemeManagerIdentifier) {
 	dispatchEvent(&keyshareEnrollmentMissingSessionEvent{
-		sessionID:       sh.sessionID,
-		schemeManagerID: manager,
+		SessionID:       sh.sessionID,
+		SchemeManagerID: manager,
 	})
 }
 
 func (sh *sessionHandler) KeyshareEnrollmentDeleted(manager irma.SchemeManagerIdentifier) {
 	dispatchEvent(&keyshareEnrollmentDeletedSessionEvent{
-		sessionID:       sh.sessionID,
-		schemeManagerID: manager,
+		SessionID:       sh.sessionID,
+		SchemeManagerID: manager,
 	})
 }
 

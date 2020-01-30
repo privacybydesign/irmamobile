@@ -12,11 +12,12 @@ void main() {
     ];
 
     for (final testCase in positiveTestCases) {
-      final pointer = SessionPointer.fromURI(testCase);
+      final pointer = DeprecateMeSessionPointer.fromURI(testCase);
       expect(pointer.u, url);
       expect(pointer.irmaqr, irmaQr);
     }
 
-    expect(() => SessionPointer.fromURI("https://privacybydesign.foundation/"), throwsA(MissingSessionPointer));
+    expect(
+        () => DeprecateMeSessionPointer.fromURI("https://privacybydesign.foundation/"), throwsA(MissingSessionPointer));
   });
 }

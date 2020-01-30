@@ -364,6 +364,10 @@
       "body": "Selecteer welke gegevens je doorgeeft.",
       "dismiss": "OK",
       "dismiss-remember": "Niet meer tonen"
+    },
+    "navigation_bar": {
+      "yes": "Ja",
+      "no": "Nee, liever niet"
     }
   },
   "reset_pin": {

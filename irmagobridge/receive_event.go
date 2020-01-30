@@ -70,6 +70,11 @@ func DispatchFromNative(eventName, payloadString string) {
 		if err != nil {
 			logError(errors.New(err))
 		}
+	case "LoadLogsEvent":
+		event := &LoadLogsEvent{}
+		if err = json.Unmarshal(payloadBytes, &event); err == nil {
+			err = bridgeEventHandler.loadLogs(event)
+		}
 	default:
 		err = errors.Errorf("Unrecognized event name %s", eventName)
 	}

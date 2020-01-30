@@ -1,10 +1,12 @@
-import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/data/irma_repository.dart';
+import 'package:irmamobile/src/models/session.dart';
+import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/screens/webview/models/session_pointer.dart';
 import 'package:irmamobile/src/screens/webview/widgets/browser_bar.dart';
 import 'package:irmamobile/src/screens/webview/widgets/loading_data.dart';
@@ -17,14 +19,20 @@ import 'package:webview_flutter/webview_flutter.dart';
 class WebviewScreen extends StatefulWidget {
   static const String routeName = "/issuance/webview";
   final String url;
-  final StreamController<SessionPointer> _sessionStreamController = StreamController();
+
+  _handleSessionPointer(BuildContext context, DeprecateMeSessionPointer sessionPointer) {
+    final event = NewSessionEvent(
+      request: SessionPointer(irmaqr: sessionPointer.irmaqr, u: sessionPointer.u),
+    );
+
+    IrmaRepository.get().bridgedDispatch(event);
+    Navigator.of(context).popUntil(ModalRoute.withName(WalletScreen.routeName));
+  }
 
   WebviewScreen(this.url, {Key key}) : super(key: key);
 
   @override
   _WebviewScreenState createState() => _WebviewScreenState(url);
-
-  Stream get sessionStream => _sessionStreamController.stream;
 }
 
 class _WebviewScreenState extends State<WebviewScreen> {
@@ -32,17 +40,11 @@ class _WebviewScreenState extends State<WebviewScreen> {
   bool _isLoading;
 
   _WebviewScreenState(this.url) : _isLoading = true;
-  SessionPointer _sessionPointer;
+  DeprecateMeSessionPointer _sessionPointer;
 
   @override
   void initState() {
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    widget._sessionStreamController.close();
-    super.dispose();
   }
 
   @override
@@ -79,8 +81,8 @@ class _WebviewScreenState extends State<WebviewScreen> {
                     if (_isIRMAURI(decodedUri)) {
                       setState(() {
                         try {
-                          _sessionPointer = SessionPointer.fromURI(decodedUri);
-                          widget._sessionStreamController.sink.add(_sessionPointer);
+                          _sessionPointer = DeprecateMeSessionPointer.fromURI(decodedUri);
+                          widget._handleSessionPointer(context, _sessionPointer);
                         } catch (err) {
                           debugPrint(err.toString());
                         }
@@ -136,8 +138,6 @@ class _WebviewScreenState extends State<WebviewScreen> {
                 const SizedBox(
                   height: 8,
                 ),
-                Text("sessionType: ${_sessionPointer.irmaqr}"),
-                Text("sessionURL: ${_sessionPointer.u}")
               ],
             ),
     );

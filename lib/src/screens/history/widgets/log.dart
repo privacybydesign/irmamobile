@@ -7,6 +7,13 @@ import 'package:irmamobile/src/theme/theme.dart';
 
 enum LogType { disclosing, issuing, removal, signing }
 
+extension LogTypeParser on String {
+  LogType toLogType() => LogType.values.firstWhere(
+        (v) => v.toString() == 'LogType.$this',
+        orElse: () => null,
+      );
+}
+
 class Log extends StatelessWidget {
   final LogType type;
   final int dataCount;

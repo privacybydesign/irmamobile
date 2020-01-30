@@ -9,12 +9,14 @@ part of 'session.dart';
 NewSessionEvent _$NewSessionEventFromJson(Map<String, dynamic> json) {
   return NewSessionEvent(
     request: json['Request'] == null ? null : SessionPointer.fromJson(json['Request'] as Map<String, dynamic>),
+    continueOnSecondDevice: json['continueOnSecondDevice'] as bool,
   )..sessionID = json['SessionID'] as int;
 }
 
 Map<String, dynamic> _$NewSessionEventToJson(NewSessionEvent instance) => <String, dynamic>{
       'SessionID': instance.sessionID,
       'Request': instance.request,
+      'continueOnSecondDevice': instance.continueOnSecondDevice,
     };
 
 SessionPointer _$SessionPointerFromJson(Map<String, dynamic> json) {
@@ -270,7 +272,9 @@ RequestVerificationPermissionSessionEvent _$RequestVerificationPermissionSession
                 ?.toList())
             ?.toList())
         ?.toList(),
-  );
+  )
+    ..isSignatureSession = json['IsSignatureSession'] as bool
+    ..signedMessage = json['SignedMessage'] as String;
 }
 
 Map<String, dynamic> _$RequestVerificationPermissionSessionEventToJson(
@@ -281,6 +285,8 @@ Map<String, dynamic> _$RequestVerificationPermissionSessionEventToJson(
       'Disclosures': instance.disclosures,
       'DisclosuresLabels': instance.disclosuresLabels?.map((k, e) => MapEntry(k.toString(), e)),
       'DisclosuresCandidates': instance.disclosuresCandidates,
+      'IsSignatureSession': instance.isSignatureSession,
+      'SignedMessage': instance.signedMessage,
     };
 
 RequestSignaturePermissionSessionEvent _$RequestSignaturePermissionSessionEventFromJson(Map<String, dynamic> json) {
