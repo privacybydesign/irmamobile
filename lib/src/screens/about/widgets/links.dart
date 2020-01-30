@@ -55,7 +55,10 @@ class ExternalLink extends StatelessWidget {
               },
               child: Text(
                 FlutterI18n.translate(context, linkText),
-                style: TextStyle(color: IrmaTheme.of(context).linkColor),
+                style: TextStyle(
+                  color: IrmaTheme.of(context).linkColor,
+                  decoration: TextDecoration.underline,
+                ),
               ),
             ),
           ),
@@ -96,7 +99,10 @@ class InternalLink extends StatelessWidget {
               },
               child: Text(
                 FlutterI18n.translate(context, linkText),
-                style: TextStyle(color: IrmaTheme.of(context).linkColor),
+                style: TextStyle(
+                  color: IrmaTheme.of(context).linkColor,
+                  decoration: TextDecoration.underline,
+                ),
               ),
             ),
           ),
@@ -139,7 +145,10 @@ class ShareLink extends StatelessWidget {
               },
               child: Text(
                 FlutterI18n.translate(context, displayText),
-                style: TextStyle(color: IrmaTheme.of(context).linkColor),
+                style: TextStyle(
+                  color: IrmaTheme.of(context).linkColor,
+                  decoration: TextDecoration.underline,
+                ),
               ),
             ),
           ),
