@@ -31,13 +31,13 @@ class IrmaBottomBar extends StatelessWidget {
   List<Widget> buildButtons(BuildContext context, BoxConstraints constraints) {
     final List<Widget> btns = [];
 
-    double buttonnWidth = constraints.maxWidth - 2 * IrmaTheme.of(context).defaultSpacing;
+    double buttonWidth = constraints.maxWidth - 2 * IrmaTheme.of(context).defaultSpacing;
     if (secondaryButtonLabel != null) {
-      buttonnWidth = constraints.maxWidth / 2 - 2 * IrmaTheme.of(context).defaultSpacing;
+      buttonWidth = constraints.maxWidth / 2 - 2 * IrmaTheme.of(context).defaultSpacing;
 
       btns.add(IrmaTextButton(
         size: IrmaButtonSize.large,
-        minWidth: buttonnWidth,
+        minWidth: buttonWidth,
         onPressed: onSecondaryPressed,
         label: secondaryButtonLabel,
       ));
@@ -45,7 +45,7 @@ class IrmaBottomBar extends StatelessWidget {
 
     Widget primaryButtonn = IrmaButton(
       size: IrmaButtonSize.large,
-      minWidth: buttonnWidth,
+      minWidth: buttonWidth,
       onPressed: onPrimaryPressed,
       onPressedDisabled: onPrimaryDisabledPressed,
       label: primaryButtonLabel,
