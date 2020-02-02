@@ -46,6 +46,10 @@
       "skip_title": "Weet je het zeker?",
       "skip_content": "Zonder e-mailadres is het niet mogelijk de IRMA app te blokkeren na het verlies van je mobiel.",
       "insert_email": "E-mail invoeren"
+    },
+    "submit": {
+      "title": "Aanmelden",
+      "progress_enrollment": "Je wordt aangemeld"
     }
   },
   "about": {

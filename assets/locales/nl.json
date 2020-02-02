@@ -1,6 +1,6 @@
 {
   "ui": {
-    "loading": "Laden…"
+    "loading": "Even geduld"
   },
   "enrollment": {
     "welcome": {
@@ -45,6 +45,10 @@
       "skip_title": "Weet je het zeker?",
       "skip_content": "Bescherm jezelf. Als je een e-mailadres invult, kun je deze IRMA-app blokkeren na het verlies van je mobiel.",
       "insert_email": "E-mail invoeren"
+    },
+    "submit": {
+      "title": "Aanmelden",
+      "progress_enrollment": "Je wordt aangemeld"
     }
   },
   "about": {
