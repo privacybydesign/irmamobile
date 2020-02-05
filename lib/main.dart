@@ -111,6 +111,8 @@ class AppState extends State<App> with WidgetsBindingObserver {
 
   Widget _determineRoute(String routeName, Object arguments) {
     switch (routeName) {
+      case "/":
+        return Container();
       case DisclosureScreen.routeName:
         return DisclosureScreen(arguments: arguments as DisclosureScreenArguments);
       case EnrollmentScreen.routeName:
