@@ -40,7 +40,7 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
   @override
   void initState() {
     irmaCardTheme = calculateIrmaCardColor(widget.attributes.issuer);
-    photo = widget.attributes.decodeImage();
+    photo = Image.memory(widget.attributes.decodeImage());
 
     super.initState();
   }
