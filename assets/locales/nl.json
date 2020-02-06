@@ -172,7 +172,9 @@
   },
   "card": {
     "personaldata": "Persoonsgegevens",
-    "expiresAt": "Kaart geldig tot"
+    "expiresAt": "Geldig tot",
+    "delete": "Kaart verwijderen",
+    "refresh": "Kaart verversen"
   },
   "card_store": {
     "app_bar": "Kaartjes toevoegen",

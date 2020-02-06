@@ -1,11 +1,14 @@
+import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
+import 'package:irmamobile/src/theme/irma_icons.dart';
+import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/widgets/card/backgrounds.dart';
-import 'package:irmamobile/src/theme/theme.dart';
 
 import 'card_attributes.dart';
 
@@ -98,20 +101,28 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
                     left: IrmaTheme.of(context).defaultSpacing,
                     bottom: 0,
                   ),
-                  child: Text(
-                    getTranslation(widget.attributes.credentialType.name),
-                    style: Theme.of(context).textTheme.subhead.copyWith(
-                          color: irmaCardTheme.fgColor,
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: Text(
+                          getTranslation(widget.attributes.credentialType.name),
+                          style: Theme.of(context).textTheme.subhead.copyWith(
+                                color: irmaCardTheme.fgColor,
+                              ),
                         ),
+                      ),
+                      _offsetPopup(),
+                    ],
                   ),
                 ),
-                CardAttributes(
-                  personalData: widget.attributes,
-                  issuer: widget.attributes.issuer,
-                  isCardUnblurred: isCardReadable,
-                  irmaCardTheme: irmaCardTheme,
-                  photo: photo,
-                  scrollOverflowCallback: widget.scrollBeyondBoundsCallback,
+                Container(
+                  child: CardAttributes(
+                    personalData: widget.attributes,
+                    issuer: widget.attributes.issuer,
+                    isCardUnblurred: isCardReadable,
+                    irmaCardTheme: irmaCardTheme,
+                    scrollOverflowCallback: widget.scrollBeyondBoundsCallback,
+                  ),
                 ),
               ],
             ),
@@ -147,6 +158,61 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
 
     return backgrounds[strNum % backgrounds.length];
   }
+
+  Widget _offsetPopup() => PopupMenuButton<int>(
+        itemBuilder: (context) => [
+          PopupMenuItem(
+            value: 1,
+            child: Row(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Icon(
+                    Icons.refresh,
+                    color: IrmaTheme.of(context).primaryDark,
+                  ),
+                ),
+                Text(
+                  FlutterI18n.translate(context, 'card.refresh'),
+                  style: IrmaTheme.of(context).textTheme.subtitle.copyWith(color: IrmaTheme.of(context).primaryDark),
+                ),
+              ],
+            ),
+          ),
+          PopupMenuItem(
+            value: 2,
+            child: Row(
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Icon(
+                    Icons.delete,
+                    color: IrmaTheme.of(context).primaryDark,
+                  ),
+                ),
+                Text(
+                  FlutterI18n.translate(context, 'card.delete'),
+                  style: IrmaTheme.of(context).textTheme.subtitle.copyWith(color: IrmaTheme.of(context).primaryDark),
+                ),
+              ],
+            ),
+          ),
+        ],
+        offset: const Offset(0, 40),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18.0),
+        ),
+        color: IrmaTheme.of(context).primaryLight,
+        child: Transform.rotate(
+          // TODO replace icon in iconfont to a horizontalNav and remove this rotate
+          angle: 90 * math.pi / 180,
+          child: Padding(
+              padding: EdgeInsets.only(right: 8.0),
+              child: IconButton(
+                icon: Icon(IrmaIcons.verticalNav, size: 22.0, color: IrmaTheme.of(context).primaryDark),
+              )),
+        ),
+      );
 
   Widget stackedCard({Widget card, Widget Function() getStackedCard, bool applyStack}) => applyStack
       ? Stack(
