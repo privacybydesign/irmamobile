@@ -64,7 +64,7 @@ class _HelpScreenState extends State<HelpScreen> {
                             width: double.infinity,
                             child: Container(
                               child: Text(
-                                FlutterI18n.translate(context, 'demo.faq'),
+                                FlutterI18n.translate(context, 'manual.faq'),
                                 style: Theme.of(context).textTheme.display2,
                                 textAlign: TextAlign.left,
                               ),
@@ -74,7 +74,7 @@ class _HelpScreenState extends State<HelpScreen> {
                           SizedBox(
                             width: double.infinity,
                             child: Text(
-                              FlutterI18n.translate(context, 'demo.faq_info'),
+                              FlutterI18n.translate(context, 'manual.faq_info'),
                               style: Theme.of(context).textTheme.body1,
                               textAlign: TextAlign.left,
                             ),

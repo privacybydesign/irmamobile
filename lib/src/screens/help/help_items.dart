@@ -17,7 +17,7 @@ class HelpItems extends StatefulWidget {
 }
 
 class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
-  final List<GlobalKey> _collapsableKeys = List<GlobalKey>.generate(5, (int index) => GlobalKey());
+  final List<GlobalKey> _collapsableKeys = List<GlobalKey>.generate(6, (int index) => GlobalKey());
 
   @override
   Widget build(BuildContext context) {
@@ -88,6 +88,19 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
                 ),
               ),
               key: _collapsableKeys[4]),
+        ),
+        Semantics(
+          button: true,
+          child: Collapsible(
+              header: FlutterI18n.translate(context, 'help.question_6'),
+              onExpansionChanged: (v) =>
+                  {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[4])},
+              content: Container(
+                child: IrmaMarkdown(
+                  data: FlutterI18n.translate(context, 'help.answer_6'),
+                ),
+              ),
+              key: _collapsableKeys[5]),
         ),
       ],
     );
