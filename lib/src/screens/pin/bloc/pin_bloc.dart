@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/authentication.dart';
+import 'package:irmamobile/src/models/authentication_events.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_state.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';

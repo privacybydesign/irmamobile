@@ -4,13 +4,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:irmamobile/src/data/irma_bridge.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/authentication.dart';
-import 'package:irmamobile/src/models/credentials.dart';
+import 'package:irmamobile/src/models/authentication_events.dart';
+import 'package:irmamobile/src/models/credential_events.dart';
+import 'package:irmamobile/src/models/enrollment_events.dart';
 import 'package:irmamobile/src/models/event.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/log_entry.dart';
 import 'package:irmamobile/src/models/preferences.dart';
-import 'package:irmamobile/src/models/session.dart';
+import 'package:irmamobile/src/models/session_events.dart';
 
 typedef EventUnmarshaller = Event Function(Map<String, dynamic>);
 
@@ -20,12 +21,16 @@ class IrmaClientBridge extends IrmaBridge {
   final Map<Type, EventUnmarshaller> _eventUnmarshallers = {
     IrmaConfigurationEvent: (j) => IrmaConfigurationEvent.fromJson(j),
     CredentialsEvent: (j) => CredentialsEvent.fromJson(j),
-    AuthenticationSuccessEvent: (j) => AuthenticationSuccessEvent.fromJson(j),
-    AuthenticationFailedEvent: (j) => AuthenticationFailedEvent.fromJson(j),
-    AuthenticationErrorEvent: (j) => AuthenticationErrorEvent.fromJson(j),
     EnrollmentStatusEvent: (j) => EnrollmentStatusEvent.fromJson(j),
     PreferencesEvent: (j) => PreferencesEvent.fromJson(j),
     LogsEvent: (j) => LogsEvent.fromJson(j),
+
+    EnrollmentSuccessEvent: (j) => EnrollmentSuccessEvent.fromJson(j),
+    EnrollmentFailureEvent: (j) => EnrollmentFailureEvent.fromJson(j),
+
+    AuthenticationSuccessEvent: (j) => AuthenticationSuccessEvent.fromJson(j),
+    AuthenticationFailedEvent: (j) => AuthenticationFailedEvent.fromJson(j),
+    AuthenticationErrorEvent: (j) => AuthenticationErrorEvent.fromJson(j),
 
     StatusUpdateSessionEvent: (j) => StatusUpdateSessionEvent.fromJson(j),
     RequestVerificationPermissionSessionEvent: (j) => RequestVerificationPermissionSessionEvent.fromJson(j),

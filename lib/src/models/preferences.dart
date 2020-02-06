@@ -25,3 +25,15 @@ class PreferencesEvent extends Event {
   factory PreferencesEvent.fromJson(Map<String, dynamic> json) => _$PreferencesEventFromJson(json);
   Map<String, dynamic> toJson() => _$PreferencesEventToJson(this);
 }
+
+@JsonSerializable()
+class SetCrashReportingPreferenceEvent extends Event {
+  SetCrashReportingPreferenceEvent({this.enableCrashReporting});
+
+  @JsonKey(name: 'EnableCrashReporting')
+  bool enableCrashReporting;
+
+  factory SetCrashReportingPreferenceEvent.fromJson(Map<String, dynamic> json) =>
+      _$SetCrashReportingPreferenceEventFromJson(json);
+  Map<String, dynamic> toJson() => _$SetCrashReportingPreferenceEventToJson(this);
+}

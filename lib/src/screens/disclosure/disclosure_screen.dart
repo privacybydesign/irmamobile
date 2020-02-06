@@ -3,7 +3,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attributes.dart';
-import 'package:irmamobile/src/models/session.dart';
+import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
@@ -11,6 +11,7 @@ import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
+import 'package:irmamobile/src/widgets/irma_quote.dart';
 import 'package:irmamobile/src/widgets/irma_text_button.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 import 'package:irmamobile/src/widgets/loading_indicator.dart';
@@ -86,7 +87,46 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     ));
   }
 
-  Widget _buildNavigationBar(BuildContext context) {
+  Widget _buildDisclosureHeader(SessionState session) {
+    return Text.rich(
+      TextSpan(children: [
+        TextSpan(
+            text: FlutterI18n.translate(context, 'disclosure.disclosure_header.start'),
+            style: IrmaTheme.of(context).textTheme.body1),
+        TextSpan(
+          text: session.serverName.translate(_lang),
+          style: IrmaTheme.of(context).textTheme.body2,
+        ),
+        TextSpan(
+          text: FlutterI18n.translate(context, 'disclosure.disclosure_header.end'),
+          style: IrmaTheme.of(context).textTheme.body1,
+        ),
+      ]),
+    );
+  }
+
+  Widget _buildSigningHeader(SessionState session) {
+    return Column(children: [
+      Text.rich(
+        TextSpan(children: [
+          TextSpan(
+            text: session.serverName.translate(_lang),
+            style: IrmaTheme.of(context).textTheme.body2,
+          ),
+          TextSpan(
+            text: FlutterI18n.translate(context, 'disclosure.signing_header'),
+            style: IrmaTheme.of(context).textTheme.body1,
+          ),
+        ]),
+      ),
+      Padding(
+        padding: EdgeInsets.only(top: IrmaTheme.of(context).mediumSpacing),
+        child: IrmaQuote(quote: session.signedMessage),
+      ),
+    ]);
+  }
+
+  Widget _buildNavigationBar() {
     return StreamBuilder<SessionState>(
       stream: _sessionStateStream,
       builder: (context, sessionStateSnapshot) {
@@ -119,18 +159,10 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
       children: <Widget>[
         Padding(
           padding: EdgeInsets.symmetric(
-              vertical: IrmaTheme.of(context).mediumSpacing, horizontal: IrmaTheme.of(context).smallSpacing),
-          child: Text.rich(
-            TextSpan(children: [
-              TextSpan(
-                  text: FlutterI18n.translate(context, 'disclosure.intro.start'),
-                  style: IrmaTheme.of(context).textTheme.body1),
-              TextSpan(text: session.serverName.translate(_lang), style: IrmaTheme.of(context).textTheme.body2),
-              TextSpan(
-                  text: FlutterI18n.translate(context, 'disclosure.intro.end'),
-                  style: IrmaTheme.of(context).textTheme.body1),
-            ]),
+            vertical: IrmaTheme.of(context).mediumSpacing,
+            horizontal: IrmaTheme.of(context).smallSpacing,
           ),
+          child: session.isSignatureSession ? _buildSigningHeader(session) : _buildDisclosureHeader(session),
         ),
         Card(
           elevation: 1.0,
@@ -172,7 +204,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
         title: Text(FlutterI18n.translate(context, 'disclosure.title')),
       ),
       backgroundColor: IrmaTheme.of(context).grayscaleWhite,
-      bottomNavigationBar: _buildNavigationBar(context),
+      bottomNavigationBar: _buildNavigationBar(),
       body: StreamBuilder(
         stream: _sessionStateStream,
         builder: (BuildContext context, AsyncSnapshot<SessionState> sessionStateSnapshot) {

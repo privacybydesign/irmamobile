@@ -1,5 +1,5 @@
 import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/session.dart';
+import 'package:irmamobile/src/models/preferences.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 
@@ -25,7 +25,9 @@ class IrmaPreferences {
   }
 
   void setReportErrors(bool value) {
-    IrmaRepository.get().dispatch(SetCrashReportingPreferenceEvent(enableCrashReporting: value), isBridgedEvent: true);
+    IrmaRepository.get().bridgedDispatch(
+      SetCrashReportingPreferenceEvent(enableCrashReporting: value),
+    );
   }
 
   static const String _startQRScanKey = "preference.open_qr_scanner_on_launch";

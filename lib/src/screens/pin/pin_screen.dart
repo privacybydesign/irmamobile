@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_state.dart';
+import 'package:irmamobile/src/screens/reset_pin/reset_pin_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_text_button.dart';
 import 'package:irmamobile/src/widgets/pin_field.dart';
@@ -120,7 +121,7 @@ class _PinScreenState extends State<PinScreen> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        debugPrint("on forgot pin press");
+                        Navigator.of(context).pushNamed(ResetPinScreen.routeName);
                       },
                       child: Text(
                         FlutterI18n.translate(context, "pin.button_forgot"),

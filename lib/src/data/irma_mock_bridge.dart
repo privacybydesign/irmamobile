@@ -4,7 +4,7 @@ import 'package:irmamobile/src/data/irma_bridge.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/data/mock_data.dart';
 import 'package:irmamobile/src/models/app_ready_event.dart';
-import 'package:irmamobile/src/models/enroll_event.dart';
+import 'package:irmamobile/src/models/enrollment_events.dart';
 import 'package:irmamobile/src/models/event.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 

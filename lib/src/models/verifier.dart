@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 
-// Instead of
+@Deprecated("Refactor to not use this class")
 class VerifierCredential {
   final String issuer;
   final Attributes attributes;

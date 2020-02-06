@@ -46,6 +46,10 @@
       "skip_title": "Weet je het zeker?",
       "skip_content": "Bescherm jezelf. Als je een e-mailadres invult, kun je jouw IRMA-app blokkeren na het verlies van je mobiel.",
       "insert_email": "Voer e-mailadres in"
+    },
+    "submit": {
+      "title": "Aanmelden",
+      "progress_enrollment": "Je wordt aangemeld"
     }
   },
   "about": {
@@ -322,10 +326,11 @@
   },
   "disclosure": {
     "title": "Jezelf bekend maken",
-    "intro": {
+    "disclosure_header": {
       "start": "Wil je dit aan ",
       "end": " doorgeven?"
     },
+    "signing_header": " verzoekt jou om een bericht te ondertekenen",
     "issuer": "Bron",
     "choices": "{choices} keuzes",
     "next": "volgende kiezen",

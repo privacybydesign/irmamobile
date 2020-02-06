@@ -8,6 +8,8 @@ class SessionState {
   final TranslatedValue serverName;
   final ConDisCon<CredentialAttribute> disclosuresCandidates;
   final String clientReturnURL;
+  final bool isSignatureSession;
+  final String signedMessage;
 
   SessionState({
     this.sessionID,
@@ -16,6 +18,8 @@ class SessionState {
     this.serverName,
     this.disclosuresCandidates,
     this.clientReturnURL,
+    this.isSignatureSession,
+    this.signedMessage,
   });
 
   SessionState copyWith({
@@ -24,6 +28,8 @@ class SessionState {
     TranslatedValue serverName,
     ConDisCon<CredentialAttribute> disclosuresCandidates,
     String clientReturnURL,
+    bool isSignatureSession,
+    String signedMessage,
   }) {
     return SessionState(
       sessionID: sessionID,
@@ -32,6 +38,8 @@ class SessionState {
       serverName: serverName ?? this.serverName,
       disclosuresCandidates: disclosuresCandidates ?? this.disclosuresCandidates,
       clientReturnURL: clientReturnURL ?? this.clientReturnURL,
+      isSignatureSession: isSignatureSession ?? this.isSignatureSession,
+      signedMessage: signedMessage ?? this.signedMessage,
     );
   }
 }

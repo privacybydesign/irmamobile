@@ -2,7 +2,7 @@ import 'package:irmamobile/src/models/event.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-part 'change_pin_event.g.dart';
+part 'change_pin_events.g.dart';
 
 @JsonSerializable()
 class ChangePinEvent extends Event {
