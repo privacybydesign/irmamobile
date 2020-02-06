@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -41,7 +40,7 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
   @override
   void initState() {
     irmaCardTheme = calculateIrmaCardColor(widget.attributes.issuer);
-    photo = decodeImage(widget.attributes);
+    photo = widget.attributes.decodeImage();
 
     super.initState();
   }
@@ -117,23 +116,23 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
               ],
             ),
           ),
-          stackedCard: LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints constraints) {
-              return IgnorePointer(
-                ignoring: true,
-                child: Container(
-                  height: constraints.smallest.height,
-                  margin: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
-                  decoration: BoxDecoration(
-                    color: _transparentWhite,
-                    borderRadius: BorderRadius.all(
-                      _borderRadius,
+          getStackedCard: () => LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  return IgnorePointer(
+                    ignoring: true,
+                    child: Container(
+                      height: constraints.smallest.height,
+                      margin: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
+                      decoration: BoxDecoration(
+                        color: _transparentWhite,
+                        borderRadius: BorderRadius.all(
+                          _borderRadius,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              );
-            },
-          ),
+                  );
+                },
+              ),
           applyStack: widget.isDeleted),
     );
   }
@@ -149,27 +148,14 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
     return backgrounds[strNum % backgrounds.length];
   }
 
-  Image decodeImage(Credential personalData) {
-    Image photoImage;
-
-    final photoData = personalData.attributes.entries
-        .firstWhere((personal) => personal.key.name['en'] == 'Photo', orElse: () => null);
-
-    if (photoData != null) {
-      photoImage = Image.memory(const Base64Decoder().convert(photoData.value['en']));
-    }
-
-    return photoImage;
-  }
+  Widget stackedCard({Widget card, Widget Function() getStackedCard, bool applyStack}) => applyStack
+      ? Stack(
+          children: <Widget>[
+            card,
+            Positioned.fill(
+              child: stackedCard(),
+            ),
+          ],
+        )
+      : card;
 }
-
-Widget stackedCard({Widget card, Widget stackedCard, bool applyStack}) => applyStack
-    ? Stack(
-        children: <Widget>[
-          card,
-          Positioned.fill(
-            child: stackedCard,
-          ),
-        ],
-      )
-    : card;

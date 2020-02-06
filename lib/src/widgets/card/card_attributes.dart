@@ -23,13 +23,14 @@ class CardAttributes extends StatelessWidget {
   final Image photo;
   final void Function(double) scrollOverflowCallback;
 
-  CardAttributes(
-      {this.personalData,
-      this.issuer,
-      this.isCardUnblurred,
-      this.irmaCardTheme,
-      this.photo,
-      this.scrollOverflowCallback});
+  CardAttributes({
+    this.personalData,
+    this.issuer,
+    this.isCardUnblurred,
+    this.irmaCardTheme,
+    this.photo,
+    this.scrollOverflowCallback,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +56,7 @@ class CardAttributes extends StatelessWidget {
             constraints: BoxConstraints(
               minHeight: _minHeight,
             ),
-            child: photoCard(
+            child: _buildPhotoCard(
               card: Scrollbar(
                 child: ListView(
                   shrinkWrap: true,
@@ -70,8 +71,8 @@ class CardAttributes extends StatelessWidget {
                   ],
                 ),
               ),
-              photoCard: Padding(
-                padding: const EdgeInsets.only(top: 6),
+              getPhotoCard: () => Padding(
+                padding: EdgeInsets.only(top: 6, bottom: IrmaTheme.of(context).smallSpacing),
                 child: Container(
                   width: 90,
                   height: 120,
@@ -190,14 +191,14 @@ class CardAttributes extends StatelessWidget {
   String getReadableDate(DateTime date, String lang) {
     return DateFormat.yMMMMd(lang).format(date);
   }
-}
 
-Widget photoCard({Widget card, Widget photoCard, bool applyPhoto}) => applyPhoto
-    ? Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          photoCard,
-          Expanded(child: card),
-        ],
-      )
-    : card;
+  Widget _buildPhotoCard({Widget card, Widget Function() getPhotoCard, bool applyPhoto}) => applyPhoto
+      ? Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            getPhotoCard(),
+            Expanded(child: card),
+          ],
+        )
+      : card;
+}
