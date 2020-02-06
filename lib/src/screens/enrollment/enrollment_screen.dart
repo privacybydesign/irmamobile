@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
+import 'package:irmamobile/src/models/enrollment_status.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_bloc.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_event.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
@@ -23,27 +24,6 @@ class EnrollmentScreen extends StatefulWidget {
 }
 
 class _EnrollmentScreenState extends State<EnrollmentScreen> {
-  StreamSubscription<bool> sub;
-
-  @override
-  void initState() {
-    // TODO: This is probably not how we should respond to this state change
-    sub = IrmaRepository.get().getIsEnrolled().listen((isEnrolled) {
-      if (isEnrolled) {
-        Navigator.of(context).pushReplacementNamed(WalletScreen.routeName);
-        sub.cancel();
-      }
-    });
-
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    sub.cancel();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocProvider<EnrollmentBloc>(
@@ -66,6 +46,7 @@ class ProvidedEnrollmentScreen extends StatefulWidget {
 
 class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
   FocusNode pinFocusNode;
+  StreamSubscription<EnrollmentStatus> enrollmentStatusSubscription;
   final EnrollmentBloc bloc;
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -74,11 +55,20 @@ class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
   @override
   void initState() {
     super.initState();
+
     pinFocusNode = FocusNode();
+
+    // TODO: This is probably not how we should respond to this state change
+    enrollmentStatusSubscription = IrmaRepository.get().getEnrollmentStatus().listen((enrollmentStatus) {
+      if (enrollmentStatus == EnrollmentStatus.enrolled) {
+        Navigator.of(context).pushReplacementNamed(WalletScreen.routeName);
+      }
+    });
   }
 
   @override
   void dispose() {
+    enrollmentStatusSubscription.cancel();
     super.dispose();
   }
 

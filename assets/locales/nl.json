@@ -326,10 +326,11 @@
   },
   "disclosure": {
     "title": "Jezelf bekend maken",
-    "intro": {
+    "disclosure_header": {
       "start": "Wil je dit aan ",
       "end": " doorgeven?"
     },
+    "signing_header": " verzoekt jou om een bericht te ondertekenen",
     "issuer": "Bron",
     "choices": "{choices} keuzes",
     "next": "volgende kiezen",

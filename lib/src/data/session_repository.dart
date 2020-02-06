@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attributes.dart';
-import 'package:irmamobile/src/models/session.dart';
+import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:stream_transform/stream_transform.dart';
@@ -73,6 +73,8 @@ class SessionRepository {
       return prevState.copyWith(
         status: SessionStatus.requestPermission,
         serverName: event.serverName,
+        isSignatureSession: event.isSignatureSession,
+        signedMessage: event.signedMessage,
         disclosuresCandidates: ConDisCon.fromRaw<AttributeIdentifier, CredentialAttribute>(event.disclosuresCandidates,
             (attributeIdentifier) {
           return CredentialAttribute.fromAttributeIdentifier(irmaConfiguration, credentials, attributeIdentifier);

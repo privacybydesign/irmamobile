@@ -340,10 +340,11 @@
   },
   "disclosure": {
     "title": "Disclosure",
-    "intro": {
+    "disclosure_header": {
       "start": "Do you want to pass this on to ",
       "end": "?"
     },
+    "signing_header": "requests you to sign the following message:",
     "issuer": "Issuer",
     "choices": "{choices} choices",
     "next": "choose the next one",

@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'change_pin_event.dart';
+part of 'change_pin_events.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator

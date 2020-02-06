@@ -5,14 +5,16 @@ import 'package:flutter/widgets.dart';
 import 'package:irmamobile/src/data/irma_bridge.dart';
 import 'package:irmamobile/src/data/session_repository.dart';
 import 'package:irmamobile/src/models/app_ready_event.dart';
-import 'package:irmamobile/src/models/authentication.dart';
+import 'package:irmamobile/src/models/authentication_events.dart';
+import 'package:irmamobile/src/models/credential_events.dart';
 import 'package:irmamobile/src/models/credentials.dart';
-import 'package:irmamobile/src/models/enroll_event.dart';
+import 'package:irmamobile/src/models/enrollment_events.dart';
+import 'package:irmamobile/src/models/enrollment_status.dart';
 import 'package:irmamobile/src/models/event.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/log_entry.dart';
 import 'package:irmamobile/src/models/preferences.dart';
-import 'package:irmamobile/src/models/session.dart';
+import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/models/version_information.dart';
 import 'package:package_info/package_info.dart';
@@ -63,12 +65,13 @@ class IrmaRepository {
     } else if (event is AuthenticationEvent) {
       _authenticationEventSubject.add(event);
     } else if (event is EnrollmentStatusEvent) {
-      final isEnrolled = event.unenrolledSchemeManagerIds.isEmpty;
-      _isEnrolledSubject.add(isEnrolled);
+      _enrollmentStatusSubject.add(
+        event.isEnrolled() ? EnrollmentStatus.enrolled : EnrollmentStatus.unenrolled,
+      );
     } else if (event is PreferencesEvent) {
       _preferencesSubject.add(event.preferences);
     } else if (event is LogsEvent) {
-      _logsSubject.add((event as LogsEvent).logEntries);
+      _logsSubject.add(event.logEntries);
     }
   }
 
@@ -89,6 +92,8 @@ class IrmaRepository {
   }
 
   // -- Scheme manager, issuer, credential and attribute definitions
+
+  // TODO: Make this member private
   final irmaConfigurationSubject = BehaviorSubject<IrmaConfiguration>();
 
   Stream<IrmaConfiguration> getIrmaConfiguration() {
@@ -113,7 +118,7 @@ class IrmaRepository {
   }
 
   // -- Enrollment
-  final _isEnrolledSubject = PublishSubject<bool>();
+  final _enrollmentStatusSubject = BehaviorSubject<EnrollmentStatus>.seeded(EnrollmentStatus.undetermined);
 
   // TODO: Remove this away
   void enroll({String email, String pin, String language}) {
@@ -123,8 +128,8 @@ class IrmaRepository {
     dispatch(event, isBridgedEvent: true);
   }
 
-  Stream<bool> getIsEnrolled() {
-    return _isEnrolledSubject.stream;
+  Stream<EnrollmentStatus> getEnrollmentStatus() {
+    return _enrollmentStatusSubject.stream;
   }
 
   // -- Authentication
@@ -148,6 +153,7 @@ class IrmaRepository {
   // TODO: Move getting of first authentication result to own method
   Future<AuthenticationEvent> unlock(String pin) {
     dispatch(AuthenticateEvent(pin: pin), isBridgedEvent: true);
+
     return _authenticationEventSubject.where((event) {
       switch (event.runtimeType) {
         case AuthenticationSuccessEvent:

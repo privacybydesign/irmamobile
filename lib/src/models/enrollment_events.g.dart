@@ -1,10 +1,22 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'enroll_event.dart';
+part of 'enrollment_events.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
+
+EnrollmentStatusEvent _$EnrollmentStatusEventFromJson(Map<String, dynamic> json) {
+  return EnrollmentStatusEvent(
+    enrolledSchemeManagerIds: (json['EnrolledSchemeManagerIds'] as List)?.map((e) => e as String)?.toList(),
+    unenrolledSchemeManagerIds: (json['UnenrolledSchemeManagerIds'] as List)?.map((e) => e as String)?.toList(),
+  );
+}
+
+Map<String, dynamic> _$EnrollmentStatusEventToJson(EnrollmentStatusEvent instance) => <String, dynamic>{
+      'EnrolledSchemeManagerIds': instance.enrolledSchemeManagerIds,
+      'UnenrolledSchemeManagerIds': instance.unenrolledSchemeManagerIds,
+    };
 
 EnrollEvent _$EnrollEventFromJson(Map<String, dynamic> json) {
   return EnrollEvent(

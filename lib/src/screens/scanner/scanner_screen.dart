@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/session.dart';
+import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/screens/disclosure/disclosure_screen.dart';
 import 'package:irmamobile/src/screens/scanner/widgets/qr_scanner.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
@@ -26,7 +27,8 @@ class ScannerScreen extends StatelessWidget {
     final Uri uri = Uri.parse("https://metrics.privacybydesign.foundation/irmaserver/session");
     const String sessionRequest = """
       {
-        "@context": "https://irma.app/ld/request/disclosure/v2",
+        "@context": "https://irma.app/ld/request/signature/v2",
+        "message": "Ik geef hierbij toestemming aan Partij A om mijn gegevens uit te wisselen met Partij B. Deze toestemming is geldig tot 1 juni 2019.",
         "disclose": [
           [
             [
@@ -54,11 +56,12 @@ class ScannerScreen extends StatelessWidget {
     final event = NewSessionEvent(request: sessionPointer, continueOnSecondDevice: true);
     IrmaRepository.get().dispatch(event, isBridgedEvent: true);
 
-    if (event.request.irmaqr == "disclosing") {
-      Navigator.pushNamed(context, DisclosureScreen.routeName,
+    if (["disclosing", "signing"].contains(event.request.irmaqr)) {
+      Navigator.of(context).pushNamedAndRemoveUntil(
+          DisclosureScreen.routeName, ModalRoute.withName(WalletScreen.routeName),
           arguments: DisclosureScreenArguments(sessionID: event.sessionID));
     } else {
-      Navigator.popUntil(context, ModalRoute.withName(WalletScreen.routeName));
+      Navigator.of(context).popUntil(ModalRoute.withName(WalletScreen.routeName));
     }
   }
 
