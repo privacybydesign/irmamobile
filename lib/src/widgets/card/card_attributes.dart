@@ -12,6 +12,7 @@ import 'package:irmamobile/src/widgets/card/blurtext.dart';
 class CardAttributes extends StatelessWidget {
   final _lang = ui.window.locale.languageCode;
   final _indent = 100.0;
+
   final _maxHeight = 300.0;
   final _minHeight = 120.0; // TODO: perfect aspect ratio
 

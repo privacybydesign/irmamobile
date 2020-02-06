@@ -43,11 +43,6 @@ class ConfirmPin extends StatelessWidget {
               onSubmit: submitConfirmationPin,
             ),
             SizedBox(height: IrmaTheme.of(context).smallSpacing),
-            Text(
-              FlutterI18n.translate(context, 'enrollment.choose_pin.instruction'),
-              style: IrmaTheme.of(context).textTheme.body1,
-              textAlign: TextAlign.center,
-            ),
           ],
         ),
       ),

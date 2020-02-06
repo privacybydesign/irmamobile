@@ -134,7 +134,7 @@ class _DemoItemsState extends State<DemoItems> with TickerProviderStateMixin {
         Semantics(
           button: true,
           child: Collapsible(
-              header: FlutterI18n.translate(context, 'demo.question_1'),
+              header: FlutterI18n.translate(context, 'manual.question_1'),
               onExpansionChanged: (v) =>
                   {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[0])},
               content: Column(
@@ -155,7 +155,7 @@ class _DemoItemsState extends State<DemoItems> with TickerProviderStateMixin {
         Semantics(
           button: true,
           child: Collapsible(
-              header: FlutterI18n.translate(context, 'demo.question_2'),
+              header: FlutterI18n.translate(context, 'manual.question_2'),
               onExpansionChanged: (v) =>
                   {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[1])},
               content: Column(
