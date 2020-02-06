@@ -6,10 +6,8 @@ import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/choose_pin.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/provide_email_actions.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/welcome.dart';
-import 'package:irmamobile/src/screens/error/no_internet.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
-import 'package:irmamobile/src/widgets/loading_indicator.dart';
 
 class ProvideEmail extends StatefulWidget {
   static const String routeName = 'provide_email';
@@ -17,13 +15,11 @@ class ProvideEmail extends StatefulWidget {
   final void Function(String) submitEmail;
   final void Function() skipEmail;
   final void Function() cancel;
-  final void Function() retryEnrollment;
 
   const ProvideEmail({
     @required this.submitEmail,
     @required this.skipEmail,
     @required this.cancel,
-    @required this.retryEnrollment,
   });
 
   @override
@@ -70,18 +66,6 @@ class _ProvideEmailState extends State<ProvideEmail> {
             error = FlutterI18n.translate(context, 'enrollment.provide_email.error');
           }
 
-          if (state.isSubmitting == true) {
-            _hideKeyboard(context);
-          }
-
-          if (state.enrollementFailed == true) {
-            return NoInternet(
-              () {
-                widget.retryEnrollment();
-              },
-            );
-          }
-
           return LayoutBuilder(
             builder: (context, constraints) {
               return SingleChildScrollView(
@@ -122,18 +106,15 @@ class _ProvideEmailState extends State<ProvideEmail> {
                             ],
                           ),
                         ),
-                        if (state.isSubmitting)
-                          LoadingIndicator()
-                        else
-                          ProvideEmailActions(
-                            submitEmail: () {
-                              widget.submitEmail(email);
-                            },
-                            skipEmail: widget.skipEmail,
-                            enterEmail: () {
-                              FocusScope.of(context).requestFocus(inputFocusNode);
-                            },
-                          )
+                        ProvideEmailActions(
+                          submitEmail: () {
+                            widget.submitEmail(email);
+                          },
+                          skipEmail: widget.skipEmail,
+                          enterEmail: () {
+                            FocusScope.of(context).requestFocus(inputFocusNode);
+                          },
+                        )
                       ],
                     ),
                   ),

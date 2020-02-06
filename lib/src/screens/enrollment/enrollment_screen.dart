@@ -11,6 +11,7 @@ import 'package:irmamobile/src/screens/enrollment/widgets/confirm_error_dialog.d
 import 'package:irmamobile/src/screens/enrollment/widgets/confirm_pin.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/introduction.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/provide_email.dart';
+import 'package:irmamobile/src/screens/enrollment/widgets/submit.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/welcome.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 
@@ -87,8 +88,8 @@ class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
       Introduction.routeName: (_) => Introduction(),
       ChoosePin.routeName: (_) => ChoosePin(pinFocusNode: pinFocusNode, submitPin: submitPin, cancel: cancel),
       ConfirmPin.routeName: (_) => ConfirmPin(submitConfirmationPin: submitConfirmationPin, cancel: cancel),
-      ProvideEmail.routeName: (_) => ProvideEmail(
-          submitEmail: submitEmail, retryEnrollment: retryEnrollment, skipEmail: skipEmail, cancel: cancel),
+      ProvideEmail.routeName: (_) => ProvideEmail(submitEmail: submitEmail, skipEmail: skipEmail, cancel: cancel),
+      Submit.routeName: (_) => Submit(cancel: cancel, retryEnrollment: retryEnrollment),
     };
   }
 
@@ -128,11 +129,14 @@ class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
       },
       child: BlocListener<EnrollmentBloc, EnrollmentState>(
         condition: (EnrollmentState previous, EnrollmentState current) {
-          return current.pinConfirmed != previous.pinConfirmed ||
-              current.showPinValidation != previous.showPinValidation;
+          return (current.pinConfirmed != previous.pinConfirmed ||
+                  current.showPinValidation != previous.showPinValidation) ||
+              (!previous.isSubmitting && current.isSubmitting);
         },
         listener: (BuildContext context, EnrollmentState state) {
-          if (state.pinConfirmed) {
+          if (state.isSubmitting == true) {
+            navigatorKey.currentState.pushReplacementNamed(Submit.routeName);
+          } else if (state.pinConfirmed) {
             navigatorKey.currentState.pushReplacementNamed(ProvideEmail.routeName);
           } else if (state.pinMismatch) {
             navigatorKey.currentState.popUntil((route) => route.settings.name == ChoosePin.routeName);
