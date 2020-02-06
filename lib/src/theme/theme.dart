@@ -262,7 +262,7 @@ class IrmaThemeData extends Equatable {
       height: 24.0 / 16.0,
       fontWeight: FontWeight.normal,
       color: primaryBlue,
-      // decoration: TextDecoration.underline,
+      decoration: TextDecoration.underline,
     );
 
     hyperlinkVisitedTextStyle = TextStyle(

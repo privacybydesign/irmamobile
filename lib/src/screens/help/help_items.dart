@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/collapsible_helper.dart';
 import 'package:irmamobile/src/widgets/collapsible.dart';
+import 'package:irmamobile/src/widgets/irma_markdown.dart';
 
 class HelpItems extends StatefulWidget {
   const HelpItems({this.credentialType, this.parentKey, this.parentScrollController});
@@ -33,14 +32,8 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
               onExpansionChanged: (v) =>
                   {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[0])},
               content: Container(
-                child: MarkdownBody(
-                  selectable: false,
+                child: IrmaMarkdown(
                   data: FlutterI18n.translate(context, 'help.answer_1'),
-                  styleSheet: MarkdownStyleSheet(
-                    strong: IrmaTheme.of(context).textTheme.body2,
-                    textScaleFactor: MediaQuery.textScaleFactorOf(
-                        context), // TODO remove that addition when "https://github.com/flutter/flutter_markdown/pull/162" is merged
-                  ),
                 ),
               ),
               key: _collapsableKeys[0]),
@@ -52,14 +45,8 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
               onExpansionChanged: (v) =>
                   {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[1])},
               content: Container(
-                child: MarkdownBody(
-                  selectable: false,
+                child: IrmaMarkdown(
                   data: FlutterI18n.translate(context, 'help.answer_2'),
-                  styleSheet: MarkdownStyleSheet(
-                    strong: IrmaTheme.of(context).textTheme.body2,
-                    textScaleFactor: MediaQuery.textScaleFactorOf(
-                        context), // TODO remove that addition when "https://github.com/flutter/flutter_markdown/pull/162" is merged
-                  ),
                 ),
               ),
               key: _collapsableKeys[1]),
@@ -71,16 +58,9 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
               onExpansionChanged: (v) =>
                   {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[2])},
               content: Container(
-                child: MarkdownBody(
-                  selectable: false,
-                  data: FlutterI18n.translate(context, 'help.answer_3'),
-                  styleSheet: MarkdownStyleSheet(
-                    strong: IrmaTheme.of(context).textTheme.body2,
-                    textScaleFactor: MediaQuery.textScaleFactorOf(
-                        context), // TODO remove that addition when "https://github.com/flutter/flutter_markdown/pull/162" is merged
-                  ),
-                ),
-              ),
+                  child: IrmaMarkdown(
+                data: FlutterI18n.translate(context, 'help.answer_3'),
+              )),
               key: _collapsableKeys[2]),
         ),
         Semantics(
@@ -90,14 +70,8 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
               onExpansionChanged: (v) =>
                   {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[3])},
               content: Container(
-                child: MarkdownBody(
-                  selectable: false,
+                child: IrmaMarkdown(
                   data: FlutterI18n.translate(context, 'help.answer_4'),
-                  styleSheet: MarkdownStyleSheet(
-                    strong: IrmaTheme.of(context).textTheme.body2,
-                    textScaleFactor: MediaQuery.textScaleFactorOf(
-                        context), // TODO remove that addition when "https://github.com/flutter/flutter_markdown/pull/162" is merged
-                  ),
                 ),
               ),
               key: _collapsableKeys[3]),
@@ -109,14 +83,8 @@ class _HelpItemsState extends State<HelpItems> with TickerProviderStateMixin {
               onExpansionChanged: (v) =>
                   {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[4])},
               content: Container(
-                child: MarkdownBody(
-                  selectable: false,
+                child: IrmaMarkdown(
                   data: FlutterI18n.translate(context, 'help.answer_5'),
-                  styleSheet: MarkdownStyleSheet(
-                    strong: IrmaTheme.of(context).textTheme.body2,
-                    textScaleFactor: MediaQuery.textScaleFactorOf(
-                        context), // TODO remove that addition when "https://github.com/flutter/flutter_markdown/pull/162" is merged
-                  ),
                 ),
               ),
               key: _collapsableKeys[4]),

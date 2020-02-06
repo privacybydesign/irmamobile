@@ -1,13 +1,12 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/screens/about/widgets/links.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/collapsible.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:irmamobile/src/widgets/irma_markdown.dart';
 
 class AboutItems extends StatefulWidget {
   const AboutItems({this.credentialType, this.parentKey, this.parentScrollController});
@@ -81,14 +80,8 @@ class WhoIsBehindIrma extends StatelessWidget {
     return Column(
       children: <Widget>[
         Container(
-          child: MarkdownBody(
-            selectable: true,
+          child: IrmaMarkdown(
             data: FlutterI18n.translate(context, 'about.who_is_behind_irma_explanation'),
-            styleSheet: MarkdownStyleSheet(
-              strong: IrmaTheme.of(context).textTheme.body2,
-              textScaleFactor: MediaQuery.textScaleFactorOf(
-                  context), // TODO remove that addition when "https://github.com/flutter/flutter_markdown/pull/162" is merged
-            ),
           ),
         ),
         SizedBox(height: IrmaTheme.of(context).defaultSpacing),
@@ -120,17 +113,8 @@ class WhyIrma extends StatelessWidget {
     return Column(
       children: <Widget>[
         Container(
-          child: MarkdownBody(
+          child: IrmaMarkdown(
             data: FlutterI18n.translate(context, 'about.why_irma_explanation'),
-            styleSheet: MarkdownStyleSheet(
-              strong: IrmaTheme.of(context).textTheme.body2,
-              a: IrmaTheme.of(context).hyperlinkTextStyle,
-              textScaleFactor: MediaQuery.textScaleFactorOf(
-                  context), // TODO remove that addition when "https://github.com/flutter/flutter_markdown/pull/162" is merged
-            ),
-            onTapLink: (href) {
-              launch(href);
-            },
           ),
         ),
         SizedBox(height: IrmaTheme.of(context).smallSpacing),
@@ -146,17 +130,8 @@ class PrivacyAndSecurity extends StatelessWidget {
     return Column(
       children: <Widget>[
         Container(
-          child: MarkdownBody(
+          child: IrmaMarkdown(
             data: FlutterI18n.translate(context, 'about.privacy_explanation'),
-            styleSheet: MarkdownStyleSheet(
-              strong: IrmaTheme.of(context).textTheme.body2,
-              a: IrmaTheme.of(context).hyperlinkTextStyle,
-              textScaleFactor: MediaQuery.textScaleFactorOf(
-                  context), // TODO remove that addition when "https://github.com/flutter/flutter_markdown/pull/162" is merged
-            ),
-            onTapLink: (href) {
-              launch(href);
-            },
           ),
         ),
         SizedBox(height: IrmaTheme.of(context).defaultSpacing),
