@@ -1,9 +1,8 @@
+import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/event.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:json_annotation/json_annotation.dart';
-
-import 'disclosed_attribute.dart';
 
 part 'log_entry.g.dart';
 

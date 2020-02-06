@@ -2,7 +2,6 @@ import 'dart:collection';
 
 import 'package:flutter/cupertino.dart';
 import 'package:irmamobile/src/models/attributes.dart';
-import 'package:irmamobile/src/models/event.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -67,17 +66,6 @@ class Credential {
           rawAttributes: rawCredential.attributes,
         ),
         hash = rawCredential.hash;
-}
-
-@JsonSerializable(nullable: false)
-class CredentialsEvent extends Event {
-  CredentialsEvent({this.credentials});
-
-  @JsonKey(name: 'Credentials')
-  final List<RawCredential> credentials;
-
-  factory CredentialsEvent.fromJson(Map<String, dynamic> json) => _$CredentialsEventFromJson(json);
-  Map<String, dynamic> toJson() => _$CredentialsEventToJson(this);
 }
 
 @JsonSerializable(nullable: false)

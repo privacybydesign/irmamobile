@@ -61,8 +61,7 @@ class EnrollmentBloc extends Bloc<Object, EnrollmentState> {
         isSubmitting: true,
         enrollementFailed: false,
       );
-      // TODO: get a future back and change the state based on it, which can
-      // be used by animation/outro?
+
       IrmaRepository.get().enroll(
         email: currentState.email.trim(),
         pin: currentState.pin,

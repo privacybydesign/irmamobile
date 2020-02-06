@@ -25,3 +25,14 @@ PreferencesEvent _$PreferencesEventFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$PreferencesEventToJson(PreferencesEvent instance) => <String, dynamic>{
       'Preferences': instance.preferences,
     };
+
+SetCrashReportingPreferenceEvent _$SetCrashReportingPreferenceEventFromJson(Map<String, dynamic> json) {
+  return SetCrashReportingPreferenceEvent(
+    enableCrashReporting: json['EnableCrashReporting'] as bool,
+  );
+}
+
+Map<String, dynamic> _$SetCrashReportingPreferenceEventToJson(SetCrashReportingPreferenceEvent instance) =>
+    <String, dynamic>{
+      'EnableCrashReporting': instance.enableCrashReporting,
+    };

@@ -1,7 +1,7 @@
 import 'package:irmamobile/src/models/event.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-part 'authentication.g.dart';
+part 'authentication_events.g.dart';
 
 abstract class AuthenticationEvent extends Event {}
 

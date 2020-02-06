@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:irmamobile/src/data/irma_client_bridge.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
+import 'package:irmamobile/src/models/enrollment_status.dart';
 import 'package:irmamobile/src/models/version_information.dart';
 import 'package:irmamobile/src/screens/about/about_screen.dart';
 import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
@@ -15,6 +16,7 @@ import 'package:irmamobile/src/screens/help/help_screen.dart';
 import 'package:irmamobile/src/screens/history/history_screen.dart';
 import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/screens/required_update/required_update_screen.dart';
+import 'package:irmamobile/src/screens/reset_pin/reset_pin_screen.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
 import 'package:irmamobile/src/screens/splash_screen/splash_screen.dart';
@@ -22,8 +24,10 @@ import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/navigator_service.dart';
 
-void main() {
-  // Run the application
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  IrmaRepository(client: IrmaClientBridge());
+
   runApp(const App());
 }
 
@@ -35,13 +39,13 @@ class App extends StatefulWidget {
 }
 
 class AppState extends State<App> with WidgetsBindingObserver {
-  final String initialRoute;
+  String initialRoute;
 
   // We keep track of the last two life cycle states
   // to be able to determine the flow
   List<AppLifecycleState> prevLifeCycleStates = List<AppLifecycleState>(2);
 
-  AppState() : initialRoute = null;
+  AppState();
 
   static List<LocalizationsDelegate> defaultLocalizationsDelegates([Locale forcedLocale]) {
     return [
@@ -70,6 +74,18 @@ class AppState extends State<App> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+
+    // Set the initial route once, after we've learn whether we're enrolled or not
+    IrmaRepository.get()
+        .getEnrollmentStatus()
+        .firstWhere((enrollmentStatus) => enrollmentStatus != EnrollmentStatus.undetermined)
+        .then((enrollmentStatus) {
+      setState(() {
+        initialRoute =
+            enrollmentStatus == EnrollmentStatus.enrolled ? WalletScreen.routeName : EnrollmentScreen.routeName;
+      });
+    });
+
     // TODO: the delay before splash is hidden is quite long. This is because we
     // currently have a long startup time (although that may be because we run
     // in debug). This value should eventually be lowered to 500.
@@ -133,6 +149,8 @@ class AppState extends State<App> with WidgetsBindingObserver {
         return HistoryScreen();
       case HelpScreen.routeName:
         return HelpScreen();
+      case ResetPinScreen.routeName:
+        return ResetPinScreen();
     }
 
     throw "Unrecognized route was pushed";
@@ -140,8 +158,6 @@ class AppState extends State<App> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    IrmaRepository(client: IrmaClientBridge());
-
     final irmaRepo = IrmaRepository.get();
     final versionInformationStream = irmaRepo.getVersionInformation();
 
@@ -153,16 +169,10 @@ class AppState extends State<App> with WidgetsBindingObserver {
 
     return IrmaTheme(
       builder: (BuildContext context) {
-        return StreamBuilder<bool>(
-          stream: irmaRepo.getIsEnrolled(),
-          builder: (context, enrolledSnapshot) {
-            // NOTE: isEnrolled can be null because there is no guarantee that
-            // enrolledSnapshot.data is not null.
-            final isEnrolled = enrolledSnapshot.data;
-            String initialRoute = WalletScreen.routeName;
-            if (isEnrolled == false) {
-              initialRoute = EnrollmentScreen.routeName;
-            }
+        return StreamBuilder<EnrollmentStatus>(
+          stream: irmaRepo.getEnrollmentStatus(),
+          builder: (context, enrollmentStatusSnapshop) {
+            final enrollmentStatus = enrollmentStatusSnapshop.data;
 
             return StreamBuilder<VersionInformation>(
               stream: versionInformationStream,
@@ -195,7 +205,7 @@ class AppState extends State<App> with WidgetsBindingObserver {
                         return Stack(
                           children: <Widget>[
                             child,
-                            if (isEnrolled == true) ...[
+                            if (enrollmentStatus == EnrollmentStatus.enrolled) ...[
                               const PinScreen(),
                             ],
                             if (versionInformation != null && versionInformation.updateRequired()) ...[
@@ -203,7 +213,11 @@ class AppState extends State<App> with WidgetsBindingObserver {
                             ],
                             if (_removeSplash == false) ...[
                               AnimatedOpacity(
-                                opacity: versionInformation == null || isEnrolled == null || _showSplash ? 1.0 : 0.0,
+                                opacity: versionInformation == null ||
+                                        enrollmentStatus == EnrollmentStatus.undetermined ||
+                                        _showSplash
+                                    ? 1.0
+                                    : 0.0,
                                 duration: const Duration(milliseconds: 500),
                                 onEnd: () {
                                   setState(() {

@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/session.dart';
+import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/screens/webview/models/session_pointer.dart';
 import 'package:irmamobile/src/screens/webview/widgets/browser_bar.dart';
