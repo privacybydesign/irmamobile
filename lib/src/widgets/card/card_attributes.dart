@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:intl/intl.dart';
+
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/theme/theme.dart';
@@ -12,7 +13,6 @@ import 'package:irmamobile/src/widgets/card/blurtext.dart';
 class CardAttributes extends StatelessWidget {
   final _lang = ui.window.locale.languageCode;
   final _indent = 100.0;
-
   final _maxHeight = 300.0;
   final _minHeight = 120.0; // TODO: perfect aspect ratio
 
@@ -20,10 +20,17 @@ class CardAttributes extends StatelessWidget {
   final Issuer issuer;
   final bool isCardUnblurred;
   final IrmaCardTheme irmaCardTheme;
+  final Image photo;
   final void Function(double) scrollOverflowCallback;
 
-  CardAttributes(
-      {this.personalData, this.issuer, this.isCardUnblurred, this.irmaCardTheme, this.scrollOverflowCallback});
+  CardAttributes({
+    this.personalData,
+    this.issuer,
+    this.isCardUnblurred,
+    this.irmaCardTheme,
+    this.photo,
+    this.scrollOverflowCallback,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -49,19 +56,31 @@ class CardAttributes extends StatelessWidget {
             constraints: BoxConstraints(
               minHeight: _minHeight,
             ),
-            child: Scrollbar(
-              child: ListView(
-                shrinkWrap: true,
-                controller: scrollController,
-                physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.only(left: IrmaTheme.of(context).defaultSpacing),
-                children: [
-                  ...getAttributes(context, bodyTheme),
-                  SizedBox(
-                    height: IrmaTheme.of(context).defaultSpacing,
-                  ),
-                ],
+            child: _buildPhotoCard(
+              card: Scrollbar(
+                child: ListView(
+                  shrinkWrap: true,
+                  controller: scrollController,
+                  physics: const BouncingScrollPhysics(),
+                  padding: EdgeInsets.only(left: IrmaTheme.of(context).defaultSpacing),
+                  children: [
+                    ...getAttributes(context, bodyTheme),
+                    SizedBox(
+                      height: IrmaTheme.of(context).defaultSpacing,
+                    ),
+                  ],
+                ),
               ),
+              getPhotoCard: () => Padding(
+                padding: EdgeInsets.only(top: 6, bottom: IrmaTheme.of(context).smallSpacing),
+                child: Container(
+                  width: 90,
+                  height: 120,
+                  color: const Color(0xff777777),
+                  child: photo,
+                ),
+              ),
+              applyPhoto: photo != null,
             ),
           ),
         ),
@@ -172,4 +191,14 @@ class CardAttributes extends StatelessWidget {
   String getReadableDate(DateTime date, String lang) {
     return DateFormat.yMMMMd(lang).format(date);
   }
+
+  Widget _buildPhotoCard({Widget card, Widget Function() getPhotoCard, bool applyPhoto}) => applyPhoto
+      ? Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            getPhotoCard(),
+            Expanded(child: card),
+          ],
+        )
+      : card;
 }

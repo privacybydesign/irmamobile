@@ -35,10 +35,12 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
   // State
   bool isCardReadable = false;
   IrmaCardTheme irmaCardTheme;
+  Image photo;
 
   @override
   void initState() {
     irmaCardTheme = calculateIrmaCardColor(widget.attributes.issuer);
+    photo = Image.memory(widget.attributes.decodeImage());
 
     super.initState();
   }
@@ -103,35 +105,34 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
                         ),
                   ),
                 ),
-                Container(
-                  child: CardAttributes(
-                    personalData: widget.attributes,
-                    issuer: widget.attributes.issuer,
-                    isCardUnblurred: isCardReadable,
-                    irmaCardTheme: irmaCardTheme,
-                    scrollOverflowCallback: widget.scrollBeyondBoundsCallback,
-                  ),
+                CardAttributes(
+                  personalData: widget.attributes,
+                  issuer: widget.attributes.issuer,
+                  isCardUnblurred: isCardReadable,
+                  irmaCardTheme: irmaCardTheme,
+                  photo: photo,
+                  scrollOverflowCallback: widget.scrollBeyondBoundsCallback,
                 ),
               ],
             ),
           ),
-          stackedCard: LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints constraints) {
-              return IgnorePointer(
-                ignoring: true,
-                child: Container(
-                  height: constraints.smallest.height,
-                  margin: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
-                  decoration: BoxDecoration(
-                    color: _transparentWhite,
-                    borderRadius: BorderRadius.all(
-                      _borderRadius,
+          getStackedCard: () => LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  return IgnorePointer(
+                    ignoring: true,
+                    child: Container(
+                      height: constraints.smallest.height,
+                      margin: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
+                      decoration: BoxDecoration(
+                        color: _transparentWhite,
+                        borderRadius: BorderRadius.all(
+                          _borderRadius,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              );
-            },
-          ),
+                  );
+                },
+              ),
           applyStack: widget.isDeleted),
     );
   }
@@ -146,15 +147,15 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
 
     return backgrounds[strNum % backgrounds.length];
   }
-}
 
-Widget stackedCard({Widget card, Widget stackedCard, bool applyStack}) => applyStack
-    ? Stack(
-        children: <Widget>[
-          card,
-          Positioned.fill(
-            child: stackedCard,
-          ),
-        ],
-      )
-    : card;
+  Widget stackedCard({Widget card, Widget Function() getStackedCard, bool applyStack}) => applyStack
+      ? Stack(
+          children: <Widget>[
+            card,
+            Positioned.fill(
+              child: stackedCard(),
+            ),
+          ],
+        )
+      : card;
+}
