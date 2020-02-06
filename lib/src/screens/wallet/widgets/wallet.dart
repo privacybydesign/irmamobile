@@ -207,7 +207,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                           ),
                         ),
                         IrmaTextButton(
-                          label: FlutterI18n.translate(context, 'wallet.add_data'),
+                          label: 'wallet.add_data',
                           onPressed: onAddCardsPressed,
                         ),
                         if (widget.credentials == null) ...[
