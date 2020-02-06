@@ -60,81 +60,81 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
         });
       },
       child: stackedCard(
-        card: Container(
-          margin: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
-          decoration: BoxDecoration(
-            color: irmaCardTheme.bgColorDark,
-            gradient: LinearGradient(
-              colors: [
-                irmaCardTheme.bgColorDark,
-                irmaCardTheme.bgColorLight,
+          card: Container(
+            margin: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
+            decoration: BoxDecoration(
+              color: irmaCardTheme.bgColorDark,
+              gradient: LinearGradient(
+                colors: [
+                  irmaCardTheme.bgColorDark,
+                  irmaCardTheme.bgColorLight,
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+              border: Border.all(
+                width: 1.0,
+                color: irmaCardTheme.bgColorLight,
+              ),
+              borderRadius: BorderRadius.all(
+                _borderRadius,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: _transparentBlack,
+                  blurRadius: _blurRadius,
+                  offset: const Offset(
+                    0.0,
+                    2.0,
+                  ),
+                )
               ],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
             ),
-            border: Border.all(
-              width: 1.0,
-              color: irmaCardTheme.bgColorLight,
-            ),
-            borderRadius: BorderRadius.all(
-              _borderRadius,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: _transparentBlack,
-                blurRadius: _blurRadius,
-                offset: const Offset(
-                  0.0,
-                  2.0,
-                ),
-              )
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(
-                  top: IrmaTheme.of(context).smallSpacing,
-                  left: IrmaTheme.of(context).defaultSpacing,
-                  bottom: 0,
-                ),
-                child: Text(
-                  getTranslation(widget.attributes.credentialType.name),
-                  style: Theme.of(context).textTheme.subhead.copyWith(
-                    color: irmaCardTheme.fgColor,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: IrmaTheme.of(context).smallSpacing,
+                    left: IrmaTheme.of(context).defaultSpacing,
+                    bottom: 0,
+                  ),
+                  child: Text(
+                    getTranslation(widget.attributes.credentialType.name),
+                    style: Theme.of(context).textTheme.subhead.copyWith(
+                          color: irmaCardTheme.fgColor,
+                        ),
                   ),
                 ),
-              ),
-              CardAttributes(
-                personalData: widget.attributes,
-                issuer: widget.attributes.issuer,
-                isCardUnblurred: isCardReadable,
-                irmaCardTheme: irmaCardTheme,
-                photo: photo,
-                scrollOverflowCallback: widget.scrollBeyondBoundsCallback,
-              ),
-            ],
+                CardAttributes(
+                  personalData: widget.attributes,
+                  issuer: widget.attributes.issuer,
+                  isCardUnblurred: isCardReadable,
+                  irmaCardTheme: irmaCardTheme,
+                  photo: photo,
+                  scrollOverflowCallback: widget.scrollBeyondBoundsCallback,
+                ),
+              ],
+            ),
           ),
-        ),
-        stackedCard: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints constraints) {
-            return IgnorePointer(
-              ignoring: true,
-              child: Container(
-                height: constraints.smallest.height,
-                margin: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
-                decoration: BoxDecoration(
-                  color: _transparentWhite,
-                  borderRadius: BorderRadius.all(
-                    _borderRadius,
+          stackedCard: LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              return IgnorePointer(
+                ignoring: true,
+                child: Container(
+                  height: constraints.smallest.height,
+                  margin: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
+                  decoration: BoxDecoration(
+                    color: _transparentWhite,
+                    borderRadius: BorderRadius.all(
+                      _borderRadius,
+                    ),
                   ),
                 ),
-              ),
-            );
-          },
-        ),
-        applyStack: widget.isDeleted),
+              );
+            },
+          ),
+          applyStack: widget.isDeleted),
     );
   }
 
@@ -153,7 +153,7 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
     Image photoImage;
 
     final photoData = personalData.attributes.entries
-      .firstWhere((personal) => personal.key.name['en'] == 'Photo', orElse: () => null);
+        .firstWhere((personal) => personal.key.name['en'] == 'Photo', orElse: () => null);
 
     if (photoData != null) {
       photoImage = Image.memory(const Base64Decoder().convert(photoData.value['en']));
@@ -164,12 +164,12 @@ class _IrmaCardState extends State<IrmaCard> with SingleTickerProviderStateMixin
 }
 
 Widget stackedCard({Widget card, Widget stackedCard, bool applyStack}) => applyStack
-  ? Stack(
-  children: <Widget>[
-    card,
-    Positioned.fill(
-      child: stackedCard,
-    ),
-  ],
-)
-  : card;
+    ? Stack(
+        children: <Widget>[
+          card,
+          Positioned.fill(
+            child: stackedCard,
+          ),
+        ],
+      )
+    : card;
