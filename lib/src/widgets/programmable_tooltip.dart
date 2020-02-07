@@ -14,6 +14,7 @@ class ProgrammableTooltip extends StatefulWidget {
   const ProgrammableTooltip({
     Key key,
     @required this.message,
+    this.width,
     this.height,
     this.padding,
     this.margin,
@@ -28,6 +29,7 @@ class ProgrammableTooltip extends StatefulWidget {
         super(key: key);
 
   final String message;
+  final double width;
   final double height;
   final EdgeInsetsGeometry padding;
   final EdgeInsetsGeometry margin;
@@ -43,16 +45,43 @@ class ProgrammableTooltip extends StatefulWidget {
   _TooltipState createState() => _TooltipState();
 }
 
+class _ToolTipDerivedArgs {
+  final double height;
+  final double width;
+  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry margin;
+  final double verticalOffset;
+  final bool preferBelow;
+  final bool showTooltip;
+  final Decoration decoration;
+  final TextStyle textStyle;
+
+  _ToolTipDerivedArgs({
+    @required this.height,
+    @required this.width,
+    @required this.padding,
+    @required this.margin,
+    @required this.verticalOffset,
+    @required this.preferBelow,
+    @required this.showTooltip,
+    @required this.decoration,
+    @required this.textStyle,
+  });
+}
+
 class _TooltipState extends State<ProgrammableTooltip> with SingleTickerProviderStateMixin {
   static const double _defaultTooltipHeight = 32.0;
+  static const double _defaultTooltipWidth = 192.0;
   static const double _defaultVerticalOffset = 24.0;
   static const bool _defaultPreferBelow = true;
+  static const bool _defaultShow = false;
   static const EdgeInsetsGeometry _defaultPadding = EdgeInsets.symmetric(horizontal: 16.0);
   static const EdgeInsetsGeometry _defaultMargin = EdgeInsets.all(0.0);
   static const Duration _fadeDuration = Duration(milliseconds: 100);
   static const bool _defaultExcludeFromSemantics = false;
 
   double height;
+  double width;
   EdgeInsetsGeometry padding;
   EdgeInsetsGeometry margin;
   Decoration decoration;
@@ -61,13 +90,13 @@ class _TooltipState extends State<ProgrammableTooltip> with SingleTickerProvider
   bool preferBelow;
   bool excludeFromSemantics;
   OverlayEntry _entry;
-  BehaviorSubject<bool> _showChanges;
+  BehaviorSubject<_ToolTipDerivedArgs> _tooltipArgs;
 
   @override
   void initState() {
     super.initState();
 
-    _showChanges = BehaviorSubject<bool>();
+    _tooltipArgs = BehaviorSubject<_ToolTipDerivedArgs>();
     SchedulerBinding.instance.addPostFrameCallback((_) => _createNewEntry());
   }
 
@@ -79,30 +108,36 @@ class _TooltipState extends State<ProgrammableTooltip> with SingleTickerProvider
 
     _entry = OverlayEntry(
         builder: (BuildContext context) => StreamBuilder(
-            stream: _showChanges,
-            builder: (BuildContext context, AsyncSnapshot<bool> snapshot) => Directionality(
-                  textDirection: Directionality.of(context),
-                  child: _TooltipOverlay(
-                    message: widget.message,
-                    height: height,
-                    padding: padding,
-                    margin: margin,
-                    decoration: decoration,
-                    textStyle: textStyle,
-                    target: target,
-                    verticalOffset: verticalOffset,
-                    preferBelow: preferBelow,
-                    show: snapshot.hasData ? snapshot.data : false,
-                    fadeDuration: _fadeDuration,
-                  ),
-                )));
+            stream: _tooltipArgs,
+            builder: (BuildContext context, AsyncSnapshot<_ToolTipDerivedArgs> snapshot) {
+              if (!snapshot.hasData) {
+                return Container();
+              }
+
+              return Directionality(
+                textDirection: Directionality.of(context),
+                child: _TooltipOverlay(
+                  message: widget.message,
+                  width: snapshot.data.width,
+                  height: snapshot.data.height,
+                  padding: snapshot.data.padding,
+                  margin: snapshot.data.margin,
+                  decoration: snapshot.data.decoration,
+                  textStyle: snapshot.data.textStyle,
+                  target: target,
+                  verticalOffset: snapshot.data.verticalOffset,
+                  preferBelow: snapshot.data.preferBelow,
+                  show: snapshot.data.showTooltip,
+                  fadeDuration: _fadeDuration,
+                ),
+              );
+            }));
     Overlay.of(context).insert(_entry);
     SemanticsService.tooltip(widget.message);
   }
 
   @override
   Widget build(BuildContext context) {
-    _showChanges.add(widget.show);
     assert(Overlay.of(context) != null);
     final ThemeData theme = Theme.of(context);
     final TooltipThemeData tooltipTheme = TooltipTheme.of(context);
@@ -126,15 +161,21 @@ class _TooltipState extends State<ProgrammableTooltip> with SingleTickerProvider
       );
     }
 
-    height = widget.height ?? tooltipTheme.height ?? _defaultTooltipHeight;
-    padding = widget.padding ?? tooltipTheme.padding ?? _defaultPadding;
-    margin = widget.margin ?? tooltipTheme.margin ?? _defaultMargin;
-    verticalOffset = widget.verticalOffset ?? tooltipTheme.verticalOffset ?? _defaultVerticalOffset;
-    preferBelow = widget.preferBelow ?? tooltipTheme.preferBelow ?? _defaultPreferBelow;
-    excludeFromSemantics =
+    final excludeFromSemantics =
         widget.excludeFromSemantics ?? tooltipTheme.excludeFromSemantics ?? _defaultExcludeFromSemantics;
-    decoration = widget.decoration ?? tooltipTheme.decoration ?? defaultDecoration;
-    textStyle = widget.textStyle ?? tooltipTheme.textStyle ?? defaultTextStyle;
+
+    final tooltipArgs = _ToolTipDerivedArgs(
+        height: widget.height ?? tooltipTheme.height ?? _defaultTooltipHeight,
+        width: widget.width ?? _defaultTooltipWidth,
+        padding: widget.padding ?? tooltipTheme.padding ?? _defaultPadding,
+        margin: widget.margin ?? tooltipTheme.margin ?? _defaultMargin,
+        verticalOffset: widget.verticalOffset ?? tooltipTheme.verticalOffset ?? _defaultVerticalOffset,
+        preferBelow: widget.preferBelow ?? tooltipTheme.preferBelow ?? _defaultPreferBelow,
+        showTooltip: widget.show ?? _defaultShow,
+        decoration: widget.decoration ?? tooltipTheme.decoration ?? defaultDecoration,
+        textStyle: widget.textStyle ?? tooltipTheme.textStyle ?? defaultTextStyle);
+
+    _tooltipArgs.add(tooltipArgs);
 
     return Semantics(
       label: excludeFromSemantics ? null : widget.message,
@@ -197,6 +238,7 @@ class _TooltipOverlay extends StatelessWidget {
   const _TooltipOverlay({
     Key key,
     this.message,
+    this.width,
     this.height,
     this.padding,
     this.margin,
@@ -211,6 +253,7 @@ class _TooltipOverlay extends StatelessWidget {
   }) : super(key: key);
 
   final String message;
+  final double width;
   final double height;
   final EdgeInsetsGeometry padding;
   final EdgeInsetsGeometry margin;
@@ -237,7 +280,7 @@ class _TooltipOverlay extends StatelessWidget {
             opacity: show ? 1.0 : 0.0,
             duration: fadeDuration,
             child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: height),
+              constraints: BoxConstraints(minHeight: height, maxWidth: width),
               child: DefaultTextStyle(
                 style: Theme.of(context).textTheme.body1,
                 child: Container(

@@ -53,7 +53,7 @@ class IrmaBottomBar extends StatelessWidget {
     );
 
     if (toolTipLabel != null) {
-      primaryButton = IrmaToolTip(
+      primaryButton = IrmaTooltip(
           label: FlutterI18n.translate(context, toolTipLabel), show: showTooltipOnPrimary, child: primaryButton);
     }
 
