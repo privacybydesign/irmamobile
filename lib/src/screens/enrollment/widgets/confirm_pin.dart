@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/screens/enrollment/widgets/choose_pin.dart';
-import 'package:irmamobile/src/screens/enrollment/widgets/welcome.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/pin_field.dart';
@@ -10,9 +8,9 @@ class ConfirmPin extends StatelessWidget {
   static const String routeName = 'confirm_pin';
 
   final Function(String) submitConfirmationPin;
-  final void Function() cancel;
+  final void Function(BuildContext) cancelAndNavigate;
 
-  const ConfirmPin({@required this.submitConfirmationPin, @required this.cancel});
+  const ConfirmPin({@required this.submitConfirmationPin, @required this.cancelAndNavigate});
 
   @override
   Widget build(BuildContext context) {
@@ -21,11 +19,7 @@ class ConfirmPin extends StatelessWidget {
         title: Text(
           FlutterI18n.translate(context, 'enrollment.choose_pin.title'),
         ),
-        leadingCancel: cancel,
-        leadingAction: () {
-          Navigator.of(context).popUntil(
-              (route) => route.settings.name == ChoosePin.routeName || route.settings.name == Welcome.routeName);
-        },
+        leadingAction: () => cancelAndNavigate(context),
         leadingTooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
       ),
       body: SingleChildScrollView(

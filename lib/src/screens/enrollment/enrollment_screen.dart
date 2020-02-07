@@ -13,7 +13,6 @@ import 'package:irmamobile/src/screens/enrollment/widgets/confirm_pin.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/introduction.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/provide_email.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/submit.dart';
-import 'package:irmamobile/src/screens/enrollment/widgets/welcome.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 
 class EnrollmentScreen extends StatefulWidget {
@@ -74,38 +73,47 @@ class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
 
   Map<String, WidgetBuilder> _routeBuilders() {
     return {
-      Welcome.routeName: (_) => Welcome(),
       Introduction.routeName: (_) => Introduction(),
-      ChoosePin.routeName: (_) => ChoosePin(pinFocusNode: pinFocusNode, submitPin: submitPin, cancel: cancel),
-      ConfirmPin.routeName: (_) => ConfirmPin(submitConfirmationPin: submitConfirmationPin, cancel: cancel),
-      ProvideEmail.routeName: (_) => ProvideEmail(submitEmail: submitEmail, skipEmail: skipEmail, cancel: cancel),
-      Submit.routeName: (_) => Submit(cancel: cancel, retryEnrollment: retryEnrollment),
+      ChoosePin.routeName: (_) =>
+          ChoosePin(pinFocusNode: pinFocusNode, submitPin: _submitPin, cancelAndNavigate: _cancelAndNavigate),
+      ConfirmPin.routeName: (_) =>
+          ConfirmPin(submitConfirmationPin: _submitConfirmationPin, cancelAndNavigate: _cancelAndNavigate),
+      ProvideEmail.routeName: (_) =>
+          ProvideEmail(submitEmail: _submitEmail, skipEmail: _skipEmail, cancelAndNavigate: _cancelAndNavigate),
+      Submit.routeName: (_) => Submit(cancelAndNavigate: _cancelAndNavigate, retryEnrollment: _retryEnrollment),
     };
   }
 
-  void submitPin(BuildContext context, String pin) {
+  void _submitPin(BuildContext context, String pin) {
     bloc.dispatch(PinSubmitted(pin: pin));
     navigatorKey.currentState.pushNamed(ConfirmPin.routeName);
   }
 
-  void submitConfirmationPin(String pin) {
+  void _submitConfirmationPin(String pin) {
     bloc.dispatch(ConfirmationPinSubmitted(pin: pin));
   }
 
-  void submitEmail(String email) {
+  void _submitEmail(String email) {
     bloc.dispatch(EmailSubmitted(email: email));
   }
 
-  void skipEmail() {
+  void _skipEmail() {
     bloc.dispatch(EmailSkipped());
   }
 
-  void retryEnrollment() {
+  void _retryEnrollment() {
     bloc.dispatch(Enroll());
   }
 
-  void cancel() {
+  void _cancelAndNavigate(BuildContext context) {
     bloc.dispatch(EnrollmentCanceled());
+
+    // Always pop at least one route (unless at the root), but return to Introduction or ChoosePin
+    Navigator.maybePop(context).then(
+      (_) => Navigator.of(context).popUntil(
+        (route) => route.settings.name == ChoosePin.routeName || route.settings.name == Introduction.routeName,
+      ),
+    );
   }
 
   @override
@@ -114,8 +122,9 @@ class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
 
     return WillPopScope(
       onWillPop: () async {
-        cancel();
-        return !await navigatorKey.currentState.maybePop();
+        // TODO: Make Android back button work for this screen
+        // I can't seem to figure out how to prevent popping, even with NavigationState.maybePop or ModalRoute.isFirst
+        return false;
       },
       child: BlocListener<EnrollmentBloc, EnrollmentState>(
         condition: (EnrollmentState previous, EnrollmentState current) {
@@ -147,7 +156,7 @@ class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
         },
         child: Navigator(
           key: navigatorKey,
-          initialRoute: Welcome.routeName,
+          initialRoute: Introduction.routeName,
           onGenerateRoute: (RouteSettings settings) {
             if (!routeBuilders.containsKey(settings.name)) {
               throw Exception('Invalid route: ${settings.name}');
