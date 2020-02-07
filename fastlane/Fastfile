@@ -1,0 +1,36 @@
+lane :alpha_ios do
+  update_schemes_alpha()
+  fetch_dependencies()
+  build_irmagobridge_ios()
+  update_app_identifier(
+    xcodeproj: "ios/Runner.xcodeproj",
+    plist_path: "Runner/Info.plist",
+    app_identifier: "foundation.privacybydesign.irmamob.alpha"
+  )
+  Dir.chdir("..") do
+    sh("flutter", "build", "ios", "--release", "--no-codesign")
+  end
+end
+
+lane :fetch_dependencies do
+  Dir.chdir("..") do
+    sh("dep ensure")
+  end
+end
+
+lane :build_irmagobridge_ios do
+  Dir.chdir("..") do
+    sh("gomobile", "bind", "-target", "ios", "-o", "ios/Runner/Irmagobridge.framework", "github.com/privacybydesign/irmamobile/irmagobridge")
+  end
+end
+
+lane :update_schemes_alpha do
+  Dir.chdir("../irma_configuration/pbdf") do
+    sh("git", "checkout", "irmamobile")
+    sh("git", "pull", "-f")
+  end
+  Dir.chdir("../irma_configuration/irma-demo") do
+    sh("git", "checkout", "master")
+    sh("git", "pull", "-f")
+  end
+end
