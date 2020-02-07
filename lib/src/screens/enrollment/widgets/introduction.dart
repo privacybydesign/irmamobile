@@ -31,6 +31,9 @@ class _IntroductionState extends State<Introduction> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Prevent overflow when returning from pin input
+      resizeToAvoidBottomPadding: false,
+
       body: PageView(
         controller: _controller,
         scrollDirection: Axis.vertical,
@@ -58,7 +61,7 @@ class _IntroductionState extends State<Introduction> {
             titleContent: FlutterI18n.translate(context, 'enrollment.introduction.screen3.title'),
             textContent: FlutterI18n.translate(context, 'enrollment.introduction.screen3.text'),
             onNextScreen: () => {},
-            onPressButton: () => Navigator.of(context).pushReplacementNamed(ChoosePin.routeName),
+            onPressButton: () => Navigator.of(context).pushNamed(ChoosePin.routeName),
             finalScreen: true,
           ),
         ],

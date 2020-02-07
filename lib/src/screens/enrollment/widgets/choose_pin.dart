@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_bloc.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
-import 'package:irmamobile/src/screens/enrollment/widgets/welcome.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/pin_field.dart';
@@ -12,11 +11,11 @@ class ChoosePin extends StatelessWidget {
   static const String routeName = 'choose_pin';
   final FocusNode pinFocusNode;
   final void Function(BuildContext, String) submitPin;
-  final void Function() cancel;
+  final void Function(BuildContext) cancelAndNavigate;
 
   const ChoosePin({
     @required this.submitPin,
-    @required this.cancel,
+    @required this.cancelAndNavigate,
     @required this.pinFocusNode,
   });
 
@@ -27,11 +26,7 @@ class ChoosePin extends StatelessWidget {
         title: Text(
           FlutterI18n.translate(context, 'enrollment.choose_pin.title'),
         ),
-        leadingCancel: cancel,
-        leadingAction: () {
-          Navigator.of(context)
-              .popUntil((route) => route.settings.name == routeName || route.settings.name == Welcome.routeName);
-        },
+        leadingAction: () => cancelAndNavigate(context),
         leadingTooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
       ),
       body: BlocBuilder<EnrollmentBloc, EnrollmentState>(
