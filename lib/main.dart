@@ -191,7 +191,7 @@ class AppState extends State<App> with WidgetsBindingObserver {
                       // set showSemanticsDebugger to true to view semantics in emulator.
                       showSemanticsDebugger: false,
                       // TODO: Remove the forced locale when texts are properly translated to English.
-                      localizationsDelegates: defaultLocalizationsDelegates(const Locale('nl', 'NL')),
+                      localizationsDelegates: defaultLocalizationsDelegates(),
                       supportedLocales: defaultSupportedLocales(),
                       navigatorKey: NavigatorService.navigatorKey,
                       initialRoute: initialRoute,
