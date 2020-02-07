@@ -84,6 +84,7 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
           error = false;
         });
       });
+      return;
     }
 
     // Signal success after a small timeout
