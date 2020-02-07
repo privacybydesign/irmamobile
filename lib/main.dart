@@ -126,6 +126,7 @@ class AppState extends State<App> with WidgetsBindingObserver {
     prevLifeCycleStates[1] = state;
   }
 
+<<<<<<< HEAD
   Widget _determineRoute(String routeName, Object arguments) {
     switch (routeName) {
       case "/":
@@ -159,6 +160,8 @@ class AppState extends State<App> with WidgetsBindingObserver {
     throw "Unrecognized route was pushed";
   }
 
+=======
+>>>>>>> fix(wallet): slide in drawer not working on ios
   @override
   Widget build(BuildContext context) {
     final irmaRepo = IrmaRepository.get();
@@ -198,10 +201,26 @@ class AppState extends State<App> with WidgetsBindingObserver {
                       supportedLocales: defaultSupportedLocales(),
                       navigatorKey: NavigatorService.navigatorKey,
                       initialRoute: initialRoute,
-                      onGenerateRoute: (settings) => MaterialPageRoute(
-                        builder: (_) => _determineRoute(settings.name, settings.arguments),
-                        settings: settings,
-                      ),
+                      routes: <String, WidgetBuilder>{
+                        WalletScreen.routeName: (context) => WalletScreen(),
+                        EnrollmentScreen.routeName: (context) => EnrollmentScreen(),
+                        ScannerScreen.routeName: (context) => ScannerScreen(),
+                        ChangePinScreen.routeName: (context) => ChangePinScreen(),
+                        AboutScreen.routeName: (context) => AboutScreen(),
+                        SettingsScreen.routeName: (context) => SettingsScreen(),
+                        CardStoreScreen.routeName: (context) => CardStoreScreen(),
+                        HistoryScreen.routeName: (context) => HistoryScreen(),
+                        HelpScreen.routeName: (context) => HelpScreen(),
+                        ResetPinScreen.routeName: (context) => ResetPinScreen(),
+                      },
+                      onGenerateRoute: (settings) {
+                        if (settings.name == DisclosureScreen.routeName) {
+                          return MaterialPageRoute(builder: (context) {
+                            return DisclosureScreen(arguments: settings.arguments as DisclosureScreenArguments);
+                          });
+                        }
+                        return null;
+                      },
                       builder: (context, child) {
                         // Use the MaterialApp builder to force an overlay when loading
                         // and when update required.
