@@ -14,7 +14,7 @@ class IrmaMarkdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MarkdownBody(
-      selectable: false,
+      selectable: false, // TODO why? For a11y maybe selectable is better?
       data: data,
       imageBuilder: (Uri uri) => Container(),
       styleSheet: MarkdownStyleSheet(

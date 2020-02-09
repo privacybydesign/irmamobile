@@ -428,7 +428,7 @@ packages:
     source: hosted
     version: "1.6.4"
   path_drawing:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: path_drawing
       url: "https://pub.dartlang.org"

@@ -360,5 +360,10 @@
     "back": "Cancel",
     "reset": "Start all over",
     "existing_data_removed": "All cards in your IRMA app are deleted."
+  },
+  "arrow_back": {
+    "info_1": "You could not be send back automatically. \n\n",
+    "safari": "Click on the name of your browser (e.g., Safari, Chrome, Firefox) ",
+    "info_2": "in the top left corner to return to the website you were coming from."
   }
 }
