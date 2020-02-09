@@ -25,7 +25,7 @@ class ScannerScreen extends StatelessWidget {
 
   static Future<void> onDebugSession(BuildContext context) async {
     final Uri uri = Uri.parse("https://metrics.privacybydesign.foundation/irmaserver/session");
-    const String sessionRequest = """
+    const String signingSessionRequest = """
       {
         "@context": "https://irma.app/ld/request/signature/v2",
         "message": "Ik geef hierbij toestemming aan Partij A om mijn gegevens uit te wisselen met Partij B. Deze toestemming is geldig tot 1 juni 2019.",
@@ -39,9 +39,25 @@ class ScannerScreen extends StatelessWidget {
       }
     """;
 
+    const String issuanceSessionRequest = """
+      {
+        "@context": "https://irma.app/ld/request/issuance/v2",
+        "credentials": [{
+          "credential": "irma-demo.MijnOverheid.ageLower",
+          "validity": 1592438400,
+          "attributes": {
+            "over12": "yes",
+            "over16": "yes",
+            "over18": "yes",
+            "over21": "no"
+          }
+        }]
+      }
+    """;
+
     final request = await HttpClient().postUrl(uri);
     request.headers.set('Content-Type', 'application/json');
-    request.write(sessionRequest);
+    request.write(issuanceSessionRequest);
 
     final response = await request.close();
     response.transform(utf8.decoder).listen((responseBody) {

@@ -174,7 +174,11 @@
     "personaldata": "Persoonsgegevens",
     "expiresAt": "Geldig tot",
     "delete": "Kaart verwijderen",
-    "refresh": "Kaart verversen"
+    "refresh": "Kaart verversen",
+    "delete_title": "Weet je het zeker?",
+    "delete_content": "Als je doorgaat, verwijder je dit kaartje uit je IRMA-app.",
+    "delete_confirm": "Verwijder kaartje",
+    "delete_deny": "Annuleer"
   },
   "card_store": {
     "app_bar": "Kaartjes toevoegen",
@@ -204,10 +208,10 @@
       "header": "Geavanceerd",
       "experimental_data": "Maak het mogelijk experimentele gegevens toe te voegen.",
       "report_errors": "Fouten naar IRMA sturen",
-      "delete": "Al je kaartjes verwijderen",
+      "delete": "Verwijder alles en begin opnieuw",
       "delete_title": "Weet je het zeker?",
-      "delete_content": "Als je doorgaat, verwijder je al je kaartjes uit je IRMA-app. Wil je IRMA opnieuw gebruiken? Haal je kaartjes dan opnieuw op.",
-      "delete_confirm": "Ja, verwijder alles",
+      "delete_content": "Als je doorgaat, verwijder je al je kaartjes en je toegang tot de IRMA-app. Wil je de IRMA-app opnieuw gebruiken? Kies een nieuwe pincode en haal je kaartjes opnieuw op.",
+      "delete_confirm": "Verwijder alles",
       "delete_deny": "Annuleer"
     }
   },

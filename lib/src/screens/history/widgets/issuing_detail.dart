@@ -15,7 +15,7 @@ class IssuingDetail extends StatelessWidget {
   List<Widget> _generateCards() {
     final widgets = <Widget>[];
     for (final Credential credential in credentails) {
-      widgets.add(IrmaCard(attributes: credential, scrollBeyondBoundsCallback: (value) {}));
+      widgets.add(IrmaCard(credential: credential, scrollBeyondBoundsCallback: (value) {}));
     }
     return widgets;
   }

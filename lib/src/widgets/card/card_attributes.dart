@@ -3,9 +3,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:intl/intl.dart';
-
 import 'package:irmamobile/src/models/credentials.dart';
-import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/card/backgrounds.dart';
 import 'package:irmamobile/src/widgets/card/blurtext.dart';
@@ -16,16 +14,14 @@ class CardAttributes extends StatelessWidget {
   final _maxHeight = 300.0;
   final _minHeight = 120.0; // TODO: perfect aspect ratio
 
-  final Credential personalData;
-  final Issuer issuer;
+  final Credential credential;
   final bool isCardUnblurred;
   final IrmaCardTheme irmaCardTheme;
   final Image photo;
   final void Function(double) scrollOverflowCallback;
 
   CardAttributes({
-    this.personalData,
-    this.issuer,
+    this.credential,
     this.isCardUnblurred,
     this.irmaCardTheme,
     this.photo,
@@ -106,7 +102,7 @@ class CardAttributes extends StatelessWidget {
     );
   }
 
-  List<Widget> getAttributes(BuildContext context, TextStyle bodyTheme) => personalData.attributes.entries
+  List<Widget> getAttributes(BuildContext context, TextStyle bodyTheme) => credential.attributes.entries
       .expand(
         (personal) => [
           Opacity(
@@ -150,7 +146,7 @@ class CardAttributes extends StatelessWidget {
             ),
             Expanded(
               child: Text(
-                issuer.name[_lang],
+                credential.issuer.name[_lang],
                 style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 12),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -179,7 +175,7 @@ class CardAttributes extends StatelessWidget {
             ),
             Expanded(
               child: Text(
-                getReadableDate(personalData.expires, _lang),
+                getReadableDate(credential.expires, _lang),
                 style: IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.fgColor, fontSize: 12),
                 overflow: TextOverflow.ellipsis,
               ),
