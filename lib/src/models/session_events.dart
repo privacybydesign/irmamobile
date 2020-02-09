@@ -16,7 +16,9 @@ class SessionEvent extends Event {
 
 @JsonSerializable()
 class NewSessionEvent extends SessionEvent {
-  static int sessionIDCounter = 0;
+  // This counter is used to give each session a unique number to correlate events
+  // We start at some arbitrary point above zero
+  static int sessionIDCounter = 42;
 
   NewSessionEvent({this.request, this.continueOnSecondDevice = false}) : super(sessionIDCounter++);
 
