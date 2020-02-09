@@ -103,8 +103,7 @@ class _WebviewScreenState extends State<WebviewScreen> {
                       setState(() {
                         showDialog(
                           context: context,
-                          // TODO I am not sure whether it should be  builder: (_) instead (also seems to work)
-                          builder: (BuildContext context) {
+                          builder: (_) {
                             return IrmaDialog(
                               title: FlutterI18n.translate(context, 'webview.alert_title'),
                               content: FlutterI18n.translate(context, 'webview.alert_message'),
@@ -129,14 +128,14 @@ class _WebviewScreenState extends State<WebviewScreen> {
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               textDirection: TextDirection.ltr,
-              children: <Widget>[
-                const Padding(
+              children: const <Widget>[
+                Padding(
                   padding: EdgeInsets.all(8.0),
                   child: Center(
                     child: LoadingData(),
                   ),
                 ),
-                const SizedBox(
+                SizedBox(
                   height: 8,
                 ),
               ],

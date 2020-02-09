@@ -5,9 +5,13 @@ import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:irmamobile/src/data/irma_repository.dart';
+import 'package:irmamobile/src/models/credential_events.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet_button.dart';
+import 'package:irmamobile/src/screens/webview/webview_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/widgets/card/card.dart';
 import 'package:irmamobile/src/widgets/irma_text_button.dart';
 import 'package:irmamobile/src/widgets/loading_indicator.dart';
@@ -308,8 +312,10 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                                     }
                                   },
                                   child: IrmaCard(
-                                    attributes: credential,
+                                    credential: credential,
                                     scrollBeyondBoundsCallback: scrollBeyondBound,
+                                    onRefreshCredential: _createOnRefreshCredential(credential),
+                                    onDeleteCredential: _createOnDeleteCredential(credential),
                                   ),
                                 ),
                               );
@@ -503,6 +509,33 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   }
 
   double interpolate(double x1, double x2, double p) => x1 + p * (x2 - x1);
+
+  Function() _createOnRefreshCredential(Credential credential) {
+    if (credential.credentialType.issueUrl == null) {
+      return null;
+    }
+
+    return () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) {
+          return WebviewScreen(getTranslation(credential.credentialType.issueUrl));
+        }),
+      );
+    };
+  }
+
+  Function() _createOnDeleteCredential(Credential credential) {
+    if (credential.credentialType.disallowDelete) {
+      return null;
+    }
+
+    return () {
+      IrmaRepository.get().bridgedDispatch(
+        DeleteCredentialEvent(hash: credential.hash),
+      );
+    };
+  }
 }
 
 enum WalletState { drawn, halfway, full, minimal }

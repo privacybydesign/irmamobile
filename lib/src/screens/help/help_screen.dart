@@ -177,7 +177,6 @@ class _HelpScreenState extends State<HelpScreen> {
                               } else {
                                 showDialog(
                                   context: context,
-                                  // TODO I am not sure whether it should be  builder: (_) instead (also seems to work)
                                   builder: (BuildContext context) {
                                     return IrmaDialog(
                                       title: FlutterI18n.translate(context, 'help.mail_error_title'),

@@ -208,7 +208,7 @@
       "header": "Advanced",
       "experimental_data": "Enable loading of experimental data.",
       "report_errors": "Send error reports to IRMA",
-      "delete": "Delete all your cards",
+      "delete": "Delete everything and start over",
       "delete_title": "Are you sure?",
       "delete_content": "If you proceed, all your cards will be deleted from your IRMA-app. Do you wish to use IRMA again later? You will have to re-load cards first.",
       "delete_confirm": "Yes, delete everything",

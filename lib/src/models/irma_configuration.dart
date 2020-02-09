@@ -137,6 +137,7 @@ class CredentialType {
       this.isSingleton,
       this.description,
       this.issueUrl,
+      this.disallowDelete,
       this.backgroundColor,
       this.isInCredentialStore,
       this.category,
@@ -168,6 +169,9 @@ class CredentialType {
 
   @JsonKey(name: 'IssueURL', nullable: true)
   final TranslatedValue issueUrl;
+
+  @JsonKey(name: 'DisallowDelete', nullable: true)
+  final bool disallowDelete;
 
   @JsonKey(name: 'BackgroundColor', nullable: true)
   final String backgroundColor;
