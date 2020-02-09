@@ -49,6 +49,8 @@ dependencies:
   shared_preferences: ^0.5.6
   async: ^2.4.0
   streaming_shared_preferences: ^1.0.1
+  path_drawing: ^0.4.0
+
 
 dev_dependencies:
   flutter_test:
