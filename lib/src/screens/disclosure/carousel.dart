@@ -197,7 +197,6 @@ class _CarouselState extends State<Carousel> {
                 (candidate) => Padding(
                   padding: EdgeInsets.only(
                     top: IrmaTheme.of(context).smallSpacing,
-                    left: IrmaTheme.of(context).defaultSpacing,
                   ),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
