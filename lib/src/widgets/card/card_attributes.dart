@@ -46,7 +46,6 @@ class CardAttributes extends StatelessWidget {
           child: Container(
             padding: EdgeInsets.only(
               top: IrmaTheme.of(context).defaultSpacing,
-              left: IrmaTheme.of(context).defaultSpacing,
               right: IrmaTheme.of(context).smallSpacing,
             ),
             constraints: BoxConstraints(
