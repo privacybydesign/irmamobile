@@ -1,5 +1,3 @@
-import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/preferences.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 
@@ -12,6 +10,9 @@ class IrmaPreferences {
 
   IrmaPreferences._internal() {
     StreamingSharedPreferences.instance.then((preferences) {
+      final reportErrorsPref = preferences.getBool(_reportErrorsKey, defaultValue: false);
+      reportErrorsPref.listen(_reportErrors.add);
+
       final startQRScanPref = preferences.getBool(_startQRScanKey, defaultValue: false);
       startQRScanPref.listen(_startQRScan.add);
 
@@ -20,14 +21,17 @@ class IrmaPreferences {
     });
   }
 
+  static const String _reportErrorsKey = "preference.report_errors";
+  final BehaviorSubject<bool> _reportErrors = BehaviorSubject<bool>();
+
   Stream<bool> getReportErrors() {
-    return IrmaRepository.get().getPreferences().map((p) => p.enableCrashReporting);
+    return _reportErrors;
   }
 
-  void setReportErrors(bool value) {
-    IrmaRepository.get().bridgedDispatch(
-      SetCrashReportingPreferenceEvent(enableCrashReporting: value),
-    );
+  Future<bool> setReportErrors(bool value) {
+    return StreamingSharedPreferences.instance.then((preferences) {
+      return preferences.setBool(_reportErrorsKey, value);
+    });
   }
 
   static const String _startQRScanKey = "preference.open_qr_scanner_on_launch";

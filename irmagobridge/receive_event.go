@@ -15,7 +15,6 @@ func DispatchFromNative(eventName, payloadString string) {
 	case "AppReadyEvent":
 		dispatchEnrollmentStatusEvent()
 		dispatchConfigurationEvent()
-		dispatchPreferencesEvent()
 		dispatchCredentialsEvent()
 	case "EnrollEvent":
 		event := &enrollEvent{}
@@ -62,7 +61,7 @@ func DispatchFromNative(eventName, payloadString string) {
 	case "SetCrashReportingPreferenceEvent":
 		event := &setCrashReportingPreferenceEvent{}
 		if err = json.Unmarshal(payloadBytes, &event); err == nil {
-			err = bridgeEventHandler.setCrashReportingPreference(event)
+			// TODO
 		}
 	case "UpdateSchemesEvent":
 		err = bridgeEventHandler.updateSchemes()

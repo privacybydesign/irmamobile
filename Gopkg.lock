@@ -34,14 +34,6 @@
   version = "v1.0.4"
 
 [[projects]]
-  digest = "1:fed1f537c2f1269fe475a8556c393fe466641682d73ef8fd0491cd3aa1e47bad"
-  name = "github.com/certifi/gocertifi"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "deb3ae2ef2610fde3330947281941c562861188b"
-  version = "2018.01.18"
-
-[[projects]]
   digest = "1:61406f6571eeb97717bdfaac37fa0bc5260621c4cbf3ce7635e9828dcbb5258a"
   name = "github.com/cespare/xxhash"
   packages = ["."]
@@ -64,14 +56,6 @@
   pruneopts = "UT"
   revision = "188cc3b666ba704534fa4f96e9e61f21f1e1ba7c"
   version = "v1.0.0"
-
-[[projects]]
-  branch = "master"
-  digest = "1:b39cde42897191f6864cca339b94315f6ab957553c175a46392be3fe9824141b"
-  name = "github.com/getsentry/raven-go"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "5c24d5110e0e198d9ae16f1f3465366085001d92"
 
 [[projects]]
   digest = "1:aacef5f5e45685f2aeda5534d0a750dee6859de7e9088cdd06192787bb01ae6d"
@@ -159,7 +143,7 @@
 
 [[projects]]
   branch = "irmamobile"
-  digest = "1:550c50ad839a31fc9d862abbe72b49e4b09badd878446220ff230943bbdfe5c1"
+  digest = "1:b5c3e7c704c6acda9bd09b1299eb3cf3801e3aa5c3bcaf1b3783d82f6125d212"
   name = "github.com/privacybydesign/irmago"
   packages = [
     ".",
@@ -168,7 +152,7 @@
     "irmaclient",
   ]
   pruneopts = "UT"
-  revision = "802f3420a0e0495478d2c0d98b9cdd32607e0651"
+  revision = "146ded662daa4db8178700374127cf3ab21c4ed0"
 
 [[projects]]
   digest = "1:04457f9f6f3ffc5fea48e71d62f2ca256637dee0a04d710288e27e05c8b41976"

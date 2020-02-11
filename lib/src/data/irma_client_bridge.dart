@@ -10,7 +10,6 @@ import 'package:irmamobile/src/models/enrollment_events.dart';
 import 'package:irmamobile/src/models/event.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/log_entry.dart';
-import 'package:irmamobile/src/models/preferences.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 
 typedef EventUnmarshaller = Event Function(Map<String, dynamic>);
@@ -22,7 +21,6 @@ class IrmaClientBridge extends IrmaBridge {
     IrmaConfigurationEvent: (j) => IrmaConfigurationEvent.fromJson(j),
     CredentialsEvent: (j) => CredentialsEvent.fromJson(j),
     EnrollmentStatusEvent: (j) => EnrollmentStatusEvent.fromJson(j),
-    PreferencesEvent: (j) => PreferencesEvent.fromJson(j),
     LogsEvent: (j) => LogsEvent.fromJson(j),
 
     EnrollmentSuccessEvent: (j) => EnrollmentSuccessEvent.fromJson(j),

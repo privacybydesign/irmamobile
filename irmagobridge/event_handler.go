@@ -153,9 +153,6 @@ func (ah *eventHandler) dismissSession(event *dismissSessionEvent) error {
 
 // Set the crash reporting preference, and returns the current preferences to irma_mobile
 func (ah *eventHandler) setCrashReportingPreference(event *setCrashReportingPreferenceEvent) error {
-	client.SetCrashReportingPreference(event.EnableCrashReporting)
-
-	dispatchPreferencesEvent()
 	return nil
 }
 

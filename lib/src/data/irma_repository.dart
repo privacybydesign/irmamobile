@@ -12,8 +12,6 @@ import 'package:irmamobile/src/models/enrollment_events.dart';
 import 'package:irmamobile/src/models/enrollment_status.dart';
 import 'package:irmamobile/src/models/event.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'package:irmamobile/src/models/log_entry.dart';
-import 'package:irmamobile/src/models/preferences.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/models/version_information.dart';
@@ -68,10 +66,6 @@ class IrmaRepository {
       _enrollmentStatusSubject.add(
         event.isEnrolled() ? EnrollmentStatus.enrolled : EnrollmentStatus.unenrolled,
       );
-    } else if (event is PreferencesEvent) {
-      _preferencesSubject.add(event.preferences);
-    } else if (event is LogsEvent) {
-      _logsSubject.add(event.logEntries);
     }
   }
 
@@ -204,17 +198,6 @@ class IrmaRepository {
         },
       ),
     );
-  }
-
-  // -- Logs
-  final _logsSubject = BehaviorSubject<List<LogEntry>>();
-  Stream<List<LogEntry>> getLogs() {
-    return _logsSubject.stream;
-  }
-
-  final _preferencesSubject = BehaviorSubject<Preferences>();
-  Stream<Preferences> getPreferences() {
-    return _preferencesSubject.stream;
   }
 
   // -- Session

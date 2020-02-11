@@ -12,12 +12,6 @@ func dispatchCredentialsEvent() {
 	})
 }
 
-func dispatchPreferencesEvent() {
-	dispatchEvent(&preferencesEvent{
-		Preferences: client.Preferences,
-	})
-}
-
 func dispatchEnrollmentStatusEvent() {
 	dispatchEvent(&enrollmentStatusEvent{
 		EnrolledSchemeManagerIds:   client.EnrolledSchemeManagers(),

@@ -70,10 +70,6 @@ type credentialsEvent struct {
 	Credentials irma.CredentialInfoList
 }
 
-type preferencesEvent struct {
-	Preferences irmaclient.Preferences
-}
-
 type enrollmentStatusEvent struct {
 	EnrolledSchemeManagerIds   []irma.SchemeManagerIdentifier
 	UnenrolledSchemeManagerIds []irma.SchemeManagerIdentifier
