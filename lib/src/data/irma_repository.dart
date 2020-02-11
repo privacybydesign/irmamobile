@@ -107,10 +107,6 @@ class IrmaRepository {
     return _credentialsSubject.stream;
   }
 
-  void deleteAllCredentials() {
-    // TODO
-  }
-
   // -- Enrollment
   final _enrollmentStatusSubject = BehaviorSubject<EnrollmentStatus>.seeded(EnrollmentStatus.undetermined);
 

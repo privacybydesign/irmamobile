@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
+import 'package:irmamobile/src/models/credential_events.dart';
 import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/settings/widgets/settings_header.dart';
@@ -16,9 +17,18 @@ import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 class SettingsScreen extends StatelessWidget {
   static const routeName = "/settings";
 
+  void _deleteEverything(BuildContext context) {
+    IrmaRepository.get().bridgedDispatch(
+      DeleteAllCredentialsEvent(),
+    );
+
+    Navigator.of(context).popUntil((p) => p.isFirst);
+    Navigator.of(context).pop();
+    Navigator.of(context).pushNamed(EnrollmentScreen.routeName);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final irmaClient = IrmaRepository.get();
     final irmaPrefs = IrmaPreferences.get();
 
     return Scaffold(
@@ -102,13 +112,7 @@ class SettingsScreen extends StatelessWidget {
                       IrmaButton(
                         size: IrmaButtonSize.small,
                         minWidth: 0.0,
-                        onPressed: () {
-                          irmaClient.deleteAllCredentials();
-
-                          Navigator.of(context).popUntil((p) => p.isFirst);
-                          Navigator.of(context).pop();
-                          Navigator.of(context).pushNamed(EnrollmentScreen.routeName);
-                        },
+                        onPressed: () => _deleteEverything(context),
                         label: 'settings.advanced.delete_confirm',
                       ),
                     ],
