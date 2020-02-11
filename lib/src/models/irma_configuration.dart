@@ -261,6 +261,7 @@ class AttributeType {
   factory AttributeType.fromJson(Map<String, dynamic> json) => _$AttributeTypeFromJson(json);
 
   String get fullId => "$schemeManagerId.$issuerId.$credentialTypeId.$id";
+  String get fullCredentialId => "$schemeManagerId.$issuerId.$credentialTypeId";
 }
 
 Color _fromColorCode(String colorCode) {

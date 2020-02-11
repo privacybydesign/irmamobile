@@ -10,6 +10,7 @@ import 'package:irmamobile/src/models/version_information.dart';
 import 'package:irmamobile/src/screens/about/about_screen.dart';
 import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
 import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
+import 'package:irmamobile/src/screens/debug/debug_screen.dart';
 import 'package:irmamobile/src/screens/disclosure/disclosure_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/help/help_screen.dart';
@@ -151,6 +152,8 @@ class AppState extends State<App> with WidgetsBindingObserver {
         return HelpScreen();
       case ResetPinScreen.routeName:
         return ResetPinScreen();
+      case DebugScreen.routeName:
+        return DebugScreen();
     }
 
     throw "Unrecognized route was pushed";

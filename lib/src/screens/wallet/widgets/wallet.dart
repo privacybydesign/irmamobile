@@ -172,7 +172,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         animation: Listenable.merge([drawAnimation, loginLogoutController]),
         builder: (BuildContext buildContext, Widget child) {
           final size = MediaQuery.of(buildContext).size;
-          final onAddCardsPressed = widget.onAddCardsPressed;
           final double screenTopOffset = renderBoxHeight == 0 ? 0 : size.height - renderBoxHeight - _heightOffset;
           final walletTop = size.height - _walletBoxHeight - size.width * _walletAspectRatio - screenTopOffset;
 
@@ -212,7 +211,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                         ),
                         IrmaTextButton(
                           label: 'wallet.add_data',
-                          onPressed: onAddCardsPressed,
+                          onPressed: widget.onAddCardsPressed,
                         ),
                         if (widget.credentials == null) ...[
                           Align(

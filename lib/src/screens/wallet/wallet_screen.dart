@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
+import 'package:irmamobile/src/screens/debug/debug_screen.dart';
 import 'package:irmamobile/src/screens/help/help_screen.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
@@ -36,6 +38,22 @@ class _WalletScreen extends StatefulWidget {
 class _WalletScreenState extends State<_WalletScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  void qrScannerPressed() {
+    Navigator.pushNamed(context, ScannerScreen.routeName);
+  }
+
+  void helpPressed() {
+    Navigator.pushNamed(context, HelpScreen.routeName);
+  }
+
+  void addCardsPressed() {
+    Navigator.pushNamed(context, CardStoreScreen.routeName);
+  }
+
+  void onDebugPressed() {
+    Navigator.pushNamed(context, DebugScreen.routeName);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,6 +66,12 @@ class _WalletScreenState extends State<_WalletScreen> {
           _scaffoldKey.currentState.openDrawer();
         },
         actions: <Widget>[
+          if (!kReleaseMode) ...[
+            IconButton(
+              icon: Icon(Icons.videogame_asset),
+              onPressed: onDebugPressed,
+            )
+          ],
           IconButton(
             icon: Icon(
               IrmaIcons.lock,
@@ -72,17 +96,5 @@ class _WalletScreenState extends State<_WalletScreen> {
       ),
       drawer: WalletDrawer(),
     );
-  }
-
-  void qrScannerPressed() {
-    Navigator.pushNamed(context, ScannerScreen.routeName);
-  }
-
-  void helpPressed() {
-    Navigator.pushNamed(context, HelpScreen.routeName);
-  }
-
-  void addCardsPressed() {
-    Navigator.pushNamed(context, CardStoreScreen.routeName);
   }
 }
