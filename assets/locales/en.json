@@ -48,8 +48,8 @@
       "insert_email": "Enter an email address"
     },
     "submit": {
-      "title": "TODO",
-      "progress_enrollment": "TODO"
+      "title": "Logging in",
+      "progress_enrollment": "You're being logged in"
     }
   },
   "about": {
@@ -333,10 +333,10 @@
   "disclosure": {
     "title": "Make yourself known",
     "disclosure_header": {
-      "start": "Do you wish to disclose ",
+      "start": "Do you wish to disclose this to ",
       "end": " ?"
     },
-    "signing_header": "TODO",
+    "signing_header": " asks you to sign a message",
     "issuer": "Source",
     "choices": "{choices} choices",
     "next": "next choices",
