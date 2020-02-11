@@ -1,30 +1,46 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/models/irma_configuration.dart';
+import 'package:irmamobile/src/models/log_entry.dart';
 import 'package:irmamobile/src/screens/history/util/date_formatter.dart';
 import 'package:irmamobile/src/screens/history/widgets/log_icon.dart';
-import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
-enum LogType { disclosing, issuing, removal, signing }
+class LogEntryCard extends StatelessWidget {
+  final _lang = ui.window.locale.languageCode;
 
-extension LogTypeParser on String {
-  LogType toLogType() => LogType.values.firstWhere(
-        (v) => v.toString() == 'LogType.$this',
-        orElse: () => null,
-      );
-}
-
-class Log extends StatelessWidget {
-  final LogType type;
-  final int dataCount;
-  final String subTitle;
-  final DateTime _eventDate = DateTime.now();
+  final IrmaConfiguration irmaConfiguration;
+  final LogEntry logEntry;
   final VoidCallback onTap;
 
-  Log({this.type, this.subTitle, this.dataCount, this.onTap});
+  LogEntryCard({this.irmaConfiguration, this.logEntry, this.onTap});
 
   @override
   Widget build(BuildContext context) {
+    String title = "";
+    String subtitle = "";
+
+    switch (logEntry.type) {
+      case LogEntryType.disclosing:
+        title = FlutterI18n.plural(context, "history.type.disclosing.data", logEntry.disclosedAttributes.length);
+        subtitle = logEntry.serverName[_lang];
+        break;
+      case LogEntryType.signing:
+        title = FlutterI18n.plural(context, "history.type.signing.data", logEntry.disclosedAttributes.length);
+        subtitle = logEntry.serverName[_lang];
+        break;
+      case LogEntryType.issuing:
+        title = FlutterI18n.plural(context, "history.type.issuing.data", logEntry.issuedCredentials.length);
+        subtitle = irmaConfiguration.issuers[logEntry.issuedCredentials.first.fullIssuerId].name[_lang];
+        break;
+      case LogEntryType.removal:
+        title = FlutterI18n.translate(context, "history.type.removal");
+        subtitle = irmaConfiguration.credentialTypes[logEntry.removedCredentials.keys.first].name[_lang];
+        break;
+    }
+
     return GestureDetector(
       onTap: onTap,
       child: Card(
@@ -39,7 +55,7 @@ class Log extends StatelessWidget {
               SizedBox(
                 height: 32,
                 width: 32,
-                child: LogIcon(type),
+                child: LogIcon(logEntry.type),
               ),
               SizedBox(
                 width: IrmaTheme.of(context).defaultSpacing,
@@ -49,17 +65,17 @@ class Log extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      _title(context, dataCount),
+                      title,
                       style: IrmaTheme.of(context).textTheme.body1.copyWith(
                             fontSize: 14,
                           ),
                     ),
                     Text(
-                      subTitle,
+                      subtitle,
                       style: IrmaTheme.of(context).textTheme.display2,
                     ),
                     Text(
-                      formatDate(_eventDate),
+                      formatDate(logEntry.time),
                       style: IrmaTheme.of(context).textTheme.body1.copyWith(
                             fontSize: 14,
                           ),
@@ -67,25 +83,11 @@ class Log extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(IrmaIcons.chevronRight),
+              // const Icon(IrmaIcons.chevronRight),
             ],
           ),
         ),
       ),
     );
-  }
-
-  String _title(BuildContext context, int eventCount) {
-    switch (type) {
-      case LogType.removal:
-        return FlutterI18n.translate(context, "history.type.removal");
-      case LogType.disclosing:
-        return FlutterI18n.plural(context, "history.type.disclosing.data", eventCount);
-      case LogType.issuing:
-        return FlutterI18n.plural(context, "history.type.issuing.data", eventCount);
-      case LogType.signing:
-        return FlutterI18n.plural(context, "history.type.signing.data", eventCount);
-    }
-    return "";
   }
 }

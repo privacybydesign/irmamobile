@@ -37,7 +37,7 @@ class IrmaRepository {
   }
 
   final IrmaBridge bridge;
-  final _eventSubject = BehaviorSubject<Event>();
+  final _eventSubject = PublishSubject<Event>();
 
   SessionRepository _sessionRepository;
 
@@ -69,7 +69,7 @@ class IrmaRepository {
     }
   }
 
-  Stream<Object> getEvents() {
+  Stream<Event> getEvents() {
     return _eventSubject.stream;
   }
 

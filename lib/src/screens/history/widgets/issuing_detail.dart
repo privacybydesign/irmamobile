@@ -3,9 +3,9 @@ import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/widgets/card/card.dart';
 
 class IssuingDetail extends StatelessWidget {
-  final List<Credential> credentails;
+  final List<Credential> credentials;
 
-  const IssuingDetail(this.credentails);
+  const IssuingDetail(this.credentials);
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +14,7 @@ class IssuingDetail extends StatelessWidget {
 
   List<Widget> _generateCards() {
     final widgets = <Widget>[];
-    for (final Credential credential in credentails) {
+    for (final Credential credential in credentials) {
       widgets.add(IrmaCard(credential: credential, scrollBeyondBoundsCallback: (value) {}));
     }
     return widgets;

@@ -54,8 +54,8 @@ type setCrashReportingPreferenceEvent struct {
 	EnableCrashReporting bool
 }
 
-type LoadLogsEvent struct {
-	Before uint64
+type loadLogsEvent struct {
+	Before *uint64
 	Max    int
 }
 
@@ -202,7 +202,7 @@ type logsEvent struct {
 type logEntry struct {
 	ID                   uint64
 	Type                 irma.Action
-	Time                 string
+	Time                 irma.Timestamp
 	ServerName           irma.TranslatedString
 	IssuedCredentials    irma.CredentialInfoList
 	DisclosedCredentials [][]*irma.DisclosedAttribute

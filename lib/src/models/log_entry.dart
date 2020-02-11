@@ -14,43 +14,72 @@ class LogsEvent extends Event {
   final List<LogEntry> logEntries;
 
   factory LogsEvent.fromJson(Map<String, dynamic> json) => _$LogsEventFromJson(json);
-  Map<String, dynamic> toJson() => _$LogsEventToJson(this);
 }
 
 @JsonSerializable()
 class LoadLogsEvent extends Event {
-  LoadLogsEvent({this.before = 0, this.max});
+  LoadLogsEvent({this.before, this.max});
 
-  @JsonKey(name: 'Before')
-  final int before;
+  @JsonKey(name: 'Before', toJson: _dateTimeToEpochSeconds)
+  final DateTime before;
 
   @JsonKey(name: 'Max')
   final int max;
 
-  factory LoadLogsEvent.fromJson(Map<String, dynamic> json) => _$LoadLogsEventFromJson(json);
   Map<String, dynamic> toJson() => _$LoadLogsEventToJson(this);
+}
+
+enum LogEntryType {
+  disclosing,
+  signing,
+  issuing,
+  removal,
+}
+
+LogEntryType _toLogEntryType(String type) {
+  return LogEntryType.values.firstWhere(
+    (v) => v.toString() == 'LogEntryType.$type',
+    orElse: () => null,
+  );
+}
+
+DateTime _epochSecondsToDateTime(int secondsSinceEpoch) {
+  if (secondsSinceEpoch == null) {
+    return null;
+  }
+
+  return DateTime.fromMillisecondsSinceEpoch(secondsSinceEpoch * 1000);
+}
+
+int _dateTimeToEpochSeconds(DateTime dateTime) {
+  if (dateTime == null) {
+    return null;
+  }
+
+  return dateTime.millisecondsSinceEpoch ~/ 1000;
 }
 
 @JsonSerializable()
 class LogEntry {
-  const LogEntry(
-      {this.id,
-      this.type,
-      this.time,
-      this.serverName,
-      this.issuedCredentials,
-      this.disclosedAttributes,
-      this.signedMessage,
-      this.removedCredentials});
+  const LogEntry({
+    this.id,
+    this.type,
+    this.time,
+    this.serverName,
+    this.issuedCredentials,
+    this.disclosedAttributes,
+    this.signedMessage,
+    this.removedCredentials,
+  });
 
   @JsonKey(name: 'ID')
   final int id;
 
-  @JsonKey(name: 'Type')
-  final String type;
+  @JsonKey(name: 'Type', fromJson: _toLogEntryType)
+  final LogEntryType type;
 
-  @JsonKey(name: 'Time')
-  final String time; // TODO: Shouldn't this be an int?
+  @JsonKey(name: 'Time', fromJson: _epochSecondsToDateTime)
+  final DateTime time;
 
   @JsonKey(name: 'ServerName')
   final TranslatedValue serverName;
@@ -61,14 +90,13 @@ class LogEntry {
   @JsonKey(name: 'DisclosedCredentials')
   final List<List<DisclosedAttribute>> disclosedAttributes;
 
-  @JsonKey(name: 'SignedMessage')
-  final String signedMessage;
-
   @JsonKey(name: 'RemovedCredentials')
-  final Map<String, TranslatedValue> removedCredentials;
+  final Map<String, List<TranslatedValue>> removedCredentials;
+
+  @JsonKey(name: 'SignedMessage')
+  final SignedMessage signedMessage;
 
   factory LogEntry.fromJson(Map<String, dynamic> json) => _$LogEntryFromJson(json);
-  Map<String, dynamic> toJson() => _$LogEntryToJson(this);
 }
 
 @JsonSerializable()
@@ -78,8 +106,8 @@ class SignedMessage {
   @JsonKey(name: 'Message')
   final String message;
 
-  @JsonKey(name: 'Timestamp')
-  final int timestamp;
+  @JsonKey(name: 'Timestamp', fromJson: _epochSecondsToDateTime)
+  final DateTime timestamp;
 
   factory SignedMessage.fromJson(Map<String, dynamic> json) => _$SignedMessageFromJson(json);
   Map<String, dynamic> toJson() => _$SignedMessageToJson(this);

@@ -70,7 +70,7 @@ func DispatchFromNative(eventName, payloadString string) {
 			logError(errors.New(err))
 		}
 	case "LoadLogsEvent":
-		event := &LoadLogsEvent{}
+		event := &loadLogsEvent{}
 		if err = json.Unmarshal(payloadBytes, &event); err == nil {
 			err = bridgeEventHandler.loadLogs(event)
 		}

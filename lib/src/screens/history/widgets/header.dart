@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/models/log_entry.dart';
 import 'package:irmamobile/src/screens/history/util/date_formatter.dart';
-import 'package:irmamobile/src/screens/history/widgets/log.dart';
 import 'package:irmamobile/src/screens/history/widgets/log_icon.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class Header extends StatelessWidget {
   final String issuer;
   final DateTime eventDate;
-  final LogType logType;
+  final LogEntryType logType;
 
   const Header(this.issuer, this.eventDate, this.logType);
 
@@ -50,13 +50,13 @@ class Header extends StatelessWidget {
 
   String _getHeaderText(BuildContext context) {
     switch (logType) {
-      case LogType.removal:
+      case LogEntryType.removal:
         return FlutterI18n.translate(context, "history.type.removal");
-      case LogType.disclosing:
+      case LogEntryType.disclosing:
         return FlutterI18n.translate(context, "history.type.disclosing.header");
-      case LogType.issuing:
+      case LogEntryType.issuing:
         return FlutterI18n.translate(context, "history.type.issuing.header");
-      case LogType.signing:
+      case LogEntryType.signing:
         return FlutterI18n.translate(context, "history.type.signing.header");
     }
     return "";

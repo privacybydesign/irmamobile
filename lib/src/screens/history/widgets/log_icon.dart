@@ -1,29 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
-import 'log.dart';
+import 'package:irmamobile/src/models/log_entry.dart';
 
 class LogIcon extends StatelessWidget {
-  final LogType type;
+  final LogEntryType type;
 
   const LogIcon(this.type);
 
   @override
   Widget build(BuildContext context) {
-    return SvgPicture.asset(_eventIconAssetName(), excludeFromSemantics: true);
+    final iconAssetName = _eventIconAssetName();
+    if (iconAssetName == null) {
+      return Container();
+    }
+
+    return SvgPicture.asset(
+      iconAssetName,
+      excludeFromSemantics: true,
+    );
   }
 
   String _eventIconAssetName() {
     switch (type) {
-      case LogType.removal:
+      case LogEntryType.removal:
         return "assets/history/removal.svg";
-      case LogType.disclosing:
+      case LogEntryType.disclosing:
         return "assets/history/disclosing.svg";
-      case LogType.issuing:
+      case LogEntryType.issuing:
         return "assets/history/issuing.svg";
-      case LogType.signing:
+      case LogEntryType.signing:
         return "assets/history/signing.svg";
     }
-    return "";
+    return null;
   }
 }

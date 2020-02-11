@@ -20,21 +20,21 @@ Map<String, dynamic> _$LogsEventToJson(LogsEvent instance) => <String, dynamic>{
 
 LoadLogsEvent _$LoadLogsEventFromJson(Map<String, dynamic> json) {
   return LoadLogsEvent(
-    before: json['Before'] as int,
+    before: json['Before'] == null ? null : DateTime.parse(json['Before'] as String),
     max: json['Max'] as int,
   );
 }
 
 Map<String, dynamic> _$LoadLogsEventToJson(LoadLogsEvent instance) => <String, dynamic>{
-      'Before': instance.before,
+      'Before': _dateTimeToEpochSeconds(instance.before),
       'Max': instance.max,
     };
 
 LogEntry _$LogEntryFromJson(Map<String, dynamic> json) {
   return LogEntry(
     id: json['ID'] as int,
-    type: json['Type'] as String,
-    time: json['Time'] as String,
+    type: _toLogEntryType(json['Type'] as String),
+    time: _epochSecondsToDateTime(json['Time'] as int),
     serverName:
         json['ServerName'] == null ? null : TranslatedValue.fromJson(json['ServerName'] as Map<String, dynamic>),
     issuedCredentials: (json['IssuedCredentials'] as List)
@@ -45,32 +45,41 @@ LogEntry _$LogEntryFromJson(Map<String, dynamic> json) {
             ?.map((e) => e == null ? null : DisclosedAttribute.fromJson(e as Map<String, dynamic>))
             ?.toList())
         ?.toList(),
-    signedMessage: json['SignedMessage'] as String,
+    signedMessage:
+        json['SignedMessage'] == null ? null : SignedMessage.fromJson(json['SignedMessage'] as Map<String, dynamic>),
     removedCredentials: (json['RemovedCredentials'] as Map<String, dynamic>)?.map(
-      (k, e) => MapEntry(k, e == null ? null : TranslatedValue.fromJson(e as Map<String, dynamic>)),
+      (k, e) => MapEntry(
+          k, (e as List)?.map((e) => e == null ? null : TranslatedValue.fromJson(e as Map<String, dynamic>))?.toList()),
     ),
   );
 }
 
 Map<String, dynamic> _$LogEntryToJson(LogEntry instance) => <String, dynamic>{
       'ID': instance.id,
-      'Type': instance.type,
-      'Time': instance.time,
+      'Type': _$LogEntryTypeEnumMap[instance.type],
+      'Time': instance.time?.toIso8601String(),
       'ServerName': instance.serverName,
       'IssuedCredentials': instance.issuedCredentials,
       'DisclosedCredentials': instance.disclosedAttributes,
-      'SignedMessage': instance.signedMessage,
       'RemovedCredentials': instance.removedCredentials,
+      'SignedMessage': instance.signedMessage,
     };
+
+const _$LogEntryTypeEnumMap = {
+  LogEntryType.disclosing: 'disclosing',
+  LogEntryType.signing: 'signing',
+  LogEntryType.issuing: 'issuing',
+  LogEntryType.removal: 'removal',
+};
 
 SignedMessage _$SignedMessageFromJson(Map<String, dynamic> json) {
   return SignedMessage(
     message: json['Message'] as String,
-    timestamp: json['Timestamp'] as int,
+    timestamp: _epochSecondsToDateTime(json['Timestamp'] as int),
   );
 }
 
 Map<String, dynamic> _$SignedMessageToJson(SignedMessage instance) => <String, dynamic>{
       'Message': instance.message,
-      'Timestamp': instance.timestamp,
+      'Timestamp': instance.timestamp?.toIso8601String(),
     };

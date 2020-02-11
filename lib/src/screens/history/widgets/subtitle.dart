@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/models/log_entry.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
-import 'log.dart';
-
 class Subtitle extends StatelessWidget {
-  final LogType logType;
+  final LogEntryType logType;
 
   const Subtitle(this.logType);
 
@@ -19,13 +18,13 @@ class Subtitle extends StatelessWidget {
 
   String _text(BuildContext context) {
     switch (logType) {
-      case LogType.removal:
+      case LogEntryType.removal:
         return FlutterI18n.translate(context, "history.type.removal");
-      case LogType.disclosing:
+      case LogEntryType.disclosing:
         return FlutterI18n.translate(context, "history.type.disclosing.subtitle");
-      case LogType.issuing:
+      case LogEntryType.issuing:
         return FlutterI18n.translate(context, "history.type.issuing.subtitle");
-      case LogType.signing:
+      case LogEntryType.signing:
         return FlutterI18n.translate(context, "history.type.signing.subtitle");
     }
     return "";

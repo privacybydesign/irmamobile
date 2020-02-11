@@ -3,10 +3,9 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/log_entry.dart';
-import 'package:irmamobile/src/screens/history/detail_screen.dart';
-import 'package:irmamobile/src/screens/history/widgets/log.dart';
+import 'package:irmamobile/src/screens/history/history_repository.dart';
+import 'package:irmamobile/src/screens/history/widgets/log_entry_card.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/loading_indicator.dart';
 
@@ -20,19 +19,48 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class HistoryScreenState extends State<HistoryScreen> {
+  final HistoryRepository _historyRepo = HistoryRepository();
   final _scrollController = ScrollController();
-  // final _bloc = HistoryBloc(IrmaRepository.get());
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
-  IrmaConfiguration irmaConfiguration;
 
   @override
   void initState() {
     super.initState();
+    _loadInitialLogs();
+  }
 
+  @override
+  void dispose() {
+    _historyRepo.dispose();
+    super.dispose();
+  }
+
+  void _loadInitialLogs() {
     IrmaRepository.get().bridgedDispatch(LoadLogsEvent(max: 10));
-    IrmaRepository.get().getIrmaConfiguration().listen((irmaConfiguration) {
-      this.irmaConfiguration = irmaConfiguration;
-    });
+  }
+
+  Widget _buildLogEntries(BuildContext context, IrmaConfiguration irmaConfiguration, HistoryState historyState) {
+    return ListView.builder(
+      padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
+      physics: const AlwaysScrollableScrollPhysics(),
+      controller: _scrollController,
+      itemCount: historyState.logEntries.length + 1,
+      itemBuilder: (context, index) {
+        if (index == historyState.logEntries.length) {
+          if (!historyState.loading) {
+            return Container();
+          }
+
+          return Center(child: LoadingIndicator());
+        }
+
+        return LogEntryCard(
+          irmaConfiguration: irmaConfiguration,
+          logEntry: historyState.logEntries[index],
+          onTap: () {},
+        );
+      },
+    );
   }
 
   @override
@@ -45,74 +73,39 @@ class HistoryScreenState extends State<HistoryScreen> {
           FlutterI18n.translate(context, 'history.title'),
         ),
       ),
-      body: StreamBuilder<List<LogEntry>>(
-        stream: IrmaRepository.get().getLogs(),
+      body: StreamBuilder<CombinedState2<IrmaConfiguration, HistoryState>>(
+        stream: combine2(_historyRepo.repo.getIrmaConfiguration(), _historyRepo.getHistoryState()),
         builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Container();
+          }
+
+          final irmaConfiguration = snapshot.data.a;
+          final historyState = snapshot.data.b;
+
           return RefreshIndicator(
             key: _refreshIndicatorKey,
             onRefresh: _handleRefresh,
-            child: ListView.builder(
-              padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
-              physics: const AlwaysScrollableScrollPhysics(),
-              controller: _scrollController,
-              itemCount: snapshot.hasData ? snapshot.data.length : 1,
-              itemBuilder: (context, index) {
-                if (!snapshot.hasData && index == 0) {
-                  return Center(
-                    child: LoadingIndicator(),
-                  );
-                }
-                return _buildLog(snapshot.data[index]);
-              },
-            ),
+            child: _buildLogEntries(context, irmaConfiguration, historyState),
           );
         },
       ),
     );
   }
 
-  Future<void> _handleRefresh() {
-    // _bloc.dispatch(Refresh());
-    return Future.value();
+  Future<void> _handleRefresh() async {
+    _loadInitialLogs();
   }
 
-  Log _buildLog(LogEntry logEntry) {
-    LogType logType;
-    int dataCount = 1;
-    String subTitle;
-    switch (logEntry.type) {
-      case "issuing":
-        logType = LogType.issuing;
-        dataCount = logEntry.issuedCredentials.length;
-        subTitle = getTranslation(irmaConfiguration.issuers[logEntry.issuedCredentials.first.fullIssuerId].name);
-        break;
-      case "disclosing":
-        logType = LogType.disclosing;
-        dataCount = logEntry.disclosedAttributes.length;
-        // subTitle = "gemeente x";
-        break;
-      case "signing":
-        logType = LogType.signing;
-        // subTitle = "gemeente x";
-        break;
-      case "removal":
-        logType = LogType.removal;
-        subTitle = getTranslation(logEntry.removedCredentials.values.first);
+  Future<void> _listenToScroll() async {
+    if (_scrollController.position.pixels != _scrollController.position.maxScrollExtent) {
+      return;
     }
-    return Log(
-      type: logType,
-      dataCount: dataCount,
-      subTitle: subTitle,
-      onTap: () {
-        Navigator.of(context).push(MaterialPageRoute(builder: (context) => DetailScreen(logEntry: logEntry)));
-      },
-    );
-  }
 
-  void _listenToScroll() {
-    // if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent &&
-    //     _bloc.startingState.moreLogsAvailable) {
-    //   _bloc.dispatch(LoadMore());
-    // }
+    final historyState = await _historyRepo.getHistoryState().first;
+    if (historyState.logEntries.isNotEmpty && historyState.moreLogsAvailable && !historyState.loading) {
+      // TODO: Fix this
+      // IrmaRepository.get().bridgedDispatch(LoadLogsEvent(before: historyState.logEntries.last.time, max: 10));
+    }
   }
 }

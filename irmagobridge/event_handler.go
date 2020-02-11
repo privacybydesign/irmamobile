@@ -176,15 +176,15 @@ func (ah *eventHandler) updateSchemes() error {
 	return nil
 }
 
-func (ah *eventHandler) loadLogs(action *LoadLogsEvent) error {
+func (ah *eventHandler) loadLogs(action *loadLogsEvent) error {
 	var logEntries []*irmaclient.LogEntry
 	var err error
 
 	// When before is not sent, it gets Go's default value 0 and 0 is never a valid id
-	if action.Before == 0 {
+	if action.Before == nil {
 		logEntries, err = client.LoadNewestLogs(action.Max)
 	} else {
-		logEntries, err = client.LoadLogsBefore(action.Before, action.Max)
+		logEntries, err = client.LoadLogsBefore(*action.Before, action.Max)
 	}
 	if err != nil {
 		return err
@@ -213,7 +213,7 @@ func (ah *eventHandler) loadLogs(action *LoadLogsEvent) error {
 		logsOutgoing[i] = &logEntry{
 			ID:                   entry.ID,
 			Type:                 entry.Type,
-			Time:                 entry.Time.String(),
+			Time:                 entry.Time,
 			ServerName:           entry.ServerName,
 			IssuedCredentials:    issuedCredentials,
 			DisclosedCredentials: disclosedCredentials,

@@ -22,7 +22,7 @@ class SessionRepository {
   final _eventStateSubject = BehaviorSubject<SessionStates>();
 
   SessionRepository({this.repo, this.sessionEventStream}) {
-    final stateStream = sessionEventStream.scan<SessionStates>(SessionStates({}), (prevStates, event) async {
+    sessionEventStream.scan<SessionStates>(SessionStates({}), (prevStates, event) async {
       // Calculate the nextState from the previousState by handling the event
       final prevState = prevStates[event.sessionID];
       final nextState = await _eventHandler(prevState, event);
@@ -31,9 +31,7 @@ class SessionRepository {
       final nextStates = Map.of(prevStates);
       nextStates[event.sessionID] = nextState;
       return SessionStates(nextStates);
-    });
-
-    _eventStateSubject.addStream(stateStream);
+    }).pipe(_eventStateSubject);
 
     // TODO: Of course this shouldn't be here
     sessionEventStream.listen((event) {
