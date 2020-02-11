@@ -398,7 +398,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   bool isStackedClosely(WalletState newState, int index) =>
       newState == WalletState.halfway &&
       widget.credentials.length >= _cardsMaxExtended &&
-      index < _cardTopHeight / _cardTopBorderHeight;
+      index < widget.credentials.length - _cardTopHeight / _cardTopBorderHeight;
 
   // When there are many attributes, the contents will scroll. When scrolled beyond the bottom bound,
   // a drag down will be triggered.
@@ -451,14 +451,14 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         // Many cards
         if (widget.credentials.length >= _cardsMaxExtended) {
           // Hidden cards
+
           if (index <= widget.credentials.length - 1 - cardsHalfway - _cardTopHeight / _cardTopBorderHeight) {
-            cardPosition = (widget.credentials.length - cardsHalfway - 2) * _cardTopHeight.toDouble();
+            cardPosition = (cardsHalfway + 1) * _cardTopHeight.toDouble();
 
             // Top small border cards
           } else if (index <= widget.credentials.length - 1 - cardsHalfway) {
-            cardPosition = (widget.credentials.length - cardsHalfway - 2) * _cardTopHeight.toDouble() -
-                (index - widget.credentials.length + cardsHalfway + _cardTopHeight / _cardTopBorderHeight + 1) *
-                    _cardTopBorderHeight.toDouble();
+            cardPosition = cardsHalfway * _cardTopHeight.toDouble() -
+                (index - (widget.credentials.length - cardsHalfway - 1)) * _cardTopBorderHeight.toDouble();
 
             // Other cards
           } else {
@@ -466,7 +466,8 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
           }
 
           // Dragging top small border cards
-          if (drawnCardIndex < _cardTopHeight / _cardTopBorderHeight && index != drawnCardIndex) {
+          if (drawnCardIndex < widget.credentials.length - _cardTopHeight / _cardTopBorderHeight &&
+              index != drawnCardIndex) {
             cardPosition -= dragOffset;
           }
 
