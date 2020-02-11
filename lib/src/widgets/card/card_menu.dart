@@ -4,12 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/card/irma_card_theme.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
 import 'package:irmamobile/src/widgets/irma_text_button.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
-
-import 'backgrounds.dart';
 
 enum CardMenuOption {
   refresh,
@@ -128,7 +127,7 @@ class CardMenu extends StatelessWidget {
           child: GestureDetector(
             child: Padding(
               padding: const EdgeInsets.only(right: 17.0, left: 14.0),
-              child: Icon(IrmaIcons.verticalNav, size: 22.0, color: cardTheme.fgColor),
+              child: Icon(IrmaIcons.verticalNav, size: 22.0, color: cardTheme.foregroundColor),
             ),
           ),
         ),

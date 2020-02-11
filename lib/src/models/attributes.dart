@@ -10,9 +10,18 @@ part 'attributes.g.dart';
 
 // Attributes of a credential.
 class Attributes extends UnmodifiableMapView<AttributeType, TranslatedValue> {
+  List<AttributeType> sortedAttributeTypes;
+
   Attributes(Map<AttributeType, TranslatedValue> map)
       : assert(map != null),
-        super(map);
+        super(map) {
+    // Pre-calculate an ordered list of attributeTypes, initially on index, finally on displayIndex
+    sortedAttributeTypes = keys.toList();
+    sortedAttributeTypes.sort((a1, a2) => a1.index.compareTo(a2.index));
+    if (sortedAttributeTypes.every((a) => a.displayIndex != null)) {
+      sortedAttributeTypes.sort((a1, a2) => (a1.displayIndex).compareTo(a2.displayIndex));
+    }
+  }
 
   factory Attributes.fromRaw({IrmaConfiguration irmaConfiguration, Map<String, TranslatedValue> rawAttributes}) {
     return Attributes(rawAttributes.map<AttributeType, TranslatedValue>((k, v) {

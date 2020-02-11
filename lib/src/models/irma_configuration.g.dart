@@ -13,7 +13,7 @@ IrmaConfigurationEvent _$IrmaConfigurationEventFromJson(Map<String, dynamic> jso
 }
 
 Map<String, dynamic> _$IrmaConfigurationEventToJson(IrmaConfigurationEvent instance) => <String, dynamic>{
-      'IrmaConfiguration': instance.irmaConfiguration.toJson(),
+      'IrmaConfiguration': instance.irmaConfiguration,
     };
 
 IrmaConfiguration _$IrmaConfigurationFromJson(Map<String, dynamic> json) {
@@ -35,10 +35,10 @@ IrmaConfiguration _$IrmaConfigurationFromJson(Map<String, dynamic> json) {
 }
 
 Map<String, dynamic> _$IrmaConfigurationToJson(IrmaConfiguration instance) => <String, dynamic>{
-      'SchemeManagers': instance.schemeManagers.map((k, e) => MapEntry(k, e.toJson())),
-      'Issuers': instance.issuers.map((k, e) => MapEntry(k, e.toJson())),
-      'CredentialTypes': instance.credentialTypes.map((k, e) => MapEntry(k, e.toJson())),
-      'AttributeTypes': instance.attributeTypes.map((k, e) => MapEntry(k, e.toJson())),
+      'SchemeManagers': instance.schemeManagers,
+      'Issuers': instance.issuers,
+      'CredentialTypes': instance.credentialTypes,
+      'AttributeTypes': instance.attributeTypes,
       'Path': instance.path,
     };
 
@@ -58,10 +58,10 @@ SchemeManager _$SchemeManagerFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$SchemeManagerToJson(SchemeManager instance) => <String, dynamic>{
       'ID': instance.id,
-      'Name': instance.name.toJson(),
+      'Name': instance.name,
       'URL': instance.url,
-      'Description': instance.description.toJson(),
-      'MinimumAppVersion': instance.minimumAppVersion.toJson(),
+      'Description': instance.description,
+      'MinimumAppVersion': instance.minimumAppVersion,
       'KeyshareServer': instance.keyshareServer,
       'KeyshareWebsite': instance.keyshareWebsite,
       'KeyshareAttribute': instance.keyshareAttribute,
@@ -111,7 +111,9 @@ CredentialType _$CredentialTypeFromJson(Map<String, dynamic> json) {
     description: TranslatedValue.fromJson(json['Description'] as Map<String, dynamic>),
     issueUrl: json['IssueURL'] == null ? null : TranslatedValue.fromJson(json['IssueURL'] as Map<String, dynamic>),
     disallowDelete: json['DisallowDelete'] as bool,
-    backgroundColor: json['BackgroundColor'] as String,
+    foregroundColor: _fromColorCode(json['ForegroundColor'] as String),
+    backgroundGradientStart: _fromColorCode(json['BackgroundGradientStart'] as String),
+    backgroundGradientEnd: _fromColorCode(json['BackgroundGradientEnd'] as String),
     isInCredentialStore: json['IsInCredentialStore'] as bool,
     category: json['Category'] == null ? null : TranslatedValue.fromJson(json['Category'] as Map<String, dynamic>),
     faqIntro: json['FAQIntro'] == null ? null : TranslatedValue.fromJson(json['FAQIntro'] as Map<String, dynamic>),
@@ -125,21 +127,23 @@ CredentialType _$CredentialTypeFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$CredentialTypeToJson(CredentialType instance) => <String, dynamic>{
       'ID': instance.id,
-      'Name': instance.name.toJson(),
-      'ShortName': instance.shortName.toJson(),
+      'Name': instance.name,
+      'ShortName': instance.shortName,
       'IssuerID': instance.issuerId,
       'SchemeManagerID': instance.schemeManagerId,
       'IsSingleton': instance.isSingleton,
-      'Description': instance.description.toJson(),
-      'IssueURL': instance.issueUrl?.toJson(),
+      'Description': instance.description,
+      'IssueURL': instance.issueUrl,
       'DisallowDelete': instance.disallowDelete,
-      'BackgroundColor': instance.backgroundColor,
+      'ForegroundColor': instance.foregroundColor,
+      'BackgroundGradientStart': instance.backgroundGradientStart,
+      'BackgroundGradientEnd': instance.backgroundGradientEnd,
       'IsInCredentialStore': instance.isInCredentialStore,
-      'Category': instance.category?.toJson(),
-      'FAQIntro': instance.faqIntro?.toJson(),
-      'FAQPurpose': instance.faqPurpose?.toJson(),
-      'FAQContent': instance.faqContent?.toJson(),
-      'FAQHowto': instance.faqHowto?.toJson(),
+      'Category': instance.category,
+      'FAQIntro': instance.faqIntro,
+      'FAQPurpose': instance.faqPurpose,
+      'FAQContent': instance.faqContent,
+      'FAQHowto': instance.faqHowto,
     };
 
 AttributeType _$AttributeTypeFromJson(Map<String, dynamic> json) {
@@ -150,6 +154,7 @@ AttributeType _$AttributeTypeFromJson(Map<String, dynamic> json) {
     description: TranslatedValue.fromJson(json['Description'] as Map<String, dynamic>),
     index: json['Index'] as int,
     displayIndex: json['DisplayIndex'] as int,
+    displayHint: json['DisplayHint'] as String,
     credentialTypeId: json['CredentialTypeID'] as String,
     issuerId: json['IssuerID'] as String,
     schemeManagerId: json['SchemeManagerID'] as String,
@@ -163,6 +168,7 @@ Map<String, dynamic> _$AttributeTypeToJson(AttributeType instance) => <String, d
       'Description': instance.description,
       'Index': instance.index,
       'DisplayIndex': instance.displayIndex,
+      'DisplayHint': instance.displayHint,
       'CredentialTypeID': instance.credentialTypeId,
       'IssuerID': instance.issuerId,
       'SchemeManagerID': instance.schemeManagerId,

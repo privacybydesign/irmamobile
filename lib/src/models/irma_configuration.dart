@@ -1,10 +1,13 @@
+import 'dart:ui';
+
+import 'package:flutter/cupertino.dart';
 import 'package:irmamobile/src/models/event.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'irma_configuration.g.dart';
 
-@JsonSerializable(nullable: false, explicitToJson: true)
+@JsonSerializable(nullable: false)
 class IrmaConfigurationEvent extends Event {
   IrmaConfigurationEvent({this.irmaConfiguration});
 
@@ -12,10 +15,9 @@ class IrmaConfigurationEvent extends Event {
   final IrmaConfiguration irmaConfiguration;
 
   factory IrmaConfigurationEvent.fromJson(Map<String, dynamic> json) => _$IrmaConfigurationEventFromJson(json);
-  Map<String, dynamic> toJson() => _$IrmaConfigurationEventToJson(this);
 }
 
-@JsonSerializable(nullable: false, explicitToJson: true)
+@JsonSerializable(nullable: false)
 class IrmaConfiguration {
   IrmaConfiguration({this.schemeManagers, this.issuers, this.credentialTypes, this.attributeTypes, this.path});
 
@@ -35,10 +37,9 @@ class IrmaConfiguration {
   final String path;
 
   factory IrmaConfiguration.fromJson(Map<String, dynamic> json) => _$IrmaConfigurationFromJson(json);
-  Map<String, dynamic> toJson() => _$IrmaConfigurationToJson(this);
 }
 
-@JsonSerializable(nullable: false, explicitToJson: true)
+@JsonSerializable(nullable: false)
 class SchemeManager {
   SchemeManager(
       {this.id,
@@ -79,7 +80,6 @@ class SchemeManager {
   final int timestamp;
 
   factory SchemeManager.fromJson(Map<String, dynamic> json) => _$SchemeManagerFromJson(json);
-  Map<String, dynamic> toJson() => _$SchemeManagerToJson(this);
 }
 
 @JsonSerializable(nullable: false)
@@ -93,7 +93,6 @@ class AppVersion {
   final int iOS;
 
   factory AppVersion.fromJson(Map<String, dynamic> json) => _$AppVersionFromJson(json);
-  Map<String, dynamic> toJson() => _$AppVersionToJson(this);
 }
 
 // TODO: move to a RawIssuer type and re-introduce the issuer type which has
@@ -121,30 +120,32 @@ class Issuer {
   final String contactEmail;
 
   factory Issuer.fromJson(Map<String, dynamic> json) => _$IssuerFromJson(json);
-  Map<String, dynamic> toJson() => _$IssuerToJson(this);
 
   String get fullId => "$schemeManagerId.$id";
 }
 
-@JsonSerializable(nullable: false, explicitToJson: true)
+@JsonSerializable(nullable: false)
 class CredentialType {
-  CredentialType(
-      {this.id,
-      this.name,
-      this.shortName,
-      this.issuerId,
-      this.schemeManagerId,
-      this.isSingleton,
-      this.description,
-      this.issueUrl,
-      this.disallowDelete,
-      this.backgroundColor,
-      this.isInCredentialStore,
-      this.category,
-      this.faqIntro,
-      this.faqPurpose,
-      this.faqContent,
-      this.faqHowto});
+  CredentialType({
+    this.id,
+    this.name,
+    this.shortName,
+    this.issuerId,
+    this.schemeManagerId,
+    this.isSingleton,
+    this.description,
+    this.issueUrl,
+    this.disallowDelete,
+    this.foregroundColor,
+    this.backgroundGradientStart,
+    this.backgroundGradientEnd,
+    this.isInCredentialStore,
+    this.category,
+    this.faqIntro,
+    this.faqPurpose,
+    this.faqContent,
+    this.faqHowto,
+  });
 
   @JsonKey(name: 'ID')
   final String id;
@@ -173,8 +174,14 @@ class CredentialType {
   @JsonKey(name: 'DisallowDelete', nullable: true)
   final bool disallowDelete;
 
-  @JsonKey(name: 'BackgroundColor', nullable: true)
-  final String backgroundColor;
+  @JsonKey(name: 'ForegroundColor', fromJson: _fromColorCode)
+  final Color foregroundColor;
+
+  @JsonKey(name: 'BackgroundGradientStart', fromJson: _fromColorCode)
+  final Color backgroundGradientStart;
+
+  @JsonKey(name: 'BackgroundGradientEnd', fromJson: _fromColorCode)
+  final Color backgroundGradientEnd;
 
   @JsonKey(name: 'IsInCredentialStore', nullable: true)
   final bool isInCredentialStore;
@@ -195,7 +202,6 @@ class CredentialType {
   final TranslatedValue faqHowto;
 
   factory CredentialType.fromJson(Map<String, dynamic> json) => _$CredentialTypeFromJson(json);
-  Map<String, dynamic> toJson() => _$CredentialTypeToJson(this);
 
   String get fullId => "$schemeManagerId.$issuerId.$id";
   String get fullIssuerId => "$schemeManagerId.$issuerId";
@@ -209,16 +215,18 @@ class CredentialType {
 // has TranslatedValues for `name` and `description`.
 @JsonSerializable(nullable: false)
 class AttributeType {
-  AttributeType(
-      {this.id,
-      this.optional,
-      this.name,
-      this.description,
-      this.index,
-      this.displayIndex,
-      this.credentialTypeId,
-      this.issuerId,
-      this.schemeManagerId});
+  AttributeType({
+    this.id,
+    this.optional,
+    this.name,
+    this.description,
+    this.index,
+    this.displayIndex,
+    this.displayHint,
+    this.credentialTypeId,
+    this.issuerId,
+    this.schemeManagerId,
+  });
 
   @JsonKey(name: 'ID')
   final String id;
@@ -238,6 +246,9 @@ class AttributeType {
   @JsonKey(name: 'DisplayIndex')
   final int displayIndex;
 
+  @JsonKey(name: 'DisplayHint')
+  final String displayHint;
+
   @JsonKey(name: 'CredentialTypeID')
   final String credentialTypeId;
 
@@ -248,7 +259,20 @@ class AttributeType {
   final String schemeManagerId;
 
   factory AttributeType.fromJson(Map<String, dynamic> json) => _$AttributeTypeFromJson(json);
-  Map<String, dynamic> toJson() => _$AttributeTypeToJson(this);
 
   String get fullId => "$schemeManagerId.$issuerId.$credentialTypeId.$id";
+}
+
+Color _fromColorCode(String colorCode) {
+  if (colorCode.length != 7 || colorCode[0] != "#") {
+    return null;
+  }
+
+  final rgbInt = int.tryParse(colorCode.substring(1, 7), radix: 16);
+  if (rgbInt == null) {
+    return null;
+  }
+
+  const alphaInt = 0xFF000000;
+  return Color(alphaInt + rgbInt);
 }
