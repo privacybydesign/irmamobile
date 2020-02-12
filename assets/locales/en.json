@@ -22,8 +22,11 @@
       },
       "screen3": {
         "title": "IRMA provides certainty, to you and to others",
-        "privacy": "Read the privacy rules",
-        "text": "Your data are stored solely in your IRMA-app. Only you have access."
+        "text": "Your data are stored solely in your IRMA-app. Only you have access.",
+        "privacy": {
+          "text": "Read the privacy rules",
+          "url": "https://privacybydesign.foundation/privacy-policy-en/"
+        }
       }
     },
     "choose_pin": {
