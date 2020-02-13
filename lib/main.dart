@@ -10,7 +10,6 @@ import 'package:irmamobile/src/models/version_information.dart';
 import 'package:irmamobile/src/screens/about/about_screen.dart';
 import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
 import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
-import 'package:irmamobile/src/screens/debug/debug_screen.dart';
 import 'package:irmamobile/src/screens/disclosure/disclosure_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/help/help_screen.dart';
@@ -126,39 +125,6 @@ class AppState extends State<App> with WidgetsBindingObserver {
     prevLifeCycleStates[1] = state;
   }
 
-  Widget _determineRoute(String routeName, Object arguments) {
-    switch (routeName) {
-      case "/":
-        return Container();
-      case DisclosureScreen.routeName:
-        return DisclosureScreen(arguments: arguments as DisclosureScreenArguments);
-      case EnrollmentScreen.routeName:
-        return EnrollmentScreen();
-      case WalletScreen.routeName:
-        return WalletScreen();
-      case ScannerScreen.routeName:
-        return ScannerScreen();
-      case ChangePinScreen.routeName:
-        return ChangePinScreen();
-      case AboutScreen.routeName:
-        return AboutScreen();
-      case SettingsScreen.routeName:
-        return SettingsScreen();
-      case CardStoreScreen.routeName:
-        return CardStoreScreen();
-      case HistoryScreen.routeName:
-        return HistoryScreen();
-      case HelpScreen.routeName:
-        return HelpScreen();
-      case ResetPinScreen.routeName:
-        return ResetPinScreen();
-      case DebugScreen.routeName:
-        return DebugScreen();
-    }
-
-    throw "Unrecognized route was pushed";
-  }
-
   @override
   Widget build(BuildContext context) {
     final irmaRepo = IrmaRepository.get();
@@ -198,10 +164,28 @@ class AppState extends State<App> with WidgetsBindingObserver {
                       supportedLocales: defaultSupportedLocales(),
                       navigatorKey: NavigatorService.navigatorKey,
                       initialRoute: initialRoute,
-                      onGenerateRoute: (settings) => MaterialPageRoute(
-                        builder: (_) => _determineRoute(settings.name, settings.arguments),
-                        settings: settings,
-                      ),
+                      routes: <String, WidgetBuilder>{
+                        WalletScreen.routeName: (context) => WalletScreen(),
+                        EnrollmentScreen.routeName: (context) => EnrollmentScreen(),
+                        ScannerScreen.routeName: (context) => ScannerScreen(),
+                        ChangePinScreen.routeName: (context) => ChangePinScreen(),
+                        AboutScreen.routeName: (context) => AboutScreen(),
+                        SettingsScreen.routeName: (context) => SettingsScreen(),
+                        CardStoreScreen.routeName: (context) => CardStoreScreen(),
+                        HistoryScreen.routeName: (context) => HistoryScreen(),
+                        HelpScreen.routeName: (context) => HelpScreen(),
+                        ResetPinScreen.routeName: (context) => ResetPinScreen(),
+                      },
+                      onGenerateRoute: (settings) {
+                        if (settings.name == DisclosureScreen.routeName) {
+                          return MaterialPageRoute(
+                              builder: (context) {
+                                return DisclosureScreen(arguments: settings.arguments as DisclosureScreenArguments);
+                              },
+                              settings: settings);
+                        }
+                        return null;
+                      },
                       builder: (context, child) {
                         // Use the MaterialApp builder to force an overlay when loading
                         // and when update required.
