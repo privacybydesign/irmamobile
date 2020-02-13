@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'preferences.dart';
+part of 'set_crash_reporting_preference.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator

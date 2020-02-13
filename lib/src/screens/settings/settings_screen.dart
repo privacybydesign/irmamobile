@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/credential_events.dart';
+import 'package:irmamobile/src/models/clear_all_data_event.dart';
 import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/settings/widgets/settings_header.dart';
@@ -19,12 +19,11 @@ class SettingsScreen extends StatelessWidget {
 
   void _deleteEverything(BuildContext context) {
     IrmaRepository.get().bridgedDispatch(
-      DeleteAllCredentialsEvent(),
+      ClearAllDataEvent(),
     );
 
     Navigator.of(context).popUntil((p) => p.isFirst);
-    Navigator.of(context).pop();
-    Navigator.of(context).pushNamed(EnrollmentScreen.routeName);
+    Navigator.of(context).pushReplacementNamed(EnrollmentScreen.routeName);
   }
 
   @override
