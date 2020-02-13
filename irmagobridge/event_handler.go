@@ -115,6 +115,16 @@ func (ah *eventHandler) respondPin(event *respondPinEvent) (err error) {
 	return nil
 }
 
+func (ah *eventHandler) clearAllData() (err error) {
+	if err := client.ClearAllData(); err != nil {
+		return err
+	}
+
+	dispatchCredentialsEvent()
+	dispatchEnrollmentStatusEvent()
+	return nil
+}
+
 // Request to remove all attributes and keyshare enrollment
 func (ah *eventHandler) deleteAllCredentials() (err error) {
 	if err := client.RemoveAllCredentials(); err != nil {

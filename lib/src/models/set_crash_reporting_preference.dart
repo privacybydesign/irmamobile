@@ -1,7 +1,7 @@
 import 'package:irmamobile/src/models/event.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-part 'preferences.g.dart';
+part 'set_crash_reporting_preference.g.dart';
 
 @JsonSerializable()
 class SetCrashReportingPreferenceEvent extends Event {
