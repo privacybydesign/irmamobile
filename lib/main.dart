@@ -215,9 +215,11 @@ class AppState extends State<App> with WidgetsBindingObserver {
                       },
                       onGenerateRoute: (settings) {
                         if (settings.name == DisclosureScreen.routeName) {
-                          return MaterialPageRoute(builder: (context) {
-                            return DisclosureScreen(arguments: settings.arguments as DisclosureScreenArguments);
-                          });
+                          return MaterialPageRoute(
+                              builder: (context) {
+                                return DisclosureScreen(arguments: settings.arguments as DisclosureScreenArguments);
+                              },
+                              settings: settings);
                         }
                         return null;
                       },
