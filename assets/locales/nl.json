@@ -345,8 +345,8 @@
     "next": "volgende kiezen",
     "previous": "vorige kiezen",
     "explanation": {
-      "title": "Je hebt een keuze",
-      "body": "Kies welke gegevens je doorgeeft.",
+      "title": "Zo maak je een keuze",
+      "body": "Kies welke gegevens je doorgeeft. Gebruik het pijltje of swipe en maak je keuze.",
       "dismiss": "OK",
       "dismiss-remember": "Niet meer tonen"
     },
