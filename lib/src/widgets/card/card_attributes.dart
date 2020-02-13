@@ -45,7 +45,6 @@ class CardAttributes extends StatelessWidget {
           child: Container(
             padding: EdgeInsets.only(
               top: IrmaTheme.of(context).defaultSpacing,
-              right: IrmaTheme.of(context).smallSpacing,
             ),
             constraints: BoxConstraints(
               minHeight: _minHeight,
@@ -57,19 +56,47 @@ class CardAttributes extends StatelessWidget {
                   _buildPhoto(context),
                 ],
                 Expanded(
-                  child: Scrollbar(
-                    child: ListView(
-                      shrinkWrap: true,
-                      controller: scrollController,
-                      physics: const BouncingScrollPhysics(),
-                      padding: EdgeInsets.only(left: IrmaTheme.of(context).defaultSpacing),
-                      children: [
-                        ..._buildAttributes(context, body1Theme),
-                        SizedBox(
-                          height: IrmaTheme.of(context).defaultSpacing,
+                  child: Stack(
+                    alignment: AlignmentDirectional.bottomCenter,
+                    children: <Widget>[
+                      Container(
+                        padding: EdgeInsets.only(
+                          right: IrmaTheme.of(context).smallSpacing,
                         ),
-                      ],
-                    ),
+                        child: Scrollbar(
+                          child: ListView(
+                            shrinkWrap: true,
+                            controller: scrollController,
+                            physics: const BouncingScrollPhysics(),
+                            padding: EdgeInsets.only(left: IrmaTheme.of(context).defaultSpacing),
+                            children: [
+                              ..._buildAttributes(context, body1Theme),
+                              SizedBox(
+                                height: IrmaTheme.of(context).hugeSpacing,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        child: Container(
+                          height: 8.0,
+                          decoration: BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(width: 1.0, color: irmaCardTheme.backgroundGradientEnd),
+                            ),
+                            gradient: const LinearGradient(
+                              colors: [
+                                Color(0x00000000),
+                                Color(0x33000000),
+                              ],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
                   ),
                 ),
               ],
@@ -78,14 +105,6 @@ class CardAttributes extends StatelessWidget {
         ),
         Column(
           children: <Widget>[
-            Container(
-              decoration: const BoxDecoration(
-                border: Border(
-                  top: BorderSide(width: 1.0, color: Color(0x77000000)),
-                  bottom: BorderSide(width: 1.0, color: Color(0x77FFFFFF)),
-                ),
-              ),
-            ),
             Container(
               color: const Color(0x11FFFFFF),
               child: Column(
