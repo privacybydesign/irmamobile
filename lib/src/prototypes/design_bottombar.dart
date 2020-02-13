@@ -11,7 +11,20 @@ void startBottombarMessages(BuildContext context) {
   );
 }
 
-class BottomBar extends StatelessWidget {
+class BottomBar extends StatefulWidget {
+  @override
+  _BottomBarState createState() => _BottomBarState();
+}
+
+class _BottomBarState extends State<BottomBar> {
+  bool showTooltip;
+
+  @override
+  void initState() {
+    super.initState();
+    showTooltip = false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,8 +80,12 @@ class BottomBar extends StatelessWidget {
         onPrimaryPressed: () => debugPrint("pressed confirm"),
         onPrimaryDisabledPressed: () => debugPrint("pressed disabled confirm"),
         secondaryButtonLabel: 'settings.advanced.delete_deny',
-        onSecondaryPressed: () => debugPrint("pressed back"),
-        tooltipOnPrimaryButton: true,
+        onSecondaryPressed: () {
+          setState(() {
+            showTooltip = !showTooltip;
+          });
+        },
+        showTooltipOnPrimary: showTooltip,
         toolTipLabel: 'settings.advanced.delete_deny',
       ),
     );
