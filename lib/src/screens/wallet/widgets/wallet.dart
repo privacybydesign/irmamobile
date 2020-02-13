@@ -47,7 +47,7 @@ class Wallet extends StatefulWidget {
   _WalletState createState() => _WalletState();
 }
 
-class _WalletState extends State<Wallet> with TickerProviderStateMixin {
+class _WalletState extends State<Wallet> with TickerProviderStateMixin, WidgetsBindingObserver {
   final _animationDuration = 250;
   final _loginDuration = 500;
   final _walletAspectRatio = 87 / 360; // wallet.svg | 360 / 620, 620 - 87 = 533
@@ -84,6 +84,8 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
   @override
   void initState() {
+    super.initState();
+
     drawController = AnimationController(duration: Duration(milliseconds: _animationDuration), vsync: this);
     loginLogoutController = AnimationController(duration: Duration(milliseconds: _loginDuration), vsync: this);
 
@@ -107,17 +109,11 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
     WidgetsBinding.instance.addPostFrameCallback(
       (Duration dur) {
-        final BuildContext currentContext = _containerKey.currentContext;
-
-        if (currentContext != null) {
-          setState(
-            () {
-              renderBoxHeight = currentContext.size.height;
-            },
-          );
-        }
+        recalculateHeight();
       },
     );
+
+    WidgetsBinding.instance.addObserver(this);
 
     if (widget.newCardIndex != null) {
       currentState = WalletState.drawn;
@@ -127,14 +123,18 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
     if (widget.hasLoginLogoutAnimation && widget.newCardIndex == null) {
       loginLogoutController.forward();
     }
+  }
 
-    super.initState();
+  @override
+  void didChangeMetrics() {
+    recalculateHeight();
   }
 
   @override
   void dispose() {
     drawController.dispose();
     loginLogoutController.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -163,8 +163,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
     }
 
     super.didUpdateWidget(oldWidget);
-
-    return;
   }
 
   @override
@@ -380,6 +378,18 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
           );
         },
       );
+
+  void recalculateHeight() {
+    final BuildContext currentContext = _containerKey.currentContext;
+
+    if (currentContext != null && currentContext.size.height > renderBoxHeight) {
+      setState(
+        () {
+          renderBoxHeight = currentContext.size.height;
+        },
+      );
+    }
+  }
 
   void cardTapped(int index, Credential credential, Size size) {
     if (currentState == WalletState.drawn) {
