@@ -11,18 +11,18 @@
       "not_now": "Not now"
     },
     "introduction": {
-      "button_text": "Choose your PIN",
+      "button_text": "Choose a PIN",
       "screen1": {
-        "title": "IRMA is your identity on your mobile",
-        "text": "Your official name, date of birth, address, and more. All together in your IRMA-app."
+        "title": "IRMA is your mobile identity",
+        "text": "Your official name, date of birth, address, and more. All safely stored in your IRMA-app."
       },
       "screen2": {
-        "title": "With IRMA you make yourself known",
-        "text": "Easy and fast. It's all in your hands."
+        "title": "Reveal your identity with IRMA",
+        "text": "Easy, safe, and fast. Only you have control."
       },
       "screen3": {
         "title": "IRMA provides certainty, to you and to others",
-        "text": "Your data are stored solely in your IRMA-app. Only you have access.",
+        "text": "Your data are stored solely within the IRMA-app. Only you have access.",
         "privacy": {
           "text": "Read the privacy rules",
           "url": "https://privacybydesign.foundation/privacy-policy-en/"
@@ -41,13 +41,13 @@
       "error_action": "OK"
     },
     "provide_email": {
-      "title": "Add email address",
-      "instruction": "An email address allows you to disable your IRMA-app when your mobile is lost or stolen.",
+      "title": "Add an email address",
+      "instruction": "An email address allows you to disable your IRMA-app when your mobile has been lost or stolen.",
       "skip": "Skip",
       "next": "Next",
       "error": "This is not a valid email address",
       "skip_title": "Are you sure?",
-      "skip_content": "Protect yourself. When you enter an email address, you can disable your IRMA-app when your mobile is lost or stolen.",
+      "skip_content": "Protect your data. When you enter an email address, you can to disable your IRMA-app when your mobile has been lost or stolen.",
       "insert_email": "Enter an email address"
     },
     "submit": {
@@ -57,8 +57,8 @@
   },
   "about": {
     "title": "About IRMA",
-    "header": "Make yourself known",
-    "slogan": "With IRMA it's all in your hands.",
+    "header": "Identify yourself",
+    "slogan": "With IRMA only you have control over your data.",
     "who_is_behind_irma_item": "Who is behind the IRMA-app?",
     "who_is_behind_irma_explanation": "IRMA is produced by the **Privacy by Design** foundation. In 2016 this foundation grew out of the Digital Security research group at Radboud University Nijmegen. This foundation is independent and non-profit.\n\nThe IRMA-app is open source and is developed jointly with SIDN, the manager of the .nl-domain. This development is done jointly with local government and health care. Some 30 municipalities are involved, including Nijmegen, Amsterdam and Leiden. IRMA is recipient of the Dutch Privacy Awards 2018.",
     "check_out": "See also: ",
@@ -67,7 +67,7 @@
     "why_irma_item": "Why does IRMA exist?",
     "why_irma_explanation": "**IRMA exists because you have the right to an online identity that you really own.** IRMA is not a commercial app that is used to track you, to profile you and to sell your personal data to third parties.\n\nIRMA is in the spirit of the [General Data Protection Regulation (GDPR)](https://gdpr-info.eu/). Via the IRMA-app you disclose only these data about yourself that are relevant and necessary in a particular situation.\n\n**With the IRMA-app your identity is in your own hands, within the secured IRMA-app on your own phone.** The IRMA-app is is a powerful means for making yourself known (online) and for digital signing. With respect for your privacy.",
     "privacy_item": "IRMA, privacy and security",
-    "privacy_explanation": "De IRMA-app is made in such a way that you and only you can see and use your personal data in the app. Your personal data are stored only on your phone and not somewhere in the cloud.\n\nThe IRMA-app is designed so that a website or shop where you make yourself known can (cryptographically) check that the data that you disclose are genuine.\n\nThe IRMA-app discloses your data directly from your phone to the website. No-one else can see that your make yourself known there. Even the organisation behind IRMA cannot observe such disclosures. \n\nWhen using IRMA, you agree with the privacy policy [link].",
+    "privacy_explanation": "The IRMA-app has been developed in such a way that you and only you can see and use your personal data. Your personal data are stored only on your phone and not in the cloud.\n\nThe IRMA-app is designed so that a website or shop where you make yourself known can (cryptographically) check that the data that you disclose are genuine.\n\nThe IRMA-app discloses your data directly from your phone to the website. No-one else can see that you identify yourself there. Even the organisation behind IRMA cannot observe such disclosures. \n\nWhen using IRMA, you agree with the privacy policy [link].",
     "responsibility_item": "Own responsibility",
     "responsibility_explanation": "A website that offers an IRMA-long asks data that are needed for this login. Within the IRMA-app you decide whether you agree (or not) with the requested disclosure.\nDoes the website ask too much data? Then it is wise not to agree. You can consider filing a complaint. You can do so at the website itself or at the [Data Protection Authorities](https://autoriteitpersoonsgegevens.nl/nl/zelf-doen/gebruik-uw-privacyrechten/klacht-melden-bij-de-ap).\n\nWith the IRMA-app you can also put a digital signatures. Such a signature can have (legal) consequences. Hence, putting a digital signature with the IRMA-app requires care.\n\nIf you put a digital signature with the IRMA-app, you agree that the Privacy by Design foundation is in no way a party in any agreement that you enter into via an IRMA-signature. The foundation is neither responsible nor liable.",
     "learn_more": "Learn more",
@@ -103,7 +103,7 @@
     "answer_1": {
       "step_1": "Open the website on your mobile and select logging in with IRMA.",
       "step_2": "The IRMA-app starts automatically.\nEnter your PIN.",
-      "step_3": "Agree (or not) to disclose your personal data.",
+      "step_3": "Agree (or disagree) to disclose your personal data.",
       "step_4": "After disclosing you are logged in.\nYou can now use the website."
     },
     "question_2": "How to use IRMA for logging onto a website on my computer?",
@@ -190,7 +190,7 @@
     "personal_data": "Personal data",
     "identity_cards": "Identity cards",
     "education": "Education",
-    "health": "Health",
+    "health": "Healthcare",
     "card_info": {
       "app_bar": "Adding data",
       "header_credential_type": "Adding {credential_type}",
@@ -222,7 +222,7 @@
     "enter_pin": {
       "title": "Change PIN",
       "instruction": "Enter your current PIN",
-      "error_title": "Wrong PIN",
+      "error_title": "PIN incorrect",
       "error": "Enter your current PIN",
       "error_action": "OK"
     },
@@ -252,7 +252,7 @@
   "qr_scanner": {
     "instruction": {
       "title": "Start scanning",
-      "message": "Point your mobile at the IRMA QR-code"
+      "message": "Aim the camera of your mobile at the IRMA QR-code"
     },
     "success": {
       "title": "Success",
@@ -273,9 +273,9 @@
     "invalid_pin_dialog_title": "Wrong PIN entered.",
     "invalid_pin_dialog_close": "Try again.",
     "invalid_pin": {
-      "attempts-0": "This PIN is not correct. You have {attemps} tries left before your IRMA-app will be blocked temporarily.",
-      "attempts-1": "This PIN is not correct. You have {attemps} tries left before your IRMA-app will be blocked temporarily.",
-      "attempts-2": "This PIN is not correct. You have {attemps} tries left before your IRMA-app will be blocked temporarily."
+      "attempts-0": "This PIN is not correct. You have {attemps} attempts left before your IRMA-app will be blocked temporarily.",
+      "attempts-1": "This PIN is not correct. You have {attemps} attempts left before your IRMA-app will be blocked temporarily.",
+      "attempts-2": "This PIN is not correct. You have {attemps} attempts left before your IRMA-app will be blocked temporarily."
     }
   },
   "error": {
@@ -283,10 +283,10 @@
     "button_ok": "OK",
     "button_send_to_irma": "Send to IRMA's technical team",
     "button_show_error": "Show technical details",
-    "button_retry": "Try again",
+    "button_retry": "Please try again",
     "types": {
-      "general": "Something went wrong.\n\nWhen things go wrong again, please inform IRMA's technical team.",
-      "no_internet": "Something went wrong. The connection to the IRMA-server fails.\n\nCheck your internet connection. IRMA needs internet."
+      "general": "Something went wrong.\n\nWhen this happens again, please inform IRMA's technical team.",
+      "no_internet": "Something went wrong. The connection to the IRMA-server has failed.\n\nPlease check your internet connection."
     }
   },
   "wallet": {
@@ -334,7 +334,7 @@
     }
   },
   "disclosure": {
-    "title": "Make yourself known",
+    "title": "Identify yourself",
     "disclosure_header": {
       "start": "Do you wish to disclose this to ",
       "end": " ?"
@@ -346,7 +346,7 @@
     "previous": "previous choices",
     "explanation": {
       "title": "You can choose",
-      "body": "Select which data you disclose",
+      "body": "Select which data you disclose. Use the arrow or swipe and choose.",
       "dismiss": "OK",
       "dismiss-remember": "Do not show anymore"
     },
@@ -357,7 +357,7 @@
   },
   "reset_pin": {
     "title": "Lost PIN",
-    "message": "PIN lost? Too bad. The organisation behind IRMA does not know your PIN either and so it cannot help you. If you wish to continue using IRMA, you will have to start all over again: choose a new PIN and collect new cards.",
+    "message": "Lost your PIN? We're sorry but the IRMA organization does not keep record of your PIN. If you wish to continue using IRMA, you will have to enter a new PIN and re-enter all data.",
     "existing_data_title": "What happens with my old cards?",
     "existing_data_message": "Your old cards will be deleted from your phone. If you like, you can collect new cards and start using IRMA again.",
     "back": "Cancel",
