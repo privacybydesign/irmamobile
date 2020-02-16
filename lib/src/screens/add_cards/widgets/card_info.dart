@@ -87,7 +87,7 @@ class _CardInfoState extends State<CardInfo> with TickerProviderStateMixin {
         Padding(
           padding: paddingText,
           child: Text(
-            getTranslation(widget.credentialType.faqIntro),
+            getTranslation(widget.credentialType.faqIntro).replaceAll('\\n', '\n'),
             style: IrmaTheme.of(context).textTheme.body1,
           ),
         ),
