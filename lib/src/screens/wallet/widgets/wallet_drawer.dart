@@ -7,6 +7,7 @@ import 'package:irmamobile/src/screens/help/help_screen.dart';
 import 'package:irmamobile/src/screens/history/history_screen.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
+import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
@@ -112,6 +113,7 @@ class WalletDrawer extends StatelessWidget {
                           onTap: () {
                             PinBloc().dispatch(Lock());
                             Navigator.of(context).pop();
+                            Navigator.of(context).pushNamed(PinScreen.routeName);
                           },
                         )),
                   ),

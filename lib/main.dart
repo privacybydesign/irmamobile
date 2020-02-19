@@ -1,29 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n_delegate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:irmamobile/routing.dart';
 import 'package:irmamobile/src/data/irma_client_bridge.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/enrollment_status.dart';
 import 'package:irmamobile/src/models/version_information.dart';
-import 'package:irmamobile/src/screens/about/about_screen.dart';
-import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
-import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
-import 'package:irmamobile/src/screens/debug/debug_screen.dart';
-import 'package:irmamobile/src/screens/disclosure/disclosure_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
-import 'package:irmamobile/src/screens/help/help_screen.dart';
-import 'package:irmamobile/src/screens/history/history_screen.dart';
 import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/screens/required_update/required_update_screen.dart';
-import 'package:irmamobile/src/screens/reset_pin/reset_pin_screen.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
-import 'package:irmamobile/src/screens/settings/settings_screen.dart';
 import 'package:irmamobile/src/screens/splash_screen/splash_screen.dart';
-import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/util/navigator_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,13 +31,11 @@ class App extends StatefulWidget {
 }
 
 class AppState extends State<App> with WidgetsBindingObserver {
-  String initialRoute;
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
   // We keep track of the last two life cycle states
   // to be able to determine the flow
   List<AppLifecycleState> prevLifeCycleStates = List<AppLifecycleState>(2);
-
-  AppState();
 
   static List<LocalizationsDelegate> defaultLocalizationsDelegates([Locale forcedLocale]) {
     return [
@@ -70,22 +59,12 @@ class AppState extends State<App> with WidgetsBindingObserver {
 
   bool _showSplash = true;
   bool _removeSplash = false;
+  bool _firstOpen = true;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-
-    // Set the initial route once, after we've learn whether we're enrolled or not
-    IrmaRepository.get()
-        .getEnrollmentStatus()
-        .firstWhere((enrollmentStatus) => enrollmentStatus != EnrollmentStatus.undetermined)
-        .then((enrollmentStatus) {
-      setState(() {
-        initialRoute =
-            enrollmentStatus == EnrollmentStatus.enrolled ? WalletScreen.routeName : EnrollmentScreen.routeName;
-      });
-    });
 
     // TODO: the delay before splash is hidden is quite long. This is because we
     // currently have a long startup time (although that may be because we run
@@ -107,8 +86,6 @@ class AppState extends State<App> with WidgetsBindingObserver {
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     final startQrScanner = await IrmaPreferences.get().getStartQRScan().first;
 
-    final navState = NavigatorService.get();
-
     // We check the transition goes from paused -> inactive -> resumed
     // because the transition inactive -> resumed can also happen
     // in scenarios where the app is not closed. Like an apple pay
@@ -119,7 +96,13 @@ class AppState extends State<App> with WidgetsBindingObserver {
         prevLifeCycleStates[1] == AppLifecycleState.inactive &&
         state == AppLifecycleState.resumed &&
         startQrScanner) {
-      navState.pushNamed(ScannerScreen.routeName);
+      // TODO: probably this doesn't work correctly yet with the new routing
+      // stuff... I suspect it will push the ScannerScreen on top of the
+      // PinScreen.
+      _navigatorKey.currentState.pushNamed(ScannerScreen.routeName);
+
+      // TODO: Use this detection also to reset the _showSplash and _removeSplash
+      // variables.
     }
 
     prevLifeCycleStates[0] = prevLifeCycleStates[1];
@@ -130,6 +113,7 @@ class AppState extends State<App> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final irmaRepo = IrmaRepository.get();
     final versionInformationStream = irmaRepo.getVersionInformation();
+    final enrollmentStatusStream = irmaRepo.getEnrollmentStatus();
 
     // Device orientation: force portrait mode
     SystemChrome.setPreferredOrientations([
@@ -140,7 +124,7 @@ class AppState extends State<App> with WidgetsBindingObserver {
     return IrmaTheme(
       builder: (BuildContext context) {
         return StreamBuilder<EnrollmentStatus>(
-          stream: irmaRepo.getEnrollmentStatus(),
+          stream: enrollmentStatusStream,
           builder: (context, enrollmentStatusSnapshop) {
             final enrollmentStatus = enrollmentStatusSnapshop.data;
 
@@ -163,40 +147,37 @@ class AppState extends State<App> with WidgetsBindingObserver {
                       // TODO: Remove the forced locale when texts are properly translated to English.
                       localizationsDelegates: defaultLocalizationsDelegates(),
                       supportedLocales: defaultSupportedLocales(),
-                      navigatorKey: NavigatorService.navigatorKey,
-                      initialRoute: initialRoute,
-                      routes: <String, WidgetBuilder>{
-                        WalletScreen.routeName: (context) => WalletScreen(),
-                        EnrollmentScreen.routeName: (context) => EnrollmentScreen(),
-                        ScannerScreen.routeName: (context) => ScannerScreen(),
-                        ChangePinScreen.routeName: (context) => ChangePinScreen(),
-                        AboutScreen.routeName: (context) => AboutScreen(),
-                        SettingsScreen.routeName: (context) => SettingsScreen(),
-                        CardStoreScreen.routeName: (context) => CardStoreScreen(),
-                        HistoryScreen.routeName: (context) => HistoryScreen(),
-                        HelpScreen.routeName: (context) => HelpScreen(),
-                        ResetPinScreen.routeName: (context) => ResetPinScreen(),
-                        DebugScreen.routeName: (context) => DebugScreen(),
-                      },
-                      onGenerateRoute: (settings) {
-                        if (settings.name == DisclosureScreen.routeName) {
-                          return MaterialPageRoute(
-                              builder: (context) {
-                                return DisclosureScreen(arguments: settings.arguments as DisclosureScreenArguments);
-                              },
-                              settings: settings);
-                        }
-                        return null;
-                      },
+                      navigatorKey: _navigatorKey,
+                      onGenerateRoute: Routing.generateRoute,
                       builder: (context, child) {
+                        if (_firstOpen == true) {
+                          _firstOpen = false;
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            // Set the initial route once, after we've learn whether we're enrolled or not
+                            IrmaRepository.get()
+                                .getEnrollmentStatus()
+                                .firstWhere((enrollmentStatus) => enrollmentStatus != EnrollmentStatus.undetermined)
+                                .then((enrollmentStatus) {
+                              String targetRouteName = PinScreen.routeName;
+                              if (enrollmentStatus == EnrollmentStatus.unenrolled) {
+                                targetRouteName = EnrollmentScreen.routeName;
+                              }
+                              final pinScreenFuture = _navigatorKey.currentState.pushNamed(targetRouteName);
+                              final startQrScannerFuture = IrmaPreferences.get().getStartQRScan().first;
+                              pinScreenFuture.then((_) async {
+                                final startQrScanner = await startQrScannerFuture;
+                                if (startQrScanner == true) {
+                                  _navigatorKey.currentState.pushNamed(ScannerScreen.routeName);
+                                }
+                              });
+                            });
+                          });
+                        }
                         // Use the MaterialApp builder to force an overlay when loading
                         // and when update required.
                         return Stack(
                           children: <Widget>[
                             child,
-                            if (enrollmentStatus == EnrollmentStatus.enrolled) ...[
-                              const PinScreen(),
-                            ],
                             if (versionInformation != null && versionInformation.updateRequired()) ...[
                               RequiredUpdateScreen(),
                             ],
@@ -213,7 +194,7 @@ class AppState extends State<App> with WidgetsBindingObserver {
                                     _removeSplash = true;
                                   });
                                 },
-                                child: SplashScreen(),
+                                child: const SplashScreen(),
                               ),
                             ],
                           ],

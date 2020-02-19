@@ -1,11 +1,8 @@
 import 'package:bloc/bloc.dart';
-import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/authentication_events.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_state.dart';
-import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
-import 'package:irmamobile/src/util/navigator_service.dart';
 
 class PinBloc extends Bloc<PinEvent, PinState> {
   static final PinBloc _singleton = PinBloc._internal();
@@ -40,12 +37,6 @@ class PinBloc extends Bloc<PinEvent, PinState> {
 
       final authenticationEvent = await IrmaRepository.get().unlock(pinEvent.pin);
       if (authenticationEvent is AuthenticationSuccessEvent) {
-        final startQrScanner = await IrmaPreferences.get().getStartQRScan().first;
-
-        if (startQrScanner) {
-          NavigatorService.get().pushNamed(ScannerScreen.routeName);
-        }
-
         yield PinState(
           locked: false,
         );

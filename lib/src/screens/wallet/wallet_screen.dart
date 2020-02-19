@@ -8,6 +8,7 @@ import 'package:irmamobile/src/screens/debug/debug_screen.dart';
 import 'package:irmamobile/src/screens/help/help_screen.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
+import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/wallet/models/wallet_bloc.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet.dart';
@@ -16,7 +17,7 @@ import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 class WalletScreen extends StatelessWidget {
-  static const routeName = "/wallet";
+  static const routeName = "/";
 
   @override
   Widget build(BuildContext context) {
@@ -80,6 +81,7 @@ class _WalletScreenState extends State<_WalletScreen> {
             ),
             onPressed: () {
               PinBloc().dispatch(Lock());
+              Navigator.of(context).pushNamed(PinScreen.routeName);
             },
           ),
         ],
