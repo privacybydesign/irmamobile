@@ -5,6 +5,14 @@ import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/loading_indicator.dart';
 
 class SplashScreen extends StatelessWidget {
+  static const routeName = '/splash';
+
+  final bool loading;
+
+  const SplashScreen({
+    this.loading = false,
+  });
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,6 +43,7 @@ class SplashScreen extends StatelessWidget {
                     SizedBox(
                       height: 110.0,
                       width: 100.0,
+                      // TODO: either irma logo or loading indicator, based on this.loading.
                       child: LoadingIndicator(),
                     ),
                   ],
