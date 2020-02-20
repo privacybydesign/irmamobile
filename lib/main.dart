@@ -90,7 +90,6 @@ class AppState extends State<App> with WidgetsBindingObserver {
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     final startQrScanner = await IrmaPreferences.get().getStartQRScan().first;
-
     // We check the transition goes from paused -> inactive -> resumed
     // because the transition inactive -> resumed can also happen
     // in scenarios where the app is not closed. Like an apple pay

@@ -355,7 +355,8 @@
     "navigation_bar": {
       "yes": "Ja",
       "no": "Nee, liever niet"
-    }
+    },
+    "redirect": "Je wordt teruggeleid naar de webpagina..."
   },
   "reset_pin": {
     "title": "Pincode vergeten",
@@ -369,6 +370,7 @@
   "arrow_back": {
     "info_1": "Het is niet gelukt om je automatisch terug te sturen.\n\n",
     "safari": "Tik bovenin op de naam van je browser ",
-    "info_2": "(bijvoorbeeld Safari, Chrome, Firefox) om terug te gaan naar de website waar je mee bezig was."
+    "info_2": "(bijvoorbeeld Safari, Chrome, Firefox) om terug te gaan naar de website waar je mee bezig was.",
+    "button_back": "\n\nGa terug naar je wallet"
   }
 }
