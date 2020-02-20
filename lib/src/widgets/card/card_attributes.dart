@@ -8,9 +8,6 @@ import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/card/irma_card_theme.dart';
 
-// final Image photo;
-// photo = Image.memory(credential.decodeImage());
-
 class CardAttributes extends StatelessWidget {
   final _lang = ui.window.locale.languageCode;
   final _indent = 100.0;
@@ -52,9 +49,7 @@ class CardAttributes extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                if (false) ...[
-                  _buildPhoto(context),
-                ],
+                _buildPhoto(context),
                 Expanded(
                   child: Stack(
                     alignment: AlignmentDirectional.bottomCenter,
@@ -121,7 +116,7 @@ class CardAttributes extends StatelessWidget {
   }
 
   Widget _buildPhoto(BuildContext context) {
-    if (false) {
+    if (credential.attributes.portraitPhoto == null) {
       return Container();
     }
 
@@ -131,7 +126,7 @@ class CardAttributes extends StatelessWidget {
         width: 90,
         height: 120,
         color: const Color(0xff777777),
-        child: Container(), // TODO: Here should be the photo
+        child: credential.attributes.portraitPhoto,
       ),
     );
   }
@@ -139,27 +134,31 @@ class CardAttributes extends StatelessWidget {
   List<Widget> _buildAttributes(BuildContext context, TextStyle body1Theme) {
     final Attributes attributes = credential.attributes;
 
-    return attributes.sortedAttributeTypes
-        .expand(
-          (attributeType) => [
-            Opacity(
-              opacity: 0.8,
-              child: Text(
-                attributeType.name[_lang],
-                style: body1Theme.copyWith(fontSize: 14),
-                overflow: TextOverflow.ellipsis,
-              ),
+    return attributes.sortedAttributeTypes.expand<Widget>(
+      (attributeType) {
+        if (attributeType.displayHint == "portraitPhoto") {
+          return [];
+        }
+
+        return [
+          Opacity(
+            opacity: 0.8,
+            child: Text(
+              attributeType.name[_lang],
+              style: body1Theme.copyWith(fontSize: 14),
+              overflow: TextOverflow.ellipsis,
             ),
-            Text(
-              attributes[attributeType][_lang],
-              style: IrmaTheme.of(context).textTheme.body2.copyWith(color: irmaCardTheme.foregroundColor),
-            ),
-            SizedBox(
-              height: IrmaTheme.of(context).smallSpacing,
-            ),
-          ],
-        )
-        .toList();
+          ),
+          Text(
+            attributes[attributeType][_lang],
+            style: IrmaTheme.of(context).textTheme.body2.copyWith(color: irmaCardTheme.foregroundColor),
+          ),
+          SizedBox(
+            height: IrmaTheme.of(context).smallSpacing,
+          ),
+        ];
+      },
+    ).toList();
   }
 
   Widget _buildIssuer(BuildContext context, TextStyle body1Theme) {
