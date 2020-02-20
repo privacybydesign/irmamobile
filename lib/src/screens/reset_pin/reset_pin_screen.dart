@@ -3,6 +3,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
+import 'package:irmamobile/src/models/clear_all_data_event.dart';
+import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
@@ -87,7 +89,9 @@ class ResetPinScreen extends StatelessWidget {
                 children: <Widget>[
                   Expanded(
                     child: IrmaTextButton(
-                      onPressed: () {}, // TODO
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
                       minWidth: 0.0,
                       label: FlutterI18n.translate(context, 'reset_pin.back'),
                     ),
@@ -96,7 +100,13 @@ class ResetPinScreen extends StatelessWidget {
                   Expanded(
                     child: IrmaButton(
                       minWidth: 0.0,
-                      onPressed: () {}, // TODO
+                      onPressed: () {
+                        IrmaRepository.get().bridgedDispatch(
+                          ClearAllDataEvent(),
+                        );
+                        Navigator.of(context).popUntil((p) => p.isFirst);
+                        Navigator.of(context).pushReplacementNamed(EnrollmentScreen.routeName);
+                      },
                       label: FlutterI18n.translate(context, 'reset_pin.reset'),
                     ),
                   ),
