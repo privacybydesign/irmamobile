@@ -74,6 +74,11 @@ class AppState extends State<App> with WidgetsBindingObserver {
         _showSplash = false;
       });
     });
+
+    // TODO: Make sure we can only start sessions after unlocked
+    IrmaRepository.get().getIntentSessionPointer().listen((sessionPointer) {
+      ScannerScreen.startSessionAndNavigate(_navigatorKey.currentState, sessionPointer);
+    });
   }
 
   @override

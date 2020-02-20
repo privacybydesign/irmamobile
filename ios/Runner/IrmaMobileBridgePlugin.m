@@ -12,7 +12,9 @@
   FlutterMethodChannel* channel = [FlutterMethodChannel methodChannelWithName:@"irma.app/irma_mobile_bridge"
                                                               binaryMessenger:[registrar messenger]];
   IrmaMobileBridgePlugin* instance = [[IrmaMobileBridgePlugin alloc] initWithRegistrar:registrar channel:channel];
+
   [registrar addMethodCallDelegate:instance channel:channel];
+  [registrar addApplicationDelegate:instance];
 }
 
 - (instancetype)initWithRegistrar:(NSObject<FlutterPluginRegistrar>*)r channel:(FlutterMethodChannel*)c {
@@ -54,6 +56,32 @@
 - (void)dispatchFromGo:(NSString*)name payload:(NSString*)payload {
   [self debugLog:[NSString stringWithFormat:@"dispatching %@(%@)", name, payload]];
   [channel invokeMethod:name arguments:payload];
+}
+
+// Activity handling
+- (BOOL)application:(UIApplication *)application
+    didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+  NSURL *url = (NSURL *)launchOptions[UIApplicationLaunchOptionsURLKey];
+  [channel invokeMethod:@"HandleURLEvent" arguments:[NSString stringWithFormat:@"{\"isInitialURL\": \"true\", \"url\": \"%@\"}", url]];
+  return YES;
+}
+
+- (BOOL)application:(UIApplication *)application
+            openURL:(NSURL *)url
+            options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options {
+  [channel invokeMethod:@"HandleURLEvent" arguments:[NSString stringWithFormat:@"{\"url\": \"%@\"}", url]];
+  return YES;
+}
+
+- (BOOL)application:(UIApplication *)application
+    continueUserActivity:(NSUserActivity *)userActivity
+      restorationHandler:(void (^)(NSArray *_Nullable))restorationHandler {
+  if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb]) {
+    NSString *url = [userActivity.webpageURL absoluteString];
+    [channel invokeMethod:@"HandleURLEvent" arguments:[NSString stringWithFormat:@"{\"url\": \"%@\"}", url]];
+    return YES;
+  }
+  return NO;
 }
 
 @end

@@ -18,20 +18,22 @@ class ScannerScreen extends StatelessWidget {
   }
 
   void _onSuccess(BuildContext context, String code) {
-    startSessionAndNavigate(context, SessionPointer.fromJson(jsonDecode(code) as Map<String, dynamic>));
+    startSessionAndNavigate(Navigator.of(context), SessionPointer.fromJson(jsonDecode(code) as Map<String, dynamic>));
   }
 
   // TODO: Make this function private again and / or split it out to a utility function
-  static void startSessionAndNavigate(BuildContext context, SessionPointer sessionPointer) {
+  static void startSessionAndNavigate(NavigatorState navigator, SessionPointer sessionPointer) {
     final event = NewSessionEvent(request: sessionPointer, continueOnSecondDevice: true);
     IrmaRepository.get().dispatch(event, isBridgedEvent: true);
 
     if (["disclosing", "signing"].contains(event.request.irmaqr)) {
-      Navigator.of(context).pushNamedAndRemoveUntil(
-          DisclosureScreen.routeName, ModalRoute.withName(WalletScreen.routeName),
-          arguments: DisclosureScreenArguments(sessionID: event.sessionID));
+      navigator.pushNamedAndRemoveUntil(
+        DisclosureScreen.routeName,
+        ModalRoute.withName(WalletScreen.routeName),
+        arguments: DisclosureScreenArguments(sessionID: event.sessionID),
+      );
     } else {
-      Navigator.of(context).popUntil(ModalRoute.withName(WalletScreen.routeName));
+      navigator.popUntil(ModalRoute.withName(WalletScreen.routeName));
     }
   }
 

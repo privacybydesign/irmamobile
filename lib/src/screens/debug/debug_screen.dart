@@ -113,7 +113,7 @@ class DebugScreen extends StatelessWidget {
 
   Future<void> _startDisclosureSession(BuildContext context) async {
     ScannerScreen.startSessionAndNavigate(
-      context,
+      Navigator.of(context),
       await DemoSessionHelper.startDebugSession(
         DemoSessionHelper.disclosureSessionRequest(),
       ),
@@ -126,7 +126,7 @@ class DebugScreen extends StatelessWidget {
       DemoSessionHelper.randomIssuanceRequest(irmaConfiguration, 2),
     );
 
-    ScannerScreen.startSessionAndNavigate(context, sessionPointer);
+    ScannerScreen.startSessionAndNavigate(Navigator.of(context), sessionPointer);
   }
 
   Future<void> _deleteAllDeletableCards() async {

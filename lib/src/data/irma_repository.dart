@@ -11,7 +11,9 @@ import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/enrollment_events.dart';
 import 'package:irmamobile/src/models/enrollment_status.dart';
 import 'package:irmamobile/src/models/event.dart';
+import 'package:irmamobile/src/models/handle_url_event.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
+import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/models/version_information.dart';
@@ -41,6 +43,12 @@ class IrmaRepository {
 
   SessionRepository _sessionRepository;
 
+  final irmaConfigurationSubject = BehaviorSubject<IrmaConfiguration>(); // TODO: Make this member private
+  final _credentialsSubject = BehaviorSubject<Credentials>();
+  final _enrollmentStatusSubject = BehaviorSubject<EnrollmentStatus>.seeded(EnrollmentStatus.undetermined);
+  final _authenticationEventSubject = PublishSubject<AuthenticationEvent>();
+  final _lockedSubject = BehaviorSubject<bool>.seeded(true);
+
   // _internal is a named constructor only used by the factory
   IrmaRepository._internal({
     @required this.bridge,
@@ -63,9 +71,7 @@ class IrmaRepository {
     } else if (event is AuthenticationEvent) {
       _authenticationEventSubject.add(event);
     } else if (event is EnrollmentStatusEvent) {
-      _enrollmentStatusSubject.add(
-        event.isEnrolled() ? EnrollmentStatus.enrolled : EnrollmentStatus.unenrolled,
-      );
+      _enrollmentStatusSubject.add(event.enrollmentStatus);
     }
   }
 
@@ -86,10 +92,6 @@ class IrmaRepository {
   }
 
   // -- Scheme manager, issuer, credential and attribute definitions
-
-  // TODO: Make this member private
-  final irmaConfigurationSubject = BehaviorSubject<IrmaConfiguration>();
-
   Stream<IrmaConfiguration> getIrmaConfiguration() {
     return irmaConfigurationSubject.stream;
   }
@@ -101,16 +103,11 @@ class IrmaRepository {
   }
 
   // -- Credential instances
-  final _credentialsSubject = BehaviorSubject<Credentials>();
-
   Stream<Credentials> getCredentials() {
     return _credentialsSubject.stream;
   }
 
   // -- Enrollment
-  final _enrollmentStatusSubject = BehaviorSubject<EnrollmentStatus>.seeded(EnrollmentStatus.undetermined);
-
-  // TODO: Remove this away
   void enroll({String email, String pin, String language}) {
     _lockedSubject.add(false);
 
@@ -123,24 +120,11 @@ class IrmaRepository {
   }
 
   // -- Authentication
-  final _authenticationEventSubject = PublishSubject<AuthenticationEvent>();
-  final _lockedSubject = BehaviorSubject<bool>.seeded(true);
-
-  void _authenticationEventListener(AuthenticationEvent event) {
-    if (event is AuthenticationSuccessEvent) {
-      _lockedSubject.add(false);
-    } else if (event is AuthenticationFailedEvent) {
-      _lockedSubject.add(true);
-    }
-  }
-
   void lock() {
-    // TODO: this doesn't seem to actually cause a locking event anymore..
-    // Should maybe be reworked to go to irmago?
+    // TODO: This should actually lock irmago up
     _lockedSubject.add(true);
   }
 
-  // TODO: Move getting of first authentication result to own method
   Future<AuthenticationEvent> unlock(String pin) {
     dispatch(AuthenticateEvent(pin: pin), isBridgedEvent: true);
 
@@ -199,5 +183,19 @@ class IrmaRepository {
   // -- Session
   Stream<SessionState> getSessionState(int sessionID) {
     return _sessionRepository.getSessionState(sessionID);
+  }
+
+  Stream<SessionPointer> getIntentSessionPointer() {
+    // SessionPointer latestSessionPointer;
+    return _eventSubject.whereType<HandleURLEvent>().expand((handleURLEvent) {
+      try {
+        final sessionPointer = SessionPointer.fromURI(handleURLEvent.url);
+        return [sessionPointer];
+      } on MissingSessionPointer {
+        // pass
+      }
+
+      return [];
+    });
   }
 }

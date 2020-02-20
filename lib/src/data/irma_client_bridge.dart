@@ -8,6 +8,7 @@ import 'package:irmamobile/src/models/authentication_events.dart';
 import 'package:irmamobile/src/models/credential_events.dart';
 import 'package:irmamobile/src/models/enrollment_events.dart';
 import 'package:irmamobile/src/models/event.dart';
+import 'package:irmamobile/src/models/handle_url_event.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/log_entry.dart';
 import 'package:irmamobile/src/models/session_events.dart';
@@ -22,6 +23,8 @@ class IrmaClientBridge extends IrmaBridge {
     CredentialsEvent: (j) => CredentialsEvent.fromJson(j),
     EnrollmentStatusEvent: (j) => EnrollmentStatusEvent.fromJson(j),
     LogsEvent: (j) => LogsEvent.fromJson(j),
+
+    HandleURLEvent: (j) => HandleURLEvent.fromJson(j),
 
     EnrollmentSuccessEvent: (j) => EnrollmentSuccessEvent.fromJson(j),
     EnrollmentFailureEvent: (j) => EnrollmentFailureEvent.fromJson(j),

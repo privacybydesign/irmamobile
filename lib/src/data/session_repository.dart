@@ -19,7 +19,7 @@ class SessionRepository {
   final IrmaRepository repo;
   final Stream<SessionEvent> sessionEventStream;
 
-  final _eventStateSubject = BehaviorSubject<SessionStates>();
+  final _sessionStatesSubject = BehaviorSubject<SessionStates>();
 
   SessionRepository({this.repo, this.sessionEventStream}) {
     sessionEventStream.scan<SessionStates>(SessionStates({}), (prevStates, event) async {
@@ -31,7 +31,7 @@ class SessionRepository {
       final nextStates = Map.of(prevStates);
       nextStates[event.sessionID] = nextState;
       return SessionStates(nextStates);
-    }).pipe(_eventStateSubject);
+    }).pipe(_sessionStatesSubject);
 
     // TODO: Of course this shouldn't be here
     sessionEventStream.listen((event) {
@@ -88,7 +88,7 @@ class SessionRepository {
   }
 
   Stream<SessionState> getSessionState(int sessionID) {
-    return _eventStateSubject.map(
+    return _sessionStatesSubject.map(
       (sessionStates) => sessionStates[sessionID],
     );
   }

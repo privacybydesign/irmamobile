@@ -8,7 +8,6 @@ import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
-import 'package:irmamobile/src/screens/webview/models/session_pointer.dart';
 import 'package:irmamobile/src/screens/webview/widgets/browser_bar.dart';
 import 'package:irmamobile/src/screens/webview/widgets/loading_data.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
@@ -21,7 +20,7 @@ class WebviewScreen extends StatefulWidget {
   static const String routeName = "/issuance/webview";
   final String url;
 
-  _handleSessionPointer(BuildContext context, DeprecateMeSessionPointer sessionPointer) {
+  _handleSessionPointer(BuildContext context, SessionPointer sessionPointer) {
     final event = NewSessionEvent(
       request: SessionPointer(irmaqr: sessionPointer.irmaqr, u: sessionPointer.u),
     );
@@ -41,7 +40,7 @@ class _WebviewScreenState extends State<WebviewScreen> {
   bool _isLoading;
 
   _WebviewScreenState(this.url) : _isLoading = true;
-  DeprecateMeSessionPointer _sessionPointer;
+  SessionPointer _sessionPointer;
 
   @override
   void initState() {
@@ -82,7 +81,7 @@ class _WebviewScreenState extends State<WebviewScreen> {
                     if (_isIRMAURI(decodedUri)) {
                       setState(() {
                         try {
-                          _sessionPointer = DeprecateMeSessionPointer.fromURI(decodedUri);
+                          _sessionPointer = SessionPointer.fromURI(decodedUri);
                           widget._handleSessionPointer(context, _sessionPointer);
                         } catch (err) {
                           debugPrint(err.toString());
