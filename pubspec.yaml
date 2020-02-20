@@ -20,6 +20,7 @@ dependencies:
   flutter_i18n: ^0.8.2
   flutter_bloc: ^0.21.0
   equatable: ^0.5.1
+
   email_validator: ^1.0.0
   webview_flutter: 0.3.19+4
   url_launcher: ^5.1.2

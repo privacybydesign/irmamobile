@@ -10,8 +10,8 @@ import 'package:irmamobile/src/widgets/card/irma_card_theme.dart';
 
 class CardAttributes extends StatelessWidget {
   final _lang = ui.window.locale.languageCode;
+
   final _indent = 100.0;
-  final _maxHeight = 300.0;
   final _minHeight = 120.0; // TODO: perfect aspect ratio
 
   final Credential credential;
@@ -34,6 +34,14 @@ class CardAttributes extends StatelessWidget {
         scrollOverflowCallback(-scrollController.offset);
       }
     });
+
+    // Make sure the card uses a good maximum height (uses all available space)
+    // TODO: Remove weird hardcoded values and replace them with something that makes sense
+    // These hardcoded values were tested with smallest screen and biggest screen and one in between
+
+    double height = MediaQuery.of(context).size.height;
+    var padding = MediaQuery.of(context).padding;
+    double _maxHeight = (height - padding.top - kToolbarHeight) - ((height / 8) + 200);
 
     return Column(
       children: [
