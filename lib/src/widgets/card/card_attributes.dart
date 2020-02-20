@@ -51,9 +51,6 @@ class CardAttributes extends StatelessWidget {
             padding: EdgeInsets.only(
               top: IrmaTheme.of(context).defaultSpacing,
             ),
-            constraints: BoxConstraints(
-              minHeight: _minHeight,
-            ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
@@ -63,6 +60,9 @@ class CardAttributes extends StatelessWidget {
                     alignment: AlignmentDirectional.bottomCenter,
                     children: <Widget>[
                       Container(
+                        constraints: BoxConstraints(
+                          minHeight: _minHeight,
+                        ),
                         padding: EdgeInsets.only(
                           right: IrmaTheme.of(context).smallSpacing,
                         ),
