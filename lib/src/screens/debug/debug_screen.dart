@@ -10,10 +10,13 @@ import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/credential_events.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/session.dart';
+import 'package:irmamobile/src/screens/debug/portrait_photo_mock.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 class DemoSessionHelper {
+  static final _random = Random();
+
   static String disclosureSessionRequest() {
     return """
       {
@@ -55,31 +58,57 @@ class DemoSessionHelper {
     """;
   }
 
-  static String randomIssuanceRequest(IrmaConfiguration irmaConfiguration, int amount) {
-    final credentialTypes =
-        irmaConfiguration.credentialTypes.values.where((ct) => ct.schemeManagerId == "irma-demo").toList();
-    final attributesByCredentialType = groupBy<AttributeType, String>(
+  static Map<String, List<AttributeType>> _attributeTypesByCredentialType(IrmaConfiguration irmaConfiguration) {
+    return groupBy<AttributeType, String>(
       irmaConfiguration.attributeTypes.values,
       (attributeType) => attributeType.fullCredentialId,
     );
+  }
 
-    final random = Random();
+  static String _credentialRequest(CredentialType credentialType, attributeValues) {
+    return """
+      {
+        "credential": "${credentialType.fullId}",
+        "validity": 1592438400,
+        "attributes": {${attributeValues.join(", ")}}
+      }
+    """;
+  }
+
+  static String _randomAttributeValue() {
     const attributeValues = ["lorem", "ipsum"];
-    String randomAttributeValue() => attributeValues[random.nextInt(attributeValues.length)];
+    return attributeValues[_random.nextInt(attributeValues.length)];
+  }
+
+  static Future<String> digidProefIssuanceRequest(Future<IrmaConfiguration> irmaConfigurationFuture) async {
+    final irmaConfiguration = await irmaConfigurationFuture;
+    const credentialTypeId = "irma-demo.digidproef.personalData";
+    final credentialType = irmaConfiguration.credentialTypes[credentialTypeId];
+    final attributeTypesLookup = _attributeTypesByCredentialType(irmaConfiguration)[credentialTypeId];
+
+    final attributeValues = attributeTypesLookup.map((attributeType) {
+      final value = attributeType.displayHint == "portraitPhoto" ? portraitPhotoMock : _randomAttributeValue();
+      return '"${attributeType.id}": "$value"';
+    }).toList();
+
+    return issuanceSessionRequest(
+      [_credentialRequest(credentialType, attributeValues)],
+    );
+  }
+
+  static Future<String> randomIssuanceRequest(Future<IrmaConfiguration> irmaConfigurationFuture, int amount) async {
+    final irmaConfiguration = await irmaConfigurationFuture;
+    final credentialTypes =
+        irmaConfiguration.credentialTypes.values.where((ct) => ct.schemeManagerId == "irma-demo").toList();
+    final attributeTypesLookup = _attributeTypesByCredentialType(irmaConfiguration);
 
     final credentialsJson = List<String>.generate(amount, (int i) {
-      final credentialType = credentialTypes[random.nextInt(credentialTypes.length)];
-      final attributeValues = attributesByCredentialType[credentialType.fullId]
-          .map((attributeType) => '"${attributeType.id}": "${randomAttributeValue()}"')
+      final credentialType = credentialTypes[_random.nextInt(credentialTypes.length)];
+      final attributeValues = attributeTypesLookup[credentialType.fullId]
+          .map((attributeType) => '"${attributeType.id}": "${_randomAttributeValue()}"')
           .toList();
 
-      return """
-         {
-           "credential": "${credentialType.fullId}",
-           "validity": 1592438400,
-           "attributes": {${attributeValues.join(", ")}}
-         }
-       """;
+      return _credentialRequest(credentialType, attributeValues);
     });
 
     return issuanceSessionRequest(credentialsJson);
@@ -121,12 +150,8 @@ class DebugScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _getRandomCards(BuildContext context) async {
-    final irmaConfiguration = await IrmaRepository.get().getIrmaConfiguration().first;
-    final sessionPointer = await DemoSessionHelper.startDebugSession(
-      DemoSessionHelper.randomIssuanceRequest(irmaConfiguration, 2),
-    );
-
+  Future<void> _getCards(BuildContext context, Future<String> issuanceRequest) async {
+    final sessionPointer = await DemoSessionHelper.startDebugSession(await issuanceRequest);
     ScannerScreen.startSessionAndNavigate(Navigator.of(context), sessionPointer);
   }
 
@@ -145,15 +170,36 @@ class DebugScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final irmaConfigurationFuture = IrmaRepository.get().getIrmaConfiguration().first;
+
     return Scaffold(
       appBar: IrmaAppBar(
         title: const Text('Debugger'),
         leadingAction: () => _onClose(context),
         leadingIcon: Icon(Icons.arrow_back, semanticLabel: FlutterI18n.translate(context, "accessibility.back")),
         actions: <Widget>[
-          IconButton(icon: Icon(Icons.share), onPressed: () => _startDisclosureSession(context)),
-          IconButton(icon: Icon(Icons.exposure_plus_2), onPressed: () => _getRandomCards(context)),
-          IconButton(icon: Icon(Icons.delete), onPressed: () => _deleteAllDeletableCards()),
+          IconButton(
+            icon: Icon(Icons.image),
+            onPressed: () => _getCards(
+              context,
+              DemoSessionHelper.digidProefIssuanceRequest(irmaConfigurationFuture),
+            ),
+          ),
+          IconButton(
+            icon: Icon(Icons.share),
+            onPressed: () => _startDisclosureSession(context),
+          ),
+          IconButton(
+            icon: Icon(Icons.exposure_plus_2),
+            onPressed: () => _getCards(
+              context,
+              DemoSessionHelper.randomIssuanceRequest(irmaConfigurationFuture, 2),
+            ),
+          ),
+          IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: () => _deleteAllDeletableCards(),
+          ),
         ],
       ),
       body: Stack(

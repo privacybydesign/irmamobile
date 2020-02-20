@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:irmamobile/src/models/credentials.dart';
@@ -11,6 +12,7 @@ part 'attributes.g.dart';
 // Attributes of a credential.
 class Attributes extends UnmodifiableMapView<AttributeType, TranslatedValue> {
   List<AttributeType> sortedAttributeTypes;
+  Image portraitPhoto;
 
   Attributes(Map<AttributeType, TranslatedValue> map)
       : assert(map != null),
@@ -20,6 +22,20 @@ class Attributes extends UnmodifiableMapView<AttributeType, TranslatedValue> {
     sortedAttributeTypes.sort((a1, a2) => a1.index.compareTo(a2.index));
     if (sortedAttributeTypes.every((a) => a.displayIndex != null)) {
       sortedAttributeTypes.sort((a1, a2) => (a1.displayIndex).compareTo(a2.displayIndex));
+    }
+
+    // Pre-convert the first portraitPhoto, if present
+    final photoAttributeType = sortedAttributeTypes.firstWhere(
+      (at) => at.displayHint == "portraitPhoto",
+      orElse: () => null,
+    );
+
+    if (photoAttributeType != null) {
+      try {
+        portraitPhoto = Image.memory(
+          const Base64Decoder().convert(this[photoAttributeType].values.first),
+        );
+      } catch (_) {}
     }
   }
 
