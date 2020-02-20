@@ -15,6 +15,7 @@ import 'package:irmamobile/src/widgets/irma_quote.dart';
 import 'package:irmamobile/src/widgets/irma_text_button.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 import 'package:irmamobile/src/widgets/loading_indicator.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'carousel.dart';
 
@@ -50,12 +51,15 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
         .firstWhere((session) => session.disclosuresCandidates != null)
         .then((session) => _showExplanation(session.disclosuresCandidates));
 
-    _sessionStateStream.firstWhere((session) => session.status == SessionStatus.success).then(
-          (_) => Future.delayed(
-            const Duration(seconds: 1),
-            () => Navigator.of(context).popUntil(ModalRoute.withName(WalletScreen.routeName)),
-          ),
-        );
+    (() async {
+      final session = await _sessionStateStream.firstWhere((session) => session.status == SessionStatus.success);
+      await Future.delayed(const Duration(seconds: 1));
+
+      Navigator.of(context).popUntil(ModalRoute.withName(WalletScreen.routeName));
+      if (session.clientReturnURL != null && await canLaunch(session.clientReturnURL)) {
+        launch(session.clientReturnURL);
+      }
+    })();
   }
 
   void _dispatchSessionEvent(SessionEvent event) {
