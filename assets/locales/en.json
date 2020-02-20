@@ -185,7 +185,7 @@
   },
   "card_store": {
     "app_bar": "Adding cards",
-    "choose": "Choose new material to add.",
+    "choose": "Choose the data you want to add.",
     "search": "Search...",
     "personal_data": "Personal data",
     "identity_cards": "Identity cards",
