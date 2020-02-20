@@ -71,7 +71,7 @@ class CardAttributes extends StatelessWidget {
                             shrinkWrap: true,
                             controller: scrollController,
                             physics: const BouncingScrollPhysics(),
-                            padding: EdgeInsets.only(left: IrmaTheme.of(context).defaultSpacing,
+                            padding: EdgeInsets.only(left: IrmaTheme.of(context).defaultSpacing),
                             children: [
                               ..._buildAttributes(context, body1Theme),
                               SizedBox(
@@ -98,7 +98,7 @@ class CardAttributes extends StatelessWidget {
                             ),
                           ),
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),
