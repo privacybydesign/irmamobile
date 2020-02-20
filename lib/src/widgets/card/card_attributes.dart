@@ -71,11 +71,11 @@ class CardAttributes extends StatelessWidget {
                             shrinkWrap: true,
                             controller: scrollController,
                             physics: const BouncingScrollPhysics(),
-                            padding: EdgeInsets.only(left: IrmaTheme.of(context).defaultSpacing),
+                            padding: EdgeInsets.only(left: IrmaTheme.of(context).smallSpacing),
                             children: [
                               ..._buildAttributes(context, body1Theme),
                               SizedBox(
-                                height: IrmaTheme.of(context).hugeSpacing,
+                                height: IrmaTheme.of(context).defaultSpacing,
                               ),
                             ],
                           ),
@@ -125,7 +125,7 @@ class CardAttributes extends StatelessWidget {
 
   Widget _buildPhoto(BuildContext context) {
     if (credential.attributes.portraitPhoto == null) {
-      return Container();
+      return Container(height: 0);
     }
 
     return Padding(
