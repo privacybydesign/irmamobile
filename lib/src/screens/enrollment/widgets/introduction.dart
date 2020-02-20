@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
 import 'package:irmamobile/src/screens/enrollment/widgets/choose_pin.dart';
+import 'package:irmamobile/src/screens/webview/webview_screen.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
-import 'package:irmamobile/src/widgets/irma_text_button.dart';
-import 'package:irmamobile/src/screens/webview/webview_screen.dart';
 
 class Introduction extends StatefulWidget {
   static const String routeName = 'introduction';
@@ -38,39 +36,46 @@ class _IntroductionState extends State<Introduction> {
       // Prevent overflow when returning from pin input
       resizeToAvoidBottomPadding: false,
 
-      body: PageView(
-        controller: _controller,
-        scrollDirection: Axis.vertical,
-        onPageChanged: (value) {
-          setState(() => currentIndexPage = value);
-        },
-        children: <Widget>[
-          Walkthrough(
-            image: SvgPicture.asset('assets/enrollment/introduction_screen1.svg',
-                excludeFromSemantics: true, width: 280, height: 245),
-            titleContent: FlutterI18n.translate(context, 'enrollment.introduction.screen1.title'),
-            textContent: FlutterI18n.translate(context, 'enrollment.introduction.screen1.text'),
-            onNextScreen: () => _controller.nextPage(curve: Curves.ease, duration: const Duration(milliseconds: 800)),
+      body: Container(
+        padding: EdgeInsets.only(top: IrmaTheme.of(context).largeSpacing),
+        child: Container(
+          child: PageView(
+            controller: _controller,
+            scrollDirection: Axis.vertical,
+            onPageChanged: (value) {
+              setState(() => currentIndexPage = value);
+            },
+            children: <Widget>[
+              Walkthrough(
+                image: SvgPicture.asset('assets/enrollment/introduction_screen1.svg',
+                    excludeFromSemantics: true, width: 280, height: 245),
+                titleContent: FlutterI18n.translate(context, 'enrollment.introduction.screen1.title'),
+                textContent: FlutterI18n.translate(context, 'enrollment.introduction.screen1.text'),
+                onNextScreen: () =>
+                    _controller.nextPage(curve: Curves.ease, duration: const Duration(milliseconds: 800)),
+              ),
+              Walkthrough(
+                image: SvgPicture.asset('assets/enrollment/introduction_screen2.svg',
+                    excludeFromSemantics: true, width: 280, height: 231),
+                titleContent: FlutterI18n.translate(context, 'enrollment.introduction.screen2.title'),
+                textContent: FlutterI18n.translate(context, 'enrollment.introduction.screen2.text'),
+                onNextScreen: () =>
+                    _controller.nextPage(curve: Curves.ease, duration: const Duration(milliseconds: 800)),
+              ),
+              Walkthrough(
+                image: SvgPicture.asset('assets/enrollment/introduction_screen3.svg',
+                    excludeFromSemantics: true, width: 341, height: 247),
+                titleContent: FlutterI18n.translate(context, 'enrollment.introduction.screen3.title'),
+                textContent: FlutterI18n.translate(context, 'enrollment.introduction.screen3.text'),
+                linkText: 'enrollment.introduction.screen3.privacy.text',
+                linkUrl: 'enrollment.introduction.screen3.privacy.url',
+                onNextScreen: () => {},
+                onPressButton: () => Navigator.of(context).pushNamed(ChoosePin.routeName),
+                finalScreen: true,
+              ),
+            ],
           ),
-          Walkthrough(
-            image: SvgPicture.asset('assets/enrollment/introduction_screen2.svg',
-                excludeFromSemantics: true, width: 280, height: 231),
-            titleContent: FlutterI18n.translate(context, 'enrollment.introduction.screen2.title'),
-            textContent: FlutterI18n.translate(context, 'enrollment.introduction.screen2.text'),
-            onNextScreen: () => _controller.nextPage(curve: Curves.ease, duration: const Duration(milliseconds: 800)),
-          ),
-          Walkthrough(
-            image: SvgPicture.asset('assets/enrollment/introduction_screen3.svg',
-                excludeFromSemantics: true, width: 341, height: 247),
-            titleContent: FlutterI18n.translate(context, 'enrollment.introduction.screen3.title'),
-            textContent: FlutterI18n.translate(context, 'enrollment.introduction.screen3.text'),
-            linkText: 'enrollment.introduction.screen3.privacy.text',
-            linkUrl: 'enrollment.introduction.screen3.privacy.url',
-            onNextScreen: () => {},
-            onPressButton: () => Navigator.of(context).pushNamed(ChoosePin.routeName),
-            finalScreen: true,
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -108,9 +113,9 @@ class Walkthrough extends StatelessWidget {
             children: [
               image,
               Container(
-                padding: const EdgeInsets.only(top: 44.0),
+                padding: const EdgeInsets.only(top: 30.0),
                 alignment: Alignment.center,
-                constraints: const BoxConstraints(maxWidth: 256.0),
+                constraints: const BoxConstraints(maxWidth: 288.0),
                 child: Text(
                   titleContent,
                   style: IrmaTheme.of(context).textTheme.display2,
@@ -120,7 +125,7 @@ class Walkthrough extends StatelessWidget {
               Container(
                 padding: EdgeInsets.only(top: IrmaTheme.of(context).defaultSpacing),
                 alignment: Alignment.center,
-                constraints: const BoxConstraints(maxWidth: 256.0),
+                constraints: const BoxConstraints(maxWidth: 288.0),
                 child: Text(
                   textContent,
                   style: IrmaTheme.of(context).textTheme.body1,
@@ -131,7 +136,7 @@ class Walkthrough extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.only(top: IrmaTheme.of(context).defaultSpacing),
                   alignment: Alignment.center,
-                  constraints: const BoxConstraints(maxWidth: 256.0),
+                  constraints: const BoxConstraints(maxWidth: 288.0),
                   child: GestureDetector(
                     onTap: () {
                       try {
