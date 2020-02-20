@@ -59,7 +59,7 @@ class AppState extends State<App> with WidgetsBindingObserver {
 
   bool _showSplash = true;
   bool _removeSplash = false;
-  bool _firstOpen = true;
+  bool _hasInitialized = false;
 
   @override
   void initState() {
@@ -109,10 +109,88 @@ class AppState extends State<App> with WidgetsBindingObserver {
     prevLifeCycleStates[1] = state;
   }
 
+  void _initializeOnFirstMaterialAppBuild() {
+    // This is a bit of a hack to exectute this logic once, as soon as
+    // the MaterialApp Navigator has been initialized
+    if (_hasInitialized) {
+      return;
+    }
+
+    _hasInitialized = true;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Set the initial route once, after we've learn whether we're enrolled or not
+      final enrollmentStatus = await IrmaRepository.get()
+          .getEnrollmentStatus()
+          .firstWhere((enrollmentStatus) => enrollmentStatus != EnrollmentStatus.undetermined);
+
+      // Go to the PIN screen if enrolled, en to enrollment otherwise
+      String targetRouteName = PinScreen.routeName;
+      if (enrollmentStatus == EnrollmentStatus.unenrolled) {
+        targetRouteName = EnrollmentScreen.routeName;
+      }
+
+      // Push the initial screen, and also push the QR scanner screen if the preference is enabled
+      await _navigatorKey.currentState.pushNamed(targetRouteName);
+
+      final startQrScanner = await IrmaPreferences.get().getStartQRScan().first;
+      if (startQrScanner == true) {
+        _navigatorKey.currentState.pushNamed(ScannerScreen.routeName);
+      }
+    });
+  }
+
+  Widget _buildRequiredUpdateScreen() {
+    return StreamBuilder<VersionInformation>(
+      stream: IrmaRepository.get().getVersionInformation(),
+      builder: (context, versionInformationSnapshot) {
+        // NOTE: versionInformation can be null because there is no guarantee that
+        // versionInformationSnapshot.data is not null.
+        final versionInformation = versionInformationSnapshot.data;
+        if (versionInformation != null && versionInformation.updateRequired()) {
+          return RequiredUpdateScreen();
+        }
+
+        return Container();
+      },
+    );
+  }
+
+  Widget _buildSplash(EnrollmentStatus enrollmentStatus) {
+    if (_removeSplash) {
+      return Container();
+    }
+
+    return AnimatedOpacity(
+      opacity: enrollmentStatus == EnrollmentStatus.undetermined || _showSplash ? 1.0 : 0.0,
+      duration: const Duration(milliseconds: 500),
+      onEnd: () {
+        setState(() {
+          _removeSplash = true;
+        });
+      },
+      child: const SplashScreen(),
+    );
+  }
+
+  Widget _buildAppStack(
+    BuildContext context,
+    Widget navigationChild,
+    EnrollmentStatus enrollmentStatus,
+  ) {
+    // Use this Stack to force an overlay when loading and when an update is required.
+    return Stack(
+      children: <Widget>[
+        navigationChild,
+        _buildRequiredUpdateScreen(),
+        _buildSplash(enrollmentStatus),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final irmaRepo = IrmaRepository.get();
-    final versionInformationStream = irmaRepo.getVersionInformation();
     final enrollmentStatusStream = irmaRepo.getEnrollmentStatus();
 
     // Device orientation: force portrait mode
@@ -128,82 +206,27 @@ class AppState extends State<App> with WidgetsBindingObserver {
           builder: (context, enrollmentStatusSnapshop) {
             final enrollmentStatus = enrollmentStatusSnapshop.data;
 
-            return StreamBuilder<VersionInformation>(
-              stream: versionInformationStream,
-              builder: (context, versionInformationSnapshot) {
-                // NOTE: versionInformation can be null because there is no guarantee that
-                // versionInformationSnapshot.data is not null.
-                final versionInformation = versionInformationSnapshot.data;
+            return Stack(
+              textDirection: TextDirection.ltr,
+              children: <Widget>[
+                MaterialApp(
+                  key: const Key("app"),
+                  title: 'IRMA',
+                  theme: IrmaTheme.of(context).themeData,
+                  localizationsDelegates: defaultLocalizationsDelegates(),
+                  supportedLocales: defaultSupportedLocales(),
+                  navigatorKey: _navigatorKey,
+                  onGenerateRoute: Routing.generateRoute,
 
-                return Stack(
-                  textDirection: TextDirection.ltr,
-                  children: <Widget>[
-                    MaterialApp(
-                      key: const Key("app"),
-                      title: 'IRMA',
-                      theme: IrmaTheme.of(context).themeData,
-                      // set showSemanticsDebugger to true to view semantics in emulator.
-                      showSemanticsDebugger: false,
-                      // TODO: Remove the forced locale when texts are properly translated to English.
-                      localizationsDelegates: defaultLocalizationsDelegates(),
-                      supportedLocales: defaultSupportedLocales(),
-                      navigatorKey: _navigatorKey,
-                      onGenerateRoute: Routing.generateRoute,
-                      builder: (context, child) {
-                        if (_firstOpen == true) {
-                          _firstOpen = false;
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            // Set the initial route once, after we've learn whether we're enrolled or not
-                            IrmaRepository.get()
-                                .getEnrollmentStatus()
-                                .firstWhere((enrollmentStatus) => enrollmentStatus != EnrollmentStatus.undetermined)
-                                .then((enrollmentStatus) {
-                              String targetRouteName = PinScreen.routeName;
-                              if (enrollmentStatus == EnrollmentStatus.unenrolled) {
-                                targetRouteName = EnrollmentScreen.routeName;
-                              }
-                              final pinScreenFuture = _navigatorKey.currentState.pushNamed(targetRouteName);
-                              final startQrScannerFuture = IrmaPreferences.get().getStartQRScan().first;
-                              pinScreenFuture.then((_) async {
-                                final startQrScanner = await startQrScannerFuture;
-                                if (startQrScanner == true) {
-                                  _navigatorKey.currentState.pushNamed(ScannerScreen.routeName);
-                                }
-                              });
-                            });
-                          });
-                        }
-                        // Use the MaterialApp builder to force an overlay when loading
-                        // and when update required.
-                        return Stack(
-                          children: <Widget>[
-                            child,
-                            if (versionInformation != null && versionInformation.updateRequired()) ...[
-                              RequiredUpdateScreen(),
-                            ],
-                            if (_removeSplash == false) ...[
-                              AnimatedOpacity(
-                                opacity: versionInformation == null ||
-                                        enrollmentStatus == EnrollmentStatus.undetermined ||
-                                        _showSplash
-                                    ? 1.0
-                                    : 0.0,
-                                duration: const Duration(milliseconds: 500),
-                                onEnd: () {
-                                  setState(() {
-                                    _removeSplash = true;
-                                  });
-                                },
-                                child: const SplashScreen(),
-                              ),
-                            ],
-                          ],
-                        );
-                      },
-                    ),
-                  ],
-                );
-              },
+                  // Set showSemanticsDebugger to true to view semantics in emulator.
+                  showSemanticsDebugger: false,
+
+                  builder: (context, child) {
+                    _initializeOnFirstMaterialAppBuild();
+                    return _buildAppStack(context, child, enrollmentStatus);
+                  },
+                ),
+              ],
             );
           },
         );
