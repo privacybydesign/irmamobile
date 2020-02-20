@@ -355,7 +355,8 @@
     "navigation_bar": {
       "yes": "Yes",
       "no": "No, rather not"
-    }
+    },
+    "redirect": "You are being redirected back to the webpage..."
   },
   "reset_pin": {
     "title": "Lost PIN",
@@ -369,6 +370,7 @@
   "arrow_back": {
     "info_1": "You could not be send back automatically. \n\n",
     "safari": "Click on the name of your browser (e.g., Safari, Chrome, Firefox) ",
-    "info_2": "in the top left corner to return to the website you were coming from."
+    "info_2": "in the top left corner to return to the website you were coming from.",
+    "button_back": "\n\nGo back to your wallet"
   }
 }

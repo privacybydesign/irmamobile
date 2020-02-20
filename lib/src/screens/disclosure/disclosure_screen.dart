@@ -1,10 +1,14 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
+import 'package:irmamobile/src/screens/disclosure/widgets/arrow_back_screen.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
@@ -41,6 +45,8 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   final IrmaRepository _repo = IrmaRepository.get();
   Stream<SessionState> _sessionStateStream;
 
+  bool _displayArrowBack = false;
+
   @override
   void initState() {
     super.initState();
@@ -51,15 +57,34 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
         .firstWhere((session) => session.disclosuresCandidates != null)
         .then((session) => _showExplanation(session.disclosuresCandidates));
 
+    // Session success handling
     (() async {
+      // When the session has completed, wait one second to display a message
       final session = await _sessionStateStream.firstWhere((session) => session.status == SessionStatus.success);
       await Future.delayed(const Duration(seconds: 1));
 
-      Navigator.of(context).popUntil(ModalRoute.withName(WalletScreen.routeName));
-      if (session.clientReturnURL != null && await canLaunch(session.clientReturnURL)) {
-        launch(session.clientReturnURL);
+      if (session.continueOnSecondDevice) {
+        // If this is a session on another screen, just pop to the wallet
+        _popToWallet(context);
+      } else if (session.clientReturnURL != null && await canLaunch(session.clientReturnURL)) {
+        // If there is a return URL, navigate to it when we're done
+        launch(session.clientReturnURL, forceSafariVC: false);
+        _popToWallet(context);
+      } else {
+        // Otherwise, on iOS show a screen to press the return arrow in the top-left corner,
+        // and on Android just background the app to let the user return to the previous activity
+        if (Platform.isIOS) {
+          setState(() => _displayArrowBack = true);
+        } else {
+          SystemNavigator.pop();
+          _popToWallet(context);
+        }
       }
     })();
+  }
+
+  void _popToWallet(BuildContext context) {
+    Navigator.of(context).popUntil(ModalRoute.withName(WalletScreen.routeName));
   }
 
   void _dispatchSessionEvent(SessionEvent event) {
@@ -203,6 +228,10 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_displayArrowBack) {
+      return ArrowBack();
+    }
+
     return Scaffold(
       appBar: IrmaAppBar(
         title: Text(FlutterI18n.translate(context, 'disclosure.title')),
@@ -222,8 +251,10 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
           }
 
           if (session.status == SessionStatus.success) {
-            return const Center(
-              child: Text("Je wordt teruggeleid naar de webpagina..."),
+            return Center(
+              child: Text(
+                FlutterI18n.translate(context, "disclosure.redirect"),
+              ),
             );
           }
 
