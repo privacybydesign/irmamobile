@@ -24,7 +24,8 @@ class DemoSessionHelper {
               "pbdf.sidn-pbdf.irma.pseudonym"
             ]
           ]
-        ]
+        ],
+        "clientReturnUrl": "https://example.com"
       }
     """;
   }
