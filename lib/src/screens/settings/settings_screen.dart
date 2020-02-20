@@ -35,7 +35,7 @@ class SettingsScreen extends StatelessWidget {
         title: Text(FlutterI18n.translate(context, 'settings.title')),
       ),
       body: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).tinySpacing),
         color: Theme.of(context).canvasColor,
         child: ListView(children: <Widget>[
           SizedBox(height: IrmaTheme.of(context).largeSpacing),

@@ -38,6 +38,7 @@ class IrmaTextButton extends StatelessWidget {
         child: Text(
           FlutterI18n.translate(context, label),
           style: textStyle,
+          textAlign: TextAlign.center,
         ),
       ),
     );

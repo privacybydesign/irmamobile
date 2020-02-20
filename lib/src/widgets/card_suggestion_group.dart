@@ -16,10 +16,10 @@ class CardSuggestionGroup extends StatelessWidget {
         itemBuilder: (context, index) {
           if (index == 0) {
             return Padding(
-              padding: const EdgeInsets.only(
-                left: 8.0,
-                top: 8.0,
-                bottom: 16.0,
+              padding: EdgeInsets.only(
+                left: IrmaTheme.of(context).defaultSpacing,
+                top: IrmaTheme.of(context).defaultSpacing,
+                bottom: IrmaTheme.of(context).smallSpacing,
               ),
               child: Text(
                 title,
