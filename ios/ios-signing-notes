@@ -1,10 +1,13 @@
+set -x
+
 flutter clean
 rm -rf build
-rm -rf ios/build
-# rm -rf ios
+rm -rf ios
 git checkout -- ios
 
-# gomobile bind -target ios -o ios/Runner/Irmagobridge.framework github.com/privacybydesign/irmamobile/irmagobridge
+rm -rf .vendor-new vendor
+dep ensure -v
+gomobile bind -target ios -o ios/Runner/Irmagobridge.framework github.com/privacybydesign/irmamobile/irmagobridge
 
 flutter build ios
 
@@ -13,6 +16,8 @@ xcodebuild -workspace Runner.xcworkspace -scheme Runner -sdk iphoneos -configura
 
 xcodebuild -exportArchive -archivePath $PWD/build/Runner.xcarchive -exportOptionsPlist AppStoreExportOptions.plist -exportPath $PWD/build/AppStore
 xcodebuild -exportArchive -archivePath $PWD/build/Runner.xcarchive -exportOptionsPlist AdHocExportOptions.plist -exportPath $PWD/build/AdHoc
+
+xcrun altool --upload-app --type ios --file build/AppStore/Runner.ipa --username "tomas@harreveld.org"
 
 ---
 
