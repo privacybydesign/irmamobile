@@ -81,24 +81,6 @@ class CardAttributes extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Positioned(
-                        child: Container(
-                          height: 8.0,
-                          decoration: BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(width: 1.0, color: irmaCardTheme.backgroundGradientEnd),
-                            ),
-                            gradient: const LinearGradient(
-                              colors: [
-                                Color(0x00000000),
-                                Color(0x33000000),
-                              ],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                            ),
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                 ),
@@ -112,6 +94,22 @@ class CardAttributes extends StatelessWidget {
               color: const Color(0x11FFFFFF),
               child: Column(
                 children: <Widget>[
+                  Container(
+                    height: 8.0,
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(width: 1.0, color: irmaCardTheme.backgroundGradientEnd),
+                      ),
+                      gradient: const LinearGradient(
+                        colors: [
+                          Color(0x00000000),
+                          Color(0x33000000),
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                  ),
                   _buildIssuer(context, body1Theme),
                   _buildExpiration(context, body1Theme),
                 ],
@@ -129,7 +127,8 @@ class CardAttributes extends StatelessWidget {
     }
 
     return Padding(
-      padding: EdgeInsets.only(top: 6, bottom: IrmaTheme.of(context).smallSpacing),
+      padding: EdgeInsets.only(
+          top: 6, bottom: IrmaTheme.of(context).smallSpacing, left: IrmaTheme.of(context).defaultSpacing),
       child: Container(
         width: 90,
         height: 120,
