@@ -7,8 +7,7 @@ import 'package:irmamobile/src/models/clear_all_data_event.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
-import 'package:irmamobile/src/widgets/irma_button.dart';
-import 'package:irmamobile/src/widgets/irma_text_button.dart';
+import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 
 class ResetPinScreen extends StatelessWidget {
   static const String routeName = '/reset';
@@ -21,8 +20,15 @@ class ResetPinScreen extends StatelessWidget {
     IrmaRepository.get().enroll();
   }
 
+  void _closeKeyboard(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      FocusScope.of(context).requestFocus(FocusNode());
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    _closeKeyboard(context);
     return Scaffold(
       appBar: IrmaAppBar(
         title: Text(
@@ -31,6 +37,20 @@ class ResetPinScreen extends StatelessWidget {
             'reset_pin.title',
           ),
         ),
+      ),
+      bottomSheet: IrmaBottomBar(
+        primaryButtonLabel: FlutterI18n.translate(context, 'reset_pin.reset'),
+        onPrimaryPressed: () {
+          IrmaRepository.get().bridgedDispatch(
+            ClearAllDataEvent(),
+          );
+          Navigator.of(context).popUntil((p) => p.isFirst);
+          Navigator.of(context).pushReplacementNamed(EnrollmentScreen.routeName);
+        },
+        secondaryButtonLabel: FlutterI18n.translate(context, 'reset_pin.back'),
+        onSecondaryPressed: () {
+          Navigator.of(context).pop();
+        },
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -76,41 +96,6 @@ class ResetPinScreen extends StatelessWidget {
                     SizedBox(height: IrmaTheme.of(context).defaultSpacing)
                   ],
                 ),
-              ),
-            ),
-          ),
-          Align(
-            alignment: FractionalOffset.bottomCenter,
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
-              color: IrmaTheme.of(context).backgroundBlue,
-              child: Row(
-                children: <Widget>[
-                  Expanded(
-                    child: IrmaTextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      minWidth: 0.0,
-                      label: FlutterI18n.translate(context, 'reset_pin.back'),
-                    ),
-                  ),
-                  SizedBox(width: IrmaTheme.of(context).defaultSpacing),
-                  Expanded(
-                    child: IrmaButton(
-                      minWidth: 0.0,
-                      onPressed: () {
-                        IrmaRepository.get().bridgedDispatch(
-                          ClearAllDataEvent(),
-                        );
-                        Navigator.of(context).popUntil((p) => p.isFirst);
-                        Navigator.of(context).pushReplacementNamed(EnrollmentScreen.routeName);
-                      },
-                      label: FlutterI18n.translate(context, 'reset_pin.reset'),
-                    ),
-                  ),
-                ],
               ),
             ),
           ),

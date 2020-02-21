@@ -66,6 +66,7 @@ class IrmaBottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
       return Container(
+        width: MediaQuery.of(context).size.width,
         decoration: BoxDecoration(
           color: IrmaTheme.of(context).backgroundBlue,
           border: Border(
