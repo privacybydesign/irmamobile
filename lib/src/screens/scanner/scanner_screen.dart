@@ -22,8 +22,12 @@ class ScannerScreen extends StatelessWidget {
   }
 
   // TODO: Make this function private again and / or split it out to a utility function
-  static void startSessionAndNavigate(NavigatorState navigator, SessionPointer sessionPointer) {
-    final event = NewSessionEvent(request: sessionPointer, continueOnSecondDevice: true);
+  static void startSessionAndNavigate(
+    NavigatorState navigator,
+    SessionPointer sessionPointer, {
+    bool continueOnSecondDevice = true,
+  }) {
+    final event = NewSessionEvent(request: sessionPointer, continueOnSecondDevice: continueOnSecondDevice);
     IrmaRepository.get().dispatch(event, isBridgedEvent: true);
 
     if (["disclosing", "signing"].contains(event.request.irmaqr)) {
