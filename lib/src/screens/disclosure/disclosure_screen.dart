@@ -250,10 +250,16 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
             return _buildDisclosureChoices(session);
           }
 
+          // TODO move text to nl.json
+          // TODO use IrmaTheme padding
           if (session.status == SessionStatus.success) {
             return Center(
-              child: Text(
-                FlutterI18n.translate(context, "disclosure.redirect"),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  FlutterI18n.translate(context, "disclosure.redirect"),
+                  textAlign: TextAlign.center,
+                ),
               ),
             );
           }

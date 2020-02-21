@@ -23,7 +23,7 @@ dependencies:
 
   email_validator: ^1.0.0
   webview_flutter: 0.3.19+4
-  url_launcher: ^5.1.2
+  url_launcher: ^5.4.1
   json_annotation: ^3.0.0
   build_runner: ^1.6.6
   rxdart: ^0.22.2

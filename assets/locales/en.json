@@ -301,6 +301,22 @@
     "expiration": "Card valid until",
     "help": "Help",
     "caption": "Your data securely on your mobile",
+    "irma-demo_digidproef_basicPersonalData": {
+      "intro": "Get your cards with basic ID-information and your address now. Use the 'DigiD Proef' app.",
+      "nudge": "Obtain your cards.\n Your 'DigiD Proef' app will open.",
+      "no_digid_dialog_title": "The 'DigiD Proef' app is not installed.",
+      "no_digid_dialog_content": "Install the 'DigiD Proef' app first. You can install it through Apple TestFlight.",
+      "no_digid_dialog_primary": "Open Testflight",
+      "no_digid_dialog_secondary": "Cancel",
+      "no_testflight_dialog_title": "Cannot launch the app",
+      "no_testflight_dialog_content": "Install Testfligh from the appstore and try again.",
+      "no_testflight_dialog_primary": "Install Testflight",
+      "no_testflight_dialog_secondary": "Cancel"
+    },
+    "pbdf_gemeente_personalData": {
+      "intro": "Get your cards with personal information and your address now. You will need to login with DigiD.",
+      "nudge": "Obtain your cards.\n The municipalities website will open."
+    },
     "add_data": "Add more data",
     "lock": "Log out"
   },

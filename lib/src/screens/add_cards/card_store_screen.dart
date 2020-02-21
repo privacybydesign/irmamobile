@@ -11,6 +11,7 @@ import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/widgets/card_suggestion.dart';
 import 'package:irmamobile/src/widgets/card_suggestion_group.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'card_info_screen.dart';
 
@@ -75,7 +76,8 @@ class CardStoreScreen extends StatelessWidget {
                                           irmaConfiguration: irmaConfiguration,
                                           credentialType: credentialType,
                                           onStartIssuance: () {
-                                            _openURL(context, getTranslation(credentialType.issueUrl));
+                                            _openURL(context, getTranslation(credentialType.issueUrl),
+                                                _openDeviceBrowser(credentialType));
                                           },
                                         ),
                                       ),
@@ -110,6 +112,11 @@ class CardStoreScreen extends StatelessWidget {
     );
   }
 
+  bool _openDeviceBrowser(CredentialType credential) {
+    final credentialIdentifier = "${credential.schemeManagerId}.${credential.issuerId}.${credential.id}";
+    return credentialIdentifier == "pbdf.gemeente.personalData" || credentialIdentifier == "pbdf.gemeente.address";
+  }
+
   // Widget _search(BuildContext context) {
   //   return Padding(
   //     padding: EdgeInsets.all(IrmaTheme.of(context).spacing),
@@ -140,11 +147,16 @@ class CardStoreScreen extends StatelessWidget {
   //   );
   // }
 
-  void _openURL(BuildContext context, String url) {
+  void _openURL(BuildContext context, String url, bool openDeviceBrowser) {
+    if (openDeviceBrowser) {
+      launch(url, forceSafariVC: false);
+    }
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) {
-        return WebviewScreen(url);
+        return WebviewScreen(
+          url,
+        );
       }),
     );
   }
