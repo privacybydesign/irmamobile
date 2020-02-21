@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/main.dart';
+import 'package:irmamobile/app.dart';
 import 'package:irmamobile/src/data/irma_mock_bridge.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/theme/theme.dart';

@@ -29,7 +29,7 @@ class WebviewScreen extends StatefulWidget {
     Navigator.of(context).popUntil(ModalRoute.withName(WalletScreen.routeName));
   }
 
-  WebviewScreen(this.url, {Key key}) : super(key: key);
+  const WebviewScreen(this.url, {Key key}) : super(key: key);
 
   @override
   _WebviewScreenState createState() => _WebviewScreenState(url);

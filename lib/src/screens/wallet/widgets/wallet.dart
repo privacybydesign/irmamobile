@@ -8,13 +8,16 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/credential_events.dart';
 import 'package:irmamobile/src/models/credentials.dart';
+import 'package:irmamobile/src/models/irma_configuration.dart';
+import 'package:irmamobile/src/screens/wallet/widgets/digid_proef_helper.dart';
+import 'package:irmamobile/src/screens/wallet/widgets/get_cards_nudge.dart';
+import 'package:irmamobile/src/screens/wallet/widgets/irma_pilot_nudge.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet_button.dart';
 import 'package:irmamobile/src/screens/webview/webview_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/widgets/card/card.dart';
-import 'package:irmamobile/src/widgets/irma_text_button.dart';
-import 'package:irmamobile/src/widgets/loading_indicator.dart';
+import 'package:irmamobile/src/widgets/nudge_state.dart';
 
 ///  Show Wallet widget
 ///
@@ -26,14 +29,15 @@ import 'package:irmamobile/src/widgets/loading_indicator.dart';
 ///  onHelpPressed: callback for Help button tapped
 ///  onAddCardsPressed: callback for add button tapped
 class Wallet extends StatefulWidget {
-  const Wallet(
-      {@required this.credentials,
-      this.hasLoginLogoutAnimation = false,
-      this.isOpen = false,
-      this.newCardIndex,
-      this.onQRScannerPressed,
-      this.onHelpPressed,
-      this.onAddCardsPressed});
+  const Wallet({
+    @required this.credentials,
+    this.hasLoginLogoutAnimation = false,
+    this.isOpen = false,
+    this.newCardIndex,
+    this.onQRScannerPressed,
+    this.onHelpPressed,
+    this.onAddCardsPressed,
+  });
 
   final List<Credential> credentials; // null when pending
   final bool hasLoginLogoutAnimation;
@@ -81,6 +85,10 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin, WidgetsB
   double cardDragOffset = 0;
   int showCardsCounter = 0;
   bool _nudgeVisible = true;
+
+  final irmaClient = IrmaRepository.get();
+
+  get type => null;
 
   @override
   void initState() {
@@ -165,6 +173,72 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin, WidgetsB
     super.didUpdateWidget(oldWidget);
   }
 
+  Widget _buildDigidProefNudge(BuildContext context, IrmaConfiguration irmaConfiguration) {
+    final credentialType = irmaConfiguration.credentialTypes["irma-demo.digidproef.basicPersonalData"];
+    final issuer = irmaConfiguration.issuers[credentialType.fullIssuerId];
+
+    return IrmaPilotNudge(
+      credentialType: credentialType,
+      issuer: issuer,
+      irmaConfigurationPath: irmaConfiguration.path,
+      launchFailAction: launchFailActionDigiDProef,
+    );
+  }
+
+  Widget _buildGemeenteNudge(BuildContext context, IrmaConfiguration irmaConfiguration) {
+    final credentialType = irmaConfiguration.credentialTypes["pbdf.gemeente.personalData"];
+    final issuer = irmaConfiguration.issuers[credentialType.fullIssuerId];
+
+    return IrmaPilotNudge(
+      credentialType: credentialType,
+      issuer: issuer,
+      launchFailAction: (context) {},
+    );
+  }
+
+  Widget _buildNudge(BuildContext context, Size size) {
+    //  TODO:  Maybe we should remove the possibility that credentials is null in wallet.dart, because that seems like an odd case
+    return StreamBuilder(
+        stream: irmaClient.irmaConfigurationSubject,
+        builder: (context, snapshot) {
+          if (snapshot.data != null) {
+            final irmaConfiguration = snapshot.data as IrmaConfiguration;
+            final nudgeState = Nudge.of(context).nudgeState;
+
+            switch (nudgeState) {
+              case NudgeState.addCards:
+                return GetCardsNudge(
+                  credentials: widget.credentials,
+                  size: size,
+                  onAddCardsPressed: widget.onAddCardsPressed,
+                );
+
+              case NudgeState.digidProef:
+                if (_hasCredential("irma-demo.digidproef.basicPersonalData")) {
+                  return GetCardsNudge(
+                    credentials: widget.credentials,
+                    size: size,
+                    onAddCardsPressed: widget.onAddCardsPressed,
+                  );
+                }
+
+                return _buildDigidProefNudge(context, irmaConfiguration);
+
+              case NudgeState.gemeente:
+                if (_hasCredential("pbdf.gemeente.personalData")) {
+                  return GetCardsNudge(
+                    credentials: widget.credentials,
+                    size: size,
+                    onAddCardsPressed: widget.onAddCardsPressed,
+                  );
+                }
+                return _buildGemeenteNudge(context, irmaConfiguration);
+            }
+          }
+          return Container();
+        });
+  }
+
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
         animation: Listenable.merge([drawAnimation, loginLogoutController]),
@@ -181,45 +255,13 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin, WidgetsB
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(
-                    vertical: IrmaTheme.of(context).defaultSpacing * 3, horizontal: IrmaTheme.of(context).largeSpacing),
+                    vertical: IrmaTheme.of(context).defaultSpacing, horizontal: IrmaTheme.of(context).smallSpacing),
                 child: AnimatedOpacity(
                   // If the widget is visible, animate to 0.0 (invisible).
                   // If the widget is hidden, animate to 1.0 (fully visible).
                   opacity: _nudgeVisible ? 1.0 : 0.0,
                   duration: Duration(milliseconds: _animationDuration),
-                  child: Container(
-                    child: ListView(
-                      children: <Widget>[
-                        SvgPicture.asset(
-                          'assets/wallet/wallet_illustration.svg',
-                          excludeFromSemantics: true,
-                          width: size.width / 2,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(
-                            top: IrmaTheme.of(context).defaultSpacing,
-                            right: IrmaTheme.of(context).defaultSpacing,
-                            left: IrmaTheme.of(context).defaultSpacing,
-                          ),
-                          child: Text(
-                            FlutterI18n.translate(context, 'wallet.caption'),
-                            textAlign: TextAlign.center,
-                            style: IrmaTheme.of(context).textTheme.body1,
-                          ),
-                        ),
-                        IrmaTextButton(
-                          label: 'wallet.add_data',
-                          onPressed: widget.onAddCardsPressed,
-                        ),
-                        if (widget.credentials == null) ...[
-                          Align(
-                            alignment: Alignment.center,
-                            child: LoadingIndicator(),
-                          )
-                        ],
-                      ],
-                    ),
-                  ),
+                  child: _buildNudge(context, size),
                 ),
               ),
               Align(
@@ -336,39 +378,42 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin, WidgetsB
                         height: size.width * _walletAspectRatio * _walletBottomInteractive,
                         width: size.width,
                         child: Semantics(
-                            button: true,
-                            label: FlutterI18n.translate(context, 'wallet.toggle'),
-                            child: GestureDetector(
-                              onTap: () {
-                                switch (currentState) {
-                                  case WalletState.halfway:
-                                    setNewState(WalletState.full);
-                                    break;
-                                  case WalletState.full:
-                                    setNewState(WalletState.halfway);
-                                    break;
-                                  default:
-                                    setNewState(cardInStackState);
-                                    break;
-                                }
-                              },
-                            )),
+                          button: true,
+                          label: FlutterI18n.translate(context, 'wallet.toggle'),
+                          child: GestureDetector(
+                            onTap: () {
+                              switch (currentState) {
+                                case WalletState.halfway:
+                                  setNewState(WalletState.full);
+                                  break;
+                                case WalletState.full:
+                                  setNewState(WalletState.halfway);
+                                  break;
+                                default:
+                                  setNewState(cardInStackState);
+                                  break;
+                              }
+                            },
+                          ),
+                        ),
                       ),
                       Positioned(
                         left: 16,
                         bottom: (size.width * _walletAspectRatio - _walletIconHeight) / 2,
                         child: WalletButton(
-                            svgFile: 'assets/wallet/btn_help.svg',
-                            accessibleName: "wallet.help",
-                            clickStreamSink: widget.onHelpPressed),
+                          svgFile: 'assets/wallet/btn_help.svg',
+                          accessibleName: "wallet.help",
+                          clickStreamSink: widget.onHelpPressed,
+                        ),
                       ),
                       Positioned(
                         right: 16,
                         bottom: (size.width * _walletAspectRatio - _walletIconHeight) / 2,
                         child: WalletButton(
-                            svgFile: 'assets/wallet/btn_qrscan.svg',
-                            accessibleName: "wallet.scan_qr_code",
-                            clickStreamSink: widget.onQRScannerPressed),
+                          svgFile: 'assets/wallet/btn_qrscan.svg',
+                          accessibleName: "wallet.scan_qr_code",
+                          clickStreamSink: widget.onQRScannerPressed,
+                        ),
                       ),
                     ],
                   ),
@@ -378,6 +423,17 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin, WidgetsB
           );
         },
       );
+
+  bool _hasCredential(String credentialId) {
+    if (widget.credentials != null) {
+      for (final Credential credential in widget.credentials) {
+        if ("${credential.schemeManager}.${credential.id}" == credentialId) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
 
   void recalculateHeight() {
     final BuildContext currentContext = _containerKey.currentContext;

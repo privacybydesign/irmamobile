@@ -122,6 +122,10 @@ class Issuer {
   factory Issuer.fromJson(Map<String, dynamic> json) => _$IssuerFromJson(json);
 
   String get fullId => "$schemeManagerId.$id";
+
+  String logoPath(String irmaConfigurationPath) {
+    return "$irmaConfigurationPath/$schemeManagerId/$id/logo.png";
+  }
 }
 
 @JsonSerializable(nullable: false)
@@ -135,6 +139,7 @@ class CredentialType {
     this.isSingleton,
     this.description,
     this.issueUrl,
+    this.isULIssueUrl,
     this.disallowDelete,
     this.foregroundColor,
     this.backgroundGradientStart,
@@ -170,6 +175,9 @@ class CredentialType {
 
   @JsonKey(name: 'IssueURL', nullable: true)
   final TranslatedValue issueUrl;
+
+  @JsonKey(name: 'IsULIssueURL', nullable: true)
+  final bool isULIssueUrl;
 
   @JsonKey(name: 'DisallowDelete', nullable: true)
   final bool disallowDelete;
