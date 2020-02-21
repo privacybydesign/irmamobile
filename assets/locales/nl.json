@@ -369,8 +369,7 @@
   },
   "arrow_back": {
     "info_1": "Het is niet gelukt om je automatisch terug te sturen.\n\n",
-    "safari": "Tik bovenin op de naam van je browser ",
-    "info_2": "(bijvoorbeeld Safari, Chrome, Firefox) om terug te gaan naar de website waar je mee bezig was.",
-    "button_back": "\n\nGa terug naar je wallet"
+    "safari": "Tik bovenin op de naam van het programma ",
+    "info_2": "(bijvoorbeeld Safari, Chrome, Firefox) om terug te gaan naar het programma waar je mee bezig was."
   }
 }
