@@ -28,30 +28,31 @@ class ArrowBackState extends State with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      primary: false,
-      body: CustomPaint(
-        painter: Arrow(context),
-        child: Center(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).defaultSpacing),
-            child: Container(
-              color: IrmaTheme.of(context).primaryLight,
-              child: RichText(
-                textAlign: TextAlign.center,
-                text: TextSpan(
-                  style: IrmaTheme.of(context).textTheme.body1.copyWith(),
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: FlutterI18n.translate(context, 'arrow_back.info_1'),
-                    ),
-                    TextSpan(
-                      text: FlutterI18n.translate(context, 'arrow_back.safari'),
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    TextSpan(
-                      text: FlutterI18n.translate(context, 'arrow_back.info_2'),
-                    ),
-                  ],
+      body: SafeArea(
+        child: CustomPaint(
+          painter: Arrow(context),
+          child: Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).defaultSpacing),
+              child: Container(
+                color: IrmaTheme.of(context).primaryLight,
+                child: RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    style: IrmaTheme.of(context).textTheme.body1.copyWith(),
+                    children: <TextSpan>[
+                      TextSpan(
+                        text: FlutterI18n.translate(context, 'arrow_back.info_1'),
+                      ),
+                      TextSpan(
+                        text: FlutterI18n.translate(context, 'arrow_back.safari'),
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      TextSpan(
+                        text: FlutterI18n.translate(context, 'arrow_back.info_2'),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -87,8 +88,8 @@ class Arrow extends CustomPainter {
     paint.strokeCap = StrokeCap.round;
     paint.strokeJoin = StrokeJoin.round;
 
-    const start = Offset(13, 25);
-    const cP1 = Offset(5, 140);
+    const start = Offset(23, 15);
+    const cP1 = Offset(15, 140);
     final cP2 = Offset(size.width / 2, size.height / 10);
     final end = Offset(size.width / 2, size.height / 2.6);
     final line = Path();
@@ -106,9 +107,9 @@ class Arrow extends CustomPainter {
     paint.style = PaintingStyle.fill;
 
     final triangle = Path();
-    triangle.moveTo(13, 17);
-    triangle.lineTo(21, 27);
-    triangle.lineTo(5, 27);
+    triangle.moveTo(23, 7);
+    triangle.lineTo(31, 17);
+    triangle.lineTo(15, 17);
     triangle.close();
     canvas.drawPath(triangle, paint);
   }
