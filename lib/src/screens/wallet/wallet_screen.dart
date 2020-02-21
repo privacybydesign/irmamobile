@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
 import 'package:irmamobile/src/screens/debug/debug_screen.dart';
 import 'package:irmamobile/src/screens/help/help_screen.dart';
@@ -11,6 +10,8 @@ import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/wallet/models/wallet_bloc.dart';
+import 'package:irmamobile/src/screens/wallet/models/wallet_events.dart';
+import 'package:irmamobile/src/screens/wallet/models/wallet_state.dart' as walletblocstate;
 import 'package:irmamobile/src/screens/wallet/widgets/wallet.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet_drawer.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
@@ -55,6 +56,10 @@ class _WalletScreenState extends State<_WalletScreen> {
     Navigator.pushNamed(context, DebugScreen.routeName);
   }
 
+  void onNewCardAnimationShown() {
+    widget.bloc.dispatch(NewCardAnitmationShown());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -86,17 +91,23 @@ class _WalletScreenState extends State<_WalletScreen> {
           ),
         ],
       ),
-      body: StreamBuilder<Credentials>(
-        stream: widget.bloc.credentials,
-        builder: (context, snapshot) => Wallet(
-            credentials: snapshot.hasData ? snapshot.data.values.toList() : null,
+      drawer: WalletDrawer(),
+      body: BlocBuilder<WalletBloc, walletblocstate.WalletState>(
+        bloc: widget.bloc,
+        builder: (context, state) {
+          return Wallet(
+            credentials: state.credentials != null ? state.credentials.values.toList() : null,
             hasLoginLogoutAnimation: false,
             isOpen: true,
+            newCardIndex: state.newCardIndex,
+            showNewCardAnimation: state.showNewCardAnimation,
             onQRScannerPressed: qrScannerPressed,
             onHelpPressed: helpPressed,
-            onAddCardsPressed: addCardsPressed),
+            onAddCardsPressed: addCardsPressed,
+            onNewCardAnimationShown: onNewCardAnimationShown,
+          );
+        },
       ),
-      drawer: WalletDrawer(),
     );
   }
 }

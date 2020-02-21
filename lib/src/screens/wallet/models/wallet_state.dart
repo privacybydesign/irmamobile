@@ -4,22 +4,26 @@ import 'package:meta/meta.dart';
 
 @immutable
 class WalletState with EquatableMixin {
-  final List<Credential> credentials;
+  final Credentials credentials;
+  final int newCardIndex;
+  final bool showNewCardAnimation;
 
-  WalletState({
-    this.credentials,
-  });
+  WalletState({this.credentials, this.newCardIndex, this.showNewCardAnimation});
 
-  WalletState copyWith({
-    List<Credential> credentials,
-  }) {
+  WalletState copyWith({Credentials credentials, int newCardIndex, bool showNewCardAnimation}) {
     return WalletState(
       credentials: credentials ?? this.credentials,
+      newCardIndex: newCardIndex ?? this.newCardIndex,
+      showNewCardAnimation: showNewCardAnimation ?? this.showNewCardAnimation,
     );
   }
 
   @override
   List<Object> get props {
-    return null;
+    return [
+      credentials,
+      showNewCardAnimation,
+      newCardIndex,
+    ];
   }
 }
