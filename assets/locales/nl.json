@@ -302,20 +302,20 @@
     "help": "Help",
     "caption": "Jouw gegevens veilig op je mobiel",
     "irma-demo_digidproef_basicPersonalData": {
-      "intro": "Haal nu je kaartjes op met je persoons- en adresgegevens. Gebruik de Sesam-app.",
-      "nudge": "Haal je kaartjes op.\n De Sesam-app wordt gestart.",
+      "intro": "Haal nu je persoons- en adresgegevens op.\nGebruik de Sesam ID-app.",
+      "nudge": "Haal de kaartjes op",
       "no_digid_dialog_title": "Sesam-app niet gevonden",
       "no_digid_dialog_content": "Installeer eerst de Sesam-app. Je kan deze via Apple TestFlight verkrijgen.",
-      "no_digid_dialog_primary": "TestFlight openen",
-      "no_digid_dialog_secondary": "Annuleren",
+      "no_digid_dialog_primary": "Open TestFlight",
+      "no_digid_dialog_secondary": "Annuleer",
       "no_testflight_dialog_title": "De app kan niet worden gestart",
       "no_testflight_dialog_content": "Installeer eerst de app TestFlight uit de AppStore. Daarna kun je het nogmaals proberen.",
       "no_testflight_dialog_primary": "Installeer Testflight",
-      "no_testflight_dialog_secondary": "Annuleren"
+      "no_testflight_dialog_secondary": "Annuleer"
     },
     "pbdf_gemeente_personalData": {
-      "intro": "Haal nu je kaartjes op met je persoonsgegevens en adresgegevens. Je hebt hievoor je DigiD nodig.",
-      "nudge": "Haal je kaartjes op.\n De gemeente-website wordt geopend."
+      "intro": "Haal nu je persoons- en adresgegevens op.\nJe hebt je DigiD nodig.",
+      "nudge": "Haal de kaartjes op"
     },
     "add_data": "Voeg meer gegevens toe",
     "lock": "Uitloggen"
