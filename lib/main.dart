@@ -217,7 +217,7 @@ class AppState extends State<App> with WidgetsBindingObserver {
                   key: const Key("app"),
                   title: 'IRMA',
                   theme: IrmaTheme.of(context).themeData,
-                  localizationsDelegates: defaultLocalizationsDelegates(),
+                  localizationsDelegates: defaultLocalizationsDelegates(const Locale('nl', 'NL')),
                   supportedLocales: defaultSupportedLocales(),
                   navigatorKey: _navigatorKey,
                   onGenerateRoute: Routing.generateRoute,
