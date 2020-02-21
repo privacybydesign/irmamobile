@@ -427,7 +427,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin, WidgetsB
   bool _hasCredential(String credentialId) {
     if (widget.credentials != null) {
       for (final Credential credential in widget.credentials) {
-        if ("${credential.schemeManager}.${credential.id}" == credentialId) {
+        if ("${credential.schemeManager}.${credential.issuer}.${credential.id}" == credentialId) {
           return true;
         }
       }
