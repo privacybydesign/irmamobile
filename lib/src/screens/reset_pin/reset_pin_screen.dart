@@ -3,8 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/clear_all_data_event.dart';
-import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
+import 'package:irmamobile/src/screens/settings/settings_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
@@ -41,11 +40,7 @@ class ResetPinScreen extends StatelessWidget {
       bottomSheet: IrmaBottomBar(
         primaryButtonLabel: FlutterI18n.translate(context, 'reset_pin.reset'),
         onPrimaryPressed: () {
-          IrmaRepository.get().bridgedDispatch(
-            ClearAllDataEvent(),
-          );
-          Navigator.of(context).popUntil((p) => p.isFirst);
-          Navigator.of(context).pushReplacementNamed(EnrollmentScreen.routeName);
+          openWalletResetDialog(context);
         },
         secondaryButtonLabel: FlutterI18n.translate(context, 'reset_pin.back'),
         onSecondaryPressed: () {
