@@ -67,7 +67,7 @@ class _WalletScreenState extends State<_WalletScreen> {
           _scaffoldKey.currentState.openDrawer();
         },
         actions: <Widget>[
-          if (!kReleaseMode) ...[
+          if (kDebugMode) ...[
             IconButton(
               icon: Icon(Icons.videogame_asset),
               onPressed: onDebugPressed,
