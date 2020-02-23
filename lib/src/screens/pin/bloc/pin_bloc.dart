@@ -16,7 +16,8 @@ class PinBloc extends Bloc<PinEvent, PinState> {
       if (isLocked) {
         dispatch(Locked());
       } else {
-        dispatch(Unlocked());
+        // TODO: Had to comment this for getLocked() and unlock() logic that is biting each other
+        // dispatch(Unlocked());
       }
     });
   }

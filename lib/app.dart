@@ -6,6 +6,7 @@ import 'package:irmamobile/routing.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/enrollment_status.dart';
+import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/version_information.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/pin/pin_screen.dart';
@@ -68,10 +69,7 @@ class AppState extends State<App> with WidgetsBindingObserver {
       });
     });
 
-    // TODO: Make sure we can only start sessions after unlocked
-    IrmaRepository.get().getIntentSessionPointer().listen((sessionPointer) {
-      ScannerScreen.startSessionAndNavigate(_navigatorKey.currentState, sessionPointer, continueOnSecondDevice: false);
-    });
+    _listenToPendingSessionPointer();
   }
 
   @override
@@ -102,6 +100,38 @@ class AppState extends State<App> with WidgetsBindingObserver {
 
     prevLifeCycleStates[0] = prevLifeCycleStates[1];
     prevLifeCycleStates[1] = state;
+  }
+
+  void _listenToPendingSessionPointer() {
+    final repo = IrmaRepository.get();
+
+    // Listen for incoming SessionPointers, but only act on them if unlocked
+    repo.getPendingSessionPointer().listen((sessionPointer) async {
+      final isLocked = await repo.getLocked().first;
+      if (sessionPointer == null || isLocked) {
+        return;
+      }
+
+      _startSession(sessionPointer);
+    });
+
+    // Listen for unlock events, and handle any pending session pointer
+    repo.getLocked().listen((isLocked) async {
+      final sessionPointer = await repo.getPendingSessionPointer().first;
+      if (sessionPointer == null || isLocked) {
+        return;
+      }
+
+      _startSession(sessionPointer);
+    });
+  }
+
+  void _startSession(SessionPointer sessionPointer) {
+    ScannerScreen.startSessionAndNavigate(
+      _navigatorKey.currentState,
+      sessionPointer,
+      continueOnSecondDevice: false,
+    );
   }
 
   void _initializeOnFirstMaterialAppBuild() {

@@ -48,6 +48,7 @@ class IrmaRepository {
   final _enrollmentStatusSubject = BehaviorSubject<EnrollmentStatus>.seeded(EnrollmentStatus.undetermined);
   final _authenticationEventSubject = PublishSubject<AuthenticationEvent>();
   final _lockedSubject = BehaviorSubject<bool>.seeded(true);
+  final _pendingSessionPointerSubject = BehaviorSubject<SessionPointer>.seeded(null);
 
   // _cachedPin is used to re-activate session without navigating to the pin
   // screen. This is a temporary solution. The app must not be released with this
@@ -89,6 +90,9 @@ class IrmaRepository {
         // TODO: This shouldn't be here. See comment on `_cachedPin`.
         _cachedPin = event.pin;
       }
+      if (event is AuthenticationSuccessEvent) {
+        _lockedSubject.add(false);
+      }
     } else if (event is EnrollEvent) {
       // TODO: This shouldn't be here. See comment on `_cachedPin`.
       _cachedPin = event.pin;
@@ -104,6 +108,15 @@ class IrmaRepository {
           pin: _cachedPin,
         ));
       }
+    } else if (event is HandleURLEvent) {
+      try {
+        final sessionPointer = SessionPointer.fromURI(event.url);
+        _pendingSessionPointerSubject.add(sessionPointer);
+      } on MissingSessionPointer {
+        // pass
+      }
+    } else if (event is NewSessionEvent) {
+      _pendingSessionPointerSubject.add(null);
     }
   }
 
@@ -217,17 +230,7 @@ class IrmaRepository {
     return _sessionRepository.getSessionState(sessionID);
   }
 
-  Stream<SessionPointer> getIntentSessionPointer() {
-    // SessionPointer latestSessionPointer;
-    return _eventSubject.whereType<HandleURLEvent>().expand((handleURLEvent) {
-      try {
-        final sessionPointer = SessionPointer.fromURI(handleURLEvent.url);
-        return [sessionPointer];
-      } on MissingSessionPointer {
-        // pass
-      }
-
-      return [];
-    });
+  Stream<SessionPointer> getPendingSessionPointer() {
+    return _pendingSessionPointerSubject.stream;
   }
 }
