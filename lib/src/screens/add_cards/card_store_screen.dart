@@ -53,8 +53,9 @@ class CardStoreScreen extends StatelessWidget {
                   builder: (context, AsyncSnapshot<IrmaConfiguration> snapshot) {
                     if (snapshot.hasData) {
                       final irmaConfiguration = snapshot.data;
-                      final credentialTypes =
-                          irmaConfiguration.credentialTypes.values.where((ct) => ct.isInCredentialStore);
+                      final credentialTypes = irmaConfiguration.credentialTypes.values.where(
+                        (ct) => ct.isInCredentialStore && ct.issuerId != "bzkpilot" && ct.issuerId != "digidproef",
+                      );
 
                       final credentialTypesByCategory =
                           groupBy<CredentialType, String>(credentialTypes, (ct) => getTranslation(ct.category));
