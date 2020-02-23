@@ -32,11 +32,14 @@ void launchFailActionDigiDProef(BuildContext context) {
               minWidth: 0.0,
               onPressed: () async {
                 Navigator.of(context).pop();
-                // TODO: Add link to digid proef app in testflight
-                // this link will open digid proef app in test flight
-                if (await canLaunch('itms-beta:/-----link to app')) {
-                  launch('itms-beta:/-----link to app');
-                } else {
+
+                final didLaunch = await launch(
+                  'https://testflight.apple.com/join/NssbkOdS',
+                  forceSafariVC: false,
+                  universalLinksOnly: true,
+                );
+
+                if (!didLaunch) {
                   _launchActionTestFlight(context);
                 }
               },
