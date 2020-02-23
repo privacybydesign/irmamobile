@@ -35,14 +35,6 @@ class SessionRepository {
 
     // TODO: Of course this shouldn't be here
     sessionEventStream.listen((event) {
-      if (event is RequestPinSessionEvent) {
-        repo.bridgedDispatch(RespondPinEvent(
-          sessionID: event.sessionID,
-          proceed: true,
-          pin: "12345",
-        ));
-      }
-
       if (event is RequestIssuancePermissionSessionEvent) {
         repo.bridgedDispatch(RespondPermissionEvent(sessionID: event.sessionID, proceed: true, disclosureChoices: []));
       }
