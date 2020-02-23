@@ -61,7 +61,7 @@ class FutureCard extends StatelessWidget {
                         Container(
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                            child: Icon(IrmaIcons.add, size: 40.0),
+                            child: Icon(IrmaIcons.add, size: 40.0, color: IrmaTheme.of(context).grayscale40),
                           ),
                         ),
                       ],
@@ -69,20 +69,25 @@ class FutureCard extends StatelessWidget {
                   ),
                   Expanded(
                     flex: 1,
-                    child: Wrap(
-                      children: <Widget>[
-                        Padding(
-                          padding: EdgeInsets.only(
-                              left: IrmaTheme.of(context).smallSpacing,
-                              top: IrmaTheme.of(context).smallSpacing,
-                              right: IrmaTheme.of(context).smallSpacing),
-                          child: Text(
-                            content,
-                            textAlign: TextAlign.center,
-                            style: IrmaTheme.of(context).textTheme.display1,
+                    child: Center(
+                      child: Wrap(
+                        children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.only(
+                                left: IrmaTheme.of(context).smallSpacing,
+                                top: IrmaTheme.of(context).smallSpacing,
+                                right: IrmaTheme.of(context).smallSpacing),
+                            child: Text(
+                              content,
+                              textAlign: TextAlign.center,
+                              style: IrmaTheme.of(context).textTheme.body1.copyWith(
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.w600,
+                                  color: IrmaTheme.of(context).grayscale40),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ],
