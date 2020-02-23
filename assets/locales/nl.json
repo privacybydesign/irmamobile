@@ -302,10 +302,10 @@
     "help": "Help",
     "caption": "Jouw gegevens veilig op je mobiel",
     "irma-demo_digidproef_basicPersonalData": {
-      "intro": "Haal nu je persoons- en adresgegevens op. Je hebt de Semsam-app nodig.",
+      "intro": "Haal nu je persoons- en adresgegevens op. Je hebt de Sesam ID-app nodig.",
       "nudge": "Haal je kaartjes op",
-      "no_digid_dialog_title": "Sesam-app niet gevonden",
-      "no_digid_dialog_content": "Installeer eerst de Sesam-app. Je kan deze via Apple TestFlight verkrijgen.",
+      "no_digid_dialog_title": "Sesam ID-app niet gevonden",
+      "no_digid_dialog_content": "Installeer eerst de Sesam ID-app. Je kan deze via Apple TestFlight verkrijgen.",
       "no_digid_dialog_primary": "Open TestFlight",
       "no_digid_dialog_secondary": "Annuleer",
       "no_testflight_dialog_title": "De app kan niet worden gestart",
