@@ -83,6 +83,7 @@ void _launchActionTestFlight(BuildContext context) {
                 // Launch the appstore link to testflight
                 launch(
                   'https://apps.apple.com/nl/app/testflight/id899247664',
+                  forceSafariVC: false,
                 );
               },
               label: FlutterI18n.translate(
