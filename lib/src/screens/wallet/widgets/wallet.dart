@@ -429,15 +429,10 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin, WidgetsB
         },
       );
 
-  bool _hasCredential(String credentialId) {
-    if (widget.credentials != null) {
-      for (final Credential credential in widget.credentials) {
-        if ("${credential.schemeManager}.${credential.issuer}.${credential.id}" == credentialId) {
-          return true;
-        }
-      }
-    }
-    return false;
+  bool _hasCredential(String credentialTypeId) {
+    return (widget.credentials ?? []).any(
+      (c) => c.credentialType.fullId == credentialTypeId,
+    );
   }
 
   void recalculateHeight() {
