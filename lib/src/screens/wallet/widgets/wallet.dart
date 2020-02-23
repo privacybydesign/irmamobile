@@ -34,18 +34,22 @@ class Wallet extends StatefulWidget {
     this.hasLoginLogoutAnimation = false,
     this.isOpen = false,
     this.newCardIndex,
+    this.showNewCardAnimation,
     this.onQRScannerPressed,
     this.onHelpPressed,
     this.onAddCardsPressed,
+    @required this.onNewCardAnimationShown,
   });
 
   final List<Credential> credentials; // null when pending
   final bool hasLoginLogoutAnimation;
   final bool isOpen;
   final int newCardIndex;
+  final bool showNewCardAnimation;
   final VoidCallback onQRScannerPressed;
   final VoidCallback onHelpPressed;
   final VoidCallback onAddCardsPressed;
+  final VoidCallback onNewCardAnimationShown;
 
   @override
   _WalletState createState() => _WalletState();
@@ -93,7 +97,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin, WidgetsB
   @override
   void initState() {
     super.initState();
-
     drawController = AnimationController(duration: Duration(milliseconds: _animationDuration), vsync: this);
     loginLogoutController = AnimationController(duration: Duration(milliseconds: _loginDuration), vsync: this);
 
@@ -105,6 +108,10 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin, WidgetsB
               () {
                 if (oldState == WalletState.halfway || oldState == WalletState.full) {
                   cardInStackState = oldState;
+                }
+
+                if (currentState == WalletState.halfway && widget.showNewCardAnimation == true) {
+                  widget.onNewCardAnimationShown();
                 }
                 oldState = currentState;
                 drawController.reset();
@@ -123,12 +130,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin, WidgetsB
 
     WidgetsBinding.instance.addObserver(this);
 
-    if (widget.newCardIndex != null) {
-      currentState = WalletState.drawn;
-      drawnCardIndex = widget.newCardIndex;
-    }
-
-    if (widget.hasLoginLogoutAnimation && widget.newCardIndex == null) {
+    if (widget.hasLoginLogoutAnimation && widget.showNewCardAnimation == false) {
       loginLogoutController.forward();
     }
   }
@@ -150,22 +152,25 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin, WidgetsB
   @protected
   @override
   void didUpdateWidget(Wallet oldWidget) {
-    if (oldWidget.credentials == null && widget.credentials != null) {
-      if (widget.newCardIndex == null) {
-        setNewState(WalletState.halfway);
-      } else {
-        setNewState(WalletState.drawn);
-        Timer(
-          Duration(milliseconds: _cardVisibleDelay),
-          () {
-            setNewState(WalletState.halfway);
-          },
-        );
-      }
-      if (widget.hasLoginLogoutAnimation && widget.newCardIndex != null) {
-        loginLogoutController.forward();
-      }
+    if (widget.showNewCardAnimation == true) {
+      drawnCardIndex = widget.newCardIndex;
+      setState(() {
+        currentState = WalletState.drawn;
+        _nudgeVisible = false;
+        drawController.forward(from: _animationDuration.toDouble());
+      });
+
+      Future.delayed(Duration(milliseconds: _cardVisibleDelay)).then((_) {
+        setNewState(cardInStackState);
+      });
+    } else {
+      setNewState(WalletState.halfway);
     }
+
+    if (widget.hasLoginLogoutAnimation && widget.showNewCardAnimation == true) {
+      loginLogoutController.forward();
+    }
+
     if (oldWidget.isOpen && !widget.isOpen) {
       loginLogoutController.reverse();
     }
