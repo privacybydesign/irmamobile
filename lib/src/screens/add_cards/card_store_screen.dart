@@ -77,7 +77,7 @@ class CardStoreScreen extends StatelessWidget {
                     if (snapshot.hasData) {
                       final irmaConfiguration = snapshot.data;
                       final credentialTypes = irmaConfiguration.credentialTypes.values.where(
-                        (ct) => ct.isInCredentialStore && ct.issuerId != "bzkpilot" && ct.issuerId != "digidproef",
+                        (ct) => ct.isInCredentialStore && ct.issuerId != "gemeente",
                       );
 
                       final credentialTypesByCategory =
