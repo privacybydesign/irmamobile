@@ -1,5 +1,3 @@
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/models/attributes.dart';
@@ -19,7 +17,7 @@ class DisclosureCard extends StatefulWidget {
 }
 
 class _DisclosureCardState extends State<DisclosureCard> {
-  final _lang = ui.window.locale.languageCode;
+  final _lang = 'nl';
 
   @override
   Widget build(BuildContext context) {

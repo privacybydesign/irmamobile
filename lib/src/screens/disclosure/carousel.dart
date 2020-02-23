@@ -1,5 +1,3 @@
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/models/attributes.dart';
@@ -16,7 +14,7 @@ class Carousel extends StatefulWidget {
 }
 
 class _CarouselState extends State<Carousel> {
-  final _lang = ui.window.locale.languageCode;
+  final _lang = 'nl';
   final GlobalKey _keyStackedIndex = GlobalKey();
   final _animationDuration = 250;
 

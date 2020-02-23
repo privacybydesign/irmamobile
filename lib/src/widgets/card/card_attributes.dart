@@ -1,5 +1,3 @@
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:intl/intl.dart';
@@ -9,7 +7,7 @@ import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/card/irma_card_theme.dart';
 
 class CardAttributes extends StatelessWidget {
-  final _lang = ui.window.locale.languageCode;
+  final _lang = 'nl';
 
   final _indent = 100.0;
   final _minHeight = 120.0; // TODO: perfect aspect ratio

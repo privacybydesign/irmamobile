@@ -1,5 +1,3 @@
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
@@ -9,7 +7,7 @@ import 'package:irmamobile/src/screens/history/widgets/log_icon.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class LogEntryCard extends StatelessWidget {
-  final _lang = ui.window.locale.languageCode;
+  final _lang = 'nl';
 
   final IrmaConfiguration irmaConfiguration;
   final LogEntry logEntry;

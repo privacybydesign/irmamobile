@@ -1,5 +1,3 @@
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/theme/theme.dart';
@@ -15,7 +13,7 @@ class IrmaCard extends StatelessWidget {
   static const _transparentBlack = Color(0x77000000);
   static const _blurRadius = 4.0;
 
-  final String lang = ui.window.locale.languageCode;
+  final String lang = 'nl';
 
   final Credential credential;
   final Function() onRefreshCredential;
