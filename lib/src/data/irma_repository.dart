@@ -6,6 +6,7 @@ import 'package:irmamobile/src/data/irma_bridge.dart';
 import 'package:irmamobile/src/data/session_repository.dart';
 import 'package:irmamobile/src/models/app_ready_event.dart';
 import 'package:irmamobile/src/models/authentication_events.dart';
+import 'package:irmamobile/src/models/clear_all_data_event.dart';
 import 'package:irmamobile/src/models/credential_events.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/enrollment_events.dart';
@@ -117,6 +118,10 @@ class IrmaRepository {
       }
     } else if (event is NewSessionEvent) {
       _pendingSessionPointerSubject.add(null);
+    } else if (event is ClearAllDataEvent) {
+      _credentialsSubject.add(Credentials({}));
+      _enrollmentStatusSubject.add(EnrollmentStatus.unenrolled);
+      _lockedSubject.add(true);
     }
   }
 

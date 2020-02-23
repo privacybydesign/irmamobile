@@ -120,8 +120,7 @@ Future<void> openWalletResetDialog(BuildContext context) async {
               IrmaRepository.get().bridgedDispatch(
                 ClearAllDataEvent(),
               );
-              Navigator.of(context).popUntil((p) => p.isFirst);
-              Navigator.of(context).pushReplacementNamed(EnrollmentScreen.routeName);
+              Navigator.of(context).pushNamedAndRemoveUntil(EnrollmentScreen.routeName, (_) => true);
             },
             label: 'settings.advanced.delete_confirm',
           ),
