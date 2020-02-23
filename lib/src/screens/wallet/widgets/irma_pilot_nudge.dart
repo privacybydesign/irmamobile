@@ -40,11 +40,15 @@ class IrmaPilotNudge extends StatelessWidget {
         ),
         GestureDetector(
           onTap: () async {
-            launch(
+            final didLaunch = await launch(
               translatedIssueUrl,
               forceSafariVC: false,
               universalLinksOnly: credentialType.isULIssueUrl,
             );
+
+            if (!didLaunch) {
+              launchFailAction(context);
+            }
           },
           child: Padding(
             padding: EdgeInsets.all(IrmaTheme.of(context).tinySpacing / 2),
