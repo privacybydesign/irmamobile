@@ -201,47 +201,44 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin, WidgetsB
     );
   }
 
-  Widget _buildNudge(BuildContext context, Size size) {
-    //  TODO:  Maybe we should remove the possibility that credentials is null in wallet.dart, because that seems like an odd case
+  Widget _buildDefaultNudge(BuildContext context) {
+    return GetCardsNudge(
+      credentials: widget.credentials,
+      size: MediaQuery.of(context).size,
+      onAddCardsPressed: widget.onAddCardsPressed,
+    );
+  }
+
+  Widget _buildNudge(BuildContext context) {
     return StreamBuilder(
-        stream: irmaClient.irmaConfigurationSubject,
-        builder: (context, snapshot) {
-          if (snapshot.data != null) {
-            final irmaConfiguration = snapshot.data as IrmaConfiguration;
-            final nudgeState = Nudge.of(context).nudgeState;
+      stream: irmaClient.irmaConfigurationSubject,
+      builder: (context, snapshot) {
+        if (snapshot.data != null) {
+          final irmaConfiguration = snapshot.data as IrmaConfiguration;
+          final nudgeState = Nudge.of(context).nudgeState;
 
-            switch (nudgeState) {
-              case NudgeState.addCards:
-                return GetCardsNudge(
-                  credentials: widget.credentials,
-                  size: size,
-                  onAddCardsPressed: widget.onAddCardsPressed,
-                );
+          switch (nudgeState) {
+            case NudgeState.addCards:
+              return _buildDefaultNudge(context);
 
-              case NudgeState.digidProef:
-                if (_hasCredential("irma-demo.digidproef.basicPersonalData")) {
-                  return GetCardsNudge(
-                    credentials: widget.credentials,
-                    size: size,
-                    onAddCardsPressed: widget.onAddCardsPressed,
-                  );
-                }
+            case NudgeState.digidProef:
+              if (_hasCredential("irma-demo.digidproef.basicPersonalData")) {
+                return _buildDefaultNudge(context);
+              }
 
-                return _buildDigidProefNudge(context, irmaConfiguration);
+              return _buildDigidProefNudge(context, irmaConfiguration);
 
-              case NudgeState.gemeente:
-                if (_hasCredential("pbdf.gemeente.personalData")) {
-                  return GetCardsNudge(
-                    credentials: widget.credentials,
-                    size: size,
-                    onAddCardsPressed: widget.onAddCardsPressed,
-                  );
-                }
-                return _buildGemeenteNudge(context, irmaConfiguration);
-            }
+            case NudgeState.gemeente:
+              if (_hasCredential("pbdf.gemeente.personalData")) {
+                return _buildDefaultNudge(context);
+              }
+              return _buildGemeenteNudge(context, irmaConfiguration);
           }
-          return Container();
-        });
+        }
+
+        return Container();
+      },
+    );
   }
 
   @override
@@ -266,7 +263,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin, WidgetsB
                   // If the widget is hidden, animate to 1.0 (fully visible).
                   opacity: _nudgeVisible ? 1.0 : 0.0,
                   duration: Duration(milliseconds: _animationDuration),
-                  child: _buildNudge(context, size),
+                  child: _buildNudge(context),
                 ),
               ),
               Align(
