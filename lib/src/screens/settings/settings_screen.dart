@@ -17,15 +17,6 @@ import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 class SettingsScreen extends StatelessWidget {
   static const routeName = "/settings";
 
-  void _deleteEverything(BuildContext context) {
-    IrmaRepository.get().bridgedDispatch(
-      ClearAllDataEvent(),
-    );
-
-    Navigator.of(context).popUntil((p) => p.isFirst);
-    Navigator.of(context).pushReplacementNamed(EnrollmentScreen.routeName);
-  }
-
   @override
   Widget build(BuildContext context) {
     final irmaPrefs = IrmaPreferences.get();
@@ -89,35 +80,8 @@ class SettingsScreen extends StatelessWidget {
               FlutterI18n.translate(context, 'settings.advanced.delete'),
               style: IrmaTheme.of(context).textTheme.body1,
             ),
-            onTap: () async {
-              await showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (BuildContext context) => IrmaDialog(
-                  title: 'settings.advanced.delete_title',
-                  content: 'settings.advanced.delete_content',
-                  child: Wrap(
-                    direction: Axis.horizontal,
-                    verticalDirection: VerticalDirection.up,
-                    alignment: WrapAlignment.spaceEvenly,
-                    children: <Widget>[
-                      IrmaTextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        minWidth: 0.0,
-                        label: 'settings.advanced.delete_deny',
-                      ),
-                      IrmaButton(
-                        size: IrmaButtonSize.small,
-                        minWidth: 0.0,
-                        onPressed: () => _deleteEverything(context),
-                        label: 'settings.advanced.delete_confirm',
-                      ),
-                    ],
-                  ),
-                ),
-              );
+            onTap: () {
+              openWalletResetDialog(context);
             },
             leading: Icon(IrmaIcons.delete, color: IrmaTheme.of(context).textTheme.body1.color),
           ),
@@ -125,4 +89,44 @@ class SettingsScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+// openWalletResetDialog opens a dialog which gives the user the possiblity to
+// reset all the data. This function is public and is used in at least one other
+// location (pin forgotten / reset).
+Future<void> openWalletResetDialog(BuildContext context) async {
+  await showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (BuildContext context) => IrmaDialog(
+      title: 'settings.advanced.delete_title',
+      content: 'settings.advanced.delete_content',
+      child: Wrap(
+        direction: Axis.horizontal,
+        verticalDirection: VerticalDirection.up,
+        alignment: WrapAlignment.spaceEvenly,
+        children: <Widget>[
+          IrmaTextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            minWidth: 0.0,
+            label: 'settings.advanced.delete_deny',
+          ),
+          IrmaButton(
+            size: IrmaButtonSize.small,
+            minWidth: 0.0,
+            onPressed: () {
+              IrmaRepository.get().bridgedDispatch(
+                ClearAllDataEvent(),
+              );
+              Navigator.of(context).popUntil((p) => p.isFirst);
+              Navigator.of(context).pushReplacementNamed(EnrollmentScreen.routeName);
+            },
+            label: 'settings.advanced.delete_confirm',
+          ),
+        ],
+      ),
+    ),
+  );
 }
