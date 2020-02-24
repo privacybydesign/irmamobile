@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
+import 'package:irmamobile/src/screens/wallet/widgets/digid_proef_helper.dart';
 import 'package:irmamobile/src/screens/webview/webview_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/language.dart';
@@ -17,6 +18,28 @@ import 'card_info_screen.dart';
 
 class CardStoreScreen extends StatelessWidget {
   static const String routeName = '/store';
+
+  Future<void> _onStartIssuance(BuildContext context, CredentialType credentialType) async {
+    final url = getTranslation(credentialType.issueUrl);
+
+    if (credentialType.issuerId == "gemeente") {
+      launch(url, forceSafariVC: false);
+    } else if (credentialType.issuerId == "digidproef" || credentialType.issuerId == "bzkpilot") {
+      final didLaunch = await launch(url, forceSafariVC: false, universalLinksOnly: true);
+      if (!didLaunch) {
+        launchFailActionDigiDProef(context);
+      }
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) {
+          return WebviewScreen(
+            url,
+          );
+        }),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +77,7 @@ class CardStoreScreen extends StatelessWidget {
                     if (snapshot.hasData) {
                       final irmaConfiguration = snapshot.data;
                       final credentialTypes = irmaConfiguration.credentialTypes.values.where(
-                        (ct) => ct.isInCredentialStore && ct.issuerId != "bzkpilot" && ct.issuerId != "digidproef",
+                        (ct) => ct.isInCredentialStore && ct.issuerId != "gemeente",
                       );
 
                       final credentialTypesByCategory =
@@ -76,10 +99,7 @@ class CardStoreScreen extends StatelessWidget {
                                         builder: (context) => CardInfoScreen(
                                           irmaConfiguration: irmaConfiguration,
                                           credentialType: credentialType,
-                                          onStartIssuance: () {
-                                            _openURL(context, getTranslation(credentialType.issueUrl),
-                                                _openDeviceBrowser(credentialType));
-                                          },
+                                          onStartIssuance: () => _onStartIssuance(context, credentialType),
                                         ),
                                       ),
                                     );
@@ -113,11 +133,6 @@ class CardStoreScreen extends StatelessWidget {
     );
   }
 
-  bool _openDeviceBrowser(CredentialType credential) {
-    final credentialIdentifier = "${credential.schemeManagerId}.${credential.issuerId}.${credential.id}";
-    return credentialIdentifier == "pbdf.gemeente.personalData" || credentialIdentifier == "pbdf.gemeente.address";
-  }
-
   // Widget _search(BuildContext context) {
   //   return Padding(
   //     padding: EdgeInsets.all(IrmaTheme.of(context).spacing),
@@ -147,18 +162,4 @@ class CardStoreScreen extends StatelessWidget {
   //     ),
   //   );
   // }
-
-  void _openURL(BuildContext context, String url, bool openDeviceBrowser) {
-    if (openDeviceBrowser) {
-      launch(url, forceSafariVC: false);
-    }
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) {
-        return WebviewScreen(
-          url,
-        );
-      }),
-    );
-  }
 }
