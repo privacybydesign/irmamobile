@@ -32,11 +32,6 @@ class IrmaPilotNudge extends StatelessWidget {
             left: IrmaTheme.of(context).smallSpacing,
             right: IrmaTheme.of(context).smallSpacing,
           ),
-          child: Text(
-            FlutterI18n.translate(context, '$translationScope.intro'),
-            textAlign: TextAlign.left,
-            style: IrmaTheme.of(context).textTheme.body1,
-          ),
         ),
         GestureDetector(
           onTap: () async {
