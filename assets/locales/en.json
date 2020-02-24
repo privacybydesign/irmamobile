@@ -302,7 +302,6 @@
     "help": "Help",
     "caption": "Your data securely on your mobile",
     "irma-demo_digidproef_basicPersonalData": {
-      "intro": "Get your cards with basic ID-information and your address now. Use the 'DigiD Proef' app.",
       "nudge": "Add your personal data",
       "no_digid_dialog_title": "The 'DigiD Proef' app is not installed.",
       "no_digid_dialog_content": "Install the 'DigiD Proef' app first. You can install it through Apple TestFlight.",
@@ -314,7 +313,6 @@
       "no_testflight_dialog_secondary": "Cancel"
     },
     "pbdf_gemeente_personalData": {
-      "intro": "Get your cards with personal information and your address now. You will need to login with DigiD.",
       "nudge": "Add your personal data"
     },
     "add_data": "Add more data",

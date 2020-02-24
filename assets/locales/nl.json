@@ -302,7 +302,6 @@
     "help": "Help",
     "caption": "Jouw gegevens veilig op je mobiel",
     "irma-demo_digidproef_basicPersonalData": {
-      "intro": "Haal nu je persoons- en adresgegevens op. Je hebt de Sesam ID-app nodig.",
       "nudge": "Voeg je persoonsgegevens toe",
       "no_digid_dialog_title": "Sesam ID-app niet gevonden",
       "no_digid_dialog_content": "Installeer eerst de Sesam ID-app. Je kan deze via Apple TestFlight verkrijgen.",
@@ -314,7 +313,6 @@
       "no_testflight_dialog_secondary": "Annuleer"
     },
     "pbdf_gemeente_personalData": {
-      "intro": "Haal nu je persoons- en adresgegevens op.\nJe hebt je DigiD nodig.",
       "nudge": "Voeg je persoonsgegevens toe"
     },
     "add_data": "Voeg meer gegevens toe",
