@@ -194,13 +194,13 @@
     "card_info": {
       "app_bar": "Adding data",
       "header_credential_type": "Adding {credential_type}",
-      "obtain": "Get",
+      "obtain": "Add",
       "issuer": "Source",
       "purpose_question": "What can you do with these data?",
       "content_question": "Which data is loaded?",
       "howto_question": "How does it work?",
       "back_button": "Cancel",
-      "get_button": "Load"
+      "get_button": "Add"
     }
   },
   "settings": {
@@ -303,7 +303,7 @@
     "caption": "Your data securely on your mobile",
     "irma-demo_digidproef_basicPersonalData": {
       "intro": "Get your cards with basic ID-information and your address now. Use the 'DigiD Proef' app.",
-      "nudge": "Obtain your cards.\n Your 'DigiD Proef' app will open.",
+      "nudge": "Add your personal data",
       "no_digid_dialog_title": "The 'DigiD Proef' app is not installed.",
       "no_digid_dialog_content": "Install the 'DigiD Proef' app first. You can install it through Apple TestFlight.",
       "no_digid_dialog_primary": "Open Testflight",
@@ -315,7 +315,7 @@
     },
     "pbdf_gemeente_personalData": {
       "intro": "Get your cards with personal information and your address now. You will need to login with DigiD.",
-      "nudge": "Obtain your cards.\n The municipalities website will open."
+      "nudge": "Add your personal data"
     },
     "add_data": "Add more data",
     "lock": "Log out"

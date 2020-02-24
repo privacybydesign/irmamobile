@@ -194,13 +194,13 @@
     "card_info": {
       "app_bar": "Gegevens toevoegen",
       "header_credential_type": "{credential_type} toevoegen",
-      "obtain": "ophalen",
+      "obtain": "toevoegen",
       "issuer": "Bron",
       "purpose_question": "Wat kun je met deze gegevens?",
       "content_question": "Welke gegevens haal je op?",
       "howto_question": "Hoe werkt het?",
       "back_button": "Annuleer",
-      "get_button": "Haal op"
+      "get_button": "Voeg toe"
     }
   },
   "settings": {
@@ -303,7 +303,7 @@
     "caption": "Jouw gegevens veilig op je mobiel",
     "irma-demo_digidproef_basicPersonalData": {
       "intro": "Haal nu je persoons- en adresgegevens op. Je hebt de Sesam ID-app nodig.",
-      "nudge": "Haal je kaartjes op",
+      "nudge": "Voeg je persoonsgegevens toe",
       "no_digid_dialog_title": "Sesam ID-app niet gevonden",
       "no_digid_dialog_content": "Installeer eerst de Sesam ID-app. Je kan deze via Apple TestFlight verkrijgen.",
       "no_digid_dialog_primary": "Open TestFlight",
@@ -315,7 +315,7 @@
     },
     "pbdf_gemeente_personalData": {
       "intro": "Haal nu je persoons- en adresgegevens op.\nJe hebt je DigiD nodig.",
-      "nudge": "Haal je kaartjes op"
+      "nudge": "Voeg je persoonsgegevens toe"
     },
     "add_data": "Voeg meer gegevens toe",
     "lock": "Uitloggen"
