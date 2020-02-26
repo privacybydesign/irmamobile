@@ -74,13 +74,24 @@ class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
   Map<String, WidgetBuilder> _routeBuilders() {
     return {
       Introduction.routeName: (_) => Introduction(),
-      ChoosePin.routeName: (_) =>
-          ChoosePin(pinFocusNode: pinFocusNode, submitPin: _submitPin, cancelAndNavigate: _cancelAndNavigate),
-      ConfirmPin.routeName: (_) =>
-          ConfirmPin(submitConfirmationPin: _submitConfirmationPin, cancelAndNavigate: _cancelAndNavigate),
-      ProvideEmail.routeName: (_) =>
-          ProvideEmail(submitEmail: _submitEmail, skipEmail: _skipEmail, cancelAndNavigate: _cancelAndNavigate),
-      Submit.routeName: (_) => Submit(cancelAndNavigate: _cancelAndNavigate, retryEnrollment: _retryEnrollment),
+      ChoosePin.routeName: (_) => ChoosePin(
+            pinFocusNode: pinFocusNode,
+            submitPin: _submitPin,
+            cancelAndNavigate: _cancelAndNavigate,
+          ),
+      ConfirmPin.routeName: (_) => ConfirmPin(
+            submitConfirmationPin: _submitConfirmationPin,
+            cancelAndNavigate: _cancelAndNavigate,
+          ),
+      ProvideEmail.routeName: (_) => ProvideEmail(
+            submitEmail: _submitEmail,
+            skipEmail: _skipEmail,
+            cancelAndNavigate: _cancelAndNavigate,
+          ),
+      Submit.routeName: (_) => Submit(
+            cancelAndNavigate: _cancelAndNavigate,
+            retryEnrollment: _retryEnrollment,
+          ),
     };
   }
 
