@@ -4,7 +4,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/irma_text_button.dart';
+import 'package:irmamobile/src/widgets/irma_outlined_button.dart';
 import 'package:irmamobile/src/widgets/loading_indicator.dart';
 
 class GetCardsNudge extends StatelessWidget {
@@ -28,10 +28,8 @@ class GetCardsNudge extends StatelessWidget {
             width: size.width / 2,
           ),
           Padding(
-            padding: EdgeInsets.only(
-              top: IrmaTheme.of(context).defaultSpacing,
-              right: IrmaTheme.of(context).defaultSpacing,
-              left: IrmaTheme.of(context).defaultSpacing,
+            padding: EdgeInsets.all(
+              IrmaTheme.of(context).defaultSpacing,
             ),
             child: Text(
               FlutterI18n.translate(context, 'wallet.caption'),
@@ -39,7 +37,7 @@ class GetCardsNudge extends StatelessWidget {
               style: IrmaTheme.of(context).textTheme.body1,
             ),
           ),
-          IrmaTextButton(
+          IrmaOutlinedButton(
             label: 'wallet.add_data',
             onPressed: onAddCardsPressed,
           ),
