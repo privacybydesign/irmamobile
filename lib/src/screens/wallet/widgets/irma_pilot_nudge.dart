@@ -32,11 +32,6 @@ class IrmaPilotNudge extends StatelessWidget {
             left: IrmaTheme.of(context).smallSpacing,
             right: IrmaTheme.of(context).smallSpacing,
           ),
-          child: Text(
-            FlutterI18n.translate(context, '$translationScope.intro'),
-            textAlign: TextAlign.left,
-            style: IrmaTheme.of(context).textTheme.body1,
-          ),
         ),
         GestureDetector(
           onTap: () async {
@@ -53,7 +48,7 @@ class IrmaPilotNudge extends StatelessWidget {
           child: Padding(
             padding: EdgeInsets.all(IrmaTheme.of(context).tinySpacing / 2),
             child: FutureCard(
-              logoImage: logoFile.existsSync() ? Image.file(logoFile) : Image.asset("assets/non-free/irmalogo.png"),
+              logoImage: logoFile.existsSync() ? Image.file(logoFile) : Image.asset("assets/issuers/personaldata.png"),
               content: FlutterI18n.translate(context, '$translationScope.nudge'),
             ),
           ),

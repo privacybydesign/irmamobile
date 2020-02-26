@@ -9,7 +9,6 @@ import 'card_menu.dart';
 
 class IrmaCard extends StatelessWidget {
   static const _borderRadius = Radius.circular(15.0);
-  static const _transparentWhite = Color(0x77FFFFFF);
   static const _transparentBlack = Color(0x77000000);
   static const _blurRadius = 4.0;
 
@@ -53,8 +52,8 @@ class IrmaCard extends StatelessWidget {
         borderRadius: const BorderRadius.all(
           _borderRadius,
         ),
-        boxShadow: [
-          const BoxShadow(
+        boxShadow: const [
+          BoxShadow(
             color: _transparentBlack,
             blurRadius: _blurRadius,
             offset: Offset(

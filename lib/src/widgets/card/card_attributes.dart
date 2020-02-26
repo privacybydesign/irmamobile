@@ -10,7 +10,6 @@ class CardAttributes extends StatelessWidget {
   final _lang = 'nl';
 
   final _indent = 100.0;
-  final _minHeight = 120.0; // TODO: perfect aspect ratio
 
   final Credential credential;
   final IrmaCardTheme irmaCardTheme;
@@ -37,9 +36,14 @@ class CardAttributes extends StatelessWidget {
     // TODO: Remove weird hardcoded values and replace them with something that makes sense
     // These hardcoded values were tested with smallest screen and biggest screen and one in between
 
-    double height = MediaQuery.of(context).size.height;
-    var padding = MediaQuery.of(context).padding;
-    double _maxHeight = (height - padding.top - kToolbarHeight) - ((height / 8) + 200);
+    final size = MediaQuery.of(context).size;
+
+    final double height = size.height;
+    final double width = size.width;
+    final padding = MediaQuery.of(context).padding;
+    final double _maxHeight = (height - padding.top - kToolbarHeight) - ((height / 8) + 190);
+    const creditCardAspectRatio = 5398 / 8560;
+    final double _minHeight = (width - IrmaTheme.of(context).smallSpacing * 2) * creditCardAspectRatio - 90;
 
     return Column(
       children: [
@@ -79,6 +83,24 @@ class CardAttributes extends StatelessWidget {
                           ),
                         ),
                       ),
+                      Positioned(
+                        child: Container(
+                          height: 8.0,
+                          decoration: BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(width: 1.0, color: irmaCardTheme.backgroundGradientEnd),
+                            ),
+                            gradient: const LinearGradient(
+                              colors: [
+                                Color(0x00000000),
+                                Color(0x33000000),
+                              ],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -92,22 +114,6 @@ class CardAttributes extends StatelessWidget {
               color: const Color(0x11FFFFFF),
               child: Column(
                 children: <Widget>[
-                  Container(
-                    height: 8.0,
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(width: 1.0, color: irmaCardTheme.backgroundGradientEnd),
-                      ),
-                      gradient: const LinearGradient(
-                        colors: [
-                          Color(0x00000000),
-                          Color(0x33000000),
-                        ],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      ),
-                    ),
-                  ),
                   _buildIssuer(context, body1Theme),
                   _buildExpiration(context, body1Theme),
                 ],
@@ -126,7 +132,10 @@ class CardAttributes extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.only(
-          top: 6, bottom: IrmaTheme.of(context).smallSpacing, left: IrmaTheme.of(context).defaultSpacing),
+        top: 6,
+        bottom: IrmaTheme.of(context).smallSpacing,
+        left: IrmaTheme.of(context).defaultSpacing,
+      ),
       child: Container(
         width: 90,
         height: 120,

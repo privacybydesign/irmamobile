@@ -194,13 +194,13 @@
     "card_info": {
       "app_bar": "Gegevens toevoegen",
       "header_credential_type": "{credential_type} toevoegen",
-      "obtain": "ophalen",
+      "obtain": "toevoegen",
       "issuer": "Bron",
       "purpose_question": "Wat kun je met deze gegevens?",
       "content_question": "Welke gegevens haal je op?",
       "howto_question": "Hoe werkt het?",
       "back_button": "Annuleer",
-      "get_button": "Haal op"
+      "get_button": "Voeg toe"
     }
   },
   "settings": {
@@ -302,8 +302,7 @@
     "help": "Help",
     "caption": "Jouw gegevens veilig op je mobiel",
     "irma-demo_digidproef_basicPersonalData": {
-      "intro": "Haal nu je persoons- en adresgegevens op. Je hebt de Sesam ID-app nodig.",
-      "nudge": "Haal je kaartjes op",
+      "nudge": "Voeg je eerste gegevens toe",
       "no_digid_dialog_title": "Sesam ID-app niet gevonden",
       "no_digid_dialog_content": "Installeer eerst de Sesam ID-app. Je kan deze via Apple TestFlight verkrijgen.",
       "no_digid_dialog_primary": "Open TestFlight",
@@ -314,8 +313,7 @@
       "no_testflight_dialog_secondary": "Annuleer"
     },
     "pbdf_gemeente_personalData": {
-      "intro": "Haal nu je persoons- en adresgegevens op.\nJe hebt je DigiD nodig.",
-      "nudge": "Haal je kaartjes op"
+      "nudge": "Voeg je eerste gegevens toe"
     },
     "add_data": "Voeg meer gegevens toe",
     "lock": "Uitloggen"
@@ -384,7 +382,7 @@
     "existing_data_removed": "Alle kaartjes in je IRMA-app worden verwijderd."
   },
   "arrow_back": {
-    "info_1": "Het is niet gelukt om je automatisch terug te sturen.\n\n",
+    "info_1": "Gelukt, je gegevens zijn doorgegeven.\n\n",
     "safari": "Tik bovenin op de naam van het programma ",
     "info_2": "(bijvoorbeeld Safari, Chrome, Firefox) om terug te gaan naar het programma waar je mee bezig was."
   }
