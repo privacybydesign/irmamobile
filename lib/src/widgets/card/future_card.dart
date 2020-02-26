@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:path_drawing/path_drawing.dart';
 
 import 'dash_path_border.dart';
@@ -77,13 +78,11 @@ class FutureCard extends StatelessWidget {
                                 left: IrmaTheme.of(context).smallSpacing,
                                 top: IrmaTheme.of(context).smallSpacing,
                                 right: IrmaTheme.of(context).smallSpacing),
-                            child: Text(
-                              content,
-                              textAlign: TextAlign.center,
-                              style: IrmaTheme.of(context).textTheme.body1.copyWith(
-                                  fontSize: 18.0,
-                                  fontWeight: FontWeight.w600,
-                                  color: IrmaTheme.of(context).grayscale40),
+                            child: IgnorePointer(
+                              child: IrmaButton(
+                                label: content,
+                                onPressed: () {},
+                              ),
                             ),
                           ),
                         ],

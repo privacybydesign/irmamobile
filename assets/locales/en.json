@@ -302,7 +302,7 @@
     "help": "Help",
     "caption": "Your data securely on your mobile",
     "irma-demo_digidproef_basicPersonalData": {
-      "nudge": "Add your personal data",
+      "nudge": "Add your first data",
       "no_digid_dialog_title": "The 'DigiD Proef' app is not installed.",
       "no_digid_dialog_content": "Install the 'DigiD Proef' app first. You can install it through Apple TestFlight.",
       "no_digid_dialog_primary": "Open Testflight",
@@ -313,7 +313,7 @@
       "no_testflight_dialog_secondary": "Cancel"
     },
     "pbdf_gemeente_personalData": {
-      "nudge": "Add your personal data"
+      "nudge": "Add your first data"
     },
     "add_data": "Add more data",
     "lock": "Log out"
