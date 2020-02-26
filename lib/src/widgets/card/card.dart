@@ -53,8 +53,8 @@ class IrmaCard extends StatelessWidget {
         borderRadius: const BorderRadius.all(
           _borderRadius,
         ),
-        boxShadow: [
-          const BoxShadow(
+        boxShadow: const [
+          BoxShadow(
             color: _transparentBlack,
             blurRadius: _blurRadius,
             offset: Offset(
