@@ -20,7 +20,7 @@ class GetCardsNudge extends StatelessWidget {
       child: Column(
         children: <Widget>[
           SizedBox(
-            height: IrmaTheme.of(context).largeSpacing * 2,
+            height: IrmaTheme.of(context).largeSpacing,
           ),
           SvgPicture.asset(
             'assets/wallet/wallet_illustration.svg',
