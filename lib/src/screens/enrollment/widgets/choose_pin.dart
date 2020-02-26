@@ -41,7 +41,11 @@ class ChoosePin extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: IrmaTheme.of(context).mediumSpacing),
-                PinField(focusNode: pinFocusNode, longPin: false, onSubmit: (pin) => submitPin(context, pin)),
+                PinField(
+                  focusNode: pinFocusNode,
+                  longPin: false,
+                  onSubmit: (pin) => submitPin(context, pin),
+                ),
                 SizedBox(height: IrmaTheme.of(context).smallSpacing),
               ],
             ),
