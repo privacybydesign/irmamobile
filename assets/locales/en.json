@@ -316,7 +316,8 @@
       "nudge": "Add your first data"
     },
     "add_data": "Add more data",
-    "lock": "Log out"
+    "lock": "Log out",
+    "new_wallet": "Success, you can get started now"
   },
   "history": {
     "title": "History",

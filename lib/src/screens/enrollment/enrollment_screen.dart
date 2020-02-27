@@ -60,7 +60,12 @@ class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
     // TODO: This is probably not how we should respond to this state change
     enrollmentStatusSubscription = IrmaRepository.get().getEnrollmentStatus().listen((enrollmentStatus) {
       if (enrollmentStatus == EnrollmentStatus.enrolled) {
-        Navigator.of(context).pushReplacementNamed(WalletScreen.routeName);
+        Navigator.of(context).pushReplacementNamed(
+          WalletScreen.routeName,
+          arguments: WalletScreenArguments(
+            newWallet: true,
+          ),
+        );
       }
     });
   }
