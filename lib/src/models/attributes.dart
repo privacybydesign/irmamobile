@@ -9,6 +9,16 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'attributes.g.dart';
 
+Image _decodePortraitPhoto(TranslatedValue value) {
+  try {
+    return Image.memory(
+      const Base64Decoder().convert(value.values.first),
+    );
+  } catch (_) {}
+
+  return null;
+}
+
 // Attributes of a credential.
 class Attributes extends UnmodifiableMapView<AttributeType, TranslatedValue> {
   List<AttributeType> sortedAttributeTypes;
@@ -31,11 +41,7 @@ class Attributes extends UnmodifiableMapView<AttributeType, TranslatedValue> {
     );
 
     if (photoAttributeType != null) {
-      try {
-        portraitPhoto = Image.memory(
-          const Base64Decoder().convert(this[photoAttributeType].values.first),
-        );
-      } catch (_) {}
+      portraitPhoto = _decodePortraitPhoto(this[photoAttributeType]);
     }
   }
 
@@ -118,9 +124,10 @@ class AttributeIdentifier {
 }
 
 class CredentialAttribute {
-  Credential credential;
-  AttributeType attributeType;
-  TranslatedValue value;
+  final Credential credential;
+  final AttributeType attributeType;
+  final TranslatedValue value;
+  Image portraitPhoto;
 
   CredentialAttribute({
     @required this.credential,
@@ -128,13 +135,19 @@ class CredentialAttribute {
     @required this.value,
   })  : assert(credential != null),
         assert(attributeType != null),
-        assert(value != null);
+        assert(value != null) {
+    if (attributeType.displayHint == "portraitPhoto") {
+      portraitPhoto = _decodePortraitPhoto(value);
+    }
+  }
 
-  CredentialAttribute.fromAttributeIdentifier(
+  factory CredentialAttribute.fromAttributeIdentifier(
       IrmaConfiguration irmaConfiguration, Credentials credentials, AttributeIdentifier attributeIdentifier) {
-    credential = credentials[attributeIdentifier.credentialHash];
-    attributeType = irmaConfiguration.attributeTypes[attributeIdentifier.type];
-    value = credential.attributes[attributeType];
+    final credential = credentials[attributeIdentifier.credentialHash];
+    final attributeType = irmaConfiguration.attributeTypes[attributeIdentifier.type];
+    final value = credential.attributes[attributeType];
+
+    return CredentialAttribute(credential: credential, attributeType: attributeType, value: value);
   }
 }
 

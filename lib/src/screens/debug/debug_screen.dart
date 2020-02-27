@@ -24,7 +24,9 @@ class DemoSessionHelper {
         "disclose": [
           [
             [
-              "pbdf.sidn-pbdf.irma.pseudonym"
+              "irma-demo.digidproef.personalData.fullname",
+              "irma-demo.digidproef.personalData.initials",
+              "irma-demo.digidproef.personalData.photo"
             ]
           ]
         ],
