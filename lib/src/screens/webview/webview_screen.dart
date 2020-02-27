@@ -81,7 +81,7 @@ class _WebviewScreenState extends State<WebviewScreen> {
                     if (_isIRMAURI(decodedUri)) {
                       setState(() {
                         try {
-                          _sessionPointer = SessionPointer.fromURI(decodedUri);
+                          _sessionPointer = SessionPointer.fromString(decodedUri);
                           widget._handleSessionPointer(context, _sessionPointer);
                         } catch (err) {
                           debugPrint(err.toString());

@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/screens/scanner/widgets/qr_instruction.dart';
 import 'package:irmamobile/src/screens/scanner/widgets/qr_overlay.dart';
 import 'package:irmamobile/src/theme/theme.dart';
@@ -9,7 +9,7 @@ import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class QRScanner extends StatefulWidget {
   final void Function() onClose;
-  final void Function(String) onFound;
+  final void Function(SessionPointer) onFound;
 
   const QRScanner({
     Key key,
@@ -66,16 +66,15 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
     }
 
     // Decode QR and determine if it's valid
-    bool isValid = false;
+    SessionPointer sessionPointer;
     try {
-      final qrContents = jsonDecode(qr) as Map<String, dynamic>;
-      isValid = qrContents != null && qrContents.containsKey('irmaqr');
+      sessionPointer = SessionPointer.fromString(qr);
     } catch (e) {
       // pass
     }
 
     // If invalid, show an error message for a certain time
-    if (!isValid) {
+    if (sessionPointer == null) {
       setState(() {
         error = true;
       });
@@ -94,7 +93,7 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
     });
 
     Future.delayed(const Duration(milliseconds: 500), () {
-      widget.onFound(qr);
+      widget.onFound(sessionPointer);
     });
   }
 }

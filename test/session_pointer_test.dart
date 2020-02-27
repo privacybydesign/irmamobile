@@ -13,12 +13,12 @@ void main() {
     ];
 
     for (final testCase in positiveTestCases) {
-      final pointer = SessionPointer.fromURI(testCase);
+      final pointer = SessionPointer.fromString(testCase);
       expect(pointer.u, url);
       expect(pointer.irmaqr, irmaQr);
     }
 
-    expect(() => SessionPointer.fromURI("https://privacybydesign.foundation/"),
+    expect(() => SessionPointer.fromString("https://privacybydesign.foundation/"),
         throwsA(const TypeMatcher<MissingSessionPointer>()));
   });
 }

@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
@@ -17,8 +15,11 @@ class ScannerScreen extends StatelessWidget {
     Navigator.of(context).pop();
   }
 
-  void _onSuccess(BuildContext context, String code) {
-    startSessionAndNavigate(Navigator.of(context), SessionPointer.fromJson(jsonDecode(code) as Map<String, dynamic>));
+  void _onSuccess(BuildContext context, SessionPointer sessionPointer) {
+    startSessionAndNavigate(
+      Navigator.of(context),
+      sessionPointer,
+    );
   }
 
   // TODO: Make this function private again and / or split it out to a utility function

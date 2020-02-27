@@ -111,7 +111,7 @@ class IrmaRepository {
       }
     } else if (event is HandleURLEvent) {
       try {
-        final sessionPointer = SessionPointer.fromURI(event.url);
+        final sessionPointer = SessionPointer.fromString(event.url);
         _pendingSessionPointerSubject.add(sessionPointer);
       } on MissingSessionPointer {
         // pass
