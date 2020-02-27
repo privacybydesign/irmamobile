@@ -41,7 +41,7 @@ class CardAttributes extends StatelessWidget {
     final double height = size.height;
     final double width = size.width;
     final padding = MediaQuery.of(context).padding;
-    final double _maxHeight = (height - padding.top - kToolbarHeight) - ((height / 8) + 190);
+    final double _maxHeight = (height - padding.top - kToolbarHeight) - ((height / 8) + 210);
     const creditCardAspectRatio = 5398 / 8560;
     final double _minHeight = (width - IrmaTheme.of(context).smallSpacing * 2) * creditCardAspectRatio - 90;
 
