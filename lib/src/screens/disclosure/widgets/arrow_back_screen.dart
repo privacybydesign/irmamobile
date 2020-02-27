@@ -39,17 +39,18 @@ class ArrowBackState extends State with WidgetsBindingObserver {
                 child: RichText(
                   textAlign: TextAlign.center,
                   text: TextSpan(
-                    style: IrmaTheme.of(context).textTheme.body1.copyWith(),
+                    style: IrmaTheme.of(context).textTheme.body2,
                     children: <TextSpan>[
                       TextSpan(
                         text: FlutterI18n.translate(context, 'arrow_back.info_1'),
                       ),
                       TextSpan(
                         text: FlutterI18n.translate(context, 'arrow_back.safari'),
-                        style: TextStyle(fontWeight: FontWeight.w600),
+                        style: IrmaTheme.of(context).textTheme.body1,
                       ),
                       TextSpan(
                         text: FlutterI18n.translate(context, 'arrow_back.info_2'),
+                        style: IrmaTheme.of(context).textTheme.body1,
                       ),
                     ],
                   ),
