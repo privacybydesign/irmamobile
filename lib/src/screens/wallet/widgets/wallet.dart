@@ -71,7 +71,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin, WidgetsB
   final _dragDownFactor = 1.5;
   final _heightOffset = 94.0;
   final _containerKey = GlobalKey();
-  final _cardVisibleDelay = 2000;
+  final _cardVisibleDelay = 3250;
 
   double renderBoxHeight = 0;
   int drawnCardIndex = 0;
