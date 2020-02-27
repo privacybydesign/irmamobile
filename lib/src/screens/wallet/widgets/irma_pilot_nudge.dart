@@ -13,9 +13,14 @@ class IrmaPilotNudge extends StatelessWidget {
   final CredentialType credentialType;
   final Issuer issuer;
   final String irmaConfigurationPath;
-  final void Function(BuildContext context) launchFailAction;
+  final void Function(BuildContext context) showLaunchFailDialog;
 
-  const IrmaPilotNudge({this.credentialType, this.issuer, this.irmaConfigurationPath, this.launchFailAction});
+  const IrmaPilotNudge({
+    this.credentialType,
+    this.issuer,
+    this.irmaConfigurationPath,
+    this.showLaunchFailDialog,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +47,7 @@ class IrmaPilotNudge extends StatelessWidget {
             );
 
             if (!didLaunch) {
-              launchFailAction(context);
+              showLaunchFailDialog(context);
             }
           },
           child: Padding(

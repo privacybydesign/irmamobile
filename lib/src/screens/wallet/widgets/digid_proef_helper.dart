@@ -6,14 +6,13 @@ import 'package:irmamobile/src/widgets/irma_text_button.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-void launchFailActionDigiDProef(BuildContext context) {
+void showLaunchFailDialogBZKPilot(BuildContext context) {
   showDialog(
     context: context,
     builder: (context) {
       return IrmaDialog(
-        title: FlutterI18n.translate(context, 'wallet.irma-demo_digidproef_basicPersonalData.no_digid_dialog_title'),
-        content:
-            FlutterI18n.translate(context, 'wallet.irma-demo_digidproef_basicPersonalData.no_digid_dialog_content'),
+        title: FlutterI18n.translate(context, 'wallet.pbdf_bzkpilot_personalData.not_installed_dialog_title'),
+        content: FlutterI18n.translate(context, 'wallet.pbdf_bzkpilot_personalData.not_installed_dialog_content'),
         child: Wrap(
           direction: Axis.horizontal,
           verticalDirection: VerticalDirection.up,
@@ -24,8 +23,7 @@ void launchFailActionDigiDProef(BuildContext context) {
                 Navigator.of(context).pop();
               },
               minWidth: 0.0,
-              label: FlutterI18n.translate(
-                  context, 'wallet.irma-demo_digidproef_basicPersonalData.no_digid_dialog_secondary'),
+              label: FlutterI18n.translate(context, 'wallet.pbdf_bzkpilot_personalData.not_installed_dialog_secondary'),
             ),
             IrmaButton(
               size: IrmaButtonSize.small,
@@ -40,11 +38,10 @@ void launchFailActionDigiDProef(BuildContext context) {
                 );
 
                 if (!didLaunch) {
-                  _launchActionTestFlight(context);
+                  _showLaunchFailDialogTestFlight(context);
                 }
               },
-              label: FlutterI18n.translate(
-                  context, 'wallet.irma-demo_digidproef_basicPersonalData.no_digid_dialog_primary'),
+              label: FlutterI18n.translate(context, 'wallet.pbdf_bzkpilot_personalData.not_installed_dialog_primary'),
             ),
           ],
         ),
@@ -53,15 +50,13 @@ void launchFailActionDigiDProef(BuildContext context) {
   );
 }
 
-void _launchActionTestFlight(BuildContext context) {
+void _showLaunchFailDialogTestFlight(BuildContext context) {
   showDialog(
     context: context,
     builder: (context) {
       return IrmaDialog(
-        title:
-            FlutterI18n.translate(context, 'wallet.irma-demo_digidproef_basicPersonalData.no_testflight_dialog_title'),
-        content: FlutterI18n.translate(
-            context, 'wallet.irma-demo_digidproef_basicPersonalData.no_testflight_dialog_content'),
+        title: FlutterI18n.translate(context, 'wallet.launch_testflight.not_installed_dialog_title'),
+        content: FlutterI18n.translate(context, 'wallet.launch_testflight.not_installed_dialog_content'),
         child: Wrap(
           direction: Axis.horizontal,
           verticalDirection: VerticalDirection.up,
@@ -72,8 +67,7 @@ void _launchActionTestFlight(BuildContext context) {
                 Navigator.of(context).pop();
               },
               minWidth: 0.0,
-              label: FlutterI18n.translate(
-                  context, 'wallet.irma-demo_digidproef_basicPersonalData.no_testflight_dialog_secondary'),
+              label: FlutterI18n.translate(context, 'wallet.launch_testflight.not_installed_dialog_secondary'),
             ),
             IrmaButton(
               size: IrmaButtonSize.small,
@@ -86,8 +80,7 @@ void _launchActionTestFlight(BuildContext context) {
                   forceSafariVC: false,
                 );
               },
-              label: FlutterI18n.translate(
-                  context, 'wallet.irma-demo_digidproef_basicPersonalData.no_testflight_dialog_primary'),
+              label: FlutterI18n.translate(context, 'wallet.launch_testflight.not_installed_dialog_primary'),
             ),
           ],
         ),
