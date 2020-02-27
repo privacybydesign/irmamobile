@@ -4,29 +4,9 @@ import 'package:irmamobile/src/models/credentials.dart';
 class IrmaCardTheme {
   static const List<IrmaCardTheme> _defaultThemes = [
     IrmaCardTheme(
-      backgroundGradientEnd: Color(0xff6CE6C1),
-      backgroundGradientStart: Color(0xff3BB992),
-      foregroundColor: Color(0xff15222E),
-    ),
-    IrmaCardTheme(
-      backgroundGradientEnd: Color(0xff43C3E0),
-      backgroundGradientStart: Color(0xff00B1E5),
-      foregroundColor: Color(0xff15222E),
-    ),
-    IrmaCardTheme(
-      backgroundGradientEnd: Color(0xffFFE8CD),
-      backgroundGradientStart: Color(0xffFFB54C),
-      foregroundColor: Color(0xff15222E),
-    ),
-    IrmaCardTheme(
-      backgroundGradientEnd: Color(0xff2574A6),
-      backgroundGradientStart: Color(0xff014483),
-      foregroundColor: Color(0xffffffff),
-    ),
-    IrmaCardTheme(
-      backgroundGradientEnd: Color(0xffD3263B),
-      backgroundGradientStart: Color(0xffBD2D3B),
-      foregroundColor: Color(0xffffffff),
+      backgroundGradientStart: Color(0xFFE8ECf0),
+      backgroundGradientEnd: Color(0xFFFFFFFF),
+      foregroundColor: Color(0xFF014483),
     ),
   ];
 
