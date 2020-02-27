@@ -75,9 +75,8 @@ class FutureCard extends StatelessWidget {
                         children: <Widget>[
                           Padding(
                             padding: EdgeInsets.only(
-                                left: IrmaTheme.of(context).smallSpacing,
-                                top: IrmaTheme.of(context).smallSpacing,
-                                right: IrmaTheme.of(context).smallSpacing),
+                              top: IrmaTheme.of(context).smallSpacing,
+                            ),
                             child: IgnorePointer(
                               child: IrmaButton(
                                 label: content,
