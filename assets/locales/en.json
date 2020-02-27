@@ -317,7 +317,7 @@
     },
     "add_data": "Add more data",
     "lock": "Log out",
-    "new_wallet": "Success, you can get started now"
+    "new_wallet": "Success, now get started"
   },
   "history": {
     "title": "History",
@@ -383,7 +383,7 @@
     "existing_data_removed": "All cards in your IRMA app are deleted."
   },
   "arrow_back": {
-    "info_1": "Done, your data have been disclosed.\n\n",
+    "info_1": "**Done, your data have been disclosed.**\n\n",
     "safari": "Tap on the name of the application (e.g., Safari, Chrome, Firefox) ",
     "info_2": "in the top left corner to return to the application you came from."
   }
