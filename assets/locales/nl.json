@@ -316,7 +316,8 @@
       "nudge": "Voeg je eerste gegevens toe"
     },
     "add_data": "Voeg meer gegevens toe",
-    "lock": "Uitloggen"
+    "lock": "Uitloggen",
+    "new_wallet": "Gelukt, je kunt nu aan de slag"
   },
   "history": {
     "title": "Geschiedenis",

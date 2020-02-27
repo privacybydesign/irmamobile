@@ -8,7 +8,11 @@ class WalletState with EquatableMixin {
   final int newCardIndex;
   final bool showNewCardAnimation;
 
-  WalletState({this.credentials, this.newCardIndex, this.showNewCardAnimation});
+  WalletState({
+    this.credentials,
+    this.newCardIndex,
+    this.showNewCardAnimation,
+  });
 
   WalletState copyWith({Credentials credentials, int newCardIndex, bool showNewCardAnimation}) {
     return WalletState(
