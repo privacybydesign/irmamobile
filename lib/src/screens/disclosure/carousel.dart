@@ -63,7 +63,7 @@ class _CarouselState extends State<Carousel> {
             child: IndexedStack(
                 key: _keyStackedIndex,
                 index: currentPage,
-                children: widget.candidatesDisCon.map(carouselWidget).toList()),
+                children: widget.candidatesDisCon.map(_buildCarouselWidget).toList()),
           ),
           _buildPageViewer(),
         ],
@@ -83,22 +83,22 @@ class _CarouselState extends State<Carousel> {
                   getChangedPageAndMoveBar(page);
                 },
                 itemBuilder: (BuildContext context, int index) {
-                  return carouselWidget(widget.candidatesDisCon[index % widget.candidatesDisCon.length]);
+                  return _buildCarouselWidget(widget.candidatesDisCon[index % widget.candidatesDisCon.length]);
                 },
               ),
             ),
-            if (widget.candidatesDisCon.length > 1) navBar(),
+            if (widget.candidatesDisCon.length > 1) _buildNavBar(),
           ],
         );
 
-  Widget navBar() => Container(
+  Widget _buildNavBar() => Container(
         height: 60.0,
         child: Stack(
           alignment: AlignmentDirectional.center,
           children: <Widget>[
             Positioned(
               left: 0,
-              child: arrowButton(
+              child: _buildArrowButton(
                 icon: IrmaIcons.chevronLeft,
                 semanticLabel: "disclosure.previous",
                 isVisible: currentPage > 0,
@@ -113,7 +113,8 @@ class _CarouselState extends State<Carousel> {
                 Row(
                   children: <Widget>[
                     const Spacer(),
-                    ...List.generate(widget.candidatesDisCon.length, (i) => dotsIndicator(isActive: i == currentPage)),
+                    ...List.generate(
+                        widget.candidatesDisCon.length, (i) => _buildDotsIndicator(isActive: i == currentPage)),
                     const Spacer(),
                   ],
                 ),
@@ -133,7 +134,7 @@ class _CarouselState extends State<Carousel> {
             ),
             Positioned(
               right: 0,
-              child: arrowButton(
+              child: _buildArrowButton(
                 icon: IrmaIcons.chevronRight,
                 semanticLabel: "disclosure.next",
                 isVisible: currentPage < widget.candidatesDisCon.length - 1,
@@ -145,7 +146,7 @@ class _CarouselState extends State<Carousel> {
         ),
       );
 
-  Widget dotsIndicator({bool isActive}) => AnimatedContainer(
+  Widget _buildDotsIndicator({bool isActive}) => AnimatedContainer(
         duration: Duration(milliseconds: _animationDuration),
         margin: const EdgeInsets.symmetric(horizontal: 8.0),
         height: 5,
@@ -158,7 +159,8 @@ class _CarouselState extends State<Carousel> {
         ),
       );
 
-  Widget arrowButton({IconData icon, String semanticLabel, bool isVisible, int delta, int size}) => AnimatedOpacity(
+  Widget _buildArrowButton({IconData icon, String semanticLabel, bool isVisible, int delta, int size}) =>
+      AnimatedOpacity(
         opacity: isVisible ? 1 : 0,
         duration: Duration(milliseconds: _animationDuration),
         child: IconButton(
@@ -184,7 +186,29 @@ class _CarouselState extends State<Carousel> {
         ),
       );
 
-  Widget carouselWidget(Con<CredentialAttribute> candidatesCon) {
+  Widget _buildCandidateValue(CredentialAttribute candidate) {
+    if (candidate.portraitPhoto != null) {
+      return Padding(
+        padding: EdgeInsets.only(
+          top: 6,
+          bottom: IrmaTheme.of(context).smallSpacing,
+        ),
+        child: Container(
+          width: 90,
+          height: 120,
+          color: const Color(0xff777777),
+          child: candidate.portraitPhoto,
+        ),
+      );
+    }
+
+    return Text(
+      candidate.value[_lang],
+      style: IrmaTheme.of(context).textTheme.body2,
+    );
+  }
+
+  Widget _buildCarouselWidget(Con<CredentialAttribute> candidatesCon) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).mediumSpacing),
       child: Column(
@@ -208,10 +232,7 @@ class _CarouselState extends State<Carousel> {
                             .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 14),
                         overflow: TextOverflow.ellipsis,
                       ),
-                      Text(
-                        candidate.value[_lang],
-                        style: IrmaTheme.of(context).textTheme.body2,
-                      ),
+                      _buildCandidateValue(candidate),
                     ],
                   ),
                 ),
