@@ -24,10 +24,10 @@ class CardStoreScreen extends StatelessWidget {
 
     if (credentialType.issuerId == "gemeente") {
       launch(url, forceSafariVC: false);
-    } else if (credentialType.issuerId == "digidproef" || credentialType.issuerId == "bzkpilot") {
+    } else if (credentialType.issuerId == "bzkpilot") {
       final didLaunch = await launch(url, forceSafariVC: false, universalLinksOnly: true);
       if (!didLaunch) {
-        launchFailActionDigiDProef(context);
+        showLaunchFailDialogBZKPilot(context);
       }
     } else {
       Navigator.push(

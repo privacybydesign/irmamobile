@@ -9,7 +9,6 @@ import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/credential_events.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'package:irmamobile/src/screens/wallet/widgets/digid_proef_helper.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/get_cards_nudge.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/irma_pilot_nudge.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet_button.dart';
@@ -17,7 +16,7 @@ import 'package:irmamobile/src/screens/webview/webview_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/widgets/card/card.dart';
-import 'package:irmamobile/src/widgets/nudge_state.dart';
+import 'package:irmamobile/src/widgets/credential_nudge.dart';
 
 ///  Show Wallet widget
 ///
@@ -178,66 +177,41 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin, WidgetsB
     super.didUpdateWidget(oldWidget);
   }
 
-  Widget _buildDigidProefNudge(BuildContext context, IrmaConfiguration irmaConfiguration) {
-    final credentialType = irmaConfiguration.credentialTypes["irma-demo.digidproef.basicPersonalData"];
-    final issuer = irmaConfiguration.issuers[credentialType.fullIssuerId];
-
-    return IrmaPilotNudge(
-      credentialType: credentialType,
-      issuer: issuer,
-      irmaConfigurationPath: irmaConfiguration.path,
-      launchFailAction: launchFailActionDigiDProef,
-    );
-  }
-
-  Widget _buildGemeenteNudge(BuildContext context, IrmaConfiguration irmaConfiguration) {
-    final credentialType = irmaConfiguration.credentialTypes["pbdf.gemeente.personalData"];
-    final issuer = irmaConfiguration.issuers[credentialType.fullIssuerId];
-
-    return IrmaPilotNudge(
-      credentialType: credentialType,
-      issuer: issuer,
-      launchFailAction: (context) {},
-    );
-  }
-
-  Widget _buildDefaultNudge(BuildContext context) {
-    return GetCardsNudge(
-      credentials: widget.credentials,
-      size: MediaQuery.of(context).size,
-      onAddCardsPressed: widget.onAddCardsPressed,
-    );
-  }
-
   Widget _buildNudge(BuildContext context) {
     return StreamBuilder(
       stream: irmaClient.irmaConfigurationSubject,
       builder: (context, snapshot) {
         if (snapshot.data != null) {
           final irmaConfiguration = snapshot.data as IrmaConfiguration;
-          final nudgeState = Nudge.of(context).nudgeState;
+          final credentialNudge = CredentialNudgeProvider.of(context).credentialNudge;
 
-          switch (nudgeState) {
-            case NudgeState.addCards:
-              return _buildDefaultNudge(context);
+          if (credentialNudge == null || _hasCredential(credentialNudge.fullCredentialTypeId)) {
+            return GetCardsNudge(
+              credentials: widget.credentials,
+              size: MediaQuery.of(context).size,
+              onAddCardsPressed: widget.onAddCardsPressed,
+            );
+          } else {
+            final credentialType = irmaConfiguration.credentialTypes[credentialNudge.fullCredentialTypeId];
+            final issuer = irmaConfiguration.issuers[credentialType.fullIssuerId];
 
-            case NudgeState.digidProef:
-              if (_hasCredential("irma-demo.digidproef.basicPersonalData")) {
-                return _buildDefaultNudge(context);
-              }
-
-              return _buildDigidProefNudge(context, irmaConfiguration);
-
-            case NudgeState.gemeente:
-              if (_hasCredential("pbdf.gemeente.personalData")) {
-                return _buildDefaultNudge(context);
-              }
-              return _buildGemeenteNudge(context, irmaConfiguration);
+            return IrmaPilotNudge(
+              credentialType: credentialType,
+              issuer: issuer,
+              irmaConfigurationPath: irmaConfiguration.path,
+              showLaunchFailDialog: credentialNudge.showLaunchFailDialog,
+            );
           }
         }
 
-        return Container();
+        return Container(height: 0);
       },
+    );
+  }
+
+  bool _hasCredential(String credentialTypeId) {
+    return (widget.credentials ?? []).any(
+      (c) => c.credentialType.fullId == credentialTypeId,
     );
   }
 
@@ -425,12 +399,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin, WidgetsB
           );
         },
       );
-
-  bool _hasCredential(String credentialTypeId) {
-    return (widget.credentials ?? []).any(
-      (c) => c.credentialType.fullId == credentialTypeId,
-    );
-  }
 
   void recalculateHeight() {
     final BuildContext currentContext = _containerKey.currentContext;

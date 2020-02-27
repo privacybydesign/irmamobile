@@ -301,19 +301,21 @@
     "expiration": "Card valid until",
     "help": "Help",
     "caption": "Your data securely on your mobile",
-    "irma-demo_digidproef_basicPersonalData": {
-      "nudge": "Add your first data",
-      "no_digid_dialog_title": "The 'DigiD Proef' app is not installed.",
-      "no_digid_dialog_content": "Install the 'DigiD Proef' app first. You can install it through Apple TestFlight.",
-      "no_digid_dialog_primary": "Open Testflight",
-      "no_digid_dialog_secondary": "Cancel",
-      "no_testflight_dialog_title": "Cannot launch the app",
-      "no_testflight_dialog_content": "Install Testfligh from the appstore and try again.",
-      "no_testflight_dialog_primary": "Install Testflight",
-      "no_testflight_dialog_secondary": "Cancel"
-    },
     "pbdf_gemeente_personalData": {
       "nudge": "Add your first data"
+    },
+    "pbdf_bzkpilot_personalData": {
+      "nudge": "Add your first data",
+      "not_installed_dialog_title": "The Sesam ID app is not installed.",
+      "not_installed_dialog_content": "Install the Sesam ID app first. You can install it through Apple TestFlight.",
+      "not_installed_dialog_primary": "Open TestFlight",
+      "not_installed_dialog_secondary": "Cancel"
+    },
+    "launch_testflight": {
+      "not_installed_dialog_title": "Cannot launch the app",
+      "not_installed_dialog_content": "Install TestFlight from the App Store and try again.",
+      "not_installed_dialog_primary": "Install Testflight",
+      "not_installed_dialog_secondary": "Cancel"
     },
     "add_data": "Add more data",
     "lock": "Log out"
