@@ -302,10 +302,10 @@
     "help": "Help",
     "caption": "Jouw gegevens veilig op je mobiel",
     "pbdf_gemeente_personalData": {
-      "nudge": "Voeg je eerste gegevens toe"
+      "nudge": "Voeg je persoonsgegevens toe"
     },
     "pbdf_bzkpilot_personalData": {
-      "nudge": "Voeg je eerste gegevens toe",
+      "nudge": "Voeg je persoonsgegevens toe",
       "not_installed_dialog_title": "Sesam ID-app niet gevonden",
       "not_installed_dialog_content": "Installeer eerst de Sesam ID-app. Je kan deze via Apple TestFlight verkrijgen.",
       "not_installed_dialog_primary": "Open TestFlight",
