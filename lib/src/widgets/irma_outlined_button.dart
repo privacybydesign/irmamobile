@@ -32,7 +32,7 @@ class IrmaOutlinedButton extends StatelessWidget {
       minWidth: minWidth,
       size: size,
       icon: icon,
-      color: IrmaTheme.of(context).grayscaleWhite,
+      color: Colors.transparent,
       disabledColor: Colors.white,
       textColor: IrmaTheme.of(context).primaryBlue,
       shape: RoundedRectangleBorder(
