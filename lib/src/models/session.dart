@@ -23,6 +23,7 @@ class SessionPointer {
   factory SessionPointer.fromString(String content) {
     final prefixes = [
       "irma://qr/json/",
+      "https://irma.app/-/session#",
       "https://irma.app/-pilot/session#",
       "",
     ];
