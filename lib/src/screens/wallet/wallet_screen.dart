@@ -127,8 +127,12 @@ class _WalletScreenState extends State<_WalletScreen> {
       body: BlocBuilder<WalletBloc, walletblocstate.WalletState>(
         bloc: widget.bloc,
         builder: (context, state) {
+          if (state.credentials == null) {
+            return Container(height: 0);
+          }
+
           return Wallet(
-            credentials: state.credentials != null ? state.credentials.values.toList() : null,
+            credentials: state.credentials.values.toList(),
             hasLoginLogoutAnimation: false,
             isOpen: true,
             newCardIndex: state.newCardIndex,

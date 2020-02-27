@@ -24,6 +24,14 @@ class Credentials extends UnmodifiableMapView<String, Credential> {
       }),
     );
   }
+
+  Credentials rebuiltRemoveWhere(bool Function(String, Credential) test) {
+    return Credentials(
+      Map.fromEntries(
+        entries.expand((entry) => test(entry.key, entry.value) ? [] : [entry]),
+      ),
+    );
+  }
 }
 
 class Credential {
