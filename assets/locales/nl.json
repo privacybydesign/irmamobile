@@ -383,7 +383,7 @@
     "existing_data_removed": "Alle kaartjes in je IRMA-app worden verwijderd."
   },
   "arrow_back": {
-    "info_1": "Gelukt, je gegevens zijn doorgegeven.\n\n",
+    "info_1": "**Gelukt, je gegevens zijn doorgegeven.**\n\n",
     "safari": "Tik bovenin op de naam van het programma ",
     "info_2": "(bijvoorbeeld Safari, Chrome, Firefox) om terug te gaan naar het programma waar je mee bezig was."
   }
