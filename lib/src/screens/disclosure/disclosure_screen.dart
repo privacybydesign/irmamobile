@@ -9,6 +9,7 @@ import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/screens/disclosure/widgets/arrow_back_screen.dart';
+import 'package:irmamobile/src/screens/disclosure/widgets/disclosure_feedback_screen.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
@@ -41,7 +42,7 @@ class DisclosureScreen extends StatefulWidget {
 }
 
 class _DisclosureScreenState extends State<DisclosureScreen> {
-  final String _lang = "nl";
+  final String _lang = "nl"; // TODO: this shouldn't be hardcoded.
   final IrmaRepository _repo = IrmaRepository.get();
   Stream<SessionState> _sessionStateStream;
 
@@ -64,8 +65,8 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
       await Future.delayed(const Duration(seconds: 1));
 
       if (session.continueOnSecondDevice) {
-        // If this is a session on another screen, just pop to the wallet
-        _popToWallet(context);
+        // If this is a session on a second screen, return to the wallet after showing a feedback screen
+        _pushDisclosureFeedbackScreen(true, session.serverName.translate(_lang));
       } else if (session.clientReturnURL != null && await canLaunch(session.clientReturnURL)) {
         // If there is a return URL, navigate to it when we're done
         launch(session.clientReturnURL, forceSafariVC: false);
@@ -84,7 +85,21 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   }
 
   void _popToWallet(BuildContext context) {
-    Navigator.of(context).popUntil(ModalRoute.withName(WalletScreen.routeName));
+    Navigator.of(context).popUntil(
+      ModalRoute.withName(
+        WalletScreen.routeName,
+      ),
+    );
+  }
+
+  void _pushDisclosureFeedbackScreen(bool success, String otherParty) {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => DisclosureFeedbackScreen(
+        success: success,
+        otherParty: otherParty,
+        popToWallet: _popToWallet,
+      ),
+    ));
   }
 
   void _dispatchSessionEvent(SessionEvent event) {
@@ -96,13 +111,13 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     _dispatchSessionEvent(DismissSessionEvent());
   }
 
-  void _declinePermission(BuildContext context) {
+  void _declinePermission(BuildContext context, String otherParty) {
     _dispatchSessionEvent(RespondPermissionEvent(
       proceed: false,
       disclosureChoices: [],
     ));
 
-    Navigator.of(context).pop();
+    _pushDisclosureFeedbackScreen(false, otherParty);
   }
 
   void _givePermission(SessionState session) {
@@ -167,7 +182,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
           primaryButtonLabel: FlutterI18n.translate(context, "disclosure.navigation_bar.yes"),
           onPrimaryPressed: () => _givePermission(sessionStateSnapshot.data),
           secondaryButtonLabel: FlutterI18n.translate(context, "disclosure.navigation_bar.no"),
-          onSecondaryPressed: () => _declinePermission(context),
+          onSecondaryPressed: () => _declinePermission(context, sessionStateSnapshot.data.serverName.translate(_lang)),
         );
       },
     );
@@ -248,20 +263,6 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
           final session = sessionStateSnapshot.data;
           if (session.status == SessionStatus.requestPermission) {
             return _buildDisclosureChoices(session);
-          }
-
-          // TODO move text to nl.json
-          // TODO use IrmaTheme padding
-          if (session.status == SessionStatus.success) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  FlutterI18n.translate(context, "disclosure.redirect"),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            );
           }
 
           return _buildLoadingIndicator();

@@ -373,7 +373,18 @@
       "yes": "Yes",
       "no": "No, rather not"
     },
-    "redirect": "You are being redirected back to the webpage..."
+    "redirect": "You are being redirected back to the webpage...",
+    "feedback": {
+      "header": {
+        "true": "Success",
+        "false": "Failed"
+      },
+      "text": {
+        "true": "Your attributes are provided to {otherParty}",
+        "false": "Your attributes are NOT provided to {otherParty}"
+      },
+      "ok": "OK"
+    }
   },
   "reset_pin": {
     "title": "Lost PIN",
