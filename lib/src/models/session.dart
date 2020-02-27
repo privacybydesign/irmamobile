@@ -20,17 +20,18 @@ class SessionPointer {
   @JsonKey(name: 'irmaqr')
   String irmaqr;
 
-  factory SessionPointer.fromURI(String uri) {
+  factory SessionPointer.fromString(String content) {
     final prefixes = [
       "irma://qr/json/",
       "https://irma.app/-pilot/session#",
+      "",
     ];
 
     try {
       String jsonString;
       for (final prefix in prefixes) {
-        if (uri.startsWith(prefix) && uri.length > prefix.length) {
-          jsonString = Uri.decodeComponent(uri.substring(prefix.length));
+        if (content.startsWith(prefix) && content.length > prefix.length) {
+          jsonString = Uri.decodeComponent(content.substring(prefix.length));
           break;
         }
       }
