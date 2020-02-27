@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -22,16 +24,19 @@ class PinScreen extends StatefulWidget {
 
 class _PinScreenState extends State<PinScreen> {
   final _pinBloc = PinBloc();
+
   FocusNode _focusNode;
+  StreamSubscription _pinBlocSubscription;
 
   @override
   void initState() {
     super.initState();
     _focusNode = FocusNode();
 
-    _pinBloc.state.listen((pinState) {
+    _pinBlocSubscription = _pinBloc.state.listen((pinState) {
       if (pinState.locked == false) {
         Navigator.of(context).pop();
+        _pinBlocSubscription.cancel();
       }
       if (pinState.pinInvalid) {
         showDialog(
