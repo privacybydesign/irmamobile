@@ -210,7 +210,7 @@ class _CarouselState extends State<Carousel> {
                       ),
                       Text(
                         candidate.value[_lang],
-                        style: IrmaTheme.of(context).textTheme.body1,
+                        style: IrmaTheme.of(context).textTheme.body2,
                       ),
                     ],
                   ),

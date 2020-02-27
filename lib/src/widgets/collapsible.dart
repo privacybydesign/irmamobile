@@ -6,6 +6,7 @@ import 'package:irmamobile/src/widgets/configurable_expansion_tile.dart';
 class Collapsible extends StatelessWidget {
   final String header;
   final Widget content;
+
   const Collapsible({Key key, this.header, this.content, this.onExpansionChanged}) : super(key: key);
   final ValueChanged<bool> onExpansionChanged;
 
@@ -22,19 +23,6 @@ class Collapsible extends StatelessWidget {
         ),
       ),
       header: Expanded(
-        child: Padding(
-          padding: EdgeInsets.only(
-              top: IrmaTheme.of(context).tinySpacing * 3,
-              bottom: IrmaTheme.of(context).tinySpacing * 3,
-              left: IrmaTheme.of(context).defaultSpacing,
-              right: IrmaTheme.of(context).defaultSpacing),
-          child: Text(
-            header,
-            style: IrmaTheme.of(context).collapseTextStyle,
-          ),
-        ),
-      ),
-      headerExpanded: Expanded(
         child: Padding(
           padding: EdgeInsets.only(
               top: IrmaTheme.of(context).tinySpacing * 3,
