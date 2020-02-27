@@ -373,7 +373,18 @@
       "yes": "Ja",
       "no": "Nee, liever niet"
     },
-    "redirect": "Je wordt teruggeleid naar de webpagina..."
+    "redirect": "Je wordt teruggeleid naar de webpagina...",
+    "feedback": {
+      "header": {
+        "true": "Gelukt",
+        "false": "Niets vrijgegeven"
+      },
+      "text": {
+        "true": "Je gegevens zijn doorgegeven aan {otherParty}",
+        "false": "Je gegevens zijn niet doorgegeven aan {otherParty}"
+      },
+      "ok": "OK"
+    }
   },
   "reset_pin": {
     "title": "Pincode vergeten",
