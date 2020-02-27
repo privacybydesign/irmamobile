@@ -13,7 +13,9 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
   final WalletState initialState;
 
   WalletBloc() : initialState = WalletState() {
-    credentialStreamSubscription = IrmaRepository.get().getCredentials().listen((credentials) {
+    credentialStreamSubscription = IrmaRepository.get().getCredentials().listen((allCredentials) {
+      final credentials = allCredentials.rebuiltRemoveWhere(_isMyIRMACredential);
+
       int newCardIndex;
       final newKeyIndexes = _getIndexesOfNewKeys(currentState.credentials, credentials);
       if (newKeyIndexes.isNotEmpty) {
@@ -37,6 +39,10 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     }
 
     return newKeyIndexes;
+  }
+
+  bool _isMyIRMACredential(_, Credential credential) {
+    return credential.credentialType.fullId == "pbdf.sidn-pbdf.irma";
   }
 
   @override
