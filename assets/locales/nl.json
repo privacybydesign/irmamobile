@@ -318,8 +318,7 @@
       "not_installed_dialog_secondary": "Annuleer"
     },
     "add_data": "Voeg meer gegevens toe",
-    "lock": "Uitloggen",
-    "new_wallet": "Gelukt, je kunt nu aan de slag"
+    "lock": "Uitloggen"
   },
   "history": {
     "title": "Geschiedenis",

@@ -17,60 +17,28 @@ import 'package:irmamobile/src/screens/wallet/widgets/wallet_drawer.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
-class WalletScreenArguments {
-  final bool newWallet;
-
-  WalletScreenArguments({
-    this.newWallet,
-  });
-}
-
 class WalletScreen extends StatelessWidget {
   static const routeName = "/";
 
   @override
   Widget build(BuildContext context) {
-    final WalletScreenArguments arguments = ModalRoute.of(context).settings.arguments as WalletScreenArguments;
-    final bloc = WalletBloc();
+    final WalletBloc bloc = WalletBloc();
 
-    return BlocProvider<WalletBloc>.value(
-      value: bloc,
-      child: _WalletScreen(
-        bloc: bloc,
-        newWallet: arguments?.newWallet ?? false,
-      ),
-    );
+    return BlocProvider<WalletBloc>.value(value: bloc, child: _WalletScreen(bloc: bloc));
   }
 }
 
 class _WalletScreen extends StatefulWidget {
   final WalletBloc bloc;
-  final bool newWallet;
 
-  const _WalletScreen({this.bloc, this.newWallet}) : super();
+  const _WalletScreen({this.bloc}) : super();
 
   @override
-  _WalletScreenState createState() => _WalletScreenState(
-        newWallet: newWallet,
-      );
+  _WalletScreenState createState() => _WalletScreenState();
 }
 
 class _WalletScreenState extends State<_WalletScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  bool newWallet;
-
-  _WalletScreenState({
-    this.newWallet,
-  }) {
-    if (newWallet) {
-      Future.delayed(Duration(milliseconds: 3000)).then((_) {
-        setState(() {
-          newWallet = false;
-        });
-      });
-    }
-  }
 
   void qrScannerPressed() {
     Navigator.pushNamed(context, ScannerScreen.routeName);
@@ -141,12 +109,6 @@ class _WalletScreenState extends State<_WalletScreen> {
             onHelpPressed: helpPressed,
             onAddCardsPressed: addCardsPressed,
             onNewCardAnimationShown: onNewCardAnimationShown,
-            newWallet: newWallet,
-            onNewWalletClosed: () {
-              setState(() {
-                newWallet = false;
-              });
-            },
           );
         },
       ),

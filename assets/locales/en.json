@@ -318,8 +318,7 @@
       "not_installed_dialog_secondary": "Cancel"
     },
     "add_data": "Add more data",
-    "lock": "Log out",
-    "new_wallet": "Success, now get started"
+    "lock": "Log out"
   },
   "history": {
     "title": "History",

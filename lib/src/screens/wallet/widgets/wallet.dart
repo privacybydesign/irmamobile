@@ -13,7 +13,6 @@ import 'package:irmamobile/src/screens/wallet/widgets/get_cards_nudge.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/irma_pilot_nudge.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet_button.dart';
 import 'package:irmamobile/src/screens/webview/webview_screen.dart';
-import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/widgets/card/card.dart';
@@ -34,8 +33,6 @@ class Wallet extends StatefulWidget {
     this.hasLoginLogoutAnimation = false,
     this.isOpen = false,
     this.newCardIndex,
-    this.newWallet,
-    this.onNewWalletClosed,
     this.showNewCardAnimation,
     this.onQRScannerPressed,
     this.onHelpPressed,
@@ -48,8 +45,6 @@ class Wallet extends StatefulWidget {
   final bool isOpen;
   final int newCardIndex;
   final bool showNewCardAnimation;
-  final bool newWallet;
-  final VoidCallback onNewWalletClosed;
   final VoidCallback onQRScannerPressed;
   final VoidCallback onHelpPressed;
   final VoidCallback onAddCardsPressed;
@@ -245,30 +240,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin, WidgetsB
                   child: _buildNudge(context),
                 ),
               ),
-              if (widget.newWallet ?? true) ...[
-                Container(
-                  height: 60,
-                  color: IrmaTheme.of(context).interactionValid,
-                  child: Row(
-                    children: <Widget>[
-                      SizedBox(width: IrmaTheme.of(context).defaultSpacing),
-                      Icon(IrmaIcons.valid, color: Colors.white),
-                      SizedBox(width: IrmaTheme.of(context).smallSpacing),
-                      Text(
-                        FlutterI18n.translate(context, "wallet.new_wallet"),
-                        style: Theme.of(context).textTheme.body1.copyWith(color: Colors.white),
-                      ),
-                      Expanded(child: Container()),
-                      IconButton(
-                        icon: Icon(IrmaIcons.close),
-                        color: Colors.white,
-                        onPressed: widget.onNewWalletClosed,
-                      ),
-                      SizedBox(width: IrmaTheme.of(context).defaultSpacing),
-                    ],
-                  ),
-                )
-              ],
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Container(
