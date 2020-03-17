@@ -1,6 +1,8 @@
 package irmagobridge
 
 import (
+	"fmt"
+
 	irma "github.com/privacybydesign/irmago"
 	"github.com/privacybydesign/irmago/irmaclient"
 )
@@ -9,6 +11,10 @@ import (
 var _ irmaclient.ClientHandler = (*clientHandler)(nil)
 
 type clientHandler struct {
+}
+
+func (i *clientHandler) ReportError(err error) {
+	fmt.Println("irmaclient error: ", err.Error()) // TODO report with https://github.com/getsentry/sentry-go
 }
 
 func (ch *clientHandler) Revoked(cred *irma.CredentialIdentifier) {
