@@ -70,8 +70,6 @@ makefile you will need to install `make` (included in the developer tools on Mac
       echo 'export ANDROID_HOME="$HOME/Android/Sdk"' >> "$HOME/.bashrc"
       echo 'export PATH="$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$HOME/Android/flutter/bin:$PATH"' >> "$HOME/.bashrc"
 
-* Setup dep dependencies: `make dep-ensure`. This will install a local go and dep if no global ones
-  on your `PATH` are found.
 * Create the irmagobridge: `make irmagobridge-android`. This will use a local go version of no
   global one on your `PATH` is found.
 * Start an emulator or connect a device via USB and run the flutter project: `flutter run`. You can
@@ -105,13 +103,8 @@ guideline:
   download your development environment.
 * Install go from the [go download page](https://golang.org/dl/) or by using your OS package
   manager.
-* Install dep from [their github page](https://github.com/golang/dep/releases) and put it somewhere
-  in your `PATH`. You can also use your OS package manager to install dep.
-* Run `dep ensure` in the root of the project to install go dependencies.
-* Run `go get -u golang.org/x/mobile/cmd/gomobile` to install gomobile and then run `gomobile init`
-  to initialize gomobile. This may give an error to install `golang.org/x/tools/go/packages`, you
-  can do this using `go get -u golang.org/x/tools/go/packages`, after that run the init command
-  again.
+* Run `go get golang.org/x/mobile/cmd/gomobile` to install gomobile and then run `gomobile init`
+  to initialize gomobile.
 * Run `gomobile bind -target android -o android/irmagobridge/irmagobridge.aar github.com/privacybydesign/irmamobile/irmagobridge`.
 * Start an emulator or connect a device via USB and run the flutter project: `flutter run`. You can
   also use Android Studio or Visual Studio Code for this step.

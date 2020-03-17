@@ -1,6 +1,5 @@
 lane :alpha_ios do
   update_schemes_alpha()
-  fetch_dependencies()
   build_irmagobridge_ios()
   update_app_identifier(
     xcodeproj: "ios/Runner.xcodeproj",
@@ -12,11 +11,6 @@ lane :alpha_ios do
   end
 end
 
-lane :fetch_dependencies do
-  Dir.chdir("..") do
-    sh("dep ensure")
-  end
-end
 
 lane :build_irmagobridge_ios do
   Dir.chdir("..") do
