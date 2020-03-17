@@ -25,11 +25,3 @@ class DeleteCredentialEvent extends Event {
   factory DeleteCredentialEvent.fromJson(Map<String, dynamic> json) => _$DeleteCredentialEventFromJson(json);
   Map<String, dynamic> toJson() => _$DeleteCredentialEventToJson(this);
 }
-
-@JsonSerializable(nullable: false)
-class DeleteAllCredentialsEvent extends Event {
-  DeleteAllCredentialsEvent();
-
-  factory DeleteAllCredentialsEvent.fromJson(Map<String, dynamic> json) => _$DeleteAllCredentialsEventFromJson(json);
-  Map<String, dynamic> toJson() => _$DeleteAllCredentialsEventToJson(this);
-}

@@ -11,6 +11,10 @@ var _ irmaclient.ClientHandler = (*clientHandler)(nil)
 type clientHandler struct {
 }
 
+func (ch *clientHandler) Revoked(cred *irma.CredentialIdentifier) {
+	dispatchCredentialsEvent()
+}
+
 func (ch *clientHandler) UpdateConfiguration(new *irma.IrmaIdentifierSet) {
 	dispatchConfigurationEvent()
 }
