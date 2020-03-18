@@ -5,21 +5,17 @@ stages:
   - build_app
 
 variables:
+  GOFLAGS: -mod= # avoid default, which is -mod=vendor, see https://github.com/golang/go/wiki/Modules#go-114
+  GOPATH: ${CI_PROJECT_DIR}/vendor/go
   GIT_SUBMODULE_STRATEGY: recursive
   PACKAGE_NAME: github.com/privacybydesign/irmamobile
 
 image:
   name: privacybydesign/android_golang_dep_mobile_flutter:latest
 
-before_script:
-  - mkdir -p "$GOPATH/src/$(dirname "$PACKAGE_NAME")"
-  - rm -f "$GOPATH/src/$PACKAGE_NAME"
-  - ln -s "$CI_PROJECT_DIR" "$GOPATH/src/$PACKAGE_NAME"
-  - cd "$GOPATH/src/$PACKAGE_NAME"
-
 cache:
   paths:
-    - vendor/
+    - vendor/go/pkg/mod/
 
 lint:dart:
   script:
@@ -41,7 +37,6 @@ build_bridge:
     paths:
       - android/irmagobridge/irmagobridge.aar
   script:
-    - dep ensure -v
     - gomobile bind -target android -o android/irmagobridge/irmagobridge.aar github.com/privacybydesign/irmamobile/irmagobridge
   
 build_app:

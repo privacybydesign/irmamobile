@@ -25,9 +25,3 @@ DeleteCredentialEvent _$DeleteCredentialEventFromJson(Map<String, dynamic> json)
 Map<String, dynamic> _$DeleteCredentialEventToJson(DeleteCredentialEvent instance) => <String, dynamic>{
       'Hash': instance.hash,
     };
-
-DeleteAllCredentialsEvent _$DeleteAllCredentialsEventFromJson(Map<String, dynamic> json) {
-  return DeleteAllCredentialsEvent();
-}
-
-Map<String, dynamic> _$DeleteAllCredentialsEventToJson(DeleteAllCredentialsEvent instance) => <String, dynamic>{};
