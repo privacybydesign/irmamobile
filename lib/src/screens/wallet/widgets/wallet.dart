@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/credential_events.dart';
@@ -54,24 +53,24 @@ class Wallet extends StatefulWidget {
   _WalletState createState() => _WalletState();
 }
 
-class _WalletState extends State<Wallet> with TickerProviderStateMixin, WidgetsBindingObserver {
+class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _animationDuration = 250;
   final _loginDuration = 500;
   final _walletAspectRatio = 87 / 360; // wallet.svg | 360 / 620, 620 - 87 = 533
-  final _walletYPos = 25;
   final _cardTopBorderHeight = 10;
   final _cardTopHeight = 40;
   final _cardsMaxExtended = 5;
-  final _walletBottomInteractive = 0.7;
   final _dragTipping = 50;
   final _scrollOverflowTipping = 50;
   final _walletBoxHeight = 120;
   final _walletShrinkTween = Tween<double>(begin: 0.0, end: 1.0);
   final _walletIconHeight = 60;
   final _dragDownFactor = 1.5;
-  final _heightOffset = 94.0;
+  final _heightOffset = -15.0;
+  final _screenHeight = 730.0;
   final _containerKey = GlobalKey();
   final _cardVisibleDelay = 3250;
+  final _minimizedCardOffset = -20;
 
   double renderBoxHeight = 0;
   int drawnCardIndex = 0;
@@ -89,9 +88,9 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin, WidgetsB
   int showCardsCounter = 0;
   bool _nudgeVisible = true;
 
-  final irmaClient = IrmaRepository.get();
+  final IrmaRepository irmaClient = IrmaRepository.get();
 
-  get type => null;
+//  get type => null;
 
   @override
   void initState() {
@@ -121,29 +120,15 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin, WidgetsB
         },
       );
 
-    WidgetsBinding.instance.addPostFrameCallback(
-      (Duration dur) {
-        recalculateHeight();
-      },
-    );
-
-    WidgetsBinding.instance.addObserver(this);
-
     if (widget.hasLoginLogoutAnimation && widget.showNewCardAnimation == false) {
       loginLogoutController.forward();
     }
   }
 
   @override
-  void didChangeMetrics() {
-    recalculateHeight();
-  }
-
-  @override
   void dispose() {
     drawController.dispose();
     loginLogoutController.dispose();
-    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -219,9 +204,9 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin, WidgetsB
   Widget build(BuildContext context) => AnimatedBuilder(
         animation: Listenable.merge([drawAnimation, loginLogoutController]),
         builder: (BuildContext buildContext, Widget child) {
-          final size = MediaQuery.of(buildContext).size;
-          final double screenTopOffset = renderBoxHeight == 0 ? 0 : size.height - renderBoxHeight - _heightOffset;
-          final walletTop = size.height - _walletBoxHeight - size.width * _walletAspectRatio - screenTopOffset;
+          final screenWidth = MediaQuery.of(buildContext).size.width;
+
+          final walletTop = _screenHeight - _walletBoxHeight - screenWidth * _walletAspectRatio - _heightOffset;
 
           int index = 0;
           double cardTop;
@@ -243,14 +228,15 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin, WidgetsB
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Container(
+                  height: _screenHeight,
                   child: Stack(
                     children: [
-                      Positioned(
-                        top: walletTop + _walletYPos - IrmaTheme.of(context).smallSpacing,
+                      Align(
+                        alignment: Alignment.bottomCenter,
                         child: SvgPicture.asset(
                           'assets/wallet/wallet_back.svg',
                           excludeFromSemantics: true,
-                          width: size.width,
+                          width: screenWidth,
                         ),
                       ),
                       if (widget.credentials != null)
@@ -282,7 +268,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin, WidgetsB
                                 top: walletTop - cardTop,
                                 child: GestureDetector(
                                   onTap: () {
-                                    cardTapped(_index, credential, size);
+                                    cardTapped(_index, credential);
                                   },
                                   onVerticalDragDown: (DragDownDetails details) {
                                     setState(
@@ -319,7 +305,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin, WidgetsB
                                   onVerticalDragEnd: (DragEndDetails details) {
                                     if ((dragOffset < -_dragTipping && currentState != WalletState.drawn) ||
                                         (dragOffset > _dragTipping && currentState == WalletState.drawn)) {
-                                      cardTapped(_index, credential, size);
+                                      cardTapped(_index, credential);
                                     } else if (dragOffset > _dragTipping && currentState == WalletState.full) {
                                       setNewState(WalletState.halfway);
                                     } else {
@@ -337,60 +323,38 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin, WidgetsB
                             }(index++);
                           },
                         ),
-                      Positioned(
-                        top: (widget.hasLoginLogoutAnimation ? loginLogoutController.value : 1.0) *
-                            (walletTop + _walletYPos),
-                        child: IgnorePointer(
-                          ignoring: true,
-                          child: SvgPicture.asset(
-                            'assets/wallet/wallet_front.svg',
-                            excludeFromSemantics: true,
-                            width: size.width,
-                          ),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Stack(
+                          children: <Widget>[
+                            IgnorePointer(
+                              ignoring: true,
+                              child: SvgPicture.asset(
+                                'assets/wallet/wallet_front.svg',
+                                width: screenWidth,
+                              ),
+                            ),
+                            Positioned(
+                              left: 16,
+                              bottom: (screenWidth * _walletAspectRatio - _walletIconHeight) / 2,
+                              child: WalletButton(
+                                svgFile: 'assets/wallet/btn_help.svg',
+                                accessibleName: "wallet.help",
+                                clickStreamSink: widget.onHelpPressed,
+                              ),
+                            ),
+                            Positioned(
+                              right: 16,
+                              bottom: (screenWidth * _walletAspectRatio - _walletIconHeight) / 2,
+                              child: WalletButton(
+                                svgFile: 'assets/wallet/btn_qrscan.svg',
+                                accessibleName: "wallet.scan_qr_code",
+                                clickStreamSink: widget.onQRScannerPressed,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      Positioned(
-                        bottom: 0,
-                        height: size.width * _walletAspectRatio * _walletBottomInteractive,
-                        width: size.width,
-                        child: Semantics(
-                          button: true,
-                          label: FlutterI18n.translate(context, 'wallet.toggle'),
-                          child: GestureDetector(
-                            onTap: () {
-                              switch (currentState) {
-                                case WalletState.halfway:
-                                  setNewState(WalletState.full);
-                                  break;
-                                case WalletState.full:
-                                  setNewState(WalletState.halfway);
-                                  break;
-                                default:
-                                  setNewState(cardInStackState);
-                                  break;
-                              }
-                            },
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        left: 16,
-                        bottom: (size.width * _walletAspectRatio - _walletIconHeight) / 2,
-                        child: WalletButton(
-                          svgFile: 'assets/wallet/btn_help.svg',
-                          accessibleName: "wallet.help",
-                          clickStreamSink: widget.onHelpPressed,
-                        ),
-                      ),
-                      Positioned(
-                        right: 16,
-                        bottom: (size.width * _walletAspectRatio - _walletIconHeight) / 2,
-                        child: WalletButton(
-                          svgFile: 'assets/wallet/btn_qrscan.svg',
-                          accessibleName: "wallet.scan_qr_code",
-                          clickStreamSink: widget.onQRScannerPressed,
-                        ),
-                      ),
+                      )
                     ],
                   ),
                 ),
@@ -400,19 +364,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin, WidgetsB
         },
       );
 
-  void recalculateHeight() {
-    final BuildContext currentContext = _containerKey.currentContext;
-
-    if (currentContext != null && currentContext.size.height > renderBoxHeight) {
-      setState(
-        () {
-          renderBoxHeight = currentContext.size.height;
-        },
-      );
-    }
-  }
-
-  void cardTapped(int index, Credential credential, Size size) {
+  void cardTapped(int index, Credential credential) {
     if (currentState == WalletState.drawn) {
       setNewState(cardInStackState);
     } else {
@@ -461,7 +413,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin, WidgetsB
           cardPosition = walletTop - IrmaTheme.of(context).mediumSpacing;
           cardPosition -= dragOffset;
         } else {
-          cardPosition = -(index - 1) * _cardTopBorderHeight.toDouble() + 2;
+          cardPosition = -(index - 1) * _cardTopBorderHeight.toDouble() + 2 + _minimizedCardOffset;
           if (cardPosition < -_cardTopHeight) {
             cardPosition = -_cardTopHeight.toDouble() + _cardTopBorderHeight.toDouble() + 2;
           }
