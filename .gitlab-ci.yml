@@ -5,17 +5,16 @@ stages:
   - build_app
 
 variables:
-  GOFLAGS: -mod= # avoid default, which is -mod=vendor, see https://github.com/golang/go/wiki/Modules#go-114
-  GOPATH: ${CI_PROJECT_DIR}/vendor/go
+  GOPATH: ${CI_PROJECT_DIR}/.cache
   GIT_SUBMODULE_STRATEGY: recursive
   PACKAGE_NAME: github.com/privacybydesign/irmamobile
 
 image:
-  name: privacybydesign/android_golang_dep_mobile_flutter:latest
+  name: privacybydesign/android_golang_gomobile_flutter:latest
 
 cache:
   paths:
-    - vendor/go/pkg/mod/
+    - .cache
 
 lint:dart:
   script:
