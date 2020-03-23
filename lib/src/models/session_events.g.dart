@@ -122,43 +122,12 @@ Map<String, dynamic> _$CanceledSessionEventToJson(CanceledSessionEvent instance)
       'SessionID': instance.sessionID,
     };
 
-UnsatisfiableRequestSessionEvent _$UnsatisfiableRequestSessionEventFromJson(Map<String, dynamic> json) {
-  return UnsatisfiableRequestSessionEvent(
-    sessionID: json['SessionID'] as int,
-    serverName:
-        json['ServerName'] == null ? null : TranslatedValue.fromJson(json['ServerName'] as Map<String, dynamic>),
-    missingDisclosures: (json['MissingDisclosures'] as Map<String, dynamic>)?.map(
-      (k, e) => MapEntry(
-          int.parse(k),
-          (e as Map<String, dynamic>)?.map(
-            (k, e) => MapEntry(
-                int.parse(k),
-                (e as Map<String, dynamic>)?.map(
-                  (k, e) => MapEntry(
-                      int.parse(k), e == null ? null : AttributeIdentifier.fromJson(e as Map<String, dynamic>)),
-                )),
-          )),
-    ),
-    disclosuresLabels: (json['DisclosuresLabels'] as Map<String, dynamic>)?.map(
-      (k, e) => MapEntry(int.parse(k), e == null ? null : TranslatedValue.fromJson(e as Map<String, dynamic>)),
-    ),
-  );
-}
-
-Map<String, dynamic> _$UnsatisfiableRequestSessionEventToJson(UnsatisfiableRequestSessionEvent instance) =>
-    <String, dynamic>{
-      'SessionID': instance.sessionID,
-      'ServerName': instance.serverName,
-      'MissingDisclosures': instance.missingDisclosures?.map((k, e) => MapEntry(
-          k.toString(), e?.map((k, e) => MapEntry(k.toString(), e?.map((k, e) => MapEntry(k.toString(), e)))))),
-      'DisclosuresLabels': instance.disclosuresLabels?.map((k, e) => MapEntry(k.toString(), e)),
-    };
-
 RequestIssuancePermissionSessionEvent _$RequestIssuancePermissionSessionEventFromJson(Map<String, dynamic> json) {
   return RequestIssuancePermissionSessionEvent(
     sessionID: json['SessionID'] as int,
     serverName:
         json['ServerName'] == null ? null : TranslatedValue.fromJson(json['ServerName'] as Map<String, dynamic>),
+    satisfiable: json['Satisfiable'] as bool,
     issuedCredentials: (json['IssuedCredentials'] as List)
         ?.map((e) => e == null ? null : RawCredential.fromJson(e as Map<String, dynamic>))
         ?.toList(),
@@ -171,7 +140,7 @@ RequestIssuancePermissionSessionEvent _$RequestIssuancePermissionSessionEventFro
     disclosuresCandidates: (json['DisclosuresCandidates'] as List)
         ?.map((e) => (e as List)
             ?.map((e) => (e as List)
-                ?.map((e) => e == null ? null : AttributeIdentifier.fromJson(e as Map<String, dynamic>))
+                ?.map((e) => e == null ? null : DisclosureCandidate.fromJson(e as Map<String, dynamic>))
                 ?.toList())
             ?.toList())
         ?.toList(),
@@ -182,6 +151,7 @@ Map<String, dynamic> _$RequestIssuancePermissionSessionEventToJson(RequestIssuan
     <String, dynamic>{
       'SessionID': instance.sessionID,
       'ServerName': instance.serverName,
+      'Satisfiable': instance.satisfiable,
       'IssuedCredentials': instance.issuedCredentials,
       'Disclosures': instance.disclosures,
       'DisclosuresLabels': instance.disclosuresLabels?.map((k, e) => MapEntry(k.toString(), e)),
@@ -194,6 +164,7 @@ RequestVerificationPermissionSessionEvent _$RequestVerificationPermissionSession
     sessionID: json['SessionID'] as int,
     serverName:
         json['ServerName'] == null ? null : TranslatedValue.fromJson(json['ServerName'] as Map<String, dynamic>),
+    satisfiable: json['Satisfiable'] as bool,
     disclosures: (json['Disclosures'] as List)
         ?.map((e) => (e as List)?.map((e) => (e as List)?.map((e) => e as String)?.toList())?.toList())
         ?.toList(),
@@ -203,7 +174,7 @@ RequestVerificationPermissionSessionEvent _$RequestVerificationPermissionSession
     disclosuresCandidates: (json['DisclosuresCandidates'] as List)
         ?.map((e) => (e as List)
             ?.map((e) => (e as List)
-                ?.map((e) => e == null ? null : AttributeIdentifier.fromJson(e as Map<String, dynamic>))
+                ?.map((e) => e == null ? null : DisclosureCandidate.fromJson(e as Map<String, dynamic>))
                 ?.toList())
             ?.toList())
         ?.toList(),
@@ -217,6 +188,7 @@ Map<String, dynamic> _$RequestVerificationPermissionSessionEventToJson(
     <String, dynamic>{
       'SessionID': instance.sessionID,
       'ServerName': instance.serverName,
+      'Satisfiable': instance.satisfiable,
       'Disclosures': instance.disclosures,
       'DisclosuresLabels': instance.disclosuresLabels?.map((k, e) => MapEntry(k.toString(), e)),
       'DisclosuresCandidates': instance.disclosuresCandidates,

@@ -27,6 +27,10 @@ class DemoSessionHelper {
               "irma-demo.digidproef.personalData.fullname",
               "irma-demo.digidproef.personalData.initials",
               "irma-demo.digidproef.personalData.photo"
+            ],
+            [
+              "irma-demo.gemeente.personalData.fullname",
+              "irma-demo.gemeente.personalData.initials"
             ]
           ]
         ],

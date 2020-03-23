@@ -54,8 +54,7 @@ class SessionRepository {
       return prevState.copyWith(
         status: event.status.toSessionStatus(),
       );
-    }
-    if (event is ClientReturnURLSetSessionEvent) {
+    } else if (event is ClientReturnURLSetSessionEvent) {
       return prevState.copyWith(
         clientReturnURL: event.clientReturnURL,
       );
@@ -65,9 +64,9 @@ class SessionRepository {
         serverName: event.serverName,
         isSignatureSession: event.isSignatureSession,
         signedMessage: event.signedMessage,
-        disclosuresCandidates: ConDisCon.fromRaw<AttributeIdentifier, CredentialAttribute>(event.disclosuresCandidates,
-            (attributeIdentifier) {
-          return CredentialAttribute.fromAttributeIdentifier(irmaConfiguration, credentials, attributeIdentifier);
+        disclosuresCandidates: ConDisCon.fromRaw<DisclosureCandidate, CredentialAttribute>(event.disclosuresCandidates,
+            (disclosureCandidate) {
+          return CredentialAttribute.fromDisclosureCandidate(irmaConfiguration, credentials, disclosureCandidate);
         }),
       );
     } else if (event is SuccessSessionEvent) {

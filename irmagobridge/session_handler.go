@@ -49,17 +49,7 @@ func (sh *sessionHandler) Cancelled() {
 	})
 }
 
-func (sh *sessionHandler) UnsatisfiableRequest(request irma.SessionRequest,
-	serverName irma.TranslatedString, missing irmaclient.MissingAttributes) {
-	dispatchEvent(&unsatisfiableRequestSessionEvent{
-		SessionID:          sh.sessionID,
-		ServerName:         serverName,
-		MissingDisclosures: missing,
-		DisclosuresLabels:  request.Disclosure().Labels,
-	})
-}
-
-func (sh *sessionHandler) RequestIssuancePermission(request *irma.IssuanceRequest, candidates [][][]*irma.AttributeIdentifier, serverName irma.TranslatedString, ph irmaclient.PermissionHandler) {
+func (sh *sessionHandler) RequestIssuancePermission(request *irma.IssuanceRequest, satisfiable bool, candidates [][]irmaclient.DisclosureCandidates, serverName irma.TranslatedString, ph irmaclient.PermissionHandler) {
 	disclose := request.Disclose
 	if disclose == nil {
 		disclose = irma.AttributeConDisCon{}
@@ -69,6 +59,7 @@ func (sh *sessionHandler) RequestIssuancePermission(request *irma.IssuanceReques
 	dispatchEvent(&requestIssuancePermissionSessionEvent{
 		SessionID:             sh.sessionID,
 		ServerName:            serverName,
+		Satisfiable:           satisfiable,
 		IssuedCredentials:     request.CredentialInfoList,
 		Disclosures:           disclose,
 		DisclosuresLabels:     request.Labels,
@@ -76,10 +67,11 @@ func (sh *sessionHandler) RequestIssuancePermission(request *irma.IssuanceReques
 	})
 }
 
-func (sh *sessionHandler) RequestVerificationPermission(request *irma.DisclosureRequest, candidates [][][]*irma.AttributeIdentifier, serverName irma.TranslatedString, ph irmaclient.PermissionHandler) {
+func (sh *sessionHandler) RequestVerificationPermission(request *irma.DisclosureRequest, satisfiable bool, candidates [][]irmaclient.DisclosureCandidates, serverName irma.TranslatedString, ph irmaclient.PermissionHandler) {
 	action := &requestVerificationPermissionSessionEvent{
 		SessionID:             sh.sessionID,
 		ServerName:            serverName,
+		Satisfiable:           satisfiable,
 		Disclosures:           request.Disclose,
 		DisclosuresLabels:     request.Labels,
 		DisclosuresCandidates: candidates,
@@ -90,11 +82,12 @@ func (sh *sessionHandler) RequestVerificationPermission(request *irma.Disclosure
 	dispatchEvent(action)
 }
 
-func (sh *sessionHandler) RequestSignaturePermission(request *irma.SignatureRequest, candidates [][][]*irma.AttributeIdentifier, serverName irma.TranslatedString, ph irmaclient.PermissionHandler) {
+func (sh *sessionHandler) RequestSignaturePermission(request *irma.SignatureRequest, satisfiable bool, candidates [][]irmaclient.DisclosureCandidates, serverName irma.TranslatedString, ph irmaclient.PermissionHandler) {
 	sh.permissionHandler = ph
 	dispatchEvent(&requestVerificationPermissionSessionEvent{
 		SessionID:             sh.sessionID,
 		ServerName:            serverName,
+		Satisfiable:           satisfiable,
 		Disclosures:           request.Disclose,
 		DisclosuresLabels:     request.Labels,
 		DisclosuresCandidates: candidates,

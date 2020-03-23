@@ -12,7 +12,11 @@ import (
 )
 
 func main() {
-	structs := []interface{}{irmaclient.MissingAttribute{}}
+	structs := []interface{}{
+		irmaclient.DisclosureCandidate{},
+		requestVerificationPermissionSessionEvent{},
+		requestIssuancePermissionSessionEvent{},
+	}
 
 	for i := 0; i < len(structs); i++ {
 		fmt.Println(structToDart(structs[i]))
@@ -262,37 +266,25 @@ type canceledSessionEvent struct {
 	SessionID int
 }
 
-type unsatisfiableRequestSessionEvent struct {
-	SessionID          int
-	ServerName         irma.TranslatedString
-	MissingDisclosures irmaclient.MissingAttributes
-	DisclosuresLabels  map[int]irma.TranslatedString
-}
-
 type requestIssuancePermissionSessionEvent struct {
 	SessionID             int
 	ServerName            irma.TranslatedString
+	Satisfiable           bool
 	IssuedCredentials     irma.CredentialInfoList
 	Disclosures           irma.AttributeConDisCon
 	DisclosuresLabels     map[int]irma.TranslatedString
-	DisclosuresCandidates [][][]*irma.AttributeIdentifier
+	DisclosuresCandidates [][]irmaclient.DisclosureCandidates
 }
 
 type requestVerificationPermissionSessionEvent struct {
 	SessionID             int
 	ServerName            irma.TranslatedString
+	Satisfiable           bool
 	Disclosures           irma.AttributeConDisCon
 	DisclosuresLabels     map[int]irma.TranslatedString
-	DisclosuresCandidates [][][]*irma.AttributeIdentifier
-}
-
-type requestSignaturePermissionSessionEvent struct {
-	SessionID             int
-	ServerName            irma.TranslatedString
-	Disclosures           irma.AttributeConDisCon
-	DisclosuresLabels     map[int]irma.TranslatedString
-	DisclosuresCandidates [][][]*irma.AttributeIdentifier
-	Message               string
+	DisclosuresCandidates [][]irmaclient.DisclosureCandidates
+	IsSignatureSession    bool
+	SignedMessage         string
 }
 
 type requestPinSessionEvent struct {

@@ -127,27 +127,35 @@ class CredentialAttribute {
   final Credential credential;
   final AttributeType attributeType;
   final TranslatedValue value;
+  final bool notRevokable;
   Image portraitPhoto;
 
   CredentialAttribute({
     @required this.credential,
     @required this.attributeType,
     @required this.value,
+    @required this.notRevokable,
   })  : assert(credential != null),
         assert(attributeType != null),
-        assert(value != null) {
+        assert(value != null),
+        assert(notRevokable != null) {
     if (attributeType.displayHint == "portraitPhoto") {
       portraitPhoto = _decodePortraitPhoto(value);
     }
   }
 
-  factory CredentialAttribute.fromAttributeIdentifier(
-      IrmaConfiguration irmaConfiguration, Credentials credentials, AttributeIdentifier attributeIdentifier) {
-    final credential = credentials[attributeIdentifier.credentialHash];
-    final attributeType = irmaConfiguration.attributeTypes[attributeIdentifier.type];
-    final value = credential.attributes[attributeType];
+  factory CredentialAttribute.fromDisclosureCandidate(
+      IrmaConfiguration irmaConfiguration, Credentials credentials, DisclosureCandidate candidate) {
+    final hash = candidate.credentialHash;
+    final type = candidate.type;
+    final attributeType = irmaConfiguration.attributeTypes[type];
+    final credential = hash != ""
+        ? credentials[hash]
+        : Credential.fromId(irmaConfiguration: irmaConfiguration, id: type.substring(0, type.lastIndexOf(".")));
+    final value = hash == "" ? TranslatedValue({"en": "-", "nl": "-"}) : credential.attributes[attributeType];
 
-    return CredentialAttribute(credential: credential, attributeType: attributeType, value: value);
+    return CredentialAttribute(
+        credential: credential, attributeType: attributeType, value: value, notRevokable: candidate.notRevokable);
   }
 }
 
@@ -178,4 +186,27 @@ class DisclosedAttribute {
 
   factory DisclosedAttribute.fromJson(Map<String, dynamic> json) => _$DisclosedAttributeFromJson(json);
   Map<String, dynamic> toJson() => _$DisclosedAttributeToJson(this);
+}
+
+@JsonSerializable()
+class DisclosureCandidate {
+  DisclosureCandidate({this.type, this.credentialHash, this.expired, this.revoked, this.notRevokable});
+
+  @JsonKey(name: 'Type')
+  String type;
+
+  @JsonKey(name: 'CredentialHash')
+  String credentialHash;
+
+  @JsonKey(name: 'Expired')
+  bool expired;
+
+  @JsonKey(name: 'Revoked')
+  bool revoked;
+
+  @JsonKey(name: 'NotRevokable')
+  bool notRevokable;
+
+  factory DisclosureCandidate.fromJson(Map<String, dynamic> json) => _$DisclosureCandidateFromJson(json);
+  Map<String, dynamic> toJson() => _$DisclosureCandidateToJson(this);
 }

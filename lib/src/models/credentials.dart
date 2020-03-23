@@ -42,7 +42,10 @@ class Credential {
   final DateTime signedOn;
   final DateTime expires;
   final Attributes attributes;
+  final bool revoked;
   final String hash;
+
+  bool get expired => expires?.isBefore(DateTime.now());
 
   Credential({
     @required this.id,
@@ -52,15 +55,16 @@ class Credential {
     @required this.signedOn,
     @required this.expires,
     @required this.attributes,
+    @required this.revoked,
     @required this.hash,
   })  : assert(id != null),
         assert(issuer != null),
         assert(schemeManager != null),
         assert(credentialType != null),
-        assert(signedOn != null),
-        assert(expires != null),
-        assert(attributes != null),
-        assert(hash != null);
+        assert(signedOn != null || hash == null),
+        assert(expires != null || hash == null),
+        assert(attributes != null || hash == null),
+        assert(revoked != null || hash == null);
 
   Credential.fromRaw({IrmaConfiguration irmaConfiguration, RawCredential rawCredential})
       : id = rawCredential.id,
@@ -73,7 +77,24 @@ class Credential {
           irmaConfiguration: irmaConfiguration,
           rawAttributes: rawCredential.attributes,
         ),
+        revoked = rawCredential.revoked,
         hash = rawCredential.hash;
+
+  factory Credential.fromId({IrmaConfiguration irmaConfiguration, String id}) {
+    final parts = id.split("\.");
+    final schemeManagerId = parts[0];
+    final fullIssuerId = "$schemeManagerId.${parts[1]}";
+    return Credential(
+        id: id,
+        issuer: irmaConfiguration.issuers[fullIssuerId],
+        schemeManager: irmaConfiguration.schemeManagers[schemeManagerId],
+        credentialType: irmaConfiguration.credentialTypes[id],
+        signedOn: null,
+        expires: null,
+        attributes: null,
+        revoked: null,
+        hash: null);
+  }
 }
 
 @JsonSerializable(nullable: false)
@@ -86,6 +107,8 @@ class RawCredential {
     this.expires,
     this.attributes,
     this.hash,
+    this.revoked,
+    this.revocationSupported,
   });
 
   @JsonKey(name: 'ID')
@@ -108,6 +131,12 @@ class RawCredential {
 
   @JsonKey(name: 'Hash')
   final String hash;
+
+  @JsonKey(name: 'Revoked')
+  final bool revoked;
+
+  @JsonKey(name: 'RevocationSupported')
+  final bool revocationSupported;
 
   factory RawCredential.fromJson(Map<String, dynamic> json) => _$RawCredentialFromJson(json);
 
