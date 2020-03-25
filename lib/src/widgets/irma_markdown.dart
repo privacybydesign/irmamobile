@@ -1,28 +1,41 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:irmamobile/src/screens/webview/webview_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class IrmaMarkdown extends StatelessWidget {
-  final String data;
+  final String _data;
+  final MarkdownStyleSheet styleSheet;
 
-  const IrmaMarkdown({
-    @required this.data,
+  const IrmaMarkdown(
+    this._data, {
+    this.styleSheet,
   });
 
   @override
   Widget build(BuildContext context) {
     return MarkdownBody(
-      selectable: false, // TODO why? For a11y maybe selectable is better?
-      data: data,
+      data: _data,
+
+      // TODO: Why this choice? For a11y maybe selectable is better?
+      selectable: false,
+
+      // Effectively disable image rendering (to prevent remote image loading)
       imageBuilder: (Uri uri) => Container(),
+
+      // Define small stylesheet, and merge in any passed styleSheet
       styleSheet: MarkdownStyleSheet(
         strong: IrmaTheme.of(context).textTheme.body2,
         a: IrmaTheme.of(context).hyperlinkTextStyle,
+
+        // TODO: Remove this textScaleFactor option when this PR has merged:
+        // https://github.com/flutter/flutter_markdown/pull/162
         textScaleFactor: MediaQuery.textScaleFactorOf(
-            context), // TODO remove that addition when "https://github.com/flutter/flutter_markdown/pull/162" is merged
-      ),
+          context,
+        ),
+      ).merge(styleSheet),
+
+      // View links in in-app browser
       onTapLink: (href) {
         Navigator.push(
           context,

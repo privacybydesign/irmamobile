@@ -3,6 +3,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/util/translated_text.dart';
 
 class Carousel extends StatefulWidget {
   final DisCon<CredentialAttribute> candidatesDisCon;
@@ -120,9 +121,9 @@ class _CarouselState extends State<Carousel> {
                 ),
                 const Spacer(flex: 3),
                 Center(
-                  child: Text(
-                    FlutterI18n.translate(
-                        context, 'disclosure.choices', {"choices": widget.candidatesDisCon.length.toString()}),
+                  child: TranslatedText(
+                    'disclosure.choices',
+                    translationParams: {"choices": widget.candidatesDisCon.length.toString()},
                     style: IrmaTheme.of(context)
                         .textTheme
                         .body1

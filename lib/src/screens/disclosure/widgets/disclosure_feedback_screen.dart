@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/util/translated_text.dart';
 import 'package:irmamobile/src/widgets/irma_outlined_button.dart';
 
 class DisclosureFeedbackScreen extends StatelessWidget {
@@ -32,21 +33,15 @@ class DisclosureFeedbackScreen extends StatelessWidget {
             color: success ? IrmaTheme.of(context).interactionValid : IrmaTheme.of(context).interactionAlert,
           ),
           const SizedBox(height: 43),
-          Text(
-            FlutterI18n.translate(
-              context,
-              "disclosure.feedback.header.$success",
-              {"otherParty": otherParty},
-            ),
+          TranslatedText(
+            "disclosure.feedback.header.$success",
+            translationParams: {"otherParty": otherParty},
             style: Theme.of(context).textTheme.display3,
           ),
           const SizedBox(height: 10),
-          Text(
-            FlutterI18n.translate(
-              context,
-              "disclosure.feedback.text.$success",
-              {"otherParty": otherParty},
-            ),
+          TranslatedText(
+            "disclosure.feedback.text.$success",
+            translationParams: {"otherParty": otherParty},
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 38),
