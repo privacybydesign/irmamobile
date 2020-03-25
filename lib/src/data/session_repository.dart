@@ -59,15 +59,24 @@ class SessionRepository {
         clientReturnURL: event.clientReturnURL,
       );
     } else if (event is RequestVerificationPermissionSessionEvent) {
+      final condiscon = ConDisCon.fromRaw<DisclosureCandidate, CredentialAttribute>(
+        event.disclosuresCandidates,
+        (disclosureCandidate) =>
+            CredentialAttribute.fromDisclosureCandidate(irmaConfiguration, credentials, disclosureCandidate),
+      );
       return prevState.copyWith(
         status: SessionStatus.requestPermission,
         serverName: event.serverName,
         isSignatureSession: event.isSignatureSession,
         signedMessage: event.signedMessage,
-        disclosuresCandidates: ConDisCon.fromRaw<DisclosureCandidate, CredentialAttribute>(event.disclosuresCandidates,
-            (disclosureCandidate) {
-          return CredentialAttribute.fromDisclosureCandidate(irmaConfiguration, credentials, disclosureCandidate);
-        }),
+        disclosureIndices: List<int>.filled(event.disclosuresCandidates.length, 0),
+        disclosureChoices: _initialDisclosureChoices(condiscon),
+        disclosuresCandidates: condiscon,
+      );
+    } else if (event is DisclosureChoiceUpdateSessionEvent) {
+      return prevState.copyWith(
+        disclosureIndices: List<int>.of(prevState.disclosureIndices)..insert(event.disconIndex, event.conIndex),
+        disclosureChoices: _updateDisclosureChoices(prevState, event),
       );
     } else if (event is SuccessSessionEvent) {
       return prevState.copyWith(
@@ -83,4 +92,15 @@ class SessionRepository {
       (sessionStates) => sessionStates[sessionID],
     );
   }
+
+  static ConCon<AttributeIdentifier> _initialDisclosureChoices(ConDisCon<CredentialAttribute> list) => ConCon(list.map(
+        (discon) => Con(discon[0].map((attr) => AttributeIdentifier.fromCredentialAttribute(attr))),
+      ));
+
+  static ConCon<AttributeIdentifier> _updateDisclosureChoices(
+          SessionState prevState, DisclosureChoiceUpdateSessionEvent event) =>
+      ConCon(List<Con<AttributeIdentifier>>.of(prevState.disclosureChoices)
+        ..[event.disconIndex] = Con(prevState.disclosuresCandidates[event.disconIndex][event.conIndex]
+            .map((attr) => AttributeIdentifier.fromCredentialAttribute(attr))
+            .toList()));
 }

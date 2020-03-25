@@ -61,6 +61,13 @@ class RespondPinEvent extends SessionEvent {
   Map<String, dynamic> toJson() => _$RespondPinEventToJson(this);
 }
 
+class DisclosureChoiceUpdateSessionEvent extends SessionEvent {
+  int disconIndex;
+  int conIndex;
+
+  DisclosureChoiceUpdateSessionEvent({int sessionID, this.disconIndex, this.conIndex}) : super(sessionID);
+}
+
 @JsonSerializable()
 class DismissSessionEvent extends SessionEvent {
   DismissSessionEvent({int sessionID}) : super(sessionID);

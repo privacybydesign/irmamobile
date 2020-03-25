@@ -6,8 +6,12 @@ import 'package:irmamobile/src/theme/theme.dart';
 
 class Carousel extends StatefulWidget {
   final DisCon<CredentialAttribute> candidatesDisCon;
+  final ValueChanged<int> onCurrentPageUpdate;
 
-  const Carousel({@required this.candidatesDisCon});
+  const Carousel({
+    @required this.candidatesDisCon,
+    @required this.onCurrentPageUpdate,
+  });
 
   @override
   _CarouselState createState() => _CarouselState();
@@ -17,9 +21,15 @@ class _CarouselState extends State<Carousel> {
   final _lang = 'nl';
   final GlobalKey _keyStackedIndex = GlobalKey();
   final _animationDuration = 250;
+  int _currentPage = 0;
 
   double height;
-  int currentPage = 0;
+
+  int get currentPage => _currentPage;
+  set currentPage(int val) {
+    _currentPage = val;
+    widget.onCurrentPageUpdate(val);
+  }
 
   final _controller = PageController();
 

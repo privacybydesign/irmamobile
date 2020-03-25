@@ -48,6 +48,11 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
 
   bool _displayArrowBack = false;
 
+  void carouselPageUpdate(int disconIndex, int conIndex) {
+    _dispatchSessionEvent(DisclosureChoiceUpdateSessionEvent(disconIndex: disconIndex, conIndex: conIndex),
+        isBridgedEvent: false);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -102,9 +107,9 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     ));
   }
 
-  void _dispatchSessionEvent(SessionEvent event) {
+  void _dispatchSessionEvent(SessionEvent event, {bool isBridgedEvent = true}) {
     event.sessionID = widget.arguments.sessionID;
-    _repo.bridgedDispatch(event);
+    _repo.dispatch(event, isBridgedEvent: isBridgedEvent);
   }
 
   void _dismissSession() {
@@ -123,11 +128,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   void _givePermission(SessionState session) {
     _dispatchSessionEvent(RespondPermissionEvent(
       proceed: true,
-      disclosureChoices: session.disclosuresCandidates.map((discon) {
-        return discon.first
-            .map((credentialAttribute) => AttributeIdentifier.fromCredentialAttribute(credentialAttribute))
-            .toList();
-      }).toList(),
+      disclosureChoices: session.disclosureChoices,
     ));
   }
 
@@ -229,7 +230,10 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
                         Divider(
                           color: IrmaTheme.of(context).grayscale80,
                         ),
-                      Carousel(candidatesDisCon: entry.value)
+                      Carousel(
+                        candidatesDisCon: entry.value,
+                        onCurrentPageUpdate: (int page) => carouselPageUpdate(entry.key, page),
+                      ),
                     ],
                   )
                   .toList(),
