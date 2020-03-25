@@ -95,7 +95,7 @@ type enrollmentSuccessEvent struct {
 	SchemeManagerID irma.SchemeManagerIdentifier
 }
 
-type changePinFailureEvent struct {
+type changePinErrorEvent struct {
 	SchemeManagerID irma.SchemeManagerIdentifier
 	Error           *sessionError
 }
@@ -104,14 +104,10 @@ type changePinSuccessEvent struct {
 	SchemeManagerID irma.SchemeManagerIdentifier
 }
 
-type changePinIncorrect struct {
+type changePinFailedEvent struct {
 	SchemeManagerID   irma.SchemeManagerIdentifier
 	RemainingAttempts int
-}
-
-type changePinBlocked struct {
-	SchemeManagerID irma.SchemeManagerIdentifier
-	Timeout         int
+	Timeout           int
 }
 
 // //

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:irmamobile/src/data/irma_bridge.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/authentication_events.dart';
+import 'package:irmamobile/src/models/change_pin_events.dart';
 import 'package:irmamobile/src/models/credential_events.dart';
 import 'package:irmamobile/src/models/enrollment_events.dart';
 import 'package:irmamobile/src/models/event.dart';
@@ -32,6 +33,10 @@ class IrmaClientBridge extends IrmaBridge {
     AuthenticationSuccessEvent: (j) => AuthenticationSuccessEvent.fromJson(j),
     AuthenticationFailedEvent: (j) => AuthenticationFailedEvent.fromJson(j),
     AuthenticationErrorEvent: (j) => AuthenticationErrorEvent.fromJson(j),
+
+    ChangePinSuccessEvent: (j) => ChangePinSuccessEvent.fromJson(j),
+    ChangePinFailedEvent: (j) => ChangePinFailedEvent.fromJson(j),
+    ChangePinErrorEvent: (j) => ChangePinErrorEvent.fromJson(j),
 
     StatusUpdateSessionEvent: (j) => StatusUpdateSessionEvent.fromJson(j),
     RequestVerificationPermissionSessionEvent: (j) => RequestVerificationPermissionSessionEvent.fromJson(j),

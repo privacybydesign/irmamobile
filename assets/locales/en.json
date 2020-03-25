@@ -243,6 +243,10 @@
       "title": "Change PIN",
       "instruction": "Enter your PIN one more time."
     },
+    "updating_pin": {
+      "header": "One moment please",
+      "details": "Your PIN is being changed"
+    },
     "success": {
       "title": "Success",
       "message": "Your PIN has been changed.",

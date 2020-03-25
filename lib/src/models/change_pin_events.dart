@@ -4,8 +4,10 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'change_pin_events.g.dart';
 
+abstract class ChangePinBaseEvent extends Event {}
+
 @JsonSerializable()
-class ChangePinEvent extends Event {
+class ChangePinEvent extends ChangePinBaseEvent {
   ChangePinEvent({this.oldPin, this.newPin});
 
   @JsonKey(name: 'OldPin')
@@ -19,8 +21,8 @@ class ChangePinEvent extends Event {
 }
 
 @JsonSerializable()
-class ChangePinFailureEvent extends Event {
-  ChangePinFailureEvent({
+class ChangePinErrorEvent extends ChangePinBaseEvent {
+  ChangePinErrorEvent({
     this.schemeManagerID,
     this.error,
   });
@@ -31,12 +33,12 @@ class ChangePinFailureEvent extends Event {
   @JsonKey(name: 'Error')
   SessionError error;
 
-  factory ChangePinFailureEvent.fromJson(Map<String, dynamic> json) => _$ChangePinFailureEventFromJson(json);
-  Map<String, dynamic> toJson() => _$ChangePinFailureEventToJson(this);
+  factory ChangePinErrorEvent.fromJson(Map<String, dynamic> json) => _$ChangePinErrorEventFromJson(json);
+  Map<String, dynamic> toJson() => _$ChangePinErrorEventToJson(this);
 }
 
 @JsonSerializable()
-class ChangePinSuccessEvent extends Event {
+class ChangePinSuccessEvent extends ChangePinBaseEvent {
   ChangePinSuccessEvent({this.schemeManagerID});
 
   @JsonKey(name: 'SchemeManagerID')
@@ -47,8 +49,8 @@ class ChangePinSuccessEvent extends Event {
 }
 
 @JsonSerializable()
-class ChangePinIncorrect extends Event {
-  ChangePinIncorrect({this.schemeManagerID, this.remainingAttempts});
+class ChangePinFailedEvent extends ChangePinBaseEvent {
+  ChangePinFailedEvent({this.schemeManagerID, this.remainingAttempts, this.timeout});
 
   @JsonKey(name: 'SchemeManagerID')
   String schemeManagerID;
@@ -56,20 +58,9 @@ class ChangePinIncorrect extends Event {
   @JsonKey(name: 'RemainingAttempts')
   int remainingAttempts;
 
-  factory ChangePinIncorrect.fromJson(Map<String, dynamic> json) => _$ChangePinIncorrectFromJson(json);
-  Map<String, dynamic> toJson() => _$ChangePinIncorrectToJson(this);
-}
-
-@JsonSerializable()
-class ChangePinBlocked extends Event {
-  ChangePinBlocked({this.schemeManagerID, this.timeout});
-
-  @JsonKey(name: 'SchemeManagerID')
-  String schemeManagerID;
-
   @JsonKey(name: 'Timeout')
   int timeout;
 
-  factory ChangePinBlocked.fromJson(Map<String, dynamic> json) => _$ChangePinBlockedFromJson(json);
-  Map<String, dynamic> toJson() => _$ChangePinBlockedToJson(this);
+  factory ChangePinFailedEvent.fromJson(Map<String, dynamic> json) => _$ChangePinFailedEventFromJson(json);
+  Map<String, dynamic> toJson() => _$ChangePinFailedEventToJson(this);
 }
