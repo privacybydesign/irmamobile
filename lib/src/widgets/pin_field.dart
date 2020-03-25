@@ -209,10 +209,11 @@ class _PinFieldState extends State<PinField> {
               GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () {
-                  FocusScope.of(context).requestFocus(FocusNode());
-                  Future.delayed(const Duration(milliseconds: 100), () {
-                    FocusScope.of(context).requestFocus(focusNode);
-                  });
+                  focusNode.requestFocus();
+                  // FocusScope.of(context).requestFocus(FocusNode());
+                  //Future.delayed(const Duration(milliseconds: 100), () {
+                  //  FocusScope.of(context).requestFocus(focusNode);
+                  //});
                 },
                 child: Container(
                   constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 64),

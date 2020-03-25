@@ -1,5 +1,5 @@
-import 'package:meta/meta.dart';
 import 'package:equatable/equatable.dart';
+import 'package:meta/meta.dart';
 
 class OldPinEntered extends Equatable {
   final String pin;
@@ -8,15 +8,6 @@ class OldPinEntered extends Equatable {
 
   @override
   String toString() => 'OldPinEntered { pin: ${'*' * pin.length} }';
-}
-
-class OldPinValidated extends Equatable {
-  final bool valid;
-
-  OldPinValidated({@required this.valid}) : super([valid]);
-
-  @override
-  String toString() => 'OldPinValidated { valid: $valid }';
 }
 
 class NewPinChosen extends Equatable {

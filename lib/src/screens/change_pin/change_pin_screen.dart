@@ -9,6 +9,7 @@ import 'package:irmamobile/src/screens/change_pin/widgets/confirm_pin.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/enter_error_dialog.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/enter_pin.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/success.dart';
+import 'package:irmamobile/src/screens/change_pin/widgets/updating_pin.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/valdating_pin.dart';
 
 class ChangePinScreen extends StatelessWidget {
@@ -50,6 +51,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
       ChoosePin.routeName: (_) => ChoosePin(
           pinFocusNode: newPinFocusNode, chooseNewPin: chooseNewPin, toggleLongPin: toggleLongPin, cancel: cancel),
       ConfirmPin.routeName: (_) => ConfirmPin(confirmNewPin: confirmNewPin, cancel: () => {}),
+      UpdatingPin.routeName: (_) => UpdatingPin(cancel: cancel),
       Success.routeName: (_) => Success(cancel: cancel),
     };
   }
@@ -89,7 +91,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
           return current.newPinConfirmed != previous.newPinConfirmed ||
               current.oldPinVerified != previous.oldPinVerified ||
               current.validatingPin != previous.validatingPin ||
-              current.retry != previous.retry;
+              current.attemptsRemaining != previous.attemptsRemaining;
         },
         listener: (BuildContext context, ChangePinState state) {
           if (state.newPinConfirmed == ValidationState.valid) {
@@ -107,8 +109,10 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
             );
           } else if (state.oldPinVerified == ValidationState.valid) {
             navigatorKey.currentState.pushReplacementNamed(ChoosePin.routeName);
-          } else if (state.oldPinVerified == ValidationState.invalid) {
-            // show error overlay
+          } else if (state.oldPinVerified == ValidationState.invalid || state.oldPinVerified == ValidationState.error) {
+            // go back
+            navigatorKey.currentState.pop();
+            // and show error overlay
             showDialog(
               context: context,
               builder: (BuildContext context) => EnterErrorDialog(onClose: () async {
@@ -117,11 +121,10 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
                 currentPinFocusNode.requestFocus();
               }),
             );
+          } else if (state.updatingPin == true) {
+            navigatorKey.currentState.pushNamed(UpdatingPin.routeName);
           } else if (state.validatingPin == true) {
             navigatorKey.currentState.pushNamed(ValidatingPin.routeName);
-            Future.delayed(const Duration(seconds: 1), () {
-              bloc.dispatch(OldPinValidated(valid: true));
-            });
           }
         },
         child: Navigator(

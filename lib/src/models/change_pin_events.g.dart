@@ -18,14 +18,14 @@ Map<String, dynamic> _$ChangePinEventToJson(ChangePinEvent instance) => <String,
       'NewPin': instance.newPin,
     };
 
-ChangePinFailureEvent _$ChangePinFailureEventFromJson(Map<String, dynamic> json) {
-  return ChangePinFailureEvent(
+ChangePinErrorEvent _$ChangePinErrorEventFromJson(Map<String, dynamic> json) {
+  return ChangePinErrorEvent(
     schemeManagerID: json['SchemeManagerID'] as String,
     error: json['Error'] == null ? null : SessionError.fromJson(json['Error'] as Map<String, dynamic>),
   );
 }
 
-Map<String, dynamic> _$ChangePinFailureEventToJson(ChangePinFailureEvent instance) => <String, dynamic>{
+Map<String, dynamic> _$ChangePinErrorEventToJson(ChangePinErrorEvent instance) => <String, dynamic>{
       'SchemeManagerID': instance.schemeManagerID,
       'Error': instance.error,
     };
@@ -40,26 +40,16 @@ Map<String, dynamic> _$ChangePinSuccessEventToJson(ChangePinSuccessEvent instanc
       'SchemeManagerID': instance.schemeManagerID,
     };
 
-ChangePinIncorrect _$ChangePinIncorrectFromJson(Map<String, dynamic> json) {
-  return ChangePinIncorrect(
+ChangePinFailedEvent _$ChangePinFailedEventFromJson(Map<String, dynamic> json) {
+  return ChangePinFailedEvent(
     schemeManagerID: json['SchemeManagerID'] as String,
     remainingAttempts: json['RemainingAttempts'] as int,
-  );
-}
-
-Map<String, dynamic> _$ChangePinIncorrectToJson(ChangePinIncorrect instance) => <String, dynamic>{
-      'SchemeManagerID': instance.schemeManagerID,
-      'RemainingAttempts': instance.remainingAttempts,
-    };
-
-ChangePinBlocked _$ChangePinBlockedFromJson(Map<String, dynamic> json) {
-  return ChangePinBlocked(
-    schemeManagerID: json['SchemeManagerID'] as String,
     timeout: json['Timeout'] as int,
   );
 }
 
-Map<String, dynamic> _$ChangePinBlockedToJson(ChangePinBlocked instance) => <String, dynamic>{
+Map<String, dynamic> _$ChangePinFailedEventToJson(ChangePinFailedEvent instance) => <String, dynamic>{
       'SchemeManagerID': instance.schemeManagerID,
+      'RemainingAttempts': instance.remainingAttempts,
       'Timeout': instance.timeout,
     };

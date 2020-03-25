@@ -243,6 +243,10 @@
       "title": "Pincode veranderen",
       "instruction": "Vul je nieuwe pincode nog een keer in."
     },
+    "updating_pin": {
+      "header": "Even geduld graag",
+      "details": "Je pincode wordt veranderd"
+    },
     "success": {
       "title": "Gelukt",
       "message": "Je pincode is veranderd.",
