@@ -144,6 +144,13 @@ class CredentialAttribute {
     }
   }
 
+  bool get choosable =>
+      !notRevokable &&
+      credential.expired != null &&
+      !credential.expired &&
+      credential.revoked != null &&
+      !credential.revoked;
+
   factory CredentialAttribute.fromDisclosureCandidate(
       IrmaConfiguration irmaConfiguration, Credentials credentials, DisclosureCandidate candidate) {
     final hash = candidate.credentialHash;
@@ -190,19 +197,13 @@ class DisclosedAttribute {
 
 @JsonSerializable()
 class DisclosureCandidate {
-  DisclosureCandidate({this.type, this.credentialHash, this.expired, this.revoked, this.notRevokable});
+  DisclosureCandidate({this.type, this.credentialHash, this.notRevokable});
 
   @JsonKey(name: 'Type')
   String type;
 
   @JsonKey(name: 'CredentialHash')
   String credentialHash;
-
-  @JsonKey(name: 'Expired')
-  bool expired;
-
-  @JsonKey(name: 'Revoked')
-  bool revoked;
 
   @JsonKey(name: 'NotRevokable')
   bool notRevokable;

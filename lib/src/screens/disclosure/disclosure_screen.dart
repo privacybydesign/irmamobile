@@ -179,11 +179,12 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
           return Container(height: 0);
         }
 
+        final state = sessionStateSnapshot.data;
         return IrmaBottomBar(
           primaryButtonLabel: FlutterI18n.translate(context, "disclosure.navigation_bar.yes"),
-          onPrimaryPressed: () => _givePermission(sessionStateSnapshot.data),
+          onPrimaryPressed: state.canDisclose ? () => _givePermission(state) : null,
           secondaryButtonLabel: FlutterI18n.translate(context, "disclosure.navigation_bar.no"),
-          onSecondaryPressed: () => _declinePermission(context, sessionStateSnapshot.data.serverName.translate(_lang)),
+          onSecondaryPressed: () => _declinePermission(context, state.serverName.translate(_lang)),
         );
       },
     );

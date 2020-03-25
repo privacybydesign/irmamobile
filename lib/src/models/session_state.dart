@@ -25,6 +25,12 @@ class SessionState {
       this.disclosureIndices,
       this.disclosureChoices});
 
+  bool get canDisclose => disclosuresCandidates
+      .asMap()
+      .map((i, discon) => MapEntry(i, discon[disclosureIndices[i]]))
+      .values
+      .every((con) => con.every((attr) => attr.choosable));
+
   SessionState copyWith({
     bool continueOnSecondDevice,
     SessionStatus status,

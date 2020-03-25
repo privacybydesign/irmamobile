@@ -75,7 +75,7 @@ class SessionRepository {
       );
     } else if (event is DisclosureChoiceUpdateSessionEvent) {
       return prevState.copyWith(
-        disclosureIndices: List<int>.of(prevState.disclosureIndices)..insert(event.disconIndex, event.conIndex),
+        disclosureIndices: List<int>.of(prevState.disclosureIndices)..[event.disconIndex] = event.conIndex,
         disclosureChoices: _updateDisclosureChoices(prevState, event),
       );
     } else if (event is SuccessSessionEvent) {
@@ -97,10 +97,11 @@ class SessionRepository {
         (discon) => Con(discon[0].map((attr) => AttributeIdentifier.fromCredentialAttribute(attr))),
       ));
 
+  // Given session state and a choice event, return an updated list of list of attributes that will be disclosed.
   static ConCon<AttributeIdentifier> _updateDisclosureChoices(
-          SessionState prevState, DisclosureChoiceUpdateSessionEvent event) =>
-      ConCon(List<Con<AttributeIdentifier>>.of(prevState.disclosureChoices)
-        ..[event.disconIndex] = Con(prevState.disclosuresCandidates[event.disconIndex][event.conIndex]
+          SessionState state, DisclosureChoiceUpdateSessionEvent event) =>
+      ConCon(List<Con<AttributeIdentifier>>.of(state.disclosureChoices)
+        ..[event.disconIndex] = Con(state.disclosuresCandidates[event.disconIndex][event.conIndex]
             .map((attr) => AttributeIdentifier.fromCredentialAttribute(attr))
             .toList()));
 }
