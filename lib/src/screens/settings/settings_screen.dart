@@ -99,8 +99,8 @@ Future<void> openWalletResetDialog(BuildContext context) async {
     context: context,
     barrierDismissible: false,
     builder: (BuildContext context) => IrmaDialog(
-      title: 'settings.advanced.delete_title',
-      content: 'settings.advanced.delete_content',
+      title: FlutterI18n.translate(context, 'settings.advanced.delete_title'),
+      content: FlutterI18n.translate(context, 'settings.advanced.delete_content'),
       child: Wrap(
         direction: Axis.horizontal,
         verticalDirection: VerticalDirection.up,
