@@ -284,8 +284,8 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) => IrmaDialog(
-        title: 'disclosure.explanation.title',
-        content: 'disclosure.explanation.body',
+        title: FlutterI18n.translate(context, 'disclosure.explanation.title'),
+        content: FlutterI18n.translate(context, 'disclosure.explanation.body'),
         image: 'assets/disclosure/disclosure-explanation.webp',
         child: Wrap(
           direction: Axis.horizontal,

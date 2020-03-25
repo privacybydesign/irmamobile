@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
@@ -33,8 +34,8 @@ class ProvideEmailActions extends StatelessWidget {
                     showDialog(
                       context: context,
                       builder: (BuildContext context) => IrmaDialog(
-                        title: 'enrollment.provide_email.skip_title',
-                        content: 'enrollment.provide_email.skip_content',
+                        title: FlutterI18n.translate(context, 'enrollment.provide_email.skip_title'),
+                        content: FlutterI18n.translate(context, 'enrollment.provide_email.skip_content'),
                         child: Wrap(
                           direction: Axis.horizontal,
                           verticalDirection: VerticalDirection.up,

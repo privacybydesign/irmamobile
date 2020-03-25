@@ -7,9 +7,10 @@ class IrmaDialog extends StatelessWidget {
   final String title;
   final String content;
   final Widget child;
+  final Function() onClose;
   final String image;
 
-  const IrmaDialog({@required this.title, @required this.content, @required this.child, this.image});
+  const IrmaDialog({@required this.title, @required this.content, @required this.child, this.image, this.onClose});
 
   @override
   Widget build(BuildContext context) {
@@ -50,12 +51,12 @@ class IrmaDialog extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 Text(
-                                  FlutterI18n.translate(context, title),
+                                  title,
                                   style: IrmaTheme.of(context).textTheme.display2,
                                 ),
                                 SizedBox(height: IrmaTheme.of(context).tinySpacing),
                                 Text(
-                                  FlutterI18n.translate(context, content),
+                                  content,
                                   style: IrmaTheme.of(context).textTheme.body1,
                                 ),
                                 if (image != null) ...[
@@ -82,7 +83,7 @@ class IrmaDialog extends StatelessWidget {
                       iconSize: 18.0,
                       icon: Icon(IrmaIcons.close, semanticLabel: FlutterI18n.translate(context, "accessibility.close")),
                       color: IrmaTheme.of(context).primaryBlue,
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: onClose ?? () => Navigator.pop(context),
                     ),
                   ),
                 ],
