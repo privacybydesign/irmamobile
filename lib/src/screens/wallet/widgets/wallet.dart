@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/credential_events.dart';
 import 'package:irmamobile/src/models/credentials.dart';
@@ -92,6 +93,9 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
   // Offset of minimized cards
   final _minimizedCardOffset = -20;
+
+  // Height of interactive bottom to toggle wallet state between tightlyfolded and folded
+  final _walletBottomInteractive = 0.7;
 
   AnimationController _cardAnimationController;
   AnimationController _loginLogoutAnimationController;
@@ -276,6 +280,30 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                             child: SvgPicture.asset(
                               'assets/wallet/wallet_front.svg',
                               width: screenWidth,
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            height: screenWidth * _walletAspectRatio * _walletBottomInteractive,
+                            width: screenWidth,
+                            child: Semantics(
+                              button: true,
+                              label: FlutterI18n.translate(context, 'wallet.toggle'),
+                              child: GestureDetector(
+                                onTap: () {
+                                  switch (_currentState) {
+                                    case WalletState.tightlyfolded:
+                                      setNewState(WalletState.folded);
+                                      break;
+                                    case WalletState.folded:
+                                      setNewState(WalletState.tightlyfolded);
+                                      break;
+                                    default:
+                                      setNewState(_cardInStackState);
+                                      break;
+                                  }
+                                },
+                              ),
                             ),
                           ),
                           Positioned(
