@@ -9,22 +9,28 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
+import io.flutter.plugin.common.PluginRegistry.NewIntentListener;
 import irmagobridge.Irmagobridge;
 
-public class IrmaMobileBridgePlugin implements MethodCallHandler, irmagobridge.IrmaMobileBridge {
-  private Context context;
-  private MethodChannel channel;
-  private Activity activity;
+import android.net.Uri;
+import android.content.Intent;
 
-  public static void registerWith(Registrar registrar) {
+public class IrmaMobileBridgePlugin implements MethodCallHandler, irmagobridge.IrmaMobileBridge, NewIntentListener {
+  private MethodChannel channel;
+  private Context context;
+  private Activity activity;
+  private Uri initialURL;
+
+  public static void registerWith(Registrar registrar, Uri initialURL) {
     MethodChannel channel = new MethodChannel(registrar.messenger(), "irma.app/irma_mobile_bridge");
-    channel.setMethodCallHandler(new IrmaMobileBridgePlugin(registrar, channel));
+    channel.setMethodCallHandler(new IrmaMobileBridgePlugin(registrar, channel, initialURL));
   }
 
-  public IrmaMobileBridgePlugin(Registrar registrar, MethodChannel channel) {
+  public IrmaMobileBridgePlugin(Registrar registrar, MethodChannel channel, Uri initialURL) {
     this.channel = channel;
     this.context = registrar.context();
     this.activity = registrar.activity();
+    this.initialURL = initialURL;
 
     IrmaConfigurationCopier copier = new IrmaConfigurationCopier(context);
 
@@ -34,11 +40,16 @@ public class IrmaMobileBridgePlugin implements MethodCallHandler, irmagobridge.I
     } catch (PackageManager.NameNotFoundException e) {
       throw new RuntimeException(e);
     }
+
+    registrar.addNewIntentListener(this);
   }
 
   @Override
   public void onMethodCall(MethodCall call, Result result) {
-    Irmagobridge.dispatchFromNative(call.method, (String)call.arguments);
+    if (call.method.equals("AppReadyEvent") && initialURL != null) {
+      channel.invokeMethod("HandleURLEvent", String.format("{\"url\": \"%s\", \"isInitialURL\": true}", initialURL));
+    }
+    Irmagobridge.dispatchFromNative(call.method, (String) call.arguments);
     result.success(null);
   }
 
@@ -53,8 +64,16 @@ public class IrmaMobileBridgePlugin implements MethodCallHandler, irmagobridge.I
   }
 
   @Override
+  public boolean onNewIntent(Intent intent) {
+    Uri link = intent.getData();
+    if (link != null)
+      channel.invokeMethod("HandleURLEvent", String.format("{\"url\": \"%s\"}", link));
+    return true;
+  }
+
+  @Override
   public void debugLog(String message) {
-      // TODO: Only make this print in development
-      System.out.printf("[IrmaMobileBridgePlugin] %s\n", message);
+    // TODO: Only make this print in development
+    System.out.printf("[IrmaMobileBridgePlugin] %s\n", message);
   }
 }
