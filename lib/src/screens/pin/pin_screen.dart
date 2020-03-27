@@ -13,6 +13,9 @@ import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_text_button.dart';
 import 'package:irmamobile/src/widgets/pin_field.dart';
 
+import '../../data/irma_preferences.dart';
+import '../scanner/scanner_screen.dart';
+
 class PinScreen extends StatefulWidget {
   static const String routeName = '/pin-screen';
 
@@ -33,9 +36,14 @@ class _PinScreenState extends State<PinScreen> {
     super.initState();
     _focusNode = FocusNode();
 
-    _pinBlocSubscription = _pinBloc.state.listen((pinState) {
+    _pinBlocSubscription = _pinBloc.state.listen((pinState) async {
       if (pinState.locked == false) {
         Navigator.of(context).pop();
+        final startQrScanner = await IrmaPreferences.get().getStartQRScan().first;
+        if (startQrScanner) {
+          Navigator.of(context).pushNamed(ScannerScreen.routeName);
+        }
+
         _pinBlocSubscription.cancel();
       }
       if (pinState.pinInvalid) {
