@@ -12,6 +12,7 @@ class SessionState {
   final String signedMessage;
   final List<int> disclosureIndices;
   final ConCon<AttributeIdentifier> disclosureChoices;
+  final bool satisfiable;
 
   SessionState(
       {this.sessionID,
@@ -23,7 +24,8 @@ class SessionState {
       this.isSignatureSession,
       this.signedMessage,
       this.disclosureIndices,
-      this.disclosureChoices});
+      this.disclosureChoices,
+      this.satisfiable});
 
   bool get canDisclose => disclosuresCandidates
       .asMap()
@@ -41,6 +43,7 @@ class SessionState {
     String signedMessage,
     List<int> disclosureIndices,
     ConCon<AttributeIdentifier> disclosureChoices,
+    bool satisfiable,
   }) {
     return SessionState(
       sessionID: sessionID,
@@ -53,6 +56,7 @@ class SessionState {
       signedMessage: signedMessage ?? this.signedMessage,
       disclosureIndices: disclosureIndices ?? this.disclosureIndices,
       disclosureChoices: disclosureChoices ?? this.disclosureChoices,
+      satisfiable: satisfiable ?? this.satisfiable,
     );
   }
 }

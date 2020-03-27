@@ -72,6 +72,7 @@ class SessionRepository {
         disclosureIndices: List<int>.filled(event.disclosuresCandidates.length, 0),
         disclosureChoices: _initialDisclosureChoices(condiscon),
         disclosuresCandidates: condiscon,
+        satisfiable: event.satisfiable,
       );
     } else if (event is DisclosureChoiceUpdateSessionEvent) {
       return prevState.copyWith(

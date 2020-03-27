@@ -357,6 +357,10 @@
       "start": "Do you wish to disclose this to ",
       "end": " ?"
     },
+    "unsatisfiable_header": {
+      "start": "You don't have all data ",
+      "end": " is asking for in your IRMA app."
+    },
     "signing_header": " asks you to sign a message",
     "issuer": "Source",
     "choices": "{choices} choices",
@@ -370,7 +374,8 @@
     },
     "navigation_bar": {
       "yes": "Yes",
-      "no": "No, rather not"
+      "no": "No, rather not",
+      "back": "Back"
     },
     "redirect": "You are being redirected back to the webpage...",
     "feedback": {

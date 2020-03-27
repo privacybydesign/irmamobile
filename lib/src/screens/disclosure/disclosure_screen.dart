@@ -133,19 +133,27 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   }
 
   Widget _buildDisclosureHeader(SessionState session) {
+    return _buildText(
+      FlutterI18n.translate(context, 'disclosure.disclosure_header.start'),
+      session.serverName.translate(_lang),
+      FlutterI18n.translate(context, 'disclosure.disclosure_header.end'),
+    );
+  }
+
+  Widget _buildUnsatisfiableHeader(SessionState session) {
+    return _buildText(
+      FlutterI18n.translate(context, 'disclosure.unsatisfiable_header.start'),
+      session.serverName.translate(_lang),
+      FlutterI18n.translate(context, 'disclosure.unsatisfiable_header.end'),
+    );
+  }
+
+  Widget _buildText(String start, String server, String end) {
     return Text.rich(
       TextSpan(children: [
-        TextSpan(
-            text: FlutterI18n.translate(context, 'disclosure.disclosure_header.start'),
-            style: IrmaTheme.of(context).textTheme.body1),
-        TextSpan(
-          text: session.serverName.translate(_lang),
-          style: IrmaTheme.of(context).textTheme.body2,
-        ),
-        TextSpan(
-          text: FlutterI18n.translate(context, 'disclosure.disclosure_header.end'),
-          style: IrmaTheme.of(context).textTheme.body1,
-        ),
+        TextSpan(text: start, style: IrmaTheme.of(context).textTheme.body1),
+        TextSpan(text: server, style: IrmaTheme.of(context).textTheme.body2),
+        TextSpan(text: end, style: IrmaTheme.of(context).textTheme.body1),
       ]),
     );
   }
@@ -180,12 +188,17 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
         }
 
         final state = sessionStateSnapshot.data;
-        return IrmaBottomBar(
-          primaryButtonLabel: FlutterI18n.translate(context, "disclosure.navigation_bar.yes"),
-          onPrimaryPressed: state.canDisclose ? () => _givePermission(state) : null,
-          secondaryButtonLabel: FlutterI18n.translate(context, "disclosure.navigation_bar.no"),
-          onSecondaryPressed: () => _declinePermission(context, state.serverName.translate(_lang)),
-        );
+        return state.satisfiable
+            ? IrmaBottomBar(
+                primaryButtonLabel: FlutterI18n.translate(context, "disclosure.navigation_bar.yes"),
+                onPrimaryPressed: state.canDisclose ? () => _givePermission(state) : null,
+                secondaryButtonLabel: FlutterI18n.translate(context, "disclosure.navigation_bar.no"),
+                onSecondaryPressed: () => _declinePermission(context, state.serverName.translate(_lang)),
+              )
+            : IrmaBottomBar(
+                primaryButtonLabel: FlutterI18n.translate(context, "disclosure.navigation_bar.back"),
+                onPrimaryPressed: () => _declinePermission(context, state.serverName.translate(_lang)),
+              );
       },
     );
   }
@@ -208,7 +221,9 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
             vertical: IrmaTheme.of(context).mediumSpacing,
             horizontal: IrmaTheme.of(context).smallSpacing,
           ),
-          child: session.isSignatureSession ? _buildSigningHeader(session) : _buildDisclosureHeader(session),
+          child: session.satisfiable
+              ? (session.isSignatureSession ? _buildSigningHeader(session) : _buildDisclosureHeader(session))
+              : _buildUnsatisfiableHeader(session),
         ),
         Card(
           elevation: 1.0,
