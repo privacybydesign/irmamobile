@@ -277,14 +277,15 @@
     "invalid_close": "Try again.",
     "blocked_title": "Account blocked.",
     "blocked_pin": "Your account has been blocked for {blocked} seconds. Please try again later",
-    "blocked_close": "Try again."
+    "blocked_close": "Try again.",
+    "done": "Done",
+    "view": "Show PIN",
+    "hide": "Hide PIN"
   },
   "pin": {
     "title": "Login",
     "subtitle": "Enter your PIN",
     "button_forgot": "PIN forgotten",
-    "view": "Show PIN",
-    "hide": "Hide PIN",
     "button_block": "Block IRMA"
   },
   "error": {

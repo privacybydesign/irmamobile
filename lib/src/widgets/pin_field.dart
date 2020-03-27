@@ -156,7 +156,7 @@ class _PinFieldState extends State<PinField> {
       children: <Widget>[
         AnimatedContainer(
           duration: Duration(milliseconds: widget.longPin ? 200 : 0),
-          width: widget.longPin ? MediaQuery.of(context).size.width - theme.hugeSpacing : 0.1,
+          width: widget.longPin ? MediaQuery.of(context).size.width - 2 * theme.hugeSpacing : 0.1,
           child: TextFormField(
             controller: _textEditingController,
             focusNode: focusNode,
@@ -209,11 +209,10 @@ class _PinFieldState extends State<PinField> {
               GestureDetector(
                 behavior: HitTestBehavior.opaque,
                 onTap: () {
-                  focusNode.requestFocus();
-                  // FocusScope.of(context).requestFocus(FocusNode());
-                  //Future.delayed(const Duration(milliseconds: 100), () {
-                  //  FocusScope.of(context).requestFocus(focusNode);
-                  //});
+                  FocusScope.of(context).requestFocus(FocusNode());
+                  Future.delayed(const Duration(milliseconds: 100), () {
+                    FocusScope.of(context).requestFocus(focusNode);
+                  });
                 },
                 child: Container(
                   constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 64),
@@ -222,6 +221,24 @@ class _PinFieldState extends State<PinField> {
               ),
             ],
           ),
+        if (widget.longPin)
+          SizedBox(
+            width: theme.largeSpacing,
+            height: theme.largeSpacing,
+            child: IconButton(
+              iconSize: theme.defaultSpacing,
+              icon: Icon(
+                IrmaIcons.valid,
+                semanticLabel: FlutterI18n.translate(context, "pin_common.done"),
+              ),
+              onPressed: () {
+                final val = _textEditingController.text;
+                if (val.length >= widget.minLength && val.length <= widget.maxLength && widget.onSubmit != null) {
+                  widget.onSubmit(val);
+                }
+              },
+            ),
+          ),
         SizedBox(
           width: theme.largeSpacing,
           height: theme.largeSpacing,
@@ -229,7 +246,7 @@ class _PinFieldState extends State<PinField> {
             iconSize: obscureText ? theme.defaultSpacing : theme.mediumSpacing,
             icon: Icon(
               obscureText ? IrmaIcons.view : IrmaIcons.hide,
-              semanticLabel: FlutterI18n.translate(context, obscureText ? "pin.view" : "pin.hide"),
+              semanticLabel: FlutterI18n.translate(context, obscureText ? "pin_common.view" : "pin_common.hide"),
               color: theme.grayscale40,
             ),
             onPressed: () {
