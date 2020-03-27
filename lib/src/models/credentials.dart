@@ -85,7 +85,7 @@ class Credential {
     final schemeManagerId = parts[0];
     final fullIssuerId = "$schemeManagerId.${parts[1]}";
     return Credential(
-        id: id,
+        id: parts.last,
         issuer: irmaConfiguration.issuers[fullIssuerId],
         schemeManager: irmaConfiguration.schemeManagers[schemeManagerId],
         credentialType: irmaConfiguration.credentialTypes[id],
@@ -95,6 +95,10 @@ class Credential {
         revoked: null,
         hash: null);
   }
+
+  String get fullIssuerId => "${issuer.fullId}";
+
+  String get fullId => "$fullIssuerId.$id";
 }
 
 @JsonSerializable(nullable: false)

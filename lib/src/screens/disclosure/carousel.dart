@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/models/attributes.dart';
+import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
@@ -219,69 +220,96 @@ class _CarouselState extends State<Carousel> {
   }
 
   Widget _buildCarouselWidget(Con<CredentialAttribute> candidatesCon) {
+    // Transform candidatesCon into a list where attributes of the same issuer
+    // are grouped together. This assumes those attributes are always
+    // adjacent within the specified con, which is guaranteed by irmago.
+    final credentials = candidatesCon.fold(
+      <List<CredentialAttribute>>[],
+      (List<List<CredentialAttribute>> list, attr) =>
+          list.isNotEmpty && list.last.last.credential.fullIssuerId == attr.credential.fullIssuerId
+              ? (list..last.add(attr))
+              : (list..add([attr])),
+    ).map((list) => _DisclosureCredential(attributes: Con(list)));
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).mediumSpacing),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          ...candidatesCon
-              .map(
-                (candidate) => Padding(
-                  padding: EdgeInsets.only(
-                    top: IrmaTheme.of(context).smallSpacing,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        candidate.attributeType.name[_lang],
-                        style: IrmaTheme.of(context)
-                            .textTheme
-                            .body1
-                            .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 14),
-                        overflow: TextOverflow.ellipsis,
+        children: [
+          ...credentials
+              .map((cred) => <Widget>[
+                    ...cred.attributes
+                        .map(
+                          (attribute) => Padding(
+                            padding: EdgeInsets.only(top: IrmaTheme.of(context).smallSpacing),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  attribute.attributeType.name[_lang],
+                                  style: IrmaTheme.of(context)
+                                      .textTheme
+                                      .body1
+                                      .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 14),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                _buildCandidateValue(attribute),
+                              ],
+                            ),
+                          ),
+                        )
+                        .toList(),
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).smallSpacing),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            child: Opacity(
+                              opacity: 0.5,
+                              child: Text(
+                                FlutterI18n.translate(context, 'disclosure.issuer'),
+                                style: IrmaTheme.of(context)
+                                    .textTheme
+                                    .body1
+                                    .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left: IrmaTheme.of(context).smallSpacing),
+                            child: Text(
+                              cred.issuer[_lang],
+                              style: IrmaTheme.of(context)
+                                  .textTheme
+                                  .body1
+                                  .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
-                      _buildCandidateValue(candidate),
-                    ],
-                  ),
-                ),
-              )
+                    )
+                  ])
+              .expand((f) => f)
               .toList(),
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).smallSpacing),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  child: Opacity(
-                    opacity: 0.5,
-                    child: Text(
-                      FlutterI18n.translate(context, 'disclosure.issuer'),
-                      style: IrmaTheme.of(context)
-                          .textTheme
-                          .body1
-                          .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: IrmaTheme.of(context).smallSpacing),
-                  child: Text(
-                    candidatesCon.first.credential.issuer.name[_lang], // TODO: This is wrong
-                    style: IrmaTheme.of(context)
-                        .textTheme
-                        .body1
-                        .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          )
         ],
       ),
     );
   }
+}
+
+class _DisclosureCredential {
+  final Con<CredentialAttribute> attributes;
+  final String id;
+  final TranslatedValue issuer;
+
+  _DisclosureCredential({@required this.attributes})
+      : assert(attributes != null &&
+            attributes.isNotEmpty &&
+            attributes.every((attr) => attr.credential.fullIssuerId == attributes.first.credential.fullIssuerId)),
+        id = attributes.first.credential.fullId,
+        issuer = attributes.first.credential.issuer.name;
 }
