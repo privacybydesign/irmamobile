@@ -32,17 +32,4 @@ class PinState {
       // remainingAttempts: remainingAttempts ?? this.remainingAttempts,
     );
   }
-
-  bool get isBlocked {
-    if (remainingAttempts != null && remainingAttempts > 0) {
-      return false;
-    }
-    if (blockedUntil == null) {
-      return false;
-    }
-    if (blockedUntil.isBefore(DateTime.now())) {
-      return false;
-    }
-    return true;
-  }
 }

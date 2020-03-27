@@ -267,22 +267,25 @@
       "message": "Dit is geen IRMA QR-code"
     }
   },
+  "pin_common": {
+    "invalid_title": "De ingevoerde pincode is onjuist.",
+    "invalid_pin": {
+      "attempts-0": "Deze pincode is niet juist. Je hebt nog {attemps} pogingen voordat je IRMA-app tijdelijk wordt geblokkeerd.",
+      "attempts-1": "Deze pincode is niet juist. Je hebt nog {attemps} poging voordat je IRMA-app tijdelijk wordt geblokkeerd.",
+      "attempts-2": "Deze pincode is niet juist. Je hebt nog {attemps} pogingen voordat je IRMA-app tijdelijk wordt geblokkeerd."
+    },
+    "invalid_close": "Opnieuw proberen.",
+    "blocked_title": "Account geblokkeerd.",
+    "blocked_pin": "Je account is voor {blocked} seconden geblokkeerd. Probeer het later nog een keer.",
+    "blocked_close": "Opnieuw proberen."
+  },
   "pin": {
     "title": "Inloggen",
     "subtitle": "Vul je pincode in",
     "button_forgot": "Pincode vergeten",
     "view": "Pincode tonen",
     "hide": "Pincode verbergen",
-    "button_block": "IRMA blokkeren",
-    "blocked_title": "Te vaak een verkeerde pin ingevoerd",
-    "blocked_body": "Je account is voor een paar minuten geblokkeerd.\n\nProbeer het later nog een keer",
-    "invalid_pin_dialog_title": "De ingevoerde pincode is onjuist.",
-    "invalid_pin_dialog_close": "Opnieuw proberen.",
-    "invalid_pin": {
-      "attempts-0": "Deze pincode is niet juist. Je hebt nog {attemps} pogingen voordat je IRMA-app tijdelijk wordt geblokkeerd.",
-      "attempts-1": "Deze pincode is niet juist. Je hebt nog {attemps} poging voordat je IRMA-app tijdelijk wordt geblokkeerd.",
-      "attempts-2": "Deze pincode is niet juist. Je hebt nog {attemps} pogingen voordat je IRMA-app tijdelijk wordt geblokkeerd."
-    }
+    "button_block": "IRMA blokkeren"
   },
   "error": {
     "title": "Er gaat iets fout",

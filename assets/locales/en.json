@@ -267,22 +267,25 @@
       "message": "This is not an IRMA QR code"
     }
   },
+  "pin_common": {
+    "invalid_title": "Wrong PIN entered.",
+    "invalid_pin": {
+      "attempts-0": "This PIN is not correct. You have {attemps} attempts left before your IRMA app will be blocked temporarily.",
+      "attempts-1": "This PIN is not correct. You have {attemps} attempts left before your IRMA app will be blocked temporarily.",
+      "attempts-2": "This PIN is not correct. You have {attemps} attempts left before your IRMA app will be blocked temporarily."
+    },
+    "invalid_close": "Try again.",
+    "blocked_title": "Account blocked.",
+    "blocked_pin": "Your account has been blocked for {blocked} seconds. Please try again later",
+    "blocked_close": "Try again."
+  },
   "pin": {
     "title": "Login",
     "subtitle": "Enter your PIN",
     "button_forgot": "PIN forgotten",
     "view": "Show PIN",
     "hide": "Hide PIN",
-    "button_block": "Block IRMA",
-    "blocked_title": "To many wrong attempts",
-    "blocked_body": "Your account has been blocked for a few minutes.\n\nPlease try again later",
-    "invalid_pin_dialog_title": "Wrong PIN entered.",
-    "invalid_pin_dialog_close": "Try again.",
-    "invalid_pin": {
-      "attempts-0": "This PIN is not correct. You have {attemps} attempts left before your IRMA app will be blocked temporarily.",
-      "attempts-1": "This PIN is not correct. You have {attemps} attempts left before your IRMA app will be blocked temporarily.",
-      "attempts-2": "This PIN is not correct. You have {attemps} attempts left before your IRMA app will be blocked temporarily."
-    }
+    "button_block": "Block IRMA"
   },
   "error": {
     "title": "Something goes wrong",

@@ -3,7 +3,6 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:irmamobile/src/screens/about/about_screen.dart';
 import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
-import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
 import 'package:irmamobile/src/screens/help/help_screen.dart';
 import 'package:irmamobile/src/screens/history/history_screen.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
@@ -76,11 +75,6 @@ class WalletDrawer extends StatelessWidget {
                           icon: IrmaIcons.time, text: FlutterI18n.translate(context, 'drawer.history'), onTap: () {
                         Navigator.of(context).pop();
                         Navigator.of(context).pushNamed(HistoryScreen.routeName);
-                      }),
-                      _createDrawerItem(context,
-                          icon: IrmaIcons.lock, text: FlutterI18n.translate(context, 'drawer.change_pin'), onTap: () {
-                        Navigator.of(context).pop();
-                        Navigator.of(context).pushNamed(ChangePinScreen.routeName);
                       }),
                       _createDrawerItem(context,
                           icon: IrmaIcons.settings, text: FlutterI18n.translate(context, 'drawer.settings'), onTap: () {
