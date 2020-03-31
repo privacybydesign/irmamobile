@@ -85,8 +85,9 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
 
     return WillPopScope(
       onWillPop: () async {
-        cancel();
-        return !await navigatorKey.currentState.maybePop();
+        final isClosing = !await navigatorKey.currentState.maybePop();
+        if (isClosing) cancel();
+        return isClosing;
       },
       child: BlocListener<ChangePinBloc, ChangePinState>(
         condition: (ChangePinState previous, ChangePinState current) {
