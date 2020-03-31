@@ -268,23 +268,23 @@
     }
   },
   "pin_common": {
-    "invalid_title": "De ingevoerde pincode is onjuist.",
+    "invalid_title": "Pincode verkeerd",
     "invalid_pin": {
       "attempts-0": "Deze pincode is niet juist. Je hebt nog {attemps} pogingen voordat je IRMA-app tijdelijk wordt geblokkeerd.",
       "attempts-1": "Deze pincode is niet juist. Je hebt nog {attemps} poging voordat je IRMA-app tijdelijk wordt geblokkeerd.",
       "attempts-2": "Deze pincode is niet juist. Je hebt nog {attemps} pogingen voordat je IRMA-app tijdelijk wordt geblokkeerd."
     },
-    "invalid_close": "Opnieuw proberen.",
-    "blocked_title": "Account geblokkeerd.",
+    "invalid_close": "Opnieuw proberen",
+    "blocked_title": "Account geblokkeerd",
     "blocked_pin": "Je account is voor {blocked} seconden geblokkeerd. Probeer het later nog een keer.",
-    "blocked_close": "Opnieuw proberen.",
+    "blocked_close": "Opnieuw proberen",
     "done": "Voer in",
     "view": "Pincode tonen",
     "hide": "Pincode verbergen"
   },
   "pin": {
     "title": "Inloggen",
-    "subtitle": "Vul je pincode in",
+    "subtitle": "Voer je pincode in",
     "button_forgot": "Pincode vergeten",
     "button_block": "IRMA blokkeren"
   },

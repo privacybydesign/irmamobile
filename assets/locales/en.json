@@ -36,7 +36,7 @@
       "instruction": "Choose a 5-digit PIN",
       "confirm_instruction": "Enter your PIN again",
       "next": "Next",
-      "error_title": "Wrong PIN",
+      "error_title": "PIN incorrect",
       "error": "PINs do not match. Choose a new PIN.",
       "error_action": "OK"
     },
@@ -235,7 +235,7 @@
       "instruction": "Choose your new PIN",
       "switch_long": "Prefer a longer PIN?",
       "switch_short": "Prefer a shorter PIN?",
-      "error_title": "Wrong PIN",
+      "error_title": "PIN incorrect",
       "error": "Different PINs. Choose a new PIN.",
       "error_action": "OK"
     },
@@ -268,16 +268,16 @@
     }
   },
   "pin_common": {
-    "invalid_title": "Wrong PIN entered.",
+    "invalid_title": "PIN incorrect",
     "invalid_pin": {
       "attempts-0": "This PIN is not correct. You have {attemps} attempts left before your IRMA app will be blocked temporarily.",
       "attempts-1": "This PIN is not correct. You have {attemps} attempts left before your IRMA app will be blocked temporarily.",
       "attempts-2": "This PIN is not correct. You have {attemps} attempts left before your IRMA app will be blocked temporarily."
     },
-    "invalid_close": "Try again.",
-    "blocked_title": "Account blocked.",
-    "blocked_pin": "Your account has been blocked for {blocked} seconds. Please try again later",
-    "blocked_close": "Try again.",
+    "invalid_close": "Try again",
+    "blocked_title": "Account blocked",
+    "blocked_pin": "Your account has been blocked for {blocked} seconds. Please try again later.",
+    "blocked_close": "Try again",
     "done": "Done",
     "view": "Show PIN",
     "hide": "Hide PIN"
