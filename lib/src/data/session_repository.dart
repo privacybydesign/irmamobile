@@ -47,6 +47,7 @@ class SessionRepository {
 
     if (event is NewSessionEvent) {
       return prevState.copyWith(
+        clientReturnURL: prevState.clientReturnURL ?? event.request.returnURL,
         continueOnSecondDevice: event.continueOnSecondDevice,
         status: SessionStatus.initialized,
       );

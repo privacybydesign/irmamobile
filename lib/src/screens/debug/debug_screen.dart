@@ -25,12 +25,11 @@ class DemoSessionHelper {
           [
             [
               "irma-demo.digidproef.personalData.fullname",
-              "irma-demo.digidproef.personalData.initials",
-              "irma-demo.digidproef.personalData.photo"
+              "irma-demo.digidproef.personalData.initials"
             ]
           ]
         ],
-        "clientReturnUrl": "https://example.com"
+        "clientReturnUrl": "tel:+31612345678,1234567"
       }
     """;
   }

@@ -12,6 +12,7 @@ import 'package:irmamobile/src/screens/disclosure/widgets/arrow_back_screen.dart
 import 'package:irmamobile/src/screens/disclosure/widgets/disclosure_feedback_screen.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/util/translated_text.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
@@ -64,8 +65,9 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
       final session = await _sessionStateStream.firstWhere((session) => session.status == SessionStatus.success);
       await Future.delayed(const Duration(seconds: 1));
 
-      if (session.continueOnSecondDevice) {
-        // If this is a session on a second screen, return to the wallet after showing a feedback screen
+      if (session.continueOnSecondDevice && !session.isReturnPhoneNumber) {
+        // If this is a session on a second screen, return to the wallet after showing a feedback screen,
+        // unless a return URL with a phone number was provided
         _pushDisclosureFeedbackScreen(true, session.serverName.translate(_lang));
       } else if (session.clientReturnURL != null && await canLaunch(session.clientReturnURL)) {
         // If there is a return URL, navigate to it when we're done
@@ -132,20 +134,23 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   }
 
   Widget _buildDisclosureHeader(SessionState session) {
-    return Text.rich(
-      TextSpan(children: [
-        TextSpan(
-            text: FlutterI18n.translate(context, 'disclosure.disclosure_header.start'),
-            style: IrmaTheme.of(context).textTheme.body1),
-        TextSpan(
-          text: session.serverName.translate(_lang),
-          style: IrmaTheme.of(context).textTheme.body2,
-        ),
-        TextSpan(
-          text: FlutterI18n.translate(context, 'disclosure.disclosure_header.end'),
-          style: IrmaTheme.of(context).textTheme.body1,
-        ),
-      ]),
+    final serverName = session.serverName.translate(_lang);
+
+    if (session.isReturnPhoneNumber) {
+      return TranslatedText(
+        'disclosure.disclosure_call_header',
+        translationParams: {
+          'serverName': serverName,
+          'phoneNumber': session.clientReturnURL.substring(4).split(",").first,
+        },
+      );
+    }
+
+    return TranslatedText(
+      'disclosure.disclosure_header',
+      translationParams: {
+        'serverName': serverName,
+      },
     );
   }
 
@@ -173,16 +178,22 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   Widget _buildNavigationBar() {
     return StreamBuilder<SessionState>(
       stream: _sessionStateStream,
-      builder: (context, sessionStateSnapshot) {
-        if (!sessionStateSnapshot.hasData || sessionStateSnapshot.data.status != SessionStatus.requestPermission) {
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return Container(height: 0);
+        }
+
+        final session = snapshot.data;
+        if (session.status != SessionStatus.requestPermission) {
           return Container(height: 0);
         }
 
         return IrmaBottomBar(
           primaryButtonLabel: FlutterI18n.translate(context, "disclosure.navigation_bar.yes"),
-          onPrimaryPressed: () => _givePermission(sessionStateSnapshot.data),
+          primaryButtonIcon: session.isReturnPhoneNumber ? Icons.phone : null,
+          onPrimaryPressed: () => _givePermission(session),
           secondaryButtonLabel: FlutterI18n.translate(context, "disclosure.navigation_bar.no"),
-          onSecondaryPressed: () => _declinePermission(context, sessionStateSnapshot.data.serverName.translate(_lang)),
+          onSecondaryPressed: () => _declinePermission(context, session.serverName.translate(_lang)),
         );
       },
     );

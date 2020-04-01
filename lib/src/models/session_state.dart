@@ -42,6 +42,8 @@ class SessionState {
       signedMessage: signedMessage ?? this.signedMessage,
     );
   }
+
+  bool get isReturnPhoneNumber => clientReturnURL != null && clientReturnURL.startsWith("tel:");
 }
 
 enum SessionStatus {
