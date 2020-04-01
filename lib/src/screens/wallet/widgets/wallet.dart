@@ -8,11 +8,14 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/credential_events.dart';
 import 'package:irmamobile/src/models/credentials.dart';
+import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
+import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/get_cards_nudge.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/irma_pilot_nudge.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet_button.dart';
 import 'package:irmamobile/src/screens/webview/webview_screen.dart';
+import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/widgets/card/card.dart';
@@ -56,7 +59,7 @@ class Wallet extends StatefulWidget {
 
 class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _cardAnimationDuration = 250;
-  final _loginAnimationDuration = 500;
+  final _loginAnimationDuration = 400;
   final _walletAspectRatio = 87 / 360; // wallet.svg 360x87 px
   final _walletShrinkTween = Tween<double>(begin: 0.0, end: 1.0);
   final _containerKey = GlobalKey();
@@ -91,6 +94,9 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   // Time to show new cards before being added to wallet
   final _cardVisibleDelay = 3250;
 
+  // Time between opening the wallet and showing the cards
+  final _walletShowCardsDelay = 200;
+
   // Offset of minimized cards
   final _minimizedCardOffset = -20;
 
@@ -113,7 +119,9 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   double _dragOffset = 0;
   double _cardDragOffset = 0;
   bool _nudgeVisible = true;
+  bool _showCards = false;
 
+  final _closedWalletOffset = 50;
   final IrmaRepository _irmaClient = IrmaRepository.get();
 
   get type => null;
@@ -151,10 +159,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
           }
         },
       );
-
-    if (widget.hasLoginLogoutAnimation && widget.showNewCardAnimation == false) {
-      _loginLogoutAnimationController.forward();
-    }
   }
 
   @override
@@ -179,16 +183,24 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       Future.delayed(Duration(milliseconds: _cardVisibleDelay)).then((_) {
         setNewState(_cardInStackState);
       });
-    } else {
-      setNewState(WalletState.tightlyfolded);
     }
 
-    if (widget.hasLoginLogoutAnimation && widget.showNewCardAnimation == true) {
-      _loginLogoutAnimationController.forward();
+    if (widget.hasLoginLogoutAnimation && !oldWidget.isOpen && widget.isOpen) {
+      _loginLogoutAnimationController.forward().then((_) {
+        setState(() {
+          _showCards = true;
+        });
+        return Future.delayed(Duration(milliseconds: _walletShowCardsDelay));
+      }).then((_) {
+        setNewState(WalletState.tightlyfolded);
+      });
     }
 
-    if (oldWidget.isOpen && !widget.isOpen) {
-      _loginLogoutAnimationController.reverse();
+    if (widget.hasLoginLogoutAnimation && oldWidget.isOpen && !widget.isOpen) {
+      _loginLogoutAnimationController.reverse().then((_) {
+        PinBloc().dispatch(Lock());
+        Navigator.of(context).pushNamed(PinScreen.routeName);
+      });
     }
 
     super.didUpdateWidget(oldWidget);
@@ -238,37 +250,38 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                     ),
 
                     /// All cards
-                    Positioned(
-                      bottom: 0,
-                      child: Container(
-                        constraints: BoxConstraints(
-                          maxHeight: screenHeight - _screenHeightMargin,
-                          maxWidth: screenWidth,
-                        ),
-                        child: Stack(
-                          overflow: Overflow.visible,
-                          children: [
-                            if (widget.credentials != null)
-                              ...widget.credentials.asMap().entries.map(
-                                (credential) {
-                                  final cardTop = getCardPosition(credential.key, walletTop);
-                                  return Positioned(
-                                    left: 0,
-                                    right: 0,
-                                    top: walletTop - cardTop,
-                                    child: getCard(
-                                      credential.key,
-                                      widget.credentials.length,
-                                      credential.value,
-                                      walletTop,
-                                    ),
-                                  );
-                                },
-                              ),
-                          ],
+                    if (_showCards)
+                      Positioned(
+                        bottom: 0,
+                        child: Container(
+                          constraints: BoxConstraints(
+                            maxHeight: screenHeight - _screenHeightMargin,
+                            maxWidth: screenWidth,
+                          ),
+                          child: Stack(
+                            overflow: Overflow.visible,
+                            children: [
+                              if (widget.credentials != null)
+                                ...widget.credentials.asMap().entries.map(
+                                  (credential) {
+                                    final cardTop = getCardPosition(credential.key, walletTop);
+                                    return Positioned(
+                                      left: 0,
+                                      right: 0,
+                                      top: walletTop - cardTop,
+                                      child: getCard(
+                                        credential.key,
+                                        widget.credentials.length,
+                                        credential.value,
+                                        walletTop,
+                                      ),
+                                    );
+                                  },
+                                ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
 
                     /// Wallet foreground with help and qr buttons
                     Align(
@@ -326,7 +339,17 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                           ),
                         ],
                       ),
-                    )
+                    ),
+
+                    Positioned(
+                      right: 0,
+                      top: _walletShrinkTween.evaluate(_loginLogoutAnimationController) * screenHeight -
+                          _closedWalletOffset,
+                      child: SvgPicture.asset(
+                        'assets/wallet/wallet_high.svg',
+                        width: screenWidth,
+                      ),
+                    ),
                   ],
                 ),
               ),

@@ -26,6 +26,7 @@ class PinBloc extends Bloc<PinEvent, PinState> {
   PinState get initialState => PinState(
         locked: true,
         unlockInProgress: false,
+        lockInProgress: false,
         pinInvalid: false,
       );
 
@@ -54,6 +55,11 @@ class PinBloc extends Bloc<PinEvent, PinState> {
       } else {
         throw Exception("Unexpected subtype of AuthenticationResult");
       }
+    } else if (pinEvent is ToLock) {
+      yield PinState(
+        locked: false,
+        lockInProgress: true,
+      );
     } else if (pinEvent is Lock) {
       // There is currently no feedback because there is no pro-active locking
       // available in irmago.
