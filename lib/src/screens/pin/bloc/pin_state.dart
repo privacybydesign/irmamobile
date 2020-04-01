@@ -1,6 +1,7 @@
 class PinState {
   bool locked;
   bool unlockInProgress;
+  bool lockInProgress;
   DateTime blockedUntil;
   bool pinInvalid;
   String errorMessage;
@@ -9,6 +10,7 @@ class PinState {
   PinState({
     this.locked = true,
     this.unlockInProgress = false,
+    this.lockInProgress = false,
     this.blockedUntil,
     this.pinInvalid = false,
     this.errorMessage,

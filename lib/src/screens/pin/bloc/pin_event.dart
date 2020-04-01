@@ -6,6 +6,9 @@ class Unlock extends PinEvent {
   Unlock(this.pin);
 }
 
+// Lock event is sent by UI to start lock animation.
+class ToLock extends PinEvent {}
+
 // Lock event is sent by UI to pro-actively lock.
 class Lock extends PinEvent {}
 

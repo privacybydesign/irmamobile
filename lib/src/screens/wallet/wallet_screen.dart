@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,7 +9,6 @@ import 'package:irmamobile/src/screens/debug/debug_screen.dart';
 import 'package:irmamobile/src/screens/help/help_screen.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
-import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/wallet/models/wallet_bloc.dart';
 import 'package:irmamobile/src/screens/wallet/models/wallet_events.dart';
@@ -39,6 +40,10 @@ class _WalletScreen extends StatefulWidget {
 
 class _WalletScreenState extends State<_WalletScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _pinBloc = PinBloc();
+
+  StreamSubscription _pinBlocSubscription;
+  bool isWalletOpen = false;
 
   void qrScannerPressed() {
     Navigator.pushNamed(context, ScannerScreen.routeName);
@@ -58,6 +63,28 @@ class _WalletScreenState extends State<_WalletScreen> {
 
   void onNewCardAnimationShown() {
     widget.bloc.dispatch(NewCardAnitmationShown());
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _pinBlocSubscription = _pinBloc.state.listen((pinState) {
+      if (!pinState.locked) {
+        setState(() {
+          isWalletOpen = true;
+        });
+      }
+      if (pinState.lockInProgress) {
+        setState(() {
+          isWalletOpen = false;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _pinBlocSubscription.cancel();
   }
 
   @override
@@ -85,8 +112,7 @@ class _WalletScreenState extends State<_WalletScreen> {
               semanticLabel: FlutterI18n.translate(context, "wallet.lock"),
             ),
             onPressed: () {
-              PinBloc().dispatch(Lock());
-              Navigator.of(context).pushNamed(PinScreen.routeName);
+              PinBloc().dispatch(ToLock());
             },
           ),
         ],
@@ -101,8 +127,8 @@ class _WalletScreenState extends State<_WalletScreen> {
 
           return Wallet(
             credentials: state.credentials.values.toList(),
-            hasLoginLogoutAnimation: false,
-            isOpen: true,
+            hasLoginLogoutAnimation: true,
+            isOpen: isWalletOpen,
             newCardIndex: state.newCardIndex,
             showNewCardAnimation: state.showNewCardAnimation,
             onQRScannerPressed: qrScannerPressed,
