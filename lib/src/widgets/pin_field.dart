@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -47,51 +45,22 @@ class _PinFieldState extends State<PinField> {
   bool obscureText;
   String value;
   FocusNode focusNode;
-  int lastLength;
 
   @override
   void initState() {
     super.initState();
     value = '';
-    lastLength = 0;
     obscureText = true;
 
     focusNode = widget.focusNode ?? FocusNode();
-    _textEditingController.addListener(_updateLength);
-  }
-
-  void _updateLength() {
-    final val = _textEditingController.text;
-    final len = val.length;
-
-    if (len != lastLength && len == widget.maxLength) {
-      if (widget.onFull != null) {
-        widget.onFull(val);
-      }
-
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (!_isDisposed && widget.onSubmit != null && widget.autosubmit) {
-          widget.onSubmit(val);
-        }
-        if (!_isDisposed && widget.autoclear) {
-          _textEditingController.clear();
-        }
-      });
-    }
-
-    setState(() {
-      value = val;
-      lastLength = len;
-    });
-
-    if (widget.onChange != null) {
-      widget.onChange(val);
-    }
+    _textEditingController.addListener(_onTextChanged);
   }
 
   @override
   void didUpdateWidget(PinField oldWidget) {
     super.didUpdateWidget(oldWidget);
+
+    // Clear the input when we switch from short to long or vice versa
     focusNode = widget.focusNode ?? focusNode;
     if (widget.longPin != oldWidget.longPin) {
       _textEditingController.clear();
@@ -106,42 +75,72 @@ class _PinFieldState extends State<PinField> {
     super.dispose();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    final int len = min(widget.maxLength, max(value.length + 1, widget.minLength));
-    final boxes = List<Widget>(len);
-    final bool complete = value.length == widget.maxLength;
+  void _onTextChanged() {
+    final changedValue = _textEditingController.text;
 
-    if (!widget.longPin) {
-      for (int i = 0; i < len; i++) {
-        String char = i < value.length ? value[i] : '';
-        final bool filled = char != '';
+    if (changedValue.length != value.length && changedValue.length == widget.maxLength) {
+      _onFull(changedValue);
 
-        if (obscureText && filled) {
-          char = '●';
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (_isDisposed) {
+          return;
         }
 
-        boxes[i] = AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          margin: EdgeInsets.only(right: i == len - 1 ? 0 : theme.smallSpacing),
-          width: 30.0,
-          height: 40.0,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(theme.tinySpacing)),
-            border: Border.all(color: i > value.length ? Colors.transparent : theme.grayscale40),
-            color: theme.grayscaleWhite,
-          ),
-          child: Text(
-            char,
-            style: Theme.of(context).textTheme.display2.copyWith(
-                  height: 22.0 / 18.0,
-                  color: complete ? theme.primaryBlue : theme.grayscale40,
-                ),
-          ),
-        );
-      }
+        if (widget.autosubmit) {
+          _onSubmit(changedValue);
+        }
+
+        if (widget.autoclear) {
+          _textEditingController.clear();
+        }
+      });
+    }
+
+    setState(() {
+      value = changedValue;
+    });
+
+    if (widget.onChange != null) {
+      widget.onChange(changedValue);
+    }
+  }
+
+  void _onSubmit(String value) {
+    if (widget.onSubmit != null) {
+      widget.onSubmit(value);
+    }
+  }
+
+  void _onFull(String value) {
+    if (widget.onFull != null) {
+      widget.onFull(value);
+    }
+  }
+
+  void _onEditingCompleteOrSubmit() {
+    final val = _textEditingController.text;
+
+    if (val.length >= widget.minLength && val.length <= widget.maxLength) {
+      _onSubmit(val);
+    }
+  }
+
+  // Make the text transparent for short PINs
+  TextStyle _formFieldStyle() {
+    if (widget.longPin) {
+      return null;
+    }
+
+    return const TextStyle(
+      height: 0.1,
+      color: Colors.transparent,
+    );
+  }
+
+  // Hide the form field with transparancy for short PINs
+  InputDecoration _formFieldDecoration() {
+    if (widget.longPin) {
+      return const InputDecoration();
     }
 
     const transparentBorder = OutlineInputBorder(
@@ -150,6 +149,102 @@ class _PinFieldState extends State<PinField> {
         width: 0.0,
       ),
     );
+
+    return InputDecoration(
+      focusedErrorBorder: transparentBorder,
+      errorBorder: transparentBorder,
+      disabledBorder: transparentBorder,
+      enabledBorder: transparentBorder,
+      focusedBorder: transparentBorder,
+      counterText: null,
+      counterStyle: null,
+      helperStyle: const TextStyle(
+        height: 0.0,
+        color: Colors.transparent,
+      ),
+      labelStyle: const TextStyle(height: 0.1),
+      fillColor: Colors.transparent,
+      border: InputBorder.none,
+    );
+  }
+
+  // PIN boxes for short pins
+  Widget _buildPinBoxes() {
+    final theme = IrmaTheme.of(context);
+    final bool complete = value.length == widget.maxLength;
+
+    final boxes = List<Widget>.generate(widget.maxLength, (i) {
+      String char = i < value.length ? value[i] : '';
+      final bool filled = char != '';
+
+      if (obscureText && filled) {
+        char = '●';
+      }
+
+      return AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        margin: EdgeInsets.only(right: i == widget.maxLength - 1 ? 0 : theme.smallSpacing),
+        width: 30.0,
+        height: 40.0,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.all(Radius.circular(theme.tinySpacing)),
+          border: Border.all(color: i > value.length ? Colors.transparent : theme.grayscale40),
+          color: theme.grayscaleWhite,
+        ),
+        child: Text(
+          char,
+          style: Theme.of(context).textTheme.display2.copyWith(
+                height: 22.0 / 18.0,
+                color: complete ? theme.primaryBlue : theme.grayscale40,
+              ),
+        ),
+      );
+    });
+
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SizedBox(width: theme.largeSpacing, height: theme.largeSpacing),
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            FocusScope.of(context).requestFocus(FocusNode());
+            Future.delayed(const Duration(milliseconds: 100), () {
+              FocusScope.of(context).requestFocus(focusNode);
+            });
+          },
+          child: Container(
+            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 64),
+            child: Wrap(children: boxes),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Submit buttons for longs PINs
+  Widget _buildSubmitButton() {
+    final theme = IrmaTheme.of(context);
+
+    return SizedBox(
+      width: theme.largeSpacing,
+      height: theme.largeSpacing,
+      child: IconButton(
+        iconSize: theme.defaultSpacing,
+        icon: Icon(
+          IrmaIcons.valid,
+          semanticLabel: FlutterI18n.translate(context, "pin_common.done"),
+        ),
+        onPressed: _onEditingCompleteOrSubmit,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -160,85 +255,28 @@ class _PinFieldState extends State<PinField> {
           child: TextFormField(
             controller: _textEditingController,
             focusNode: focusNode,
-            onEditingComplete: () {
-              final val = _textEditingController.text;
-              if (val.length >= widget.minLength && val.length <= widget.maxLength && widget.onSubmit != null) {
-                widget.onSubmit(val);
-              }
-            },
+            onEditingComplete: _onEditingCompleteOrSubmit,
+            autofocus: widget.autofocus,
+            obscureText: obscureText,
+            cursorColor: Colors.transparent,
+            maxLength: widget.maxLength,
+
+            // Only allow numeric input, without signs or decimal points
+            keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
             inputFormatters: [
               WhitelistingTextInputFormatter(RegExp('[0-9]')),
             ],
-            autofocus: true,
-            keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
-            obscureText: obscureText,
-            style: widget.longPin
-                ? null
-                : const TextStyle(
-                    height: 0.1,
-                    color: Colors.transparent,
-                  ),
-            decoration: widget.longPin
-                ? const InputDecoration()
-                : InputDecoration(
-                    focusedErrorBorder: transparentBorder,
-                    errorBorder: transparentBorder,
-                    disabledBorder: transparentBorder,
-                    enabledBorder: transparentBorder,
-                    focusedBorder: transparentBorder,
-                    counterText: null,
-                    counterStyle: null,
-                    helperStyle: const TextStyle(
-                      height: 0.0,
-                      color: Colors.transparent,
-                    ),
-                    labelStyle: const TextStyle(height: 0.1),
-                    fillColor: Colors.transparent,
-                    border: InputBorder.none,
-                  ),
-            cursorColor: Colors.transparent,
-            maxLength: widget.maxLength,
+
+            // Set the style (dependent on if the input is for long PINs)
+            style: _formFieldStyle(),
+            decoration: _formFieldDecoration(),
           ),
         ),
-        if (!widget.longPin)
-          Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(width: theme.largeSpacing, height: theme.largeSpacing),
-              GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () {
-                  FocusScope.of(context).requestFocus(FocusNode());
-                  Future.delayed(const Duration(milliseconds: 100), () {
-                    FocusScope.of(context).requestFocus(focusNode);
-                  });
-                },
-                child: Container(
-                  constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 64),
-                  child: Wrap(children: boxes),
-                ),
-              ),
-            ],
-          ),
-        if (widget.longPin)
-          SizedBox(
-            width: theme.largeSpacing,
-            height: theme.largeSpacing,
-            child: IconButton(
-              iconSize: theme.defaultSpacing,
-              icon: Icon(
-                IrmaIcons.valid,
-                semanticLabel: FlutterI18n.translate(context, "pin_common.done"),
-              ),
-              onPressed: () {
-                final val = _textEditingController.text;
-                if (val.length >= widget.minLength && val.length <= widget.maxLength && widget.onSubmit != null) {
-                  widget.onSubmit(val);
-                }
-              },
-            ),
-          ),
+        if (!widget.longPin) ...[
+          _buildPinBoxes(),
+        ] else ...[
+          _buildSubmitButton(),
+        ],
         SizedBox(
           width: theme.largeSpacing,
           height: theme.largeSpacing,
