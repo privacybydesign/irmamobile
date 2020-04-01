@@ -11,6 +11,9 @@ import 'package:irmamobile/src/screens/change_pin/widgets/enter_pin.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/success.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/updating_pin.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/valdating_pin.dart';
+import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
+import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
+import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_attempts.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_blocked.dart';
 
@@ -122,6 +125,8 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
                 child: PinWrongAttemptsDialog(attemptsRemaining: state.attemptsRemaining),
               );
             } else {
+              Navigator.of(context, rootNavigator: true).pushReplacementNamed(PinScreen.routeName);
+              PinBloc().dispatch(Lock());
               showDialog(
                 context: context,
                 child: PinWrongBlockedDialog(blocked: state.blockedUntil.difference(DateTime.now()).inSeconds),
