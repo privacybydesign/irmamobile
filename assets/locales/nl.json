@@ -256,15 +256,18 @@
   "qr_scanner": {
     "instruction": {
       "title": "Begin met scannen",
-      "message": "Richt je mobiel op een IRMA QR-code"
+      "message": "Richt je mobiel op een IRMA QR-code",
+      "semantic": "Begin met scannen! Richt je mobiel op een IRMA QR-code."
     },
     "success": {
       "title": "Gelukt",
-      "message": "De QR-code is gescand"
+      "message": "De QR-code is gescand",
+      "semantic": "Gelukt! De QR-code is gescand."
     },
     "error": {
       "title": "Sorry",
-      "message": "Dit is geen IRMA QR-code"
+      "message": "Dit is geen IRMA QR-code",
+      "semantic": "Sorry! Dit is geen IRMA QR-code."
     }
   },
   "pin": {

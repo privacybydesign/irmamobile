@@ -256,15 +256,18 @@
   "qr_scanner": {
     "instruction": {
       "title": "Start scanning",
-      "message": "Aim the camera of your mobile at the IRMA QR code"
+      "message": "Aim the camera of your mobile at the IRMA QR code",
+      "semantic": "Start scanning! Aim the camera of your mobile at the IRMA QR code."
     },
     "success": {
       "title": "Success",
-      "message": "QR code scanned"
+      "message": "QR code scanned",
+      "semantic": "Success! QR code scanned."
     },
     "error": {
       "title": "Sorry",
-      "message": "This is not an IRMA QR code"
+      "message": "This is not an IRMA QR code",
+      "semantic": "Sorry! This is not an IRMA QR code."
     }
   },
   "pin": {
