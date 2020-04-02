@@ -80,6 +80,10 @@ func dispatchEvent(event interface{}) {
 	bridge.DispatchFromGo(eventName, string(jsonBytes))
 }
 
+func Stop() {
+	client.Close()
+}
+
 func logError(err error) {
 	message := fmt.Sprintf("%s\n%s", err.Error(), err.(*errors.Error).ErrorStack())
 
