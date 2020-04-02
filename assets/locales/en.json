@@ -377,6 +377,9 @@
     "choices": "{choices} choices",
     "next": "next choices",
     "previous": "previous choices",
+    "expired": "These data are expired.",
+    "revoked": "These data have been revoked.",
+    "not_revokable": "These data have to be refreshed first.",
     "explanation": {
       "title": "You can choose",
       "body": "Select which data you disclose. Use the arrow or swipe and choose.",

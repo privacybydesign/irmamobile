@@ -220,6 +220,57 @@ class _CarouselState extends State<Carousel> {
     );
   }
 
+  Widget _buildCredentialFooter(_DisclosureCredential cred) {
+    String notice;
+    if (cred.attributes.first.expired) {
+      notice = FlutterI18n.translate(context, 'disclosure.expired');
+    } else if (cred.attributes.first.revoked) {
+      notice = FlutterI18n.translate(context, 'disclosure.revoked');
+    } else if (cred.attributes.first.notRevokable) {
+      notice = FlutterI18n.translate(context, 'disclosure.not_revokable');
+    }
+
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).smallSpacing),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Opacity(
+              opacity: 0.5,
+              child: Text(
+                FlutterI18n.translate(context, 'disclosure.issuer'),
+                style: IrmaTheme.of(context)
+                    .textTheme
+                    .body1
+                    .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: IrmaTheme.of(context).smallSpacing),
+              child: Text(
+                cred.issuer[_lang],
+                style: IrmaTheme.of(context)
+                    .textTheme
+                    .body1
+                    .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        if (notice != null)
+          Text(
+            notice,
+            style:
+                IrmaTheme.of(context).textTheme.body1.copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 15),
+            overflow: TextOverflow.ellipsis,
+          ),
+      ]),
+    );
+  }
+
   Widget _buildCarouselWidget(Con<Attribute> candidatesCon) {
     // Transform candidatesCon into a list where attributes of the same issuer
     // are grouped together. This assumes those attributes are always
@@ -261,38 +312,7 @@ class _CarouselState extends State<Carousel> {
                           ),
                         )
                         .toList(),
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).smallSpacing),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            child: Opacity(
-                              opacity: 0.5,
-                              child: Text(
-                                FlutterI18n.translate(context, 'disclosure.issuer'),
-                                style: IrmaTheme.of(context)
-                                    .textTheme
-                                    .body1
-                                    .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(left: IrmaTheme.of(context).smallSpacing),
-                            child: Text(
-                              cred.issuer[_lang],
-                              style: IrmaTheme.of(context)
-                                  .textTheme
-                                  .body1
-                                  .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
+                    _buildCredentialFooter(cred),
                   ])
               .expand((f) => f)
               .toList(),

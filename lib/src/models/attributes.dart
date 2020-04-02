@@ -154,8 +154,11 @@ class CredentialAttribute extends Attribute {
         super(credentialInfo: credential.info, attributeType: attributeType, value: value);
 
   @override
-  bool get choosable => !notRevokable && !credential.expired && !credential.revoked;
-
+  bool get expired => credential.expired;
+  @override
+  bool get revoked => credential.revoked;
+  @override
+  bool get choosable => !notRevokable && !expired && !revoked;
   @override
   String get credentialHash => credential.hash;
 }
@@ -178,10 +181,10 @@ class Attribute {
     }
   }
 
-  bool get choosable => false;
-
+  bool get expired => false;
+  bool get revoked => false;
   bool get notRevokable => false;
-
+  bool get choosable => false;
   String get credentialHash => "";
 
   factory Attribute.fromCandidate(
