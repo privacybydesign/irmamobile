@@ -44,14 +44,14 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) 
 	// Check for user data directory, and create version-specific directory
 	exists, err := pathExists(appDataPath)
 	if err != nil || !exists {
-		logError(errors.WrapPrefix(err, "Cannot access app data directory", 0))
+		reportError(errors.WrapPrefix(err, "Cannot access app data directory", 0))
 		return
 	}
 
 	appVersionDataPath := filepath.Join(appDataPath, appDataVersion)
 	exists, err = pathExists(appVersionDataPath)
 	if err != nil {
-		logError(errors.WrapPrefix(err, "Cannot check for app data path existence", 0))
+		reportError(errors.WrapPrefix(err, "Cannot check for app data path existence", 0))
 		return
 	}
 
@@ -63,7 +63,7 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) 
 	configurationPath := filepath.Join(assetsPath, "irma_configuration")
 	client, err = irmaclient.New(appVersionDataPath, configurationPath, bridgeClientHandler)
 	if err != nil {
-		logError(errors.WrapPrefix(err, "Cannot initialize client", 0))
+		reportError(errors.WrapPrefix(err, "Cannot initialize client", 0))
 		return
 	}
 }
@@ -71,7 +71,7 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) 
 func dispatchEvent(event interface{}) {
 	jsonBytes, err := json.Marshal(event)
 	if err != nil {
-		logError(errors.Errorf("Cannot marshal event payload: %s", err))
+		reportError(errors.Errorf("Cannot marshal event payload: %s", err))
 		return
 	}
 
@@ -84,11 +84,19 @@ func Stop() {
 	client.Close()
 }
 
-func logError(err error) {
-	message := fmt.Sprintf("%s\n%s", err.Error(), err.(*errors.Error).ErrorStack())
+func reportError(err *errors.Error) {
+	message := fmt.Sprintf("%s\n%s", err.Error(), err.ErrorStack())
 
 	// raven.CaptureError(err, nil)
 	bridge.DebugLog(message)
+
+	// We need to json encode the error, but cant do full error checking
+	jsonBytes, err2 := json.Marshal(errorEvent{Exception: err.Error(), Stack: err.ErrorStack()})
+	if err2 != nil {
+		bridge.DebugLog(err2.Error())
+	} else {
+		bridge.DispatchFromGo("ErrorEvent", string(jsonBytes))
+	}
 }
 
 // PathExists checks if the specified path exists.
