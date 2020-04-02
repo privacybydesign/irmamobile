@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
@@ -96,7 +97,12 @@ class _PinScreenState extends State<PinScreen> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        return _pinBloc.currentState.locked == false;
+        if (_pinBloc.currentState.locked) {
+          SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+          return false;
+        } else {
+          return true;
+        }
       },
       child: BlocBuilder<PinBloc, PinState>(
         bloc: _pinBloc,
