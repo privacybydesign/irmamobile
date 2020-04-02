@@ -42,7 +42,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
   }
 
   bool _isMyIRMACredential(_, Credential credential) {
-    return credential.credentialType.fullId == "pbdf.sidn-pbdf.irma";
+    return credential.info.credentialType.fullId == "pbdf.sidn-pbdf.irma";
   }
 
   @override

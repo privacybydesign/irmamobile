@@ -20,8 +20,8 @@ class LogsEvent extends Event {
 class LoadLogsEvent extends Event {
   LoadLogsEvent({this.before, this.max});
 
-  @JsonKey(name: 'Before', toJson: _dateTimeToEpochSeconds)
-  final DateTime before;
+  @JsonKey(name: 'Before')
+  final int before;
 
   @JsonKey(name: 'Max')
   final int max;
@@ -49,14 +49,6 @@ DateTime _epochSecondsToDateTime(int secondsSinceEpoch) {
   }
 
   return DateTime.fromMillisecondsSinceEpoch(secondsSinceEpoch * 1000);
-}
-
-int _dateTimeToEpochSeconds(DateTime dateTime) {
-  if (dateTime == null) {
-    return null;
-  }
-
-  return dateTime.millisecondsSinceEpoch ~/ 1000;
 }
 
 @JsonSerializable()
@@ -101,13 +93,10 @@ class LogEntry {
 
 @JsonSerializable()
 class SignedMessage {
-  SignedMessage({this.message, this.timestamp});
+  SignedMessage({this.message});
 
-  @JsonKey(name: 'Message')
+  @JsonKey(name: 'message')
   final String message;
-
-  @JsonKey(name: 'Timestamp', fromJson: _epochSecondsToDateTime)
-  final DateTime timestamp;
 
   factory SignedMessage.fromJson(Map<String, dynamic> json) => _$SignedMessageFromJson(json);
   Map<String, dynamic> toJson() => _$SignedMessageToJson(this);

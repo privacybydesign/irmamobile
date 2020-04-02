@@ -6,7 +6,7 @@ import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/translated_text.dart';
 
 class Carousel extends StatefulWidget {
-  final DisCon<CredentialAttribute> candidatesDisCon;
+  final DisCon<Attribute> candidatesDisCon;
 
   const Carousel({@required this.candidatesDisCon});
 
@@ -187,7 +187,7 @@ class _CarouselState extends State<Carousel> {
         ),
       );
 
-  Widget _buildCandidateValue(CredentialAttribute candidate) {
+  Widget _buildCandidateValue(Attribute candidate) {
     if (candidate.portraitPhoto != null) {
       return Padding(
         padding: EdgeInsets.only(
@@ -209,7 +209,7 @@ class _CarouselState extends State<Carousel> {
     );
   }
 
-  Widget _buildCarouselWidget(Con<CredentialAttribute> candidatesCon) {
+  Widget _buildCarouselWidget(Con<Attribute> candidatesCon) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).mediumSpacing),
       child: Column(
@@ -260,7 +260,7 @@ class _CarouselState extends State<Carousel> {
                 Padding(
                   padding: EdgeInsets.only(left: IrmaTheme.of(context).smallSpacing),
                   child: Text(
-                    candidatesCon.first.credential.issuer.name[_lang], // TODO: This is wrong
+                    candidatesCon.first.credentialInfo.issuer.name[_lang], // TODO: This is wrong
                     style: IrmaTheme.of(context)
                         .textTheme
                         .body1

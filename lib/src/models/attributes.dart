@@ -67,6 +67,13 @@ class ConDisCon<T> extends UnmodifiableListView<DisCon<T>> {
       }));
     }));
   }
+
+  // This can't be a contructor due to dart-lang/sdk#26391
+  static ConDisCon<T> fromConCon<T>(ConCon<T> conCon) {
+    return ConDisCon<T>(conCon.map((con) {
+      return DisCon<T>(<Con<T>>[con]);
+    }));
+  }
 }
 
 class DisCon<T> extends UnmodifiableListView<Con<T>> {
@@ -79,6 +86,15 @@ class ConCon<T> extends UnmodifiableListView<Con<T>> {
   ConCon(Iterable<Con<T>> list)
       : assert(list != null),
         super(list);
+
+  // This can't be a contructor due to dart-lang/sdk#26391
+  static ConCon<T> fromRaw<R, T>(List<List<R>> rawConCon, T Function(R) fromRaw) {
+    return ConCon<T>(rawConCon.map((rawCon) {
+      return Con<T>(rawCon.map((elem) {
+        return fromRaw(elem);
+      }));
+    }));
+  }
 }
 
 class Con<T> extends UnmodifiableListView<T> {
@@ -123,23 +139,15 @@ class AttributeIdentifier {
   }
 }
 
-class CredentialAttribute {
+class CredentialAttribute extends Attribute {
   final Credential credential;
-  final AttributeType attributeType;
-  final TranslatedValue value;
-  Image portraitPhoto;
 
   CredentialAttribute({
     @required this.credential,
-    @required this.attributeType,
-    @required this.value,
+    @required AttributeType attributeType,
+    @required TranslatedValue value,
   })  : assert(credential != null),
-        assert(attributeType != null),
-        assert(value != null) {
-    if (attributeType.displayHint == "portraitPhoto") {
-      portraitPhoto = _decodePortraitPhoto(value);
-    }
-  }
+        super(credentialInfo: credential.info, attributeType: attributeType, value: value);
 
   factory CredentialAttribute.fromAttributeIdentifier(
       IrmaConfiguration irmaConfiguration, Credentials credentials, AttributeIdentifier attributeIdentifier) {
@@ -148,6 +156,45 @@ class CredentialAttribute {
     final value = credential.attributes[attributeType];
 
     return CredentialAttribute(credential: credential, attributeType: attributeType, value: value);
+  }
+}
+
+class Attribute {
+  final CredentialInfo credentialInfo;
+  final AttributeType attributeType;
+  final TranslatedValue value;
+  Image portraitPhoto;
+
+  Attribute({
+    @required this.credentialInfo,
+    @required this.attributeType,
+    @required this.value,
+  })  : assert(credentialInfo != null),
+        assert(attributeType != null),
+        assert(value != null) {
+    if (attributeType.displayHint == "portraitPhoto") {
+      portraitPhoto = _decodePortraitPhoto(value);
+    }
+  }
+
+  factory Attribute.fromDisclosedAttribute(IrmaConfiguration irmaConfiguration, DisclosedAttribute disclosedAttribute) {
+    final parsedAttributeId = disclosedAttribute.identifier.split(".");
+    final schemeManagerId = parsedAttributeId[0];
+    final issuerId = "$schemeManagerId.${parsedAttributeId[1]}";
+    final credentialId = "$issuerId.${parsedAttributeId[2]}";
+    final credentialInfo = CredentialInfo(
+      id: credentialId,
+      issuer: irmaConfiguration.issuers[issuerId],
+      schemeManager: irmaConfiguration.schemeManagers[schemeManagerId],
+      credentialType: irmaConfiguration.credentialTypes[credentialId],
+    );
+    final attributeType = irmaConfiguration.attributeTypes[disclosedAttribute.identifier];
+    final value = disclosedAttribute.value;
+    return Attribute(
+      credentialInfo: credentialInfo,
+      attributeType: attributeType,
+      value: value,
+    );
   }
 }
 

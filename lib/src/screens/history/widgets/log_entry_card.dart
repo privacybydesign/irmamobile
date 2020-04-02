@@ -7,8 +7,6 @@ import 'package:irmamobile/src/screens/history/widgets/log_icon.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class LogEntryCard extends StatelessWidget {
-  final _lang = 'nl';
-
   final IrmaConfiguration irmaConfiguration;
   final LogEntry logEntry;
   final VoidCallback onTap;
@@ -17,25 +15,26 @@ class LogEntryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String lang = FlutterI18n.currentLocale(context).languageCode;
     String title = "";
     String subtitle = "";
 
     switch (logEntry.type) {
       case LogEntryType.disclosing:
         title = FlutterI18n.plural(context, "history.type.disclosing.data", logEntry.disclosedAttributes.length);
-        subtitle = logEntry.serverName[_lang];
+        subtitle = logEntry.serverName[lang];
         break;
       case LogEntryType.signing:
         title = FlutterI18n.plural(context, "history.type.signing.data", logEntry.disclosedAttributes.length);
-        subtitle = logEntry.serverName[_lang];
+        subtitle = logEntry.serverName[lang];
         break;
       case LogEntryType.issuing:
         title = FlutterI18n.plural(context, "history.type.issuing.data", logEntry.issuedCredentials.length);
-        subtitle = irmaConfiguration.issuers[logEntry.issuedCredentials.first.fullIssuerId].name[_lang];
+        subtitle = irmaConfiguration.issuers[logEntry.issuedCredentials.first.fullIssuerId].name[lang];
         break;
       case LogEntryType.removal:
         title = FlutterI18n.translate(context, "history.type.removal");
-        subtitle = irmaConfiguration.credentialTypes[logEntry.removedCredentials.keys.first].name[_lang];
+        subtitle = irmaConfiguration.credentialTypes[logEntry.removedCredentials.keys.first].name[lang];
         break;
     }
 
@@ -73,7 +72,7 @@ class LogEntryCard extends StatelessWidget {
                       style: IrmaTheme.of(context).textTheme.display2,
                     ),
                     Text(
-                      formatDate(logEntry.time),
+                      formatDate(logEntry.time, lang),
                       style: IrmaTheme.of(context).textTheme.body1.copyWith(
                             fontSize: 14,
                           ),
