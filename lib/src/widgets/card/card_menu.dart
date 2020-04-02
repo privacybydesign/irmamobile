@@ -27,8 +27,8 @@ class CardMenu extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return IrmaDialog(
-          title: 'card.delete_title',
-          content: 'card.delete_content',
+          title: FlutterI18n.translate(context, 'card.delete_title'),
+          content: FlutterI18n.translate(context, 'card.delete_content'),
           child: Wrap(
             direction: Axis.horizontal,
             verticalDirection: VerticalDirection.up,

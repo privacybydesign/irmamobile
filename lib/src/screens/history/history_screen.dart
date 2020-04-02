@@ -3,11 +3,13 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/log_entry.dart';
+import 'package:irmamobile/src/screens/history/detail_screen.dart';
 import 'package:irmamobile/src/screens/history/history_repository.dart';
 import 'package:irmamobile/src/screens/history/widgets/log_entry_card.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/loading_indicator.dart';
+import 'package:irmamobile/src/theme/irma_icons.dart';
 
 class HistoryScreen extends StatefulWidget {
   static const routeName = "/history";
@@ -47,17 +49,30 @@ class HistoryScreenState extends State<HistoryScreen> {
       itemCount: historyState.logEntries.length + 1,
       itemBuilder: (context, index) {
         if (index == historyState.logEntries.length) {
-          if (!historyState.loading) {
-            return Container();
+          if (!historyState.moreLogsAvailable) {
+            // Icon to indicate end of list
+            return Center(
+              heightFactor: 2,
+              child: Icon(IrmaIcons.valid, color: IrmaTheme.of(context).interactionValid),
+            );
           }
 
           return Center(child: LoadingIndicator());
         }
 
+        final logEntry = historyState.logEntries[index];
         return LogEntryCard(
           irmaConfiguration: irmaConfiguration,
-          logEntry: historyState.logEntries[index],
-          onTap: () {},
+          logEntry: logEntry,
+          onTap: () {
+            // TODO: Details of removed credential cannot be shown yet
+            if (logEntry.type != LogEntryType.removal) {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => DetailScreen(logEntry: logEntry, irmaConfiguration: irmaConfiguration)));
+            }
+          },
         );
       },
     );
@@ -103,9 +118,8 @@ class HistoryScreenState extends State<HistoryScreen> {
     }
 
     final historyState = await _historyRepo.getHistoryState().first;
-    if (historyState.logEntries.isNotEmpty && historyState.moreLogsAvailable && !historyState.loading) {
-      // TODO: Fix this
-      // IrmaRepository.get().bridgedDispatch(LoadLogsEvent(before: historyState.logEntries.last.time, max: 10));
+    if (historyState.moreLogsAvailable && !historyState.loading) {
+      IrmaRepository.get().bridgedDispatch(LoadLogsEvent(before: historyState.logEntries.last.id, max: 10));
     }
   }
 }

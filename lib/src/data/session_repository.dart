@@ -59,10 +59,9 @@ class SessionRepository {
         clientReturnURL: event.clientReturnURL,
       );
     } else if (event is RequestVerificationPermissionSessionEvent) {
-      final condiscon = ConDisCon.fromRaw<DisclosureCandidate, CredentialAttribute>(
+      final condiscon = ConDisCon.fromRaw<DisclosureCandidate, Attribute>(
         event.disclosuresCandidates,
-        (disclosureCandidate) =>
-            CredentialAttribute.fromDisclosureCandidate(irmaConfiguration, credentials, disclosureCandidate),
+        (disclosureCandidate) => Attribute.fromCandidate(irmaConfiguration, credentials, disclosureCandidate),
       );
       return prevState.copyWith(
         status: SessionStatus.requestPermission,
@@ -94,8 +93,8 @@ class SessionRepository {
     );
   }
 
-  static ConCon<AttributeIdentifier> _initialDisclosureChoices(ConDisCon<CredentialAttribute> list) => ConCon(list.map(
-        (discon) => Con(discon[0].map((attr) => AttributeIdentifier.fromCredentialAttribute(attr))),
+  static ConCon<AttributeIdentifier> _initialDisclosureChoices(ConDisCon<Attribute> list) => ConCon(list.map(
+        (discon) => Con(discon[0].map((attr) => AttributeIdentifier.fromAttribute(attr))),
       ));
 
   // Given session state and a choice event, return an updated list of list of attributes that will be disclosed.
@@ -103,6 +102,6 @@ class SessionRepository {
           SessionState state, DisclosureChoiceUpdateSessionEvent event) =>
       ConCon(List<Con<AttributeIdentifier>>.of(state.disclosureChoices)
         ..[event.disconIndex] = Con(state.disclosuresCandidates[event.disconIndex][event.conIndex]
-            .map((attr) => AttributeIdentifier.fromCredentialAttribute(attr))
+            .map((attr) => AttributeIdentifier.fromAttribute(attr))
             .toList()));
 }

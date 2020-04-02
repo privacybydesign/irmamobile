@@ -67,6 +67,13 @@ class ConDisCon<T> extends UnmodifiableListView<DisCon<T>> {
       }));
     }));
   }
+
+  // This can't be a contructor due to dart-lang/sdk#26391
+  static ConDisCon<T> fromConCon<T>(ConCon<T> conCon) {
+    return ConDisCon<T>(conCon.map((con) {
+      return DisCon<T>(<Con<T>>[con]);
+    }));
+  }
 }
 
 class DisCon<T> extends UnmodifiableListView<Con<T>> {
@@ -79,6 +86,15 @@ class ConCon<T> extends UnmodifiableListView<Con<T>> {
   ConCon(Iterable<Con<T>> list)
       : assert(list != null),
         super(list);
+
+  // This can't be a contructor due to dart-lang/sdk#26391
+  static ConCon<T> fromRaw<R, T>(List<List<R>> rawConCon, T Function(R) fromRaw) {
+    return ConCon<T>(rawConCon.map((rawCon) {
+      return Con<T>(rawCon.map((elem) {
+        return fromRaw(elem);
+      }));
+    }));
+  }
 }
 
 class Con<T> extends UnmodifiableListView<T> {
@@ -117,52 +133,84 @@ class AttributeIdentifier {
   factory AttributeIdentifier.fromJson(Map<String, dynamic> json) => _$AttributeIdentifierFromJson(json);
   Map<String, dynamic> toJson() => _$AttributeIdentifierToJson(this);
 
-  AttributeIdentifier.fromCredentialAttribute(CredentialAttribute credentialAttribute) {
-    type = credentialAttribute.attributeType.fullId;
-    credentialHash = credentialAttribute.credential.hash;
+  AttributeIdentifier.fromAttribute(Attribute attribute) {
+    type = attribute.attributeType.fullId;
+    credentialHash = attribute.credentialHash;
   }
 }
 
-class CredentialAttribute {
+class CredentialAttribute extends Attribute {
   final Credential credential;
-  final AttributeType attributeType;
-  final TranslatedValue value;
+
+  @override
   final bool notRevokable;
-  Image portraitPhoto;
 
   CredentialAttribute({
     @required this.credential,
-    @required this.attributeType,
-    @required this.value,
+    @required AttributeType attributeType,
+    @required TranslatedValue value,
     @required this.notRevokable,
   })  : assert(credential != null),
+        super(credentialInfo: credential.info, attributeType: attributeType, value: value);
+
+  @override
+  bool get choosable => !notRevokable && !credential.expired && !credential.revoked;
+
+  @override
+  String get credentialHash => credential.hash;
+}
+
+class Attribute {
+  final CredentialInfo credentialInfo;
+  final AttributeType attributeType;
+  final TranslatedValue value;
+  Image portraitPhoto;
+
+  Attribute({
+    @required this.credentialInfo,
+    @required this.attributeType,
+    @required this.value,
+  })  : assert(credentialInfo != null),
         assert(attributeType != null),
-        assert(value != null),
-        assert(notRevokable != null) {
+        assert(value != null) {
     if (attributeType.displayHint == "portraitPhoto") {
       portraitPhoto = _decodePortraitPhoto(value);
     }
   }
 
-  bool get choosable =>
-      !notRevokable &&
-      credential.expired != null &&
-      !credential.expired &&
-      credential.revoked != null &&
-      !credential.revoked;
+  bool get choosable => false;
 
-  factory CredentialAttribute.fromDisclosureCandidate(
+  bool get notRevokable => false;
+
+  String get credentialHash => "";
+
+  factory Attribute.fromCandidate(
       IrmaConfiguration irmaConfiguration, Credentials credentials, DisclosureCandidate candidate) {
-    final hash = candidate.credentialHash;
-    final type = candidate.type;
-    final attributeType = irmaConfiguration.attributeTypes[type];
-    final credential = hash != ""
-        ? credentials[hash]
-        : Credential.fromId(irmaConfiguration: irmaConfiguration, id: type.substring(0, type.lastIndexOf(".")));
-    final value = hash == "" ? TranslatedValue({"en": "-", "nl": "-"}) : credential.attributes[attributeType];
+    final attributeType = irmaConfiguration.attributeTypes[candidate.type];
+    final credential = credentials[candidate.credentialHash];
+    if (candidate.credentialHash != null && candidate.credentialHash != "") {
+      final value = credential.attributes[attributeType];
+      return CredentialAttribute(
+        credential: credential,
+        attributeType: attributeType,
+        notRevokable: candidate.notRevokable,
+        value: value,
+      );
+    } else {
+      return Attribute(
+        credentialInfo: CredentialInfo.fromDisclosedAttribute(irmaConfiguration, candidate.type),
+        attributeType: attributeType,
+        value: TranslatedValue({"en": "-", "nl": "-"}),
+      );
+    }
+  }
 
-    return CredentialAttribute(
-        credential: credential, attributeType: attributeType, value: value, notRevokable: candidate.notRevokable);
+  factory Attribute.fromDisclosedAttribute(IrmaConfiguration irmaConfiguration, DisclosedAttribute disclosedAttribute) {
+    return Attribute(
+      credentialInfo: CredentialInfo.fromDisclosedAttribute(irmaConfiguration, disclosedAttribute.identifier),
+      attributeType: irmaConfiguration.attributeTypes[disclosedAttribute.identifier],
+      value: disclosedAttribute.value,
+    );
   }
 }
 

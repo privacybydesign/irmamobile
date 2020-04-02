@@ -76,7 +76,7 @@ class IrmaCard extends StatelessWidget {
               children: <Widget>[
                 Expanded(
                   child: Text(
-                    getTranslation(credential.credentialType.name),
+                    getTranslation(credential.info.credentialType.name),
                     style: Theme.of(context).textTheme.subhead.copyWith(
                           color: cardTheme.foregroundColor,
                         ),

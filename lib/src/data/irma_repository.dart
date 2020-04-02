@@ -3,9 +3,11 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:irmamobile/src/data/irma_bridge.dart';
+import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/session_repository.dart';
 import 'package:irmamobile/src/models/app_ready_event.dart';
 import 'package:irmamobile/src/models/authentication_events.dart';
+import 'package:irmamobile/src/models/change_pin_events.dart';
 import 'package:irmamobile/src/models/clear_all_data_event.dart';
 import 'package:irmamobile/src/models/credential_events.dart';
 import 'package:irmamobile/src/models/credentials.dart';
@@ -48,6 +50,7 @@ class IrmaRepository {
   final _credentialsSubject = BehaviorSubject<Credentials>();
   final _enrollmentStatusSubject = BehaviorSubject<EnrollmentStatus>.seeded(EnrollmentStatus.undetermined);
   final _authenticationEventSubject = PublishSubject<AuthenticationEvent>();
+  final _changePinEventSubject = PublishSubject<ChangePinBaseEvent>();
   final _lockedSubject = BehaviorSubject<bool>.seeded(true);
   final _pendingSessionPointerSubject = BehaviorSubject<SessionPointer>.seeded(null);
 
@@ -94,6 +97,8 @@ class IrmaRepository {
       if (event is AuthenticationSuccessEvent) {
         _lockedSubject.add(false);
       }
+    } else if (event is ChangePinBaseEvent) {
+      _changePinEventSubject.add(event);
     } else if (event is EnrollEvent) {
       // TODO: This shouldn't be here. See comment on `_cachedPin`.
       _cachedPin = event.pin;
@@ -163,6 +168,8 @@ class IrmaRepository {
 
     final event = EnrollEvent(email: email, pin: pin, language: language);
     dispatch(event, isBridgedEvent: true);
+
+    IrmaPreferences.get().setLongPin(pin.length != 5);
   }
 
   Stream<EnrollmentStatus> getEnrollmentStatus() {
@@ -183,6 +190,26 @@ class IrmaRepository {
         case AuthenticationSuccessEvent:
         case AuthenticationFailedEvent:
         case AuthenticationErrorEvent:
+          return true;
+          break;
+        default:
+          return false;
+      }
+    }).first;
+  }
+
+  Future<ChangePinBaseEvent> changePin(String oldPin, String newPin) {
+    dispatch(ChangePinEvent(oldPin: oldPin, newPin: newPin), isBridgedEvent: true);
+
+    return _changePinEventSubject.where((event) {
+      switch (event.runtimeType) {
+        case ChangePinSuccessEvent:
+          // Change pin length
+          IrmaPreferences.get().setLongPin(newPin.length != 5);
+          return true;
+          break;
+        case ChangePinFailedEvent:
+        case ChangePinErrorEvent:
           return true;
           break;
         default:

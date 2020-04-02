@@ -6,7 +6,7 @@ class SessionState {
   final bool continueOnSecondDevice;
   final SessionStatus status;
   final TranslatedValue serverName;
-  final ConDisCon<CredentialAttribute> disclosuresCandidates;
+  final ConDisCon<Attribute> disclosuresCandidates;
   final String clientReturnURL;
   final bool isSignatureSession;
   final String signedMessage;
@@ -37,7 +37,7 @@ class SessionState {
     bool continueOnSecondDevice,
     SessionStatus status,
     TranslatedValue serverName,
-    ConDisCon<CredentialAttribute> disclosuresCandidates,
+    ConDisCon<Attribute> disclosuresCandidates,
     String clientReturnURL,
     bool isSignatureSession,
     String signedMessage,

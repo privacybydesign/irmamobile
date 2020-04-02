@@ -12,6 +12,7 @@ import 'package:irmamobile/src/screens/disclosure/widgets/arrow_back_screen.dart
 import 'package:irmamobile/src/screens/disclosure/widgets/disclosure_feedback_screen.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/disclosure/disclosure_card.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
@@ -21,8 +22,6 @@ import 'package:irmamobile/src/widgets/irma_text_button.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 import 'package:irmamobile/src/widgets/loading_indicator.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-import 'carousel.dart';
 
 class DisclosureScreenArguments {
   final int sessionID;
@@ -49,7 +48,11 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   bool _displayArrowBack = false;
 
   void carouselPageUpdate(int disconIndex, int conIndex) {
-    _dispatchSessionEvent(DisclosureChoiceUpdateSessionEvent(disconIndex: disconIndex, conIndex: conIndex),
+    _dispatchSessionEvent(
+        DisclosureChoiceUpdateSessionEvent(
+          disconIndex: disconIndex,
+          conIndex: conIndex,
+        ),
         isBridgedEvent: false);
   }
 
@@ -225,37 +228,9 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
               ? (session.isSignatureSession ? _buildSigningHeader(session) : _buildDisclosureHeader(session))
               : _buildUnsatisfiableHeader(session),
         ),
-        Card(
-          elevation: 1.0,
-          semanticContainer: true,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(IrmaTheme.of(context).defaultSpacing),
-            side: const BorderSide(color: Color(0xFFDFE3E9), width: 1),
-          ),
-          color: IrmaTheme.of(context).primaryLight,
-          child: Column(
-            children: [
-              SizedBox(height: IrmaTheme.of(context).smallSpacing),
-              ...session.disclosuresCandidates
-                  .asMap()
-                  .entries
-                  .expand(
-                    (entry) => [
-                      // Display a divider except for the first element
-                      if (entry.key != 0)
-                        Divider(
-                          color: IrmaTheme.of(context).grayscale80,
-                        ),
-                      Carousel(
-                        candidatesDisCon: entry.value,
-                        onCurrentPageUpdate: (int page) => carouselPageUpdate(entry.key, page),
-                      ),
-                    ],
-                  )
-                  .toList(),
-              SizedBox(height: IrmaTheme.of(context).smallSpacing),
-            ],
-          ),
+        DisclosureCard(
+          candidatesConDisCon: session.disclosuresCandidates,
+          onCurrentPageUpdate: carouselPageUpdate,
         ),
       ],
     );
@@ -291,7 +266,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     );
   }
 
-  Future<void> _showExplanation(ConDisCon<CredentialAttribute> candidatesConDisCon) async {
+  Future<void> _showExplanation(ConDisCon<Attribute> candidatesConDisCon) async {
     final irmaPrefs = IrmaPreferences.get();
 
     final bool showDisclosureDialog = await irmaPrefs.getShowDisclosureDialog().first;
@@ -304,8 +279,8 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) => IrmaDialog(
-        title: 'disclosure.explanation.title',
-        content: 'disclosure.explanation.body',
+        title: FlutterI18n.translate(context, 'disclosure.explanation.title'),
+        content: FlutterI18n.translate(context, 'disclosure.explanation.body'),
         image: 'assets/disclosure/disclosure-explanation.webp',
         child: Wrap(
           direction: Axis.horizontal,

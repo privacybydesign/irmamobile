@@ -90,9 +90,10 @@ class EmailAttributeConfirmation extends StatelessWidget {
                               ),
                               TextSpan(
                                 text: FlutterI18n.translate(
-                                    context, "card_store.email.success.no_email_received_body_step2_2", {
-                                  "e-mail": state.enteredEmail,
-                                }),
+                                  context,
+                                  "card_store.email.success.no_email_received_body_step2_2",
+                                  translationParams: {"e-mail": state.enteredEmail},
+                                ),
                                 style: IrmaTheme.of(context).textTheme.body1,
                               ),
                             ],
@@ -130,8 +131,8 @@ class EmailAttributeConfirmation extends StatelessWidget {
                   if (state.showSuccessConfirmation)
                     SuccessAlert(
                       title: FlutterI18n.translate(context, "card_store.email.success.alert_title"),
-                      body: FlutterI18n.translate(
-                          context, "card_store.email.success.alert_body", {"e-mail": state.enteredEmail}),
+                      body: FlutterI18n.translate(context, "card_store.email.success.alert_body",
+                          translationParams: {"e-mail": state.enteredEmail}),
                     ),
                 ],
               ));

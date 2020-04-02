@@ -56,28 +56,30 @@ func (ch *clientHandler) ChangePinFailure(managerIdentifier irma.SchemeManagerId
 		err = &irma.SessionError{ErrorType: irma.ErrorType("unknown"), Err: plainErr}
 	}
 
-	dispatchEvent(&changePinFailureEvent{
+	dispatchEvent(&changePinErrorEvent{
 		SchemeManagerID: managerIdentifier,
 		Error:           &sessionError{err},
 	})
 }
 
 func (ch *clientHandler) ChangePinSuccess(managerIdentifier irma.SchemeManagerIdentifier) {
-	dispatchEvent(&changePinFailureEvent{
+	dispatchEvent(&changePinSuccessEvent{
 		SchemeManagerID: managerIdentifier,
 	})
 }
 
 func (ch *clientHandler) ChangePinIncorrect(managerIdentifier irma.SchemeManagerIdentifier, remainingAttempts int) {
-	dispatchEvent(&changePinIncorrect{
+	dispatchEvent(&changePinFailedEvent{
 		SchemeManagerID:   managerIdentifier,
 		RemainingAttempts: remainingAttempts,
+		Timeout:           0,
 	})
 }
 
 func (ch *clientHandler) ChangePinBlocked(managerIdentifier irma.SchemeManagerIdentifier, timeout int) {
-	dispatchEvent(&changePinBlocked{
-		SchemeManagerID: managerIdentifier,
-		Timeout:         timeout,
+	dispatchEvent(&changePinFailedEvent{
+		SchemeManagerID:   managerIdentifier,
+		RemainingAttempts: 0,
+		Timeout:           timeout,
 	})
 }

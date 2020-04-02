@@ -1,7 +1,5 @@
 import 'package:intl/intl.dart';
 
-final _dateFormat = DateFormat.yMMMMd().addPattern(" - ").add_jm();
-
-String formatDate(DateTime date) {
-  return _dateFormat.format(date);
+String formatDate(DateTime date, String lang) {
+  return DateFormat.yMMMMd(lang).addPattern(" - ").add_jm().format(date);
 }

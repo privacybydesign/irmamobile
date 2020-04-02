@@ -35,42 +35,36 @@ class Credentials extends UnmodifiableMapView<String, Credential> {
 }
 
 class Credential {
-  final String id;
-  final SchemeManager schemeManager;
-  final Issuer issuer;
-  final CredentialType credentialType;
+  final CredentialInfo info;
   final DateTime signedOn;
   final DateTime expires;
   final Attributes attributes;
   final bool revoked;
   final String hash;
 
-  bool get expired => expires?.isBefore(DateTime.now());
+  bool get expired => expires.isBefore(DateTime.now());
 
   Credential({
-    @required this.id,
-    @required this.issuer,
-    @required this.schemeManager,
-    @required this.credentialType,
+    @required this.info,
     @required this.signedOn,
     @required this.expires,
     @required this.attributes,
     @required this.revoked,
     @required this.hash,
-  })  : assert(id != null),
-        assert(issuer != null),
-        assert(schemeManager != null),
-        assert(credentialType != null),
-        assert(signedOn != null || hash == null),
-        assert(expires != null || hash == null),
-        assert(attributes != null || hash == null),
-        assert(revoked != null || hash == null);
+  })  : assert(info != null),
+        assert(signedOn != null),
+        assert(expires != null),
+        assert(attributes != null),
+        assert(revoked != null),
+        assert(hash != null);
 
   Credential.fromRaw({IrmaConfiguration irmaConfiguration, RawCredential rawCredential})
-      : id = rawCredential.id,
-        schemeManager = irmaConfiguration.schemeManagers[rawCredential.schemeManagerId],
-        issuer = irmaConfiguration.issuers[rawCredential.fullIssuerId],
-        credentialType = irmaConfiguration.credentialTypes[rawCredential.fullId],
+      : info = CredentialInfo(
+          id: rawCredential.id,
+          schemeManager: irmaConfiguration.schemeManagers[rawCredential.schemeManagerId],
+          issuer: irmaConfiguration.issuers[rawCredential.fullIssuerId],
+          credentialType: irmaConfiguration.credentialTypes[rawCredential.fullId],
+        ),
         signedOn = DateTime.fromMillisecondsSinceEpoch(rawCredential.signedOn * 1000),
         expires = DateTime.fromMillisecondsSinceEpoch(rawCredential.expires * 1000),
         attributes = Attributes.fromRaw(
@@ -79,26 +73,38 @@ class Credential {
         ),
         revoked = rawCredential.revoked,
         hash = rawCredential.hash;
+}
 
-  factory Credential.fromId({IrmaConfiguration irmaConfiguration, String id}) {
-    final parts = id.split("\.");
-    final schemeManagerId = parts[0];
-    final fullIssuerId = "$schemeManagerId.${parts[1]}";
-    return Credential(
-        id: parts.last,
-        issuer: irmaConfiguration.issuers[fullIssuerId],
-        schemeManager: irmaConfiguration.schemeManagers[schemeManagerId],
-        credentialType: irmaConfiguration.credentialTypes[id],
-        signedOn: null,
-        expires: null,
-        attributes: null,
-        revoked: null,
-        hash: null);
+class CredentialInfo {
+  final String id;
+  final SchemeManager schemeManager;
+  final Issuer issuer;
+  final CredentialType credentialType;
+
+  String get fullId => "${issuer.fullId}.$id";
+
+  CredentialInfo({
+    @required this.id,
+    @required this.issuer,
+    @required this.schemeManager,
+    @required this.credentialType,
+  })  : assert(id != null),
+        assert(issuer != null),
+        assert(schemeManager != null),
+        assert(credentialType != null);
+
+  factory CredentialInfo.fromDisclosedAttribute(IrmaConfiguration irmaConfiguration, String attributeIdentifier) {
+    final parsedAttributeId = attributeIdentifier.split(".");
+    final schemeManagerId = parsedAttributeId[0];
+    final issuerId = "$schemeManagerId.${parsedAttributeId[1]}";
+    final credentialId = "$issuerId.${parsedAttributeId[2]}";
+    return CredentialInfo(
+      id: parsedAttributeId.last,
+      issuer: irmaConfiguration.issuers[issuerId],
+      schemeManager: irmaConfiguration.schemeManagers[schemeManagerId],
+      credentialType: irmaConfiguration.credentialTypes[credentialId],
+    );
   }
-
-  String get fullIssuerId => "${issuer.fullId}";
-
-  String get fullId => "$fullIssuerId.$id";
 }
 
 @JsonSerializable(nullable: false)

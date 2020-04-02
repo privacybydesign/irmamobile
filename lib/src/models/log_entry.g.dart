@@ -20,13 +20,13 @@ Map<String, dynamic> _$LogsEventToJson(LogsEvent instance) => <String, dynamic>{
 
 LoadLogsEvent _$LoadLogsEventFromJson(Map<String, dynamic> json) {
   return LoadLogsEvent(
-    before: json['Before'] == null ? null : DateTime.parse(json['Before'] as String),
+    before: json['Before'] as int,
     max: json['Max'] as int,
   );
 }
 
 Map<String, dynamic> _$LoadLogsEventToJson(LoadLogsEvent instance) => <String, dynamic>{
-      'Before': _dateTimeToEpochSeconds(instance.before),
+      'Before': instance.before,
       'Max': instance.max,
     };
 
@@ -74,12 +74,10 @@ const _$LogEntryTypeEnumMap = {
 
 SignedMessage _$SignedMessageFromJson(Map<String, dynamic> json) {
   return SignedMessage(
-    message: json['Message'] as String,
-    timestamp: _epochSecondsToDateTime(json['Timestamp'] as int),
+    message: json['message'] as String,
   );
 }
 
 Map<String, dynamic> _$SignedMessageToJson(SignedMessage instance) => <String, dynamic>{
-      'Message': instance.message,
-      'Timestamp': instance.timestamp?.toIso8601String(),
+      'message': instance.message,
     };

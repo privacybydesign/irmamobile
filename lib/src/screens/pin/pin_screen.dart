@@ -4,14 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_state.dart';
-import 'package:irmamobile/src/screens/pin/widgets/blocked.dart';
 import 'package:irmamobile/src/screens/reset_pin/reset_pin_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_text_button.dart';
+import 'package:irmamobile/src/widgets/pin_common/pin_wrong_attempts.dart';
+import 'package:irmamobile/src/widgets/pin_common/pin_wrong_blocked.dart';
 import 'package:irmamobile/src/widgets/pin_field.dart';
+
+import '../../data/irma_preferences.dart';
+import '../scanner/scanner_screen.dart';
 
 class PinScreen extends StatefulWidget {
   static const String routeName = '/pin-screen';
@@ -33,31 +38,28 @@ class _PinScreenState extends State<PinScreen> {
     super.initState();
     _focusNode = FocusNode();
 
-    _pinBlocSubscription = _pinBloc.state.listen((pinState) {
+    _pinBlocSubscription = _pinBloc.state.listen((pinState) async {
       if (pinState.locked == false) {
         Navigator.of(context).pop();
+        final startQrScanner = await IrmaPreferences.get().getStartQRScan().first;
+        if (startQrScanner) {
+          Navigator.of(context).pushNamed(ScannerScreen.routeName);
+        }
+
         _pinBlocSubscription.cancel();
       }
       if (pinState.pinInvalid) {
-        showDialog(
-          context: context,
-          child: AlertDialog(
-            title: Text(
-              FlutterI18n.translate(context, "pin.invalid_pin_dialog_title"),
-            ),
-            content: Text(
-              FlutterI18n.plural(context, "pin.invalid_pin.attempts", pinState.remainingAttempts),
-            ),
-            actions: <Widget>[
-              IrmaTextButton(
-                label: FlutterI18n.translate(context, "pin.invalid_pin_dialog_close"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          ),
-        );
+        if (pinState.remainingAttempts != 0) {
+          showDialog(
+            context: context,
+            child: PinWrongAttemptsDialog(attemptsRemaining: pinState.remainingAttempts),
+          );
+        } else {
+          showDialog(
+            context: context,
+            child: PinWrongBlockedDialog(blocked: pinState.blockedUntil.difference(DateTime.now()).inSeconds),
+          );
+        }
       }
 
       if (pinState.errorMessage != null) {
@@ -99,13 +101,6 @@ class _PinScreenState extends State<PinScreen> {
       child: BlocBuilder<PinBloc, PinState>(
         bloc: _pinBloc,
         builder: (context, state) {
-          if (state.isBlocked == true) {
-            return Scaffold(
-              appBar: _buildAppBar(),
-              body: Blocked(),
-            );
-          }
-
           if (state.locked == false) {
             return Container();
           }
@@ -138,13 +133,18 @@ class _PinScreenState extends State<PinScreen> {
                     SizedBox(
                       height: IrmaTheme.of(context).defaultSpacing,
                     ),
-                    PinField(
-                      focusNode: _focusNode,
-                      longPin: false,
-                      onSubmit: (pin) {
-                        FocusScope.of(context).requestFocus();
-                        _pinBloc.dispatch(
-                          Unlock(pin),
+                    StreamBuilder(
+                      stream: IrmaPreferences.get().getLongPin(),
+                      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+                        return PinField(
+                          focusNode: _focusNode,
+                          longPin: snapshot.hasData && snapshot.data,
+                          onSubmit: (pin) {
+                            FocusScope.of(context).requestFocus();
+                            _pinBloc.dispatch(
+                              Unlock(pin),
+                            );
+                          },
                         );
                       },
                     ),

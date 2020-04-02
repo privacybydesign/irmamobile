@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/screens/scanner/widgets/qr_instruction.dart';
 import 'package:irmamobile/src/screens/scanner/widgets/qr_overlay.dart';
@@ -75,6 +77,7 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
 
     // If invalid, show an error message for a certain time
     if (sessionPointer == null) {
+      SemanticsService.announce(FlutterI18n.translate(context, "qr_scanner.error.semantic"), TextDirection.ltr);
       setState(() {
         error = true;
       });
@@ -87,6 +90,7 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
     }
 
     // Signal success after a small timeout
+    SemanticsService.announce(FlutterI18n.translate(context, "qr_scanner.success.semantic"), TextDirection.ltr);
     setState(() {
       found = true;
       error = false;

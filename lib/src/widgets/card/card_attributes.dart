@@ -196,7 +196,7 @@ class CardAttributes extends StatelessWidget {
           ),
           Expanded(
             child: Text(
-              credential.issuer.name[_lang],
+              credential.info.issuer.name[_lang],
               style: body1Theme.copyWith(fontSize: 12),
               overflow: TextOverflow.ellipsis,
             ),

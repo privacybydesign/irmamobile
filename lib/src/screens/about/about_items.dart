@@ -5,8 +5,8 @@ import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/screens/about/widgets/links.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/util/translated_text.dart';
 import 'package:irmamobile/src/widgets/collapsible.dart';
-import 'package:irmamobile/src/widgets/irma_markdown.dart';
 
 class AboutItems extends StatefulWidget {
   const AboutItems({this.credentialType, this.parentKey, this.parentScrollController});
@@ -80,9 +80,7 @@ class WhoIsBehindIrma extends StatelessWidget {
     return Column(
       children: <Widget>[
         Container(
-          child: IrmaMarkdown(
-            data: FlutterI18n.translate(context, 'about.who_is_behind_irma_explanation'),
-          ),
+          child: const TranslatedText('about.who_is_behind_irma_explanation'),
         ),
         SizedBox(height: IrmaTheme.of(context).defaultSpacing),
         SizedBox(
@@ -95,11 +93,23 @@ class WhoIsBehindIrma extends StatelessWidget {
           ),
         ),
         SizedBox(height: IrmaTheme.of(context).smallSpacing),
-        ExternalLink("about.pbdf_link", "about.pbdf",
-            SizedBox(width: 50.0, child: Image.asset("assets/non-free/pbdf_logo.png"))),
+        ExternalLink(
+          "about.pbdf_link",
+          "about.pbdf",
+          SizedBox(
+            width: 50.0,
+            child: Image.asset("assets/non-free/pbdf_logo.png"),
+          ),
+        ),
         SizedBox(height: IrmaTheme.of(context).smallSpacing),
-        ExternalLink("about.award_link", "about.award",
-            SizedBox(width: 50.0, child: Image.asset("assets/non-free/award_logo.png"))),
+        ExternalLink(
+          "about.award_link",
+          "about.award",
+          SizedBox(
+            width: 50.0,
+            child: Image.asset("assets/non-free/award_logo.png"),
+          ),
+        ),
         SizedBox(height: IrmaTheme.of(context).smallSpacing),
       ],
     );
@@ -113,9 +123,7 @@ class WhyIrma extends StatelessWidget {
     return Column(
       children: <Widget>[
         Container(
-          child: IrmaMarkdown(
-            data: FlutterI18n.translate(context, 'about.why_irma_explanation'),
-          ),
+          child: const TranslatedText('about.why_irma_explanation'),
         ),
         SizedBox(height: IrmaTheme.of(context).smallSpacing),
       ],
@@ -130,9 +138,7 @@ class PrivacyAndSecurity extends StatelessWidget {
     return Column(
       children: <Widget>[
         Container(
-          child: IrmaMarkdown(
-            data: FlutterI18n.translate(context, 'about.privacy_explanation'),
-          ),
+          child: const TranslatedText('about.privacy_explanation'),
         ),
         SizedBox(height: IrmaTheme.of(context).defaultSpacing),
         SizedBox(

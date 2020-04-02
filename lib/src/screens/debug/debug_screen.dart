@@ -166,7 +166,7 @@ class DebugScreen extends StatelessWidget {
     final credentials = await repo.getCredentials().first;
 
     for (final credential in credentials.values) {
-      if (credential.credentialType.disallowDelete) {
+      if (credential.info.credentialType.disallowDelete) {
         continue;
       }
 

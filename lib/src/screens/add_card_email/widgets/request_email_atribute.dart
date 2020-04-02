@@ -48,7 +48,7 @@ class RequestEmailAttributeState extends State<RequestEmailAttribute> {
             FlutterI18n.translate(
               context,
               'card_store.app_bar',
-              {
+              translationParams: {
                 "card_type": widget.name,
               },
             ),
@@ -82,7 +82,7 @@ class RequestEmailAttributeState extends State<RequestEmailAttribute> {
                             body: FlutterI18n.translate(
                               context,
                               'card_store.email.info_alert_body',
-                              {
+                              translationParams: {
                                 "e-mail": state.irmaEmail,
                               },
                             ),
@@ -93,7 +93,8 @@ class RequestEmailAttributeState extends State<RequestEmailAttribute> {
                           padding: EdgeInsets.only(top: IrmaTheme.of(context).defaultSpacing),
                           child: ErrorAlert(
                             title: FlutterI18n.translate(context, 'card_store.email.fail.alert_title'),
-                            body: FlutterI18n.translate(context, 'card_store.email.fail.alert_body', {
+                            body:
+                                FlutterI18n.translate(context, 'card_store.email.fail.alert_body', translationParams: {
                               "e-mail": state.enteredEmail,
                             }),
                           ),

@@ -4,9 +4,10 @@ import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/util/translated_text.dart';
 
 class Carousel extends StatefulWidget {
-  final DisCon<CredentialAttribute> candidatesDisCon;
+  final DisCon<Attribute> candidatesDisCon;
   final ValueChanged<int> onCurrentPageUpdate;
 
   const Carousel({
@@ -131,9 +132,9 @@ class _CarouselState extends State<Carousel> {
                 ),
                 const Spacer(flex: 3),
                 Center(
-                  child: Text(
-                    FlutterI18n.translate(
-                        context, 'disclosure.choices', {"choices": widget.candidatesDisCon.length.toString()}),
+                  child: TranslatedText(
+                    'disclosure.choices',
+                    translationParams: {"choices": widget.candidatesDisCon.length.toString()},
                     style: IrmaTheme.of(context)
                         .textTheme
                         .body1
@@ -197,7 +198,7 @@ class _CarouselState extends State<Carousel> {
         ),
       );
 
-  Widget _buildCandidateValue(CredentialAttribute candidate) {
+  Widget _buildCandidateValue(Attribute candidate) {
     if (candidate.portraitPhoto != null) {
       return Padding(
         padding: EdgeInsets.only(
@@ -219,14 +220,14 @@ class _CarouselState extends State<Carousel> {
     );
   }
 
-  Widget _buildCarouselWidget(Con<CredentialAttribute> candidatesCon) {
+  Widget _buildCarouselWidget(Con<Attribute> candidatesCon) {
     // Transform candidatesCon into a list where attributes of the same issuer
     // are grouped together. This assumes those attributes are always
     // adjacent within the specified con, which is guaranteed by irmago.
     final credentials = candidatesCon.fold(
-      <List<CredentialAttribute>>[],
-      (List<List<CredentialAttribute>> list, attr) =>
-          list.isNotEmpty && list.last.last.credential.fullIssuerId == attr.credential.fullIssuerId
+      <List<Attribute>>[],
+      (List<List<Attribute>> list, attr) =>
+          list.isNotEmpty && list.last.last.credentialInfo.issuer.fullId == attr.credentialInfo.issuer.fullId
               ? (list..last.add(attr))
               : (list..add([attr])),
     ).map((list) => _DisclosureCredential(attributes: Con(list)));
@@ -302,14 +303,15 @@ class _CarouselState extends State<Carousel> {
 }
 
 class _DisclosureCredential {
-  final Con<CredentialAttribute> attributes;
+  final Con<Attribute> attributes;
   final String id;
   final TranslatedValue issuer;
 
   _DisclosureCredential({@required this.attributes})
       : assert(attributes != null &&
             attributes.isNotEmpty &&
-            attributes.every((attr) => attr.credential.fullIssuerId == attributes.first.credential.fullIssuerId)),
-        id = attributes.first.credential.fullId,
-        issuer = attributes.first.credential.issuer.name;
+            attributes
+                .every((attr) => attr.credentialInfo.issuer.fullId == attributes.first.credentialInfo.issuer.fullId)),
+        id = attributes.first.credentialInfo.fullId,
+        issuer = attributes.first.credentialInfo.issuer.name;
 }
