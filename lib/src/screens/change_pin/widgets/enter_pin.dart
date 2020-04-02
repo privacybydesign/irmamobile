@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/pin_field.dart';
@@ -42,11 +43,16 @@ class EnterPin extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: IrmaTheme.of(context).mediumSpacing),
-              PinField(
-                focusNode: pinFocusNode,
-                longPin: false,
-                onSubmit: (String pin) {
-                  submitOldPin(pin);
+              StreamBuilder(
+                stream: IrmaPreferences.get().getLongPin(),
+                builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+                  return PinField(
+                    focusNode: pinFocusNode,
+                    longPin: snapshot.hasData && snapshot.data,
+                    onSubmit: (String pin) {
+                      submitOldPin(pin);
+                    },
+                  );
                 },
               ),
             ],

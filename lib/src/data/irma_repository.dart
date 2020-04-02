@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:irmamobile/src/data/irma_bridge.dart';
+import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/session_repository.dart';
 import 'package:irmamobile/src/models/app_ready_event.dart';
 import 'package:irmamobile/src/models/authentication_events.dart';
@@ -167,6 +168,8 @@ class IrmaRepository {
 
     final event = EnrollEvent(email: email, pin: pin, language: language);
     dispatch(event, isBridgedEvent: true);
+
+    IrmaPreferences.get().setLongPin(pin.length != 5);
   }
 
   Stream<EnrollmentStatus> getEnrollmentStatus() {
@@ -201,6 +204,10 @@ class IrmaRepository {
     return _changePinEventSubject.where((event) {
       switch (event.runtimeType) {
         case ChangePinSuccessEvent:
+          // Change pin length
+          IrmaPreferences.get().setLongPin(newPin.length != 5);
+          return true;
+          break;
         case ChangePinFailedEvent:
         case ChangePinErrorEvent:
           return true;

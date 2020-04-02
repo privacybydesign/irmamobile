@@ -36,7 +36,7 @@
       "instruction": "Choose a 5-digit PIN",
       "confirm_instruction": "Enter your PIN again",
       "next": "Next",
-      "error_title": "Wrong PIN",
+      "error_title": "PIN incorrect",
       "error": "PINs do not match. Choose a new PIN.",
       "error_action": "OK"
     },
@@ -235,7 +235,7 @@
       "instruction": "Choose your new PIN",
       "switch_long": "Prefer a longer PIN?",
       "switch_short": "Prefer a shorter PIN?",
-      "error_title": "Wrong PIN",
+      "error_title": "PIN incorrect",
       "error": "Different PINs. Choose a new PIN.",
       "error_action": "OK"
     },
@@ -270,22 +270,26 @@
       "semantic": "Sorry! This is not an IRMA QR code."
     }
   },
-  "pin": {
-    "title": "Login",
-    "subtitle": "Enter your PIN",
-    "button_forgot": "PIN forgotten",
-    "view": "Show PIN",
-    "hide": "Hide PIN",
-    "button_block": "Block IRMA",
-    "blocked_title": "To many wrong attempts",
-    "blocked_body": "Your account has been blocked for a few minutes.\n\nPlease try again later",
-    "invalid_pin_dialog_title": "Wrong PIN entered.",
-    "invalid_pin_dialog_close": "Try again.",
+  "pin_common": {
+    "invalid_title": "PIN incorrect",
     "invalid_pin": {
       "attempts-0": "This PIN is not correct. You have {attemps} attempts left before your IRMA app will be blocked temporarily.",
       "attempts-1": "This PIN is not correct. You have {attemps} attempts left before your IRMA app will be blocked temporarily.",
       "attempts-2": "This PIN is not correct. You have {attemps} attempts left before your IRMA app will be blocked temporarily."
-    }
+    },
+    "invalid_close": "Try again",
+    "blocked_title": "Account blocked",
+    "blocked_pin": "Your account has been blocked for {blocked} seconds. Please try again later.",
+    "blocked_close": "Try again",
+    "done": "Done",
+    "view": "Show PIN",
+    "hide": "Hide PIN"
+  },
+  "pin": {
+    "title": "Login",
+    "subtitle": "Enter your PIN",
+    "button_forgot": "PIN forgotten",
+    "button_block": "Block IRMA"
   },
   "error": {
     "title": "Something goes wrong",

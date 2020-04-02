@@ -10,6 +10,9 @@ class IrmaPreferences {
 
   IrmaPreferences._internal() {
     StreamingSharedPreferences.instance.then((preferences) {
+      final longPinPref = preferences.getBool(_longPinKey, defaultValue: true);
+      longPinPref.listen(_longPin.add);
+
       final reportErrorsPref = preferences.getBool(_reportErrorsKey, defaultValue: false);
       reportErrorsPref.listen(_reportErrors.add);
 
@@ -18,6 +21,19 @@ class IrmaPreferences {
 
       final showDisclosureDialogPref = preferences.getBool(_showDisclosureDialogKey, defaultValue: true);
       showDisclosureDialogPref.listen(_showDisclosureDialog.add);
+    });
+  }
+
+  static const String _longPinKey = "preference.long_pin";
+  final BehaviorSubject<bool> _longPin = BehaviorSubject<bool>();
+
+  Stream<bool> getLongPin() {
+    return _longPin;
+  }
+
+  Future<bool> setLongPin(bool value) {
+    return StreamingSharedPreferences.instance.then((preferences) {
+      return preferences.setBool(_longPinKey, value);
     });
   }
 

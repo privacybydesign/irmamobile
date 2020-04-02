@@ -3,6 +3,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/clear_all_data_event.dart';
+import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/settings/widgets/settings_header.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
@@ -44,18 +45,17 @@ class SettingsScreen extends StatelessWidget {
               );
             },
           ),
-          // TODO: Re-enable me
-          // ListTile(
-          //   onTap: () {
-          //     Navigator.of(context).pushNamed(ChangePinScreen.routeName);
-          //   },
-          //   title: Text(
-          //     FlutterI18n.translate(context, 'settings.change_pin'),
-          //     style: IrmaTheme.of(context).textTheme.body1,
-          //   ),
-          //   leading: Icon(IrmaIcons.edit, color: IrmaTheme.of(context).textTheme.body1.color),
-          //   trailing: Icon(IrmaIcons.chevronRight, color: IrmaTheme.of(context).textTheme.body1.color),
-          // ),
+          ListTile(
+            onTap: () {
+              Navigator.of(context).pushNamed(ChangePinScreen.routeName);
+            },
+            title: Text(
+              FlutterI18n.translate(context, 'settings.change_pin'),
+              style: IrmaTheme.of(context).textTheme.body1,
+            ),
+            leading: Icon(IrmaIcons.edit, color: IrmaTheme.of(context).textTheme.body1.color),
+            trailing: Icon(IrmaIcons.chevronRight, color: IrmaTheme.of(context).textTheme.body1.color),
+          ),
           const Divider(),
           SettingsHeader(
             headerText: FlutterI18n.translate(context, 'settings.advanced.header'),
