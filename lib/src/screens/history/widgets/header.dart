@@ -14,6 +14,7 @@ class Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String lang = FlutterI18n.currentLocale(context).languageCode;
     return Container(
       color: IrmaTheme.of(context).grayscale95,
       padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
@@ -35,7 +36,7 @@ class Header extends StatelessWidget {
                 style: IrmaTheme.of(context).textTheme.display2.copyWith(),
               ),
               Text(
-                formatDate(eventDate),
+                formatDate(eventDate, lang),
                 style: IrmaTheme.of(context).textTheme.body1.copyWith(
                       fontSize: 14,
                     ),

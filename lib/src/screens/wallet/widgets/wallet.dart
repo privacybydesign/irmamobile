@@ -483,7 +483,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
   bool _hasCredential(String credentialTypeId) {
     return (widget.credentials ?? []).any(
-      (credential) => credential.credentialType.fullId == credentialTypeId,
+      (credential) => credential.info.credentialType.fullId == credentialTypeId,
     );
   }
 
@@ -646,7 +646,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
   /// Handler for refresh in ... menu
   Function() _createOnRefreshCredential(Credential credential) {
-    if (credential.credentialType.issueUrl == null) {
+    if (credential.info.credentialType.issueUrl == null) {
       return null;
     }
 
@@ -654,7 +654,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) {
-          return WebviewScreen(getTranslation(credential.credentialType.issueUrl));
+          return WebviewScreen(getTranslation(credential.info.credentialType.issueUrl));
         }),
       );
     };
@@ -662,7 +662,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
   /// Handler for delete in ... menu
   Function() _createOnDeleteCredential(Credential credential) {
-    if (credential.credentialType.disallowDelete) {
+    if (credential.info.credentialType.disallowDelete) {
       return null;
     }
 

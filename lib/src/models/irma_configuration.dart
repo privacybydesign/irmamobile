@@ -273,7 +273,7 @@ class AttributeType {
 }
 
 Color _fromColorCode(String colorCode) {
-  if (colorCode.length != 7 || colorCode[0] != "#") {
+  if (colorCode == null || colorCode.length != 7 || colorCode[0] != "#") {
     return null;
   }
 

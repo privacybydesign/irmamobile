@@ -12,3 +12,8 @@ HandleURLEvent _$HandleURLEventFromJson(Map<String, dynamic> json) {
     url: json['url'] as String,
   );
 }
+
+Map<String, dynamic> _$HandleURLEventToJson(HandleURLEvent instance) => <String, dynamic>{
+      'isInitialURL': instance.isInitialUrl,
+      'url': instance.url,
+    };

@@ -2,23 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/credentials.dart';
+import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/log_entry.dart';
-import 'package:irmamobile/src/models/verifier.dart';
+import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/screens/history/widgets/header.dart';
 import 'package:irmamobile/src/screens/history/widgets/issuing_detail.dart';
 import 'package:irmamobile/src/screens/history/widgets/subtitle.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/disclosure_card.dart';
+import 'package:irmamobile/src/widgets/disclosure/disclosure_card.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
+import 'package:irmamobile/src/widgets/irma_quote.dart';
 
 class DetailScreen extends StatelessWidget {
-  final String _lang = "nl";
   final LogEntry logEntry;
+  final IrmaConfiguration irmaConfiguration;
 
-  const DetailScreen({this.logEntry});
+  const DetailScreen({this.logEntry, this.irmaConfiguration});
 
   @override
   Widget build(BuildContext context) {
+    final String lang = FlutterI18n.currentLocale(context).languageCode;
     return Scaffold(
       backgroundColor: IrmaTheme.of(context).grayscaleWhite,
       appBar: AppBar(
@@ -28,7 +31,7 @@ class DetailScreen extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: FlutterI18n.translate(context, "history.button_back"),
+        primaryButtonLabel: 'history.button_back',
         onPrimaryPressed: () {
           Navigator.of(context).pop();
         },
@@ -37,49 +40,71 @@ class DetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Header(logEntry.serverName.translate(_lang), DateTime.now(), logEntry.type),
+            Header(logEntry.serverName.translate(lang), DateTime.now(), logEntry.type),
             SizedBox(
               height: IrmaTheme.of(context).largeSpacing,
             ),
-            Padding(
-              padding: EdgeInsets.only(left: IrmaTheme.of(context).defaultSpacing),
-              child: Subtitle(logEntry.type),
-            ),
-            SizedBox(
-              height: IrmaTheme.of(context).defaultSpacing,
-            ),
-            _buildDetailWidget(),
-            SizedBox(
-              height: IrmaTheme.of(context).defaultSpacing,
-            )
+            ..._buildDetailWidgets(context),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildDetailWidget() {
-    // TODO: Re-enable this
-    switch (logEntry.type) {
-      case LogEntryType.removal:
-      // Removal not required for MVP
-      case LogEntryType.disclosing:
-        return const DisclosureCard(<List<VerifierCredential>>[]);
-      case LogEntryType.issuing:
-        return IssuingDetail(
-          logEntry.issuedCredentials
-              .map((rawCredential) => Credential.fromRaw(
-                    irmaConfiguration: IrmaRepository.get().irmaConfigurationSubject.value,
-                    rawCredential: rawCredential,
-                  ))
-              .toList(),
-        );
-      case LogEntryType.signing:
-      // return SigningDetail(
-      //   logEntry.signedMessage,
-      //   const <List<VerifierCredential>>[],
-      // );
+  List<Widget> _buildDetailWidgets(BuildContext context) {
+    final widgets = <Widget>[];
+
+    if (logEntry.type == LogEntryType.signing) {
+      widgets.addAll(_detailWidgetLayout(
+        context,
+        LogEntryType.signing,
+        IrmaQuote(
+          quote: logEntry.signedMessage.message,
+        ),
+      ));
     }
-    return null;
+
+    if (logEntry.type == LogEntryType.issuing) {
+      widgets.addAll(_detailWidgetLayout(
+          context,
+          LogEntryType.issuing,
+          IssuingDetail(
+            logEntry.issuedCredentials
+                .map((rawCredential) => Credential.fromRaw(
+                      irmaConfiguration: IrmaRepository.get().irmaConfigurationSubject.value,
+                      rawCredential: rawCredential,
+                    ))
+                .toList(),
+          )));
+    }
+
+    if (logEntry.disclosedAttributes.isNotEmpty) {
+      widgets.addAll(_detailWidgetLayout(
+          context,
+          LogEntryType.disclosing,
+          DisclosureCard(
+              candidatesConDisCon: ConDisCon.fromConCon<Attribute>(
+                  ConCon.fromRaw<DisclosedAttribute, Attribute>(logEntry.disclosedAttributes, (disclosedAttribute) {
+            return Attribute.fromDisclosedAttribute(irmaConfiguration, disclosedAttribute);
+          })))));
+    }
+
+    return widgets;
+  }
+
+  List<Widget> _detailWidgetLayout(BuildContext context, LogEntryType widgetType, Widget detailWidget) {
+    return <Widget>[
+      Padding(
+        padding: EdgeInsets.only(left: IrmaTheme.of(context).defaultSpacing),
+        child: Subtitle(widgetType),
+      ),
+      Padding(
+        padding: EdgeInsets.symmetric(
+          vertical: IrmaTheme.of(context).defaultSpacing,
+          horizontal: IrmaTheme.of(context).smallSpacing,
+        ),
+        child: detailWidget,
+      ),
+    ];
   }
 }
