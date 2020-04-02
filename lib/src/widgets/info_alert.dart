@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class InfoAlert extends StatelessWidget {
@@ -21,7 +22,9 @@ class InfoAlert extends StatelessWidget {
       Center(
         child: Text(
           body,
-          style: Theme.of(context).textTheme.body1,
+          style: Theme.of(context).textTheme.body1.copyWith(
+                color: IrmaTheme.of(context).grayscale40,
+              ),
         ),
       ),
     ];
@@ -36,9 +39,9 @@ class InfoAlert extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Icon(
-              Icons.info_outline,
-              size: 24,
+            SvgPicture.asset(
+              'assets/generic/info.svg',
+              width: 24,
             ),
             SizedBox(
               width: IrmaTheme.of(context).smallSpacing,

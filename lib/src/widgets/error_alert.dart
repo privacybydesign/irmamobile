@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class ErrorAlert extends StatelessWidget {
@@ -11,7 +12,7 @@ class ErrorAlert extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: IrmaTheme.of(context).grayscale90,
+        color: IrmaTheme.of(context).interactionInvalid,
         border: Border.all(color: const Color(0xffbbbbbb)),
       ),
       child: Padding(
@@ -19,9 +20,9 @@ class ErrorAlert extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Icon(
-              Icons.error,
-              size: 24,
+            SvgPicture.asset(
+              'assets/generic/error.svg',
+              width: 24,
             ),
             SizedBox(
               width: IrmaTheme.of(context).smallSpacing,
@@ -39,7 +40,9 @@ class ErrorAlert extends StatelessWidget {
                   ),
                   Text(
                     body,
-                    style: Theme.of(context).textTheme.body1,
+                    style: Theme.of(context).textTheme.body1.copyWith(
+                          color: IrmaTheme.of(context).grayscale40,
+                        ),
                   ),
                 ],
               ),
