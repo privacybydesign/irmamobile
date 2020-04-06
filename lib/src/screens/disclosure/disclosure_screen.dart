@@ -12,6 +12,7 @@ import 'package:irmamobile/src/screens/disclosure/widgets/arrow_back_screen.dart
 import 'package:irmamobile/src/screens/disclosure/widgets/disclosure_feedback_screen.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/util/translated_text.dart';
 import 'package:irmamobile/src/widgets/disclosure/disclosure_card.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
@@ -136,28 +137,18 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   }
 
   Widget _buildDisclosureHeader(SessionState session) {
-    return _buildText(
-      FlutterI18n.translate(context, 'disclosure.disclosure_header.start'),
-      session.serverName.translate(_lang),
-      FlutterI18n.translate(context, 'disclosure.disclosure_header.end'),
+    return TranslatedText(
+      'disclosure.disclosure_header',
+      translationParams: {"otherParty": session.serverName.translate(_lang)},
+      style: Theme.of(context).textTheme.body1,
     );
   }
 
   Widget _buildUnsatisfiableHeader(SessionState session) {
-    return _buildText(
-      FlutterI18n.translate(context, 'disclosure.unsatisfiable_header.start'),
-      session.serverName.translate(_lang),
-      FlutterI18n.translate(context, 'disclosure.unsatisfiable_header.end'),
-    );
-  }
-
-  Widget _buildText(String start, String server, String end) {
-    return Text.rich(
-      TextSpan(children: [
-        TextSpan(text: start, style: IrmaTheme.of(context).textTheme.body1),
-        TextSpan(text: server, style: IrmaTheme.of(context).textTheme.body2),
-        TextSpan(text: end, style: IrmaTheme.of(context).textTheme.body1),
-      ]),
+    return TranslatedText(
+      'disclosure.unsatisfiable_header',
+      translationParams: {"otherParty": session.serverName.translate(_lang)},
+      style: Theme.of(context).textTheme.body1,
     );
   }
 
