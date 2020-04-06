@@ -147,7 +147,7 @@ class DebugScreen extends StatelessWidget {
     ScannerScreen.startSessionAndNavigate(
       Navigator.of(context),
       await DemoSessionHelper.startDebugSession(
-        DemoSessionHelper.disclosureSessionRequest(),
+        DemoSessionHelper.signingSessionRequest(),
       ),
     );
   }

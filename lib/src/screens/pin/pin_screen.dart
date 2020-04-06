@@ -5,6 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
+import 'package:irmamobile/src/data/irma_repository.dart';
+import 'package:irmamobile/src/models/native_events.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_state.dart';
@@ -96,7 +98,14 @@ class _PinScreenState extends State<PinScreen> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        return _pinBloc.currentState.locked == false;
+        if (_pinBloc.currentState.locked) {
+          IrmaRepository.get().bridgedDispatch(
+            AndroidSendToBackgroundEvent(),
+          );
+          return false;
+        } else {
+          return true;
+        }
       },
       child: BlocBuilder<PinBloc, PinState>(
         bloc: _pinBloc,
