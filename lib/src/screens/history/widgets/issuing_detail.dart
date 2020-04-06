@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/models/credentials.dart';
+import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/card/card.dart';
 
 class IssuingDetail extends StatelessWidget {
@@ -9,14 +10,19 @@ class IssuingDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: _buildCards());
+    return Column(children: _buildCards(context));
   }
 
-  List<Widget> _buildCards() {
+  List<Widget> _buildCards(BuildContext context) {
     return credentials.map((credential) {
-      return IrmaCard.fromCredential(
-        credential: credential,
-        scrollBeyondBoundsCallback: (value) {},
+      return Padding(
+        padding: EdgeInsets.only(
+          bottom: IrmaTheme.of(context).defaultSpacing,
+        ),
+        child: IrmaCard.fromCredential(
+          credential: credential,
+          scrollBeyondBoundsCallback: (value) {},
+        ),
       );
     }).toList();
   }
