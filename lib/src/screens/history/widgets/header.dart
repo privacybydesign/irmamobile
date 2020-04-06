@@ -6,11 +6,8 @@ import 'package:irmamobile/src/screens/history/widgets/log_icon.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class Header extends StatelessWidget {
-  final String issuer;
-  final DateTime eventDate;
-  final LogEntryType logType;
-
-  const Header(this.issuer, this.eventDate, this.logType);
+  final LogEntry logEntry;
+  const Header(this.logEntry);
 
   @override
   Widget build(BuildContext context) {
@@ -31,28 +28,29 @@ class Header extends StatelessWidget {
                       fontSize: 14,
                     ),
               ),
+              if (logEntry.serverName != null)
+                Text(
+                  logEntry.serverName.translate(lang),
+                  style: IrmaTheme.of(context).textTheme.display2.copyWith(),
+                ),
               Text(
-                issuer,
-                style: IrmaTheme.of(context).textTheme.display2.copyWith(),
-              ),
-              Text(
-                formatDate(eventDate, lang),
+                formatDate(logEntry.time, lang),
                 style: IrmaTheme.of(context).textTheme.body1.copyWith(
                       fontSize: 14,
                     ),
               ),
             ],
           ),
-          LogIcon(logType),
+          LogIcon(logEntry.type),
         ],
       ),
     );
   }
 
   String _getHeaderText(BuildContext context) {
-    switch (logType) {
+    switch (logEntry.type) {
       case LogEntryType.removal:
-        return FlutterI18n.translate(context, "history.type.removal");
+        return FlutterI18n.translate(context, "history.type.removal.header");
       case LogEntryType.disclosing:
         return FlutterI18n.translate(context, "history.type.disclosing.header");
       case LogEntryType.issuing:

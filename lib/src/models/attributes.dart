@@ -178,16 +178,8 @@ class Attribute {
   }
 
   factory Attribute.fromDisclosedAttribute(IrmaConfiguration irmaConfiguration, DisclosedAttribute disclosedAttribute) {
-    final parsedAttributeId = disclosedAttribute.identifier.split(".");
-    final schemeManagerId = parsedAttributeId[0];
-    final issuerId = "$schemeManagerId.${parsedAttributeId[1]}";
-    final credentialId = "$issuerId.${parsedAttributeId[2]}";
-    final credentialInfo = CredentialInfo(
-      id: credentialId,
-      issuer: irmaConfiguration.issuers[issuerId],
-      schemeManager: irmaConfiguration.schemeManagers[schemeManagerId],
-      credentialType: irmaConfiguration.credentialTypes[credentialId],
-    );
+    final credentialInfo = CredentialInfo.fromConfiguration(
+        irmaConfiguration: irmaConfiguration, credentialIdentifier: disclosedAttribute.identifier);
     final attributeType = irmaConfiguration.attributeTypes[disclosedAttribute.identifier];
     final value = disclosedAttribute.value;
     return Attribute(

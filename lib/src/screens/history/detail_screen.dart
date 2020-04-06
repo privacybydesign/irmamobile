@@ -7,6 +7,7 @@ import 'package:irmamobile/src/models/log_entry.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/screens/history/widgets/header.dart';
 import 'package:irmamobile/src/screens/history/widgets/issuing_detail.dart';
+import 'package:irmamobile/src/screens/history/widgets/removal_detail.dart';
 import 'package:irmamobile/src/screens/history/widgets/subtitle.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/disclosure/disclosure_card.dart';
@@ -21,7 +22,6 @@ class DetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String lang = FlutterI18n.currentLocale(context).languageCode;
     return Scaffold(
       backgroundColor: IrmaTheme.of(context).grayscaleWhite,
       appBar: AppBar(
@@ -40,7 +40,7 @@ class DetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Header(logEntry.serverName.translate(lang), DateTime.now(), logEntry.type),
+            Header(logEntry),
             SizedBox(
               height: IrmaTheme.of(context).largeSpacing,
             ),
@@ -66,27 +66,43 @@ class DetailScreen extends StatelessWidget {
 
     if (logEntry.type == LogEntryType.issuing) {
       widgets.addAll(_detailWidgetLayout(
-          context,
-          LogEntryType.issuing,
-          IssuingDetail(
-            logEntry.issuedCredentials
-                .map((rawCredential) => Credential.fromRaw(
-                      irmaConfiguration: IrmaRepository.get().irmaConfigurationSubject.value,
-                      rawCredential: rawCredential,
-                    ))
-                .toList(),
-          )));
+        context,
+        LogEntryType.issuing,
+        IssuingDetail(
+          logEntry.issuedCredentials
+              .map((rawCredential) => Credential.fromRaw(
+                    irmaConfiguration: IrmaRepository.get().irmaConfigurationSubject.value,
+                    rawCredential: rawCredential,
+                  ))
+              .toList(),
+        ),
+      ));
+    }
+
+    if (logEntry.type == LogEntryType.removal) {
+      widgets.addAll(_detailWidgetLayout(
+        context,
+        LogEntryType.removal,
+        RemovalDetail(logEntry.removedCredentials.entries
+            .map<RemovedCredential>((entry) => RemovedCredential.fromRaw(
+                  irmaConfiguration: IrmaRepository.get().irmaConfigurationSubject.value,
+                  credentialIdentifier: entry.key,
+                  rawAttributes: entry.value,
+                ))
+            .toList()),
+      ));
     }
 
     if (logEntry.disclosedAttributes.isNotEmpty) {
       widgets.addAll(_detailWidgetLayout(
-          context,
-          LogEntryType.disclosing,
-          DisclosureCard(
-              candidatesConDisCon: ConDisCon.fromConCon<Attribute>(
-                  ConCon.fromRaw<DisclosedAttribute, Attribute>(logEntry.disclosedAttributes, (disclosedAttribute) {
-            return Attribute.fromDisclosedAttribute(irmaConfiguration, disclosedAttribute);
-          })))));
+        context,
+        LogEntryType.disclosing,
+        DisclosureCard(
+            candidatesConDisCon: ConDisCon.fromConCon<Attribute>(
+                ConCon.fromRaw<DisclosedAttribute, Attribute>(logEntry.disclosedAttributes, (disclosedAttribute) {
+          return Attribute.fromDisclosedAttribute(irmaConfiguration, disclosedAttribute);
+        }))),
+      ));
     }
 
     return widgets;

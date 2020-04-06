@@ -33,7 +33,7 @@ class LogEntryCard extends StatelessWidget {
         subtitle = irmaConfiguration.issuers[logEntry.issuedCredentials.first.fullIssuerId].name[lang];
         break;
       case LogEntryType.removal:
-        title = FlutterI18n.translate(context, "history.type.removal");
+        title = FlutterI18n.plural(context, "history.type.removal.data", logEntry.removedCredentials.length);
         subtitle = irmaConfiguration.credentialTypes[logEntry.removedCredentials.keys.first].name[lang];
         break;
     }

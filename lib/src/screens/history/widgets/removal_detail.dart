@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/widgets/card/card.dart';
 
-class IssuingDetail extends StatelessWidget {
-  final List<Credential> credentials;
+class RemovalDetail extends StatelessWidget {
+  final List<RemovedCredential> removedCredentials;
 
-  const IssuingDetail(this.credentials);
+  const RemovalDetail(this.removedCredentials);
 
   @override
   Widget build(BuildContext context) {
@@ -13,8 +13,8 @@ class IssuingDetail extends StatelessWidget {
   }
 
   List<Widget> _buildCards() {
-    return credentials.map((credential) {
-      return IrmaCard.fromCredential(
+    return removedCredentials.map((credential) {
+      return IrmaCard.fromRemovedCredential(
         credential: credential,
         scrollBeyondBoundsCallback: (value) {},
       );

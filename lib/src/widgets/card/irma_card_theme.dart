@@ -16,8 +16,8 @@ class IrmaCardTheme {
 
   const IrmaCardTheme({this.foregroundColor, this.backgroundGradientStart, this.backgroundGradientEnd});
 
-  factory IrmaCardTheme.fromCredentialType(Credential credential) {
-    final credentialType = credential.info.credentialType;
+  factory IrmaCardTheme.fromCredentialInfo(CredentialInfo credentialInfo) {
+    final credentialType = credentialInfo.credentialType;
     final credentialTypeTheme = IrmaCardTheme(
       foregroundColor: credentialType.foregroundColor,
       backgroundGradientStart: credentialType.backgroundGradientStart,
@@ -27,7 +27,7 @@ class IrmaCardTheme {
     // If the credentialType theme is incomplete, use a default theme based on the issuer full id
     // This will make all cards from the same issuer appear the same
     if (!credentialTypeTheme.isComplete) {
-      final int issuerHash = credential.info.issuer.fullId.runes.reduce((oldChar, newChar) => (oldChar << 1) ^ newChar);
+      final int issuerHash = credentialInfo.issuer.fullId.runes.reduce((oldChar, newChar) => (oldChar << 1) ^ newChar);
       return _defaultThemes[issuerHash % _defaultThemes.length];
     }
 
