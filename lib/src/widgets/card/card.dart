@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/language.dart';
+import 'package:irmamobile/src/widgets/card/card_footer.dart';
 import 'package:irmamobile/src/widgets/card/irma_card_theme.dart';
 
 import 'card_attributes.dart';
@@ -14,22 +16,33 @@ class IrmaCard extends StatelessWidget {
 
   final String lang = 'nl';
 
-  final Credential credential;
-  final Function() onRefreshCredential;
-  final Function() onDeleteCredential;
+  final CredentialInfo credentialInfo;
+  final Attributes attributes;
+  DateTime expiryDate;
+
+  Function() onRefreshCredential;
+  Function() onDeleteCredential;
 
   final void Function(double) scrollBeyondBoundsCallback;
-  final bool isDeleted;
 
   final IrmaCardTheme cardTheme;
 
-  IrmaCard({
-    this.credential,
+  IrmaCard.fromCredential({
+    Credential credential,
     this.onRefreshCredential,
     this.onDeleteCredential,
     this.scrollBeyondBoundsCallback,
-    this.isDeleted = false,
-  }) : cardTheme = IrmaCardTheme.fromCredentialType(credential);
+  })  : credentialInfo = credential.info,
+        attributes = credential.attributes,
+        expiryDate = credential.expires,
+        cardTheme = IrmaCardTheme.fromCredentialInfo(credential.info);
+
+  IrmaCard.fromRemovedCredential({
+    RemovedCredential credential,
+    this.scrollBeyondBoundsCallback,
+  })  : credentialInfo = credential.info,
+        attributes = credential.attributes,
+        cardTheme = IrmaCardTheme.fromCredentialInfo(credential.info);
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +89,7 @@ class IrmaCard extends StatelessWidget {
               children: <Widget>[
                 Expanded(
                   child: Text(
-                    getTranslation(credential.info.credentialType.name),
+                    getTranslation(credentialInfo.credentialType.name),
                     style: Theme.of(context).textTheme.subhead.copyWith(
                           color: cardTheme.foregroundColor,
                         ),
@@ -91,10 +104,20 @@ class IrmaCard extends StatelessWidget {
             ),
           ),
           Container(
-            child: CardAttributes(
-              credential: credential,
-              irmaCardTheme: cardTheme,
-              scrollOverflowCallback: scrollBeyondBoundsCallback,
+            child: Column(
+              children: [
+                CardAttributes(
+                  attributes: attributes,
+                  irmaCardTheme: cardTheme,
+                  scrollOverflowCallback: scrollBeyondBoundsCallback,
+                ),
+                CardFooter(
+                  credentialInfo: credentialInfo,
+                  expiryDate: expiryDate,
+                  irmaCardTheme: cardTheme,
+                  scrollOverflowCallback: scrollBeyondBoundsCallback,
+                ),
+              ],
             ),
           ),
         ],

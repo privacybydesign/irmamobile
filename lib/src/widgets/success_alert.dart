@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/theme/irma_icons.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class SuccessAlert extends StatelessWidget {
@@ -20,10 +20,9 @@ class SuccessAlert extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Icon(
-              IrmaIcons.valid,
-              size: 24,
-              color: Colors.white,
+            SvgPicture.asset(
+              'assets/generic/check.svg',
+              width: 24,
             ),
             SizedBox(
               width: IrmaTheme.of(context).smallSpacing,
@@ -34,9 +33,7 @@ class SuccessAlert extends StatelessWidget {
                 children: <Widget>[
                   Text(
                     title,
-                    style: Theme.of(context).textTheme.title.copyWith(
-                          color: Colors.white,
-                        ),
+                    style: Theme.of(context).textTheme.title,
                   ),
                   SizedBox(
                     height: IrmaTheme.of(context).smallSpacing,
@@ -44,7 +41,7 @@ class SuccessAlert extends StatelessWidget {
                   Text(
                     body,
                     style: Theme.of(context).textTheme.body1.copyWith(
-                          color: Colors.white,
+                          color: IrmaTheme.of(context).grayscale40,
                         ),
                   ),
                 ],

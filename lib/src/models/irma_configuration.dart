@@ -7,7 +7,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'irma_configuration.g.dart';
 
-@JsonSerializable(nullable: false)
+@JsonSerializable(nullable: false, createToJson: false)
 class IrmaConfigurationEvent extends Event {
   IrmaConfigurationEvent({this.irmaConfiguration});
 
@@ -17,7 +17,7 @@ class IrmaConfigurationEvent extends Event {
   factory IrmaConfigurationEvent.fromJson(Map<String, dynamic> json) => _$IrmaConfigurationEventFromJson(json);
 }
 
-@JsonSerializable(nullable: false)
+@JsonSerializable(nullable: false, createToJson: false)
 class IrmaConfiguration {
   IrmaConfiguration({this.schemeManagers, this.issuers, this.credentialTypes, this.attributeTypes, this.path});
 
@@ -39,7 +39,7 @@ class IrmaConfiguration {
   factory IrmaConfiguration.fromJson(Map<String, dynamic> json) => _$IrmaConfigurationFromJson(json);
 }
 
-@JsonSerializable(nullable: false)
+@JsonSerializable(nullable: false, createToJson: false)
 class SchemeManager {
   SchemeManager(
       {this.id,
@@ -82,7 +82,7 @@ class SchemeManager {
   factory SchemeManager.fromJson(Map<String, dynamic> json) => _$SchemeManagerFromJson(json);
 }
 
-@JsonSerializable(nullable: false)
+@JsonSerializable(nullable: false, createToJson: false)
 class AppVersion {
   AppVersion({this.android, this.iOS});
 
@@ -97,7 +97,7 @@ class AppVersion {
 
 // TODO: move to a RawIssuer type and re-introduce the issuer type which has
 // colors and backgrounds (not from irma scheme right now).
-@JsonSerializable(nullable: false)
+@JsonSerializable(nullable: false, createToJson: false)
 class Issuer {
   Issuer({this.id, this.name, this.shortName, this.schemeManagerId, this.contactAddress, this.contactEmail});
 
@@ -128,7 +128,7 @@ class Issuer {
   }
 }
 
-@JsonSerializable(nullable: false)
+@JsonSerializable(nullable: false, createToJson: false)
 class CredentialType {
   CredentialType({
     this.id,
@@ -221,7 +221,7 @@ class CredentialType {
 
 // TODO: Change this to RawAttributeType and move to a new AttributeType that
 // has TranslatedValues for `name` and `description`.
-@JsonSerializable(nullable: false)
+@JsonSerializable(nullable: false, createToJson: false)
 class AttributeType {
   AttributeType({
     this.id,

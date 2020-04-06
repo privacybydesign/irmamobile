@@ -198,7 +198,7 @@ type logEntry struct {
 	IssuedCredentials    irma.CredentialInfoList
 	DisclosedCredentials [][]*irma.DisclosedAttribute
 	SignedMessage        *irma.SignedMessage
-	RemovedCredentials   map[irma.CredentialTypeIdentifier][]irma.TranslatedString
+	RemovedCredentials   map[irma.CredentialTypeIdentifier]map[irma.AttributeTypeIdentifier]irma.TranslatedString
 }
 
 // //

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -7,9 +9,12 @@ import 'package:irmamobile/routing.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/enrollment_status.dart';
+import 'package:irmamobile/src/models/applifecycle_changed_event.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/version_information.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
+import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
+import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/screens/required_update/required_update_screen.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
@@ -84,6 +89,8 @@ class AppState extends State<App> with WidgetsBindingObserver {
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     final startQrScanner = await IrmaPreferences.get().getStartQRScan().first;
+    final repo = IrmaRepository.get();
+    repo.dispatch(AppLifecycleChangedEvent(state));
 
     // We check the transition goes from paused -> inactive -> resumed
     // because the transition inactive -> resumed can also happen
@@ -93,14 +100,19 @@ class AppState extends State<App> with WidgetsBindingObserver {
     // the QR scanner.
     if (prevLifeCycleStates[0] == AppLifecycleState.paused &&
         prevLifeCycleStates[1] == AppLifecycleState.inactive &&
-        state == AppLifecycleState.resumed &&
-        startQrScanner) {
-      _navigatorKey.currentState.pushNamed(ScannerScreen.routeName);
-
-      // TODO: Use this detection also to reset the _showSplash and _removeSplash
-      // variables.
+        state == AppLifecycleState.resumed) {
+      // First check whether we should redo pin verification
+      final lastActive = await repo.getLastActiveTime().first;
+      if (lastActive.isBefore(DateTime.now().subtract(const Duration(minutes: 5)))) {
+        PinBloc().dispatch(Lock());
+        _navigatorKey.currentState.pushNamed(PinScreen.routeName);
+      } else if (startQrScanner) {
+        _navigatorKey.currentState.pushNamed(ScannerScreen.routeName);
+      }
     }
 
+    // TODO: Use this detection also to reset the _showSplash and _removeSplash
+    // variables.
     prevLifeCycleStates[0] = prevLifeCycleStates[1];
     prevLifeCycleStates[1] = state;
   }

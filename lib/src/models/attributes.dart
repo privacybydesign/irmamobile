@@ -201,7 +201,10 @@ class Attribute {
       );
     } else {
       return Attribute(
-        credentialInfo: CredentialInfo.fromDisclosedAttribute(irmaConfiguration, candidate.type),
+        credentialInfo: CredentialInfo.fromConfiguration(
+          irmaConfiguration: irmaConfiguration,
+          credentialIdentifier: candidate.type,
+        ),
         attributeType: attributeType,
         value: TranslatedValue({"en": "-", "nl": "-"}),
       );
@@ -210,7 +213,10 @@ class Attribute {
 
   factory Attribute.fromDisclosedAttribute(IrmaConfiguration irmaConfiguration, DisclosedAttribute disclosedAttribute) {
     return Attribute(
-      credentialInfo: CredentialInfo.fromDisclosedAttribute(irmaConfiguration, disclosedAttribute.identifier),
+      credentialInfo: CredentialInfo.fromConfiguration(
+        irmaConfiguration: irmaConfiguration,
+        credentialIdentifier: disclosedAttribute.identifier,
+      ),
       attributeType: irmaConfiguration.attributeTypes[disclosedAttribute.identifier],
       value: disclosedAttribute.value,
     );

@@ -75,6 +75,23 @@ class Credential {
         hash = rawCredential.hash;
 }
 
+class RemovedCredential {
+  final CredentialInfo info;
+  final Attributes attributes;
+
+  RemovedCredential({
+    @required this.info,
+    @required this.attributes,
+  })  : assert(info != null),
+        assert(attributes != null);
+
+  RemovedCredential.fromRaw(
+      {IrmaConfiguration irmaConfiguration, String credentialIdentifier, Map<String, TranslatedValue> rawAttributes})
+      : info = CredentialInfo.fromConfiguration(
+            irmaConfiguration: irmaConfiguration, credentialIdentifier: credentialIdentifier),
+        attributes = Attributes.fromRaw(irmaConfiguration: irmaConfiguration, rawAttributes: rawAttributes);
+}
+
 class CredentialInfo {
   final String id;
   final SchemeManager schemeManager;
@@ -93,8 +110,8 @@ class CredentialInfo {
         assert(schemeManager != null),
         assert(credentialType != null);
 
-  factory CredentialInfo.fromDisclosedAttribute(IrmaConfiguration irmaConfiguration, String attributeIdentifier) {
-    final parsedAttributeId = attributeIdentifier.split(".");
+  factory CredentialInfo.fromConfiguration({IrmaConfiguration irmaConfiguration, String credentialIdentifier}) {
+    final parsedAttributeId = credentialIdentifier.split(".");
     final schemeManagerId = parsedAttributeId[0];
     final issuerId = "$schemeManagerId.${parsedAttributeId[1]}";
     final credentialId = "$issuerId.${parsedAttributeId[2]}";

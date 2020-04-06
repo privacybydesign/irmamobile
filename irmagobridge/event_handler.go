@@ -188,11 +188,16 @@ func (ah *eventHandler) loadLogs(action *loadLogsEvent) error {
 
 	logsOutgoing := make([]*logEntry, len(logEntries))
 	for i, entry := range logEntries {
-		var removed map[irma.CredentialTypeIdentifier][]irma.TranslatedString
+		var removedCredentials = make(map[irma.CredentialTypeIdentifier]map[irma.AttributeTypeIdentifier]irma.TranslatedString)
 		if entry.Type == irmaclient.ActionRemoval {
-			removed = entry.Removed
-		} else {
-			removed = make(map[irma.CredentialTypeIdentifier][]irma.TranslatedString)
+			for credentialTypeId, attributeValues := range entry.Removed {
+				var removedCredential = make(map[irma.AttributeTypeIdentifier]irma.TranslatedString)
+				attributeTypes := client.Configuration.CredentialTypes[credentialTypeId].AttributeTypes
+				for index, attributeType := range attributeTypes {
+					removedCredential[attributeType.GetAttributeTypeIdentifier()] = attributeValues[index]
+				}
+				removedCredentials[credentialTypeId] = removedCredential
+			}
 		}
 		disclosedCredentials, err := entry.GetDisclosedCredentials(client.Configuration)
 		if err != nil {
@@ -214,7 +219,7 @@ func (ah *eventHandler) loadLogs(action *loadLogsEvent) error {
 			IssuedCredentials:    issuedCredentials,
 			DisclosedCredentials: disclosedCredentials,
 			SignedMessage:        signedMessage,
-			RemovedCredentials:   removed,
+			RemovedCredentials:   removedCredentials,
 		}
 	}
 

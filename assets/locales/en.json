@@ -335,7 +335,13 @@
     "title": "History",
     "button_back": "Back",
     "type": {
-      "removal": "Card deleted",
+      "removal": {
+        "header": "Cards deleted on",
+        "subtitle": "Deleted cards",
+        "data-0": "{data} card deleted",
+        "data-1": "{data} card deleted",
+        "data-2": "{data} cards deleted"
+      },
       "issuing": {
         "header": "Cards issued by",
         "subtitle": "Issued cards",

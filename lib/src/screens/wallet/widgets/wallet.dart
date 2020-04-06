@@ -408,7 +408,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
             _cardAnimationController.forward();
           }
         },
-        child: IrmaCard(
+        child: IrmaCard.fromCredential(
           credential: credential,
           scrollBeyondBoundsCallback: scrollBeyondBound,
           onRefreshCredential: _createOnRefreshCredential(credential),

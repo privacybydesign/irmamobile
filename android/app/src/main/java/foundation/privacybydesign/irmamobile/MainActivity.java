@@ -47,4 +47,9 @@ public class MainActivity extends FlutterActivity {
         initialURL);
 
   }
+
+  @Override
+  protected void onDestroy() {
+    Irmagobridge.stop();
+  }
 }

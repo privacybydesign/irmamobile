@@ -46,9 +46,21 @@ public class IrmaMobileBridgePlugin implements MethodCallHandler, irmagobridge.I
 
   @Override
   public void onMethodCall(MethodCall call, Result result) {
-    if (call.method.equals("AppReadyEvent") && initialURL != null) {
-      channel.invokeMethod("HandleURLEvent", String.format("{\"url\": \"%s\", \"isInitialURL\": true}", initialURL));
+    switch (call.method) {
+      // Send a previously recorded initial URL back to the UI once the app is ready
+      case "AppReadyEvent":
+        if (initialURL != null) {
+          channel.invokeMethod("HandleURLEvent",
+              String.format("{\"url\": \"%s\", \"isInitialURL\": true}", initialURL));
+        }
+
+        break;
+
+      case "AndroidSendToBackgroundEvent":
+        activity.moveTaskToBack(true);
+        break;
     }
+
     Irmagobridge.dispatchFromNative(call.method, (String) call.arguments);
     result.success(null);
   }

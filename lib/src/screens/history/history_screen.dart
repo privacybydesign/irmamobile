@@ -65,13 +65,12 @@ class HistoryScreenState extends State<HistoryScreen> {
           irmaConfiguration: irmaConfiguration,
           logEntry: logEntry,
           onTap: () {
-            // TODO: Details of removed credential cannot be shown yet
-            if (logEntry.type != LogEntryType.removal) {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => DetailScreen(logEntry: logEntry, irmaConfiguration: irmaConfiguration)));
-            }
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DetailScreen(logEntry: logEntry, irmaConfiguration: irmaConfiguration),
+              ),
+            );
           },
         );
       },
