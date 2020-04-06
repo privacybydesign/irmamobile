@@ -1,11 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
+import 'package:irmamobile/src/data/irma_repository.dart';
+import 'package:irmamobile/src/models/native_events.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_state.dart';
@@ -98,7 +99,9 @@ class _PinScreenState extends State<PinScreen> {
     return WillPopScope(
       onWillPop: () async {
         if (_pinBloc.currentState.locked) {
-          SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+          IrmaRepository.get().bridgedDispatch(
+            AndroidSendToBackgroundEvent(),
+          );
           return false;
         } else {
           return true;
