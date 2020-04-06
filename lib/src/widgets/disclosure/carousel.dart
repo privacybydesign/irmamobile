@@ -271,6 +271,25 @@ class _CarouselState extends State<Carousel> {
     );
   }
 
+  Widget _buildAttribute(Attribute attribute) {
+    return Padding(
+      padding: EdgeInsets.only(top: IrmaTheme.of(context).smallSpacing),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            attribute.attributeType.name[_lang],
+            style:
+                IrmaTheme.of(context).textTheme.body1.copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 14),
+            overflow: TextOverflow.ellipsis,
+          ),
+          _buildCandidateValue(attribute),
+        ],
+      ),
+    );
+  }
+
   Widget _buildCarouselWidget(Con<Attribute> candidatesCon) {
     // Transform candidatesCon into a list where attributes of the same issuer
     // are grouped together. This assumes those attributes are always
@@ -290,28 +309,7 @@ class _CarouselState extends State<Carousel> {
         children: [
           ...credentials
               .map((cred) => <Widget>[
-                    ...cred.attributes
-                        .map(
-                          (attribute) => Padding(
-                            padding: EdgeInsets.only(top: IrmaTheme.of(context).smallSpacing),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  attribute.attributeType.name[_lang],
-                                  style: IrmaTheme.of(context)
-                                      .textTheme
-                                      .body1
-                                      .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 14),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                _buildCandidateValue(attribute),
-                              ],
-                            ),
-                          ),
-                        )
-                        .toList(),
+                    ...cred.attributes.map((attribute) => _buildAttribute(attribute)).toList(),
                     _buildCredentialFooter(cred),
                   ])
               .expand((f) => f)
