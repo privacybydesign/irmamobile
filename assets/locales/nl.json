@@ -365,7 +365,6 @@
   "disclosure": {
     "title": "Jezelf bekend maken",
     "disclosure_header_markdown": "Wil je dit aan **{otherParty}** doorgeven?",
-    "unsatisfiable_header_markdown": "Je hebt niet alle gegevens waar **{otherParty}** om vraagt in je IRMA app.",
     "signing_header": " verzoekt jou om een bericht te ondertekenen",
     "issuer": "Bron",
     "choices": "{choices} keuzes",

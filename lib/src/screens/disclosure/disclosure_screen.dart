@@ -144,14 +144,6 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     );
   }
 
-  Widget _buildUnsatisfiableHeader(SessionState session) {
-    return TranslatedText(
-      'disclosure.unsatisfiable_header',
-      translationParams: {"otherParty": session.serverName.translate(_lang)},
-      style: Theme.of(context).textTheme.body1,
-    );
-  }
-
   Widget _buildSigningHeader(SessionState session) {
     return Column(children: [
       Text.rich(
@@ -211,14 +203,11 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
       padding: EdgeInsets.all(IrmaTheme.of(context).smallSpacing),
       children: <Widget>[
         Padding(
-          padding: EdgeInsets.symmetric(
-            vertical: IrmaTheme.of(context).mediumSpacing,
-            horizontal: IrmaTheme.of(context).smallSpacing,
-          ),
-          child: session.satisfiable
-              ? (session.isSignatureSession ? _buildSigningHeader(session) : _buildDisclosureHeader(session))
-              : _buildUnsatisfiableHeader(session),
-        ),
+            padding: EdgeInsets.symmetric(
+              vertical: IrmaTheme.of(context).mediumSpacing,
+              horizontal: IrmaTheme.of(context).smallSpacing,
+            ),
+            child: session.isSignatureSession ? _buildSigningHeader(session) : _buildDisclosureHeader(session)),
         DisclosureCard(
           candidatesConDisCon: session.disclosuresCandidates,
           onCurrentPageUpdate: carouselPageUpdate,

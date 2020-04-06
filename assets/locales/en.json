@@ -365,7 +365,6 @@
   "disclosure": {
     "title": "Make yourself known",
     "disclosure_header_markdown": "Do you wish to disclose this to **{otherParty}**?",
-    "unsatisfiable_header_markdown": "You don't have all data **{otherParty}** is asking for in your IRMA app.",
     "signing_header": " asks you to sign a message",
     "issuer": "Source",
     "choices": "{choices} choices",
