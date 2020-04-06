@@ -14,18 +14,19 @@ class SessionState {
   final ConCon<AttributeIdentifier> disclosureChoices;
   final bool satisfiable;
 
-  SessionState(
-      {this.sessionID,
-      this.continueOnSecondDevice,
-      this.status = SessionStatus.uninitialized,
-      this.serverName,
-      this.disclosuresCandidates,
-      this.clientReturnURL,
-      this.isSignatureSession,
-      this.signedMessage,
-      this.disclosureIndices,
-      this.disclosureChoices,
-      this.satisfiable});
+  SessionState({
+    this.sessionID,
+    this.continueOnSecondDevice,
+    this.status = SessionStatus.uninitialized,
+    this.serverName,
+    this.disclosuresCandidates,
+    this.clientReturnURL,
+    this.isSignatureSession,
+    this.signedMessage,
+    this.disclosureIndices,
+    this.disclosureChoices,
+    this.satisfiable,
+  });
 
   bool get canDisclose => disclosuresCandidates
       .asMap()

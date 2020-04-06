@@ -50,11 +50,12 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
 
   void carouselPageUpdate(int disconIndex, int conIndex) {
     _dispatchSessionEvent(
-        DisclosureChoiceUpdateSessionEvent(
-          disconIndex: disconIndex,
-          conIndex: conIndex,
-        ),
-        isBridgedEvent: false);
+      DisclosureChoiceUpdateSessionEvent(
+        disconIndex: disconIndex,
+        conIndex: conIndex,
+      ),
+      isBridgedEvent: false,
+    );
   }
 
   @override
