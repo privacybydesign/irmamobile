@@ -20,6 +20,7 @@ import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/models/version_information.dart';
+import 'package:irmamobile/src/models/applifecycle_changed_event.dart';
 import 'package:package_info/package_info.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:stream_transform/stream_transform.dart';
@@ -52,6 +53,8 @@ class IrmaRepository {
   final _authenticationEventSubject = PublishSubject<AuthenticationEvent>();
   final _changePinEventSubject = PublishSubject<ChangePinBaseEvent>();
   final _lockedSubject = BehaviorSubject<bool>.seeded(true);
+  final _lastActiveTimeSubject = BehaviorSubject<DateTime>();
+  final _appLifecycleState = BehaviorSubject<AppLifecycleState>();
   final _pendingSessionPointerSubject = BehaviorSubject<SessionPointer>.seeded(null);
 
   // _cachedPin is used to re-activate session without navigating to the pin
@@ -127,6 +130,10 @@ class IrmaRepository {
       _credentialsSubject.add(Credentials({}));
       _enrollmentStatusSubject.add(EnrollmentStatus.unenrolled);
       _lockedSubject.add(true);
+    } else if (event is AppLifecycleChangedEvent) {
+      if (event.state == AppLifecycleState.paused) {
+        _lastActiveTimeSubject.add(DateTime.now());    
+      }
     }
   }
 
@@ -264,5 +271,10 @@ class IrmaRepository {
 
   Stream<SessionPointer> getPendingSessionPointer() {
     return _pendingSessionPointerSubject.stream;
+  }
+
+  // -- lastActiveTime
+  Stream<DateTime> getLastActiveTime() {
+    return _lastActiveTimeSubject.stream;
   }
 }
