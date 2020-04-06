@@ -19,7 +19,7 @@ class Subtitle extends StatelessWidget {
   String _text(BuildContext context) {
     switch (logType) {
       case LogEntryType.removal:
-        return FlutterI18n.translate(context, "history.type.removal");
+        return FlutterI18n.translate(context, "history.type.removal.subtitle");
       case LogEntryType.disclosing:
         return FlutterI18n.translate(context, "history.type.disclosing.subtitle");
       case LogEntryType.issuing:

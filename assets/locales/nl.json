@@ -335,7 +335,13 @@
     "title": "Geschiedenis",
     "button_back": "Terug",
     "type": {
-      "removal": "Kaart verwijderd",
+      "removal": {
+        "header": "Kaartjes verwijderd op",
+        "subtitle": "Verwijderde kaartjes",
+        "data-0": "{data} kaart verwijderd",
+        "data-1": "{data} kaart verwijderd",
+        "data-2": "{data} kaarten verwijderd"
+      },
       "issuing": {
         "header": "Kaartjes ontvangen van",
         "subtitle": "Ontvangen kaartjes",

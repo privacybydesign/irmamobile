@@ -1,22 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:intl/intl.dart';
 import 'package:irmamobile/src/models/attributes.dart';
-import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/card/irma_card_theme.dart';
 
+// ignore: must_be_immutable
 class CardAttributes extends StatelessWidget {
-  final _lang = 'nl';
+  String _lang;
 
-  final _indent = 100.0;
-
-  final Credential credential;
+  final Attributes attributes;
   final IrmaCardTheme irmaCardTheme;
   final void Function(double) scrollOverflowCallback;
 
   CardAttributes({
-    this.credential,
+    this.attributes,
     this.irmaCardTheme,
     this.scrollOverflowCallback,
   });
@@ -24,6 +21,7 @@ class CardAttributes extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TextStyle body1Theme = IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.foregroundColor);
+    _lang = FlutterI18n.currentLocale(context).languageCode;
 
     final ScrollController scrollController = ScrollController();
     scrollController.addListener(() {
@@ -45,88 +43,71 @@ class CardAttributes extends StatelessWidget {
     const creditCardAspectRatio = 5398 / 8560;
     final double _minHeight = (width - IrmaTheme.of(context).smallSpacing * 2) * creditCardAspectRatio - 90;
 
-    return Column(
-      children: [
-        LimitedBox(
-          maxHeight: _maxHeight,
-          child: Container(
-            padding: EdgeInsets.only(
-              top: IrmaTheme.of(context).defaultSpacing,
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                _buildPhoto(context),
-                Expanded(
-                  child: Stack(
-                    alignment: AlignmentDirectional.bottomCenter,
-                    children: <Widget>[
-                      Container(
-                        constraints: BoxConstraints(
-                          minHeight: _minHeight,
-                        ),
-                        padding: EdgeInsets.only(
-                          right: IrmaTheme.of(context).smallSpacing,
-                        ),
-                        child: Scrollbar(
-                          child: ListView(
-                            shrinkWrap: true,
-                            controller: scrollController,
-                            physics: const BouncingScrollPhysics(),
-                            padding: EdgeInsets.only(left: IrmaTheme.of(context).defaultSpacing),
-                            children: [
-                              ..._buildAttributes(context, body1Theme),
-                              SizedBox(
-                                height: IrmaTheme.of(context).defaultSpacing,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        child: Container(
-                          height: 8.0,
-                          decoration: BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(width: 1.0, color: irmaCardTheme.backgroundGradientEnd),
-                            ),
-                            gradient: const LinearGradient(
-                              colors: [
-                                Color(0x00000000),
-                                Color(0x33000000),
-                              ],
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+    return LimitedBox(
+      maxHeight: _maxHeight,
+      child: Container(
+        padding: EdgeInsets.only(
+          top: IrmaTheme.of(context).defaultSpacing,
         ),
-        Column(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Container(
-              color: const Color(0x11FFFFFF),
-              child: Column(
+            _buildPhoto(context),
+            Expanded(
+              child: Stack(
+                alignment: AlignmentDirectional.bottomCenter,
                 children: <Widget>[
-                  _buildIssuer(context, body1Theme),
-                  _buildExpiration(context, body1Theme),
+                  Container(
+                    constraints: BoxConstraints(
+                      minHeight: _minHeight,
+                    ),
+                    padding: EdgeInsets.only(
+                      right: IrmaTheme.of(context).smallSpacing,
+                    ),
+                    child: Scrollbar(
+                      child: ListView(
+                        shrinkWrap: true,
+                        controller: scrollController,
+                        physics: const BouncingScrollPhysics(),
+                        padding: EdgeInsets.only(left: IrmaTheme.of(context).defaultSpacing),
+                        children: [
+                          ..._buildAttributes(context, body1Theme),
+                          SizedBox(
+                            height: IrmaTheme.of(context).defaultSpacing,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    child: Container(
+                      height: 8.0,
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(width: 1.0, color: irmaCardTheme.backgroundGradientEnd),
+                        ),
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color(0x00000000),
+                            Color(0x33000000),
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
-            )
+            ),
           ],
         ),
-      ],
+      ),
     );
   }
 
   Widget _buildPhoto(BuildContext context) {
-    if (credential.attributes.portraitPhoto == null) {
+    if (attributes.portraitPhoto == null) {
       return Container(height: 0);
     }
 
@@ -140,14 +121,12 @@ class CardAttributes extends StatelessWidget {
         width: 90,
         height: 120,
         color: const Color(0xff777777),
-        child: credential.attributes.portraitPhoto,
+        child: attributes.portraitPhoto,
       ),
     );
   }
 
   List<Widget> _buildAttributes(BuildContext context, TextStyle body1Theme) {
-    final Attributes attributes = credential.attributes;
-
     return attributes.sortedAttributeTypes.expand<Widget>(
       (attributeType) {
         if (attributeType.displayHint == "portraitPhoto") {
@@ -173,71 +152,5 @@ class CardAttributes extends StatelessWidget {
         ];
       },
     ).toList();
-  }
-
-  Widget _buildIssuer(BuildContext context, TextStyle body1Theme) {
-    return Padding(
-      padding: EdgeInsets.only(
-        top: IrmaTheme.of(context).smallSpacing,
-        left: IrmaTheme.of(context).defaultSpacing,
-        right: IrmaTheme.of(context).defaultSpacing,
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: _indent,
-            child: Opacity(
-              opacity: 0.8,
-              child: Text(
-                FlutterI18n.translate(context, 'wallet.issuer'),
-                style: body1Theme.copyWith(fontSize: 12),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              credential.info.issuer.name[_lang],
-              style: body1Theme.copyWith(fontSize: 12),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildExpiration(BuildContext context, TextStyle body1Theme) {
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: IrmaTheme.of(context).smallSpacing,
-        left: IrmaTheme.of(context).defaultSpacing,
-        right: IrmaTheme.of(context).defaultSpacing,
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: _indent,
-            child: Opacity(
-              opacity: 0.8,
-              child: Text(
-                FlutterI18n.translate(context, 'wallet.expiration'),
-                style: body1Theme.copyWith(fontSize: 12),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              _printableDate(credential.expires, _lang),
-              style: body1Theme.copyWith(fontSize: 12),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _printableDate(DateTime date, String lang) {
-    return DateFormat.yMMMMd(lang).format(date);
   }
 }

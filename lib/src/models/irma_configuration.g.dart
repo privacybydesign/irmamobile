@@ -12,10 +12,6 @@ IrmaConfigurationEvent _$IrmaConfigurationEventFromJson(Map<String, dynamic> jso
   );
 }
 
-Map<String, dynamic> _$IrmaConfigurationEventToJson(IrmaConfigurationEvent instance) => <String, dynamic>{
-      'IrmaConfiguration': instance.irmaConfiguration,
-    };
-
 IrmaConfiguration _$IrmaConfigurationFromJson(Map<String, dynamic> json) {
   return IrmaConfiguration(
     schemeManagers: (json['SchemeManagers'] as Map<String, dynamic>).map(
@@ -34,14 +30,6 @@ IrmaConfiguration _$IrmaConfigurationFromJson(Map<String, dynamic> json) {
   );
 }
 
-Map<String, dynamic> _$IrmaConfigurationToJson(IrmaConfiguration instance) => <String, dynamic>{
-      'SchemeManagers': instance.schemeManagers,
-      'Issuers': instance.issuers,
-      'CredentialTypes': instance.credentialTypes,
-      'AttributeTypes': instance.attributeTypes,
-      'Path': instance.path,
-    };
-
 SchemeManager _$SchemeManagerFromJson(Map<String, dynamic> json) {
   return SchemeManager(
     id: json['ID'] as String,
@@ -56,29 +44,12 @@ SchemeManager _$SchemeManagerFromJson(Map<String, dynamic> json) {
   );
 }
 
-Map<String, dynamic> _$SchemeManagerToJson(SchemeManager instance) => <String, dynamic>{
-      'ID': instance.id,
-      'Name': instance.name,
-      'URL': instance.url,
-      'Description': instance.description,
-      'MinimumAppVersion': instance.minimumAppVersion,
-      'KeyshareServer': instance.keyshareServer,
-      'KeyshareWebsite': instance.keyshareWebsite,
-      'KeyshareAttribute': instance.keyshareAttribute,
-      'Timestamp': instance.timestamp,
-    };
-
 AppVersion _$AppVersionFromJson(Map<String, dynamic> json) {
   return AppVersion(
     android: json['Android'] as int,
     iOS: json['IOS'] as int,
   );
 }
-
-Map<String, dynamic> _$AppVersionToJson(AppVersion instance) => <String, dynamic>{
-      'Android': instance.android,
-      'IOS': instance.iOS,
-    };
 
 Issuer _$IssuerFromJson(Map<String, dynamic> json) {
   return Issuer(
@@ -90,15 +61,6 @@ Issuer _$IssuerFromJson(Map<String, dynamic> json) {
     contactEmail: json['ContactEmail'] as String,
   );
 }
-
-Map<String, dynamic> _$IssuerToJson(Issuer instance) => <String, dynamic>{
-      'ID': instance.id,
-      'Name': instance.name,
-      'ShortName': instance.shortName,
-      'SchemeManagerID': instance.schemeManagerId,
-      'ContactAddress': instance.contactAddress,
-      'ContactEmail': instance.contactEmail,
-    };
 
 CredentialType _$CredentialTypeFromJson(Map<String, dynamic> json) {
   return CredentialType(
@@ -126,28 +88,6 @@ CredentialType _$CredentialTypeFromJson(Map<String, dynamic> json) {
   );
 }
 
-Map<String, dynamic> _$CredentialTypeToJson(CredentialType instance) => <String, dynamic>{
-      'ID': instance.id,
-      'Name': instance.name,
-      'ShortName': instance.shortName,
-      'IssuerID': instance.issuerId,
-      'SchemeManagerID': instance.schemeManagerId,
-      'IsSingleton': instance.isSingleton,
-      'Description': instance.description,
-      'IssueURL': instance.issueUrl,
-      'IsULIssueURL': instance.isULIssueUrl,
-      'DisallowDelete': instance.disallowDelete,
-      'ForegroundColor': instance.foregroundColor,
-      'BackgroundGradientStart': instance.backgroundGradientStart,
-      'BackgroundGradientEnd': instance.backgroundGradientEnd,
-      'IsInCredentialStore': instance.isInCredentialStore,
-      'Category': instance.category,
-      'FAQIntro': instance.faqIntro,
-      'FAQPurpose': instance.faqPurpose,
-      'FAQContent': instance.faqContent,
-      'FAQHowto': instance.faqHowto,
-    };
-
 AttributeType _$AttributeTypeFromJson(Map<String, dynamic> json) {
   return AttributeType(
     id: json['ID'] as String,
@@ -162,16 +102,3 @@ AttributeType _$AttributeTypeFromJson(Map<String, dynamic> json) {
     schemeManagerId: json['SchemeManagerID'] as String,
   );
 }
-
-Map<String, dynamic> _$AttributeTypeToJson(AttributeType instance) => <String, dynamic>{
-      'ID': instance.id,
-      'Optional': instance.optional,
-      'Name': instance.name,
-      'Description': instance.description,
-      'Index': instance.index,
-      'DisplayIndex': instance.displayIndex,
-      'DisplayHint': instance.displayHint,
-      'CredentialTypeID': instance.credentialTypeId,
-      'IssuerID': instance.issuerId,
-      'SchemeManagerID': instance.schemeManagerId,
-    };
