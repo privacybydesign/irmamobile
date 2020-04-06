@@ -101,14 +101,14 @@ class AppState extends State<App> with WidgetsBindingObserver {
     if (prevLifeCycleStates[0] == AppLifecycleState.paused &&
         prevLifeCycleStates[1] == AppLifecycleState.inactive &&
         state == AppLifecycleState.resumed) {
-        // First check whether we should redo pin verification
-        final lastActive = await repo.getLastActiveTime().first;
-        if (lastActive.isBefore(DateTime.now().subtract(const Duration(minutes: 5)))) {
-          PinBloc().dispatch(Lock());
-          _navigatorKey.currentState.pushNamed(PinScreen.routeName);
-        } else if (startQrScanner) {
-          _navigatorKey.currentState.pushNamed(ScannerScreen.routeName);
-        }
+      // First check whether we should redo pin verification
+      final lastActive = await repo.getLastActiveTime().first;
+      if (lastActive.isBefore(DateTime.now().subtract(const Duration(minutes: 5)))) {
+        PinBloc().dispatch(Lock());
+        _navigatorKey.currentState.pushNamed(PinScreen.routeName);
+      } else if (startQrScanner) {
+        _navigatorKey.currentState.pushNamed(ScannerScreen.routeName);
+      }
     }
 
     // TODO: Use this detection also to reset the _showSplash and _removeSplash

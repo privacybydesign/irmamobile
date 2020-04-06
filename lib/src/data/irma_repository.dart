@@ -132,7 +132,7 @@ class IrmaRepository {
       _lockedSubject.add(true);
     } else if (event is AppLifecycleChangedEvent) {
       if (event.state == AppLifecycleState.paused) {
-        _lastActiveTimeSubject.add(DateTime.now());    
+        _lastActiveTimeSubject.add(DateTime.now());
       }
     }
   }

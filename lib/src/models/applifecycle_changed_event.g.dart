@@ -6,16 +6,13 @@ part of 'applifecycle_changed_event.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-AppLifecycleChangedEvent _$AppLifecycleChangedEventFromJson(
-    Map<String, dynamic> json) {
+AppLifecycleChangedEvent _$AppLifecycleChangedEventFromJson(Map<String, dynamic> json) {
   return AppLifecycleChangedEvent(
     _$enumDecode(_$AppLifecycleStateEnumMap, json['state']),
   );
 }
 
-Map<String, dynamic> _$AppLifecycleChangedEventToJson(
-        AppLifecycleChangedEvent instance) =>
-    <String, dynamic>{
+Map<String, dynamic> _$AppLifecycleChangedEventToJson(AppLifecycleChangedEvent instance) => <String, dynamic>{
       'state': _$AppLifecycleStateEnumMap[instance.state],
     };
 
@@ -29,9 +26,7 @@ T _$enumDecode<T>(
         '${enumValues.values.join(', ')}');
   }
 
-  final value = enumValues.entries
-      .singleWhere((e) => e.value == source, orElse: () => null)
-      ?.key;
+  final value = enumValues.entries.singleWhere((e) => e.value == source, orElse: () => null)?.key;
 
   if (value == null && unknownValue == null) {
     throw ArgumentError('`$source` is not one of the supported values: '
