@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/screens/webview/webview_screen.dart';
+import 'package:irmamobile/src/sentry/sentry.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
@@ -131,9 +132,9 @@ class _HelpScreenState extends State<HelpScreen> {
                               return WebviewScreen(FlutterI18n.translate(context, 'help.more_link'));
                             }),
                           );
-                        } on PlatformException catch (e) {
-                          debugPrint(e.toString());
-                          debugPrint("error on launch of url - probably bad certificate?");
+                        } on PlatformException catch (e, stacktrace) {
+                          //TODO: consider if we want an error screen here
+                          reportError(e, stacktrace);
                         }
                       },
                       child: Center(

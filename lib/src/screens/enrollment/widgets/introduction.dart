@@ -4,6 +4,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/choose_pin.dart';
 import 'package:irmamobile/src/screens/webview/webview_screen.dart';
+import 'package:irmamobile/src/sentry/sentry.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
@@ -148,9 +149,9 @@ class Walkthrough extends StatelessWidget {
                             },
                           ),
                         );
-                      } on PlatformException catch (e) {
-                        debugPrint(e.toString());
-                        debugPrint("error on launch of url - probably bad certificate?");
+                      } on PlatformException catch (e, stacktrace) {
+                        reportError(e,
+                            stacktrace); //TODO: reconsider whether this should be handled this way, or is better of with an error screens
                       }
                     },
                     child: Center(
