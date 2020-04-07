@@ -68,8 +68,9 @@ class _WalletScreenState extends State<_WalletScreen> {
   @override
   void initState() {
     super.initState();
+
     _pinBlocSubscription = _pinBloc.state.listen((pinState) {
-      if (!pinState.locked) {
+      if (!pinState.locked || pinState.unlockInProgress) {
         setState(() {
           isWalletOpen = true;
         });

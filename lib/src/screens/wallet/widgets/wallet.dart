@@ -129,6 +129,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+
     _cardAnimationController = AnimationController(
       duration: Duration(milliseconds: _cardAnimationDuration),
       vsync: this,
@@ -137,6 +138,10 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       duration: Duration(milliseconds: _loginAnimationDuration),
       vsync: this,
     );
+
+    if (widget.hasLoginLogoutAnimation && widget.isOpen) {
+      startLoginAnimation();
+    }
 
     _drawAnimation = CurvedAnimation(parent: _cardAnimationController, curve: Curves.easeInOut)
       ..addStatusListener(
@@ -186,14 +191,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
     }
 
     if (widget.hasLoginLogoutAnimation && !oldWidget.isOpen && widget.isOpen) {
-      _loginLogoutAnimationController.forward().then((_) {
-        setState(() {
-          _showCards = true;
-        });
-        return Future.delayed(Duration(milliseconds: _walletShowCardsDelay));
-      }).then((_) {
-        setNewState(WalletState.tightlyfolded);
-      });
+      startLoginAnimation();
     }
 
     if (widget.hasLoginLogoutAnimation && oldWidget.isOpen && !widget.isOpen) {
@@ -357,6 +355,17 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
           );
         },
       );
+
+  void startLoginAnimation() {
+    _loginLogoutAnimationController.forward().then((_) {
+      setState(() {
+        _showCards = true;
+      });
+      return Future.delayed(Duration(milliseconds: _walletShowCardsDelay));
+    }).then((_) {
+      setNewState(WalletState.tightlyfolded);
+    });
+  }
 
   /// IrmaCard with gestures attached
   /// Most of this code deals with having a good dragging UX
