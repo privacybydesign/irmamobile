@@ -41,7 +41,16 @@ class HistoryScreenState extends State<HistoryScreen> {
     IrmaRepository.get().bridgedDispatch(LoadLogsEvent(max: 10));
   }
 
+  Future<void> _loadMoreLogs() async {
+    final historyState = await _historyRepo.getHistoryState().first;
+    if (historyState.moreLogsAvailable && !historyState.loading) {
+      IrmaRepository.get().bridgedDispatch(LoadLogsEvent(before: historyState.logEntries.last.id, max: 10));
+    }
+  }
+
   Widget _buildLogEntries(BuildContext context, IrmaConfiguration irmaConfiguration, HistoryState historyState) {
+    _addPostFrameCallback();
+
     return ListView.builder(
       padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
       physics: const AlwaysScrollableScrollPhysics(),
@@ -111,14 +120,20 @@ class HistoryScreenState extends State<HistoryScreen> {
     _loadInitialLogs();
   }
 
-  Future<void> _listenToScroll() async {
-    if (_scrollController.position.pixels != _scrollController.position.maxScrollExtent) {
-      return;
+  void _listenToScroll() {
+    // When scrollbar is at the end, load more logs
+    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+      _loadMoreLogs();
     }
+  }
 
-    final historyState = await _historyRepo.getHistoryState().first;
-    if (historyState.moreLogsAvailable && !historyState.loading) {
-      IrmaRepository.get().bridgedDispatch(LoadLogsEvent(before: historyState.logEntries.last.id, max: 10));
-    }
+  void _addPostFrameCallback() {
+    // After list is initially rendered, there might not be enough logs to trigger the scroll controller.
+    // In that case, load more logs to fully fill the screen.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (_scrollController.position.minScrollExtent == _scrollController.position.maxScrollExtent) {
+        _loadMoreLogs();
+      }
+    });
   }
 }
