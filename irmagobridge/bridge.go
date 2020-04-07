@@ -39,6 +39,8 @@ func Prestart() {
 
 // Start is invoked from the native side, when the app starts
 func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) {
+	defer recoverFromPanic()
+
 	bridge = givenBridge
 
 	// Check for user data directory, and create version-specific directory
@@ -109,4 +111,10 @@ func pathExists(path string) (bool, error) {
 		return false, nil
 	}
 	return true, err
+}
+
+func recoverFromPanic() {
+	if e := recover(); e != nil {
+		reportError(errors.New(e))
+	}
 }
