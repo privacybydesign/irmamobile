@@ -1,2 +1,3 @@
-// NOTE: this file is overwritten with the actual DSN on production builds.
+// NOTE: this file is overwritten with the actual DSN and version on production builds.
 const dsn = '';
+const version = '';
