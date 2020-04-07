@@ -370,15 +370,15 @@
   },
   "disclosure": {
     "title": "Make yourself known",
-    "disclosure_header": {
-      "start": "Do you wish to disclose this to ",
-      "end": " ?"
-    },
+    "disclosure_header_markdown": "Do you wish to disclose this to **{otherParty}**?",
     "signing_header": " asks you to sign a message",
     "issuer": "Source",
     "choices": "{choices} choices",
     "next": "next choices",
     "previous": "previous choices",
+    "expired": "These data are expired.",
+    "revoked": "These data have been revoked.",
+    "not_revokable": "These data have to be refreshed first.",
     "explanation": {
       "title": "You can choose",
       "body": "Select which data you disclose. Use the arrow or swipe and choose.",
@@ -387,7 +387,8 @@
     },
     "navigation_bar": {
       "yes": "Yes",
-      "no": "No, rather not"
+      "no": "No, rather not",
+      "back": "Back"
     },
     "redirect": "You are being redirected back to the webpage...",
     "feedback": {

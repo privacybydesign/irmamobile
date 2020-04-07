@@ -6,10 +6,13 @@ class SessionState {
   final bool continueOnSecondDevice;
   final SessionStatus status;
   final TranslatedValue serverName;
-  final ConDisCon<CredentialAttribute> disclosuresCandidates;
+  final ConDisCon<Attribute> disclosuresCandidates;
   final String clientReturnURL;
   final bool isSignatureSession;
   final String signedMessage;
+  final List<int> disclosureIndices;
+  final ConCon<AttributeIdentifier> disclosureChoices;
+  final bool satisfiable;
 
   SessionState({
     this.sessionID,
@@ -20,16 +23,28 @@ class SessionState {
     this.clientReturnURL,
     this.isSignatureSession,
     this.signedMessage,
+    this.disclosureIndices,
+    this.disclosureChoices,
+    this.satisfiable,
   });
+
+  bool get canDisclose => disclosuresCandidates
+      .asMap()
+      .map((i, discon) => MapEntry(i, discon[disclosureIndices[i]]))
+      .values
+      .every((con) => con.every((attr) => attr.choosable));
 
   SessionState copyWith({
     bool continueOnSecondDevice,
     SessionStatus status,
     TranslatedValue serverName,
-    ConDisCon<CredentialAttribute> disclosuresCandidates,
+    ConDisCon<Attribute> disclosuresCandidates,
     String clientReturnURL,
     bool isSignatureSession,
     String signedMessage,
+    List<int> disclosureIndices,
+    ConCon<AttributeIdentifier> disclosureChoices,
+    bool satisfiable,
   }) {
     return SessionState(
       sessionID: sessionID,
@@ -40,6 +55,9 @@ class SessionState {
       clientReturnURL: clientReturnURL ?? this.clientReturnURL,
       isSignatureSession: isSignatureSession ?? this.isSignatureSession,
       signedMessage: signedMessage ?? this.signedMessage,
+      disclosureIndices: disclosureIndices ?? this.disclosureIndices,
+      disclosureChoices: disclosureChoices ?? this.disclosureChoices,
+      satisfiable: satisfiable ?? this.satisfiable,
     );
   }
 }

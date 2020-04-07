@@ -17,6 +17,8 @@ RawCredential _$RawCredentialFromJson(Map<String, dynamic> json) {
       (k, e) => MapEntry(k, TranslatedValue.fromJson(e as Map<String, dynamic>)),
     ),
     hash: json['Hash'] as String,
+    revoked: json['Revoked'] as bool,
+    revocationSupported: json['RevocationSupported'] as bool,
   );
 }
 
@@ -28,4 +30,6 @@ Map<String, dynamic> _$RawCredentialToJson(RawCredential instance) => <String, d
       'Expires': instance.expires,
       'Attributes': instance.attributes,
       'Hash': instance.hash,
+      'Revoked': instance.revoked,
+      'RevocationSupported': instance.revocationSupported,
     };

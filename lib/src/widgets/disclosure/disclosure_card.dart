@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/models/attributes.dart';
-import 'package:irmamobile/src/widgets/disclosure/carousel.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/disclosure/carousel.dart';
 
 class DisclosureCard extends StatefulWidget {
   final ConDisCon<Attribute> candidatesConDisCon;
+  final Function(int, int) onCurrentPageUpdate;
 
-  static const _indent = 100.0;
-
-  const DisclosureCard({this.candidatesConDisCon}) : super();
+  const DisclosureCard({this.candidatesConDisCon, this.onCurrentPageUpdate}) : super();
 
   @override
   _DisclosureCardState createState() => _DisclosureCardState();
@@ -38,7 +37,10 @@ class _DisclosureCardState extends State<DisclosureCard> {
                     Divider(
                       color: IrmaTheme.of(context).grayscale80,
                     ),
-                  Carousel(candidatesDisCon: entry.value)
+                  Carousel(
+                    candidatesDisCon: entry.value,
+                    onCurrentPageUpdate: (int page) => widget.onCurrentPageUpdate(entry.key, page),
+                  )
                 ],
               )
               .toList(),

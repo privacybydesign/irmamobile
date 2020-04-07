@@ -39,18 +39,23 @@ class Credential {
   final DateTime signedOn;
   final DateTime expires;
   final Attributes attributes;
+  final bool revoked;
   final String hash;
+
+  bool get expired => expires.isBefore(DateTime.now());
 
   Credential({
     @required this.info,
     @required this.signedOn,
     @required this.expires,
     @required this.attributes,
+    @required this.revoked,
     @required this.hash,
   })  : assert(info != null),
         assert(signedOn != null),
         assert(expires != null),
         assert(attributes != null),
+        assert(revoked != null),
         assert(hash != null);
 
   Credential.fromRaw({IrmaConfiguration irmaConfiguration, RawCredential rawCredential})
@@ -66,6 +71,7 @@ class Credential {
           irmaConfiguration: irmaConfiguration,
           rawAttributes: rawCredential.attributes,
         ),
+        revoked = rawCredential.revoked,
         hash = rawCredential.hash;
 }
 
@@ -92,6 +98,8 @@ class CredentialInfo {
   final Issuer issuer;
   final CredentialType credentialType;
 
+  String get fullId => "${issuer.fullId}.$id";
+
   CredentialInfo({
     @required this.id,
     @required this.issuer,
@@ -103,12 +111,12 @@ class CredentialInfo {
         assert(credentialType != null);
 
   factory CredentialInfo.fromConfiguration({IrmaConfiguration irmaConfiguration, String credentialIdentifier}) {
-    final parsedCredentialId = credentialIdentifier.split(".");
-    final schemeManagerId = parsedCredentialId[0];
-    final issuerId = "$schemeManagerId.${parsedCredentialId[1]}";
-    final credentialId = "$issuerId.${parsedCredentialId[2]}";
+    final parsedAttributeId = credentialIdentifier.split(".");
+    final schemeManagerId = parsedAttributeId[0];
+    final issuerId = "$schemeManagerId.${parsedAttributeId[1]}";
+    final credentialId = "$issuerId.${parsedAttributeId[2]}";
     return CredentialInfo(
-      id: credentialId,
+      id: parsedAttributeId.last,
       issuer: irmaConfiguration.issuers[issuerId],
       schemeManager: irmaConfiguration.schemeManagers[schemeManagerId],
       credentialType: irmaConfiguration.credentialTypes[credentialId],
@@ -126,6 +134,8 @@ class RawCredential {
     this.expires,
     this.attributes,
     this.hash,
+    this.revoked,
+    this.revocationSupported,
   });
 
   @JsonKey(name: 'ID')
@@ -148,6 +158,12 @@ class RawCredential {
 
   @JsonKey(name: 'Hash')
   final String hash;
+
+  @JsonKey(name: 'Revoked')
+  final bool revoked;
+
+  @JsonKey(name: 'RevocationSupported')
+  final bool revocationSupported;
 
   factory RawCredential.fromJson(Map<String, dynamic> json) => _$RawCredentialFromJson(json);
 

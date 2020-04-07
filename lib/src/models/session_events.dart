@@ -61,6 +61,13 @@ class RespondPinEvent extends SessionEvent {
   Map<String, dynamic> toJson() => _$RespondPinEventToJson(this);
 }
 
+class DisclosureChoiceUpdateSessionEvent extends SessionEvent {
+  int disconIndex;
+  int conIndex;
+
+  DisclosureChoiceUpdateSessionEvent({int sessionID, this.disconIndex, this.conIndex}) : super(sessionID);
+}
+
 @JsonSerializable()
 class DismissSessionEvent extends SessionEvent {
   DismissSessionEvent({int sessionID}) : super(sessionID);
@@ -129,29 +136,11 @@ class CanceledSessionEvent extends SessionEvent {
 }
 
 @JsonSerializable()
-class UnsatisfiableRequestSessionEvent extends SessionEvent {
-  UnsatisfiableRequestSessionEvent({int sessionID, this.serverName, this.missingDisclosures, this.disclosuresLabels})
-      : super(sessionID);
-
-  @JsonKey(name: 'ServerName')
-  TranslatedValue serverName;
-
-  @JsonKey(name: 'MissingDisclosures')
-  Map<int, Map<int, Map<int, AttributeIdentifier>>> missingDisclosures;
-
-  @JsonKey(name: 'DisclosuresLabels')
-  Map<int, TranslatedValue> disclosuresLabels;
-
-  factory UnsatisfiableRequestSessionEvent.fromJson(Map<String, dynamic> json) =>
-      _$UnsatisfiableRequestSessionEventFromJson(json);
-  Map<String, dynamic> toJson() => _$UnsatisfiableRequestSessionEventToJson(this);
-}
-
-@JsonSerializable()
 class RequestIssuancePermissionSessionEvent extends SessionEvent {
   RequestIssuancePermissionSessionEvent(
       {int sessionID,
       this.serverName,
+      this.satisfiable,
       this.issuedCredentials,
       this.disclosures,
       this.disclosuresLabels,
@@ -160,6 +149,9 @@ class RequestIssuancePermissionSessionEvent extends SessionEvent {
 
   @JsonKey(name: 'ServerName')
   TranslatedValue serverName;
+
+  @JsonKey(name: 'Satisfiable')
+  bool satisfiable;
 
   @JsonKey(name: 'IssuedCredentials')
   List<RawCredential> issuedCredentials;
@@ -171,7 +163,7 @@ class RequestIssuancePermissionSessionEvent extends SessionEvent {
   Map<int, TranslatedValue> disclosuresLabels;
 
   @JsonKey(name: 'DisclosuresCandidates')
-  List<List<List<AttributeIdentifier>>> disclosuresCandidates;
+  List<List<List<DisclosureCandidate>>> disclosuresCandidates;
 
   factory RequestIssuancePermissionSessionEvent.fromJson(Map<String, dynamic> json) =>
       _$RequestIssuancePermissionSessionEventFromJson(json);
@@ -181,11 +173,19 @@ class RequestIssuancePermissionSessionEvent extends SessionEvent {
 @JsonSerializable()
 class RequestVerificationPermissionSessionEvent extends SessionEvent {
   RequestVerificationPermissionSessionEvent(
-      {int sessionID, this.serverName, this.disclosures, this.disclosuresLabels, this.disclosuresCandidates})
+      {int sessionID,
+      this.serverName,
+      this.satisfiable,
+      this.disclosures,
+      this.disclosuresLabels,
+      this.disclosuresCandidates})
       : super(sessionID);
 
   @JsonKey(name: 'ServerName')
   TranslatedValue serverName;
+
+  @JsonKey(name: 'Satisfiable')
+  bool satisfiable;
 
   @JsonKey(name: 'Disclosures')
   List<List<List<String>>> disclosures;
@@ -194,7 +194,7 @@ class RequestVerificationPermissionSessionEvent extends SessionEvent {
   Map<int, TranslatedValue> disclosuresLabels;
 
   @JsonKey(name: 'DisclosuresCandidates')
-  List<List<List<AttributeIdentifier>>> disclosuresCandidates;
+  List<List<List<DisclosureCandidate>>> disclosuresCandidates;
 
   @JsonKey(name: 'IsSignatureSession')
   bool isSignatureSession;

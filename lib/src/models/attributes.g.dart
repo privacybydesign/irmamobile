@@ -49,3 +49,17 @@ Map<String, dynamic> _$DisclosedAttributeToJson(DisclosedAttribute instance) => 
       'status': instance.status,
       'issuancetime': instance.issuanceTime,
     };
+
+DisclosureCandidate _$DisclosureCandidateFromJson(Map<String, dynamic> json) {
+  return DisclosureCandidate(
+    type: json['Type'] as String,
+    credentialHash: json['CredentialHash'] as String,
+    notRevokable: json['NotRevokable'] as bool,
+  );
+}
+
+Map<String, dynamic> _$DisclosureCandidateToJson(DisclosureCandidate instance) => <String, dynamic>{
+      'Type': instance.type,
+      'CredentialHash': instance.credentialHash,
+      'NotRevokable': instance.notRevokable,
+    };

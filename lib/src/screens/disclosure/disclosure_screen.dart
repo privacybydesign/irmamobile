@@ -12,6 +12,7 @@ import 'package:irmamobile/src/screens/disclosure/widgets/arrow_back_screen.dart
 import 'package:irmamobile/src/screens/disclosure/widgets/disclosure_feedback_screen.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/util/translated_text.dart';
 import 'package:irmamobile/src/widgets/disclosure/disclosure_card.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
@@ -46,6 +47,16 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   Stream<SessionState> _sessionStateStream;
 
   bool _displayArrowBack = false;
+
+  void carouselPageUpdate(int disconIndex, int conIndex) {
+    _dispatchSessionEvent(
+      DisclosureChoiceUpdateSessionEvent(
+        disconIndex: disconIndex,
+        conIndex: conIndex,
+      ),
+      isBridgedEvent: false,
+    );
+  }
 
   @override
   void initState() {
@@ -101,9 +112,9 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     ));
   }
 
-  void _dispatchSessionEvent(SessionEvent event) {
+  void _dispatchSessionEvent(SessionEvent event, {bool isBridgedEvent = true}) {
     event.sessionID = widget.arguments.sessionID;
-    _repo.bridgedDispatch(event);
+    _repo.dispatch(event, isBridgedEvent: isBridgedEvent);
   }
 
   void _dismissSession() {
@@ -122,29 +133,15 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   void _givePermission(SessionState session) {
     _dispatchSessionEvent(RespondPermissionEvent(
       proceed: true,
-      disclosureChoices: session.disclosuresCandidates.map((discon) {
-        return discon.first
-            .map((credentialAttribute) => AttributeIdentifier.fromCredentialAttribute(credentialAttribute))
-            .toList();
-      }).toList(),
+      disclosureChoices: session.disclosureChoices,
     ));
   }
 
   Widget _buildDisclosureHeader(SessionState session) {
-    return Text.rich(
-      TextSpan(children: [
-        TextSpan(
-            text: FlutterI18n.translate(context, 'disclosure.disclosure_header.start'),
-            style: IrmaTheme.of(context).textTheme.body1),
-        TextSpan(
-          text: session.serverName.translate(_lang),
-          style: IrmaTheme.of(context).textTheme.body2,
-        ),
-        TextSpan(
-          text: FlutterI18n.translate(context, 'disclosure.disclosure_header.end'),
-          style: IrmaTheme.of(context).textTheme.body1,
-        ),
-      ]),
+    return TranslatedText(
+      'disclosure.disclosure_header',
+      translationParams: {"otherParty": session.serverName.translate(_lang)},
+      style: Theme.of(context).textTheme.body1,
     );
   }
 
@@ -177,12 +174,18 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
           return Container(height: 0);
         }
 
-        return IrmaBottomBar(
-          primaryButtonLabel: FlutterI18n.translate(context, "disclosure.navigation_bar.yes"),
-          onPrimaryPressed: () => _givePermission(sessionStateSnapshot.data),
-          secondaryButtonLabel: FlutterI18n.translate(context, "disclosure.navigation_bar.no"),
-          onSecondaryPressed: () => _declinePermission(context, sessionStateSnapshot.data.serverName.translate(_lang)),
-        );
+        final state = sessionStateSnapshot.data;
+        return state.satisfiable
+            ? IrmaBottomBar(
+                primaryButtonLabel: FlutterI18n.translate(context, "disclosure.navigation_bar.yes"),
+                onPrimaryPressed: state.canDisclose ? () => _givePermission(state) : null,
+                secondaryButtonLabel: FlutterI18n.translate(context, "disclosure.navigation_bar.no"),
+                onSecondaryPressed: () => _declinePermission(context, state.serverName.translate(_lang)),
+              )
+            : IrmaBottomBar(
+                primaryButtonLabel: FlutterI18n.translate(context, "disclosure.navigation_bar.back"),
+                onPrimaryPressed: () => _declinePermission(context, state.serverName.translate(_lang)),
+              );
       },
     );
   }
@@ -201,13 +204,15 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
       padding: EdgeInsets.all(IrmaTheme.of(context).smallSpacing),
       children: <Widget>[
         Padding(
-          padding: EdgeInsets.symmetric(
-            vertical: IrmaTheme.of(context).mediumSpacing,
-            horizontal: IrmaTheme.of(context).smallSpacing,
-          ),
-          child: session.isSignatureSession ? _buildSigningHeader(session) : _buildDisclosureHeader(session),
+            padding: EdgeInsets.symmetric(
+              vertical: IrmaTheme.of(context).mediumSpacing,
+              horizontal: IrmaTheme.of(context).smallSpacing,
+            ),
+            child: session.isSignatureSession ? _buildSigningHeader(session) : _buildDisclosureHeader(session)),
+        DisclosureCard(
+          candidatesConDisCon: session.disclosuresCandidates,
+          onCurrentPageUpdate: carouselPageUpdate,
         ),
-        DisclosureCard(candidatesConDisCon: session.disclosuresCandidates),
       ],
     );
   }
@@ -242,7 +247,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     );
   }
 
-  Future<void> _showExplanation(ConDisCon<CredentialAttribute> candidatesConDisCon) async {
+  Future<void> _showExplanation(ConDisCon<Attribute> candidatesConDisCon) async {
     final irmaPrefs = IrmaPreferences.get();
 
     final bool showDisclosureDialog = await irmaPrefs.getShowDisclosureDialog().first;

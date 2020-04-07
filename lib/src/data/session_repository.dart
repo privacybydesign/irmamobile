@@ -54,21 +54,29 @@ class SessionRepository {
       return prevState.copyWith(
         status: event.status.toSessionStatus(),
       );
-    }
-    if (event is ClientReturnURLSetSessionEvent) {
+    } else if (event is ClientReturnURLSetSessionEvent) {
       return prevState.copyWith(
         clientReturnURL: event.clientReturnURL,
       );
     } else if (event is RequestVerificationPermissionSessionEvent) {
+      final condiscon = ConDisCon.fromRaw<DisclosureCandidate, Attribute>(
+        event.disclosuresCandidates,
+        (disclosureCandidate) => Attribute.fromCandidate(irmaConfiguration, credentials, disclosureCandidate),
+      );
       return prevState.copyWith(
         status: SessionStatus.requestPermission,
         serverName: event.serverName,
         isSignatureSession: event.isSignatureSession,
         signedMessage: event.signedMessage,
-        disclosuresCandidates: ConDisCon.fromRaw<AttributeIdentifier, CredentialAttribute>(event.disclosuresCandidates,
-            (attributeIdentifier) {
-          return CredentialAttribute.fromAttributeIdentifier(irmaConfiguration, credentials, attributeIdentifier);
-        }),
+        disclosureIndices: List<int>.filled(event.disclosuresCandidates.length, 0),
+        disclosureChoices: _initialDisclosureChoices(condiscon),
+        disclosuresCandidates: condiscon,
+        satisfiable: event.satisfiable,
+      );
+    } else if (event is DisclosureChoiceUpdateSessionEvent) {
+      return prevState.copyWith(
+        disclosureIndices: List<int>.of(prevState.disclosureIndices)..[event.disconIndex] = event.conIndex,
+        disclosureChoices: _updateDisclosureChoices(prevState, event),
       );
     } else if (event is SuccessSessionEvent) {
       return prevState.copyWith(
@@ -84,4 +92,16 @@ class SessionRepository {
       (sessionStates) => sessionStates[sessionID],
     );
   }
+
+  static ConCon<AttributeIdentifier> _initialDisclosureChoices(ConDisCon<Attribute> list) => ConCon(list.map(
+        (discon) => Con(discon[0].map((attr) => AttributeIdentifier.fromAttribute(attr))),
+      ));
+
+  // Given session state and a choice event, return an updated list of list of attributes that will be disclosed.
+  static ConCon<AttributeIdentifier> _updateDisclosureChoices(
+          SessionState state, DisclosureChoiceUpdateSessionEvent event) =>
+      ConCon(List<Con<AttributeIdentifier>>.of(state.disclosureChoices)
+        ..[event.disconIndex] = Con(state.disclosuresCandidates[event.disconIndex][event.conIndex]
+            .map((attr) => AttributeIdentifier.fromAttribute(attr))
+            .toList()));
 }
