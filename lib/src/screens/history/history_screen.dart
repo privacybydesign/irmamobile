@@ -122,7 +122,7 @@ class HistoryScreenState extends State<HistoryScreen> {
 
   void _listenToScroll() {
     // When scrollbar is at the end, load more logs
-    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+    if (_scrollController.position.maxScrollExtent - _scrollController.position.pixels < 80) {
       _loadMoreLogs();
     }
   }
@@ -131,7 +131,7 @@ class HistoryScreenState extends State<HistoryScreen> {
     // After list is initially rendered, there might not be enough logs to trigger the scroll controller.
     // In that case, load more logs to fully fill the screen.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (_scrollController.position.minScrollExtent == _scrollController.position.maxScrollExtent) {
+      if (_scrollController.position.maxScrollExtent - _scrollController.position.minScrollExtent < 80) {
         _loadMoreLogs();
       }
     });
