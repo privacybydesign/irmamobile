@@ -402,6 +402,7 @@
       "ok": "OK"
     },
     "call_info": {
+      "title": "Bellen",
       "success": "Gegevens doorgegegeven",
       "success_message_markdown": "Je gegevens zijn doorgegegeven aan **{otherParty}**.\nVoer de volgende stappen uit om te bellen.",
       "continue": "Kies doorgaan",

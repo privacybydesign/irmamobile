@@ -402,6 +402,7 @@
       "ok": "OK"
     },
     "call_info": {
+      "title": "Calling",
       "success": "Data disclosed",
       "success_message_markdown": "Your data are disclosed to **{otherParty}**.\nComplete the following steps place the call.",
       "continue": "Choose continue",

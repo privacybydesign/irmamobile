@@ -15,7 +15,7 @@ class CallInfoScreen extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
         title: Text(
-          FlutterI18n.translate(context, 'Bellen'),
+          FlutterI18n.translate(context, 'disclosure.call_info.title'),
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
