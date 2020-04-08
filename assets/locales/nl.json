@@ -400,6 +400,16 @@
         "false": "Je gegevens zijn **niet** doorgegeven aan {otherParty}"
       },
       "ok": "OK"
+    },
+    "call_info": {
+      "success": "Gegevens doorgegegeven",
+      "success_message_markdown": "Je gegevens zijn doorgegegeven aan **{otherParty}**.\nVoer de volgende stappen uit om te bellen.",
+      "continue": "Kies doorgaan",
+      "continue_message_1": "Je belapplicatie opent nu vanzelf.",
+      "continue_message_2": "Het telefoonnummer is al ingevuld, met een koppelcode.",
+      "call": "Klik de belknop in je belapplicatie",
+      "call_message": "Je hoort een paar piepjes en wordt verbonden.",
+      "continue_button": "Doorgaan"
     }
   },
   "reset_pin": {

@@ -19,7 +19,7 @@ class CallInfoScreen extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: 'Doorgaan',
+        primaryButtonLabel: FlutterI18n.translate(context, 'disclosure.call_info.continue_button'),
         onPrimaryPressed: () {
           //
         },
@@ -62,8 +62,8 @@ class CallInfoScreen extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
-                                TranslatedText(
-                                  'Gelukt',
+                                Text(
+                                  FlutterI18n.translate(context, 'disclosure.call_info.success'),
                                   style: Theme.of(context).textTheme.body2,
                                 ),
                                 SizedBox(height: IrmaTheme.of(context).tinySpacing),
@@ -72,7 +72,7 @@ class CallInfoScreen extends StatelessWidget {
                                   children: <Widget>[
                                     Expanded(
                                       child: TranslatedText(
-                                        'Je postcode en woonplaats zijn doorgegegeven aan bellen.nijmegen.nl',
+                                        'disclosure.call_info.success_message_markdown',
                                         style: Theme.of(context).textTheme.body1,
                                       ),
                                     ),
@@ -111,8 +111,8 @@ class CallInfoScreen extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
-                                TranslatedText(
-                                  'Kies doorgaan',
+                                Text(
+                                  FlutterI18n.translate(context, 'disclosure.call_info.continue'),
                                   style: Theme.of(context).textTheme.body2,
                                 ),
                                 SizedBox(height: IrmaTheme.of(context).tinySpacing),
@@ -121,7 +121,7 @@ class CallInfoScreen extends StatelessWidget {
                                   children: <Widget>[
                                     Expanded(
                                       child: TranslatedText(
-                                        'Je belapplicatie opent nu vanzelf.',
+                                        'disclosure.call_info.continue_message_1',
                                         style: Theme.of(context).textTheme.body1,
                                       ),
                                     ),
@@ -168,7 +168,7 @@ class CallInfoScreen extends StatelessWidget {
                                   children: <Widget>[
                                     Expanded(
                                       child: TranslatedText(
-                                        'Het telefoonnummer is al ingevuld, met een koppelcode. ',
+                                        'disclosure.call_info.continue_message_2',
                                         style: Theme.of(context).textTheme.body1,
                                       ),
                                     ),
@@ -207,8 +207,8 @@ class CallInfoScreen extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
-                                TranslatedText(
-                                  'Klik de belknop in je belapplicatie',
+                                Text(
+                                  FlutterI18n.translate(context, 'disclosure.call_info.call'),
                                   style: Theme.of(context).textTheme.body2,
                                 ),
                                 SizedBox(height: IrmaTheme.of(context).tinySpacing),
@@ -217,7 +217,7 @@ class CallInfoScreen extends StatelessWidget {
                                   children: <Widget>[
                                     Expanded(
                                       child: TranslatedText(
-                                        'Je hoort een paar piepjes en wordt verbonden.',
+                                        'disclosure.call_info.call_message',
                                         style: Theme.of(context).textTheme.body1,
                                       ),
                                     ),
