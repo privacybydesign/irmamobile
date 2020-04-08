@@ -402,7 +402,7 @@
       "ok": "OK"
     },
     "call_info": {
-      "title": "IRMA call",
+      "title": "Call via IRMA",
       "success": "Data disclosed",
       "success_message_markdown": "Your data are disclosed to **{otherParty}**.\nComplete the following steps to start the call.",
       "continue": "Choose continue",
