@@ -44,7 +44,6 @@ class CallInfoScreen extends StatelessWidget {
                           Container(
                             child: Padding(
                               padding: EdgeInsets.only(
-                                  left: IrmaTheme.of(context).smallSpacing,
                                   top: IrmaTheme.of(context).tinySpacing * 0.75,
                                   right: IrmaTheme.of(context).defaultSpacing),
                               child: Container(
