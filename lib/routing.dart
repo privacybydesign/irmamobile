@@ -6,6 +6,8 @@ import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
 import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
 import 'package:irmamobile/src/screens/debug/debug_screen.dart';
 import 'package:irmamobile/src/screens/disclosure/disclosure_screen.dart';
+import 'package:irmamobile/src/screens/disclosure/issuance_screen.dart';
+import 'package:irmamobile/src/screens/disclosure/session_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/help/help_screen.dart';
 import 'package:irmamobile/src/screens/history/history_screen.dart';
@@ -38,10 +40,20 @@ class Routing {
 
     switch (settings.name) {
       case DisclosureScreen.routeName:
-        if (arg is DisclosureScreenArguments) {
+        if (arg is SessionScreenArguments) {
           return MaterialPageRoute(
             builder: (context) {
               return DisclosureScreen(arguments: arg);
+            },
+            settings: settings,
+          );
+        }
+        return _errorPage();
+      case IssuanceScreen.routeName:
+        if (arg is SessionScreenArguments) {
+          return MaterialPageRoute(
+            builder: (context) {
+              return IssuanceScreen(arguments: arg);
             },
             settings: settings,
           );

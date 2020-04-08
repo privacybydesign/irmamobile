@@ -4,6 +4,8 @@ import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/screens/disclosure/disclosure_screen.dart';
+import 'package:irmamobile/src/screens/disclosure/issuance_screen.dart';
+import 'package:irmamobile/src/screens/disclosure/session_screen.dart';
 import 'package:irmamobile/src/screens/scanner/widgets/qr_scanner.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
@@ -35,9 +37,17 @@ class ScannerScreen extends StatelessWidget {
       navigator.pushNamedAndRemoveUntil(
         DisclosureScreen.routeName,
         ModalRoute.withName(WalletScreen.routeName),
-        arguments: DisclosureScreenArguments(sessionID: event.sessionID),
+        arguments: SessionScreenArguments(sessionID: event.sessionID, sessionType: event.request.irmaqr),
+      );
+    } else if ("issuing" == event.request.irmaqr) {
+      navigator.pushNamedAndRemoveUntil(
+        IssuanceScreen.routeName,
+        ModalRoute.withName(WalletScreen.routeName),
+        arguments: SessionScreenArguments(sessionID: event.sessionID, sessionType: event.request.irmaqr),
       );
     } else {
+      // TODO show error
+      // TODO handle static QRs
       navigator.popUntil(ModalRoute.withName(WalletScreen.routeName));
     }
   }
