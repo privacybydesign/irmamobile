@@ -404,7 +404,7 @@
     "call_info": {
       "title": "Calling",
       "success": "Data disclosed",
-      "success_message_markdown": "Your data are disclosed to **{otherParty}**.\nComplete the following steps place the call.",
+      "success_message_markdown": "Your data are disclosed to **{otherParty}**.\nComplete the following steps to start the call.",
       "continue": "Choose continue",
       "continue_message_1": "Your calling application now opens automatically.",
       "continue_message_2": "The number is already filled in, with a linking code at the end.",
