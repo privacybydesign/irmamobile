@@ -78,14 +78,14 @@ class _WebviewScreenState extends State<WebviewScreen> {
                     debugPrint("received nav request ${navrequest.url}");
                     final decodedUri = Uri.decodeFull(navrequest.url);
 
-                    if (_isIRMAURI(decodedUri)) {
+                    try {
+                      _sessionPointer = SessionPointer.fromString(decodedUri);
+                    } catch (_) {
+                      _sessionPointer = null;
+                    }
+                    if (_sessionPointer != null) {
                       setState(() {
-                        try {
-                          _sessionPointer = SessionPointer.fromString(decodedUri);
-                          widget._handleSessionPointer(context, _sessionPointer);
-                        } catch (err) {
-                          debugPrint(err.toString());
-                        }
+                        widget._handleSessionPointer(context, _sessionPointer);
                       });
                       return NavigationDecision.prevent;
                     }
@@ -140,12 +140,5 @@ class _WebviewScreenState extends State<WebviewScreen> {
               ],
             ),
     );
-  }
-
-  bool _isIRMAURI(String uri) {
-    final regexIrma = RegExp("^irma:\/\/qr\/json\/{");
-    final regexIntent = RegExp("^intent:\/\/qr\/json\/{");
-    final regexHttp = RegExp("^https:\/\/irma.app\/.+\/session#{");
-    return regexIntent.hasMatch(uri) || regexHttp.hasMatch(uri) || regexIrma.hasMatch(uri);
   }
 }
