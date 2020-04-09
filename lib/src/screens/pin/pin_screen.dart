@@ -96,92 +96,80 @@ class _PinScreenState extends State<PinScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        if (_pinBloc.currentState.locked) {
-          IrmaRepository.get().bridgedDispatch(
-            AndroidSendToBackgroundEvent(),
-          );
-          return false;
-        } else {
-          return true;
+    return BlocBuilder<PinBloc, PinState>(
+      bloc: _pinBloc,
+      builder: (context, state) {
+        if (state.locked == false) {
+          return Container();
         }
-      },
-      child: BlocBuilder<PinBloc, PinState>(
-        bloc: _pinBloc,
-        builder: (context, state) {
-          if (state.locked == false) {
-            return Container();
-          }
 
-          FocusScope.of(context).requestFocus(_focusNode);
-          return Scaffold(
-            backgroundColor: IrmaTheme.of(context).backgroundBlue,
-            appBar: _buildAppBar(),
-            body: SafeArea(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: <Widget>[
-                    SizedBox(
-                      height: IrmaTheme.of(context).largeSpacing,
-                    ),
-                    SizedBox(
-                      width: 76.0,
-                      child: SvgPicture.asset(
-                        'assets/non-free/irma_logo.svg',
-                        semanticsLabel: FlutterI18n.translate(
-                          context,
-                          'accessibility.irma_logo',
-                        ),
+        FocusScope.of(context).requestFocus(_focusNode);
+        return Scaffold(
+          backgroundColor: IrmaTheme.of(context).backgroundBlue,
+          appBar: _buildAppBar(),
+          body: SafeArea(
+            child: SingleChildScrollView(
+              child: Column(
+                children: <Widget>[
+                  SizedBox(
+                    height: IrmaTheme.of(context).largeSpacing,
+                  ),
+                  SizedBox(
+                    width: 76.0,
+                    child: SvgPicture.asset(
+                      'assets/non-free/irma_logo.svg',
+                      semanticsLabel: FlutterI18n.translate(
+                        context,
+                        'accessibility.irma_logo',
                       ),
                     ),
-                    SizedBox(
-                      height: IrmaTheme.of(context).largeSpacing,
+                  ),
+                  SizedBox(
+                    height: IrmaTheme.of(context).largeSpacing,
+                  ),
+                  Text(FlutterI18n.translate(context, "pin.subtitle")),
+                  SizedBox(
+                    height: IrmaTheme.of(context).defaultSpacing,
+                  ),
+                  StreamBuilder(
+                    stream: IrmaPreferences.get().getLongPin(),
+                    builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+                      return PinField(
+                        focusNode: _focusNode,
+                        longPin: snapshot.hasData && snapshot.data,
+                        onSubmit: (pin) {
+                          FocusScope.of(context).requestFocus();
+                          _pinBloc.dispatch(
+                            Unlock(pin),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                  SizedBox(
+                    height: IrmaTheme.of(context).defaultSpacing,
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).pushNamed(ResetPinScreen.routeName);
+                    },
+                    child: Text(
+                      FlutterI18n.translate(context, "pin.button_forgot"),
+                      style: IrmaTheme.of(context).hyperlinkTextStyle.copyWith(
+                            decoration: TextDecoration.underline,
+                          ),
                     ),
-                    Text(FlutterI18n.translate(context, "pin.subtitle")),
-                    SizedBox(
-                      height: IrmaTheme.of(context).defaultSpacing,
-                    ),
-                    StreamBuilder(
-                      stream: IrmaPreferences.get().getLongPin(),
-                      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-                        return PinField(
-                          focusNode: _focusNode,
-                          longPin: snapshot.hasData && snapshot.data,
-                          onSubmit: (pin) {
-                            FocusScope.of(context).requestFocus();
-                            _pinBloc.dispatch(
-                              Unlock(pin),
-                            );
-                          },
-                        );
-                      },
-                    ),
-                    SizedBox(
-                      height: IrmaTheme.of(context).defaultSpacing,
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.of(context).pushNamed(ResetPinScreen.routeName);
-                      },
-                      child: Text(
-                        FlutterI18n.translate(context, "pin.button_forgot"),
-                        style: IrmaTheme.of(context).hyperlinkTextStyle.copyWith(
-                              decoration: TextDecoration.underline,
-                            ),
-                      ),
-                    ),
-                    if (state.unlockInProgress)
-                      Padding(
-                          padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
-                          child: const CircularProgressIndicator()),
-                  ],
-                ),
+                  ),
+                  if (state.unlockInProgress)
+                    Padding(
+                        padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
+                        child: const CircularProgressIndicator()),
+                ],
               ),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 

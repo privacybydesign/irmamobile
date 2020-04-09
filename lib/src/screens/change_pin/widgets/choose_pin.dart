@@ -21,58 +21,52 @@ class ChoosePin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        Navigator.of(context, rootNavigator: true).pop();
-        return false;
-      },
-      child: Scaffold(
-        appBar: IrmaAppBar(
-          title: Text(
-            FlutterI18n.translate(context, 'change_pin.choose_pin.title'),
-          ),
-          leadingTooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
-          leadingAction: () async {
-            if (cancel != null) {
-              cancel();
-            }
-            Navigator.of(context, rootNavigator: true).pop();
-          },
+    return Scaffold(
+      appBar: IrmaAppBar(
+        title: Text(
+          FlutterI18n.translate(context, 'change_pin.choose_pin.title'),
         ),
-        body: BlocBuilder<ChangePinBloc, ChangePinState>(
-          builder: (context, state) {
-            return SingleChildScrollView(
-              child: Column(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(
-                        left: IrmaTheme.of(context).defaultSpacing,
-                        right: IrmaTheme.of(context).defaultSpacing,
-                        top: IrmaTheme.of(context).hugeSpacing,
-                        bottom: IrmaTheme.of(context).mediumSpacing),
-                    child: Text(
-                      FlutterI18n.translate(context, 'change_pin.choose_pin.instruction'),
-                      style: IrmaTheme.of(context).textTheme.body1,
-                      textAlign: TextAlign.center,
-                    ),
+        leadingTooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+        leadingAction: () async {
+          if (cancel != null) {
+            cancel();
+          }
+          Navigator.of(context, rootNavigator: true).pop();
+        },
+      ),
+      body: BlocBuilder<ChangePinBloc, ChangePinState>(
+        builder: (context, state) {
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(
+                      left: IrmaTheme.of(context).defaultSpacing,
+                      right: IrmaTheme.of(context).defaultSpacing,
+                      top: IrmaTheme.of(context).hugeSpacing,
+                      bottom: IrmaTheme.of(context).mediumSpacing),
+                  child: Text(
+                    FlutterI18n.translate(context, 'change_pin.choose_pin.instruction'),
+                    style: IrmaTheme.of(context).textTheme.body1,
+                    textAlign: TextAlign.center,
                   ),
-                  PinField(
-                    focusNode: pinFocusNode,
-                    longPin: state.longPin,
-                    onSubmit: (String pin) => chooseNewPin(context, pin),
-                  ),
-                  SizedBox(height: IrmaTheme.of(context).smallSpacing),
-                  IrmaTextButton(
-                    onPressed: () {
-                      toggleLongPin();
-                    },
-                    label: state.longPin ? 'change_pin.choose_pin.switch_short' : 'change_pin.choose_pin.switch_long',
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
+                ),
+                PinField(
+                  focusNode: pinFocusNode,
+                  longPin: state.longPin,
+                  onSubmit: (String pin) => chooseNewPin(context, pin),
+                ),
+                SizedBox(height: IrmaTheme.of(context).smallSpacing),
+                IrmaTextButton(
+                  onPressed: () {
+                    toggleLongPin();
+                  },
+                  label: state.longPin ? 'change_pin.choose_pin.switch_short' : 'change_pin.choose_pin.switch_long',
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

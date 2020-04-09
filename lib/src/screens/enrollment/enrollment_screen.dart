@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/enrollment_status.dart';
+import 'package:irmamobile/src/models/native_events.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_bloc.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_event.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
@@ -133,8 +134,11 @@ class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
 
     return WillPopScope(
       onWillPop: () async {
-        // TODO: Make Android back button work for this screen
-        // I can't seem to figure out how to prevent popping, even with NavigationState.maybePop or ModalRoute.isFirst
+        final willPop = await navigatorKey.currentState.maybePop();
+        if (!willPop) {
+          IrmaRepository.get().bridgedDispatch(AndroidSendToBackgroundEvent());
+        }
+
         return false;
       },
       child: BlocListener<EnrollmentBloc, EnrollmentState>(

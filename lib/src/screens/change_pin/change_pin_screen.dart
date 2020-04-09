@@ -86,82 +86,75 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
   Widget build(BuildContext context) {
     final routeBuilders = _routeBuilders();
 
-    return WillPopScope(
-      onWillPop: () async {
-        final isClosing = !await navigatorKey.currentState.maybePop();
-        if (isClosing) cancel();
-        return isClosing;
+    return BlocListener<ChangePinBloc, ChangePinState>(
+      condition: (ChangePinState previous, ChangePinState current) {
+        return current.newPinConfirmed != previous.newPinConfirmed ||
+            current.oldPinVerified != previous.oldPinVerified ||
+            current.validatingPin != previous.validatingPin ||
+            current.attemptsRemaining != previous.attemptsRemaining;
       },
-      child: BlocListener<ChangePinBloc, ChangePinState>(
-        condition: (ChangePinState previous, ChangePinState current) {
-          return current.newPinConfirmed != previous.newPinConfirmed ||
-              current.oldPinVerified != previous.oldPinVerified ||
-              current.validatingPin != previous.validatingPin ||
-              current.attemptsRemaining != previous.attemptsRemaining;
-        },
-        listener: (BuildContext context, ChangePinState state) {
-          if (state.newPinConfirmed == ValidationState.valid) {
-            navigatorKey.currentState.pushNamedAndRemoveUntil(Success.routeName, (_) => false);
-          } else if (state.newPinConfirmed == ValidationState.invalid) {
-            navigatorKey.currentState.pop();
-            // show error overlay
+      listener: (BuildContext context, ChangePinState state) {
+        if (state.newPinConfirmed == ValidationState.valid) {
+          navigatorKey.currentState.pushNamedAndRemoveUntil(Success.routeName, (_) => false);
+        } else if (state.newPinConfirmed == ValidationState.invalid) {
+          navigatorKey.currentState.pop();
+          // show error overlay
+          showDialog(
+            context: context,
+            builder: (BuildContext context) => ConfirmErrorDialog(onClose: () async {
+              // close the overlay
+              Navigator.of(context).pop();
+              newPinFocusNode.requestFocus();
+            }),
+          );
+        } else if (state.oldPinVerified == ValidationState.valid) {
+          navigatorKey.currentState.pushReplacementNamed(ChoosePin.routeName);
+        } else if (state.oldPinVerified == ValidationState.invalid) {
+          // go back
+          navigatorKey.currentState.pop();
+          // and show error to user
+          if (state.attemptsRemaining != 0) {
             showDialog(
               context: context,
-              builder: (BuildContext context) => ConfirmErrorDialog(onClose: () async {
-                // close the overlay
-                Navigator.of(context).pop();
-                newPinFocusNode.requestFocus();
-              }),
+              child: PinWrongAttemptsDialog(attemptsRemaining: state.attemptsRemaining),
             );
-          } else if (state.oldPinVerified == ValidationState.valid) {
-            navigatorKey.currentState.pushReplacementNamed(ChoosePin.routeName);
-          } else if (state.oldPinVerified == ValidationState.invalid) {
-            // go back
-            navigatorKey.currentState.pop();
-            // and show error to user
-            if (state.attemptsRemaining != 0) {
-              showDialog(
-                context: context,
-                child: PinWrongAttemptsDialog(attemptsRemaining: state.attemptsRemaining),
-              );
-            } else {
-              Navigator.of(context, rootNavigator: true).pushReplacementNamed(PinScreen.routeName);
-              PinBloc().dispatch(Lock());
-              showDialog(
-                context: context,
-                child: PinWrongBlockedDialog(blocked: state.blockedUntil.difference(DateTime.now()).inSeconds),
-              );
-            }
-          } else if (state.oldPinVerified == ValidationState.error) {
-            // go back
-            navigatorKey.currentState.pop();
-            // and show error overlay
+          } else {
+            Navigator.of(context, rootNavigator: true).pushReplacementNamed(PinScreen.routeName);
+            PinBloc().dispatch(Lock());
             showDialog(
               context: context,
-              builder: (BuildContext context) => EnterErrorDialog(onClose: () async {
-                // close the overlay
-                Navigator.of(context).pop();
-                currentPinFocusNode.requestFocus();
-              }),
+              child: PinWrongBlockedDialog(blocked: state.blockedUntil.difference(DateTime.now()).inSeconds),
             );
-          } else if (state.updatingPin == true) {
-            navigatorKey.currentState.pushNamed(UpdatingPin.routeName);
-          } else if (state.validatingPin == true) {
-            navigatorKey.currentState.pushNamed(ValidatingPin.routeName);
           }
-        },
-        child: Navigator(
-          key: navigatorKey,
-          initialRoute: EnterPin.routeName,
-          onGenerateRoute: (RouteSettings settings) {
-            if (!routeBuilders.containsKey(settings.name)) {
-              throw Exception('Invalid route: ${settings.name}');
-            }
-            final child = routeBuilders[settings.name];
+        } else if (state.oldPinVerified == ValidationState.error) {
+          // go back
+          navigatorKey.currentState.pop();
+          // and show error overlay
+          showDialog(
+            context: context,
+            builder: (BuildContext context) => EnterErrorDialog(onClose: () async {
+              // close the overlay
+              Navigator.of(context).pop();
+              currentPinFocusNode.requestFocus();
+            }),
+          );
+        } else if (state.updatingPin == true) {
+          navigatorKey.currentState.pushNamed(UpdatingPin.routeName);
+        } else if (state.validatingPin == true) {
+          navigatorKey.currentState.pushNamed(ValidatingPin.routeName);
+        }
+      },
+      child: Navigator(
+        key: navigatorKey,
+        initialRoute: EnterPin.routeName,
+        onGenerateRoute: (RouteSettings settings) {
+          if (!routeBuilders.containsKey(settings.name)) {
+            throw Exception('Invalid route: ${settings.name}');
+          }
+          final child = routeBuilders[settings.name];
 
-            return MaterialPageRoute(builder: child, settings: settings);
-          },
-        ),
+          return MaterialPageRoute(builder: child, settings: settings);
+        },
       ),
     );
   }
