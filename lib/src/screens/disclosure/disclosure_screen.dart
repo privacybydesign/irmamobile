@@ -8,9 +8,11 @@ import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
+import 'package:irmamobile/src/screens/disclosure/issuance_screen.dart';
 import 'package:irmamobile/src/screens/disclosure/session.dart';
 import 'package:irmamobile/src/screens/disclosure/widgets/arrow_back_screen.dart';
 import 'package:irmamobile/src/screens/disclosure/widgets/disclosure_feedback_screen.dart';
+import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/translated_text.dart';
 import 'package:irmamobile/src/widgets/disclosure/disclosure_card.dart';
@@ -65,6 +67,11 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     (() async {
       // When the session has completed, wait one second to display a message
       final session = await _sessionStateStream.firstWhere((session) => session.status == SessionStatus.success);
+      if (session.issuedCredentials?.isNotEmpty ?? false) {
+        // Let issuance screen handle this
+        return;
+      }
+
       await Future.delayed(const Duration(seconds: 1));
 
       if (session.continueOnSecondDevice) {
@@ -116,10 +123,18 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   }
 
   void _givePermission(SessionState session) {
-    _dispatchSessionEvent(RespondPermissionEvent(
-      proceed: true,
-      disclosureChoices: session.disclosureChoices,
-    ));
+    if (session.issuedCredentials?.isNotEmpty ?? false) {
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        IssuanceScreen.routeName,
+        ModalRoute.withName(WalletScreen.routeName),
+        arguments: widget.arguments,
+      );
+    } else {
+      _dispatchSessionEvent(RespondPermissionEvent(
+        proceed: true,
+        disclosureChoices: session.disclosureChoices,
+      ));
+    }
   }
 
   Widget _buildDisclosureHeader(SessionState session) {

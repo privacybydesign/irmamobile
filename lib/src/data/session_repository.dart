@@ -53,11 +53,18 @@ class SessionRepository {
         clientReturnURL: event.clientReturnURL,
       );
     } else if (event is RequestIssuancePermissionSessionEvent) {
+      final condiscon = ConDisCon.fromRaw<DisclosureCandidate, Attribute>(
+        event.disclosuresCandidates,
+        (disclosureCandidate) => Attribute.fromCandidate(irmaConfiguration, credentials, disclosureCandidate),
+      );
       return prevState.copyWith(
         status: SessionStatus.requestPermission,
         serverName: event.serverName,
         satisfiable: event.satisfiable,
         isSignatureSession: false,
+        disclosureIndices: List<int>.filled(event.disclosuresCandidates.length, 0),
+        disclosureChoices: _initialDisclosureChoices(condiscon),
+        disclosuresCandidates: condiscon,
         issuedCredentials: event.issuedCredentials
             .map((raw) => Credential.fromRaw(
                   irmaConfiguration: irmaConfiguration,
