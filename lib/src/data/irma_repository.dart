@@ -107,16 +107,6 @@ class IrmaRepository {
       _cachedPin = event.pin;
     } else if (event is EnrollmentStatusEvent) {
       _enrollmentStatusSubject.add(event.enrollmentStatus);
-    } else if (event is RequestPinSessionEvent) {
-      // TODO: this shouldn't be here, remove when the RequestPinSessionEvent is
-      // properly hooked up to UI. See comment on `_cachedPin`.
-      if (_cachedPin != null) {
-        bridgedDispatch(RespondPinEvent(
-          sessionID: event.sessionID,
-          proceed: true,
-          pin: _cachedPin,
-        ));
-      }
     } else if (event is HandleURLEvent) {
       try {
         final sessionPointer = SessionPointer.fromString(event.url);
