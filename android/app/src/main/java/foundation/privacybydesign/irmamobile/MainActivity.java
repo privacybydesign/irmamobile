@@ -51,5 +51,6 @@ public class MainActivity extends FlutterActivity {
   @Override
   protected void onDestroy() {
     Irmagobridge.stop();
+    super.onDestroy();
   }
 }
