@@ -4,11 +4,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
 import 'package:irmamobile/src/screens/debug/debug_screen.dart';
 import 'package:irmamobile/src/screens/help/help_screen.dart';
-import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
-import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/wallet/models/wallet_bloc.dart';
 import 'package:irmamobile/src/screens/wallet/models/wallet_events.dart';
@@ -40,10 +39,10 @@ class _WalletScreen extends StatefulWidget {
 
 class _WalletScreenState extends State<_WalletScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final _pinBloc = PinBloc();
+  final IrmaRepository _irmaClient = IrmaRepository.get();
 
-  StreamSubscription _pinBlocSubscription;
-  bool isWalletOpen = false;
+  StreamSubscription _lockListenerSubscription;
+  bool isWalletLocked = true;
 
   void qrScannerPressed() {
     Navigator.pushNamed(context, ScannerScreen.routeName);
@@ -68,16 +67,11 @@ class _WalletScreenState extends State<_WalletScreen> {
   @override
   void initState() {
     super.initState();
-
-    _pinBlocSubscription = _pinBloc.state.listen((pinState) {
-      if (!pinState.locked || pinState.unlockInProgress) {
+    _lockListenerSubscription = _irmaClient.getLocked().listen((isLocked) {
+      // Change wallet state only when lock state changes
+      if (isWalletLocked != isLocked) {
         setState(() {
-          isWalletOpen = true;
-        });
-      }
-      if (pinState.lockInProgress) {
-        setState(() {
-          isWalletOpen = false;
+          isWalletLocked = isLocked;
         });
       }
     });
@@ -85,7 +79,7 @@ class _WalletScreenState extends State<_WalletScreen> {
 
   @override
   void dispose() {
-    _pinBlocSubscription.cancel();
+    _lockListenerSubscription.cancel();
   }
 
   @override
@@ -113,7 +107,7 @@ class _WalletScreenState extends State<_WalletScreen> {
               semanticLabel: FlutterI18n.translate(context, "wallet.lock"),
             ),
             onPressed: () {
-              PinBloc().dispatch(ToLock());
+              IrmaRepository.get().lock();
             },
           ),
         ],
@@ -129,7 +123,7 @@ class _WalletScreenState extends State<_WalletScreen> {
           return Wallet(
             credentials: state.credentials.values.toList(),
             hasLoginLogoutAnimation: true,
-            isOpen: isWalletOpen,
+            isOpen: !isWalletLocked,
             newCardIndex: state.newCardIndex,
             showNewCardAnimation: state.showNewCardAnimation,
             onQRScannerPressed: qrScannerPressed,
