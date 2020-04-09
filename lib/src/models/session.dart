@@ -21,18 +21,21 @@ class SessionPointer {
   String irmaqr;
 
   factory SessionPointer.fromString(String content) {
-    final prefixes = [
-      "irma://qr/json/",
-      "https://irma.app/-/session#",
-      "https://irma.app/-pilot/session#",
-      "",
+    // Use lookahead and lookbehinds to block out the non-JSON part of the string
+    final regexps = [
+      RegExp("(?<=^irma:\/\/qr\/json\/).*"),
+      RegExp("(?<=^intent:\/\/qr\/json\/).*(?=#)"),
+      RegExp("(?<=^https:\/\/irma\.app\/-\/session#).*"),
+      RegExp("(?<=^https:\/\/irma\.app\/-pilot\/session#).*"),
+      RegExp(".*"),
     ];
 
     try {
       String jsonString;
-      for (final prefix in prefixes) {
-        if (content.startsWith(prefix) && content.length > prefix.length) {
-          jsonString = Uri.decodeComponent(content.substring(prefix.length));
+      for (final regex in regexps) {
+        final String match = regex.stringMatch(content);
+        if (match != null && match.isNotEmpty) {
+          jsonString = Uri.decodeComponent(match);
           break;
         }
       }
