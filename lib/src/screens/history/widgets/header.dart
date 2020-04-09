@@ -19,27 +19,29 @@ class Header extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                _getHeaderText(context),
-                style: IrmaTheme.of(context).textTheme.body1.copyWith(
-                      fontSize: 14,
-                    ),
-              ),
-              if (logEntry.serverName != null)
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
                 Text(
-                  logEntry.serverName.translate(lang),
-                  style: IrmaTheme.of(context).textTheme.display2.copyWith(),
+                  _getHeaderText(context),
+                  style: IrmaTheme.of(context).textTheme.body1.copyWith(
+                        fontSize: 14,
+                      ),
                 ),
-              Text(
-                formatDate(logEntry.time, lang),
-                style: IrmaTheme.of(context).textTheme.body1.copyWith(
-                      fontSize: 14,
-                    ),
-              ),
-            ],
+                if (logEntry.serverName != null)
+                  Text(
+                    logEntry.serverName.translate(lang),
+                    style: IrmaTheme.of(context).textTheme.display2.copyWith(),
+                  ),
+                Text(
+                  formatDate(logEntry.time, lang),
+                  style: IrmaTheme.of(context).textTheme.body1.copyWith(
+                        fontSize: 14,
+                      ),
+                ),
+              ],
+            ),
           ),
           LogIcon(logEntry.type),
         ],
