@@ -57,14 +57,6 @@ class IrmaRepository {
   final _appLifecycleState = BehaviorSubject<AppLifecycleState>();
   final _pendingSessionPointerSubject = BehaviorSubject<SessionPointer>.seeded(null);
 
-  // _cachedPin is used to re-activate session without navigating to the pin
-  // screen. This is a temporary solution. The app must not be released with this
-  // logic still present.
-  //
-  // TODO: fix this
-  @Deprecated("This must be removed")
-  String _cachedPin;
-
   // _internal is a named constructor only used by the factory
   IrmaRepository._internal({
     @required this.bridge,
@@ -74,13 +66,6 @@ class IrmaRepository {
       repo: this,
       sessionEventStream: _eventSubject.where((event) => event is SessionEvent).cast<SessionEvent>(),
     );
-
-    // TODO: This shouldn't be here. See comment on _cachedPin.
-    _authenticationEventSubject.listen((event) {
-      if (event is AuthenticateEvent) {
-        _cachedPin = event.pin;
-      }
-    });
   }
 
   Future<void> _eventListener(Event event) async {
@@ -93,18 +78,11 @@ class IrmaRepository {
       ));
     } else if (event is AuthenticationEvent) {
       _authenticationEventSubject.add(event);
-      if (event is AuthenticateEvent) {
-        // TODO: This shouldn't be here. See comment on `_cachedPin`.
-        _cachedPin = event.pin;
-      }
       if (event is AuthenticationSuccessEvent) {
         _lockedSubject.add(false);
       }
     } else if (event is ChangePinBaseEvent) {
       _changePinEventSubject.add(event);
-    } else if (event is EnrollEvent) {
-      // TODO: This shouldn't be here. See comment on `_cachedPin`.
-      _cachedPin = event.pin;
     } else if (event is EnrollmentStatusEvent) {
       _enrollmentStatusSubject.add(event.enrollmentStatus);
     } else if (event is HandleURLEvent) {
