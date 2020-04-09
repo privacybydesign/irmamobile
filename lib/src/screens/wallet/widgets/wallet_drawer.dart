@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/screens/about/about_screen.dart';
 import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
 import 'package:irmamobile/src/screens/help/help_screen.dart';
 import 'package:irmamobile/src/screens/history/history_screen.dart';
-import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
-import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/invisible_scroll_configuration.dart';
 
 class WalletDrawer extends StatelessWidget {
+  final IrmaRepository _repo = IrmaRepository.get();
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -114,7 +115,7 @@ class WalletDrawer extends StatelessWidget {
                           ),
                           leading: Icon(IrmaIcons.lock, color: Colors.white),
                           onTap: () {
-                            PinBloc().dispatch(ToLock());
+                            _repo.lock();
                             Navigator.of(context).pop();
                           },
                         )),
