@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/translated_text.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
@@ -9,11 +10,13 @@ class EmailSentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const IrmaAppBar(
-        title: Text("Beveiliging instellen"),
+      appBar: IrmaAppBar(
+        title: Text(
+          FlutterI18n.translate(context, 'enrollment.email_sent.title'),
+        ),
       ),
       bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: 'Doorgaan',
+        primaryButtonLabel: FlutterI18n.translate(context, 'enrollment.email_sent.button'),
         onPrimaryPressed: () {
           //
         },
@@ -24,19 +27,22 @@ class EmailSentScreen extends StatelessWidget {
           child: Column(
             children: <Widget>[
               IrmaMessage(
-                "Bevestig je e-mailadres",
-                "Je hebt een email ontvangen van noreply@sidn.nl. Open de link in de mail om je e-mailadres an je IRMA app te koppelen.",
+                FlutterI18n.translate(context, 'enrollment.email_sent.message_title'),
+                FlutterI18n.translate(context, 'enrollment.email_sent.message_markdown'),
                 iconColor: IrmaTheme.of(context).primaryBlue,
               ),
               SizedBox(
                 height: IrmaTheme.of(context).defaultSpacing,
               ),
-              const TranslatedText("Er is een e-mail gestuurd naar: hanna@sent.com."),
+              SizedBox(
+                  width: double.infinity, // seems necessary to left-align short texts
+                  child: Container(
+                    child: TranslatedText('enrollment.email_sent.mail_sent_text_markdown'),
+                  )),
               SizedBox(
                 height: IrmaTheme.of(context).defaultSpacing,
               ),
-              const TranslatedText(
-                  "Het kan even duren voordat de email binnen is. Controleer de spamfolder als je geen email hebt ontvangen."),
+              const TranslatedText('enrollment.email_sent.check_spam'),
             ],
           ),
         ),

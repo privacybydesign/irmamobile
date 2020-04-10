@@ -30,7 +30,7 @@
       }
     },
     "choose_pin": {
-      "title": "Pincode kiezen",
+      "title": "Beveiliging instellen",
       "insert_pin": "Kies een pincode van 5 cijfers",
       "confirm_title": "Herhaal je pincode",
       "instruction": "Kies een pincode van 5 cijfers",
@@ -41,7 +41,7 @@
       "error_action": "OK"
     },
     "provide_email": {
-      "title": "E-mailadres toevoegen",
+      "title": "Beveiliging instellen",
       "instruction": "Met een e-mailadres kun je je IRMA-app blokkeren bij verlies of diefstal van je mobiel.",
       "skip": "Overslaan",
       "next": "Volgende",
@@ -49,6 +49,14 @@
       "skip_title": "Weet je het zeker?",
       "skip_content": "Bescherm jezelf. Als je een e-mailadres invult, kun je jouw IRMA-app blokkeren na het verlies van je mobiel.",
       "insert_email": "Voer e-mailadres in"
+    },
+    "email_sent": {
+      "title": "Beveiliging instellen",
+      "button": "Doorgaan",
+      "message_title": "Bevestig je e-mailadres",
+      "message_markdown": "Je hebt een email ontvangen van **noreply@sidn.nl**. Open de link in de email om je e-mailadres aan je IRMA-app te koppelen.",
+      "mail_sent_text_markdown": "Er is een e-mail gestuurd naar: **{emailaddress}**.",
+      "check_spam": "Het kan even duren voordat de email binnen is. Controleer de spamfolder als je geen email hebt ontvangen."
     },
     "submit": {
       "title": "Aanmelden",

@@ -30,7 +30,7 @@
       }
     },
     "choose_pin": {
-      "title": "Choose PIN",
+      "title": "Secure your IRMA app",
       "insert_pin": "Choose a 5-digit PIN",
       "confirm_title": "Repeat your PIN",
       "instruction": "Choose a 5-digit PIN",
@@ -41,7 +41,7 @@
       "error_action": "OK"
     },
     "provide_email": {
-      "title": "Add an email address",
+      "title": "Secure your IRMA app",
       "instruction": "An email address allows you to disable your IRMA app when your mobile has been lost or stolen.",
       "skip": "Skip",
       "next": "Next",
@@ -49,6 +49,14 @@
       "skip_title": "Are you sure?",
       "skip_content": "Protect your data. When you enter an email address, you can block your IRMA app when your mobile has been lost or stolen.",
       "insert_email": "Enter an email address"
+    },
+    "email_sent": {
+      "title": "Secure your IRMA app",
+      "button": "Continue",
+      "message_title": "Confirm your email address",
+      "message_markdown": "You have received an email by **noreply@sidn.nl**. Open the link in the email to link your email address to your IRMA app.",
+      "mail_sent_text_markdown": "An email has been sent to: **{emailaddress}**.",
+      "check_spam": "It can take a moment until the email arrives. Check the spam folder if you don't see the mail in your inbox."
     },
     "submit": {
       "title": "Logging in",
