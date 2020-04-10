@@ -291,6 +291,10 @@
     "button_forgot": "PIN forgotten",
     "button_block": "Block IRMA"
   },
+  "session_pin": {
+    "subtitle": "Re-enter your PIN to continue.",
+    "explanation": "For your safety, the IRMA app regularly asks for your PIN."
+  },
   "error": {
     "title": "Something goes wrong",
     "button_ok": "OK",

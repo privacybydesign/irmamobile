@@ -12,7 +12,7 @@ class PinBloc extends Bloc<PinEvent, PinState> {
   PinBloc() {
     _lockedStreamSubscription = IrmaRepository.get().getLocked().listen((isLocked) {
       if (isLocked) {
-        dispatch(Lock());
+        dispatch(Locked());
       }
     });
   }
@@ -58,7 +58,7 @@ class PinBloc extends Bloc<PinEvent, PinState> {
       } else {
         throw Exception("Unexpected subtype of AuthenticationResult");
       }
-    } else if (pinEvent is Lock) {
+    } else if (pinEvent is Locked) {
       yield PinState(
         authenticated: false,
       );

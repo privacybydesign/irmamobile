@@ -291,6 +291,10 @@
     "button_forgot": "Pincode vergeten",
     "button_block": "IRMA blokkeren"
   },
+  "session_pin": {
+    "subtitle": "Voer je pincode opnieuw in om verder te gaan.",
+    "explanation": "Voor de zekerheid vraagt de IRMA-app regelmatig opnieuw je pincode."
+  },
   "error": {
     "title": "Er gaat iets fout",
     "button_ok": "OK",

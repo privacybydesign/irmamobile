@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/authentication_events.dart';
 import 'package:irmamobile/src/models/session_events.dart';
@@ -51,4 +50,4 @@ class SessionPin extends Authenticate {
 }
 
 // Locked indicates that the irmago repository was locked.
-class Lock extends PinEvent {}
+class Locked extends PinEvent {}

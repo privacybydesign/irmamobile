@@ -97,12 +97,15 @@ class _SessionPinScreenState extends State<SessionPinScreen> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        if (!_pinBloc.currentState.authenticated && !_pinBloc.currentState.authenticateInProgress) {
-          _cancel();
+        // Wait on irmago response before closing, calling widget expects a result
+        if (_pinBloc.currentState.authenticateInProgress) {
           return false;
-        } else {
-          return true;
         }
+        // If the user wants to close and no explicit result is available, then assume cancellation.
+        if (!_pinBloc.currentState.authenticated) {
+          _cancel();
+        }
+        return true;
       },
       child: BlocBuilder<PinBloc, PinState>(
         bloc: _pinBloc,
@@ -122,8 +125,8 @@ class _SessionPinScreenState extends State<SessionPinScreen> {
                     SizedBox(
                       height: IrmaTheme.of(context).largeSpacing,
                     ),
-                    const Text(
-                      "Voer je pincode opnieuw in om verder te gaan.",
+                    Text(
+                      FlutterI18n.translate(context, "session_pin.subtitle"),
                       textAlign: TextAlign.center,
                     ),
                     SizedBox(
@@ -155,8 +158,8 @@ class _SessionPinScreenState extends State<SessionPinScreen> {
                     SizedBox(
                       height: IrmaTheme.of(context).defaultSpacing,
                     ),
-                    const Text(
-                      "Voor de zekerheid vraagt de IRMA-app regelmatig opnieuw je pincode.",
+                    Text(
+                      FlutterI18n.translate(context, "session_pin.explanation"),
                       textAlign: TextAlign.center,
                     ),
                     if (state.authenticateInProgress)
@@ -178,16 +181,18 @@ class _SessionPinScreenState extends State<SessionPinScreen> {
       title: Text(
         widget.title,
       ),
-      leadingCancel: _cancel,
+      leadingCancel: () {
+        _cancel();
+        Navigator.of(context).pop();
+      },
     );
   }
 
   void _cancel() {
+    _pinBlocSubscription.cancel();
     _repo.dispatch(
       RespondPinEvent(sessionID: widget.sessionID, proceed: false),
       isBridgedEvent: true,
     );
-    _pinBlocSubscription.cancel();
-    Navigator.of(context).pop();
   }
 }

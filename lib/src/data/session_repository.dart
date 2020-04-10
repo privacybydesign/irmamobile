@@ -1,5 +1,4 @@
 import 'package:collection/collection.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/session_events.dart';
@@ -83,6 +82,8 @@ class SessionRepository {
       return prevState.copyWith(
         status: SessionStatus.success,
       );
+    } else if (event is CanceledSessionEvent) {
+      return prevState.copyWith(status: SessionStatus.canceled);
     } else if (event is RequestPinSessionEvent) {
       return prevState.copyWith(
         requestPin: true,

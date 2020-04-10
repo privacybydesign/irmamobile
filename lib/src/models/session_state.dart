@@ -73,6 +73,7 @@ enum SessionStatus {
   connected,
   requestPermission,
   success,
+  canceled,
 }
 
 extension SessionStatusParser on String {
