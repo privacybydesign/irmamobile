@@ -73,7 +73,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
         .firstWhere((session) => session.requestPin == true)
         .then((session) => _pushRevalidatePinScreen(session.sessionID));
 
-    // TODO: Check for behaviour when pin entering failed
+    // TODO: Check for behaviour when session fails
     // Session completed handling
     (() async {
       // When the session has completed, wait one second to display a message
