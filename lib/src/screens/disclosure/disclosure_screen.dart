@@ -71,7 +71,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
 
     _sessionStateStream
         .firstWhere((session) => session.requestPin == true)
-        .then((session) => _pushRevalidatePinScreen(session.sessionID));
+        .then((session) => _pushSessionPinScreen(session.sessionID));
 
     // TODO: Check for behaviour when session fails
     // Session completed handling
@@ -131,7 +131,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     ));
   }
 
-  void _pushRevalidatePinScreen(int sessionID) {
+  void _pushSessionPinScreen(int sessionID) {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => SessionPinScreen(
         sessionID: sessionID,
