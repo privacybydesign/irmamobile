@@ -14,13 +14,15 @@ class IrmaMessage extends StatelessWidget {
   final String title;
   final String description;
   final IrmaMessageType type;
+  final Color iconColor;
 
-  const IrmaMessage(this.title, this.description, {this.type = IrmaMessageType.info});
+  const IrmaMessage(this.title, this.description, {this.type = IrmaMessageType.info, this.iconColor = Colors.white});
 
   @override
   Widget build(BuildContext context) {
     Color backgroundColor;
     Color foregroundColor = Colors.white;
+
     IconData icon;
     switch (type) {
       case IrmaMessageType.valid:
@@ -39,20 +41,29 @@ class IrmaMessage extends StatelessWidget {
       case IrmaMessageType.info:
         backgroundColor = IrmaTheme.of(context).interactionInformation;
         icon = IrmaIcons.info;
+        foregroundColor = IrmaTheme.of(context).primaryDark;
         break;
     }
     return Container(
-      child: Card(
-        color: backgroundColor,
+      child: Container(
+        decoration:
+            BoxDecoration(color: backgroundColor, borderRadius: const BorderRadius.all(const Radius.circular(12.0))),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.fromLTRB(8, 16, 11, 0),
-              child: Icon(
-                icon,
-                size: 16.0,
-                color: foregroundColor,
+              padding: const EdgeInsets.fromLTRB(8, 12, 8, 8),
+              child: Container(
+                child: CircleAvatar(
+                  child: Icon(
+                    icon,
+                    size: 26.0,
+                    color: backgroundColor,
+                  ),
+                  backgroundColor: iconColor,
+                ),
+                width: 26.0,
+                height: 26.0,
               ),
             ),
             Expanded(
