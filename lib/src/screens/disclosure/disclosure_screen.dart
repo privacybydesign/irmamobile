@@ -110,15 +110,14 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   }
 
   void _dismissSession() {
-    _dispatchSessionEvent(DismissSessionEvent());
-  }
-
-  void _declinePermission(BuildContext context, String otherParty) {
     _dispatchSessionEvent(RespondPermissionEvent(
       proceed: false,
       disclosureChoices: [],
     ));
+  }
 
+  void _declinePermission(BuildContext context, String otherParty) {
+    _dismissSession();
     _pushDisclosureFeedbackScreen(false, otherParty);
   }
 
@@ -218,6 +217,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     return Scaffold(
       appBar: IrmaAppBar(
         title: Text(FlutterI18n.translate(context, 'disclosure.title')),
+        leadingCancel: () => _dismissSession(),
       ),
       backgroundColor: IrmaTheme.of(context).grayscaleWhite,
       bottomNavigationBar: _buildNavigationBar(),

@@ -69,6 +69,7 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
     return Scaffold(
       appBar: IrmaAppBar(
         title: Text(FlutterI18n.translate(context, 'issuance.title')),
+        leadingCancel: () => _dismissSession(),
       ),
       backgroundColor: IrmaTheme.of(context).grayscaleWhite,
       bottomNavigationBar: _buildNavigationBar(),
@@ -126,11 +127,15 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
     ));
   }
 
-  void _declinePermission(BuildContext context, String otherParty) {
+  void _dismissSession() {
     _dispatchSessionEvent(RespondPermissionEvent(
       proceed: false,
       disclosureChoices: [],
     ));
+  }
+
+  void _declinePermission(BuildContext context, String otherParty) {
+    _dismissSession();
     popToWallet(context);
   }
 
