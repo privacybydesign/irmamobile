@@ -5,9 +5,10 @@ import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 
 class NoInternet extends StatelessWidget {
-  final VoidCallback retryCallback;
+  final VoidCallback onTapClose;
+  final VoidCallback onTapRetry;
 
-  const NoInternet(this.retryCallback);
+  const NoInternet({@required this.onTapClose, this.onTapRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -48,12 +49,9 @@ class NoInternet extends StatelessWidget {
           child: Padding(
             padding: EdgeInsets.all(IrmaTheme.of(context).mediumSpacing),
             child: IrmaButton(
-              label: FlutterI18n.translate(context, 'error.button_retry'),
-              textStyle: IrmaTheme.of(context).textTheme.button,
-              onPressed: () {
-                retryCallback();
-              },
-            ),
+                label: FlutterI18n.translate(context, 'error.button_retry'),
+                textStyle: IrmaTheme.of(context).textTheme.button,
+                onPressed: onTapRetry ?? onTapClose),
           ),
         ),
       ],

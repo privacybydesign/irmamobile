@@ -78,11 +78,43 @@ class SessionError {
   String stack;
 
   @JsonKey(name: 'RemoteStatus')
-  String remoteStatus;
+  int remoteStatus;
 
   @JsonKey(name: 'RemoteError')
-  String remoteError;
+  RemoteError remoteError;
 
   factory SessionError.fromJson(Map<String, dynamic> json) => _$SessionErrorFromJson(json);
   Map<String, dynamic> toJson() => _$SessionErrorToJson(this);
+
+  @override
+  String toString() => [
+        if (remoteStatus != null) "$remoteStatus ",
+        "$errorType",
+        if (info?.isNotEmpty ?? false) " ($info)",
+        if (wrappedError?.isNotEmpty ?? false) ": $wrappedError",
+        if (remoteError != null) "\n${jsonEncode(remoteError..stacktrace = null)}",
+      ].join();
+}
+
+@JsonSerializable()
+class RemoteError {
+  RemoteError({this.status, this.errorName, this.description, this.message, this.stacktrace});
+
+  @JsonKey(name: 'status')
+  int status;
+
+  @JsonKey(name: 'error')
+  String errorName;
+
+  @JsonKey(name: 'description')
+  String description;
+
+  @JsonKey(name: 'message')
+  String message;
+
+  @JsonKey(name: 'stacktrace')
+  String stacktrace;
+
+  factory RemoteError.fromJson(Map<String, dynamic> json) => _$RemoteErrorFromJson(json);
+  Map<String, dynamic> toJson() => _$RemoteErrorToJson(this);
 }

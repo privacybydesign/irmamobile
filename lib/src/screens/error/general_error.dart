@@ -5,11 +5,19 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 
-class GeneralError extends StatelessWidget {
+class GeneralError extends StatefulWidget {
   final String errorText;
-  final VoidCallback onOkTap;
+  final VoidCallback onTapClose;
+  final VoidCallback onTapReport;
 
-  const GeneralError(this.errorText, this.onOkTap);
+  const GeneralError({@required this.errorText, @required this.onTapClose, this.onTapReport});
+
+  @override
+  _GeneralErrorState createState() => _GeneralErrorState();
+}
+
+class _GeneralErrorState extends State<GeneralError> {
+  bool hasReportedError = false;
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +64,7 @@ class GeneralError extends StatelessWidget {
                                     content: Container(
                                       width: MediaQuery.of(context).size.width,
                                       child: Text(
-                                        errorText,
+                                        widget.errorText,
                                         style: IrmaTheme.of(context).textTheme.body1,
                                       ),
                                     ),
@@ -106,11 +114,49 @@ class GeneralError extends StatelessWidget {
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).defaultSpacing),
                     child: IrmaButton(
+                        label: FlutterI18n.translate(context, 'error.button_report'),
+                        textStyle: IrmaTheme.of(context).textTheme.button,
+                        onPressed: () {
+                          // Only actually report once
+                          if (hasReportedError) return;
+
+                          // Do reporting
+                          widget.onTapReport();
+                          hasReportedError = true;
+                        }),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: IrmaTheme.of(context).backgroundBlue,
+            border: Border(
+              top: BorderSide(
+                color: IrmaTheme.of(context).primaryLight,
+                width: 2.0,
+              ),
+            ),
+          ),
+          child: Padding(
+            padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).mediumSpacing),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                const Expanded(
+                  flex: 1,
+                  child: SizedBox(height: 1, width: 1),
+                ),
+                Expanded(
+                  flex: 1,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).defaultSpacing),
+                    child: IrmaButton(
                       label: FlutterI18n.translate(context, 'error.button_ok'),
                       textStyle: IrmaTheme.of(context).textTheme.button,
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
+                      onPressed: widget.onTapClose,
                     ),
                   ),
                 ),

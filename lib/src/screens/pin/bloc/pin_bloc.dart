@@ -52,7 +52,7 @@ class PinBloc extends Bloc<PinEvent, PinState> {
         );
       } else if (authenticationEvent is AuthenticationErrorEvent) {
         yield PinState(
-          errorMessage: authenticationEvent.error,
+          error: authenticationEvent.error,
           authenticateInProgress: false,
         );
       } else {

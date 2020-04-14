@@ -47,7 +47,12 @@ class _SubmitState extends State<Submit> {
         builder: (context, state) {
           if (state.enrollementFailed == true) {
             return NoInternet(
-              () {
+              onTapClose: () {
+                Navigator.of(context).popUntil((route) {
+                  return route.isFirst;
+                });
+              },
+              onTapRetry: () {
                 widget.retryEnrollment();
               },
             );

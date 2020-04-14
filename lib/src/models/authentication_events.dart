@@ -1,4 +1,5 @@
 import 'package:irmamobile/src/models/event.dart';
+import 'package:irmamobile/src/models/session.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'authentication_events.g.dart';
@@ -39,7 +40,7 @@ class AuthenticationFailedEvent extends AuthenticationEvent {
 @JsonSerializable()
 class AuthenticationErrorEvent extends AuthenticationEvent {
   @JsonKey(name: "Error")
-  final String error;
+  final SessionError error;
 
   AuthenticationErrorEvent({this.error});
   factory AuthenticationErrorEvent.fromJson(Map<String, dynamic> json) => _$AuthenticationErrorEventFromJson(json);

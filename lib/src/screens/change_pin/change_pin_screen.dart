@@ -7,11 +7,11 @@ import 'package:irmamobile/src/screens/change_pin/models/change_pin_state.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/choose_pin.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/confirm_error_dialog.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/confirm_pin.dart';
-import 'package:irmamobile/src/screens/change_pin/widgets/enter_error_dialog.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/enter_pin.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/success.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/updating_pin.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/valdating_pin.dart';
+import 'package:irmamobile/src/screens/error/session_error_screen.dart';
 import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_attempts.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_blocked.dart';
@@ -107,12 +107,14 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
               newPinFocusNode.requestFocus();
             }),
           );
+        } else if (state.newPinConfirmed == ValidationState.error) {
+          //TODO
         } else if (state.oldPinVerified == ValidationState.valid) {
           navigatorKey.currentState.pushReplacementNamed(ChoosePin.routeName);
         } else if (state.oldPinVerified == ValidationState.invalid) {
           // go back
           navigatorKey.currentState.pop();
-          // and show error to user
+          // and indicate mistake to user
           if (state.attemptsRemaining != 0) {
             showDialog(
               context: context,
@@ -127,17 +129,14 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
             );
           }
         } else if (state.oldPinVerified == ValidationState.error) {
-          // go back
-          navigatorKey.currentState.pop();
-          // and show error overlay
-          showDialog(
-            context: context,
-            builder: (BuildContext context) => EnterErrorDialog(onClose: () async {
-              // close the overlay
-              Navigator.of(context).pop();
-              currentPinFocusNode.requestFocus();
-            }),
-          );
+          navigatorKey.currentState.pushReplacement(MaterialPageRoute(
+            builder: (context) => SessionErrorScreen(
+              error: state.error,
+              onTapClose: () {
+                navigatorKey.currentState.pop();
+              },
+            ),
+          ));
         } else if (state.updatingPin == true) {
           navigatorKey.currentState.pushNamed(UpdatingPin.routeName);
         } else if (state.validatingPin == true) {

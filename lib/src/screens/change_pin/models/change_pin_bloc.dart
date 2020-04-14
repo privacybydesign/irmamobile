@@ -42,7 +42,7 @@ class ChangePinBloc extends Bloc<Object, ChangePinState> {
         yield currentState.copyWith(
           validatingPin: false,
           oldPinVerified: ValidationState.error,
-          errorMessage: authenticationEvent.error,
+          error: authenticationEvent.error,
         );
       } else {
         throw Exception("Unexpected subtype of AuthenticationResult");
@@ -80,7 +80,7 @@ class ChangePinBloc extends Bloc<Object, ChangePinState> {
           yield currentState.copyWith(
             updatingPin: false,
             newPinConfirmed: ValidationState.error,
-            errorMessage: changePinEvent.error.wrappedError, //TODO: improve error handling
+            error: changePinEvent.error,
           );
         } else if (changePinEvent is ChangePinFailedEvent) {
           yield currentState.copyWith(

@@ -4,9 +4,10 @@ import 'package:irmamobile/src/screens/error/no_internet.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 class NoInternetScreen extends StatelessWidget {
-  final VoidCallback retryCallback;
+  final VoidCallback onTapClose;
+  final VoidCallback onTapRetry;
 
-  const NoInternetScreen(this.retryCallback);
+  const NoInternetScreen({@required this.onTapClose, this.onTapRetry});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +20,10 @@ class NoInternetScreen extends StatelessWidget {
           ),
         ),
       ),
-      body: NoInternet(retryCallback),
+      body: NoInternet(
+        onTapClose: onTapClose,
+        onTapRetry: onTapRetry,
+      ),
     );
   }
 }
