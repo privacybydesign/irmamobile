@@ -22,6 +22,7 @@ class IssuingDetail extends StatelessWidget {
         child: IrmaCard.fromCredential(
           credential: credential,
           scrollBeyondBoundsCallback: (value) {},
+          short: true,
         ),
       );
     }).toList();

@@ -8,6 +8,8 @@ import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
 import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
 import 'package:irmamobile/src/screens/debug/debug_screen.dart';
 import 'package:irmamobile/src/screens/disclosure/disclosure_screen.dart';
+import 'package:irmamobile/src/screens/disclosure/issuance_screen.dart';
+import 'package:irmamobile/src/screens/disclosure/session.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/help/help_screen.dart';
 import 'package:irmamobile/src/screens/history/history_screen.dart';
@@ -39,7 +41,9 @@ class Routing {
   static WidgetBuilder _screenBuilder(String routeName, Object arguments) {
     switch (routeName) {
       case DisclosureScreen.routeName:
-        return (context) => DisclosureScreen(arguments: arguments as DisclosureScreenArguments);
+        return (context) => DisclosureScreen(arguments: arguments as SessionScreenArguments);
+      case IssuanceScreen.routeName:
+        return (context) => IssuanceScreen(arguments: arguments as SessionScreenArguments);
 
       default:
         return simpleRoutes[routeName];
