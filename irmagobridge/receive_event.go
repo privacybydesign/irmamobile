@@ -8,6 +8,8 @@ import (
 
 // DispatchFromNative receives events from the Android / iOS native side
 func DispatchFromNative(eventName, payloadString string) {
+	defer recoverFromPanic()
+
 	payloadBytes := []byte(payloadString)
 	var err error
 
@@ -58,17 +60,8 @@ func DispatchFromNative(eventName, payloadString string) {
 		if err = json.Unmarshal(payloadBytes, event); err == nil {
 			err = bridgeEventHandler.dismissSession(event)
 		}
-	case "SetCrashReportingPreferenceEvent":
-		event := &setCrashReportingPreferenceEvent{}
-		if err = json.Unmarshal(payloadBytes, &event); err == nil {
-			// TODO
-		}
 	case "UpdateSchemesEvent":
 		err = bridgeEventHandler.updateSchemes()
-
-		if err != nil {
-			logError(errors.New(err))
-		}
 	case "LoadLogsEvent":
 		event := &loadLogsEvent{}
 		if err = json.Unmarshal(payloadBytes, &event); err == nil {
@@ -77,6 +70,6 @@ func DispatchFromNative(eventName, payloadString string) {
 	}
 
 	if err != nil {
-		logError(errors.New(err))
+		reportError(errors.New(err))
 	}
 }

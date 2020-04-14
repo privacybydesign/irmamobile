@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:irmamobile/src/data/irma_bridge.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/session_repository.dart';
+import 'package:irmamobile/src/models/applifecycle_changed_event.dart';
 import 'package:irmamobile/src/models/authentication_events.dart';
 import 'package:irmamobile/src/models/change_pin_events.dart';
 import 'package:irmamobile/src/models/clear_all_data_event.dart';
@@ -12,6 +13,7 @@ import 'package:irmamobile/src/models/credential_events.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/enrollment_events.dart';
 import 'package:irmamobile/src/models/enrollment_status.dart';
+import 'package:irmamobile/src/models/error_event.dart';
 import 'package:irmamobile/src/models/event.dart';
 import 'package:irmamobile/src/models/handle_url_event.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
@@ -20,7 +22,7 @@ import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/models/version_information.dart';
-import 'package:irmamobile/src/models/applifecycle_changed_event.dart';
+import 'package:irmamobile/src/sentry/sentry.dart';
 import 'package:package_info/package_info.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:stream_transform/stream_transform.dart';
@@ -84,7 +86,9 @@ class IrmaRepository {
   }
 
   Future<void> _eventListener(Event event) async {
-    if (event is IrmaConfigurationEvent) {
+    if (event is ErrorEvent) {
+      reportError(event.exception, event.stack);
+    } else if (event is IrmaConfigurationEvent) {
       irmaConfigurationSubject.add(event.irmaConfiguration);
     } else if (event is CredentialsEvent) {
       _credentialsSubject.add(Credentials.fromRaw(
