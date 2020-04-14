@@ -3,13 +3,21 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/screens/error/general_error.dart';
 import 'package:irmamobile/src/sentry/sentry.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
+import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 
-class GeneralErrorScreen extends StatelessWidget {
+class GeneralErrorScreen extends StatefulWidget {
   final String errorText;
   final VoidCallback onTapClose;
   final VoidCallback onTapReport;
 
   const GeneralErrorScreen({@required this.errorText, @required this.onTapClose, this.onTapReport});
+
+  @override
+  createState() => _GeneralErrorScreenState();
+}
+
+class _GeneralErrorScreenState extends State<GeneralErrorScreen> {
+  bool hasReported = false;
 
   @override
   Widget build(BuildContext context) {
@@ -23,14 +31,25 @@ class GeneralErrorScreen extends StatelessWidget {
         ),
       ),
       body: GeneralError(
-          errorText: errorText,
-          onTapClose: onTapClose,
-          onTapReport: onTapReport ??
-              () {
-                // There is no sensible stack trace to pass here, so the exception will
-                // have to do.
-                reportError(errorText, null);
-              }),
+        errorText: widget.errorText,
+      ),
+      bottomNavigationBar: IrmaBottomBar(
+        primaryButtonLabel: FlutterI18n.translate(context, 'error.button_ok'),
+        onPrimaryPressed: widget.onTapClose,
+        secondaryButtonLabel: hasReported ? null : FlutterI18n.translate(context, 'error.button_send_to_irma'),
+        onSecondaryPressed: () {
+          if (widget.onTapReport != null) {
+            widget.onTapReport();
+          } else {
+            // There is no sensible stack trace to pass here, so the exception will
+            // have to do.
+            reportError(widget.errorText, null);
+          }
+          setState(() {
+            hasReported = true;
+          });
+        },
+      ),
     );
   }
 }

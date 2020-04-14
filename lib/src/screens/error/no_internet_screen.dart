@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/screens/error/no_internet.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
+import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 
 class NoInternetScreen extends StatelessWidget {
   final VoidCallback onTapClose;
@@ -20,9 +21,12 @@ class NoInternetScreen extends StatelessWidget {
           ),
         ),
       ),
-      body: NoInternet(
-        onTapClose: onTapClose,
-        onTapRetry: onTapRetry,
+      body: NoInternet(),
+      bottomNavigationBar: IrmaBottomBar(
+        primaryButtonLabel: FlutterI18n.translate(context, 'error.button_back'),
+        onPrimaryPressed: () => Navigator.of(context).pop(),
+        secondaryButtonLabel: onTapRetry == null ? null : FlutterI18n.translate(context, 'error.button_retry'),
+        onSecondaryPressed: onTapRetry,
       ),
     );
   }

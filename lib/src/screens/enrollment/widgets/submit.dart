@@ -46,16 +46,8 @@ class _SubmitState extends State<Submit> {
       body: BlocBuilder<EnrollmentBloc, EnrollmentState>(
         builder: (context, state) {
           if (state.enrollementFailed == true) {
-            return NoInternet(
-              onTapClose: () {
-                Navigator.of(context).popUntil((route) {
-                  return route.isFirst;
-                });
-              },
-              onTapRetry: () {
-                widget.retryEnrollment();
-              },
-            );
+            //TODO: proper error handling
+            return NoInternet();
           }
 
           return IrmaProgress(

@@ -301,6 +301,7 @@
     "button_send_to_irma": "Stuur naar het technische team van IRMA",
     "button_show_error": "Technische details tonen",
     "button_retry": "Opnieuw proberen",
+    "button_back": "Terug",
     "types": {
       "general": "Er is iets misgegaan.\n\nAls het fout blijft gaan, laat het dan weten aan het technische team van IRMA.",
       "no_internet": "Er is iets misgegaan. Er kan geen verbinding gemaakt worden met de IRMA-server.\n\nControleer je internetverbinding. IRMA werkt niet zonder internet."
