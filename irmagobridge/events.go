@@ -62,6 +62,11 @@ type loadLogsEvent struct {
 // //
 // Outgoing events
 // //
+type errorEvent struct {
+	Exception string
+	Stack     string
+}
+
 type irmaConfigurationEvent struct {
 	IrmaConfiguration *irma.Configuration
 }

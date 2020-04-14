@@ -372,6 +372,19 @@
       }
     }
   },
+  "issuance": {
+    "title": "Kaartjes toevoegen",
+    "header-0": "Wil je dit kaartje in je IRMA app zetten?",
+    "header-1": "Wil je dit kaartje in je IRMA app zetten?",
+    "header-2": "Wil je deze kaartjes in je IRMA app zetten?"
+  },
+  "session": {
+    "navigation_bar": {
+      "yes": "Ja",
+      "no": "Nee, liever niet",
+      "back": "Terug"
+    }
+  },
   "disclosure": {
     "title": "Jezelf bekend maken",
     "disclosure_header_markdown": "Wil je dit aan **{otherParty}** doorgeven?",
@@ -388,11 +401,6 @@
       "body": "Kies welke gegevens je doorgeeft. Gebruik het pijltje of swipe en maak je keuze.",
       "dismiss": "OK",
       "dismiss-remember": "Niet meer tonen"
-    },
-    "navigation_bar": {
-      "yes": "Ja",
-      "no": "Nee, liever niet",
-      "back": "Terug"
     },
     "redirect": "Je wordt teruggeleid naar de webpagina...",
     "feedback": {
