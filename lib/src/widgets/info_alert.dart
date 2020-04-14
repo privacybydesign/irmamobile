@@ -31,7 +31,7 @@ class InfoAlert extends StatelessWidget {
     if (widgets != null) boxWidgets.addAll(widgets);
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: IrmaTheme.of(context).interactionInformation,
+        color: IrmaTheme.of(context).notificationInfoBg,
         border: Border.all(color: const Color(0xffbbbbbb)),
       ),
       child: Padding(
