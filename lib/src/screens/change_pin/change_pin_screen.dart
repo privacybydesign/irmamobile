@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/screens/change_pin/models/change_pin_bloc.dart';
 import 'package:irmamobile/src/screens/change_pin/models/change_pin_event.dart';
 import 'package:irmamobile/src/screens/change_pin/models/change_pin_state.dart';
@@ -11,8 +12,6 @@ import 'package:irmamobile/src/screens/change_pin/widgets/enter_pin.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/success.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/updating_pin.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/valdating_pin.dart';
-import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
-import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_attempts.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_blocked.dart';
@@ -41,6 +40,7 @@ class ProvidedChangePinScreen extends StatefulWidget {
 }
 
 class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
+  final IrmaRepository _repo = IrmaRepository.get();
   final ChangePinBloc bloc;
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   final FocusNode currentPinFocusNode = FocusNode();
@@ -120,7 +120,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
             );
           } else {
             Navigator.of(context, rootNavigator: true).pushReplacementNamed(PinScreen.routeName);
-            PinBloc().dispatch(Lock());
+            _repo.lock();
             showDialog(
               context: context,
               child: PinWrongBlockedDialog(blocked: state.blockedUntil.difference(DateTime.now()).inSeconds),

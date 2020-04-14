@@ -38,7 +38,13 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
     super.initState();
     sessionID = widget.arguments.sessionID;
     sessionStateStream = repo.getSessionState(widget.arguments.sessionID);
-    _handleSuccess();
+
+    // Make sure PIN is asked when necessary
+    sessionStateStream
+        .firstWhere((session) => session.requestPin == true)
+        .then((session) => pushSessionPinScreen(context, sessionID, 'issuance.title'));
+
+    _handleFinished();
   }
 
   Widget _buildPermissionWidget(SessionState session) {
@@ -96,14 +102,23 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
     repo.dispatch(event, isBridgedEvent: isBridgedEvent);
   }
 
-  Future<void> _handleSuccess() async {
+  Future<void> _handleFinished() async {
     // When the session has completed, wait one second to display a message
-    final session = await sessionStateStream.firstWhere((session) => session.status == SessionStatus.success);
+    final session = await sessionStateStream.firstWhere((session) {
+      switch (session.status) {
+        case SessionStatus.success:
+        case SessionStatus.canceled:
+          return true;
+        default:
+          return false;
+      }
+    });
     await Future.delayed(const Duration(seconds: 1));
 
     if (session.continueOnSecondDevice) {
       // If this is a session on a second screen, return to the wallet
       popToWallet(context);
+      // TODO: Maybe show some error screen on error or cancel
     } else if (session.clientReturnURL != null && await canLaunch(session.clientReturnURL)) {
       // If there is a return URL, navigate to it when we're done
       launch(session.clientReturnURL, forceSafariVC: false);

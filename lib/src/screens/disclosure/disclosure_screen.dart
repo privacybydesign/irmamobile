@@ -63,20 +63,37 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
         .firstWhere((session) => session.disclosuresCandidates != null)
         .then((session) => _showExplanation(session.disclosuresCandidates));
 
-    // Session success handling
+    _sessionStateStream
+        .firstWhere((session) => session.requestPin == true)
+        .then((session) => pushSessionPinScreen(context, session.sessionID, 'disclosure.title'));
+
+    // TODO: Check for behaviour when session fails
+    // Session completed handling
     (() async {
       // When the session has completed, wait one second to display a message
-      final session = await _sessionStateStream.firstWhere((session) => session.status == SessionStatus.success);
+      final session = await _sessionStateStream.firstWhere((session) {
+        switch (session.status) {
+          case SessionStatus.success:
+          case SessionStatus.canceled:
+            return true;
+          default:
+            return false;
+        }
+      });
       if (session.issuedCredentials?.isNotEmpty ?? false) {
         // Let issuance screen handle this
         return;
       }
-
       await Future.delayed(const Duration(seconds: 1));
 
       if (session.continueOnSecondDevice) {
         // If this is a session on a second screen, return to the wallet after showing a feedback screen
-        _pushDisclosureFeedbackScreen(true, session.serverName.translate(_lang));
+        if (session.status == SessionStatus.success) {
+          _pushDisclosureFeedbackScreen(true, session.serverName.translate(_lang));
+        } else {
+          // TODO: Show an error/cancel feedback screen.
+          popToWallet(context);
+        }
       } else if (session.clientReturnURL != null && await canLaunch(session.clientReturnURL)) {
         // If there is a return URL, navigate to it when we're done
         launch(session.clientReturnURL, forceSafariVC: false);

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/authentication_events.dart';
@@ -5,71 +7,60 @@ import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_state.dart';
 
 class PinBloc extends Bloc<PinEvent, PinState> {
-  static final PinBloc _singleton = PinBloc._internal();
+  StreamSubscription _lockedStreamSubscription;
 
-  factory PinBloc() {
-    return _singleton;
-  }
-
-  PinBloc._internal() {
-    IrmaRepository.get().getLocked().listen((isLocked) {
+  PinBloc() {
+    _lockedStreamSubscription = IrmaRepository.get().getLocked().listen((isLocked) {
       if (isLocked) {
         dispatch(Locked());
-      } else {
-        // TODO: Had to comment this for getLocked() and unlock() logic that is biting each other
-        // dispatch(Unlocked());
       }
     });
   }
 
   @override
+  void dispose() {
+    _lockedStreamSubscription.cancel();
+    super.dispose();
+  }
+
+  @override
   PinState get initialState => PinState(
-        locked: true,
-        unlockInProgress: false,
-        lockInProgress: false,
+        authenticated: false,
+        authenticateInProgress: false,
         pinInvalid: false,
       );
 
   @override
   Stream<PinState> mapEventToState(PinEvent pinEvent) async* {
-    if (pinEvent is Unlock) {
-      yield currentState.copyWith(
-        unlockInProgress: true,
+    if (pinEvent is Authenticate) {
+      yield PinState(
+        authenticateInProgress: true,
       );
 
-      final authenticationEvent = await IrmaRepository.get().unlock(pinEvent.pin);
+      final authenticationEvent = await pinEvent.dispatch();
       if (authenticationEvent is AuthenticationSuccessEvent) {
         yield PinState(
-          locked: false,
+          authenticated: true,
+          authenticateInProgress: false,
         );
       } else if (authenticationEvent is AuthenticationFailedEvent) {
         yield PinState(
           pinInvalid: true,
           blockedUntil: DateTime.now().add(Duration(seconds: authenticationEvent.blockedDuration)),
           remainingAttempts: authenticationEvent.remainingAttempts,
+          authenticateInProgress: false,
         );
       } else if (authenticationEvent is AuthenticationErrorEvent) {
         yield PinState(
           errorMessage: authenticationEvent.error,
+          authenticateInProgress: false,
         );
       } else {
         throw Exception("Unexpected subtype of AuthenticationResult");
       }
-    } else if (pinEvent is ToLock) {
-      yield PinState(
-        locked: false,
-        lockInProgress: true,
-      );
-    } else if (pinEvent is Lock) {
-      // There is currently no feedback because there is no pro-active locking
-      // available in irmago.
-      IrmaRepository.get().lock();
-      yield PinState();
     } else if (pinEvent is Locked) {
-      yield PinState();
-    } else if (pinEvent is Unlocked) {
       yield PinState(
-        locked: false,
+        authenticated: false,
       );
     }
   }

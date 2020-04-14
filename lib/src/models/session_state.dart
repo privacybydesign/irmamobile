@@ -15,6 +15,7 @@ class SessionState {
   final List<int> disclosureIndices;
   final ConCon<AttributeIdentifier> disclosureChoices;
   final bool satisfiable;
+  final bool requestPin;
 
   SessionState({
     this.sessionID,
@@ -29,6 +30,7 @@ class SessionState {
     this.disclosureIndices,
     this.disclosureChoices,
     this.satisfiable,
+    this.requestPin,
   });
 
   bool get canDisclose =>
@@ -53,6 +55,7 @@ class SessionState {
     List<int> disclosureIndices,
     ConCon<AttributeIdentifier> disclosureChoices,
     bool satisfiable,
+    bool requestPin,
   }) {
     return SessionState(
       sessionID: sessionID,
@@ -67,6 +70,7 @@ class SessionState {
       disclosureIndices: disclosureIndices ?? this.disclosureIndices,
       disclosureChoices: disclosureChoices ?? this.disclosureChoices,
       satisfiable: satisfiable ?? this.satisfiable,
+      requestPin: requestPin ?? this.requestPin,
     );
   }
 }
@@ -78,6 +82,7 @@ enum SessionStatus {
   connected,
   requestPermission,
   success,
+  canceled,
 }
 
 extension SessionStatusParser on String {
