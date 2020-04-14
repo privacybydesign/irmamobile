@@ -20,18 +20,19 @@ class ChangePinState with EquatableMixin {
   final ValidationState oldPinVerified;
   final ValidationState newPinConfirmed;
 
-  ChangePinState(
-      {this.oldPin,
-      this.newPin,
-      this.longPin = false,
-      this.validatingPin = false,
-      this.updatingPin = false,
-      this.oldPinVerified,
-      this.newPinConfirmed,
-      this.attemptsRemaining = 0,
-      this.blockedUntil,
-      this.error,
-      this.errorMessage});
+  ChangePinState({
+    this.oldPin,
+    this.newPin,
+    this.longPin = false,
+    this.validatingPin = false,
+    this.updatingPin = false,
+    this.oldPinVerified,
+    this.newPinConfirmed,
+    this.attemptsRemaining = 0,
+    this.blockedUntil,
+    this.error,
+    this.errorMessage,
+  });
 
   ChangePinState copyWith(
       {String oldPin,

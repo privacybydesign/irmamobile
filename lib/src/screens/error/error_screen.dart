@@ -36,19 +36,21 @@ class _GeneralErrorScreenState extends State<GeneralErrorScreen> {
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: FlutterI18n.translate(context, 'error.button_ok'),
         onPrimaryPressed: widget.onTapClose,
-        secondaryButtonLabel: hasReported ? null : FlutterI18n.translate(context, 'error.button_send_to_irma'),
-        onSecondaryPressed: () {
-          if (widget.onTapReport != null) {
-            widget.onTapReport();
-          } else {
-            // There is no sensible stack trace to pass here, so the exception will
-            // have to do.
-            reportError(widget.errorText, null);
-          }
-          setState(() {
-            hasReported = true;
-          });
-        },
+        secondaryButtonLabel: FlutterI18n.translate(context, 'error.button_send_to_irma'),
+        onSecondaryPressed: hasReported
+            ? null
+            : () {
+                if (widget.onTapReport != null) {
+                  widget.onTapReport();
+                } else {
+                  // There is no sensible stack trace to pass here, so the exception will
+                  // have to do.
+                  reportError(widget.errorText, null);
+                }
+                setState(() {
+                  hasReported = true;
+                });
+              },
       ),
     );
   }
