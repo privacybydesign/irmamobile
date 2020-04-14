@@ -44,6 +44,11 @@ class SessionRepository {
         continueOnSecondDevice: event.continueOnSecondDevice,
         status: SessionStatus.initialized,
       );
+    } else if (event is FailureSessionEvent) {
+      return prevState.copyWith(
+        status: SessionStatus.error,
+        error: event.error,
+      );
     } else if (event is StatusUpdateSessionEvent) {
       return prevState.copyWith(
         status: event.status.toSessionStatus(),

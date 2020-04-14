@@ -69,6 +69,11 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
 
     // TODO: Check for behaviour when session fails
     // Session completed handling
+    _sessionStateStream
+        .firstWhere((session) => session.status == SessionStatus.error)
+        .then((session) => toErrorScreen(context, session.error));
+
+    // Session success handling
     (() async {
       // When the session has completed, wait one second to display a message
       final session = await _sessionStateStream.firstWhere((session) {

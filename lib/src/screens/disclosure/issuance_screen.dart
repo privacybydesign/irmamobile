@@ -45,6 +45,10 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
         .then((session) => pushSessionPinScreen(context, sessionID, 'issuance.title'));
 
     _handleFinished();
+
+    sessionStateStream
+        .firstWhere((session) => session.status == SessionStatus.error)
+        .then((session) => toErrorScreen(context, session.error));
   }
 
   Widget _buildPermissionWidget(SessionState session) {

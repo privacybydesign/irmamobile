@@ -1,5 +1,6 @@
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/credentials.dart';
+import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
 
 class SessionState {
@@ -16,6 +17,7 @@ class SessionState {
   final ConCon<AttributeIdentifier> disclosureChoices;
   final bool satisfiable;
   final bool requestPin;
+  final SessionError error;
 
   SessionState({
     this.sessionID,
@@ -31,6 +33,7 @@ class SessionState {
     this.disclosureChoices,
     this.satisfiable,
     this.requestPin,
+    this.error,
   });
 
   bool get canDisclose =>
@@ -56,6 +59,7 @@ class SessionState {
     ConCon<AttributeIdentifier> disclosureChoices,
     bool satisfiable,
     bool requestPin,
+    SessionError error,
   }) {
     return SessionState(
       sessionID: sessionID,
@@ -71,6 +75,7 @@ class SessionState {
       disclosureChoices: disclosureChoices ?? this.disclosureChoices,
       satisfiable: satisfiable ?? this.satisfiable,
       requestPin: requestPin ?? this.requestPin,
+      error: error ?? this.error,
     );
   }
 }
@@ -83,6 +88,7 @@ enum SessionStatus {
   requestPermission,
   success,
   canceled,
+  error,
 }
 
 extension SessionStatusParser on String {
