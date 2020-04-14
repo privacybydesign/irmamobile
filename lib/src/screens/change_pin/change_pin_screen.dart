@@ -11,6 +11,7 @@ import 'package:irmamobile/src/screens/change_pin/widgets/enter_pin.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/success.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/updating_pin.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/valdating_pin.dart';
+import 'package:irmamobile/src/screens/error/error_screen.dart';
 import 'package:irmamobile/src/screens/error/session_error_screen.dart';
 import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_attempts.dart';
@@ -108,7 +109,25 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
             }),
           );
         } else if (state.newPinConfirmed == ValidationState.error) {
-          //TODO
+          if (state.error != null) {
+            navigatorKey.currentState.pushReplacement(MaterialPageRoute(
+              builder: (context) => SessionErrorScreen(
+                error: state.error,
+                onTapClose: () {
+                  navigatorKey.currentState.pop();
+                },
+              ),
+            ));
+          } else {
+            navigatorKey.currentState.pushReplacement(MaterialPageRoute(
+              builder: (context) => GeneralErrorScreen(
+                errorText: state.errorMessage,
+                onTapClose: () {
+                  navigatorKey.currentState.pop();
+                },
+              ),
+            ));
+          }
         } else if (state.oldPinVerified == ValidationState.valid) {
           navigatorKey.currentState.pushReplacementNamed(ChoosePin.routeName);
         } else if (state.oldPinVerified == ValidationState.invalid) {
