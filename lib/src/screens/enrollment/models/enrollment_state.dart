@@ -20,7 +20,7 @@ class EnrollmentState with EquatableMixin {
   final bool showPinValidation;
   final bool pinMismatch;
   final bool isSubmitting;
-  final bool enrollementFailed; //TODO: implement as soon as the bridge is able to handle EnrollmentFailureEvent
+  final bool enrollmentFailed;
   final int retry;
 
   EnrollmentState({
@@ -33,7 +33,7 @@ class EnrollmentState with EquatableMixin {
     this.showEmailValidation = false,
     this.showPinValidation = false,
     this.isSubmitting = false,
-    this.enrollementFailed = false,
+    this.enrollmentFailed = false,
     this.retry = 0,
   });
 
@@ -47,7 +47,7 @@ class EnrollmentState with EquatableMixin {
     bool showEmailValidation,
     bool showPinValidation,
     bool isSubmitting,
-    bool enrollementFailed,
+    bool enrollmentFailed,
     int retry,
   }) {
     return EnrollmentState(
@@ -60,7 +60,7 @@ class EnrollmentState with EquatableMixin {
       showEmailValidation: showEmailValidation ?? this.showEmailValidation,
       showPinValidation: showPinValidation ?? this.showPinValidation,
       isSubmitting: isSubmitting ?? this.isSubmitting,
-      enrollementFailed: enrollementFailed ?? this.enrollementFailed,
+      enrollmentFailed: enrollmentFailed ?? this.enrollmentFailed,
       retry: retry ?? this.retry,
     );
   }
@@ -79,7 +79,7 @@ class EnrollmentState with EquatableMixin {
         showPinValidation: $showPinValidation, 
         retry: $retry, 
         isSubmitting: $isSubmitting, 
-        enrollementFailed: $enrollementFailed 
+        enrollmentFailed: $enrollmentFailed 
     }''';
   }
 
@@ -96,7 +96,7 @@ class EnrollmentState with EquatableMixin {
       showPinValidation,
       retry,
       isSubmitting,
-      enrollementFailed
+      enrollmentFailed
     ];
   }
 }

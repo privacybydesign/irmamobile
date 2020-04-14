@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_bloc.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
 import 'package:irmamobile/src/screens/error/no_internet.dart';
+import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
+import 'package:irmamobile/src/screens/wallet/widgets/wallet.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/progress.dart';
 
@@ -45,13 +48,19 @@ class _SubmitState extends State<Submit> {
       ),
       body: BlocBuilder<EnrollmentBloc, EnrollmentState>(
         builder: (context, state) {
-          if (state.enrollementFailed == true) {
-            //TODO: proper error handling
-            return NoInternet();
+          if (state.enrollmentFailed) {
+            // TODO show error screen
+          } else if (!state.isSubmitting) {
+            // enrollment is done and succeeded
+            Navigator.of(context).maybePop().then(
+                  (_) => Navigator.of(context, rootNavigator: true)
+                      .pushReplacementNamed(WalletScreen.routeName),
+                );
           }
 
           return IrmaProgress(
-            FlutterI18n.translate(context, "enrollment.submit.progress_enrollment"),
+            FlutterI18n.translate(
+                context, "enrollment.submit.progress_enrollment"),
           );
         },
       ),
