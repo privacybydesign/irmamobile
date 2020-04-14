@@ -36,11 +36,20 @@ class IrmaThemeData extends Equatable {
   final Color cardGreen = const Color(0xFF2BC194);
 
   // Support colors (for alerts and feedback on form elements)
-  final Color interactionValid = const Color(0xFFAADACE);
-  final Color interactionInvalid = const Color(0xFFEDB6BF);
+  final Color interactionValid = const Color(0xFF079268);
+  final Color interactionInvalid = const Color(0xFFD44454);
   final Color interactionAlert = const Color(0xFFF97D08);
-  final Color interactionInformation = const Color(0xFFB1CDE5);
-  final Color interactionInvalidTransparant = const Color(0x22EDB6BF);
+  final Color interactionInformation = const Color(0xFF004C92);
+  final Color interactionInvalidTransparant = const Color(0x22D44454);
+
+  final Color notificationSuccess = const Color(0xFF029B17);
+  final Color notificationSuccessBg = const Color(0xFFAADACE);
+  final Color notificationError = const Color(0xFFC8192C);
+  final Color notificationErrorBg = const Color(0xFFEDB6BF);
+  final Color notificationWarning = const Color(0xFFDB6E07);
+  final Color notificationWarningBg = const Color(0xFFFAD8B6);
+  final Color notificationInfo = const Color(0xFF004C92);
+  final Color notificationInfoBg = const Color(0xFFB1CDE5);
 
   // Support colors (qr scanner)
   final Color overlayValid = const Color(0xFF029B17);

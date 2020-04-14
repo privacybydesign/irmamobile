@@ -12,7 +12,7 @@ class SuccessAlert extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: IrmaTheme.of(context).interactionValid,
+        color: IrmaTheme.of(context).notificationSuccessBg,
         border: Border.all(color: const Color(0xffbbbbbb)),
       ),
       child: Padding(
