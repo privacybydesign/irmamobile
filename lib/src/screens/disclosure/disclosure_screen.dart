@@ -12,7 +12,6 @@ import 'package:irmamobile/src/screens/disclosure/issuance_screen.dart';
 import 'package:irmamobile/src/screens/disclosure/session.dart';
 import 'package:irmamobile/src/screens/disclosure/widgets/arrow_back_screen.dart';
 import 'package:irmamobile/src/screens/disclosure/widgets/disclosure_feedback_screen.dart';
-import 'package:irmamobile/src/screens/pin/session_pin_screen.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/translated_text.dart';
