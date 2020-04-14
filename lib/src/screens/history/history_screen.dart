@@ -23,7 +23,6 @@ class HistoryScreen extends StatefulWidget {
 class HistoryScreenState extends State<HistoryScreen> {
   final HistoryRepository _historyRepo = HistoryRepository();
   final _scrollController = ScrollController();
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
 
   @override
   void initState() {
@@ -55,9 +54,15 @@ class HistoryScreenState extends State<HistoryScreen> {
       padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
       physics: const AlwaysScrollableScrollPhysics(),
       controller: _scrollController,
-      itemCount: historyState.logEntries.length + 1,
+      itemCount: historyState.logEntries.length + 2,
       itemBuilder: (context, index) {
-        if (index == historyState.logEntries.length) {
+        // Add some padding at begin of ListView
+        if (index == 0) {
+          return SizedBox(height: IrmaTheme.of(context).smallSpacing);
+        }
+
+        // Put loading indicator or loading finished icon at end of ListView
+        if (index == historyState.logEntries.length + 1) {
           if (!historyState.moreLogsAvailable) {
             // Icon to indicate end of list
             return Center(
@@ -69,7 +74,7 @@ class HistoryScreenState extends State<HistoryScreen> {
           return Center(child: LoadingIndicator());
         }
 
-        final logEntry = historyState.logEntries[index];
+        final logEntry = historyState.logEntries[index - 1];
         return LogEntryCard(
           irmaConfiguration: irmaConfiguration,
           logEntry: logEntry,
@@ -105,19 +110,10 @@ class HistoryScreenState extends State<HistoryScreen> {
 
           final irmaConfiguration = snapshot.data.a;
           final historyState = snapshot.data.b;
-
-          return RefreshIndicator(
-            key: _refreshIndicatorKey,
-            onRefresh: _handleRefresh,
-            child: _buildLogEntries(context, irmaConfiguration, historyState),
-          );
+          return _buildLogEntries(context, irmaConfiguration, historyState);
         },
       ),
     );
-  }
-
-  Future<void> _handleRefresh() async {
-    _loadInitialLogs();
   }
 
   void _listenToScroll() {
