@@ -67,13 +67,31 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
         .firstWhere((session) => session.requestPin == true)
         .then((session) => pushSessionPinScreen(context, session.sessionID, 'disclosure.title'));
 
-    // TODO: Check for behaviour when session fails
-    // Session completed handling
-    _sessionStateStream
-        .firstWhere((session) => session.status == SessionStatus.error)
-        .then((session) => toErrorScreen(context, session.error));
+    // Handle errors. The return code is replicated here as we start
+    // with a somewhat different situation, having an extra screen
+    // on top of the stack
+    _sessionStateStream.firstWhere((session) => session.status == SessionStatus.error).then((session) {
+      toErrorScreen(context, session.error, () {
+        (() async {
+          if (session.continueOnSecondDevice) {
+            popToWallet(context);
+          } else if (session.clientReturnURL != null && await canLaunch(session.clientReturnURL)) {
+            launch(session.clientReturnURL, forceSafariVC: false);
+            popToWallet(context);
+          } else {
+            if (Platform.isIOS) {
+              setState(() => _displayArrowBack = true);
+              Navigator.of(context).pop(); // pop error screen
+            } else {
+              SystemNavigator.pop();
+              popToWallet(context);
+            }
+          }
+        })();
+      });
+    });
 
-    // Session success handling
+    // Session end handling
     (() async {
       // When the session has completed, wait one second to display a message
       final session = await _sessionStateStream.firstWhere((session) {

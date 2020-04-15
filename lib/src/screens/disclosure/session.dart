@@ -14,14 +14,16 @@ class SessionScreenArguments {
   SessionScreenArguments({this.sessionID, this.sessionType});
 }
 
-void toErrorScreen(BuildContext context, SessionError error) {
+void toErrorScreen(BuildContext context, SessionError error, VoidCallback onTapClose) {
   // TODO implement retry button handler
+  // note: this will probably also need changes in the disclosure
+  //  and session screens.
   error.stack = "";
   Navigator.of(context).push(
     MaterialPageRoute(
       builder: (context) => SessionErrorScreen(
         error: error,
-        onTapClose: () => Navigator.of(context).popUntil(ModalRoute.withName(WalletScreen.routeName)),
+        onTapClose: onTapClose,
       ),
     ),
   );
