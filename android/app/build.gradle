@@ -40,10 +40,18 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    flavorDimensions "track"
+    productFlavors {
+        alpha {
+            dimension "track"
+            applicationId "foundation.privacybydesign.irmamobile.alpha"
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
+            // Sign here with dummy credentials, fastlane will do the actual
+            // signing using a resign
             signingConfig signingConfigs.debug
         }
     }
