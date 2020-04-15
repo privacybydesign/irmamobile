@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/models/attribute_value.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
@@ -215,7 +216,8 @@ class _CarouselState extends State<Carousel> {
     }
 
     return Text(
-      candidate.value[_lang],
+      // Empty attributes are rendered by displaying a dash
+      candidate.value is TextValue ? (candidate.value as TextValue).translated[_lang] : "-",
       style: IrmaTheme.of(context).textTheme.body2,
     );
   }

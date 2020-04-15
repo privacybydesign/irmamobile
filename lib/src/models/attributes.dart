@@ -2,17 +2,17 @@ import 'dart:collection';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:irmamobile/src/models/attribute_value.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'attributes.g.dart';
 
-Image _decodePortraitPhoto(TranslatedValue value) {
+Image _decodePortraitPhoto(TextValue value) {
   try {
     return Image.memory(
-      const Base64Decoder().convert(value.values.first),
+      const Base64Decoder().convert(value.raw),
     );
   } catch (_) {}
 
@@ -20,11 +20,11 @@ Image _decodePortraitPhoto(TranslatedValue value) {
 }
 
 // Attributes of a credential.
-class Attributes extends UnmodifiableMapView<AttributeType, TranslatedValue> {
+class Attributes extends UnmodifiableMapView<AttributeType, AttributeValue> {
   List<AttributeType> sortedAttributeTypes;
   Image portraitPhoto;
 
-  Attributes(Map<AttributeType, TranslatedValue> map)
+  Attributes(Map<AttributeType, AttributeValue> map)
       : assert(map != null),
         super(map) {
     // Pre-calculate an ordered list of attributeTypes, initially on index, finally on displayIndex
@@ -36,17 +36,17 @@ class Attributes extends UnmodifiableMapView<AttributeType, TranslatedValue> {
 
     // Pre-convert the first portraitPhoto, if present
     final photoAttributeType = sortedAttributeTypes.firstWhere(
-      (at) => at.displayHint == "portraitPhoto",
+      (at) => at.displayHint == "portraitPhoto" && this[at] is TextValue,
       orElse: () => null,
     );
 
     if (photoAttributeType != null) {
-      portraitPhoto = _decodePortraitPhoto(this[photoAttributeType]);
+      portraitPhoto = _decodePortraitPhoto(this[photoAttributeType] as TextValue);
     }
   }
 
-  factory Attributes.fromRaw({IrmaConfiguration irmaConfiguration, Map<String, TranslatedValue> rawAttributes}) {
-    return Attributes(rawAttributes.map<AttributeType, TranslatedValue>((k, v) {
+  factory Attributes.fromRaw({IrmaConfiguration irmaConfiguration, Map<String, AttributeValue> rawAttributes}) {
+    return Attributes(rawAttributes.map<AttributeType, AttributeValue>((k, v) {
       return MapEntry(irmaConfiguration.attributeTypes[k], v);
     }));
   }
@@ -148,7 +148,7 @@ class CredentialAttribute extends Attribute {
   CredentialAttribute({
     @required this.credential,
     @required AttributeType attributeType,
-    @required TranslatedValue value,
+    @required AttributeValue value,
     @required this.notRevokable,
   })  : assert(credential != null),
         super(credentialInfo: credential.info, attributeType: attributeType, value: value);
@@ -166,7 +166,7 @@ class CredentialAttribute extends Attribute {
 class Attribute {
   final CredentialInfo credentialInfo;
   final AttributeType attributeType;
-  final TranslatedValue value;
+  final AttributeValue value;
   Image portraitPhoto;
 
   Attribute({
@@ -176,8 +176,8 @@ class Attribute {
   })  : assert(credentialInfo != null),
         assert(attributeType != null),
         assert(value != null) {
-    if (attributeType.displayHint == "portraitPhoto") {
-      portraitPhoto = _decodePortraitPhoto(value);
+    if (attributeType.displayHint == "portraitPhoto" && value is TextValue) {
+      portraitPhoto = _decodePortraitPhoto(value as TextValue);
     }
   }
 
@@ -206,7 +206,7 @@ class Attribute {
           credentialIdentifier: candidate.type,
         ),
         attributeType: attributeType,
-        value: TranslatedValue({"en": "-", "nl": "-"}),
+        value: EmptyValue(),
       );
     }
   }
@@ -223,7 +223,7 @@ class Attribute {
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(nullable: false)
 class DisclosedAttribute {
   const DisclosedAttribute({
     this.rawValue,
@@ -237,7 +237,7 @@ class DisclosedAttribute {
   final String rawValue;
 
   @JsonKey(name: 'value')
-  final TranslatedValue value;
+  final AttributeValue value;
 
   @JsonKey(name: 'id')
   final String identifier;

@@ -51,7 +51,7 @@ LogEntry _$LogEntryFromJson(Map<String, dynamic> json) {
       (k, e) => MapEntry(
           k,
           (e as Map<String, dynamic>)?.map(
-            (k, e) => MapEntry(k, e == null ? null : TranslatedValue.fromJson(e as Map<String, dynamic>)),
+            (k, e) => MapEntry(k, e == null ? null : AttributeValue.fromJson(e as Map<String, dynamic>)),
           )),
     ),
   );

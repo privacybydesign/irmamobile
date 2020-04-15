@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/models/attribute_value.dart';
 import 'package:irmamobile/src/models/attributes.dart';
+import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/card/irma_card_theme.dart';
 
@@ -145,7 +147,8 @@ class CardAttributes extends StatelessWidget {
             ),
           ),
           Text(
-            attributes[attributeType][_lang],
+            // Empty attributes are rendered by displaying a dash
+            attributes[attributeType] is TextValue ? (attributes[attributeType] as TextValue).translated[_lang] : "-",
             style: IrmaTheme.of(context).textTheme.body2.copyWith(color: irmaCardTheme.foregroundColor),
           ),
           SizedBox(
