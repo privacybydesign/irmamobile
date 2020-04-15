@@ -46,7 +46,7 @@ build_app:
     - merge_requests
   artifacts:
     paths:
-      - build/app/outputs/apk/release/*.apk
+      - build/app/outputs/apk/alpha/release/*.apk
   script:
-    - flutter build apk --target-platform android-arm,android-arm64 --split-per-abi
+    - flutter build apk --target-platform android-arm,android-arm64 --split-per-abi --flavor alpha
 

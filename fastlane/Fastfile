@@ -1,4 +1,52 @@
-lane :alpha_ios do
+lane :alpha_resign do
+  apks = Dir['../build/app/outputs/apk/alpha/release/*.apk']
+  apks.each do |apk|
+    sh("apksigner", "sign",
+      "--ks", ENV["ANDROID_SIGN_KEYSTORE"],
+      "--ks-key-alias", ENV["ANDROID_SIGN_KEY_ALIAS"],
+      "--ks-pass", "pass:"+ENV["ANDROID_SIGN_STORE_PASSWORD"],
+      "--key-pass", "pass:"+ENV["ANDROID_SIGN_KEY_PASSWORD"],
+      apk)
+  end
+end
+
+lane :alpha_build do
+  alpha_android_build()
+  alpha_ios_build()
+end
+
+lane :beta_build do
+  beta_android_build()
+  beta_ios_build()
+end
+
+lane :alpha_android_build do
+  update_schemes_alpha()
+  build_irmagobridge_android()
+  commit = last_git_commit()
+  write_sentrydata(
+    dsn: ENV["SENTRY_DSN_ALPHA"],
+    version: commit[:commit_hash]
+  )
+  Dir.chdir("..") do
+    sh("flutter", "build", "apk", "--split-per-abi", "--flavor", "alpha", "--release")
+  end
+end
+
+lane :beta_android_build do
+  update_schemes_beta()
+  build_irmagobridge_android()
+  commit = last_git_commit()
+  write_sentrydata(
+    dsn: ENV["SENTRY_DSN_PROD"],
+    version: commit[:commit_hash]
+  )
+  Dir.chdir("..") do
+    sh("flutter", "build", "apk", "--split-per-abi", "--flavor", "beta", "--release")
+  end
+end
+
+lane :alpha_ios_build do
   update_schemes_alpha()
   build_irmagobridge_ios()
   update_app_identifier(
@@ -6,11 +54,39 @@ lane :alpha_ios do
     plist_path: "Runner/Info.plist",
     app_identifier: "foundation.privacybydesign.irmamob.alpha"
   )
+  commit = last_git_commit()
+  write_sentrydata(
+    dsn: ENV["SENTRY_DSN_ALPHA"],
+    version: commit[:commit_hash]
+  )
   Dir.chdir("..") do
     sh("flutter", "build", "ios", "--release", "--no-codesign")
   end
 end
 
+lane :beta_ios_build do 
+  update_schemes_alpha()
+  build_irmagobridge_ios()
+  update_app_identifier(
+    xcodeproj: "ios/Runner.xcodeproj",
+    plist_path: "Runner/Info.plist",
+    app_identifier: "foundation.privacybydesign.irmamob"
+  )
+  commit = last_git_commit()
+  write_sentrydata(
+    dsn: ENV["SENTRY_DSN_PROD"],
+    version: commit[:commit_hash]
+  )
+  Dir.chdir("..") do
+    sh("flutter", "build", "ios", "--release", "--no-codesign")
+  end
+end
+
+lane :build_irmagobridge_android do
+  Dir.chdir("..") do
+    sh("gomobile", "bind", "-target", "android", "-o", "android/irmagobridge/irmagobridge.aar", "github.com/privacybydesign/irmamobile/irmagobridge")
+  end
+end
 
 lane :build_irmagobridge_ios do
   Dir.chdir("..") do
@@ -20,11 +96,33 @@ end
 
 lane :update_schemes_alpha do
   Dir.chdir("../irma_configuration/pbdf") do
-    sh("git", "checkout", "irmamobile")
+    sh("git", "checkout", "master")
     sh("git", "pull", "-f")
   end
   Dir.chdir("../irma_configuration/irma-demo") do
     sh("git", "checkout", "master")
     sh("git", "pull", "-f")
   end
+end
+
+lane :update_schemes_beta do
+  Dir.chdir("../irma_configuration/pbdf") do
+    sh("git", "checkout", "master")
+    sh("git", "pull", "-f")
+  end
+  Dir.chdir("../irma_configuration/irma-demo") do
+    sh("git", "checkout", "master")
+    sh("git", "pull", "-f")
+  end
+end
+
+lane :write_sentrydata do |options|
+  erb(
+    template: "fastlane/sentry_dsn.erb",
+    destination: "lib/sentry_dsn.dart",
+    placeholders: {
+      :dsn => options[:dsn],
+      :version => options[:version]
+    }
+  )
 end
