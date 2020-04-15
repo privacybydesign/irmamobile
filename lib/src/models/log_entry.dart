@@ -1,4 +1,3 @@
-import 'package:irmamobile/src/models/attribute_value.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/event.dart';
@@ -84,7 +83,7 @@ class LogEntry {
   final List<List<DisclosedAttribute>> disclosedAttributes;
 
   @JsonKey(name: 'RemovedCredentials')
-  final Map<String, Map<String, AttributeValue>> removedCredentials;
+  final Map<String, Map<String, dynamic>> removedCredentials;
 
   @JsonKey(name: 'SignedMessage')
   final SignedMessage signedMessage;

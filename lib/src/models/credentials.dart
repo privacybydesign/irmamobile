@@ -1,10 +1,8 @@
 import 'dart:collection';
 
 import 'package:flutter/cupertino.dart';
-import 'package:irmamobile/src/models/attribute_value.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'credentials.g.dart';
@@ -87,7 +85,7 @@ class RemovedCredential {
         assert(attributes != null);
 
   RemovedCredential.fromRaw(
-      {IrmaConfiguration irmaConfiguration, String credentialIdentifier, Map<String, AttributeValue> rawAttributes})
+      {IrmaConfiguration irmaConfiguration, String credentialIdentifier, Map<String, dynamic> rawAttributes})
       : info = CredentialInfo.fromConfiguration(
             irmaConfiguration: irmaConfiguration, credentialIdentifier: credentialIdentifier),
         attributes = Attributes.fromRaw(irmaConfiguration: irmaConfiguration, rawAttributes: rawAttributes);
@@ -155,7 +153,7 @@ class RawCredential {
   final int expires;
 
   @JsonKey(name: 'Attributes')
-  final Map<String, AttributeValue> attributes;
+  final Map<String, dynamic> attributes;
 
   @JsonKey(name: 'Hash')
   final String hash;

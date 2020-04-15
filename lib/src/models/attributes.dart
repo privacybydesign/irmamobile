@@ -1,5 +1,4 @@
 import 'dart:collection';
-import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:irmamobile/src/models/attribute_value.dart';
@@ -8,16 +7,6 @@ import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'attributes.g.dart';
-
-Image _decodePortraitPhoto(TextValue value) {
-  try {
-    return Image.memory(
-      const Base64Decoder().convert(value.raw),
-    );
-  } catch (_) {}
-
-  return null;
-}
 
 // Attributes of a credential.
 class Attributes extends UnmodifiableMapView<AttributeType, AttributeValue> {
@@ -36,18 +25,21 @@ class Attributes extends UnmodifiableMapView<AttributeType, AttributeValue> {
 
     // Pre-convert the first portraitPhoto, if present
     final photoAttributeType = sortedAttributeTypes.firstWhere(
-      (at) => at.displayHint == "portraitPhoto" && this[at] is TextValue,
+      (at) => this[at] is PhotoValue,
       orElse: () => null,
     );
 
     if (photoAttributeType != null) {
-      portraitPhoto = _decodePortraitPhoto(this[photoAttributeType] as TextValue);
+      portraitPhoto = (this[photoAttributeType] as PhotoValue).image;
     }
   }
 
-  factory Attributes.fromRaw({IrmaConfiguration irmaConfiguration, Map<String, AttributeValue> rawAttributes}) {
+  factory Attributes.fromRaw({IrmaConfiguration irmaConfiguration, Map<String, dynamic> rawAttributes}) {
     return Attributes(rawAttributes.map<AttributeType, AttributeValue>((k, v) {
-      return MapEntry(irmaConfiguration.attributeTypes[k], v);
+      return MapEntry(
+        irmaConfiguration.attributeTypes[k],
+        AttributeValue.fromRaw(irmaConfiguration.attributeTypes[k], v),
+      );
     }));
   }
 }
@@ -176,8 +168,8 @@ class Attribute {
   })  : assert(credentialInfo != null),
         assert(attributeType != null),
         assert(value != null) {
-    if (attributeType.displayHint == "portraitPhoto" && value is TextValue) {
-      portraitPhoto = _decodePortraitPhoto(value as TextValue);
+    if (value is PhotoValue) {
+      portraitPhoto = (value as PhotoValue).image;
     }
   }
 
@@ -212,13 +204,14 @@ class Attribute {
   }
 
   factory Attribute.fromDisclosedAttribute(IrmaConfiguration irmaConfiguration, DisclosedAttribute disclosedAttribute) {
+    final attributeType = irmaConfiguration.attributeTypes[disclosedAttribute.identifier];
     return Attribute(
       credentialInfo: CredentialInfo.fromConfiguration(
         irmaConfiguration: irmaConfiguration,
         credentialIdentifier: disclosedAttribute.identifier,
       ),
-      attributeType: irmaConfiguration.attributeTypes[disclosedAttribute.identifier],
-      value: disclosedAttribute.value,
+      attributeType: attributeType,
+      value: AttributeValue.fromRaw(attributeType, disclosedAttribute.value),
     );
   }
 }
@@ -237,7 +230,7 @@ class DisclosedAttribute {
   final String rawValue;
 
   @JsonKey(name: 'value')
-  final AttributeValue value;
+  final dynamic value;
 
   @JsonKey(name: 'id')
   final String identifier;
