@@ -36,7 +36,7 @@ Map<String, dynamic> _$AuthenticationFailedEventToJson(AuthenticationFailedEvent
 
 AuthenticationErrorEvent _$AuthenticationErrorEventFromJson(Map<String, dynamic> json) {
   return AuthenticationErrorEvent(
-    error: json['Error'] as String,
+    error: json['Error'] == null ? null : SessionError.fromJson(json['Error'] as Map<String, dynamic>),
   );
 }
 

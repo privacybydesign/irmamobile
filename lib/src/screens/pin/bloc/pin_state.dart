@@ -1,9 +1,11 @@
+import 'package:irmamobile/src/models/session.dart';
+
 class PinState {
   bool authenticated;
   bool authenticateInProgress;
   DateTime blockedUntil;
   bool pinInvalid;
-  String errorMessage;
+  SessionError error;
   int remainingAttempts;
 
   PinState({
@@ -11,7 +13,7 @@ class PinState {
     this.authenticateInProgress = false,
     this.blockedUntil,
     this.pinInvalid = false,
-    this.errorMessage,
+    this.error,
     this.remainingAttempts,
   });
 }

@@ -7,9 +7,8 @@ import 'package:irmamobile/src/widgets/irma_button.dart';
 
 class GeneralError extends StatelessWidget {
   final String errorText;
-  final VoidCallback onOkTap;
 
-  const GeneralError(this.errorText, this.onOkTap);
+  const GeneralError({@required this.errorText});
 
   @override
   Widget build(BuildContext context) {
@@ -79,42 +78,6 @@ class GeneralError extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-          ),
-        ),
-        Container(
-          decoration: BoxDecoration(
-            color: IrmaTheme.of(context).backgroundBlue,
-            border: Border(
-              top: BorderSide(
-                color: IrmaTheme.of(context).primaryLight,
-                width: 2.0,
-              ),
-            ),
-          ),
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).mediumSpacing),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                const Expanded(
-                  flex: 1,
-                  child: SizedBox(height: 1, width: 1),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).defaultSpacing),
-                    child: IrmaButton(
-                      label: FlutterI18n.translate(context, 'error.button_ok'),
-                      textStyle: IrmaTheme.of(context).textTheme.button,
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ),
-                ),
-              ],
             ),
           ),
         ),

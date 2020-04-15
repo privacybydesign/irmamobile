@@ -46,6 +46,7 @@ class IrmaClientBridge extends IrmaBridge {
     CanceledSessionEvent: (j) => CanceledSessionEvent.fromJson(j),
     KeyshareBlockedSessionEvent: (j) => KeyshareBlockedSessionEvent.fromJson(j),
     ClientReturnURLSetSessionEvent: (j) => ClientReturnURLSetSessionEvent.fromJson(j),
+    FailureSessionEvent: (j) => FailureSessionEvent.fromJson(j),
 
     // FooBar: (j) => FooBar.fromJson(j),
   };

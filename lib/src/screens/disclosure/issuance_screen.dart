@@ -44,6 +44,30 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
         .firstWhere((session) => session.requestPin == true)
         .then((session) => pushSessionPinScreen(context, sessionID, 'issuance.title'));
 
+    // Handle errors. The return code is replicated here as we start
+    // with a somewhat different situation, having an extra screen
+    // on top of the stack
+    sessionStateStream.firstWhere((session) => session.status == SessionStatus.error).then((session) {
+      toErrorScreen(context, session.error, () {
+        (() async {
+          if (session.continueOnSecondDevice) {
+            popToWallet(context);
+          } else if (session.clientReturnURL != null && await canLaunch(session.clientReturnURL)) {
+            launch(session.clientReturnURL, forceSafariVC: false);
+            popToWallet(context);
+          } else {
+            if (Platform.isIOS) {
+              setState(() => displayArrowBack = true);
+              Navigator.of(context).pop(); // pop error screen
+            } else {
+              SystemNavigator.pop();
+              popToWallet(context);
+            }
+          }
+        })();
+      });
+    });
+
     _handleFinished();
   }
 
