@@ -313,8 +313,10 @@
     "open_menu": "Open Menu",
     "close_menu": "Close Menu",
     "toggle": "Change display",
-    "issuer": "Source",
+    "issuer": "Issuer",
     "expiration": "Card valid until",
+    "expired": "Card expired since",
+    "revoked": "This card has been revoked",
     "help": "Help",
     "caption": "Your data securely on your mobile",
     "pbdf_gemeente_personalData": {

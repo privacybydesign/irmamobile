@@ -18,6 +18,7 @@ class IrmaCard extends StatelessWidget {
 
   final CredentialInfo credentialInfo;
   final Attributes attributes;
+  final bool revoked;
   DateTime expiryDate;
 
   Function() onRefreshCredential;
@@ -36,6 +37,7 @@ class IrmaCard extends StatelessWidget {
     this.short = false,
   })  : credentialInfo = credential.info,
         attributes = credential.attributes,
+        revoked = credential.revoked,
         expiryDate = credential.expires,
         cardTheme = IrmaCardTheme.fromCredentialInfo(credential.info);
 
@@ -45,6 +47,7 @@ class IrmaCard extends StatelessWidget {
   })  : credentialInfo = credential.info,
         attributes = credential.attributes,
         cardTheme = IrmaCardTheme.fromCredentialInfo(credential.info),
+        revoked = false,
         short = true;
 
   @override
@@ -118,6 +121,7 @@ class IrmaCard extends StatelessWidget {
                 CardFooter(
                   credentialInfo: credentialInfo,
                   expiryDate: expiryDate,
+                  revoked: revoked,
                   irmaCardTheme: cardTheme,
                   scrollOverflowCallback: scrollBeyondBoundsCallback,
                 ),
