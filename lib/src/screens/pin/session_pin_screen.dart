@@ -6,13 +6,13 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/session_events.dart';
+import 'package:irmamobile/src/screens/error/session_error_screen.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_state.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
-import 'package:irmamobile/src/widgets/irma_text_button.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_attempts.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_blocked.dart';
 import 'package:irmamobile/src/widgets/pin_field.dart';
@@ -62,26 +62,15 @@ class _SessionPinScreenState extends State<SessionPinScreen> {
         }
       }
 
-      if (pinState.errorMessage != null) {
-        showDialog(
-          context: context,
-          child: AlertDialog(
-            title: Text(
-              FlutterI18n.translate(context, "error.title"),
-            ),
-            content: Text(
-              pinState.errorMessage,
-            ),
-            actions: <Widget>[
-              IrmaTextButton(
-                label: FlutterI18n.translate(context, "error.button_ok"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
+      if (pinState.error != null) {
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => SessionErrorScreen(
+            error: pinState.error,
+            onTapClose: () {
+              Navigator.of(context).pop();
+            },
           ),
-        );
+        ));
       }
     });
   }
