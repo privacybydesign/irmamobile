@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:irmamobile/src/models/session.dart';
 import 'package:meta/meta.dart';
 
 enum ValidationState { initial, valid, invalid }
@@ -20,7 +21,8 @@ class EnrollmentState with EquatableMixin {
   final bool showPinValidation;
   final bool pinMismatch;
   final bool isSubmitting;
-  final bool enrollmentFailed;
+  final bool submittingFailed;
+  final SessionError error;
   final int retry;
 
   EnrollmentState({
@@ -33,7 +35,8 @@ class EnrollmentState with EquatableMixin {
     this.showEmailValidation = false,
     this.showPinValidation = false,
     this.isSubmitting = false,
-    this.enrollmentFailed = false,
+    this.submittingFailed = false,
+    this.error,
     this.retry = 0,
   });
 
@@ -47,7 +50,8 @@ class EnrollmentState with EquatableMixin {
     bool showEmailValidation,
     bool showPinValidation,
     bool isSubmitting,
-    bool enrollmentFailed,
+    bool submittingFailed,
+    SessionError error,
     int retry,
   }) {
     return EnrollmentState(
@@ -60,7 +64,8 @@ class EnrollmentState with EquatableMixin {
       showEmailValidation: showEmailValidation ?? this.showEmailValidation,
       showPinValidation: showPinValidation ?? this.showPinValidation,
       isSubmitting: isSubmitting ?? this.isSubmitting,
-      enrollmentFailed: enrollmentFailed ?? this.enrollmentFailed,
+      submittingFailed: submittingFailed ?? this.submittingFailed,
+      error: error ?? this.error,
       retry: retry ?? this.retry,
     );
   }
@@ -79,7 +84,7 @@ class EnrollmentState with EquatableMixin {
         showPinValidation: $showPinValidation, 
         retry: $retry, 
         isSubmitting: $isSubmitting, 
-        enrollmentFailed: $enrollmentFailed 
+        submittingFailed: $submittingFailed,
     }''';
   }
 
@@ -96,7 +101,8 @@ class EnrollmentState with EquatableMixin {
       showPinValidation,
       retry,
       isSubmitting,
-      enrollmentFailed
+      submittingFailed,
+      error,
     ];
   }
 }

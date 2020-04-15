@@ -60,7 +60,7 @@ class EnrollmentBloc extends Bloc<Object, EnrollmentState> {
     } else if (event is Enroll) {
       yield currentState.copyWith(
         isSubmitting: true,
-        enrollmentFailed: false,
+        submittingFailed: false, // reset incase of retrying
       );
 
       final status = await IrmaRepository.get().enroll(
@@ -68,10 +68,18 @@ class EnrollmentBloc extends Bloc<Object, EnrollmentState> {
         pin: currentState.pin,
         language: 'nl',
       );
-      yield currentState.copyWith(
-        isSubmitting: false,
-        enrollmentFailed: status is EnrollmentFailureEvent,
-      );
+      
+      if (status is EnrollmentFailureEvent) {
+        yield currentState.copyWith(
+          isSubmitting: false,
+          submittingFailed: true,
+          error: status.error,
+        );
+      } else if (status is EnrollmentSuccessEvent) {
+        yield currentState.copyWith(
+            isSubmitting: false,
+        );
+      }
     }
   }
 }
