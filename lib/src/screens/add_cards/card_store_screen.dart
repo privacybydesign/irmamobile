@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'package:irmamobile/src/screens/wallet/widgets/digid_proef_helper.dart';
 import 'package:irmamobile/src/screens/webview/webview_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/language.dart';
@@ -24,11 +23,6 @@ class CardStoreScreen extends StatelessWidget {
 
     if (credentialType.issuerId == "gemeente") {
       launch(url, forceSafariVC: false);
-    } else if (credentialType.issuerId == "bzkpilot") {
-      final didLaunch = await launch(url, forceSafariVC: false, universalLinksOnly: true);
-      if (!didLaunch) {
-        showLaunchFailDialogBZKPilot(context);
-      }
     } else {
       Navigator.push(
         context,
@@ -77,7 +71,7 @@ class CardStoreScreen extends StatelessWidget {
                     if (snapshot.hasData) {
                       final irmaConfiguration = snapshot.data;
                       final credentialTypes = irmaConfiguration.credentialTypes.values.where(
-                        (ct) => ct.isInCredentialStore && ct.issuerId != "gemeente",
+                        (ct) => ct.isInCredentialStore,
                       );
 
                       final credentialTypesByCategory =
