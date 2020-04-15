@@ -320,19 +320,6 @@
     "pbdf_gemeente_personalData": {
       "nudge": "Add your personal data"
     },
-    "pbdf_bzkpilot_personalData": {
-      "nudge": "Add your personal data",
-      "not_installed_dialog_title": "The Sesam ID app is not installed.",
-      "not_installed_dialog_content": "Install the Sesam ID app first. You can install it through Apple TestFlight.",
-      "not_installed_dialog_primary": "Open TestFlight",
-      "not_installed_dialog_secondary": "Cancel"
-    },
-    "launch_testflight": {
-      "not_installed_dialog_title": "Cannot launch the app",
-      "not_installed_dialog_content": "Install TestFlight from the App Store and try again.",
-      "not_installed_dialog_primary": "Install Testflight",
-      "not_installed_dialog_secondary": "Cancel"
-    },
     "add_data": "Add more data",
     "lock": "Log out"
   },

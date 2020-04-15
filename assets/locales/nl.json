@@ -320,19 +320,6 @@
     "pbdf_gemeente_personalData": {
       "nudge": "Voeg je persoonsgegevens toe"
     },
-    "pbdf_bzkpilot_personalData": {
-      "nudge": "Voeg je persoonsgegevens toe",
-      "not_installed_dialog_title": "Sesam ID-app niet gevonden",
-      "not_installed_dialog_content": "Installeer eerst de Sesam ID-app. Je kan deze via Apple TestFlight verkrijgen.",
-      "not_installed_dialog_primary": "Open TestFlight",
-      "not_installed_dialog_secondary": "Annuleer"
-    },
-    "launch_testflight": {
-      "not_installed_dialog_title": "De app kan niet worden gestart",
-      "not_installed_dialog_content": "Installeer eerst de app TestFlight uit de App Store. Daarna kun je het nogmaals proberen.",
-      "not_installed_dialog_primary": "Installeer TestFlight",
-      "not_installed_dialog_secondary": "Annuleer"
-    },
     "add_data": "Voeg meer gegevens toe",
     "lock": "Uitloggen"
   },

@@ -8,12 +8,6 @@
 			"type": "dart"
 		},
 		{
-			"name": "DigiD proef",
-			"program": "lib/main_digid_proef.dart",
-			"request": "launch",
-			"type": "dart"
-		},
-		{
 			"name": "Gemeente app",
 			"program": "lib/main_gemeente.dart",
 			"request": "launch",
