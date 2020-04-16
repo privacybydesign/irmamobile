@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/screens/enrollment/email_sent_screen.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_bloc.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
@@ -64,16 +65,18 @@ class _SubmitState extends State<Submit> {
                 ),
               ));
             } else {
-              // enrollment is done and succeeded
-              Navigator.of(context).maybePop().then(
-                    (_) => Navigator.of(context, rootNavigator: true)
-                        .pushReplacementNamed(WalletScreen.routeName),
-                  );
+              // Enrollment succeeded
+              Navigator.of(context).pop();
+              if (state.showEmailValidation) {
+                Navigator.of(context)
+                    .pushReplacement(MaterialPageRoute(builder: (context) => EmailSent(email: state.email)));
+              } else {
+                Navigator.of(context, rootNavigator: true).pushReplacementNamed(WalletScreen.routeName);
+              }
             }
           },
           child: IrmaProgress(
-            FlutterI18n.translate(
-                context, "enrollment.submit.progress_enrollment"),
+            FlutterI18n.translate(context, "enrollment.submit.progress_enrollment"),
           )),
     );
   }

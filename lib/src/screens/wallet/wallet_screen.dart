@@ -80,6 +80,7 @@ class _WalletScreenState extends State<_WalletScreen> {
   @override
   void dispose() {
     _lockListenerSubscription.cancel();
+    super.dispose();
   }
 
   @override
