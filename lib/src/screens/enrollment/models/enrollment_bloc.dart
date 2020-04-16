@@ -68,7 +68,7 @@ class EnrollmentBloc extends Bloc<Object, EnrollmentState> {
         pin: currentState.pin,
         language: 'nl',
       );
-      
+
       if (status is EnrollmentFailureEvent) {
         yield currentState.copyWith(
           isSubmitting: false,
@@ -77,7 +77,7 @@ class EnrollmentBloc extends Bloc<Object, EnrollmentState> {
         );
       } else if (status is EnrollmentSuccessEvent) {
         yield currentState.copyWith(
-            isSubmitting: false,
+          isSubmitting: false,
         );
       }
     }

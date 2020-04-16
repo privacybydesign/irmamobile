@@ -90,8 +90,7 @@ class IrmaRepository {
       _changePinEventSubject.add(event);
     } else if (event is EnrollmentStatusEvent) {
       _enrollmentStatusSubject.add(event.enrollmentStatus);
-    } 
-    else if (event is EnrollEventStatus) {
+    } else if (event is EnrollEventStatus) {
       _enrollEventStatusSubject.add(event);
     } else if (event is HandleURLEvent) {
       try {

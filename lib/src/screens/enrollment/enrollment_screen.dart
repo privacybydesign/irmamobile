@@ -52,7 +52,6 @@ class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
     super.initState();
 
     pinFocusNode = FocusNode();
-
   }
 
   @override
