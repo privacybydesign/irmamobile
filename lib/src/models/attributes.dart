@@ -159,7 +159,6 @@ class Attribute {
   final CredentialInfo credentialInfo;
   final AttributeType attributeType;
   final AttributeValue value;
-  Image portraitPhoto;
 
   Attribute({
     @required this.credentialInfo,
@@ -167,11 +166,7 @@ class Attribute {
     @required this.value,
   })  : assert(credentialInfo != null),
         assert(attributeType != null),
-        assert(value != null) {
-    if (value is PhotoValue) {
-      portraitPhoto = (value as PhotoValue).image;
-    }
-  }
+        assert(value != null);
 
   bool get expired => false;
   bool get revoked => false;
@@ -198,7 +193,7 @@ class Attribute {
           credentialIdentifier: candidate.type,
         ),
         attributeType: attributeType,
-        value: EmptyValue(),
+        value: NullValue(),
       );
     }
   }

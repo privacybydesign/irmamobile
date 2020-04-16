@@ -200,7 +200,7 @@ class _CarouselState extends State<Carousel> {
       );
 
   Widget _buildCandidateValue(Attribute candidate) {
-    if (candidate.portraitPhoto != null) {
+    if (candidate.value is PhotoValue) {
       return Padding(
         padding: EdgeInsets.only(
           top: 6,
@@ -210,13 +210,13 @@ class _CarouselState extends State<Carousel> {
           width: 90,
           height: 120,
           color: const Color(0xff777777),
-          child: candidate.portraitPhoto,
+          child: (candidate.value as PhotoValue).image,
         ),
       );
     }
 
+    // If an attribute is null, we render a TextValue with a dash as text.
     return Text(
-      // Empty attributes are rendered by displaying a dash
       candidate.value is TextValue ? (candidate.value as TextValue).translated[_lang] : "-",
       style: IrmaTheme.of(context).textTheme.body2,
     );

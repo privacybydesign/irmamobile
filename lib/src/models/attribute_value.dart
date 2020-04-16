@@ -8,7 +8,7 @@ abstract class AttributeValue {
   factory AttributeValue.fromRaw(AttributeType attributeType, rawAttribute) {
     // In IrmaGo attribute values are set to null when an optional attribute is empty.
     if (rawAttribute == null) {
-      return EmptyValue();
+      return NullValue();
     }
 
     switch (attributeType.displayHint) {
@@ -16,15 +16,16 @@ abstract class AttributeValue {
         try {
           return PhotoValue.fromRaw(rawAttribute);
         } catch (_) {}
-        // When rendering of the photo fails, fall back to EmptyValue.
-        return EmptyValue();
+        // When rendering of the photo fails, fall back to NullValue.
+        return NullValue();
       default:
         return TextValue.fromRaw(rawAttribute);
     }
   }
 }
 
-class EmptyValue implements AttributeValue {}
+// Used in optional attributes when value is null
+class NullValue implements AttributeValue {}
 
 class TextValue implements AttributeValue {
   final TranslatedValue translated;
