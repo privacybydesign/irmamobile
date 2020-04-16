@@ -24,9 +24,9 @@ abstract class AttributeValue {
   }
 }
 
-class EmptyValue with AttributeValue {}
+class EmptyValue implements AttributeValue {}
 
-class TextValue with AttributeValue {
+class TextValue implements AttributeValue {
   final TranslatedValue translated;
   final String raw;
 
@@ -34,7 +34,7 @@ class TextValue with AttributeValue {
 
   // A raw TextValue is received as TranslatedValue.
   factory TextValue.fromRaw(rawAttribute) {
-    final translatedValue = rawAttribute as TranslatedValue;
+    final translatedValue = TranslatedValue.fromJson(rawAttribute as Map<String, dynamic>);
     return TextValue(
       translated: translatedValue,
       raw: translatedValue[""],
@@ -42,7 +42,7 @@ class TextValue with AttributeValue {
   }
 }
 
-class PhotoValue with AttributeValue {
+class PhotoValue implements AttributeValue {
   final Image image;
 
   PhotoValue({this.image});
