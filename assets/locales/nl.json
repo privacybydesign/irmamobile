@@ -54,9 +54,9 @@
       "title": "Beveiliging instellen",
       "button": "Doorgaan",
       "message_title": "Bevestig je e-mailadres",
-      "message_markdown": "Je hebt een email ontvangen van **noreply@sidn.nl**. Open de link in de email om je e-mailadres aan je IRMA-app te koppelen.",
-      "mail_sent_text_markdown": "Er is een e-mail gestuurd naar: **{emailaddress}**.",
-      "check_spam": "Het kan even duren voordat de email binnen is. Controleer de spamfolder als je geen email hebt ontvangen."
+      "message_markdown": "Je hebt een e-mail ontvangen van **noreply@sidn.nl**. Open de link in dit bericht om je e-mailadres aan je IRMA-app te koppelen.",
+      "mail_sent_text_markdown": "De e-mail is gestuurd naar: **{emailaddress}**.",
+      "check_spam": "Het kan even duren voordat de e-mail verschijnt. Controleer de spamfolder als je geen e-mail hebt ontvangen."
     },
     "submit": {
       "title": "Aanmelden",

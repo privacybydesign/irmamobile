@@ -54,9 +54,9 @@
       "title": "Secure your IRMA app",
       "button": "Continue",
       "message_title": "Confirm your email address",
-      "message_markdown": "You have received an email by **noreply@sidn.nl**. Open the link in the email to link your email address to your IRMA app.",
-      "mail_sent_text_markdown": "An email has been sent to: **{emailaddress}**.",
-      "check_spam": "It can take a moment until the email arrives. Check the spam folder if you don't see the mail in your inbox."
+      "message_markdown": "You have received an email from **noreply@sidn.nl**. Open the link in this message to link your email address to your IRMA app.",
+      "mail_sent_text_markdown": "The email has been sent to: **{emailaddress}**.",
+      "check_spam": "It can take a moment until the email arrives. Check your spam folder if you don't see the mail in your inbox."
     },
     "submit": {
       "title": "Logging in",
