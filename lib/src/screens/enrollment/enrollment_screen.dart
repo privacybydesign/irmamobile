@@ -1,9 +1,6 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/enrollment_status.dart';
 import 'package:irmamobile/src/models/native_events.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_bloc.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_event.dart';
@@ -14,7 +11,6 @@ import 'package:irmamobile/src/screens/enrollment/widgets/confirm_pin.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/introduction.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/provide_email.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/submit.dart';
-import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 
 class EnrollmentScreen extends StatefulWidget {
   static const routeName = "/enrollment";
@@ -46,7 +42,6 @@ class ProvidedEnrollmentScreen extends StatefulWidget {
 
 class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
   FocusNode pinFocusNode;
-  StreamSubscription<EnrollmentStatus> enrollmentStatusSubscription;
   final EnrollmentBloc bloc;
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -58,17 +53,10 @@ class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
 
     pinFocusNode = FocusNode();
 
-    // TODO: This is probably not how we should respond to this state change
-    enrollmentStatusSubscription = IrmaRepository.get().getEnrollmentStatus().listen((enrollmentStatus) {
-      if (enrollmentStatus == EnrollmentStatus.enrolled) {
-        Navigator.of(context).pushReplacementNamed(WalletScreen.routeName);
-      }
-    });
   }
 
   @override
   void dispose() {
-    enrollmentStatusSubscription.cancel();
     super.dispose();
   }
 

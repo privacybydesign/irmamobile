@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/screens/webview/webview_screen.dart';
+import 'package:irmamobile/src/sentry/sentry.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -48,9 +49,9 @@ class ExternalLink extends StatelessWidget {
                     context,
                     FlutterI18n.translate(context, link),
                   );
-                } on PlatformException catch (e) {
-                  debugPrint(e.toString());
-                  debugPrint("error on launch of url - probably bad certificate?");
+                } on PlatformException catch (e, stacktrace) {
+                  // TODO: consider whether we want error screen here
+                  reportError(e, stacktrace);
                 }
               },
               child: Text(

@@ -299,12 +299,17 @@
     "button_forgot": "PIN forgotten",
     "button_block": "Block IRMA"
   },
+  "session_pin": {
+    "subtitle": "Re-enter your PIN to continue.",
+    "explanation": "For your safety, the IRMA app regularly asks for your PIN."
+  },
   "error": {
     "title": "Something goes wrong",
     "button_ok": "OK",
     "button_send_to_irma": "Send to IRMA's technical team",
     "button_show_error": "Show technical details",
     "button_retry": "Please try again",
+    "button_back": "Back",
     "types": {
       "general": "Something went wrong.\n\nWhen this happens again, please inform IRMA's technical team.",
       "no_internet": "Something went wrong. IRMA needs internet.\n\nPlease check your internet connection."

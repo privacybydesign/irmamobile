@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:irmamobile/src/data/irma_bridge.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/session_repository.dart';
+import 'package:irmamobile/src/models/applifecycle_changed_event.dart';
 import 'package:irmamobile/src/models/authentication_events.dart';
 import 'package:irmamobile/src/models/change_pin_events.dart';
 import 'package:irmamobile/src/models/clear_all_data_event.dart';
@@ -12,6 +13,7 @@ import 'package:irmamobile/src/models/credential_events.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/enrollment_events.dart';
 import 'package:irmamobile/src/models/enrollment_status.dart';
+import 'package:irmamobile/src/models/error_event.dart';
 import 'package:irmamobile/src/models/event.dart';
 import 'package:irmamobile/src/models/handle_url_event.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
@@ -20,7 +22,7 @@ import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/models/version_information.dart';
-import 'package:irmamobile/src/models/applifecycle_changed_event.dart';
+import 'package:irmamobile/src/sentry/sentry.dart';
 import 'package:package_info/package_info.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:stream_transform/stream_transform.dart';
@@ -50,20 +52,13 @@ class IrmaRepository {
   final irmaConfigurationSubject = BehaviorSubject<IrmaConfiguration>(); // TODO: Make this member private
   final _credentialsSubject = BehaviorSubject<Credentials>();
   final _enrollmentStatusSubject = BehaviorSubject<EnrollmentStatus>.seeded(EnrollmentStatus.undetermined);
+  final _enrollEventStatusSubject = PublishSubject<EnrollEventStatus>();
   final _authenticationEventSubject = PublishSubject<AuthenticationEvent>();
   final _changePinEventSubject = PublishSubject<ChangePinBaseEvent>();
   final _lockedSubject = BehaviorSubject<bool>.seeded(true);
   final _lastActiveTimeSubject = BehaviorSubject<DateTime>();
   final _appLifecycleState = BehaviorSubject<AppLifecycleState>();
   final _pendingSessionPointerSubject = BehaviorSubject<SessionPointer>.seeded(null);
-
-  // _cachedPin is used to re-activate session without navigating to the pin
-  // screen. This is a temporary solution. The app must not be released with this
-  // logic still present.
-  //
-  // TODO: fix this
-  @Deprecated("This must be removed")
-  String _cachedPin;
 
   // _internal is a named constructor only used by the factory
   IrmaRepository._internal({
@@ -74,17 +69,12 @@ class IrmaRepository {
       repo: this,
       sessionEventStream: _eventSubject.where((event) => event is SessionEvent).cast<SessionEvent>(),
     );
-
-    // TODO: This shouldn't be here. See comment on _cachedPin.
-    _authenticationEventSubject.listen((event) {
-      if (event is AuthenticateEvent) {
-        _cachedPin = event.pin;
-      }
-    });
   }
 
   Future<void> _eventListener(Event event) async {
-    if (event is IrmaConfigurationEvent) {
+    if (event is ErrorEvent) {
+      reportError(event.exception, event.stack);
+    } else if (event is IrmaConfigurationEvent) {
       irmaConfigurationSubject.add(event.irmaConfiguration);
     } else if (event is CredentialsEvent) {
       _credentialsSubject.add(Credentials.fromRaw(
@@ -93,30 +83,16 @@ class IrmaRepository {
       ));
     } else if (event is AuthenticationEvent) {
       _authenticationEventSubject.add(event);
-      if (event is AuthenticateEvent) {
-        // TODO: This shouldn't be here. See comment on `_cachedPin`.
-        _cachedPin = event.pin;
-      }
       if (event is AuthenticationSuccessEvent) {
         _lockedSubject.add(false);
       }
     } else if (event is ChangePinBaseEvent) {
       _changePinEventSubject.add(event);
-    } else if (event is EnrollEvent) {
-      // TODO: This shouldn't be here. See comment on `_cachedPin`.
-      _cachedPin = event.pin;
     } else if (event is EnrollmentStatusEvent) {
       _enrollmentStatusSubject.add(event.enrollmentStatus);
-    } else if (event is RequestPinSessionEvent) {
-      // TODO: this shouldn't be here, remove when the RequestPinSessionEvent is
-      // properly hooked up to UI. See comment on `_cachedPin`.
-      if (_cachedPin != null) {
-        bridgedDispatch(RespondPinEvent(
-          sessionID: event.sessionID,
-          proceed: true,
-          pin: _cachedPin,
-        ));
-      }
+    } 
+    else if (event is EnrollEventStatus) {
+      _enrollEventStatusSubject.add(event);
     } else if (event is HandleURLEvent) {
       try {
         final sessionPointer = SessionPointer.fromString(event.url);
@@ -170,13 +146,24 @@ class IrmaRepository {
   }
 
   // -- Enrollment
-  void enroll({String email, String pin, String language}) {
+  Future<EnrollEventStatus> enroll({String email, String pin, String language}) {
     _lockedSubject.add(false);
 
-    final event = EnrollEvent(email: email, pin: pin, language: language);
-    dispatch(event, isBridgedEvent: true);
+    dispatch(EnrollEvent(email: email, pin: pin, language: language), isBridgedEvent: true);
 
-    IrmaPreferences.get().setLongPin(pin.length != 5);
+    return _enrollEventStatusSubject.where((event) {
+      switch (event.runtimeType) {
+        case EnrollmentSuccessEvent:
+          IrmaPreferences.get().setLongPin(pin.length != 5);
+          return true;
+          break;
+        case EnrollmentFailureEvent:
+          return true;
+          break;
+        default:
+          return false;
+      }
+    }).first;
   }
 
   Stream<EnrollmentStatus> getEnrollmentStatus() {

@@ -1,4 +1,6 @@
 import 'package:irmamobile/src/models/attributes.dart';
+import 'package:irmamobile/src/models/credentials.dart';
+import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
 
 class SessionState {
@@ -10,9 +12,12 @@ class SessionState {
   final String clientReturnURL;
   final bool isSignatureSession;
   final String signedMessage;
+  final List<Credential> issuedCredentials;
   final List<int> disclosureIndices;
   final ConCon<AttributeIdentifier> disclosureChoices;
   final bool satisfiable;
+  final bool requestPin;
+  final SessionError error;
 
   SessionState({
     this.sessionID,
@@ -23,16 +28,23 @@ class SessionState {
     this.clientReturnURL,
     this.isSignatureSession,
     this.signedMessage,
+    this.issuedCredentials,
     this.disclosureIndices,
     this.disclosureChoices,
     this.satisfiable,
+    this.requestPin,
+    this.error,
   });
 
-  bool get canDisclose => disclosuresCandidates
-      .asMap()
-      .map((i, discon) => MapEntry(i, discon[disclosureIndices[i]]))
-      .values
-      .every((con) => con.every((attr) => attr.choosable));
+  bool get canDisclose =>
+      disclosuresCandidates == null ||
+      disclosuresCandidates
+          .asMap()
+          .map((i, discon) => MapEntry(i, discon[disclosureIndices[i]]))
+          .values
+          .every((con) => con.every((attr) => attr.choosable));
+
+  bool get isIssuanceSession => issuedCredentials?.isNotEmpty ?? false;
 
   SessionState copyWith({
     bool continueOnSecondDevice,
@@ -42,9 +54,12 @@ class SessionState {
     String clientReturnURL,
     bool isSignatureSession,
     String signedMessage,
+    List<Credential> issuedCredentials,
     List<int> disclosureIndices,
     ConCon<AttributeIdentifier> disclosureChoices,
     bool satisfiable,
+    bool requestPin,
+    SessionError error,
   }) {
     return SessionState(
       sessionID: sessionID,
@@ -55,9 +70,12 @@ class SessionState {
       clientReturnURL: clientReturnURL ?? this.clientReturnURL,
       isSignatureSession: isSignatureSession ?? this.isSignatureSession,
       signedMessage: signedMessage ?? this.signedMessage,
+      issuedCredentials: issuedCredentials ?? this.issuedCredentials,
       disclosureIndices: disclosureIndices ?? this.disclosureIndices,
       disclosureChoices: disclosureChoices ?? this.disclosureChoices,
       satisfiable: satisfiable ?? this.satisfiable,
+      requestPin: requestPin ?? this.requestPin,
+      error: error ?? this.error,
     );
   }
 }
@@ -69,6 +87,8 @@ enum SessionStatus {
   connected,
   requestPermission,
   success,
+  canceled,
+  error,
 }
 
 extension SessionStatusParser on String {

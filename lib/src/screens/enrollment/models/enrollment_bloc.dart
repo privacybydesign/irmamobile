@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
+import 'package:irmamobile/src/models/enrollment_events.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_event.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
 
@@ -59,21 +60,26 @@ class EnrollmentBloc extends Bloc<Object, EnrollmentState> {
     } else if (event is Enroll) {
       yield currentState.copyWith(
         isSubmitting: true,
-        enrollementFailed: false,
+        submittingFailed: false, // reset incase of retrying
       );
 
-      IrmaRepository.get().enroll(
+      final status = await IrmaRepository.get().enroll(
         email: currentState.email.trim(),
         pin: currentState.pin,
         language: 'nl',
       );
-
-      // Once the enroll function on the repository is a future which could return an error
-      // The state below can be yielded to display the error state.
-      // yield currentState.copyWith(
-      //   isSubmitting: false,
-      //   enrollementFailed: true,
-      // );
+      
+      if (status is EnrollmentFailureEvent) {
+        yield currentState.copyWith(
+          isSubmitting: false,
+          submittingFailed: true,
+          error: status.error,
+        );
+      } else if (status is EnrollmentSuccessEvent) {
+        yield currentState.copyWith(
+            isSubmitting: false,
+        );
+      }
     }
   }
 }

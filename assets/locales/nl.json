@@ -299,12 +299,17 @@
     "button_forgot": "Pincode vergeten",
     "button_block": "IRMA blokkeren"
   },
+  "session_pin": {
+    "subtitle": "Voer je pincode opnieuw in om verder te gaan.",
+    "explanation": "Voor de zekerheid vraagt de IRMA-app regelmatig opnieuw je pincode."
+  },
   "error": {
     "title": "Er gaat iets fout",
     "button_ok": "OK",
     "button_send_to_irma": "Stuur naar het technische team van IRMA",
     "button_show_error": "Technische details tonen",
     "button_retry": "Opnieuw proberen",
+    "button_back": "Terug",
     "types": {
       "general": "Er is iets misgegaan.\n\nAls het fout blijft gaan, laat het dan weten aan het technische team van IRMA.",
       "no_internet": "Er is iets misgegaan. Er kan geen verbinding gemaakt worden met de IRMA-server.\n\nControleer je internetverbinding. IRMA werkt niet zonder internet."
@@ -376,6 +381,19 @@
       }
     }
   },
+  "issuance": {
+    "title": "Kaartjes toevoegen",
+    "header-0": "Wil je dit kaartje in je IRMA app zetten?",
+    "header-1": "Wil je dit kaartje in je IRMA app zetten?",
+    "header-2": "Wil je deze kaartjes in je IRMA app zetten?"
+  },
+  "session": {
+    "navigation_bar": {
+      "yes": "Ja",
+      "no": "Nee, liever niet",
+      "back": "Terug"
+    }
+  },
   "disclosure": {
     "title": "Jezelf bekend maken",
     "disclosure_header_markdown": "Wil je dit aan **{otherParty}** doorgeven?",
@@ -392,11 +410,6 @@
       "body": "Kies welke gegevens je doorgeeft. Gebruik het pijltje of swipe en maak je keuze.",
       "dismiss": "OK",
       "dismiss-remember": "Niet meer tonen"
-    },
-    "navigation_bar": {
-      "yes": "Ja",
-      "no": "Nee, liever niet",
-      "back": "Terug"
     },
     "redirect": "Je wordt teruggeleid naar de webpagina...",
     "feedback": {

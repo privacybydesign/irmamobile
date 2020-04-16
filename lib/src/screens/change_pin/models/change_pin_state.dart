@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:irmamobile/src/models/session.dart';
 import 'package:meta/meta.dart';
 
 enum ValidationState { initial, valid, invalid, error }
@@ -13,6 +14,7 @@ class ChangePinState with EquatableMixin {
 
   final int attemptsRemaining;
   final DateTime blockedUntil;
+  final SessionError error;
   final String errorMessage;
 
   final ValidationState oldPinVerified;
@@ -28,6 +30,7 @@ class ChangePinState with EquatableMixin {
     this.newPinConfirmed,
     this.attemptsRemaining = 0,
     this.blockedUntil,
+    this.error,
     this.errorMessage,
   });
 
@@ -41,6 +44,7 @@ class ChangePinState with EquatableMixin {
       ValidationState newPinConfirmed = ValidationState.initial,
       int attemptsRemaining,
       DateTime blockedUntil,
+      SessionError error,
       String errorMessage}) {
     return ChangePinState(
         oldPin: oldPin ?? this.oldPin,
@@ -52,12 +56,13 @@ class ChangePinState with EquatableMixin {
         newPinConfirmed: newPinConfirmed ?? this.newPinConfirmed,
         attemptsRemaining: attemptsRemaining ?? this.attemptsRemaining,
         blockedUntil: blockedUntil ?? this.blockedUntil,
+        error: error ?? this.error,
         errorMessage: errorMessage ?? this.errorMessage);
   }
 
   @override
   String toString() {
-    return 'ChangePinState {old pin: ${oldPin == null ? null : '*' * oldPin.length}, new pin: ${newPin == null ? null : '*' * newPin.length}, long pin: $longPin, validating pin: $validatingPin, udpating pin: $updatingPin, old verified: $oldPinVerified, new confirmed: $newPinConfirmed, attemptsRemaining: $attemptsRemaining, blockedUntil: $blockedUntil, errorMessage: $errorMessage }';
+    return 'ChangePinState {old pin: ${oldPin == null ? null : '*' * oldPin.length}, new pin: ${newPin == null ? null : '*' * newPin.length}, long pin: $longPin, validating pin: $validatingPin, udpating pin: $updatingPin, old verified: $oldPinVerified, new confirmed: $newPinConfirmed, attemptsRemaining: $attemptsRemaining, blockedUntil: $blockedUntil, error: $error, errorMessage: $errorMessage }';
   }
 
   @override
@@ -72,6 +77,7 @@ class ChangePinState with EquatableMixin {
       newPinConfirmed,
       attemptsRemaining,
       blockedUntil,
+      error,
       errorMessage
     ];
   }

@@ -8,6 +8,8 @@ import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
+import 'package:irmamobile/src/screens/disclosure/issuance_screen.dart';
+import 'package:irmamobile/src/screens/disclosure/session.dart';
 import 'package:irmamobile/src/screens/disclosure/widgets/arrow_back_screen.dart';
 import 'package:irmamobile/src/screens/disclosure/widgets/disclosure_feedback_screen.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
@@ -21,19 +23,12 @@ import 'package:irmamobile/src/widgets/irma_dialog.dart';
 import 'package:irmamobile/src/widgets/irma_quote.dart';
 import 'package:irmamobile/src/widgets/irma_text_button.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
-import 'package:irmamobile/src/widgets/loading_indicator.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-class DisclosureScreenArguments {
-  final int sessionID;
-
-  DisclosureScreenArguments({this.sessionID});
-}
 
 class DisclosureScreen extends StatefulWidget {
   static const String routeName = "/disclosure";
 
-  final DisclosureScreenArguments arguments;
+  final SessionScreenArguments arguments;
 
   const DisclosureScreen({this.arguments}) : super();
 
@@ -68,19 +63,64 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
         .firstWhere((session) => session.disclosuresCandidates != null)
         .then((session) => _showExplanation(session.disclosuresCandidates));
 
-    // Session success handling
+    _sessionStateStream
+        .firstWhere((session) => session.requestPin == true)
+        .then((session) => pushSessionPinScreen(context, session.sessionID, 'disclosure.title'));
+
+    // Handle errors. The return code is replicated here as we start
+    // with a somewhat different situation, having an extra screen
+    // on top of the stack
+    _sessionStateStream.firstWhere((session) => session.status == SessionStatus.error).then((session) {
+      toErrorScreen(context, session.error, () {
+        (() async {
+          if (session.continueOnSecondDevice) {
+            popToWallet(context);
+          } else if (session.clientReturnURL != null && await canLaunch(session.clientReturnURL)) {
+            launch(session.clientReturnURL, forceSafariVC: false);
+            popToWallet(context);
+          } else {
+            if (Platform.isIOS) {
+              setState(() => _displayArrowBack = true);
+              Navigator.of(context).pop(); // pop error screen
+            } else {
+              SystemNavigator.pop();
+              popToWallet(context);
+            }
+          }
+        })();
+      });
+    });
+
+    // Session end handling
     (() async {
       // When the session has completed, wait one second to display a message
-      final session = await _sessionStateStream.firstWhere((session) => session.status == SessionStatus.success);
+      final session = await _sessionStateStream.firstWhere((session) {
+        switch (session.status) {
+          case SessionStatus.success:
+          case SessionStatus.canceled:
+            return true;
+          default:
+            return false;
+        }
+      });
+      if (session.issuedCredentials?.isNotEmpty ?? false) {
+        // Let issuance screen handle this
+        return;
+      }
       await Future.delayed(const Duration(seconds: 1));
 
       if (session.continueOnSecondDevice) {
         // If this is a session on a second screen, return to the wallet after showing a feedback screen
-        _pushDisclosureFeedbackScreen(true, session.serverName.translate(_lang));
+        if (session.status == SessionStatus.success) {
+          _pushDisclosureFeedbackScreen(true, session.serverName.translate(_lang));
+        } else {
+          // TODO: Show an error/cancel feedback screen.
+          popToWallet(context);
+        }
       } else if (session.clientReturnURL != null && await canLaunch(session.clientReturnURL)) {
         // If there is a return URL, navigate to it when we're done
         launch(session.clientReturnURL, forceSafariVC: false);
-        _popToWallet(context);
+        popToWallet(context);
       } else {
         // Otherwise, on iOS show a screen to press the return arrow in the top-left corner,
         // and on Android just background the app to let the user return to the previous activity
@@ -88,18 +128,10 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
           setState(() => _displayArrowBack = true);
         } else {
           SystemNavigator.pop();
-          _popToWallet(context);
+          popToWallet(context);
         }
       }
     })();
-  }
-
-  void _popToWallet(BuildContext context) {
-    Navigator.of(context).popUntil(
-      ModalRoute.withName(
-        WalletScreen.routeName,
-      ),
-    );
   }
 
   void _pushDisclosureFeedbackScreen(bool success, String otherParty) {
@@ -107,7 +139,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
       builder: (context) => DisclosureFeedbackScreen(
         success: success,
         otherParty: otherParty,
-        popToWallet: _popToWallet,
+        popToWallet: popToWallet,
       ),
     ));
   }
@@ -118,23 +150,30 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   }
 
   void _dismissSession() {
-    _dispatchSessionEvent(DismissSessionEvent());
-  }
-
-  void _declinePermission(BuildContext context, String otherParty) {
     _dispatchSessionEvent(RespondPermissionEvent(
       proceed: false,
       disclosureChoices: [],
     ));
+  }
 
+  void _declinePermission(BuildContext context, String otherParty) {
+    _dismissSession();
     _pushDisclosureFeedbackScreen(false, otherParty);
   }
 
   void _givePermission(SessionState session) {
-    _dispatchSessionEvent(RespondPermissionEvent(
-      proceed: true,
-      disclosureChoices: session.disclosureChoices,
-    ));
+    if (session.issuedCredentials?.isNotEmpty ?? false) {
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        IssuanceScreen.routeName,
+        ModalRoute.withName(WalletScreen.routeName),
+        arguments: widget.arguments,
+      );
+    } else {
+      _dispatchSessionEvent(RespondPermissionEvent(
+        proceed: true,
+        disclosureChoices: session.disclosureChoices,
+      ));
+    }
   }
 
   Widget _buildDisclosureHeader(SessionState session) {
@@ -177,25 +216,17 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
         final state = sessionStateSnapshot.data;
         return state.satisfiable
             ? IrmaBottomBar(
-                primaryButtonLabel: FlutterI18n.translate(context, "disclosure.navigation_bar.yes"),
+                primaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.yes"),
                 onPrimaryPressed: state.canDisclose ? () => _givePermission(state) : null,
-                secondaryButtonLabel: FlutterI18n.translate(context, "disclosure.navigation_bar.no"),
+                secondaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.no"),
                 onSecondaryPressed: () => _declinePermission(context, state.serverName.translate(_lang)),
               )
             : IrmaBottomBar(
-                primaryButtonLabel: FlutterI18n.translate(context, "disclosure.navigation_bar.back"),
+                primaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.back"),
                 onPrimaryPressed: () => _declinePermission(context, state.serverName.translate(_lang)),
               );
       },
     );
-  }
-
-  Widget _buildLoadingIndicator() {
-    return Column(children: [
-      Center(
-        child: LoadingIndicator(),
-      ),
-    ]);
   }
 
   Widget _buildDisclosureChoices(SessionState session) {
@@ -226,6 +257,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     return Scaffold(
       appBar: IrmaAppBar(
         title: Text(FlutterI18n.translate(context, 'disclosure.title')),
+        leadingCancel: () => _dismissSession(),
       ),
       backgroundColor: IrmaTheme.of(context).grayscaleWhite,
       bottomNavigationBar: _buildNavigationBar(),
@@ -233,7 +265,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
         stream: _sessionStateStream,
         builder: (BuildContext context, AsyncSnapshot<SessionState> sessionStateSnapshot) {
           if (!sessionStateSnapshot.hasData) {
-            return _buildLoadingIndicator();
+            return buildLoadingIndicator();
           }
 
           final session = sessionStateSnapshot.data;
@@ -241,7 +273,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
             return _buildDisclosureChoices(session);
           }
 
-          return _buildLoadingIndicator();
+          return buildLoadingIndicator();
         },
       ),
     );

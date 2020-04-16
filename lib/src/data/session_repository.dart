@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attributes.dart';
+import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:rxdart/rxdart.dart';
@@ -32,13 +33,6 @@ class SessionRepository {
       nextStates[event.sessionID] = nextState;
       return SessionStates(nextStates);
     }).pipe(_sessionStatesSubject);
-
-    // TODO: Of course this shouldn't be here
-    sessionEventStream.listen((event) {
-      if (event is RequestIssuancePermissionSessionEvent) {
-        repo.bridgedDispatch(RespondPermissionEvent(sessionID: event.sessionID, proceed: true, disclosureChoices: []));
-      }
-    });
   }
 
   Future<SessionState> _eventHandler(SessionState prevState, SessionEvent event) async {
@@ -50,6 +44,11 @@ class SessionRepository {
         continueOnSecondDevice: event.continueOnSecondDevice,
         status: SessionStatus.initialized,
       );
+    } else if (event is FailureSessionEvent) {
+      return prevState.copyWith(
+        status: SessionStatus.error,
+        error: event.error,
+      );
     } else if (event is StatusUpdateSessionEvent) {
       return prevState.copyWith(
         status: event.status.toSessionStatus(),
@@ -57,6 +56,26 @@ class SessionRepository {
     } else if (event is ClientReturnURLSetSessionEvent) {
       return prevState.copyWith(
         clientReturnURL: event.clientReturnURL,
+      );
+    } else if (event is RequestIssuancePermissionSessionEvent) {
+      final condiscon = ConDisCon.fromRaw<DisclosureCandidate, Attribute>(
+        event.disclosuresCandidates,
+        (disclosureCandidate) => Attribute.fromCandidate(irmaConfiguration, credentials, disclosureCandidate),
+      );
+      return prevState.copyWith(
+        status: SessionStatus.requestPermission,
+        serverName: event.serverName,
+        satisfiable: event.satisfiable,
+        isSignatureSession: false,
+        disclosureIndices: List<int>.filled(event.disclosuresCandidates.length, 0),
+        disclosureChoices: _initialDisclosureChoices(condiscon),
+        disclosuresCandidates: condiscon,
+        issuedCredentials: event.issuedCredentials
+            .map((raw) => Credential.fromRaw(
+                  irmaConfiguration: irmaConfiguration,
+                  rawCredential: raw,
+                ))
+            .toList(),
       );
     } else if (event is RequestVerificationPermissionSessionEvent) {
       final condiscon = ConDisCon.fromRaw<DisclosureCandidate, Attribute>(
@@ -81,6 +100,12 @@ class SessionRepository {
     } else if (event is SuccessSessionEvent) {
       return prevState.copyWith(
         status: SessionStatus.success,
+      );
+    } else if (event is CanceledSessionEvent) {
+      return prevState.copyWith(status: SessionStatus.canceled);
+    } else if (event is RequestPinSessionEvent) {
+      return prevState.copyWith(
+        requestPin: true,
       );
     }
 
