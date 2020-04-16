@@ -4,6 +4,7 @@ import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/log_entry.dart';
 import 'package:irmamobile/src/screens/history/util/date_formatter.dart';
 import 'package:irmamobile/src/screens/history/widgets/log_icon.dart';
+import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class LogEntryCard extends StatelessWidget {
@@ -80,7 +81,12 @@ class LogEntryCard extends StatelessWidget {
                   ],
                 ),
               ),
-              // const Icon(IrmaIcons.chevronRight),
+              SizedBox(
+                width: IrmaTheme.of(context).defaultSpacing,
+              ),
+              Icon(
+                IrmaIcons.chevronRight,
+              ),
             ],
           ),
         ),
