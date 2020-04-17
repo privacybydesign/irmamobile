@@ -21,7 +21,9 @@ class CardStoreScreen extends StatelessWidget {
   Future<void> _onStartIssuance(BuildContext context, CredentialType credentialType) async {
     final url = getTranslation(credentialType.issueUrl);
 
-    if (credentialType.issuerId == "gemeente") {
+    if (credentialType.issuerId == "gemeente" ||
+        credentialType.fullId == "pbdf.pbdf.ideal" ||
+        credentialType.fullId == "pbdf.pbdf.idin") {
       launch(url, forceSafariVC: false);
     } else {
       Navigator.push(
