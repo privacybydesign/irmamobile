@@ -3,17 +3,17 @@ import 'dart:math';
 
 import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/credential_events.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
+import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/get_cards_nudge.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/irma_pilot_nudge.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet_button.dart';
 import 'package:irmamobile/src/screens/webview/webview_screen.dart';
-import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/language.dart';
@@ -571,11 +571,15 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
             final credentialNudge = CredentialNudgeProvider.of(context).credentialNudge;
 
             if (credentialNudge == null || _hasCredential(credentialNudge.fullCredentialTypeId)) {
-              return GetCardsNudge(
-                credentials: widget.credentials,
-                size: MediaQuery.of(context).size,
-                onAddCardsPressed: widget.onAddCardsPressed,
-              );
+              if (widget.credentials.length >= 4) {
+                return Container();
+              } else {
+                return GetCardsNudge(
+                  credentials: widget.credentials,
+                  size: MediaQuery.of(context).size,
+                  onAddCardsPressed: widget.onAddCardsPressed,
+                );
+              }
             } else {
               final credentialType = irmaConfiguration.credentialTypes[credentialNudge.fullCredentialTypeId];
               final issuer = irmaConfiguration.issuers[credentialType.fullIssuerId];
