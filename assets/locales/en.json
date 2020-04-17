@@ -91,8 +91,8 @@
     "share_slogan": "Share IRMA with others",
     "share_text": "Check out the IRMA app: https://www.irma.app",
     "share": "Share IRMA",
-    "version": "Version number",
-    "copyright": "License",
+    "version": "Version {version}",
+    "copyright": "Copyright Privacy by Design Foundation, 2020, released under GPL License 3.0",
     "pbdf": "Privacy by Design",
     "pbdf_link": "https://privacybydesign.foundation/"
   },

@@ -9,6 +9,8 @@ import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
+import '../../../sentry_dsn.dart';
+
 class AboutScreen extends StatefulWidget {
   static const String routeName = '/about';
   static Key myKey = const Key(routeName);
@@ -127,7 +129,9 @@ class _AboutScreenState extends State<AboutScreen> {
                               Icon(FontAwesomeIcons.shareAlt, size: 25.0)), // TODO fix icon and update this
                           SizedBox(height: IrmaTheme.of(context).largeSpacing),
                           Text(
-                            FlutterI18n.translate(context, 'about.version'),
+                            FlutterI18n.translate(context, 'about.version', translationParams: {
+                              'version': version.substring(0, 8 < version.length ? 8 : version.length)
+                            }),
                             style: Theme.of(context).textTheme.body1,
                           ),
                           SizedBox(height: IrmaTheme.of(context).tinySpacing),
