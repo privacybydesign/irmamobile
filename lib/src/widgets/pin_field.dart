@@ -5,6 +5,8 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
+import 'irma_button.dart';
+
 class PinField extends StatefulWidget {
   final bool autofocus;
   final bool autosubmit;
@@ -226,17 +228,12 @@ class _PinFieldState extends State<PinField> {
 
   // Submit buttons for longs PINs
   Widget _buildSubmitButton() {
-    final theme = IrmaTheme.of(context);
-
-    return SizedBox(
-      width: theme.largeSpacing,
-      height: theme.largeSpacing,
-      child: IconButton(
-        iconSize: theme.defaultSpacing,
-        icon: Icon(
-          IrmaIcons.valid,
-          semanticLabel: FlutterI18n.translate(context, "pin_common.done"),
-        ),
+    return Padding(
+      padding: EdgeInsets.all(
+        IrmaTheme.of(context).defaultSpacing,
+      ),
+      child: IrmaButton(
+        label: FlutterI18n.translate(context, "pin_common.done"),
         onPressed: _onEditingCompleteOrSubmit,
       ),
     );
@@ -246,54 +243,60 @@ class _PinFieldState extends State<PinField> {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    return Row(
+    return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        AnimatedContainer(
-          duration: Duration(milliseconds: widget.longPin ? 200 : 0),
-          width: widget.longPin ? MediaQuery.of(context).size.width - 2 * theme.hugeSpacing : 0.1,
-          child: TextFormField(
-            controller: _textEditingController,
-            focusNode: focusNode,
-            onEditingComplete: _onEditingCompleteOrSubmit,
-            autofocus: widget.autofocus,
-            obscureText: obscureText,
-            cursorColor: Colors.transparent,
-            maxLength: widget.maxLength,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            AnimatedContainer(
+              duration: Duration(milliseconds: widget.longPin ? 200 : 0),
+              width: widget.longPin ? MediaQuery.of(context).size.width - 2 * theme.hugeSpacing : 0.1,
+              child: TextFormField(
+                controller: _textEditingController,
+                focusNode: focusNode,
+                onEditingComplete: _onEditingCompleteOrSubmit,
+                autofocus: widget.autofocus,
+                obscureText: obscureText,
+                cursorColor: Colors.transparent,
+                maxLength: widget.maxLength,
 
-            // Only allow numeric input, without signs or decimal points
-            keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
-            inputFormatters: [
-              WhitelistingTextInputFormatter(RegExp('[0-9]')),
+                // Only allow numeric input, without signs or decimal points
+                keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
+                inputFormatters: [
+                  WhitelistingTextInputFormatter(RegExp('[0-9]')),
+                ],
+
+                // Set the style (dependent on if the input is for long PINs)
+                style: _formFieldStyle(),
+                decoration: _formFieldDecoration(),
+              ),
+            ),
+            if (!widget.longPin) ...[
+              _buildPinBoxes(),
             ],
-
-            // Set the style (dependent on if the input is for long PINs)
-            style: _formFieldStyle(),
-            decoration: _formFieldDecoration(),
-          ),
+            SizedBox(
+              width: theme.largeSpacing,
+              height: theme.largeSpacing,
+              child: IconButton(
+                iconSize: obscureText ? theme.defaultSpacing : theme.mediumSpacing,
+                icon: Icon(
+                  obscureText ? IrmaIcons.view : IrmaIcons.hide,
+                  semanticLabel: FlutterI18n.translate(context, obscureText ? "pin_common.view" : "pin_common.hide"),
+                  color: theme.grayscale40,
+                ),
+                onPressed: () {
+                  setState(() {
+                    obscureText = !obscureText;
+                  });
+                },
+              ),
+            ),
+          ],
         ),
-        if (!widget.longPin) ...[
-          _buildPinBoxes(),
-        ] else ...[
+        if (widget.longPin) ...[
           _buildSubmitButton(),
         ],
-        SizedBox(
-          width: theme.largeSpacing,
-          height: theme.largeSpacing,
-          child: IconButton(
-            iconSize: obscureText ? theme.defaultSpacing : theme.mediumSpacing,
-            icon: Icon(
-              obscureText ? IrmaIcons.view : IrmaIcons.hide,
-              semanticLabel: FlutterI18n.translate(context, obscureText ? "pin_common.view" : "pin_common.hide"),
-              color: theme.grayscale40,
-            ),
-            onPressed: () {
-              setState(() {
-                obscureText = !obscureText;
-              });
-            },
-          ),
-        ),
       ],
     );
   }

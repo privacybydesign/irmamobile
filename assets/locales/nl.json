@@ -281,7 +281,7 @@
     "blocked_title": "Account geblokkeerd",
     "blocked_pin": "Je account is voor {blocked} seconden geblokkeerd. Probeer het later nog een keer.",
     "blocked_close": "Opnieuw proberen",
-    "done": "Voer pincode in",
+    "done": "Doorgaan",
     "view": "Pincode tonen",
     "hide": "Pincode verbergen"
   },
