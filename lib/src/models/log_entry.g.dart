@@ -48,7 +48,11 @@ LogEntry _$LogEntryFromJson(Map<String, dynamic> json) {
     signedMessage:
         json['SignedMessage'] == null ? null : SignedMessage.fromJson(json['SignedMessage'] as Map<String, dynamic>),
     removedCredentials: (json['RemovedCredentials'] as Map<String, dynamic>)?.map(
-      (k, e) => MapEntry(k, e as Map<String, dynamic>),
+      (k, e) => MapEntry(
+          k,
+          (e as Map<String, dynamic>)?.map(
+            (k, e) => MapEntry(k, e == null ? null : TranslatedValue.fromJson(e as Map<String, dynamic>)),
+          )),
     ),
   );
 }

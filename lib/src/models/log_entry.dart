@@ -83,7 +83,7 @@ class LogEntry {
   final List<List<DisclosedAttribute>> disclosedAttributes;
 
   @JsonKey(name: 'RemovedCredentials')
-  final Map<String, Map<String, dynamic>> removedCredentials;
+  final Map<String, Map<String, TranslatedValue>> removedCredentials;
 
   @JsonKey(name: 'SignedMessage')
   final SignedMessage signedMessage;

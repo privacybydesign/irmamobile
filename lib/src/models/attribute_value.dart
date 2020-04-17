@@ -5,7 +5,7 @@ import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
 
 abstract class AttributeValue {
-  factory AttributeValue.fromRaw(AttributeType attributeType, rawAttribute) {
+  factory AttributeValue.fromRaw(AttributeType attributeType, TranslatedValue rawAttribute) {
     // In IrmaGo attribute values are set to null when an optional attribute is empty.
     if (rawAttribute == null) {
       return NullValue();

@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:irmamobile/src/models/attribute_value.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
+import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'attributes.g.dart';
@@ -34,7 +35,7 @@ class Attributes extends UnmodifiableMapView<AttributeType, AttributeValue> {
     }
   }
 
-  factory Attributes.fromRaw({IrmaConfiguration irmaConfiguration, Map<String, dynamic> rawAttributes}) {
+  factory Attributes.fromRaw({IrmaConfiguration irmaConfiguration, Map<String, TranslatedValue> rawAttributes}) {
     return Attributes(rawAttributes.map<AttributeType, AttributeValue>((k, v) {
       return MapEntry(
         irmaConfiguration.attributeTypes[k],
@@ -225,7 +226,7 @@ class DisclosedAttribute {
   final String rawValue;
 
   @JsonKey(name: 'value')
-  final dynamic value;
+  final TranslatedValue value;
 
   @JsonKey(name: 'id')
   final String identifier;

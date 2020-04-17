@@ -35,7 +35,7 @@ Map<String, dynamic> _$AttributeIdentifierToJson(AttributeIdentifier instance) =
 DisclosedAttribute _$DisclosedAttributeFromJson(Map<String, dynamic> json) {
   return DisclosedAttribute(
     rawValue: json['rawValue'] as String,
-    value: json['value'],
+    value: json['value'] == null ? null : TranslatedValue.fromJson(json['value'] as Map<String, dynamic>),
     identifier: json['id'] as String,
     status: json['status'] as String,
     issuanceTime: json['issuancetime'] as int,
