@@ -57,9 +57,9 @@ class TranslatedText extends StatelessWidget {
     final submap = probeTranslator.calculateSubmap(_key);
     final lastSubkey = _key.split(SimpleTranslator.KEY_SEPARATOR).last;
 
-    if (submap.containsKey("${lastSubkey}_markdown")) {
+    if (submap.containsKey(lastSubkey) && lastSubkey.endsWith("_markdown")) {
       return _buildMarkdown(
-        _translate(context, "${_key}_markdown"),
+        _translate(context, _key),
       );
     }
 

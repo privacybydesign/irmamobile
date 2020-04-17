@@ -37,8 +37,8 @@ class EmailSentScreen extends StatelessWidget {
               child: Column(
                 children: <Widget>[
                   IrmaMessage(
-                    FlutterI18n.translate(context, 'enrollment.email_sent.message_title'),
-                    FlutterI18n.translate(context, 'enrollment.email_sent.message_markdown'),
+                    'enrollment.email_sent.message_title',
+                    'enrollment.email_sent.message_markdown',
                     iconColor: IrmaTheme.of(context).primaryBlue,
                   ),
                   SizedBox(

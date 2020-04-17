@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/util/translated_text.dart';
 
 enum IrmaMessageType {
   valid,
@@ -11,12 +12,13 @@ enum IrmaMessageType {
 }
 
 class IrmaMessage extends StatelessWidget {
-  final String title;
-  final String description;
+  final String titleKey;
+  final String descriptionKey;
   final IrmaMessageType type;
   final Color iconColor;
 
-  const IrmaMessage(this.title, this.description, {this.type = IrmaMessageType.info, this.iconColor = Colors.white});
+  const IrmaMessage(this.titleKey, this.descriptionKey,
+      {this.type = IrmaMessageType.info, this.iconColor = Colors.white});
 
   @override
   Widget build(BuildContext context) {
@@ -72,14 +74,14 @@ class IrmaMessage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(
-                      title,
+                    TranslatedText(
+                      titleKey,
                       style: IrmaTheme.of(context).textTheme.body2.copyWith(color: foregroundColor),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 5, bottom: 11),
-                      child: Text(
-                        description,
+                      child: TranslatedText(
+                        descriptionKey,
                         style: IrmaTheme.of(context).textTheme.body1.copyWith(color: foregroundColor),
                       ),
                     ),
