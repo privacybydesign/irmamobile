@@ -224,6 +224,8 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
                 onPrimaryPressed: state.canDisclose && scrolledToEnd ? () => _givePermission(state) : null,
                 secondaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.no"),
                 onSecondaryPressed: () => _declinePermission(context, state.serverName.translate(_lang)),
+                toolTipLabel: scrolledToEnd ? null : FlutterI18n.translate(context, "disclosure.see_more"),
+                showTooltipOnPrimary: !scrolledToEnd,
               )
             : IrmaBottomBar(
                 primaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.back"),

@@ -385,6 +385,7 @@
       "back": "Back"
     },
     "redirect": "You are being redirected back to the webpage...",
+    "see_more": "Scroll down to see the rest.",
     "feedback": {
       "header": {
         "true": "Success",
