@@ -6,16 +6,22 @@ import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/card/irma_card_theme.dart';
 
 class CardFooter extends StatelessWidget {
-  double get _indent => 100.0;
-
   final CredentialInfo credentialInfo;
   final DateTime expiryDate;
+  final bool revoked;
 
   final IrmaCardTheme irmaCardTheme;
   final void Function(double) scrollOverflowCallback;
 
+  bool get expired => expiryDate.isBefore(DateTime.now());
+
+  // Indentation of the fields on the right of the footer (issuer, expiry date).
+  // The expiry notice takes so much space that we take all that space only in that case.
+  double get _indent => !expired ? 110 : 140;
+
   const CardFooter({
     this.credentialInfo,
+    this.revoked,
     this.expiryDate,
     this.irmaCardTheme,
     this.scrollOverflowCallback,
@@ -45,7 +51,8 @@ class CardFooter extends StatelessWidget {
         child: Column(
           children: <Widget>[
             _buildIssuer(context, body1Theme, lang),
-            if (expiryDate != null) _buildExpiration(context, body1Theme, lang),
+            if (!revoked && expiryDate != null) _buildExpiration(context, body1Theme, lang),
+            if (revoked) _buildRevoked(context, body1Theme),
           ],
         ),
       ),
@@ -76,6 +83,17 @@ class CardFooter extends StatelessWidget {
     );
   }
 
+  Widget _buildRevoked(BuildContext context, TextStyle body1Theme) {
+    return Row(
+      children: [
+        Text(
+          FlutterI18n.translate(context, 'wallet.revoked'),
+          style: body1Theme.copyWith(fontSize: 12, color: Colors.red),
+        )
+      ],
+    );
+  }
+
   Widget _buildExpiration(BuildContext context, TextStyle body1Theme, String lang) {
     return Row(
       children: [
@@ -84,15 +102,15 @@ class CardFooter extends StatelessWidget {
           child: Opacity(
             opacity: 0.8,
             child: Text(
-              FlutterI18n.translate(context, 'wallet.expiration'),
-              style: body1Theme.copyWith(fontSize: 12),
+              FlutterI18n.translate(context, expired ? 'wallet.expired' : 'wallet.expiration'),
+              style: body1Theme.copyWith(fontSize: 12, color: expired ? Colors.red : body1Theme.color),
             ),
           ),
         ),
         Expanded(
           child: Text(
             _printableDate(expiryDate, lang),
-            style: body1Theme.copyWith(fontSize: 12),
+            style: body1Theme.copyWith(fontSize: 12, color: expired ? Colors.red : body1Theme.color),
             overflow: TextOverflow.ellipsis,
           ),
         ),

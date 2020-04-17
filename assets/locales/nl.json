@@ -313,8 +313,10 @@
     "open_menu": "Menu openen",
     "close_menu": "Menu sluiten",
     "toggle": "Weergave wisselen",
-    "issuer": "Bron",
-    "expiration": "Geldig tot",
+    "issuer": "Uitgever",
+    "expiration": "Kaartje geldig tot",
+    "expired": "Kaartje verlopen sinds",
+    "revoked": "Dit kaartje is teruggetrokken",
     "help": "Help",
     "caption": "Jouw gegevens veilig op je mobiel",
     "pbdf_gemeente_personalData": {
