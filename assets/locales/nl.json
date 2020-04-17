@@ -91,8 +91,8 @@
     "share_slogan": "Gun iedereen privacy, deel IRMA",
     "share_text": "Check out the IRMA app: https://www.irma.app",
     "share": "Deel IRMA",
-    "version": "Version number",
-    "copyright": "License",
+    "version": "Versie {version}",
+    "copyright": "Copyright Privacy by Design Foundation, 2020, uitgegeven onder GPL License 3.0",
     "pbdf": "Privacy by Design",
     "pbdf_link": "https://privacybydesign.foundation/"
   },
