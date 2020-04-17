@@ -69,7 +69,7 @@ class _SubmitState extends State<Submit> {
               Navigator.of(context).pop();
               if (state.showEmailValidation) {
                 Navigator.of(context)
-                    .pushReplacement(MaterialPageRoute(builder: (context) => EmailSent(email: state.email)));
+                    .pushReplacement(MaterialPageRoute(builder: (context) => EmailSentScreen(email: state.email)));
               } else {
                 Navigator.of(context, rootNavigator: true).pushReplacementNamed(WalletScreen.routeName);
               }

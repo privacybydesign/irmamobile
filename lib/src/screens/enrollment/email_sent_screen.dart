@@ -7,11 +7,11 @@ import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 import 'package:irmamobile/src/widgets/irma_message.dart';
 
-class EmailSent extends StatelessWidget {
-  static const String routeName = "EmailSent";
+class EmailSentScreen extends StatelessWidget {
+  static const String routeName = "EmailSentScreen";
   final String email;
 
-  const EmailSent({Key key, @required this.email}) : super(key: key);
+  const EmailSentScreen({Key key, @required this.email}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

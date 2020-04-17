@@ -86,7 +86,8 @@ class PrototypesScreen extends StatelessWidget {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => HistoryScreen()));
           }),
           _buildListItem(context, "Email sent info screen", () {
-            Navigator.of(context).push(MaterialPageRoute(builder: (context) => EmailSentScreen()));
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (context) => EmailSentScreen(email: "john.smith@example.com")));
           }),
           _buildListItem(context, "Disclosure screen", () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => DisclosureScreen()));
