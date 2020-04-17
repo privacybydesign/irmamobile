@@ -43,6 +43,9 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
 
   bool _displayArrowBack = false;
 
+  bool scrolledToEnd = false;
+  final _scrollController = ScrollController();
+
   void carouselPageUpdate(int disconIndex, int conIndex) {
     _dispatchSessionEvent(
       DisclosureChoiceUpdateSessionEvent(
@@ -213,11 +216,12 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
           return Container(height: 0);
         }
 
+        // TODO: show tooltip if user has not yet scrolled to end and primary button is disabled
         final state = sessionStateSnapshot.data;
         return state.satisfiable
             ? IrmaBottomBar(
                 primaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.yes"),
-                onPrimaryPressed: state.canDisclose ? () => _givePermission(state) : null,
+                onPrimaryPressed: state.canDisclose && scrolledToEnd ? () => _givePermission(state) : null,
                 secondaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.no"),
                 onSecondaryPressed: () => _declinePermission(context, state.serverName.translate(_lang)),
               )
@@ -229,10 +233,28 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     );
   }
 
+  void _checkScrolledToEnd() {
+    if (!scrolledToEnd &&
+        _scrollController.hasClients &&
+        _scrollController.offset >= _scrollController.position.maxScrollExtent) {
+      setState(() {
+        scrolledToEnd = true;
+      });
+    }
+  }
+
   Widget _buildDisclosureChoices(SessionState session) {
-    // TODO: See how disclosure_card.dart fits in here
+    _scrollController.addListener(_checkScrolledToEnd);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Unfortunately, if this is run immediately the ListView does not yet have height
+      // so _checkScrolledToEnd would conclude the end is reached, even if it is not.
+      await Future.delayed(const Duration(milliseconds: 50));
+      _checkScrolledToEnd();
+    });
+
     return ListView(
       padding: EdgeInsets.all(IrmaTheme.of(context).smallSpacing),
+      controller: _scrollController,
       children: <Widget>[
         Padding(
             padding: EdgeInsets.symmetric(
