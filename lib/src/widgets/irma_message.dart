@@ -13,12 +13,17 @@ enum IrmaMessageType {
 
 class IrmaMessage extends StatelessWidget {
   final String titleKey;
+  final Map<String, String> titleParams;
   final String descriptionKey;
+  final Map<String, String> descriptionParams;
   final IrmaMessageType type;
   final Color iconColor;
 
   const IrmaMessage(this.titleKey, this.descriptionKey,
-      {this.type = IrmaMessageType.info, this.iconColor = Colors.white});
+      {this.type = IrmaMessageType.info,
+      this.iconColor = Colors.white,
+      this.titleParams = const {},
+      this.descriptionParams = const {}});
 
   @override
   Widget build(BuildContext context) {
@@ -82,6 +87,7 @@ class IrmaMessage extends StatelessWidget {
                       padding: const EdgeInsets.only(top: 5, bottom: 11),
                       child: TranslatedText(
                         descriptionKey,
+                        translationParams: descriptionParams,
                         style: IrmaTheme.of(context).textTheme.body1.copyWith(color: foregroundColor),
                       ),
                     ),
