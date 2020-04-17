@@ -1,7 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:path_drawing/path_drawing.dart';
 
@@ -65,11 +64,9 @@ class ArrowBackState extends State with WidgetsBindingObserver {
 
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
-    // If the app is resumed navigate back to the wallet.
-    // There is a chance this will happen at a moment that is not convenient for the user
-    // but we accept that chance
+    // If the app is resumed remove the route with this screen from the stack.
     if (state == AppLifecycleState.resumed) {
-      Navigator.of(context).popUntil(ModalRoute.withName(WalletScreen.routeName));
+      Navigator.of(context).removeRoute(ModalRoute.of(context));
     }
   }
 }
