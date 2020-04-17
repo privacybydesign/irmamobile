@@ -281,7 +281,7 @@
     "blocked_title": "Account blocked",
     "blocked_pin": "Your account has been blocked for {blocked} seconds. Please try again later.",
     "blocked_close": "Try again",
-    "done": "Done",
+    "done": "Continue",
     "view": "Show PIN",
     "hide": "Hide PIN"
   },
