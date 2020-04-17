@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/models/attribute_value.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
@@ -199,7 +200,7 @@ class _CarouselState extends State<Carousel> {
       );
 
   Widget _buildCandidateValue(Attribute candidate) {
-    if (candidate.portraitPhoto != null) {
+    if (candidate.value is PhotoValue) {
       return Padding(
         padding: EdgeInsets.only(
           top: 6,
@@ -209,13 +210,14 @@ class _CarouselState extends State<Carousel> {
           width: 90,
           height: 120,
           color: const Color(0xff777777),
-          child: candidate.portraitPhoto,
+          child: (candidate.value as PhotoValue).image,
         ),
       );
     }
 
+    // If an attribute is null, we render a TextValue with a dash as text.
     return Text(
-      candidate.value[_lang],
+      candidate.value is TextValue ? (candidate.value as TextValue).translated[_lang] : "-",
       style: IrmaTheme.of(context).textTheme.body2,
     );
   }

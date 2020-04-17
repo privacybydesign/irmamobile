@@ -1,7 +1,7 @@
 import 'dart:collection';
-import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:irmamobile/src/models/attribute_value.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
@@ -9,22 +9,12 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'attributes.g.dart';
 
-Image _decodePortraitPhoto(TranslatedValue value) {
-  try {
-    return Image.memory(
-      const Base64Decoder().convert(value.values.first),
-    );
-  } catch (_) {}
-
-  return null;
-}
-
 // Attributes of a credential.
-class Attributes extends UnmodifiableMapView<AttributeType, TranslatedValue> {
+class Attributes extends UnmodifiableMapView<AttributeType, AttributeValue> {
   List<AttributeType> sortedAttributeTypes;
   Image portraitPhoto;
 
-  Attributes(Map<AttributeType, TranslatedValue> map)
+  Attributes(Map<AttributeType, AttributeValue> map)
       : assert(map != null),
         super(map) {
     // Pre-calculate an ordered list of attributeTypes, initially on index, finally on displayIndex
@@ -36,18 +26,21 @@ class Attributes extends UnmodifiableMapView<AttributeType, TranslatedValue> {
 
     // Pre-convert the first portraitPhoto, if present
     final photoAttributeType = sortedAttributeTypes.firstWhere(
-      (at) => at.displayHint == "portraitPhoto",
+      (at) => this[at] is PhotoValue,
       orElse: () => null,
     );
 
     if (photoAttributeType != null) {
-      portraitPhoto = _decodePortraitPhoto(this[photoAttributeType]);
+      portraitPhoto = (this[photoAttributeType] as PhotoValue).image;
     }
   }
 
   factory Attributes.fromRaw({IrmaConfiguration irmaConfiguration, Map<String, TranslatedValue> rawAttributes}) {
-    return Attributes(rawAttributes.map<AttributeType, TranslatedValue>((k, v) {
-      return MapEntry(irmaConfiguration.attributeTypes[k], v);
+    return Attributes(rawAttributes.map<AttributeType, AttributeValue>((k, v) {
+      return MapEntry(
+        irmaConfiguration.attributeTypes[k],
+        AttributeValue.fromRaw(irmaConfiguration.attributeTypes[k], v),
+      );
     }));
   }
 }
@@ -148,7 +141,7 @@ class CredentialAttribute extends Attribute {
   CredentialAttribute({
     @required this.credential,
     @required AttributeType attributeType,
-    @required TranslatedValue value,
+    @required AttributeValue value,
     @required this.notRevokable,
   })  : assert(credential != null),
         super(credentialInfo: credential.info, attributeType: attributeType, value: value);
@@ -166,8 +159,7 @@ class CredentialAttribute extends Attribute {
 class Attribute {
   final CredentialInfo credentialInfo;
   final AttributeType attributeType;
-  final TranslatedValue value;
-  Image portraitPhoto;
+  final AttributeValue value;
 
   Attribute({
     @required this.credentialInfo,
@@ -175,11 +167,7 @@ class Attribute {
     @required this.value,
   })  : assert(credentialInfo != null),
         assert(attributeType != null),
-        assert(value != null) {
-    if (attributeType.displayHint == "portraitPhoto") {
-      portraitPhoto = _decodePortraitPhoto(value);
-    }
-  }
+        assert(value != null);
 
   bool get expired => false;
   bool get revoked => false;
@@ -206,24 +194,25 @@ class Attribute {
           credentialIdentifier: candidate.type,
         ),
         attributeType: attributeType,
-        value: TranslatedValue({"en": "-", "nl": "-"}),
+        value: NullValue(),
       );
     }
   }
 
   factory Attribute.fromDisclosedAttribute(IrmaConfiguration irmaConfiguration, DisclosedAttribute disclosedAttribute) {
+    final attributeType = irmaConfiguration.attributeTypes[disclosedAttribute.identifier];
     return Attribute(
       credentialInfo: CredentialInfo.fromConfiguration(
         irmaConfiguration: irmaConfiguration,
         credentialIdentifier: disclosedAttribute.identifier,
       ),
-      attributeType: irmaConfiguration.attributeTypes[disclosedAttribute.identifier],
-      value: disclosedAttribute.value,
+      attributeType: attributeType,
+      value: AttributeValue.fromRaw(attributeType, disclosedAttribute.value),
     );
   }
 }
 
-@JsonSerializable()
+@JsonSerializable(nullable: false)
 class DisclosedAttribute {
   const DisclosedAttribute({
     this.rawValue,

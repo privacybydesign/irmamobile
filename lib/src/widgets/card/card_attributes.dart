@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/models/attribute_value.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/card/irma_card_theme.dart';
@@ -131,7 +132,9 @@ class CardAttributes extends StatelessWidget {
   List<Widget> _buildAttributes(BuildContext context, TextStyle body1Theme) {
     return attributes.sortedAttributeTypes.expand<Widget>(
       (attributeType) {
-        if (attributeType.displayHint == "portraitPhoto") {
+        final attributeValue = attributes[attributeType];
+        // PhotoValue cannot be rendered yet and NullValue must be skipped
+        if (!(attributeValue is TextValue)) {
           return [];
         }
 
@@ -145,7 +148,7 @@ class CardAttributes extends StatelessWidget {
             ),
           ),
           Text(
-            attributes[attributeType][_lang],
+            (attributeValue as TextValue).translated[_lang],
             style: IrmaTheme.of(context).textTheme.body2.copyWith(color: irmaCardTheme.foregroundColor),
           ),
           SizedBox(
