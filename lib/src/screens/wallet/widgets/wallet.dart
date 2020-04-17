@@ -105,6 +105,8 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   // Height of interactive bottom to toggle wallet state between tightlyfolded and folded
   final _walletBottomInteractive = 0.7;
 
+  final _scrollController = ScrollController();
+
   AnimationController _cardAnimationController;
   AnimationController _loginLogoutAnimationController;
   Animation<double> _drawAnimation;
@@ -122,6 +124,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   double _cardDragOffset = 0;
   bool _nudgeVisible = true;
   bool _showCards = false;
+  bool _enableCardGestures = true;
 
   final _closedWalletOffset = 50;
   final IrmaRepository _irmaClient = IrmaRepository.get();
@@ -251,20 +254,10 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
                     /// All cards
                     if (_showCards)
-                      Positioned(
-                        bottom: 0,
-                        child: Container(
-                          constraints: BoxConstraints(
-                            maxHeight: screenHeight - _screenHeightMargin,
-                            maxWidth: screenWidth,
-                          ),
-                          child: Stack(
-                            overflow: Overflow.visible,
-                            children: [
-                              if (widget.credentials != null) ..._buildCards(walletTop),
-                            ],
-                          ),
-                        ),
+                      SingleChildScrollView(
+                        padding: EdgeInsets.only(top: IrmaTheme.of(context).smallSpacing),
+                        controller: _scrollController,
+                        child: _buildCardStack(walletTop, screenHeight),
                       ),
 
                     /// Wallet foreground with help and qr buttons
@@ -353,36 +346,66 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
     });
   }
 
-  List<Widget> _buildCards(double walletTop) {
-    final cards = widget.credentials.asMap().entries.map(
-      (credential) {
-        final cardTop = getCardPosition(credential.key, walletTop);
-        return Positioned(
-          left: 0,
-          right: 0,
-          top: walletTop - cardTop,
-          child: getCard(
-            credential.key,
-            widget.credentials.length,
-            credential.value,
-            walletTop,
-          ),
-        );
-      },
-    ).toList();
+  Widget _buildCardStack(double walletTop, double screenHeight) {
+    if (widget.credentials == null) {
+      return Container();
+    }
+
+    _addPostFrameCallback();
+
+    /// Compensate _screenHeightMargin for bottom bar and _cardTopHeight for the first card.
+    final stackHeight = getCardPosition(0, walletTop) -
+        getCardPosition(widget.credentials.length - 1, walletTop) +
+        _screenHeightMargin +
+        _cardTopHeight;
+    final walletHeight = screenHeight - _screenHeightMargin;
+
+    /// The stack needs at least one fixed sized element to be able to make it scrollable.
+    /// The container size must always be at least the wallet height to make all animations visible.
+    final rendered = <Widget>[
+      Container(
+        constraints: BoxConstraints(
+          maxHeight: stackHeight > walletHeight ? stackHeight : walletHeight,
+        ),
+      ),
+    ];
+
+    /// Render all credential cards
+    rendered.addAll(
+      widget.credentials.asMap().entries.map<Widget>(
+        (credential) {
+          final cardTop = getCardPosition(credential.key, walletTop);
+          return Positioned(
+            left: 0,
+            right: 0,
+            top: walletTop - cardTop,
+            child: getCard(
+              credential.key,
+              widget.credentials.length,
+              credential.value,
+              walletTop,
+            ),
+          );
+        },
+      ),
+    );
 
     /// Display chevron to help users expanding their tightly folded wallet.
     /// Button needs to be inserted in the stack at the right place.
-    if (_currentState == WalletState.tightlyfolded && cards.length > _cardsTopVisible + 1) {
-      cards.insert(
-        cards.length - _cardsTopVisible - 1,
-        _buildWalletExpandButton(walletTop, cards.length - _cardsTopVisible - 2),
+    if (_currentState == WalletState.tightlyfolded && widget.credentials.length > _cardsTopVisible + 1) {
+      rendered.insert(
+        widget.credentials.length - _cardsTopVisible,
+        _buildWalletExpandButton(walletTop, widget.credentials.length - _cardsTopVisible - 2),
       );
     }
-    return cards;
+
+    return Stack(
+      overflow: Overflow.visible,
+      children: rendered,
+    );
   }
 
-  Positioned _buildWalletExpandButton(double walletTop, int firstTightlyFoldedCardIndex) {
+  Widget _buildWalletExpandButton(double walletTop, int firstTightlyFoldedCardIndex) {
     return Positioned(
       left: 0,
       right: 0,
@@ -441,50 +464,62 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         onTap: () {
           cardTapped(index, credential);
         },
-        onVerticalDragDown: (DragDownDetails details) {
-          setState(
-            () {
-              if (_currentState == WalletState.drawn) {
-                _cardDragOffset = details.localPosition.dy -
-                    calculateCardPosition(
-                        state: _currentState,
-                        walletTop: walletTop,
-                        index: count,
-                        drawnCardIndex: _drawnCardIndex,
-                        dragOffset: 0);
-                if (_drawnCardIndex == index) {
-                  _dragOffsetSave = details.localPosition.dy - _cardDragOffset;
-                }
-              } else {
-                _cardDragOffset = _cardTopHeight / 2;
-                _drawnCardIndex = index;
-                _dragOffsetSave = details.localPosition.dy - _cardDragOffset;
+        onVerticalDragDown: _enableCardGestures
+            ? (DragDownDetails details) {
+                setState(
+                  () {
+                    if (_currentState == WalletState.drawn) {
+                      _cardDragOffset = details.localPosition.dy -
+                          calculateCardPosition(
+                              state: _currentState,
+                              walletTop: walletTop,
+                              index: count,
+                              drawnCardIndex: _drawnCardIndex,
+                              dragOffset: 0);
+                      if (_drawnCardIndex == index) {
+                        _dragOffsetSave = details.localPosition.dy - _cardDragOffset;
+                      }
+                    } else {
+                      _cardDragOffset = _cardTopHeight / 2;
+                      _drawnCardIndex = index;
+                      _dragOffsetSave = details.localPosition.dy - _cardDragOffset;
+                    }
+                  },
+                );
               }
-            },
-          );
-        },
-        onVerticalDragStart: (DragStartDetails details) {
-          setState(() {
-            _dragOffset = _dragOffsetSave;
-          });
-        },
-        onVerticalDragUpdate: (DragUpdateDetails details) {
-          setState(() {
-            if (_drawnCardIndex == index) {
-              _dragOffset = details.localPosition.dy - _cardDragOffset;
-            }
-          });
-        },
-        onVerticalDragEnd: (DragEndDetails details) {
-          if ((_dragOffset < -_dragTipping && _currentState != WalletState.drawn) ||
-              (_dragOffset > _dragTipping && _currentState == WalletState.drawn)) {
-            cardTapped(index, credential);
-          } else if (_dragOffset > _dragTipping && _currentState == WalletState.folded) {
-            setNewState(WalletState.tightlyfolded);
-          } else {
-            _cardAnimationController.forward();
-          }
-        },
+            : null,
+        onVerticalDragStart: _enableCardGestures
+            ? (DragStartDetails details) {
+                if (details.globalPosition.dy >= _screenHeightMargin) {
+                  setState(() {
+                    _dragOffset = _dragOffsetSave;
+                  });
+                }
+              }
+            : null,
+        onVerticalDragUpdate: _enableCardGestures
+            ? (DragUpdateDetails details) {
+                if (details.globalPosition.dy >= _screenHeightMargin) {
+                  setState(() {
+                    if (_drawnCardIndex == index) {
+                      _dragOffset = details.localPosition.dy - _cardDragOffset;
+                    }
+                  });
+                }
+              }
+            : null,
+        onVerticalDragEnd: _enableCardGestures
+            ? (DragEndDetails details) {
+                if ((_dragOffset < -_dragTipping && _currentState != WalletState.drawn) ||
+                    (_dragOffset > _dragTipping && _currentState == WalletState.drawn)) {
+                  cardTapped(index, credential);
+                } else if (_dragOffset > _dragTipping && _currentState == WalletState.folded) {
+                  setNewState(WalletState.tightlyfolded);
+                } else {
+                  _cardAnimationController.forward();
+                }
+              }
+            : null,
         child: IrmaCard.fromCredential(
           credential: credential,
           scrollBeyondBoundsCallback: scrollBeyondBound,
@@ -746,6 +781,18 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         DeleteCredentialEvent(hash: credential.hash),
       );
     };
+  }
+
+  void _addPostFrameCallback() {
+    // Disable card gestures if page needs to be scrollable
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final scrollingEnabled = _scrollController.position.minScrollExtent != _scrollController.position.maxScrollExtent;
+      if (scrollingEnabled == _enableCardGestures) {
+        setState(() {
+          _enableCardGestures = !_enableCardGestures;
+        });
+      }
+    });
   }
 }
 
