@@ -94,28 +94,32 @@ class CardFooter extends StatelessWidget {
   }
 
   Widget _buildExpiration(BuildContext context, TextStyle body1Theme, String lang) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
+    return Column(
+      children: <Widget>[
         if (expired)
-          Padding(
-            padding: const EdgeInsets.only(right: 2.0, top: 7.0),
-            child: SvgPicture.asset('assets/generic/stop.svg', width: 14),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 2.0, top: 7.0),
+                child: SvgPicture.asset('assets/generic/stop.svg', width: 14),
+              ),
+              Expanded(
+                // width: _indent,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 3.0),
+                  child: Text(
+                    FlutterI18n.translate(context, expired ? 'wallet.expired' : 'wallet.expiration') +
+                        " " +
+                        _printableDate(expiryDate, lang),
+                    style: IrmaTheme.of(context).textTheme.body2.copyWith(fontSize: 12),
+                  ),
+                ),
+              ),
+            ],
           ),
-        Expanded(
-          // width: _indent,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 3.0),
-            child: Text(
-              FlutterI18n.translate(context, expired ? 'wallet.expired' : 'wallet.expiration') +
-                  " " +
-                  _printableDate(expiryDate, lang),
-              style: IrmaTheme.of(context).textTheme.body2.copyWith(fontSize: 12),
-            ),
-          ),
-        ),
       ],
     );
   }
