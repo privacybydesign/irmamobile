@@ -279,7 +279,7 @@ class _PinFieldState extends State<PinField> {
               width: theme.largeSpacing,
               height: theme.largeSpacing,
               child: IconButton(
-                iconSize: obscureText ? theme.defaultSpacing : theme.mediumSpacing,
+                iconSize: theme.defaultSpacing,
                 icon: Icon(
                   obscureText ? IrmaIcons.view : IrmaIcons.hide,
                   semanticLabel: FlutterI18n.translate(context, obscureText ? "pin_common.view" : "pin_common.hide"),
