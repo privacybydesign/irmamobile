@@ -264,36 +264,39 @@ class _CarouselState extends State<Carousel> {
           ],
         ),
         if (notice != null)
-          Column(
-            children: <Widget>[
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 8, 11, 0),
-                    child: SvgPicture.asset(
-                      'assets/generic/stop.svg',
-                      width: 22,
-                    ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 8, right: 9),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            notice,
-                            style: IrmaTheme.of(context).textTheme.body2.copyWith(fontSize: 14),
-                          ),
-                        ],
+          Container(
+            color: IrmaTheme.of(context).interactionInvalidTransparant,
+            child: Column(
+              children: <Widget>[
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 8, 11, 8),
+                      child: SvgPicture.asset(
+                        'assets/generic/stop.svg',
+                        width: 22,
                       ),
                     ),
-                  ),
-                ],
-              ),
-              (!cred.isLast) ? new Divider() : new Container(),
-            ],
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 8, right: 9, bottom: 12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              notice,
+                              style: IrmaTheme.of(context).textTheme.body2.copyWith(fontSize: 14),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (!cred.isLast) new Divider(),
+              ],
+            ),
           ),
       ]),
     );
@@ -336,7 +339,7 @@ class _CarouselState extends State<Carousel> {
         )
         .values;
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).mediumSpacing),
+      padding: EdgeInsets.symmetric(horizontal: 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

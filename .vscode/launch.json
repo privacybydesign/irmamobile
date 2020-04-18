@@ -5,7 +5,11 @@
 			"name": "Real app",
 			"program": "lib/main.dart",
 			"request": "launch",
-			"type": "dart"
+			"type": "dart",
+			"args": [
+				"--flavor",
+				"alpha"
+			]
 		},
 		{
 			"name": "Gemeente app",
