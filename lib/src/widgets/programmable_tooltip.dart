@@ -81,11 +81,7 @@ class _TooltipState extends State<ProgrammableTooltip> with WidgetsBindingObserv
   void didChangeMetrics() {
     // We would want to re render the overlay if any metrics
     // ever change.
-    if (widget.show) {
-      _show();
-    } else {
-      _hide();
-    }
+    _updateVisibility();
   }
 
   @override
@@ -93,21 +89,13 @@ class _TooltipState extends State<ProgrammableTooltip> with WidgetsBindingObserv
     super.didChangeDependencies();
     // We would want to re render the overlay if any of the dependencies
     // ever change.
-    if (widget.show) {
-      _show();
-    } else {
-      _hide();
-    }
+    _updateVisibility();
   }
 
   @override
   void didUpdateWidget(ProgrammableTooltip oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.show) {
-      _show();
-    } else {
-      _hide();
-    }
+    _updateVisibility();
   }
 
   @override
@@ -119,9 +107,13 @@ class _TooltipState extends State<ProgrammableTooltip> with WidgetsBindingObserv
     super.dispose();
   }
 
+  void _updateVisibility() {
+    widget.show ? _show() : _hide();
+  }
+
   void _show() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await Future.delayed(Duration(milliseconds: 280));
+      await Future.delayed(const Duration(milliseconds: 280));
       if (_opened == true) {
         _entry.remove();
       }
