@@ -163,6 +163,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   void _declinePermission(BuildContext context, String otherParty) {
     _dismissSession();
     _pushDisclosureFeedbackScreen(false, otherParty);
+    navigatedAway = true;
   }
 
   void _givePermission(SessionState session) {
