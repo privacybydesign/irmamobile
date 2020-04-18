@@ -120,6 +120,30 @@ class CardFooter extends StatelessWidget {
               ),
             ],
           ),
+        if (!expired)
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Container(
+                width: _indent,
+                child: Opacity(
+                  opacity: 0.8,
+                  child: Text(
+                    FlutterI18n.translate(context, 'wallet.expiration'),
+                    style: body1Theme.copyWith(fontSize: 12),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  _printableDate(expiryDate, lang),
+                  style: body1Theme.copyWith(fontSize: 12),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
       ],
     );
   }
