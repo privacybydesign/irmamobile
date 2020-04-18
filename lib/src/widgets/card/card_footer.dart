@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/theme/theme.dart';
@@ -15,9 +16,7 @@ class CardFooter extends StatelessWidget {
 
   bool get expired => expiryDate.isBefore(DateTime.now());
 
-  // Indentation of the fields on the right of the footer (issuer, expiry date).
-  // The expiry notice takes so much space that we take all that space only in that case.
-  double get _indent => !expired ? 110 : 140;
+  final double _indent = 110;
 
   const CardFooter({
     this.credentialInfo,
@@ -97,23 +96,24 @@ class CardFooter extends StatelessWidget {
   Widget _buildExpiration(BuildContext context, TextStyle body1Theme, String lang) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          width: _indent,
-          child: Opacity(
-            opacity: 0.8,
-            child: Text(
-              FlutterI18n.translate(context, expired ? 'wallet.expired' : 'wallet.expiration'),
-              style: body1Theme.copyWith(fontSize: 12, color: expired ? Colors.red : body1Theme.color),
-            ),
+        if (expired)
+          Padding(
+            padding: const EdgeInsets.only(right: 2.0, top: 7.0),
+            child: SvgPicture.asset('assets/generic/stop.svg', width: 14),
           ),
-        ),
         Expanded(
-          child: Text(
-            _printableDate(expiryDate, lang),
-            style: body1Theme.copyWith(fontSize: 12, color: expired ? Colors.red : body1Theme.color),
-            overflow: TextOverflow.ellipsis,
+          // width: _indent,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 3.0),
+            child: Text(
+              FlutterI18n.translate(context, expired ? 'wallet.expired' : 'wallet.expiration') +
+                  " " +
+                  _printableDate(expiryDate, lang),
+              style: IrmaTheme.of(context).textTheme.body2.copyWith(fontSize: 12),
+            ),
           ),
         ),
       ],
