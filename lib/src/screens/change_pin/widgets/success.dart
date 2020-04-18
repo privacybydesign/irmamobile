@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:irmamobile/src/theme/irma_icons.dart';
+import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/translated_text.dart';
 import 'package:irmamobile/src/widgets/irma_outlined_button.dart';
 
@@ -14,23 +15,12 @@ class Success extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: IrmaAppBar(
-      //   title: Text(
-      //     FlutterI18n.translate(context, 'change_pin.confirm_pin.title'),
-      //   ),
-      //   leadingAction: () async {
-      //     if (cancel != null) {
-      //       cancel();
-      //     }
-      //     if (!await Navigator.of(context).maybePop()) {
-      //       Navigator.of(context, rootNavigator: true).pop();
-      //     }
-      //   },
-      //   leadingTooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
-      // ),
       // This screen intentionally doesn't container an AppBar, as this screen can be closed
       // to get the app bac back. Otherwise, strange routes such as the settings or side menu
       // could be pushed on top of this screen, where it doesn't make sense
+
+      // TODO: get rid of duplicate code (disclosure_feedback_screen.dart is very similar)
+
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -39,10 +29,10 @@ class Success extends StatelessWidget {
             flex: 1,
             child: Container(),
           ),
-          SvgPicture.asset(
-            'assets/generic/check.svg',
-            excludeFromSemantics: true,
-            height: 120,
+          Icon(
+            IrmaIcons.valid,
+            size: 120,
+            color: IrmaTheme.of(context).interactionValid,
           ),
           const SizedBox(height: 43),
           TranslatedText(
@@ -57,6 +47,7 @@ class Success extends StatelessWidget {
           const SizedBox(height: 38),
           IrmaOutlinedButton(
             label: FlutterI18n.translate(context, "change_pin.success.continue"),
+            // TODO: please check if this onPressed behavior makes sense
             onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
           ),
           Expanded(

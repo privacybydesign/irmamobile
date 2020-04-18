@@ -96,6 +96,8 @@ class CardFooter extends StatelessWidget {
 
   Widget _buildExpiration(BuildContext context, TextStyle body1Theme, String lang) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
           width: _indent,
