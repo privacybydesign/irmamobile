@@ -6,9 +6,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
-import 'package:rxdart/subjects.dart';
 
 class ProgrammableTooltip extends StatefulWidget {
   const ProgrammableTooltip({
@@ -45,31 +43,7 @@ class ProgrammableTooltip extends StatefulWidget {
   _TooltipState createState() => _TooltipState();
 }
 
-class _ToolTipDerivedArgs {
-  final double height;
-  final double width;
-  final EdgeInsetsGeometry padding;
-  final EdgeInsetsGeometry margin;
-  final double verticalOffset;
-  final bool preferBelow;
-  final bool showTooltip;
-  final Decoration decoration;
-  final TextStyle textStyle;
-
-  _ToolTipDerivedArgs({
-    @required this.height,
-    @required this.width,
-    @required this.padding,
-    @required this.margin,
-    @required this.verticalOffset,
-    @required this.preferBelow,
-    @required this.showTooltip,
-    @required this.decoration,
-    @required this.textStyle,
-  });
-}
-
-class _TooltipState extends State<ProgrammableTooltip> with SingleTickerProviderStateMixin {
+class _TooltipState extends State<ProgrammableTooltip> with WidgetsBindingObserver {
   static const double _defaultTooltipHeight = 32.0;
   static const double _defaultTooltipWidth = 192.0;
   static const double _defaultVerticalOffset = 24.0;
@@ -90,55 +64,87 @@ class _TooltipState extends State<ProgrammableTooltip> with SingleTickerProvider
   bool preferBelow;
   bool excludeFromSemantics;
   OverlayEntry _entry;
-  BehaviorSubject<_ToolTipDerivedArgs> _tooltipArgs;
+
+  bool _opened;
 
   @override
   void initState() {
     super.initState();
-
-    _tooltipArgs = BehaviorSubject<_ToolTipDerivedArgs>();
-    SchedulerBinding.instance.addPostFrameCallback((_) => _createNewEntry());
-  }
-
-  void _createNewEntry() {
-    _entry?.remove();
-
-    final RenderBox box = context.findRenderObject() as RenderBox;
-    final Offset target = box.localToGlobal(box.size.center(Offset.zero));
-
-    _entry = OverlayEntry(
-        builder: (BuildContext context) => StreamBuilder(
-            stream: _tooltipArgs,
-            builder: (BuildContext context, AsyncSnapshot<_ToolTipDerivedArgs> snapshot) {
-              if (!snapshot.hasData) {
-                return Container();
-              }
-
-              return Directionality(
-                textDirection: Directionality.of(context),
-                child: _TooltipOverlay(
-                  message: widget.message,
-                  width: snapshot.data.width,
-                  height: snapshot.data.height,
-                  padding: snapshot.data.padding,
-                  margin: snapshot.data.margin,
-                  decoration: snapshot.data.decoration,
-                  textStyle: snapshot.data.textStyle,
-                  target: target,
-                  verticalOffset: snapshot.data.verticalOffset,
-                  preferBelow: snapshot.data.preferBelow,
-                  show: snapshot.data.showTooltip,
-                  fadeDuration: _fadeDuration,
-                ),
-              );
-            }));
-    Overlay.of(context).insert(_entry);
-    SemanticsService.tooltip(widget.message);
+    _opened = false;
+    if (widget.show) {
+      _show();
+    }
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
-  Widget build(BuildContext context) {
-    assert(Overlay.of(context) != null);
+  void didChangeMetrics() {
+    // We would want to re render the overlay if any metrics
+    // ever change.
+    _updateVisibility();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // We would want to re render the overlay if any of the dependencies
+    // ever change.
+    _updateVisibility();
+  }
+
+  @override
+  void didUpdateWidget(ProgrammableTooltip oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _updateVisibility();
+  }
+
+  @override
+  void dispose() {
+    if (widget.show) {
+      _hide();
+    }
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  void _updateVisibility() {
+    widget.show ? _show() : _hide();
+  }
+
+  void _show() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.delayed(const Duration(milliseconds: 280));
+      if (_opened == true) {
+        _entry.remove();
+      }
+      _entry = _buildOverlayEntry();
+      if (_entry != null) {
+        Overlay.of(context).insert(_entry);
+        SemanticsService.tooltip(widget.message);
+        _opened = true;
+      }
+    });
+  }
+
+  void _hide() {
+    if (_opened) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _entry.remove();
+        _opened = false;
+      });
+    }
+  }
+
+  OverlayEntry _buildOverlayEntry() {
+    if (context == null) {
+      return null;
+    }
+    final RenderBox box = context.findRenderObject() as RenderBox;
+    if (box.attached == false) {
+      return null;
+    }
+    final Offset target = box.localToGlobal(box.size.center(Offset.zero));
+
     final ThemeData theme = Theme.of(context);
     final TooltipThemeData tooltipTheme = TooltipTheme.of(context);
     TextStyle defaultTextStyle;
@@ -161,21 +167,36 @@ class _TooltipState extends State<ProgrammableTooltip> with SingleTickerProvider
       );
     }
 
+    return OverlayEntry(
+        builder: (context) => Directionality(
+            textDirection: Directionality.of(context),
+            child: _TooltipOverlay(
+              message: widget.message,
+              width: widget.width ?? _defaultTooltipWidth,
+              height: widget.height ?? tooltipTheme.height ?? _defaultTooltipHeight,
+              padding: widget.padding ?? tooltipTheme.padding ?? _defaultPadding,
+              margin: widget.margin ?? tooltipTheme.margin ?? _defaultMargin,
+              decoration: widget.decoration ?? tooltipTheme.decoration ?? defaultDecoration,
+              textStyle: widget.textStyle ?? tooltipTheme.textStyle ?? defaultTextStyle,
+              target: target,
+              verticalOffset: widget.verticalOffset ?? tooltipTheme.verticalOffset ?? _defaultVerticalOffset,
+              preferBelow: widget.preferBelow ?? tooltipTheme.preferBelow ?? _defaultPreferBelow,
+              show: widget.show ?? _defaultShow,
+              fadeDuration: _fadeDuration,
+            )));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    assert(Overlay.of(context) != null);
+    // Listen to changes in media query such as when a device orientation changes
+    // or when the keyboard is toggled.
+    MediaQuery.of(context);
+
+    final TooltipThemeData tooltipTheme = TooltipTheme.of(context);
+
     final excludeFromSemantics =
         widget.excludeFromSemantics ?? tooltipTheme.excludeFromSemantics ?? _defaultExcludeFromSemantics;
-
-    final tooltipArgs = _ToolTipDerivedArgs(
-        height: widget.height ?? tooltipTheme.height ?? _defaultTooltipHeight,
-        width: widget.width ?? _defaultTooltipWidth,
-        padding: widget.padding ?? tooltipTheme.padding ?? _defaultPadding,
-        margin: widget.margin ?? tooltipTheme.margin ?? _defaultMargin,
-        verticalOffset: widget.verticalOffset ?? tooltipTheme.verticalOffset ?? _defaultVerticalOffset,
-        preferBelow: widget.preferBelow ?? tooltipTheme.preferBelow ?? _defaultPreferBelow,
-        showTooltip: widget.show ?? _defaultShow,
-        decoration: widget.decoration ?? tooltipTheme.decoration ?? defaultDecoration,
-        textStyle: widget.textStyle ?? tooltipTheme.textStyle ?? defaultTextStyle);
-
-    _tooltipArgs.add(tooltipArgs);
 
     return Semantics(
       label: excludeFromSemantics ? null : widget.message,
