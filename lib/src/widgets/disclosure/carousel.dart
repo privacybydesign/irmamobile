@@ -270,7 +270,7 @@ class _CarouselState extends State<Carousel> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 8, 11, 8),
+                    padding: const EdgeInsets.fromLTRB(0, 8, 11, 4),
                     child: SvgPicture.asset(
                       'assets/generic/stop.svg',
                       width: 22,
@@ -278,7 +278,7 @@ class _CarouselState extends State<Carousel> {
                   ),
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 8, right: 9, bottom: 8),
+                      padding: const EdgeInsets.only(top: 8, right: 9, bottom: 4),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
@@ -292,7 +292,7 @@ class _CarouselState extends State<Carousel> {
                   ),
                 ],
               ),
-              if (!cred.isLast) new Divider(),
+              if (!cred.isLast) new Container(color: IrmaTheme.of(context).grayscale85, height: 1),
             ],
           ),
       ]),
