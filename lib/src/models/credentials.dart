@@ -42,7 +42,8 @@ class Credential {
   final bool revoked;
   final String hash;
 
-  bool get expired => expires.isBefore(DateTime.now());
+  // bool get expired => expires.isBefore(DateTime.now());
+  bool expired = true;
 
   Credential({
     @required this.info,

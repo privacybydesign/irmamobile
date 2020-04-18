@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:irmamobile/src/models/attribute_value.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
@@ -263,11 +264,36 @@ class _CarouselState extends State<Carousel> {
           ],
         ),
         if (notice != null)
-          Text(
-            notice,
-            style:
-                IrmaTheme.of(context).textTheme.body1.copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 15),
-            overflow: TextOverflow.ellipsis,
+          Column(
+            children: <Widget>[
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 8, 11, 0),
+                    child: SvgPicture.asset(
+                      'assets/generic/stop.svg',
+                      width: 22,
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 8, right: 9),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            notice,
+                            style: IrmaTheme.of(context).textTheme.body2.copyWith(fontSize: 14),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              (!cred.isLast) ? new Divider() : new Container(),
+            ],
           ),
       ]),
     );
@@ -296,14 +322,19 @@ class _CarouselState extends State<Carousel> {
     // Transform candidatesCon into a list where attributes of the same issuer
     // are grouped together. This assumes those attributes are always
     // adjacent within the specified con, which is guaranteed by irmago.
-    final credentials = candidatesCon.fold(
+    final grouped = candidatesCon.fold(
       <List<Attribute>>[],
       (List<List<Attribute>> list, attr) =>
           list.isNotEmpty && list.last.last.credentialInfo.issuer.fullId == attr.credentialInfo.issuer.fullId
               ? (list..last.add(attr))
               : (list..add([attr])),
-    ).map((list) => _DisclosureCredential(attributes: Con(list)));
-
+    ).toList();
+    final credentials = grouped
+        .asMap()
+        .map(
+          (i, list) => MapEntry(i, _DisclosureCredential(attributes: Con(list), isLast: i == grouped.length - 1)),
+        )
+        .values;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).mediumSpacing),
       child: Column(
@@ -326,9 +357,11 @@ class _DisclosureCredential {
   final Con<Attribute> attributes;
   final String id;
   final TranslatedValue issuer;
+  final bool isLast;
 
-  _DisclosureCredential({@required this.attributes})
-      : assert(attributes != null &&
+  _DisclosureCredential({@required this.attributes, @required this.isLast})
+      : assert(isLast != null &&
+            attributes != null &&
             attributes.isNotEmpty &&
             attributes
                 .every((attr) => attr.credentialInfo.issuer.fullId == attributes.first.credentialInfo.issuer.fullId)),
