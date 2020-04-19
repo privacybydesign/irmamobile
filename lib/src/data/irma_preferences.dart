@@ -1,3 +1,4 @@
+import 'package:quiver/async.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 
@@ -21,6 +22,9 @@ class IrmaPreferences {
 
       final showDisclosureDialogPref = preferences.getBool(_showDisclosureDialogKey, defaultValue: true);
       showDisclosureDialogPref.listen(_showDisclosureDialog.add);
+
+      final pinBlockedUntilPref = preferences.getString(_pinBlockedUntilKey, defaultValue: "");
+      pinBlockedUntilPref.listen(listenLockedPref);
     });
   }
 
@@ -73,6 +77,37 @@ class IrmaPreferences {
   Future<bool> setShowDisclosureDialog(bool value) {
     return StreamingSharedPreferences.instance.then((preferences) {
       return preferences.setBool(_showDisclosureDialogKey, value);
+    });
+  }
+
+  static const String _pinBlockedUntilKey = "preference.pin_blocked_until";
+  CountdownTimer _pinBlockedCountdown;
+  final BehaviorSubject<Duration> _pinBlockedFor = BehaviorSubject<Duration>();
+
+  // Create derived steam that counts the seconds until pin can be used again.
+  void listenLockedPref(String prefValue) {
+    final blockedUntil = DateTime.tryParse(prefValue)?.toLocal();
+    if (_pinBlockedCountdown != null) {
+      _pinBlockedCountdown.cancel();
+      _pinBlockedCountdown = null;
+    }
+
+    final delta = blockedUntil != null ? blockedUntil.difference(DateTime.now()) : Duration.zero;
+    if (delta.inSeconds > 2) {
+      _pinBlockedCountdown = CountdownTimer(delta, const Duration(seconds: 1));
+      _pinBlockedCountdown.map((cd) => cd.remaining).listen(_pinBlockedFor.add);
+    } else {
+      _pinBlockedFor.add(Duration.zero);
+    }
+  }
+
+  Stream<Duration> getPinBlockedFor() {
+    return _pinBlockedFor;
+  }
+
+  Future<bool> setPinBlockedUntil(DateTime value) {
+    return StreamingSharedPreferences.instance.then((preferences) {
+      return preferences.setString(_pinBlockedUntilKey, value.toUtc().toIso8601String());
     });
   }
 }

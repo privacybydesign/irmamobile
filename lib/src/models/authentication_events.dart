@@ -30,7 +30,7 @@ class AuthenticationFailedEvent extends AuthenticationEvent {
   final int remainingAttempts;
 
   @JsonKey(name: "BlockedDuration")
-  final int blockedDuration;
+  int blockedDuration;
 
   AuthenticationFailedEvent({this.remainingAttempts, this.blockedDuration});
   factory AuthenticationFailedEvent.fromJson(Map<String, dynamic> json) => _$AuthenticationFailedEventFromJson(json);

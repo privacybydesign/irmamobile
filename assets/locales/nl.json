@@ -271,6 +271,27 @@
     }
   },
   "pin_common": {
+    "blocked_for": "Login is geblokkeerd voor",
+    "second": {
+      "time-0": "{time} seconden",
+      "time-1": "{time} seconde",
+      "time-2": "{time} seconden"
+    },
+    "minute": {
+      "time-0": "{time} minuten",
+      "time-1": "{time} minuut",
+      "time-2": "{time} minuten"
+    },
+    "hour": {
+      "time-0": "{time} uren",
+      "time-1": "{time} uur",
+      "time-2": "{time} uren"
+    },
+    "day": {
+      "time-0": "{time} dagen",
+      "time-1": "{time} dag",
+      "time-2": "{time} dagen"
+    },
     "invalid_title": "Pincode verkeerd",
     "invalid_pin": {
       "attempts-0": "Deze pincode is niet juist. Je hebt nog {attemps} pogingen voordat je IRMA-app tijdelijk wordt geblokkeerd.",
@@ -279,7 +300,7 @@
     },
     "invalid_close": "Opnieuw proberen",
     "blocked_title": "Account geblokkeerd",
-    "blocked_pin": "Je account is voor {blocked} seconden geblokkeerd. Probeer het later nog een keer.",
+    "blocked_pin": "Je account is voor {blocked} geblokkeerd. Probeer het later nog een keer.",
     "blocked_close": "Opnieuw proberen",
     "done": "Doorgaan",
     "view": "Pincode tonen",
@@ -288,6 +309,7 @@
   "pin": {
     "title": "Inloggen",
     "subtitle": "Voer je pincode in",
+    "seconds": "seconden",
     "button_forgot": "Pincode vergeten",
     "button_block": "IRMA blokkeren"
   },
