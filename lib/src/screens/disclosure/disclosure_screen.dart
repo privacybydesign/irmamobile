@@ -178,37 +178,43 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   }
 
   Widget _buildDisclosureHeader(SessionState session) {
-    Widget unsatisfiableInfo = Container();
-
     return StreamBuilder<SessionState>(
-      stream: _sessionStateStream,
-      builder: (context, sessionStateSnapshot) {
-        if (!sessionStateSnapshot.hasData || sessionStateSnapshot.data.status != SessionStatus.requestPermission) {
-          return Container(height: 0);
-        }
+        stream: _sessionStateStream,
+        builder: (context, sessionStateSnapshot) {
+          if (!sessionStateSnapshot.hasData || sessionStateSnapshot.data.status != SessionStatus.requestPermission) {
+            return Container(height: 0);
+          }
 
-        final state = sessionStateSnapshot.data;
-        if (!state.satisfiable) {
-          unsatisfiableInfo = IrmaMessage(
-            'disclosure.unsatisfiable_title',
-            'disclosure.unsatisfiable_message_markdown',
-            iconColor: IrmaTheme.of(context).primaryBlue,
-            type: IrmaMessageType.info,
-          );
-        }
-        return Column(
-          children: <Widget>[
-            unsatisfiableInfo,
-            SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-            TranslatedText(
-              'disclosure.disclosure_header_markdown',
-              translationParams: {"otherParty": session.serverName.translate(_lang)},
-              style: Theme.of(context).textTheme.body1,
-            ),
-          ],
-        );
-      },
-    );
+          final state = sessionStateSnapshot.data;
+          if (!state.satisfiable) {
+            return Column(
+              children: <Widget>[
+                IrmaMessage(
+                  'disclosure.unsatisfiable_title',
+                  'disclosure.unsatisfiable_message_markdown',
+                  iconColor: IrmaTheme.of(context).primaryBlue,
+                  type: IrmaMessageType.info,
+                ),
+                SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+                TranslatedText(
+                  'disclosure.unsatisfiable_request_markdown',
+                  translationParams: {"otherParty": session.serverName.translate(_lang)},
+                  style: Theme.of(context).textTheme.body1,
+                ),
+              ],
+            );
+          } else {
+            return Column(
+              children: <Widget>[
+                TranslatedText(
+                  'disclosure.disclosure_header_markdown',
+                  translationParams: {"otherParty": session.serverName.translate(_lang)},
+                  style: Theme.of(context).textTheme.body1,
+                ),
+              ],
+            );
+          }
+        });
   }
 
   Widget _buildSigningHeader(SessionState session) {
