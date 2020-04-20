@@ -47,7 +47,7 @@ class Success extends StatelessWidget {
           const SizedBox(height: 38),
           IrmaOutlinedButton(
             label: FlutterI18n.translate(context, "change_pin.success.continue"),
-            // TODO: please check if this onPressed behavior makes sense
+            // Remove entire substack of pinchange, not just current screen.
             onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
           ),
           Expanded(
