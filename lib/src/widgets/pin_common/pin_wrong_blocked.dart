@@ -3,6 +3,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
+import 'package:irmamobile/src/widgets/pin_common/format_blocked_for.dart';
 
 class PinWrongBlockedDialog extends StatelessWidget {
   final void Function() onClose;
@@ -15,10 +16,11 @@ class PinWrongBlockedDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final blockedForStr = formatBlockedFor(context, Duration(seconds: blocked));
+
     return IrmaDialog(
       title: FlutterI18n.translate(context, 'pin_common.blocked_title'),
-      content:
-          FlutterI18n.translate(context, "pin_common.blocked_pin", translationParams: {"blocked": blocked.toString()}),
+      content: FlutterI18n.translate(context, "pin_common.blocked_pin", translationParams: {"blocked": blockedForStr}),
       onClose: onClose,
       child: IrmaButton(
         size: IrmaButtonSize.small,

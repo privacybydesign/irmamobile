@@ -11,6 +11,7 @@ import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_state.dart';
 import 'package:irmamobile/src/screens/reset_pin/reset_pin_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/pin_common/format_blocked_for.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_attempts.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_blocked.dart';
 import 'package:irmamobile/src/widgets/pin_field.dart';
@@ -91,72 +92,82 @@ class _PinScreenState extends State<PinScreen> {
           return Container();
         }
 
-        if (!state.pinInvalid) {
-          FocusScope.of(context).requestFocus(_focusNode);
-        }
         return Scaffold(
           backgroundColor: IrmaTheme.of(context).backgroundBlue,
           appBar: _buildAppBar(),
-          body: SafeArea(
-            child: SingleChildScrollView(
-              child: Column(
-                children: <Widget>[
-                  SizedBox(
-                    height: IrmaTheme.of(context).largeSpacing,
-                  ),
-                  SizedBox(
-                    width: 76.0,
-                    child: SvgPicture.asset(
-                      'assets/non-free/irma_logo.svg',
-                      semanticsLabel: FlutterI18n.translate(
-                        context,
-                        'accessibility.irma_logo',
+          body: StreamBuilder(
+            stream: _pinBloc.getPinBlockedFor(),
+            builder: (BuildContext context, AsyncSnapshot<Duration> blockedFor) {
+              var subtitle = Text(FlutterI18n.translate(context, "pin.subtitle"));
+              if (blockedFor.hasData && blockedFor.data.inSeconds > 0) {
+                final blockedText = '${FlutterI18n.translate(context, "pin_common.blocked_for")}';
+                final blockedForTime = formatBlockedFor(context, blockedFor.data);
+                subtitle = Text('$blockedText $blockedForTime');
+              }
+              if (!state.pinInvalid) {
+                FocusScope.of(context).requestFocus(_focusNode);
+              }
+              return SafeArea(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: <Widget>[
+                      SizedBox(
+                        height: IrmaTheme.of(context).largeSpacing,
                       ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: IrmaTheme.of(context).largeSpacing,
-                  ),
-                  Text(FlutterI18n.translate(context, "pin.subtitle")),
-                  SizedBox(
-                    height: IrmaTheme.of(context).defaultSpacing,
-                  ),
-                  StreamBuilder(
-                    stream: IrmaPreferences.get().getLongPin(),
-                    builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-                      return PinField(
-                        focusNode: _focusNode,
-                        longPin: snapshot.hasData && snapshot.data,
-                        onSubmit: (pin) {
-                          FocusScope.of(context).requestFocus();
-                          _pinBloc.dispatch(
-                            Unlock(pin),
-                          );
-                        },
-                      );
-                    },
-                  ),
-                  SizedBox(
-                    height: IrmaTheme.of(context).defaultSpacing,
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).pushNamed(ResetPinScreen.routeName);
-                    },
-                    child: Text(
-                      FlutterI18n.translate(context, "pin.button_forgot"),
-                      style: IrmaTheme.of(context).hyperlinkTextStyle.copyWith(
-                            decoration: TextDecoration.underline,
+                      SizedBox(
+                        width: 76.0,
+                        child: SvgPicture.asset(
+                          'assets/non-free/irma_logo.svg',
+                          semanticsLabel: FlutterI18n.translate(
+                            context,
+                            'accessibility.irma_logo',
                           ),
-                    ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: IrmaTheme.of(context).largeSpacing,
+                      ),
+                      subtitle,
+                      SizedBox(
+                        height: IrmaTheme.of(context).defaultSpacing,
+                      ),
+                      StreamBuilder(
+                        stream: IrmaPreferences.get().getLongPin(),
+                        builder: (BuildContext context, AsyncSnapshot<bool> longPin) => PinField(
+                          focusNode: _focusNode,
+                          enabled: (blockedFor.data ?? Duration.zero).inSeconds == 0,
+                          longPin: longPin.hasData && longPin.data,
+                          onSubmit: (pin) {
+                            FocusScope.of(context).requestFocus();
+                            _pinBloc.dispatch(
+                              Unlock(pin),
+                            );
+                          },
+                        ),
+                      ),
+                      SizedBox(
+                        height: IrmaTheme.of(context).defaultSpacing,
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).pushNamed(ResetPinScreen.routeName);
+                        },
+                        child: Text(
+                          FlutterI18n.translate(context, "pin.button_forgot"),
+                          style: IrmaTheme.of(context).hyperlinkTextStyle.copyWith(
+                                decoration: TextDecoration.underline,
+                              ),
+                        ),
+                      ),
+                      if (state.authenticateInProgress)
+                        Padding(
+                            padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
+                            child: const CircularProgressIndicator()),
+                    ],
                   ),
-                  if (state.authenticateInProgress)
-                    Padding(
-                        padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
-                        child: const CircularProgressIndicator()),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           ),
         );
       },

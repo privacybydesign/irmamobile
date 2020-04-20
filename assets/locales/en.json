@@ -271,6 +271,27 @@
     }
   },
   "pin_common": {
+    "blocked_for": "Login is blocked for",
+    "second": {
+      "time-0": "{time} seconds",
+      "time-1": "{time} second",
+      "time-2": "{time} seconds"
+    },
+    "minute": {
+      "time-0": "{time} minutes",
+      "time-1": "{time} minute",
+      "time-2": "{time} minutes"
+    },
+    "hour": {
+      "time-0": "{time} hours",
+      "time-1": "{time} hour",
+      "time-2": "{time} hours"
+    },
+    "day": {
+      "time-0": "{time} days",
+      "time-1": "{time} day",
+      "time-2": "{time} days"
+    },
     "invalid_title": "PIN incorrect",
     "invalid_pin": {
       "attempts-0": "This PIN is not correct. You have {attemps} attempts left before your IRMA app will be blocked temporarily.",
@@ -279,7 +300,7 @@
     },
     "invalid_close": "Try again",
     "blocked_title": "Account blocked",
-    "blocked_pin": "Your account has been blocked for {blocked} seconds. Please try again later.",
+    "blocked_pin": "Your account has been blocked for {blocked}. Please try again later.",
     "blocked_close": "Try again",
     "done": "Continue",
     "view": "Show PIN",

@@ -11,6 +11,7 @@ class PinField extends StatefulWidget {
   final bool autofocus;
   final bool autosubmit;
   final bool autoclear;
+  final bool enabled;
   final FocusNode focusNode;
   final bool longPin;
   final ValueChanged<String> onChange;
@@ -30,6 +31,7 @@ class PinField extends StatefulWidget {
     this.autofocus = true,
     this.autosubmit = true,
     this.autoclear = true,
+    this.enabled = true,
     this.focusNode,
     this.onChange,
     this.onSubmit,
@@ -179,6 +181,7 @@ class _PinFieldState extends State<PinField> {
       String char = i < value.length ? value[i] : '';
       final bool filled = char != '';
 
+      final hasBorder = i > value.length || !widget.enabled;
       if (obscureText && filled) {
         char = '●';
       }
@@ -190,10 +193,9 @@ class _PinFieldState extends State<PinField> {
         height: 40.0,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(theme.tinySpacing)),
-          border: Border.all(color: i > value.length ? Colors.transparent : theme.grayscale40),
-          color: theme.grayscaleWhite,
-        ),
+            borderRadius: BorderRadius.all(Radius.circular(theme.tinySpacing)),
+            border: Border.all(color: hasBorder ? Colors.transparent : theme.grayscale40),
+            color: widget.enabled ? theme.grayscaleWhite : theme.disabled),
         child: Text(
           char,
           style: Theme.of(context).textTheme.display2.copyWith(
@@ -234,7 +236,7 @@ class _PinFieldState extends State<PinField> {
       ),
       child: IrmaButton(
         label: FlutterI18n.translate(context, "pin_common.done"),
-        onPressed: _onEditingCompleteOrSubmit,
+        onPressed: widget.enabled ? _onEditingCompleteOrSubmit : null,
       ),
     );
   }
@@ -254,6 +256,7 @@ class _PinFieldState extends State<PinField> {
               width: widget.longPin ? MediaQuery.of(context).size.width - 2 * theme.hugeSpacing : 0.1,
               child: TextFormField(
                 controller: _textEditingController,
+                enabled: widget.enabled,
                 focusNode: focusNode,
                 onEditingComplete: _onEditingCompleteOrSubmit,
                 autofocus: widget.autofocus,
