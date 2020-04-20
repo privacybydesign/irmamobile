@@ -5,10 +5,7 @@
 			"name": "Real app",
 			"program": "lib/main.dart",
 			"request": "launch",
-			"type": "dart",
-			"args": [
-				"--release",
-			]
+			"type": "dart"
 		},
 		{
 			"name": "DigiD proef",
