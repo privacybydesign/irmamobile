@@ -315,7 +315,7 @@
     "toggle": "Change display",
     "issuer": "Issuer",
     "expiration": "Card valid until",
-    "expired": "Card expired since",
+    "expired": "Card expired on",
     "revoked": "This card has been revoked",
     "help": "Help",
     "caption": "Your data securely on your mobile",
