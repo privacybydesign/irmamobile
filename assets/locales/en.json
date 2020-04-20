@@ -411,7 +411,7 @@
       },
       "text": {
         "true": "Your data are disclosed to {otherParty}",
-        "false_markdown": "Your data are **not** disclosed to {otherParty}"
+        "false": "Your data are not disclosed to {otherParty}"
       },
       "ok": "OK"
     }
