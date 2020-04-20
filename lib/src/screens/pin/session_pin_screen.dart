@@ -103,7 +103,9 @@ class _SessionPinScreenState extends State<SessionPinScreen> {
             return Container();
           }
 
-          FocusScope.of(context).requestFocus(_focusNode);
+          if (!state.pinInvalid) {
+            FocusScope.of(context).requestFocus(_focusNode);
+          }
           return Scaffold(
             appBar: _buildAppBar(),
             body: SafeArea(
