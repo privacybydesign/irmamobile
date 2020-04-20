@@ -19,7 +19,7 @@ class CardStoreScreen extends StatelessWidget {
   static const String routeName = '/store';
 
   Future<void> _onStartIssuance(BuildContext context, CredentialType credentialType) async {
-    final url = getTranslation(credentialType.issueUrl);
+    final url = getTranslation(context, credentialType.issueUrl);
 
     if (credentialType.issuerId == "gemeente" ||
         credentialType.fullId == "pbdf.pbdf.ideal" ||
@@ -76,8 +76,8 @@ class CardStoreScreen extends StatelessWidget {
                         (ct) => ct.isInCredentialStore,
                       );
 
-                      final credentialTypesByCategory =
-                          groupBy<CredentialType, String>(credentialTypes, (ct) => getTranslation(ct.category));
+                      final credentialTypesByCategory = groupBy<CredentialType, String>(
+                          credentialTypes, (ct) => getTranslation(context, ct.category));
                       final categories = credentialTypesByCategory.keys.toList();
 
                       return ListView.builder(
@@ -106,9 +106,9 @@ class CardStoreScreen extends StatelessWidget {
                                     icon: logoFile.existsSync()
                                         ? Image.file(logoFile)
                                         : Image.asset("assets/non-free/irmalogo.png"),
-                                    title: getTranslation(credentialType.name),
-                                    subTitle:
-                                        getTranslation(irmaConfiguration.issuers[credentialType.fullIssuerId].name),
+                                    title: getTranslation(context, credentialType.name),
+                                    subTitle: getTranslation(
+                                        context, irmaConfiguration.issuers[credentialType.fullIssuerId].name),
                                     obtained: false,
                                     onTap: navigationCallBack,
                                   );

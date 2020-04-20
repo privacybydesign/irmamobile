@@ -74,7 +74,7 @@ class _CardInfoState extends State<CardInfo> with TickerProviderStateMixin {
             FlutterI18n.translate(
               context,
               'card_store.card_info.header_credential_type',
-              translationParams: {'credential_type': getTranslation(widget.credentialType.name)},
+              translationParams: {'credential_type': getTranslation(context, widget.credentialType.name)},
             ),
             style: Theme.of(context).textTheme.headline,
           ),
@@ -85,7 +85,7 @@ class _CardInfoState extends State<CardInfo> with TickerProviderStateMixin {
         Padding(
           padding: paddingText,
           child: Text(
-            getTranslation(widget.credentialType.faqIntro).replaceAll('\\n', '\n'),
+            getTranslation(context, widget.credentialType.faqIntro).replaceAll('\\n', '\n'),
             style: IrmaTheme.of(context).textTheme.body1,
           ),
         ),

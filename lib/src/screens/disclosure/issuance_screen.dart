@@ -26,8 +26,6 @@ class IssuanceScreen extends StatefulWidget {
 }
 
 class _IssuanceScreenState extends State<IssuanceScreen> {
-  final String _lang = "nl"; // TODO: this shouldn't be hardcoded.
-
   final IrmaRepository repo = IrmaRepository.get();
   Stream<SessionState> sessionStateStream;
   int sessionID;
@@ -192,11 +190,13 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
                 primaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.yes"),
                 onPrimaryPressed: () => _givePermission(state),
                 secondaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.no"),
-                onSecondaryPressed: () => _declinePermission(context, state.serverName.translate(_lang)),
+                onSecondaryPressed: () => _declinePermission(
+                    context, state.serverName.translate(FlutterI18n.currentLocale(context).languageCode)),
               )
             : IrmaBottomBar(
                 primaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.back"),
-                onPrimaryPressed: () => _declinePermission(context, state.serverName.translate(_lang)),
+                onPrimaryPressed: () => _declinePermission(
+                    context, state.serverName.translate(FlutterI18n.currentLocale(context).languageCode)),
               );
       },
     );

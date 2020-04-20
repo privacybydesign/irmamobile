@@ -33,7 +33,7 @@ class _CardQuestionsState extends State<CardQuestions> with TickerProviderStateM
             content: SizedBox(
               width: double.infinity,
               child: Text(
-                getTranslation(widget.credentialType.faqPurpose).replaceAll('\\n', '\n'),
+                getTranslation(context, widget.credentialType.faqPurpose).replaceAll('\\n', '\n'),
                 style: IrmaTheme.of(context).textTheme.body1,
                 textAlign: TextAlign.left,
               ),
@@ -46,7 +46,7 @@ class _CardQuestionsState extends State<CardQuestions> with TickerProviderStateM
             content: SizedBox(
               width: double.infinity,
               child: Text(
-                getTranslation(widget.credentialType.faqContent).replaceAll('\\n', '\n'),
+                getTranslation(context, widget.credentialType.faqContent).replaceAll('\\n', '\n'),
                 style: IrmaTheme.of(context).textTheme.body1,
                 textAlign: TextAlign.left,
               ),
@@ -59,7 +59,7 @@ class _CardQuestionsState extends State<CardQuestions> with TickerProviderStateM
             content: SizedBox(
               width: double.infinity,
               child: Text(
-                getTranslation(widget.credentialType.faqHowto).replaceAll('\\n', '\n'),
+                getTranslation(context, widget.credentialType.faqHowto).replaceAll('\\n', '\n'),
                 style: IrmaTheme.of(context).textTheme.body1,
                 textAlign: TextAlign.left,
               ),

@@ -5,6 +5,7 @@ import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/util/translated_text.dart';
 
 class Carousel extends StatefulWidget {
@@ -21,7 +22,6 @@ class Carousel extends StatefulWidget {
 }
 
 class _CarouselState extends State<Carousel> {
-  final _lang = 'nl';
   final GlobalKey _keyStackedIndex = GlobalKey();
   final _animationDuration = 250;
   int _currentPage = 0;
@@ -217,7 +217,7 @@ class _CarouselState extends State<Carousel> {
 
     // If an attribute is null, we render a TextValue with a dash as text.
     return Text(
-      candidate.value is TextValue ? (candidate.value as TextValue).translated[_lang] : "-",
+      candidate.value is TextValue ? getTranslation(context, (candidate.value as TextValue).translated) : "-",
       style: IrmaTheme.of(context).textTheme.body2,
     );
   }
@@ -252,7 +252,7 @@ class _CarouselState extends State<Carousel> {
             Padding(
               padding: EdgeInsets.only(left: IrmaTheme.of(context).smallSpacing),
               child: Text(
-                cred.issuer[_lang],
+                getTranslation(context, cred.issuer),
                 style: IrmaTheme.of(context)
                     .textTheme
                     .body1
@@ -281,7 +281,7 @@ class _CarouselState extends State<Carousel> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            attribute.attributeType.name[_lang],
+            getTranslation(context, attribute.attributeType.name),
             style:
                 IrmaTheme.of(context).textTheme.body1.copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 14),
             overflow: TextOverflow.ellipsis,
