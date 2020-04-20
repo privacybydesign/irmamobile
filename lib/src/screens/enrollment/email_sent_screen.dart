@@ -39,7 +39,7 @@ class EmailSentScreen extends StatelessWidget {
                   IrmaMessage(
                     'enrollment.email_sent.message_title',
                     'enrollment.email_sent.message_markdown',
-                    iconColor: IrmaTheme.of(context).primaryBlue,
+                    type: IrmaMessageType.info,
                   ),
                   SizedBox(
                     height: IrmaTheme.of(context).defaultSpacing,

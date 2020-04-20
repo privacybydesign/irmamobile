@@ -17,38 +17,41 @@ class IrmaMessage extends StatelessWidget {
   final String descriptionKey;
   final Map<String, String> descriptionParams;
   final IrmaMessageType type;
-  final Color iconColor;
 
   const IrmaMessage(this.titleKey, this.descriptionKey,
-      {this.type = IrmaMessageType.info,
-      this.iconColor = Colors.white,
-      this.titleParams = const {},
-      this.descriptionParams = const {}});
+      {this.type = IrmaMessageType.info, this.titleParams = const {}, this.descriptionParams = const {}});
 
   @override
   Widget build(BuildContext context) {
     Color backgroundColor;
     Color foregroundColor = Colors.white;
-
+    Color iconColor = Colors.white;
     IconData icon;
+
     switch (type) {
       case IrmaMessageType.valid:
-        backgroundColor = IrmaTheme.of(context).interactionValid;
+        backgroundColor = IrmaTheme.of(context).notificationSuccessBg;
+        foregroundColor = IrmaTheme.of(context).primaryDark;
+        iconColor = IrmaTheme.of(context).interactionValid;
         icon = IrmaIcons.valid;
         break;
       case IrmaMessageType.invalid:
-        backgroundColor = IrmaTheme.of(context).interactionInvalid;
+        backgroundColor = IrmaTheme.of(context).notificationErrorBg;
+        foregroundColor = IrmaTheme.of(context).primaryDark;
+        iconColor = IrmaTheme.of(context).interactionInvalid;
         icon = IrmaIcons.invalid;
         break;
       case IrmaMessageType.alert:
-        backgroundColor = IrmaTheme.of(context).interactionAlert;
-        icon = IrmaIcons.alert;
+        backgroundColor = IrmaTheme.of(context).notificationWarningBg;
         foregroundColor = IrmaTheme.of(context).primaryDark;
+        iconColor = IrmaTheme.of(context).interactionAlert;
+        icon = IrmaIcons.alert;
         break;
       case IrmaMessageType.info:
-        backgroundColor = IrmaTheme.of(context).interactionInformation;
-        icon = IrmaIcons.info;
+        backgroundColor = IrmaTheme.of(context).notificationInfoBg;
         foregroundColor = IrmaTheme.of(context).primaryDark;
+        iconColor = IrmaTheme.of(context).interactionInformation;
+        icon = IrmaIcons.info;
         break;
     }
     return Container(

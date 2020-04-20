@@ -69,6 +69,7 @@ class _BottomBarState extends State<BottomBar> {
                 IrmaMessage(
                   "about.title",
                   "about.slogan",
+                  type: IrmaMessageType.info,
                 ),
               ),
             ],

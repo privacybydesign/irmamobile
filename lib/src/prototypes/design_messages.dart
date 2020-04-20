@@ -56,6 +56,7 @@ class DesignMessages extends StatelessWidget {
                 IrmaMessage(
                   "about.title",
                   "about.slogan",
+                  type: IrmaMessageType.info,
                 ),
               ),
             ],
