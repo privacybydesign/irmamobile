@@ -112,7 +112,8 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
       if (session.continueOnSecondDevice) {
         // If this is a session on a second screen, return to the wallet after showing a feedback screen
         if (session.status == SessionStatus.success) {
-          _pushDisclosureFeedbackScreen(true, session.serverName.translate(_lang));
+          _pushDisclosureFeedbackScreen(
+              true, session.serverName.translate(FlutterI18n.currentLocale(context).languageCode));
         } else {
           // TODO: Show an error/cancel feedback screen.
           popToWallet(context);
@@ -197,7 +198,9 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
                 SizedBox(height: IrmaTheme.of(context).defaultSpacing),
                 TranslatedText(
                   'disclosure.unsatisfiable_request_markdown',
-                  translationParams: {"otherParty": session.serverName.translate(_lang)},
+                  translationParams: {
+                    "otherParty": session.serverName.translate(FlutterI18n.currentLocale(context).languageCode)
+                  },
                   style: Theme.of(context).textTheme.body1,
                 ),
               ],
@@ -207,7 +210,9 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
               children: <Widget>[
                 TranslatedText(
                   'disclosure.disclosure_header_markdown',
-                  translationParams: {"otherParty": session.serverName.translate(_lang)},
+                  translationParams: {
+                    "otherParty": session.serverName.translate(FlutterI18n.currentLocale(context).languageCode)
+                  },
                   style: Theme.of(context).textTheme.body1,
                 ),
               ],
@@ -221,7 +226,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
       Text.rich(
         TextSpan(children: [
           TextSpan(
-            text: session.serverName.translate(_lang),
+            text: session.serverName.translate(FlutterI18n.currentLocale(context).languageCode),
             style: IrmaTheme.of(context).textTheme.body2,
           ),
           TextSpan(
@@ -251,11 +256,13 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
                 primaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.yes"),
                 onPrimaryPressed: state.canDisclose ? () => _givePermission(state) : null,
                 secondaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.no"),
-                onSecondaryPressed: () => _declinePermission(context, state.serverName.translate(_lang)),
+                onSecondaryPressed: () => _declinePermission(
+                    context, state.serverName.translate(FlutterI18n.currentLocale(context).languageCode)),
               )
             : IrmaBottomBar(
                 primaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.back"),
-                onPrimaryPressed: () => _declinePermission(context, state.serverName.translate(_lang)),
+                onPrimaryPressed: () => _declinePermission(
+                    context, state.serverName.translate(FlutterI18n.currentLocale(context).languageCode)),
               );
       },
     );
