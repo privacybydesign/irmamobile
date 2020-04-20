@@ -30,7 +30,7 @@
       }
     },
     "choose_pin": {
-      "title": "Pincode kiezen",
+      "title": "Beveiliging instellen",
       "insert_pin": "Kies een pincode van 5 cijfers",
       "confirm_title": "Herhaal je pincode",
       "instruction": "Kies een pincode van 5 cijfers",
@@ -41,7 +41,7 @@
       "error_action": "OK"
     },
     "provide_email": {
-      "title": "E-mailadres toevoegen",
+      "title": "Beveiliging instellen",
       "instruction": "Met een e-mailadres kun je je IRMA-app blokkeren bij verlies of diefstal van je mobiel.",
       "skip": "Overslaan",
       "next": "Volgende",
@@ -49,6 +49,14 @@
       "skip_title": "Weet je het zeker?",
       "skip_content": "Bescherm jezelf. Als je een e-mailadres invult, kun je jouw IRMA-app blokkeren na het verlies van je mobiel.",
       "insert_email": "Voer e-mailadres in"
+    },
+    "email_sent": {
+      "title": "Beveiliging instellen",
+      "button": "Doorgaan",
+      "message_title": "Bevestig je e-mailadres",
+      "message_markdown": "Je hebt een e-mail ontvangen van **noreply@sidn.nl**. Open de link in dit bericht om je e-mailadres aan je IRMA-app te koppelen.",
+      "mail_sent_text_markdown": "De e-mail is gestuurd naar: **{emailaddress}**.",
+      "check_spam": "Het kan even duren voordat de e-mail verschijnt. Controleer de spamfolder als je geen e-mail hebt ontvangen."
     },
     "submit": {
       "title": "Aanmelden",
@@ -408,6 +416,9 @@
     "expired": "Deze gegevens zijn verlopen.",
     "revoked": "Deze gegevens zijn teruggetrokken.",
     "not_revokable": "Deze gegevens moeten eerst ververst worden.",
+    "unsatisfiable_title": "Er gaat iets mis",
+    "unsatisfiable_message_markdown": "Er worden gegevens gevraagd die niet in je IRMA-app staan of verlopen zijn.",
+    "unsatisfiable_request_markdown": "De gegevens die **{otherParty}** vraagt staan hieronder. Ga terug en laad deze gegevens in je IRMA-app om het opnieuw te proberen.",
     "explanation": {
       "title": "Zo maak je een keuze",
       "body": "Kies welke gegevens je doorgeeft. Gebruik het pijltje of swipe en maak je keuze.",
@@ -423,7 +434,7 @@
       },
       "text": {
         "true": "Je gegevens zijn doorgegeven aan {otherParty}",
-        "false": "Je gegevens zijn **niet** doorgegeven aan {otherParty}"
+        "false": "Je gegevens zijn niet doorgegeven aan {otherParty}"
       },
       "ok": "OK"
     }

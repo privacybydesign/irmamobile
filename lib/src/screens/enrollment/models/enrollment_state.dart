@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:irmamobile/src/models/session.dart';
 import 'package:meta/meta.dart';
 
 enum ValidationState { initial, valid, invalid }
@@ -8,6 +9,7 @@ class EnrollmentState with EquatableMixin {
   // Pin and email values as submitted
   final String pin;
   final String email;
+  final String languageCode;
 
   // Booleans that indicate:
   //  - Whether the submitted confirmation pin matches the initially given pin (initially false)
@@ -20,12 +22,14 @@ class EnrollmentState with EquatableMixin {
   final bool showPinValidation;
   final bool pinMismatch;
   final bool isSubmitting;
-  final bool enrollementFailed; //TODO: implement as soon as the bridge is able to handle EnrollmentFailureEvent
+  final bool submittingFailed;
+  final SessionError error;
   final int retry;
 
   EnrollmentState({
     this.pin,
     this.email = "",
+    this.languageCode = "nl",
     this.pinConfirmed = false,
     this.pinMismatch = false,
     this.emailValid = false,
@@ -33,13 +37,15 @@ class EnrollmentState with EquatableMixin {
     this.showEmailValidation = false,
     this.showPinValidation = false,
     this.isSubmitting = false,
-    this.enrollementFailed = false,
+    this.submittingFailed = false,
+    this.error,
     this.retry = 0,
   });
 
   EnrollmentState copyWith({
     String pin,
     String email,
+    String languageCode,
     bool pinConfirmed,
     bool pinMismatch,
     bool emailValid,
@@ -47,12 +53,14 @@ class EnrollmentState with EquatableMixin {
     bool showEmailValidation,
     bool showPinValidation,
     bool isSubmitting,
-    bool enrollementFailed,
+    bool submittingFailed,
+    SessionError error,
     int retry,
   }) {
     return EnrollmentState(
       pin: pin ?? this.pin,
       email: email ?? this.email,
+      languageCode: languageCode ?? this.languageCode,
       pinConfirmed: pinConfirmed ?? this.pinConfirmed,
       pinMismatch: pinMismatch ?? this.pinMismatch,
       emailValid: emailValid ?? this.emailValid,
@@ -60,7 +68,8 @@ class EnrollmentState with EquatableMixin {
       showEmailValidation: showEmailValidation ?? this.showEmailValidation,
       showPinValidation: showPinValidation ?? this.showPinValidation,
       isSubmitting: isSubmitting ?? this.isSubmitting,
-      enrollementFailed: enrollementFailed ?? this.enrollementFailed,
+      submittingFailed: submittingFailed ?? this.submittingFailed,
+      error: error ?? this.error,
       retry: retry ?? this.retry,
     );
   }
@@ -71,6 +80,7 @@ class EnrollmentState with EquatableMixin {
      {
         pin: ${pin == null ? null : '*' * pin.length}, 
         email: $email, 
+        languageCode: $languageCode,
         pinConfirmed: $pinConfirmed, 
         pinMismatch: $pinMismatch,
         emailValid: $emailValid, 
@@ -79,7 +89,7 @@ class EnrollmentState with EquatableMixin {
         showPinValidation: $showPinValidation, 
         retry: $retry, 
         isSubmitting: $isSubmitting, 
-        enrollementFailed: $enrollementFailed 
+        submittingFailed: $submittingFailed,
     }''';
   }
 
@@ -88,6 +98,7 @@ class EnrollmentState with EquatableMixin {
     return [
       pin,
       email,
+      languageCode,
       pinConfirmed,
       pinMismatch,
       emailValid,
@@ -96,7 +107,8 @@ class EnrollmentState with EquatableMixin {
       showPinValidation,
       retry,
       isSubmitting,
-      enrollementFailed
+      submittingFailed,
+      error,
     ];
   }
 }

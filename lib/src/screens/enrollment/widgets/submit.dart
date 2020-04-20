@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/screens/enrollment/email_sent_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_bloc.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
-import 'package:irmamobile/src/screens/error/no_internet.dart';
+import 'package:irmamobile/src/screens/error/session_error_screen.dart';
+import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/progress.dart';
 
@@ -43,18 +45,36 @@ class _SubmitState extends State<Submit> {
         leadingAction: () => widget.cancelAndNavigate(context),
         leadingTooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
       ),
-      body: BlocBuilder<EnrollmentBloc, EnrollmentState>(
-        builder: (context, state) {
-          if (state.enrollementFailed == true) {
-            //TODO: proper error handling
-            return NoInternet();
-          }
-
-          return IrmaProgress(
+      body: BlocListener<EnrollmentBloc, EnrollmentState>(
+          condition: (previous, current) {
+            return previous.isSubmitting && !current.isSubmitting;
+          },
+          listener: (context, state) {
+            if (state.submittingFailed) {
+              Navigator.of(context).pushReplacement(MaterialPageRoute(
+                builder: (context) => SessionErrorScreen(
+                  error: state.error,
+                  onTapClose: () => Navigator.of(context).pop(),
+                  onTapRetry: () {
+                    Navigator.of(context).pop();
+                    widget.retryEnrollment();
+                  },
+                ),
+              ));
+            } else {
+              // Enrollment succeeded
+              Navigator.of(context).pop();
+              if (state.emailValid) {
+                Navigator.of(context, rootNavigator: true)
+                    .pushReplacement(MaterialPageRoute(builder: (context) => EmailSentScreen(email: state.email)));
+              } else {
+                Navigator.of(context, rootNavigator: true).pushReplacementNamed(WalletScreen.routeName);
+              }
+            }
+          },
+          child: IrmaProgress(
             FlutterI18n.translate(context, "enrollment.submit.progress_enrollment"),
-          );
-        },
-      ),
+          )),
     );
   }
 }

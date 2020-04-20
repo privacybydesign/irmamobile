@@ -30,7 +30,7 @@
       }
     },
     "choose_pin": {
-      "title": "Choose PIN",
+      "title": "Secure your IRMA app",
       "insert_pin": "Choose a 5-digit PIN",
       "confirm_title": "Repeat your PIN",
       "instruction": "Choose a 5-digit PIN",
@@ -41,7 +41,7 @@
       "error_action": "OK"
     },
     "provide_email": {
-      "title": "Add an email address",
+      "title": "Secure your IRMA app",
       "instruction": "An email address allows you to disable your IRMA app when your mobile has been lost or stolen.",
       "skip": "Skip",
       "next": "Next",
@@ -49,6 +49,14 @@
       "skip_title": "Are you sure?",
       "skip_content": "Protect your data. When you enter an email address, you can block your IRMA app when your mobile has been lost or stolen.",
       "insert_email": "Enter an email address"
+    },
+    "email_sent": {
+      "title": "Secure your IRMA app",
+      "button": "Continue",
+      "message_title": "Confirm your email address",
+      "message_markdown": "You have received an email from **noreply@sidn.nl**. Open the link in this message to link your email address to your IRMA app.",
+      "mail_sent_text_markdown": "The email has been sent to: **{emailaddress}**.",
+      "check_spam": "It can take a moment until the email arrives. Check your spam folder if you don't see the mail in your inbox."
     },
     "submit": {
       "title": "Logging in",
@@ -197,7 +205,7 @@
       "obtain": "Add",
       "issuer": "Source",
       "purpose_question": "What can you do with these data?",
-      "content_question": "Which data is added?",
+      "content_question": "Which data are added?",
       "howto_question": "How does it work?",
       "back_button": "Cancel",
       "get_button": "Add"
@@ -407,6 +415,9 @@
     "expired": "These data are expired.",
     "revoked": "These data have been revoked.",
     "not_revokable": "These data have to be refreshed first.",
+    "unsatisfiable_title": "Something went wrong",
+    "unsatisfiable_message_markdown": "You are asked to disclose personal data that are not present in your IRMA app or that have expired.",
+    "unsatisfiable_request_markdown": "The data that **{otherParty}** asks you to disclose are listed below. Please go back and load the data into your IRMA app to start over.",
     "explanation": {
       "title": "You can choose",
       "body": "Select which data you disclose. Use the arrow or swipe and choose.",
@@ -422,7 +433,7 @@
       },
       "text": {
         "true": "Your data are disclosed to {otherParty}",
-        "false": "Your data are **not** disclosed to {otherParty}"
+        "false": "Your data are not disclosed to {otherParty}"
       },
       "ok": "OK"
     }
