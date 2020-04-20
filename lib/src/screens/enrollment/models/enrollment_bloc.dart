@@ -11,7 +11,7 @@ class EnrollmentBloc extends Bloc<Object, EnrollmentState> {
   @override
   final EnrollmentState initialState;
 
-  EnrollmentBloc() : initialState = EnrollmentState();
+  EnrollmentBloc(String languageCode) : initialState = EnrollmentState(languageCode: languageCode);
 
   EnrollmentBloc.test(this.initialState);
 
@@ -66,7 +66,7 @@ class EnrollmentBloc extends Bloc<Object, EnrollmentState> {
       final status = await IrmaRepository.get().enroll(
         email: currentState.email.trim(),
         pin: currentState.pin,
-        language: 'nl',
+        language: currentState.languageCode,
       );
 
       if (status is EnrollmentFailureEvent) {

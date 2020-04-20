@@ -9,6 +9,7 @@ class EnrollmentState with EquatableMixin {
   // Pin and email values as submitted
   final String pin;
   final String email;
+  final String languageCode;
 
   // Booleans that indicate:
   //  - Whether the submitted confirmation pin matches the initially given pin (initially false)
@@ -28,6 +29,7 @@ class EnrollmentState with EquatableMixin {
   EnrollmentState({
     this.pin,
     this.email = "",
+    this.languageCode = "nl",
     this.pinConfirmed = false,
     this.pinMismatch = false,
     this.emailValid = false,
@@ -43,6 +45,7 @@ class EnrollmentState with EquatableMixin {
   EnrollmentState copyWith({
     String pin,
     String email,
+    String languageCode,
     bool pinConfirmed,
     bool pinMismatch,
     bool emailValid,
@@ -57,6 +60,7 @@ class EnrollmentState with EquatableMixin {
     return EnrollmentState(
       pin: pin ?? this.pin,
       email: email ?? this.email,
+      languageCode: languageCode ?? this.languageCode,
       pinConfirmed: pinConfirmed ?? this.pinConfirmed,
       pinMismatch: pinMismatch ?? this.pinMismatch,
       emailValid: emailValid ?? this.emailValid,
@@ -76,6 +80,7 @@ class EnrollmentState with EquatableMixin {
      {
         pin: ${pin == null ? null : '*' * pin.length}, 
         email: $email, 
+        languageCode: $languageCode,
         pinConfirmed: $pinConfirmed, 
         pinMismatch: $pinMismatch,
         emailValid: $emailValid, 
@@ -93,6 +98,7 @@ class EnrollmentState with EquatableMixin {
     return [
       pin,
       email,
+      languageCode,
       pinConfirmed,
       pinMismatch,
       emailValid,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/native_events.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_bloc.dart';
@@ -23,7 +24,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<EnrollmentBloc>(
-        builder: (_) => EnrollmentBloc(),
+        builder: (_) => EnrollmentBloc(FlutterI18n.currentLocale(context).languageCode),
         child: BlocBuilder<EnrollmentBloc, EnrollmentState>(builder: (context, _) {
           final bloc = BlocProvider.of<EnrollmentBloc>(context);
           return ProvidedEnrollmentScreen(bloc: bloc);
