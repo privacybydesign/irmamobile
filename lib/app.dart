@@ -39,7 +39,7 @@ class AppState extends State<App> with WidgetsBindingObserver {
     return [
       FlutterI18nDelegate(
         translationLoader: FileTranslationLoader(
-          fallbackFile: 'nl',
+          fallbackFile: 'en',
           basePath: 'assets/locales',
           forcedLocale: forcedLocale,
         ),
