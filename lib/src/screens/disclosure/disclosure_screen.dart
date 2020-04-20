@@ -46,6 +46,8 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   bool scrolledToEnd = false;
   final _scrollController = ScrollController();
 
+  bool navigatedAway = false;
+
   void carouselPageUpdate(int disconIndex, int conIndex) {
     _dispatchSessionEvent(
       DisclosureChoiceUpdateSessionEvent(
@@ -116,9 +118,8 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
         // If this is a session on a second screen, return to the wallet after showing a feedback screen
         if (session.status == SessionStatus.success) {
           _pushDisclosureFeedbackScreen(true, session.serverName.translate(_lang));
-        } else {
-          // TODO: Show an error/cancel feedback screen.
-          popToWallet(context);
+        } else if (!navigatedAway) {
+          _pushDisclosureFeedbackScreen(false, session.serverName.translate(_lang));
         }
       } else if (session.clientReturnURL != null && await canLaunch(session.clientReturnURL)) {
         // If there is a return URL, navigate to it when we're done
@@ -162,6 +163,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   void _declinePermission(BuildContext context, String otherParty) {
     _dismissSession();
     _pushDisclosureFeedbackScreen(false, otherParty);
+    navigatedAway = true;
   }
 
   void _givePermission(SessionState session) {
@@ -279,7 +281,10 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     return Scaffold(
       appBar: IrmaAppBar(
         title: Text(FlutterI18n.translate(context, 'disclosure.title')),
-        leadingCancel: () => _dismissSession(),
+        leadingCancel: () {
+          _dismissSession();
+          navigatedAway = true;
+        },
       ),
       backgroundColor: IrmaTheme.of(context).grayscaleWhite,
       bottomNavigationBar: _buildNavigationBar(),
