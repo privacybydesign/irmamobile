@@ -373,7 +373,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
     /// Button needs to be inserted in the stack at the right place.
     if (_currentState == WalletState.tightlyfolded && widget.credentials.length > _cardsTopVisible + 1) {
       rendered.insert(
-        widget.credentials.length - _cardsTopVisible,
+        widget.credentials.length - _cardsTopVisible - 1,
         _buildWalletExpandButton(walletTop, widget.credentials.length - _cardsTopVisible - 2),
       );
     }
