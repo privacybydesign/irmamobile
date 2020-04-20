@@ -33,20 +33,20 @@ class IrmaMessage extends StatelessWidget {
     IconData icon;
     switch (type) {
       case IrmaMessageType.valid:
-        backgroundColor = IrmaTheme.of(context).notificationSuccessBg;
+        backgroundColor = IrmaTheme.of(context).interactionValid;
         icon = IrmaIcons.valid;
         break;
       case IrmaMessageType.invalid:
-        backgroundColor = IrmaTheme.of(context).notificationErrorBg;
+        backgroundColor = IrmaTheme.of(context).interactionInvalid;
         icon = IrmaIcons.invalid;
         break;
       case IrmaMessageType.alert:
-        backgroundColor = IrmaTheme.of(context).notificationWarningBg;
+        backgroundColor = IrmaTheme.of(context).interactionAlert;
         icon = IrmaIcons.alert;
         foregroundColor = IrmaTheme.of(context).primaryDark;
         break;
       case IrmaMessageType.info:
-        backgroundColor = IrmaTheme.of(context).notificationInfoBg;
+        backgroundColor = IrmaTheme.of(context).interactionInformation;
         icon = IrmaIcons.info;
         foregroundColor = IrmaTheme.of(context).primaryDark;
         break;
