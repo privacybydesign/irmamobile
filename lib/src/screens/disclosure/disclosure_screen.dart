@@ -38,7 +38,6 @@ class DisclosureScreen extends StatefulWidget {
 }
 
 class _DisclosureScreenState extends State<DisclosureScreen> {
-  final String _lang = "nl"; // TODO: this shouldn't be hardcoded.
   final IrmaRepository _repo = IrmaRepository.get();
   Stream<SessionState> _sessionStateStream;
 

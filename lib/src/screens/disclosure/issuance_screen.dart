@@ -26,8 +26,6 @@ class IssuanceScreen extends StatefulWidget {
 }
 
 class _IssuanceScreenState extends State<IssuanceScreen> {
-  final String _lang = "nl"; // TODO: this shouldn't be hardcoded.
-
   final IrmaRepository repo = IrmaRepository.get();
   Stream<SessionState> sessionStateStream;
   int sessionID;
