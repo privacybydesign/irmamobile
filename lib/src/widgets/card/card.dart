@@ -14,8 +14,6 @@ class IrmaCard extends StatelessWidget {
   static const _transparentBlack = Color(0x77000000);
   static const _blurRadius = 4.0;
 
-  final String lang = 'nl';
-
   final CredentialInfo credentialInfo;
   final Attributes attributes;
   final bool revoked;
@@ -98,7 +96,7 @@ class IrmaCard extends StatelessWidget {
               children: <Widget>[
                 Expanded(
                   child: Text(
-                    getTranslation(credentialInfo.credentialType.name),
+                    getTranslation(context, credentialInfo.credentialType.name),
                     style: Theme.of(context).textTheme.subhead.copyWith(
                           color: cardTheme.foregroundColor,
                         ),

@@ -1,12 +1,14 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
+
 String translationMissing = '[translation missing]';
 
-@Deprecated('Implement a proper getTranslation function that respects the user\'s locale')
-String getTranslation(Map<String, String> translations) {
+String getTranslation(BuildContext context, Map<String, String> translations) {
   if (translations.isEmpty) {
     return translationMissing;
   }
 
-  final String translation = translations['nl'];
+  final String translation = translations[FlutterI18n.currentLocale(context).languageCode];
   if (translation == null) {
     return translationMissing;
   }

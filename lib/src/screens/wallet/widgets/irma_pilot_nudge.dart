@@ -25,7 +25,7 @@ class IrmaPilotNudge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final translationScope = 'wallet.${credentialType.fullId.replaceAll('.', '_')}';
-    final translatedIssueUrl = getTranslation(credentialType.issueUrl);
+    final translatedIssueUrl = getTranslation(context, credentialType.issueUrl);
 
     final logoFile = File(issuer.logoPath(irmaConfigurationPath));
 

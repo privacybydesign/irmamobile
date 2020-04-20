@@ -764,7 +764,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) {
-          return WebviewScreen(getTranslation(credential.info.credentialType.issueUrl));
+          return WebviewScreen(getTranslation(context, credential.info.credentialType.issueUrl));
         }),
       );
     };
