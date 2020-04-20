@@ -8,13 +8,11 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:irmamobile/routing.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/enrollment_status.dart';
 import 'package:irmamobile/src/models/applifecycle_changed_event.dart';
+import 'package:irmamobile/src/models/enrollment_status.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/version_information.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
-import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
-import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/screens/required_update/required_update_screen.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
@@ -253,7 +251,7 @@ class AppState extends State<App> with WidgetsBindingObserver {
                   key: const Key("app"),
                   title: 'IRMA',
                   theme: IrmaTheme.of(context).themeData,
-                  localizationsDelegates: defaultLocalizationsDelegates(const Locale('nl', 'NL')),
+                  localizationsDelegates: defaultLocalizationsDelegates(),
                   supportedLocales: defaultSupportedLocales(),
                   navigatorKey: _navigatorKey,
                   onGenerateRoute: Routing.generateRoute,
