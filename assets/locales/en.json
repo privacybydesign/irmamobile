@@ -362,6 +362,19 @@
       }
     }
   },
+  "issuance": {
+    "title": "Add cards",
+    "header-0": "Do you wish to add this card to your IRMA app?",
+    "header-1": "Do you wish to add this card to your IRMA app?",
+    "header-2": "Do you wish to add these cards to your IRMA app?"
+  },
+  "session": {
+    "navigation_bar": {
+      "yes": "Yes",
+      "no": "No, rather not",
+      "back": "Back"
+    },
+  },
   "disclosure": {
     "title": "Make yourself known",
     "disclosure_header_markdown": "Do you wish to disclose this to **{otherParty}**?",
@@ -378,11 +391,6 @@
       "body": "Select which data you disclose. Use the arrow or swipe and choose.",
       "dismiss": "OK",
       "dismiss-remember": "Do not show anymore"
-    },
-    "navigation_bar": {
-      "yes": "Yes",
-      "no": "No, rather not",
-      "back": "Back"
     },
     "redirect": "You are being redirected back to the webpage...",
     "feedback": {
