@@ -39,10 +39,10 @@ class EnrollEvent extends Event {
   Map<String, dynamic> toJson() => _$EnrollEventToJson(this);
 }
 
-class EnrollEventStatus extends Event {}
+class EnrollmentEvent extends Event {}
 
 @JsonSerializable()
-class EnrollmentFailureEvent extends EnrollEventStatus {
+class EnrollmentFailureEvent extends EnrollmentEvent {
   EnrollmentFailureEvent({
     this.schemeManagerID,
     this.error,
@@ -59,7 +59,7 @@ class EnrollmentFailureEvent extends EnrollEventStatus {
 }
 
 @JsonSerializable()
-class EnrollmentSuccessEvent extends EnrollEventStatus {
+class EnrollmentSuccessEvent extends EnrollmentEvent {
   EnrollmentSuccessEvent({this.schemeManagerID});
 
   @JsonKey(name: 'SchemeManagerID')
