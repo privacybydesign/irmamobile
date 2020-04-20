@@ -38,7 +38,7 @@ class EmailSentScreen extends StatelessWidget {
                 children: <Widget>[
                   IrmaMessage(
                     'enrollment.email_sent.message_title',
-                    'enrollment.email_sent.message_markdown',
+                    'enrollment.email_sent.message',
                     type: IrmaMessageType.info,
                   ),
                   SizedBox(
@@ -47,7 +47,7 @@ class EmailSentScreen extends StatelessWidget {
                   SizedBox(
                       width: double.infinity, // seems necessary to left-align short texts
                       child: Container(
-                        child: TranslatedText('enrollment.email_sent.mail_sent_text_markdown',
+                        child: TranslatedText('enrollment.email_sent.mail_sent_text',
                             translationParams: {"emailaddress": email}),
                       )),
                   SizedBox(

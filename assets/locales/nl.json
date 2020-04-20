@@ -419,7 +419,7 @@
       },
       "text": {
         "true": "Je gegevens zijn doorgegeven aan {otherParty}",
-        "false": "Je gegevens zijn **niet** doorgegeven aan {otherParty}"
+        "false_markdown": "Je gegevens zijn **niet** doorgegeven aan {otherParty}"
       },
       "ok": "OK"
     }
