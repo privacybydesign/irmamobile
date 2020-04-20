@@ -4,10 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/session.dart';
-import 'package:irmamobile/src/models/session_events.dart';
-import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
+import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/webview/widgets/browser_bar.dart';
 import 'package:irmamobile/src/screens/webview/widgets/loading_data.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
@@ -20,13 +18,8 @@ class WebviewScreen extends StatefulWidget {
   static const String routeName = "/issuance/webview";
   final String url;
 
-  _handleSessionPointer(BuildContext context, SessionPointer sessionPointer) {
-    final event = NewSessionEvent(
-      request: SessionPointer(irmaqr: sessionPointer.irmaqr, u: sessionPointer.u),
-    );
-
-    IrmaRepository.get().bridgedDispatch(event);
-    Navigator.of(context).popUntil(ModalRoute.withName(WalletScreen.routeName));
+  void _handleSessionPointer(BuildContext context, SessionPointer sessionPointer) {
+    ScannerScreen.startSessionAndNavigate(Navigator.of(context), sessionPointer);
   }
 
   const WebviewScreen(this.url, {Key key}) : super(key: key);
