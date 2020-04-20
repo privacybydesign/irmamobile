@@ -9,6 +9,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   final void Function() leadingCancel;
   final String leadingTooltip;
   final List<Widget> actions;
+  final bool noLeading;
 
   const IrmaAppBar(
       {this.title,
@@ -16,29 +17,33 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
       this.leadingAction,
       this.leadingTooltip,
       this.leadingCancel,
+      this.noLeading = false,
       this.actions = const []});
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
       centerTitle: true,
-      leading: IconButton(
-          icon: leadingIcon ??
-              Icon(IrmaIcons.arrowBack,
-                  semanticLabel: FlutterI18n.translate(context, "accessibility.back"), size: 18.0),
-          tooltip: leadingTooltip,
-          onPressed: () {
-            if (leadingCancel != null) {
-              leadingCancel();
-            }
-            if (leadingAction == null) {
-              Navigator.of(context).pop();
-            } else {
-              leadingAction();
-            }
-          }),
+      leading: noLeading
+          ? null
+          : IconButton(
+              icon: leadingIcon ??
+                  Icon(IrmaIcons.arrowBack,
+                      semanticLabel: FlutterI18n.translate(context, "accessibility.back"), size: 18.0),
+              tooltip: leadingTooltip,
+              onPressed: () {
+                if (leadingCancel != null) {
+                  leadingCancel();
+                }
+                if (leadingAction == null) {
+                  Navigator.of(context).pop();
+                } else {
+                  leadingAction();
+                }
+              }),
       title: title,
       actions: actions,
+      automaticallyImplyLeading: false,
     );
   }
 

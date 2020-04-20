@@ -22,9 +22,7 @@ class EmailSentScreen extends StatelessWidget {
               title: Text(
                 FlutterI18n.translate(context, 'enrollment.email_sent.title'),
               ),
-              leadingCancel: () {
-                Navigator.of(context, rootNavigator: true).pushReplacementNamed(WalletScreen.routeName);
-              }),
+              noLeading: true),
           bottomNavigationBar: IrmaBottomBar(
             primaryButtonLabel: FlutterI18n.translate(context, 'enrollment.email_sent.button'),
             onPrimaryPressed: () {
