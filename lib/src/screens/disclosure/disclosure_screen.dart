@@ -20,6 +20,7 @@ import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
+import 'package:irmamobile/src/widgets/irma_message.dart';
 import 'package:irmamobile/src/widgets/irma_quote.dart';
 import 'package:irmamobile/src/widgets/irma_text_button.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
@@ -177,10 +178,36 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   }
 
   Widget _buildDisclosureHeader(SessionState session) {
-    return TranslatedText(
-      'disclosure.disclosure_header',
-      translationParams: {"otherParty": session.serverName.translate(_lang)},
-      style: Theme.of(context).textTheme.body1,
+    Widget unsatisfiableInfo = Container();
+
+    return StreamBuilder<SessionState>(
+      stream: _sessionStateStream,
+      builder: (context, sessionStateSnapshot) {
+        if (!sessionStateSnapshot.hasData || sessionStateSnapshot.data.status != SessionStatus.requestPermission) {
+          return Container(height: 0);
+        }
+
+        final state = sessionStateSnapshot.data;
+        if (!state.satisfiable) {
+          unsatisfiableInfo = IrmaMessage(
+            'disclosure.unsatisfiable_title',
+            'disclosure.unsatisfiable_message_markdown',
+            iconColor: IrmaTheme.of(context).primaryBlue,
+            type: IrmaMessageType.info,
+          );
+        }
+        return Column(
+          children: <Widget>[
+            unsatisfiableInfo,
+            SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+            TranslatedText(
+              'disclosure.disclosure_header_markdown',
+              translationParams: {"otherParty": session.serverName.translate(_lang)},
+              style: Theme.of(context).textTheme.body1,
+            ),
+          ],
+        );
+      },
     );
   }
 
