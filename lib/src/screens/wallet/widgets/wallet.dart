@@ -105,8 +105,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   // Height of interactive bottom to toggle wallet state between tightlyfolded and folded
   final _walletBottomInteractive = 0.7;
 
-  final _scrollController = ScrollController();
-
   AnimationController _cardAnimationController;
   AnimationController _loginLogoutAnimationController;
   Animation<double> _drawAnimation;
@@ -124,7 +122,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   double _cardDragOffset = 0;
   bool _nudgeVisible = true;
   bool _showCards = false;
-  bool _enableCardGestures = true;
 
   final _closedWalletOffset = 50;
   final IrmaRepository _irmaClient = IrmaRepository.get();
@@ -254,11 +251,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
                     /// All cards
                     if (_showCards)
-                      SingleChildScrollView(
-                        padding: EdgeInsets.only(top: IrmaTheme.of(context).smallSpacing),
-                        controller: _scrollController,
-                        child: _buildCardStack(walletTop, screenHeight),
-                      ),
+                      _buildCardStack(walletTop, screenHeight),
 
                     /// Wallet foreground with help and qr buttons
                     Align(
@@ -351,44 +344,30 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       return Container();
     }
 
-    _addPostFrameCallback();
-
     /// Compensate _screenHeightMargin for bottom bar
     final stackHeightFolded = _screenHeightMargin + widget.credentials.length.toDouble() * _cardTopHeight;
     final walletHeight = screenHeight - _screenHeightMargin;
 
-    /// The stack needs at least one fixed sized element to be able to make it scrollable.
-    /// Wallet may only be scrollable when being in a folded state.
-    /// The container size must always be at least the wallet height to make all animations visible.
-    final rendered = <Widget>[
-      Container(
-        constraints: BoxConstraints(
-          maxHeight: _currentState == WalletState.folded && stackHeightFolded > walletHeight
-              ? stackHeightFolded
-              : walletHeight,
-        ),
-      ),
-    ];
+    final scrollingEnabled = _currentState == WalletState.folded && stackHeightFolded > walletHeight;
 
     /// Render all credential cards
-    rendered.addAll(
-      widget.credentials.asMap().entries.map<Widget>(
-        (credential) {
-          final cardTop = getCardPosition(credential.key, walletTop);
-          return Positioned(
-            left: 0,
-            right: 0,
-            top: walletTop - cardTop,
-            child: getCard(
-              credential.key,
-              widget.credentials.length,
-              credential.value,
-              walletTop,
-            ),
-          );
-        },
-      ),
-    );
+    final rendered = widget.credentials.asMap().entries.map<Widget>(
+      (credential) {
+        final cardTop = getCardPosition(credential.key, walletTop);
+        return Positioned(
+          left: 0,
+          right: 0,
+          top: walletTop - cardTop,
+          child: getCard(
+            index: credential.key,
+            count: widget.credentials.length,
+            credential: credential.value,
+            walletTop: walletTop,
+            enableGestures: !scrollingEnabled,
+          ),
+        );
+      },
+    ).toList();
 
     /// Display chevron to help users expanding their tightly folded wallet.
     /// Button needs to be inserted in the stack at the right place.
@@ -399,10 +378,36 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       );
     }
 
-    return Stack(
-      overflow: Overflow.visible,
-      children: rendered,
-    );
+    /// Wallet may only be scrollable when being in a folded state.
+    /// Scrollview is not transparent to gestures, so use container if scrollview is not needed.
+    if (scrollingEnabled) {
+      return SingleChildScrollView(
+        padding: EdgeInsets.only(top: IrmaTheme.of(context).smallSpacing),
+        child: Stack(
+          overflow: Overflow.visible,
+          children: [
+            /// Fixed size element must be in stack to prevent the scroll view from growing to infinite sizes.
+            Container(
+              constraints: BoxConstraints(
+                maxHeight: stackHeightFolded,
+              ),
+            ),
+            ...rendered,
+          ],
+        ),
+      );
+    } else {
+      return Container(
+        /// The container size must always be at least the wallet height to make all animations visible.
+        constraints: BoxConstraints(
+          maxHeight: walletHeight,
+        ),
+        child: Stack(
+          overflow: Overflow.visible,
+          children: rendered,
+        ),
+      );
+    }
   }
 
   Widget _buildWalletExpandButton(double walletTop, int firstTightlyFoldedCardIndex) {
@@ -460,11 +465,12 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
   /// IrmaCard with gestures attached
   /// Most of this code deals with having a good dragging UX
-  Widget getCard(int index, int count, Credential credential, double walletTop) => GestureDetector(
+  Widget getCard({int index, int count, Credential credential, double walletTop, bool enableGestures}) =>
+      GestureDetector(
         onTap: () {
           cardTapped(index, credential);
         },
-        onVerticalDragDown: _enableCardGestures
+        onVerticalDragDown: enableGestures
             ? (DragDownDetails details) {
                 setState(
                   () {
@@ -488,14 +494,14 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                 );
               }
             : null,
-        onVerticalDragStart: _enableCardGestures
+        onVerticalDragStart: enableGestures
             ? (DragStartDetails details) {
                 setState(() {
                   _dragOffset = _dragOffsetSave;
                 });
               }
             : null,
-        onVerticalDragUpdate: _enableCardGestures
+        onVerticalDragUpdate: enableGestures
             ? (DragUpdateDetails details) {
                 setState(() {
                   if (_drawnCardIndex == index) {
@@ -504,7 +510,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                 });
               }
             : null,
-        onVerticalDragEnd: _enableCardGestures
+        onVerticalDragEnd: enableGestures
             ? (DragEndDetails details) {
                 if ((_dragOffset < -_dragTipping && _currentState != WalletState.drawn) ||
                     (_dragOffset > _dragTipping && _currentState == WalletState.drawn)) {
@@ -781,18 +787,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         DeleteCredentialEvent(hash: credential.hash),
       );
     };
-  }
-
-  void _addPostFrameCallback() {
-    // Disable card gestures if page needs to be scrollable
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final scrollingEnabled = _scrollController.position.minScrollExtent != _scrollController.position.maxScrollExtent;
-      if (scrollingEnabled == _enableCardGestures) {
-        setState(() {
-          _enableCardGestures = !_enableCardGestures;
-        });
-      }
-    });
   }
 }
 
