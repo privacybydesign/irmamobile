@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/theme/theme.dart';
@@ -15,7 +14,7 @@ class IrmaCard extends StatelessWidget {
   static const _transparentBlack = Color(0x77000000);
   static const _blurRadius = 4.0;
 
-  String lang;
+  final String lang = 'nl';
 
   final CredentialInfo credentialInfo;
   final Attributes attributes;
@@ -50,7 +49,6 @@ class IrmaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    lang = FlutterI18n.currentLocale(context).languageCode;
     return Container(
       margin: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
       decoration: BoxDecoration(
