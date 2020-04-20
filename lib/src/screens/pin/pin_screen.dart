@@ -92,7 +92,9 @@ class _PinScreenState extends State<PinScreen> {
           return Container();
         }
 
-        FocusScope.of(context).requestFocus(_focusNode);
+        if (!state.pinInvalid) {
+          FocusScope.of(context).requestFocus(_focusNode);
+        }
         return Scaffold(
             backgroundColor: IrmaTheme.of(context).backgroundBlue,
             appBar: _buildAppBar(),
