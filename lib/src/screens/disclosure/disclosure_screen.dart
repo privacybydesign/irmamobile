@@ -54,6 +54,9 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
       ),
       isBridgedEvent: false,
     );
+
+    scrolledToEnd = false;
+    _checkScrolledToEnd();
   }
 
   @override
