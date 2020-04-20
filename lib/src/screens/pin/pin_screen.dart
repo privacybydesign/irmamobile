@@ -92,9 +92,6 @@ class _PinScreenState extends State<PinScreen> {
           return Container();
         }
 
-        if (!state.pinInvalid) {
-          FocusScope.of(context).requestFocus(_focusNode);
-        }
         return Scaffold(
             backgroundColor: IrmaTheme.of(context).backgroundBlue,
             appBar: _buildAppBar(),
@@ -106,6 +103,9 @@ class _PinScreenState extends State<PinScreen> {
                     final blockedText = '${FlutterI18n.translate(context, "pin_common.blocked_for")}';
                     final blockedForTime = formatBlockedFor(context, blockedFor.data);
                     subtitle = Text('$blockedText $blockedForTime');
+                  }
+                  if (!state.pinInvalid) {
+                    FocusScope.of(context).requestFocus(_focusNode);
                   }
                   return SafeArea(
                     child: SingleChildScrollView(
