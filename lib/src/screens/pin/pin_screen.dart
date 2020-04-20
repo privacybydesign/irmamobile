@@ -99,7 +99,7 @@ class _PinScreenState extends State<PinScreen> {
             backgroundColor: IrmaTheme.of(context).backgroundBlue,
             appBar: _buildAppBar(),
             body: StreamBuilder(
-                stream: IrmaPreferences.get().getPinBlockedFor(),
+                stream: _pinBloc.getPinBlockedFor(),
                 builder: (BuildContext context, AsyncSnapshot<Duration> blockedFor) {
                   var subtitle = Text(FlutterI18n.translate(context, "pin.subtitle"));
                   if (blockedFor.hasData && blockedFor.data.inSeconds > 0) {
@@ -135,7 +135,7 @@ class _PinScreenState extends State<PinScreen> {
                             stream: IrmaPreferences.get().getLongPin(),
                             builder: (BuildContext context, AsyncSnapshot<bool> longPin) => PinField(
                               focusNode: _focusNode,
-                              enabled: blockedFor.data?.inSeconds == 0,
+                              enabled: (blockedFor.data ?? Duration.zero).inSeconds == 0,
                               longPin: longPin.hasData && longPin.data,
                               onSubmit: (pin) {
                                 FocusScope.of(context).requestFocus();

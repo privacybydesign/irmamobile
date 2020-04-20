@@ -81,18 +81,7 @@ class IrmaRepository {
         rawCredentials: event.credentials,
       ));
     } else if (event is AuthenticationEvent) {
-      if (event is AuthenticationFailedEvent) {
-        // To have some timing slack we add some time
-        // to the blocked duration.
-        if (event.blockedDuration > 0) {
-          event.blockedDuration += 20;
-        }
-        final blockedUntil = DateTime.now().add(Duration(seconds: event.blockedDuration));
-        IrmaPreferences.get().setPinBlockedUntil(blockedUntil);
-      }
-
       _authenticationEventSubject.add(event);
-
       if (event is AuthenticationSuccessEvent) {
         _lockedSubject.add(false);
       }
