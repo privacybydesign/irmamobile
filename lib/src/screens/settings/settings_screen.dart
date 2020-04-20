@@ -30,21 +30,23 @@ class SettingsScreen extends StatelessWidget {
         color: Theme.of(context).canvasColor,
         child: ListView(children: <Widget>[
           SizedBox(height: IrmaTheme.of(context).largeSpacing),
-          StreamBuilder(
-            stream: irmaPrefs.getStartQRScan(),
-            builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-              return SwitchListTile.adaptive(
-                title: Text(
-                  FlutterI18n.translate(context, 'settings.start_qr'),
-                  style: IrmaTheme.of(context).textTheme.body1,
-                ),
-                activeColor: IrmaTheme.of(context).interactionValid,
-                value: snapshot.hasData && snapshot.data,
-                onChanged: irmaPrefs.setStartQRScan,
-                secondary: Icon(IrmaIcons.scanQrcode, color: IrmaTheme.of(context).textTheme.body1.color),
-              );
-            },
-          ),
+          // This setting has too many problems (#226) that need to be fixed first.
+          // TODO: fix #226 and re-enable this
+          // StreamBuilder(
+          //   stream: irmaPrefs.getStartQRScan(),
+          //   builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+          //     return SwitchListTile.adaptive(
+          //       title: Text(
+          //         FlutterI18n.translate(context, 'settings.start_qr'),
+          //         style: IrmaTheme.of(context).textTheme.body1,
+          //       ),
+          //       activeColor: IrmaTheme.of(context).interactionValid,
+          //       value: snapshot.hasData && snapshot.data,
+          //       onChanged: irmaPrefs.setStartQRScan,
+          //       secondary: Icon(IrmaIcons.scanQrcode, color: IrmaTheme.of(context).textTheme.body1.color),
+          //     );
+          //   },
+          // ),
           ListTile(
             onTap: () {
               Navigator.of(context).pushNamed(ChangePinScreen.routeName);
