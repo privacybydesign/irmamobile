@@ -28,8 +28,11 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
           ? null
           : IconButton(
               icon: leadingIcon ??
-                  Icon(IrmaIcons.arrowBack,
-                      semanticLabel: FlutterI18n.translate(context, "accessibility.back"), size: 18.0),
+                  Icon(
+                    IrmaIcons.arrowBack,
+                    semanticLabel: FlutterI18n.translate(context, "accessibility.back"),
+                    size: 18.0,
+                  ),
               tooltip: leadingTooltip,
               onPressed: () {
                 if (leadingCancel != null) {
