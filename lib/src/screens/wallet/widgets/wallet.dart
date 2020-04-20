@@ -353,19 +353,19 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
     _addPostFrameCallback();
 
-    /// Compensate _screenHeightMargin for bottom bar and _cardTopHeight for the first card.
-    final stackHeight = getCardPosition(0, walletTop) -
-        getCardPosition(widget.credentials.length - 1, walletTop) +
-        _screenHeightMargin +
-        _cardTopHeight;
+    /// Compensate _screenHeightMargin for bottom bar
+    final stackHeightFolded = _screenHeightMargin + widget.credentials.length.toDouble() * _cardTopHeight;
     final walletHeight = screenHeight - _screenHeightMargin;
 
     /// The stack needs at least one fixed sized element to be able to make it scrollable.
+    /// Wallet may only be scrollable when being in a folded state.
     /// The container size must always be at least the wallet height to make all animations visible.
     final rendered = <Widget>[
       Container(
         constraints: BoxConstraints(
-          maxHeight: stackHeight > walletHeight ? stackHeight : walletHeight,
+          maxHeight: _currentState == WalletState.folded && stackHeightFolded > walletHeight
+              ? stackHeightFolded
+              : walletHeight,
         ),
       ),
     ];
@@ -490,22 +490,18 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
             : null,
         onVerticalDragStart: _enableCardGestures
             ? (DragStartDetails details) {
-                if (details.globalPosition.dy >= _screenHeightMargin) {
-                  setState(() {
-                    _dragOffset = _dragOffsetSave;
-                  });
-                }
+                setState(() {
+                  _dragOffset = _dragOffsetSave;
+                });
               }
             : null,
         onVerticalDragUpdate: _enableCardGestures
             ? (DragUpdateDetails details) {
-                if (details.globalPosition.dy >= _screenHeightMargin) {
-                  setState(() {
-                    if (_drawnCardIndex == index) {
-                      _dragOffset = details.localPosition.dy - _cardDragOffset;
-                    }
-                  });
-                }
+                setState(() {
+                  if (_drawnCardIndex == index) {
+                    _dragOffset = details.localPosition.dy - _cardDragOffset;
+                  }
+                });
               }
             : null,
         onVerticalDragEnd: _enableCardGestures
