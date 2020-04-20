@@ -405,6 +405,9 @@
     "expired": "Deze gegevens zijn verlopen.",
     "revoked": "Deze gegevens zijn teruggetrokken.",
     "not_revokable": "Deze gegevens moeten eerst ververst worden.",
+    "unsatisfiable_title": "Er gaat iets mis",
+    "unsatisfiable_message_markdown": "Er worden gegevens gevraagd die niet in je IRMA-app staan of verlopen zijn.",
+    "unsatisfiable_request_markdown": "De gegevens die **{otherParty}** vraagt staan hieronder. Ga terug en laad deze gegevens in je IRMA-app om het opnieuw te proberen.",
     "explanation": {
       "title": "Zo maak je een keuze",
       "body": "Kies welke gegevens je doorgeeft. Gebruik het pijltje of swipe en maak je keuze.",

@@ -205,7 +205,7 @@
       "obtain": "Add",
       "issuer": "Source",
       "purpose_question": "What can you do with these data?",
-      "content_question": "Which data is added?",
+      "content_question": "Which data are added?",
       "howto_question": "How does it work?",
       "back_button": "Cancel",
       "get_button": "Add"
@@ -392,6 +392,9 @@
     "expired": "These data are expired.",
     "revoked": "These data have been revoked.",
     "not_revokable": "These data have to be refreshed first.",
+    "unsatisfiable_title": "Something went wrong",
+    "unsatisfiable_message_markdown": "You are asked to disclose personal data that are not present in your IRMA app or that have expired.",
+    "unsatisfiable_request_markdown": "The data that **{otherParty}** asks you to disclose are listed below. Please go back and load the data into your IRMA app to start over.",
     "explanation": {
       "title": "You can choose",
       "body": "Select which data you disclose. Use the arrow or swipe and choose.",
