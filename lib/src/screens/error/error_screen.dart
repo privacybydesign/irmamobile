@@ -45,7 +45,7 @@ class _GeneralErrorScreenState extends State<GeneralErrorScreen> {
                 } else {
                   // There is no sensible stack trace to pass here, so the exception will
                   // have to do.
-                  reportError(widget.errorText, null);
+                  reportError(widget.errorText, null, userInitiated: true);
                 }
                 setState(() {
                   hasReported = true;

@@ -24,7 +24,7 @@ class SessionErrorScreen extends StatelessWidget {
       return GeneralErrorScreen(
         errorText: error.toString(),
         onTapClose: onTapClose,
-        onTapReport: () => reportError(error, null),
+        onTapReport: () => reportError(error, null, userInitiated: true),
       );
     }
   }
