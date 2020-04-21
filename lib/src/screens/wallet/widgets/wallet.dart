@@ -526,7 +526,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
           credential: credential,
           scrollBeyondBoundsCallback: scrollBeyondBound,
           onRefreshCredential: _createOnRefreshCredential(credential),
-          onDeleteCredential: _createOnDeleteCredential(credential),
+          onDeleteCredential: _createOnDeleteCredential(index, credential),
         ),
       );
 
@@ -777,7 +777,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   }
 
   /// Handler for delete in ... menu
-  Function() _createOnDeleteCredential(Credential credential) {
+  Function() _createOnDeleteCredential(int index, Credential credential) {
     if (credential.info.credentialType.disallowDelete) {
       return null;
     }
@@ -786,6 +786,12 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       IrmaRepository.get().bridgedDispatch(
         DeleteCredentialEvent(hash: credential.hash),
       );
+      if (_drawnCardIndex == index && _currentState == WalletState.drawn) {
+        setNewState(_cardInStackState);
+      } else if (_drawnCardIndex > index && _currentState == WalletState.drawn) {
+        // Compensate for removed card.
+        _drawnCardIndex--;
+      }
     };
   }
 }

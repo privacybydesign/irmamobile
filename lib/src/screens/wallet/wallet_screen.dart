@@ -121,8 +121,13 @@ class _WalletScreenState extends State<_WalletScreen> {
             return Container(height: 0);
           }
 
+          final credentialList = state.credentials.values.toList();
+          credentialList.sort((a, b) {
+            if (a.signedOn != b.signedOn) return a.signedOn.compareTo(b.signedOn);
+            return a.hash.compareTo(b.hash);
+          });
           return Wallet(
-            credentials: state.credentials.values.toList(),
+            credentials: credentialList,
             hasLoginLogoutAnimation: true,
             isOpen: !isWalletLocked,
             newCardIndex: state.newCardIndex,
