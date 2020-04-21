@@ -42,8 +42,7 @@ class _SubmitState extends State<Submit> {
         title: Text(
           FlutterI18n.translate(context, 'enrollment.submit.title'),
         ),
-        leadingAction: () => widget.cancelAndNavigate(context),
-        leadingTooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+        noLeading: true,
       ),
       body: BlocListener<EnrollmentBloc, EnrollmentState>(
           condition: (previous, current) {
