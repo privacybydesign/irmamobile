@@ -148,7 +148,18 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
     } else {
       // Otherwise, on iOS show a screen to press the return arrow in the top-left corner,
       // and on Android just background the app to let the user return to the previous activity
-      if (Platform.isIOS) {
+      if (session.issuedCredentials
+          .where((credential) => [
+                "pbdf.gemeente.personalData",
+                "pbdf.pbdf.email",
+                "pbdf.pbdf.mobilenumber",
+                "pbdf.pbdf.ideal",
+                "pbdf.pbdf.idin"
+              ].contains(credential.info.fullId))
+          .isNotEmpty) {
+        popToWallet(context);
+        // Do not go back to browser for idin, iban, phone, email and gemeente-issued personaldata credentials
+      } else if (Platform.isIOS) {
         setState(() => displayArrowBack = true);
       } else {
         SystemNavigator.pop();
