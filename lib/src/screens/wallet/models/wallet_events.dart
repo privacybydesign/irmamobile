@@ -4,10 +4,10 @@ class WalletEvent {}
 
 class CredentialUpdate extends WalletEvent {
   final Credentials credentials;
-  final int newCardIndex;
+  final String newCardHash;
   final bool showNewCardAnimation;
 
-  CredentialUpdate(this.credentials, this.newCardIndex, {this.showNewCardAnimation});
+  CredentialUpdate(this.credentials, this.newCardHash, {this.showNewCardAnimation});
 }
 
 class NewCardAnitmationShown extends WalletEvent {}

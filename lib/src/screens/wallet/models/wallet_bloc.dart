@@ -14,13 +14,13 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
 
   WalletBloc() : initialState = WalletState() {
     credentialStreamSubscription = IrmaRepository.get().getCredentials().listen((credentials) {
-      int newCardIndex;
+      String newCardHash;
       final newKeyIndexes = _getIndexesOfNewKeys(currentState.credentials, credentials);
       if (newKeyIndexes.isNotEmpty) {
-        newCardIndex = newKeyIndexes.first;
+        newCardHash = credentials.values.elementAt(newKeyIndexes.first).hash;
       }
 
-      dispatch(CredentialUpdate(credentials, newCardIndex, showNewCardAnimation: newCardIndex != null));
+      dispatch(CredentialUpdate(credentials, newCardHash, showNewCardAnimation: newCardHash != null));
     });
   }
 
@@ -50,7 +50,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     if (event is CredentialUpdate) {
       yield currentState.copyWith(
           credentials: event.credentials,
-          newCardIndex: event.newCardIndex,
+          newCardHash: event.newCardHash,
           showNewCardAnimation: event.showNewCardAnimation);
     }
 

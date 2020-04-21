@@ -5,15 +5,15 @@ import 'package:meta/meta.dart';
 @immutable
 class WalletState with EquatableMixin {
   final Credentials credentials;
-  final int newCardIndex;
+  final String newCardHash;
   final bool showNewCardAnimation;
 
-  WalletState({this.credentials, this.newCardIndex, this.showNewCardAnimation});
+  WalletState({this.credentials, this.newCardHash, this.showNewCardAnimation});
 
-  WalletState copyWith({Credentials credentials, int newCardIndex, bool showNewCardAnimation}) {
+  WalletState copyWith({Credentials credentials, String newCardHash, bool showNewCardAnimation}) {
     return WalletState(
       credentials: credentials ?? this.credentials,
-      newCardIndex: newCardIndex ?? this.newCardIndex,
+      newCardHash: newCardHash ?? this.newCardHash,
       showNewCardAnimation: showNewCardAnimation ?? this.showNewCardAnimation,
     );
   }
@@ -23,7 +23,7 @@ class WalletState with EquatableMixin {
     return [
       credentials,
       showNewCardAnimation,
-      newCardIndex,
+      newCardHash,
     ];
   }
 }
