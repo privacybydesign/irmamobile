@@ -430,7 +430,7 @@
     "feedback": {
       "header": {
         "true": "Gelukt",
-        "false": "Niets vrijgegeven"
+        "false": "Niets doorgegeven"
       },
       "text": {
         "true": "Je gegevens zijn doorgegeven aan {otherParty}",
