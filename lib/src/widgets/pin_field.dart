@@ -82,7 +82,7 @@ class _PinFieldState extends State<PinField> {
   void _onTextChanged() {
     final changedValue = _textEditingController.text;
 
-    if (changedValue.length != value.length && changedValue.length == widget.maxLength) {
+    if (changedValue.length != value.length && changedValue.length == widget.maxLength && !widget.longPin) {
       _onFull(changedValue);
 
       Future.delayed(const Duration(milliseconds: 500), () {
