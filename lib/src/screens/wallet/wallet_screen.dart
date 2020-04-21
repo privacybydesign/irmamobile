@@ -126,11 +126,17 @@ class _WalletScreenState extends State<_WalletScreen> {
             if (a.signedOn != b.signedOn) return a.signedOn.compareTo(b.signedOn);
             return a.hash.compareTo(b.hash);
           });
+          int newCardIndex;
+          for (var i = 0; i < credentialList.length; i++) {
+            if (credentialList[i].hash == state.newCardHash) {
+              newCardIndex = i;
+            }
+          }
           return Wallet(
             credentials: credentialList,
             hasLoginLogoutAnimation: true,
             isOpen: !isWalletLocked,
-            newCardIndex: state.newCardIndex,
+            newCardIndex: newCardIndex,
             showNewCardAnimation: state.showNewCardAnimation,
             onQRScannerPressed: qrScannerPressed,
             onHelpPressed: helpPressed,
