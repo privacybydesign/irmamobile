@@ -62,10 +62,9 @@ class _SubmitState extends State<Submit> {
               ));
             } else {
               // Enrollment succeeded
-              Navigator.of(context).pop();
               if (state.emailValid) {
                 Navigator.of(context, rootNavigator: true)
-                    .pushReplacement(MaterialPageRoute(builder: (context) => EmailSentScreen(email: state.email)));
+                    .pushReplacementNamed(EmailSentScreen.routeName, arguments: state.email);
               } else {
                 Navigator.of(context, rootNavigator: true).pushReplacementNamed(WalletScreen.routeName);
               }
