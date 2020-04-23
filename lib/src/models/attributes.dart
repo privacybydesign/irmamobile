@@ -212,7 +212,7 @@ class Attribute {
   }
 }
 
-@JsonSerializable(nullable: false)
+@JsonSerializable()
 class DisclosedAttribute {
   const DisclosedAttribute({
     this.rawValue,

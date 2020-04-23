@@ -124,7 +124,7 @@ class CredentialInfo {
   }
 }
 
-@JsonSerializable(nullable: false)
+@JsonSerializable()
 class RawCredential {
   const RawCredential({
     this.id,
