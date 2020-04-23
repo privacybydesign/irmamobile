@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ApplicationInfo;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
@@ -20,6 +21,7 @@ public class IrmaMobileBridgePlugin implements MethodCallHandler, irmagobridge.I
   private Context context;
   private Activity activity;
   private Uri initialURL;
+  private boolean debug;
 
   public static void registerWith(Registrar registrar, Uri initialURL) {
     MethodChannel channel = new MethodChannel(registrar.messenger(), "irma.app/irma_mobile_bridge");
@@ -37,6 +39,7 @@ public class IrmaMobileBridgePlugin implements MethodCallHandler, irmagobridge.I
     try {
       PackageInfo pi = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
       Irmagobridge.start(this, pi.applicationInfo.dataDir, copier.destAssetsPath.toString());
+      this.debug = (pi.applicationInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
     } catch (PackageManager.NameNotFoundException e) {
       throw new RuntimeException(e);
     }
@@ -85,7 +88,7 @@ public class IrmaMobileBridgePlugin implements MethodCallHandler, irmagobridge.I
 
   @Override
   public void debugLog(String message) {
-    // TODO: Only make this print in development
-    System.out.printf("[IrmaMobileBridgePlugin] %s\n", message);
+    if (debug)
+      System.out.printf("[IrmaMobileBridgePlugin] %s\n", message);
   }
 }
