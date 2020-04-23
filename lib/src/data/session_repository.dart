@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/credentials.dart';
+import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:rxdart/rxdart.dart';
@@ -58,9 +59,11 @@ class SessionRepository {
         clientReturnURL: event.clientReturnURL,
       );
     } else if (event is RequestIssuancePermissionSessionEvent) {
-      final condiscon = ConDisCon.fromRaw<DisclosureCandidate, Attribute>(
-        event.disclosuresCandidates,
-        (disclosureCandidate) => Attribute.fromCandidate(irmaConfiguration, credentials, disclosureCandidate),
+      final condiscon = processAttributes(
+        candidates: event.disclosuresCandidates,
+        isSatisfiable: event.satisfiable,
+        irmaConfiguration: irmaConfiguration,
+        credentials: credentials,
       );
       return prevState.copyWith(
         status: SessionStatus.requestPermission,
@@ -78,9 +81,11 @@ class SessionRepository {
             .toList(),
       );
     } else if (event is RequestVerificationPermissionSessionEvent) {
-      final condiscon = ConDisCon.fromRaw<DisclosureCandidate, Attribute>(
-        event.disclosuresCandidates,
-        (disclosureCandidate) => Attribute.fromCandidate(irmaConfiguration, credentials, disclosureCandidate),
+      final condiscon = processAttributes(
+        candidates: event.disclosuresCandidates,
+        isSatisfiable: event.satisfiable,
+        irmaConfiguration: irmaConfiguration,
+        credentials: credentials,
       );
       return prevState.copyWith(
         status: SessionStatus.requestPermission,
@@ -110,6 +115,29 @@ class SessionRepository {
     }
 
     return prevState;
+  }
+
+  ConDisCon<Attribute> processAttributes({
+    List<List<List<DisclosureCandidate>>> candidates,
+    bool isSatisfiable,
+    IrmaConfiguration irmaConfiguration,
+    Credentials credentials,
+  }) {
+    final condiscon = ConDisCon.fromRaw<DisclosureCandidate, Attribute>(
+      candidates,
+      (disclosureCandidate) => Attribute.fromCandidate(irmaConfiguration, credentials, disclosureCandidate),
+    );
+    // Filter out all non-options -- that is, all inner con's containing one or more non-choosable
+    // attributes -- until an obtain/refresh button is implemented to make them actionable.
+    // TODO: remove this after that has been implemented.
+    // If the request is not satisfiable, we do show all non-options so the user knows
+    // which credentials to obtain.
+    if (!isSatisfiable) {
+      return condiscon;
+    }
+    return ConDisCon(condiscon.map(
+      (discon) => DisCon(discon.where((con) => con.every((attr) => attr.choosable))),
+    ));
   }
 
   Stream<SessionState> getSessionState(int sessionID) {
