@@ -46,6 +46,10 @@ android {
             dimension "track"
             applicationId "foundation.privacybydesign.irmamobile.alpha"
         }
+        beta {
+            dimension "track"
+            applicationId "org.irmacard.cardemu"
+        }
     }
 
     buildTypes {

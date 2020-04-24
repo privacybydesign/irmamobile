@@ -10,6 +10,18 @@ lane :alpha_resign do
   end
 end
 
+lane :beta_resign do
+  apks = Dir['../build/app/outputs/apk/beta/release/*.apk']
+  apks.each do |apk|
+    sh("apksigner", "sign",
+      "--ks", ENV["ANDROID_SIGN_KEYSTORE"],
+      "--ks-key-alias", ENV["ANDROID_SIGN_KEY_ALIAS"],
+      "--ks-pass", "pass:"+ENV["ANDROID_SIGN_STORE_PASSWORD"],
+      "--key-pass", "pass:"+ENV["ANDROID_SIGN_KEY_PASSWORD"],
+      apk)
+  end
+end
+
 lane :alpha_build do
   alpha_android_build()
   alpha_ios_build()

@@ -20,6 +20,11 @@ or alternatively using `brew cask install fastlane`
 fastlane alpha_resign
 ```
 
+### beta_resign
+```
+fastlane beta_resign
+```
+
 ### alpha_build
 ```
 fastlane alpha_build
