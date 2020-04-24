@@ -1,0 +1,1 @@
+Due to having to maintain backwards compatibility with how we did things during the react-native era, we can't use flutter's default versioning scheme for split-abi packages. Before doing a release build, edit flutters packages/flutter_tools/gradle/flutter.gradle to use 1048576 as multiplier for the abiVersionCode, instead of 1000
