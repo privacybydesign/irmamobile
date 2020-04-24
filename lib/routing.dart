@@ -10,6 +10,7 @@ import 'package:irmamobile/src/screens/debug/debug_screen.dart';
 import 'package:irmamobile/src/screens/disclosure/disclosure_screen.dart';
 import 'package:irmamobile/src/screens/disclosure/issuance_screen.dart';
 import 'package:irmamobile/src/screens/disclosure/session.dart';
+import 'package:irmamobile/src/screens/enrollment/email_sent_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/help/help_screen.dart';
 import 'package:irmamobile/src/screens/history/history_screen.dart';
@@ -44,6 +45,8 @@ class Routing {
         return (context) => DisclosureScreen(arguments: arguments as SessionScreenArguments);
       case IssuanceScreen.routeName:
         return (context) => IssuanceScreen(arguments: arguments as SessionScreenArguments);
+      case EmailSentScreen.routeName:
+        return (context) => EmailSentScreen(email: arguments as String);
 
       default:
         return simpleRoutes[routeName];
