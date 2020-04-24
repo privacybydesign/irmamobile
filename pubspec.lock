@@ -219,10 +219,12 @@ packages:
   flutter_i18n:
     dependency: "direct main"
     description:
-      name: flutter_i18n
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.12.0"
+      path: "."
+      ref: "97a5ea4f8b44a849d3bebd6d9676df5ef6716515"
+      resolved-ref: "97a5ea4f8b44a849d3bebd6d9676df5ef6716515"
+      url: "https://github.com/davidv1992/flutter_i18n"
+    source: git
+    version: "0.13.0"
   flutter_localizations:
     dependency: "direct main"
     description: flutter
