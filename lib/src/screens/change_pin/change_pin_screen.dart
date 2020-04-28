@@ -13,9 +13,9 @@ import 'package:irmamobile/src/screens/change_pin/widgets/updating_pin.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/valdating_pin.dart';
 import 'package:irmamobile/src/screens/error/error_screen.dart';
 import 'package:irmamobile/src/screens/error/session_error_screen.dart';
+import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_attempts.dart';
-import 'package:irmamobile/src/widgets/pin_common/pin_wrong_blocked.dart';
 
 class ChangePinScreen extends StatelessWidget {
   static const routeName = "/change_pin";
@@ -136,12 +136,11 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
               child: PinWrongAttemptsDialog(attemptsRemaining: state.attemptsRemaining),
             );
           } else {
-            Navigator.of(context, rootNavigator: true).pushReplacementNamed(PinScreen.routeName);
+            Navigator.of(context, rootNavigator: true).pushReplacement(MaterialPageRoute(
+                builder: (context) => PinScreen(
+                      initialEvent: InheritState(state.blockedUntil),
+                    )));
             _repo.lock();
-            showDialog(
-              context: context,
-              child: PinWrongBlockedDialog(blocked: state.blockedUntil.difference(DateTime.now()).inSeconds),
-            );
           }
         } else if (state.oldPinVerified == ValidationState.error) {
           navigatorKey.currentState.pushReplacement(MaterialPageRoute(

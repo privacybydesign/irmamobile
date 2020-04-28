@@ -8,6 +8,12 @@ abstract class Authenticate extends PinEvent {
   Future<AuthenticationEvent> dispatch();
 }
 
+class InheritState extends PinEvent {
+  DateTime blockedUntil;
+
+  InheritState(this.blockedUntil);
+}
+
 // Unlock event is sent by UI to initiate an unlock sequence.
 class Unlock extends Authenticate {
   String pin;

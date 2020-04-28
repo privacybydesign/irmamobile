@@ -10,11 +10,11 @@ import 'package:irmamobile/src/screens/error/session_error_screen.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_state.dart';
+import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_attempts.dart';
-import 'package:irmamobile/src/widgets/pin_common/pin_wrong_blocked.dart';
 import 'package:irmamobile/src/widgets/pin_field.dart';
 
 import '../../data/irma_preferences.dart';
@@ -54,12 +54,11 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
             child: PinWrongAttemptsDialog(attemptsRemaining: pinState.remainingAttempts),
           );
         } else {
-          showDialog(
-            context: context,
-            child: PinWrongBlockedDialog(
-              blocked: pinState.blockedUntil.difference(DateTime.now()).inSeconds,
-            ),
-          );
+          Navigator.of(context, rootNavigator: true).pushReplacement(MaterialPageRoute(
+              builder: (context) => PinScreen(
+                    initialEvent: InheritState(pinState.blockedUntil),
+                  )));
+          _repo.lock();
         }
       } else {
         Future.delayed(const Duration(milliseconds: 100), () => FocusScope.of(context).requestFocus(_focusNode));
