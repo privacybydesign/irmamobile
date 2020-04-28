@@ -39,6 +39,7 @@
               <category android:name="android.intent.category.DEFAULT" />
               <category android:name="android.intent.category.BROWSABLE" />
               <data android:scheme="irma" />
+              <data android:scheme="cardemu"/>
             </intent-filter>
         </activity>
     </application>

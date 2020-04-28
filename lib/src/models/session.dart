@@ -24,6 +24,7 @@ class SessionPointer {
     // Use lookahead and lookbehinds to block out the non-JSON part of the string
     final regexps = [
       RegExp("(?<=^irma:\/\/qr\/json\/).*"),
+      RegExp("(?<=^cardemu:\/\/qr\/json\/).*"),
       RegExp("(?<=^intent:\/\/qr\/json\/).*(?=#)"),
       RegExp("(?<=^https:\/\/irma\.app\/-\/session#).*"),
       RegExp("(?<=^https:\/\/irma\.app\/-pilot\/session#).*"),
