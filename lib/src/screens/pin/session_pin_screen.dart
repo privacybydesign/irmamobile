@@ -29,7 +29,7 @@ class SessionPinScreen extends StatefulWidget {
   _SessionPinScreenState createState() => _SessionPinScreenState();
 }
 
-class _SessionPinScreenState extends State<SessionPinScreen> {
+class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBindingObserver {
   final _repo = IrmaRepository.get();
   final _pinBloc = PinBloc();
 
@@ -40,6 +40,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> {
   void initState() {
     super.initState();
     _focusNode = FocusNode();
+    WidgetsBinding.instance.addObserver(this);
 
     _pinBlocSubscription = _pinBloc.state.listen((pinState) async {
       if (pinState.authenticated) {
@@ -60,6 +61,8 @@ class _SessionPinScreenState extends State<SessionPinScreen> {
             ),
           );
         }
+      } else {
+        Future.delayed(const Duration(milliseconds: 100), () => FocusScope.of(context).requestFocus(_focusNode));
       }
 
       if (pinState.error != null) {
@@ -79,7 +82,20 @@ class _SessionPinScreenState extends State<SessionPinScreen> {
   void dispose() {
     _focusNode.dispose();
     _pinBloc.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      FocusScope.of(context).unfocus();
+    } else if (state == AppLifecycleState.resumed) {
+      _pinBloc.state.first.then((pinstate) {
+        if (pinstate.pinInvalid || pinstate.authenticateInProgress || pinstate.error != null) return;
+        Future.delayed(const Duration(milliseconds: 100), () => FocusScope.of(context).requestFocus(_focusNode));
+      });
+    }
   }
 
   @override
@@ -103,9 +119,6 @@ class _SessionPinScreenState extends State<SessionPinScreen> {
             return Container();
           }
 
-          if (!state.pinInvalid) {
-            FocusScope.of(context).requestFocus(_focusNode);
-          }
           return Scaffold(
             appBar: _buildAppBar(),
             body: SafeArea(

@@ -28,7 +28,7 @@ class PinScreen extends StatefulWidget {
   _PinScreenState createState() => _PinScreenState();
 }
 
-class _PinScreenState extends State<PinScreen> {
+class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
   final _pinBloc = PinBloc();
 
   FocusNode _focusNode;
@@ -37,6 +37,7 @@ class _PinScreenState extends State<PinScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _focusNode = FocusNode();
 
     _pinBlocSubscription = _pinBloc.state.listen((pinState) async {
@@ -61,6 +62,8 @@ class _PinScreenState extends State<PinScreen> {
             child: PinWrongBlockedDialog(blocked: pinState.blockedUntil.difference(DateTime.now()).inSeconds),
           );
         }
+      } else {
+        Future.delayed(const Duration(milliseconds: 100), () => FocusScope.of(context).requestFocus(_focusNode));
       }
 
       if (pinState.error != null) {
@@ -80,7 +83,20 @@ class _PinScreenState extends State<PinScreen> {
   void dispose() {
     _focusNode.dispose();
     _pinBloc.dispose();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      FocusScope.of(context).unfocus();
+    } else if (state == AppLifecycleState.resumed) {
+      _pinBloc.state.first.then((pinstate) {
+        if (pinstate.pinInvalid || pinstate.authenticateInProgress || pinstate.error != null) return;
+        Future.delayed(const Duration(milliseconds: 100), () => FocusScope.of(context).requestFocus(_focusNode));
+      });
+    }
   }
 
   @override
@@ -103,9 +119,6 @@ class _PinScreenState extends State<PinScreen> {
                 final blockedText = '${FlutterI18n.translate(context, "pin_common.blocked_for")}';
                 final blockedForTime = formatBlockedFor(context, blockedFor.data);
                 subtitle = Text('$blockedText $blockedForTime');
-              }
-              if (!state.pinInvalid) {
-                FocusScope.of(context).requestFocus(_focusNode);
               }
               return SafeArea(
                 child: SingleChildScrollView(
