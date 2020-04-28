@@ -36,7 +36,7 @@ class PinBloc extends Bloc<PinEvent, PinState> {
 
   @override
   Stream<PinState> mapEventToState(PinEvent pinEvent) async* {
-    if (pinEvent is InheritState) {
+    if (pinEvent is Blocked) {
       setPinBlockedUntil(pinEvent.blockedUntil);
       yield PinState(
         pinInvalid: true,

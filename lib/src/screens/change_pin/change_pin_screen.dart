@@ -138,7 +138,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
           } else {
             Navigator.of(context, rootNavigator: true).pushReplacement(MaterialPageRoute(
                 builder: (context) => PinScreen(
-                      initialEvent: InheritState(state.blockedUntil),
+                      initialEvent: Blocked(state.blockedUntil),
                     )));
             _repo.lock();
           }
