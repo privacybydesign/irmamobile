@@ -66,6 +66,11 @@ lane :alpha_ios_build do
     plist_path: "Runner/Info.plist",
     app_identifier: "foundation.privacybydesign.irmamob.alpha"
   )
+  update_info_plist(
+    xcodeproj: "ios/Runner.xcodeproj",
+    plist_path: "Runner/Info.plist",
+    display_name: "IRMA 2020"
+  )
   commit = last_git_commit()
   write_sentrydata(
     dsn: ENV["SENTRY_DSN_ALPHA"],
@@ -83,6 +88,11 @@ lane :beta_ios_build do
     xcodeproj: "ios/Runner.xcodeproj",
     plist_path: "Runner/Info.plist",
     app_identifier: "foundation.privacybydesign.irmamob"
+  )
+  update_info_plist(
+    xcodeproj: "ios/Runner.xcodeproj",
+    plist_path: "Runner/Info.plist",
+    display_name: "IRMA"
   )
   commit = last_git_commit()
   write_sentrydata(
