@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/session.dart';
@@ -19,6 +20,7 @@ class ScannerScreen extends StatelessWidget {
   }
 
   void _onSuccess(BuildContext context, SessionPointer sessionPointer) {
+    HapticFeedback.vibrate();
     startSessionAndNavigate(
       Navigator.of(context),
       sessionPointer,
