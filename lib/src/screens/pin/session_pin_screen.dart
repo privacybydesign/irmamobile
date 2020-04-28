@@ -129,6 +129,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> {
                         return PinField(
                           focusNode: _focusNode,
                           longPin: snapshot.hasData && snapshot.data,
+                          enabled: !state.authenticateInProgress,
                           onSubmit: (pin) {
                             FocusScope.of(context).requestFocus();
                             _pinBloc.dispatch(
