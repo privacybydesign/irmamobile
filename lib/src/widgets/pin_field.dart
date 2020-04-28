@@ -254,7 +254,7 @@ class _PinFieldState extends State<PinField> {
             AnimatedContainer(
               duration: Duration(milliseconds: widget.longPin ? 200 : 0),
               width: widget.longPin ? MediaQuery.of(context).size.width - 2 * theme.hugeSpacing : 0.1,
-              child: TextFormField(
+              child: TextField(
                 controller: _textEditingController,
                 enabled: widget.enabled,
                 focusNode: focusNode,
@@ -263,6 +263,7 @@ class _PinFieldState extends State<PinField> {
                 obscureText: obscureText,
                 cursorColor: Colors.transparent,
                 maxLength: widget.maxLength,
+                enableInteractiveSelection: false,
 
                 // Only allow numeric input, without signs or decimal points
                 keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
