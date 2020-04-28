@@ -135,7 +135,7 @@ class _PinScreenState extends State<PinScreen> {
                         stream: IrmaPreferences.get().getLongPin(),
                         builder: (BuildContext context, AsyncSnapshot<bool> longPin) => PinField(
                           focusNode: _focusNode,
-                          enabled: (blockedFor.data ?? Duration.zero).inSeconds == 0,
+                          enabled: (blockedFor.data ?? Duration.zero).inSeconds == 0 && !state.authenticateInProgress,
                           longPin: longPin.hasData && longPin.data,
                           onSubmit: (pin) {
                             FocusScope.of(context).requestFocus();
