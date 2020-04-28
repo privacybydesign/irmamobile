@@ -47,9 +47,12 @@ class ScannerScreen extends StatelessWidget {
       // until we know if this is a combined disclosure-issuance request
       repo
           .getSessionState(event.sessionID)
-          .firstWhere((session) => session.status == SessionStatus.requestPermission)
+          .firstWhere((session) => [
+                SessionStatus.requestPermission,
+                SessionStatus.canceled,
+                SessionStatus.error,
+              ].contains(session.status))
           .then((session) {
-        // TODO include error handler
         navigator.pushNamedAndRemoveUntil(
           (session.disclosureChoices?.isEmpty ?? true) ? IssuanceScreen.routeName : DisclosureScreen.routeName,
           ModalRoute.withName(WalletScreen.routeName),
