@@ -102,11 +102,13 @@ class AppState extends State<App> with WidgetsBindingObserver {
       // First check whether we should redo pin verification
       final lastActive = await repo.getLastActiveTime().first;
       final status = await repo.getEnrollmentStatus().firstWhere((status) => status != EnrollmentStatus.undetermined);
+      final locked = await repo.getLocked().first;
       if (lastActive.isBefore(DateTime.now().subtract(const Duration(minutes: 5))) &&
-          status == EnrollmentStatus.enrolled) {
+          status == EnrollmentStatus.enrolled &&
+          !locked) {
         repo.lock();
         _navigatorKey.currentState.pushNamed(PinScreen.routeName);
-      } else if (startQrScanner) {
+      } else if (startQrScanner && !locked) {
         _navigatorKey.currentState.pushNamed(ScannerScreen.routeName);
       }
     }
