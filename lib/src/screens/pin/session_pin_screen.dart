@@ -61,6 +61,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
                         initialEvent: Blocked(pinState.blockedUntil),
                       )),
               ModalRoute.withName(WalletScreen.routeName));
+          _cancel(); // Deal with onWillPop's cancel being unreliable.
           _repo.lock();
         }
       } else {
