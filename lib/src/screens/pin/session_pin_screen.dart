@@ -61,7 +61,6 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
                         initialEvent: Blocked(pinState.blockedUntil),
                       )),
               ModalRoute.withName(WalletScreen.routeName));
-          _cancel(); // Deal with onWillPop's cancel being unreliable.
           _repo.lock();
         }
       } else {
@@ -83,6 +82,14 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
 
   @override
   void dispose() {
+    _pinBlocSubscription.cancel();
+    // If the user wants to close and no explicit result is available, then assume cancellation.
+    if (!_pinBloc.currentState.authenticated) {
+      _repo.dispatch(
+        RespondPinEvent(sessionID: widget.sessionID, proceed: false),
+        isBridgedEvent: true,
+      );
+    }
     _focusNode.dispose();
     _pinBloc.dispose();
     WidgetsBinding.instance.removeObserver(this);
@@ -108,10 +115,6 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
         // Wait on irmago response before closing, calling widget expects a result
         if (_pinBloc.currentState.authenticateInProgress) {
           return false;
-        }
-        // If the user wants to close and no explicit result is available, then assume cancellation.
-        if (!_pinBloc.currentState.authenticated) {
-          _cancel();
         }
         return true;
       },
@@ -190,17 +193,8 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
         widget.title,
       ),
       leadingCancel: () {
-        _cancel();
         Navigator.of(context).pop();
       },
-    );
-  }
-
-  void _cancel() {
-    _pinBlocSubscription.cancel();
-    _repo.dispatch(
-      RespondPinEvent(sessionID: widget.sessionID, proceed: false),
-      isBridgedEvent: true,
     );
   }
 }
