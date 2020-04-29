@@ -52,7 +52,7 @@ class IrmaRepository {
   final irmaConfigurationSubject = BehaviorSubject<IrmaConfiguration>(); // TODO: Make this member private
   final _credentialsSubject = BehaviorSubject<Credentials>();
   final _enrollmentStatusSubject = BehaviorSubject<EnrollmentStatus>.seeded(EnrollmentStatus.undetermined);
-  final _EnrollmentEventSubject = PublishSubject<EnrollmentEvent>();
+  final _enrollmentEventSubject = PublishSubject<EnrollmentEvent>();
   final _authenticationEventSubject = PublishSubject<AuthenticationEvent>();
   final _changePinEventSubject = PublishSubject<ChangePinBaseEvent>();
   final _lockedSubject = BehaviorSubject<bool>.seeded(true);
@@ -91,7 +91,7 @@ class IrmaRepository {
     } else if (event is EnrollmentStatusEvent) {
       _enrollmentStatusSubject.add(event.enrollmentStatus);
     } else if (event is EnrollmentEvent) {
-      _EnrollmentEventSubject.add(event);
+      _enrollmentEventSubject.add(event);
     } else if (event is HandleURLEvent) {
       try {
         final sessionPointer = SessionPointer.fromString(event.url);
@@ -150,7 +150,7 @@ class IrmaRepository {
 
     dispatch(EnrollEvent(email: email, pin: pin, language: language), isBridgedEvent: true);
 
-    return _EnrollmentEventSubject.where((event) {
+    return _enrollmentEventSubject.where((event) {
       switch (event.runtimeType) {
         case EnrollmentSuccessEvent:
           IrmaPreferences.get().setLongPin(pin.length != 5);
