@@ -21,37 +21,43 @@ class _GeneralErrorScreenState extends State<GeneralErrorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: IrmaAppBar(
-        title: Text(
-          FlutterI18n.translate(
-            context,
-            'error.title',
+    return WillPopScope(
+      onWillPop: () async {
+        widget.onTapClose();
+        return false;
+      },
+      child: Scaffold(
+        appBar: IrmaAppBar(
+          title: Text(
+            FlutterI18n.translate(
+              context,
+              'error.title',
+            ),
           ),
+          leadingAction: widget.onTapClose,
         ),
-        leadingAction: widget.onTapClose,
-      ),
-      body: GeneralError(
-        errorText: widget.errorText,
-      ),
-      bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: FlutterI18n.translate(context, 'error.button_ok'),
-        onPrimaryPressed: widget.onTapClose,
-        secondaryButtonLabel: FlutterI18n.translate(context, 'error.button_send_to_irma'),
-        onSecondaryPressed: hasReported
-            ? null
-            : () {
-                if (widget.onTapReport != null) {
-                  widget.onTapReport();
-                } else {
-                  // There is no sensible stack trace to pass here, so the exception will
-                  // have to do.
-                  reportError(widget.errorText, null, userInitiated: true);
-                }
-                setState(() {
-                  hasReported = true;
-                });
-              },
+        body: GeneralError(
+          errorText: widget.errorText,
+        ),
+        bottomNavigationBar: IrmaBottomBar(
+          primaryButtonLabel: FlutterI18n.translate(context, 'error.button_ok'),
+          onPrimaryPressed: widget.onTapClose,
+          secondaryButtonLabel: FlutterI18n.translate(context, 'error.button_send_to_irma'),
+          onSecondaryPressed: hasReported
+              ? null
+              : () {
+                  if (widget.onTapReport != null) {
+                    widget.onTapReport();
+                  } else {
+                    // There is no sensible stack trace to pass here, so the exception will
+                    // have to do.
+                    reportError(widget.errorText, null, userInitiated: true);
+                  }
+                  setState(() {
+                    hasReported = true;
+                  });
+                },
+        ),
       ),
     );
   }

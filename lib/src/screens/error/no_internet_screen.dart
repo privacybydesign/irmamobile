@@ -12,22 +12,28 @@ class NoInternetScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: IrmaAppBar(
-        title: Text(
-          FlutterI18n.translate(
-            context,
-            'error.title',
+    return WillPopScope(
+      onWillPop: () async {
+        onTapClose();
+        return false;
+      },
+      child: Scaffold(
+        appBar: IrmaAppBar(
+          title: Text(
+            FlutterI18n.translate(
+              context,
+              'error.title',
+            ),
           ),
+          leadingAction: onTapClose,
         ),
-        leadingAction: onTapClose,
-      ),
-      body: NoInternet(),
-      bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: FlutterI18n.translate(context, 'error.button_back'),
-        onPrimaryPressed: onTapClose,
-        secondaryButtonLabel: onTapRetry == null ? null : FlutterI18n.translate(context, 'error.button_retry'),
-        onSecondaryPressed: onTapRetry,
+        body: NoInternet(),
+        bottomNavigationBar: IrmaBottomBar(
+          primaryButtonLabel: FlutterI18n.translate(context, 'error.button_back'),
+          onPrimaryPressed: onTapClose,
+          secondaryButtonLabel: onTapRetry == null ? null : FlutterI18n.translate(context, 'error.button_retry'),
+          onSecondaryPressed: onTapRetry,
+        ),
       ),
     );
   }
