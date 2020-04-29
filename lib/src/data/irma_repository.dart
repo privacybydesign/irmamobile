@@ -181,6 +181,9 @@ class IrmaRepository {
     return _authenticationEventSubject.where((event) {
       switch (event.runtimeType) {
         case AuthenticationSuccessEvent:
+          IrmaPreferences.get().setLongPin(pin.length != 5);
+          return true;
+          break;
         case AuthenticationFailedEvent:
         case AuthenticationErrorEvent:
           return true;
