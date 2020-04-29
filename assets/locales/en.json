@@ -138,7 +138,7 @@
     "question_5": "Why do the data in the IRMA app have limited validity?",
     "answer_5": "Every card in IRMA shows its validity. The validity period depends on the kind of data on the card and how stable these data are. Your name and date of birth data are valid for five years, but your address data only one year. The source (issuer) of the data determines this validity period. The cards in your IRMA app may thus expire. The IRMA app then gives you a warning.\n\nYou can always, also without such a warning, refresh your cards by reloading them from the source. For instance, after year 18th birthday you can reload your data from your municipality so that you can prove that you are older than 18 now.",
     "question_6": "Can I install IRMA on a second mobile device?",
-    "answer_6": "Yes, on every mobile device (Android or iOS) you can open a separate IRMA account fill it with cards with your data. It is wise to do so. If you lose one device, you can still log on with your other device.",
+    "answer_6": "Yes, on every mobile device (Android or iOS) you can open a separate IRMA account and fill it with cards with your personal data. It is actually wise to do so. If you lose one device, you can still log on with your other device.",
     "ask": "Ask a question",
     "more": "More questions and answers",
     "more_link": "https://irma.app/?lang=en#faqs",
