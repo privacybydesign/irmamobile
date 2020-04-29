@@ -80,6 +80,9 @@ class _WebviewScreenState extends State<WebviewScreen> {
                     });
                   },
                   navigationDelegate: (navrequest) {
+                    //Ignore navrequests that are not for the main frame
+                    if (!navrequest.isForMainFrame) return NavigationDecision.navigate;
+
                     debugPrint("received nav request ${navrequest.url}");
                     final decodedUri = Uri.decodeFull(navrequest.url);
 
