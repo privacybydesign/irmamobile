@@ -37,6 +37,13 @@ class _WebviewScreenState extends State<WebviewScreen> {
 
   @override
   void initState() {
+    // Make sure the in-app variant of the website is requested
+    final uri = Uri.parse(url);
+    url = uri.replace(queryParameters: {
+      ...uri.queryParameters,
+      "inapp": "true",
+    }).toString();
+
     super.initState();
   }
 
@@ -46,12 +53,17 @@ class _WebviewScreenState extends State<WebviewScreen> {
       appBar: BrowserBar(
         url: url,
         onOpenInBrowserPress: () {
+          final uri = Uri.parse(url);
+          // uri.queryParameters is unmodifiable, so remove item in new map
+          final queryParameters = {...uri.queryParameters};
+          queryParameters.remove("inapp");
+          final externalUrl = uri.replace(queryParameters: queryParameters).toString();
           if (Platform.isAndroid) {
             Navigator.pop(context); // remove ActionSheet // TODO ActionSheet only disappears after returning
-            launch(url);
+            launch(externalUrl);
           } else if (Platform.isIOS) {
             Navigator.pop(context); // remove ActionSheet // TODO ActionSheet only disappears after returning
-            launch(url, forceSafariVC: false); // open Safari rather than SafariVCController
+            launch(externalUrl, forceSafariVC: false); // open Safari rather than SafariVCController
           }
         },
         isLoading: _isLoading,
