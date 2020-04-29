@@ -29,6 +29,7 @@ class _GeneralErrorScreenState extends State<GeneralErrorScreen> {
             'error.title',
           ),
         ),
+        leadingAction: widget.onTapClose,
       ),
       body: GeneralError(
         errorText: widget.errorText,

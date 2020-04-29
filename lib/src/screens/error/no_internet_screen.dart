@@ -20,11 +20,12 @@ class NoInternetScreen extends StatelessWidget {
             'error.title',
           ),
         ),
+        leadingAction: onTapClose,
       ),
       body: NoInternet(),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: FlutterI18n.translate(context, 'error.button_back'),
-        onPrimaryPressed: () => Navigator.of(context).pop(),
+        onPrimaryPressed: onTapClose,
         secondaryButtonLabel: onTapRetry == null ? null : FlutterI18n.translate(context, 'error.button_retry'),
         onSecondaryPressed: onTapRetry,
       ),
