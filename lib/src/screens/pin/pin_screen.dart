@@ -21,11 +21,12 @@ import '../scanner/scanner_screen.dart';
 
 class PinScreen extends StatefulWidget {
   static const String routeName = '/pin-screen';
+  final PinEvent initialEvent;
 
-  const PinScreen({Key key}) : super(key: key);
+  const PinScreen({Key key, this.initialEvent}) : super(key: key);
 
   @override
-  _PinScreenState createState() => _PinScreenState();
+  _PinScreenState createState() => _PinScreenState(initialEvent);
 }
 
 class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
@@ -33,6 +34,12 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
 
   FocusNode _focusNode;
   StreamSubscription _pinBlocSubscription;
+
+  _PinScreenState(PinEvent initialEvent) {
+    if (initialEvent != null) {
+      _pinBloc.dispatch(initialEvent);
+    }
+  }
 
   @override
   void initState() {

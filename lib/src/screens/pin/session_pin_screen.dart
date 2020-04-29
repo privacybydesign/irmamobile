@@ -10,11 +10,12 @@ import 'package:irmamobile/src/screens/error/session_error_screen.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_state.dart';
+import 'package:irmamobile/src/screens/pin/pin_screen.dart';
+import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_attempts.dart';
-import 'package:irmamobile/src/widgets/pin_common/pin_wrong_blocked.dart';
 import 'package:irmamobile/src/widgets/pin_field.dart';
 
 import '../../data/irma_preferences.dart';
@@ -54,12 +55,13 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
             child: PinWrongAttemptsDialog(attemptsRemaining: pinState.remainingAttempts),
           );
         } else {
-          showDialog(
-            context: context,
-            child: PinWrongBlockedDialog(
-              blocked: pinState.blockedUntil.difference(DateTime.now()).inSeconds,
-            ),
-          );
+          Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+              MaterialPageRoute(
+                  builder: (context) => PinScreen(
+                        initialEvent: Blocked(pinState.blockedUntil),
+                      )),
+              ModalRoute.withName(WalletScreen.routeName));
+          _repo.lock();
         }
       } else {
         Future.delayed(const Duration(milliseconds: 100), () => FocusScope.of(context).requestFocus(_focusNode));
@@ -80,6 +82,14 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
 
   @override
   void dispose() {
+    _pinBlocSubscription.cancel();
+    // If the user wants to close and no explicit result is available, then assume cancellation.
+    if (!_pinBloc.currentState.authenticated) {
+      _repo.dispatch(
+        RespondPinEvent(sessionID: widget.sessionID, proceed: false),
+        isBridgedEvent: true,
+      );
+    }
     _focusNode.dispose();
     _pinBloc.dispose();
     WidgetsBinding.instance.removeObserver(this);
@@ -105,10 +115,6 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
         // Wait on irmago response before closing, calling widget expects a result
         if (_pinBloc.currentState.authenticateInProgress) {
           return false;
-        }
-        // If the user wants to close and no explicit result is available, then assume cancellation.
-        if (!_pinBloc.currentState.authenticated) {
-          _cancel();
         }
         return true;
       },
@@ -187,17 +193,8 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
         widget.title,
       ),
       leadingCancel: () {
-        _cancel();
         Navigator.of(context).pop();
       },
-    );
-  }
-
-  void _cancel() {
-    _pinBlocSubscription.cancel();
-    _repo.dispatch(
-      RespondPinEvent(sessionID: widget.sessionID, proceed: false),
-      isBridgedEvent: true,
     );
   }
 }

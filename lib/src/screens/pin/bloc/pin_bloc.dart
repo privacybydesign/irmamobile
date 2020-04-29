@@ -36,7 +36,15 @@ class PinBloc extends Bloc<PinEvent, PinState> {
 
   @override
   Stream<PinState> mapEventToState(PinEvent pinEvent) async* {
-    if (pinEvent is Authenticate) {
+    if (pinEvent is Blocked) {
+      setPinBlockedUntil(pinEvent.blockedUntil);
+      yield PinState(
+        pinInvalid: true,
+        blockedUntil: pinEvent.blockedUntil,
+        remainingAttempts: 0,
+        authenticateInProgress: false,
+      );
+    } else if (pinEvent is Authenticate) {
       yield PinState(
         authenticateInProgress: true,
       );
