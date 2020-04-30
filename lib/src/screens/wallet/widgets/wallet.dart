@@ -573,15 +573,12 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
             final credentialNudge = CredentialNudgeProvider.of(context).credentialNudge;
 
             if (credentialNudge == null || _hasCredential(credentialNudge.fullCredentialTypeId)) {
-              if (widget.credentials.length >= 4) {
-                return Container();
-              } else {
-                return GetCardsNudge(
-                  credentials: widget.credentials,
-                  size: MediaQuery.of(context).size,
-                  onAddCardsPressed: widget.onAddCardsPressed,
-                );
-              }
+              return GetCardsNudge(
+                credentials: widget.credentials,
+                size: MediaQuery.of(context).size,
+                onAddCardsPressed: widget.onAddCardsPressed,
+                showButton: widget.credentials.length < 4,
+              );
             } else {
               final credentialType = irmaConfiguration.credentialTypes[credentialNudge.fullCredentialTypeId];
               final issuer = irmaConfiguration.issuers[credentialType.fullIssuerId];

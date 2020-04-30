@@ -11,8 +11,9 @@ class GetCardsNudge extends StatelessWidget {
   final Size size;
   final void Function() onAddCardsPressed;
   final List<Credential> credentials;
+  final bool showButton;
 
-  const GetCardsNudge({this.credentials, this.size, this.onAddCardsPressed});
+  const GetCardsNudge({this.credentials, this.size, this.onAddCardsPressed, this.showButton = true});
 
   @override
   Widget build(BuildContext context) {
@@ -37,10 +38,11 @@ class GetCardsNudge extends StatelessWidget {
               style: IrmaTheme.of(context).textTheme.body1,
             ),
           ),
-          IrmaOutlinedButton(
-            label: 'wallet.add_data',
-            onPressed: onAddCardsPressed,
-          ),
+          if (showButton)
+            IrmaOutlinedButton(
+              label: 'wallet.add_data',
+              onPressed: onAddCardsPressed,
+            ),
           if (credentials == null) ...[
             Align(
               alignment: Alignment.center,
