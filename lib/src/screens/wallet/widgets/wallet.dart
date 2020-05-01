@@ -736,7 +736,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       cardPosition -= _dragOffset;
     }
 
-    return cardPosition;
+    return cardPosition - _cardTopBorderHeight;
   }
 
   /// Position of a card folded in wallet. With many cards, all cards are visible, including the titles
@@ -761,7 +761,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       }
     }
 
-    return cardPosition;
+    return cardPosition - _cardTopBorderHeight;
   }
 
   /// Simple interpolation function between values x1 and x2. 0 <= p <=1
