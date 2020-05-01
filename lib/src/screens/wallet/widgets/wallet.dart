@@ -88,7 +88,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _dragDownFactor = 1.5;
 
   // Offset of cards relative to wallet
-  final _heightOffset = -35.0;
+  final _heightOffset = -25.0;
 
   // Add a margin to the screen height to deal with different phones
   final _screenHeightMargin = 100;
@@ -736,7 +736,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       cardPosition -= _dragOffset;
     }
 
-    return cardPosition - _cardTopBorderHeight;
+    return cardPosition;
   }
 
   /// Position of a card folded in wallet. With many cards, all cards are visible, including the titles
@@ -761,7 +761,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       }
     }
 
-    return cardPosition - _cardTopBorderHeight;
+    return cardPosition;
   }
 
   /// Simple interpolation function between values x1 and x2. 0 <= p <=1
