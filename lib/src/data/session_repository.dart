@@ -110,7 +110,7 @@ class SessionRepository {
       return prevState.copyWith(status: SessionStatus.canceled);
     } else if (event is RequestPinSessionEvent) {
       return prevState.copyWith(
-        requestPin: true,
+        status: SessionStatus.requestPin,
       );
     }
 

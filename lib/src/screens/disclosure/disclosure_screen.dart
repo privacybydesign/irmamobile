@@ -48,10 +48,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   bool scrolledToEnd = false;
   final _scrollController = ScrollController();
 
-  bool disclosureExplanationShown = false;
-  bool pinScreenShown = false;
-  bool errorScreenShown = false;
-  bool finishingSession = false;
+  SessionStatus _screenStatus = SessionStatus.uninitialized;
   bool navigatedAway = false;
 
   void carouselPageUpdate(int disconIndex, int conIndex) {
@@ -73,43 +70,25 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
 
     _sessionStateStream = _repo.getSessionState(widget.arguments.sessionID);
     _sessionStateSubscription = _sessionStateStream.listen((session) {
-      if (!disclosureExplanationShown && session.disclosuresCandidates != null) {
-        disclosureExplanationShown = true;
+      // Do nothing if status did not change.
+      if (_screenStatus == session.status) {
+        return;
+      }
+      _screenStatus = session.status;
+
+      if (_screenStatus == SessionStatus.requestPermission && session.disclosuresCandidates != null) {
         _showExplanation(session.disclosuresCandidates);
       }
 
-      if (!pinScreenShown && session.requestPin == true) {
-        pinScreenShown = true;
+      if (_screenStatus == SessionStatus.requestPin) {
         pushSessionPinScreen(context, session.sessionID, 'disclosure.title');
       }
 
-      // Handle errors. The return code is replicated here as we start
-      // with a somewhat different situation, having an extra screen
-      // on top of the stack
-      if (!errorScreenShown && session.status == SessionStatus.error) {
-        errorScreenShown = true;
-        toErrorScreen(context, session.error, () {
-          (() async {
-            if (session.continueOnSecondDevice) {
-              popToWallet(context);
-            } else if (session.clientReturnURL != null && await canLaunch(session.clientReturnURL)) {
-              launch(session.clientReturnURL, forceSafariVC: false);
-              popToWallet(context);
-            } else {
-              if (Platform.isIOS) {
-                setState(() => _displayArrowBack = true);
-                Navigator.of(context).pop(); // pop error screen
-              } else {
-                SystemNavigator.pop();
-                popToWallet(context);
-              }
-            }
-          })();
-        });
+      if (_screenStatus == SessionStatus.error) {
+        _handleError(session);
       }
 
-      if (!finishingSession && [SessionStatus.success, SessionStatus.canceled].contains(session.status)) {
-        finishingSession = true;
+      if ([SessionStatus.success, SessionStatus.canceled].contains(_screenStatus)) {
         _handleFinished(session);
       }
     });
@@ -119,6 +98,28 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   void dispose() {
     _sessionStateSubscription.cancel();
     super.dispose();
+  }
+
+  // Handle errors. The return code is replicated here as we start
+  // with a somewhat different situation, having an extra screen
+  // on top of the stack
+  void _handleError(SessionState session) {
+    toErrorScreen(context, session.error, () async {
+      if (session.continueOnSecondDevice) {
+        popToWallet(context);
+      } else if (session.clientReturnURL != null && await canLaunch(session.clientReturnURL)) {
+        launch(session.clientReturnURL, forceSafariVC: false);
+        popToWallet(context);
+      } else {
+        if (Platform.isIOS) {
+          setState(() => _displayArrowBack = true);
+          Navigator.of(context).pop(); // pop error screen
+        } else {
+          SystemNavigator.pop();
+          popToWallet(context);
+        }
+      }
+    });
   }
 
   Future<void> _handleFinished(SessionState session) async {
