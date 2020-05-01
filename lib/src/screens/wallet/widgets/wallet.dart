@@ -560,7 +560,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         setNewState(WalletState.folded);
       } else {
         _drawnCardIndex = index;
-        setNewState(WalletState.drawn, nudgeIsVisible: false);
+        setNewState(WalletState.drawn);
       }
     }
   }
@@ -577,7 +577,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                 credentials: widget.credentials,
                 size: MediaQuery.of(context).size,
                 onAddCardsPressed: widget.onAddCardsPressed,
-                showButton: widget.credentials.length < 4,
+                showButton: (widget?.credentials?.length ?? 0) < _cardsMaxExtended - 1,
               );
             } else {
               final credentialType = irmaConfiguration.credentialTypes[credentialNudge.fullCredentialTypeId];
@@ -617,10 +617,21 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   }
 
   /// Set a new state of the wallet and start the animation
-  void setNewState(WalletState newState, {bool nudgeIsVisible = true}) {
+  void setNewState(WalletState newState) {
     setState(
       () {
-        _nudgeVisible = nudgeIsVisible;
+        switch (newState) {
+          case WalletState.drawn:
+            _nudgeVisible = false;
+            break;
+          case WalletState.folded:
+            _nudgeVisible = (widget?.credentials?.length ?? 0) < _cardsMaxExtended;
+            break;
+          default:
+            _nudgeVisible = true;
+            break;
+        }
+        debugPrint("state: $newState\nnudge: $_nudgeVisible");
         _oldState = _currentState;
         _currentState = newState;
         _cardAnimationController.forward();
