@@ -631,7 +631,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
             _nudgeVisible = true;
             break;
         }
-        debugPrint("state: $newState\nnudge: $_nudgeVisible");
         _oldState = _currentState;
         _currentState = newState;
         _cardAnimationController.forward();
@@ -799,6 +798,8 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       } else if (_drawnCardIndex > index && _currentState == WalletState.drawn) {
         // Compensate for removed card.
         _drawnCardIndex--;
+      } else {
+        setNewState(_currentState);
       }
     };
   }
