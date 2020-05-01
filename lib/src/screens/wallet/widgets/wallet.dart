@@ -625,7 +625,9 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
             _nudgeVisible = false;
             break;
           case WalletState.folded:
-            _nudgeVisible = (widget?.credentials?.length ?? 0) < _cardsMaxExtended;
+            final screenHeight = MediaQuery.of(context).size.height;
+            // Make nudge invisible if cards occupy more than half of the screen
+            _nudgeVisible = _cardTopHeight * (widget.credentials?.length ?? 0) < screenHeight / 2;
             break;
           default:
             _nudgeVisible = true;
