@@ -617,7 +617,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   }
 
   /// Set a new state of the wallet and start the animation
-  void setNewState(WalletState newState) {
+  void setNewState(WalletState newState, {bool didDeleteCard = false}) {
     setState(
       () {
         switch (newState) {
@@ -627,7 +627,8 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
           case WalletState.folded:
             final screenHeight = MediaQuery.of(context).size.height;
             // Make nudge invisible if cards occupy more than half of the screen
-            _nudgeVisible = _cardTopHeight * (widget.credentials?.length ?? 0) < screenHeight / 2;
+            _nudgeVisible =
+                _cardTopHeight * ((widget.credentials?.length ?? 0) - (didDeleteCard ? 1 : 0)) < screenHeight / 2;
             break;
           default:
             _nudgeVisible = true;
@@ -801,7 +802,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         // Compensate for removed card.
         _drawnCardIndex--;
       } else {
-        setNewState(_currentState);
+        setNewState(_currentState, didDeleteCard: true);
       }
     };
   }
