@@ -38,11 +38,15 @@ class GetCardsNudge extends StatelessWidget {
               style: IrmaTheme.of(context).textTheme.body1,
             ),
           ),
-          if (showButton)
+          if (showButton) ...[
+            SizedBox(
+              height: IrmaTheme.of(context).defaultSpacing,
+            ),
             IrmaOutlinedButton(
               label: 'wallet.add_data',
               onPressed: onAddCardsPressed,
             ),
+          ],
           if (credentials == null) ...[
             Align(
               alignment: Alignment.center,
