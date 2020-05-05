@@ -18,6 +18,7 @@ func DispatchFromNative(eventName, payloadString string) {
 		dispatchEnrollmentStatusEvent()
 		dispatchConfigurationEvent()
 		dispatchCredentialsEvent()
+		dispatchPreferencesEvent()
 	case "EnrollEvent":
 		event := &enrollEvent{}
 		if err = json.Unmarshal(payloadBytes, event); err == nil {
@@ -66,6 +67,11 @@ func DispatchFromNative(eventName, payloadString string) {
 		event := &loadLogsEvent{}
 		if err = json.Unmarshal(payloadBytes, &event); err == nil {
 			err = bridgeEventHandler.loadLogs(event)
+		}
+	case "PreferencesEvent":
+		event := &preferencesEvent{}
+		if err = json.Unmarshal(payloadBytes, &event); err == nil {
+			err = bridgeEventHandler.setPreferences(event)
 		}
 	}
 

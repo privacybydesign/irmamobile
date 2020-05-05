@@ -5,11 +5,10 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/screens/about/about_items.dart';
 import 'package:irmamobile/src/screens/about/widgets/links.dart';
+import 'package:irmamobile/src/screens/about/widgets/version_button.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
-
-import '../../../sentry_dsn.dart';
 
 class AboutScreen extends StatefulWidget {
   static const String routeName = '/about';
@@ -128,12 +127,7 @@ class _AboutScreenState extends State<AboutScreen> {
                               FlutterI18n.translate(context, 'about.share'),
                               Icon(FontAwesomeIcons.shareAlt, size: 25.0)), // TODO fix icon and update this
                           SizedBox(height: IrmaTheme.of(context).largeSpacing),
-                          Text(
-                            FlutterI18n.translate(context, 'about.version', translationParams: {
-                              'version': version.substring(0, 8 < version.length ? 8 : version.length)
-                            }),
-                            style: Theme.of(context).textTheme.body1,
-                          ),
+                          VersionButton(),
                           SizedBox(height: IrmaTheme.of(context).tinySpacing),
                           Text(
                             FlutterI18n.translate(context, 'about.copyright'),

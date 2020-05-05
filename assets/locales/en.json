@@ -102,7 +102,8 @@
     "version": "Version {version}",
     "copyright": "Copyright Privacy by Design Foundation, 2020, released under GPL License 3.0",
     "pbdf": "Privacy by Design",
-    "pbdf_link": "https://privacybydesign.foundation/en/"
+    "pbdf_link": "https://privacybydesign.foundation/en/",
+    "developer_mode_enabled": "Developer mode enabled"
   },
   "manual": {
     "faq": "Manual",
@@ -223,7 +224,8 @@
       "delete_title": "Are you sure?",
       "delete_content": "If you proceed, all your cards will be deleted from your IRMA app. Do you wish to use IRMA again later? You will have to reload cards first.",
       "delete_confirm": "Yes, delete everything",
-      "delete_deny": "Cancel"
+      "delete_deny": "Cancel",
+      "developer_mode": "Developer mode"
     }
   },
   "change_pin": {
