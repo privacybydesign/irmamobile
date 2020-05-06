@@ -9,7 +9,6 @@ import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/credential_events.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/get_cards_nudge.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/irma_pilot_nudge.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet_button.dart';
@@ -199,7 +198,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
     if (widget.hasLoginLogoutAnimation && oldWidget.isOpen && !widget.isOpen) {
       _loginLogoutAnimationController.reverse().then((_) {
         _irmaClient.lock();
-        Navigator.of(context).pushNamed(PinScreen.routeName);
+        //Navigator.of(context).pushNamed(PinScreen.routeName);
       });
     }
 

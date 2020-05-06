@@ -10,6 +10,7 @@ import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/applifecycle_changed_event.dart';
 import 'package:irmamobile/src/models/enrollment_status.dart';
+import 'package:irmamobile/src/models/native_events.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/version_information.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
@@ -17,6 +18,7 @@ import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/screens/required_update/required_update_screen.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/splash_screen/splash_screen.dart';
+import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class App extends StatefulWidget {
@@ -107,8 +109,10 @@ class AppState extends State<App> with WidgetsBindingObserver {
           status == EnrollmentStatus.enrolled &&
           !locked) {
         repo.lock();
-        _navigatorKey.currentState.pushNamed(PinScreen.routeName);
-      } else if (startQrScanner && !locked) {
+      }
+
+      // Start qr scanner if requested (this will load behind pin screen)
+      if (startQrScanner) {
         _navigatorKey.currentState.pushNamed(ScannerScreen.routeName);
       }
     }
@@ -122,20 +126,11 @@ class AppState extends State<App> with WidgetsBindingObserver {
   void _listenToPendingSessionPointer() {
     final repo = IrmaRepository.get();
 
-    // Listen for incoming SessionPointers, but only act on them if unlocked
-    repo.getPendingSessionPointer().listen((sessionPointer) async {
-      final isLocked = await repo.getLocked().first;
-      if (sessionPointer == null || isLocked) {
-        return;
-      }
-
-      _startSession(sessionPointer);
-    });
-
-    // Listen for unlock events, and handle any pending session pointer
-    repo.getLocked().listen((isLocked) async {
-      final sessionPointer = await repo.getPendingSessionPointer().first;
-      if (sessionPointer == null || isLocked) {
+    // Listen for incoming SessionPointers
+    //  we can now always act on these, because if the app is locked,
+    //  their screens will simply be covered
+    repo.getPendingSessionPointer().listen((sessionPointer) {
+      if (sessionPointer == null) {
         return;
       }
 
@@ -166,8 +161,9 @@ class AppState extends State<App> with WidgetsBindingObserver {
           .getEnrollmentStatus()
           .firstWhere((enrollmentStatus) => enrollmentStatus != EnrollmentStatus.undetermined);
 
-      // Go to the PIN screen if enrolled, en to enrollment otherwise
-      String targetRouteName = PinScreen.routeName;
+      // Go to the wallet screen if enrolled (buildpinscreen takes care of pin),
+      //  and to enrollment otherwise
+      String targetRouteName = WalletScreen.routeName;
       if (enrollmentStatus == EnrollmentStatus.unenrolled) {
         targetRouteName = EnrollmentScreen.routeName;
       }
@@ -180,6 +176,46 @@ class AppState extends State<App> with WidgetsBindingObserver {
         _navigatorKey.currentState.pushNamed(ScannerScreen.routeName);
       }
     });
+  }
+
+  Widget _buildPinScreen() {
+    return StreamBuilder<bool>(
+      stream: IrmaRepository.get().getLocked(),
+      builder: (context, isLocked) {
+        // Display nothing if we are not locked
+        if (isLocked.hasData && !isLocked.data) return Container();
+
+        // We use a navigator here, instead of just rendering the pin screen
+        //  to give error screens a place to go.
+        return Navigator(
+          initialRoute: PinScreen.routeName,
+          onGenerateRoute: (settings) {
+            // Render `RouteNotFoundScreen` when trying to render named route that
+            // is not pinscreen on this stack
+            WidgetBuilder screenBuilder = (context) => const RouteNotFoundScreen();
+            if (settings.name == PinScreen.routeName) {
+              screenBuilder = (context) => const PinScreen();
+            }
+
+            // Wrap in popscope
+            return MaterialPageRoute(
+              builder: (BuildContext context) {
+                return WillPopScope(
+                  onWillPop: () async {
+                    // The named route (pinscreen) on this stack is always root
+                    // so background on back press.
+                    IrmaRepository.get().bridgedDispatch(AndroidSendToBackgroundEvent());
+                    return false;
+                  },
+                  child: screenBuilder(context),
+                );
+              },
+              settings: settings,
+            );
+          },
+        );
+      },
+    );
   }
 
   Widget _buildRequiredUpdateScreen() {
@@ -224,6 +260,7 @@ class AppState extends State<App> with WidgetsBindingObserver {
     return Stack(
       children: <Widget>[
         navigationChild,
+        _buildPinScreen(),
         _buildRequiredUpdateScreen(),
         _buildSplash(enrollmentStatus),
       ],

@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
+import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/screens/error/session_error_screen.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
@@ -17,7 +18,6 @@ import 'package:irmamobile/src/widgets/pin_common/pin_wrong_blocked.dart';
 import 'package:irmamobile/src/widgets/pin_field.dart';
 
 import '../../data/irma_preferences.dart';
-import '../scanner/scanner_screen.dart';
 
 class PinScreen extends StatefulWidget {
   static const String routeName = '/pin-screen';
@@ -47,14 +47,14 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     _focusNode = FocusNode();
 
+    IrmaRepository.get().getBlockTime().first.then((blockedUntil) {
+      if (blockedUntil != null) {
+        _pinBloc.dispatch(Blocked(blockedUntil));
+      }
+    });
+
     _pinBlocSubscription = _pinBloc.state.listen((pinState) async {
       if (pinState.authenticated) {
-        Navigator.of(context).pop();
-        final startQrScanner = await IrmaPreferences.get().getStartQRScan().first;
-        if (startQrScanner) {
-          Navigator.of(context).pushNamed(ScannerScreen.routeName);
-        }
-
         _pinBlocSubscription.cancel();
       }
       if (pinState.pinInvalid) {
@@ -111,6 +111,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
     return BlocBuilder<PinBloc, PinState>(
       bloc: _pinBloc,
       builder: (context, state) {
+        // Hide pin screen once authenticated
         if (state.authenticated == true) {
           return Container();
         }
@@ -155,7 +156,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                         stream: IrmaPreferences.get().getLongPin(),
                         builder: (BuildContext context, AsyncSnapshot<bool> longPin) => PinField(
                           focusNode: _focusNode,
-                          enabled: (blockedFor.data ?? Duration.zero).inSeconds == 0 && !state.authenticateInProgress,
+                          enabled: (blockedFor.data ?? Duration.zero).inSeconds <= 0 && !state.authenticateInProgress,
                           longPin: longPin.hasData && longPin.data,
                           onSubmit: (pin) {
                             FocusScope.of(context).requestFocus();
