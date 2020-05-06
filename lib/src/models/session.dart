@@ -12,13 +12,17 @@ class MissingSessionPointer implements Exception {
 
 @JsonSerializable()
 class SessionPointer {
-  SessionPointer({this.u, this.irmaqr});
+  SessionPointer({this.u, this.irmaqr, this.returnURL});
 
   @JsonKey(name: 'u')
   String u;
 
   @JsonKey(name: 'irmaqr')
   String irmaqr;
+
+  @Deprecated("This parameter is deprecated and will be removed at the end of 2020. Use clientReturnURL instead.")
+  @JsonKey(name: 'returnURL')
+  String returnURL;
 
   factory SessionPointer.fromString(String content) {
     // Use lookahead and lookbehinds to block out the non-JSON part of the string
