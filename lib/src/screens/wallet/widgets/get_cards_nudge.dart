@@ -11,8 +11,9 @@ class GetCardsNudge extends StatelessWidget {
   final Size size;
   final void Function() onAddCardsPressed;
   final List<Credential> credentials;
+  final bool showButton;
 
-  const GetCardsNudge({this.credentials, this.size, this.onAddCardsPressed});
+  const GetCardsNudge({this.credentials, this.size, this.onAddCardsPressed, this.showButton = true});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +21,7 @@ class GetCardsNudge extends StatelessWidget {
       child: Column(
         children: <Widget>[
           SizedBox(
-            height: IrmaTheme.of(context).largeSpacing,
+            height: IrmaTheme.of(context).smallSpacing,
           ),
           SvgPicture.asset(
             'assets/wallet/wallet_illustration.svg',
@@ -29,7 +30,7 @@ class GetCardsNudge extends StatelessWidget {
           ),
           Padding(
             padding: EdgeInsets.all(
-              IrmaTheme.of(context).defaultSpacing,
+              IrmaTheme.of(context).smallSpacing,
             ),
             child: Text(
               FlutterI18n.translate(context, 'wallet.caption'),
@@ -37,10 +38,15 @@ class GetCardsNudge extends StatelessWidget {
               style: IrmaTheme.of(context).textTheme.body1,
             ),
           ),
-          IrmaOutlinedButton(
-            label: 'wallet.add_data',
-            onPressed: onAddCardsPressed,
-          ),
+          if (showButton) ...[
+            SizedBox(
+              height: IrmaTheme.of(context).defaultSpacing,
+            ),
+            IrmaOutlinedButton(
+              label: 'wallet.add_data',
+              onPressed: onAddCardsPressed,
+            ),
+          ],
           if (credentials == null) ...[
             Align(
               alignment: Alignment.center,

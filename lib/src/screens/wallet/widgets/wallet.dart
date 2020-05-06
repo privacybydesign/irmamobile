@@ -88,7 +88,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _dragDownFactor = 1.5;
 
   // Offset of cards relative to wallet
-  final _heightOffset = -35.0;
+  final _heightOffset = -25.0;
 
   // Add a margin to the screen height to deal with different phones
   final _screenHeightMargin = 100;
@@ -560,7 +560,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         setNewState(WalletState.folded);
       } else {
         _drawnCardIndex = index;
-        setNewState(WalletState.drawn, nudgeIsVisible: false);
+        setNewState(WalletState.drawn);
       }
     }
   }
@@ -573,15 +573,12 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
             final credentialNudge = CredentialNudgeProvider.of(context).credentialNudge;
 
             if (credentialNudge == null || _hasCredential(credentialNudge.fullCredentialTypeId)) {
-              if (widget.credentials.length >= 4) {
-                return Container();
-              } else {
-                return GetCardsNudge(
-                  credentials: widget.credentials,
-                  size: MediaQuery.of(context).size,
-                  onAddCardsPressed: widget.onAddCardsPressed,
-                );
-              }
+              return GetCardsNudge(
+                credentials: widget.credentials,
+                size: MediaQuery.of(context).size,
+                onAddCardsPressed: widget.onAddCardsPressed,
+                showButton: (widget?.credentials?.length ?? 0) < _cardsMaxExtended - 1,
+              );
             } else {
               final credentialType = irmaConfiguration.credentialTypes[credentialNudge.fullCredentialTypeId];
               final issuer = irmaConfiguration.issuers[credentialType.fullIssuerId];
@@ -620,15 +617,28 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   }
 
   /// Set a new state of the wallet and start the animation
-  void setNewState(WalletState newState, {bool nudgeIsVisible = true}) {
+  void setNewState(WalletState newState) {
     setState(
       () {
-        _nudgeVisible = nudgeIsVisible;
+        _nudgeVisible = nudgeVisible(newState);
         _oldState = _currentState;
         _currentState = newState;
         _cardAnimationController.forward();
       },
     );
+  }
+
+  bool nudgeVisible(WalletState state) {
+    switch (state) {
+      case WalletState.drawn:
+        return false;
+      case WalletState.folded:
+        final screenHeight = MediaQuery.of(context).size.height;
+        // Make nudge invisible if cards occupy more than half of the screen
+        return _cardTopHeight * (widget.credentials?.length ?? 0) < screenHeight / 2;
+      default:
+        return true;
+    }
   }
 
   /// Calculate the position of a card, depending on the state of the wallet
@@ -791,6 +801,8 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       } else if (_drawnCardIndex > index && _currentState == WalletState.drawn) {
         // Compensate for removed card.
         _drawnCardIndex--;
+      } else {
+        setNewState(_currentState);
       }
     };
   }
