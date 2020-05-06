@@ -617,28 +617,28 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   }
 
   /// Set a new state of the wallet and start the animation
-  void setNewState(WalletState newState, {bool didDeleteCard = false}) {
+  void setNewState(WalletState newState) {
     setState(
       () {
-        switch (newState) {
-          case WalletState.drawn:
-            _nudgeVisible = false;
-            break;
-          case WalletState.folded:
-            final screenHeight = MediaQuery.of(context).size.height;
-            // Make nudge invisible if cards occupy more than half of the screen
-            _nudgeVisible =
-                _cardTopHeight * ((widget.credentials?.length ?? 0) - (didDeleteCard ? 1 : 0)) < screenHeight / 2;
-            break;
-          default:
-            _nudgeVisible = true;
-            break;
-        }
+        _nudgeVisible = nudgeVisible(newState);
         _oldState = _currentState;
         _currentState = newState;
         _cardAnimationController.forward();
       },
     );
+  }
+
+  bool nudgeVisible(WalletState state) {
+    switch (state) {
+      case WalletState.drawn:
+        return false;
+      case WalletState.folded:
+        final screenHeight = MediaQuery.of(context).size.height;
+        // Make nudge invisible if cards occupy more than half of the screen
+        return _cardTopHeight * (widget.credentials?.length ?? 0) < screenHeight / 2;
+      default:
+        return true;
+    }
   }
 
   /// Calculate the position of a card, depending on the state of the wallet
@@ -802,7 +802,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         // Compensate for removed card.
         _drawnCardIndex--;
       } else {
-        setNewState(_currentState, didDeleteCard: true);
+        setNewState(_currentState);
       }
     };
   }
