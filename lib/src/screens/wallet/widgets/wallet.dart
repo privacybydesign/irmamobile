@@ -790,11 +790,13 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       return null;
     }
 
-    return () {
-      IrmaRepository.get().bridgedDispatch(
-        DeleteCredentialEvent(hash: credential.hash),
-      );
-      if (_drawnCardIndex == index && _currentState == WalletState.drawn) {
+    return () async {
+      debugPrint("deleting...");
+      final deleted = await DeleteCredentialEvent(hash: credential.hash).dispatch();
+      debugPrint("deleted: $deleted");
+      if (!deleted) {
+        return;
+      } else if (_drawnCardIndex == index && _currentState == WalletState.drawn) {
         setNewState(_cardInStackState);
       } else if (_drawnCardIndex > index && _currentState == WalletState.drawn) {
         // Compensate for removed card.

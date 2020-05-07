@@ -1,3 +1,4 @@
+import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/event.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -24,4 +25,10 @@ class DeleteCredentialEvent extends Event {
 
   factory DeleteCredentialEvent.fromJson(Map<String, dynamic> json) => _$DeleteCredentialEventFromJson(json);
   Map<String, dynamic> toJson() => _$DeleteCredentialEventToJson(this);
+
+  Future<bool> dispatch() {
+    final repo = IrmaRepository.get();
+    repo.dispatch(this, isBridgedEvent: true);
+    return repo.getCredentials().first.then((creds) => !creds.containsKey(hash));
+  }
 }
