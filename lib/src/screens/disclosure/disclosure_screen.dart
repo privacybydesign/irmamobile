@@ -117,7 +117,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
       }
       await Future.delayed(const Duration(seconds: 1));
 
-      if (session.continueOnSecondDevice) {
+      if (session.continueOnSecondDevice && !session.isReturnPhoneNumber) {
         // If this is a session on a second screen, return to the wallet after showing a feedback screen
         if (session.status == SessionStatus.success) {
           _pushDisclosureFeedbackScreen(
@@ -217,9 +217,12 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
             return Column(
               children: <Widget>[
                 TranslatedText(
-                  'disclosure.disclosure_header',
-                  translationParams: {
-                    "otherParty": session.serverName.translate(FlutterI18n.currentLocale(context).languageCode)
+                  'disclosure.disclosure${session.isReturnPhoneNumber ? "_call" : ""}_header',
+                  translationParams: session.isReturnPhoneNumber ? {
+                    "otherParty": session.serverName.translate(FlutterI18n.currentLocale(context).languageCode),
+                    "phoneNumber": session.clientReturnURL.substring(4).split(",").first,
+                  } : {
+                    "otherParty": session.serverName.translate(FlutterI18n.currentLocale(context).languageCode),
                   },
                   style: Theme.of(context).textTheme.body1,
                 ),

@@ -78,6 +78,8 @@ class SessionState {
       error: error ?? this.error,
     );
   }
+
+  bool get isReturnPhoneNumber => clientReturnURL?.startsWith("tel:") ?? false;
 }
 
 enum SessionStatus {
