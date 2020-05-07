@@ -105,6 +105,9 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   // Height of interactive bottom to toggle wallet state between tightlyfolded and folded
   final _walletBottomInteractive = 0.7;
 
+  // Is the fixed offset a card moves to show a user that it can move
+  final double _cardGestureNudgingOffset = -20;
+
   AnimationController _cardAnimationController;
   AnimationController _loginLogoutAnimationController;
   Animation<double> _drawAnimation;
@@ -362,7 +365,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
             count: widget.credentials.length,
             credential: credential.value,
             walletTop: walletTop,
-            enableGestures: !scrollingEnabled,
+            gesturesLongPressOnly: scrollingEnabled,
           ),
         );
       },
@@ -464,54 +467,50 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
   /// IrmaCard with gestures attached
   /// Most of this code deals with having a good dragging UX
-  Widget getCard({int index, int count, Credential credential, double walletTop, bool enableGestures}) =>
+  Widget getCard({int index, int count, Credential credential, double walletTop, bool gesturesLongPressOnly}) =>
       GestureDetector(
         onTap: () {
           cardTapped(index, credential);
         },
-        onLongPressStart: !enableGestures
-            ? (LongPressStartDetails details) {
-                HapticFeedback.vibrate();
-                setState(() {
-                  cardGestureInit(index, count, walletTop, details.localPosition);
-                  cardGestureFixedUpdate();
-                });
-              }
-            : null,
-        onLongPressMoveUpdate: !enableGestures
-            ? (LongPressMoveUpdateDetails details) {
-                setState(() {
-                  cardGestureUpdate(index, details.localPosition);
-                });
-              }
-            : null,
-        onLongPressEnd: !enableGestures
-            ? (LongPressEndDetails details) {
-                cardGestureEnd(index, credential);
-              }
-            : null,
-        onVerticalDragDown: enableGestures
+        onLongPressStart: (LongPressStartDetails details) {
+          HapticFeedback.vibrate();
+          setState(() {
+            cardGestureInit(index, count, walletTop, Offset.zero);
+            // Make sure a fixed update is made to show users the card can move now
+            _dragOffsetSave = _cardGestureNudgingOffset;
+            cardGestureFixedUpdate();
+          });
+        },
+        onLongPressMoveUpdate: (LongPressMoveUpdateDetails details) {
+          setState(() {
+            cardGestureUpdate(index, details.localPosition);
+          });
+        },
+        onLongPressEnd: (LongPressEndDetails details) {
+          cardGestureEnd(index, credential);
+        },
+        onVerticalDragDown: !gesturesLongPressOnly
             ? (DragDownDetails details) {
                 setState(() {
                   cardGestureInit(index, count, walletTop, details.localPosition);
                 });
               }
             : null,
-        onVerticalDragStart: enableGestures
+        onVerticalDragStart: !gesturesLongPressOnly
             ? (DragStartDetails details) {
                 setState(() {
                   cardGestureFixedUpdate();
                 });
               }
             : null,
-        onVerticalDragUpdate: enableGestures
+        onVerticalDragUpdate: !gesturesLongPressOnly
             ? (DragUpdateDetails details) {
                 setState(() {
                   cardGestureUpdate(index, details.localPosition);
                 });
               }
             : null,
-        onVerticalDragEnd: enableGestures
+        onVerticalDragEnd: !gesturesLongPressOnly
             ? (DragEndDetails details) {
                 cardGestureEnd(index, credential);
               }
