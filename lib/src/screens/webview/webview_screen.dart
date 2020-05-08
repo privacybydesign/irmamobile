@@ -4,10 +4,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/webview/widgets/browser_bar.dart';
 import 'package:irmamobile/src/screens/webview/widgets/loading_data.dart';
+import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
@@ -37,6 +39,20 @@ class _WebviewScreenState extends State<WebviewScreen> {
 
   @override
   void initState() {
+    // TODO Remove when webview is fixed
+    final initUrl = url;
+    IrmaRepository.get().getIrmaConfiguration().first.then((irmaConfiguration) {
+      final inBrowserUrls = [
+        "pbdf.pbdf.idin",
+        "pbdf.pbdf.ideal",
+        "pbdf.gemeente.personalData",
+        "pbdf.gemeente.address",
+      ].map((type) => getTranslation(context, irmaConfiguration.credentialTypes[type].issueUrl));
+      if (inBrowserUrls.contains(initUrl)) {
+        _openInBrowser();
+      }
+    });
+
     // Make sure the in-app variant of the website is requested
     final uri = Uri.parse(url);
     url = uri.replace(queryParameters: {
@@ -52,20 +68,7 @@ class _WebviewScreenState extends State<WebviewScreen> {
     return Scaffold(
       appBar: BrowserBar(
         url: url,
-        onOpenInBrowserPress: () {
-          final uri = Uri.parse(url);
-          // uri.queryParameters is unmodifiable, so remove item in new map
-          final queryParameters = {...uri.queryParameters};
-          queryParameters.remove("inapp");
-          final externalUrl = uri.replace(queryParameters: queryParameters).toString();
-          if (Platform.isAndroid) {
-            Navigator.pop(context); // remove ActionSheet // TODO ActionSheet only disappears after returning
-            launch(externalUrl);
-          } else if (Platform.isIOS) {
-            Navigator.pop(context); // remove ActionSheet // TODO ActionSheet only disappears after returning
-            launch(externalUrl, forceSafariVC: false); // open Safari rather than SafariVCController
-          }
-        },
+        onOpenInBrowserPress: _openInBrowser,
         isLoading: _isLoading,
       ),
       body: _sessionPointer == null
@@ -148,5 +151,20 @@ class _WebviewScreenState extends State<WebviewScreen> {
               ],
             ),
     );
+  }
+
+  void _openInBrowser() {
+    final uri = Uri.parse(url);
+    // uri.queryParameters is unmodifiable, so remove item in new map
+    final queryParameters = {...uri.queryParameters};
+    queryParameters.remove("inapp");
+    final externalUrl = uri.replace(queryParameters: queryParameters).toString();
+    if (Platform.isAndroid) {
+      Navigator.pop(context); // remove ActionSheet // TODO ActionSheet only disappears after returning
+      launch(externalUrl);
+    } else if (Platform.isIOS) {
+      Navigator.pop(context); // remove ActionSheet // TODO ActionSheet only disappears after returning
+      launch(externalUrl, forceSafariVC: false); // open Safari rather than SafariVCController
+    }
   }
 }
