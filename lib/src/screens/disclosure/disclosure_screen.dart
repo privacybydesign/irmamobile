@@ -8,6 +8,7 @@ import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
+import 'package:irmamobile/src/screens/disclosure/call_info_screen.dart';
 import 'package:irmamobile/src/screens/disclosure/issuance_screen.dart';
 import 'package:irmamobile/src/screens/disclosure/session.dart';
 import 'package:irmamobile/src/screens/disclosure/widgets/arrow_back_screen.dart';
@@ -117,19 +118,28 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
       }
       await Future.delayed(const Duration(seconds: 1));
 
+      final serverName = session.serverName.translate(FlutterI18n.currentLocale(context).languageCode);
+
       if (session.continueOnSecondDevice && !session.isReturnPhoneNumber) {
         // If this is a session on a second screen, return to the wallet after showing a feedback screen
         if (session.status == SessionStatus.success) {
-          _pushDisclosureFeedbackScreen(
-              true, session.serverName.translate(FlutterI18n.currentLocale(context).languageCode));
+          _pushDisclosureFeedbackScreen(true, serverName);
         } else if (!navigatedAway) {
-          _pushDisclosureFeedbackScreen(
-              false, session.serverName.translate(FlutterI18n.currentLocale(context).languageCode));
+          _pushDisclosureFeedbackScreen(false, serverName);
         }
-      } else if (session.clientReturnURL != null && await canLaunch(session.clientReturnURL)) {
+      } else if (session.clientReturnURL != null &&
+          !session.isReturnPhoneNumber &&
+          await canLaunch(session.clientReturnURL)) {
         // If there is a return URL, navigate to it when we're done
         launch(session.clientReturnURL, forceSafariVC: false);
         popToWallet(context);
+      } else if (session.isReturnPhoneNumber) {
+        // Navigate to call info screen
+        if (session.status == SessionStatus.success) {
+          _pushInfoCallScreen(serverName, session.clientReturnURL);
+        } else if (!navigatedAway) {
+          _pushDisclosureFeedbackScreen(false, serverName);
+        }
       } else {
         // Otherwise, on iOS show a screen to press the return arrow in the top-left corner,
         // and on Android just background the app to let the user return to the previous activity
@@ -148,6 +158,16 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
       builder: (context) => DisclosureFeedbackScreen(
         success: success,
         otherParty: otherParty,
+        popToWallet: popToWallet,
+      ),
+    ));
+  }
+
+  void _pushInfoCallScreen(String otherParty, String clientReturnURL) {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => CallInfoScreen(
+        otherParty: otherParty,
+        clientReturnURL: clientReturnURL,
         popToWallet: popToWallet,
       ),
     ));
@@ -218,12 +238,14 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
               children: <Widget>[
                 TranslatedText(
                   'disclosure.disclosure${session.isReturnPhoneNumber ? "_call" : ""}_header',
-                  translationParams: session.isReturnPhoneNumber ? {
-                    "otherParty": session.serverName.translate(FlutterI18n.currentLocale(context).languageCode),
-                    "phoneNumber": session.clientReturnURL.substring(4).split(",").first,
-                  } : {
-                    "otherParty": session.serverName.translate(FlutterI18n.currentLocale(context).languageCode),
-                  },
+                  translationParams: session.isReturnPhoneNumber
+                      ? {
+                          "otherParty": session.serverName.translate(FlutterI18n.currentLocale(context).languageCode),
+                          "phoneNumber": RegExp().session.clientReturnURL.substring(4).split(",").first,
+                        }
+                      : {
+                          "otherParty": session.serverName.translate(FlutterI18n.currentLocale(context).languageCode),
+                        },
                   style: Theme.of(context).textTheme.body1,
                 ),
               ],
