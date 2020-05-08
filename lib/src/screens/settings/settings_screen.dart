@@ -4,7 +4,6 @@ import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/clear_all_data_event.dart';
 import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
-import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/settings/widgets/settings_header.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
@@ -122,7 +121,6 @@ Future<void> openWalletResetDialog(BuildContext context) async {
               IrmaRepository.get().bridgedDispatch(
                 ClearAllDataEvent(),
               );
-              Navigator.of(context).pushNamedAndRemoveUntil(EnrollmentScreen.routeName, (_) => false);
             },
             label: 'settings.advanced.delete_confirm',
           ),

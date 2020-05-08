@@ -9,6 +9,7 @@ import 'package:irmamobile/routing.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/applifecycle_changed_event.dart';
+import 'package:irmamobile/src/models/clear_all_data_event.dart';
 import 'package:irmamobile/src/models/enrollment_status.dart';
 import 'package:irmamobile/src/models/native_events.dart';
 import 'package:irmamobile/src/models/session.dart';
@@ -16,6 +17,7 @@ import 'package:irmamobile/src/models/version_information.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/screens/required_update/required_update_screen.dart';
+import 'package:irmamobile/src/screens/reset_pin/reset_pin_screen.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/splash_screen/splash_screen.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
@@ -78,6 +80,7 @@ class AppState extends State<App> with WidgetsBindingObserver {
     });
 
     _listenToPendingSessionPointer();
+    _listenForDataClear();
   }
 
   @override
@@ -138,6 +141,17 @@ class AppState extends State<App> with WidgetsBindingObserver {
     });
   }
 
+  void _listenForDataClear() {
+    // Clearing all data can be done both from the pin entry screen, or from
+    // the settings screen. As these are on different navigation stacks entirely,
+    // we cannot there manipulate the desired navigation stack for the enrollment
+    // screen. Hence, we do that here, pushing the enrollment screen on the main
+    // stack whenever the user clears all of his/her data.
+    IrmaRepository.get().getEvents().where((event) => event is ClearAllDataEvent).listen((_) {
+      _navigatorKey.currentState.pushNamedAndRemoveUntil(EnrollmentScreen.routeName, (_) => false);
+    });
+  }
+
   void _startSession(SessionPointer sessionPointer) {
     ScannerScreen.startSessionAndNavigate(
       _navigatorKey.currentState,
@@ -195,6 +209,8 @@ class AppState extends State<App> with WidgetsBindingObserver {
             WidgetBuilder screenBuilder = (context) => const RouteNotFoundScreen();
             if (settings.name == PinScreen.routeName) {
               screenBuilder = (context) => const PinScreen();
+            } else if (settings.name == ResetPinScreen.routeName) {
+              screenBuilder = (context) => ResetPinScreen();
             }
 
             // Wrap in popscope
@@ -202,10 +218,13 @@ class AppState extends State<App> with WidgetsBindingObserver {
               builder: (BuildContext context) {
                 return WillPopScope(
                   onWillPop: () async {
-                    // The named route (pinscreen) on this stack is always root
-                    // so background on back press.
-                    IrmaRepository.get().bridgedDispatch(AndroidSendToBackgroundEvent());
-                    return false;
+                    // On the pinscreen, background instead of pop
+                    if (settings.name == PinScreen.routeName) {
+                      IrmaRepository.get().bridgedDispatch(AndroidSendToBackgroundEvent());
+                      return false;
+                    } else {
+                      return true;
+                    }
                   },
                   child: screenBuilder(context),
                 );
