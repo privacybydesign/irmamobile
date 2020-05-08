@@ -198,7 +198,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
     if (widget.hasLoginLogoutAnimation && oldWidget.isOpen && !widget.isOpen) {
       _loginLogoutAnimationController.reverse().then((_) {
         _irmaClient.lock();
-        //Navigator.of(context).pushNamed(PinScreen.routeName);
       });
     }
 
