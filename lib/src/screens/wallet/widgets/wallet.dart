@@ -791,9 +791,8 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
     }
 
     return () async {
-      debugPrint("deleting...");
       final deleted = await DeleteCredentialEvent(hash: credential.hash).dispatch();
-      debugPrint("deleted: $deleted");
+      
       if (!deleted) {
         return;
       } else if (_drawnCardIndex == index && _currentState == WalletState.drawn) {

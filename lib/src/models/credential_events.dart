@@ -26,9 +26,17 @@ class DeleteCredentialEvent extends Event {
   factory DeleteCredentialEvent.fromJson(Map<String, dynamic> json) => _$DeleteCredentialEventFromJson(json);
   Map<String, dynamic> toJson() => _$DeleteCredentialEventToJson(this);
 
-  Future<bool> dispatch() {
+  Future<bool> dispatch() async {
     final repo = IrmaRepository.get();
     repo.dispatch(this, isBridgedEvent: true);
-    return repo.getCredentials().first.then((creds) => !creds.containsKey(hash));
+
+    final event = await repo.getEvents().where((event) => event is CredentialsEvent).first;
+    final credEvent = event as CredentialsEvent;
+    for (final cred in credEvent.credentials) {
+      if (cred.hash == hash) {
+        return false;
+      }
+    }
+    return true;
   }
 }
