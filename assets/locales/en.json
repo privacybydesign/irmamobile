@@ -407,7 +407,7 @@
   "disclosure": {
     "title": "Make yourself known",
     "disclosure_header_markdown": "Do you wish to disclose this to **{otherParty}**?",
-    "disclosure_call_header_markdown": "Do you wish to diclose this to **{otherParty}** and call with **{phoneNumber}**?",
+    "disclosure_call_header_markdown": "Do you wish to diclose this to **{otherParty}** and call to **{phoneNumber}**?",
     "signing_header": " asks you to sign a message",
     "issuer": "Source",
     "choices": "{choices} choices",
