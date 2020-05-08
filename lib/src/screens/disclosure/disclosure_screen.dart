@@ -241,7 +241,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
                   translationParams: session.isReturnPhoneNumber
                       ? {
                           "otherParty": session.serverName.translate(FlutterI18n.currentLocale(context).languageCode),
-                          "phoneNumber": RegExp().session.clientReturnURL.substring(4).split(",").first,
+                          "phoneNumber": session.clientReturnURL.substring(4).split(",").first,
                         }
                       : {
                           "otherParty": session.serverName.translate(FlutterI18n.currentLocale(context).languageCode),
