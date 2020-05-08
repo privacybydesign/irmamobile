@@ -20,7 +20,7 @@ import 'package:irmamobile/src/widgets/pin_field.dart';
 import '../../data/irma_preferences.dart';
 
 class PinScreen extends StatefulWidget {
-  static const String routeName = '/pin-screen';
+  static const String routeName = '/';
   final PinEvent initialEvent;
 
   const PinScreen({Key key, this.initialEvent}) : super(key: key);
