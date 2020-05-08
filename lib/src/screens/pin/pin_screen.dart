@@ -56,8 +56,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
     _pinBlocSubscription = _pinBloc.state.listen((pinState) async {
       if (pinState.authenticated) {
         _pinBlocSubscription.cancel();
-      }
-      if (pinState.pinInvalid) {
+      } else if (pinState.pinInvalid) {
         if (pinState.remainingAttempts != 0) {
           showDialog(
             context: context,
