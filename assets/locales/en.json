@@ -344,8 +344,10 @@
     "toggle": "Change display",
     "issuer": "Issuer",
     "expiration": "Card valid until",
-    "expired": "This card has expired on",
-    "expires_soon": "This card expires in {data} days.",
+    "expired": "This card has expired",
+    "expires_soon": {
+      "data-0": "This card expires in {data} days"
+    },
     "revoked": "This card has been revoked",
     "help": "Help",
     "caption": "Your data securely on your mobile",

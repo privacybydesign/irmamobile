@@ -124,7 +124,7 @@ class IrmaCard extends StatelessWidget {
                       scrollOverflowCallback: scrollBeyondBoundsCallback,
                       short: short,
                       expiryDate: expiryDate,
-                      revoked: true,
+                      revoked: revoked,
                       color: cardTheme.backgroundGradientEnd,
                     ),
                     CardFooter(

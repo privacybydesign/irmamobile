@@ -22,6 +22,7 @@ class CardAttributes extends StatelessWidget {
 
   bool get expired => expiryDate.isBefore(DateTime.now());
   int get validDays => expiryDate.difference(DateTime.now()).inDays;
+  bool get expiresSoon => (validDays <= 7);
 
   CardAttributes({
     this.attributes,
@@ -35,6 +36,8 @@ class CardAttributes extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint(expiresSoon.toString() + "hey");
+
     final TextStyle body1Theme = IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.foregroundColor);
     _lang = FlutterI18n.currentLocale(context).languageCode;
 
@@ -58,7 +61,7 @@ class CardAttributes extends StatelessWidget {
     final _minHeight = (width - IrmaTheme.of(context).smallSpacing * 2) * creditCardAspectRatio - 90;
     final double _maxHeight = (height - padding.top - kToolbarHeight) - ((height / 8) + (short ? 260 : 210));
 
-    if (!revoked && !expired)
+    if (!revoked && !expired && !expiresSoon) {
       return LimitedBox(
         maxHeight: _maxHeight,
         child: Container(
@@ -120,17 +123,20 @@ class CardAttributes extends StatelessWidget {
           ),
         ),
       );
-    if (revoked || expired || (validDays < 8)) return _buildWarning(context, _minHeight, revoked, expired, validDays);
+    } else {
+      return _buildWarning(context, _minHeight, revoked, expired, validDays);
+    }
   }
 
   Widget _buildWarning(BuildContext context, double minHeight, bool revoked, bool expired, int validDays) {
-    var warning;
+    String warning = "";
+    debugPrint("HEEEEEE");
     if (revoked) {
-      warning = "Revoked!!!";
+      warning = FlutterI18n.translate(context, 'wallet.revoked');
     } else if (expired) {
-      warning = "Expired!!!";
+      warning = FlutterI18n.translate(context, 'wallet.expired');
     } else {
-      warning = "Expires in {validDays} days";
+      warning = FlutterI18n.plural(context, "wallet.expires_soon.data", validDays);
     }
 
     return Container(
@@ -167,7 +173,7 @@ class CardAttributes extends StatelessWidget {
                   ),
                   SizedBox(height: IrmaTheme.of(context).smallSpacing),
                   Text(
-                    "Deze gegevens verlopen over 2 dagen",
+                    warning,
                     textAlign: TextAlign.center,
                     style: IrmaTheme.of(context).boldBody.copyWith(
                           color: irmaCardTheme.foregroundColor,
