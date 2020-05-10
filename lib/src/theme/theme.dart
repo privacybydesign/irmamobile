@@ -182,7 +182,7 @@ class IrmaThemeData extends Equatable {
       // md2018: subtitle1
       subhead: TextStyle(
         fontFamily: fontFamilyMontserrat,
-        fontSize: 15.0,
+        fontSize: 16.0,
         height: 22.0 / 18.0,
         fontWeight: FontWeight.normal,
         color: primaryDark,

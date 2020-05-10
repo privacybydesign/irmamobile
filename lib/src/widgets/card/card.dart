@@ -21,7 +21,7 @@ class IrmaCard extends StatelessWidget {
 
   bool get expired => expiryDate.isBefore(DateTime.now());
   int get validDays => expiryDate.difference(DateTime.now()).inDays;
-  bool get expiresSoon => (validDays <= 7);
+  bool get expiresSoon => (validDays <= 70);
 
   final Function() onRefreshCredential;
   final Function() onDeleteCredential;
