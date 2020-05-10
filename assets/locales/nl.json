@@ -350,7 +350,7 @@
     "expires_soon": {
       "data-0": "Kaartje verloopt over {} dagen"
     },
-    "revoked": "Dit kaartje is niet langer geldig",
+    "revoked": "Dit kaartje is niet meer geldig",
     "not_valid": "Kaartje niet geldig",
     "refresh": "Ververs kaartje",
     "close": "Sluiten",
