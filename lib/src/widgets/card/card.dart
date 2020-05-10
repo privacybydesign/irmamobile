@@ -53,84 +53,94 @@ class IrmaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
-      decoration: BoxDecoration(
-        color: cardTheme.backgroundGradientStart,
-        gradient: LinearGradient(
-          colors: [
-            cardTheme.backgroundGradientStart,
-            cardTheme.backgroundGradientEnd,
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-        border: Border.all(
-          width: 1.0,
-          color: cardTheme.backgroundGradientEnd,
-        ),
-        borderRadius: const BorderRadius.all(
-          _borderRadius,
-        ),
-        boxShadow: const [
-          BoxShadow(
-            color: _transparentBlack,
-            blurRadius: _blurRadius,
-            offset: Offset(
-              0.0,
-              2.0,
+    return Stack(
+      children: <Widget>[
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
+          decoration: BoxDecoration(
+            color: cardTheme.backgroundGradientStart,
+            gradient: LinearGradient(
+              colors: [
+                cardTheme.backgroundGradientStart,
+                cardTheme.backgroundGradientEnd,
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
             ),
-          )
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsets.only(
-              top: IrmaTheme.of(context).smallSpacing,
-              left: IrmaTheme.of(context).defaultSpacing,
-              bottom: 0,
+            border: Border.all(
+              width: 1.0,
+              color: cardTheme.backgroundGradientEnd,
             ),
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: Text(
-                    getTranslation(context, credentialInfo.credentialType.name),
-                    style: Theme.of(context).textTheme.subhead.copyWith(
-                          color: cardTheme.foregroundColor,
+            borderRadius: const BorderRadius.all(
+              _borderRadius,
+            ),
+            boxShadow: const [
+              BoxShadow(
+                color: _transparentBlack,
+                blurRadius: _blurRadius,
+                offset: Offset(
+                  0.0,
+                  2.0,
+                ),
+              )
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.only(
+                  top: IrmaTheme.of(context).smallSpacing,
+                  left: IrmaTheme.of(context).defaultSpacing,
+                  bottom: 0,
+                ),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.only(bottom: IrmaTheme.of(context).smallSpacing),
+                        child: Text(
+                          getTranslation(context, credentialInfo.credentialType.name),
+                          style: Theme.of(context).textTheme.subhead.copyWith(
+                                color: cardTheme.foregroundColor,
+                              ),
                         ),
-                  ),
+                      ),
+                    ),
+                    CardMenu(
+                      cardTheme: cardTheme,
+                      onRefreshCredential: onRefreshCredential,
+                      onDeleteCredential: onDeleteCredential,
+                    )
+                  ],
                 ),
-                CardMenu(
-                  cardTheme: cardTheme,
-                  onRefreshCredential: onRefreshCredential,
-                  onDeleteCredential: onDeleteCredential,
-                )
-              ],
-            ),
+              ),
+              Container(
+                child: Column(
+                  children: [
+                    CardAttributes(
+                      attributes: attributes,
+                      irmaCardTheme: cardTheme,
+                      scrollOverflowCallback: scrollBeyondBoundsCallback,
+                      short: short,
+                      expiryDate: expiryDate,
+                      revoked: true,
+                      color: cardTheme.backgroundGradientEnd,
+                    ),
+                    CardFooter(
+                      credentialInfo: credentialInfo,
+                      expiryDate: expiryDate,
+                      revoked: revoked,
+                      irmaCardTheme: cardTheme,
+                      scrollOverflowCallback: scrollBeyondBoundsCallback,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          Container(
-            child: Column(
-              children: [
-                CardAttributes(
-                  attributes: attributes,
-                  irmaCardTheme: cardTheme,
-                  scrollOverflowCallback: scrollBeyondBoundsCallback,
-                  short: short,
-                ),
-                CardFooter(
-                  credentialInfo: credentialInfo,
-                  expiryDate: expiryDate,
-                  revoked: revoked,
-                  irmaCardTheme: cardTheme,
-                  scrollOverflowCallback: scrollBeyondBoundsCallback,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
