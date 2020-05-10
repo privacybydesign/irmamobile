@@ -1,0 +1,8 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Privacy by Design Foundation
+Upstream-Contact: https://privacybydesign.foundation
+Source: https://github.com/privacybydesign/irmamobile
+
+Files: *
+Copyright: 2020 Privacy by Design Foundation
+License: GPL-3.0-only
