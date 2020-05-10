@@ -9,9 +9,7 @@ import 'package:irmamobile/src/widgets/card/irma_card_theme.dart';
 import '../irma_themed_button.dart';
 
 // ignore: must_be_immutable
-class CardAttributes extends StatelessWidget {
-  String _lang;
-
+class CardAttributes extends StatefulWidget {
   final Attributes attributes;
   final IrmaCardTheme irmaCardTheme;
   final void Function(double) scrollOverflowCallback;
@@ -22,7 +20,6 @@ class CardAttributes extends StatelessWidget {
   final int validDays;
   final Color color;
   final Function() onRefreshCredential;
-  final bool showWarning = true;
 
   CardAttributes({
     this.attributes,
@@ -38,14 +35,24 @@ class CardAttributes extends StatelessWidget {
   });
 
   @override
+  _CardAttributesState createState() => _CardAttributesState();
+}
+
+class _CardAttributesState extends State<CardAttributes> {
+  String _lang;
+
+  bool _showWarning = true;
+
+  @override
   Widget build(BuildContext context) {
-    final TextStyle body1Theme = IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.foregroundColor);
+    final TextStyle body1Theme =
+        IrmaTheme.of(context).textTheme.body1.copyWith(color: widget.irmaCardTheme.foregroundColor);
     _lang = FlutterI18n.currentLocale(context).languageCode;
 
     final ScrollController scrollController = ScrollController();
     scrollController.addListener(() {
       if (scrollController.offset < 0) {
-        scrollOverflowCallback(-scrollController.offset);
+        widget.scrollOverflowCallback(-scrollController.offset);
       }
     });
 
@@ -60,9 +67,9 @@ class CardAttributes extends StatelessWidget {
     final padding = MediaQuery.of(context).padding;
     const creditCardAspectRatio = 5398 / 8560;
     final _minHeight = (width - IrmaTheme.of(context).smallSpacing * 2) * creditCardAspectRatio - 90;
-    final double _maxHeight = (height - padding.top - kToolbarHeight) - ((height / 8) + (short ? 260 : 210));
+    final double _maxHeight = (height - padding.top - kToolbarHeight) - ((height / 8) + (widget.short ? 260 : 210));
 
-    if ((!revoked && !expired && !expiresSoon) || !showWarning) {
+    if ((!widget.revoked && !widget.expired && !widget.expiresSoon) || !showWarning) {
       return LimitedBox(
         maxHeight: _maxHeight,
         child: Container(
@@ -104,7 +111,7 @@ class CardAttributes extends StatelessWidget {
                         height: 8.0,
                         decoration: BoxDecoration(
                           border: Border(
-                            bottom: BorderSide(width: 1.0, color: irmaCardTheme.backgroundGradientEnd),
+                            bottom: BorderSide(width: 1.0, color: widget.irmaCardTheme.backgroundGradientEnd),
                           ),
                           gradient: const LinearGradient(
                             colors: [
@@ -125,7 +132,7 @@ class CardAttributes extends StatelessWidget {
         ),
       );
     } else {
-      return _buildWarning(context, _minHeight, revoked, expired, validDays);
+      return _buildWarning(context, _minHeight, widget.revoked, widget.expired, widget.validDays);
     }
   }
 
@@ -141,10 +148,10 @@ class CardAttributes extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: color,
+        color: widget.color,
         border: Border(
-          top: BorderSide(width: 0.4, color: irmaCardTheme.foregroundColor.withOpacity(0.3)),
-          bottom: BorderSide(width: 0.4, color: irmaCardTheme.foregroundColor.withOpacity(0.3)),
+          top: BorderSide(width: 0.4, color: widget.irmaCardTheme.foregroundColor.withOpacity(0.3)),
+          bottom: BorderSide(width: 0.4, color: widget.irmaCardTheme.foregroundColor.withOpacity(0.3)),
         ),
       ),
       padding: EdgeInsets.only(
@@ -168,7 +175,7 @@ class CardAttributes extends StatelessWidget {
                   SizedBox(height: IrmaTheme.of(context).tinySpacing),
                   Icon(
                     IrmaIcons.duration,
-                    color: irmaCardTheme.foregroundColor,
+                    color: widget.irmaCardTheme.foregroundColor,
                     size: 32,
                   ),
                   SizedBox(height: IrmaTheme.of(context).smallSpacing),
@@ -176,29 +183,36 @@ class CardAttributes extends StatelessWidget {
                     warning,
                     textAlign: TextAlign.center,
                     style: IrmaTheme.of(context).boldBody.copyWith(
-                          color: irmaCardTheme.foregroundColor,
+                          color: widget.irmaCardTheme.foregroundColor,
                         ),
                   ),
                   SizedBox(height: IrmaTheme.of(context).mediumSpacing),
                   IrmaThemedButton(
                     label: "Ververs gegevens",
-                    onPressed: onRefreshCredential,
+                    onPressed: widget.onRefreshCredential,
                     size: IrmaButtonSize.small,
                     icon: null,
-                    color: irmaCardTheme.foregroundColor,
-                    textColor: color,
+                    color: widget.irmaCardTheme.foregroundColor,
+                    textColor: widget.color,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30.0),
                     ),
                   ),
                   SizedBox(height: IrmaTheme.of(context).smallSpacing),
-                  Text(
-                    "Sluiten",
-                    textAlign: TextAlign.center,
-                    style: IrmaTheme.of(context).hyperlinkTextStyle.copyWith(
-                          color: irmaCardTheme.foregroundColor,
-                          fontSize: 14.0,
-                        ),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _showWarning = false;
+                      });
+                    },
+                    child: Text(
+                      "Sluiten",
+                      textAlign: TextAlign.center,
+                      style: IrmaTheme.of(context).hyperlinkTextStyle.copyWith(
+                            color: widget.irmaCardTheme.foregroundColor,
+                            fontSize: 14.0,
+                          ),
+                    ),
                   ),
                   SizedBox(height: IrmaTheme.of(context).defaultSpacing),
                 ],
@@ -211,7 +225,7 @@ class CardAttributes extends StatelessWidget {
   }
 
   Widget _buildPhoto(BuildContext context) {
-    if (attributes.portraitPhoto == null) {
+    if (widget.attributes.portraitPhoto == null) {
       return Container(height: 0);
     }
 
@@ -225,15 +239,15 @@ class CardAttributes extends StatelessWidget {
         width: 90,
         height: 120,
         color: const Color(0xff777777),
-        child: attributes.portraitPhoto,
+        child: widget.attributes.portraitPhoto,
       ),
     );
   }
 
   List<Widget> _buildAttributes(BuildContext context, TextStyle body1Theme) {
-    return attributes.sortedAttributeTypes.expand<Widget>(
+    return widget.attributes.sortedAttributeTypes.expand<Widget>(
       (attributeType) {
-        final attributeValue = attributes[attributeType];
+        final attributeValue = widget.attributes[attributeType];
         // PhotoValue cannot be rendered yet and NullValue must be skipped
         if (!(attributeValue is TextValue)) {
           return [];
@@ -250,7 +264,7 @@ class CardAttributes extends StatelessWidget {
           ),
           Text(
             (attributeValue as TextValue).translated[_lang],
-            style: IrmaTheme.of(context).textTheme.body2.copyWith(color: irmaCardTheme.foregroundColor),
+            style: IrmaTheme.of(context).textTheme.body2.copyWith(color: widget.irmaCardTheme.foregroundColor),
           ),
           SizedBox(
             height: IrmaTheme.of(context).smallSpacing,
