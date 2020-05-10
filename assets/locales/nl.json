@@ -345,8 +345,15 @@
     "toggle": "Weergave wisselen",
     "issuer": "Uitgever",
     "expiration": "Kaartje geldig tot",
-    "expired": "Kaartje verlopen op",
-    "revoked": "Dit kaartje is teruggetrokken",
+    "expired": "Dit kaartje is verlopen",
+    "expired_on": "Kaartje verlopen",
+    "expires_soon": {
+      "data-0": "Kaartje verloopt over {} dagen"
+    },
+    "revoked": "Dit kaartje is niet langer geldig",
+    "not_valid": "Kaartje niet geldig",
+    "refresh": "Ververs kaartje",
+    "close": "Sluiten",
     "help": "Help",
     "caption": "Jouw gegevens veilig op je mobiel",
     "pbdf_gemeente_personalData": {

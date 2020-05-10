@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/credentials.dart';
-import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/widgets/card/card_footer.dart';
@@ -22,7 +21,7 @@ class IrmaCard extends StatelessWidget {
 
   bool get expired => expiryDate.isBefore(DateTime.now());
   int get validDays => expiryDate.difference(DateTime.now()).inDays;
-  bool get expiresSoon => (validDays <= 77);
+  bool get expiresSoon => (validDays <= 7);
 
   final Function() onRefreshCredential;
   final Function() onDeleteCredential;
@@ -108,21 +107,12 @@ class IrmaCard extends StatelessWidget {
                             ),
                       ),
                     ),
-                    if (!revoked && !expired && !expiresSoon)
-                      CardMenu(
-                        cardTheme: cardTheme,
-                        onRefreshCredential: onRefreshCredential,
-                        onDeleteCredential: onDeleteCredential,
-                      )
-                    else
-                      Padding(
-                        padding: EdgeInsets.only(right: IrmaTheme.of(context).smallSpacing),
-                        child: Icon(
-                          IrmaIcons.warning,
-                          size: 16.0,
-                          color: cardTheme.foregroundColor,
-                        ),
-                      ),
+                    CardMenu(
+                      cardTheme: cardTheme,
+                      onRefreshCredential: onRefreshCredential,
+                      onDeleteCredential: onDeleteCredential,
+                      allGood: (!revoked && !expired && !expiresSoon) ? true : false,
+                    ),
                   ],
                 ),
               ),

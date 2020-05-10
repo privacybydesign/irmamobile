@@ -116,7 +116,9 @@ class CardFooter extends StatelessWidget {
               child: Opacity(
                 opacity: 0.8,
                 child: Text(
-                  FlutterI18n.translate(context, 'wallet.expiration'),
+                  expired
+                      ? FlutterI18n.translate(context, 'wallet.expired_on')
+                      : FlutterI18n.translate(context, 'wallet.expiration'),
                   style: body1Theme.copyWith(fontSize: 12),
                 ),
               ),

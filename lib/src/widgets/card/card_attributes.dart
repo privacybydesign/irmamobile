@@ -69,7 +69,7 @@ class _CardAttributesState extends State<CardAttributes> {
     final _minHeight = (width - IrmaTheme.of(context).smallSpacing * 2) * creditCardAspectRatio - 90;
     final double _maxHeight = (height - padding.top - kToolbarHeight) - ((height / 8) + (widget.short ? 260 : 210));
 
-    if ((!widget.revoked && !widget.expired && !widget.expiresSoon) || !showWarning) {
+    if ((!widget.revoked && !widget.expired && !widget.expiresSoon) || !_showWarning) {
       return LimitedBox(
         maxHeight: _maxHeight,
         child: Container(
@@ -188,7 +188,7 @@ class _CardAttributesState extends State<CardAttributes> {
                   ),
                   SizedBox(height: IrmaTheme.of(context).mediumSpacing),
                   IrmaThemedButton(
-                    label: "Ververs gegevens",
+                    label: FlutterI18n.translate(context, 'wallet.refresh'),
                     onPressed: widget.onRefreshCredential,
                     size: IrmaButtonSize.small,
                     icon: null,
@@ -206,7 +206,7 @@ class _CardAttributesState extends State<CardAttributes> {
                       });
                     },
                     child: Text(
-                      "Sluiten",
+                      FlutterI18n.translate(context, 'wallet.close'),
                       textAlign: TextAlign.center,
                       style: IrmaTheme.of(context).hyperlinkTextStyle.copyWith(
                             color: widget.irmaCardTheme.foregroundColor,

@@ -345,11 +345,14 @@
     "issuer": "Issuer",
     "expiration": "Card valid until",
     "expired": "This card has expired",
+    "expired_on": "Card expired",
     "expires_soon": {
       "data-0": "This card expires in {data} days"
     },
-    "revoked": "This card has been revoked",
+    "revoked": "This card is no longer valid",
     "not_valid": "Card not valid",
+    "refresh": "Refresh card",
+    "close": "Close",
     "help": "Help",
     "caption": "Your data securely on your mobile",
     "pbdf_gemeente_personalData": {

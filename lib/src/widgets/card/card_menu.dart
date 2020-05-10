@@ -19,8 +19,9 @@ class CardMenu extends StatelessWidget {
   final IrmaCardTheme cardTheme;
   final Function() onRefreshCredential;
   final Function() onDeleteCredential;
+  final bool allGood;
 
-  const CardMenu({this.cardTheme, this.onRefreshCredential, this.onDeleteCredential});
+  const CardMenu({this.cardTheme, this.onRefreshCredential, this.onDeleteCredential, this.allGood});
 
   void _showDeleteDialog(BuildContext context) {
     showDialog(
@@ -63,7 +64,6 @@ class CardMenu extends StatelessWidget {
     if (onRefreshCredential == null && onDeleteCredential == null) {
       return Container();
     }
-
     return PopupMenuButton<CardMenuOption>(
       onSelected: (value) {
         if (value == CardMenuOption.refresh) {
@@ -121,13 +121,15 @@ class CardMenu extends StatelessWidget {
       color: IrmaTheme.of(context).primaryLight,
       child: Transform.rotate(
         // TODO: replace icon in iconfont to a horizontalNav and remove this rotate
-        angle: 90 * math.pi / 180,
+        angle: allGood ? 90 * math.pi / 180 : 0,
         child: Container(
           padding: const EdgeInsets.all(0.0),
           child: GestureDetector(
             child: Padding(
-              padding: const EdgeInsets.only(right: 17.0, left: 14.0),
-              child: Icon(IrmaIcons.verticalNav, size: 22.0, color: cardTheme.foregroundColor),
+              padding: EdgeInsets.only(right: IrmaTheme.of(context).defaultSpacing, left: 14.0),
+              child: allGood
+                  ? Icon(IrmaIcons.verticalNav, size: 22.0, color: cardTheme.foregroundColor)
+                  : Icon(IrmaIcons.warning, size: 16.0, color: cardTheme.foregroundColor),
             ),
           ),
         ),
