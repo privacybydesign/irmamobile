@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/credentials.dart';
+import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/widgets/card/card_footer.dart';
@@ -18,6 +19,10 @@ class IrmaCard extends StatelessWidget {
   final Attributes attributes;
   final bool revoked;
   final DateTime expiryDate;
+
+  bool get expired => expiryDate.isBefore(DateTime.now());
+  int get validDays => expiryDate.difference(DateTime.now()).inDays;
+  bool get expiresSoon => (validDays <= 77);
 
   final Function() onRefreshCredential;
   final Function() onDeleteCredential;
@@ -90,28 +95,34 @@ class IrmaCard extends StatelessWidget {
             children: <Widget>[
               Padding(
                 padding: EdgeInsets.only(
-                  top: IrmaTheme.of(context).smallSpacing,
-                  left: IrmaTheme.of(context).defaultSpacing,
-                  bottom: 0,
-                ),
+                    top: IrmaTheme.of(context).smallSpacing,
+                    left: IrmaTheme.of(context).defaultSpacing,
+                    bottom: IrmaTheme.of(context).smallSpacing),
                 child: Row(
                   children: <Widget>[
                     Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.only(bottom: IrmaTheme.of(context).smallSpacing),
-                        child: Text(
-                          getTranslation(context, credentialInfo.credentialType.name),
-                          style: Theme.of(context).textTheme.subhead.copyWith(
-                                color: cardTheme.foregroundColor,
-                              ),
-                        ),
+                      child: Text(
+                        getTranslation(context, credentialInfo.credentialType.name),
+                        style: Theme.of(context).textTheme.subhead.copyWith(
+                              color: cardTheme.foregroundColor,
+                            ),
                       ),
                     ),
-                    CardMenu(
-                      cardTheme: cardTheme,
-                      onRefreshCredential: onRefreshCredential,
-                      onDeleteCredential: onDeleteCredential,
-                    )
+                    if (!revoked && !expired && !expiresSoon)
+                      CardMenu(
+                        cardTheme: cardTheme,
+                        onRefreshCredential: onRefreshCredential,
+                        onDeleteCredential: onDeleteCredential,
+                      )
+                    else
+                      Padding(
+                        padding: EdgeInsets.only(right: IrmaTheme.of(context).smallSpacing),
+                        child: Icon(
+                          IrmaIcons.warning,
+                          size: 16.0,
+                          color: cardTheme.foregroundColor,
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -123,9 +134,12 @@ class IrmaCard extends StatelessWidget {
                       irmaCardTheme: cardTheme,
                       scrollOverflowCallback: scrollBeyondBoundsCallback,
                       short: short,
-                      expiryDate: expiryDate,
+                      expired: expired,
+                      expiresSoon: expiresSoon,
+                      validDays: validDays,
                       revoked: revoked,
                       color: cardTheme.backgroundGradientEnd,
+                      onRefreshCredential: onRefreshCredential,
                     ),
                     CardFooter(
                       credentialInfo: credentialInfo,

@@ -16,13 +16,13 @@ class CardAttributes extends StatelessWidget {
   final IrmaCardTheme irmaCardTheme;
   final void Function(double) scrollOverflowCallback;
   final bool short;
-  final DateTime expiryDate;
+  final bool expired;
+  final bool expiresSoon;
   final bool revoked;
+  final int validDays;
   final Color color;
-
-  bool get expired => expiryDate.isBefore(DateTime.now());
-  int get validDays => expiryDate.difference(DateTime.now()).inDays;
-  bool get expiresSoon => (validDays <= 7);
+  final Function() onRefreshCredential;
+  final bool showWarning = true;
 
   CardAttributes({
     this.attributes,
@@ -30,14 +30,15 @@ class CardAttributes extends StatelessWidget {
     this.scrollOverflowCallback,
     this.short = false,
     this.revoked,
-    this.expiryDate,
+    this.expired,
+    this.expiresSoon,
+    this.validDays,
     this.color,
+    this.onRefreshCredential,
   });
 
   @override
   Widget build(BuildContext context) {
-    debugPrint(expiresSoon.toString() + "hey");
-
     final TextStyle body1Theme = IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.foregroundColor);
     _lang = FlutterI18n.currentLocale(context).languageCode;
 
@@ -61,7 +62,7 @@ class CardAttributes extends StatelessWidget {
     final _minHeight = (width - IrmaTheme.of(context).smallSpacing * 2) * creditCardAspectRatio - 90;
     final double _maxHeight = (height - padding.top - kToolbarHeight) - ((height / 8) + (short ? 260 : 210));
 
-    if (!revoked && !expired && !expiresSoon) {
+    if ((!revoked && !expired && !expiresSoon) || !showWarning) {
       return LimitedBox(
         maxHeight: _maxHeight,
         child: Container(
@@ -130,7 +131,6 @@ class CardAttributes extends StatelessWidget {
 
   Widget _buildWarning(BuildContext context, double minHeight, bool revoked, bool expired, int validDays) {
     String warning = "";
-    debugPrint("HEEEEEE");
     if (revoked) {
       warning = FlutterI18n.translate(context, 'wallet.revoked');
     } else if (expired) {
@@ -182,8 +182,7 @@ class CardAttributes extends StatelessWidget {
                   SizedBox(height: IrmaTheme.of(context).mediumSpacing),
                   IrmaThemedButton(
                     label: "Ververs gegevens",
-                    onPressed: () {},
-                    onPressedDisabled: () {},
+                    onPressed: onRefreshCredential,
                     size: IrmaButtonSize.small,
                     icon: null,
                     color: irmaCardTheme.foregroundColor,
