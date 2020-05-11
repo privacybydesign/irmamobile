@@ -1,0 +1,12 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Privacy by Design Foundation
+Upstream-Contact: https://privacybydesign.foundation
+Source: https://github.com/privacybydesign/irmamobile
+
+Files: *
+Copyright: 2020 Privacy by Design Foundation
+License: GPL-3.0-only
+
+Files: assets/non-free/* ios/Runner/Assets.xcassets/LaunchImage.imageset/*.png ios/Runner/Assets.xcassets/AppIcon.appiconset/*.png android/app/src/main/res/*/launcher_icon.png android/app/src/main/res/*/splash.png assets/splash/splash_static.svg assets/splash/startup.png assets/generic/loading_indicator.webp assets/icon/icon.png assets/help/q1_step_2.svg assets/help/q2_step_1.svg assets/help/q2_step_2.svg
+Copyright: 2020 Privacy by Design Foundation
+License: NONE

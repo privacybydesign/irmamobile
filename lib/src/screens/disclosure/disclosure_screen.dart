@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -41,12 +42,14 @@ class DisclosureScreen extends StatefulWidget {
 class _DisclosureScreenState extends State<DisclosureScreen> {
   final IrmaRepository _repo = IrmaRepository.get();
   Stream<SessionState> _sessionStateStream;
+  StreamSubscription<SessionState> _sessionStateSubscription;
 
   bool _displayArrowBack = false;
 
   bool scrolledToEnd = false;
   final _scrollController = ScrollController();
 
+  SessionStatus _screenStatus = SessionStatus.uninitialized;
   bool navigatedAway = false;
 
   void carouselPageUpdate(int disconIndex, int conIndex) {
@@ -67,73 +70,80 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     super.initState();
 
     _sessionStateStream = _repo.getSessionState(widget.arguments.sessionID);
-
-    _sessionStateStream
-        .firstWhere((session) => session.disclosuresCandidates != null)
-        .then((session) => _showExplanation(session.disclosuresCandidates));
-
-    _sessionStateStream
-        .firstWhere((session) => session.requestPin == true)
-        .then((session) => pushSessionPinScreen(context, session.sessionID, 'disclosure.title'));
-
-    // Handle errors. The return code is replicated here as we start
-    // with a somewhat different situation, having an extra screen
-    // on top of the stack
-    _sessionStateStream.firstWhere((session) => session.status == SessionStatus.error).then((session) {
-      toErrorScreen(context, session.error, () {
-        (() async {
-          if (session.continueOnSecondDevice) {
-            popToWallet(context);
-          } else if (session.clientReturnURL != null && await canLaunch(session.clientReturnURL)) {
-            launch(session.clientReturnURL, forceSafariVC: false);
-            popToWallet(context);
-          } else {
-            if (Platform.isIOS) {
-              setState(() => _displayArrowBack = true);
-              Navigator.of(context).pop(); // pop error screen
-            } else {
-              SystemNavigator.pop();
-              popToWallet(context);
-            }
-          }
-        })();
-      });
-    });
-
-    // Session end handling
-    (() async {
-      // When the session has completed, wait one second to display a message
-      final session = await _sessionStateStream.firstWhere((session) {
-        switch (session.status) {
-          case SessionStatus.success:
-          case SessionStatus.canceled:
-            return true;
-          default:
-            return false;
-        }
-      });
-      if (session.issuedCredentials?.isNotEmpty ?? false) {
-        // Let issuance screen handle this
+    _sessionStateSubscription = _sessionStateStream.listen((session) {
+      // Do nothing if status did not change.
+      if (_screenStatus == session.status) {
         return;
       }
-      await Future.delayed(const Duration(seconds: 1));
+      _screenStatus = session.status;
 
-      final serverName = session.serverName.translate(FlutterI18n.currentLocale(context).languageCode);
+      if (_screenStatus == SessionStatus.requestPermission && session.disclosuresCandidates != null) {
+        _showExplanation(session.disclosuresCandidates);
+      }
 
-      if (session.continueOnSecondDevice && !session.isReturnPhoneNumber) {
-        // If this is a session on a second screen, return to the wallet after showing a feedback screen
-        if (session.status == SessionStatus.success) {
-          _pushDisclosureFeedbackScreen(true, serverName);
-        } else if (!navigatedAway) {
-          _pushDisclosureFeedbackScreen(false, serverName);
-        }
-      } else if (session.clientReturnURL != null &&
-          !session.isReturnPhoneNumber &&
-          await canLaunch(session.clientReturnURL)) {
-        // If there is a return URL, navigate to it when we're done
+      if (_screenStatus == SessionStatus.requestPin) {
+        pushSessionPinScreen(context, session.sessionID, 'disclosure.title');
+      }
+
+      if (_screenStatus == SessionStatus.error) {
+        _handleError(session);
+      }
+
+      if ([SessionStatus.success, SessionStatus.canceled].contains(_screenStatus)) {
+        _handleFinished(session);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _sessionStateSubscription.cancel();
+    super.dispose();
+  }
+
+  // Handle errors. The return code is replicated here as we start
+  // with a somewhat different situation, having an extra screen
+  // on top of the stack
+  void _handleError(SessionState session) {
+    toErrorScreen(context, session.error, () async {
+      if (session.continueOnSecondDevice) {
+        popToWallet(context);
+      } else if (session.clientReturnURL != null && !session.isReturnPhoneNumber && await canLaunch(session.clientReturnURL)) {
         launch(session.clientReturnURL, forceSafariVC: false);
         popToWallet(context);
-      } else if (session.isReturnPhoneNumber) {
+      } else {
+        if (Platform.isIOS) {
+          setState(() => _displayArrowBack = true);
+          Navigator.of(context).pop(); // pop error screen
+        } else {
+          SystemNavigator.pop();
+          popToWallet(context);
+        }
+      }
+    });
+  }
+
+  Future<void> _handleFinished(SessionState session) async {
+    final serverName = session.serverName.translate(FlutterI18n.currentLocale(context).languageCode); 
+    
+    if (session.issuedCredentials?.isNotEmpty ?? false) {
+      // Let issuance screen handle this
+      return;
+    }
+    await Future.delayed(const Duration(seconds: 1));
+
+    if (session.continueOnSecondDevice && !session.isReturnPhoneNumber) {
+      // If this is a session on a second screen, return to the wallet after showing a feedback screen
+      if (session.status == SessionStatus.success) {
+        _pushDisclosureFeedbackScreen(true, serverName);
+      } else if (!navigatedAway) {
+        _pushDisclosureFeedbackScreen(false, serverName);
+      }
+    } else if (session.clientReturnURL != null && await canLaunch(session.clientReturnURL) && !session.isReturnPhoneNumber) {
+      // If there is a return URL, navigate to it when we're done
+      launch(session.clientReturnURL, forceSafariVC: false);
+      popToWallet(context);
+    } else if (session.isReturnPhoneNumber) {
         // Navigate to call info screen
         if (session.status == SessionStatus.success) {
           _pushInfoCallScreen(serverName, session.clientReturnURL);
@@ -141,16 +151,15 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
           _pushDisclosureFeedbackScreen(false, serverName);
         }
       } else {
-        // Otherwise, on iOS show a screen to press the return arrow in the top-left corner,
-        // and on Android just background the app to let the user return to the previous activity
-        if (Platform.isIOS) {
-          setState(() => _displayArrowBack = true);
-        } else {
-          SystemNavigator.pop();
-          popToWallet(context);
-        }
+      // Otherwise, on iOS show a screen to press the return arrow in the top-left corner,
+      // and on Android just background the app to let the user return to the previous activity
+      if (Platform.isIOS) {
+        setState(() => _displayArrowBack = true);
+      } else {
+        SystemNavigator.pop();
+        popToWallet(context);
       }
-    })();
+    }
   }
 
   void _pushDisclosureFeedbackScreen(bool success, String otherParty) {

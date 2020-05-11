@@ -11,7 +11,6 @@ import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/widgets/card_suggestion.dart';
 import 'package:irmamobile/src/widgets/card_suggestion_group.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'card_info_screen.dart';
 
@@ -21,20 +20,14 @@ class CardStoreScreen extends StatelessWidget {
   Future<void> _onStartIssuance(BuildContext context, CredentialType credentialType) async {
     final url = getTranslation(context, credentialType.issueUrl);
 
-    if (credentialType.issuerId == "gemeente" ||
-        credentialType.fullId == "pbdf.pbdf.ideal" ||
-        credentialType.fullId == "pbdf.pbdf.idin") {
-      launch(url, forceSafariVC: false);
-    } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) {
-          return WebviewScreen(
-            url,
-          );
-        }),
-      );
-    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) {
+        return WebviewScreen(
+          url,
+        );
+      }),
+    );
   }
 
   @override
