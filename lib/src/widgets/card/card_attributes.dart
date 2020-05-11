@@ -12,13 +12,15 @@ class CardAttributes extends StatelessWidget {
   final Attributes attributes;
   final IrmaCardTheme irmaCardTheme;
   final void Function(double) scrollOverflowCallback;
-  final bool short;
+
+  // If true no max height is enforced for the card attributes view
+  final bool expanded;
 
   CardAttributes({
     this.attributes,
     this.irmaCardTheme,
     this.scrollOverflowCallback,
-    this.short = false,
+    this.expanded = false,
   });
 
   @override
@@ -44,10 +46,11 @@ class CardAttributes extends StatelessWidget {
     final padding = MediaQuery.of(context).padding;
     const creditCardAspectRatio = 5398 / 8560;
     final _minHeight = (width - IrmaTheme.of(context).smallSpacing * 2) * creditCardAspectRatio - 90;
-    final double _maxHeight = (height - padding.top - kToolbarHeight) - ((height / 8) + (short ? 260 : 210));
+    final double _maxHeight = (height - padding.top - kToolbarHeight) - ((height / 8) + 210);
 
     return LimitedBox(
-      maxHeight: _maxHeight,
+      /// Default value of maxHeight is double.infinity
+      maxHeight: expanded ? double.infinity : _maxHeight,
       child: Container(
         padding: EdgeInsets.only(
           top: IrmaTheme.of(context).defaultSpacing,
@@ -71,7 +74,7 @@ class CardAttributes extends StatelessWidget {
                       child: ListView(
                         shrinkWrap: true,
                         controller: scrollController,
-                        physics: const BouncingScrollPhysics(),
+                        physics: expanded ? null : const BouncingScrollPhysics(),
                         padding: EdgeInsets.only(left: IrmaTheme.of(context).defaultSpacing),
                         children: [
                           ..._buildAttributes(context, body1Theme),
