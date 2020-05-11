@@ -57,7 +57,7 @@ class CallInfoScreen extends StatelessWidget {
                               child: Padding(
                                 padding: EdgeInsets.only(
                                     top: IrmaTheme.of(context).tinySpacing * 0.75,
-                                    right: IrmaTheme.of(context).defaultSpacing),
+                                    right: IrmaTheme.of(context).smallSpacing),
                                 child: Container(
                                   child: CircleAvatar(
                                       child: Icon(IrmaIcons.valid),
@@ -102,9 +102,8 @@ class CallInfoScreen extends StatelessWidget {
                             Container(
                               child: Padding(
                                 padding: EdgeInsets.only(
-                                    left: IrmaTheme.of(context).smallSpacing,
                                     top: IrmaTheme.of(context).tinySpacing * 0.75,
-                                    right: IrmaTheme.of(context).defaultSpacing),
+                                    right: IrmaTheme.of(context).smallSpacing),
                                 child: Container(
                                     child: CircleAvatar(
                                         child: const Text('1'),
@@ -144,7 +143,7 @@ class CallInfoScreen extends StatelessWidget {
                             ),
                           ],
                         ),
-                        SizedBox(height: IrmaTheme.of(context).tinySpacing),
+                        SizedBox(height: IrmaTheme.of(context).smallSpacing),
                         Center(
                           child: SizedBox(
                             height: 50.0,
@@ -154,16 +153,15 @@ class CallInfoScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                        SizedBox(height: IrmaTheme.of(context).tinySpacing),
+                        SizedBox(height: IrmaTheme.of(context).smallSpacing),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Container(
                               child: Padding(
                                 padding: EdgeInsets.only(
-                                    left: IrmaTheme.of(context).smallSpacing,
                                     top: IrmaTheme.of(context).tinySpacing * 0.75,
-                                    right: IrmaTheme.of(context).defaultSpacing),
+                                    right: IrmaTheme.of(context).smallSpacing),
                                 child: Container(
                                   width: 26.0,
                                   height: 26.0,
@@ -198,9 +196,8 @@ class CallInfoScreen extends StatelessWidget {
                             Container(
                               child: Padding(
                                 padding: EdgeInsets.only(
-                                    left: IrmaTheme.of(context).smallSpacing,
                                     top: IrmaTheme.of(context).tinySpacing * 0.75,
-                                    right: IrmaTheme.of(context).defaultSpacing),
+                                    right: IrmaTheme.of(context).smallSpacing),
                                 child: Container(
                                     child: CircleAvatar(
                                         child: const Text('2'),
@@ -240,7 +237,7 @@ class CallInfoScreen extends StatelessWidget {
                             ),
                           ],
                         ),
-                        SizedBox(height: IrmaTheme.of(context).tinySpacing),
+                        SizedBox(height: IrmaTheme.of(context).smallSpacing),
                         Center(
                           child: SizedBox(
                             height: 50.0,
@@ -250,16 +247,15 @@ class CallInfoScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-                        SizedBox(height: IrmaTheme.of(context).tinySpacing),
+                        SizedBox(height: IrmaTheme.of(context).smallSpacing),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Container(
                               child: Padding(
                                 padding: EdgeInsets.only(
-                                    left: IrmaTheme.of(context).smallSpacing,
                                     top: IrmaTheme.of(context).tinySpacing * 0.75,
-                                    right: IrmaTheme.of(context).defaultSpacing),
+                                    right: IrmaTheme.of(context).smallSpacing),
                                 child: Container(
                                   width: 26.0,
                                   height: 26.0,
