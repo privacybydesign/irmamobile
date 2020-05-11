@@ -108,7 +108,9 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     toErrorScreen(context, session.error, () async {
       if (session.continueOnSecondDevice) {
         popToWallet(context);
-      } else if (session.clientReturnURL != null && !session.isReturnPhoneNumber && await canLaunch(session.clientReturnURL)) {
+      } else if (session.clientReturnURL != null &&
+          !session.isReturnPhoneNumber &&
+          await canLaunch(session.clientReturnURL)) {
         launch(session.clientReturnURL, forceSafariVC: false);
         popToWallet(context);
       } else {
@@ -124,8 +126,8 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   }
 
   Future<void> _handleFinished(SessionState session) async {
-    final serverName = session.serverName.translate(FlutterI18n.currentLocale(context).languageCode); 
-    
+    final serverName = session.serverName.translate(FlutterI18n.currentLocale(context).languageCode);
+
     if (session.issuedCredentials?.isNotEmpty ?? false) {
       // Let issuance screen handle this
       return;
@@ -139,18 +141,20 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
       } else if (!navigatedAway) {
         _pushDisclosureFeedbackScreen(false, serverName);
       }
-    } else if (session.clientReturnURL != null && await canLaunch(session.clientReturnURL) && !session.isReturnPhoneNumber) {
+    } else if (session.clientReturnURL != null &&
+        await canLaunch(session.clientReturnURL) &&
+        !session.isReturnPhoneNumber) {
       // If there is a return URL, navigate to it when we're done
       launch(session.clientReturnURL, forceSafariVC: false);
       popToWallet(context);
     } else if (session.isReturnPhoneNumber) {
-        // Navigate to call info screen
-        if (session.status == SessionStatus.success) {
-          _pushInfoCallScreen(serverName, session.clientReturnURL);
-        } else if (!navigatedAway) {
-          _pushDisclosureFeedbackScreen(false, serverName);
-        }
-      } else {
+      // Navigate to call info screen
+      if (session.status == SessionStatus.success) {
+        _pushInfoCallScreen(serverName, session.clientReturnURL);
+      } else if (!navigatedAway) {
+        _pushDisclosureFeedbackScreen(false, serverName);
+      }
+    } else {
       // Otherwise, on iOS show a screen to press the return arrow in the top-left corner,
       // and on Android just background the app to let the user return to the previous activity
       if (Platform.isIOS) {
