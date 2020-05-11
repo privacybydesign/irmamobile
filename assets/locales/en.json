@@ -447,7 +447,7 @@
       "continue_message_2": "The number is pre-filled, followed by a link-code.",
       "call": "Tap the call button in your phone app.",
       "call_message": "You will hear a few beeps and you will be connected.",
-      "continue_button": "continue"
+      "continue_button": "Continue"
     }
   },
   "reset_pin": {
