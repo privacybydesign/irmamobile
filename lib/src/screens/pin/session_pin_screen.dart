@@ -10,7 +10,6 @@ import 'package:irmamobile/src/screens/error/session_error_screen.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_state.dart';
-import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
@@ -55,13 +54,8 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
             child: PinWrongAttemptsDialog(attemptsRemaining: pinState.remainingAttempts),
           );
         } else {
-          Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
-              MaterialPageRoute(
-                  builder: (context) => PinScreen(
-                        initialEvent: Blocked(pinState.blockedUntil),
-                      )),
-              ModalRoute.withName(WalletScreen.routeName));
-          _repo.lock();
+          Navigator.of(context, rootNavigator: true).popUntil(ModalRoute.withName(WalletScreen.routeName));
+          _repo.lock(unblockTime: pinState.blockedUntil);
         }
       } else {
         Future.delayed(const Duration(milliseconds: 100), () => FocusScope.of(context).requestFocus(_focusNode));

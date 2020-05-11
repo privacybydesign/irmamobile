@@ -57,6 +57,7 @@ class IrmaRepository {
   final _authenticationEventSubject = PublishSubject<AuthenticationEvent>();
   final _changePinEventSubject = PublishSubject<ChangePinBaseEvent>();
   final _lockedSubject = BehaviorSubject<bool>.seeded(true);
+  final _blockedSubject = BehaviorSubject<DateTime>();
   final _lastActiveTimeSubject = BehaviorSubject<DateTime>();
   final _appLifecycleState = BehaviorSubject<AppLifecycleState>();
   final _pendingSessionPointerSubject = BehaviorSubject<SessionPointer>.seeded(null);
@@ -87,11 +88,15 @@ class IrmaRepository {
       _authenticationEventSubject.add(event);
       if (event is AuthenticationSuccessEvent) {
         _lockedSubject.add(false);
+        _blockedSubject.add(null);
       }
     } else if (event is ChangePinBaseEvent) {
       _changePinEventSubject.add(event);
     } else if (event is EnrollmentStatusEvent) {
       _enrollmentStatusSubject.add(event.enrollmentStatus);
+      if (event.enrollmentStatus == EnrollmentStatus.unenrolled) {
+        _lockedSubject.add(false);
+      }
     } else if (event is EnrollmentEvent) {
       _enrollmentEventSubject.add(event);
     } else if (event is HandleURLEvent) {
@@ -106,7 +111,8 @@ class IrmaRepository {
     } else if (event is ClearAllDataEvent) {
       _credentialsSubject.add(Credentials({}));
       _enrollmentStatusSubject.add(EnrollmentStatus.unenrolled);
-      _lockedSubject.add(true);
+      _lockedSubject.add(false);
+      _blockedSubject.add(null);
     } else if (event is AppLifecycleChangedEvent) {
       if (event.state == AppLifecycleState.paused) {
         _lastActiveTimeSubject.add(DateTime.now());
@@ -151,6 +157,7 @@ class IrmaRepository {
   // -- Enrollment
   Future<EnrollmentEvent> enroll({String email, String pin, String language}) {
     _lockedSubject.add(false);
+    _blockedSubject.add(null);
 
     dispatch(EnrollEvent(email: email, pin: pin, language: language), isBridgedEvent: true);
 
@@ -174,9 +181,10 @@ class IrmaRepository {
   }
 
   // -- Authentication
-  void lock() {
+  void lock({DateTime unblockTime}) {
     // TODO: This should actually lock irmago up
     _lockedSubject.add(true);
+    _blockedSubject.add(unblockTime);
   }
 
   void setDeveloperMode(bool enabled) {
@@ -224,6 +232,10 @@ class IrmaRepository {
 
   Stream<bool> getLocked() {
     return _lockedSubject.distinct().asBroadcastStream();
+  }
+
+  Stream<DateTime> getBlockTime() {
+    return _blockedSubject;
   }
 
   // -- Version information

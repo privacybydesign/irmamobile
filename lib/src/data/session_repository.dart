@@ -42,6 +42,7 @@ class SessionRepository {
 
     if (event is NewSessionEvent) {
       return prevState.copyWith(
+        clientReturnURL: event.request.returnURL,
         continueOnSecondDevice: event.continueOnSecondDevice,
         status: SessionStatus.initialized,
       );
@@ -110,7 +111,7 @@ class SessionRepository {
       return prevState.copyWith(status: SessionStatus.canceled);
     } else if (event is RequestPinSessionEvent) {
       return prevState.copyWith(
-        requestPin: true,
+        status: SessionStatus.requestPin,
       );
     }
 

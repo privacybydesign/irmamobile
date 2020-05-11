@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -28,8 +29,10 @@ class IssuanceScreen extends StatefulWidget {
 class _IssuanceScreenState extends State<IssuanceScreen> {
   final IrmaRepository repo = IrmaRepository.get();
   Stream<SessionState> sessionStateStream;
+  StreamSubscription<SessionState> sessionStateSubscription;
   int sessionID;
   bool displayArrowBack = false;
+  SessionStatus _screenStatus = SessionStatus.uninitialized;
 
   @override
   void initState() {
@@ -37,36 +40,31 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
     sessionID = widget.arguments.sessionID;
     sessionStateStream = repo.getSessionState(widget.arguments.sessionID);
 
-    // Make sure PIN is asked when necessary
-    sessionStateStream
-        .firstWhere((session) => session.requestPin == true)
-        .then((session) => pushSessionPinScreen(context, sessionID, 'issuance.title'));
+    sessionStateSubscription = sessionStateStream.listen((session) {
+      // Do nothing if status did not change.
+      if (_screenStatus == session.status) {
+        return;
+      }
+      _screenStatus = session.status;
 
-    // Handle errors. The return code is replicated here as we start
-    // with a somewhat different situation, having an extra screen
-    // on top of the stack
-    sessionStateStream.firstWhere((session) => session.status == SessionStatus.error).then((session) {
-      toErrorScreen(context, session.error, () {
-        (() async {
-          if (session.continueOnSecondDevice) {
-            popToWallet(context);
-          } else if (session.clientReturnURL != null && await canLaunch(session.clientReturnURL)) {
-            launch(session.clientReturnURL, forceSafariVC: false);
-            popToWallet(context);
-          } else {
-            if (Platform.isIOS) {
-              setState(() => displayArrowBack = true);
-              Navigator.of(context).pop(); // pop error screen
-            } else {
-              SystemNavigator.pop();
-              popToWallet(context);
-            }
-          }
-        })();
-      });
+      if (_screenStatus == SessionStatus.requestPin) {
+        pushSessionPinScreen(context, sessionID, 'issuance.title');
+      }
+
+      if (_screenStatus == SessionStatus.error) {
+        _handleError(session);
+      }
+
+      if ([SessionStatus.success, SessionStatus.canceled].contains(_screenStatus)) {
+        _handleFinished(session);
+      }
     });
+  }
 
-    _handleFinished();
+  @override
+  void dispose() {
+    sessionStateSubscription.cancel();
+    super.dispose();
   }
 
   Widget _buildPermissionWidget(SessionState session) {
@@ -124,17 +122,29 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
     repo.dispatch(event, isBridgedEvent: isBridgedEvent);
   }
 
-  Future<void> _handleFinished() async {
-    // When the session has completed, wait one second to display a message
-    final session = await sessionStateStream.firstWhere((session) {
-      switch (session.status) {
-        case SessionStatus.success:
-        case SessionStatus.canceled:
-          return true;
-        default:
-          return false;
+  // Handle errors. The return code is replicated here as we start
+  // with a somewhat different situation, having an extra screen
+  // on top of the stack
+  void _handleError(SessionState session) {
+    toErrorScreen(context, session.error, () async {
+      if (session.continueOnSecondDevice) {
+        popToWallet(context);
+      } else if (session.clientReturnURL != null && await canLaunch(session.clientReturnURL)) {
+        launch(session.clientReturnURL, forceSafariVC: false);
+        popToWallet(context);
+      } else {
+        if (Platform.isIOS) {
+          setState(() => displayArrowBack = true);
+          Navigator.of(context).pop(); // pop error screen
+        } else {
+          SystemNavigator.pop();
+          popToWallet(context);
+        }
       }
     });
+  }
+
+  Future<void> _handleFinished(SessionState session) async {
     await Future.delayed(const Duration(seconds: 1));
 
     if (session.continueOnSecondDevice) {
