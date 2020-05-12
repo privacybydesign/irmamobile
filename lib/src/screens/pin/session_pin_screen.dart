@@ -51,7 +51,13 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
         if (pinState.remainingAttempts != 0) {
           showDialog(
             context: context,
-            child: PinWrongAttemptsDialog(attemptsRemaining: pinState.remainingAttempts),
+            child: PinWrongAttemptsDialog(
+              attemptsRemaining: pinState.remainingAttempts,
+              onClose: () {
+                Navigator.of(context).pop();
+                _focusNode.requestFocus();
+              },
+            ),
           );
         } else {
           Navigator.of(context, rootNavigator: true).popUntil(ModalRoute.withName(WalletScreen.routeName));
