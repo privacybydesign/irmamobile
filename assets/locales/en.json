@@ -441,7 +441,7 @@
     "call_info": {
       "title": "Call via IRMA",
       "success": "Data disclosed",
-      "success_message_markdown": "Your data are disclosed to **{otherParty}**.\nComplete the following steps to start the call.",
+      "success_message_markdown": "Your data are disclosed to \n**{otherParty}**.\nComplete the following steps to start the call.",
       "continue": "Choose continue",
       "continue_message_1": "Your phone app now opens automatically.",
       "continue_message_2": "The number is pre-filled, followed by a link-code.",
