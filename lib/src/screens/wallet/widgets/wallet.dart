@@ -66,7 +66,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _cardTopBorderHeight = 10;
 
   // Visible height of cards with visible title
-  final _cardTopHeight = 40;
+  final _cardTopHeight = 36;
 
   // Number of cards with visible title
   final _cardsMaxExtended = 5;
@@ -87,7 +87,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _dragDownFactor = 1.5;
 
   // Offset of cards relative to wallet
-  final _heightOffset = -25.0;
+  final _heightOffset = -15.0;
 
   // Add a margin to the screen height to deal with different phones
   final _screenHeightMargin = 100;

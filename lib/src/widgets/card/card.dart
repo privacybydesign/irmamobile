@@ -19,6 +19,10 @@ class IrmaCard extends StatelessWidget {
   final bool revoked;
   final DateTime expiryDate;
 
+  bool get expired => expiryDate.isBefore(DateTime.now());
+  int get validDays => expiryDate.difference(DateTime.now()).inDays;
+  bool get expiresSoon => (validDays <= 7);
+
   final Function() onRefreshCredential;
   final Function() onDeleteCredential;
 
@@ -54,84 +58,94 @@ class IrmaCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
-      decoration: BoxDecoration(
-        color: cardTheme.backgroundGradientStart,
-        gradient: LinearGradient(
-          colors: [
-            cardTheme.backgroundGradientStart,
-            cardTheme.backgroundGradientEnd,
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-        border: Border.all(
-          width: 1.0,
-          color: cardTheme.backgroundGradientEnd,
-        ),
-        borderRadius: const BorderRadius.all(
-          _borderRadius,
-        ),
-        boxShadow: const [
-          BoxShadow(
-            color: _transparentBlack,
-            blurRadius: _blurRadius,
-            offset: Offset(
-              0.0,
-              2.0,
-            ),
-          )
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsets.only(
-              top: IrmaTheme.of(context).smallSpacing,
-              left: IrmaTheme.of(context).defaultSpacing,
-              bottom: 0,
-            ),
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: Text(
-                    getTranslation(context, credentialInfo.credentialType.name),
-                    style: Theme.of(context).textTheme.subhead.copyWith(
-                          color: cardTheme.foregroundColor,
-                        ),
-                  ),
-                ),
-                CardMenu(
-                  cardTheme: cardTheme,
-                  onRefreshCredential: onRefreshCredential,
-                  onDeleteCredential: onDeleteCredential,
-                )
+    return Stack(
+      children: <Widget>[
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
+          decoration: BoxDecoration(
+            color: cardTheme.backgroundGradientStart,
+            gradient: LinearGradient(
+              colors: [
+                cardTheme.backgroundGradientStart,
+                cardTheme.backgroundGradientEnd,
               ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
             ),
-          ),
-          Container(
-            child: Column(
-              children: [
-                CardAttributes(
-                  attributes: attributes,
-                  irmaCardTheme: cardTheme,
-                  scrollOverflowCallback: scrollBeyondBoundsCallback,
-                  expanded: expanded,
-                ),
-                CardFooter(
-                  credentialInfo: credentialInfo,
-                  expiryDate: expiryDate,
-                  revoked: revoked,
-                  irmaCardTheme: cardTheme,
-                  scrollOverflowCallback: scrollBeyondBoundsCallback,
-                ),
-              ],
+            border: Border.all(
+              width: 1.0,
+              color: cardTheme.backgroundGradientEnd,
             ),
+            borderRadius: const BorderRadius.all(
+              _borderRadius,
+            ),
+            boxShadow: const [
+              BoxShadow(
+                color: _transparentBlack,
+                blurRadius: _blurRadius,
+                offset: Offset(
+                  0.0,
+                  2.0,
+                ),
+              )
+            ],
           ),
-        ],
-      ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.only(
+                    top: IrmaTheme.of(context).smallSpacing,
+                    left: IrmaTheme.of(context).defaultSpacing,
+                    bottom: IrmaTheme.of(context).smallSpacing),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Text(
+                        getTranslation(context, credentialInfo.credentialType.name),
+                        style: Theme.of(context).textTheme.subhead.copyWith(
+                              color: cardTheme.foregroundColor,
+                            ),
+                      ),
+                    ),
+                    CardMenu(
+                      cardTheme: cardTheme,
+                      onRefreshCredential: onRefreshCredential,
+                      onDeleteCredential: onDeleteCredential,
+                      allGood: !revoked && !expired && !expiresSoon,
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                child: Column(
+                  children: [
+                    CardAttributes(
+                      attributes: attributes,
+                      irmaCardTheme: cardTheme,
+                      scrollOverflowCallback: scrollBeyondBoundsCallback,
+                      expanded: expanded,
+                      expired: expired,
+                      expiresSoon: expiresSoon,
+                      validDays: validDays,
+                      revoked: revoked,
+                      color: cardTheme.backgroundGradientEnd,
+                      onRefreshCredential: onRefreshCredential,
+                    ),
+                    CardFooter(
+                      credentialInfo: credentialInfo,
+                      expiryDate: expiryDate,
+                      revoked: revoked,
+                      irmaCardTheme: cardTheme,
+                      scrollOverflowCallback: scrollBeyondBoundsCallback,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
