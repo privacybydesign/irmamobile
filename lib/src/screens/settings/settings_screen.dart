@@ -19,6 +19,7 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final irmaPrefs = IrmaPreferences.get();
+    final irmaRepo = IrmaRepository.get();
 
     return Scaffold(
       appBar: IrmaAppBar(
@@ -86,6 +87,28 @@ class SettingsScreen extends StatelessWidget {
             },
             leading: Icon(IrmaIcons.delete, color: IrmaTheme.of(context).textTheme.body1.color),
           ),
+          StreamBuilder(
+            stream: irmaPrefs.getDeveloperModeVisible(),
+            builder: (BuildContext context, AsyncSnapshot<bool> visible) {
+              return !visible.hasData || !visible.data
+                  ? Container()
+                  : StreamBuilder(
+                      stream: irmaRepo.getDeveloperMode(),
+                      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+                        return SwitchListTile.adaptive(
+                          title: Text(
+                            FlutterI18n.translate(context, 'settings.advanced.developer_mode'),
+                            style: IrmaTheme.of(context).textTheme.body1,
+                          ),
+                          activeColor: IrmaTheme.of(context).interactionValid,
+                          value: snapshot.data != null && snapshot.data,
+                          onChanged: (enabled) => irmaRepo.setDeveloperMode(enabled),
+                          secondary: Icon(IrmaIcons.settings, color: IrmaTheme.of(context).textTheme.body1.color),
+                        );
+                      },
+                    );
+            },
+          )
         ]),
       ),
     );

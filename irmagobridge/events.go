@@ -59,6 +59,10 @@ type loadLogsEvent struct {
 	Max    int
 }
 
+type preferencesEvent struct {
+	Preferences irmaclient.Preferences
+}
+
 // //
 // Outgoing events
 // //

@@ -9,6 +9,7 @@ import 'package:irmamobile/src/models/applifecycle_changed_event.dart';
 import 'package:irmamobile/src/models/authentication_events.dart';
 import 'package:irmamobile/src/models/change_pin_events.dart';
 import 'package:irmamobile/src/models/clear_all_data_event.dart';
+import 'package:irmamobile/src/models/client_preferences.dart';
 import 'package:irmamobile/src/models/credential_events.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/enrollment_events.dart';
@@ -60,6 +61,7 @@ class IrmaRepository {
   final _lastActiveTimeSubject = BehaviorSubject<DateTime>();
   final _appLifecycleState = BehaviorSubject<AppLifecycleState>();
   final _pendingSessionPointerSubject = BehaviorSubject<SessionPointer>.seeded(null);
+  final _preferencesSubject = BehaviorSubject<ClientPreferencesEvent>();
 
   // _internal is a named constructor only used by the factory
   IrmaRepository._internal({
@@ -115,6 +117,8 @@ class IrmaRepository {
       if (event.state == AppLifecycleState.paused) {
         _lastActiveTimeSubject.add(DateTime.now());
       }
+    } else if (event is ClientPreferencesEvent) {
+      _preferencesSubject.add(event);
     }
   }
 
@@ -181,6 +185,10 @@ class IrmaRepository {
     // TODO: This should actually lock irmago up
     _lockedSubject.add(true);
     _blockedSubject.add(unblockTime);
+  }
+
+  void setDeveloperMode(bool enabled) {
+    bridgedDispatch(ClientPreferencesEvent(clientPreferences: ClientPreferences(developerMode: enabled)));
   }
 
   Future<AuthenticationEvent> unlock(String pin) {
@@ -277,5 +285,9 @@ class IrmaRepository {
   // -- lastActiveTime
   Stream<DateTime> getLastActiveTime() {
     return _lastActiveTimeSubject.stream;
+  }
+
+  Stream<bool> getDeveloperMode() {
+    return _preferencesSubject.stream.map((pref) => pref.clientPreferences.developerMode);
   }
 }
