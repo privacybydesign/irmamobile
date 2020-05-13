@@ -88,7 +88,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _dragDownFactor = 1.5;
 
   // Offset of cards relative to wallet
-  final _heightOffset = -15.0;
+  final _heightOffset = -20.0;
 
   // Add a margin to the screen height to deal with different phones
   final _screenHeightMargin = 100;
@@ -106,7 +106,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _walletBottomInteractive = 0.7;
 
   // Is the fixed offset a card moves to show a user that it can move
-  final double _cardGestureNudgingOffset = -20;
+  final double _cardGestureNudgingOffset = 20;
 
   AnimationController _cardAnimationController;
   AnimationController _loginLogoutAnimationController;
@@ -123,6 +123,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   double _dragOffsetSave = 0;
   double _dragOffset = 0;
   double _cardDragOffset = 0;
+  bool _cardTappedSave = false;
   bool _nudgeVisible = true;
   bool _showCards = false;
 
@@ -472,27 +473,31 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         onTap: () {
           cardTapped(index, credential);
         },
-        onLongPressStart: (LongPressStartDetails details) {
-          HapticFeedback.vibrate();
-          setState(() {
-            cardGestureInit(index, count, walletTop, Offset.zero);
-            // Make sure a fixed update is made to show users the card can move now
-            _dragOffsetSave = _cardGestureNudgingOffset;
-            cardGestureFixedUpdate();
-          });
-        },
-        onLongPressMoveUpdate: (LongPressMoveUpdateDetails details) {
-          setState(() {
-            cardGestureUpdate(index, details.localPosition);
-          });
-        },
-        onLongPressEnd: (LongPressEndDetails details) {
-          cardGestureEnd(index, credential);
-        },
+        onLongPressStart: _currentState == WalletState.drawn
+            ? null
+            : (LongPressStartDetails details) {
+                HapticFeedback.vibrate();
+                setState(() {
+                  cardGestureInit(index, count, walletTop, details.localPosition, longPressed: true);
+                  cardGestureFixedUpdate();
+                });
+              },
+        onLongPressMoveUpdate: _currentState == WalletState.drawn
+            ? null
+            : (LongPressMoveUpdateDetails details) {
+                setState(() {
+                  cardGestureUpdate(index, details.localPosition);
+                });
+              },
+        onLongPressEnd: _currentState == WalletState.drawn
+            ? null
+            : (LongPressEndDetails details) {
+                cardGestureEnd(index, credential);
+              },
         onVerticalDragDown: !gesturesLongPressOnly
             ? (DragDownDetails details) {
                 setState(() {
-                  cardGestureInit(index, count, walletTop, details.localPosition);
+                  cardGestureInit(index, count, walletTop, details.localPosition, longPressed: false);
                 });
               }
             : null,
@@ -523,7 +528,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         ),
       );
 
-  void cardGestureInit(int index, int count, double walletTop, Offset localPosition) {
+  void cardGestureInit(int index, int count, double walletTop, Offset localPosition, {bool longPressed}) {
     if (_currentState == WalletState.drawn) {
       _cardDragOffset = localPosition.dy -
           calculateCardPosition(
@@ -533,9 +538,14 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       }
     } else {
       _cardDragOffset = _cardTopHeight / 2;
+      if (longPressed) {
+        // Make a fixed nudge card drag to show users the card can move now
+        _cardDragOffset += _cardGestureNudgingOffset;
+      }
       _drawnCardIndex = index;
       _dragOffsetSave = localPosition.dy - _cardDragOffset;
     }
+    _cardTappedSave = longPressed;
   }
 
   void cardGestureFixedUpdate() {
@@ -546,10 +556,16 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
     if (_drawnCardIndex == index) {
       _dragOffset = localPosition.dy - _cardDragOffset;
     }
+    debugPrint(_dragOffset.toString());
+    if (_cardTappedSave && (_dragOffset < _dragOffsetSave - 2 || _dragOffset > _dragOffsetSave + 2)) {
+      // When card has been substantially moved, see card gesture as a drag and not as a tap.
+      _cardTappedSave = false;
+    }
   }
 
   void cardGestureEnd(int index, Credential credential) {
-    if ((_dragOffset < -_dragTipping && _currentState != WalletState.drawn) ||
+    if (_cardTappedSave ||
+        (_dragOffset < -_dragTipping && _currentState != WalletState.drawn) ||
         (_dragOffset > _dragTipping && _currentState == WalletState.drawn)) {
       cardTapped(index, credential);
     } else if (_dragOffset > _dragTipping && _currentState == WalletState.folded) {
