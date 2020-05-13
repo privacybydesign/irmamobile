@@ -556,7 +556,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
     if (_drawnCardIndex == index) {
       _dragOffset = localPosition.dy - _cardDragOffset;
     }
-    debugPrint(_dragOffset.toString());
     if (_cardTappedSave && (_dragOffset < _dragOffsetSave - 2 || _dragOffset > _dragOffsetSave + 2)) {
       // When card has been substantially moved, see card gesture as a drag and not as a tap.
       _cardTappedSave = false;
