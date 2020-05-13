@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
@@ -87,7 +88,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _dragDownFactor = 1.5;
 
   // Offset of cards relative to wallet
-  final _heightOffset = -15.0;
+  final _heightOffset = -20.0;
 
   // Add a margin to the screen height to deal with different phones
   final _screenHeightMargin = 100;
@@ -104,6 +105,9 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   // Height of interactive bottom to toggle wallet state between tightlyfolded and folded
   final _walletBottomInteractive = 0.7;
 
+  // Is the fixed offset a card moves to show a user that it can move
+  final double _cardGestureNudgingOffset = 20;
+
   AnimationController _cardAnimationController;
   AnimationController _loginLogoutAnimationController;
   Animation<double> _drawAnimation;
@@ -119,6 +123,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   double _dragOffsetSave = 0;
   double _dragOffset = 0;
   double _cardDragOffset = 0;
+  bool _cardTappedSave = false;
   bool _nudgeVisible = true;
   bool _showCards = false;
 
@@ -361,7 +366,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
             count: widget.credentials.length,
             credential: credential.value,
             walletTop: walletTop,
-            enableGestures: !scrollingEnabled,
+            gesturesLongPressOnly: scrollingEnabled,
           ),
         );
       },
@@ -463,61 +468,56 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
   /// IrmaCard with gestures attached
   /// Most of this code deals with having a good dragging UX
-  Widget getCard({int index, int count, Credential credential, double walletTop, bool enableGestures}) =>
+  Widget getCard({int index, int count, Credential credential, double walletTop, bool gesturesLongPressOnly}) =>
       GestureDetector(
         onTap: () {
           cardTapped(index, credential);
         },
-        onVerticalDragDown: enableGestures
+        onLongPressStart: _currentState == WalletState.drawn
+            ? null
+            : (LongPressStartDetails details) {
+                HapticFeedback.vibrate();
+                setState(() {
+                  cardGestureInit(index, count, walletTop, details.localPosition, longPressed: true);
+                  cardGestureFixedUpdate();
+                });
+              },
+        onLongPressMoveUpdate: _currentState == WalletState.drawn
+            ? null
+            : (LongPressMoveUpdateDetails details) {
+                setState(() {
+                  cardGestureUpdate(index, details.localPosition);
+                });
+              },
+        onLongPressEnd: _currentState == WalletState.drawn
+            ? null
+            : (LongPressEndDetails details) {
+                cardGestureEnd(index, credential);
+              },
+        onVerticalDragDown: !gesturesLongPressOnly
             ? (DragDownDetails details) {
-                setState(
-                  () {
-                    if (_currentState == WalletState.drawn) {
-                      _cardDragOffset = details.localPosition.dy -
-                          calculateCardPosition(
-                              state: _currentState,
-                              walletTop: walletTop,
-                              index: count,
-                              drawnCardIndex: _drawnCardIndex,
-                              dragOffset: 0);
-                      if (_drawnCardIndex == index) {
-                        _dragOffsetSave = details.localPosition.dy - _cardDragOffset;
-                      }
-                    } else {
-                      _cardDragOffset = _cardTopHeight / 2;
-                      _drawnCardIndex = index;
-                      _dragOffsetSave = details.localPosition.dy - _cardDragOffset;
-                    }
-                  },
-                );
+                setState(() {
+                  cardGestureInit(index, count, walletTop, details.localPosition, longPressed: false);
+                });
               }
             : null,
-        onVerticalDragStart: enableGestures
+        onVerticalDragStart: !gesturesLongPressOnly
             ? (DragStartDetails details) {
                 setState(() {
-                  _dragOffset = _dragOffsetSave;
+                  cardGestureFixedUpdate();
                 });
               }
             : null,
-        onVerticalDragUpdate: enableGestures
+        onVerticalDragUpdate: !gesturesLongPressOnly
             ? (DragUpdateDetails details) {
                 setState(() {
-                  if (_drawnCardIndex == index) {
-                    _dragOffset = details.localPosition.dy - _cardDragOffset;
-                  }
+                  cardGestureUpdate(index, details.localPosition);
                 });
               }
             : null,
-        onVerticalDragEnd: enableGestures
+        onVerticalDragEnd: !gesturesLongPressOnly
             ? (DragEndDetails details) {
-                if ((_dragOffset < -_dragTipping && _currentState != WalletState.drawn) ||
-                    (_dragOffset > _dragTipping && _currentState == WalletState.drawn)) {
-                  cardTapped(index, credential);
-                } else if (_dragOffset > _dragTipping && _currentState == WalletState.folded) {
-                  setNewState(WalletState.tightlyfolded);
-                } else {
-                  _cardAnimationController.forward();
-                }
+                cardGestureEnd(index, credential);
               }
             : null,
         child: IrmaCard.fromCredential(
@@ -527,6 +527,52 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
           onDeleteCredential: _createOnDeleteCredential(index, credential),
         ),
       );
+
+  void cardGestureInit(int index, int count, double walletTop, Offset localPosition, {bool longPressed}) {
+    if (_currentState == WalletState.drawn) {
+      _cardDragOffset = localPosition.dy -
+          calculateCardPosition(
+              state: _currentState, walletTop: walletTop, index: count, drawnCardIndex: _drawnCardIndex, dragOffset: 0);
+      if (_drawnCardIndex == index) {
+        _dragOffsetSave = localPosition.dy - _cardDragOffset;
+      }
+    } else {
+      _cardDragOffset = _cardTopHeight / 2;
+      if (longPressed) {
+        // Make a fixed nudge card drag to show users the card can move now
+        _cardDragOffset += _cardGestureNudgingOffset;
+      }
+      _drawnCardIndex = index;
+      _dragOffsetSave = localPosition.dy - _cardDragOffset;
+    }
+    _cardTappedSave = longPressed;
+  }
+
+  void cardGestureFixedUpdate() {
+    _dragOffset = _dragOffsetSave;
+  }
+
+  void cardGestureUpdate(int index, Offset localPosition) {
+    if (_drawnCardIndex == index) {
+      _dragOffset = localPosition.dy - _cardDragOffset;
+    }
+    if (_cardTappedSave && (_dragOffset < _dragOffsetSave - 2 || _dragOffset > _dragOffsetSave + 2)) {
+      // When card has been substantially moved, see card gesture as a drag and not as a tap.
+      _cardTappedSave = false;
+    }
+  }
+
+  void cardGestureEnd(int index, Credential credential) {
+    if (_cardTappedSave ||
+        (_dragOffset < -_dragTipping && _currentState != WalletState.drawn) ||
+        (_dragOffset > _dragTipping && _currentState == WalletState.drawn)) {
+      cardTapped(index, credential);
+    } else if (_dragOffset > _dragTipping && _currentState == WalletState.folded) {
+      setNewState(WalletState.tightlyfolded);
+    } else {
+      _cardAnimationController.forward();
+    }
+  }
 
   /// Animate each card between old and new state
   double getCardPosition(int index, double walletTop) {
