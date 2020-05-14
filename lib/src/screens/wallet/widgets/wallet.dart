@@ -206,7 +206,8 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       });
     }
 
-    if (oldWidget.credentials[_drawnCardIndex]?.hash != widget.credentials[_drawnCardIndex]?.hash) {
+    if ((oldWidget.credentials?.isNotEmpty ?? false) &&
+        oldWidget.credentials[_drawnCardIndex].hash != widget.credentials[_drawnCardIndex]?.hash) {
       final newIndex = widget.credentials.indexWhere((c) => c.hash == oldWidget.credentials[_drawnCardIndex].hash);
       if (newIndex >= 0) {
         _drawnCardIndex = newIndex;
