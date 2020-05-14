@@ -200,20 +200,16 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         _irmaClient.lock();
       });
     }
-    
-    final removed =
-        oldWidget.credentials.where((oldCred) => !widget.credentials.any((newCred) => oldCred.hash == newCred.hash));
-    if (removed.length == 1) {
-      final idx = oldWidget.credentials.indexOf(removed.first);
-      if (_drawnCardIndex == idx && _currentState == WalletState.drawn) {
-        setNewState(_cardInStackState);
-      } else if (_drawnCardIndex > idx && _currentState == WalletState.drawn) {
-        _drawnCardIndex--; // Compensate for removed card
+
+    if (_currentState == WalletState.drawn &&
+        oldWidget.credentials[_drawnCardIndex].hash != widget.credentials[_drawnCardIndex]?.hash) {
+      final newIndex = widget.credentials.indexWhere((c) => c.hash == oldWidget.credentials[_drawnCardIndex].hash);
+      if (newIndex >= 0) {
+        _drawnCardIndex = newIndex;
       } else {
-        setNewState(_currentState);
+        setNewState(_cardInStackState);
       }
     }
-
 
     super.didUpdateWidget(oldWidget);
   }
