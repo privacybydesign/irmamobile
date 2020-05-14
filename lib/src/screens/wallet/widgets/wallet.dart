@@ -206,6 +206,15 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       });
     }
 
+    if (oldWidget.credentials[_drawnCardIndex]?.hash != widget.credentials[_drawnCardIndex]?.hash) {
+      final newIndex = widget.credentials.indexWhere((c) => c.hash == oldWidget.credentials[_drawnCardIndex].hash);
+      if (newIndex >= 0) {
+        _drawnCardIndex = newIndex;
+      } else {
+        setNewState(_cardInStackState);
+      }
+    }
+
     super.didUpdateWidget(oldWidget);
   }
 
@@ -836,19 +845,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       return null;
     }
 
-    return () {
-      IrmaRepository.get().bridgedDispatch(
-        DeleteCredentialEvent(hash: credential.hash),
-      );
-      if (_drawnCardIndex == index && _currentState == WalletState.drawn) {
-        setNewState(_cardInStackState);
-      } else if (_drawnCardIndex > index && _currentState == WalletState.drawn) {
-        // Compensate for removed card.
-        _drawnCardIndex--;
-      } else {
-        setNewState(_currentState);
-      }
-    };
+    return () => IrmaRepository.get().bridgedDispatch(DeleteCredentialEvent(hash: credential.hash));
   }
 }
 
