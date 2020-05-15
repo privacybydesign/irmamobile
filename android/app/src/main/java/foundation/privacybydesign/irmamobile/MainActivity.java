@@ -2,6 +2,7 @@ package foundation.privacybydesign.irmamobile;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.net.Uri;
@@ -46,6 +47,18 @@ public class MainActivity extends FlutterActivity {
         this.registrarFor("foundation.privacybydesign.irmamobile.plugins.irma_mobile_bridge.IrmaMobileBridgePlugin"),
         initialURL);
 
+  }
+
+  @Override
+  protected void onPause() {
+    super.onPause();
+    getFlutterView().setVisibility(View.INVISIBLE);
+  }
+
+  @Override
+  protected void onResume() {
+    getFlutterView().setVisibility(View.VISIBLE);
+    super.onResume();
   }
 
   @Override
