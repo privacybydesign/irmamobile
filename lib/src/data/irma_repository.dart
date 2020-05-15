@@ -26,8 +26,6 @@ import 'package:irmamobile/src/models/version_information.dart';
 import 'package:irmamobile/src/sentry/sentry.dart';
 import 'package:package_info/package_info.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:stream_transform/stream_transform.dart';
-import 'package:version/version.dart';
 
 class IrmaRepository {
   static IrmaRepository _instance;
@@ -244,33 +242,39 @@ class IrmaRepository {
     final packageInfoStream = PackageInfo.fromPlatform().asStream();
     final irmaVersionInfoStream = irmaConfigurationSubject.stream; // TODO: add filtering
 
-    return packageInfoStream.transform<VersionInformation>(
-      combineLatest<PackageInfo, IrmaConfiguration, VersionInformation>(
-        irmaVersionInfoStream,
-        (packageInfo, irmaVersionInfo) {
-          final minimumAppVersions = irmaVersionInfo.schemeManagers['pbdf'].minimumAppVersion;
-          Version minimumVersion;
-          switch (Platform.operatingSystem) {
-            case "android":
-              minimumVersion = Version(minimumAppVersions.android, 0, 0);
-              break;
-            case "ios":
-              minimumVersion = Version(minimumAppVersions.iOS, 0, 0);
-              break;
-            default:
-              throw Exception("Unsupported Platfrom.operatingSystem");
-          }
-          final currentVersion = Version.parse(packageInfo.version);
-          return VersionInformation(
-            availableVersion: minimumVersion,
-            // TODO: use current version as required version until a good
-            // version is available from the scheme.
-            requiredVersion: currentVersion,
-            currentVersion: currentVersion,
-          );
-        },
-      ),
-    );
+    return Observable.combineLatest2(packageInfoStream, irmaVersionInfoStream,
+        (PackageInfo packageInfo, IrmaConfiguration irmaVersionInfo) {
+      int minimumBuild = 0;
+      irmaVersionInfo.schemeManagers.forEach((_, scheme) {
+        int thisRequirement = 0;
+        switch (Platform.operatingSystem) {
+          case "android":
+            thisRequirement = scheme.minimumAppVersion.android ?? 0;
+            break;
+          case "ios":
+            thisRequirement = scheme.minimumAppVersion.iOS ?? 0;
+            break;
+          default:
+            throw Exception("Unsupported Platfrom.operatingSystem");
+        }
+        if (thisRequirement > minimumBuild) {
+          minimumBuild = thisRequirement;
+        }
+      });
+
+      int currentBuild = int.tryParse(packageInfo.buildNumber) ?? minimumBuild;
+
+      if (Platform.operatingSystem == "android") {
+        while (currentBuild > 1024 * 1024) {
+          currentBuild -= 1024 * 1024;
+        }
+      }
+      return VersionInformation(
+        availableVersion: minimumBuild,
+        requiredVersion: minimumBuild,
+        currentVersion: currentBuild,
+      );
+    });
   }
 
   // -- Session
