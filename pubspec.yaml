@@ -37,7 +37,7 @@ dependencies:
   collection: ^1.14.11
   qr_code_scanner:
     git:
-      url: https://github.com/kamilpowalowski/qr_code_scanner.git
+      url: https://gitlab.science.ru.nl/irma/github-mirrors/qr-code-scanner.git
       ref: 7e5a098be84b2487febe48f2d858eb4c38056aee
   font_awesome_flutter: ^8.5.0 # TODO remove once this package is no longer used
   share: ^0.6.3

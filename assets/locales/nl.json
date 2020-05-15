@@ -102,7 +102,8 @@
     "version": "Versie {version}",
     "copyright": "Copyright Privacy by Design Foundation, 2020, uitgegeven onder GPL License 3.0",
     "pbdf": "Privacy by Design",
-    "pbdf_link": "https://privacybydesign.foundation/"
+    "pbdf_link": "https://privacybydesign.foundation/",
+    "developer_mode_enabled": "Developer modus ingeschakeld"
   },
   "manual": {
     "faq": "Handleiding",
@@ -223,7 +224,8 @@
       "delete_title": "Weet je het zeker?",
       "delete_content": "Als je doorgaat, verwijder je al je kaartjes en je toegang tot de IRMA-app. Wil je de IRMA-app opnieuw gebruiken? Kies een nieuwe pincode en haal je kaartjes opnieuw op.",
       "delete_confirm": "Verwijder alles",
-      "delete_deny": "Annuleer"
+      "delete_deny": "Annuleer",
+      "developer_mode": "Developer modus"
     }
   },
   "change_pin": {

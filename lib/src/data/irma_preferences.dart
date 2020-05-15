@@ -21,6 +21,9 @@ class IrmaPreferences {
 
       final showDisclosureDialogPref = preferences.getBool(_showDisclosureDialogKey, defaultValue: true);
       showDisclosureDialogPref.listen(_showDisclosureDialog.add);
+
+      final developerModePrefVisiblePref = preferences.getBool(_developerModePrefVisibleKey, defaultValue: false);
+      developerModePrefVisiblePref.listen(_developerModePrefVisible.add);
     });
   }
 
@@ -73,6 +76,19 @@ class IrmaPreferences {
   Future<bool> setShowDisclosureDialog(bool value) {
     return StreamingSharedPreferences.instance.then((preferences) {
       return preferences.setBool(_showDisclosureDialogKey, value);
+    });
+  }
+
+  static const String _developerModePrefVisibleKey = "preference.devmode_visible";
+  final BehaviorSubject<bool> _developerModePrefVisible = BehaviorSubject<bool>();
+
+  Stream<bool> getDeveloperModeVisible() {
+    return _developerModePrefVisible;
+  }
+
+  Future<bool> setDeveloperModeVisible(bool value) {
+    return StreamingSharedPreferences.instance.then((preferences) {
+      return preferences.setBool(_developerModePrefVisibleKey, value);
     });
   }
 }

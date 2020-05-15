@@ -18,3 +18,9 @@ func dispatchEnrollmentStatusEvent() {
 		UnenrolledSchemeManagerIds: client.UnenrolledSchemeManagers(),
 	})
 }
+
+func dispatchPreferencesEvent() {
+	dispatchEvent(&preferencesEvent{
+		Preferences: client.Preferences,
+	})
+}

@@ -229,3 +229,8 @@ func (ah *eventHandler) loadLogs(action *loadLogsEvent) error {
 
 	return nil
 }
+
+func (ah *eventHandler) setPreferences(event *preferencesEvent) error {
+	client.SetPreferences(event.Preferences)
+	return nil
+}
