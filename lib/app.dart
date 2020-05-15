@@ -20,7 +20,6 @@ import 'package:irmamobile/src/screens/required_update/required_update_screen.da
 import 'package:irmamobile/src/screens/reset_pin/reset_pin_screen.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/splash_screen/splash_screen.dart';
-import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class App extends StatefulWidget {
@@ -126,6 +125,17 @@ class AppState extends State<App> with WidgetsBindingObserver {
     prevLifeCycleStates[1] = state;
   }
 
+  // Bit of a nasty hack, but this is the only reasonable way to wait on
+  // navigator initialization completion that I could find.
+  final _navigationInitializationTester = new Completer<bool>();
+  void _navigationInitializationCallback(Duration _) {
+    if (_navigatorKey.currentState != null) {
+      _navigationInitializationTester.complete(true);
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback(_navigationInitializationCallback);
+    }
+  }
+
   void _listenToPendingSessionPointer() {
     final repo = IrmaRepository.get();
 
@@ -134,13 +144,17 @@ class AppState extends State<App> with WidgetsBindingObserver {
     //  their screens will simply be covered. We just need to wait
     //  for irmago to be ready, which we check by waiting for enrolled
     //  enrollmentstatus
-    repo.getEnrollmentStatus().firstWhere((status) => status == EnrollmentStatus.enrolled).then((_) {
-      repo.getPendingSessionPointer().listen((sessionPointer) {
-        if (sessionPointer == null) {
-          return;
-        }
+    WidgetsBinding.instance.addPostFrameCallback(_navigationInitializationCallback);
+    _navigationInitializationTester.future.then((_) {
+      repo.getEnrollmentStatus().firstWhere((status) => status == EnrollmentStatus.enrolled).then((_) {
+        repo.getPendingSessionPointer().listen((sessionPointer) {
+          debugPrint("Received ${sessionPointer}");
+          if (sessionPointer == null) {
+            return;
+          }
 
-        _startSession(sessionPointer);
+          _startSession(sessionPointer);
+        });
       });
     });
   }
@@ -179,16 +193,12 @@ class AppState extends State<App> with WidgetsBindingObserver {
           .getEnrollmentStatus()
           .firstWhere((enrollmentStatus) => enrollmentStatus != EnrollmentStatus.undetermined);
 
-      // Go to the wallet screen if enrolled (buildpinscreen takes care of pin),
-      //  and to enrollment otherwise
-      String targetRouteName = WalletScreen.routeName;
+      // Go to enrollment if not yet enrolled.
       if (enrollmentStatus == EnrollmentStatus.unenrolled) {
-        targetRouteName = EnrollmentScreen.routeName;
+        await _navigatorKey.currentState.pushNamed(EnrollmentScreen.routeName);
       }
 
-      // Push the initial screen, and also push the QR scanner screen if the preference is enabled
-      await _navigatorKey.currentState.pushNamed(targetRouteName);
-
+      //  push the QR scanner screen if the preference is enabled
       final startQrScanner = await IrmaPreferences.get().getStartQRScan().first;
       if (startQrScanner == true) {
         _navigatorKey.currentState.pushNamed(ScannerScreen.routeName);
