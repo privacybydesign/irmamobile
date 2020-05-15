@@ -47,6 +47,10 @@ class RespondPermissionEvent extends SessionEvent {
   Map<String, dynamic> toJson() => _$RespondPermissionEventToJson(this);
 }
 
+class ContinueToIssuanceEvent extends SessionEvent {
+  ContinueToIssuanceEvent({int sessionID}) : super(sessionID);
+}
+
 @JsonSerializable()
 class RespondPinEvent extends SessionEvent {
   RespondPinEvent({int sessionID, this.proceed, this.pin}) : super(sessionID);

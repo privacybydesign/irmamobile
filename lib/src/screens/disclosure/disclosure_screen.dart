@@ -49,7 +49,6 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   final _scrollController = ScrollController();
 
   SessionStatus _screenStatus = SessionStatus.uninitialized;
-  bool navigatedAway = false;
 
   void carouselPageUpdate(int disconIndex, int conIndex) {
     _dispatchSessionEvent(
@@ -76,8 +75,17 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
       }
       _screenStatus = session.status;
 
-      if (_screenStatus == SessionStatus.requestPermission && session.disclosuresCandidates != null) {
+      if (_screenStatus == SessionStatus.requestDisclosurePermission && session.disclosuresCandidates != null) {
         _showExplanation(session.disclosuresCandidates);
+      }
+
+      if (_screenStatus == SessionStatus.requestIssuancePermission) {
+        // If issuance permission is asked, hand over control to issuance screen.
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          IssuanceScreen.routeName,
+          ModalRoute.withName(WalletScreen.routeName),
+          arguments: widget.arguments,
+        );
       }
 
       if (_screenStatus == SessionStatus.requestPin) {
@@ -97,6 +105,9 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   @override
   void dispose() {
     _sessionStateSubscription.cancel();
+    if (_screenStatus == SessionStatus.requestDisclosurePermission) {
+      _dismissSession();
+    }
     super.dispose();
   }
 
@@ -123,10 +134,6 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   }
 
   Future<void> _handleFinished(SessionState session) async {
-    if (session.issuedCredentials?.isNotEmpty ?? false) {
-      // Let issuance screen handle this
-      return;
-    }
     await Future.delayed(const Duration(seconds: 1));
 
     if (session.continueOnSecondDevice) {
@@ -134,7 +141,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
       if (session.status == SessionStatus.success) {
         _pushDisclosureFeedbackScreen(
             true, session.serverName.translate(FlutterI18n.currentLocale(context).languageCode));
-      } else if (!navigatedAway) {
+      } else {
         _pushDisclosureFeedbackScreen(
             false, session.serverName.translate(FlutterI18n.currentLocale(context).languageCode));
       }
@@ -176,19 +183,9 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     ));
   }
 
-  void _declinePermission(BuildContext context, String otherParty) {
-    _dismissSession();
-    _pushDisclosureFeedbackScreen(false, otherParty);
-    navigatedAway = true;
-  }
-
   void _givePermission(SessionState session) {
     if (session.issuedCredentials?.isNotEmpty ?? false) {
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        IssuanceScreen.routeName,
-        ModalRoute.withName(WalletScreen.routeName),
-        arguments: widget.arguments,
-      );
+      _dispatchSessionEvent(ContinueToIssuanceEvent(), isBridgedEvent: false);
     } else {
       _dispatchSessionEvent(RespondPermissionEvent(
         proceed: true,
@@ -201,7 +198,8 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     return StreamBuilder<SessionState>(
         stream: _sessionStateStream,
         builder: (context, sessionStateSnapshot) {
-          if (!sessionStateSnapshot.hasData || sessionStateSnapshot.data.status != SessionStatus.requestPermission) {
+          if (!sessionStateSnapshot.hasData ||
+              sessionStateSnapshot.data.status != SessionStatus.requestDisclosurePermission) {
             return Container(height: 0);
           }
 
@@ -265,7 +263,8 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     return StreamBuilder<SessionState>(
       stream: _sessionStateStream,
       builder: (context, sessionStateSnapshot) {
-        if (!sessionStateSnapshot.hasData || sessionStateSnapshot.data.status != SessionStatus.requestPermission) {
+        if (!sessionStateSnapshot.hasData ||
+            sessionStateSnapshot.data.status != SessionStatus.requestDisclosurePermission) {
           return Container(height: 0);
         }
 
@@ -276,15 +275,13 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
                 primaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.yes"),
                 onPrimaryPressed: state.canDisclose && scrolledToEnd ? () => _givePermission(state) : null,
                 secondaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.no"),
-                onSecondaryPressed: () => _declinePermission(
-                    context, state.serverName.translate(FlutterI18n.currentLocale(context).languageCode)),
+                onSecondaryPressed: () => _dismissSession(),
                 toolTipLabel: scrolledToEnd ? null : FlutterI18n.translate(context, "disclosure.see_more"),
                 showTooltipOnPrimary: !scrolledToEnd,
               )
             : IrmaBottomBar(
                 primaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.back"),
-                onPrimaryPressed: () => _declinePermission(
-                    context, state.serverName.translate(FlutterI18n.currentLocale(context).languageCode)),
+                onPrimaryPressed: () => _dismissSession(),
               );
       },
     );
@@ -336,9 +333,9 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     return Scaffold(
       appBar: IrmaAppBar(
         title: Text(FlutterI18n.translate(context, 'disclosure.title')),
-        leadingCancel: () {
+        leadingAction: () {
+          /// Do a leadingAction instead of a leadingCancel since disclosure feedback screen will be shown in between
           _dismissSession();
-          navigatedAway = true;
         },
       ),
       backgroundColor: IrmaTheme.of(context).grayscaleWhite,
@@ -351,7 +348,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
           }
 
           final session = sessionStateSnapshot.data;
-          if (session.status == SessionStatus.requestPermission) {
+          if (session.status == SessionStatus.requestDisclosurePermission) {
             return _buildDisclosureChoices(session);
           }
 

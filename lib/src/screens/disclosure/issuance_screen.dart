@@ -10,10 +10,13 @@ import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/screens/disclosure/session.dart';
 import 'package:irmamobile/src/screens/disclosure/widgets/arrow_back_screen.dart';
 import 'package:irmamobile/src/screens/history/widgets/issuing_detail.dart';
+import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import 'disclosure_screen.dart';
 
 class IssuanceScreen extends StatefulWidget {
   static const String routeName = "/issuance";
@@ -47,6 +50,15 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
       }
       _screenStatus = session.status;
 
+      if (_screenStatus == SessionStatus.requestDisclosurePermission) {
+        // If disclosure permission is asked, hand over control to disclosure screen.
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          DisclosureScreen.routeName,
+          ModalRoute.withName(WalletScreen.routeName),
+          arguments: widget.arguments,
+        );
+      }
+
       if (_screenStatus == SessionStatus.requestPin) {
         pushSessionPinScreen(context, sessionID, 'issuance.title');
       }
@@ -64,6 +76,9 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
   @override
   void dispose() {
     sessionStateSubscription.cancel();
+    if (_screenStatus == SessionStatus.requestIssuancePermission) {
+      _dismissSession();
+    }
     super.dispose();
   }
 
@@ -107,7 +122,7 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
           }
 
           final session = sessionStateSnapshot.data;
-          if (session.status == SessionStatus.requestPermission) {
+          if (session.status == SessionStatus.requestIssuancePermission) {
             return _buildPermissionWidget(session);
           }
 
@@ -192,16 +207,12 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
     ));
   }
 
-  void _declinePermission(BuildContext context, String otherParty) {
-    _dismissSession();
-    popToWallet(context);
-  }
-
   Widget _buildNavigationBar() {
     return StreamBuilder<SessionState>(
       stream: sessionStateStream,
       builder: (context, sessionStateSnapshot) {
-        if (!sessionStateSnapshot.hasData || sessionStateSnapshot.data.status != SessionStatus.requestPermission) {
+        if (!sessionStateSnapshot.hasData ||
+            sessionStateSnapshot.data.status != SessionStatus.requestIssuancePermission) {
           return Container(height: 0);
         }
 
@@ -211,13 +222,11 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
                 primaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.yes"),
                 onPrimaryPressed: () => _givePermission(state),
                 secondaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.no"),
-                onSecondaryPressed: () => _declinePermission(
-                    context, state.serverName.translate(FlutterI18n.currentLocale(context).languageCode)),
+                onSecondaryPressed: () => popToWallet(context),
               )
             : IrmaBottomBar(
                 primaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.back"),
-                onPrimaryPressed: () => _declinePermission(
-                    context, state.serverName.translate(FlutterI18n.currentLocale(context).languageCode)),
+                onPrimaryPressed: () => popToWallet(context),
               );
       },
     );

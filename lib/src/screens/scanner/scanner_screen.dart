@@ -4,7 +4,6 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
-import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/screens/disclosure/disclosure_screen.dart';
 import 'package:irmamobile/src/screens/disclosure/issuance_screen.dart';
 import 'package:irmamobile/src/screens/disclosure/session.dart';
@@ -45,22 +44,11 @@ class ScannerScreen extends StatelessWidget {
         arguments: SessionScreenArguments(sessionID: event.sessionID, sessionType: event.request.irmaqr),
       );
     } else if ("issuing" == event.request.irmaqr) {
-      // In this case we have to wait with navigating to the relevant screen
-      // until we know if this is a combined disclosure-issuance request
-      repo
-          .getSessionState(event.sessionID)
-          .firstWhere((session) => [
-                SessionStatus.requestPermission,
-                SessionStatus.canceled,
-                SessionStatus.error,
-              ].contains(session.status))
-          .then((session) {
-        navigator.pushNamedAndRemoveUntil(
-          (session.disclosureChoices?.isEmpty ?? true) ? IssuanceScreen.routeName : DisclosureScreen.routeName,
-          ModalRoute.withName(WalletScreen.routeName),
-          arguments: SessionScreenArguments(sessionID: event.sessionID, sessionType: event.request.irmaqr),
-        );
-      });
+      navigator.pushNamedAndRemoveUntil(
+        IssuanceScreen.routeName,
+        ModalRoute.withName(WalletScreen.routeName),
+        arguments: SessionScreenArguments(sessionID: event.sessionID, sessionType: event.request.irmaqr),
+      );
     } else {
       // TODO show error?
       navigator.popUntil(ModalRoute.withName(WalletScreen.routeName));

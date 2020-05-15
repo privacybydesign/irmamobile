@@ -67,7 +67,9 @@ class SessionRepository {
         credentials: credentials,
       );
       return prevState.copyWith(
-        status: SessionStatus.requestPermission,
+        status: event.disclosuresCandidates?.isEmpty ?? true
+            ? SessionStatus.requestIssuancePermission
+            : SessionStatus.requestDisclosurePermission,
         serverName: event.serverName,
         satisfiable: event.satisfiable,
         isSignatureSession: false,
@@ -89,7 +91,7 @@ class SessionRepository {
         credentials: credentials,
       );
       return prevState.copyWith(
-        status: SessionStatus.requestPermission,
+        status: SessionStatus.requestDisclosurePermission,
         serverName: event.serverName,
         isSignatureSession: event.isSignatureSession,
         signedMessage: event.signedMessage,
@@ -97,6 +99,10 @@ class SessionRepository {
         disclosureChoices: _initialDisclosureChoices(condiscon),
         disclosuresCandidates: condiscon,
         satisfiable: event.satisfiable,
+      );
+    } else if (event is ContinueToIssuanceEvent) {
+      return prevState.copyWith(
+        status: SessionStatus.requestIssuancePermission,
       );
     } else if (event is DisclosureChoiceUpdateSessionEvent) {
       return prevState.copyWith(
