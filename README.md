@@ -5,15 +5,21 @@
 IRMA offers a privacy-friendly, flexible and secure solution to many authentication problems,
 putting the user in full control over his/her data.
 
-The IRMA app manages the user's IRMA attributes: receiving new attributes, selectively disclosing them to others, and
-attaching them to signed statements. These attributes can be relevant properties, such as: "I am over 18", "my name is
+The IRMA app manages the user's IRMA cards containing personal data. It can receive new cards, selectively disclose data contained in the user's cards to others, and
+attaching data to signed statements. These data can be relevant properties, such as: "I am over 18", "my name is
 ..." and "I am entitled to access ....". They are only stored on the user's device and nowhere else.
+
+
+<img src="https://irma.app/docs/assets/irmamobile/ios_pin.png" width="200" alt="Screenshot of the IRMA app on iOS, showing the PIN screen" /> &nbsp;
+<img src="https://irma.app/docs/assets/irmamobile/android_wallet.png" width="200" alt="Screenshot of the IRMA app on Android, showing the wallet screen with three cards" /> &nbsp;
+<img src="https://irma.app/docs/assets/irmamobile/ios_wallet_expanded.png" width="200" alt="Screenshot of the IRMA app on iOS, showing the wallet screen with a card expanded" />
+<img src="https://irma.app/docs/assets/irmamobile/android_disclosure.png" width="200" alt="Screenshot of the IRMA app on Android, showing the data disclosure screen" /> &nbsp;
 
 ## Development setup
 
 * Clone the project 
 
-      git clone --recursive git@gitlab.science.ru.nl:irma/irmamobile.git
+      git clone --recursive git@github.com:privacybydesign/irmamobile.git
 
 * If your forgot to inclue `--recursive` in your `git clone`, make sure to init and update the submodules:
 
@@ -52,10 +58,10 @@ attaching them to signed statements. These attributes can be relevant properties
 * Install Go from the [Go download page](https://golang.org/dl/) or by using your OS package
   manager.
 
-* Run `go get golang.org/x/mobile/cmd/gomobile` to install gomobile and then run `gomobile init`
+* Run (somewhere outside of your `irmamobile` checkout) `go get golang.org/x/mobile/cmd/gomobile` to install gomobile and then run `gomobile init`
   to initialize gomobile.
 
-* Create the irmagobridge: `make irmagobridge-android`.
+* Create the irmagobridge: `./bind_go.sh`.
 
 * Start an emulator or connect a device via USB and run the flutter project: `flutter run`. You can
   also use Android Studio or Visual Studio Code for this step.
@@ -69,6 +75,7 @@ This project uses json_serializer. To re-generate serialization code, run `./cod
 ## Troubleshooting
 
 * Have you checked out the two submodules of this repository? If `find ./irma_configuration` is empty, this is the case.
+* If something has changed in the `irmagobridge` or in `irmago` then rerunning `./build_go.sh` is required.
 
 ### Installing Java 8
 

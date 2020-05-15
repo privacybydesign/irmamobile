@@ -60,7 +60,13 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
         if (pinState.remainingAttempts != 0) {
           showDialog(
             context: context,
-            child: PinWrongAttemptsDialog(attemptsRemaining: pinState.remainingAttempts),
+            child: PinWrongAttemptsDialog(
+              attemptsRemaining: pinState.remainingAttempts,
+              onClose: () {
+                Navigator.of(context).pop();
+                _focusNode.requestFocus();
+              },
+            ),
           );
         } else {
           showDialog(
