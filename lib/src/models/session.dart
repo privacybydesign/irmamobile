@@ -32,7 +32,7 @@ class SessionPointer {
       RegExp("(?<=^intent:\/\/qr\/json\/).*(?=#)"),
       RegExp("(?<=^https:\/\/irma\.app\/-\/session#).*"),
       RegExp("(?<=^https:\/\/irma\.app\/-pilot\/session#).*"),
-      RegExp(".*", multiLine: true),
+      RegExp(".*", multiLine: true, dotAll: true),
     ];
 
     try {
