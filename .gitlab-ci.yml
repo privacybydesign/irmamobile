@@ -29,6 +29,9 @@ test:flutter:
 build_bridge:
   stage: build_bridge
   interruptible: true
+  only: 
+    - master
+    - merge_requests
   artifacts:
     paths:
       - android/irmagobridge/irmagobridge.aar
@@ -38,6 +41,9 @@ build_bridge:
 build_app:
   stage: build_app
   interruptible: true
+  only: 
+    - master
+    - merge_requests
   artifacts:
     paths:
       - build/app/outputs/apk/alpha/release/*.apk
