@@ -20,7 +20,7 @@ func dispatchEnrollmentStatusEvent() {
 }
 
 func dispatchPreferencesEvent() {
-	dispatchEvent(&preferencesEvent{
+	dispatchEvent(&clientPreferencesEvent{
 		Preferences: client.Preferences,
 	})
 }

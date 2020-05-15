@@ -59,7 +59,7 @@ type loadLogsEvent struct {
 	Max    int
 }
 
-type preferencesEvent struct {
+type clientPreferencesEvent struct {
 	Preferences irmaclient.Preferences
 }
 
