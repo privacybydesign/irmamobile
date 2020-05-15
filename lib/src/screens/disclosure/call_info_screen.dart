@@ -33,6 +33,7 @@ class CallInfoScreen extends StatelessWidget {
           onPrimaryPressed: () async {
             if (await canLaunch(clientReturnURL)) {
               launch(clientReturnURL);
+              popToWallet(context);
             }
           },
         ),
