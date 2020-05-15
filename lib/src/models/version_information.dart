@@ -1,10 +1,9 @@
 import 'package:flutter/foundation.dart';
-import 'package:version/version.dart';
 
 class VersionInformation {
-  Version availableVersion;
-  Version requiredVersion;
-  Version currentVersion;
+  int currentVersion;
+  int requiredVersion;
+  int availableVersion;
 
   VersionInformation({
     @required this.availableVersion,
