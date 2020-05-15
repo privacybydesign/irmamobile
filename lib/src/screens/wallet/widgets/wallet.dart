@@ -88,7 +88,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _dragDownFactor = 1.5;
 
   // Offset of cards relative to wallet
-  final _heightOffset = -20.0;
+  final _heightOffset = -30.0;
 
   // Add a margin to the screen height to deal with different phones
   final _screenHeightMargin = 100;
