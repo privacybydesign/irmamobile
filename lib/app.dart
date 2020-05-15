@@ -131,13 +131,17 @@ class AppState extends State<App> with WidgetsBindingObserver {
 
     // Listen for incoming SessionPointers
     //  we can now always act on these, because if the app is locked,
-    //  their screens will simply be covered
-    repo.getPendingSessionPointer().listen((sessionPointer) {
-      if (sessionPointer == null) {
-        return;
-      }
+    //  their screens will simply be covered. We just need to wait
+    //  for irmago to be ready, which we check by waiting for enrolled
+    //  enrollmentstatus
+    repo.getEnrollmentStatus().firstWhere((status) => status == EnrollmentStatus.enrolled).then((_) {
+      repo.getPendingSessionPointer().listen((sessionPointer) {
+        if (sessionPointer == null) {
+          return;
+        }
 
-      _startSession(sessionPointer);
+        _startSession(sessionPointer);
+      });
     });
   }
 
