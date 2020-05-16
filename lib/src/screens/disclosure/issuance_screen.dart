@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
+import 'package:irmamobile/src/models/native_events.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/screens/disclosure/session.dart';
@@ -152,7 +152,7 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
           setState(() => displayArrowBack = true);
           Navigator.of(context).pop(); // pop error screen
         } else {
-          SystemNavigator.pop();
+          IrmaRepository.get().bridgedDispatch(AndroidSendToBackgroundEvent());
           popToWallet(context);
         }
       }
@@ -187,7 +187,7 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
       } else if (Platform.isIOS) {
         setState(() => displayArrowBack = true);
       } else {
-        SystemNavigator.pop();
+        IrmaRepository.get().bridgedDispatch(AndroidSendToBackgroundEvent());
         popToWallet(context);
       }
     }
