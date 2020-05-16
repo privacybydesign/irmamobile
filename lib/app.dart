@@ -20,6 +20,7 @@ import 'package:irmamobile/src/screens/required_update/required_update_screen.da
 import 'package:irmamobile/src/screens/reset_pin/reset_pin_screen.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/splash_screen/splash_screen.dart';
+import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class App extends StatefulWidget {
@@ -29,7 +30,7 @@ class App extends StatefulWidget {
   AppState createState() => AppState();
 }
 
-class AppState extends State<App> with WidgetsBindingObserver {
+class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
   // We keep track of the last two life cycle states
@@ -78,7 +79,6 @@ class AppState extends State<App> with WidgetsBindingObserver {
       });
     });
 
-    _listenToPendingSessionPointer();
     _listenForDataClear();
   }
 
@@ -125,37 +125,50 @@ class AppState extends State<App> with WidgetsBindingObserver {
     prevLifeCycleStates[1] = state;
   }
 
-  // Bit of a nasty hack, but this is the only reasonable way to wait on
-  // navigator initialization completion that I could find.
-  final _navigationInitializationTester = new Completer<bool>();
-  void _navigationInitializationCallback(Duration _) {
-    if (_navigatorKey.currentState != null) {
-      _navigationInitializationTester.complete(true);
-    } else {
-      WidgetsBinding.instance.addPostFrameCallback(_navigationInitializationCallback);
+  @override
+  void didPush(Route route, Route previousRoute) {
+    // We have to make sure that sessions can be started once the
+    //  wallet screen has been pushed to the navigator. Otherwise
+    //  the session screens have no root screen to pop back to.
+    if (route.settings.name == WalletScreen.routeName) {
+      final subscription = _listenToPendingSessionPointer();
+      route.popped.then((_) {
+        // When wallet screen pops, make sure enrollment listener is stopped.
+        subscription.cancel();
+      });
     }
+    super.didPush(route, previousRoute);
   }
 
-  void _listenToPendingSessionPointer() {
+  StreamSubscription<EnrollmentStatus> _listenToPendingSessionPointer() {
     final repo = IrmaRepository.get();
 
-    // Listen for incoming SessionPointers
-    //  we can now always act on these, because if the app is locked,
-    //  their screens will simply be covered. We just need to wait
-    //  for irmago to be ready, which we check by waiting for enrolled
-    //  enrollmentstatus
-    WidgetsBinding.instance.addPostFrameCallback(_navigationInitializationCallback);
-    _navigationInitializationTester.future.then((_) {
-      repo.getEnrollmentStatus().firstWhere((status) => status == EnrollmentStatus.enrolled).then((_) {
-        repo.getPendingSessionPointer().listen((sessionPointer) {
-          debugPrint("Received ${sessionPointer}");
-          if (sessionPointer == null) {
-            return;
-          }
+    StreamSubscription<SessionPointer> sessionPointerSubscription;
+    return repo.getEnrollmentStatus().listen((status) {
+      if (status == EnrollmentStatus.enrolled) {
+        // When the user is fully enrolled, listen for incoming SessionPointers.
+        //  From that moment we can always act on these, because if the app is locked,
+        //  their screens will simply be covered.
+        if (sessionPointerSubscription == null) {
+          sessionPointerSubscription = repo.getPendingSessionPointer().listen((sessionPointer) {
+            debugPrint("Received ${sessionPointer}");
+            if (sessionPointer == null) {
+              return;
+            }
 
-          _startSession(sessionPointer);
-        });
-      });
+            _startSession(sessionPointer);
+          });
+        } else if (sessionPointerSubscription.isPaused) {
+          // Subscription already exists, so we can simply resume it.
+          sessionPointerSubscription.resume();
+        }
+      } else if (sessionPointerSubscription != null && !sessionPointerSubscription.isPaused) {
+        // On re-enrollment the wallet screen is popped, so pause this enrollment status listener.
+        //  Listening will be resumed when the user is enrolled again.
+        sessionPointerSubscription.pause();
+      }
+    }, onDone: () {
+      sessionPointerSubscription?.cancel();
     });
   }
 
@@ -211,8 +224,7 @@ class AppState extends State<App> with WidgetsBindingObserver {
       stream: IrmaRepository.get().getLocked(),
       builder: (context, isLocked) {
         // Display nothing if we are not locked
-        if (isLocked.hasData && !isLocked.data) return Container();
-
+        if (!isLocked.hasData || !isLocked.data) return Container();
         // We use a navigator here, instead of just rendering the pin screen
         //  to give error screens a place to go.
         return Navigator(
@@ -328,6 +340,7 @@ class AppState extends State<App> with WidgetsBindingObserver {
                   localizationsDelegates: defaultLocalizationsDelegates(),
                   supportedLocales: defaultSupportedLocales(),
                   navigatorKey: _navigatorKey,
+                  navigatorObservers: [this],
                   onGenerateRoute: Routing.generateRoute,
 
                   // Set showSemanticsDebugger to true to view semantics in emulator.
