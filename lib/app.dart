@@ -172,7 +172,6 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     //  We can always act on these, because if the app is locked,
     //  their screens will simply be covered.
     _sessionPointerSubscription = repo.getPendingSessionPointer().listen((sessionPointer) {
-      debugPrint("Received ${sessionPointer}");
       if (sessionPointer == null) {
         return;
       }
