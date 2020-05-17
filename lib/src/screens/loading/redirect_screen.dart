@@ -24,6 +24,7 @@ class RedirectScreen extends StatelessWidget {
               });
             }
           }
+          // TODO Change when the splash screen logic in app.dart (see TODO there) is improved.
           return LoadingScreen();
         });
   }

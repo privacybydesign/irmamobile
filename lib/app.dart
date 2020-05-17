@@ -32,6 +32,7 @@ class App extends StatefulWidget {
 
 class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  StreamSubscription<SessionPointer> _sessionPointerSubscription;
 
   // We keep track of the last two life cycle states
   // to be able to determine the flow
@@ -63,7 +64,6 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
 
   bool _showSplash = true;
   bool _removeSplash = false;
-  bool _hasInitialized = false;
 
   @override
   void initState() {
@@ -127,48 +127,57 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
 
   @override
   void didPush(Route route, Route previousRoute) {
-    // We have to make sure that sessions can be started once the
-    //  wallet screen has been pushed to the navigator. Otherwise
-    //  the session screens have no root screen to pop back to.
-    if (route.settings.name == WalletScreen.routeName) {
-      final subscription = _listenToPendingSessionPointer();
-      route.popped.then((_) {
-        // When wallet screen pops, make sure enrollment listener is stopped.
-        subscription.cancel();
-      });
-    }
-    super.didPush(route, previousRoute);
+    _checkWalletScreenPushed(route);
   }
 
-  StreamSubscription<EnrollmentStatus> _listenToPendingSessionPointer() {
+  @override
+  void didReplace({Route newRoute, Route oldRoute}) {
+    _checkWalletScreenPopped(oldRoute);
+    _checkWalletScreenPushed(newRoute);
+  }
+
+  @override
+  void didPop(Route route, Route previousRoute) {
+    _checkWalletScreenPopped(route);
+  }
+
+  @override
+  void didRemove(Route route, Route previousRoute) {
+    _checkWalletScreenPopped(route);
+  }
+
+  void _checkWalletScreenPushed(Route route) {
+    // We have to make sure that sessions can be started once the
+    //  wallet screen has been pushed to the navigator. Otherwise
+    //  the session screens have no wallet screen to pop back to.
+    //  The wallet screen is only pushed when the user is fully enrolled.
+    if (route.settings.name == WalletScreen.routeName) {
+      _listenToPendingSessionPointer(route);
+      _startQrScannerOnStartup();
+    }
+  }
+
+  void _checkWalletScreenPopped(Route route) {
+    // Make sure app stops listening for session pointers until
+    //  the wallet screen is pushed back on the stack.
+    if (route.settings.name == WalletScreen.routeName) {
+      _sessionPointerSubscription.cancel();
+    }
+  }
+
+  void _listenToPendingSessionPointer(Route walletRoute) {
     final repo = IrmaRepository.get();
 
-    StreamSubscription<SessionPointer> sessionPointerSubscription;
-    return repo.getEnrollmentStatus().listen((status) {
-      if (status == EnrollmentStatus.enrolled) {
-        // When the user is fully enrolled, listen for incoming SessionPointers.
-        //  From that moment we can always act on these, because if the app is locked,
-        //  their screens will simply be covered.
-        if (sessionPointerSubscription == null) {
-          sessionPointerSubscription = repo.getPendingSessionPointer().listen((sessionPointer) {
-            debugPrint("Received ${sessionPointer}");
-            if (sessionPointer == null) {
-              return;
-            }
-
-            _startSession(sessionPointer);
-          });
-        } else if (sessionPointerSubscription.isPaused) {
-          // Subscription already exists, so we can simply resume it.
-          sessionPointerSubscription.resume();
-        }
-      } else if (sessionPointerSubscription != null && !sessionPointerSubscription.isPaused) {
-        // On re-enrollment the wallet screen is popped, so pause this enrollment status listener.
-        //  Listening will be resumed when the user is enrolled again.
-        sessionPointerSubscription.pause();
+    // Listen for incoming SessionPointers as long as the wallet screen is there.
+    //  We can always act on these, because if the app is locked,
+    //  their screens will simply be covered.
+    _sessionPointerSubscription = repo.getPendingSessionPointer().listen((sessionPointer) {
+      debugPrint("Received ${sessionPointer}");
+      if (sessionPointer == null) {
+        return;
       }
-    }, onDone: () {
-      sessionPointerSubscription?.cancel();
+
+      _startSession(sessionPointer);
     });
   }
 
@@ -183,40 +192,21 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     });
   }
 
+  Future<void> _startQrScannerOnStartup() async {
+    // TODO: Check whether this function actually works.
+    //  push the QR scanner screen if the preference is enabled
+    final startQrScanner = await IrmaPreferences.get().getStartQRScan().first;
+    if (startQrScanner == true) {
+      _navigatorKey.currentState.pushNamed(ScannerScreen.routeName);
+    }
+  }
+
   void _startSession(SessionPointer sessionPointer) {
     ScannerScreen.startSessionAndNavigate(
       _navigatorKey.currentState,
       sessionPointer,
       continueOnSecondDevice: false,
     );
-  }
-
-  void _initializeOnFirstMaterialAppBuild() {
-    // This is a bit of a hack to exectute this logic once, as soon as
-    // the MaterialApp Navigator has been initialized
-    if (_hasInitialized) {
-      return;
-    }
-
-    _hasInitialized = true;
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Set the initial route once, after we've learn whether we're enrolled or not
-      final enrollmentStatus = await IrmaRepository.get()
-          .getEnrollmentStatus()
-          .firstWhere((enrollmentStatus) => enrollmentStatus != EnrollmentStatus.undetermined);
-
-      // Go to enrollment if not yet enrolled.
-      if (enrollmentStatus == EnrollmentStatus.unenrolled) {
-        await _navigatorKey.currentState.pushNamed(EnrollmentScreen.routeName);
-      }
-
-      //  push the QR scanner screen if the preference is enabled
-      final startQrScanner = await IrmaPreferences.get().getStartQRScan().first;
-      if (startQrScanner == true) {
-        _navigatorKey.currentState.pushNamed(ScannerScreen.routeName);
-      }
-    });
   }
 
   Widget _buildPinScreen() {
@@ -347,7 +337,6 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
                   showSemanticsDebugger: false,
 
                   builder: (context, child) {
-                    _initializeOnFirstMaterialAppBuild();
                     return _buildAppStack(context, child, enrollmentStatus);
                   },
                 ),

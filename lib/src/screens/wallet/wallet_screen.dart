@@ -18,7 +18,7 @@ import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 class WalletScreen extends StatelessWidget {
-  static const routeName = "/";
+  static const routeName = "/wallet";
 
   @override
   Widget build(BuildContext context) {
