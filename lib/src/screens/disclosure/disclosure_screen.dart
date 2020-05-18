@@ -137,31 +137,28 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   }
 
   Future<void> _handleFinished(SessionState session) async {
+    final serverName = session.serverName.translate(FlutterI18n.currentLocale(context).languageCode);
     await Future.delayed(const Duration(seconds: 1));
 
     if (session.continueOnSecondDevice && !session.isReturnPhoneNumber) {
       // If this is a session on a second screen, return to the wallet after showing a feedback screen
       if (session.status == SessionStatus.success) {
-        _pushDisclosureFeedbackScreen(
-            true, session.serverName.translate(FlutterI18n.currentLocale(context).languageCode));
+        _pushDisclosureFeedbackScreen(true, serverName);
       } else {
-        _pushDisclosureFeedbackScreen(
-            false, session.serverName.translate(FlutterI18n.currentLocale(context).languageCode));
+        _pushDisclosureFeedbackScreen(false, serverName);
       }
     } else if (session.clientReturnURL != null &&
-        await canLaunch(session.clientReturnURL) &&
-        !session.isReturnPhoneNumber) {
+        !session.isReturnPhoneNumber &&
+        await canLaunch(session.clientReturnURL)) {
       // If there is a return URL, navigate to it when we're done
       launch(session.clientReturnURL, forceSafariVC: false);
       popToWallet(context);
     } else if (session.isReturnPhoneNumber) {
       // Navigate to call info screen
       if (session.status == SessionStatus.success) {
-        _pushInfoCallScreen(
-            session.serverName.translate(FlutterI18n.currentLocale(context).languageCode), session.clientReturnURL);
+        _pushInfoCallScreen(serverName, session.clientReturnURL);
       } else {
-        _pushDisclosureFeedbackScreen(
-            false, session.serverName.translate(FlutterI18n.currentLocale(context).languageCode));
+        _pushDisclosureFeedbackScreen(false, serverName);
       }
     } else {
       // Otherwise, on iOS show a screen to press the return arrow in the top-left corner,
@@ -219,6 +216,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   }
 
   Widget _buildDisclosureHeader(SessionState session) {
+    final serverName = session.serverName.translate(FlutterI18n.currentLocale(context).languageCode);
     return StreamBuilder<SessionState>(
         stream: _sessionStateStream,
         builder: (context, sessionStateSnapshot) {
@@ -239,9 +237,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
                 SizedBox(height: IrmaTheme.of(context).defaultSpacing),
                 TranslatedText(
                   'disclosure.unsatisfiable_request',
-                  translationParams: {
-                    "otherParty": session.serverName.translate(FlutterI18n.currentLocale(context).languageCode)
-                  },
+                  translationParams: {"otherParty": serverName},
                   style: Theme.of(context).textTheme.body1,
                 ),
               ],
@@ -253,11 +249,11 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
                   'disclosure.disclosure${session.isReturnPhoneNumber ? "_call" : ""}_header',
                   translationParams: session.isReturnPhoneNumber
                       ? {
-                          "otherParty": session.serverName.translate(FlutterI18n.currentLocale(context).languageCode),
+                          "otherParty": serverName,
                           "phoneNumber": session.clientReturnURL.substring(4).split(",").first,
                         }
                       : {
-                          "otherParty": session.serverName.translate(FlutterI18n.currentLocale(context).languageCode),
+                          "otherParty": serverName,
                         },
                   style: Theme.of(context).textTheme.body1,
                 ),
