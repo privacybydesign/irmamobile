@@ -7,6 +7,7 @@ import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/native_events.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
+import 'package:irmamobile/src/screens/disclosure/call_info_screen.dart';
 import 'package:irmamobile/src/screens/disclosure/session.dart';
 import 'package:irmamobile/src/screens/disclosure/widgets/arrow_back_screen.dart';
 import 'package:irmamobile/src/screens/history/widgets/issuing_detail.dart';
@@ -144,7 +145,9 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
     toErrorScreen(context, session.error, () async {
       if (session.continueOnSecondDevice) {
         popToWallet(context);
-      } else if (session.clientReturnURL != null && await canLaunch(session.clientReturnURL)) {
+      } else if (session.clientReturnURL != null &&
+          !session.isReturnPhoneNumber &&
+          await canLaunch(session.clientReturnURL)) {
         launch(session.clientReturnURL, forceSafariVC: false);
         popToWallet(context);
       } else {
@@ -160,16 +163,21 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
   }
 
   Future<void> _handleFinished(SessionState session) async {
+    final serverName = session.serverName.translate(FlutterI18n.currentLocale(context).languageCode);
     await Future.delayed(const Duration(seconds: 1));
 
-    if (session.continueOnSecondDevice) {
+    if (session.continueOnSecondDevice && !session.isReturnPhoneNumber) {
       // If this is a session on a second screen, return to the wallet
       popToWallet(context);
       // TODO: Maybe show some error screen on error or cancel
-    } else if (session.clientReturnURL != null && await canLaunch(session.clientReturnURL)) {
+    } else if (session.clientReturnURL != null &&
+        !session.isReturnPhoneNumber &&
+        await canLaunch(session.clientReturnURL)) {
       // If there is a return URL, navigate to it when we're done
       launch(session.clientReturnURL, forceSafariVC: false);
       popToWallet(context);
+    } else if(session.isReturnPhoneNumber) {
+      _pushInfoCallScreen(serverName, session.clientReturnURL);
     } else {
       // Otherwise, on iOS show a screen to press the return arrow in the top-left corner,
       // and on Android just background the app to let the user return to the previous activity
@@ -191,6 +199,16 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
         popToWallet(context);
       }
     }
+  }
+
+  void _pushInfoCallScreen(String otherParty, String clientReturnURL) {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => CallInfoScreen(
+        otherParty: otherParty,
+        clientReturnURL: clientReturnURL,
+        popToWallet: popToWallet,
+      ),
+    ));
   }
 
   void _givePermission(SessionState session) {
