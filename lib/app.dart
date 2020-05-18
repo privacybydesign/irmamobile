@@ -152,7 +152,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     //  the session screens have no wallet screen to pop back to.
     //  The wallet screen is only pushed when the user is fully enrolled.
     if (route.settings.name == WalletScreen.routeName) {
-      _listenToPendingSessionPointer(route);
+      _listenToPendingSessionPointer();
       _startQrScannerOnStartup();
     }
   }
@@ -165,7 +165,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     }
   }
 
-  void _listenToPendingSessionPointer(Route walletRoute) {
+  void _listenToPendingSessionPointer() {
     final repo = IrmaRepository.get();
 
     // Listen for incoming SessionPointers as long as the wallet screen is there.
