@@ -88,7 +88,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _dragDownFactor = 1.5;
 
   // Offset of cards relative to wallet
-  final _heightOffset = -20.0;
+  final _heightOffset = -30.0;
 
   // Add a margin to the screen height to deal with different phones
   final _screenHeightMargin = 100;
@@ -194,6 +194,21 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       Future.delayed(Duration(milliseconds: _cardVisibleDelay)).then((_) {
         setNewState(_cardInStackState);
       });
+    } else if (_drawnCardIndex < (oldWidget.credentials?.length ?? 0) && widget.credentials != null) {
+      // Check whether drawn card still exists in the new state. Index might have changed due to removal.
+      final newIndex = widget.credentials.indexWhere((c) => c.hash == oldWidget.credentials[_drawnCardIndex].hash);
+      if (newIndex >= 0) {
+        // Credential is still there; update the drawn card index.
+        _drawnCardIndex = newIndex;
+      } else {
+        // Drawn card does not exist anymore, so assign a non-existing index.
+        _drawnCardIndex = widget.credentials.length;
+      }
+    }
+
+    // If drawn card does not exist anymore, make sure the currentState is not WalletState.drawn.
+    if (_drawnCardIndex >= (widget.credentials?.length ?? 0) && _currentState == WalletState.drawn) {
+      setNewState(_cardInStackState);
     }
 
     if (widget.hasLoginLogoutAnimation && !oldWidget.isOpen && widget.isOpen) {
@@ -204,16 +219,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       _loginLogoutAnimationController.reverse().then((_) {
         _irmaClient.lock();
       });
-    }
-
-    if ((oldWidget.credentials?.isNotEmpty ?? false) &&
-        oldWidget.credentials[_drawnCardIndex].hash != widget.credentials[_drawnCardIndex]?.hash) {
-      final newIndex = widget.credentials.indexWhere((c) => c.hash == oldWidget.credentials[_drawnCardIndex].hash);
-      if (newIndex >= 0) {
-        _drawnCardIndex = newIndex;
-      } else {
-        setNewState(_cardInStackState);
-      }
     }
 
     super.didUpdateWidget(oldWidget);

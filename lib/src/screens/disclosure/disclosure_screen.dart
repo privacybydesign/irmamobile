@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attributes.dart';
+import 'package:irmamobile/src/models/native_events.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/screens/disclosure/call_info_screen.dart';
@@ -50,7 +50,6 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   final _scrollController = ScrollController();
 
   SessionStatus _screenStatus = SessionStatus.uninitialized;
-  bool navigatedAway = false;
 
   void carouselPageUpdate(int disconIndex, int conIndex) {
     _dispatchSessionEvent(
@@ -77,8 +76,17 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
       }
       _screenStatus = session.status;
 
-      if (_screenStatus == SessionStatus.requestPermission && session.disclosuresCandidates != null) {
+      if (_screenStatus == SessionStatus.requestDisclosurePermission && session.disclosuresCandidates != null) {
         _showExplanation(session.disclosuresCandidates);
+      }
+
+      if (_screenStatus == SessionStatus.requestIssuancePermission) {
+        // If issuance permission is asked, hand over control to issuance screen.
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          IssuanceScreen.routeName,
+          ModalRoute.withName(WalletScreen.routeName),
+          arguments: widget.arguments,
+        );
       }
 
       if (_screenStatus == SessionStatus.requestPin) {
@@ -98,6 +106,9 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   @override
   void dispose() {
     _sessionStateSubscription.cancel();
+    if (_screenStatus == SessionStatus.requestDisclosurePermission) {
+      _dismissSession();
+    }
     super.dispose();
   }
 
@@ -118,7 +129,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
           setState(() => _displayArrowBack = true);
           Navigator.of(context).pop(); // pop error screen
         } else {
-          SystemNavigator.pop();
+          IrmaRepository.get().bridgedDispatch(AndroidSendToBackgroundEvent());
           popToWallet(context);
         }
       }
@@ -126,20 +137,16 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   }
 
   Future<void> _handleFinished(SessionState session) async {
-    final serverName = session.serverName.translate(FlutterI18n.currentLocale(context).languageCode);
-
-    if (session.issuedCredentials?.isNotEmpty ?? false) {
-      // Let issuance screen handle this
-      return;
-    }
     await Future.delayed(const Duration(seconds: 1));
 
     if (session.continueOnSecondDevice && !session.isReturnPhoneNumber) {
       // If this is a session on a second screen, return to the wallet after showing a feedback screen
       if (session.status == SessionStatus.success) {
-        _pushDisclosureFeedbackScreen(true, serverName);
-      } else if (!navigatedAway) {
-        _pushDisclosureFeedbackScreen(false, serverName);
+        _pushDisclosureFeedbackScreen(
+            true, session.serverName.translate(FlutterI18n.currentLocale(context).languageCode));
+      } else {
+        _pushDisclosureFeedbackScreen(
+            false, session.serverName.translate(FlutterI18n.currentLocale(context).languageCode));
       }
     } else if (session.clientReturnURL != null &&
         await canLaunch(session.clientReturnURL) &&
@@ -150,9 +157,11 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     } else if (session.isReturnPhoneNumber) {
       // Navigate to call info screen
       if (session.status == SessionStatus.success) {
-        _pushInfoCallScreen(serverName, session.clientReturnURL);
-      } else if (!navigatedAway) {
-        _pushDisclosureFeedbackScreen(false, serverName);
+        _pushInfoCallScreen(
+            session.serverName.translate(FlutterI18n.currentLocale(context).languageCode), session.clientReturnURL);
+      } else {
+        _pushDisclosureFeedbackScreen(
+            false, session.serverName.translate(FlutterI18n.currentLocale(context).languageCode));
       }
     } else {
       // Otherwise, on iOS show a screen to press the return arrow in the top-left corner,
@@ -160,7 +169,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
       if (Platform.isIOS) {
         setState(() => _displayArrowBack = true);
       } else {
-        SystemNavigator.pop();
+        IrmaRepository.get().bridgedDispatch(AndroidSendToBackgroundEvent());
         popToWallet(context);
       }
     }
@@ -198,19 +207,9 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     ));
   }
 
-  void _declinePermission(BuildContext context, String otherParty) {
-    _dismissSession();
-    _pushDisclosureFeedbackScreen(false, otherParty);
-    navigatedAway = true;
-  }
-
   void _givePermission(SessionState session) {
     if (session.issuedCredentials?.isNotEmpty ?? false) {
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        IssuanceScreen.routeName,
-        ModalRoute.withName(WalletScreen.routeName),
-        arguments: widget.arguments,
-      );
+      _dispatchSessionEvent(ContinueToIssuanceEvent(), isBridgedEvent: false);
     } else {
       _dispatchSessionEvent(RespondPermissionEvent(
         proceed: true,
@@ -223,7 +222,8 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     return StreamBuilder<SessionState>(
         stream: _sessionStateStream,
         builder: (context, sessionStateSnapshot) {
-          if (!sessionStateSnapshot.hasData || sessionStateSnapshot.data.status != SessionStatus.requestPermission) {
+          if (!sessionStateSnapshot.hasData ||
+              sessionStateSnapshot.data.status != SessionStatus.requestDisclosurePermission) {
             return Container(height: 0);
           }
 
@@ -292,7 +292,8 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     return StreamBuilder<SessionState>(
       stream: _sessionStateStream,
       builder: (context, sessionStateSnapshot) {
-        if (!sessionStateSnapshot.hasData || sessionStateSnapshot.data.status != SessionStatus.requestPermission) {
+        if (!sessionStateSnapshot.hasData ||
+            sessionStateSnapshot.data.status != SessionStatus.requestDisclosurePermission) {
           return Container(height: 0);
         }
 
@@ -303,15 +304,13 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
                 primaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.yes"),
                 onPrimaryPressed: state.canDisclose && scrolledToEnd ? () => _givePermission(state) : null,
                 secondaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.no"),
-                onSecondaryPressed: () => _declinePermission(
-                    context, state.serverName.translate(FlutterI18n.currentLocale(context).languageCode)),
+                onSecondaryPressed: () => _dismissSession(),
                 toolTipLabel: scrolledToEnd ? null : FlutterI18n.translate(context, "disclosure.see_more"),
                 showTooltipOnPrimary: !scrolledToEnd,
               )
             : IrmaBottomBar(
                 primaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.back"),
-                onPrimaryPressed: () => _declinePermission(
-                    context, state.serverName.translate(FlutterI18n.currentLocale(context).languageCode)),
+                onPrimaryPressed: () => _dismissSession(),
               );
       },
     );
@@ -363,9 +362,9 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     return Scaffold(
       appBar: IrmaAppBar(
         title: Text(FlutterI18n.translate(context, 'disclosure.title')),
-        leadingCancel: () {
+        leadingAction: () {
+          /// Do a leadingAction instead of a leadingCancel since disclosure feedback screen will be shown in between
           _dismissSession();
-          navigatedAway = true;
         },
       ),
       backgroundColor: IrmaTheme.of(context).grayscaleWhite,
@@ -378,7 +377,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
           }
 
           final session = sessionStateSnapshot.data;
-          if (session.status == SessionStatus.requestPermission) {
+          if (session.status == SessionStatus.requestDisclosurePermission) {
             return _buildDisclosureChoices(session);
           }
 

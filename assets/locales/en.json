@@ -472,5 +472,9 @@
     "info_1": "Done, your data have been disclosed.\n\n",
     "safari": "Tap on the name of the application (such as Safari, Chrome, Firefox) ",
     "info_2": "in the top left corner to return to the application you came from."
+  },
+  "update": {
+    "required": "In order to continue using IRMA, you will need to update the app",
+    "doupdate": "Update"
   }
 }

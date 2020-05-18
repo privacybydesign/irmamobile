@@ -19,4 +19,21 @@ import Flutter
     )
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
+
+  override func applicationDidEnterBackground(_ application: UIApplication) {
+    super.applicationDidEnterBackground(application)
+
+    let blankViewController = UIViewController()
+    blankViewController.view.backgroundColor = UIColor.black
+
+    // Pass NO for the animated parameter. Any animation will not complete
+    // before the snapshot is taken.
+    window.rootViewController?.present(blankViewController, animated: false)
+  }
+
+  override func applicationWillEnterForeground(_ application: UIApplication) {
+    window.rootViewController?.dismiss(animated: false)
+
+    super.applicationWillEnterForeground(application)
+  }
 }
