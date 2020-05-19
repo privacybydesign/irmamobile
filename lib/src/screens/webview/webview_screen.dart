@@ -20,7 +20,7 @@ class WebviewScreen extends StatefulWidget {
   final String url;
 
   void _handleSessionPointer(BuildContext context, SessionPointer sessionPointer) {
-    ScannerScreen.startSessionAndNavigate(Navigator.of(context), sessionPointer);
+    ScannerScreen.startSessionAndNavigate(Navigator.of(context), sessionPointer, webview: true);
   }
 
   const WebviewScreen(this.url, {Key key}) : super(key: key);

@@ -3,11 +3,15 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:irmamobile/src/models/attribute_value.dart';
 import 'package:irmamobile/src/models/attributes.dart';
+import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
+import 'package:irmamobile/src/screens/webview/webview_screen.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/util/translated_text.dart';
+import 'package:irmamobile/src/widgets/irma_button.dart';
+import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 
 class Carousel extends StatefulWidget {
   final DisCon<Attribute> candidatesDisCon;
@@ -36,6 +40,18 @@ class _CarouselState extends State<Carousel> {
   }
 
   final _controller = PageController();
+
+  Function() _createOnRefreshCredential(CredentialType type) {
+    return () {
+      final url = getTranslation(context, type.issueUrl);
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) {
+          return WebviewScreen(url);
+        }),
+      );
+    };
+  }
 
   // Determining size of widget as described here:
   // https://medium.com/@diegoveloper/flutter-widget-size-and-position-b0a9ffed9407
@@ -223,16 +239,72 @@ class _CarouselState extends State<Carousel> {
     );
   }
 
-  Widget _buildCredentialFooter(_DisclosureCredential cred) {
-    String notice;
-    if (cred.attributes.first.expired) {
-      notice = FlutterI18n.translate(context, 'disclosure.expired');
-    } else if (cred.attributes.first.revoked) {
-      notice = FlutterI18n.translate(context, 'disclosure.revoked');
-    } else if (cred.attributes.first.notRevokable) {
-      notice = FlutterI18n.translate(context, 'disclosure.not_revokable');
-    }
+  Widget _buildGetButton(_DisclosureCredential cred) {
+    final label = cred.attributes.first.credentialHash == ""
+        ? FlutterI18n.translate(context, 'disclosure.obtain')
+        : FlutterI18n.translate(context, 'disclosure.refresh');
+    return Padding(
+      padding: EdgeInsets.only(top: IrmaTheme.of(context).smallSpacing),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          IrmaButton(
+            label: label,
+            size: IrmaButtonSize.small,
+            onPressed: _createOnRefreshCredential(cred.attributes.first.credentialInfo.credentialType),
+          ),
+        ],
+      ),
+    );
+  }
 
+  Widget _buildNotice(String notice) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.fromLTRB(0, 8, 11, 4),
+          child: SvgPicture.asset(
+            'assets/generic/stop.svg',
+            width: 22,
+          ),
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8, right: 9, bottom: 4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  notice,
+                  style: IrmaTheme.of(context).textTheme.body1.copyWith(
+                        fontSize: 14,
+                        color: IrmaTheme.of(context).grayscale40,
+                      ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _notice(_DisclosureCredential cred) {
+    if (cred.attributes.first.expired) {
+      return FlutterI18n.translate(context, 'disclosure.expired');
+    } else if (cred.attributes.first.revoked) {
+      return FlutterI18n.translate(context, 'disclosure.revoked');
+    } else if (cred.attributes.first.notRevokable) {
+      return FlutterI18n.translate(context, 'disclosure.not_revokable');
+    } else if (cred.attributes.first.credentialHash == "") {
+      return FlutterI18n.translate(context, 'disclosure.not_present');
+    }
+    return null;
+  }
+
+  Widget _buildCredentialFooter(_DisclosureCredential cred) {
+    final notice = _notice(cred);
     return Padding(
       padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).smallSpacing),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -263,37 +335,15 @@ class _CarouselState extends State<Carousel> {
             ),
           ],
         ),
-        if (notice != null)
-          Column(
-            children: <Widget>[
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 8, 11, 4),
-                    child: SvgPicture.asset(
-                      'assets/generic/stop.svg',
-                      width: 22,
-                    ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 8, right: 9, bottom: 4),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            notice,
-                            style: IrmaTheme.of(context).textTheme.body2.copyWith(fontSize: 14),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              if (!cred.isLast) new Container(color: IrmaTheme.of(context).grayscale85, height: 1),
-            ],
+        if (notice != null) _buildNotice(notice),
+        if (cred.obtainable) _buildGetButton(cred),
+        if (!cred.isLast)
+          Padding(
+            padding: EdgeInsets.only(top: IrmaTheme.of(context).mediumSpacing),
+            child: Container(
+              color: IrmaTheme.of(context).grayscale85,
+              height: 1,
+            ),
           ),
       ]),
     );
@@ -318,16 +368,23 @@ class _CarouselState extends State<Carousel> {
     );
   }
 
+  bool _group(List<List<Attribute>> list, Attribute attr) {
+    if (list.isEmpty) {
+      return false;
+    }
+    final last = list.last.last;
+    return !last.choosable
+        ? last.credentialInfo.fullId == attr.credentialInfo.fullId
+        : last.credentialInfo.issuer.fullId == attr.credentialInfo.issuer.fullId;
+  }
+
   Widget _buildCarouselWidget(Con<Attribute> candidatesCon) {
     // Transform candidatesCon into a list where attributes of the same issuer
     // are grouped together. This assumes those attributes are always
     // adjacent within the specified con, which is guaranteed by irmago.
     final grouped = candidatesCon.fold(
       <List<Attribute>>[],
-      (List<List<Attribute>> list, attr) =>
-          list.isNotEmpty && list.last.last.credentialInfo.issuer.fullId == attr.credentialInfo.issuer.fullId
-              ? (list..last.add(attr))
-              : (list..add([attr])),
+      (List<List<Attribute>> list, attr) => _group(list, attr) ? (list..last.add(attr)) : (list..add([attr])),
     ).toList();
     final credentials = grouped
         .asMap()
@@ -358,6 +415,7 @@ class _DisclosureCredential {
   final String id;
   final TranslatedValue issuer;
   final bool isLast;
+  final bool obtainable;
 
   _DisclosureCredential({@required this.attributes, @required this.isLast})
       : assert(isLast != null &&
@@ -366,5 +424,6 @@ class _DisclosureCredential {
             attributes
                 .every((attr) => attr.credentialInfo.issuer.fullId == attributes.first.credentialInfo.issuer.fullId)),
         id = attributes.first.credentialInfo.fullId,
-        issuer = attributes.first.credentialInfo.issuer.name;
+        issuer = attributes.first.credentialInfo.issuer.name,
+        obtainable = !attributes.last.choosable && attributes.last.credentialInfo.credentialType.issueUrl.isNotEmpty;
 }

@@ -282,6 +282,10 @@ class IrmaRepository {
     return _sessionRepository.getSessionState(sessionID);
   }
 
+  Future<bool> hasActiveSessions() {
+    return _sessionRepository.hasActiveSessions();
+  }
+
   Stream<SessionPointer> getPendingSessionPointer() {
     return _pendingSessionPointerSubject.stream;
   }
@@ -295,9 +299,12 @@ class IrmaRepository {
     return _preferencesSubject.stream.map((pref) => pref.clientPreferences.developerMode);
   }
 
-  List<String> get externalBrowserCredtypes {
-    return const ["pbdf.pbdf.idin", "pbdf.pbdf.ideal", "pbdf.gemeente.personalData", "pbdf.gemeente.address"];
-  }
+  final List<String> externalBrowserCredtypes = const [
+    "pbdf.pbdf.idin",
+    "pbdf.pbdf.ideal",
+    "pbdf.gemeente.personalData",
+    "pbdf.gemeente.address"
+  ];
 
   Stream<List<String>> getExternalBrowserURLs() {
     return irmaConfigurationSubject.map(

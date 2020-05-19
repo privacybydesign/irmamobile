@@ -153,6 +153,11 @@ class SessionRepository {
     );
   }
 
+  Future<bool> hasActiveSessions() async {
+    final sessions = await _sessionStatesSubject.first;
+    return sessions.values.any((session) => session.status == SessionStatus.requestDisclosurePermission);
+  }
+
   static ConCon<AttributeIdentifier> _initialDisclosureChoices(ConDisCon<Attribute> list) => ConCon(list.map(
         (discon) => Con(discon[0].map((attr) => AttributeIdentifier.fromAttribute(attr))),
       ));

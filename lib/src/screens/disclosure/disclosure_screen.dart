@@ -139,6 +139,12 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     final serverName = session.serverName.translate(FlutterI18n.currentLocale(context).languageCode);
     await Future.delayed(const Duration(seconds: 1));
 
+    // Navigate back if other sessions are open
+    if (await IrmaRepository.get().hasActiveSessions()) {
+      Navigator.of(context).pop();
+      return;
+    }
+
     if (session.continueOnSecondDevice && !session.isReturnPhoneNumber) {
       // If this is a session on a second screen, return to the wallet after showing a feedback screen
       if (session.status == SessionStatus.success) {

@@ -423,9 +423,12 @@
     "choices": "{choices} keuzes",
     "next": "volgende kiezen",
     "previous": "vorige kiezen",
+    "not_present": "Deze gegevens zijn nog niet aan IRMA toegevoegd.",
     "expired": "Deze gegevens zijn verlopen.",
     "revoked": "Deze gegevens zijn teruggetrokken.",
     "not_revokable": "Deze gegevens moeten eerst ververst worden.",
+    "obtain": "Toevoegen",
+    "refresh": "Verversen",
     "explanation": {
       "title": "Zo maak je een keuze",
       "body": "Kies welke gegevens je doorgeeft. Gebruik het pijltje of swipe en maak je keuze.",

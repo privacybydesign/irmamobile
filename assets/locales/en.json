@@ -422,9 +422,12 @@
     "choices": "{choices} choices",
     "next": "next choices",
     "previous": "previous choices",
+    "not_present": "These data have not yet been added to IRMA.",
     "expired": "These data are expired.",
     "revoked": "These data have been revoked.",
     "not_revokable": "These data have to be refreshed first.",
+    "obtain": "Add",
+    "refresh": "Refresh",
     "explanation": {
       "title": "You can choose",
       "body": "Select which data you disclose. Use the arrow or swipe and choose.",
