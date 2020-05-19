@@ -22,7 +22,6 @@ import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
-import 'package:irmamobile/src/widgets/irma_message.dart';
 import 'package:irmamobile/src/widgets/irma_quote.dart';
 import 'package:irmamobile/src/widgets/irma_text_button.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
@@ -224,42 +223,22 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
               sessionStateSnapshot.data.status != SessionStatus.requestDisclosurePermission) {
             return Container(height: 0);
           }
-
-          final state = sessionStateSnapshot.data;
-          if (!state.satisfiable) {
-            return Column(
-              children: <Widget>[
-                const IrmaMessage(
-                  'disclosure.unsatisfiable_title',
-                  'disclosure.unsatisfiable_message',
-                  type: IrmaMessageType.info,
-                ),
-                SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-                TranslatedText(
-                  'disclosure.unsatisfiable_request',
-                  translationParams: {"otherParty": serverName},
-                  style: Theme.of(context).textTheme.body1,
-                ),
-              ],
-            );
-          } else {
-            return Column(
-              children: <Widget>[
-                TranslatedText(
-                  'disclosure.disclosure${session.isReturnPhoneNumber ? "_call" : ""}_header',
-                  translationParams: session.isReturnPhoneNumber
-                      ? {
-                          "otherParty": serverName,
-                          "phoneNumber": session.clientReturnURL.substring(4).split(",").first,
-                        }
-                      : {
-                          "otherParty": serverName,
-                        },
-                  style: Theme.of(context).textTheme.body1,
-                ),
-              ],
-            );
-          }
+          return Column(
+            children: <Widget>[
+              TranslatedText(
+                'disclosure.disclosure${session.isReturnPhoneNumber ? "_call" : ""}_header',
+                translationParams: session.isReturnPhoneNumber
+                    ? {
+                        "otherParty": serverName,
+                        "phoneNumber": session.clientReturnURL.substring(4).split(",").first,
+                      }
+                    : {
+                        "otherParty": serverName,
+                      },
+                style: Theme.of(context).textTheme.body1,
+              ),
+            ],
+          );
         });
   }
 
@@ -292,22 +271,15 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
             sessionStateSnapshot.data.status != SessionStatus.requestDisclosurePermission) {
           return Container(height: 0);
         }
-
-        // TODO: show tooltip if user has not yet scrolled to end and primary button is disabled
         final state = sessionStateSnapshot.data;
-        return state.satisfiable
-            ? IrmaBottomBar(
-                primaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.yes"),
-                onPrimaryPressed: state.canDisclose && scrolledToEnd ? () => _givePermission(state) : null,
-                secondaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.no"),
-                onSecondaryPressed: () => _dismissSession(),
-                toolTipLabel: scrolledToEnd ? null : FlutterI18n.translate(context, "disclosure.see_more"),
-                showTooltipOnPrimary: !scrolledToEnd,
-              )
-            : IrmaBottomBar(
-                primaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.back"),
-                onPrimaryPressed: () => _dismissSession(),
-              );
+        return IrmaBottomBar(
+          primaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.yes"),
+          onPrimaryPressed: state.canDisclose && scrolledToEnd ? () => _givePermission(state) : null,
+          secondaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.no"),
+          onSecondaryPressed: () => _dismissSession(),
+          toolTipLabel: scrolledToEnd ? null : FlutterI18n.translate(context, "disclosure.see_more"),
+          showTooltipOnPrimary: !scrolledToEnd,
+        );
       },
     );
   }
