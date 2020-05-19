@@ -176,8 +176,12 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
       // If there is a return URL, navigate to it when we're done
       launch(session.clientReturnURL, forceSafariVC: false);
       popToWallet(context);
-    } else if(session.isReturnPhoneNumber) {
-      _pushInfoCallScreen(serverName, session.clientReturnURL);
+    } else if (session.isReturnPhoneNumber) {
+      if (session.status == SessionStatus.success) {
+        _pushInfoCallScreen(serverName, session.clientReturnURL);
+      } else {
+        popToWallet(context);
+      }
     } else {
       // Otherwise, on iOS show a screen to press the return arrow in the top-left corner,
       // and on Android just background the app to let the user return to the previous activity
