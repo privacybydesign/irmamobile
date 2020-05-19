@@ -294,4 +294,17 @@ class IrmaRepository {
   Stream<bool> getDeveloperMode() {
     return _preferencesSubject.stream.map((pref) => pref.clientPreferences.developerMode);
   }
+
+  List<String> get externalBrowserCredtypes {
+    return const ["pbdf.pbdf.idin", "pbdf.pbdf.ideal", "pbdf.gemeente.personalData", "pbdf.gemeente.address"];
+  }
+
+  Stream<List<String>> getExternalBrowserURLs() {
+    return irmaConfigurationSubject.map(
+      (irmaConfiguration) => externalBrowserCredtypes
+          .map((type) => irmaConfiguration.credentialTypes[type].issueUrl.values)
+          .expand((v) => v)
+          .toList(),
+    );
+  }
 }

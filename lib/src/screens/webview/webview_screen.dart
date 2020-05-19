@@ -9,7 +9,6 @@ import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/webview/widgets/browser_bar.dart';
 import 'package:irmamobile/src/screens/webview/widgets/loading_data.dart';
-import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
@@ -41,13 +40,7 @@ class _WebviewScreenState extends State<WebviewScreen> {
   void initState() {
     // TODO Remove when webview is fixed
     final initUrl = url;
-    IrmaRepository.get().getIrmaConfiguration().first.then((irmaConfiguration) {
-      final inBrowserUrls = [
-        "pbdf.pbdf.idin",
-        "pbdf.pbdf.ideal",
-        "pbdf.gemeente.personalData",
-        "pbdf.gemeente.address",
-      ].map((type) => getTranslation(context, irmaConfiguration.credentialTypes[type].issueUrl));
+    IrmaRepository.get().getExternalBrowserURLs().first.then((inBrowserUrls) {
       if (inBrowserUrls.contains(initUrl)) {
         _openInBrowser();
       }
