@@ -191,7 +191,7 @@ class Attribute {
       return Attribute(
         credentialInfo: CredentialInfo.fromConfiguration(
           irmaConfiguration: irmaConfiguration,
-          credentialIdentifier: candidate.type,
+          credentialIdentifier: candidate.type.split(".").take(3).join("."),
         ),
         attributeType: attributeType,
         value: NullValue(),
