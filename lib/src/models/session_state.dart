@@ -43,6 +43,7 @@ class SessionState {
           .every((con) => con.every((attr) => attr.choosable));
 
   bool get isIssuanceSession => issuedCredentials?.isNotEmpty ?? false;
+  bool get isReturnPhoneNumber => clientReturnURL?.startsWith("tel:") ?? false;
 
   SessionState copyWith({
     bool continueOnSecondDevice,

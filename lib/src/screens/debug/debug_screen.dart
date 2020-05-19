@@ -34,7 +34,7 @@ class DemoSessionHelper {
             ]
           ]
         ],
-        "clientReturnUrl": "https://example.com"
+        "clientReturnUrl": "tel:+31612345678,1234567"
       }
     """;
   }

@@ -11,6 +11,7 @@ import 'package:irmamobile/src/prototypes/schermflow_1.dart';
 import 'package:irmamobile/src/prototypes/schermflow_5.dart';
 import 'package:irmamobile/src/prototypes/schermflow_wallet.dart';
 import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
+import 'package:irmamobile/src/screens/disclosure/call_info_screen.dart';
 import 'package:irmamobile/src/screens/disclosure/disclosure_screen.dart';
 import 'package:irmamobile/src/screens/disclosure/widgets/arrow_back_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/email_sent_screen.dart';
@@ -91,6 +92,9 @@ class PrototypesScreen extends StatelessWidget {
           }),
           _buildListItem(context, "Disclosure screen", () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => DisclosureScreen()));
+          }),
+          _buildListItem(context, "Call info screen", () {
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => CallInfoScreen()));
           }),
           _buildListItem(context, "Settings", () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => SettingsScreen()));

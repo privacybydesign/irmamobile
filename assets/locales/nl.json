@@ -417,6 +417,7 @@
   "disclosure": {
     "title": "Jezelf bekend maken",
     "disclosure_header_markdown": "Wil je dit aan **{otherParty}** doorgeven?",
+    "disclosure_call_header_markdown": "Wil je dit aan **{otherParty}** doorgeven en bellen naar **{phoneNumber}**?",
     "signing_header": " verzoekt jou om een bericht te ondertekenen",
     "issuer": "Bron",
     "choices": "{choices} keuzes",
@@ -446,6 +447,17 @@
         "false": "Je gegevens zijn niet doorgegeven aan {otherParty}"
       },
       "ok": "OK"
+    },
+    "call_info": {
+      "title": "Via IRMA bellen",
+      "success": "Gegevens doorgegegeven",
+      "success_message_markdown": "Je gegevens zijn doorgegegeven aan **{otherParty}**.\nVoer de volgende stappen uit om te bellen.",
+      "continue": "Kies doorgaan",
+      "continue_message_1": "Je belapplicatie opent nu vanzelf.",
+      "continue_message_2": "Het telefoonnummer is al ingevuld, met een koppelcode.",
+      "call": "Klik de belknop in je belapplicatie",
+      "call_message": "Je hoort een paar piepjes en wordt verbonden.",
+      "continue_button": "Doorgaan"
     }
   },
   "reset_pin": {

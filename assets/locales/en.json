@@ -416,6 +416,7 @@
   "disclosure": {
     "title": "Make yourself known",
     "disclosure_header_markdown": "Do you wish to disclose this to **{otherParty}**?",
+    "disclosure_call_header_markdown": "Do you wish to diclose this to **{otherParty}** and call to **{phoneNumber}**?",
     "signing_header": " asks you to sign a message",
     "issuer": "Source",
     "choices": "{choices} choices",
@@ -445,6 +446,17 @@
         "false": "Your data are not disclosed to {otherParty}"
       },
       "ok": "OK"
+    },
+    "call_info": {
+      "title": "Call via IRMA",
+      "success": "Data disclosed",
+      "success_message_markdown": "Your data are disclosed to **{otherParty}**.\nComplete the following steps to start the call.",
+      "continue": "Choose continue",
+      "continue_message_1": "Your phone app now opens automatically.",
+      "continue_message_2": "The number is pre-filled, followed by a link-code.",
+      "call": "Tap the call button in your phone app.",
+      "call_message": "You will hear a few beeps and you will be connected.",
+      "continue_button": "Continue"
     }
   },
   "reset_pin": {
