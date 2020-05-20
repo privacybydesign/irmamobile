@@ -425,5 +425,6 @@ class _DisclosureCredential {
                 .every((attr) => attr.credentialInfo.issuer.fullId == attributes.first.credentialInfo.issuer.fullId)),
         id = attributes.first.credentialInfo.fullId,
         issuer = attributes.first.credentialInfo.issuer.name,
-        obtainable = !attributes.last.choosable && attributes.last.credentialInfo.credentialType.issueUrl.isNotEmpty;
+        obtainable =
+            !attributes.last.choosable && (attributes.last.credentialInfo.credentialType.issueUrl?.isNotEmpty ?? false);
 }

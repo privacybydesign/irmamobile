@@ -2,7 +2,6 @@ import 'package:collection/collection.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/credentials.dart';
-import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:rxdart/rxdart.dart';
@@ -60,12 +59,18 @@ class SessionRepository {
         clientReturnURL: event.clientReturnURL,
       );
     } else if (event is RequestIssuancePermissionSessionEvent) {
-      final condiscon = processAttributes(
-        candidates: event.disclosuresCandidates,
-        isSatisfiable: event.satisfiable,
-        irmaConfiguration: irmaConfiguration,
-        credentials: credentials,
+      final processed = ConDisCon.fromRaw<DisclosureCandidate, Attribute>(
+        event.disclosuresCandidates,
+        (disclosureCandidate) => Attribute.fromCandidate(irmaConfiguration, credentials, disclosureCandidate),
       );
+      // We reorder the options in each discon, such that those that first require action
+      // (obtaining or refreshing a credential) before they are choosable are last,
+      // and those that are immediately choosable are first. Since an option can become
+      // choosable in future occurences of this event, this order is not stable, so we
+      // choose and remember a sorting order during the first occurrence of this event
+      // that we reuse in later occurences.
+      final disconOrder = prevState.disconOrder ?? _computeOrder(processed);
+      final condiscon = event.satisfiable ? _reorderConDisCon(processed, disconOrder) : processed;
       return prevState.copyWith(
         status: event.disclosuresCandidates?.isEmpty ?? true
             ? SessionStatus.requestIssuancePermission
@@ -75,6 +80,7 @@ class SessionRepository {
         isSignatureSession: false,
         disclosureIndices: List<int>.filled(event.disclosuresCandidates.length, 0),
         disclosureChoices: _initialDisclosureChoices(condiscon),
+        disconOrder: disconOrder,
         disclosuresCandidates: condiscon,
         issuedCredentials: event.issuedCredentials
             .map((raw) => Credential.fromRaw(
@@ -84,12 +90,12 @@ class SessionRepository {
             .toList(),
       );
     } else if (event is RequestVerificationPermissionSessionEvent) {
-      final condiscon = processAttributes(
-        candidates: event.disclosuresCandidates,
-        isSatisfiable: event.satisfiable,
-        irmaConfiguration: irmaConfiguration,
-        credentials: credentials,
+      final processed = ConDisCon.fromRaw<DisclosureCandidate, Attribute>(
+        event.disclosuresCandidates,
+        (disclosureCandidate) => Attribute.fromCandidate(irmaConfiguration, credentials, disclosureCandidate),
       );
+      final disconOrder = prevState.disconOrder ?? _computeOrder(processed);
+      final condiscon = event.satisfiable ? _reorderConDisCon(processed, disconOrder) : processed;
       return prevState.copyWith(
         status: SessionStatus.requestDisclosurePermission,
         serverName: event.serverName,
@@ -97,6 +103,7 @@ class SessionRepository {
         signedMessage: event.signedMessage,
         disclosureIndices: List<int>.filled(event.disclosuresCandidates.length, 0),
         disclosureChoices: _initialDisclosureChoices(condiscon),
+        disconOrder: disconOrder,
         disclosuresCandidates: condiscon,
         satisfiable: event.satisfiable,
       );
@@ -124,27 +131,37 @@ class SessionRepository {
     return prevState;
   }
 
-  ConDisCon<Attribute> processAttributes({
-    List<List<List<DisclosureCandidate>>> candidates,
-    bool isSatisfiable,
-    IrmaConfiguration irmaConfiguration,
-    Credentials credentials,
-  }) {
-    final condiscon = ConDisCon.fromRaw<DisclosureCandidate, Attribute>(
-      candidates,
-      (disclosureCandidate) => Attribute.fromCandidate(irmaConfiguration, credentials, disclosureCandidate),
-    );
-    // Filter out all non-options -- that is, all inner con's containing one or more non-choosable
-    // attributes -- until an obtain/refresh button is implemented to make them actionable.
-    // TODO: remove this after that has been implemented.
-    // If the request is not satisfiable, we do show all non-options so the user knows
-    // which credentials to obtain.
-    if (!isSatisfiable) {
-      return condiscon;
-    }
-    return ConDisCon(condiscon.map(
-      (discon) => DisCon(discon.where((con) => con.every((attr) => attr.choosable))),
-    ));
+  ConDisCon<Attribute> _reorderConDisCon(ConDisCon<Attribute> condiscon, List<List<int>> disconOrder) {
+    return ConDisCon(condiscon.asMap().keys.map(
+          (i) => DisCon(disconOrder[i].map((j) => condiscon[i][j])),
+        ));
+  }
+
+  // For each discon, computes a list of indices referring to options in the discon,
+  // in the order that they should be presented to the user. This function discards
+  // inner con's that asks for attributes of which we (1) have no choosable candidate,
+  // and (2) new candidates cannot now be obtained using the credential type's IssueURL
+  // (as such con's cannot be satisfied by obtaining them during the current session).
+  List<List<int>> _computeOrder(ConDisCon<Attribute> condiscon) {
+    return condiscon.map((discon) {
+      final entries = discon.asMap().entries;
+      // first satisfiable con's
+      final choosable = entries.fold<List<int>>(
+        <int>[],
+        (list, con) => con.value.every((attr) => attr.choosable) ? (list..add(con.key)) : list,
+      );
+      // then unsatisfiable con's containing only choosable or obtainable credentials
+      final obtainable = entries.fold<List<int>>(
+        <int>[],
+        (list, con) => con.value.any((attr) => !attr.choosable) &&
+                con.value.every(
+                    (attr) => attr.choosable || (attr.credentialInfo.credentialType.issueUrl?.isNotEmpty ?? false))
+            ? (list..add(con.key))
+            : list,
+      );
+      // discard unsatisfiable con's containing non-obtainable credentials
+      return choosable..addAll(obtainable);
+    }).toList();
   }
 
   Stream<SessionState> getSessionState(int sessionID) {
