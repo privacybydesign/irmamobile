@@ -26,6 +26,7 @@ class IrmaCard extends StatelessWidget {
   final void Function(double) scrollBeyondBoundsCallback;
 
   final IrmaCardTheme cardTheme;
+  final bool showWarnings;
   // If true the card expands to the size it needs and lets the parent handle the scrolling.
   final bool expanded;
 
@@ -35,6 +36,7 @@ class IrmaCard extends StatelessWidget {
     this.onDeleteCredential,
     this.scrollBeyondBoundsCallback,
     this.expanded = false,
+    this.showWarnings = true,
   })  : credentialInfo = credential.info,
         attributes = credential.attributes,
         revoked = credential.revoked,
@@ -50,6 +52,7 @@ class IrmaCard extends StatelessWidget {
         revoked = false,
         expanded = true,
         expiryDate = null,
+        showWarnings = false,
         onRefreshCredential = null,
         onDeleteCredential = null;
 
@@ -122,6 +125,7 @@ class IrmaCard extends StatelessWidget {
                       irmaCardTheme: cardTheme,
                       scrollOverflowCallback: scrollBeyondBoundsCallback,
                       expanded: expanded,
+                      showWarnings: showWarnings,
                       expiryDate: expiryDate,
                       revoked: revoked,
                       color: cardTheme.backgroundGradientEnd,

@@ -19,6 +19,7 @@ class CardAttributes extends StatefulWidget {
   final bool expanded;
   final CardExpiryDate expiryDate; // Can be null
   final bool revoked;
+  final bool showWarnings;
   final Color color;
   final Function() onRefreshCredential;
 
@@ -31,6 +32,7 @@ class CardAttributes extends StatefulWidget {
     this.expiryDate,
     this.color,
     this.onRefreshCredential,
+    this.showWarnings,
   });
 
   @override
@@ -44,8 +46,8 @@ class _CardAttributesState extends State<CardAttributes> {
 
   @override
   void initState() {
-    _showWarning =
-        widget.revoked || widget.expiryDate != null && (widget.expiryDate.expired || widget.expiryDate.expiresSoon);
+    _showWarning = widget.showWarnings &&
+        (widget.revoked || widget.expiryDate != null && (widget.expiryDate.expired || widget.expiryDate.expiresSoon));
     super.initState();
   }
 

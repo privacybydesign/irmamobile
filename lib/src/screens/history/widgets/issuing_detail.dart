@@ -23,6 +23,7 @@ class IssuingDetail extends StatelessWidget {
           credential: credential,
           scrollBeyondBoundsCallback: (value) {},
           expanded: true,
+          showWarnings: false,
         ),
       );
     }).toList();
