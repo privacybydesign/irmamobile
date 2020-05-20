@@ -4,16 +4,15 @@ import 'package:intl/intl.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/card/irma_card_theme.dart';
+import 'package:irmamobile/src/widgets/card/models/card_expiry_date.dart';
 
 class CardFooter extends StatelessWidget {
   final CredentialInfo credentialInfo;
-  final DateTime expiryDate;
+  final CardExpiryDate expiryDate;
   final bool revoked;
 
   final IrmaCardTheme irmaCardTheme;
   final void Function(double) scrollOverflowCallback;
-
-  bool get expired => expiryDate.isBefore(DateTime.now());
 
   final double _indent = 110;
 
@@ -116,7 +115,7 @@ class CardFooter extends StatelessWidget {
               child: Opacity(
                 opacity: 0.8,
                 child: Text(
-                  expired
+                  expiryDate.expired
                       ? FlutterI18n.translate(context, 'wallet.expired_on')
                       : FlutterI18n.translate(context, 'wallet.expiration'),
                   style: body1Theme.copyWith(fontSize: 12),
@@ -125,7 +124,7 @@ class CardFooter extends StatelessWidget {
             ),
             Expanded(
               child: Text(
-                _printableDate(expiryDate, lang),
+                _printableDate(expiryDate.dateTime, lang),
                 style: body1Theme.copyWith(fontSize: 12),
                 overflow: TextOverflow.ellipsis,
               ),
