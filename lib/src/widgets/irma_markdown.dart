@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:irmamobile/src/screens/webview/webview_screen.dart';
+import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class IrmaMarkdown extends StatelessWidget {
@@ -37,12 +37,7 @@ class IrmaMarkdown extends StatelessWidget {
 
       // View links in in-app browser
       onTapLink: (href) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) {
-            return WebviewScreen(href);
-          }),
-        );
+        IrmaRepository.get().openURL(context, href);
       },
     );
   }

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attribute_value.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
-import 'package:irmamobile/src/screens/webview/webview_screen.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/language.dart';
@@ -44,12 +44,7 @@ class _CarouselState extends State<Carousel> {
   Function() _createOnRefreshCredential(CredentialType type) {
     return () {
       final url = getTranslation(context, type.issueUrl);
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) {
-          return WebviewScreen(url);
-        }),
-      );
+      IrmaRepository.get().openURL(context, url);
     };
   }
 

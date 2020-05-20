@@ -13,7 +13,6 @@ import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/get_cards_nudge.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/irma_pilot_nudge.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet_button.dart';
-import 'package:irmamobile/src/screens/webview/webview_screen.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/language.dart';
@@ -836,12 +835,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
     }
 
     return () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) {
-          return WebviewScreen(getTranslation(context, credential.info.credentialType.issueUrl));
-        }),
-      );
+      _irmaClient.openURL(context, getTranslation(context, credential.info.credentialType.issueUrl));
     };
   }
 
@@ -851,7 +845,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       return null;
     }
 
-    return () => IrmaRepository.get().bridgedDispatch(DeleteCredentialEvent(hash: credential.hash));
+    return () => _irmaClient.bridgedDispatch(DeleteCredentialEvent(hash: credential.hash));
   }
 }
 

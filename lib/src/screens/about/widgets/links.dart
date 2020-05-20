@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/screens/webview/webview_screen.dart';
+import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/sentry/sentry.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:share/share.dart';
@@ -14,15 +14,6 @@ class ExternalLink extends StatelessWidget {
   final Widget icon;
 
   const ExternalLink(this.link, this.linkText, this.icon);
-
-  void _openURL(BuildContext context, String url) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) {
-        return WebviewScreen(url);
-      }),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +36,7 @@ class ExternalLink extends StatelessWidget {
             child: InkWell(
               onTap: () {
                 try {
-                  _openURL(
+                  IrmaRepository.get().openURL(
                     context,
                     FlutterI18n.translate(context, link),
                   );

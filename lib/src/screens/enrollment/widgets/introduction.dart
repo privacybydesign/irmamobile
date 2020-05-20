@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/choose_pin.dart';
-import 'package:irmamobile/src/screens/webview/webview_screen.dart';
 import 'package:irmamobile/src/sentry/sentry.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
@@ -141,14 +141,7 @@ class Walkthrough extends StatelessWidget {
                   child: GestureDetector(
                     onTap: () {
                       try {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) {
-                              return WebviewScreen(FlutterI18n.translate(context, linkUrl));
-                            },
-                          ),
-                        );
+                        IrmaRepository.get().openURL(context, linkUrl);
                       } on PlatformException catch (e, stacktrace) {
                         reportError(e,
                             stacktrace); //TODO: reconsider whether this should be handled this way, or is better of with an error screens
