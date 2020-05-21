@@ -229,7 +229,7 @@ class _CarouselState extends State<Carousel> {
 
     // If an attribute is null, we render a TextValue with a dash as text.
     return Text(
-      candidate.value is TextValue ? getTranslation(context, (candidate.value as TextValue).translated) : "-",
+      getTranslation(context, (candidate.value as TextValue).translated),
       style: IrmaTheme.of(context).textTheme.body2,
     );
   }
@@ -260,7 +260,7 @@ class _CarouselState extends State<Carousel> {
         Padding(
           padding: const EdgeInsets.fromLTRB(0, 8, 11, 4),
           child: SvgPicture.asset(
-            'assets/generic/stop.svg',
+            'assets/generic/info.svg',
             width: 22,
           ),
         ),
@@ -274,7 +274,8 @@ class _CarouselState extends State<Carousel> {
                   notice,
                   style: IrmaTheme.of(context).textTheme.body1.copyWith(
                         fontSize: 14,
-                        color: IrmaTheme.of(context).grayscale40,
+                        fontWeight: FontWeight.bold,
+                        color: IrmaTheme.of(context).primaryBlue,
                       ),
                 ),
               ],
@@ -336,7 +337,7 @@ class _CarouselState extends State<Carousel> {
           Padding(
             padding: EdgeInsets.only(top: IrmaTheme.of(context).mediumSpacing),
             child: Container(
-              color: IrmaTheme.of(context).grayscale85,
+              color: IrmaTheme.of(context).grayscale80,
               height: 1,
             ),
           ),
@@ -357,7 +358,7 @@ class _CarouselState extends State<Carousel> {
                 IrmaTheme.of(context).textTheme.body1.copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 14),
             overflow: TextOverflow.ellipsis,
           ),
-          _buildCandidateValue(attribute),
+          if (attribute.value is TextValue) _buildCandidateValue(attribute),
         ],
       ),
     );
