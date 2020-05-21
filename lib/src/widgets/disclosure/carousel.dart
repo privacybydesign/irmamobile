@@ -239,7 +239,7 @@ class _CarouselState extends State<Carousel> {
         ? FlutterI18n.translate(context, 'disclosure.obtain')
         : FlutterI18n.translate(context, 'disclosure.refresh');
     return Padding(
-      padding: EdgeInsets.only(top: IrmaTheme.of(context).smallSpacing),
+      padding: EdgeInsets.only(top: IrmaTheme.of(context).defaultSpacing),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
@@ -253,7 +253,11 @@ class _CarouselState extends State<Carousel> {
     );
   }
 
-  Widget _buildNotice(String notice) {
+  Widget _buildNotice(_DisclosureCredential cred) {
+    final notice = _notice(cred);
+    if (notice == null) {
+      return Container();
+    }
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
@@ -300,7 +304,6 @@ class _CarouselState extends State<Carousel> {
   }
 
   Widget _buildCredentialFooter(_DisclosureCredential cred) {
-    final notice = _notice(cred);
     return Padding(
       padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).smallSpacing),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -331,17 +334,15 @@ class _CarouselState extends State<Carousel> {
             ),
           ],
         ),
-        if (notice != null) _buildNotice(notice),
         if (cred.obtainable) _buildGetButton(cred),
-        if (!cred.isLast)
-          Padding(
-            padding: EdgeInsets.only(top: IrmaTheme.of(context).mediumSpacing),
-            child: Container(
-              color: IrmaTheme.of(context).grayscale80,
-              height: 1,
-            ),
-          ),
       ]),
+    );
+  }
+
+  Widget _buildAttributes(_DisclosureCredential cred) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: cred.attributes.map(_buildAttribute).toList(),
     );
   }
 
@@ -388,20 +389,32 @@ class _CarouselState extends State<Carousel> {
           (i, list) => MapEntry(i, _DisclosureCredential(attributes: Con(list), isLast: i == grouped.length - 1)),
         )
         .values;
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).mediumSpacing),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ...credentials
-              .map((cred) => <Widget>[
-                    ...cred.attributes.map((attribute) => _buildAttribute(attribute)).toList(),
-                    _buildCredentialFooter(cred),
-                  ])
-              .expand((f) => f)
-              .toList(),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: credentials
+          .map((cred) => <Widget>[
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).mediumSpacing),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      _buildNotice(cred),
+                      _buildAttributes(cred),
+                      _buildCredentialFooter(cred),
+                    ],
+                  ),
+                ),
+                if (!cred.isLast)
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).smallSpacing),
+                    child: Container(
+                      color: IrmaTheme.of(context).grayscale80,
+                      height: 1,
+                    ),
+                  ),
+              ])
+          .expand((f) => f)
+          .toList(),
     );
   }
 }
