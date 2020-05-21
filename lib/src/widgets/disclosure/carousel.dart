@@ -239,7 +239,7 @@ class _CarouselState extends State<Carousel> {
         ? FlutterI18n.translate(context, 'disclosure.obtain')
         : FlutterI18n.translate(context, 'disclosure.refresh');
     return Padding(
-      padding: EdgeInsets.only(top: IrmaTheme.of(context).defaultSpacing),
+      padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).defaultSpacing),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
@@ -253,11 +253,7 @@ class _CarouselState extends State<Carousel> {
     );
   }
 
-  Widget _buildNotice(_DisclosureCredential cred) {
-    final notice = _notice(cred);
-    if (notice == null) {
-      return Container();
-    }
+  Widget _buildNotice(String notice) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
@@ -333,10 +329,53 @@ class _CarouselState extends State<Carousel> {
               ),
             ),
           ],
-        ),
-        if (cred.obtainable) _buildGetButton(cred),
+        )
       ]),
     );
+  }
+
+  Widget _decorate(Widget widget) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            left: BorderSide(
+              width: 6.0,
+              color: IrmaTheme.of(context).primaryBlue,
+            ),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 18),
+          child: widget,
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildCredential(_DisclosureCredential cred) {
+    final notice = _notice(cred);
+    if (notice == null) {
+      return <Widget>[
+        _buildAttributes(cred),
+        _buildCredentialFooter(cred),
+      ];
+    } else {
+      return <Widget>[
+        _buildNotice(notice),
+        _decorate(
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              _buildAttributes(cred),
+              _buildCredentialFooter(cred),
+            ],
+          ),
+        ),
+        _buildGetButton(cred),
+      ];
+    }
   }
 
   Widget _buildAttributes(_DisclosureCredential cred) {
@@ -348,7 +387,7 @@ class _CarouselState extends State<Carousel> {
 
   Widget _buildAttribute(Attribute attribute) {
     return Padding(
-      padding: EdgeInsets.only(top: IrmaTheme.of(context).smallSpacing),
+      padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).tinySpacing),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -397,11 +436,7 @@ class _CarouselState extends State<Carousel> {
                   padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).mediumSpacing),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      _buildNotice(cred),
-                      _buildAttributes(cred),
-                      _buildCredentialFooter(cred),
-                    ],
+                    children: _buildCredential(cred),
                   ),
                 ),
                 if (!cred.isLast)
