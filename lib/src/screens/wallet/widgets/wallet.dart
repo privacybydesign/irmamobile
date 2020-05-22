@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/credential_events.dart';
@@ -13,6 +12,7 @@ import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/get_cards_nudge.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/irma_pilot_nudge.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet_button.dart';
+import 'package:irmamobile/src/screens/wallet/widgets/wallet_icon_button.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/language.dart';
@@ -68,11 +68,18 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   // Visible height of cards with visible title
   final _cardTopHeight = 36;
 
-  // Number of cards with visible title
+  // Max number of cards allowed without needing a switch between folded and tightly folded wallet
   final _cardsMaxExtended = 5;
 
   // Number of cards with visible title that are shown in a tightly folded wallet
   final _cardsTopVisible = 3;
+
+  // Number of cards with visible title in a tightly folded wallet that can be used as overlap
+  // for wallet expand button.
+  final _cardsTopVisibleOverlap = 1;
+
+  // Number of cards with only a visible border that are shown in a tightly folded wallet
+  final _cardsTopBorderVisible = 4;
 
   // Movements below this distance are not handled as swipes
   final _dragTipping = 50;
@@ -87,7 +94,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _dragDownFactor = 1.5;
 
   // Offset of cards relative to wallet
-  final _heightOffset = -30.0;
+  final _heightOffset = 6.0;
 
   // Add a margin to the screen height to deal with different phones
   final _screenHeightMargin = 100;
@@ -99,7 +106,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _walletShowCardsDelay = 200;
 
   // Offset of minimized cards
-  final _minimizedCardOffset = -20;
+  final _minimizedCardOffset = 16;
 
   // Height of interactive bottom to toggle wallet state between tightlyfolded and folded
   final _walletBottomInteractive = 0.7;
@@ -282,30 +289,17 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                               width: screenWidth,
                             ),
                           ),
+
+                          /// Element to prevent wallet foreground to be tappable without harming other gestures
                           Positioned(
                             bottom: 0,
                             height: screenWidth * _walletAspectRatio * _walletBottomInteractive,
                             width: screenWidth,
-                            child: Semantics(
-                              button: true,
-                              label: FlutterI18n.translate(context, 'wallet.toggle'),
-                              child: GestureDetector(
-                                onTap: () {
-                                  switch (_currentState) {
-                                    case WalletState.tightlyfolded:
-                                      setNewState(WalletState.folded);
-                                      break;
-                                    case WalletState.folded:
-                                      setNewState(WalletState.tightlyfolded);
-                                      break;
-                                    default:
-                                      setNewState(_cardInStackState);
-                                      break;
-                                  }
-                                },
-                              ),
+                            child: GestureDetector(
+                              onTap: () {},
                             ),
                           ),
+
                           Positioned(
                             left: 16,
                             bottom: (screenWidth * _walletAspectRatio - _walletIconHeight) / 2,
@@ -324,6 +318,33 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                               clickStreamSink: widget.onQRScannerPressed,
                             ),
                           ),
+
+                          /// Show button to minimize wallet only if wallet is in a state that it can be minimized
+                          if (_currentState == WalletState.drawn ||
+                              _currentState == WalletState.folded && widget.credentials.length > _cardsMaxExtended)
+                            Positioned(
+                              bottom: (screenWidth * _walletAspectRatio - _walletIconHeight) / 2,
+                              width: screenWidth,
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: WalletIconButton(
+                                  iconData: IrmaIcons.chevronDown,
+                                  onTap: () {
+                                    switch (_currentState) {
+                                      case WalletState.tightlyfolded:
+                                        setNewState(WalletState.folded);
+                                        break;
+                                      case WalletState.folded:
+                                        setNewState(WalletState.tightlyfolded);
+                                        break;
+                                      default:
+                                        setNewState(_cardInStackState);
+                                        break;
+                                    }
+                                  },
+                                ),
+                              ),
+                            ),
                         ],
                       ),
                     ),
@@ -388,10 +409,13 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
     /// Display chevron to help users expanding their tightly folded wallet.
     /// Button needs to be inserted in the stack at the right place.
-    if (_currentState == WalletState.tightlyfolded && widget.credentials.length > _cardsTopVisible + 1) {
+    final index = widget.credentials.length < _cardsTopVisible + _cardsTopVisibleOverlap + _cardsTopBorderVisible
+        ? widget.credentials.length - _cardsTopVisible
+        : widget.credentials.length - _cardsTopVisible - _cardsTopVisibleOverlap;
+    if (_currentState == WalletState.tightlyfolded && widget.credentials.length > _cardsMaxExtended) {
       rendered.insert(
-        widget.credentials.length - _cardsTopVisible - 1,
-        _buildWalletExpandButton(walletTop, widget.credentials.length - _cardsTopVisible - 2),
+        index,
+        _buildWalletExpandButton(walletTop),
       );
     }
 
@@ -427,16 +451,22 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
     }
   }
 
-  Widget _buildWalletExpandButton(double walletTop, int firstTightlyFoldedCardIndex) {
+  Widget _buildWalletExpandButton(double walletTop) {
+    int topCardIndex = widget.credentials.length - _cardsTopVisible - _cardsTopVisibleOverlap - _cardsTopBorderVisible;
+    // If there are not enough cards, the first one is the highest one.
+    if (topCardIndex < 0) {
+      topCardIndex = 0;
+    }
     return Positioned(
       left: 0,
       right: 0,
-      top: walletTop - getCardPosition(firstTightlyFoldedCardIndex, walletTop) - _cardTopHeight + _cardTopBorderHeight,
+      top: walletTop - getCardPosition(topCardIndex, walletTop),
       child: Align(
         alignment: Alignment.center,
 
         /// Add similar gestures as the cards have to make sure the animations keep working
-        child: GestureDetector(
+        child: WalletIconButton(
+          iconData: IrmaIcons.chevronUp,
           onTap: () => setNewState(WalletState.folded),
           onVerticalDragDown: (DragDownDetails details) {
             setState(
@@ -465,16 +495,6 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
               _cardAnimationController.forward();
             }
           },
-          child: ClipOval(
-            child: Container(
-              color: IrmaTheme.of(context).grayscale60,
-              padding: EdgeInsets.all(IrmaTheme.of(context).smallSpacing),
-              child: Icon(
-                IrmaIcons.chevronUp,
-                color: IrmaTheme.of(context).backgroundBlue,
-              ),
-            ),
-          ),
         ),
       ),
     );
@@ -543,20 +563,18 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       );
 
   void cardGestureInit(int index, int count, double walletTop, Offset localPosition, {bool longPressed}) {
-    if (_currentState == WalletState.drawn) {
-      _cardDragOffset = localPosition.dy -
-          calculateCardPosition(
-              state: _currentState, walletTop: walletTop, index: count, drawnCardIndex: _drawnCardIndex, dragOffset: 0);
-      if (_drawnCardIndex == index) {
-        _dragOffsetSave = localPosition.dy - _cardDragOffset;
-      }
-    } else {
-      _cardDragOffset = _cardTopHeight / 2;
+    // Correct all drags with the starting localPosition of the gesture to assure a smooth animation.
+    _cardDragOffset = localPosition.dy;
+
+    if (_currentState != WalletState.drawn) {
+      _drawnCardIndex = index;
       if (longPressed) {
         // Make a fixed nudge card drag to show users the card can move now
         _cardDragOffset += _cardGestureNudgingOffset;
       }
-      _drawnCardIndex = index;
+    }
+
+    if (_drawnCardIndex == index) {
       _dragOffsetSave = localPosition.dy - _cardDragOffset;
     }
     _cardTappedSave = longPressed;
@@ -635,7 +653,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                 credentials: widget.credentials,
                 size: MediaQuery.of(context).size,
                 onAddCardsPressed: widget.onAddCardsPressed,
-                showButton: (widget?.credentials?.length ?? 0) < _cardsMaxExtended - 1,
+                showButton: (widget?.credentials?.length ?? 0) <= _cardsTopVisible,
               );
             } else {
               final credentialType = irmaConfiguration.credentialTypes[credentialNudge.fullCredentialTypeId];
@@ -661,10 +679,16 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   }
 
   /// Is the card in the area where cards are tightly folded
-  bool isTightlyFolded(WalletState newState, int index) =>
-      newState == WalletState.tightlyfolded &&
-      widget.credentials.length >= _cardsMaxExtended &&
-      index < widget.credentials.length - _cardTopHeight / _cardTopBorderHeight;
+  bool isTightlyFolded(WalletState newState, int index) {
+    if (newState != WalletState.tightlyfolded || widget.credentials.length <= _cardsMaxExtended) {
+      return false;
+    }
+    if (widget.credentials.length < _cardsTopVisible + _cardsTopVisibleOverlap + _cardsTopBorderVisible) {
+      return index < widget.credentials.length - _cardsTopVisible;
+    } else {
+      return index < widget.credentials.length - _cardsTopVisible - _cardsTopVisibleOverlap;
+    }
+  }
 
   /// When there are many attributes, the contents will scroll. When scrolled beyond the bottom bound,
   /// a drag down will be triggered.
@@ -737,10 +761,8 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
     if (index == drawnCardIndex) {
       cardPosition = walletTop - IrmaTheme.of(context).mediumSpacing - dragOffset;
     } else {
-      cardPosition = (1 - index) * _cardTopBorderHeight.toDouble() + 2 + _minimizedCardOffset;
-      if (cardPosition < -_cardTopHeight) {
-        cardPosition = -_cardTopHeight.toDouble() + _cardTopBorderHeight.toDouble() + 2;
-      }
+      cardPosition = -index * _cardTopBorderHeight.toDouble() + _minimizedCardOffset;
+      // Correct for the drawn card creating a gap in the minimized wallet
       if (index > drawnCardIndex) {
         cardPosition += _cardTopBorderHeight;
       }
@@ -753,7 +775,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   double getCardMinimizedPosition(int index) {
     double cardPosition;
 
-    cardPosition = -(index + 1) * _cardTopBorderHeight.toDouble();
+    cardPosition = -index * _cardTopBorderHeight.toDouble() + _minimizedCardOffset;
     if (cardPosition < -_cardTopHeight) {
       cardPosition = -_cardTopHeight.toDouble();
     }
@@ -765,31 +787,34 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   double getCardTightlyFoldedPosition(int index) {
     double cardPosition;
 
-    if (widget.credentials.length >= _cardsMaxExtended) {
+    if (widget.credentials.length > _cardsMaxExtended) {
       // Hidden cards
-
-      if (index <= widget.credentials.length - 1 - _cardsTopVisible - _cardTopHeight / _cardTopBorderHeight) {
-        cardPosition = (_cardsTopVisible + 1) * _cardTopHeight.toDouble();
+      if (index < widget.credentials.length - _cardsTopVisible - _cardsTopVisibleOverlap - _cardsTopBorderVisible) {
+        cardPosition = _cardsTopVisible * _cardTopHeight.toDouble();
 
         // Top small border cards
-      } else if (index <= widget.credentials.length - 1 - _cardsTopVisible) {
-        cardPosition = _cardsTopVisible * _cardTopHeight.toDouble() -
-            (index - (widget.credentials.length - _cardsTopVisible - 1)) * _cardTopBorderHeight.toDouble();
+      } else if (index < widget.credentials.length - _cardsTopVisible - _cardsTopVisibleOverlap) {
+        cardPosition = (_cardsTopVisible + _cardsTopVisibleOverlap) * _cardTopHeight.toDouble() +
+            (widget.credentials.length - _cardsTopVisible - _cardsTopVisibleOverlap - index) * _cardTopBorderHeight;
 
         // Other cards
       } else {
-        cardPosition = (widget.credentials.length - 1 - index) * _cardTopHeight.toDouble();
+        cardPosition = (widget.credentials.length - index) * _cardTopHeight.toDouble();
       }
 
       // Dragging top small border cards
-      if (_drawnCardIndex < widget.credentials.length - _cardTopHeight / _cardTopBorderHeight &&
-          index != _drawnCardIndex) {
+      // Check whether overlap card is needed for wallet expand button. Otherwise the card can move individually.
+      final individuallyMovingCards =
+          widget.credentials.length < _cardsTopVisible + _cardsTopVisibleOverlap + _cardsTopBorderVisible
+              ? _cardsTopVisible
+              : _cardsTopVisible + _cardsTopVisibleOverlap;
+      if (_drawnCardIndex < widget.credentials.length - individuallyMovingCards && index != _drawnCardIndex) {
         cardPosition -= _dragOffset;
       }
 
       // Few cards
     } else {
-      cardPosition = (widget.credentials.length - 1 - index).toDouble() * _cardTopHeight.toDouble();
+      cardPosition = (widget.credentials.length - index).toDouble() * _cardTopHeight.toDouble();
     }
 
     // Drag drawn card
@@ -804,7 +829,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   double getCardFoldedPosition(int index, double walletTop) {
     double cardPosition;
 
-    cardPosition = min(walletTop, (widget.credentials.length - 1) * _cardTopHeight.toDouble()) - index * _cardTopHeight;
+    cardPosition = min(walletTop, widget.credentials.length * _cardTopHeight.toDouble()) - index * _cardTopHeight;
 
     if (index == _drawnCardIndex) {
       cardPosition -= _dragOffset;
