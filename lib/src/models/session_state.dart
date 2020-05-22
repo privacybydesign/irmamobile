@@ -16,6 +16,7 @@ class SessionState {
   final List<int> disclosureIndices;
   final ConCon<AttributeIdentifier> disclosureChoices;
   final List<List<int>> disconOrder;
+  final List<String> credentialFilter;
   final bool satisfiable;
   final SessionError error;
 
@@ -32,6 +33,7 @@ class SessionState {
     this.disclosureIndices,
     this.disclosureChoices,
     this.disconOrder,
+    this.credentialFilter,
     this.satisfiable,
     this.error,
   });
@@ -59,6 +61,7 @@ class SessionState {
     List<int> disclosureIndices,
     ConCon<AttributeIdentifier> disclosureChoices,
     List<List<int>> disconOrder,
+    List<String> credentialFilter,
     bool satisfiable,
     SessionError error,
   }) {
@@ -75,6 +78,7 @@ class SessionState {
       disclosureIndices: disclosureIndices ?? this.disclosureIndices,
       disclosureChoices: disclosureChoices ?? this.disclosureChoices,
       disconOrder: disconOrder ?? this.disconOrder,
+      credentialFilter: credentialFilter ?? this.credentialFilter,
       satisfiable: satisfiable ?? this.satisfiable,
       error: error ?? this.error,
     );

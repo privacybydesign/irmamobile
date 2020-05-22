@@ -59,18 +59,15 @@ class SessionRepository {
         clientReturnURL: event.clientReturnURL,
       );
     } else if (event is RequestIssuancePermissionSessionEvent) {
-      final processed = ConDisCon.fromRaw<DisclosureCandidate, Attribute>(
+      final disclose = event.disclosuresCandidates?.isNotEmpty ?? false;
+      final converted = ConDisCon.fromRaw<DisclosureCandidate, Attribute>(
         event.disclosuresCandidates,
         (disclosureCandidate) => Attribute.fromCandidate(irmaConfiguration, credentials, disclosureCandidate),
       );
-      // We reorder the options in each discon, such that those that first require action
-      // (obtaining or refreshing a credential) before they are choosable are last,
-      // and those that are immediately choosable are first. Since an option can become
-      // choosable in future occurences of this event, this order is not stable, so we
-      // choose and remember a sorting order during the first occurrence of this event
-      // that we reuse in later occurences.
-      final disconOrder = prevState.disconOrder ?? _computeOrder(processed);
-      final condiscon = event.satisfiable ? _reorderConDisCon(processed, disconOrder) : processed;
+      // See comments below in RequestVerificationPermissionSessionEvent
+      final disconOrder = disclose ? (prevState.disconOrder ?? _computeOrder(converted)) : null;
+      final filter = disclose ? _computeCredentialFilter(prevState, converted) : null;
+      final condiscon = event.satisfiable && disclose ? _processConDisCon(converted, disconOrder, filter) : converted;
       return prevState.copyWith(
         status: event.disclosuresCandidates?.isEmpty ?? true
             ? SessionStatus.requestIssuancePermission
@@ -81,6 +78,7 @@ class SessionRepository {
         disclosureIndices: List<int>.filled(event.disclosuresCandidates.length, 0),
         disclosureChoices: _initialDisclosureChoices(condiscon),
         disconOrder: disconOrder,
+        credentialFilter: filter,
         disclosuresCandidates: condiscon,
         issuedCredentials: event.issuedCredentials
             .map((raw) => Credential.fromRaw(
@@ -90,12 +88,25 @@ class SessionRepository {
             .toList(),
       );
     } else if (event is RequestVerificationPermissionSessionEvent) {
-      final processed = ConDisCon.fromRaw<DisclosureCandidate, Attribute>(
+      final converted = ConDisCon.fromRaw<DisclosureCandidate, Attribute>(
         event.disclosuresCandidates,
         (disclosureCandidate) => Attribute.fromCandidate(irmaConfiguration, credentials, disclosureCandidate),
       );
-      final disconOrder = prevState.disconOrder ?? _computeOrder(processed);
-      final condiscon = event.satisfiable ? _reorderConDisCon(processed, disconOrder) : processed;
+      // We reorder the options in each discon, such that those that first require action
+      // (obtaining or refreshing a credential) before they are choosable are last,
+      // and those that are immediately choosable are first. Since an option can become
+      // choosable in future occurences of this event, this order is not stable, so we
+      // choose and remember a sorting order during the first occurrence of this event
+      // that we reuse in later occurences.
+      final disconOrder = prevState.disconOrder ?? _computeOrder(converted);
+      // If the user refreshes an expired or revoked nonsingleton credential, the amount of options
+      // in the discon would increase. In that case we remove the option containing the expired
+      // or revoked credential from the discon that was just refreshed, which (1) makes the amount
+      // of options stable and (2) puts the option containing the newly obtained credential at the
+      // selected page in the discon. For the same reason as above, we have to remember what we
+      // filtered out and reapply the filter in later occurences of this event.
+      final filter = _computeCredentialFilter(prevState, converted);
+      final condiscon = event.satisfiable ? _processConDisCon(converted, disconOrder, filter) : converted;
       return prevState.copyWith(
         status: SessionStatus.requestDisclosurePermission,
         serverName: event.serverName,
@@ -104,6 +115,7 @@ class SessionRepository {
         disclosureIndices: List<int>.filled(event.disclosuresCandidates.length, 0),
         disclosureChoices: _initialDisclosureChoices(condiscon),
         disconOrder: disconOrder,
+        credentialFilter: filter,
         disclosuresCandidates: condiscon,
         satisfiable: event.satisfiable,
       );
@@ -131,9 +143,42 @@ class SessionRepository {
     return prevState;
   }
 
-  ConDisCon<Attribute> _reorderConDisCon(ConDisCon<Attribute> condiscon, List<List<int>> disconOrder) {
-    return ConDisCon(condiscon.asMap().keys.map(
-          (i) => DisCon(disconOrder[i].map((j) => condiscon[i][j])),
+  List<String> _computeCredentialFilter(SessionState prevState, ConDisCon<Attribute> condiscon) {
+    final prevCondiscon = prevState.disclosuresCandidates;
+    if (prevCondiscon == null) {
+      return <String>[];
+    }
+    return condiscon.asMap().entries.fold(prevState.credentialFilter ?? <String>[], (list, discon) {
+      final prevDiscon = prevCondiscon[discon.key];
+      if (prevDiscon.length != discon.value.length) {
+        // More options appeared, this can only happen if an unchoosable credential was refreshed.
+        // That credential must be a nonsingleton otherwise no more options would have appeared.
+        // The first unchoosable attribute in the con must belong to the credential that was just refreshed.
+        list.add(prevDiscon[prevState.disclosureIndices[discon.key]]
+            .firstWhere((attr) => !attr.credentialInfo.credentialType.isSingleton && !attr.choosable)
+            .credentialHash);
+      }
+      return list;
+    });
+  }
+
+  // From each discon, remove options containing credentials specified in the filter
+  ConDisCon<Attribute> _filter(List<String> filter, ConDisCon<Attribute> condiscon) {
+    return ConDisCon(condiscon.map(
+      (discon) => DisCon(discon.where(
+        (con) => con.every((attr) => !filter.contains(attr.credentialHash)),
+      )),
+    ));
+  }
+
+  ConDisCon<Attribute> _processConDisCon(
+    ConDisCon<Attribute> condiscon,
+    List<List<int>> disconOrder,
+    List<String> filter,
+  ) {
+    final filtered = _filter(filter, condiscon);
+    return ConDisCon(filtered.asMap().keys.map(
+          (i) => DisCon(disconOrder[i].map((j) => filtered[i][j])),
         ));
   }
 
