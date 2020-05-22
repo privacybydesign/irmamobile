@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attribute_value.dart';
 import 'package:irmamobile/src/models/attributes.dart';
+import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
@@ -302,10 +303,35 @@ class _CarouselState extends State<Carousel> {
   Widget _buildCredentialFooter(_DisclosureCredential cred) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).smallSpacing),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      child: Table(
+        defaultVerticalAlignment: TableCellVerticalAlignment.top,
+        defaultColumnWidth: IntrinsicColumnWidth(),
+        children: [
+          TableRow(children: [
+            Opacity(
+              opacity: 0.5,
+              child: Text(
+                FlutterI18n.translate(context, 'disclosure.credential_name'),
+                style: IrmaTheme.of(context)
+                    .textTheme
+                    .body1
+                    .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: IrmaTheme.of(context).smallSpacing),
+              child: Text(
+                getTranslation(context, cred.credentialInfo.credentialType.name),
+                style: IrmaTheme.of(context)
+                    .textTheme
+                    .body1
+                    .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ]),
+          TableRow(children: [
             Opacity(
               opacity: 0.5,
               child: Text(
@@ -328,9 +354,9 @@ class _CarouselState extends State<Carousel> {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-          ],
-        )
-      ]),
+          ]),
+        ],
+      ),
     );
   }
 
@@ -408,10 +434,7 @@ class _CarouselState extends State<Carousel> {
     if (list.isEmpty) {
       return false;
     }
-    final last = list.last.last;
-    return !last.choosable
-        ? last.credentialInfo.fullId == attr.credentialInfo.fullId
-        : last.credentialInfo.issuer.fullId == attr.credentialInfo.issuer.fullId;
+    return list.last.last.credentialInfo.fullId == attr.credentialInfo.fullId;
   }
 
   Widget _buildCarouselWidget(Con<Attribute> candidatesCon) {
@@ -458,6 +481,7 @@ class _DisclosureCredential {
   final Con<Attribute> attributes;
   final String id;
   final TranslatedValue issuer;
+  final CredentialInfo credentialInfo;
   final bool isLast;
   final bool obtainable;
 
@@ -465,10 +489,11 @@ class _DisclosureCredential {
       : assert(isLast != null &&
             attributes != null &&
             attributes.isNotEmpty &&
-            attributes
-                .every((attr) => attr.credentialInfo.issuer.fullId == attributes.first.credentialInfo.issuer.fullId)),
+            attributes.every((attr) =>
+                attr.credentialInfo.credentialType.fullId == attributes.first.credentialInfo.credentialType.fullId)),
         id = attributes.first.credentialInfo.fullId,
         issuer = attributes.first.credentialInfo.issuer.name,
+        credentialInfo = attributes.first.credentialInfo,
         obtainable =
             !attributes.last.choosable && (attributes.last.credentialInfo.credentialType.issueUrl?.isNotEmpty ?? false);
 }
