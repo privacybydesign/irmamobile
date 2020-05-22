@@ -68,6 +68,7 @@ class SessionRepository {
       final disconOrder = disclose ? (prevState.disconOrder ?? _computeOrder(converted)) : null;
       final filter = disclose ? _computeCredentialFilter(prevState, converted) : null;
       final condiscon = event.satisfiable && disclose ? _processConDisCon(converted, disconOrder, filter) : converted;
+      final disclosureIndices = prevState.disclosureIndices ?? List<int>.filled(condiscon.length, 0);
       return prevState.copyWith(
         status: event.disclosuresCandidates?.isEmpty ?? true
             ? SessionStatus.requestIssuancePermission
@@ -75,8 +76,8 @@ class SessionRepository {
         serverName: event.serverName,
         satisfiable: event.satisfiable,
         isSignatureSession: false,
-        disclosureIndices: List<int>.filled(event.disclosuresCandidates.length, 0),
-        disclosureChoices: _initialDisclosureChoices(condiscon),
+        disclosureIndices: disclosureIndices,
+        disclosureChoices: _choose(disclosureIndices, condiscon),
         disconOrder: disconOrder,
         credentialFilter: filter,
         disclosuresCandidates: condiscon,
@@ -107,13 +108,14 @@ class SessionRepository {
       // filtered out and reapply the filter in later occurences of this event.
       final filter = _computeCredentialFilter(prevState, converted);
       final condiscon = event.satisfiable ? _processConDisCon(converted, disconOrder, filter) : converted;
+      final disclosureIndices = prevState.disclosureIndices ?? List<int>.filled(condiscon.length, 0);
       return prevState.copyWith(
         status: SessionStatus.requestDisclosurePermission,
         serverName: event.serverName,
         isSignatureSession: event.isSignatureSession,
         signedMessage: event.signedMessage,
-        disclosureIndices: List<int>.filled(event.disclosuresCandidates.length, 0),
-        disclosureChoices: _initialDisclosureChoices(condiscon),
+        disclosureIndices: disclosureIndices,
+        disclosureChoices: _choose(disclosureIndices, condiscon),
         disconOrder: disconOrder,
         credentialFilter: filter,
         disclosuresCandidates: condiscon,
@@ -124,9 +126,10 @@ class SessionRepository {
         status: SessionStatus.requestIssuancePermission,
       );
     } else if (event is DisclosureChoiceUpdateSessionEvent) {
+      final indices = List<int>.of(prevState.disclosureIndices)..[event.disconIndex] = event.conIndex;
       return prevState.copyWith(
-        disclosureIndices: List<int>.of(prevState.disclosureIndices)..[event.disconIndex] = event.conIndex,
-        disclosureChoices: _updateDisclosureChoices(prevState, event),
+        disclosureIndices: indices,
+        disclosureChoices: _choose(indices, prevState.disclosuresCandidates),
       );
     } else if (event is SuccessSessionEvent) {
       return prevState.copyWith(
@@ -220,15 +223,11 @@ class SessionRepository {
     return sessions.values.any((session) => session.status == SessionStatus.requestDisclosurePermission);
   }
 
-  static ConCon<AttributeIdentifier> _initialDisclosureChoices(ConDisCon<Attribute> list) => ConCon(list.map(
-        (discon) => Con(discon[0].map((attr) => AttributeIdentifier.fromAttribute(attr))),
-      ));
-
-  // Given session state and a choice event, return an updated list of list of attributes that will be disclosed.
-  static ConCon<AttributeIdentifier> _updateDisclosureChoices(
-          SessionState state, DisclosureChoiceUpdateSessionEvent event) =>
-      ConCon(List<Con<AttributeIdentifier>>.of(state.disclosureChoices)
-        ..[event.disconIndex] = Con(state.disclosuresCandidates[event.disconIndex][event.conIndex]
-            .map((attr) => AttributeIdentifier.fromAttribute(attr))
-            .toList()));
+  static ConCon<AttributeIdentifier> _choose(List<int> choices, ConDisCon<Attribute> condiscon) {
+    return ConCon(condiscon.asMap().entries.map(
+          (discon) => Con(discon.value[choices[discon.key]].map(
+            (attr) => AttributeIdentifier.fromAttribute(attr),
+          )),
+        ));
+  }
 }
