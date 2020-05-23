@@ -22,6 +22,7 @@ import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
+import 'package:irmamobile/src/widgets/irma_message.dart';
 import 'package:irmamobile/src/widgets/irma_quote.dart';
 import 'package:irmamobile/src/widgets/irma_text_button.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
@@ -222,34 +223,44 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
 
   Widget _buildDisclosureHeader(SessionState session) {
     final serverName = session.serverName.translate(FlutterI18n.currentLocale(context).languageCode);
-    return StreamBuilder<SessionState>(
-        stream: _sessionStateStream,
-        builder: (context, sessionStateSnapshot) {
-          if (!sessionStateSnapshot.hasData ||
-              sessionStateSnapshot.data.status != SessionStatus.requestDisclosurePermission) {
-            return Container(height: 0);
-          }
-          return Column(
-            children: <Widget>[
-              TranslatedText(
-                'disclosure.disclosure${session.isReturnPhoneNumber ? "_call" : ""}_header',
-                translationParams: session.isReturnPhoneNumber
-                    ? {
-                        "otherParty": serverName,
-                        "phoneNumber": session.clientReturnURL.substring(4).split(",").first,
-                      }
-                    : {
-                        "otherParty": serverName,
-                      },
-                style: Theme.of(context).textTheme.body1,
-              ),
-            ],
-          );
-        });
+    return Column(
+      children: <Widget>[
+        if (!session.satisfiable)
+          Padding(
+            padding: EdgeInsets.only(bottom: IrmaTheme.of(context).mediumSpacing),
+            child: const IrmaMessage(
+              'disclosure.unsatisfiable_title',
+              'disclosure.unsatisfiable_message',
+              type: IrmaMessageType.info,
+            ),
+          ),
+        TranslatedText(
+          'disclosure.disclosure${session.isReturnPhoneNumber ? "_call" : ""}_header',
+          translationParams: session.isReturnPhoneNumber
+              ? {
+                  "otherParty": serverName,
+                  "phoneNumber": session.clientReturnURL.substring(4).split(",").first,
+                }
+              : {
+                  "otherParty": serverName,
+                },
+          style: Theme.of(context).textTheme.body1,
+        ),
+      ],
+    );
   }
 
   Widget _buildSigningHeader(SessionState session) {
     return Column(children: [
+      if (!session.satisfiable)
+        Padding(
+          padding: EdgeInsets.only(bottom: IrmaTheme.of(context).mediumSpacing),
+          child: const IrmaMessage(
+            'disclosure.unsatisfiable_title',
+            'disclosure.unsatisfiable_message',
+            type: IrmaMessageType.info,
+          ),
+        ),
       Text.rich(
         TextSpan(children: [
           TextSpan(

@@ -428,6 +428,8 @@
     "expired": "Deze gegevens zijn verlopen.",
     "revoked": "Deze gegevens zijn teruggetrokken.",
     "not_revokable": "Deze gegevens moeten eerst ververst worden.",
+    "unsatisfiable_title": "Gegevens ophalen",
+    "unsatisfiable_message_markdown": "Er worden gegevens gevraagd die nog niet in je IRMA-app staan of verlopen zijn. Voeg de gegevens toe om ze vervolgens door te kunnen geven.",
     "obtain": "Toevoegen",
     "refresh": "Verversen",
     "explanation": {
