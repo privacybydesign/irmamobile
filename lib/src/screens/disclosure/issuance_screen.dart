@@ -166,6 +166,12 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
     final serverName = session.serverName.translate(FlutterI18n.currentLocale(context).languageCode);
     await Future.delayed(const Duration(seconds: 1));
 
+    // Navigate back if other sessions are open
+    if (await IrmaRepository.get().hasActiveSessions()) {
+      Navigator.of(context).pop();
+      return;
+    }
+
     if (session.continueOnSecondDevice && !session.isReturnPhoneNumber) {
       // If this is a session on a second screen, return to the wallet
       popToWallet(context);
@@ -183,8 +189,7 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
         popToWallet(context);
       }
     } else {
-      // Otherwise, on iOS show a screen to press the return arrow in the top-left corner,
-      // and on Android just background the app to let the user return to the previous activity
+      // Mobile session. Always return to wallet for the following credential types
       if (session.issuedCredentials
           .where((credential) => [
                 "pbdf.gemeente.personalData",
@@ -195,10 +200,11 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
               ].contains(credential.info.fullId))
           .isNotEmpty) {
         popToWallet(context);
-        // Do not go back to browser for idin, iban, phone, email and gemeente-issued personaldata credentials
       } else if (Platform.isIOS) {
+        // show a screen to press the return arrow in the top-left corner,
         setState(() => displayArrowBack = true);
       } else {
+        // on Android, just background the app to let the user return to the previous activity
         IrmaRepository.get().bridgedDispatch(AndroidSendToBackgroundEvent());
         popToWallet(context);
       }

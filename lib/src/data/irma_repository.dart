@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:irmamobile/src/data/irma_bridge.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
@@ -23,9 +24,11 @@ import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/models/version_information.dart';
+import 'package:irmamobile/src/screens/webview/webview_screen.dart';
 import 'package:irmamobile/src/sentry/sentry.dart';
 import 'package:package_info/package_info.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class IrmaRepository {
   static IrmaRepository _instance;
@@ -282,6 +285,10 @@ class IrmaRepository {
     return _sessionRepository.getSessionState(sessionID);
   }
 
+  Future<bool> hasActiveSessions() {
+    return _sessionRepository.hasActiveSessions();
+  }
+
   Stream<SessionPointer> getPendingSessionPointer() {
     return _pendingSessionPointerSubject.stream;
   }
@@ -293,5 +300,38 @@ class IrmaRepository {
 
   Stream<bool> getDeveloperMode() {
     return _preferencesSubject.stream.map((pref) => pref.clientPreferences.developerMode);
+  }
+
+  final List<String> externalBrowserCredtypes = const [
+    "pbdf.pbdf.idin",
+    "pbdf.pbdf.ideal",
+    "pbdf.gemeente.personalData",
+    "pbdf.gemeente.address"
+  ];
+
+  // TODO Remove when webview is fixed
+  Stream<List<String>> getExternalBrowserURLs() {
+    return irmaConfigurationSubject.map(
+      (irmaConfiguration) => externalBrowserCredtypes
+          .map((type) => irmaConfiguration.credentialTypes[type].issueUrl.values)
+          .expand((v) => v)
+          .toList(),
+    );
+  }
+
+  Future<void> openURL(BuildContext context, String url) async {
+    if ((await getExternalBrowserURLs().first).contains(url)) {
+      openURLinBrowser(context, url);
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => WebviewScreen(url)),
+      );
+    }
+  }
+
+  void openURLinBrowser(BuildContext context, String url) {
+    // On iOS, open Safari rather than Safari view controller
+    launch(url, forceSafariVC: false);
   }
 }

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'package:irmamobile/src/screens/webview/webview_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/widgets/card_suggestion.dart';
@@ -19,15 +18,7 @@ class CardStoreScreen extends StatelessWidget {
 
   Future<void> _onStartIssuance(BuildContext context, CredentialType credentialType) async {
     final url = getTranslation(context, credentialType.issueUrl);
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) {
-        return WebviewScreen(
-          url,
-        );
-      }),
-    );
+    IrmaRepository.get().openURL(context, url);
   }
 
   @override

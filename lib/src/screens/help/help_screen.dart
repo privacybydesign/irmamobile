@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'package:irmamobile/src/screens/webview/webview_screen.dart';
 import 'package:irmamobile/src/sentry/sentry.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
@@ -126,12 +126,7 @@ class _HelpScreenState extends State<HelpScreen> {
                     GestureDetector(
                       onTap: () {
                         try {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) {
-                              return WebviewScreen(FlutterI18n.translate(context, 'help.more_link'));
-                            }),
-                          );
+                          IrmaRepository.get().openURL(context, FlutterI18n.translate(context, 'help.more_link'));
                         } on PlatformException catch (e, stacktrace) {
                           //TODO: consider if we want an error screen here
                           reportError(e, stacktrace);

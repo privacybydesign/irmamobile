@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attribute_value.dart';
 import 'package:irmamobile/src/models/attributes.dart';
+import 'package:irmamobile/src/models/credentials.dart';
+import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/util/translated_text.dart';
+import 'package:irmamobile/src/widgets/irma_button.dart';
+import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 
 class Carousel extends StatefulWidget {
   final DisCon<Attribute> candidatesDisCon;
@@ -36,6 +41,13 @@ class _CarouselState extends State<Carousel> {
   }
 
   final _controller = PageController();
+
+  Function() _createOnRefreshCredential(CredentialType type) {
+    return () {
+      final url = getTranslation(context, type.issueUrl);
+      IrmaRepository.get().openURL(context, url);
+    };
+  }
 
   // Determining size of widget as described here:
   // https://medium.com/@diegoveloper/flutter-widget-size-and-position-b0a9ffed9407
@@ -218,27 +230,108 @@ class _CarouselState extends State<Carousel> {
 
     // If an attribute is null, we render a TextValue with a dash as text.
     return Text(
-      candidate.value is TextValue ? getTranslation(context, (candidate.value as TextValue).translated) : "-",
+      getTranslation(context, (candidate.value as TextValue).translated),
       style: IrmaTheme.of(context).textTheme.body2,
     );
   }
 
-  Widget _buildCredentialFooter(_DisclosureCredential cred) {
-    String notice;
-    if (cred.attributes.first.expired) {
-      notice = FlutterI18n.translate(context, 'disclosure.expired');
-    } else if (cred.attributes.first.revoked) {
-      notice = FlutterI18n.translate(context, 'disclosure.revoked');
-    } else if (cred.attributes.first.notRevokable) {
-      notice = FlutterI18n.translate(context, 'disclosure.not_revokable');
-    }
+  Widget _buildGetButton(_DisclosureCredential cred) {
+    final label = cred.attributes.first.credentialHash == ""
+        ? FlutterI18n.translate(context, 'disclosure.obtain')
+        : FlutterI18n.translate(context, 'disclosure.refresh');
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).defaultSpacing),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          IrmaButton(
+            label: label,
+            size: IrmaButtonSize.small,
+            onPressed: _createOnRefreshCredential(cred.attributes.first.credentialInfo.credentialType),
+          ),
+        ],
+      ),
+    );
+  }
 
+  Widget _buildNotice(String notice) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.fromLTRB(0, 8, 11, 4),
+          child: SvgPicture.asset(
+            'assets/generic/info.svg',
+            width: 22,
+          ),
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8, right: 9, bottom: 4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  notice,
+                  style: IrmaTheme.of(context).textTheme.body1.copyWith(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: IrmaTheme.of(context).primaryBlue,
+                      ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _notice(_DisclosureCredential cred) {
+    if (cred.attributes.first.expired) {
+      return FlutterI18n.translate(context, 'disclosure.expired');
+    } else if (cred.attributes.first.revoked) {
+      return FlutterI18n.translate(context, 'disclosure.revoked');
+    } else if (cred.attributes.first.notRevokable) {
+      return FlutterI18n.translate(context, 'disclosure.not_revokable');
+    } else if (cred.attributes.first.credentialHash == "") {
+      return FlutterI18n.translate(context, 'disclosure.not_present');
+    }
+    return null;
+  }
+
+  Widget _buildCredentialFooter(_DisclosureCredential cred) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).smallSpacing),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      child: Table(
+        defaultVerticalAlignment: TableCellVerticalAlignment.top,
+        defaultColumnWidth: IntrinsicColumnWidth(),
+        children: [
+          TableRow(children: [
+            Opacity(
+              opacity: 0.5,
+              child: Text(
+                FlutterI18n.translate(context, 'disclosure.credential_name'),
+                style: IrmaTheme.of(context)
+                    .textTheme
+                    .body1
+                    .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: IrmaTheme.of(context).smallSpacing),
+              child: Text(
+                getTranslation(context, cred.credentialInfo.credentialType.name),
+                style: IrmaTheme.of(context)
+                    .textTheme
+                    .body1
+                    .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ]),
+          TableRow(children: [
             Opacity(
               opacity: 0.5,
               child: Text(
@@ -261,47 +354,66 @@ class _CarouselState extends State<Carousel> {
                 overflow: TextOverflow.ellipsis,
               ),
             ),
-          ],
+          ]),
+        ],
+      ),
+    );
+  }
+
+  Widget _decorate(Widget widget) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 8),
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            left: BorderSide(
+              width: 6.0,
+              color: IrmaTheme.of(context).primaryBlue,
+            ),
+          ),
         ),
-        if (notice != null)
+        child: Padding(
+          padding: const EdgeInsets.only(left: 18),
+          child: widget,
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildCredential(_DisclosureCredential cred) {
+    final notice = _notice(cred);
+    if (notice == null) {
+      return <Widget>[
+        _buildAttributes(cred),
+        _buildCredentialFooter(cred),
+      ];
+    } else {
+      return <Widget>[
+        _buildNotice(notice),
+        _decorate(
           Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 8, 11, 4),
-                    child: SvgPicture.asset(
-                      'assets/generic/stop.svg',
-                      width: 22,
-                    ),
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 8, right: 9, bottom: 4),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            notice,
-                            style: IrmaTheme.of(context).textTheme.body2.copyWith(fontSize: 14),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              if (!cred.isLast) new Container(color: IrmaTheme.of(context).grayscale85, height: 1),
+              _buildAttributes(cred),
+              _buildCredentialFooter(cred),
             ],
           ),
-      ]),
+        ),
+        _buildGetButton(cred),
+      ];
+    }
+  }
+
+  Widget _buildAttributes(_DisclosureCredential cred) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: cred.attributes.map(_buildAttribute).toList(),
     );
   }
 
   Widget _buildAttribute(Attribute attribute) {
     return Padding(
-      padding: EdgeInsets.only(top: IrmaTheme.of(context).smallSpacing),
+      padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).tinySpacing),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -312,10 +424,17 @@ class _CarouselState extends State<Carousel> {
                 IrmaTheme.of(context).textTheme.body1.copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 14),
             overflow: TextOverflow.ellipsis,
           ),
-          _buildCandidateValue(attribute),
+          if (attribute.value is TextValue) _buildCandidateValue(attribute),
         ],
       ),
     );
+  }
+
+  bool _group(List<List<Attribute>> list, Attribute attr) {
+    if (list.isEmpty) {
+      return false;
+    }
+    return list.last.last.credentialInfo.fullId == attr.credentialInfo.fullId;
   }
 
   Widget _buildCarouselWidget(Con<Attribute> candidatesCon) {
@@ -324,10 +443,7 @@ class _CarouselState extends State<Carousel> {
     // adjacent within the specified con, which is guaranteed by irmago.
     final grouped = candidatesCon.fold(
       <List<Attribute>>[],
-      (List<List<Attribute>> list, attr) =>
-          list.isNotEmpty && list.last.last.credentialInfo.issuer.fullId == attr.credentialInfo.issuer.fullId
-              ? (list..last.add(attr))
-              : (list..add([attr])),
+      (List<List<Attribute>> list, attr) => _group(list, attr) ? (list..last.add(attr)) : (list..add([attr])),
     ).toList();
     final credentials = grouped
         .asMap()
@@ -335,20 +451,28 @@ class _CarouselState extends State<Carousel> {
           (i, list) => MapEntry(i, _DisclosureCredential(attributes: Con(list), isLast: i == grouped.length - 1)),
         )
         .values;
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).mediumSpacing),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ...credentials
-              .map((cred) => <Widget>[
-                    ...cred.attributes.map((attribute) => _buildAttribute(attribute)).toList(),
-                    _buildCredentialFooter(cred),
-                  ])
-              .expand((f) => f)
-              .toList(),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: credentials
+          .map((cred) => <Widget>[
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).mediumSpacing),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: _buildCredential(cred),
+                  ),
+                ),
+                if (!cred.isLast)
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).smallSpacing),
+                    child: Container(
+                      color: IrmaTheme.of(context).grayscale80,
+                      height: 1,
+                    ),
+                  ),
+              ])
+          .expand((f) => f)
+          .toList(),
     );
   }
 }
@@ -357,14 +481,19 @@ class _DisclosureCredential {
   final Con<Attribute> attributes;
   final String id;
   final TranslatedValue issuer;
+  final CredentialInfo credentialInfo;
   final bool isLast;
+  final bool obtainable;
 
   _DisclosureCredential({@required this.attributes, @required this.isLast})
       : assert(isLast != null &&
             attributes != null &&
             attributes.isNotEmpty &&
-            attributes
-                .every((attr) => attr.credentialInfo.issuer.fullId == attributes.first.credentialInfo.issuer.fullId)),
+            attributes.every((attr) =>
+                attr.credentialInfo.credentialType.fullId == attributes.first.credentialInfo.credentialType.fullId)),
         id = attributes.first.credentialInfo.fullId,
-        issuer = attributes.first.credentialInfo.issuer.name;
+        issuer = attributes.first.credentialInfo.issuer.name,
+        credentialInfo = attributes.first.credentialInfo,
+        obtainable =
+            !attributes.last.choosable && (attributes.last.credentialInfo.credentialType.issueUrl?.isNotEmpty ?? false);
 }

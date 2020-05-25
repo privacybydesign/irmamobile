@@ -5,6 +5,8 @@ import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
 
 abstract class AttributeValue {
+  String get raw;
+
   factory AttributeValue.fromRaw(AttributeType attributeType, TranslatedValue rawAttribute) {
     // In IrmaGo attribute values are set to null when an optional attribute is empty.
     if (rawAttribute == null) {
@@ -25,10 +27,14 @@ abstract class AttributeValue {
 }
 
 // Used in optional attributes when value is null
-class NullValue implements AttributeValue {}
+class NullValue implements AttributeValue {
+  @override
+  String get raw => null;
+}
 
 class TextValue implements AttributeValue {
   final TranslatedValue translated;
+  @override
   final String raw;
 
   TextValue({this.translated, this.raw});
@@ -45,8 +51,10 @@ class TextValue implements AttributeValue {
 
 class PhotoValue implements AttributeValue {
   final Image image;
+  @override
+  final String raw;
 
-  PhotoValue({this.image});
+  PhotoValue({this.image, this.raw});
 
   // A raw PhotoValue is received in a TextValue's raw block.
   // Is a bit hacky now, should be converted when irmago has knowledge of types
@@ -56,6 +64,7 @@ class PhotoValue implements AttributeValue {
       image: Image.memory(
         const Base64Decoder().convert(textValue.raw),
       ),
+      raw: textValue.raw,
     );
   }
 }

@@ -1,5 +1,3 @@
-import 'dart:io' show Platform;
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -9,11 +7,9 @@ import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/webview/widgets/browser_bar.dart';
 import 'package:irmamobile/src/screens/webview/widgets/loading_data.dart';
-import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class WebviewScreen extends StatefulWidget {
@@ -21,7 +17,7 @@ class WebviewScreen extends StatefulWidget {
   final String url;
 
   void _handleSessionPointer(BuildContext context, SessionPointer sessionPointer) {
-    ScannerScreen.startSessionAndNavigate(Navigator.of(context), sessionPointer);
+    ScannerScreen.startSessionAndNavigate(Navigator.of(context), sessionPointer, webview: true);
   }
 
   const WebviewScreen(this.url, {Key key}) : super(key: key);
@@ -31,43 +27,33 @@ class WebviewScreen extends StatefulWidget {
 }
 
 class _WebviewScreenState extends State<WebviewScreen> {
-  String url;
+  String _url;
   bool _isLoading;
 
-  _WebviewScreenState(this.url) : _isLoading = true;
+  _WebviewScreenState(this._url) : _isLoading = true;
   SessionPointer _sessionPointer;
 
   @override
   void initState() {
-    // TODO Remove when webview is fixed
-    final initUrl = url;
-    IrmaRepository.get().getIrmaConfiguration().first.then((irmaConfiguration) {
-      final inBrowserUrls = [
-        "pbdf.pbdf.idin",
-        "pbdf.pbdf.ideal",
-        "pbdf.gemeente.personalData",
-        "pbdf.gemeente.address",
-      ].map((type) => getTranslation(context, irmaConfiguration.credentialTypes[type].issueUrl));
-      if (inBrowserUrls.contains(initUrl)) {
-        _openInBrowser();
-      }
-    });
-
-    // Make sure the in-app variant of the website is requested
-    final uri = Uri.parse(url);
-    url = uri.replace(queryParameters: {
+    final uri = Uri.parse(_url);
+    _url = uri.replace(queryParameters: {
       ...uri.queryParameters,
-      "inapp": "true",
+      "inapp": "true", // Make sure the in-app variant of the website is requested
     }).toString();
-
     super.initState();
+  }
+
+  void _openInBrowser() {
+    final uri = Uri.parse(_url);
+    final externalUrl = uri.replace(queryParameters: {...uri.queryParameters}..remove("inapp")).toString();
+    IrmaRepository.get().openURLinBrowser(context, externalUrl);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: BrowserBar(
-        url: url,
+        url: _url,
         onOpenInBrowserPress: _openInBrowser,
         isLoading: _isLoading,
       ),
@@ -76,7 +62,7 @@ class _WebviewScreenState extends State<WebviewScreen> {
               children: <Widget>[
                 WebView(
                   javascriptMode: JavascriptMode.unrestricted,
-                  initialUrl: url,
+                  initialUrl: _url,
                   onPageFinished: (url) {
                     setState(() {
                       _isLoading = false;
@@ -104,7 +90,7 @@ class _WebviewScreenState extends State<WebviewScreen> {
                     // Only allow https connections
                     if (navrequest.url.startsWith('https://')) {
                       setState(() {
-                        url = navrequest.url;
+                        _url = navrequest.url;
                         _isLoading = true;
                       });
 
@@ -151,20 +137,5 @@ class _WebviewScreenState extends State<WebviewScreen> {
               ],
             ),
     );
-  }
-
-  void _openInBrowser() {
-    final uri = Uri.parse(url);
-    // uri.queryParameters is unmodifiable, so remove item in new map
-    final queryParameters = {...uri.queryParameters};
-    queryParameters.remove("inapp");
-    final externalUrl = uri.replace(queryParameters: queryParameters).toString();
-    if (Platform.isAndroid) {
-      Navigator.pop(context); // remove ActionSheet // TODO ActionSheet only disappears after returning
-      launch(externalUrl);
-    } else if (Platform.isIOS) {
-      Navigator.pop(context); // remove ActionSheet // TODO ActionSheet only disappears after returning
-      launch(externalUrl, forceSafariVC: false); // open Safari rather than SafariVCController
-    }
   }
 }

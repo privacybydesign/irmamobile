@@ -135,6 +135,12 @@ github.com/privacybydesign/irmago v0.5.0-rc.2.0.20200506132252-4ce91c0f3043 h1:2
 github.com/privacybydesign/irmago v0.5.0-rc.2.0.20200506132252-4ce91c0f3043/go.mod h1:xsJZPAp4mtGSUQLFdfhTgcxU0PfRrI4ZVC3APDF49G0=
 github.com/privacybydesign/irmago v0.5.0-rc.2.0.20200511142737-30d2b5900a22 h1:o/ZFGtHj1ya9BVNL4B0AqknQHNlh0XMQkoYpyBGJESU=
 github.com/privacybydesign/irmago v0.5.0-rc.2.0.20200511142737-30d2b5900a22/go.mod h1:xsJZPAp4mtGSUQLFdfhTgcxU0PfRrI4ZVC3APDF49G0=
+github.com/privacybydesign/irmago v0.5.0-rc.3.0.20200519115411-25dfa78c80c4 h1:9nS1HOHpKe2gHDhRe2yis5M7/+Ug7n4NISSMNHUav3M=
+github.com/privacybydesign/irmago v0.5.0-rc.3.0.20200519115411-25dfa78c80c4/go.mod h1:fDEZZkJZjX/qvoTSBJmPn0jlBmMYj9QmOlqghJVqaD8=
+github.com/privacybydesign/irmago v0.5.0-rc.3.0.20200520094749-8442c417f525 h1:B7ML00toprZSnCfhdd4m/sUD32hHVUFxn/QQK1yVOks=
+github.com/privacybydesign/irmago v0.5.0-rc.3.0.20200520094749-8442c417f525/go.mod h1:fDEZZkJZjX/qvoTSBJmPn0jlBmMYj9QmOlqghJVqaD8=
+github.com/privacybydesign/irmago v0.5.0-rc.3.0.20200522122458-be22b76ecaca h1:2yt4ZRn+gcE9sqvmWgo6UqysNZpmRpkJyA+zMtZV214=
+github.com/privacybydesign/irmago v0.5.0-rc.3.0.20200522122458-be22b76ecaca/go.mod h1:fDEZZkJZjX/qvoTSBJmPn0jlBmMYj9QmOlqghJVqaD8=
 github.com/sietseringers/go-sse v0.0.0-20200223201439-6cc042ab6f6d h1:XwKXy5OPmsOiNCJ1/ENs1+2J/6weBmYaxTGOtecKchk=
 github.com/sietseringers/go-sse v0.0.0-20200223201439-6cc042ab6f6d/go.mod h1:W/QHK9G0i5yrmHvej5+hhoFMXTSZIWHGQRcpbGgqV9s=
 github.com/sietseringers/pflag v1.0.4-0.20190111213756-a45bfec10d59/go.mod h1:cyasUcLdC8LpK3Ko/gUSv2OdKkKjavd48ZfXR2zATWw=
@@ -152,6 +158,7 @@ github.com/spf13/jwalterweatherman v1.0.0/go.mod h1:cQK4TGJAtQXfYWX+Ddv3mKDzgVb6
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/objx v0.1.1/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXfy6kDkUVs=
+github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
 github.com/stretchr/testify v1.4.0 h1:2E4SXV/wtOkTonXsotYi4li6zVWxYlZuYNCXe9XRJyk=
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
 github.com/templexxx/cpufeat v0.0.0-20180724012125-cef66df7f161 h1:89CEmDvlq/F7SJEOqkIdNDGJXrQIhuIx9D2DBXjavSU=
