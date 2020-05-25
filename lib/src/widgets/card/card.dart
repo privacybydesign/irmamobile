@@ -5,6 +5,7 @@ import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/widgets/card/card_footer.dart';
 import 'package:irmamobile/src/widgets/card/irma_card_theme.dart';
+import 'package:irmamobile/src/widgets/card/models/card_expiry_date.dart';
 
 import 'card_attributes.dart';
 import 'card_menu.dart';
@@ -17,11 +18,7 @@ class IrmaCard extends StatelessWidget {
   final CredentialInfo credentialInfo;
   final Attributes attributes;
   final bool revoked;
-  final DateTime expiryDate;
-
-  bool get expired => expiryDate.isBefore(DateTime.now());
-  int get validDays => expiryDate.difference(DateTime.now()).inDays;
-  bool get expiresSoon => (validDays <= 7);
+  final CardExpiryDate expiryDate; // Can be null
 
   final Function() onRefreshCredential;
   final Function() onDeleteCredential;
@@ -29,6 +26,7 @@ class IrmaCard extends StatelessWidget {
   final void Function(double) scrollBeyondBoundsCallback;
 
   final IrmaCardTheme cardTheme;
+  final bool showWarnings;
   // If true the card expands to the size it needs and lets the parent handle the scrolling.
   final bool expanded;
 
@@ -38,10 +36,11 @@ class IrmaCard extends StatelessWidget {
     this.onDeleteCredential,
     this.scrollBeyondBoundsCallback,
     this.expanded = false,
+    this.showWarnings = true,
   })  : credentialInfo = credential.info,
         attributes = credential.attributes,
         revoked = credential.revoked,
-        expiryDate = credential.expires,
+        expiryDate = CardExpiryDate(credential.expires),
         cardTheme = IrmaCardTheme.fromCredentialInfo(credential.info);
 
   IrmaCard.fromRemovedCredential({
@@ -53,6 +52,7 @@ class IrmaCard extends StatelessWidget {
         revoked = false,
         expanded = true,
         expiryDate = null,
+        showWarnings = false,
         onRefreshCredential = null,
         onDeleteCredential = null;
 
@@ -112,7 +112,7 @@ class IrmaCard extends StatelessWidget {
                       cardTheme: cardTheme,
                       onRefreshCredential: onRefreshCredential,
                       onDeleteCredential: onDeleteCredential,
-                      allGood: !revoked && !expired && !expiresSoon,
+                      allGood: !revoked && (expiryDate == null || !expiryDate.expired && !expiryDate.expiresSoon),
                     ),
                   ],
                 ),
@@ -125,9 +125,8 @@ class IrmaCard extends StatelessWidget {
                       irmaCardTheme: cardTheme,
                       scrollOverflowCallback: scrollBeyondBoundsCallback,
                       expanded: expanded,
-                      expired: expired,
-                      expiresSoon: expiresSoon,
-                      validDays: validDays,
+                      showWarnings: showWarnings,
+                      expiryDate: expiryDate,
                       revoked: revoked,
                       color: cardTheme.backgroundGradientEnd,
                       onRefreshCredential: onRefreshCredential,

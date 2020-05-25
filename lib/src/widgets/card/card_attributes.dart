@@ -5,6 +5,7 @@ import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/card/irma_card_theme.dart';
+import 'package:irmamobile/src/widgets/card/models/card_expiry_date.dart';
 
 import '../irma_themed_button.dart';
 
@@ -16,24 +17,22 @@ class CardAttributes extends StatefulWidget {
 
   // If true no max height is enforced for the card attributes view
   final bool expanded;
-  final bool expired;
-  final bool expiresSoon;
+  final CardExpiryDate expiryDate; // Can be null
   final bool revoked;
-  final int validDays;
+  final bool showWarnings;
   final Color color;
   final Function() onRefreshCredential;
 
-  CardAttributes({
+  const CardAttributes({
     this.attributes,
     this.irmaCardTheme,
     this.scrollOverflowCallback,
     this.expanded = false,
     this.revoked,
-    this.expired,
-    this.expiresSoon,
-    this.validDays,
+    this.expiryDate,
     this.color,
     this.onRefreshCredential,
+    this.showWarnings,
   });
 
   @override
@@ -43,7 +42,14 @@ class CardAttributes extends StatefulWidget {
 class _CardAttributesState extends State<CardAttributes> {
   String _lang;
 
-  bool _showWarning = true;
+  bool _showWarning;
+
+  @override
+  void initState() {
+    _showWarning = widget.showWarnings &&
+        (widget.revoked || widget.expiryDate != null && (widget.expiryDate.expired || widget.expiryDate.expiresSoon));
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +77,7 @@ class _CardAttributesState extends State<CardAttributes> {
     final _minHeight = (width - IrmaTheme.of(context).smallSpacing * 2) * creditCardAspectRatio - 90;
     final double _maxHeight = (height - padding.top - kToolbarHeight) - ((height / 8) + 210);
 
-    if ((!widget.revoked && !widget.expired && !widget.expiresSoon) || !_showWarning) {
+    if (!_showWarning) {
       return LimitedBox(
         maxHeight: widget.expanded ? double.infinity : _maxHeight,
         child: Container(
@@ -134,18 +140,18 @@ class _CardAttributesState extends State<CardAttributes> {
         ),
       );
     } else {
-      return _buildWarning(context, _minHeight, widget.revoked, widget.expired, widget.validDays);
+      return _buildWarning(context, _minHeight);
     }
   }
 
-  Widget _buildWarning(BuildContext context, double minHeight, bool revoked, bool expired, int validDays) {
+  Widget _buildWarning(BuildContext context, double minHeight) {
     String warning = "";
-    if (revoked) {
+    if (widget.revoked) {
       warning = FlutterI18n.translate(context, 'wallet.revoked');
-    } else if (expired) {
+    } else if (widget.expiryDate.expired) {
       warning = FlutterI18n.translate(context, 'wallet.expired');
     } else {
-      warning = FlutterI18n.plural(context, "wallet.expires_soon.data", validDays);
+      warning = FlutterI18n.plural(context, "wallet.expires_soon.data", widget.expiryDate.validDays);
     }
 
     return Container(
