@@ -101,6 +101,9 @@ lane :beta_ios_build do
   )
   Dir.chdir("..") do
     sh("flutter", "build", "ios", "--release", "--no-codesign")
+    sh("xcodebuild", "-workspace", "./ios/Runner.xcworkspace", "-scheme", "Runner", "-sdk", "iphoneos", "-configuration", "Release", "archive", "-archivePath", "./ios/build/Runner.xcarchive")
+    sh("xcodebuild", "-exportArchive", "-archivePath", "./ios/build/Runner.xcarchive", "-exportOptionsPlist", "./ios/AppStoreExportOptions.plist", "-exportPath", "./ios/build/AppStore")
+    # xcrun altool --upload-app --type ios --file ./ios/build/AppStore/Runner.ipa --username "info@example.com"
   end
 end
 
