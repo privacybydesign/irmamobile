@@ -17,10 +17,12 @@ import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 class Carousel extends StatefulWidget {
   final DisCon<Attribute> candidatesDisCon;
   final ValueChanged<int> onCurrentPageUpdate;
+  final bool showObtainButton;
 
   const Carousel({
     @required this.candidatesDisCon,
     @required this.onCurrentPageUpdate,
+    this.showObtainButton = true,
   });
 
   @override
@@ -305,7 +307,7 @@ class _CarouselState extends State<Carousel> {
       padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).smallSpacing),
       child: Table(
         defaultVerticalAlignment: TableCellVerticalAlignment.top,
-        defaultColumnWidth: IntrinsicColumnWidth(),
+        defaultColumnWidth: const IntrinsicColumnWidth(),
         children: [
           TableRow(children: [
             Opacity(
@@ -382,7 +384,7 @@ class _CarouselState extends State<Carousel> {
 
   List<Widget> _buildCredential(_DisclosureCredential cred) {
     final notice = _notice(cred);
-    if (notice == null) {
+    if (!widget.showObtainButton || notice == null) {
       return <Widget>[
         _buildAttributes(cred),
         _buildCredentialFooter(cred),
