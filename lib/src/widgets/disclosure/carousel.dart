@@ -415,7 +415,7 @@ class _CarouselState extends State<Carousel> {
             ],
           ),
         ),
-        _buildGetButton(cred),
+        if (cred.obtainable) _buildGetButton(cred),
       ];
     }
   }
@@ -510,6 +510,5 @@ class _DisclosureCredential {
         id = attributes.first.credentialInfo.fullId,
         issuer = attributes.first.credentialInfo.issuer.name,
         credentialInfo = attributes.first.credentialInfo,
-        obtainable =
-            !attributes.last.choosable && (attributes.last.credentialInfo.credentialType.issueUrl?.isNotEmpty ?? false);
+        obtainable = attributes.last.credentialInfo.credentialType.issueUrl?.isNotEmpty ?? false;
 }
