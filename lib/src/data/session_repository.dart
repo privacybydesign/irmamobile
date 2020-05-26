@@ -72,6 +72,7 @@ class SessionRepository {
         isSignatureSession: false,
         disclosureIndices: disclosureIndices,
         disclosureChoices: _choose(disclosureIndices, condiscon),
+        disclosuresCandidates: condiscon,
         issuedCredentials: event.issuedCredentials
             .map((raw) => Credential.fromRaw(
                   irmaConfiguration: irmaConfiguration,
