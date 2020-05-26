@@ -59,8 +59,8 @@ class CardFooter extends StatelessWidget {
   Widget _buildIssuer(BuildContext context, TextStyle body1Theme, String lang) {
     return Row(
       children: [
-        Container(
-          width: _indent,
+        Padding(
+          padding: const EdgeInsets.only(right: 8.0),
           child: Opacity(
             opacity: 0.8,
             child: Text(
@@ -73,6 +73,7 @@ class CardFooter extends StatelessWidget {
           child: Text(
             credentialInfo.issuer.name[lang],
             style: body1Theme.copyWith(fontSize: 12),
+            textAlign: TextAlign.end,
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -110,10 +111,10 @@ class CardFooter extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Container(
-              width: _indent,
-              child: Opacity(
-                opacity: 0.8,
+            Opacity(
+              opacity: 0.8,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 8.0),
                 child: Text(
                   expiryDate.expired
                       ? FlutterI18n.translate(context, 'wallet.expired_on')
@@ -126,6 +127,7 @@ class CardFooter extends StatelessWidget {
               child: Text(
                 _printableDate(expiryDate.dateTime, lang),
                 style: body1Theme.copyWith(fontSize: 12),
+                textAlign: TextAlign.end,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
