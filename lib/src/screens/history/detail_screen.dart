@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
+import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/log_entry.dart';
-import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/screens/history/widgets/header.dart';
 import 'package:irmamobile/src/screens/history/widgets/issuing_detail.dart';
 import 'package:irmamobile/src/screens/history/widgets/removal_detail.dart';
@@ -98,10 +98,12 @@ class DetailScreen extends StatelessWidget {
         context,
         LogEntryType.disclosing,
         DisclosureCard(
-            candidatesConDisCon: ConDisCon.fromConCon<Attribute>(
-                ConCon.fromRaw<DisclosedAttribute, Attribute>(logEntry.disclosedAttributes, (disclosedAttribute) {
-          return Attribute.fromDisclosedAttribute(irmaConfiguration, disclosedAttribute);
-        }))),
+          candidatesConDisCon: ConDisCon.fromConCon<Attribute>(
+              ConCon.fromRaw<DisclosedAttribute, Attribute>(logEntry.disclosedAttributes, (disclosedAttribute) {
+            return Attribute.fromDisclosedAttribute(irmaConfiguration, disclosedAttribute);
+          })),
+          showObtainButton: false,
+        ),
       ));
     }
 

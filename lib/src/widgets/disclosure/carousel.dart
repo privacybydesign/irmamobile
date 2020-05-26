@@ -17,10 +17,12 @@ import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 class Carousel extends StatefulWidget {
   final DisCon<Attribute> candidatesDisCon;
   final ValueChanged<int> onCurrentPageUpdate;
+  final bool showObtainButton;
 
   const Carousel({
     @required this.candidatesDisCon,
     @required this.onCurrentPageUpdate,
+    this.showObtainButton = true,
   });
 
   @override
@@ -30,6 +32,7 @@ class Carousel extends StatefulWidget {
 class _CarouselState extends State<Carousel> {
   final GlobalKey _keyStackedIndex = GlobalKey();
   final _animationDuration = 250;
+  final _footerColumnWidth = 60.0;
   int _currentPage = 0;
 
   double height;
@@ -303,58 +306,71 @@ class _CarouselState extends State<Carousel> {
   Widget _buildCredentialFooter(_DisclosureCredential cred) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).smallSpacing),
-      child: Table(
-        defaultVerticalAlignment: TableCellVerticalAlignment.top,
-        defaultColumnWidth: IntrinsicColumnWidth(),
-        children: [
-          TableRow(children: [
-            Opacity(
-              opacity: 0.5,
-              child: Text(
-                FlutterI18n.translate(context, 'disclosure.credential_name'),
-                style: IrmaTheme.of(context)
-                    .textTheme
-                    .body1
-                    .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
-                overflow: TextOverflow.ellipsis,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Container(
+                width: _footerColumnWidth,
+                child: Opacity(
+                  opacity: 0.5,
+                  child: Text(
+                    FlutterI18n.translate(context, 'disclosure.credential_name'),
+                    style: IrmaTheme.of(context)
+                        .textTheme
+                        .body1
+                        .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
+                  ),
+                ),
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(left: IrmaTheme.of(context).smallSpacing),
-              child: Text(
-                getTranslation(context, cred.credentialInfo.credentialType.name),
-                style: IrmaTheme.of(context)
-                    .textTheme
-                    .body1
-                    .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
-                overflow: TextOverflow.ellipsis,
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(left: IrmaTheme.of(context).smallSpacing),
+                  child: Text(
+                    getTranslation(context, cred.credentialInfo.credentialType.name),
+                    style: IrmaTheme.of(context)
+                        .textTheme
+                        .body1
+                        .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ),
-            ),
-          ]),
-          TableRow(children: [
-            Opacity(
-              opacity: 0.5,
-              child: Text(
-                FlutterI18n.translate(context, 'disclosure.issuer'),
-                style: IrmaTheme.of(context)
-                    .textTheme
-                    .body1
-                    .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
-                overflow: TextOverflow.ellipsis,
+            ],
+          ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Container(
+                width: _footerColumnWidth,
+                child: Opacity(
+                  opacity: 0.5,
+                  child: Text(
+                    FlutterI18n.translate(context, 'disclosure.issuer'),
+                    style: IrmaTheme.of(context)
+                        .textTheme
+                        .body1
+                        .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
+                  ),
+                ),
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(left: IrmaTheme.of(context).smallSpacing),
-              child: Text(
-                getTranslation(context, cred.issuer),
-                style: IrmaTheme.of(context)
-                    .textTheme
-                    .body1
-                    .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
-                overflow: TextOverflow.ellipsis,
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(left: IrmaTheme.of(context).smallSpacing),
+                  child: Text(
+                    getTranslation(context, cred.issuer),
+                    style: IrmaTheme.of(context)
+                        .textTheme
+                        .body1
+                        .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ),
-            ),
-          ]),
+            ],
+          ),
         ],
       ),
     );
@@ -382,7 +398,7 @@ class _CarouselState extends State<Carousel> {
 
   List<Widget> _buildCredential(_DisclosureCredential cred) {
     final notice = _notice(cred);
-    if (notice == null) {
+    if (!widget.showObtainButton || notice == null) {
       return <Widget>[
         _buildAttributes(cred),
         _buildCredentialFooter(cred),
@@ -399,7 +415,7 @@ class _CarouselState extends State<Carousel> {
             ],
           ),
         ),
-        _buildGetButton(cred),
+        if (cred.obtainable) _buildGetButton(cred),
       ];
     }
   }
@@ -494,6 +510,5 @@ class _DisclosureCredential {
         id = attributes.first.credentialInfo.fullId,
         issuer = attributes.first.credentialInfo.issuer.name,
         credentialInfo = attributes.first.credentialInfo,
-        obtainable =
-            !attributes.last.choosable && (attributes.last.credentialInfo.credentialType.issueUrl?.isNotEmpty ?? false);
+        obtainable = attributes.last.credentialInfo.credentialType.issueUrl?.isNotEmpty ?? false;
 }
