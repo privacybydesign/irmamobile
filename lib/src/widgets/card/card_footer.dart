@@ -59,8 +59,8 @@ class CardFooter extends StatelessWidget {
   Widget _buildIssuer(BuildContext context, TextStyle body1Theme, String lang) {
     return Row(
       children: [
-        Container(
-          width: _indent,
+        Padding(
+          padding: const EdgeInsets.only(right: 8.0),
           child: Opacity(
             opacity: 0.8,
             child: Text(
@@ -111,10 +111,10 @@ class CardFooter extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Container(
-              width: _indent + 40.0, // Because date is always short, indent can be increased for this row
-              child: Opacity(
-                opacity: 0.8,
+            Opacity(
+              opacity: 0.8,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 8.0),
                 child: Text(
                   expiryDate.expired
                       ? FlutterI18n.translate(context, 'wallet.expired_on')
