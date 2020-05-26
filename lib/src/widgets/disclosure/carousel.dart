@@ -32,6 +32,7 @@ class Carousel extends StatefulWidget {
 class _CarouselState extends State<Carousel> {
   final GlobalKey _keyStackedIndex = GlobalKey();
   final _animationDuration = 250;
+  final _footerColumnWidth = 60.0;
   int _currentPage = 0;
 
   double height;
@@ -305,58 +306,71 @@ class _CarouselState extends State<Carousel> {
   Widget _buildCredentialFooter(_DisclosureCredential cred) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).smallSpacing),
-      child: Table(
-        defaultVerticalAlignment: TableCellVerticalAlignment.top,
-        defaultColumnWidth: const IntrinsicColumnWidth(),
-        children: [
-          TableRow(children: [
-            Opacity(
-              opacity: 0.5,
-              child: Text(
-                FlutterI18n.translate(context, 'disclosure.credential_name'),
-                style: IrmaTheme.of(context)
-                    .textTheme
-                    .body1
-                    .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
-                overflow: TextOverflow.ellipsis,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Container(
+                width: _footerColumnWidth,
+                child: Opacity(
+                  opacity: 0.5,
+                  child: Text(
+                    FlutterI18n.translate(context, 'disclosure.credential_name'),
+                    style: IrmaTheme.of(context)
+                        .textTheme
+                        .body1
+                        .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
+                  ),
+                ),
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(left: IrmaTheme.of(context).smallSpacing),
-              child: Text(
-                getTranslation(context, cred.credentialInfo.credentialType.name),
-                style: IrmaTheme.of(context)
-                    .textTheme
-                    .body1
-                    .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
-                overflow: TextOverflow.ellipsis,
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(left: IrmaTheme.of(context).smallSpacing),
+                  child: Text(
+                    getTranslation(context, cred.credentialInfo.credentialType.name),
+                    style: IrmaTheme.of(context)
+                        .textTheme
+                        .body1
+                        .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ),
-            ),
-          ]),
-          TableRow(children: [
-            Opacity(
-              opacity: 0.5,
-              child: Text(
-                FlutterI18n.translate(context, 'disclosure.issuer'),
-                style: IrmaTheme.of(context)
-                    .textTheme
-                    .body1
-                    .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
-                overflow: TextOverflow.ellipsis,
+            ],
+          ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Container(
+                width: _footerColumnWidth,
+                child: Opacity(
+                  opacity: 0.5,
+                  child: Text(
+                    FlutterI18n.translate(context, 'disclosure.issuer'),
+                    style: IrmaTheme.of(context)
+                        .textTheme
+                        .body1
+                        .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
+                  ),
+                ),
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(left: IrmaTheme.of(context).smallSpacing),
-              child: Text(
-                getTranslation(context, cred.issuer),
-                style: IrmaTheme.of(context)
-                    .textTheme
-                    .body1
-                    .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
-                overflow: TextOverflow.ellipsis,
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(left: IrmaTheme.of(context).smallSpacing),
+                  child: Text(
+                    getTranslation(context, cred.issuer),
+                    style: IrmaTheme.of(context)
+                        .textTheme
+                        .body1
+                        .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ),
-            ),
-          ]),
+            ],
+          ),
         ],
       ),
     );
