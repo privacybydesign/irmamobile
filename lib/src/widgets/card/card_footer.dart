@@ -73,6 +73,7 @@ class CardFooter extends StatelessWidget {
           child: Text(
             credentialInfo.issuer.name[lang],
             style: body1Theme.copyWith(fontSize: 12),
+            textAlign: TextAlign.end,
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -111,7 +112,7 @@ class CardFooter extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Container(
-              width: _indent,
+              width: _indent + 40.0, // Because date is always short, indent can be increased for this row
               child: Opacity(
                 opacity: 0.8,
                 child: Text(
@@ -126,6 +127,7 @@ class CardFooter extends StatelessWidget {
               child: Text(
                 _printableDate(expiryDate.dateTime, lang),
                 style: body1Theme.copyWith(fontSize: 12),
+                textAlign: TextAlign.end,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
