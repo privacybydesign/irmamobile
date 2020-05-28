@@ -392,6 +392,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
         title: FlutterI18n.translate(context, 'disclosure.explanation.title'),
         content: FlutterI18n.translate(context, 'disclosure.explanation.body'),
         image: 'assets/disclosure/disclosure-explanation.webp',
+        onClose: _hideExplanation,
         child: Wrap(
           direction: Axis.horizontal,
           verticalDirection: VerticalDirection.up,
@@ -400,8 +401,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
             IrmaTextButton(
               onPressed: () async {
                 await irmaPrefs.setShowDisclosureDialog(false);
-                setState(() => _showTooltip = true);
-                Navigator.of(context).pop();
+                _hideExplanation();
               },
               minWidth: 0.0,
               label: 'disclosure.explanation.dismiss-remember',
@@ -409,15 +409,17 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
             IrmaButton(
               size: IrmaButtonSize.small,
               minWidth: 0.0,
-              onPressed: () {
-                setState(() => _showTooltip = true);
-                Navigator.of(context).pop();
-              },
+              onPressed: _hideExplanation,
               label: 'disclosure.explanation.dismiss',
             ),
           ],
         ),
       ),
     );
+  }
+
+  void _hideExplanation() {
+    setState(() => _showTooltip = true);
+    Navigator.of(context).pop();
   }
 }
