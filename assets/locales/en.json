@@ -453,11 +453,13 @@
     "call_info": {
       "title": "Call via IRMA",
       "success": "Data disclosed",
-      "success_message_markdown": "Your data are disclosed to **{otherParty}**.\nComplete the following steps to start the call.",
-      "continue": "Choose continue",
-      "continue_message_1": "Your phone app now opens automatically.",
-      "continue_message_2": "The number is pre-filled, followed by a link-code.",
-      "call": "Tap the call button in your phone app.",
+      "success_message_markdown": "Your data have now been disclosed to **{otherParty}**.\nComplete the steps below to start the call.",
+      "success_message_ios_markdown": "Your data have now been disclosed to **{otherParty}**.",
+      "continue": "1. Choose continue",
+      "continue_ios": "Choose continue to call",
+      "continue_message": "Your phone app now opens automatically. The number is pre-filled, followed by a link-code.",
+      "continue_message_ios": "A pop-up will appear, with the option to place the call. The number is pre-filled, followed by a link-code. If you choose to call, you will hear a few beeps and you will be connected.",
+      "call": "2. Tap the call button in your phone app",
       "call_message": "You will hear a few beeps and you will be connected.",
       "continue_button": "Continue"
     }

@@ -455,10 +455,12 @@
       "title": "Via IRMA bellen",
       "success": "Gegevens doorgegegeven",
       "success_message_markdown": "Je gegevens zijn doorgegegeven aan **{otherParty}**.\nVoer de volgende stappen uit om te bellen.",
-      "continue": "Kies doorgaan",
-      "continue_message_1": "Je belapplicatie opent nu vanzelf.",
-      "continue_message_2": "Het telefoonnummer is al ingevuld, met een koppelcode.",
-      "call": "Klik de belknop in je belapplicatie",
+      "success_message_ios_markdown": "Je gegevens zijn doorgegegeven aan **{otherParty}**.",
+      "continue": "1. Kies doorgaan",
+      "continue_ios": "Kies doorgaan om te bellen",
+      "continue_message": "Je belapplicatie opent nu vanzelf. Het telefoonnummer is al ingevuld, met een koppelcode.",
+      "continue_message_ios": "Er verschijnt een pop-up met de keuze om te bellen. Het telefoonnummer is al ingevuld, met een koppelcode. Als je bellen kiest, hoor je een paar piepjes en word je verbonden.",
+      "call": "2. Klik op de belknop in je belapplicatie",
       "call_message": "Je hoort een paar piepjes en wordt verbonden.",
       "continue_button": "Doorgaan"
     }
