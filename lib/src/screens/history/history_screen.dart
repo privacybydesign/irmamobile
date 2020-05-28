@@ -6,10 +6,10 @@ import 'package:irmamobile/src/models/log_entry.dart';
 import 'package:irmamobile/src/screens/history/detail_screen.dart';
 import 'package:irmamobile/src/screens/history/history_repository.dart';
 import 'package:irmamobile/src/screens/history/widgets/log_entry_card.dart';
+import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/loading_indicator.dart';
-import 'package:irmamobile/src/theme/irma_icons.dart';
 
 class HistoryScreen extends StatefulWidget {
   static const routeName = "/history";

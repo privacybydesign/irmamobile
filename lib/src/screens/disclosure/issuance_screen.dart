@@ -85,12 +85,11 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
 
   Widget _buildPermissionWidget(SessionState session) {
     return ListView(
-      padding: EdgeInsets.all(IrmaTheme.of(context).smallSpacing),
       children: <Widget>[
         Padding(
           padding: EdgeInsets.symmetric(
             vertical: IrmaTheme.of(context).mediumSpacing,
-            horizontal: IrmaTheme.of(context).smallSpacing,
+            horizontal: IrmaTheme.of(context).defaultSpacing,
           ),
           child: Text(
             FlutterI18n.plural(context, 'issuance.header', session.issuedCredentials.length),

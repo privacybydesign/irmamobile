@@ -176,6 +176,7 @@ class ContactLink extends StatelessWidget {
           ),
         ),
         Expanded(
+          // TODO: make one general widget for all spots where we offer contact possibilities
           child: InkWell(
             onTap: () async {
               final String address = FlutterI18n.translate(context, 'about.contact');
