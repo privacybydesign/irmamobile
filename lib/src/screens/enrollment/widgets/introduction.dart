@@ -150,6 +150,7 @@ class Walkthrough extends StatelessWidget {
                     child: Center(
                       child: Text(
                         FlutterI18n.translate(context, linkText),
+                        textAlign: TextAlign.center,
                         style: IrmaTheme.of(context).hyperlinkTextStyle.copyWith(
                               decoration: TextDecoration.underline,
                             ),
