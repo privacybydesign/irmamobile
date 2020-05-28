@@ -141,7 +141,7 @@ class Walkthrough extends StatelessWidget {
                   child: GestureDetector(
                     onTap: () {
                       try {
-                        IrmaRepository.get().openURL(context, linkUrl);
+                        IrmaRepository.get().openURL(context, FlutterI18n.translate(context, linkUrl));
                       } on PlatformException catch (e, stacktrace) {
                         reportError(e,
                             stacktrace); //TODO: reconsider whether this should be handled this way, or is better of with an error screens
