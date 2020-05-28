@@ -141,15 +141,14 @@ class CanceledSessionEvent extends SessionEvent {
 
 @JsonSerializable()
 class RequestIssuancePermissionSessionEvent extends SessionEvent {
-  RequestIssuancePermissionSessionEvent(
-      {int sessionID,
-      this.serverName,
-      this.satisfiable,
-      this.issuedCredentials,
-      this.disclosures,
-      this.disclosuresLabels,
-      this.disclosuresCandidates})
-      : super(sessionID);
+  RequestIssuancePermissionSessionEvent({
+    int sessionID,
+    this.serverName,
+    this.satisfiable,
+    this.issuedCredentials,
+    this.disclosuresLabels,
+    this.disclosuresCandidates,
+  }) : super(sessionID);
 
   @JsonKey(name: 'ServerName')
   TranslatedValue serverName;
@@ -159,9 +158,6 @@ class RequestIssuancePermissionSessionEvent extends SessionEvent {
 
   @JsonKey(name: 'IssuedCredentials')
   List<RawCredential> issuedCredentials;
-
-  @JsonKey(name: 'Disclosures')
-  List<List<List<String>>> disclosures;
 
   @JsonKey(name: 'DisclosuresLabels')
   Map<int, TranslatedValue> disclosuresLabels;
@@ -176,23 +172,19 @@ class RequestIssuancePermissionSessionEvent extends SessionEvent {
 
 @JsonSerializable()
 class RequestVerificationPermissionSessionEvent extends SessionEvent {
-  RequestVerificationPermissionSessionEvent(
-      {int sessionID,
-      this.serverName,
-      this.satisfiable,
-      this.disclosures,
-      this.disclosuresLabels,
-      this.disclosuresCandidates})
-      : super(sessionID);
+  RequestVerificationPermissionSessionEvent({
+    int sessionID,
+    this.serverName,
+    this.satisfiable,
+    this.disclosuresLabels,
+    this.disclosuresCandidates,
+  }) : super(sessionID);
 
   @JsonKey(name: 'ServerName')
   TranslatedValue serverName;
 
   @JsonKey(name: 'Satisfiable')
   bool satisfiable;
-
-  @JsonKey(name: 'Disclosures')
-  List<List<List<String>>> disclosures;
 
   @JsonKey(name: 'DisclosuresLabels')
   Map<int, TranslatedValue> disclosuresLabels;
