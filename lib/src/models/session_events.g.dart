@@ -131,9 +131,6 @@ RequestIssuancePermissionSessionEvent _$RequestIssuancePermissionSessionEventFro
     issuedCredentials: (json['IssuedCredentials'] as List)
         ?.map((e) => e == null ? null : RawCredential.fromJson(e as Map<String, dynamic>))
         ?.toList(),
-    disclosures: (json['Disclosures'] as List)
-        ?.map((e) => (e as List)?.map((e) => (e as List)?.map((e) => e as String)?.toList())?.toList())
-        ?.toList(),
     disclosuresLabels: (json['DisclosuresLabels'] as Map<String, dynamic>)?.map(
       (k, e) => MapEntry(int.parse(k), e == null ? null : TranslatedValue.fromJson(e as Map<String, dynamic>)),
     ),
@@ -153,7 +150,6 @@ Map<String, dynamic> _$RequestIssuancePermissionSessionEventToJson(RequestIssuan
       'ServerName': instance.serverName,
       'Satisfiable': instance.satisfiable,
       'IssuedCredentials': instance.issuedCredentials,
-      'Disclosures': instance.disclosures,
       'DisclosuresLabels': instance.disclosuresLabels?.map((k, e) => MapEntry(k.toString(), e)),
       'DisclosuresCandidates': instance.disclosuresCandidates,
     };
@@ -165,9 +161,6 @@ RequestVerificationPermissionSessionEvent _$RequestVerificationPermissionSession
     serverName:
         json['ServerName'] == null ? null : TranslatedValue.fromJson(json['ServerName'] as Map<String, dynamic>),
     satisfiable: json['Satisfiable'] as bool,
-    disclosures: (json['Disclosures'] as List)
-        ?.map((e) => (e as List)?.map((e) => (e as List)?.map((e) => e as String)?.toList())?.toList())
-        ?.toList(),
     disclosuresLabels: (json['DisclosuresLabels'] as Map<String, dynamic>)?.map(
       (k, e) => MapEntry(int.parse(k), e == null ? null : TranslatedValue.fromJson(e as Map<String, dynamic>)),
     ),
@@ -189,7 +182,6 @@ Map<String, dynamic> _$RequestVerificationPermissionSessionEventToJson(
       'SessionID': instance.sessionID,
       'ServerName': instance.serverName,
       'Satisfiable': instance.satisfiable,
-      'Disclosures': instance.disclosures,
       'DisclosuresLabels': instance.disclosuresLabels?.map((k, e) => MapEntry(k.toString(), e)),
       'DisclosuresCandidates': instance.disclosuresCandidates,
       'IsSignatureSession': instance.isSignatureSession,
