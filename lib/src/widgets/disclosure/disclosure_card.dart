@@ -6,11 +6,13 @@ import 'package:irmamobile/src/widgets/disclosure/carousel.dart';
 class DisclosureCard extends StatefulWidget {
   final ConDisCon<Attribute> candidatesConDisCon;
   final Function(int, int) onCurrentPageUpdate;
+  final Function() onIssue;
   final bool showObtainButton;
 
   const DisclosureCard({
     this.candidatesConDisCon,
     this.onCurrentPageUpdate,
+    this.onIssue,
     this.showObtainButton = true,
   }) : super();
 
@@ -46,6 +48,7 @@ class _DisclosureCardState extends State<DisclosureCard> {
                     candidatesDisCon: entry.value,
                     onCurrentPageUpdate: (int page) => widget.onCurrentPageUpdate(entry.key, page),
                     showObtainButton: widget.showObtainButton,
+                    onIssue: widget.onIssue,
                   )
                 ],
               )

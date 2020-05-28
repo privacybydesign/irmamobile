@@ -46,6 +46,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
 
   bool _displayArrowBack = false;
 
+  bool _showTooltip = true;
   bool scrolledToEnd = false;
   final _scrollController = ScrollController();
 
@@ -281,6 +282,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   }
 
   Widget _buildNavigationBar() {
+    final showTooltip = _showTooltip && !scrolledToEnd;
     return StreamBuilder<SessionState>(
       stream: _sessionStateStream,
       builder: (context, sessionStateSnapshot) {
@@ -294,8 +296,8 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
           onPrimaryPressed: state.canDisclose && scrolledToEnd ? () => _givePermission(state) : null,
           secondaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.no"),
           onSecondaryPressed: () => _dismissSession(),
-          toolTipLabel: scrolledToEnd ? null : FlutterI18n.translate(context, "disclosure.see_more"),
-          showTooltipOnPrimary: !scrolledToEnd,
+          toolTipLabel: showTooltip ? FlutterI18n.translate(context, "disclosure.see_more") : null,
+          showTooltipOnPrimary: showTooltip,
         );
       },
     );
@@ -333,6 +335,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
         DisclosureCard(
           candidatesConDisCon: session.disclosuresCandidates,
           onCurrentPageUpdate: carouselPageUpdate,
+          onIssue: () => setState(() => _showTooltip = false),
         ),
       ],
     );
@@ -382,12 +385,14 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
       return;
     }
 
+    setState(() => _showTooltip = false);
     showDialog(
       context: context,
       builder: (BuildContext context) => IrmaDialog(
         title: FlutterI18n.translate(context, 'disclosure.explanation.title'),
         content: FlutterI18n.translate(context, 'disclosure.explanation.body'),
         image: 'assets/disclosure/disclosure-explanation.webp',
+        onClose: _hideExplanation,
         child: Wrap(
           direction: Axis.horizontal,
           verticalDirection: VerticalDirection.up,
@@ -396,7 +401,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
             IrmaTextButton(
               onPressed: () async {
                 await irmaPrefs.setShowDisclosureDialog(false);
-                Navigator.of(context).pop();
+                _hideExplanation();
               },
               minWidth: 0.0,
               label: 'disclosure.explanation.dismiss-remember',
@@ -404,14 +409,17 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
             IrmaButton(
               size: IrmaButtonSize.small,
               minWidth: 0.0,
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: _hideExplanation,
               label: 'disclosure.explanation.dismiss',
             ),
           ],
         ),
       ),
     );
+  }
+
+  void _hideExplanation() {
+    setState(() => _showTooltip = true);
+    Navigator.of(context).pop();
   }
 }

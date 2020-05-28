@@ -18,10 +18,12 @@ class Carousel extends StatefulWidget {
   final DisCon<Attribute> candidatesDisCon;
   final ValueChanged<int> onCurrentPageUpdate;
   final bool showObtainButton;
+  final Function() onIssue;
 
   const Carousel({
     @required this.candidatesDisCon,
     @required this.onCurrentPageUpdate,
+    this.onIssue,
     this.showObtainButton = true,
   });
 
@@ -47,6 +49,9 @@ class _CarouselState extends State<Carousel> {
 
   Function() _createOnRefreshCredential(CredentialType type) {
     return () {
+      if (widget.onIssue != null) {
+        widget.onIssue();
+      }
       final url = getTranslation(context, type.issueUrl);
       IrmaRepository.get().openURL(context, url);
     };
