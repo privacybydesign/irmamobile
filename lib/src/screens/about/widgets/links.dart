@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/sentry/sentry.dart';
+import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
@@ -154,10 +155,7 @@ class ShareLink extends StatelessWidget {
 }
 
 class ContactLink extends StatelessWidget {
-  final String linkText;
-  final Widget icon;
-
-  const ContactLink(this.linkText, this.icon);
+  const ContactLink();
 
   @override
   Widget build(BuildContext context) {
@@ -171,7 +169,7 @@ class ContactLink extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.only(
                   left: IrmaTheme.of(context).smallSpacing, right: IrmaTheme.of(context).defaultSpacing),
-              child: icon,
+              child: Icon(IrmaIcons.email),
             ),
           ),
         ),
