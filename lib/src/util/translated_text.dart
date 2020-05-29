@@ -22,11 +22,14 @@ class TranslatedText extends StatelessWidget {
     this.textAlign,
   });
 
-  Widget _buildMarkdown(String translation) {
+  Widget _buildMarkdown(String translation, BuildContext context) {
     return IrmaMarkdown(
       translation,
       styleSheet: MarkdownStyleSheet(
         p: style,
+        textScaleFactor: MediaQuery.textScaleFactorOf(
+          context,
+        ),
       ),
     );
   }
@@ -60,6 +63,7 @@ class TranslatedText extends StatelessWidget {
     if (submap.containsKey("${lastSubkey}_markdown")) {
       return _buildMarkdown(
         _translate(context, "${_key}_markdown"),
+        context,
       );
     }
 
