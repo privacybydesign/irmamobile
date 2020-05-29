@@ -47,6 +47,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   bool _displayArrowBack = false;
 
   bool _showTooltip = true;
+  bool _explanationHidden = false;
   bool scrolledToEnd = false;
   final _scrollController = ScrollController();
 
@@ -381,7 +382,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     final bool showDisclosureDialog = await irmaPrefs.getShowDisclosureDialog().first;
     final hasChoice = candidatesConDisCon.any((candidatesDisCon) => candidatesDisCon.length > 1);
 
-    if (!showDisclosureDialog || !hasChoice) {
+    if (_explanationHidden || !showDisclosureDialog || !hasChoice) {
       return;
     }
 
@@ -419,7 +420,10 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   }
 
   void _hideExplanation() {
-    setState(() => _showTooltip = true);
+    setState(() {
+      _showTooltip = true;
+      _explanationHidden = true;
+    });
     Navigator.of(context).pop();
   }
 }
