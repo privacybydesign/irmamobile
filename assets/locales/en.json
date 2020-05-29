@@ -84,7 +84,7 @@
     "source_code": "Source code",
     "source_code_link": "https://github.com/privacybydesign",
     "contact": "Contact",
-    "contact_link": "mailto:app@privacybydesign.foundation",
+    "contact_subject": "IRMA-app",
     "privacy_policy": "IRMA's privacy rules",
     "privacy_policy_link": "https://privacybydesign.foundation/privacy-policy-en",
     "demo": "Frequently asked questions & demos",
@@ -442,7 +442,7 @@
     "feedback": {
       "header": {
         "true": "Success",
-        "false": "Failed"
+        "false": "Cancelled"
       },
       "text": {
         "true": "Your data are disclosed to {otherParty}",

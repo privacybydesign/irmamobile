@@ -100,8 +100,7 @@ class _AboutScreenState extends State<AboutScreen> {
                           SizedBox(height: IrmaTheme.of(context).defaultSpacing),
                           const ExternalLink("about.irma_website_link", "about.more_information", Icon(IrmaIcons.info)),
                           SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-                          const ContactLink(
-                              "help.contact", "help.mail_subject", "about.contact", Icon(IrmaIcons.email)),
+                          const ContactLink(),
                           SizedBox(height: IrmaTheme.of(context).largeSpacing),
                           Text(
                             FlutterI18n.translate(context, 'about.get_involved'),

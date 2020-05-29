@@ -84,7 +84,7 @@
     "source_code": "Source code",
     "source_code_link": "https://github.com/privacybydesign",
     "contact": "Contact opnemen",
-    "contact_link": "mailto:app@privacybydesign.foundation",
+    "contact_subject": "IRMA-app",
     "privacy_policy": "IRMA's privacyregels",
     "privacy_policy_link": "https://privacybydesign.foundation/privacy-policy",
     "demo": "Veelgesteldevragen & demo's",
@@ -443,7 +443,7 @@
     "feedback": {
       "header": {
         "true": "Gelukt",
-        "false": "Niets doorgegeven"
+        "false": "Afgebroken"
       },
       "text": {
         "true": "Je gegevens zijn doorgegeven aan {otherParty}",

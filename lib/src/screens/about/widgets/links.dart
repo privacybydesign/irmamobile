@@ -4,7 +4,11 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/sentry/sentry.dart';
+import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/irma_button.dart';
+import 'package:irmamobile/src/widgets/irma_dialog.dart';
+import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -151,12 +155,7 @@ class ShareLink extends StatelessWidget {
 }
 
 class ContactLink extends StatelessWidget {
-  final String mailto;
-  final String subjectLine;
-  final String linkText;
-  final Widget icon;
-
-  const ContactLink(this.mailto, this.subjectLine, this.linkText, this.icon);
+  const ContactLink();
 
   @override
   Widget build(BuildContext context) {
@@ -170,22 +169,43 @@ class ContactLink extends StatelessWidget {
             child: Padding(
               padding: EdgeInsets.only(
                   left: IrmaTheme.of(context).smallSpacing, right: IrmaTheme.of(context).defaultSpacing),
-              child: icon,
+              child: Icon(IrmaIcons.email),
             ),
           ),
         ),
         Expanded(
-          child: Container(
-            child: InkWell(
-              onTap: () {
-                final String address = FlutterI18n.translate(context, mailto);
-                final String subject = FlutterI18n.translate(context, subjectLine);
-                launch("mailto:$address?subject=$subject");
-              },
-              child: Text(
-                FlutterI18n.translate(context, linkText),
-                style: TextStyle(color: IrmaTheme.of(context).linkColor),
-              ),
+          // TODO: make one general widget for all spots where we offer contact possibilities
+          child: InkWell(
+            onTap: () async {
+              final String address = FlutterI18n.translate(context, 'about.contact');
+              final String subject = Uri.encodeComponent(FlutterI18n.translate(context, 'about.contact_subject'));
+              final mail = 'mailto:$address?subject=$subject';
+              if (await canLaunch(mail)) {
+                await launch(mail);
+              } else {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return IrmaDialog(
+                      title: FlutterI18n.translate(context, 'help.mail_error_title'),
+                      content: FlutterI18n.translate(context, 'help.mail_error'),
+                      child: IrmaButton(
+                        size: IrmaButtonSize.small,
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        label: FlutterI18n.translate(context, 'help.mail_error_button'),
+                      ),
+                    );
+                  },
+                );
+              }
+            },
+            child: Text(
+              FlutterI18n.translate(context, 'about.contact'),
+              style: IrmaTheme.of(context).hyperlinkTextStyle.copyWith(
+                    decoration: TextDecoration.underline,
+                  ),
             ),
           ),
         ),

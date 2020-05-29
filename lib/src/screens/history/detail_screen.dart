@@ -119,7 +119,7 @@ class DetailScreen extends StatelessWidget {
       Padding(
         padding: EdgeInsets.symmetric(
           vertical: IrmaTheme.of(context).defaultSpacing,
-          horizontal: IrmaTheme.of(context).smallSpacing,
+          horizontal: IrmaTheme.of(context).tinySpacing,
         ),
         child: detailWidget,
       ),
