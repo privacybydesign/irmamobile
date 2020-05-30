@@ -17,8 +17,8 @@ class IrmaMarkdown extends StatelessWidget {
     return MarkdownBody(
       data: _data,
 
-      // if selectable is false, the textScaleFactor does not seem to work
-      selectable: true,
+      // if selectable is true, links in the markdown do not seem to work
+      selectable: false,
 
       // Effectively disable image rendering (to prevent remote image loading)
       imageBuilder: (Uri uri) => Container(),
@@ -27,11 +27,6 @@ class IrmaMarkdown extends StatelessWidget {
       styleSheet: MarkdownStyleSheet(
         strong: IrmaTheme.of(context).textTheme.body2,
         a: IrmaTheme.of(context).hyperlinkTextStyle,
-        // TODO: Remove this textScaleFactor option when this PR has merged:
-        // https://github.com/flutter/flutter_markdown/pull/162
-        textScaleFactor: MediaQuery.textScaleFactorOf(
-          context,
-        ),
       ).merge(styleSheet),
 
       // View links in in-app browser
