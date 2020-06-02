@@ -432,6 +432,7 @@
     "unsatisfiable_message_markdown": "Er worden gegevens gevraagd die nog niet in je IRMA-app staan of verlopen zijn. Voeg de gegevens toe om ze vervolgens door te kunnen geven.",
     "obtain": "Toevoegen",
     "refresh": "Verversen",
+    "nothing_selected": "Niets gekozen",
     "explanation": {
       "title": "Zo maak je een keuze",
       "body": "Kies welke gegevens je doorgeeft. Gebruik het pijltje of swipe en maak je keuze.",

@@ -459,6 +459,21 @@ class _CarouselState extends State<Carousel> {
   }
 
   Widget _buildCarouselWidget(Con<Attribute> candidatesCon) {
+    // Handle empty conjunctions (if chosen, nothing is disclosed)
+    if (candidatesCon.isEmpty) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            FlutterI18n.translate(context, 'disclosure.nothing_selected'),
+            style:
+                IrmaTheme.of(context).textTheme.body1.copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 14),
+          ),
+        ],
+      );
+    }
+
     // Transform candidatesCon into a list where attributes of the same issuer
     // are grouped together. This assumes those attributes are always
     // adjacent within the specified con, which is guaranteed by irmago.
