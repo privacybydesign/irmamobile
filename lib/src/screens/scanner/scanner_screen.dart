@@ -38,8 +38,7 @@ class ScannerScreen extends StatelessWidget {
     repo.dispatch(event, isBridgedEvent: true);
 
     String screen;
-    if (["disclosing", "signing", "static"].contains(event.request.irmaqr)) {
-      // TODO test static QRs
+    if (["disclosing", "signing", "redirect"].contains(event.request.irmaqr)) {
       screen = DisclosureScreen.routeName;
     } else if ("issuing" == event.request.irmaqr) {
       screen = IssuanceScreen.routeName;
