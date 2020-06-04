@@ -12,17 +12,15 @@ Future<void> main() async {
     Zone.current.handleUncaughtError(details.exception, details.stack);
   };
 
-  runZoned<Future<void>>(() async {
+  runZonedGuarded<Future<void>>(() async {
     WidgetsFlutterBinding.ensureInitialized();
     IrmaRepository(client: IrmaClientBridge());
 
     runApp(
-      CredentialNudgeProvider(
+      const CredentialNudgeProvider(
         credentialNudge: null,
-        child: const App(),
+        child: App(),
       ),
     );
-  }, onError: (error, stackTrace) {
-    reportError(error, stackTrace);
-  });
+  }, (error, stackTrace) => reportError(error, stackTrace));
 }
