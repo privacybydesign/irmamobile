@@ -9,6 +9,7 @@ import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/credential_events.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
+import 'package:irmamobile/src/models/native_events.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/get_cards_nudge.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/irma_pilot_nudge.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet_button.dart';
@@ -52,10 +53,10 @@ class Wallet extends StatefulWidget {
   final VoidCallback onNewCardAnimationShown;
 
   @override
-  _WalletState createState() => _WalletState();
+  WalletState createState() => WalletState();
 }
 
-class _WalletState extends State<Wallet> with TickerProviderStateMixin {
+class WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _cardAnimationDuration = 250;
   final _loginAnimationDuration = 400;
   final _walletAspectRatio = 87 / 360; // wallet.svg 360x87 px
@@ -118,9 +119,9 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   AnimationController _loginLogoutAnimationController;
   Animation<double> _drawAnimation;
 
-  WalletState _cardInStackState = WalletState.tightlyfolded;
-  WalletState _oldState = WalletState.minimal;
-  WalletState _currentState = WalletState.minimal;
+  WalletLayout _cardInStackState = WalletLayout.tightlyfolded;
+  WalletLayout _oldState = WalletLayout.minimal;
+  WalletLayout _currentState = WalletLayout.minimal;
 
   // Index of drawn (visible) card
   int _drawnCardIndex = 0;
@@ -136,7 +137,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   final _closedWalletOffset = 50;
   final IrmaRepository _irmaClient = IrmaRepository.get();
 
-  get type => null;
+  Type get type => null;
 
   @override
   void initState() {
@@ -161,11 +162,11 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
           if (state == AnimationStatus.completed) {
             setState(
               () {
-                if (_oldState == WalletState.tightlyfolded || _oldState == WalletState.folded) {
+                if (_oldState == WalletLayout.tightlyfolded || _oldState == WalletLayout.folded) {
                   _cardInStackState = _oldState;
                 }
 
-                if (_currentState == WalletState.tightlyfolded && widget.showNewCardAnimation == true) {
+                if (_currentState == WalletLayout.tightlyfolded && widget.showNewCardAnimation == true) {
                   widget.onNewCardAnimationShown();
                 }
                 _oldState = _currentState;
@@ -192,13 +193,13 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
     if (widget.showNewCardAnimation == true) {
       setState(() {
         _drawnCardIndex = widget.newCardIndex;
-        _currentState = WalletState.drawn;
+        _currentState = WalletLayout.drawn;
         _nudgeVisible = false;
         _cardAnimationController.forward(from: _cardAnimationDuration.toDouble());
       });
 
       Future.delayed(Duration(milliseconds: _cardVisibleDelay)).then((_) {
-        setNewState(_cardInStackState);
+        setNewLayout(_cardInStackState);
       });
     } else if (_drawnCardIndex < (oldWidget.credentials?.length ?? 0) && widget.credentials != null) {
       // Check whether drawn card still exists in the new state. Index might have changed due to removal.
@@ -212,9 +213,9 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       }
     }
 
-    // If drawn card does not exist anymore, make sure the currentState is not WalletState.drawn.
-    if (_drawnCardIndex >= (widget.credentials?.length ?? 0) && _currentState == WalletState.drawn) {
-      setNewState(_cardInStackState);
+    // If drawn card does not exist anymore, make sure the currentState is not WalletLayout.drawn.
+    if (_drawnCardIndex >= (widget.credentials?.length ?? 0) && _currentState == WalletLayout.drawn) {
+      setNewLayout(_cardInStackState);
     }
 
     if (widget.hasLoginLogoutAnimation && !oldWidget.isOpen && widget.isOpen) {
@@ -320,8 +321,8 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                           ),
 
                           /// Show button to minimize wallet only if wallet is in a state that it can be minimized
-                          if (_currentState == WalletState.drawn ||
-                              _currentState == WalletState.folded && widget.credentials.length > _cardsMaxExtended)
+                          if (_currentState == WalletLayout.drawn ||
+                              _currentState == WalletLayout.folded && widget.credentials.length > _cardsMaxExtended)
                             Positioned(
                               bottom: (screenWidth * _walletAspectRatio - _walletIconHeight) / 2,
                               width: screenWidth,
@@ -331,14 +332,14 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                                   iconData: IrmaIcons.chevronDown,
                                   onTap: () {
                                     switch (_currentState) {
-                                      case WalletState.tightlyfolded:
-                                        setNewState(WalletState.folded);
+                                      case WalletLayout.tightlyfolded:
+                                        setNewLayout(WalletLayout.folded);
                                         break;
-                                      case WalletState.folded:
-                                        setNewState(WalletState.tightlyfolded);
+                                      case WalletLayout.folded:
+                                        setNewLayout(WalletLayout.tightlyfolded);
                                         break;
                                       default:
-                                        setNewState(_cardInStackState);
+                                        setNewLayout(_cardInStackState);
                                         break;
                                     }
                                   },
@@ -373,7 +374,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
       });
       return Future.delayed(Duration(milliseconds: _walletShowCardsDelay));
     }).then((_) {
-      setNewState(WalletState.tightlyfolded);
+      setNewLayout(WalletLayout.tightlyfolded);
     });
   }
 
@@ -386,7 +387,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
     final stackHeightFolded = _screenHeightMargin + widget.credentials.length.toDouble() * _cardTopHeight;
     final walletHeight = screenHeight - _screenHeightMargin;
 
-    final scrollingEnabled = _currentState == WalletState.folded && stackHeightFolded > walletHeight;
+    final scrollingEnabled = _currentState == WalletLayout.folded && stackHeightFolded > walletHeight;
 
     /// Render all credential cards
     final rendered = widget.credentials.asMap().entries.map<Widget>(
@@ -412,7 +413,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
     final index = widget.credentials.length < _cardsTopVisible + _cardsTopVisibleOverlap + _cardsTopBorderVisible
         ? widget.credentials.length - _cardsTopVisible
         : widget.credentials.length - _cardsTopVisible - _cardsTopVisibleOverlap;
-    if (_currentState == WalletState.tightlyfolded && widget.credentials.length > _cardsMaxExtended) {
+    if (_currentState == WalletLayout.tightlyfolded && widget.credentials.length > _cardsMaxExtended) {
       rendered.insert(
         index,
         _buildWalletExpandButton(walletTop),
@@ -467,7 +468,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         /// Add similar gestures as the cards have to make sure the animations keep working
         child: WalletIconButton(
           iconData: IrmaIcons.chevronUp,
-          onTap: () => setNewState(WalletState.folded),
+          onTap: () => setNewLayout(WalletLayout.folded),
           onVerticalDragDown: (DragDownDetails details) {
             setState(
               () {
@@ -488,9 +489,9 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
             });
           },
           onVerticalDragEnd: (DragEndDetails details) {
-            if ((_dragOffset < -_dragTipping && _currentState != WalletState.drawn) ||
-                (_dragOffset > _dragTipping && _currentState == WalletState.drawn)) {
-              setNewState(WalletState.folded);
+            if ((_dragOffset < -_dragTipping && _currentState != WalletLayout.drawn) ||
+                (_dragOffset > _dragTipping && _currentState == WalletLayout.drawn)) {
+              setNewLayout(WalletLayout.folded);
             } else {
               _cardAnimationController.forward();
             }
@@ -507,7 +508,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
         onTap: () {
           cardTapped(index, credential);
         },
-        onLongPressStart: _currentState == WalletState.drawn
+        onLongPressStart: _currentState == WalletLayout.drawn
             ? null
             : (LongPressStartDetails details) {
                 HapticFeedback.vibrate();
@@ -516,14 +517,14 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
                   cardGestureFixedUpdate();
                 });
               },
-        onLongPressMoveUpdate: _currentState == WalletState.drawn
+        onLongPressMoveUpdate: _currentState == WalletLayout.drawn
             ? null
             : (LongPressMoveUpdateDetails details) {
                 setState(() {
                   cardGestureUpdate(index, details.localPosition);
                 });
               },
-        onLongPressEnd: _currentState == WalletState.drawn
+        onLongPressEnd: _currentState == WalletLayout.drawn
             ? null
             : (LongPressEndDetails details) {
                 cardGestureEnd(index, credential);
@@ -566,7 +567,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
     // Correct all drags with the starting localPosition of the gesture to assure a smooth animation.
     _cardDragOffset = localPosition.dy;
 
-    if (_currentState != WalletState.drawn) {
+    if (_currentState != WalletLayout.drawn) {
       _drawnCardIndex = index;
       if (longPressed) {
         // Make a fixed nudge card drag to show users the card can move now
@@ -596,11 +597,11 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
   void cardGestureEnd(int index, Credential credential) {
     if (_cardTappedSave ||
-        (_dragOffset < -_dragTipping && _currentState != WalletState.drawn) ||
-        (_dragOffset > _dragTipping && _currentState == WalletState.drawn)) {
+        (_dragOffset < -_dragTipping && _currentState != WalletLayout.drawn) ||
+        (_dragOffset > _dragTipping && _currentState == WalletLayout.drawn)) {
       cardTapped(index, credential);
-    } else if (_dragOffset > _dragTipping && _currentState == WalletState.folded) {
-      setNewState(WalletState.tightlyfolded);
+    } else if (_dragOffset > _dragTipping && _currentState == WalletLayout.folded) {
+      setNewLayout(WalletLayout.tightlyfolded);
     } else {
       _cardAnimationController.forward();
     }
@@ -629,14 +630,14 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
   /// onTap handler
   void cardTapped(int index, Credential credential) {
-    if (_currentState == WalletState.drawn) {
-      setNewState(_cardInStackState);
+    if (_currentState == WalletLayout.drawn) {
+      setNewLayout(_cardInStackState);
     } else {
       if (isTightlyFolded(_currentState, index)) {
-        setNewState(WalletState.folded);
+        setNewLayout(WalletLayout.folded);
       } else {
         _drawnCardIndex = index;
-        setNewState(WalletState.drawn);
+        setNewLayout(WalletLayout.drawn);
       }
     }
   }
@@ -679,8 +680,8 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   }
 
   /// Is the card in the area where cards are tightly folded
-  bool isTightlyFolded(WalletState newState, int index) {
-    if (newState != WalletState.tightlyfolded || widget.credentials.length <= _cardsMaxExtended) {
+  bool isTightlyFolded(WalletLayout newState, int index) {
+    if (newState != WalletLayout.tightlyfolded || widget.credentials.length <= _cardsMaxExtended) {
       return false;
     }
     if (widget.credentials.length < _cardsTopVisible + _cardsTopVisibleOverlap + _cardsTopBorderVisible) {
@@ -693,13 +694,13 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   /// When there are many attributes, the contents will scroll. When scrolled beyond the bottom bound,
   /// a drag down will be triggered.
   void scrollBeyondBound(double y) {
-    if (y > _scrollOverflowTipping && _currentState == WalletState.drawn) {
-      setNewState(_cardInStackState);
+    if (y > _scrollOverflowTipping && _currentState == WalletLayout.drawn) {
+      setNewLayout(_cardInStackState);
     }
   }
 
   /// Set a new state of the wallet and start the animation
-  void setNewState(WalletState newState) {
+  void setNewLayout(WalletLayout newState) {
     setState(
       () {
         _nudgeVisible = nudgeVisible(newState);
@@ -710,11 +711,21 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
     );
   }
 
-  bool nudgeVisible(WalletState state) {
+  // Set the layout to the previous layout
+  void androidBackPressed() {
+    debugPrint("doing this");
+    if (_currentState == WalletLayout.drawn) {
+      setNewLayout(_oldState);
+    } else {
+      _irmaClient.bridgedDispatch(AndroidSendToBackgroundEvent());
+    }
+  }
+
+  bool nudgeVisible(WalletLayout state) {
     switch (state) {
-      case WalletState.drawn:
+      case WalletLayout.drawn:
         return false;
-      case WalletState.folded:
+      case WalletLayout.folded:
         final screenHeight = MediaQuery.of(context).size.height;
         // Make nudge invisible if cards occupy more than half of the screen
         return _cardTopHeight * (widget.credentials?.length ?? 0) < screenHeight / 2;
@@ -725,7 +736,7 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
 
   /// Calculate the position of a card, depending on the state of the wallet
   double calculateCardPosition({
-    WalletState state,
+    WalletLayout state,
     double walletTop,
     int index,
     int drawnCardIndex,
@@ -734,19 +745,19 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
     double cardPosition;
 
     switch (state) {
-      case WalletState.drawn:
+      case WalletLayout.drawn:
         cardPosition = getCardDrawnPosition(index, drawnCardIndex, dragOffset, walletTop);
         break;
 
-      case WalletState.minimal:
+      case WalletLayout.minimal:
         cardPosition = getCardMinimizedPosition(index);
         break;
 
-      case WalletState.tightlyfolded:
+      case WalletLayout.tightlyfolded:
         cardPosition = getCardTightlyFoldedPosition(index);
         break;
 
-      case WalletState.folded:
+      case WalletLayout.folded:
         cardPosition = getCardFoldedPosition(index, walletTop);
         break;
     }
@@ -874,8 +885,8 @@ class _WalletState extends State<Wallet> with TickerProviderStateMixin {
   }
 }
 
-/// Wallet can have four states
-enum WalletState {
+// Wallet can have four layouts
+enum WalletLayout {
   drawn, // A card is shown
   tightlyfolded, // Cards a folded tightly
   folded, // Cards a folded, titles are visible
