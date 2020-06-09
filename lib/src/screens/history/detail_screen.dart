@@ -11,6 +11,7 @@ import 'package:irmamobile/src/screens/history/widgets/removal_detail.dart';
 import 'package:irmamobile/src/screens/history/widgets/subtitle.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/disclosure/disclosure_card.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 import 'package:irmamobile/src/widgets/irma_quote.dart';
 
@@ -24,8 +25,7 @@ class DetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: IrmaTheme.of(context).grayscaleWhite,
-      appBar: AppBar(
-        centerTitle: true,
+      appBar: IrmaAppBar(
         title: Text(
           FlutterI18n.translate(context, 'history.title'),
         ),
