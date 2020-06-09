@@ -89,7 +89,6 @@ class _WalletScreenState extends State<_WalletScreen> {
   Widget build(BuildContext context) {
     return WillPopScope(
         onWillPop: () async {
-          debugPrint("back pressed on wallet");
           _walletKey.currentState.androidBackPressed();
           return false;
         },
@@ -141,6 +140,7 @@ class _WalletScreenState extends State<_WalletScreen> {
                 }
               }
               return Wallet(
+                key: _walletKey,
                 credentials: credentialList,
                 hasLoginLogoutAnimation: true,
                 isOpen: !isWalletLocked,
