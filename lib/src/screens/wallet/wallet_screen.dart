@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
+import 'package:irmamobile/src/models/native_events.dart';
 import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
 import 'package:irmamobile/src/screens/debug/debug_screen.dart';
 import 'package:irmamobile/src/screens/help/help_screen.dart';
@@ -39,6 +40,7 @@ class _WalletScreen extends StatefulWidget {
 
 class _WalletScreenState extends State<_WalletScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final GlobalKey<WalletState> _walletKey = GlobalKey<WalletState>();
   final IrmaRepository _irmaClient = IrmaRepository.get();
 
   StreamSubscription _lockListenerSubscription;
@@ -85,66 +87,72 @@ class _WalletScreenState extends State<_WalletScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: IrmaAppBar(
-        title: Text(FlutterI18n.translate(context, 'wallet.title')),
-        leadingIcon:
-            Icon(IrmaIcons.menu, semanticLabel: FlutterI18n.translate(context, "accessibility.menu"), size: 20.0),
-        leadingAction: () {
-          _scaffoldKey.currentState.openDrawer();
+    return WillPopScope(
+        onWillPop: () async {
+          _walletKey.currentState.androidBackPressed();
+          return false;
         },
-        actions: <Widget>[
-          if (kDebugMode) ...[
-            IconButton(
-              icon: Icon(Icons.videogame_asset),
-              onPressed: onDebugPressed,
-            )
-          ],
-          IconButton(
-            icon: Icon(
-              IrmaIcons.lock,
-              size: 20,
-              semanticLabel: FlutterI18n.translate(context, "wallet.lock"),
-            ),
-            onPressed: () {
-              IrmaRepository.get().lock();
+        child: Scaffold(
+          key: _scaffoldKey,
+          appBar: IrmaAppBar(
+            title: Text(FlutterI18n.translate(context, 'wallet.title')),
+            leadingIcon:
+                Icon(IrmaIcons.menu, semanticLabel: FlutterI18n.translate(context, "accessibility.menu"), size: 20.0),
+            leadingAction: () {
+              _scaffoldKey.currentState.openDrawer();
+            },
+            actions: <Widget>[
+              if (kDebugMode) ...[
+                IconButton(
+                  icon: Icon(Icons.videogame_asset),
+                  onPressed: onDebugPressed,
+                )
+              ],
+              IconButton(
+                icon: Icon(
+                  IrmaIcons.lock,
+                  size: 20,
+                  semanticLabel: FlutterI18n.translate(context, "wallet.lock"),
+                ),
+                onPressed: () {
+                  IrmaRepository.get().lock();
+                },
+              ),
+            ],
+          ),
+          drawer: WalletDrawer(),
+          body: BlocBuilder<WalletBloc, walletblocstate.WalletState>(
+            bloc: widget.bloc,
+            builder: (context, state) {
+              if (state.credentials == null) {
+                return Container(height: 0);
+              }
+
+              final credentialList = state.credentials.values.toList();
+              credentialList.sort((a, b) {
+                if (a.signedOn != b.signedOn) return a.signedOn.compareTo(b.signedOn);
+                return a.hash.compareTo(b.hash);
+              });
+              int newCardIndex;
+              for (var i = 0; i < credentialList.length; i++) {
+                if (credentialList[i].hash == state.newCardHash) {
+                  newCardIndex = i;
+                }
+              }
+              return Wallet(
+                key: _walletKey,
+                credentials: credentialList,
+                hasLoginLogoutAnimation: true,
+                isOpen: !isWalletLocked,
+                newCardIndex: newCardIndex,
+                showNewCardAnimation: state.showNewCardAnimation,
+                onQRScannerPressed: qrScannerPressed,
+                onHelpPressed: helpPressed,
+                onAddCardsPressed: addCardsPressed,
+                onNewCardAnimationShown: onNewCardAnimationShown,
+              );
             },
           ),
-        ],
-      ),
-      drawer: WalletDrawer(),
-      body: BlocBuilder<WalletBloc, walletblocstate.WalletState>(
-        bloc: widget.bloc,
-        builder: (context, state) {
-          if (state.credentials == null) {
-            return Container(height: 0);
-          }
-
-          final credentialList = state.credentials.values.toList();
-          credentialList.sort((a, b) {
-            if (a.signedOn != b.signedOn) return a.signedOn.compareTo(b.signedOn);
-            return a.hash.compareTo(b.hash);
-          });
-          int newCardIndex;
-          for (var i = 0; i < credentialList.length; i++) {
-            if (credentialList[i].hash == state.newCardHash) {
-              newCardIndex = i;
-            }
-          }
-          return Wallet(
-            credentials: credentialList,
-            hasLoginLogoutAnimation: true,
-            isOpen: !isWalletLocked,
-            newCardIndex: newCardIndex,
-            showNewCardAnimation: state.showNewCardAnimation,
-            onQRScannerPressed: qrScannerPressed,
-            onHelpPressed: helpPressed,
-            onAddCardsPressed: addCardsPressed,
-            onNewCardAnimationShown: onNewCardAnimationShown,
-          );
-        },
-      ),
-    );
+        ));
   }
 }

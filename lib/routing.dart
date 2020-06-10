@@ -85,6 +85,12 @@ class Routing {
 
             // Otherwise if it is a root route, background the app on backpress
             if (_isRootRoute(settings)) {
+              if (settings.name == WalletScreen.routeName) {
+                // Check if we are in the drawn state.
+                // We don't want the app to background in this case.
+                // Defer to wallet_screen.dart
+                return true;
+              }
               IrmaRepository.get().bridgedDispatch(AndroidSendToBackgroundEvent());
               return false;
             }
