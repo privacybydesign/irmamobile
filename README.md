@@ -21,7 +21,7 @@ attaching data to signed statements. These data can be relevant properties, such
 
       git clone --recursive git@github.com:privacybydesign/irmamobile.git
 
-* If your forgot to inclue `--recursive` in your `git clone`, make sure to init and update the submodules:
+* If your forgot to include `--recursive` in your `git clone`, make sure to init and update the submodules:
 
       cd irmamobile
       git submodule init
