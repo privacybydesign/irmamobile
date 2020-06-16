@@ -152,7 +152,7 @@ class _WebviewScreenState extends State<WebviewScreen> with WidgetsBindingObserv
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // Workaround to prevent that input fields in the webview become unresponsive when app is
-    // paused and resumed again. This is caused by a Flutter webview bug in Android 10. By
+    // paused and resumed again. This is caused by a Flutter webview bug in Android. By
     // pushing a new route over the webview screen and pop it again, the webview becomes
     // responsive again. Remove code when Flutter webview bugs are solved.
     if (Platform.isAndroid && state == AppLifecycleState.resumed) {
