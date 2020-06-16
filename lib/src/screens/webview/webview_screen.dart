@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -153,7 +155,7 @@ class _WebviewScreenState extends State<WebviewScreen> with WidgetsBindingObserv
     // paused and resumed again. This is caused by a Flutter webview bug in Android 10. By
     // pushing a new route over the webview screen and pop it again, the webview becomes
     // responsive again. Remove code when Flutter webview bugs are solved.
-    if (state == AppLifecycleState.resumed) {
+    if (Platform.isAndroid && state == AppLifecycleState.resumed) {
       final loadingRoute = MaterialPageRoute(builder: (context) {
         return LoadingScreen();
       });
