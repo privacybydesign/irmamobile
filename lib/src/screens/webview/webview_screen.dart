@@ -1,9 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/session.dart';
+import 'package:irmamobile/src/screens/loading/loading_screen.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/webview/widgets/browser_bar.dart';
 import 'package:irmamobile/src/screens/webview/widgets/loading_data.dart';
@@ -26,7 +29,7 @@ class WebviewScreen extends StatefulWidget {
   _WebviewScreenState createState() => _WebviewScreenState(url);
 }
 
-class _WebviewScreenState extends State<WebviewScreen> {
+class _WebviewScreenState extends State<WebviewScreen> with WidgetsBindingObserver {
   String _url;
   bool _isLoading;
 
@@ -40,7 +43,14 @@ class _WebviewScreenState extends State<WebviewScreen> {
       ...uri.queryParameters,
       "inapp": "true", // Make sure the in-app variant of the website is requested
     }).toString();
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   void _openInBrowser() {
@@ -137,5 +147,26 @@ class _WebviewScreenState extends State<WebviewScreen> {
               ],
             ),
     );
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Workaround to prevent that input fields in the webview become unresponsive when app is
+    // paused and resumed again. This is caused by a Flutter webview bug in Android. By
+    // pushing a new route over the webview screen and pop it again, the webview becomes
+    // responsive again. Remove code when Flutter webview bugs are solved.
+    if (Platform.isAndroid && state == AppLifecycleState.resumed) {
+      final loadingRoute = MaterialPageRoute(builder: (context) {
+        return LoadingScreen();
+      });
+      Navigator.of(context).push(loadingRoute);
+
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (loadingRoute.isCurrent) {
+          Navigator.of(context).pop();
+        }
+      });
+    }
+    super.didChangeAppLifecycleState(state);
   }
 }
