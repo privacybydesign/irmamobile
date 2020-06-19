@@ -306,7 +306,8 @@ class IrmaRepository {
     "pbdf.pbdf.idin",
     "pbdf.pbdf.ideal",
     "pbdf.gemeente.personalData",
-    "pbdf.gemeente.address"
+    "pbdf.gemeente.address",
+    "pbdf.nuts.agb",
   ];
 
   // TODO Remove when webview is fixed
