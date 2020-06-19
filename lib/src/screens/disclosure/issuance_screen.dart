@@ -164,6 +164,13 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
   Future<void> _handleFinished(SessionState session) async {
     final serverName = session.serverName?.name?.translate(FlutterI18n.currentLocale(context).languageCode) ?? "";
     await Future.delayed(const Duration(seconds: 1));
+    // deal with potential race conditions
+    // these can arise if screen is closed during one of the awaits
+    // sentry suggests (issue https://sentry.io/organizations/gabi-irma/issues/1698292805)
+    // these do actually happen.
+    // For now, we only patch this (long) wait, as that seems to be the cause of most of the issues
+    // we can fix other awaits later should the need arise.
+    if (context == null) return;
 
     // Navigate back if other sessions are open
     if (await IrmaRepository.get().hasActiveSessions()) {
