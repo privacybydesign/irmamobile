@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:irmamobile/sentry_dsn.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
@@ -15,9 +17,15 @@ Future<void> reportError(dynamic error, dynamic stackTrace, {bool userInitiated 
     final enabled = await IrmaPreferences.get().getReportErrors().first;
     // Send the Exception and Stacktrace to Sentry when enabled
     if (enabled || userInitiated) {
-      _sentry.captureException(
-        exception: error,
-        stackTrace: stackTrace,
+      _sentry.capture(
+        event: Event(
+          exception: error,
+          stackTrace: stackTrace,
+          tags: {
+            "OS": Platform.operatingSystem,
+            "OS Version": Platform.operatingSystemVersion,
+          },
+        ),
       );
     }
   }
