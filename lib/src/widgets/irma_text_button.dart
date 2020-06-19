@@ -17,7 +17,8 @@ class IrmaTextButton extends StatelessWidget {
     this.textStyle,
     this.size,
     this.minWidth = 232,
-  });
+    Key key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

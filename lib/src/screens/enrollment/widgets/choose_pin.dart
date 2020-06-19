@@ -33,6 +33,7 @@ class ChoosePin extends StatelessWidget {
         builder: (context, state) {
           return SingleChildScrollView(
             child: Column(
+              key: const Key('enrollment_choose_pin'),
               children: [
                 SizedBox(height: IrmaTheme.of(context).hugeSpacing),
                 Text(

@@ -61,6 +61,9 @@ dev_dependencies:
   json_serializable: ^3.2.0
   lint: ^0.3.0
   flutter_native_splash: ^0.1.9
+  flutter_driver:
+    sdk: flutter
+  test: any
 
 
 # For information on the generic Dart part of this file, see the

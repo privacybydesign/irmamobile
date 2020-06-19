@@ -24,6 +24,7 @@ class ConfirmPin extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Column(
+          key: const Key('enrollment_confirm_pin'),
           children: [
             SizedBox(height: IrmaTheme.of(context).hugeSpacing),
             Text(

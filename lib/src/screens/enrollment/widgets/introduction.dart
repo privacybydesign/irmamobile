@@ -54,6 +54,7 @@ class _IntroductionState extends State<Introduction> {
                     excludeFromSemantics: true, width: 280, height: 245),
                 titleContent: FlutterI18n.translate(context, 'enrollment.introduction.screen1.title'),
                 textContent: FlutterI18n.translate(context, 'enrollment.introduction.screen1.text'),
+                nextButtonKey: const Key('next_enrollment_p1'),
                 onNextScreen: () =>
                     _controller.nextPage(curve: Curves.ease, duration: const Duration(milliseconds: 800)),
               ),
@@ -62,6 +63,7 @@ class _IntroductionState extends State<Introduction> {
                     excludeFromSemantics: true, width: 280, height: 231),
                 titleContent: FlutterI18n.translate(context, 'enrollment.introduction.screen2.title'),
                 textContent: FlutterI18n.translate(context, 'enrollment.introduction.screen2.text'),
+                nextButtonKey: const Key('next_enrollment_p2'),
                 onNextScreen: () =>
                     _controller.nextPage(curve: Curves.ease, duration: const Duration(milliseconds: 800)),
               ),
@@ -72,6 +74,7 @@ class _IntroductionState extends State<Introduction> {
                 textContent: FlutterI18n.translate(context, 'enrollment.introduction.screen3.text'),
                 linkText: 'enrollment.introduction.screen3.privacy.text',
                 linkUrl: 'enrollment.introduction.screen3.privacy.url',
+                nextButtonKey: const Key('next_enrollment_p3'),
                 onNextScreen: () => {},
                 onPressButton: () => Navigator.of(context).pushNamed(ChoosePin.routeName),
                 finalScreen: true,
@@ -93,6 +96,7 @@ class Walkthrough extends StatelessWidget {
   final bool finalScreen;
   final void Function() onNextScreen;
   final void Function() onPressButton;
+  final Key nextButtonKey;
 
   const Walkthrough({
     Key key,
@@ -104,6 +108,7 @@ class Walkthrough extends StatelessWidget {
     this.linkUrl,
     this.onPressButton,
     this.finalScreen = false,
+    this.nextButtonKey,
   }) : super(key: key);
 
   @override
@@ -166,6 +171,7 @@ class Walkthrough extends StatelessWidget {
                 ? IrmaButton(
                     label: 'enrollment.introduction.button_text',
                     onPressed: onPressButton,
+                    key: nextButtonKey,
                   )
                 : IconButton(
                     onPressed: onNextScreen,
@@ -174,6 +180,7 @@ class Walkthrough extends StatelessWidget {
                         color: IrmaTheme.of(context).grayscale60),
                     iconSize: 32,
                     alignment: Alignment.center,
+                    key: nextButtonKey,
                   ),
           ),
         ],

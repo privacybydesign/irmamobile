@@ -30,6 +30,7 @@ class ProvideEmailActions extends StatelessWidget {
             children: <Widget>[
               Expanded(
                 child: IrmaTextButton(
+                  key: const Key('enrollment_skip_email'),
                   onPressed: () {
                     showDialog(
                       context: context,
@@ -48,6 +49,7 @@ class ProvideEmailActions extends StatelessWidget {
                               },
                               minWidth: 0.0,
                               label: 'enrollment.provide_email.skip',
+                              key: const Key('skip_confirm'),
                             ),
                             IrmaButton(
                               size: IrmaButtonSize.small,

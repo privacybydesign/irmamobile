@@ -264,6 +264,8 @@ class _PinFieldState extends State<PinField> {
                       maxLength: widget.maxLength,
                       enableInteractiveSelection: false,
 
+                      key: const Key('pin_entry_field'),
+
                       // Only allow numeric input, without signs or decimal points
                       keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
                       inputFormatters: [
