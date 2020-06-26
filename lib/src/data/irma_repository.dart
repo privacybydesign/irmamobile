@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:irmamobile/src/data/irma_bridge.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
@@ -24,7 +25,6 @@ import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/models/version_information.dart';
-import 'package:irmamobile/src/screens/webview/webview_screen.dart';
 import 'package:irmamobile/src/sentry/sentry.dart';
 import 'package:package_info/package_info.dart';
 import 'package:rxdart/rxdart.dart';
@@ -104,6 +104,7 @@ class IrmaRepository {
       try {
         final sessionPointer = SessionPointer.fromString(event.url);
         _pendingSessionPointerSubject.add(sessionPointer);
+        closeWebView();
       } on MissingSessionPointer {
         // pass
       }
@@ -321,14 +322,17 @@ class IrmaRepository {
     );
   }
 
+  static const _iiabchannel = MethodChannel('irma.app/iiab');
+
   Future<void> openURL(BuildContext context, String url) async {
     if ((await getExternalBrowserURLs().first).contains(url)) {
       openURLinBrowser(context, url);
     } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => WebviewScreen(url)),
-      );
+      if (Platform.isAndroid) {
+        _iiabchannel.invokeMethod('open_browser', url);
+      } else {
+        launch(url, forceSafariVC: true);
+      }
     }
   }
 

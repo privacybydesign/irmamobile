@@ -10,6 +10,7 @@ import android.net.Uri;
 import java.nio.channels.Channel;
 
 import foundation.privacybydesign.irmamobile.plugins.irma_mobile_bridge.IrmaMobileBridgePlugin;
+import foundation.privacybydesign.irmamobile.plugins.iiab.IIABPlugin;
 import io.flutter.app.FlutterActivity;
 import io.flutter.plugins.GeneratedPluginRegistrant;
 import irmagobridge.Irmagobridge;
@@ -46,7 +47,7 @@ public class MainActivity extends FlutterActivity {
     IrmaMobileBridgePlugin.registerWith(
         this.registrarFor("foundation.privacybydesign.irmamobile.plugins.irma_mobile_bridge.IrmaMobileBridgePlugin"),
         initialURL);
-
+    IIABPlugin.registerWith(this.registrarFor("foundation.privacybydesign.irmamobile.plugins.iiab.IIABPlugin"));
   }
 
   @Override
