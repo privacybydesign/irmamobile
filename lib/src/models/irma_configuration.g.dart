@@ -92,8 +92,9 @@ AttributeType _$AttributeTypeFromJson(Map<String, dynamic> json) {
   return AttributeType(
     id: json['ID'] as String,
     optional: json['Optional'] as String,
-    name: TranslatedValue.fromJson(json['Name'] as Map<String, dynamic>),
-    description: TranslatedValue.fromJson(json['Description'] as Map<String, dynamic>),
+    name: json['Name'] == null ? null : TranslatedValue.fromJson(json['Name'] as Map<String, dynamic>),
+    description:
+        json['Description'] == null ? null : TranslatedValue.fromJson(json['Description'] as Map<String, dynamic>),
     index: json['Index'] as int,
     displayIndex: json['DisplayIndex'] as int,
     displayHint: json['DisplayHint'] as String,

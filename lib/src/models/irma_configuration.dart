@@ -242,10 +242,10 @@ class AttributeType {
   @JsonKey(name: 'Optional')
   final String optional;
 
-  @JsonKey(name: 'Name')
+  @JsonKey(name: 'Name', nullable: true)
   final TranslatedValue name;
 
-  @JsonKey(name: 'Description')
+  @JsonKey(name: 'Description', nullable: true)
   final TranslatedValue description;
 
   @JsonKey(name: 'Index')
