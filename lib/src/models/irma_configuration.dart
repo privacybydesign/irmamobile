@@ -219,6 +219,8 @@ class CredentialType {
   }
 }
 
+const translatedValueDefault = <String, String>{};
+
 // TODO: Change this to RawAttributeType and move to a new AttributeType that
 // has TranslatedValues for `name` and `description`.
 @JsonSerializable(nullable: false, createToJson: false)
@@ -242,10 +244,11 @@ class AttributeType {
   @JsonKey(name: 'Optional')
   final String optional;
 
-  @JsonKey(name: 'Name')
+  // In case of revocation attributes, Name and Description are not present
+  @JsonKey(name: 'Name', nullable: true, defaultValue: translatedValueDefault)
   final TranslatedValue name;
 
-  @JsonKey(name: 'Description')
+  @JsonKey(name: 'Description', nullable: true, defaultValue: translatedValueDefault)
   final TranslatedValue description;
 
   @JsonKey(name: 'Index')
