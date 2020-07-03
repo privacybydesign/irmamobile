@@ -79,7 +79,8 @@ class CardStoreScreen extends StatelessWidget {
                                         builder: (context) => CardInfoScreen(
                                           irmaConfiguration: irmaConfiguration,
                                           credentialType: credentialType,
-                                          onStartIssuance: () => _onStartIssuance(context, credentialType),
+                                          onStartIssuance: () =>
+                                              IrmaRepository.get().openIssueURL(context, credentialType.fullId),
                                         ),
                                       ),
                                     );

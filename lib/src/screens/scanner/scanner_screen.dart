@@ -27,13 +27,31 @@ class ScannerScreen extends StatelessWidget {
   }
 
   // TODO: Make this function private again and / or split it out to a utility function
-  static void startSessionAndNavigate(
+  static Future<void> startSessionAndNavigate(
     NavigatorState navigator,
     SessionPointer sessionPointer, {
     bool continueOnSecondDevice = true,
     bool webview = false,
-  }) {
+  }) async {
     final repo = IrmaRepository.get();
+    final event = NewSessionEvent(
+      request: sessionPointer,
+      continueOnSecondDevice: continueOnSecondDevice,
+      inappCredential: await repo.getInAppCredential(),
+    );
+    repo.dispatch(event, isBridgedEvent: true);
+
+    String screen;
+    if (["disclosing", "signing", "redirect"].contains(event.request.irmaqr)) {
+      screen = DisclosureScreen.routeName;
+    } else if ("issuing" == event.request.irmaqr) {
+      screen = IssuanceScreen.routeName;
+    } else {
+      // TODO show error?
+      navigator.popUntil(ModalRoute.withName(WalletScreen.routeName));
+      return;
+    }
+
     repo.hasActiveSessions().then((hasActiveSessions) {
       final event = NewSessionEvent(request: sessionPointer, continueOnSecondDevice: continueOnSecondDevice);
       repo.dispatch(event, isBridgedEvent: true);
