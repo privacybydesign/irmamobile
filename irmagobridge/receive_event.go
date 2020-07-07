@@ -62,7 +62,12 @@ func DispatchFromNative(eventName, payloadString string) {
 			err = bridgeEventHandler.dismissSession(event)
 		}
 	case "UpdateSchemesEvent":
-		err = bridgeEventHandler.updateSchemes()
+		go func() {
+			err := bridgeEventHandler.updateSchemes()
+			if err != nil {
+				reportError(errors.New(err))
+			}
+		}()
 	case "LoadLogsEvent":
 		event := &loadLogsEvent{}
 		if err = json.Unmarshal(payloadBytes, &event); err == nil {
