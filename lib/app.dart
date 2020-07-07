@@ -13,6 +13,7 @@ import 'package:irmamobile/src/models/clear_all_data_event.dart';
 import 'package:irmamobile/src/models/enrollment_status.dart';
 import 'package:irmamobile/src/models/native_events.dart';
 import 'package:irmamobile/src/models/session.dart';
+import 'package:irmamobile/src/models/update_schemes_event.dart';
 import 'package:irmamobile/src/models/version_information.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/pin/pin_screen.dart';
@@ -22,6 +23,8 @@ import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/splash_screen/splash_screen.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+
+const schemeUpdateIntervalHours = 3;
 
 class App extends StatefulWidget {
   const App({Key key}) : super(key: key);
@@ -33,6 +36,7 @@ class App extends StatefulWidget {
 class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   StreamSubscription<SessionPointer> _sessionPointerSubscription;
+  DateTime lastSchemeUpdate;
 
   // We keep track of the last two life cycle states
   // to be able to determine the flow
@@ -93,6 +97,12 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     final startQrScanner = await IrmaPreferences.get().getStartQRScan().first;
     final repo = IrmaRepository.get();
     repo.dispatch(AppLifecycleChangedEvent(state));
+
+    if (state == AppLifecycleState.resumed &&
+        (lastSchemeUpdate == null || DateTime.now().difference(lastSchemeUpdate).inHours > schemeUpdateIntervalHours)) {
+      lastSchemeUpdate = DateTime.now();
+      repo.bridgedDispatch(UpdateSchemesEvent());
+    }
 
     // We check the transition goes from paused -> inactive -> resumed
     // because the transition inactive -> resumed can also happen
