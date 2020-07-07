@@ -37,7 +37,7 @@ class ScannerScreen extends StatelessWidget {
     final event = NewSessionEvent(
       request: sessionPointer,
       continueOnSecondDevice: continueOnSecondDevice,
-      inappCredential: await repo.getInAppCredential(),
+      inAppCredential: await repo.getInAppCredential(),
     );
     repo.dispatch(event, isBridgedEvent: true);
 

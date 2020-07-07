@@ -353,7 +353,7 @@ class IrmaRepository {
 
   Future<void> processInactivation() async {
     final curState = await _inAppCredentialSubject.first;
-    if (curState.pendingInactivations > 0) {
+    if ((curState.pendingInactivations ?? 0) > 0) {
       // If there are still inactivations to be ignored, we ignore
       // and just decrement count
       _inAppCredentialSubject.add(curState.copyWith(

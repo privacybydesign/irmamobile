@@ -18,7 +18,7 @@ class SessionState {
   final bool satisfiable;
   final bool canBeFinished;
   final SessionError error;
-  final String inappCredential;
+  final String inAppCredential;
 
   SessionState({
     this.sessionID,
@@ -35,7 +35,7 @@ class SessionState {
     this.satisfiable,
     this.canBeFinished,
     this.error,
-    this.inappCredential,
+    this.inAppCredential,
   });
 
   bool get canDisclose =>
@@ -49,7 +49,7 @@ class SessionState {
   bool get isIssuanceSession => issuedCredentials?.isNotEmpty ?? false;
   bool get isReturnPhoneNumber => clientReturnURL?.startsWith("tel:") ?? false;
   bool get didIssueInappCredential =>
-      issuedCredentials?.any((element) => element.info.fullId == inappCredential) ?? false;
+      issuedCredentials?.any((element) => element.info.fullId == inAppCredential) ?? false;
 
   SessionState copyWith({
     bool continueOnSecondDevice,
@@ -65,7 +65,7 @@ class SessionState {
     bool satisfiable,
     bool canBeFinished,
     SessionError error,
-    String inappCredential,
+    String inAppCredential,
   }) {
     return SessionState(
       sessionID: sessionID,
@@ -82,7 +82,7 @@ class SessionState {
       satisfiable: satisfiable ?? this.satisfiable,
       canBeFinished: canBeFinished ?? this.canBeFinished,
       error: error ?? this.error,
-      inappCredential: inappCredential ?? this.inappCredential,
+      inAppCredential: inAppCredential ?? this.inAppCredential,
     );
   }
 }

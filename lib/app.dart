@@ -106,7 +106,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
 
     // Forget about previous issuance session via in app browser once app
     // is dismissed
-    if (state == AppLifecycleState.inactive) {
+    if (state == AppLifecycleState.paused) {
       repo.processInactivation();
     }
 

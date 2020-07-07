@@ -20,7 +20,7 @@ class NewSessionEvent extends SessionEvent {
   // We start at some arbitrary point above zero
   static int sessionIDCounter = 42;
 
-  NewSessionEvent({this.request, this.continueOnSecondDevice = false, this.inappCredential = ""})
+  NewSessionEvent({this.request, this.continueOnSecondDevice = false, this.inAppCredential = ""})
       : super(sessionIDCounter++);
 
   @JsonKey(name: 'Request')
@@ -30,8 +30,8 @@ class NewSessionEvent extends SessionEvent {
   // or on the device which has displayed a QR code
   bool continueOnSecondDevice;
 
-  // Which credential issuer, if any relevant, was last opened with the in-app browser
-  String inappCredential;
+  // Which credential's issue page, if any relevant, was last opened with the in-app browser
+  String inAppCredential;
 
   factory NewSessionEvent.fromJson(Map<String, dynamic> json) => _$NewSessionEventFromJson(json);
   Map<String, dynamic> toJson() => _$NewSessionEventToJson(this);
