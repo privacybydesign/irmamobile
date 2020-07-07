@@ -6,12 +6,27 @@ import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/translated_text.dart';
 import 'package:irmamobile/src/widgets/irma_outlined_button.dart';
 
+enum DisclosureFeedbackType {
+  success,
+  canceled,
+  notSatisfiable,
+}
+
 class DisclosureFeedbackScreen extends StatelessWidget {
-  final bool success;
+  static const _translationKeys = {
+    DisclosureFeedbackType.success: "success",
+    DisclosureFeedbackType.canceled: "canceled",
+    DisclosureFeedbackType.notSatisfiable: "notSatisfiable",
+  };
+
+  final DisclosureFeedbackType feedbackType;
   final String otherParty;
   final Function(BuildContext) popToWallet;
 
-  const DisclosureFeedbackScreen({this.success, this.otherParty, this.popToWallet});
+  final String _translationKey;
+
+  DisclosureFeedbackScreen({this.feedbackType, this.otherParty, this.popToWallet})
+      : _translationKey = _translationKeys[feedbackType];
 
   @override
   Widget build(BuildContext context) {
@@ -33,21 +48,29 @@ class DisclosureFeedbackScreen extends StatelessWidget {
               child: Container(),
             ),
             Icon(
-              success ? IrmaIcons.valid : IrmaIcons.invalid,
+              feedbackType == DisclosureFeedbackType.success ? IrmaIcons.valid : IrmaIcons.invalid,
               size: 120,
-              color: success ? IrmaTheme.of(context).interactionValid : IrmaTheme.of(context).interactionAlert,
+              color: feedbackType == DisclosureFeedbackType.success
+                  ? IrmaTheme.of(context).interactionValid
+                  : IrmaTheme.of(context).interactionAlert,
             ),
             const SizedBox(height: 43),
-            TranslatedText(
-              "disclosure.feedback.header.$success",
-              translationParams: {"otherParty": otherParty},
-              style: Theme.of(context).textTheme.display3,
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).mediumSpacing),
+              child: TranslatedText(
+                "disclosure.feedback.header.$_translationKey",
+                translationParams: {"otherParty": otherParty},
+                style: Theme.of(context).textTheme.display3,
+              ),
             ),
             const SizedBox(height: 10),
-            TranslatedText(
-              "disclosure.feedback.text.$success",
-              translationParams: {"otherParty": otherParty},
-              textAlign: TextAlign.center,
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).mediumSpacing),
+              child: TranslatedText(
+                "disclosure.feedback.text.$_translationKey",
+                translationParams: {"otherParty": otherParty},
+                textAlign: TextAlign.center,
+              ),
             ),
             const SizedBox(height: 38),
             IrmaOutlinedButton(

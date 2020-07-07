@@ -442,12 +442,14 @@
     "see_more": "Scroll down to see the rest.",
     "feedback": {
       "header": {
-        "true": "Success",
-        "false": "Cancelled"
+        "success": "Success",
+        "canceled": "Cancelled",
+        "notSatisfiable": "Cancelled"
       },
       "text": {
-        "true": "Your data are disclosed to {otherParty}",
-        "false": "Your data are not disclosed to {otherParty}"
+        "success": "Your data are disclosed to {otherParty}",
+        "canceled": "Your data are not disclosed to {otherParty}",
+        "notSatisfiable": "Your data are not disclosed, because {otherParty} requests for outdated cards. You cannot do anything about this yourself. You can only send a message to this party."
       },
       "ok": "OK"
     },

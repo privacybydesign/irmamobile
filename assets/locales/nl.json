@@ -443,12 +443,14 @@
     "see_more": "Scroll naar beneden om de rest te zien.",
     "feedback": {
       "header": {
-        "true": "Gelukt",
-        "false": "Afgebroken"
+        "success": "Gelukt",
+        "canceled": "Afgebroken",
+        "notSatisfiable": "Afgebroken"
       },
       "text": {
-        "true": "Je gegevens zijn doorgegeven aan {otherParty}",
-        "false": "Je gegevens zijn niet doorgegeven aan {otherParty}"
+        "success": "Je gegevens zijn doorgegeven aan {otherParty}",
+        "canceled": "Je gegevens zijn niet doorgegeven aan {otherParty}",
+        "notSatisfiable": "Je gegevens zijn niet doorgegeven, omdat {otherParty} om verouderde kaartjes vraagt. Zelf kun je hier niets aan doen. Je zou alleen een bericht kunnen sturen naar deze partij."
       },
       "ok": "OK"
     },

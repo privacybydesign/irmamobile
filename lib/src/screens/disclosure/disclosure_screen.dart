@@ -78,8 +78,13 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
       }
       _screenStatus = session.status;
 
-      if (_screenStatus == SessionStatus.requestDisclosurePermission && session.disclosuresCandidates != null) {
-        _showExplanation(session.disclosuresCandidates);
+      if (_screenStatus == SessionStatus.requestDisclosurePermission) {
+        if (session.canBeFinished) {
+          _showExplanation(session.disclosuresCandidates);
+        } else {
+          final serverName = session.serverName.translate(FlutterI18n.currentLocale(context).languageCode);
+          _pushDisclosureFeedbackScreen(DisclosureFeedbackType.notSatisfiable, serverName);
+        }
       }
 
       if (_screenStatus == SessionStatus.requestIssuancePermission) {
@@ -151,9 +156,9 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     if (session.continueOnSecondDevice && !session.isReturnPhoneNumber) {
       // If this is a session on a second screen, return to the wallet after showing a feedback screen
       if (session.status == SessionStatus.success) {
-        _pushDisclosureFeedbackScreen(true, serverName);
+        _pushDisclosureFeedbackScreen(DisclosureFeedbackType.success, serverName);
       } else {
-        _pushDisclosureFeedbackScreen(false, serverName);
+        _pushDisclosureFeedbackScreen(DisclosureFeedbackType.canceled, serverName);
       }
     } else if (session.clientReturnURL != null &&
         !session.isReturnPhoneNumber &&
@@ -166,7 +171,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
       if (session.status == SessionStatus.success) {
         _pushInfoCallScreen(serverName, session.clientReturnURL);
       } else {
-        _pushDisclosureFeedbackScreen(false, serverName);
+        _pushDisclosureFeedbackScreen(DisclosureFeedbackType.canceled, serverName);
       }
     } else {
       // Otherwise, on iOS show a screen to press the return arrow in the top-left corner,
@@ -180,10 +185,10 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     }
   }
 
-  void _pushDisclosureFeedbackScreen(bool success, String otherParty) {
+  void _pushDisclosureFeedbackScreen(DisclosureFeedbackType type, String otherParty) {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => DisclosureFeedbackScreen(
-        success: success,
+        feedbackType: type,
         otherParty: otherParty,
         popToWallet: popToWallet,
       ),
@@ -288,7 +293,8 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
       stream: _sessionStateStream,
       builder: (context, sessionStateSnapshot) {
         if (!sessionStateSnapshot.hasData ||
-            sessionStateSnapshot.data.status != SessionStatus.requestDisclosurePermission) {
+            sessionStateSnapshot.data.status != SessionStatus.requestDisclosurePermission ||
+            !sessionStateSnapshot.data.canBeFinished) {
           return Container(height: 0);
         }
         final state = sessionStateSnapshot.data;
@@ -366,7 +372,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
           }
 
           final session = sessionStateSnapshot.data;
-          if (session.status == SessionStatus.requestDisclosurePermission) {
+          if (session.status == SessionStatus.requestDisclosurePermission && session.canBeFinished) {
             return _buildDisclosureChoices(session);
           }
 

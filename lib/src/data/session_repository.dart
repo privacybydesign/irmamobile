@@ -62,16 +62,22 @@ class SessionRepository {
       );
     } else if (event is RequestIssuancePermissionSessionEvent) {
       final condiscon = _processCandidates(event.disclosuresCandidates, prevState, irmaConfiguration, credentials);
-      final disclosureIndices = prevState.disclosureIndices ?? List<int>.filled(condiscon.length, 0);
+      // All discons must have an option to choose from. Otherwise the session can never be finished.
+      final canBeFinished = condiscon.every((discon) => discon.isNotEmpty);
+      List<int> disclosureIndices;
+      if (canBeFinished) {
+        disclosureIndices = prevState.disclosureIndices ?? List<int>.filled(condiscon.length, 0);
+      }
       return prevState.copyWith(
         status: event.disclosuresCandidates?.isEmpty ?? true
             ? SessionStatus.requestIssuancePermission
             : SessionStatus.requestDisclosurePermission,
         serverName: event.serverName,
         satisfiable: event.satisfiable,
+        canBeFinished: canBeFinished,
         isSignatureSession: false,
-        disclosureIndices: disclosureIndices,
-        disclosureChoices: _choose(disclosureIndices, condiscon),
+        disclosureIndices: canBeFinished ? disclosureIndices : null,
+        disclosureChoices: canBeFinished ? _choose(disclosureIndices, condiscon) : null,
         disclosuresCandidates: condiscon,
         issuedCredentials: event.issuedCredentials
             .map((raw) => Credential.fromRaw(
@@ -82,16 +88,22 @@ class SessionRepository {
       );
     } else if (event is RequestVerificationPermissionSessionEvent) {
       final condiscon = _processCandidates(event.disclosuresCandidates, prevState, irmaConfiguration, credentials);
-      final disclosureIndices = prevState.disclosureIndices ?? List<int>.filled(condiscon.length, 0);
+      // All discons must have an option to choose from. Otherwise the session can never be finished.
+      final canBeFinished = condiscon.every((discon) => discon.isNotEmpty);
+      List<int> disclosureIndices;
+      if (canBeFinished) {
+        disclosureIndices = prevState.disclosureIndices ?? List<int>.filled(condiscon.length, 0);
+      }
       return prevState.copyWith(
         status: SessionStatus.requestDisclosurePermission,
         serverName: event.serverName,
+        satisfiable: event.satisfiable,
+        canBeFinished: canBeFinished,
         isSignatureSession: event.isSignatureSession,
         signedMessage: event.signedMessage,
-        disclosureIndices: disclosureIndices,
-        disclosureChoices: _choose(disclosureIndices, condiscon),
+        disclosureIndices: canBeFinished ? disclosureIndices : null,
+        disclosureChoices: canBeFinished ? _choose(disclosureIndices, condiscon) : null,
         disclosuresCandidates: condiscon,
-        satisfiable: event.satisfiable,
       );
     } else if (event is ContinueToIssuanceEvent) {
       return prevState.copyWith(
