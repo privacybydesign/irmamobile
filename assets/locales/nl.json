@@ -259,8 +259,7 @@
     },
     "success": {
       "title": "Gelukt",
-      "message": "Je pincode is veranderd.",
-      "continue": "OK"
+      "message": "Je pincode is veranderd."
     }
   },
   "qr_scanner": {
@@ -451,8 +450,7 @@
         "success": "Je gegevens zijn doorgegeven aan {otherParty}",
         "canceled": "Je gegevens zijn niet doorgegeven aan {otherParty}",
         "notSatisfiable": "Je gegevens zijn niet doorgegeven, omdat {otherParty} om verouderde kaartjes vraagt. Zelf kun je hier niets aan doen. Je zou alleen een bericht kunnen sturen naar deze partij."
-      },
-      "ok": "OK"
+      }
     },
     "call_info": {
       "title": "Via IRMA bellen",
@@ -485,5 +483,8 @@
   "update": {
     "required": "Om IRMA te blijven gebruiken, zul je de app moeten updaten.",
     "doupdate": "Update"
+  },
+  "action_feedback": {
+    "ok": "OK"
   }
 }
