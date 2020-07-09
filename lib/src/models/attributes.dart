@@ -160,14 +160,17 @@ class Attribute {
   final CredentialInfo credentialInfo;
   final AttributeType attributeType;
   final AttributeValue value;
+  final bool haveOther;
 
   Attribute({
     @required this.credentialInfo,
     @required this.attributeType,
     @required this.value,
+    this.haveOther = false,
   })  : assert(credentialInfo != null),
         assert(attributeType != null),
-        assert(value != null);
+        assert(value != null),
+        assert(haveOther != null);
 
   bool get expired => false;
   bool get revoked => false;
@@ -188,13 +191,20 @@ class Attribute {
         value: value,
       );
     } else {
+      final value = AttributeValue.fromRaw(attributeType, candidate.value);
       return Attribute(
         credentialInfo: CredentialInfo.fromConfiguration(
           irmaConfiguration: irmaConfiguration,
           credentialIdentifier: candidate.type.split(".").take(3).join("."),
         ),
         attributeType: attributeType,
-        value: NullValue(),
+        value: value,
+        haveOther: value is TextValue &&
+            credentials.values.any(
+              (cred) =>
+                  cred.info.fullId == attributeType.fullCredentialId &&
+                  cred.attributes[attributeType]?.raw != value.raw,
+            ),
       );
     }
   }
@@ -250,6 +260,9 @@ class DisclosureCandidate {
 
   @JsonKey(name: 'CredentialHash')
   String credentialHash;
+
+  @JsonKey(name: 'Value')
+  TranslatedValue value;
 
   @JsonKey(name: 'NotRevokable')
   bool notRevokable;
