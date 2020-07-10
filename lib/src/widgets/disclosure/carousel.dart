@@ -296,6 +296,7 @@ class _CarouselState extends State<Carousel> {
   }
 
   String _notice(_DisclosureCredential cred) {
+    final haveOther = cred.attributes.any((c) => c.haveOther);
     if (cred.attributes.first.expired) {
       return FlutterI18n.translate(context, 'disclosure.expired');
     } else if (cred.attributes.first.revoked) {
@@ -303,7 +304,9 @@ class _CarouselState extends State<Carousel> {
     } else if (cred.attributes.first.notRevokable) {
       return FlutterI18n.translate(context, 'disclosure.not_revokable');
     } else if (cred.attributes.first.credentialHash == "") {
-      return FlutterI18n.translate(context, 'disclosure.not_present');
+      return haveOther
+          ? FlutterI18n.translate(context, 'disclosure.not_present_have_other')
+          : FlutterI18n.translate(context, 'disclosure.not_present');
     }
     return null;
   }

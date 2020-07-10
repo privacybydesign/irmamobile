@@ -55,11 +55,12 @@ DisclosureCandidate _$DisclosureCandidateFromJson(Map<String, dynamic> json) {
     type: json['Type'] as String,
     credentialHash: json['CredentialHash'] as String,
     notRevokable: json['NotRevokable'] as bool,
-  );
+  )..value = json['Value'] == null ? null : TranslatedValue.fromJson(json['Value'] as Map<String, dynamic>);
 }
 
 Map<String, dynamic> _$DisclosureCandidateToJson(DisclosureCandidate instance) => <String, dynamic>{
       'Type': instance.type,
       'CredentialHash': instance.credentialHash,
+      'Value': instance.value,
       'NotRevokable': instance.notRevokable,
     };
