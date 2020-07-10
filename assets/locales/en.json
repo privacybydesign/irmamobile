@@ -259,8 +259,7 @@
     },
     "success": {
       "title": "Success",
-      "message": "Your PIN has been changed.",
-      "continue": "OK"
+      "message": "Your PIN has been changed."
     }
   },
   "qr_scanner": {
@@ -443,14 +442,15 @@
     "see_more": "Scroll down to see the rest.",
     "feedback": {
       "header": {
-        "true": "Success",
-        "false": "Cancelled"
+        "success": "Success",
+        "canceled": "Cancelled",
+        "notSatisfiable": "Cancelled"
       },
       "text": {
-        "true": "Your data are disclosed to {otherParty}",
-        "false": "Your data are not disclosed to {otherParty}"
-      },
-      "ok": "OK"
+        "success": "Your data are disclosed to {otherParty}",
+        "canceled": "Your data are not disclosed to {otherParty}",
+        "notSatisfiable": "Your data are not disclosed because {otherParty} requests outdated cards. Please contact this party."
+      }
     },
     "call_info": {
       "title": "Call via IRMA",
@@ -483,5 +483,8 @@
   "update": {
     "required": "In order to continue using IRMA, you will need to update the app",
     "doupdate": "Update"
+  },
+  "action_feedback": {
+    "ok": "OK"
   }
 }

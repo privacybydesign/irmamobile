@@ -16,6 +16,7 @@ class SessionState {
   final List<int> disclosureIndices;
   final ConCon<AttributeIdentifier> disclosureChoices;
   final bool satisfiable;
+  final bool canBeFinished;
   final SessionError error;
 
   SessionState({
@@ -31,6 +32,7 @@ class SessionState {
     this.disclosureIndices,
     this.disclosureChoices,
     this.satisfiable,
+    this.canBeFinished,
     this.error,
   });
 
@@ -57,6 +59,7 @@ class SessionState {
     List<int> disclosureIndices,
     ConCon<AttributeIdentifier> disclosureChoices,
     bool satisfiable,
+    bool canBeFinished,
     SessionError error,
   }) {
     return SessionState(
@@ -72,6 +75,7 @@ class SessionState {
       disclosureIndices: disclosureIndices ?? this.disclosureIndices,
       disclosureChoices: disclosureChoices ?? this.disclosureChoices,
       satisfiable: satisfiable ?? this.satisfiable,
+      canBeFinished: canBeFinished ?? this.canBeFinished,
       error: error ?? this.error,
     );
   }
