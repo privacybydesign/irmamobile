@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/go-errors/errors"
+	irma "github.com/privacybydesign/irmago"
 	"github.com/privacybydesign/irmago/irmaclient"
 )
 
@@ -37,6 +38,13 @@ func Prestart() {
 	// noop
 }
 
+type writer func(string)
+
+func (p writer) Write(b []byte) (int, error) {
+	p(string(b))
+	return len(b), nil
+}
+
 // Start is invoked from the native side, when the app starts
 func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) {
 	defer recoverFromPanic()
@@ -58,8 +66,15 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) 
 	}
 
 	if !exists {
-		os.Mkdir(appVersionDataPath, 0770)
+		if err = os.Mkdir(appVersionDataPath, 0770); err != nil {
+			return
+		}
 	}
+
+	// forward irma log message to bridge
+	irma.Logger.SetOutput(writer(func(m string) {
+		bridge.DebugLog(fmt.Sprintf("[irmago] %s", m))
+	}))
 
 	// Initialize the client
 	configurationPath := filepath.Join(assetsPath, "irma_configuration")
