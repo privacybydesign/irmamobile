@@ -4,6 +4,7 @@ func dispatchConfigurationEvent() {
 	dispatchEvent(&irmaConfigurationEvent{
 		IrmaConfiguration: client.Configuration,
 	})
+	dispatchCredentialsEvent()
 }
 
 func dispatchCredentialsEvent() {

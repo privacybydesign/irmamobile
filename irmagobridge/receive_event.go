@@ -17,7 +17,6 @@ func DispatchFromNative(eventName, payloadString string) {
 	case "AppReadyEvent":
 		dispatchEnrollmentStatusEvent()
 		dispatchConfigurationEvent()
-		dispatchCredentialsEvent()
 		dispatchPreferencesEvent()
 	case "EnrollEvent":
 		event := &enrollEvent{}
