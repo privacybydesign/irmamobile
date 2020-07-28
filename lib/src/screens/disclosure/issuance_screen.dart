@@ -162,7 +162,7 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
   }
 
   Future<void> _handleFinished(SessionState session) async {
-    final serverName = session.serverName.translate(FlutterI18n.currentLocale(context).languageCode);
+    final serverName = session.serverName?.translate(FlutterI18n.currentLocale(context).languageCode) ?? "";
     await Future.delayed(const Duration(seconds: 1));
 
     // Navigate back if other sessions are open
@@ -228,10 +228,7 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
   }
 
   void _dismissSession() {
-    _dispatchSessionEvent(RespondPermissionEvent(
-      proceed: false,
-      disclosureChoices: [],
-    ));
+    _dispatchSessionEvent(DismissSessionEvent());
   }
 
   Widget _buildNavigationBar() {

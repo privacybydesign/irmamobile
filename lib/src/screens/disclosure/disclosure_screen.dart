@@ -144,7 +144,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   }
 
   Future<void> _handleFinished(SessionState session) async {
-    final serverName = session.serverName.translate(FlutterI18n.currentLocale(context).languageCode);
+    final serverName = session.serverName?.translate(FlutterI18n.currentLocale(context).languageCode) ?? "";
     await Future.delayed(const Duration(seconds: 1));
 
     // Navigate back if other sessions are open
@@ -211,10 +211,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   }
 
   void _dismissSession() {
-    _dispatchSessionEvent(RespondPermissionEvent(
-      proceed: false,
-      disclosureChoices: [],
-    ));
+    _dispatchSessionEvent(DismissSessionEvent());
   }
 
   void _givePermission(SessionState session) {
