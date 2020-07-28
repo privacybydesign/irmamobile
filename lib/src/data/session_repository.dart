@@ -5,6 +5,7 @@ import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
+import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:quiver/iterables.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:stream_transform/stream_transform.dart';
@@ -42,10 +43,20 @@ class SessionRepository {
     final credentials = await repo.getCredentials().first;
 
     if (event is NewSessionEvent) {
+      // Set the url as fallback serverName in case session is canceled before the translated serverName is known.
+      TranslatedValue serverName;
+      try {
+        final url = Uri.parse(event.request.u).host;
+        serverName = TranslatedValue({TranslatedValue.defaultFallbackLang: url});
+      } catch (_) {
+        // Error with url will be resolved by bridge, so we don't have to act on that.
+        serverName = null;
+      }
       return prevState.copyWith(
         clientReturnURL: prevState.clientReturnURL ?? event.request.returnURL,
         continueOnSecondDevice: event.continueOnSecondDevice,
         status: SessionStatus.initialized,
+        serverName: serverName,
       );
     } else if (event is FailureSessionEvent) {
       return prevState.copyWith(
