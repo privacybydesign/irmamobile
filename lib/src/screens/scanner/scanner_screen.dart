@@ -33,22 +33,21 @@ class ScannerScreen extends StatelessWidget {
     bool continueOnSecondDevice = true,
     bool webview = false,
   }) {
-    final event = NewSessionEvent(request: sessionPointer, continueOnSecondDevice: continueOnSecondDevice);
     final repo = IrmaRepository.get();
-    repo.dispatch(event, isBridgedEvent: true);
-
-    String screen;
-    if (["disclosing", "signing", "redirect"].contains(event.request.irmaqr)) {
-      screen = DisclosureScreen.routeName;
-    } else if ("issuing" == event.request.irmaqr) {
-      screen = IssuanceScreen.routeName;
-    } else {
-      // TODO show error?
-      navigator.popUntil(ModalRoute.withName(WalletScreen.routeName));
-      return;
-    }
-
     repo.hasActiveSessions().then((hasActiveSessions) {
+      final event = NewSessionEvent(request: sessionPointer, continueOnSecondDevice: continueOnSecondDevice);
+      repo.dispatch(event, isBridgedEvent: true);
+
+      String screen;
+      if (["disclosing", "signing", "redirect"].contains(event.request.irmaqr)) {
+        screen = DisclosureScreen.routeName;
+      } else if ("issuing" == event.request.irmaqr) {
+        screen = IssuanceScreen.routeName;
+      } else {
+        // TODO show error?
+        navigator.popUntil(ModalRoute.withName(WalletScreen.routeName));
+        return;
+      }
       if (hasActiveSessions) {
         // After this session finishes, we want to go back to the previous session
         if (webview) {
