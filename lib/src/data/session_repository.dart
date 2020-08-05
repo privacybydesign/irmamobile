@@ -3,6 +3,7 @@ import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
+import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
@@ -48,10 +49,10 @@ class SessionRepository {
 
     if (event is NewSessionEvent) {
       // Set the url as fallback serverName in case session is canceled before the translated serverName is known.
-      TranslatedValue serverName;
+      RequestorInfo serverName;
       try {
         final url = Uri.parse(event.request.u).host;
-        serverName = TranslatedValue({TranslatedValue.defaultFallbackLang: url});
+        serverName = RequestorInfo(name: TranslatedValue({TranslatedValue.defaultFallbackLang: url}));
       } catch (_) {
         // Error with url will be resolved by bridge, so we don't have to act on that.
         serverName = null;

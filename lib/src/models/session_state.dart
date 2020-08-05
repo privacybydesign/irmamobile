@@ -1,13 +1,12 @@
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/session.dart';
-import 'package:irmamobile/src/models/translated_value.dart';
 
 class SessionState {
   final int sessionID;
   final bool continueOnSecondDevice;
   final SessionStatus status;
-  final TranslatedValue serverName;
+  final RequestorInfo serverName;
   final ConDisCon<Attribute> disclosuresCandidates;
   final String clientReturnURL;
   final bool isSignatureSession;
@@ -50,7 +49,7 @@ class SessionState {
   SessionState copyWith({
     bool continueOnSecondDevice,
     SessionStatus status,
-    TranslatedValue serverName,
+    RequestorInfo serverName,
     ConDisCon<Attribute> disclosuresCandidates,
     String clientReturnURL,
     bool isSignatureSession,

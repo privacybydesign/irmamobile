@@ -85,6 +85,7 @@ CredentialType _$CredentialTypeFromJson(Map<String, dynamic> json) {
     faqContent:
         json['FAQContent'] == null ? null : TranslatedValue.fromJson(json['FAQContent'] as Map<String, dynamic>),
     faqHowto: json['FAQHowto'] == null ? null : TranslatedValue.fromJson(json['FAQHowto'] as Map<String, dynamic>),
+    logo: json['Logo'] as String,
   );
 }
 

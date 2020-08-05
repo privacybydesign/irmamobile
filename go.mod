@@ -11,8 +11,11 @@ require (
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/pkg/errors v0.8.1 // indirect
 	github.com/privacybydesign/gabi v0.0.0-20200805114803-588904629b25
-	github.com/privacybydesign/irmago v0.5.0
+	github.com/privacybydesign/irmago v0.5.1-0.20200912080950-86e5e646e81b
 	github.com/sirupsen/logrus v1.4.2
+	github.com/spf13/cobra v0.0.1 // indirect
+	github.com/spf13/pflag v1.0.4-0.20190111213756-a45bfec10d59 // indirect
+	github.com/spf13/viper v1.0.1-0.20200205174444-d996804203c7 // indirect
 	github.com/timshannon/bolthold v0.0.0-20191212204344-59576e1e7b0b // indirect
 	go.etcd.io/bbolt v1.3.3 // indirect
 	golang.org/x/mobile v0.0.0-20200222142934-3c8601c510d0 // indirect

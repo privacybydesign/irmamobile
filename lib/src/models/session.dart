@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'session.g.dart';
@@ -122,4 +123,20 @@ class RemoteError {
 
   factory RemoteError.fromJson(Map<String, dynamic> json) => _$RemoteErrorFromJson(json);
   Map<String, dynamic> toJson() => _$RemoteErrorToJson(this);
+}
+
+@JsonSerializable()
+class RequestorInfo {
+  @JsonKey(name: 'name')
+  TranslatedValue name;
+
+  @JsonKey(name: 'industry', nullable: true)
+  TranslatedValue industry;
+
+  @JsonKey(name: 'logo', nullable: true)
+  String logo;
+
+  RequestorInfo({this.name, this.industry, this.logo});
+  factory RequestorInfo.fromJson(Map<String, dynamic> json) => _$RequestorInfoFromJson(json);
+  Map<String, dynamic> toJson() => _$RequestorInfoToJson(this);
 }

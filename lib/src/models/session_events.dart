@@ -151,7 +151,7 @@ class RequestIssuancePermissionSessionEvent extends SessionEvent {
   }) : super(sessionID);
 
   @JsonKey(name: 'ServerName')
-  TranslatedValue serverName;
+  RequestorInfo serverName;
 
   @JsonKey(name: 'Satisfiable')
   bool satisfiable;
@@ -181,7 +181,7 @@ class RequestVerificationPermissionSessionEvent extends SessionEvent {
   }) : super(sessionID);
 
   @JsonKey(name: 'ServerName')
-  TranslatedValue serverName;
+  RequestorInfo serverName;
 
   @JsonKey(name: 'Satisfiable')
   bool satisfiable;

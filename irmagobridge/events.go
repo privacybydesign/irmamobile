@@ -72,7 +72,7 @@ type errorEvent struct {
 }
 
 type irmaConfigurationEvent struct {
-	IrmaConfiguration *irma.Configuration
+	IrmaConfiguration *WrappedConfiguration
 }
 
 type credentialsEvent struct {
@@ -150,7 +150,7 @@ type canceledSessionEvent struct {
 
 type requestIssuancePermissionSessionEvent struct {
 	SessionID             int
-	ServerName            irma.TranslatedString
+	ServerName            *irma.RequestorInfo
 	Satisfiable           bool
 	IssuedCredentials     irma.CredentialInfoList
 	Disclosures           irma.AttributeConDisCon
@@ -160,7 +160,7 @@ type requestIssuancePermissionSessionEvent struct {
 
 type requestVerificationPermissionSessionEvent struct {
 	SessionID             int
-	ServerName            irma.TranslatedString
+	ServerName            *irma.RequestorInfo
 	Satisfiable           bool
 	Disclosures           irma.AttributeConDisCon
 	DisclosuresLabels     map[int]irma.TranslatedString
@@ -203,7 +203,7 @@ type logEntry struct {
 	ID                   uint64
 	Type                 irma.Action
 	Time                 irma.Timestamp
-	ServerName           irma.TranslatedString
+	ServerName           *irma.RequestorInfo
 	IssuedCredentials    irma.CredentialInfoList
 	DisclosedCredentials [][]*irma.DisclosedAttribute
 	SignedMessage        *irma.SignedMessage

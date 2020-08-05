@@ -1,6 +1,7 @@
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/event.dart';
+import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -74,7 +75,7 @@ class LogEntry {
   final DateTime time;
 
   @JsonKey(name: 'ServerName')
-  final TranslatedValue serverName;
+  final RequestorInfo serverName;
 
   @JsonKey(name: 'IssuedCredentials')
   final List<RawCredential> issuedCredentials;

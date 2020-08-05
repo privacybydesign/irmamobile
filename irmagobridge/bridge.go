@@ -47,7 +47,7 @@ func (p writer) Write(b []byte) (int, error) {
 }
 
 // Start is invoked from the native side, when the app starts
-func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) {
+func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, tempPath string) {
 	defer recoverFromPanic()
 
 	bridge = givenBridge
@@ -79,7 +79,7 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) 
 
 	// Initialize the client
 	configurationPath := filepath.Join(assetsPath, "irma_configuration")
-	client, err = irmaclient.New(appVersionDataPath, configurationPath, bridgeClientHandler)
+	client, err = irmaclient.New(appVersionDataPath, configurationPath, bridgeClientHandler, tempPath)
 	if err != nil {
 		reportError(errors.WrapPrefix(err, "Cannot initialize client", 0))
 		return

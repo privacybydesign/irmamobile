@@ -85,7 +85,8 @@ class CardStoreScreen extends StatelessWidget {
                                     );
                                   };
 
-                                  final File logoFile = File(credentialType.logoPath(irmaConfiguration.path));
+                                  // Default needed since File crashes on Null argument
+                                  final File logoFile = File(credentialType.logo ?? "");
                                   return CardSuggestion(
                                     icon: logoFile.existsSync()
                                         ? Image.file(logoFile)

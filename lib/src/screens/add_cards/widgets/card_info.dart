@@ -22,7 +22,8 @@ class CardInfo extends StatefulWidget {
 class _CardInfoState extends State<CardInfo> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
-    final logoFile = File(widget.credentialType.logoPath(widget.irmaConfiguration.path));
+    // Default needed since File crashes on Null argument
+    final logoFile = File(widget.credentialType.logo ?? "");
     final paddingText = EdgeInsets.only(
       left: IrmaTheme.of(context).defaultSpacing,
       right: IrmaTheme.of(context).defaultSpacing,

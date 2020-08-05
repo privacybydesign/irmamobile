@@ -122,10 +122,6 @@ class Issuer {
   factory Issuer.fromJson(Map<String, dynamic> json) => _$IssuerFromJson(json);
 
   String get fullId => "$schemeManagerId.$id";
-
-  String logoPath(String irmaConfigurationPath) {
-    return "$irmaConfigurationPath/$schemeManagerId/$id/logo.png";
-  }
 }
 
 @JsonSerializable(nullable: false, createToJson: false)
@@ -150,6 +146,7 @@ class CredentialType {
     this.faqPurpose,
     this.faqContent,
     this.faqHowto,
+    this.logo,
   });
 
   @JsonKey(name: 'ID')
@@ -209,14 +206,13 @@ class CredentialType {
   @JsonKey(name: 'FAQHowto', nullable: true)
   final TranslatedValue faqHowto;
 
+  @JsonKey(name: 'Logo')
+  final String logo;
+
   factory CredentialType.fromJson(Map<String, dynamic> json) => _$CredentialTypeFromJson(json);
 
   String get fullId => "$schemeManagerId.$issuerId.$id";
   String get fullIssuerId => "$schemeManagerId.$issuerId";
-
-  String logoPath(String irmaConfigurationPath) {
-    return "$irmaConfigurationPath/$schemeManagerId/$issuerId/Issues/$id/logo.png";
-  }
 }
 
 const translatedValueDefault = <String, String>{};
