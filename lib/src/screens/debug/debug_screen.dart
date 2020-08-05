@@ -75,7 +75,6 @@ class DemoSessionHelper {
     return """
       {
         "credential": "${credentialType.fullId}",
-        "validity": 1592438400,
         "attributes": {${attributeValues.join(", ")}}
       }
     """;
