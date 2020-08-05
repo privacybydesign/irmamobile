@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/screens/scanner/widgets/qr_instruction.dart';
 import 'package:irmamobile/src/screens/scanner/widgets/qr_overlay.dart';
@@ -29,16 +30,27 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
   bool error = false;
   Timer _errorTimer;
 
-  QRViewController controller;
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Stack(
         children: [
-          QRView(
-            key: qrKey,
-            onQRViewCreated: _onQRViewCreated,
+          // Due to issues in the qr_code_scanner library, the scanner's QRView
+          // widget does not render properly when the pin screen overlay is active.
+          // Therefore we make sure the QRView only renders when the app is unlocked
+          // and the pin screen overlay is not active.
+          // https://github.com/juliuscanute/qr_code_scanner/issues/87
+          StreamBuilder<bool>(
+            stream: IrmaRepository.get().getLocked(),
+            builder: (context, isLocked) {
+              if (!isLocked.hasData || isLocked.data) {
+                return Container(color: Colors.black);
+              }
+              return QRView(
+                key: qrKey,
+                onQRViewCreated: _onQRViewCreated,
+              );
+            },
           ),
           Container(
             constraints: const BoxConstraints.expand(),
