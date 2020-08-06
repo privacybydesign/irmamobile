@@ -65,7 +65,7 @@ class ScannerScreen extends StatelessWidget {
         }
       } else {
         navigator.pushNamedAndRemoveUntil(
-          DisclosureScreen.routeName,
+          screen,
           ModalRoute.withName(WalletScreen.routeName),
           arguments: SessionScreenArguments(sessionID: event.sessionID, sessionType: event.request.irmaqr),
         );
