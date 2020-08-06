@@ -37,7 +37,7 @@ class App extends StatefulWidget {
 
 class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
-  final _detectRootedDeviceRepo = DetectRootedDeviceRepositoryImpl();
+  final _detectRootedDeviceRepo = DetectRootedDeviceIrmaPrefsRepository();
   StreamSubscription<SessionPointer> _sessionPointerSubscription;
   bool _qrScannerActive = false;
   DateTime lastSchemeUpdate;
@@ -334,6 +334,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
 
   Future<bool> _displayDeviceIsRootedWarning() async {
     final isDeviceRooted = await _detectRootedDeviceRepo.isDeviceRooted();
+
     if (isDeviceRooted) {
       return !await _detectRootedDeviceRepo.hasAcceptedRootedDeviceRisk();
     }
