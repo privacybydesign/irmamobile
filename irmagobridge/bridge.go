@@ -11,6 +11,7 @@ import (
 	"github.com/go-errors/errors"
 	irma "github.com/privacybydesign/irmago"
 	"github.com/privacybydesign/irmago/irmaclient"
+	"github.com/sirupsen/logrus"
 )
 
 // IrmaMobileBridge is the iOS or Android native component that is used for message passing
@@ -75,6 +76,7 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) 
 	irma.Logger.SetOutput(writer(func(m string) {
 		bridge.DebugLog(fmt.Sprintf("[irmago] %s", m))
 	}))
+	irma.Logger.SetLevel(logrus.TraceLevel)
 
 	// Initialize the client
 	configurationPath := filepath.Join(assetsPath, "irma_configuration")
