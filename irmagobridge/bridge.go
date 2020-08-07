@@ -76,7 +76,6 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) 
 	irma.Logger.SetOutput(writer(func(m string) {
 		bridge.DebugLog(fmt.Sprintf("[irmago] %s", m))
 	}))
-	irma.Logger.SetLevel(logrus.TraceLevel)
 
 	// Initialize the client
 	configurationPath := filepath.Join(assetsPath, "irma_configuration")
@@ -84,6 +83,10 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) 
 	if err != nil {
 		reportError(errors.WrapPrefix(err, "Cannot initialize client", 0))
 		return
+	}
+
+	if client.Preferences.DeveloperMode {
+		irma.Logger.SetLevel(logrus.TraceLevel)
 	}
 }
 
