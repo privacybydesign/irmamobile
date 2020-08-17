@@ -415,8 +415,8 @@
   },
   "disclosure": {
     "title": "Jezelf bekend maken",
-    "disclosure_header_markdown": "Wil je dit aan **{otherParty}** doorgeven?",
-    "disclosure_call_header_markdown": "Wil je dit aan **{otherParty}** doorgeven en bellen naar **{phoneNumber}**?",
+    "disclosure_header_markdown": "Wil je de volgende gegevens aan **{otherParty}** doorgeven?",
+    "disclosure_call_header_markdown": "Wil je de volgende gegevens aan **{otherParty}** doorgeven en bellen naar **{phoneNumber}**?",
     "signing_header": " verzoekt jou om een bericht te ondertekenen",
     "issuer": "Uitgever",
     "credential_name": "Kaartje",
@@ -456,8 +456,8 @@
     "call_info": {
       "title": "Via IRMA bellen",
       "success": "Gegevens doorgegegeven",
-      "success_message_markdown": "Je gegevens zijn doorgegegeven aan **{otherParty}**.\nVoer de volgende stappen uit om te bellen.",
-      "success_message_ios_markdown": "Je gegevens zijn doorgegegeven aan **{otherParty}**.",
+      "success_message_markdown": "Je gegevens zijn doorgegeven aan **{otherParty}**.\nVoer de volgende stappen uit om te bellen.",
+      "success_message_ios_markdown": "Je gegevens zijn doorgegeven aan **{otherParty}**.",
       "continue": "1. Kies doorgaan",
       "continue_ios": "Kies doorgaan om te bellen",
       "continue_message": "Je belapplicatie opent nu vanzelf. Het telefoonnummer is al ingevuld, met een koppelcode.",
