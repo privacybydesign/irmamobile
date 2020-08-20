@@ -127,6 +127,10 @@ github.com/privacybydesign/gabi v0.0.0-20200729124802-5828bcd24dfd h1:xIEl8VRtIN
 github.com/privacybydesign/gabi v0.0.0-20200729124802-5828bcd24dfd/go.mod h1:XJRlG8/PARHx6Fbv0nVIIhmLFCXwp2gG2h8ZqqeW8x0=
 github.com/privacybydesign/gabi v0.0.0-20200805114803-588904629b25 h1:x2D/AmZi2OAgHttqC3GCNyaOOzhE7yWUZVug8sgBiRw=
 github.com/privacybydesign/gabi v0.0.0-20200805114803-588904629b25/go.mod h1:XJRlG8/PARHx6Fbv0nVIIhmLFCXwp2gG2h8ZqqeW8x0=
+github.com/privacybydesign/gabi v0.0.0-20200820161854-9420d1c3172d h1:FESbMQdF1MAVu2rNoWFTJ238afLRkPpLzT8i/MHKsCM=
+github.com/privacybydesign/gabi v0.0.0-20200820161854-9420d1c3172d/go.mod h1:hyxnm8M7jWk3P54LDik5aJD69BLhVRjo/ajrjQBng8k=
+github.com/privacybydesign/gabi v0.0.0-20200820162409-fe89b1563886 h1:C3BuNqalHBIs9Ak+IKWhgjqrAbAgmO2TZdsQYZs2zG4=
+github.com/privacybydesign/gabi v0.0.0-20200820162409-fe89b1563886/go.mod h1:hyxnm8M7jWk3P54LDik5aJD69BLhVRjo/ajrjQBng8k=
 github.com/privacybydesign/irmago v0.5.0-rc.1.0.20200317184428-7fae4f8ad22f h1:ycOiIPKeECblC6y+CFOVGeAhWUtnTaGP9JwEZEwZdNQ=
 github.com/privacybydesign/irmago v0.5.0-rc.1.0.20200317184428-7fae4f8ad22f/go.mod h1:xsJZPAp4mtGSUQLFdfhTgcxU0PfRrI4ZVC3APDF49G0=
 github.com/privacybydesign/irmago v0.5.0-rc.1.0.20200323180637-e9223f58f656 h1:DN/z/9ADzL8uWRshChfF3SpyvHGWzFc5/2yO+NI9xhc=
@@ -213,6 +217,8 @@ golang.org/x/image v0.0.0-20190802002840-cff245a6509b/go.mod h1:FeLwcggjj3mMvU+o
 golang.org/x/mobile v0.0.0-20190312151609-d3739f865fa6/go.mod h1:z+o9i4GpDbdi3rU15maQ/Ox0txvL9dWGYEHz965HBQE=
 golang.org/x/mobile v0.0.0-20200222142934-3c8601c510d0 h1:nZASbxDuz7CO3227BWCCf0MC6ynyvKh6eMDoLcNXAk0=
 golang.org/x/mobile v0.0.0-20200222142934-3c8601c510d0/go.mod h1:skQtrUTUwhdJvXM/2KKJzY8pDgNr9I/FOMqDVRPBUS4=
+golang.org/x/mobile v0.0.0-20200801112145-973feb4309de h1:OVJ6QQUBAesB8CZijKDSsXX7xYVtUhrkY0gwMfbi4p4=
+golang.org/x/mobile v0.0.0-20200801112145-973feb4309de/go.mod h1:skQtrUTUwhdJvXM/2KKJzY8pDgNr9I/FOMqDVRPBUS4=
 golang.org/x/mod v0.1.0/go.mod h1:0QHyrYULN0/3qlju5TqG8bIK38QM8yzMo5ekMj3DlcY=
 golang.org/x/mod v0.1.1-0.20191105210325-c90efee705ee/go.mod h1:QqPTAvyqsEbceGzBzNggFXnrqF1CaUcvgkdR5Ot7KZg=
 golang.org/x/mod v0.1.1-0.20191209134235-331c550502dd/go.mod h1:s0Qsj1ACt9ePp/hMypM3fl4fZqREWJwdYDEqhRiZZUA=
