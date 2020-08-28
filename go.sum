@@ -159,6 +159,10 @@ github.com/privacybydesign/irmago v0.5.0-rc.4.0.20200709130210-e2e9ab18474c h1:T
 github.com/privacybydesign/irmago v0.5.0-rc.4.0.20200709130210-e2e9ab18474c/go.mod h1:fDEZZkJZjX/qvoTSBJmPn0jlBmMYj9QmOlqghJVqaD8=
 github.com/privacybydesign/irmago v0.5.0-rc.5.0.20200820155307-01cafa8bffb8 h1:iLNncS9muW+2hE+6oFoC2TcGSABai2TIsd6+SYq5IvU=
 github.com/privacybydesign/irmago v0.5.0-rc.5.0.20200820155307-01cafa8bffb8/go.mod h1:QSMN2tAxkejpRnN/vO8t+5qxDHD4QknNEc/SQ4t+uAE=
+github.com/privacybydesign/irmago v0.5.0-rc.5.0.20200828145351-b15ed2eb3ded h1:vsfR5SCYvqYMeiDyHxBMrcbxCUzq/+tSGMPwgMakIJI=
+github.com/privacybydesign/irmago v0.5.0-rc.5.0.20200828145351-b15ed2eb3ded/go.mod h1:QSMN2tAxkejpRnN/vO8t+5qxDHD4QknNEc/SQ4t+uAE=
+github.com/privacybydesign/irmago v0.5.0-rc.5.0.20200831112352-58a90073640d h1:gheMusH8Vw0mGeiAvLsYl5V/3zoMDLmx6Umw1yvv3O4=
+github.com/privacybydesign/irmago v0.5.0-rc.5.0.20200831112352-58a90073640d/go.mod h1:QSMN2tAxkejpRnN/vO8t+5qxDHD4QknNEc/SQ4t+uAE=
 github.com/sietseringers/go-sse v0.0.0-20200223201439-6cc042ab6f6d h1:XwKXy5OPmsOiNCJ1/ENs1+2J/6weBmYaxTGOtecKchk=
 github.com/sietseringers/go-sse v0.0.0-20200223201439-6cc042ab6f6d/go.mod h1:W/QHK9G0i5yrmHvej5+hhoFMXTSZIWHGQRcpbGgqV9s=
 github.com/sietseringers/go-sse v0.0.0-20200801161811-e2cf2c63ca50 h1:vgWWQM2SnMoO9BiUZ2WFAYuYF6U0jNss9Vn/PZoi+tU=
