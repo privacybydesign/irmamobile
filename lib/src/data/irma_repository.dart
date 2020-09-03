@@ -114,6 +114,7 @@ class IrmaRepository {
       _enrollmentStatusSubject.add(EnrollmentStatus.unenrolled);
       _lockedSubject.add(false);
       _blockedSubject.add(null);
+      IrmaPreferences.get().clearAll();
     } else if (event is AppLifecycleChangedEvent) {
       if (event.state == AppLifecycleState.paused) {
         _lastActiveTimeSubject.add(DateTime.now());
