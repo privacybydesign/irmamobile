@@ -16,6 +16,7 @@ import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/update_schemes_event.dart';
 import 'package:irmamobile/src/models/version_information.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
+import 'package:irmamobile/src/screens/loading/redirect_screen.dart';
 import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/screens/required_update/required_update_screen.dart';
 import 'package:irmamobile/src/screens/reset_pin/reset_pin_screen.dart';
@@ -37,6 +38,10 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   StreamSubscription<SessionPointer> _sessionPointerSubscription;
   DateTime lastSchemeUpdate;
+
+  final _redirectScreenCompleter = Completer();
+  final _minimumSplashScreenCompleter = Completer();
+  final _minimumSplashScreenDuration = const Duration(milliseconds: 1000);
 
   // We keep track of the last two life cycle states
   // to be able to determine the flow
@@ -66,22 +71,10 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     ];
   }
 
-  bool _showSplash = true;
-  bool _removeSplash = false;
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-
-    // TODO: the delay before splash is hidden is quite long. This is because we
-    // currently have a long startup time (although that may be because we run
-    // in debug). This value should eventually be lowered to 500.
-    Future.delayed(const Duration(milliseconds: 2500)).then((_) {
-      setState(() {
-        _showSplash = false;
-      });
-    });
 
     _listenForDataClear();
   }
@@ -137,41 +130,50 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
 
   @override
   void didPush(Route route, Route previousRoute) {
-    _checkWalletScreenPushed(route);
-  }
-
-  @override
-  void didReplace({Route newRoute, Route oldRoute}) {
-    _checkWalletScreenPopped(oldRoute);
-    _checkWalletScreenPushed(newRoute);
+    _onScreenPushed(route);
   }
 
   @override
   void didPop(Route route, Route previousRoute) {
-    _checkWalletScreenPopped(route);
+    _onScreenPopped(route);
   }
 
   @override
   void didRemove(Route route, Route previousRoute) {
-    _checkWalletScreenPopped(route);
+    _onScreenPopped(route);
   }
 
-  void _checkWalletScreenPushed(Route route) {
-    // We have to make sure that sessions can be started once the
-    //  wallet screen has been pushed to the navigator. Otherwise
-    //  the session screens have no wallet screen to pop back to.
-    //  The wallet screen is only pushed when the user is fully enrolled.
-    if (route.settings.name == WalletScreen.routeName) {
-      _listenToPendingSessionPointer();
-      _startQrScannerOnStartup();
+  @override
+  void didReplace({Route newRoute, Route oldRoute}) {
+    _onScreenPopped(oldRoute);
+    _onScreenPushed(newRoute);
+  }
+
+  void _onScreenPushed(Route route) {
+    switch (route.settings.name) {
+      case WalletScreen.routeName:
+        // We have to make sure that sessions can be started once the
+        //  wallet screen has been pushed to the navigator. Otherwise
+        //  the session screens have no wallet screen to pop back to.
+        //  The wallet screen is only pushed when the user is fully enrolled.
+        _listenToPendingSessionPointer();
+        _startQrScannerOnStartup();
+        break;
+      default:
     }
   }
 
-  void _checkWalletScreenPopped(Route route) {
-    // Make sure app stops listening for session pointers until
-    //  the wallet screen is pushed back on the stack.
-    if (route.settings.name == WalletScreen.routeName) {
-      _sessionPointerSubscription.cancel();
+  void _onScreenPopped(Route route) {
+    switch (route.settings.name) {
+      case WalletScreen.routeName:
+        _sessionPointerSubscription.cancel();
+        break;
+      case RedirectScreen.routeName:
+        if (!_redirectScreenCompleter.isCompleted) {
+          _redirectScreenCompleter.complete();
+        }
+        break;
+      default:
     }
   }
 
@@ -278,27 +280,35 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     );
   }
 
-  Widget _buildSplash(EnrollmentStatus enrollmentStatus) {
-    if (_removeSplash) {
-      return Container();
-    }
+  Widget _buildSplash() {
+    // If loading takes longer than the default startup screen is visible,
+    // render a startup screen look-a-like splash screen with loading indicator until
+    // all information is loaded to start the app.
+    return StreamBuilder<dynamic>(
+        stream: Future.wait([
+          IrmaRepository.get().getLocked().first,
+          IrmaRepository.get().getVersionInformation().first,
+          _redirectScreenCompleter.future,
+          _minimumSplashScreenCompleter.future,
+        ]).asStream(),
+        builder: (context, loaded) {
+          if (loaded.hasData) {
+            return Container();
+          }
+          // Start the minimum splash screen duration timer here to make the timing more accurate.
+          Future.delayed(_minimumSplashScreenDuration).then((_) {
+            if (!_minimumSplashScreenCompleter.isCompleted) {
+              _minimumSplashScreenCompleter.complete();
+            }
+          });
 
-    return AnimatedOpacity(
-      opacity: enrollmentStatus == EnrollmentStatus.undetermined || _showSplash ? 1.0 : 0.0,
-      duration: const Duration(milliseconds: 500),
-      onEnd: () {
-        setState(() {
-          _removeSplash = true;
+          return SplashScreen();
         });
-      },
-      child: const SplashScreen(),
-    );
   }
 
   Widget _buildAppStack(
     BuildContext context,
     Widget navigationChild,
-    EnrollmentStatus enrollmentStatus,
   ) {
     // Use this Stack to force an overlay when loading and when an update is required.
     return Stack(
@@ -306,16 +316,13 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
         navigationChild,
         _buildPinScreen(),
         _buildRequiredUpdateScreen(),
-        _buildSplash(enrollmentStatus),
+        _buildSplash(),
       ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final irmaRepo = IrmaRepository.get();
-    final enrollmentStatusStream = irmaRepo.getEnrollmentStatus();
-
     // Device orientation: force portrait mode
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
@@ -324,34 +331,27 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
 
     return IrmaTheme(
       builder: (BuildContext context) {
-        return StreamBuilder<EnrollmentStatus>(
-          stream: enrollmentStatusStream,
-          builder: (context, enrollmentStatusSnapshop) {
-            final enrollmentStatus = enrollmentStatusSnapshop.data;
+        return Stack(
+          textDirection: TextDirection.ltr,
+          children: <Widget>[
+            MaterialApp(
+              key: const Key("app"),
+              title: 'IRMA',
+              theme: IrmaTheme.of(context).themeData,
+              localizationsDelegates: defaultLocalizationsDelegates(),
+              supportedLocales: defaultSupportedLocales(),
+              navigatorKey: _navigatorKey,
+              navigatorObservers: [this],
+              onGenerateRoute: Routing.generateRoute,
 
-            return Stack(
-              textDirection: TextDirection.ltr,
-              children: <Widget>[
-                MaterialApp(
-                  key: const Key("app"),
-                  title: 'IRMA',
-                  theme: IrmaTheme.of(context).themeData,
-                  localizationsDelegates: defaultLocalizationsDelegates(),
-                  supportedLocales: defaultSupportedLocales(),
-                  navigatorKey: _navigatorKey,
-                  navigatorObservers: [this],
-                  onGenerateRoute: Routing.generateRoute,
+              // Set showSemanticsDebugger to true to view semantics in emulator.
+              showSemanticsDebugger: false,
 
-                  // Set showSemanticsDebugger to true to view semantics in emulator.
-                  showSemanticsDebugger: false,
-
-                  builder: (context, child) {
-                    return _buildAppStack(context, child, enrollmentStatus);
-                  },
-                ),
-              ],
-            );
-          },
+              builder: (context, child) {
+                return _buildAppStack(context, child);
+              },
+            ),
+          ],
         );
       },
     );

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/enrollment_status.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
-import 'package:irmamobile/src/screens/loading/loading_screen.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 
 class RedirectScreen extends StatelessWidget {
@@ -24,8 +23,7 @@ class RedirectScreen extends StatelessWidget {
               });
             }
           }
-          // TODO Change when the splash screen logic in app.dart (see TODO there) is improved.
-          return LoadingScreen();
+          return Container();
         });
   }
 }
