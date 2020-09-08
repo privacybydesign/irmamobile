@@ -19,6 +19,8 @@ import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/screens/required_update/required_update_screen.dart';
 import 'package:irmamobile/src/screens/reset_pin/reset_pin_screen.dart';
+import 'package:irmamobile/src/screens/rooted_warning/repository.dart';
+import 'package:irmamobile/src/screens/rooted_warning/rooted_warning_screen.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/splash_screen/splash_screen.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
@@ -35,6 +37,7 @@ class App extends StatefulWidget {
 
 class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  final _detectRootedDeviceRepo = DetectRootedDeviceRepositoryImpl();
   StreamSubscription<SessionPointer> _sessionPointerSubscription;
   bool _qrScannerActive = false;
   DateTime lastSchemeUpdate;
@@ -311,6 +314,33 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     );
   }
 
+  Widget _buildDeviceIsRootedWarningScreen() {
+    return FutureBuilder<bool>(
+      future: _displayDeviceIsRootedWarning(),
+      builder: (context, displayRootedWarning) {
+        if (displayRootedWarning.data != null && displayRootedWarning.data) {
+          return RootedWarningScreen(
+            onAcceptRiskButtonPressed: () async {
+              _detectRootedDeviceRepo.setHasAcceptedRootedDeviceRisk();
+              setState(() {});
+            },
+          );
+        }
+
+        return Container();
+      },
+    );
+  }
+
+  Future<bool> _displayDeviceIsRootedWarning() async {
+    final isDeviceRooted = await _detectRootedDeviceRepo.isDeviceRooted();
+    if (isDeviceRooted) {
+      return !await _detectRootedDeviceRepo.hasAcceptedRootedDeviceRisk();
+    }
+
+    return false;
+  }
+
   Widget _buildAppStack(
     BuildContext context,
     Widget navigationChild,
@@ -322,6 +352,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
         navigationChild,
         _buildPinScreen(),
         _buildRequiredUpdateScreen(),
+        _buildDeviceIsRootedWarningScreen(),
         _buildSplash(enrollmentStatus),
       ],
     );

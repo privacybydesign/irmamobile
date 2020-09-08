@@ -225,6 +225,13 @@ packages:
       url: "https://github.com/davidv1992/flutter_i18n"
     source: git
     version: "0.13.0"
+  flutter_jailbreak_detection:
+    dependency: "direct main"
+    description:
+      name: flutter_jailbreak_detection
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.4.0"
   flutter_localizations:
     dependency: "direct main"
     description: flutter

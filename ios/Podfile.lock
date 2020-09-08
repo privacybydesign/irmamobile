@@ -1,5 +1,9 @@
 PODS:
+  - DTTJailbreakDetection (0.4.0)
   - Flutter (1.0.0)
+  - flutter_jailbreak_detection (1.0.0):
+    - DTTJailbreakDetection
+    - Flutter
   - MTBBarcodeScanner (5.0.11)
   - package_info (0.0.1):
     - Flutter
@@ -23,6 +27,7 @@ PODS:
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
+  - flutter_jailbreak_detection (from `.symlinks/plugins/flutter_jailbreak_detection/ios`)
   - package_info (from `.symlinks/plugins/package_info/ios`)
   - qr_code_scanner (from `.symlinks/plugins/qr_code_scanner/ios`)
   - share (from `.symlinks/plugins/share/ios`)
@@ -35,11 +40,14 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - DTTJailbreakDetection
     - MTBBarcodeScanner
 
 EXTERNAL SOURCES:
   Flutter:
     :path: Flutter
+  flutter_jailbreak_detection:
+    :path: ".symlinks/plugins/flutter_jailbreak_detection/ios"
   package_info:
     :path: ".symlinks/plugins/package_info/ios"
   qr_code_scanner:
@@ -60,7 +68,9 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/url_launcher_web/ios"
 
 SPEC CHECKSUMS:
+  DTTJailbreakDetection: 5e356c5badc17995f65a83ed9483f787a0057b71
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  flutter_jailbreak_detection: f6c01e4bc73641c6b69c5112e50301240601abb4
   MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
   package_info: 48b108e75b8802c2d5e126f208ef540561c98aef
   qr_code_scanner: 16107718bdad7d708cdf6a5eacdca24b56cdf471
@@ -74,4 +84,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 1b66dae606f75376c5f2135a8290850eeb09ae83
 
-COCOAPODS: 1.9.1
+COCOAPODS: 1.8.4
