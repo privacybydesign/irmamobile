@@ -37,6 +37,7 @@ class App extends StatefulWidget {
 class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   StreamSubscription<SessionPointer> _sessionPointerSubscription;
+  bool _qrScannerActive = false;
   DateTime lastSchemeUpdate;
 
   final _redirectScreenCompleter = Completer();
@@ -87,7 +88,6 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
 
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
-    final startQrScanner = await IrmaPreferences.get().getStartQRScan().first;
     final repo = IrmaRepository.get();
     repo.dispatch(AppLifecycleChangedEvent(state));
 
@@ -110,15 +110,12 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
       final lastActive = await repo.getLastActiveTime().first;
       final status = await repo.getEnrollmentStatus().firstWhere((status) => status != EnrollmentStatus.undetermined);
       final locked = await repo.getLocked().first;
-      if (lastActive.isBefore(DateTime.now().subtract(const Duration(minutes: 5))) &&
-          status == EnrollmentStatus.enrolled &&
-          !locked) {
-        repo.lock();
-      }
-
-      // Start qr scanner if requested (this will load behind pin screen)
-      if (startQrScanner) {
-        _navigatorKey.currentState.pushNamed(ScannerScreen.routeName);
+      if (status == EnrollmentStatus.enrolled) {
+        if (!locked && lastActive.isBefore(DateTime.now().subtract(const Duration(minutes: 5)))) {
+          repo.lock();
+        } else {
+          _checkStartupPreferences();
+        }
       }
     }
 
@@ -157,8 +154,15 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
         //  the session screens have no wallet screen to pop back to.
         //  The wallet screen is only pushed when the user is fully enrolled.
         _listenToPendingSessionPointer();
-        _startQrScannerOnStartup();
+        _checkStartupPreferences();
         break;
+
+      case ScannerScreen.routeName:
+        // Check whether the qr code scanner is active to prevent the scanner
+        //  from being re-launched over a previous instance on startup.
+        _qrScannerActive = true;
+        break;
+
       default:
     }
   }
@@ -172,6 +176,9 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
         if (!_redirectScreenCompleter.isCompleted) {
           _redirectScreenCompleter.complete();
         }
+        break;
+      case ScannerScreen.routeName:
+        _qrScannerActive = false;
         break;
       default:
     }
@@ -203,11 +210,10 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     });
   }
 
-  Future<void> _startQrScannerOnStartup() async {
-    // TODO: Check whether this function actually works.
-    //  push the QR scanner screen if the preference is enabled
+  Future<void> _checkStartupPreferences() async {
+    // Push the QR scanner screen if the preference is enabled
     final startQrScanner = await IrmaPreferences.get().getStartQRScan().first;
-    if (startQrScanner == true) {
+    if (startQrScanner && !_qrScannerActive) {
       _navigatorKey.currentState.pushNamed(ScannerScreen.routeName);
     }
   }
