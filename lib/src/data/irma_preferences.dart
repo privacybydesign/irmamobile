@@ -27,6 +27,12 @@ class IrmaPreferences {
     });
   }
 
+  Future<void> clearAll() {
+    return StreamingSharedPreferences.instance.then((preferences) {
+      return preferences.clear();
+    });
+  }
+
   static const String _longPinKey = "preference.long_pin";
   final BehaviorSubject<bool> _longPin = BehaviorSubject<bool>();
 
