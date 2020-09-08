@@ -16,7 +16,6 @@ import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/update_schemes_event.dart';
 import 'package:irmamobile/src/models/version_information.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
-import 'package:irmamobile/src/screens/loading/redirect_screen.dart';
 import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/screens/required_update/required_update_screen.dart';
 import 'package:irmamobile/src/screens/reset_pin/reset_pin_screen.dart';
@@ -39,10 +38,6 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   StreamSubscription<SessionPointer> _sessionPointerSubscription;
   bool _qrScannerActive = false;
   DateTime lastSchemeUpdate;
-
-  final _redirectScreenCompleter = Completer();
-  final _minimumSplashScreenCompleter = Completer();
-  final _minimumSplashScreenDuration = const Duration(milliseconds: 1000);
 
   // We keep track of the last two life cycle states
   // to be able to determine the flow
@@ -72,10 +67,22 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     ];
   }
 
+  bool _showSplash = true;
+  bool _removeSplash = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+
+    // TODO: the delay before splash is hidden is quite long. This is because we
+    // currently have a long startup time (although that may be because we run
+    // in debug). This value should eventually be lowered to 500.
+    Future.delayed(const Duration(milliseconds: 2500)).then((_) {
+      setState(() {
+        _showSplash = false;
+      });
+    });
 
     _listenForDataClear();
   }
@@ -131,6 +138,12 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   }
 
   @override
+  void didReplace({Route newRoute, Route oldRoute}) {
+    _onScreenPopped(oldRoute);
+    _onScreenPushed(newRoute);
+  }
+
+  @override
   void didPop(Route route, Route previousRoute) {
     _onScreenPopped(route);
   }
@@ -138,12 +151,6 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   @override
   void didRemove(Route route, Route previousRoute) {
     _onScreenPopped(route);
-  }
-
-  @override
-  void didReplace({Route newRoute, Route oldRoute}) {
-    _onScreenPopped(oldRoute);
-    _onScreenPushed(newRoute);
   }
 
   void _onScreenPushed(Route route) {
@@ -171,11 +178,6 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     switch (route.settings.name) {
       case WalletScreen.routeName:
         _sessionPointerSubscription.cancel();
-        break;
-      case RedirectScreen.routeName:
-        if (!_redirectScreenCompleter.isCompleted) {
-          _redirectScreenCompleter.complete();
-        }
         break;
       case ScannerScreen.routeName:
         _qrScannerActive = false;
@@ -286,35 +288,27 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     );
   }
 
-  Widget _buildSplash() {
-    // If loading takes longer than the default startup screen is visible,
-    // render a startup screen look-a-like splash screen with loading indicator until
-    // all information is loaded to start the app.
-    return StreamBuilder<dynamic>(
-        stream: Future.wait([
-          IrmaRepository.get().getLocked().first,
-          IrmaRepository.get().getVersionInformation().first,
-          _redirectScreenCompleter.future,
-          _minimumSplashScreenCompleter.future,
-        ]).asStream(),
-        builder: (context, loaded) {
-          if (loaded.hasData) {
-            return Container();
-          }
-          // Start the minimum splash screen duration timer here to make the timing more accurate.
-          Future.delayed(_minimumSplashScreenDuration).then((_) {
-            if (!_minimumSplashScreenCompleter.isCompleted) {
-              _minimumSplashScreenCompleter.complete();
-            }
-          });
+  Widget _buildSplash(EnrollmentStatus enrollmentStatus) {
+    if (_removeSplash) {
+      return Container();
+    }
 
-          return SplashScreen();
+    return AnimatedOpacity(
+      opacity: enrollmentStatus == EnrollmentStatus.undetermined || _showSplash ? 1.0 : 0.0,
+      duration: const Duration(milliseconds: 500),
+      onEnd: () {
+        setState(() {
+          _removeSplash = true;
         });
+      },
+      child: const SplashScreen(),
+    );
   }
 
   Widget _buildAppStack(
     BuildContext context,
     Widget navigationChild,
+    EnrollmentStatus enrollmentStatus,
   ) {
     // Use this Stack to force an overlay when loading and when an update is required.
     return Stack(
@@ -322,13 +316,16 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
         navigationChild,
         _buildPinScreen(),
         _buildRequiredUpdateScreen(),
-        _buildSplash(),
+        _buildSplash(enrollmentStatus),
       ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final irmaRepo = IrmaRepository.get();
+    final enrollmentStatusStream = irmaRepo.getEnrollmentStatus();
+
     // Device orientation: force portrait mode
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
@@ -337,27 +334,34 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
 
     return IrmaTheme(
       builder: (BuildContext context) {
-        return Stack(
-          textDirection: TextDirection.ltr,
-          children: <Widget>[
-            MaterialApp(
-              key: const Key("app"),
-              title: 'IRMA',
-              theme: IrmaTheme.of(context).themeData,
-              localizationsDelegates: defaultLocalizationsDelegates(),
-              supportedLocales: defaultSupportedLocales(),
-              navigatorKey: _navigatorKey,
-              navigatorObservers: [this],
-              onGenerateRoute: Routing.generateRoute,
+        return StreamBuilder<EnrollmentStatus>(
+          stream: enrollmentStatusStream,
+          builder: (context, enrollmentStatusSnapshop) {
+            final enrollmentStatus = enrollmentStatusSnapshop.data;
 
-              // Set showSemanticsDebugger to true to view semantics in emulator.
-              showSemanticsDebugger: false,
+            return Stack(
+              textDirection: TextDirection.ltr,
+              children: <Widget>[
+                MaterialApp(
+                  key: const Key("app"),
+                  title: 'IRMA',
+                  theme: IrmaTheme.of(context).themeData,
+                  localizationsDelegates: defaultLocalizationsDelegates(),
+                  supportedLocales: defaultSupportedLocales(),
+                  navigatorKey: _navigatorKey,
+                  navigatorObservers: [this],
+                  onGenerateRoute: Routing.generateRoute,
 
-              builder: (context, child) {
-                return _buildAppStack(context, child);
-              },
-            ),
-          ],
+                  // Set showSemanticsDebugger to true to view semantics in emulator.
+                  showSemanticsDebugger: false,
+
+                  builder: (context, child) {
+                    return _buildAppStack(context, child, enrollmentStatus);
+                  },
+                ),
+              ],
+            );
+          },
         );
       },
     );
