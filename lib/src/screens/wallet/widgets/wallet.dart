@@ -16,7 +16,6 @@ import 'package:irmamobile/src/screens/wallet/widgets/wallet_button.dart';
 import 'package:irmamobile/src/screens/wallet/widgets/wallet_icon_button.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/widgets/card/card.dart';
 import 'package:irmamobile/src/widgets/credential_nudge.dart';
 
@@ -881,7 +880,7 @@ class WalletState extends State<Wallet> with TickerProviderStateMixin {
     }
 
     return () {
-      _irmaClient.openURL(context, getTranslation(context, credential.info.credentialType.issueUrl));
+      _irmaClient.openIssueURL(context, credential.info.fullId);
     };
   }
 

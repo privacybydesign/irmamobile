@@ -104,6 +104,12 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
       repo.bridgedDispatch(UpdateSchemesEvent());
     }
 
+    // Forget about previous issuance session via in app browser once app
+    // is dismissed
+    if (state == AppLifecycleState.paused) {
+      repo.processInactivation();
+    }
+
     // We check the transition goes from paused -> inactive -> resumed
     // because the transition inactive -> resumed can also happen
     // in scenarios where the app is not closed. Like an apple pay

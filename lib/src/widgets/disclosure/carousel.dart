@@ -52,8 +52,7 @@ class _CarouselState extends State<Carousel> {
       if (widget.onIssue != null) {
         widget.onIssue();
       }
-      final url = getTranslation(context, type.issueUrl);
-      IrmaRepository.get().openURL(context, url);
+      IrmaRepository.get().openIssueURL(context, type.fullId);
     };
   }
 

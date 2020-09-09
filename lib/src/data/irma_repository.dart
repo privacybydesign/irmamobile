@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:irmamobile/src/data/irma_bridge.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
@@ -24,11 +25,31 @@ import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/models/version_information.dart';
-import 'package:irmamobile/src/screens/webview/webview_screen.dart';
 import 'package:irmamobile/src/sentry/sentry.dart';
+import 'package:irmamobile/src/util/language.dart';
 import 'package:package_info/package_info.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+class _InAppCredentialState {
+  final int pendingInactivations;
+  final String credentialType;
+
+  _InAppCredentialState({
+    this.pendingInactivations,
+    this.credentialType,
+  });
+
+  _InAppCredentialState copyWith({
+    int pendingInactivations,
+    String credentialType,
+  }) {
+    return _InAppCredentialState(
+      pendingInactivations: pendingInactivations ?? this.pendingInactivations,
+      credentialType: credentialType ?? this.credentialType,
+    );
+  }
+}
 
 class IrmaRepository {
   static IrmaRepository _instance;
@@ -63,11 +84,13 @@ class IrmaRepository {
   final _appLifecycleState = BehaviorSubject<AppLifecycleState>();
   final _pendingSessionPointerSubject = BehaviorSubject<SessionPointer>.seeded(null);
   final _preferencesSubject = BehaviorSubject<ClientPreferencesEvent>();
+  final _inAppCredentialSubject = BehaviorSubject<_InAppCredentialState>();
 
   // _internal is a named constructor only used by the factory
   IrmaRepository._internal({
     @required this.bridge,
   }) : assert(bridge != null) {
+    _inAppCredentialSubject.add(_InAppCredentialState());
     _eventSubject.listen(_eventListener);
     _sessionRepository = SessionRepository(
       repo: this,
@@ -104,6 +127,7 @@ class IrmaRepository {
       try {
         final sessionPointer = SessionPointer.fromString(event.url);
         _pendingSessionPointerSubject.add(sessionPointer);
+        closeWebView();
       } on MissingSessionPointer {
         // pass
       }
@@ -321,14 +345,47 @@ class IrmaRepository {
     );
   }
 
+  static const _iiabchannel = MethodChannel('irma.app/iiab');
+
+  Future<String> getInAppCredential() {
+    return _inAppCredentialSubject.first.then((state) => state.credentialType);
+  }
+
+  Future<void> processInactivation() async {
+    final curState = await _inAppCredentialSubject.first;
+    if ((curState.pendingInactivations ?? 0) > 0) {
+      // If there are still inactivations to be ignored, we ignore
+      // and just decrement count
+      _inAppCredentialSubject.add(curState.copyWith(
+        pendingInactivations: curState.pendingInactivations - 1,
+      ));
+    } else {
+      // Forget about previous opening of browser
+      _inAppCredentialSubject.add(_InAppCredentialState());
+    }
+  }
+
+  Future<void> openIssueURL(BuildContext context, String type) async {
+    // Remember that we started browser for issuing of this credential type from the app
+    // the browser itself dismisses us always, so first dismissal of app needs to be ignored.
+    _inAppCredentialSubject.add(_InAppCredentialState(pendingInactivations: 1, credentialType: type));
+    openURL(
+        context,
+        getTranslation(
+            context,
+            await irmaConfigurationSubject.first
+                .then((irmaConfiguration) => irmaConfiguration.credentialTypes[type].issueUrl)));
+  }
+
   Future<void> openURL(BuildContext context, String url) async {
     if ((await getExternalBrowserURLs().first).contains(url)) {
       openURLinBrowser(context, url);
     } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => WebviewScreen(url)),
-      );
+      if (Platform.isAndroid) {
+        _iiabchannel.invokeMethod('open_browser', url);
+      } else {
+        launch(url, forceSafariVC: true);
+      }
     }
   }
 

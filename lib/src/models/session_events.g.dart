@@ -10,6 +10,7 @@ NewSessionEvent _$NewSessionEventFromJson(Map<String, dynamic> json) {
   return NewSessionEvent(
     request: json['Request'] == null ? null : SessionPointer.fromJson(json['Request'] as Map<String, dynamic>),
     continueOnSecondDevice: json['continueOnSecondDevice'] as bool,
+    inAppCredential: json['inAppCredential'] as String,
   )..sessionID = json['SessionID'] as int;
 }
 
@@ -17,6 +18,7 @@ Map<String, dynamic> _$NewSessionEventToJson(NewSessionEvent instance) => <Strin
       'SessionID': instance.sessionID,
       'Request': instance.request,
       'continueOnSecondDevice': instance.continueOnSecondDevice,
+      'inAppCredential': instance.inAppCredential,
     };
 
 RespondPermissionEvent _$RespondPermissionEventFromJson(Map<String, dynamic> json) {
