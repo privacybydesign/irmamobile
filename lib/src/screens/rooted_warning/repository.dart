@@ -2,16 +2,16 @@ import 'package:flutter_jailbreak_detection/flutter_jailbreak_detection.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 
 abstract class DetectRootedDeviceRepository {
-  Future<bool> hasAcceptedRootedDeviceRisk();
+  Stream<bool> hasAcceptedRootedDeviceRisk();
   Future<void> setHasAcceptedRootedDeviceRisk();
   Future<bool> isDeviceRooted();
 }
 
 class DetectRootedDeviceIrmaPrefsRepository implements DetectRootedDeviceRepository {
   @override
-  Future<bool> hasAcceptedRootedDeviceRisk() async {
+  Stream<bool> hasAcceptedRootedDeviceRisk() {
     final irmaPrefs = IrmaPreferences.get();
-    return irmaPrefs.getAcceptedRootedRisk().first;
+    return irmaPrefs.getAcceptedRootedRisk();
   }
 
   @override

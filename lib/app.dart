@@ -315,14 +315,13 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   }
 
   Widget _buildDeviceIsRootedWarningScreen() {
-    return FutureBuilder<bool>(
-      future: _displayDeviceIsRootedWarning(),
+    return StreamBuilder<bool>(
+      stream: _displayDeviceIsRootedWarning(),
       builder: (context, displayRootedWarning) {
         if (displayRootedWarning.data != null && displayRootedWarning.data) {
           return RootedWarningScreen(
             onAcceptRiskButtonPressed: () async {
               _detectRootedDeviceRepo.setHasAcceptedRootedDeviceRisk();
-              setState(() {});
             },
           );
         }
@@ -332,14 +331,19 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     );
   }
 
-  Future<bool> _displayDeviceIsRootedWarning() async {
-    final isDeviceRooted = await _detectRootedDeviceRepo.isDeviceRooted();
-
-    if (isDeviceRooted) {
-      return !await _detectRootedDeviceRepo.hasAcceptedRootedDeviceRisk();
-    }
-
-    return false;
+  Stream<bool> _displayDeviceIsRootedWarning() {
+    final streamController = StreamController<bool>();
+    _detectRootedDeviceRepo.isDeviceRooted().then((isRooted) {
+      if (isRooted) {
+        _detectRootedDeviceRepo
+            .hasAcceptedRootedDeviceRisk()
+            .map((acceptedRisk) => !acceptedRisk)
+            .pipe(streamController);
+      } else {
+        streamController.add(false);
+      }
+    });
+    return streamController.stream;
   }
 
   Widget _buildAppStack(
