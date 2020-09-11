@@ -85,6 +85,7 @@ class IrmaRepository {
   final _pendingSessionPointerSubject = BehaviorSubject<SessionPointer>.seeded(null);
   final _preferencesSubject = BehaviorSubject<ClientPreferencesEvent>();
   final _inAppCredentialSubject = BehaviorSubject<_InAppCredentialState>();
+  final _resumedWithURL = BehaviorSubject<bool>.seeded(false);
 
   // _internal is a named constructor only used by the factory
   IrmaRepository._internal({
@@ -127,6 +128,7 @@ class IrmaRepository {
       try {
         final sessionPointer = SessionPointer.fromString(event.url);
         _pendingSessionPointerSubject.add(sessionPointer);
+        _resumedWithURL.add(true);
         closeWebView();
       } on MissingSessionPointer {
         // pass
@@ -142,6 +144,7 @@ class IrmaRepository {
     } else if (event is AppLifecycleChangedEvent) {
       if (event.state == AppLifecycleState.paused) {
         _lastActiveTimeSubject.add(DateTime.now());
+        _resumedWithURL.add(false);
       }
     } else if (event is ClientPreferencesEvent) {
       _preferencesSubject.add(event);
@@ -313,6 +316,8 @@ class IrmaRepository {
   Future<bool> hasActiveSessions() {
     return _sessionRepository.hasActiveSessions();
   }
+
+  Future<bool> resumedWithURL() => _resumedWithURL.stream.first;
 
   Stream<SessionPointer> getPendingSessionPointer() {
     return _pendingSessionPointerSubject.stream;
