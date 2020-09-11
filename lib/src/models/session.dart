@@ -12,13 +12,18 @@ class MissingSessionPointer implements Exception {
 
 @JsonSerializable()
 class SessionPointer {
-  SessionPointer({this.u, this.irmaqr, this.returnURL});
+  SessionPointer({this.u, this.irmaqr, this.continueOnSecondDevice = false, this.returnURL});
 
   @JsonKey(name: 'u')
   String u;
 
   @JsonKey(name: 'irmaqr')
   String irmaqr;
+
+  // Whether the session should be continued on the mobile device,
+  // or on the device which has displayed a QR code
+  @JsonKey(name: 'continueOnSecondDevice', defaultValue: false)
+  bool continueOnSecondDevice;
 
   @Deprecated("This parameter is deprecated and will be removed at the end of 2020. Use clientReturnURL instead.")
   @JsonKey(name: 'returnURL')

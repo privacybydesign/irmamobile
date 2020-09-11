@@ -20,15 +20,10 @@ class NewSessionEvent extends SessionEvent {
   // We start at some arbitrary point above zero
   static int sessionIDCounter = 42;
 
-  NewSessionEvent({this.request, this.continueOnSecondDevice = false, this.inAppCredential = ""})
-      : super(sessionIDCounter++);
+  NewSessionEvent({this.request, this.inAppCredential = ""}) : super(sessionIDCounter++);
 
   @JsonKey(name: 'Request')
   SessionPointer request;
-
-  // Whether the session should be continued on the mobile device,
-  // or on the device which has displayed a QR code
-  bool continueOnSecondDevice;
 
   // Which credential's issue page, if any relevant, was last opened with the in-app browser
   String inAppCredential;
