@@ -123,9 +123,12 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
       final lastActive = await repo.getLastActiveTime().first;
       final status = await repo.getEnrollmentStatus().firstWhere((status) => status != EnrollmentStatus.undetermined);
       final locked = await repo.getLocked().first;
-      if (status == EnrollmentStatus.enrolled &&
-          (!locked && lastActive.isBefore(DateTime.now().subtract(const Duration(minutes: 5))))) {
-        repo.lock();
+      if (status == EnrollmentStatus.enrolled) {
+        if (!locked && lastActive.isBefore(DateTime.now().subtract(const Duration(minutes: 5)))) {
+          repo.lock();
+        } else {
+          _checkStartupPreferences();
+        }
       }
     }
 
@@ -222,7 +225,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     // If so, do not open the QR scanner.
     // The session has _sessionWaitTimeoutDuration
     // before we assume no session is going to continue.
-    if (startQrScanner && !await IrmaRepository.get().resumedWithURL() && !_qrScannerActive) {
+    if (startQrScanner && !await IrmaRepository.get().appResumedAutomatically() && !_qrScannerActive) {
       _navigatorKey.currentState.pushNamed(ScannerScreen.routeName);
     }
   }

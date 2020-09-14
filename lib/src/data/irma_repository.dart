@@ -86,6 +86,7 @@ class IrmaRepository {
   final _preferencesSubject = BehaviorSubject<ClientPreferencesEvent>();
   final _inAppCredentialSubject = BehaviorSubject<_InAppCredentialState>();
   final _resumedWithURLSubject = BehaviorSubject<bool>.seeded(false);
+  final _resumedFromBrowserSubject = BehaviorSubject<bool>.seeded(false);
 
   // _internal is a named constructor only used by the factory
   IrmaRepository._internal({
@@ -145,6 +146,7 @@ class IrmaRepository {
       if (event.state == AppLifecycleState.paused) {
         _lastActiveTimeSubject.add(DateTime.now());
         _resumedWithURLSubject.add(false);
+        _resumedFromBrowserSubject.add(false);
       }
     } else if (event is ClientPreferencesEvent) {
       _preferencesSubject.add(event);
@@ -317,7 +319,12 @@ class IrmaRepository {
     return _sessionRepository.hasActiveSessions();
   }
 
-  Future<bool> resumedWithURL() => _resumedWithURLSubject.stream.first;
+  Future<bool> appResumedAutomatically() {
+    return _resumedFromBrowserSubject.stream.first.then((resumedFromBrowser) {
+      if (resumedFromBrowser) return true;
+      return _resumedWithURLSubject.stream.first;
+    });
+  }
 
   Stream<SessionPointer> getPendingSessionPointer() {
     return _pendingSessionPointerSubject.stream;
@@ -383,6 +390,7 @@ class IrmaRepository {
   }
 
   Future<void> openURL(BuildContext context, String url) async {
+    _resumedFromBrowserSubject.add(true);
     if ((await getExternalBrowserURLs().first).contains(url)) {
       openURLinBrowser(context, url);
     } else {
