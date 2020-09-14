@@ -57,3 +57,17 @@ Map<String, dynamic> _$RemoteErrorToJson(RemoteError instance) => <String, dynam
       'message': instance.message,
       'stacktrace': instance.stacktrace,
     };
+
+RequestorInfo _$RequestorInfoFromJson(Map<String, dynamic> json) {
+  return RequestorInfo(
+    name: json['name'] == null ? null : TranslatedValue.fromJson(json['name'] as Map<String, dynamic>),
+    industry: json['industry'] == null ? null : TranslatedValue.fromJson(json['industry'] as Map<String, dynamic>),
+    logo: json['logo'] as String,
+  );
+}
+
+Map<String, dynamic> _$RequestorInfoToJson(RequestorInfo instance) => <String, dynamic>{
+      'name': instance.name,
+      'industry': instance.industry,
+      'logo': instance.logo,
+    };

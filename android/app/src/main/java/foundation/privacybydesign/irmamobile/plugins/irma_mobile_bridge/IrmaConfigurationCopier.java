@@ -41,6 +41,7 @@ public class IrmaConfigurationCopier {
         this.destAssetsPath = Paths.get(context.getFilesDir().getPath()).resolve("assets");
 
         try {
+            this.ensureDirExists(Paths.get(context.getFilesDir().getPath()).resolve("tmp"));
             this.ensureConfigurationAssets();
         } catch (IOException e) {
             throw new RuntimeException(e);

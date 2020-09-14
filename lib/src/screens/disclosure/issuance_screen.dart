@@ -162,7 +162,7 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
   }
 
   Future<void> _handleFinished(SessionState session) async {
-    final serverName = session.serverName?.translate(FlutterI18n.currentLocale(context).languageCode) ?? "";
+    final serverName = session.serverName?.name?.translate(FlutterI18n.currentLocale(context).languageCode) ?? "";
     await Future.delayed(const Duration(seconds: 1));
 
     // Navigate back if other sessions are open

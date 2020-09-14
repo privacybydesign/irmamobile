@@ -27,7 +27,8 @@ class IrmaPilotNudge extends StatelessWidget {
     final translationScope = 'wallet.${credentialType.fullId.replaceAll('.', '_')}';
     final translatedIssueUrl = getTranslation(context, credentialType.issueUrl);
 
-    final logoFile = File(issuer.logoPath(irmaConfigurationPath));
+    // Disabled as issuer logos are currently not fully supported in irmago
+    final logoFile = File("" /*issuer.logoPath(irmaConfigurationPath)*/);
 
     return Column(
       children: <Widget>[

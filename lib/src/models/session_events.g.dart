@@ -127,8 +127,7 @@ Map<String, dynamic> _$CanceledSessionEventToJson(CanceledSessionEvent instance)
 RequestIssuancePermissionSessionEvent _$RequestIssuancePermissionSessionEventFromJson(Map<String, dynamic> json) {
   return RequestIssuancePermissionSessionEvent(
     sessionID: json['SessionID'] as int,
-    serverName:
-        json['ServerName'] == null ? null : TranslatedValue.fromJson(json['ServerName'] as Map<String, dynamic>),
+    serverName: json['ServerName'] == null ? null : RequestorInfo.fromJson(json['ServerName'] as Map<String, dynamic>),
     satisfiable: json['Satisfiable'] as bool,
     issuedCredentials: (json['IssuedCredentials'] as List)
         ?.map((e) => e == null ? null : RawCredential.fromJson(e as Map<String, dynamic>))
@@ -160,8 +159,7 @@ RequestVerificationPermissionSessionEvent _$RequestVerificationPermissionSession
     Map<String, dynamic> json) {
   return RequestVerificationPermissionSessionEvent(
     sessionID: json['SessionID'] as int,
-    serverName:
-        json['ServerName'] == null ? null : TranslatedValue.fromJson(json['ServerName'] as Map<String, dynamic>),
+    serverName: json['ServerName'] == null ? null : RequestorInfo.fromJson(json['ServerName'] as Map<String, dynamic>),
     satisfiable: json['Satisfiable'] as bool,
     disclosuresLabels: (json['DisclosuresLabels'] as Map<String, dynamic>)?.map(
       (k, e) => MapEntry(int.parse(k), e == null ? null : TranslatedValue.fromJson(e as Map<String, dynamic>)),

@@ -23,11 +23,11 @@ class LogEntryCard extends StatelessWidget {
     switch (logEntry.type) {
       case LogEntryType.disclosing:
         title = FlutterI18n.plural(context, "history.type.disclosing.data", logEntry.disclosedAttributes.length);
-        subtitle = logEntry.serverName[lang];
+        subtitle = logEntry.serverName.name[lang];
         break;
       case LogEntryType.signing:
         title = FlutterI18n.plural(context, "history.type.signing.data", logEntry.disclosedAttributes.length);
-        subtitle = logEntry.serverName[lang];
+        subtitle = logEntry.serverName.name[lang];
         break;
       case LogEntryType.issuing:
         title = FlutterI18n.plural(context, "history.type.issuing.data", logEntry.issuedCredentials.length);

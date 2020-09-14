@@ -37,7 +37,7 @@
   }
 
   [self debugLog:[NSString stringWithFormat:@"Starting irmago, lib=%@, bundle=%@", libraryPath, bundlePath]];
-  IrmagobridgeStart(self, libraryPath, bundlePath);
+  IrmagobridgeStart(self, libraryPath, bundlePath, @"");
   return self;
 }
 

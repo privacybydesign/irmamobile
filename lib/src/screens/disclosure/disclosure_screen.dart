@@ -82,7 +82,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
         if (session.canBeFinished) {
           _showExplanation(session.disclosuresCandidates);
         } else {
-          final serverName = session.serverName.translate(FlutterI18n.currentLocale(context).languageCode);
+          final serverName = session.serverName.name.translate(FlutterI18n.currentLocale(context).languageCode);
           _pushDisclosureFeedbackScreen(DisclosureFeedbackType.notSatisfiable, serverName);
         }
       }
@@ -144,7 +144,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   }
 
   Future<void> _handleFinished(SessionState session) async {
-    final serverName = session.serverName?.translate(FlutterI18n.currentLocale(context).languageCode) ?? "";
+    final serverName = session.serverName?.name?.translate(FlutterI18n.currentLocale(context).languageCode) ?? "";
     await Future.delayed(const Duration(seconds: 1));
 
     // Navigate back if other sessions are open
@@ -226,7 +226,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
   }
 
   Widget _buildDisclosureHeader(SessionState session) {
-    final serverName = session.serverName.translate(FlutterI18n.currentLocale(context).languageCode);
+    final serverName = session.serverName.name.translate(FlutterI18n.currentLocale(context).languageCode);
     return Column(
       children: <Widget>[
         if (!session.satisfiable)
@@ -268,7 +268,7 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
       Text.rich(
         TextSpan(children: [
           TextSpan(
-            text: session.serverName.translate(FlutterI18n.currentLocale(context).languageCode),
+            text: session.serverName.name.translate(FlutterI18n.currentLocale(context).languageCode),
             style: IrmaTheme.of(context).textTheme.body2,
           ),
           TextSpan(

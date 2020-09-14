@@ -35,8 +35,7 @@ LogEntry _$LogEntryFromJson(Map<String, dynamic> json) {
     id: json['ID'] as int,
     type: _toLogEntryType(json['Type'] as String),
     time: _epochSecondsToDateTime(json['Time'] as int),
-    serverName:
-        json['ServerName'] == null ? null : TranslatedValue.fromJson(json['ServerName'] as Map<String, dynamic>),
+    serverName: json['ServerName'] == null ? null : RequestorInfo.fromJson(json['ServerName'] as Map<String, dynamic>),
     issuedCredentials: (json['IssuedCredentials'] as List)
         ?.map((e) => e == null ? null : RawCredential.fromJson(e as Map<String, dynamic>))
         ?.toList(),

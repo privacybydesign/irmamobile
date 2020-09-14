@@ -20,7 +20,7 @@ func (b *DummyBridge) DebugLog(message string) {
 
 func main() {
 	pwd, _ := os.Getwd()
-	irmagobridge.Start(&DummyBridge{}, "/tmp", pwd)
+	irmagobridge.Start(&DummyBridge{}, "/tmp", pwd, "")
 
 	irmagobridge.DispatchFromNative("AppReadyEvent", "")
 }

@@ -31,7 +31,7 @@ class Header extends StatelessWidget {
                 ),
                 if (logEntry.serverName != null)
                   Text(
-                    logEntry.serverName.translate(lang),
+                    logEntry.serverName.name.translate(lang),
                     style: IrmaTheme.of(context).textTheme.display2.copyWith(),
                   ),
                 Text(

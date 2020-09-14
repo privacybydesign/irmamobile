@@ -38,7 +38,7 @@ public class IrmaMobileBridgePlugin implements MethodCallHandler, irmagobridge.I
 
     try {
       PackageInfo pi = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-      Irmagobridge.start(this, pi.applicationInfo.dataDir, copier.destAssetsPath.toString());
+      Irmagobridge.start(this, pi.applicationInfo.dataDir, copier.destAssetsPath.toString(), context.getFilesDir().getPath() + "/tmp");
       this.debug = (pi.applicationInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
     } catch (PackageManager.NameNotFoundException e) {
       throw new RuntimeException(e);
