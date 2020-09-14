@@ -4,3 +4,6 @@
 [submodule "irma_configuration/irma-demo"]
 	path = irma_configuration/irma-demo
 	url = https://github.com/privacybydesign/irma-demo-schememanager.git
+[submodule "irma_configuration/pbdf-requestors"]
+	path = irma_configuration/pbdf-requestors
+	url = https://github.com/privacybydesign/pbdf-requestors.git
