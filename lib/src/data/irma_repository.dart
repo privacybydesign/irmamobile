@@ -146,7 +146,6 @@ class IrmaRepository {
       if (event.state == AppLifecycleState.paused) {
         _lastActiveTimeSubject.add(DateTime.now());
         _resumedWithURLSubject.add(false);
-        _resumedFromBrowserSubject.add(false);
       }
     } else if (event is ClientPreferencesEvent) {
       _preferencesSubject.add(event);
@@ -324,7 +323,12 @@ class IrmaRepository {
   // 2) handling an incoming URL
   Future<bool> appResumedAutomatically() {
     return Observable.combineLatest2(
-        _resumedFromBrowserSubject.stream, _resumedWithURLSubject.stream, (bool a, bool b) => a || b).first;
+            _resumedFromBrowserSubject.stream, _resumedWithURLSubject.stream, (bool a, bool b) => a || b)
+        .first
+        .then((result) {
+      _resumedFromBrowserSubject.add(false); // App is resumed, so we have to reset the value
+      return result;
+    });
   }
 
   Stream<SessionPointer> getPendingSessionPointer() {
