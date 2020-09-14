@@ -319,11 +319,12 @@ class IrmaRepository {
     return _sessionRepository.hasActiveSessions();
   }
 
+  // Returns a future whether the app was resumed by either
+  // 1) coming back from the browser, or
+  // 2) handling an incoming URL
   Future<bool> appResumedAutomatically() {
-    return _resumedFromBrowserSubject.stream.first.then((resumedFromBrowser) {
-      if (resumedFromBrowser) return true;
-      return _resumedWithURLSubject.stream.first;
-    });
+    return Observable.combineLatest2(
+        _resumedFromBrowserSubject.stream, _resumedWithURLSubject.stream, (bool a, bool b) => a || b).first;
   }
 
   Stream<SessionPointer> getPendingSessionPointer() {
