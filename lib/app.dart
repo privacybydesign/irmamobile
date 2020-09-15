@@ -221,7 +221,10 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   Future<void> _checkStartupPreferences() async {
     // Push the QR scanner screen if the preference is enabled
     final startQrScanner = await IrmaPreferences.get().getStartQRScan().first;
-    if (startQrScanner && !_qrScannerActive) {
+    // Check if the app was started with a HandleURLEvent or resumed when returning from in-app browser.
+    // If so, do not open the QR scanner.
+    final appResumedAutomatically = await IrmaRepository.get().appResumedAutomatically();
+    if (startQrScanner && !appResumedAutomatically && !_qrScannerActive) {
       _navigatorKey.currentState.pushNamed(ScannerScreen.routeName);
     }
   }

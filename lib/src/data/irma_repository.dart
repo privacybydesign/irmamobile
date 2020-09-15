@@ -85,6 +85,8 @@ class IrmaRepository {
   final _pendingSessionPointerSubject = BehaviorSubject<SessionPointer>.seeded(null);
   final _preferencesSubject = BehaviorSubject<ClientPreferencesEvent>();
   final _inAppCredentialSubject = BehaviorSubject<_InAppCredentialState>();
+  final _resumedWithURLSubject = BehaviorSubject<bool>.seeded(false);
+  final _resumedFromBrowserSubject = BehaviorSubject<bool>.seeded(false);
 
   // _internal is a named constructor only used by the factory
   IrmaRepository._internal({
@@ -127,6 +129,7 @@ class IrmaRepository {
       try {
         final sessionPointer = SessionPointer.fromString(event.url);
         _pendingSessionPointerSubject.add(sessionPointer);
+        _resumedWithURLSubject.add(true);
         closeWebView();
       } on MissingSessionPointer {
         // pass
@@ -142,6 +145,7 @@ class IrmaRepository {
     } else if (event is AppLifecycleChangedEvent) {
       if (event.state == AppLifecycleState.paused) {
         _lastActiveTimeSubject.add(DateTime.now());
+        _resumedWithURLSubject.add(false);
       }
     } else if (event is ClientPreferencesEvent) {
       _preferencesSubject.add(event);
@@ -314,6 +318,19 @@ class IrmaRepository {
     return _sessionRepository.hasActiveSessions();
   }
 
+  // Returns a future whether the app was resumed by either
+  // 1) coming back from the browser, or
+  // 2) handling an incoming URL
+  Future<bool> appResumedAutomatically() {
+    return Observable.combineLatest2(
+            _resumedFromBrowserSubject.stream, _resumedWithURLSubject.stream, (bool a, bool b) => a || b)
+        .first
+        .then((result) {
+      _resumedFromBrowserSubject.add(false); // App is resumed, so we have to reset the value
+      return result;
+    });
+  }
+
   Stream<SessionPointer> getPendingSessionPointer() {
     return _pendingSessionPointerSubject.stream;
   }
@@ -378,6 +395,7 @@ class IrmaRepository {
   }
 
   Future<void> openURL(BuildContext context, String url) async {
+    _resumedFromBrowserSubject.add(true);
     if ((await getExternalBrowserURLs().first).contains(url)) {
       openURLinBrowser(context, url);
     } else {
