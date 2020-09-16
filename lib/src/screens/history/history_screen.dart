@@ -8,6 +8,7 @@ import 'package:irmamobile/src/screens/history/history_repository.dart';
 import 'package:irmamobile/src/screens/history/widgets/log_entry_card.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/util/combine.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/loading_indicator.dart';
 
