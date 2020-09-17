@@ -5,6 +5,7 @@ import 'package:irmamobile/src/screens/add_card_email/model/request_email_bloc.d
 import 'package:irmamobile/src/screens/add_card_email/model/request_email_state.dart';
 import 'package:irmamobile/src/screens/add_card_email/widgets/email_attribute_confirmation.dart';
 import 'package:irmamobile/src/screens/add_card_email/widgets/request_email_atribute.dart';
+import 'package:irmamobile/src/util/hero_controller.dart';
 
 class AddEmailCardScreen extends StatefulWidget {
   static const routeName = "store/email";
@@ -31,26 +32,28 @@ class AddEmailCardState extends State<AddEmailCardScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<RequestEmailBloc>(
-      builder: (context) => RequestEmailBloc(
-        "", // TODO: use registration e-mail if present.
-        EmailAttributeRequesterMock(
-          result: true,
-        ),
-      ),
-      child: Navigator(
-        key: navigatorKey,
-        initialRoute: RequestEmailAttribute.routeName,
-        onGenerateRoute: (RouteSettings settings) {
-          return MaterialPageRoute(
-            builder: (BuildContext c) => _buildListener(
-              c,
-              _routeBuilders[settings.name](c),
+        builder: (context) => RequestEmailBloc(
+              "", // TODO: use registration e-mail if present.
+              EmailAttributeRequesterMock(
+                result: true,
+              ),
             ),
-            settings: settings,
-          );
-        },
-      ),
-    );
+        child: HeroControllerScope(
+          controller: createHeroController(),
+          child: Navigator(
+            key: navigatorKey,
+            initialRoute: RequestEmailAttribute.routeName,
+            onGenerateRoute: (RouteSettings settings) {
+              return MaterialPageRoute(
+                builder: (BuildContext c) => _buildListener(
+                  c,
+                  _routeBuilders[settings.name](c),
+                ),
+                settings: settings,
+              );
+            },
+          ),
+        ));
   }
 
   Widget _buildListener(BuildContext context, Widget child) {
