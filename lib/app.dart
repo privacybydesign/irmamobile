@@ -19,10 +19,13 @@ import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/screens/required_update/required_update_screen.dart';
 import 'package:irmamobile/src/screens/reset_pin/reset_pin_screen.dart';
+import 'package:irmamobile/src/screens/rooted_warning/repository.dart';
+import 'package:irmamobile/src/screens/rooted_warning/rooted_warning_screen.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/splash_screen/splash_screen.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/util/combine.dart';
 
 const schemeUpdateIntervalHours = 3;
 
@@ -35,6 +38,7 @@ class App extends StatefulWidget {
 
 class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  final _detectRootedDeviceRepo = DetectRootedDeviceIrmaPrefsRepository();
   StreamSubscription<SessionPointer> _sessionPointerSubscription;
   bool _qrScannerActive = false;
   DateTime lastSchemeUpdate;
@@ -237,62 +241,41 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     );
   }
 
-  Widget _buildPinScreen() {
-    return StreamBuilder<bool>(
-      stream: IrmaRepository.get().getLocked(),
-      builder: (context, isLocked) {
-        // Display nothing if we are not locked
-        if (!isLocked.hasData || !isLocked.data) return Container();
-        // We use a navigator here, instead of just rendering the pin screen
-        //  to give error screens a place to go.
-        return Navigator(
-          initialRoute: PinScreen.routeName,
-          onGenerateRoute: (settings) {
-            // Render `RouteNotFoundScreen` when trying to render named route that
-            // is not pinscreen on this stack
-            WidgetBuilder screenBuilder = (context) => const RouteNotFoundScreen();
-            if (settings.name == PinScreen.routeName) {
-              screenBuilder = (context) => const PinScreen();
-            } else if (settings.name == ResetPinScreen.routeName) {
-              screenBuilder = (context) => ResetPinScreen();
-            }
-
-            // Wrap in popscope
-            return MaterialPageRoute(
-              builder: (BuildContext context) {
-                return WillPopScope(
-                  onWillPop: () async {
-                    // On the pinscreen, background instead of pop
-                    if (settings.name == PinScreen.routeName) {
-                      IrmaRepository.get().bridgedDispatch(AndroidSendToBackgroundEvent());
-                      return false;
-                    } else {
-                      return true;
-                    }
-                  },
-                  child: screenBuilder(context),
-                );
-              },
-              settings: settings,
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildRequiredUpdateScreen() {
-    return StreamBuilder<VersionInformation>(
-      stream: IrmaRepository.get().getVersionInformation(),
-      builder: (context, versionInformationSnapshot) {
-        // NOTE: versionInformation can be null because there is no guarantee that
-        // versionInformationSnapshot.data is not null.
-        final versionInformation = versionInformationSnapshot.data;
-        if (versionInformation != null && versionInformation.updateRequired()) {
-          return RequiredUpdateScreen();
+  Widget _buildPinScreen(bool isLocked) {
+    // Display nothing if we are not locked
+    if (!isLocked) return Container();
+    // We use a navigator here, instead of just rendering the pin screen
+    //  to give error screens a place to go.
+    return Navigator(
+      initialRoute: PinScreen.routeName,
+      onGenerateRoute: (settings) {
+        // Render `RouteNotFoundScreen` when trying to render named route that
+        // is not pinscreen on this stack
+        WidgetBuilder screenBuilder = (context) => const RouteNotFoundScreen();
+        if (settings.name == PinScreen.routeName) {
+          screenBuilder = (context) => const PinScreen();
+        } else if (settings.name == ResetPinScreen.routeName) {
+          screenBuilder = (context) => ResetPinScreen();
         }
 
-        return Container();
+        // Wrap in popscope
+        return MaterialPageRoute(
+          builder: (BuildContext context) {
+            return WillPopScope(
+              onWillPop: () async {
+                // On the pinscreen, background instead of pop
+                if (settings.name == PinScreen.routeName) {
+                  IrmaRepository.get().bridgedDispatch(AndroidSendToBackgroundEvent());
+                  return false;
+                } else {
+                  return true;
+                }
+              },
+              child: screenBuilder(context),
+            );
+          },
+          settings: settings,
+        );
       },
     );
   }
@@ -314,6 +297,50 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     );
   }
 
+  Stream<bool> _displayDeviceIsRootedWarning() {
+    final streamController = StreamController<bool>();
+    _detectRootedDeviceRepo.isDeviceRooted().then((isRooted) {
+      if (isRooted) {
+        _detectRootedDeviceRepo
+            .hasAcceptedRootedDeviceRisk()
+            .map((acceptedRisk) => !acceptedRisk)
+            .pipe(streamController);
+      } else {
+        streamController.add(false);
+      }
+    });
+    return streamController.stream;
+  }
+
+  Widget _buildAppOverlay(BuildContext context, EnrollmentStatus enrollmentStatus) {
+    final repo = IrmaRepository.get();
+    return StreamBuilder<CombinedState3<bool, VersionInformation, bool>>(
+      stream: combine3(_displayDeviceIsRootedWarning(), repo.getVersionInformation(), repo.getLocked()),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return _buildSplash(enrollmentStatus);
+        }
+
+        final displayRootedWarning = snapshot.data.a;
+        if (displayRootedWarning) {
+          return RootedWarningScreen(
+            onAcceptRiskButtonPressed: () async {
+              _detectRootedDeviceRepo.setHasAcceptedRootedDeviceRisk();
+            },
+          );
+        }
+
+        final versionInformation = snapshot.data.b;
+        if (versionInformation != null && versionInformation.updateRequired()) {
+          return RequiredUpdateScreen();
+        }
+
+        final isLocked = snapshot.data.c;
+        return _buildPinScreen(isLocked);
+      },
+    );
+  }
+
   Widget _buildAppStack(
     BuildContext context,
     Widget navigationChild,
@@ -323,9 +350,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     return Stack(
       children: <Widget>[
         navigationChild,
-        _buildPinScreen(),
-        _buildRequiredUpdateScreen(),
-        _buildSplash(enrollmentStatus),
+        _buildAppOverlay(context, enrollmentStatus),
       ],
     );
   }

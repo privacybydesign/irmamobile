@@ -46,6 +46,7 @@ dependencies:
   async: ^2.4.0
   streaming_shared_preferences: ^1.0.1
   path_drawing: ^0.4.0
+  flutter_jailbreak_detection: ^1.4.0
 
 flutter_native_splash:
   image: assets/splash/startup.png
@@ -84,6 +85,7 @@ flutter:
     - assets/non-free/
     - assets/disclosure/
     - assets/splash/
+    - assets/rooted_warning/
 
   fonts:
     - family: Karla

@@ -6,22 +6,6 @@ import 'package:irmamobile/src/models/log_entry.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:stream_transform/stream_transform.dart';
 
-class CombinedState2<A, B> {
-  A a;
-  B b;
-
-  CombinedState2(this.a, this.b);
-}
-
-Stream<CombinedState2<A, B>> combine2<A, B>(
-  Stream<A> streamA,
-  Stream<B> streamB,
-) {
-  return Observable.combineLatest2(streamA, streamB, (A a, B b) {
-    return CombinedState2<A, B>(a, b);
-  });
-}
-
 class LogEntries extends UnmodifiableListView<LogEntry> {
   LogEntries(Iterable<LogEntry> list)
       : assert(list != null),

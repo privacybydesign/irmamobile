@@ -24,6 +24,9 @@ class IrmaPreferences {
 
       final developerModePrefVisiblePref = preferences.getBool(_developerModePrefVisibleKey, defaultValue: false);
       developerModePrefVisiblePref.listen(_developerModePrefVisible.add);
+
+      final accepterRootedRiskPref = preferences.getBool(_acceptedRootedRiskKey, defaultValue: false);
+      accepterRootedRiskPref.listen(_acceptedRootedRisk.add);
     });
   }
 
@@ -95,6 +98,19 @@ class IrmaPreferences {
   Future<bool> setDeveloperModeVisible(bool value) {
     return StreamingSharedPreferences.instance.then((preferences) {
       return preferences.setBool(_developerModePrefVisibleKey, value);
+    });
+  }
+
+  static const String _acceptedRootedRiskKey = "preference.accepted_rooted_risk";
+  final BehaviorSubject<bool> _acceptedRootedRisk = BehaviorSubject<bool>();
+
+  Stream<bool> getAcceptedRootedRisk() {
+    return _acceptedRootedRisk;
+  }
+
+  Future<bool> setAcceptedRootedRisk(bool value) {
+    return StreamingSharedPreferences.instance.then((preferences) {
+      return preferences.setBool(_acceptedRootedRiskKey, value);
     });
   }
 }
