@@ -59,7 +59,7 @@ class SessionRepository {
       }
       return prevState.copyWith(
         clientReturnURL: prevState.clientReturnURL ?? event.request.returnURL,
-        continueOnSecondDevice: event.continueOnSecondDevice,
+        continueOnSecondDevice: event.request.continueOnSecondDevice,
         inAppCredential: event.inAppCredential,
         status: SessionStatus.initialized,
         serverName: serverName,

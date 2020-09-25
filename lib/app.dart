@@ -238,7 +238,6 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     ScannerScreen.startSessionAndNavigate(
       _navigatorKey.currentState,
       sessionPointer,
-      continueOnSecondDevice: false,
     );
   }
 

@@ -9,7 +9,6 @@ part of 'session_events.dart';
 NewSessionEvent _$NewSessionEventFromJson(Map<String, dynamic> json) {
   return NewSessionEvent(
     request: json['Request'] == null ? null : SessionPointer.fromJson(json['Request'] as Map<String, dynamic>),
-    continueOnSecondDevice: json['continueOnSecondDevice'] as bool,
     inAppCredential: json['inAppCredential'] as String,
   )..sessionID = json['SessionID'] as int;
 }
@@ -17,7 +16,6 @@ NewSessionEvent _$NewSessionEventFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$NewSessionEventToJson(NewSessionEvent instance) => <String, dynamic>{
       'SessionID': instance.sessionID,
       'Request': instance.request,
-      'continueOnSecondDevice': instance.continueOnSecondDevice,
       'inAppCredential': instance.inAppCredential,
     };
 

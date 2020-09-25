@@ -19,6 +19,10 @@ class ScannerScreen extends StatelessWidget {
   }
 
   void _onSuccess(BuildContext context, SessionPointer sessionPointer) {
+    // QR was scanned using IRMA app's internal QR code scanner, so we know for sure
+    // the session continues on a second device. Therefore we can overrule the session pointer.
+    sessionPointer.continueOnSecondDevice = true;
+
     HapticFeedback.vibrate();
     startSessionAndNavigate(
       Navigator.of(context),
@@ -30,13 +34,11 @@ class ScannerScreen extends StatelessWidget {
   static Future<void> startSessionAndNavigate(
     NavigatorState navigator,
     SessionPointer sessionPointer, {
-    bool continueOnSecondDevice = true,
     bool webview = false,
   }) async {
     final repo = IrmaRepository.get();
     final event = NewSessionEvent(
       request: sessionPointer,
-      continueOnSecondDevice: continueOnSecondDevice,
       inAppCredential: await repo.getInAppCredential(),
     );
 
