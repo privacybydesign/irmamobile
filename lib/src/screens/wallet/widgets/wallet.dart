@@ -291,8 +291,7 @@ class WalletState extends State<Wallet> with TickerProviderStateMixin {
                     ),
 
                     /// All cards
-                    if (_showCards)
-                      _buildCardStack(),
+                    if (_showCards) _buildCardStack(),
 
                     /// Wallet foreground with help and qr buttons
                     Align(

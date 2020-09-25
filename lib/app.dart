@@ -26,6 +26,7 @@ import 'package:irmamobile/src/screens/splash_screen/splash_screen.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/combine.dart';
+import 'package:irmamobile/src/util/hero_controller.dart';
 
 const schemeUpdateIntervalHours = 3;
 
@@ -246,37 +247,40 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     if (!isLocked) return Container();
     // We use a navigator here, instead of just rendering the pin screen
     //  to give error screens a place to go.
-    return Navigator(
-      initialRoute: PinScreen.routeName,
-      onGenerateRoute: (settings) {
-        // Render `RouteNotFoundScreen` when trying to render named route that
-        // is not pinscreen on this stack
-        WidgetBuilder screenBuilder = (context) => const RouteNotFoundScreen();
-        if (settings.name == PinScreen.routeName) {
-          screenBuilder = (context) => const PinScreen();
-        } else if (settings.name == ResetPinScreen.routeName) {
-          screenBuilder = (context) => ResetPinScreen();
-        }
+    return HeroControllerScope(
+      controller: createHeroController(),
+      child: Navigator(
+        initialRoute: PinScreen.routeName,
+        onGenerateRoute: (settings) {
+          // Render `RouteNotFoundScreen` when trying to render named route that
+          // is not pinscreen on this stack
+          WidgetBuilder screenBuilder = (context) => const RouteNotFoundScreen();
+          if (settings.name == PinScreen.routeName) {
+            screenBuilder = (context) => const PinScreen();
+          } else if (settings.name == ResetPinScreen.routeName) {
+            screenBuilder = (context) => ResetPinScreen();
+          }
 
-        // Wrap in popscope
-        return MaterialPageRoute(
-          builder: (BuildContext context) {
-            return WillPopScope(
-              onWillPop: () async {
-                // On the pinscreen, background instead of pop
-                if (settings.name == PinScreen.routeName) {
-                  IrmaRepository.get().bridgedDispatch(AndroidSendToBackgroundEvent());
-                  return false;
-                } else {
-                  return true;
-                }
-              },
-              child: screenBuilder(context),
-            );
-          },
-          settings: settings,
-        );
-      },
+          // Wrap in popscope
+          return MaterialPageRoute(
+            builder: (BuildContext context) {
+              return WillPopScope(
+                onWillPop: () async {
+                  // On the pinscreen, background instead of pop
+                  if (settings.name == PinScreen.routeName) {
+                    IrmaRepository.get().bridgedDispatch(AndroidSendToBackgroundEvent());
+                    return false;
+                  } else {
+                    return true;
+                  }
+                },
+                child: screenBuilder(context),
+              );
+            },
+            settings: settings,
+          );
+        },
+      ),
     );
   }
 
