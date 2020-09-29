@@ -18,7 +18,7 @@ class Attributes extends UnmodifiableMapView<AttributeType, AttributeValue> {
       : assert(map != null),
         super(map.map((type, value) {
           // Map yes/no to display in proper language
-          if (type.displayHint != "YesNo") {
+          if (type.displayHint != "yesno") {
             return MapEntry(type, value);
           }
           // Translate yes and no
