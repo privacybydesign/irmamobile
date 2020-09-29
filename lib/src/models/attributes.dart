@@ -16,7 +16,42 @@ class Attributes extends UnmodifiableMapView<AttributeType, AttributeValue> {
 
   Attributes(Map<AttributeType, AttributeValue> map)
       : assert(map != null),
-        super(map) {
+        super(map.map((type, value) {
+          // Map yes/no to display in proper language
+          if (type.displayHint != "YesNo") {
+            return MapEntry(type, value);
+          }
+          // Translate yes and no
+          // in the future this will be done by irmago (when we have typed attributes)
+          // but for now we do it here. We have hardcoded strings here because
+          // flutter_i18n does not provide access to its strings directly, and we
+          // don't have a buildcontext here, so this is the least worst option.
+          if (value.raw.toLowerCase() == "yes" || value.raw.toLowerCase() == "ja") {
+            return MapEntry(
+              type,
+              TextValue(
+                raw: value.raw,
+                translated: TranslatedValue({
+                  "en": "Yes",
+                  "nl": "Ja",
+                }),
+              ),
+            );
+          }
+          if (value.raw.toLowerCase() == "no" || value.raw.toLowerCase() == "nee") {
+            return MapEntry(
+              type,
+              TextValue(
+                raw: value.raw,
+                translated: TranslatedValue({
+                  "en": "No",
+                  "nl": "Nee",
+                }),
+              ),
+            );
+          }
+          return MapEntry(type, value);
+        })) {
     // Pre-calculate an ordered list of attributeTypes, initially on index, finally on displayIndex
     sortedAttributeTypes = keys.toList();
     sortedAttributeTypes.sort((a1, a2) => a1.index.compareTo(a2.index));
