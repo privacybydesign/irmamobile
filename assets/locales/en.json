@@ -424,6 +424,7 @@
     "previous": "previous choices",
     "not_present": "These data have not yet been added to IRMA.",
     "not_present_have_other": "You have a card of this type, but not with the requested data.",
+    "add_additional": "You have a card of this type, but can add additional cards with different data.",
     "expired": "These data are expired.",
     "revoked": "These data have been revoked.",
     "not_revokable": "These data have to be refreshed first.",
