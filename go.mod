@@ -11,7 +11,7 @@ require (
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/pkg/errors v0.8.1 // indirect
 	github.com/privacybydesign/gabi v0.0.0-20200805114803-588904629b25
-	github.com/privacybydesign/irmago v0.5.1-0.20200912080950-86e5e646e81b
+	github.com/privacybydesign/irmago v0.5.1-0.20200925140211-c9dd51ec2c20
 	github.com/sirupsen/logrus v1.4.2
 	github.com/spf13/cobra v0.0.1 // indirect
 	github.com/spf13/pflag v1.0.4-0.20190111213756-a45bfec10d59 // indirect
