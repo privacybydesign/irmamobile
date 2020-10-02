@@ -50,7 +50,7 @@ class _ProvideEmailState extends State<ProvideEmail> {
           FlutterI18n.translate(context, 'enrollment.provide_email.title'),
         ),
         leadingAction: () => widget.cancelAndNavigate(context),
-        leadingTooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+        leadingTooltip: MaterialLocalizations.of(context).backButtonTooltip,
       ),
       body: BlocBuilder<EnrollmentBloc, EnrollmentState>(
         builder: (context, state) {
