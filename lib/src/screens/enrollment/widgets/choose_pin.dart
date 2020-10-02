@@ -27,7 +27,7 @@ class ChoosePin extends StatelessWidget {
           FlutterI18n.translate(context, 'enrollment.choose_pin.title'),
         ),
         leadingAction: () => cancelAndNavigate(context),
-        leadingTooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
+        leadingTooltip: MaterialLocalizations.of(context).backButtonTooltip,
       ),
       body: BlocBuilder<EnrollmentBloc, EnrollmentState>(
         builder: (context, state) {
