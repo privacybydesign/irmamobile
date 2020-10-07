@@ -93,10 +93,6 @@ class _PinFieldState extends State<PinField> {
         if (widget.autosubmit) {
           _onSubmit(changedValue);
         }
-
-        if (widget.autoclear) {
-          _textEditingController.clear();
-        }
       });
     }
 
@@ -112,6 +108,9 @@ class _PinFieldState extends State<PinField> {
   void _onSubmit(String value) {
     if (widget.onSubmit != null) {
       widget.onSubmit(value);
+    }
+    if (widget.autoclear) {
+      _textEditingController.clear();
     }
   }
 
