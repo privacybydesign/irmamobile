@@ -305,7 +305,7 @@ class _CarouselState extends State<Carousel> {
     } else if (cred.attributes.first.credentialHash == "") {
       if (!haveOther) {
         return FlutterI18n.translate(context, 'disclosure.not_present');
-      } else if (cred.attributes.first.value != null) {
+      } else if (cred.attributes.first.value.raw != null) {
         return FlutterI18n.translate(context, 'disclosure.not_present_have_other');
       } else {
         return FlutterI18n.translate(context, 'disclosure.add_additional');

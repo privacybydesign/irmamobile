@@ -234,12 +234,10 @@ class Attribute {
         ),
         attributeType: attributeType,
         value: value,
-        haveOther: value is TextValue &&
-            credentials.values.any(
-              (cred) =>
-                  cred.info.fullId == attributeType.fullCredentialId &&
-                  cred.attributes[attributeType]?.raw != value.raw,
-            ),
+        haveOther: credentials.values.any(
+          (cred) =>
+              cred.info.fullId == attributeType.fullCredentialId && cred.attributes[attributeType]?.raw != value.raw,
+        ),
       );
     }
   }
