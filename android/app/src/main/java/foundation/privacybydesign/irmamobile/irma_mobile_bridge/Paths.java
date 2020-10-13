@@ -1,4 +1,4 @@
-package foundation.privacybydesign.irmamobile.plugins.irma_mobile_bridge;
+package foundation.privacybydesign.irmamobile.irma_mobile_bridge;
 
 public class Paths {
     public static Path get(String path) {
