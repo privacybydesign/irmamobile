@@ -308,7 +308,10 @@ class _CarouselState extends State<Carousel> {
       } else if (cred.attributes.first.value.raw != null) {
         return FlutterI18n.translate(context, 'disclosure.not_present_have_other');
       } else {
-        return FlutterI18n.translate(context, 'disclosure.add_additional');
+        return FlutterI18n.translate(context, 'disclosure.add_additional', translationParams: {
+          "credential":
+              cred.credentialInfo.credentialType.name.translate(FlutterI18n.currentLocale(context).languageCode),
+        });
       }
     }
     return null;

@@ -425,7 +425,7 @@
     "previous": "vorige kiezen",
     "not_present": "Deze gegevens zijn nog niet aan IRMA toegevoegd.",
     "not_present_have_other": "Je hebt wel het juiste kaartje, maar daarop niet de gevraagde gegevens.",
-    "add_additional": "Je hebt een juist kaartje, maar kunt extra kaartjes toevoegen met andere gegevens.",
+    "add_additional": "Wil je andere gegevens doorgeven? Voeg dan een extra '{credential}'-kaartje toe.",
     "expired": "Deze gegevens zijn verlopen.",
     "revoked": "Deze gegevens zijn teruggetrokken.",
     "not_revokable": "Deze gegevens moeten eerst ververst worden.",
