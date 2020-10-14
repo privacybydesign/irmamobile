@@ -249,7 +249,7 @@ class Attribute {
     return Attribute(
       credentialInfo: CredentialInfo.fromConfiguration(
         irmaConfiguration: irmaConfiguration,
-        credentialIdentifier: disclosedAttribute.identifier,
+        credentialIdentifier: disclosedAttribute.identifier.split(".").take(3).join("."),
       ),
       attributeType: attributeType,
       value: AttributeValue.fromRaw(attributeType, disclosedAttribute.value),
