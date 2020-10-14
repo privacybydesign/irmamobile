@@ -112,6 +112,7 @@ class CredentialInfo {
 
   factory CredentialInfo.fromConfiguration({IrmaConfiguration irmaConfiguration, String credentialIdentifier}) {
     final parsedAttributeId = credentialIdentifier.split(".");
+    assert(parsedAttributeId.length == 3);
     final schemeManagerId = parsedAttributeId[0];
     final issuerId = "$schemeManagerId.${parsedAttributeId[1]}";
     final credentialId = "$issuerId.${parsedAttributeId[2]}";
