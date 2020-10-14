@@ -345,10 +345,6 @@ class IrmaRepository {
   }
 
   final List<String> externalBrowserCredtypes = const [
-    "pbdf.pbdf.idin",
-    "pbdf.pbdf.ideal",
-    "pbdf.gemeente.personalData",
-    "pbdf.gemeente.address",
     "pbdf.nuts.agb",
   ];
 
