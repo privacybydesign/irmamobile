@@ -185,8 +185,8 @@
   "card": {
     "personaldata": "Persoonsgegevens",
     "expiresAt": "Geldig tot",
-    "delete": "Kaart verwijderen",
-    "refresh": "Kaart verversen",
+    "delete": "Kaartje verwijderen",
+    "refresh": "Kaartje verversen",
     "delete_title": "Weet je het zeker?",
     "delete_content": "Als je doorgaat, verwijder je dit kaartje uit je IRMA-app.",
     "delete_confirm": "Verwijder kaartje",
@@ -370,16 +370,16 @@
       "removal": {
         "header": "Kaartjes verwijderd op",
         "subtitle": "Verwijderde kaartjes",
-        "data-0": "{data} kaart verwijderd",
-        "data-1": "{data} kaart verwijderd",
-        "data-2": "{data} kaarten verwijderd"
+        "data-0": "{data} kaartje verwijderd",
+        "data-1": "{data} kaartje verwijderd",
+        "data-2": "{data} kaartjes verwijderd"
       },
       "issuing": {
         "header": "Kaartjes ontvangen van",
         "subtitle": "Ontvangen kaartjes",
-        "data-0": "{data} kaart ontvangen van",
-        "data-1": "{data} kaart ontvangen van",
-        "data-2": "{data} kaarten ontvangen van"
+        "data-0": "{data} kaartje ontvangen van",
+        "data-1": "{data} kaartje ontvangen van",
+        "data-2": "{data} kaartjes ontvangen van"
       },
       "disclosing_header": "Gegevens doorgegeven aan",
       "disclosing": {
