@@ -3,6 +3,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/clear_all_data_event.dart';
 import 'package:irmamobile/src/screens/error/blocked.dart';
+import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 
@@ -11,8 +12,10 @@ class BlockedScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        // Disable popping of this screen, as popping this is not relevant
-        // (only way forward is a reset)
+        // Disable popping of this screen, as popping this is unwanted
+        // (only way forward is and should be a reset, giving accidental access
+        // to the wallet of a blocked account is unreasonable, even though credentials
+        // can no longer be used)
         return false;
       },
       child: Scaffold(
@@ -27,6 +30,7 @@ class BlockedScreen extends StatelessWidget {
         ),
         body: Blocked(),
         bottomNavigationBar: IrmaBottomBar(
+          primaryButtonColor: IrmaTheme.of(context).notificationError,
           primaryButtonLabel: FlutterI18n.translate(context, 'error.button_reset'),
           onPrimaryPressed: () {
             IrmaRepository.get().bridgedDispatch(
