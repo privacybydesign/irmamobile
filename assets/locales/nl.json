@@ -328,13 +328,17 @@
   },
   "error": {
     "title": "Er gaat iets fout",
+    "blocked_title": "App geblokkeerd",
     "button_ok": "OK",
     "button_send_to_irma": "Stuur naar het technische team van IRMA",
     "button_show_error": "Technische details tonen",
     "button_retry": "Opnieuw proberen",
     "button_back": "Terug",
+    "button_reset": "Begin opnieuw",
     "types": {
       "general": "Er is iets misgegaan.\n\nAls het fout blijft gaan, laat het dan weten aan het technische team van IRMA.",
+      "blocked": "Je IRMA-app is op afstand geblokeerd.\n\nDit is omdat dit via MijnIRMA voor jouw app is gedaan, of omdat je langer dan een jaar geen gebruik hebt gemaakt van IRMA op dit apparaat. Als je op dit apparaat IRMA wilt blijven gebruiken moet je opnieuw beginnen.",
+      "expired": "De sessie is verlopen. Start alstublieft opnieuw.",
       "no_internet": "Er is iets misgegaan. Er kan geen verbinding gemaakt worden met de IRMA-server.\n\nControleer je internetverbinding. IRMA werkt niet zonder internet."
     }
   },
