@@ -348,13 +348,19 @@ class IrmaRepository {
     "pbdf.nuts.agb",
   ];
 
-  // TODO Remove when webview is fixed
+  final List<String> externalBrowserUrls = const [
+    "https://privacybydesign.foundation/myirma/",
+    "https://privacybydesign.foundation/mijnirma/"
+  ];
+
+  // TODO Remove when disclosure sessions can be started from custom tabs
   Stream<List<String>> getExternalBrowserURLs() {
     return irmaConfigurationSubject.map(
       (irmaConfiguration) => externalBrowserCredtypes
           .map((type) => irmaConfiguration.credentialTypes[type].issueUrl.values)
           .expand((v) => v)
-          .toList(),
+          .toList()
+            ..addAll(externalBrowserUrls),
     );
   }
 
