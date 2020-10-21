@@ -5,6 +5,7 @@ import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/sentry/sentry.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/heading.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
@@ -64,10 +65,8 @@ class _HelpScreenState extends State<HelpScreen> {
                           SizedBox(
                             width: double.infinity,
                             child: Container(
-                              child: Text(
+                              child: Heading(
                                 FlutterI18n.translate(context, 'manual.faq'),
-                                style: Theme.of(context).textTheme.display2,
-                                textAlign: TextAlign.left,
                               ),
                             ),
                           ),
@@ -97,10 +96,8 @@ class _HelpScreenState extends State<HelpScreen> {
                           SizedBox(
                             width: double.infinity,
                             child: Container(
-                              child: Text(
+                              child: Heading(
                                 FlutterI18n.translate(context, 'help.faq'),
-                                style: Theme.of(context).textTheme.display2,
-                                textAlign: TextAlign.left,
                               ),
                             ),
                           ),
@@ -149,10 +146,8 @@ class _HelpScreenState extends State<HelpScreen> {
                           SizedBox(
                             width: double.infinity,
                             child: Container(
-                              child: Text(
+                              child: Heading(
                                 FlutterI18n.translate(context, 'help.ask'),
-                                style: Theme.of(context).textTheme.display2,
-                                textAlign: TextAlign.left,
                               ),
                             ),
                           ),

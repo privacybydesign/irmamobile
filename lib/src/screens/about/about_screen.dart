@@ -8,6 +8,7 @@ import 'package:irmamobile/src/screens/about/widgets/links.dart';
 import 'package:irmamobile/src/screens/about/widgets/version_button.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/heading.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 class AboutScreen extends StatefulWidget {
@@ -68,10 +69,9 @@ class _AboutScreenState extends State<AboutScreen> {
                                   )),
                             ),
                           ),
-                          Text(
+                          Heading(
                             FlutterI18n.translate(context, 'about.header'),
-                            style: Theme.of(context).textTheme.display2,
-                            textAlign: TextAlign.left,
+                            style: Theme.of(context).textTheme.headline3,
                           ),
                           SizedBox(height: IrmaTheme.of(context).smallSpacing),
                           Text(
@@ -93,18 +93,16 @@ class _AboutScreenState extends State<AboutScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-                          Text(
+                          Heading(
                             FlutterI18n.translate(context, 'about.learn_more'),
-                            style: Theme.of(context).textTheme.display2,
                           ),
                           SizedBox(height: IrmaTheme.of(context).defaultSpacing),
                           const ExternalLink("about.irma_website_link", "about.more_information", Icon(IrmaIcons.info)),
                           SizedBox(height: IrmaTheme.of(context).defaultSpacing),
                           const ContactLink(),
                           SizedBox(height: IrmaTheme.of(context).largeSpacing),
-                          Text(
+                          Heading(
                             FlutterI18n.translate(context, 'about.get_involved'),
-                            style: Theme.of(context).textTheme.display2,
                           ),
                           SizedBox(height: IrmaTheme.of(context).defaultSpacing),
                           const ExternalLink("about.meetups_link", "about.meetups",
@@ -116,9 +114,8 @@ class _AboutScreenState extends State<AboutScreen> {
                           const ExternalLink("about.github_link", "about.github",
                               Icon(FontAwesomeIcons.github, size: 25.0)), // TODO fix icon and update this
                           SizedBox(height: IrmaTheme.of(context).largeSpacing),
-                          Text(
+                          Heading(
                             FlutterI18n.translate(context, 'about.share_slogan'),
-                            style: Theme.of(context).textTheme.display2,
                           ),
                           SizedBox(height: IrmaTheme.of(context).defaultSpacing),
                           ShareLink(

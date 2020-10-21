@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/models/log_entry.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/heading.dart';
 
 class Subtitle extends StatelessWidget {
   final LogEntryType logType;
@@ -10,7 +11,7 @@ class Subtitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
+    return Heading(
       _text(context),
       style: IrmaTheme.of(context).textTheme.display2,
     );
