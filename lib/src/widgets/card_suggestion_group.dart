@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/card_suggestion.dart';
+import 'package:irmamobile/src/widgets/heading.dart';
 
 class CardSuggestionGroup extends StatelessWidget {
   final List<CardSuggestion> credentials;
@@ -21,7 +22,7 @@ class CardSuggestionGroup extends StatelessWidget {
                 top: IrmaTheme.of(context).defaultSpacing,
                 bottom: IrmaTheme.of(context).smallSpacing,
               ),
-              child: Text(
+              child: Heading(
                 title,
                 style: IrmaTheme.of(context).textTheme.display3,
               ),

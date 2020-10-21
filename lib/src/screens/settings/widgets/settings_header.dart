@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/heading.dart';
 
 class SettingsHeader extends StatelessWidget {
   const SettingsHeader({@required this.headerText});
@@ -10,7 +11,7 @@ class SettingsHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-      child: Text(
+      child: Heading(
         headerText,
         style: IrmaTheme.of(context).textTheme.display1,
       ),

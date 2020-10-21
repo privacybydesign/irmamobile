@@ -6,6 +6,7 @@ import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/screens/add_cards/widgets/card_questions.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/language.dart';
+import 'package:irmamobile/src/widgets/heading.dart';
 
 class CardInfo extends StatefulWidget {
   const CardInfo({this.irmaConfiguration, this.credentialType, this.parentKey, this.parentScrollController});
@@ -71,13 +72,13 @@ class _CardInfoState extends State<CardInfo> with TickerProviderStateMixin {
         ),
         Padding(
           padding: paddingText,
-          child: Text(
+          child: Heading(
             FlutterI18n.translate(
               context,
               'card_store.card_info.header_credential_type',
               translationParams: {'credential_type': getTranslation(context, widget.credentialType.name)},
             ),
-            style: Theme.of(context).textTheme.headline,
+            style: Theme.of(context).textTheme.headline5,
           ),
         ),
         SizedBox(
