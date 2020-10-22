@@ -350,7 +350,9 @@ class IrmaRepository {
 
   final List<String> externalBrowserUrls = const [
     "https://privacybydesign.foundation/myirma/",
-    "https://privacybydesign.foundation/mijnirma/"
+    "https://privacybydesign.foundation/mijnirma/",
+    "https://privacybydesign.foundation/demo/",
+    "https://privacybydesign.foundation/demo-en/"
   ];
 
   // TODO Remove when disclosure sessions can be started from custom tabs
