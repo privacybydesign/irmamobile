@@ -154,11 +154,8 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
     // we can fix other awaits later should the need arise.
     if (context == null) return;
 
-    // Navigate back if other sessions are open
-    if (await IrmaRepository.get().hasActiveSessions()) {
-      Navigator.of(context).pop();
-      return;
-    }
+    // in case of issuance during disclosure, another session is open in a screen lower in the stack
+    final hasActiveSessions = await IrmaRepository.get().hasActiveSessions();
 
     if (session.continueOnSecondDevice && !session.isReturnPhoneNumber) {
       // If this is a session on a second screen, return to the wallet after showing a feedback screen
@@ -171,8 +168,14 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
         !session.isReturnPhoneNumber &&
         await canLaunch(session.clientReturnURL)) {
       // If there is a return URL, navigate to it when we're done
-      launch(session.clientReturnURL, forceSafariVC: false);
-      popToWallet(context);
+      if (Uri.parse(session.clientReturnURL).queryParameters.containsKey("inapp")) {
+        hasActiveSessions ? Navigator.of(context).pop() : popToWallet(context);
+        _repo.expectInactivationForCredentialType(session.inAppCredential);
+        _repo.openURLinAppBrowser(session.clientReturnURL);
+      } else {
+        _repo.openURLinExternalBrowser(context, session.clientReturnURL);
+        hasActiveSessions ? Navigator.of(context).pop() : popToWallet(context);
+      }
     } else if (session.isReturnPhoneNumber) {
       // Navigate to call info screen
       if (session.status == SessionStatus.success) {
@@ -181,6 +184,10 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
         _pushDisclosureFeedbackScreen(DisclosureFeedbackType.canceled, serverName);
       }
     } else {
+      if (hasActiveSessions) {
+        Navigator.of(context).pop();
+        return;
+      }
       // Otherwise, on iOS show a screen to press the return arrow in the top-left corner,
       // and on Android just background the app to let the user return to the previous activity
       if (Platform.isIOS) {
