@@ -185,6 +185,18 @@ class _PinFieldState extends State<PinField> {
         char = '●';
       }
 
+      Color setBorderColor() {
+        if (hasBorder) {
+          // empty boxes that are not in focus
+          return theme.grayscale60;
+        } else if (hasBorder || filled) {
+          return theme.grayscale40; // filled boxes
+        } else {
+          // the box that is currently in focus
+          return theme.primaryBlue;
+        }
+      }
+
       return AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         margin: EdgeInsets.only(right: i == widget.maxLength - 1 ? 0 : theme.smallSpacing),
@@ -193,7 +205,10 @@ class _PinFieldState extends State<PinField> {
         alignment: Alignment.center,
         decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(theme.tinySpacing)),
-            border: Border.all(color: hasBorder ? Colors.transparent : theme.grayscale40),
+            border: Border.all(
+              color: setBorderColor(),
+              width: filled || hasBorder ? 1 : 2,
+            ),
             color: widget.enabled ? theme.grayscaleWhite : theme.disabled),
         child: Text(
           char,
