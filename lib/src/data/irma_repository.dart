@@ -344,10 +344,6 @@ class IrmaRepository {
     return _preferencesSubject.stream.map((pref) => pref.clientPreferences.developerMode);
   }
 
-  final List<String> externalBrowserCredtypes = const [
-    "pbdf.nuts.agb",
-  ];
-
   final List<String> externalBrowserUrls = const [
     "https://privacybydesign.foundation/myirma/",
     "https://privacybydesign.foundation/mijnirma/",
@@ -357,13 +353,7 @@ class IrmaRepository {
 
   // TODO Remove when disclosure sessions can be started from custom tabs
   Stream<List<String>> getExternalBrowserURLs() {
-    return irmaConfigurationSubject.map(
-      (irmaConfiguration) => externalBrowserCredtypes
-          .map((type) => irmaConfiguration.credentialTypes[type].issueUrl.values)
-          .expand((v) => v)
-          .toList()
-            ..addAll(externalBrowserUrls),
-    );
+    return Stream.fromIterable([externalBrowserUrls]);
   }
 
   static const _iiabchannel = MethodChannel('irma.app/iiab');
