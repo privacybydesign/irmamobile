@@ -51,6 +51,13 @@ class _InAppCredentialState {
   }
 }
 
+class ExternalBrowserCredtype {
+  final String cred;
+  final String os;
+
+  const ExternalBrowserCredtype({this.cred, this.os});
+}
+
 class IrmaRepository {
   static IrmaRepository _instance;
   factory IrmaRepository({@required IrmaBridge client}) {
@@ -344,8 +351,10 @@ class IrmaRepository {
     return _preferencesSubject.stream.map((pref) => pref.clientPreferences.developerMode);
   }
 
-  final List<String> externalBrowserCredtypes = const [
-    "pbdf.nuts.agb",
+  final List<ExternalBrowserCredtype> externalBrowserCredtypes = const [
+    ExternalBrowserCredtype(cred: "pbdf.nuts.agb"),
+    ExternalBrowserCredtype(cred: "pbdf.gemeente.address", os: "ios"),
+    ExternalBrowserCredtype(cred: "pbdf.gemeente.personalData", os: "ios"),
   ];
 
   final List<String> externalBrowserUrls = const [
@@ -359,7 +368,8 @@ class IrmaRepository {
   Stream<List<String>> getExternalBrowserURLs() {
     return irmaConfigurationSubject.map(
       (irmaConfiguration) => externalBrowserCredtypes
-          .map((type) => irmaConfiguration.credentialTypes[type].issueUrl.values)
+          .where((type) => type.os == null || type.os == Platform.operatingSystem)
+          .map((type) => irmaConfiguration.credentialTypes[type.cred].issueUrl.values)
           .expand((v) => v)
           .toList()
             ..addAll(externalBrowserUrls),
