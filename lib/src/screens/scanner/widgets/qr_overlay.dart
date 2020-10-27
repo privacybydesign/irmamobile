@@ -33,7 +33,7 @@ class QROverlay extends CustomPainter {
     final Color green = theme.overlayValid;
     final Color red = theme.overlayInvalid;
 
-    Color overlayColor = theme.grayscale60;
+    Color overlayColor = theme.grayscale40;
     Color cornerColor = theme.primaryBlue;
 
     if (error) {
@@ -46,7 +46,7 @@ class QROverlay extends CustomPainter {
 
     // transparent overlay
     final paint = Paint()
-      ..color = overlayColor.withOpacity(0.4)
+      ..color = overlayColor.withOpacity(0.5)
       ..style = PaintingStyle.fill;
     final Path path = Path();
     path.lineTo(0, 0);
