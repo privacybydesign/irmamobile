@@ -142,6 +142,10 @@ class SessionRepository {
       return prevState.copyWith(
         status: SessionStatus.requestPin,
       );
+    } else if (event is RespondPermissionEvent) {
+      return prevState.copyWith(
+        status: SessionStatus.communicating,
+      );
     }
 
     return prevState;
