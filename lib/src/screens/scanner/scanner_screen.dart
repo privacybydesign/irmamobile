@@ -4,9 +4,9 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
-import 'package:irmamobile/src/screens/disclosure/session.dart';
-import 'package:irmamobile/src/screens/disclosure/session_screen.dart';
 import 'package:irmamobile/src/screens/scanner/widgets/qr_scanner.dart';
+import 'package:irmamobile/src/screens/session/session.dart';
+import 'package:irmamobile/src/screens/session/session_screen.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 

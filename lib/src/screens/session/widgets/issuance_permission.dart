@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/models/credentials.dart';
-import 'package:irmamobile/src/screens/disclosure/widgets/session_scaffold.dart';
 import 'package:irmamobile/src/screens/history/widgets/issuing_detail.dart';
+import 'package:irmamobile/src/screens/session/widgets/session_scaffold.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 
 class IssuancePermission extends StatelessWidget {
   final Function() onDismiss;

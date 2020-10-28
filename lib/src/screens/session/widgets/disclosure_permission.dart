@@ -1,24 +1,23 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
-import 'package:irmamobile/src/screens/disclosure/widgets/session_scaffold.dart';
+import 'package:irmamobile/src/screens/session/session.dart';
+import 'package:irmamobile/src/screens/session/widgets/disclosure_feedback_screen.dart';
+import 'package:irmamobile/src/screens/session/widgets/session_scaffold.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/translated_text.dart';
 import 'package:irmamobile/src/widgets/disclosure/disclosure_card.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
 import 'package:irmamobile/src/widgets/irma_message.dart';
 import 'package:irmamobile/src/widgets/irma_quote.dart';
 import 'package:irmamobile/src/widgets/irma_text_button.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
-
-import '../session.dart';
-import 'disclosure_feedback_screen.dart';
 
 class DisclosurePermission extends StatefulWidget {
   final Function() onDismiss;
