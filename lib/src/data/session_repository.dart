@@ -142,6 +142,10 @@ class SessionRepository {
       return prevState.copyWith(
         status: SessionStatus.requestPin,
       );
+    } else if (event is RespondPermissionEvent) {
+      return prevState.copyWith(
+        status: SessionStatus.communicating,
+      );
     }
 
     return prevState;
@@ -171,7 +175,8 @@ class SessionRepository {
       [prevCondiscon.asMap().entries, sorted.asMap().entries],
     ).map((discons) {
       // take only cons appearing in both the old and new discons
-      final oldCons = discons[1].value.where((con) => _contains(discons[0].value, con)).toList();
+      // use prev discon as basis to preserve order of candidates
+      final oldCons = discons[0].value.where((con) => _contains(discons[1].value, con)).toList();
       // insert cons added in the new con at the position the user is looking at
       final addedCons = discons[1].value.where((con) => !_contains(discons[0].value, con));
       return DisCon(oldCons..insertAll(prevState.disclosureIndices[discons[0].key], addedCons));

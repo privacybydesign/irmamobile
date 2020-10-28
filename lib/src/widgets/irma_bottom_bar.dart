@@ -11,6 +11,7 @@ class IrmaBottomBar extends StatelessWidget {
   const IrmaBottomBar({
     Key key,
     @required this.primaryButtonLabel,
+    this.primaryButtonColor,
     this.onPrimaryPressed,
     this.onPrimaryDisabledPressed,
     this.showTooltipOnPrimary = false,
@@ -22,6 +23,7 @@ class IrmaBottomBar extends StatelessWidget {
         super(key: key);
 
   final String primaryButtonLabel;
+  final Color primaryButtonColor;
   final VoidCallback onPrimaryPressed;
   final VoidCallback onPrimaryDisabledPressed;
   final bool showTooltipOnPrimary;
@@ -50,6 +52,7 @@ class IrmaBottomBar extends StatelessWidget {
       onPressed: onPrimaryPressed,
       onPressedDisabled: onPrimaryDisabledPressed,
       label: primaryButtonLabel,
+      color: primaryButtonColor,
     );
 
     if (toolTipLabel != null) {

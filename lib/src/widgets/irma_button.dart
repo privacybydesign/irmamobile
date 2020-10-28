@@ -11,6 +11,7 @@ class IrmaButton extends StatelessWidget {
   final IrmaButtonSize size;
   final double minWidth;
   final IconData icon;
+  final Color color;
 
   const IrmaButton({
     @required this.label,
@@ -20,6 +21,7 @@ class IrmaButton extends StatelessWidget {
     this.size,
     this.minWidth = 232,
     this.icon,
+    this.color,
   });
 
   @override
@@ -32,7 +34,7 @@ class IrmaButton extends StatelessWidget {
       size: size,
       minWidth: minWidth,
       icon: icon,
-      color: IrmaTheme.of(context).primaryBlue,
+      color: color ?? IrmaTheme.of(context).primaryBlue,
       disabledColor: IrmaTheme.of(context).disabled,
       textColor: IrmaTheme.of(context).grayscaleWhite,
       shape: RoundedRectangleBorder(

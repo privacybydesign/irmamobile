@@ -7,6 +7,7 @@ import 'package:irmamobile/src/screens/enrollment/widgets/choose_pin.dart';
 import 'package:irmamobile/src/sentry/sentry.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/heading.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 
 class Introduction extends StatefulWidget {
@@ -106,81 +107,84 @@ class Walkthrough extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              image,
-              Container(
-                padding: const EdgeInsets.only(top: 30.0),
-                alignment: Alignment.center,
-                constraints: const BoxConstraints(maxWidth: 288.0),
-                child: Text(
-                  titleContent,
-                  style: IrmaTheme.of(context).textTheme.display2,
-                  textAlign: TextAlign.center,
+    return Semantics(
+      explicitChildNodes: true,
+      child: Column(
+        children: [
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                image,
+                Container(
+                  padding: const EdgeInsets.only(top: 30.0),
+                  alignment: Alignment.center,
+                  constraints: const BoxConstraints(maxWidth: 288.0),
+                  child: Heading(
+                    titleContent,
+                    style: IrmaTheme.of(context).textTheme.display2,
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-              ),
-              Container(
-                padding: EdgeInsets.only(top: IrmaTheme.of(context).defaultSpacing),
-                alignment: Alignment.center,
-                constraints: const BoxConstraints(maxWidth: 288.0),
-                child: Text(
-                  textContent,
-                  style: IrmaTheme.of(context).textTheme.body1,
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              if (linkText != null)
                 Container(
                   padding: EdgeInsets.only(top: IrmaTheme.of(context).defaultSpacing),
                   alignment: Alignment.center,
                   constraints: const BoxConstraints(maxWidth: 288.0),
-                  child: GestureDetector(
-                    onTap: () {
-                      try {
-                        IrmaRepository.get().openURL(context, FlutterI18n.translate(context, linkUrl));
-                      } on PlatformException catch (e, stacktrace) {
-                        reportError(e,
-                            stacktrace); //TODO: reconsider whether this should be handled this way, or is better of with an error screens
-                      }
-                    },
-                    child: Center(
-                      child: Text(
-                        FlutterI18n.translate(context, linkText),
-                        textAlign: TextAlign.center,
-                        style: IrmaTheme.of(context).hyperlinkTextStyle.copyWith(
-                              decoration: TextDecoration.underline,
-                            ),
+                  child: Text(
+                    textContent,
+                    style: IrmaTheme.of(context).textTheme.body1,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                if (linkText != null)
+                  Container(
+                    padding: EdgeInsets.only(top: IrmaTheme.of(context).defaultSpacing),
+                    alignment: Alignment.center,
+                    constraints: const BoxConstraints(maxWidth: 288.0),
+                    child: GestureDetector(
+                      onTap: () {
+                        try {
+                          IrmaRepository.get().openURL(context, FlutterI18n.translate(context, linkUrl));
+                        } on PlatformException catch (e, stacktrace) {
+                          reportError(e,
+                              stacktrace); //TODO: reconsider whether this should be handled this way, or is better of with an error screens
+                        }
+                      },
+                      child: Center(
+                        child: Text(
+                          FlutterI18n.translate(context, linkText),
+                          textAlign: TextAlign.center,
+                          style: IrmaTheme.of(context).hyperlinkTextStyle.copyWith(
+                                decoration: TextDecoration.underline,
+                              ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
-        ),
-        Container(
-          width: MediaQuery.of(context).size.width,
-          padding: EdgeInsets.symmetric(
-              vertical: IrmaTheme.of(context).mediumSpacing, horizontal: IrmaTheme.of(context).defaultSpacing),
-          color: finalScreen ? IrmaTheme.of(context).backgroundBlue : null,
-          child: finalScreen
-              ? IrmaButton(
-                  label: 'enrollment.introduction.button_text',
-                  onPressed: onPressButton,
-                )
-              : IconButton(
-                  onPressed: onNextScreen,
-                  icon: Icon(IrmaIcons.chevronDown,
-                      semanticLabel: FlutterI18n.translate(context, "accessibility.next"),
-                      color: IrmaTheme.of(context).grayscale60),
-                  iconSize: 32,
-                  alignment: Alignment.center,
-                ),
-        ),
-      ],
+          Container(
+            width: MediaQuery.of(context).size.width,
+            padding: EdgeInsets.symmetric(
+                vertical: IrmaTheme.of(context).mediumSpacing, horizontal: IrmaTheme.of(context).defaultSpacing),
+            color: finalScreen ? IrmaTheme.of(context).backgroundBlue : null,
+            child: finalScreen
+                ? IrmaButton(
+                    label: 'enrollment.introduction.button_text',
+                    onPressed: onPressButton,
+                  )
+                : IconButton(
+                    onPressed: onNextScreen,
+                    icon: Icon(IrmaIcons.chevronDown,
+                        semanticLabel: FlutterI18n.translate(context, "accessibility.next"),
+                        color: IrmaTheme.of(context).grayscale60),
+                    iconSize: 32,
+                    alignment: Alignment.center,
+                  ),
+          ),
+        ],
+      ),
     );
   }
 }
