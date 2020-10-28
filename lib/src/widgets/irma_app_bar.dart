@@ -3,7 +3,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 
 class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final Text title;
+  final Widget title;
   final Icon leadingIcon;
   final void Function() leadingAction;
   final void Function() leadingCancel;

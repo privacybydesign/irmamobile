@@ -4,9 +4,8 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
-import 'package:irmamobile/src/screens/disclosure/disclosure_screen.dart';
-import 'package:irmamobile/src/screens/disclosure/issuance_screen.dart';
 import 'package:irmamobile/src/screens/disclosure/session.dart';
+import 'package:irmamobile/src/screens/disclosure/session_screen.dart';
 import 'package:irmamobile/src/screens/scanner/widgets/qr_scanner.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
@@ -45,36 +44,38 @@ class ScannerScreen extends StatelessWidget {
     repo.hasActiveSessions().then((hasActiveSessions) {
       repo.dispatch(event, isBridgedEvent: true);
 
-      String screen;
-      if (["disclosing", "signing", "redirect"].contains(event.request.irmaqr)) {
-        screen = DisclosureScreen.routeName;
-      } else if ("issuing" == event.request.irmaqr) {
-        screen = IssuanceScreen.routeName;
-      } else {
-        // TODO show error?
-        navigator.popUntil(ModalRoute.withName(WalletScreen.routeName));
-        return;
-      }
       if (hasActiveSessions) {
         // After this session finishes, we want to go back to the previous session
         if (webview) {
           // replace webview with session screen
           navigator.pushReplacementNamed(
-            screen,
-            arguments: SessionScreenArguments(sessionID: event.sessionID, sessionType: event.request.irmaqr),
+            SessionScreen.routeName,
+            arguments: SessionScreenArguments(
+              sessionID: event.sessionID,
+              sessionType: event.request.irmaqr,
+              hasUnderlyingSession: true,
+            ),
           );
         } else {
           // webview is already dismissed, just push the session screen
           navigator.pushNamed(
-            screen,
-            arguments: SessionScreenArguments(sessionID: event.sessionID, sessionType: event.request.irmaqr),
+            SessionScreen.routeName,
+            arguments: SessionScreenArguments(
+              sessionID: event.sessionID,
+              sessionType: event.request.irmaqr,
+              hasUnderlyingSession: true,
+            ),
           );
         }
       } else {
         navigator.pushNamedAndRemoveUntil(
-          screen,
+          SessionScreen.routeName,
           ModalRoute.withName(WalletScreen.routeName),
-          arguments: SessionScreenArguments(sessionID: event.sessionID, sessionType: event.request.irmaqr),
+          arguments: SessionScreenArguments(
+            sessionID: event.sessionID,
+            sessionType: event.request.irmaqr,
+            hasUnderlyingSession: false,
+          ),
         );
       }
     });
