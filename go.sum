@@ -276,14 +276,16 @@ github.com/privacybydesign/irmago v0.5.1-0.20200911090122-30095fda5b21 h1:KwcPNn
 github.com/privacybydesign/irmago v0.5.1-0.20200911090122-30095fda5b21/go.mod h1:X0Z139A4rH2Mmk2P376ZE+FAxdTqg7mMKwRQ2HZF6dA=
 github.com/privacybydesign/irmago v0.5.1-0.20200912080950-86e5e646e81b h1:lWjhBseArj5pRftwrLvmXHwLfrLubC+/Tx6mSm66G80=
 github.com/privacybydesign/irmago v0.5.1-0.20200912080950-86e5e646e81b/go.mod h1:GmAg+2oqf7NFsNRvMqrmCcVTE9nnEoa7dIXt5TlfT4o=
-github.com/privacybydesign/irmago v0.5.1-0.20201002100935-dcc5b51c7cf6 h1:7UZ4nz5paaRdU7y1V3BwsBGsdvmFQHN//E4WV+K6SRM=
-github.com/privacybydesign/irmago v0.5.1-0.20201002100935-dcc5b51c7cf6/go.mod h1:GmAg+2oqf7NFsNRvMqrmCcVTE9nnEoa7dIXt5TlfT4o=
 github.com/privacybydesign/irmago v0.5.1-0.20200925140211-c9dd51ec2c20 h1:GhlnOxkcpzu2+mnXC44wtz+cwzkmqEebwkhjwGIxpV0=
 github.com/privacybydesign/irmago v0.5.1-0.20200925140211-c9dd51ec2c20/go.mod h1:GmAg+2oqf7NFsNRvMqrmCcVTE9nnEoa7dIXt5TlfT4o=
+github.com/privacybydesign/irmago v0.5.1-0.20201002100935-dcc5b51c7cf6 h1:7UZ4nz5paaRdU7y1V3BwsBGsdvmFQHN//E4WV+K6SRM=
+github.com/privacybydesign/irmago v0.5.1-0.20201002100935-dcc5b51c7cf6/go.mod h1:GmAg+2oqf7NFsNRvMqrmCcVTE9nnEoa7dIXt5TlfT4o=
 github.com/privacybydesign/irmago v0.5.1-0.20201009101123-eb0119348d87 h1:QzsIuRLNU62zqVaAoZbN2rw55KOgfRBuqYSRx62jMFc=
 github.com/privacybydesign/irmago v0.5.1-0.20201009101123-eb0119348d87/go.mod h1:S5eKWg1bk0y8x3UBzDPqUNx3wweU/V6RG1JzK742kAc=
 github.com/privacybydesign/irmago v0.5.1-0.20201016100546-c79b1aab3c55 h1:pPryIltqJ04gjnmlQEpC711HGmvq8i5lyCAR3f0/oMs=
 github.com/privacybydesign/irmago v0.5.1-0.20201016100546-c79b1aab3c55/go.mod h1:S5eKWg1bk0y8x3UBzDPqUNx3wweU/V6RG1JzK742kAc=
+github.com/privacybydesign/irmago v0.6.0 h1:DbaJWtSEVsULKnZaADusSTLdjODSBouQzWC2Lj9Y9lU=
+github.com/privacybydesign/irmago v0.6.0/go.mod h1:S5eKWg1bk0y8x3UBzDPqUNx3wweU/V6RG1JzK742kAc=
 github.com/prometheus/client_golang v0.9.1/go.mod h1:7SWBe2y4D6OKWSNQJUaRYU/AaXPKyh/dDVn+NZz0KFw=
 github.com/prometheus/client_golang v0.9.3/go.mod h1:/TN21ttK/J9q6uSwhBd54HahCDft0ttaMvbicHlPoso=
 github.com/prometheus/client_model v0.0.0-20180712105110-5c3871d89910/go.mod h1:MbSGuTsp3dbXC40dX6PRTWyKYBIrTGTE9sqQNg2J8bo=
@@ -382,6 +384,7 @@ golang.org/x/lint v0.0.0-20190409202823-959b441ac422/go.mod h1:6SW0HCj/g11FgYtHl
 golang.org/x/lint v0.0.0-20190909230951-414d861bb4ac/go.mod h1:6SW0HCj/g11FgYtHlgUYUwCkIfeOF89ocIRzGO/8vkc=
 golang.org/x/lint v0.0.0-20190930215403-16217165b5de/go.mod h1:6SW0HCj/g11FgYtHlgUYUwCkIfeOF89ocIRzGO/8vkc=
 golang.org/x/mobile v0.0.0-20190312151609-d3739f865fa6/go.mod h1:z+o9i4GpDbdi3rU15maQ/Ox0txvL9dWGYEHz965HBQE=
+golang.org/x/mobile v0.0.0-20190719004257-d2bd2a29d028 h1:4+4C/Iv2U4fMZBiMCc98MG1In4gJY5YRhtpDNeDeHWs=
 golang.org/x/mobile v0.0.0-20190719004257-d2bd2a29d028/go.mod h1:E/iHnbuqvinMTCcRqshq8CkpyQDoeVncDDYHnLhea+o=
 golang.org/x/mobile v0.0.0-20200222142934-3c8601c510d0 h1:nZASbxDuz7CO3227BWCCf0MC6ynyvKh6eMDoLcNXAk0=
 golang.org/x/mobile v0.0.0-20200222142934-3c8601c510d0/go.mod h1:skQtrUTUwhdJvXM/2KKJzY8pDgNr9I/FOMqDVRPBUS4=
