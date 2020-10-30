@@ -416,15 +416,15 @@ class IrmaRepository {
   }
 
   Future<void> openURL(BuildContext context, String url) async {
-    _resumedFromBrowserSubject.add(true);
     if ((await getExternalBrowserURLs().first).contains(url)) {
-      openURLinExternalBrowser(context, url);
+      openURLinExternalBrowser(context, url, suppressQrScanner: true);
     } else {
       openURLinAppBrowser(url);
     }
   }
 
   void openURLinAppBrowser(String url) {
+    _resumedFromBrowserSubject.add(true);
     if (Platform.isAndroid) {
       _iiabchannel.invokeMethod('open_browser', url);
     } else {
@@ -432,7 +432,10 @@ class IrmaRepository {
     }
   }
 
-  void openURLinExternalBrowser(BuildContext context, String url) {
+  void openURLinExternalBrowser(BuildContext context, String url, {bool suppressQrScanner = false}) {
+    if (suppressQrScanner) {
+      _resumedFromBrowserSubject.add(true);
+    }
     // On iOS, open Safari rather than Safari view controller
     launch(url, forceSafariVC: false);
   }
