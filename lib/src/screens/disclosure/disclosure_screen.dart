@@ -170,7 +170,9 @@ class _DisclosureScreenState extends State<DisclosureScreen> {
       // If there is a return URL, navigate to it when we're done
       if (Uri.parse(session.clientReturnURL).queryParameters.containsKey("inapp")) {
         hasActiveSessions ? Navigator.of(context).pop() : popToWallet(context);
-        _repo.expectInactivationForCredentialType(session.inAppCredential);
+        if (session.inAppCredential != null && session.inAppCredential != "") {
+          _repo.expectInactivationForCredentialType(session.inAppCredential);
+        }
         _repo.openURLinAppBrowser(session.clientReturnURL);
       } else {
         _repo.openURLinExternalBrowser(context, session.clientReturnURL);

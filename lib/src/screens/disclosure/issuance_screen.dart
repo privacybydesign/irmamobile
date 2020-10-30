@@ -189,7 +189,9 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
       // If there is a return URL, navigate to it when we're done
       if (Uri.parse(session.clientReturnURL).queryParameters.containsKey("inapp")) {
         popToWallet(context);
-        repo.expectInactivationForCredentialType(session.inAppCredential);
+        if (session.inAppCredential != null && session.inAppCredential != "") {
+          repo.expectInactivationForCredentialType(session.inAppCredential);
+        }
         repo.openURLinAppBrowser(session.clientReturnURL);
       } else {
         repo.openURLinExternalBrowser(context, session.clientReturnURL);
