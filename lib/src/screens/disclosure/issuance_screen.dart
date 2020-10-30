@@ -172,7 +172,8 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
     // we can fix other awaits later should the need arise.
     if (context == null) return;
 
-    // Navigate back if other sessions are open
+    // in case of issuance during disclosure, another session is open in a screen lower in the stack.
+    // Ignore clientReturnUrl in this case (issuance) and pop immediately.
     if (await IrmaRepository.get().hasActiveSessions()) {
       Navigator.of(context).pop();
       return;
@@ -186,8 +187,16 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
         !session.isReturnPhoneNumber &&
         await canLaunch(session.clientReturnURL)) {
       // If there is a return URL, navigate to it when we're done
-      launch(session.clientReturnURL, forceSafariVC: false);
-      popToWallet(context);
+      if (Uri.parse(session.clientReturnURL).queryParameters.containsKey("inapp")) {
+        popToWallet(context);
+        if (session.inAppCredential != null && session.inAppCredential != "") {
+          repo.expectInactivationForCredentialType(session.inAppCredential);
+        }
+        repo.openURLinAppBrowser(session.clientReturnURL);
+      } else {
+        repo.openURLinExternalBrowser(context, session.clientReturnURL);
+        popToWallet(context);
+      }
     } else if (session.isReturnPhoneNumber) {
       if (session.status == SessionStatus.success) {
         _pushInfoCallScreen(serverName, session.clientReturnURL);
@@ -195,17 +204,16 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
         popToWallet(context);
       }
     } else {
-      // Mobile session. Always return to wallet for the following credential types
+      // Always return to wallet for the following credential types
       // or if issuance was started from in the app
-      if (session.issuedCredentials
-              .where((credential) => [
-                    "pbdf.gemeente.personalData",
-                    "pbdf.pbdf.email",
-                    "pbdf.pbdf.mobilenumber",
-                    "pbdf.pbdf.ideal",
-                    "pbdf.pbdf.idin"
-                  ].contains(credential.info.fullId))
-              .isNotEmpty ||
+      final creds = [
+        "pbdf.gemeente.personalData",
+        "pbdf.pbdf.email",
+        "pbdf.pbdf.mobilenumber",
+        "pbdf.pbdf.ideal",
+        "pbdf.pbdf.idin",
+      ];
+      if (session.issuedCredentials.where((credential) => creds.contains(credential.info.fullId)).isNotEmpty ||
           session.didIssueInappCredential) {
         popToWallet(context);
       } else if (Platform.isIOS) {

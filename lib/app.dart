@@ -132,7 +132,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
         if (!locked && lastActive.isBefore(DateTime.now().subtract(const Duration(minutes: 5)))) {
           repo.lock();
         } else {
-          _checkStartupPreferences();
+          _maybeOpenQrScanner();
         }
       }
     }
@@ -172,7 +172,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
         //  the session screens have no wallet screen to pop back to.
         //  The wallet screen is only pushed when the user is fully enrolled.
         _listenToPendingSessionPointer();
-        _checkStartupPreferences();
+        _maybeOpenQrScanner();
         break;
 
       case ScannerScreen.routeName:
@@ -223,7 +223,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     });
   }
 
-  Future<void> _checkStartupPreferences() async {
+  Future<void> _maybeOpenQrScanner() async {
     // Push the QR scanner screen if the preference is enabled
     final startQrScanner = await IrmaPreferences.get().getStartQRScan().first;
     // Check if the app was started with a HandleURLEvent or resumed when returning from in-app browser.

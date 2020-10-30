@@ -352,7 +352,6 @@ class IrmaRepository {
   }
 
   final List<ExternalBrowserCredtype> externalBrowserCredtypes = const [
-    ExternalBrowserCredtype(cred: "pbdf.nuts.agb"),
     ExternalBrowserCredtype(cred: "pbdf.gemeente.address", os: "ios"),
     ExternalBrowserCredtype(cred: "pbdf.gemeente.personalData", os: "ios"),
   ];
@@ -396,32 +395,47 @@ class IrmaRepository {
     }
   }
 
-  Future<void> openIssueURL(BuildContext context, String type) async {
-    // Remember that we started browser for issuing of this credential type from the app
-    // the browser itself dismisses us always, so first dismissal of app needs to be ignored.
+  // Remember that an inactivation of the app is coming due to opening the browser
+  // for issuance of the given credential type. Opening the browser inactivates the app
+  // (i.e. sets the AppLifecycleState to paused), so we must not react to that the way
+  // we normally do (e.g. go back to the previous app or show the big topleft arrow).
+  void expectInactivationForCredentialType(String type) {
     _inAppCredentialSubject.add(_InAppCredentialState(pendingInactivations: 1, credentialType: type));
+  }
+
+  Future<void> openIssueURL(BuildContext context, String type) async {
+    expectInactivationForCredentialType(type);
     openURL(
+      context,
+      getTranslation(
         context,
-        getTranslation(
-            context,
-            await irmaConfigurationSubject.first
-                .then((irmaConfiguration) => irmaConfiguration.credentialTypes[type].issueUrl)));
+        await irmaConfigurationSubject.first
+            .then((irmaConfiguration) => irmaConfiguration.credentialTypes[type].issueUrl),
+      ),
+    );
   }
 
   Future<void> openURL(BuildContext context, String url) async {
-    _resumedFromBrowserSubject.add(true);
     if ((await getExternalBrowserURLs().first).contains(url)) {
-      openURLinBrowser(context, url);
+      openURLinExternalBrowser(context, url, suppressQrScanner: true);
     } else {
-      if (Platform.isAndroid) {
-        _iiabchannel.invokeMethod('open_browser', url);
-      } else {
-        launch(url, forceSafariVC: true);
-      }
+      openURLinAppBrowser(url);
     }
   }
 
-  void openURLinBrowser(BuildContext context, String url) {
+  void openURLinAppBrowser(String url) {
+    _resumedFromBrowserSubject.add(true);
+    if (Platform.isAndroid) {
+      _iiabchannel.invokeMethod('open_browser', url);
+    } else {
+      launch(url, forceSafariVC: true);
+    }
+  }
+
+  void openURLinExternalBrowser(BuildContext context, String url, {bool suppressQrScanner = false}) {
+    if (suppressQrScanner) {
+      _resumedFromBrowserSubject.add(true);
+    }
     // On iOS, open Safari rather than Safari view controller
     launch(url, forceSafariVC: false);
   }
