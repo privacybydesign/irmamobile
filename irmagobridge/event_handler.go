@@ -95,8 +95,10 @@ func (ah *eventHandler) respondPermission(event *respondPermissionEvent) (err er
 		return errors.Errorf("Unset permissionHandler in RespondPermission")
 	}
 
-	disclosureChoice := &irma.DisclosureChoice{Attributes: event.DisclosureChoices}
-	sh.permissionHandler(event.Proceed, disclosureChoice)
+	go func() {
+		disclosureChoice := &irma.DisclosureChoice{Attributes: event.DisclosureChoices}
+		sh.permissionHandler(event.Proceed, disclosureChoice)
+	}()
 
 	return nil
 }
@@ -111,7 +113,7 @@ func (ah *eventHandler) respondPin(event *respondPinEvent) (err error) {
 		return errors.Errorf("Unset pinHandler in RespondPin")
 	}
 
-	sh.pinHandler(event.Proceed, event.Pin)
+	go sh.pinHandler(event.Proceed, event.Pin)
 	return nil
 }
 

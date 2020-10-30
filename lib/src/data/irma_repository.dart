@@ -51,6 +51,13 @@ class _InAppCredentialState {
   }
 }
 
+class ExternalBrowserCredtype {
+  final String cred;
+  final String os;
+
+  const ExternalBrowserCredtype({this.cred, this.os});
+}
+
 class IrmaRepository {
   static IrmaRepository _instance;
   factory IrmaRepository({@required IrmaBridge client}) {
@@ -344,6 +351,11 @@ class IrmaRepository {
     return _preferencesSubject.stream.map((pref) => pref.clientPreferences.developerMode);
   }
 
+  final List<ExternalBrowserCredtype> externalBrowserCredtypes = const [
+    ExternalBrowserCredtype(cred: "pbdf.gemeente.address", os: "ios"),
+    ExternalBrowserCredtype(cred: "pbdf.gemeente.personalData", os: "ios"),
+  ];
+
   final List<String> externalBrowserUrls = const [
     "https://privacybydesign.foundation/myirma/",
     "https://privacybydesign.foundation/mijnirma/",
@@ -353,7 +365,14 @@ class IrmaRepository {
 
   // TODO Remove when disclosure sessions can be started from custom tabs
   Stream<List<String>> getExternalBrowserURLs() {
-    return Stream.fromIterable([externalBrowserUrls]);
+    return irmaConfigurationSubject.map(
+      (irmaConfiguration) => externalBrowserCredtypes
+          .where((type) => type.os == null || type.os == Platform.operatingSystem)
+          .map((type) => irmaConfiguration.credentialTypes[type.cred].issueUrl.values)
+          .expand((v) => v)
+          .toList()
+            ..addAll(externalBrowserUrls),
+    );
   }
 
   static const _iiabchannel = MethodChannel('irma.app/iiab');

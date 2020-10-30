@@ -17,7 +17,7 @@ class QRInstruction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var screen = 'instruction';
-    var color = IrmaTheme.of(context).grayscale60;
+    var color = IrmaTheme.of(context).grayscale40;
 
     if (error) {
       screen = 'error';
@@ -34,7 +34,7 @@ class QRInstruction extends StatelessWidget {
           width: MediaQuery.of(context).size.width,
           margin: EdgeInsets.only(top: IrmaTheme.of(context).largeSpacing),
           padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
-          color: color.withOpacity(0.2),
+          color: color.withOpacity(0.8),
           child: Column(
             children: <Widget>[
               Text(
@@ -46,7 +46,7 @@ class QRInstruction extends StatelessWidget {
                 FlutterI18n.translate(context, "qr_scanner.$screen.message"),
                 style: Theme.of(context).textTheme.body1.copyWith(
                       color: Colors.white,
-                      height: 2,
+                      height: 1.5,
                     ),
                 textAlign: TextAlign.center,
               ),

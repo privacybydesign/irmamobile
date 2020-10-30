@@ -52,7 +52,7 @@ class IrmaThemeData extends Equatable {
   final Color notificationInfoBg = const Color(0xFFB1CDE5);
 
   // Support colors (qr scanner)
-  final Color overlayValid = const Color(0xFF029B17);
+  final Color overlayValid = const Color(0xFF007E4C);
   final Color overlayInvalid = const Color(0xFFC8192C);
 
   // Link colors

@@ -303,9 +303,16 @@ class _CarouselState extends State<Carousel> {
     } else if (cred.attributes.first.notRevokable) {
       return FlutterI18n.translate(context, 'disclosure.not_revokable');
     } else if (cred.attributes.first.credentialHash == "") {
-      return haveOther
-          ? FlutterI18n.translate(context, 'disclosure.not_present_have_other')
-          : FlutterI18n.translate(context, 'disclosure.not_present');
+      if (!haveOther) {
+        return FlutterI18n.translate(context, 'disclosure.not_present');
+      } else if (cred.attributes.first.value.raw != null) {
+        return FlutterI18n.translate(context, 'disclosure.not_present_have_other');
+      } else {
+        return FlutterI18n.translate(context, 'disclosure.add_additional', translationParams: {
+          "credential":
+              cred.credentialInfo.credentialType.name.translate(FlutterI18n.currentLocale(context).languageCode),
+        });
+      }
     }
     return null;
   }

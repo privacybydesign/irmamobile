@@ -124,6 +124,10 @@ lane :update_schemes_alpha do
     sh("git", "checkout", "master")
     sh("git", "pull", "-f")
   end
+  Dir.chdir("../irma_configuration/pbdf-requestors") do
+    sh("git", "checkout", "master")
+    sh("git", "pull", "-f")
+  end
   Dir.chdir("../irma_configuration/irma-demo") do
     sh("git", "checkout", "master")
     sh("git", "pull", "-f")
@@ -132,6 +136,10 @@ end
 
 lane :update_schemes_beta do
   Dir.chdir("../irma_configuration/pbdf") do
+    sh("git", "checkout", "master")
+    sh("git", "pull", "-f")
+  end
+  Dir.chdir("../irma_configuration/pbdf-requestors") do
     sh("git", "checkout", "master")
     sh("git", "pull", "-f")
   end
