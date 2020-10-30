@@ -172,8 +172,12 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
     // we can fix other awaits later should the need arise.
     if (context == null) return;
 
-    // in case of issuance during disclosure, another session is open in a screen lower in the stack
-    final hasActiveSessions = await IrmaRepository.get().hasActiveSessions();
+    // in case of issuance during disclosure, another session is open in a screen lower in the stack.
+    // Ignore clientReturnUrl in this case (issuance) and pop immediately.
+    if (await IrmaRepository.get().hasActiveSessions()) {
+      Navigator.of(context).pop();
+      return;
+    }
 
     if (session.continueOnSecondDevice && !session.isReturnPhoneNumber) {
       // If this is a session on a second screen, return to the wallet
@@ -184,12 +188,12 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
         await canLaunch(session.clientReturnURL)) {
       // If there is a return URL, navigate to it when we're done
       if (Uri.parse(session.clientReturnURL).queryParameters.containsKey("inapp")) {
-        hasActiveSessions ? Navigator.of(context).pop() : popToWallet(context);
+        popToWallet(context);
         repo.expectInactivationForCredentialType(session.inAppCredential);
         repo.openURLinAppBrowser(session.clientReturnURL);
       } else {
         repo.openURLinExternalBrowser(context, session.clientReturnURL);
-        hasActiveSessions ? Navigator.of(context).pop() : popToWallet(context);
+        popToWallet(context);
       }
     } else if (session.isReturnPhoneNumber) {
       if (session.status == SessionStatus.success) {
@@ -198,10 +202,6 @@ class _IssuanceScreenState extends State<IssuanceScreen> {
         popToWallet(context);
       }
     } else {
-      if (hasActiveSessions) {
-        Navigator.of(context).pop();
-        return;
-      }
       // Always return to wallet for the following credential types
       // or if issuance was started from in the app
       final creds = [
