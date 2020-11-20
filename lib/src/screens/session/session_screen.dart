@@ -197,18 +197,21 @@ class _SessionScreenState extends State<SessionScreen> {
 
     // It concerns a mobile session.
     if (session.clientReturnURL != null) {
-      // If there is a return URL, navigate to it when we're done
+      // If there is a return URL, navigate to it when we're done; canLaunch check is already
+      // done in the session repository, so we know for sure this url is valid.
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        // canLaunch check is already done in the session repository.
+        // When being in a disclosure, we can continue to underlying sessions in this case;
+        // hasUnderlyingSession during issuance is handled at the beginning of _buildFinished, so
+        // we don't have to explicitly exclude issuance here.
         if (Uri.parse(session.clientReturnURL).queryParameters.containsKey("inapp")) {
-          widget.arguments.hasUnderlyingSession && !_isIssuance ? Navigator.of(context).pop() : popToWallet(context);
+          widget.arguments.hasUnderlyingSession ? Navigator.of(context).pop() : popToWallet(context);
           if (session.inAppCredential != null && session.inAppCredential != "") {
             _repo.expectInactivationForCredentialType(session.inAppCredential);
           }
           _repo.openURLinAppBrowser(session.clientReturnURL);
         } else {
           _repo.openURLinExternalBrowser(context, session.clientReturnURL);
-          widget.arguments.hasUnderlyingSession && !_isIssuance ? Navigator.of(context).pop() : popToWallet(context);
+          widget.arguments.hasUnderlyingSession ? Navigator.of(context).pop() : popToWallet(context);
         }
       });
     } else if (_isSpecialIssuanceSession(session)) {
