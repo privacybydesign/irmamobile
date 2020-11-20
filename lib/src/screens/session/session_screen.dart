@@ -216,24 +216,19 @@ class _SessionScreenState extends State<SessionScreen> {
       });
     } else if (_isSpecialIssuanceSession(session)) {
       WidgetsBinding.instance.addPostFrameCallback((_) => popToWallet(context));
-    } else {
+    } else if (widget.arguments.hasUnderlyingSession) {
       // In case of a disclosure having an underlying session we only continue to underlying session
       // if it is a mobile session and there was no clientReturnUrl.
-      if (widget.arguments.hasUnderlyingSession) {
-        Navigator.of(context).pop();
-        return _buildLoadingScreen();
-      }
-
-      // Otherwise, on iOS show a screen to press the return arrow in the top-left corner,
-      // and on Android just background the app to let the user return to the previous activity
-      if (Platform.isIOS) {
-        return ArrowBack();
-      } else {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          IrmaRepository.get().bridgedDispatch(AndroidSendToBackgroundEvent());
-          popToWallet(context);
-        });
-      }
+      WidgetsBinding.instance.addPostFrameCallback((_) => Navigator.of(context).pop());
+    } else if (Platform.isIOS) {
+      // On iOS show a screen to press the return arrow in the top-left corner,
+      return ArrowBack();
+    } else {
+      // On Android just background the app to let the user return to the previous activity
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        IrmaRepository.get().bridgedDispatch(AndroidSendToBackgroundEvent());
+        popToWallet(context);
+      });
     }
     return _buildLoadingScreen();
   }
