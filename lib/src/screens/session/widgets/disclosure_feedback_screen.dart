@@ -9,7 +9,7 @@ enum DisclosureFeedbackType {
   notSatisfiable,
 }
 
-class DisclosureFeedbackScreen extends StatelessWidget {
+class DisclosureFeedbackScreen extends StatefulWidget {
   static const _translationKeys = {
     DisclosureFeedbackType.success: "success",
     DisclosureFeedbackType.canceled: "canceled",
@@ -22,24 +22,52 @@ class DisclosureFeedbackScreen extends StatelessWidget {
 
   final String _translationKey;
 
-  DisclosureFeedbackScreen({this.feedbackType, this.otherParty, this.popToWallet})
-      : _translationKey = _translationKeys[feedbackType];
+  DisclosureFeedbackScreen({this.feedbackType, this.otherParty, this.popToWallet, Key key})
+      : _translationKey = _translationKeys[feedbackType],
+        super(key: key);
+
+  @override
+  State<StatefulWidget> createState() {
+    return DisclosureFeedbackScreenState();
+  }
+}
+
+class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    WidgetsBinding.instance.addObserver(this);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return ActionFeedback(
-      success: feedbackType == DisclosureFeedbackType.success,
+      success: widget.feedbackType == DisclosureFeedbackType.success,
       title: TranslatedText(
-        "disclosure.feedback.header.$_translationKey",
-        translationParams: {"otherParty": otherParty},
+        "disclosure.feedback.header.${widget._translationKey}",
+        translationParams: {"otherParty": widget.otherParty},
         style: Theme.of(context).textTheme.display3,
       ),
       explanation: TranslatedText(
-        "disclosure.feedback.text.$_translationKey",
-        translationParams: {"otherParty": otherParty},
+        "disclosure.feedback.text.${widget._translationKey}",
+        translationParams: {"otherParty": widget.otherParty},
         textAlign: TextAlign.center,
       ),
-      onDismiss: () => popToWallet(context),
+      onDismiss: () => widget.popToWallet(context),
     );
+  }
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    // If the app is resumed remove the route with this screen from the stack.
+    if (state == AppLifecycleState.resumed) {
+      widget.popToWallet(context);
+    }
   }
 }
