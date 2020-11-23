@@ -127,9 +127,9 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
     return WillPopScope(
       onWillPop: () async {
         // Wait on irmago response before closing, calling widget expects a result
-        await _pinBloc.state
-            .firstWhere((state) => !state.authenticateInProgress)
-            .then((_) => _cancel(), onError: () {});
+        await _pinBloc.state.firstWhere((state) => !state.authenticateInProgress).then((state) {
+          if (!state.authenticated) _cancel();
+        }, onError: () {});
         return false;
       },
       // Wrap component in custom navigator in order to manage the invalid pin popup and the
