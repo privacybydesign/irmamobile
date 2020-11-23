@@ -236,7 +236,7 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
     }
 
     // Wrap component in custom navigator in order to manage the explanation popup as widget ourselves.
-    // Now popping this widget from the navigator also makes the explanation popup to be popped.
+    // Now popping this widget from the root navigator also makes the explanation popup to be popped.
     // This saves us having to manually take account of an _explanationHidden state.
     return Navigator(
       key: _navigatorKey,

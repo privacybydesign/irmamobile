@@ -124,20 +124,6 @@ class _SessionScreenState extends State<SessionScreen> {
     return session.issuedCredentials.where((credential) => creds.contains(credential.info.fullId)).isNotEmpty;
   }
 
-  Widget _buildPinScreen() {
-    // SessionPinScreen pops itself from the navigator stack when finished, so here we
-    // can simply wait until the screen is finished and show a loading screen as fallback.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => SessionPinScreen(
-          sessionID: widget.arguments.sessionID,
-          title: FlutterI18n.translate(context, _defaultAppBarTitle),
-        ),
-      ));
-    });
-    return _buildLoadingScreen();
-  }
-
   Widget _buildFinishedContinueSecondDevice(SessionState session) {
     // In case of issuance, always return to the wallet screen.
     if (_isIssuance) {
@@ -269,16 +255,20 @@ class _SessionScreenState extends State<SessionScreen> {
 
   @override
   Widget build(BuildContext context) => StreamBuilder(
-      stream: _sessionStateStream,
+      // This screen is designed to only build when dealing with a session status change. Therefore
+      // we filter the stream to only include distinct statuses. State changes within a session status
+      // should be handled by stateful child widgets of this screen. We make an exception for the
+      // requestDisclosurePermission status such that the disclosure candidates are being refreshed in
+      // an issuance-in-disclosure session.
+      stream: _sessionStateStream.distinct(
+          (prev, curr) => prev.status == curr.status && curr.status != SessionStatus.requestDisclosurePermission),
       builder: (BuildContext context, AsyncSnapshot<SessionState> sessionStateSnapshot) {
         if (!sessionStateSnapshot.hasData) {
           return _buildLoadingScreen();
         }
 
         final session = sessionStateSnapshot.data;
-        if (_screenStatus != session.status) {
-          _screenStatus = session.status;
-        }
+        _screenStatus = session.status;
 
         switch (session.status) {
           case SessionStatus.requestDisclosurePermission:
@@ -298,7 +288,10 @@ class _SessionScreenState extends State<SessionScreen> {
               onGivePermission: () => _givePermission(session),
             );
           case SessionStatus.requestPin:
-            return _buildPinScreen();
+            return SessionPinScreen(
+              sessionID: widget.arguments.sessionID,
+              title: FlutterI18n.translate(context, _defaultAppBarTitle),
+            );
           case SessionStatus.error:
             return _buildErrorScreen(session);
           case SessionStatus.success:
