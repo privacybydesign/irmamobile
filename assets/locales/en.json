@@ -414,6 +414,10 @@
       "yes": "Yes",
       "no": "No, rather not",
       "back": "Back"
+    },
+    "unknown_session_type": {
+      "title": "Cancelled",
+      "explanation": "The IRMA session that you started is not supported by the app."
     }
   },
   "disclosure": {

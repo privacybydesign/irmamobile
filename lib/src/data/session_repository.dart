@@ -10,6 +10,7 @@ import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:quiver/iterables.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:stream_transform/stream_transform.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SessionStates extends UnmodifiableMapView<int, SessionState> {
   SessionStates(Map<int, SessionState> map) : super(map);
@@ -58,7 +59,9 @@ class SessionRepository {
         serverName = null;
       }
       return prevState.copyWith(
-        clientReturnURL: prevState.clientReturnURL ?? event.request.returnURL,
+        clientReturnURL: await _isValidClientReturnUrl(event.request.returnURL)
+            ? event.request.returnURL
+            : prevState.clientReturnURL,
         continueOnSecondDevice: event.request.continueOnSecondDevice,
         inAppCredential: event.inAppCredential,
         status: SessionStatus.initialized,
@@ -75,7 +78,8 @@ class SessionRepository {
       );
     } else if (event is ClientReturnURLSetSessionEvent) {
       return prevState.copyWith(
-        clientReturnURL: event.clientReturnURL,
+        clientReturnURL:
+            await _isValidClientReturnUrl(event.clientReturnURL) ? event.clientReturnURL : prevState.clientReturnURL,
       );
     } else if (event is RequestIssuancePermissionSessionEvent) {
       final condiscon = _processCandidates(event.disclosuresCandidates, prevState, irmaConfiguration, credentials);
@@ -222,6 +226,10 @@ class SessionRepository {
       i += max;
     }
     return i;
+  }
+
+  Future<bool> _isValidClientReturnUrl(String clientReturnUrl) async {
+    return clientReturnUrl != null && await canLaunch(clientReturnUrl);
   }
 
   Stream<SessionState> getSessionState(int sessionID) {

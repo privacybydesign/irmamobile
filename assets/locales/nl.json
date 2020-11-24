@@ -415,6 +415,10 @@
       "yes": "Ja",
       "no": "Nee, liever niet",
       "back": "Terug"
+    },
+    "unknown_session_type": {
+      "title": "Afgebroken",
+      "explanation": "De IRMA-sessie die je probeerde te starten wordt niet ondersteund door de app."
     }
   },
   "disclosure": {
