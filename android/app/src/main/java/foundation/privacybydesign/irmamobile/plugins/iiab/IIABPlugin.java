@@ -4,23 +4,48 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
+import io.flutter.embedding.engine.plugins.FlutterPlugin;
+import io.flutter.embedding.engine.plugins.activity.ActivityAware;
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 
 import android.net.Uri;
+import android.util.Log;
+import android.app.Activity;
 import androidx.browser.customtabs.CustomTabsIntent;
 import android.graphics.Color;
 
-public class IIABPlugin implements MethodCallHandler {
-    private Registrar registrar;
+public class IIABPlugin implements MethodCallHandler, FlutterPlugin, ActivityAware {
+    private FlutterPlugin.FlutterPluginBinding binding;
+    private Activity mainActivity;
 
-    public static void registerWith(Registrar registrar) {
-        MethodChannel channel = new MethodChannel(registrar.messenger(), "irma.app/iiab");
-        channel.setMethodCallHandler(new IIABPlugin(registrar));
+    public void onAttachedToEngine(FlutterPlugin.FlutterPluginBinding binding) {
+        this.binding = binding;
+        MethodChannel channel = new MethodChannel(binding.getBinaryMessenger(), "irma.app/iiab");
+        channel.setMethodCallHandler(this);
     }
 
-    public IIABPlugin(Registrar registrar) {
-        super();
-        this.registrar = registrar;
+    public void onDetachedFromEngine(FlutterPlugin.FlutterPluginBinding binding) {
+        this.binding = null;
+    }
+
+    @Override
+    public void onAttachedToActivity(ActivityPluginBinding binding) {
+        mainActivity = binding.getActivity();
+    }
+
+    @Override
+    public void onDetachedFromActivity(){
+        mainActivity = null;
+    }
+
+    @Override
+    public void onDetachedFromActivityForConfigChanges() {
+        onDetachedFromActivity();
+    }
+
+    @Override
+    public void onReattachedToActivityForConfigChanges(ActivityPluginBinding binding) {
+        onAttachedToActivity(binding);
     }
 
     @Override
@@ -32,7 +57,7 @@ public class IIABPlugin implements MethodCallHandler {
                     CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
                     builder.setToolbarColor(Color.parseColor("#DFE6EE"));
                     CustomTabsIntent customTabsIntent = builder.build();
-                    customTabsIntent.launchUrl(registrar.activity(), Uri.parse(url));
+                    customTabsIntent.launchUrl(mainActivity, Uri.parse(url));
                 } catch (Exception e) {
                     result.error("", e.toString(), e);
                     return;

@@ -1,4 +1,4 @@
-package foundation.privacybydesign.irmamobile.plugins.irma_mobile_bridge;
+package foundation.privacybydesign.irmamobile.irma_mobile_bridge;
 
 import android.app.Activity;
 import android.content.Context;
@@ -9,29 +9,22 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
-import io.flutter.plugin.common.PluginRegistry.NewIntentListener;
 import irmagobridge.Irmagobridge;
 
 import android.net.Uri;
 import android.content.Intent;
 
-public class IrmaMobileBridgePlugin implements MethodCallHandler, irmagobridge.IrmaMobileBridge, NewIntentListener {
+public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMobileBridge {
   private MethodChannel channel;
   private Context context;
   private Activity activity;
   private Uri initialURL;
   private boolean debug;
 
-  public static void registerWith(Registrar registrar, Uri initialURL) {
-    MethodChannel channel = new MethodChannel(registrar.messenger(), "irma.app/irma_mobile_bridge");
-    channel.setMethodCallHandler(new IrmaMobileBridgePlugin(registrar, channel, initialURL));
-  }
-
-  public IrmaMobileBridgePlugin(Registrar registrar, MethodChannel channel, Uri initialURL) {
+  public IrmaMobileBridge(Context context, Activity activity, MethodChannel channel, Uri initialURL) {
     this.channel = channel;
-    this.context = registrar.context();
-    this.activity = registrar.activity();
+    this.context = context;
+    this.activity = activity;
     this.initialURL = initialURL;
 
     IrmaConfigurationCopier copier = new IrmaConfigurationCopier(context);
@@ -43,8 +36,6 @@ public class IrmaMobileBridgePlugin implements MethodCallHandler, irmagobridge.I
     } catch (PackageManager.NameNotFoundException e) {
       throw new RuntimeException(e);
     }
-
-    registrar.addNewIntentListener(this);
   }
 
   @Override
@@ -78,7 +69,6 @@ public class IrmaMobileBridgePlugin implements MethodCallHandler, irmagobridge.I
     });
   }
 
-  @Override
   public boolean onNewIntent(Intent intent) {
     Uri link = intent.getData();
     if (link != null)

@@ -1,65 +1,89 @@
 package foundation.privacybydesign.irmamobile;
 
+import androidx.annotation.NonNull;
+
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.net.Uri;
+import android.content.Intent;
 
 import java.nio.channels.Channel;
 
-import foundation.privacybydesign.irmamobile.plugins.irma_mobile_bridge.IrmaMobileBridgePlugin;
-import foundation.privacybydesign.irmamobile.plugins.iiab.IIABPlugin;
-import io.flutter.app.FlutterActivity;
+import io.flutter.embedding.android.FlutterActivity;
+import io.flutter.embedding.engine.FlutterEngine;
+import io.flutter.embedding.android.FlutterSurfaceView;
+import io.flutter.embedding.android.FlutterTextureView;
+import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugins.GeneratedPluginRegistrant;
+
+import foundation.privacybydesign.irmamobile.irma_mobile_bridge.IrmaMobileBridge;
+import foundation.privacybydesign.irmamobile.plugins.iiab.IIABPlugin;
 import irmagobridge.Irmagobridge;
 
 public class MainActivity extends FlutterActivity {
+  private View RenderView;
+  private Uri initialURL;
+  private IrmaMobileBridge bridge;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    boolean flutter_native_splash = true;
-    int originalStatusBarColor = 0;
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-      originalStatusBarColor = getWindow().getStatusBarColor();
-      getWindow().setStatusBarColor(0xffdee1e4);
-    }
-    int originalStatusBarColorFinal = originalStatusBarColor;
+    // We do both these steps before calling parent, to ensure that this always happens before starting the flutter
+    // engine and attaching its plugins
 
     // Initialize the Go binding here by calling a seemingly noop function
     Irmagobridge.prestart();
-    // Plugins
-    GeneratedPluginRegistrant.registerWith(this);
-    ViewTreeObserver vto = getFlutterView().getViewTreeObserver();
-    vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-      @Override
-      public void onGlobalLayout() {
-        getFlutterView().getViewTreeObserver().removeOnGlobalLayoutListener(this);
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-          getWindow().setStatusBarColor(originalStatusBarColorFinal);
-        }
-      }
-    });
-
+    // Capture initial url only during onCreate, for use during first engine instantiation
     Uri initialURL = getIntent().getData();
-    IrmaMobileBridgePlugin.registerWith(
-        this.registrarFor("foundation.privacybydesign.irmamobile.plugins.irma_mobile_bridge.IrmaMobileBridgePlugin"),
-        initialURL);
-    IIABPlugin.registerWith(this.registrarFor("foundation.privacybydesign.irmamobile.plugins.iiab.IIABPlugin"));
+
+    // Hand of to parent
+    super.onCreate(savedInstanceState);
+  }
+
+  @Override
+  public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
+    GeneratedPluginRegistrant.registerWith(flutterEngine);
+    flutterEngine.getPlugins().add(new IIABPlugin());
+
+    // Start up the irmamobile bridge
+    MethodChannel channel = new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(), "irma.app/irma_mobile_bridge");
+    bridge = new IrmaMobileBridge(this, this, channel, initialURL);
+    channel.setMethodCallHandler(bridge);
+    initialURL = null; // Ensure we only use the initialURL once
+  }
+
+  // Capture the render view to hide/unhide it on pause/resume
+  @Override
+  public void onFlutterSurfaceViewCreated(@NonNull FlutterSurfaceView flutterSurfaceView) {
+    super.onFlutterSurfaceViewCreated(flutterSurfaceView);
+    RenderView = flutterSurfaceView;
+  }
+  // It can be one of two types, just catching both is most robust.
+  @Override
+  public void onFlutterTextureViewCreated(@NonNull FlutterTextureView flutterTextureView) {
+    super.onFlutterTextureViewCreated(flutterTextureView);
+    RenderView = flutterTextureView;
   }
 
   @Override
   protected void onPause() {
     super.onPause();
-    getFlutterView().setVisibility(View.INVISIBLE);
+    if (RenderView != null) RenderView.setVisibility(View.INVISIBLE);
   }
 
   @Override
   protected void onResume() {
-    getFlutterView().setVisibility(View.VISIBLE);
+    if (RenderView != null) RenderView.setVisibility(View.VISIBLE);
     super.onResume();
+  }
+
+  // Forward new intents to the bridge
+  @Override
+  protected void onNewIntent(Intent intent) {
+    super.onNewIntent(intent);
+    if (bridge != null) bridge.onNewIntent(intent);
   }
 
   @Override
