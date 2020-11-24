@@ -116,6 +116,7 @@ class _SessionScreenState extends State<SessionScreen> {
 
     final creds = [
       "pbdf.gemeente.personalData",
+      "pbdf.sidn-pbdf.email",
       "pbdf.pbdf.email",
       "pbdf.pbdf.mobilenumber",
       "pbdf.pbdf.ideal",
