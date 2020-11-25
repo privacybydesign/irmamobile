@@ -120,7 +120,7 @@ class DemoSessionHelper {
   }
 
   static Future<SessionPointer> startDebugSession(String requestBody) async {
-    final Uri uri = Uri.parse("https://metrics.privacybydesign.foundation/irmaserver/session");
+    final Uri uri = Uri.parse("https://demo.privacybydesign.foundation/backend/session");
 
     final request = await HttpClient().postUrl(uri);
     request.headers.set('Content-Type', 'application/json');
