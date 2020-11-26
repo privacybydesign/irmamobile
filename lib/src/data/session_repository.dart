@@ -66,6 +66,7 @@ class SessionRepository {
         inAppCredential: event.inAppCredential,
         status: SessionStatus.initialized,
         serverName: serverName,
+        sessionType: event.request.irmaqr,
       );
     } else if (event is FailureSessionEvent) {
       return prevState.copyWith(

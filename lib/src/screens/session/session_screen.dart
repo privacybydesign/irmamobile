@@ -65,15 +65,11 @@ class _SessionScreenState extends State<SessionScreen> {
   SessionStatus _screenStatus = SessionStatus.uninitialized;
   Stream<SessionState> _sessionStateStream;
 
-  bool _isIssuance;
   bool _displayArrowBack = false;
-
-  String get _defaultAppBarTitle => _isIssuance ? "issuance.title" : "disclosure.title";
 
   @override
   void initState() {
     super.initState();
-    _isIssuance = widget.arguments.sessionType == "issuance";
     _sessionStateStream = _repo.getSessionState(widget.arguments.sessionID);
   }
 
@@ -83,6 +79,10 @@ class _SessionScreenState extends State<SessionScreen> {
       _dismissSession();
     }
     super.dispose();
+  }
+
+  String _getAppBarTitle(bool isIssuance) {
+    return isIssuance ? "issuance.title" : "disclosure.title";
   }
 
   void _dispatchSessionEvent(SessionEvent event, {bool isBridgedEvent = true}) {
@@ -95,8 +95,7 @@ class _SessionScreenState extends State<SessionScreen> {
   }
 
   void _givePermission(SessionState session) {
-    if (session.status == SessionStatus.requestDisclosurePermission &&
-        (session.issuedCredentials?.isNotEmpty ?? false)) {
+    if (session.status == SessionStatus.requestDisclosurePermission && session.isIssuanceSession) {
       _dispatchSessionEvent(ContinueToIssuanceEvent(), isBridgedEvent: false);
     } else {
       _dispatchSessionEvent(RespondPermissionEvent(
@@ -127,9 +126,9 @@ class _SessionScreenState extends State<SessionScreen> {
 
   Widget _buildFinishedContinueSecondDevice(SessionState session) {
     // In case of issuance, always return to the wallet screen.
-    if (_isIssuance) {
+    if (session.isIssuanceSession) {
       WidgetsBinding.instance.addPostFrameCallback((_) => popToWallet(context));
-      return _buildLoadingScreen();
+      return _buildLoadingScreen(true);
     }
 
     // In case of a disclosure session, return to the wallet after showing a feedback screen.
@@ -154,9 +153,9 @@ class _SessionScreenState extends State<SessionScreen> {
         clientReturnURL: session.clientReturnURL,
         popToWallet: popToWallet,
       );
-    } else if (_isIssuance) {
+    } else if (session.isIssuanceSession) {
       WidgetsBinding.instance.addPostFrameCallback((_) => popToWallet(context));
-      return _buildLoadingScreen();
+      return _buildLoadingScreen(true);
     } else {
       return DisclosureFeedbackScreen(
         feedbackType: DisclosureFeedbackType.canceled,
@@ -169,9 +168,9 @@ class _SessionScreenState extends State<SessionScreen> {
   Widget _buildFinished(SessionState session) {
     // In case of issuance during disclosure, another session is open in a screen lower in the stack.
     // Ignore clientReturnUrl in this case (issuance) and pop immediately.
-    if (_isIssuance && widget.arguments.hasUnderlyingSession) {
+    if (session.isIssuanceSession && widget.arguments.hasUnderlyingSession) {
       WidgetsBinding.instance.addPostFrameCallback((_) => Navigator.of(context).pop());
-      return _buildLoadingScreen();
+      return _buildLoadingScreen(true);
     }
 
     if (session.continueOnSecondDevice && !session.isReturnPhoneNumber) {
@@ -217,7 +216,7 @@ class _SessionScreenState extends State<SessionScreen> {
         popToWallet(context);
       });
     }
-    return _buildLoadingScreen();
+    return _buildLoadingScreen(session.isIssuanceSession);
   }
 
   Widget _buildErrorScreen(SessionState session) {
@@ -244,14 +243,14 @@ class _SessionScreenState extends State<SessionScreen> {
         });
   }
 
-  Widget _buildLoadingScreen() => SessionScaffold(
+  Widget _buildLoadingScreen(bool isIssuance) => SessionScaffold(
         body: Column(children: [
           Center(
             child: LoadingIndicator(),
           ),
         ]),
         onDismiss: () => _dismissSession(),
-        appBarTitle: _defaultAppBarTitle,
+        appBarTitle: _getAppBarTitle(isIssuance),
       );
 
   @override
@@ -265,7 +264,7 @@ class _SessionScreenState extends State<SessionScreen> {
           (prev, curr) => prev.status == curr.status && curr.status != SessionStatus.requestDisclosurePermission),
       builder: (BuildContext context, AsyncSnapshot<SessionState> sessionStateSnapshot) {
         if (!sessionStateSnapshot.hasData) {
-          return _buildLoadingScreen();
+          return _buildLoadingScreen(widget.arguments.sessionType == "issuing");
         }
 
         final session = sessionStateSnapshot.data;
@@ -280,8 +279,6 @@ class _SessionScreenState extends State<SessionScreen> {
               dispatchSessionEvent: _dispatchSessionEvent,
             );
           case SessionStatus.requestIssuancePermission:
-            // In case of session type "redirect" we might have guessed the session type wrongly.
-            _isIssuance = true;
             return IssuancePermission(
               satisfiable: session.satisfiable,
               issuedCredentials: session.issuedCredentials,
@@ -291,7 +288,7 @@ class _SessionScreenState extends State<SessionScreen> {
           case SessionStatus.requestPin:
             return SessionPinScreen(
               sessionID: widget.arguments.sessionID,
-              title: FlutterI18n.translate(context, _defaultAppBarTitle),
+              title: FlutterI18n.translate(context, _getAppBarTitle(session.isIssuanceSession)),
             );
           case SessionStatus.error:
             return _buildErrorScreen(session);
@@ -299,7 +296,7 @@ class _SessionScreenState extends State<SessionScreen> {
           case SessionStatus.canceled:
             return _buildFinished(session);
           default:
-            return _buildLoadingScreen();
+            return _buildLoadingScreen(session.isIssuanceSession);
         }
       });
 }

@@ -18,6 +18,7 @@ class SessionState {
   final bool canBeFinished;
   final SessionError error;
   final String inAppCredential;
+  final String sessionType;
 
   SessionState({
     this.sessionID,
@@ -35,6 +36,7 @@ class SessionState {
     this.canBeFinished,
     this.error,
     this.inAppCredential,
+    this.sessionType,
   });
 
   bool get canDisclose =>
@@ -45,7 +47,12 @@ class SessionState {
           .values
           .every((con) => con.every((attr) => attr.choosable));
 
-  bool get isIssuanceSession => issuedCredentials?.isNotEmpty ?? false;
+  // We cannot fully rely on the sessionType value to determine whether it is issuance, because a
+  // 'redirect' session can also be issuance. Therefore we overrule the sessionType when
+  // issuedCredentials is set. IrmaGo enforces that an error is triggered in case of a problematic
+  // mismatch between both values, so we can safely do this.
+  bool get isIssuanceSession => issuedCredentials?.isNotEmpty ?? sessionType == 'issuing';
+
   bool get isReturnPhoneNumber => clientReturnURL?.startsWith("tel:") ?? false;
   bool get didIssueInappCredential =>
       issuedCredentials?.any((element) => element.info.fullId == inAppCredential) ?? false;
@@ -65,6 +72,7 @@ class SessionState {
     bool canBeFinished,
     SessionError error,
     String inAppCredential,
+    String sessionType,
   }) {
     return SessionState(
       sessionID: sessionID,
@@ -82,6 +90,7 @@ class SessionState {
       canBeFinished: canBeFinished ?? this.canBeFinished,
       error: error ?? this.error,
       inAppCredential: inAppCredential ?? this.inAppCredential,
+      sessionType: sessionType ?? this.sessionType,
     );
   }
 }
