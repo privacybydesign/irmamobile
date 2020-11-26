@@ -81,7 +81,7 @@ class _SessionScreenState extends State<SessionScreen> {
     super.dispose();
   }
 
-  String _getDefaultAppBarTitle(bool isIssuance) {
+  String _getAppBarTitle(bool isIssuance) {
     return isIssuance ? "issuance.title" : "disclosure.title";
   }
 
@@ -249,7 +249,7 @@ class _SessionScreenState extends State<SessionScreen> {
           ),
         ]),
         onDismiss: () => _dismissSession(),
-        appBarTitle: _getDefaultAppBarTitle(isIssuance),
+        appBarTitle: _getAppBarTitle(isIssuance),
       );
 
   @override
@@ -287,7 +287,7 @@ class _SessionScreenState extends State<SessionScreen> {
           case SessionStatus.requestPin:
             return SessionPinScreen(
               sessionID: widget.arguments.sessionID,
-              title: FlutterI18n.translate(context, _getDefaultAppBarTitle(session.isIssuanceSession)),
+              title: FlutterI18n.translate(context, _getAppBarTitle(session.isIssuanceSession)),
             );
           case SessionStatus.error:
             return _buildErrorScreen(session);
