@@ -6,7 +6,7 @@ import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/log_entry.dart';
 import 'package:irmamobile/src/screens/history/widgets/header.dart';
-import 'package:irmamobile/src/screens/history/widgets/issuing_detail.dart';
+import 'package:irmamobile/src/widgets/issuing_detail.dart';
 import 'package:irmamobile/src/screens/history/widgets/removal_detail.dart';
 import 'package:irmamobile/src/screens/history/widgets/subtitle.dart';
 import 'package:irmamobile/src/theme/theme.dart';
