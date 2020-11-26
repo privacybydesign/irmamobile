@@ -1,6 +1,5 @@
-IRMA is a digital wallet on your own mobile phone, which carries personal information for making yourself known and for digital signing.
+IRMA keeps your personal data safe and gives you control.
 
-You can collect verified information about yourself, such as your name, age and address in the IRMA app and then use this information to log in to websites and to sign documents digitally. When using IRMA, you only reveal minimal information about yourself. To watch a particular movie or play a certain game online, you would, for instance, only prove that you are older than 16, and nothing else.
+The IRMA app manages your personal IRMA cards: you can receive new cards, selectively disclose them to others, and associate them with digital signatures. Examples of tickets are "I am over 18", "my name is ..." and "I have access to ...". These are safely stored on your phone and are protected by your PIN code.
 
-Personal information that you collect in the app is exclusively stored on your phone (rather than also in the cloud). Even the organization behind IRMA cannot see your information.
 IRMA is produced and maintained by the <a href="https://privacybydesign.foundation/irma-en">Privacy by Design Foundation</a> together with <a href="https://sidn.nl/en">SIDN</a>. It is freely available and open source. Find out more at <a href="https://irma.app">irma.app</a>. For the IRMA source code, see <a href="https://github.com/privacybydesign">github.com/privacybydesign</a>.
