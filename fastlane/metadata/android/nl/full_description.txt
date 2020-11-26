@@ -1,0 +1,5 @@
+IRMA geeft jou de controle en houdt je persoonlijke data veilig.
+
+De IRMA app beheert jouw persoonlijke IRMA kaartjes: je kunt nieuwe kaartjes ontvangen, ze selectief vrijgeven aan anderen, en ze verbinden aan digitale handtekeningen. Voorbeelden van kaartjes zijn "ik ben ouder dan 18", "mijn naam is ..." en "ik heb toegang tot ...". Deze staan veilig op jouw telefoon opgeslagen, en worden beschermd door jouw PIN-code.
+
+IRMA wordt gemaakt en onderhouden door de <a href="https://privacybydesign.foundation/irma">Stichting Privacy by Design Foundation</a> in samenwerking met <a href="https://sidn.nl/">SIDN</a>, en is gratis en open-source. Lees meer op <a href="https://irma.app">irma.app</a>. Voor de IRMA broncode, zie <a href="https://github.com/privacybydesign">github.com/privacybydesign</a>.
