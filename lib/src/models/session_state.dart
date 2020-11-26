@@ -57,6 +57,12 @@ class SessionState {
   bool get didIssueInappCredential =>
       issuedCredentials?.any((element) => element.info.fullId == inAppCredential) ?? false;
 
+  bool get isFinished => [
+        SessionStatus.success,
+        SessionStatus.canceled,
+        SessionStatus.error,
+      ].contains(status);
+
   SessionState copyWith({
     bool continueOnSecondDevice,
     SessionStatus status,
@@ -99,7 +105,6 @@ enum SessionStatus {
   uninitialized,
   initialized,
   communicating,
-  connected,
   requestDisclosurePermission,
   requestIssuancePermission,
   requestPin,
