@@ -21,6 +21,10 @@ class _QRViewContainerState extends State<QRViewContainer> {
   @override
   void dispose() {
     _qrViewSubscription?.cancel();
+    // Due to an issue in the qr code scanner library, the camera is not always
+    // disabled properly on iOS. Therefore we pause it manually for now.
+    // https://github.com/juliuscanute/qr_code_scanner/issues/137
+    _qrViewController?.pauseCamera();
     _qrViewController?.dispose();
     super.dispose();
   }
