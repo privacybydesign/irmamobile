@@ -65,7 +65,7 @@ class _SessionScreenState extends State<SessionScreen> {
   SessionStatus _screenStatus = SessionStatus.uninitialized;
   Stream<SessionState> _sessionStateStream;
 
-  bool _displayArrowBack = false;
+  final ValueNotifier<bool> _displayArrowBack = ValueNotifier<bool>(false);
 
   @override
   void initState() {
@@ -219,29 +219,34 @@ class _SessionScreenState extends State<SessionScreen> {
     return _buildLoadingScreen(session.isIssuanceSession);
   }
 
-  Widget _buildErrorScreen(SessionState session) {
-    if (_displayArrowBack) {
-      return ArrowBack();
-    }
-    return SessionErrorScreen(
-        error: session.error,
-        onTapClose: () {
-          if (session.continueOnSecondDevice) {
-            popToWallet(context);
-          } else if (session.clientReturnURL != null && !session.isReturnPhoneNumber) {
-            // canLaunch check is already done in the session repository.
-            launch(session.clientReturnURL, forceSafariVC: false);
-            popToWallet(context);
-          } else {
-            if (Platform.isIOS) {
-              setState(() => _displayArrowBack = true);
-            } else {
-              IrmaRepository.get().bridgedDispatch(AndroidSendToBackgroundEvent());
-              popToWallet(context);
-            }
+  Widget _buildErrorScreen(SessionState session) => ValueListenableBuilder(
+        valueListenable: _displayArrowBack,
+        builder: (BuildContext context, bool displayArrowBack, Widget child) {
+          if (displayArrowBack) {
+            return ArrowBack();
           }
-        });
-  }
+          return child;
+        },
+        child: SessionErrorScreen(
+          error: session.error,
+          onTapClose: () {
+            if (session.continueOnSecondDevice) {
+              popToWallet(context);
+            } else if (session.clientReturnURL != null && !session.isReturnPhoneNumber) {
+              // canLaunch check is already done in the session repository.
+              launch(session.clientReturnURL, forceSafariVC: false);
+              popToWallet(context);
+            } else {
+              if (Platform.isIOS) {
+                _displayArrowBack.value = true;
+              } else {
+                IrmaRepository.get().bridgedDispatch(AndroidSendToBackgroundEvent());
+                popToWallet(context);
+              }
+            }
+          },
+        ),
+      );
 
   Widget _buildLoadingScreen(bool isIssuance) => SessionScaffold(
         body: Column(children: [
