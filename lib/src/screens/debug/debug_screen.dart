@@ -135,7 +135,11 @@ class DemoSessionHelper {
     }
 
     final responseObject = jsonDecode(responseBody) as Map<String, dynamic>;
-    return SessionPointer.fromJson(responseObject["sessionPtr"] as Map<String, dynamic>);
+    final sessionPtr = SessionPointer.fromJson(responseObject["sessionPtr"] as Map<String, dynamic>);
+    // A debug session is not a regular mobile session, because there is no initiating app.
+    // Therefore treat this session like it was started by scanning a QR.
+    sessionPtr.continueOnSecondDevice = true;
+    return sessionPtr;
   }
 }
 
