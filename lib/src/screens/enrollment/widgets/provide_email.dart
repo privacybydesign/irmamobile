@@ -84,6 +84,7 @@ class _ProvideEmailState extends State<ProvideEmail> {
                               TextField(
                                 controller: _textEditingController,
                                 autofocus: true,
+                                autofillHints: const [AutofillHints.email],
                                 focusNode: inputFocusNode,
                                 decoration: InputDecoration(
                                   labelStyle: IrmaTheme.of(context).textTheme.overline,
