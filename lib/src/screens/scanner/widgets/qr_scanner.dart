@@ -7,8 +7,8 @@ import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/screens/scanner/widgets/qr_instruction.dart';
 import 'package:irmamobile/src/screens/scanner/widgets/qr_overlay.dart';
+import 'package:irmamobile/src/screens/scanner/widgets/qr_view_container.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class QRScanner extends StatefulWidget {
   final void Function() onClose;
@@ -25,7 +25,6 @@ class QRScanner extends StatefulWidget {
 }
 
 class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMixin {
-  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   bool found = false;
   bool error = false;
   Timer _errorTimer;
@@ -46,9 +45,8 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
               if (!isLocked.hasData || isLocked.data) {
                 return Container(color: Colors.black);
               }
-              return QRView(
-                key: qrKey,
-                onQRViewCreated: _onQRViewCreated,
+              return QRViewContainer(
+                onFound: (qr) => _foundQR(qr),
               );
             },
           ),
@@ -64,11 +62,7 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
     );
   }
 
-  void _onQRViewCreated(QRViewController controller) {
-    controller.scannedDataStream.listen(foundQR);
-  }
-
-  void foundQR(String qr) {
+  void _foundQR(String qr) {
     // If we already found a correct QR, cancel the current error message
     if (_errorTimer != null && _errorTimer.isActive) {
       _errorTimer.cancel();
