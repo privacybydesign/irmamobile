@@ -62,7 +62,6 @@ class _UnknownSessionScreenState extends State<SessionScreen> {
 class _SessionScreenState extends State<SessionScreen> {
   final IrmaRepository _repo = IrmaRepository.get();
 
-  SessionStatus _screenStatus = SessionStatus.uninitialized;
   Stream<SessionState> _sessionStateStream;
 
   bool _displayArrowBack = false;
@@ -75,9 +74,11 @@ class _SessionScreenState extends State<SessionScreen> {
 
   @override
   void dispose() {
-    if ([SessionStatus.requestDisclosurePermission, SessionStatus.requestIssuancePermission].contains(_screenStatus)) {
-      _dismissSession();
-    }
+    _sessionStateStream.first.then((session) {
+      if (!session.isFinished) {
+        _dismissSession();
+      }
+    });
     super.dispose();
   }
 
@@ -268,7 +269,6 @@ class _SessionScreenState extends State<SessionScreen> {
         }
 
         final session = sessionStateSnapshot.data;
-        _screenStatus = session.status;
 
         switch (session.status) {
           case SessionStatus.requestDisclosurePermission:
