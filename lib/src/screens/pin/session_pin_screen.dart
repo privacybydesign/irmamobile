@@ -110,15 +110,14 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
     if (state == AppLifecycleState.paused) {
       FocusScope.of(_navigatorKey.currentContext).unfocus();
     } else if (state == AppLifecycleState.resumed) {
-      _pinBloc.state.first.then((pinstate) {
-        if (pinstate.pinInvalid || pinstate.authenticateInProgress || pinstate.error != null) return;
-        Future.delayed(const Duration(milliseconds: 100), () {
-          // Screen might have popped during the delay, so check whether currentContext exists first
-          if (_navigatorKey.currentContext != null) {
-            FocusScope.of(_navigatorKey.currentContext).requestFocus(_focusNode);
-          }
-        });
-      }, onError: () {});
+      final pinState = _pinBloc.currentState;
+      if (pinState.pinInvalid || pinState.authenticateInProgress || pinState.error != null) return;
+      Future.delayed(const Duration(milliseconds: 100), () {
+        // Screen might have popped during the delay, so check whether currentContext exists first
+        if (_navigatorKey.currentContext != null) {
+          FocusScope.of(_navigatorKey.currentContext).requestFocus(_focusNode);
+        }
+      });
     }
   }
 
@@ -127,10 +126,10 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
     return WillPopScope(
       onWillPop: () async {
         // Wait on irmago response before closing, calling widget expects a result
-        await _pinBloc.state.firstWhere((state) => !state.authenticateInProgress).then((state) {
-          if (!state.authenticated) _cancel();
-        }, onError: () {});
-        return false;
+        return _pinBloc.state.firstWhere((state) => !state.authenticateInProgress, orElse: () => null).then((state) {
+          if (state != null && !state.authenticated) _cancel();
+          return false;
+        });
       },
       // Wrap component in custom navigator in order to manage the invalid pin popup and the
       // error screen as widget ourselves, such that popping this widget from the root navigator will
