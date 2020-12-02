@@ -37,6 +37,7 @@ class IrmaThemedButton extends StatelessWidget {
     );
 
     return GestureDetector(
+      excludeFromSemantics: true,
       onTapUp: (_) {
         if (onPressed == null && onPressedDisabled != null) {
           onPressedDisabled();
