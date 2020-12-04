@@ -39,6 +39,7 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
 
   final _scrollController = ScrollController();
   final _navigatorKey = GlobalKey();
+  final double _scrollEndGive = 25.0;
 
   @override
   void initState() {
@@ -163,7 +164,7 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
   void _checkScrolledToEnd() {
     if (!_scrolledToEnd &&
         _scrollController.hasClients &&
-        _scrollController.offset >= _scrollController.position.maxScrollExtent) {
+        _scrollController.offset >= _scrollController.position.maxScrollExtent - _scrollEndGive) {
       setState(() {
         _scrolledToEnd = true;
       });
