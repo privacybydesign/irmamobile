@@ -61,7 +61,15 @@ class _CardInfoState extends State<CardInfo> with TickerProviderStateMixin {
                 height: 68,
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
-                  child: logoFile.existsSync() ? Image.file(logoFile) : Image.asset("assets/non-free/irmalogo.png"),
+                  child: logoFile.existsSync()
+                      ? Image.file(
+                          logoFile,
+                          excludeFromSemantics: true,
+                        )
+                      : Image.asset(
+                          "assets/non-free/irmalogo.png",
+                          excludeFromSemantics: true,
+                        ),
                 ),
               ),
             ),

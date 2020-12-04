@@ -51,7 +51,10 @@ class WalletDrawer extends StatelessWidget {
                                 size: const Size(50.0, 32.0),
                                 child: SvgPicture.asset(
                                   'assets/non-free/irma_logo.svg',
-                                  excludeFromSemantics: true,
+                                  semanticsLabel: FlutterI18n.translate(
+                                    context,
+                                    'accessibility.irma_logo',
+                                  ),
                                   fit: BoxFit.scaleDown,
                                   alignment: Alignment.topLeft,
                                 ),
