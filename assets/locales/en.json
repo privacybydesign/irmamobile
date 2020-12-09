@@ -32,6 +32,7 @@
     "choose_pin": {
       "title": "Secure your IRMA app",
       "insert_pin": "Choose a 5-digit PIN",
+      "textfield": "PIN",
       "confirm_title": "Repeat your PIN",
       "instruction": "Choose a 5-digit PIN",
       "confirm_instruction": "Enter your PIN again",
@@ -43,6 +44,7 @@
     "provide_email": {
       "title": "Secure your IRMA app",
       "instruction": "An email address allows you to disable your IRMA app when your mobile has been lost or stolen.",
+      "textfield": "Email address",
       "skip": "Skip",
       "next": "Next",
       "error": "This is not a valid email address",
