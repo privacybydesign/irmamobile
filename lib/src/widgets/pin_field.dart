@@ -143,7 +143,11 @@ class _PinFieldState extends State<PinField> {
   // Hide the form field with transparancy for short PINs
   InputDecoration _formFieldDecoration() {
     if (widget.longPin) {
-      return const InputDecoration();
+      return InputDecoration(
+        hintText: FlutterI18n.translate(context, 'enrollment.choose_pin.textfield'),
+        // make hintText invisible so it is only available for screenreaders
+        hintStyle: const TextStyle(color: Colors.transparent),
+      );
     }
 
     const transparentBorder = OutlineInputBorder(
@@ -161,6 +165,9 @@ class _PinFieldState extends State<PinField> {
       focusedBorder: transparentBorder,
       counterText: null,
       counterStyle: null,
+      hintText: FlutterI18n.translate(context, 'enrollment.choose_pin.textfield'),
+      // make hintText invisible so it is only available for screenreaders
+      hintStyle: const TextStyle(height: 0.0, color: Colors.transparent),
       helperStyle: const TextStyle(
         height: 0.0,
         color: Colors.transparent,
@@ -265,34 +272,40 @@ class _PinFieldState extends State<PinField> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            AnimatedContainer(
-              duration: Duration(milliseconds: widget.longPin ? 200 : 0),
-              width: widget.longPin ? MediaQuery.of(context).size.width - 2 * theme.hugeSpacing : 0.1,
-              child: TextField(
-                controller: _textEditingController,
-                enabled: widget.enabled,
-                focusNode: focusNode,
-                onEditingComplete: _onEditingCompleteOrSubmit,
-                autofocus: widget.autofocus,
-                obscureText: obscureText,
-                cursorColor: Colors.transparent,
-                maxLength: widget.maxLength,
-                enableInteractiveSelection: false,
+            MergeSemantics(
+              child: Row(
+                children: [
+                  AnimatedContainer(
+                    duration: Duration(milliseconds: widget.longPin ? 200 : 0),
+                    width: widget.longPin ? MediaQuery.of(context).size.width - 2 * theme.hugeSpacing : 0.1,
+                    child: TextField(
+                      controller: _textEditingController,
+                      enabled: widget.enabled,
+                      focusNode: focusNode,
+                      onEditingComplete: _onEditingCompleteOrSubmit,
+                      autofocus: widget.autofocus,
+                      obscureText: obscureText,
+                      cursorColor: Colors.transparent,
+                      maxLength: widget.maxLength,
+                      enableInteractiveSelection: false,
 
-                // Only allow numeric input, without signs or decimal points
-                keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
-                inputFormatters: [
-                  WhitelistingTextInputFormatter(RegExp('[0-9]')),
+                      // Only allow numeric input, without signs or decimal points
+                      keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
+                      inputFormatters: [
+                        WhitelistingTextInputFormatter(RegExp('[0-9]')),
+                      ],
+
+                      // Set the style (dependent on if the input is for long PINs)
+                      style: _formFieldStyle(),
+                      decoration: _formFieldDecoration(),
+                    ),
+                  ),
+                  if (!widget.longPin) ...[
+                    _buildPinBoxes(),
+                  ],
                 ],
-
-                // Set the style (dependent on if the input is for long PINs)
-                style: _formFieldStyle(),
-                decoration: _formFieldDecoration(),
               ),
             ),
-            if (!widget.longPin) ...[
-              _buildPinBoxes(),
-            ],
             SizedBox(
               width: theme.largeSpacing,
               height: theme.largeSpacing,

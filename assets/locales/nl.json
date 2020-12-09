@@ -32,6 +32,7 @@
     "choose_pin": {
       "title": "Beveiliging instellen",
       "insert_pin": "Kies een pincode van 5 cijfers",
+      "textfield": "Pincode",
       "confirm_title": "Herhaal je pincode",
       "instruction": "Kies een pincode van 5 cijfers",
       "confirm_instruction": "Vul je pincode nog een keer in",
@@ -43,6 +44,7 @@
     "provide_email": {
       "title": "Beveiliging instellen",
       "instruction": "Met een e-mailadres kun je je IRMA-app blokkeren bij verlies of diefstal van je mobiel.",
+      "textfield": "E-mailadres",
       "skip": "Overslaan",
       "next": "Volgende",
       "error": "Dit is geen geldig e-mailadres",

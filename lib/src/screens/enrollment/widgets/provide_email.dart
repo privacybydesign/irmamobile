@@ -87,6 +87,9 @@ class _ProvideEmailState extends State<ProvideEmail> {
                                 autofillHints: const [AutofillHints.email],
                                 focusNode: inputFocusNode,
                                 decoration: InputDecoration(
+                                  hintText: FlutterI18n.translate(context, 'enrollment.provide_email.textfield'),
+                                  // make hintText invisible so it is only available for screenreaders
+                                  hintStyle: TextStyle(color: Colors.transparent),
                                   labelStyle: IrmaTheme.of(context).textTheme.overline,
                                   errorText: error,
                                 ),
