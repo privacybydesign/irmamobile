@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/heading.dart';
 
 class IrmaDialog extends StatelessWidget {
   final String title;
@@ -61,7 +60,7 @@ class IrmaDialog extends StatelessWidget {
                                   Semantics(
                                     namesRoute: false, // Explicitly false, true would cause double read
                                     label: FlutterI18n.translate(context, "accessibility.alert"),
-                                    child: Heading(
+                                    child: Text(
                                       title,
                                       style: IrmaTheme.of(context).textTheme.headline3,
                                     ),
