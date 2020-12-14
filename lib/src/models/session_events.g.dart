@@ -198,6 +198,18 @@ Map<String, dynamic> _$RequestPinSessionEventToJson(RequestPinSessionEvent insta
       'RemainingAttempts': instance.remainingAttempts,
     };
 
+PairingRequiredSessionEvent _$PairingRequiredSessionEventFromJson(Map<String, dynamic> json) {
+  return PairingRequiredSessionEvent(
+    sessionID: json['SessionID'] as int,
+    pairingCode: json['PairingCode'] as String,
+  );
+}
+
+Map<String, dynamic> _$PairingRequiredSessionEventToJson(PairingRequiredSessionEvent instance) => <String, dynamic>{
+      'SessionID': instance.sessionID,
+      'PairingCode': instance.pairingCode,
+    };
+
 KeyshareEnrollmentMissingSessionEvent _$KeyshareEnrollmentMissingSessionEventFromJson(Map<String, dynamic> json) {
   return KeyshareEnrollmentMissingSessionEvent(
     sessionID: json['SessionID'] as int,

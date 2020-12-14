@@ -1,13 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/screens/error/session_expired.dart';
+import 'package:irmamobile/src/screens/error/custom_error.dart';
+import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
+import 'package:irmamobile/src/widgets/translated_text.dart';
 
-class SessionExpiredScreen extends StatelessWidget {
+enum CustomErrorType {
+  expired,
+  pairingRejected,
+}
+
+class CustomErrorScreen extends StatelessWidget {
+  static const _translationKeys = {
+    CustomErrorType.expired: "error.types.expired",
+    CustomErrorType.pairingRejected: "error.types.pairing_rejected",
+  };
+
   final VoidCallback onTapClose;
+  final CustomErrorType errorType;
 
-  const SessionExpiredScreen({@required this.onTapClose});
+  const CustomErrorScreen({@required this.onTapClose, @required this.errorType});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +39,12 @@ class SessionExpiredScreen extends StatelessWidget {
           ),
           leadingAction: onTapClose,
         ),
-        body: SessionExpired(),
+        body: CustomError(
+          errorText: TranslatedText(
+            _translationKeys[errorType],
+            style: IrmaTheme.of(context).textTheme.bodyText2,
+          ),
+        ),
         bottomNavigationBar: IrmaBottomBar(
           primaryButtonLabel: FlutterI18n.translate(context, 'error.button_back'),
           onPrimaryPressed: onTapClose,

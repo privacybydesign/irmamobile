@@ -19,6 +19,7 @@ class SessionState {
   final SessionError error;
   final String inAppCredential;
   final String sessionType;
+  final String pairingCode;
 
   SessionState({
     this.sessionID,
@@ -37,6 +38,7 @@ class SessionState {
     this.error,
     this.inAppCredential,
     this.sessionType,
+    this.pairingCode,
   });
 
   bool get canDisclose =>
@@ -79,6 +81,7 @@ class SessionState {
     SessionError error,
     String inAppCredential,
     String sessionType,
+    String pairingCode,
   }) {
     return SessionState(
       sessionID: sessionID,
@@ -97,6 +100,7 @@ class SessionState {
       error: error ?? this.error,
       inAppCredential: inAppCredential ?? this.inAppCredential,
       sessionType: sessionType ?? this.sessionType,
+      pairingCode: pairingCode ?? this.pairingCode,
     );
   }
 }
@@ -105,6 +109,7 @@ enum SessionStatus {
   uninitialized,
   initialized,
   communicating,
+  pairing,
   requestDisclosurePermission,
   requestIssuancePermission,
   requestPin,

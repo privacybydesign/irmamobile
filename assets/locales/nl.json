@@ -344,6 +344,7 @@
       "general": "Er is iets misgegaan.\n\nAls het fout blijft gaan, laat het dan weten aan het technische team van IRMA.",
       "blocked": "Je IRMA-app is op afstand geblokeerd.\n\nDit is omdat dit via MijnIRMA voor jouw app is gedaan, of omdat je langer dan een jaar geen gebruik hebt gemaakt van IRMA op dit apparaat. Als je op dit apparaat IRMA wilt blijven gebruiken moet je opnieuw beginnen.",
       "expired": "De sessie is verlopen. Start alstublieft opnieuw.",
+      "pairing_rejected": "De sessie is geweigerd. Start alstublieft opnieuw.",
       "no_internet": "Er is iets misgegaan. Er kan geen verbinding gemaakt worden met de IRMA-server.\n\nControleer je internetverbinding. IRMA werkt niet zonder internet."
     }
   },
@@ -419,7 +420,14 @@
     "navigation_bar": {
       "yes": "Ja",
       "no": "Nee",
-      "back": "Terug"
+      "back": "Terug",
+      "cancel": "Annuleer"
+    },
+    "pairing": {
+      "title": "Extra controle",
+      "explanation": "Vul onderstaande code in op het scherm van de website.",
+      "message_title": "Koppelcode",
+      "message_body": "Voor je veiligheid vragen we je een koppelcode in te vullen op het scherm waar je bezig was."
     },
     "unknown_session_type": {
       "title": "Afgebroken",

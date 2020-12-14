@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/translated_text.dart';
 
-class SessionExpired extends StatelessWidget {
+class CustomError extends StatelessWidget {
+  final TranslatedText errorText;
+
+  const CustomError({this.errorText});
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -22,11 +26,7 @@ class SessionExpired extends StatelessWidget {
         Expanded(
           child: Padding(
             padding: EdgeInsets.all(IrmaTheme.of(context).mediumSpacing),
-            child: SingleChildScrollView(
-                child: Text(
-              FlutterI18n.translate(context, "error.types.expired"),
-              style: IrmaTheme.of(context).textTheme.body1,
-            )),
+            child: SingleChildScrollView(child: errorText),
           ),
         ),
       ],

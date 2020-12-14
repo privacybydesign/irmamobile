@@ -82,6 +82,11 @@ class SessionRepository {
         clientReturnURL:
             await _isValidClientReturnUrl(event.clientReturnURL) ? event.clientReturnURL : prevState.clientReturnURL,
       );
+    } else if (event is PairingRequiredSessionEvent) {
+      return prevState.copyWith(
+        status: SessionStatus.pairing,
+        pairingCode: event.pairingCode,
+      );
     } else if (event is RequestIssuancePermissionSessionEvent) {
       final condiscon = _processCandidates(event.disclosuresCandidates, prevState, irmaConfiguration, credentials);
       // All discons must have an option to choose from. Otherwise the session can never be finished.

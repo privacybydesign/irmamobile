@@ -16,7 +16,3 @@ require (
 	go.etcd.io/bbolt v1.3.3 // indirect
 	golang.org/x/xerrors v0.0.0-20191011141410-1b5146add898 // indirect
 )
-
-replace github.com/spf13/pflag => github.com/sietseringers/pflag v1.0.4-0.20190111213756-a45bfec10d59
-
-replace github.com/spf13/viper => github.com/sietseringers/viper v1.0.1-0.20200205174444-d996804203c7
