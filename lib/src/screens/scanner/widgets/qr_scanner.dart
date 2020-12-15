@@ -30,6 +30,14 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
   Timer _errorTimer;
 
   @override
+  void dispose() {
+    if (_errorTimer?.isActive ?? false) {
+      _errorTimer.cancel();
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Stack(
