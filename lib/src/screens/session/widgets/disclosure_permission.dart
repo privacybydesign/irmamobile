@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -216,12 +218,18 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
   Widget _buildNavigationBar() {
     final showTooltip = _showTooltip && !_scrolledToEnd;
     return IrmaBottomBar(
-      primaryButtonLabel: FlutterI18n.translate(context, 'session.navigation_bar.yes'),
-      onPrimaryPressed: widget.session.canDisclose && _scrolledToEnd ? () => widget.onGivePermission() : null,
+      primaryButtonLabel: _scrolledToEnd
+          ? FlutterI18n.translate(context, 'session.navigation_bar.yes')
+          : FlutterI18n.translate(context, 'session.navigation_bar.more'),
+      onPrimaryPressed: _scrolledToEnd
+          ? (widget.session.canDisclose ? () => widget.onGivePermission() : null)
+          : () {
+              final target = _scrollController.offset +
+                  min(_scrollController.position.extentInside / 2.0, _scrollController.position.extentAfter);
+              _scrollController.animateTo(target, curve: Curves.easeInOut, duration: const Duration(milliseconds: 400));
+            },
       secondaryButtonLabel: FlutterI18n.translate(context, 'session.navigation_bar.no'),
       onSecondaryPressed: () => widget.onDismiss(),
-      toolTipLabel: showTooltip ? FlutterI18n.translate(context, 'disclosure.see_more') : null,
-      showTooltipOnPrimary: showTooltip,
     );
   }
 

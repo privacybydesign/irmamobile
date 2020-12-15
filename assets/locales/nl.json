@@ -414,6 +414,7 @@
   },
   "session": {
     "navigation_bar": {
+      "more": "More",
       "yes": "Ja",
       "no": "Nee, liever niet",
       "back": "Terug"
@@ -451,7 +452,6 @@
       "dismiss-remember": "Niet meer tonen"
     },
     "redirect": "Je wordt teruggeleid naar de webpagina...",
-    "see_more": "Scroll naar beneden om de rest te zien.",
     "feedback": {
       "header": {
         "success": "Gelukt",
