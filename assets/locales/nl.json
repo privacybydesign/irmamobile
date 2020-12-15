@@ -415,7 +415,7 @@
   "session": {
     "navigation_bar": {
       "yes": "Ja",
-      "no": "Nee, liever niet",
+      "no": "Nee",
       "back": "Terug"
     },
     "unknown_session_type": {

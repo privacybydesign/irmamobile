@@ -414,7 +414,7 @@
   "session": {
     "navigation_bar": {
       "yes": "Yes",
-      "no": "No, rather not",
+      "no": "No",
       "back": "Back"
     },
     "unknown_session_type": {
