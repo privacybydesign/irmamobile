@@ -103,7 +103,10 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
     });
 
     Future.delayed(const Duration(milliseconds: 500), () {
-      widget.onFound(sessionPointer);
+      // Widget might have disposed during the timeout, so check for this first.
+      if (mounted) {
+        widget.onFound(sessionPointer);
+      }
     });
   }
 }
