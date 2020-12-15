@@ -427,7 +427,7 @@
       "title": "Extra controle",
       "explanation": "Vul onderstaande code in op het scherm van de website.",
       "message_title": "Koppelcode",
-      "message_body": "Voor je veiligheid vragen we je een koppelcode in te vullen op het scherm waar je bezig was."
+      "message_body_markdown": "Een koppelcode zorgt ervoor dat de volgende stappen alleen in *jouw* IRMA-app gedaan kunnen worden."
     },
     "unknown_session_type": {
       "title": "Afgebroken",

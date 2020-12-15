@@ -426,7 +426,7 @@
       "title": "Extra security check",
       "explanation": "Please enter the code below on the screen of the website.",
       "message_title": "Pairing code",
-      "message_body": "For your own safety we ask you to enter a pairing code on the screen of your other device."
+      "message_body_markdown": "A pairing code makes sure that the following steps can only be done in *your* IRMA app."
     },
     "unknown_session_type": {
       "title": "Cancelled",
