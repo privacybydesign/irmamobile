@@ -11,6 +11,7 @@ import 'package:irmamobile/src/models/credential_events.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/screens/debug/portrait_photo_mock.dart';
+import 'package:irmamobile/src/screens/issuewizard/issuewizard.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
@@ -200,10 +201,7 @@ class DebugScreen extends StatelessWidget {
           ),
           IconButton(
             icon: Icon(Icons.exposure_plus_2),
-            onPressed: () => _getCards(
-              context,
-              DemoSessionHelper.randomIssuanceRequest(irmaConfigurationFuture, 2),
-            ),
+            onPressed: () => Navigator.pushNamed(context, IssueWizardScreen.routeName),
           ),
           IconButton(
             icon: Icon(Icons.delete),
