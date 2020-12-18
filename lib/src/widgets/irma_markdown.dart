@@ -27,6 +27,7 @@ class IrmaMarkdown extends StatelessWidget {
       styleSheet: MarkdownStyleSheet(
         strong: IrmaTheme.of(context).textTheme.body2,
         a: IrmaTheme.of(context).hyperlinkTextStyle,
+        textScaleFactor: MediaQuery.textScaleFactorOf(context),
       ).merge(styleSheet),
 
       // View links in in-app browser

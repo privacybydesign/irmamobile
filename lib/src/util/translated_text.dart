@@ -27,9 +27,6 @@ class TranslatedText extends StatelessWidget {
       translation,
       styleSheet: MarkdownStyleSheet(
         p: style,
-        textScaleFactor: MediaQuery.textScaleFactorOf(
-          context,
-        ),
       ),
     );
   }
