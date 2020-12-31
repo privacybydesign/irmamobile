@@ -130,6 +130,9 @@ func typename(typ reflect.Type) string {
 }
 
 func detitle(s string) string {
+	if s == strings.ToUpper(s) {
+		return strings.ToLower(s)
+	}
 	return strings.ToLower(s[0:1]) + s[1:]
 }
 
