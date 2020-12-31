@@ -56,8 +56,17 @@ func members(t reflect.Type) string {
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
 
+		name := field.Name
+		if tag := field.Tag.Get("json"); tag != "" {
+			if index := strings.Index(tag, ","); index != -1 {
+				name = tag[:index]
+			} else {
+				name = tag
+			}
+		}
+
 		b.WriteString("  ")
-		b.WriteString("@JsonKey(name: '" + field.Name + "')")
+		b.WriteString("@JsonKey(name: '" + name + "')")
 		b.WriteString("\n")
 
 		if field.Type.Kind() == reflect.Struct && field.Anonymous {
