@@ -33,7 +33,7 @@ func structToDart(x interface{}) string {
 	if t.Kind() != reflect.Struct {
 		panic("only structs supported")
 	}
-	return fmt.Sprintf("class %s {\n  %s\n%s\n%s}\n", strings.Title(t.Name()), memberInitializer(t), members(t), jsonGenerator(t))
+	return fmt.Sprintf("@JsonSerializable()\nclass %s {\n  %s\n%s\n%s}\n", strings.Title(t.Name()), memberInitializer(t), members(t), jsonGenerator(t))
 }
 
 func memberInitializer(t reflect.Type) string {
@@ -47,7 +47,7 @@ func memberInitializer(t reflect.Type) string {
 			b.WriteString(", ")
 		}
 	}
-	b.WriteString("})\n")
+	b.WriteString("});\n")
 	return b.String()
 }
 
@@ -64,7 +64,7 @@ func members(t reflect.Type) string {
 			// if the field is anonymous, embed its fields
 			b.WriteString(members(field.Type))
 		} else {
-			b.WriteString("  ")
+			b.WriteString("  final ")
 			b.WriteString(member(field))
 			b.WriteString("\n")
 
