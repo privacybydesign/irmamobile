@@ -286,8 +286,14 @@ github.com/privacybydesign/irmago v0.5.1-0.20201016100546-c79b1aab3c55 h1:pPryIl
 github.com/privacybydesign/irmago v0.5.1-0.20201016100546-c79b1aab3c55/go.mod h1:S5eKWg1bk0y8x3UBzDPqUNx3wweU/V6RG1JzK742kAc=
 github.com/privacybydesign/irmago v0.6.0 h1:DbaJWtSEVsULKnZaADusSTLdjODSBouQzWC2Lj9Y9lU=
 github.com/privacybydesign/irmago v0.6.0/go.mod h1:S5eKWg1bk0y8x3UBzDPqUNx3wweU/V6RG1JzK742kAc=
+github.com/privacybydesign/irmago v0.6.1-0.20201119111152-0e98cba98bca h1:JFc4WlDd02/1zmZpD2EIpdtlpnwwU7ibpvDF0D7lDM4=
+github.com/privacybydesign/irmago v0.6.1-0.20201119111152-0e98cba98bca/go.mod h1:S5eKWg1bk0y8x3UBzDPqUNx3wweU/V6RG1JzK742kAc=
 github.com/privacybydesign/irmago v0.6.1-0.20201125175402-f7d6101f8dbd h1:cMk6RGZ2jhe23m6QsBPyCKXFh5uOQyVtVctFKBZ3+NU=
 github.com/privacybydesign/irmago v0.6.1-0.20201125175402-f7d6101f8dbd/go.mod h1:S5eKWg1bk0y8x3UBzDPqUNx3wweU/V6RG1JzK742kAc=
+github.com/privacybydesign/irmago v0.6.1-0.20210111122809-86b363df3bb0 h1:J+6Z1gE3qW03qU6PdAj31gnADEwyf8wjknDw1M90jjM=
+github.com/privacybydesign/irmago v0.6.1-0.20210111122809-86b363df3bb0/go.mod h1:S5eKWg1bk0y8x3UBzDPqUNx3wweU/V6RG1JzK742kAc=
+github.com/privacybydesign/irmago v0.6.1-0.20210111123110-52524f5b9f7b h1:jKuGJrKYwo5cKAJtUF1HV1Ce9PqMw6EfmVV7trsxB4Y=
+github.com/privacybydesign/irmago v0.6.1-0.20210111123110-52524f5b9f7b/go.mod h1:S5eKWg1bk0y8x3UBzDPqUNx3wweU/V6RG1JzK742kAc=
 github.com/prometheus/client_golang v0.9.1/go.mod h1:7SWBe2y4D6OKWSNQJUaRYU/AaXPKyh/dDVn+NZz0KFw=
 github.com/prometheus/client_golang v0.9.3/go.mod h1:/TN21ttK/J9q6uSwhBd54HahCDft0ttaMvbicHlPoso=
 github.com/prometheus/client_model v0.0.0-20180712105110-5c3871d89910/go.mod h1:MbSGuTsp3dbXC40dX6PRTWyKYBIrTGTE9sqQNg2J8bo=
