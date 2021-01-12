@@ -64,11 +64,11 @@ attaching data to signed statements. These data can be relevant properties, such
 * Create the irmagobridge: `./bind_go.sh`.
 
 * Start an emulator or connect a device via USB and run the flutter project: `flutter run`. You can
-  also use Android Studio or Visual Studio Code for this step. Sometimes the build flavor
+  also use Android Studio or Visual Studio Code for this step. On Android, sometimes the build flavor
   is not picked up automatically. This can be identified when the flutter tool cannot
   find the generated apk after building. In this case run `flutter run --flavor alpha`.
-  In case you run the flutter project via Android Studio or Visual Studio Code, you
-  can specify the build flavor in the run configuration.
+  In case you run the flutter project via Android Studio, you
+  can specify the build flavor in the run configuration. On iOS, no custom flavor should be specified.
 
 * You can use `flutter run -t` to run different app configurations, for example run `flutter run -t lib/main_prototypes.dart` to start the app in the prototypes menu.
 
