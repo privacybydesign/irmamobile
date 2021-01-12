@@ -309,18 +309,23 @@ class _PinFieldState extends State<PinField> {
             SizedBox(
               width: theme.largeSpacing,
               height: theme.largeSpacing,
-              child: IconButton(
-                iconSize: theme.defaultSpacing,
-                icon: Icon(
-                  obscureText ? IrmaIcons.view : IrmaIcons.hide,
-                  semanticLabel: FlutterI18n.translate(context, obscureText ? "pin_common.view" : "pin_common.hide"),
-                  color: theme.grayscale40,
+              child: Semantics(
+                label: FlutterI18n.translate(context, "pin_common.view"),
+                checked: !obscureText,
+                container: true,
+                excludeSemantics: true,
+                child: IconButton(
+                  iconSize: theme.defaultSpacing,
+                  icon: Icon(
+                    obscureText ? IrmaIcons.view : IrmaIcons.hide,
+                    color: theme.grayscale40,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      obscureText = !obscureText;
+                    });
+                  },
                 ),
-                onPressed: () {
-                  setState(() {
-                    obscureText = !obscureText;
-                  });
-                },
               ),
             ),
           ],
