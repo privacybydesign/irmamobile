@@ -9,6 +9,7 @@ import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/heading.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
+import 'package:irmamobile/src/widgets/link.dart';
 
 class Introduction extends StatefulWidget {
   static const String routeName = 'introduction';
@@ -141,7 +142,8 @@ class Walkthrough extends StatelessWidget {
                     padding: EdgeInsets.only(top: IrmaTheme.of(context).defaultSpacing),
                     alignment: Alignment.center,
                     constraints: const BoxConstraints(maxWidth: 288.0),
-                    child: GestureDetector(
+                    child: Link(
+                      label: FlutterI18n.translate(context, linkText),
                       onTap: () {
                         try {
                           IrmaRepository.get().openURL(context, FlutterI18n.translate(context, linkUrl));
@@ -150,15 +152,6 @@ class Walkthrough extends StatelessWidget {
                               stacktrace); //TODO: reconsider whether this should be handled this way, or is better of with an error screens
                         }
                       },
-                      child: Center(
-                        child: Text(
-                          FlutterI18n.translate(context, linkText),
-                          textAlign: TextAlign.center,
-                          style: IrmaTheme.of(context).hyperlinkTextStyle.copyWith(
-                                decoration: TextDecoration.underline,
-                              ),
-                        ),
-                      ),
                     ),
                   ),
               ],

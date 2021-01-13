@@ -12,6 +12,7 @@ import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_state.dart';
 import 'package:irmamobile/src/screens/reset_pin/reset_pin_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/link.dart';
 import 'package:irmamobile/src/widgets/pin_common/format_blocked_for.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_attempts.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_blocked.dart';
@@ -174,15 +175,12 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                       SizedBox(
                         height: IrmaTheme.of(context).defaultSpacing,
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).pushNamed(ResetPinScreen.routeName);
-                        },
-                        child: Text(
-                          FlutterI18n.translate(context, "pin.button_forgot"),
-                          style: IrmaTheme.of(context).hyperlinkTextStyle.copyWith(
-                                decoration: TextDecoration.underline,
-                              ),
+                      Center(
+                        child: Link(
+                          onTap: () {
+                            Navigator.of(context).pushNamed(ResetPinScreen.routeName);
+                          },
+                          label: FlutterI18n.translate(context, "pin.button_forgot"),
                         ),
                       ),
                       if (state.authenticateInProgress)

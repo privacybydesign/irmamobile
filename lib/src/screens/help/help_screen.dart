@@ -10,6 +10,7 @@ import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
+import 'package:irmamobile/src/widgets/link.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'demo_items.dart';
@@ -120,22 +121,17 @@ class _HelpScreenState extends State<HelpScreen> {
                       parentScrollController: _controller,
                     ),
                     SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-                    GestureDetector(
-                      onTap: () {
-                        try {
-                          IrmaRepository.get().openURL(context, FlutterI18n.translate(context, 'help.more_link'));
-                        } on PlatformException catch (e, stacktrace) {
-                          //TODO: consider if we want an error screen here
-                          reportError(e, stacktrace);
-                        }
-                      },
-                      child: Center(
-                        child: Text(
-                          FlutterI18n.translate(context, 'help.more'),
-                          style: IrmaTheme.of(context).hyperlinkTextStyle.copyWith(
-                                decoration: TextDecoration.underline,
-                              ),
-                        ),
+                    Center(
+                      child: Link(
+                        label: FlutterI18n.translate(context, 'help.more'),
+                        onTap: () {
+                          try {
+                            IrmaRepository.get().openURL(context, FlutterI18n.translate(context, 'help.more_link'));
+                          } on PlatformException catch (e, stacktrace) {
+                            //TODO: consider if we want an error screen here
+                            reportError(e, stacktrace);
+                          }
+                        },
                       ),
                     ),
                     SizedBox(height: IrmaTheme.of(context).largeSpacing),
@@ -157,40 +153,35 @@ class _HelpScreenState extends State<HelpScreen> {
                             style: Theme.of(context).textTheme.body1,
                           ),
                           SizedBox(height: IrmaTheme.of(context).smallSpacing),
-                          GestureDetector(
-                            onTap: () async {
-                              final String address = FlutterI18n.translate(context, 'help.contact');
-                              final String subject =
-                                  Uri.encodeComponent(FlutterI18n.translate(context, 'help.mail_subject'));
-                              final mail = 'mailto:$address?subject=$subject';
-                              if (await canLaunch(mail)) {
-                                await launch(mail);
-                              } else {
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return IrmaDialog(
-                                      title: FlutterI18n.translate(context, 'help.mail_error_title'),
-                                      content: FlutterI18n.translate(context, 'help.mail_error'),
-                                      child: IrmaButton(
-                                        size: IrmaButtonSize.small,
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        label: FlutterI18n.translate(context, 'help.mail_error_button'),
-                                      ),
-                                    );
-                                  },
-                                );
-                              }
-                            },
-                            child: Center(
-                              child: Text(
-                                FlutterI18n.translate(context, 'help.email'),
-                                style: IrmaTheme.of(context).hyperlinkTextStyle.copyWith(
-                                      decoration: TextDecoration.underline,
-                                    ),
-                              ),
+                          Center(
+                            child: Link(
+                              onTap: () async {
+                                final String address = FlutterI18n.translate(context, 'help.contact');
+                                final String subject =
+                                    Uri.encodeComponent(FlutterI18n.translate(context, 'help.mail_subject'));
+                                final mail = 'mailto:$address?subject=$subject';
+                                if (await canLaunch(mail)) {
+                                  await launch(mail);
+                                } else {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return IrmaDialog(
+                                        title: FlutterI18n.translate(context, 'help.mail_error_title'),
+                                        content: FlutterI18n.translate(context, 'help.mail_error'),
+                                        child: IrmaButton(
+                                          size: IrmaButtonSize.small,
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          label: FlutterI18n.translate(context, 'help.mail_error_button'),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                }
+                              },
+                              label: FlutterI18n.translate(context, 'help.email'),
                             ),
                           ),
                           SizedBox(height: IrmaTheme.of(context).defaultSpacing),
