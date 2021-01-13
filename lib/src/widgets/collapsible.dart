@@ -1,11 +1,13 @@
-import 'dart:io' show Platform;
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/configurable_expansion_tile.dart';
 
-class Collapsible extends StatelessWidget {
+class Collapsible extends StatefulWidget {
   final String header;
   final Widget content;
 
@@ -13,22 +15,43 @@ class Collapsible extends StatelessWidget {
   final ValueChanged<bool> onExpansionChanged;
 
   @override
+  _CollapsibleState createState() => _CollapsibleState();
+}
+
+class _CollapsibleState extends State<Collapsible> {
+  bool _isExpanded = false;
+
+  void onExpansionChanged(bool expansionState) {
+    setState(() {
+      _isExpanded = expansionState;
+    });
+    if (Platform.isAndroid) {
+      SemanticsService.announce(
+          _isExpanded
+              ? FlutterI18n.translate(context, 'accessibility.expanded')
+              : FlutterI18n.translate(context, 'accessibility.collapsed'),
+          Directionality.of(context));
+    }
+    widget.onExpansionChanged(expansionState);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Semantics(
-      container: Platform.isAndroid
-          ? false // false works well for Android TalkBack
-          : true, // and true works well for iOS VoiceOver
-      child: ConfigurableExpansionTile(
-        onExpansionChanged: onExpansionChanged,
-        initiallyExpanded: false,
-        animatedWidgetFollowingHeader: const Padding(
-          padding: EdgeInsets.all(4.0),
-          child: Icon(
-            Icons.expand_more,
-            color: Colors.black,
-          ),
+    return ConfigurableExpansionTile(
+      onExpansionChanged: onExpansionChanged,
+      initiallyExpanded: false,
+      animatedWidgetFollowingHeader: const Padding(
+        padding: EdgeInsets.all(4.0),
+        child: Icon(
+          Icons.expand_more,
+          color: Colors.black,
         ),
-        header: Expanded(
+      ),
+      header: Expanded(
+        child: Semantics(
+          label: _isExpanded
+              ? FlutterI18n.translate(context, 'accessibility.expanded')
+              : FlutterI18n.translate(context, 'accessibility.collapsed'),
           child: Padding(
             padding: EdgeInsets.only(
                 top: IrmaTheme.of(context).tinySpacing * 3,
@@ -36,25 +59,21 @@ class Collapsible extends StatelessWidget {
                 left: IrmaTheme.of(context).defaultSpacing,
                 right: IrmaTheme.of(context).defaultSpacing),
             child: Text(
-              header,
+              widget.header,
               style: IrmaTheme.of(context).textTheme.display2,
             ),
           ),
         ),
-        headerBackgroundColorStart: IrmaTheme.of(context).backgroundBlue,
-        expandedBackgroundColor: Colors.transparent,
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsets.symmetric(
-                vertical: IrmaTheme.of(context).smallSpacing, horizontal: IrmaTheme.of(context).defaultSpacing),
-            child: Platform.isAndroid
-                ? Semantics(
-                    focused: true, // this works well for Android TalkBack
-                    child: content)
-                : content, // without Semantics works well for iOS VoiceOver
-          ),
-        ],
       ),
+      headerBackgroundColorStart: IrmaTheme.of(context).backgroundBlue,
+      expandedBackgroundColor: Colors.transparent,
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.symmetric(
+              vertical: IrmaTheme.of(context).smallSpacing, horizontal: IrmaTheme.of(context).defaultSpacing),
+          child: widget.content,
+        ),
+      ],
     );
   }
 }
