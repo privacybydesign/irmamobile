@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
@@ -58,7 +60,7 @@ class IrmaDialog extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
                                   Semantics(
-                                    namesRoute: false, // Explicitly false, true would cause double read
+                                    namesRoute: !Platform.isIOS, // Set to false on iOS to prevent double read
                                     label: FlutterI18n.translate(context, "accessibility.alert"),
                                     child: Text(
                                       title,
