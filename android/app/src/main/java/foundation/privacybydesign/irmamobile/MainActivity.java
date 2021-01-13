@@ -35,8 +35,9 @@ public class MainActivity extends FlutterActivity {
 
     // Initialize the Go binding here by calling a seemingly noop function
     Irmagobridge.prestart();
+    
     // Capture initial url only during onCreate, for use during first engine instantiation
-    Uri initialURL = getIntent().getData();
+    this.initialURL = getIntent().getData();
 
     // Hand of to parent
     super.onCreate(savedInstanceState);
