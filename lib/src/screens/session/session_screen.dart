@@ -17,6 +17,7 @@ import 'package:irmamobile/src/screens/session/widgets/disclosure_feedback_scree
 import 'package:irmamobile/src/screens/session/widgets/disclosure_permission.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_permission.dart';
 import 'package:irmamobile/src/screens/session/widgets/session_scaffold.dart';
+import 'package:irmamobile/src/util/combine.dart';
 import 'package:irmamobile/src/util/translated_text.dart';
 import 'package:irmamobile/src/widgets/action_feedback.dart';
 import 'package:irmamobile/src/widgets/loading_indicator.dart';
@@ -266,14 +267,21 @@ class _SessionScreenState extends State<SessionScreen> {
       // should be handled by stateful child widgets of this screen. We make an exception for the
       // requestDisclosurePermission status such that the disclosure candidates are being refreshed in
       // an issuance-in-disclosure session.
-      stream: _sessionStateStream.distinct(
-          (prev, curr) => prev.status == curr.status && curr.status != SessionStatus.requestDisclosurePermission),
-      builder: (BuildContext context, AsyncSnapshot<SessionState> sessionStateSnapshot) {
-        if (!sessionStateSnapshot.hasData) {
+      stream: combine2(
+        _repo.getLocked(),
+        _sessionStateStream.distinct(
+            (prev, curr) => prev.status == curr.status && curr.status != SessionStatus.requestDisclosurePermission),
+      ),
+      builder: (BuildContext context, AsyncSnapshot<CombinedState2<bool, SessionState>> snapshot) {
+        if (!snapshot.hasData) {
           return _buildLoadingScreen(widget.arguments.sessionType == "issuing");
         }
 
-        final session = sessionStateSnapshot.data;
+        // Prevent stealing focus from pin screen in case app is locked
+        final locked = snapshot.data.a;
+        Navigator.of(context).focusScopeNode.canRequestFocus = !locked;
+
+        final session = snapshot.data.b;
 
         switch (session.status) {
           case SessionStatus.requestDisclosurePermission:
