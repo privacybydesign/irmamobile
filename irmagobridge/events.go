@@ -63,6 +63,10 @@ type clientPreferencesEvent struct {
 	Preferences irmaclient.Preferences
 }
 
+type getIssueWizardContentsEvent struct {
+	ID string
+}
+
 // //
 // Outgoing events
 // //
@@ -117,6 +121,11 @@ type changePinFailedEvent struct {
 	SchemeManagerID   irma.SchemeManagerIdentifier
 	RemainingAttempts int
 	Timeout           int
+}
+
+type issueWizardContentsEvent struct {
+	ID             string
+	WizardContents []irma.IssueWizardItem
 }
 
 // //

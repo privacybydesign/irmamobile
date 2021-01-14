@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:irmamobile/src/models/event.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
+import 'package:irmamobile/src/models/wizard.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'irma_configuration.g.dart';
@@ -19,7 +20,14 @@ class IrmaConfigurationEvent extends Event {
 
 @JsonSerializable(nullable: false, createToJson: false)
 class IrmaConfiguration {
-  IrmaConfiguration({this.schemeManagers, this.issuers, this.credentialTypes, this.attributeTypes, this.path});
+  IrmaConfiguration({
+    this.schemeManagers,
+    this.issuers,
+    this.credentialTypes,
+    this.attributeTypes,
+    this.issueWizards,
+    this.path,
+  });
 
   @JsonKey(name: 'SchemeManagers')
   final Map<String, SchemeManager> schemeManagers;
@@ -32,6 +40,9 @@ class IrmaConfiguration {
 
   @JsonKey(name: 'AttributeTypes')
   final Map<String, AttributeType> attributeTypes;
+
+  @JsonKey(name: 'IssueWizards')
+  final Map<String, IssueWizard> issueWizards;
 
   @JsonKey(name: 'Path')
   final String path;
@@ -142,6 +153,7 @@ class CredentialType {
     this.faqPurpose,
     this.faqContent,
     this.faqHowto,
+    this.faqSummary,
     this.logo,
   });
 
@@ -198,6 +210,9 @@ class CredentialType {
 
   @JsonKey(name: 'FAQHowto', nullable: true)
   final TranslatedValue faqHowto;
+
+  @JsonKey(name: 'FAQSummary', nullable: true)
+  final TranslatedValue faqSummary;
 
   @JsonKey(name: 'Logo')
   final String logo;

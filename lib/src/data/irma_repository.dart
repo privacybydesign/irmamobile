@@ -25,6 +25,7 @@ import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/models/version_information.dart';
+import 'package:irmamobile/src/models/wizard.dart';
 import 'package:irmamobile/src/sentry/sentry.dart';
 import 'package:irmamobile/src/util/language.dart';
 import 'package:package_info/package_info.dart';
@@ -94,6 +95,7 @@ class IrmaRepository {
   final _inAppCredentialSubject = BehaviorSubject<_InAppCredentialState>();
   final _resumedWithURLSubject = BehaviorSubject<bool>.seeded(false);
   final _resumedFromBrowserSubject = BehaviorSubject<bool>.seeded(false);
+  final _issueWizardSubject = BehaviorSubject<IssueWizardEvent>.seeded(null);
 
   // _internal is a named constructor only used by the factory
   IrmaRepository._internal({
@@ -156,6 +158,8 @@ class IrmaRepository {
       }
     } else if (event is ClientPreferencesEvent) {
       _preferencesSubject.add(event);
+    } else if (event is IssueWizardContentsEvent) {
+      _issueWizardSubject.add(await processIssueWizard(event));
     }
   }
 
@@ -349,6 +353,28 @@ class IrmaRepository {
 
   Stream<bool> getDeveloperMode() {
     return _preferencesSubject.stream.map((pref) => pref.clientPreferences.developerMode);
+  }
+
+  Stream<IssueWizardEvent> getIssueWizard() {
+    return _issueWizardSubject.stream;
+  }
+
+  Future<IssueWizardEvent> processIssueWizard(IssueWizardContentsEvent event) async {
+    final conf = await irmaConfigurationSubject.first;
+    return IssueWizardEvent(
+      wizard: conf.issueWizards[event.id],
+      wizardContents: event.wizardContents.map((item) {
+        if (item.type != "credential") return item;
+        final credtype = conf.credentialTypes[item.credential];
+        return IssueWizardItem(
+          type: "credential",
+          credential: item.credential,
+          label: item.label,
+          header: item.header ?? credtype.name,
+          text: item.text ?? credtype.faqSummary,
+        );
+      }).toList(),
+    );
   }
 
   final List<ExternalBrowserCredtype> externalBrowserCredtypes = const [

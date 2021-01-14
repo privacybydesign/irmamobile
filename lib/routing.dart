@@ -34,7 +34,6 @@ class Routing {
     HelpScreen.routeName: (context) => HelpScreen(),
     ResetPinScreen.routeName: (context) => ResetPinScreen(),
     DebugScreen.routeName: (context) => DebugScreen(),
-    IssueWizardScreen.routeName: (context) => IssueWizardScreen(),
   };
 
   // This function returns a `WidgetBuilder` of the screen found by `routeName`
@@ -46,6 +45,8 @@ class Routing {
         return (context) => SessionScreen(arguments: arguments as SessionScreenArguments);
       case EmailSentScreen.routeName:
         return (context) => EmailSentScreen(email: arguments as String);
+      case IssueWizardScreen.routeName:
+        return (context) => IssueWizardScreen(id: arguments as String);
 
       default:
         return simpleRoutes[routeName];

@@ -4,6 +4,8 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
+import 'package:irmamobile/src/models/wizard.dart';
+import 'package:irmamobile/src/screens/issuewizard/issuewizard.dart';
 import 'package:irmamobile/src/screens/scanner/widgets/qr_scanner.dart';
 import 'package:irmamobile/src/screens/session/session.dart';
 import 'package:irmamobile/src/screens/session/session_screen.dart';
@@ -27,6 +29,14 @@ class ScannerScreen extends StatelessWidget {
       Navigator.of(context),
       sessionPointer,
     );
+  }
+
+  static void startIssueWizard(NavigatorState navigator, String id) {
+    final repo = IrmaRepository.get();
+    final event = GetIssueWizardContentsEvent(id: id);
+
+    repo.dispatch(event, isBridgedEvent: true);
+    navigator.pushNamed(IssueWizardScreen.routeName, arguments: id);
   }
 
   // TODO: Make this function private again and / or split it out to a utility function

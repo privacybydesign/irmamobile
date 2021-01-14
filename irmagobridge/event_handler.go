@@ -236,3 +236,19 @@ func (ah *eventHandler) setPreferences(event *clientPreferencesEvent) error {
 	client.SetPreferences(event.Preferences)
 	return nil
 }
+
+func (ah *eventHandler) getIssueWizardContents(event *getIssueWizardContentsEvent) error {
+	wizard := client.Configuration.IssueWizards[event.ID]
+	if wizard == nil {
+		return errors.New("issue wizard not found")
+	}
+	contents, err := wizard.Choose(client.Configuration, client.CredentialInfoList())
+	if err != nil {
+		return errors.WrapPrefix(err, "failed to process issue wizard", 0)
+	}
+	dispatchEvent(&issueWizardContentsEvent{
+		ID:             event.ID,
+		WizardContents: contents,
+	})
+	return nil
+}

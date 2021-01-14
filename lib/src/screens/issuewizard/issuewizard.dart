@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/data/irma_repository.dart';
+import 'package:irmamobile/src/models/translated_value.dart';
+import 'package:irmamobile/src/models/wizard.dart';
 import 'package:irmamobile/src/screens/issuewizard/widgets/progressing_list.dart';
 import 'package:irmamobile/src/screens/session/session.dart';
 import 'package:irmamobile/src/theme/theme.dart';
@@ -14,15 +17,11 @@ import 'package:irmamobile/src/widgets/logo_banner.dart';
 class IssueWizardScreen extends StatefulWidget {
   static const routeName = "/issuewizard";
 
+  final String id;
+  const IssueWizardScreen({Key key, @required this.id}) : super(key: key);
+
   @override
   _IssueWizardScreenState createState() => _IssueWizardScreenState();
-}
-
-class QuestionAnswer {
-  final String question;
-  final String answer;
-
-  QuestionAnswer(this.question, this.answer);
 }
 
 class _IssueWizardScreenState extends State<IssueWizardScreen> {
@@ -44,9 +43,9 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
     );
   }
 
-  Widget _buildIntro(BuildContext context, String intro, List<QuestionAnswer> questions) {
-    final List<GlobalKey> _collapsableKeys = List<GlobalKey>.generate(questions.length, (int index) => GlobalKey());
-
+  Widget _buildIntro(BuildContext context, TranslatedValue intro, List<IssueWizardQA> questions) {
+    final _collapsableKeys = List<GlobalKey>.generate(questions.length, (int index) => GlobalKey());
+    final lang = FlutterI18n.currentLocale(context).languageCode;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -57,14 +56,14 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
             IrmaTheme.of(context).defaultSpacing,
             IrmaTheme.of(context).defaultSpacing,
           ),
-          child: IrmaMarkdown(intro),
+          child: IrmaMarkdown(intro.translate(lang)),
         ),
         ...questions.asMap().entries.map(
               (q) => _buildCollapsible(
                 context,
                 _collapsableKeys[q.key],
-                q.value.question,
-                q.value.answer,
+                q.value.question.translate(lang),
+                q.value.answer.translate(lang),
               ),
             )
       ],
@@ -73,29 +72,30 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
 
   Widget _buildIntroButtons() {
     return IrmaBottomBar(
-      primaryButtonLabel: "Ophalen",
+      primaryButtonLabel: FlutterI18n.translate(context, "issue_wizard.add"),
       onPrimaryPressed: () => setState(() => showIntro = false),
-      secondaryButtonLabel: "Annuleren",
+      secondaryButtonLabel: FlutterI18n.translate(context, "issue_wizard.back"),
       onSecondaryPressed: () => popToWallet(context),
     );
   }
 
   Widget _buildWizard(
     BuildContext context,
-    String intro,
-    String successHeader,
-    String successText,
+    TranslatedValue intro,
+    TranslatedValue successHeader,
+    TranslatedValue successText,
     List<ProgressingListItem> data,
   ) {
     assert((successHeader == null) == (successText == null),
         "Either specify both successHeader and successText, or neither.");
+    final lang = FlutterI18n.currentLocale(context).languageCode;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         if (intro != null)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: IrmaMarkdown(intro),
+            child: IrmaMarkdown(intro.translate(lang)),
           ),
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
@@ -104,101 +104,91 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
         if (successHeader != null && activeItem == data.length)
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
-            child: Text(successHeader, style: Theme.of(context).textTheme.headline3),
+            child: Text(successHeader.translate(lang), style: Theme.of(context).textTheme.headline3),
           ),
         if (successText != null && activeItem == data.length)
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
-            child: IrmaMarkdown(successText),
+            child: IrmaMarkdown(successText.translate(lang)),
           ),
       ],
     );
   }
 
-  Widget _buildWizardButtons(List<ProgressingListItem> wizardData, bool showSuccessMessage) {
+  Widget _buildWizardButtons(ProgressingListItem item, int count, bool showSuccessMessage) {
     return IrmaBottomBar(
-        primaryButtonLabel: activeItem == wizardData.length
-            ? "OK"
-            : wizardData[activeItem].buttonLabel ?? "Haal ${wizardData[activeItem].header} op",
-        onPrimaryPressed: () => setState(() {
-              activeItem = (activeItem + 1) % (showSuccessMessage ? wizardData.length + 1 : wizardData.length);
-            }));
+      primaryButtonLabel: item?.buttonLabel ?? FlutterI18n.translate(context, "issue_wizard.done"),
+      onPrimaryPressed: () => setState(() {
+        activeItem = (activeItem + 1) % (showSuccessMessage ? count + 1 : count);
+      }),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    const introIntro =
-        """Je moet je kenbaar maken voor het gebruik van Ivido. Hiervoor haal je nu eerst je gegevens op in IRMA.
-
-## Wat is Ivido PGO?
-Ivido is je Persoonlijke Gezondheidsomgeving (PGO) waar je al je gegevens over jouw gezondheid kunt opslaan en delen met jouw zorgnetwerk. Een omgeving met begrijpelijke informatie en relevante applicaties, die een leven lang meegaat. Je gebruikt IRMA om je te registreren en om in te loggen bij Ivido PGO.""";
-    final introQuestions = [
-      QuestionAnswer(
-        "Waar haal ik de gegevens op?",
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nibh ante, mollis id neque at, imperdiet egestas nulla. In hac habitasse platea dictumst. Pellentesque risus diam, maximus eget lorem id, suscipit vulputate risus.",
-      ),
-      QuestionAnswer(
-        "Welke gegevens ontvang ik?",
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nibh ante, mollis id neque at, imperdiet egestas nulla. In hac habitasse platea dictumst. Pellentesque risus diam, maximus eget lorem id, suscipit vulputate risus.",
-      ),
-      QuestionAnswer(
-        "Wat heb ik hiervoor nodig?",
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nibh ante, mollis id neque at, imperdiet egestas nulla. In hac habitasse platea dictumst. Pellentesque risus diam, maximus eget lorem id, suscipit vulputate risus.",
-      ),
-    ];
-
-    final wizardData = [
-      ProgressingListItem(
-          header: "Persoonsgegevens",
-          text:
-              "Haal je persoonsgegevens op uit het gemeentelijk register. Je hebt deze gegevens nodig om te laten zien wie je bent. Je logt in met DigiD bij de gemeente Nijmegen die dit voor heel Nederland aanbiedt."),
-      ProgressingListItem(
-          header: "AGB-code", text: "Haal je AGB-code op van Nuts. Hiermee kun je laten zien dat je in de zorg werkt."),
-      ProgressingListItem(
-          header: "Log in bij Ivido",
-          buttonLabel: "Log in bij Ivido",
-          text: "Registreer je bij Ivido door je gegevens te tonen."),
-    ];
-    const wizardIntro = "Doorloop eenmalig onderstaande stappen om toegang tot Ivido PGO te krijgen.";
-    const wizardSuccessHeader = "Gelukt!";
-    const wizardSuccessText =
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nibh ante, mollis id neque at, imperdiet egestas nulla. In hac habitasse platea dictumst. Pellentesque risus diam, maximus eget lorem id, suscipit vulputate risus.";
-    // const String wizardSuccessHeader = null;
-    // const String wizardSuccessText = null;
-
-    const header = "Ivido PGO";
     const logoPath = "assets/non-free/irmalogo.png";
+    final lang = FlutterI18n.currentLocale(context).languageCode;
 
-    return Scaffold(
-      appBar: IrmaAppBar(
-        title: const Text('Kaartjes ophalen'),
-        leadingAction: () => Navigator.of(context).pop(),
-        leadingIcon: Icon(Icons.arrow_back, semanticLabel: FlutterI18n.translate(context, "accessibility.back")),
-      ),
-      bottomNavigationBar:
-          showIntro ? _buildIntroButtons() : _buildWizardButtons(wizardData, wizardSuccessHeader != null),
-      body: SingleChildScrollView(
-        controller: _controller,
-        key: _scrollviewKey,
-        child: Column(
-          children: <Widget>[
-            LogoBanner(logo: Image.asset(logoPath, excludeFromSemantics: true)),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Heading(header, style: Theme.of(context).textTheme.headline5),
+    return StreamBuilder(
+      stream: IrmaRepository.get().getIssueWizard().where((event) => event.wizard.id == widget.id),
+      builder: (context, AsyncSnapshot<IssueWizardEvent> snapshot) {
+        if (!snapshot.hasData) {
+          return Container();
+        }
+
+        final wizard = snapshot.data.wizard;
+        final contents = snapshot.data.wizardContents
+            .map(
+              (item) => ProgressingListItem(
+                header: item.header.translate(lang),
+                text: item.text.translate(lang),
+                buttonLabel: item.label?.translate(lang) ??
+                    FlutterI18n.translate(
+                      context,
+                      "issue_wizard.add_credential",
+                      translationParams: {"credential": item.header.translate(lang)},
+                    ),
+              ),
+            )
+            .toList();
+
+        return Scaffold(
+          appBar: IrmaAppBar(
+            title: Text(FlutterI18n.translate(context, "issue_wizard.add_cards")),
+            leadingAction: () => Navigator.of(context).pop(),
+            leadingIcon: Icon(Icons.arrow_back, semanticLabel: FlutterI18n.translate(context, "accessibility.back")),
+          ),
+          bottomNavigationBar: showIntro
+              ? _buildIntroButtons()
+              : _buildWizardButtons(
+                  activeItem < contents.length ? contents[activeItem] : null,
+                  contents.length,
+                  wizard.successHeader != null,
                 ),
-                if (showIntro)
-                  _buildIntro(context, introIntro, introQuestions)
-                else
-                  _buildWizard(context, wizardIntro, wizardSuccessHeader, wizardSuccessText, wizardData),
+          body: SingleChildScrollView(
+            controller: _controller,
+            key: _scrollviewKey,
+            child: Column(
+              children: <Widget>[
+                LogoBanner(logo: Image.asset(logoPath, excludeFromSemantics: true)),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Heading(wizard.title.translate(lang), style: Theme.of(context).textTheme.headline5),
+                    ),
+                    if (showIntro)
+                      _buildIntro(context, wizard.info, wizard.faq)
+                    else
+                      _buildWizard(context, wizard.intro, wizard.successHeader, wizard.successText, contents),
+                  ],
+                ),
               ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

@@ -26,6 +26,9 @@ IrmaConfiguration _$IrmaConfigurationFromJson(Map<String, dynamic> json) {
     attributeTypes: (json['AttributeTypes'] as Map<String, dynamic>).map(
       (k, e) => MapEntry(k, AttributeType.fromJson(e as Map<String, dynamic>)),
     ),
+    issueWizards: (json['IssueWizards'] as Map<String, dynamic>).map(
+      (k, e) => MapEntry(k, IssueWizard.fromJson(e as Map<String, dynamic>)),
+    ),
     path: json['Path'] as String,
   );
 }
@@ -83,6 +86,8 @@ CredentialType _$CredentialTypeFromJson(Map<String, dynamic> json) {
     faqContent:
         json['FAQContent'] == null ? null : TranslatedValue.fromJson(json['FAQContent'] as Map<String, dynamic>),
     faqHowto: json['FAQHowto'] == null ? null : TranslatedValue.fromJson(json['FAQHowto'] as Map<String, dynamic>),
+    faqSummary:
+        json['FAQSummary'] == null ? null : TranslatedValue.fromJson(json['FAQSummary'] as Map<String, dynamic>),
     logo: json['Logo'] as String,
   );
 }
