@@ -43,6 +43,7 @@ class IssueWizard {
     this.id,
     this.title,
     this.logo,
+    this.logoPath,
     this.issues,
     this.info,
     this.faq,
@@ -60,6 +61,9 @@ class IssueWizard {
 
   @JsonKey(name: 'logo')
   final String logo;
+
+  @JsonKey(name: 'logoPath')
+  final String logoPath;
 
   @JsonKey(name: 'issues')
   final String issues;

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
@@ -126,9 +128,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const logoPath = "assets/non-free/irmalogo.png";
     final lang = FlutterI18n.currentLocale(context).languageCode;
-
     return StreamBuilder(
       stream: IrmaRepository.get().getIssueWizard().where((event) => event.wizard.id == widget.id),
       builder: (context, AsyncSnapshot<IssueWizardEvent> snapshot) {
@@ -137,6 +137,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
         }
 
         final wizard = snapshot.data.wizard;
+        final logoFile = File(wizard.logoPath ?? "");
         final contents = snapshot.data.wizardContents
             .map(
               (item) => ProgressingListItem(
@@ -170,7 +171,11 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
             key: _scrollviewKey,
             child: Column(
               children: <Widget>[
-                LogoBanner(logo: Image.asset(logoPath, excludeFromSemantics: true)),
+                LogoBanner(
+                  logo: logoFile.existsSync()
+                      ? Image.file(logoFile, excludeFromSemantics: true)
+                      : Image.asset("assets/non-free/irmalogo.png", excludeFromSemantics: true),
+                ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[

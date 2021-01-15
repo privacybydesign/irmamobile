@@ -35,6 +35,7 @@ IssueWizard _$IssueWizardFromJson(Map<String, dynamic> json) {
     id: json['id'] as String,
     title: json['title'] == null ? null : TranslatedValue.fromJson(json['title'] as Map<String, dynamic>),
     logo: json['logo'] as String,
+    logoPath: json['logoPath'] as String,
     issues: json['issues'] as String,
     info: json['info'] == null ? null : TranslatedValue.fromJson(json['info'] as Map<String, dynamic>),
     faq: (json['faq'] as List)
@@ -53,6 +54,7 @@ Map<String, dynamic> _$IssueWizardToJson(IssueWizard instance) => <String, dynam
       'id': instance.id,
       'title': instance.title,
       'logo': instance.logo,
+      'logoPath': instance.logoPath,
       'issues': instance.issues,
       'info': instance.info,
       'faq': instance.faq,
