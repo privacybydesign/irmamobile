@@ -200,6 +200,13 @@ class DebugScreen extends StatelessWidget {
           ),
           IconButton(
             icon: Icon(Icons.exposure_plus_2),
+            onPressed: () => _getCards(
+              context,
+              DemoSessionHelper.randomIssuanceRequest(irmaConfigurationFuture, 2),
+            ),
+          ),
+          IconButton(
+            icon: Icon(Icons.list_alt),
             onPressed: () => ScannerScreen.startIssueWizard(Navigator.of(context), "ivido_client"),
           ),
           IconButton(
