@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class IrmaDialog extends StatelessWidget {
@@ -87,20 +86,6 @@ class IrmaDialog extends StatelessWidget {
                           ),
                           child,
                         ],
-                      ),
-                    ),
-                    Positioned(
-                      right: 0,
-                      top: 0,
-                      child: Semantics(
-                        explicitChildNodes: true,
-                        child: IconButton(
-                          iconSize: 18.0,
-                          icon: Icon(IrmaIcons.close,
-                              semanticLabel: FlutterI18n.translate(context, "accessibility.close")),
-                          color: IrmaTheme.of(context).primaryBlue,
-                          onPressed: onClose ?? () => Navigator.pop(context),
-                        ),
                       ),
                     ),
                   ],
