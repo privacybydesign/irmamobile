@@ -12,9 +12,9 @@ import 'package:irmamobile/src/models/enrollment_events.dart';
 import 'package:irmamobile/src/models/event.dart';
 import 'package:irmamobile/src/models/handle_url_event.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
+import 'package:irmamobile/src/models/issue_wizard.dart';
 import 'package:irmamobile/src/models/log_entry.dart';
 import 'package:irmamobile/src/models/session_events.dart';
-import 'package:irmamobile/src/models/wizard.dart';
 
 typedef EventUnmarshaller = Event Function(Map<String, dynamic>);
 

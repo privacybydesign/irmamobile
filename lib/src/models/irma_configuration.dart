@@ -2,8 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:irmamobile/src/models/event.dart';
+import 'package:irmamobile/src/models/issue_wizard.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
-import 'package:irmamobile/src/models/wizard.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'irma_configuration.g.dart';

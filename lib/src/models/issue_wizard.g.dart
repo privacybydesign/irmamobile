@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'wizard.dart';
+part of 'issue_wizard.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
