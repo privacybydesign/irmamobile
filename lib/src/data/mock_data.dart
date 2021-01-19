@@ -70,10 +70,6 @@ String irmaConfigurationEventJson = r"""
           "en": "DemoDUO",
           "nl": "DemoDUO"
         },
-        "ShortName": {
-          "en": "DemoDUO",
-          "nl": "DemoDUO"
-        },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "Een demoDUO adres",
         "ContactEMail": "demoduo@example.com",
@@ -84,10 +80,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.IRMATube": {
         "ID": "IRMATube",
         "Name": {
-          "en": "IRMATube",
-          "nl": "IRMATube"
-        },
-        "ShortName": {
           "en": "IRMATube",
           "nl": "IRMATube"
         },
@@ -104,10 +96,6 @@ String irmaConfigurationEventJson = r"""
           "en": "DemoVerheid.nl",
           "nl": "DemoVerheid.nl"
         },
-        "ShortName": {
-          "en": "DemoVerheid.nl",
-          "nl": "DemoVerheid.nl"
-        },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "Een demo-overheid",
         "ContactEMail": "demoverheid@example.com",
@@ -118,10 +106,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.RU": {
         "ID": "RU",
         "Name": {
-          "en": "Demo University",
-          "nl": "Demo Universiteit"
-        },
-        "ShortName": {
           "en": "Demo University",
           "nl": "Demo Universiteit"
         },
@@ -138,10 +122,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo TWI Pilot",
           "nl": "Demo TWI Pilot"
         },
-        "ShortName": {
-          "en": "Demo TWI Pilot",
-          "nl": "Demo TWI Pilot"
-        },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://minszw.nl/",
         "ContactEMail": "christoph@ovrhd.nl",
@@ -152,10 +132,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.alliander": {
         "ID": "alliander",
         "Name": {
-          "en": "Demo Alliander",
-          "nl": "Demo Alliander"
-        },
-        "ShortName": {
           "en": "Demo Alliander",
           "nl": "Demo Alliander"
         },
@@ -172,10 +148,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo Municipality of Amsterdam",
           "nl": "Demo Gemeente Amsterdam"
         },
-        "ShortName": {
-          "en": "Demo Amsterdam",
-          "nl": "Demo Amsterdam"
-        },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://amsterdam.nl",
         "ContactEMail": "info@amsterdam.nl",
@@ -186,10 +158,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.asito": {
         "ID": "asito",
         "Name": {
-          "en": "Demo Asito",
-          "nl": "Demo Asito"
-        },
-        "ShortName": {
           "en": "Demo Asito",
           "nl": "Demo Asito"
         },
@@ -206,10 +174,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo Belastingdienst",
           "nl": "Demo Belastingdienst"
         },
-        "ShortName": {
-          "en": "Demo Belastingdienst",
-          "nl": "Demo Belastingdienst"
-        },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://example.org",
         "ContactEMail": "example@example.org",
@@ -220,10 +184,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.chipsoft": {
         "ID": "chipsoft",
         "Name": {
-          "en": "Demo ChipSoft",
-          "nl": "Demo ChipSoft"
-        },
-        "ShortName": {
           "en": "Demo ChipSoft",
           "nl": "Demo ChipSoft"
         },
@@ -240,10 +200,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo Gemeente Enschede",
           "nl": "Demo Gemeente Enschede"
         },
-        "ShortName": {
-          "en": "Demo Gemeente Enschede",
-          "nl": "Demo Gemeente Enschede"
-        },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://enschede.nl/",
         "ContactEMail": "k.masselink@enschede.nl",
@@ -254,10 +210,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.forus": {
         "ID": "forus",
         "Name": {
-          "en": "Forus - demo",
-          "nl": "Forus - demo"
-        },
-        "ShortName": {
           "en": "Forus - demo",
           "nl": "Forus - demo"
         },
@@ -274,10 +226,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo Gebiedonline",
           "nl": "Demo Gebiedonline"
         },
-        "ShortName": {
-          "en": "Demo Gebiedonline",
-          "nl": "Demo Gebiedonline"
-        },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://gebiedonline.nl/",
         "ContactEMail": "info@gebiedonline.nl",
@@ -288,10 +236,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.gemeente": {
         "ID": "gemeente",
         "Name": {
-          "en": "Demo Municipality",
-          "nl": "Demo Gemeente"
-        },
-        "ShortName": {
           "en": "Demo Municipality",
           "nl": "Demo Gemeente"
         },
@@ -308,10 +252,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo Municipalities",
           "nl": "Demo Gemeenten"
         },
-        "ShortName": {
-          "en": "Demo Municipalities",
-          "nl": "Demo Gemeenten"
-        },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://example.org",
         "ContactEMail": "example@example.org",
@@ -325,10 +265,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Municipality Haarlem",
           "nl": "Gemeente Haarlem"
         },
-        "ShortName": {
-          "en": "Haarlem",
-          "nl": "Haarlem"
-        },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://haarlem.nl/",
         "ContactEMail": "info@haarlem.nl",
@@ -339,10 +275,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.ideal": {
         "ID": "ideal",
         "Name": {
-          "en": "Demo iDeal",
-          "nl": "Demo iDeal"
-        },
-        "ShortName": {
           "en": "Demo iDeal",
           "nl": "Demo iDeal"
         },
@@ -359,10 +291,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo iDIN",
           "nl": "Demo iDIN"
         },
-        "ShortName": {
-          "en": "Demo iDIN",
-          "nl": "Demo iDIN"
-        },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "",
         "ContactEMail": "",
@@ -373,10 +301,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.irmages": {
         "ID": "irmages",
         "Name": {
-          "en": "Irmages",
-          "nl": "Irmages"
-        },
-        "ShortName": {
           "en": "Irmages",
           "nl": "Irmages"
         },
@@ -393,10 +317,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo Ivido",
           "nl": "Demo Ivido"
         },
-        "ShortName": {
-          "en": "Demo Ivido",
-          "nl": "Demo Ivido"
-        },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://ivido.nl",
         "ContactEMail": "info@ivido.nl",
@@ -409,10 +329,6 @@ String irmaConfigurationEventJson = r"""
         "Name": {
           "en": "Demo Netherlands Chamber of Commerce",
           "nl": "Demo Kamer van Koophandel"
-        },
-        "ShortName": {
-          "en": "Demo KVK",
-          "nl": "Demo KVK"
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://www.kvk.nl",
@@ -427,10 +343,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo MaaS",
           "nl": "Demo Maas"
         },
-        "ShortName": {
-          "en": "Demo Maas",
-          "nl": "Demo MaaS"
-        },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "http://www.acceptinstitute.eu/",
         "ContactEMail": "",
@@ -441,10 +353,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.nijmegen": {
         "ID": "nijmegen",
         "Name": {
-          "en": "Demo Gemeente Nijmegen",
-          "nl": "Demo Gemeente Nijmegen"
-        },
-        "ShortName": {
           "en": "Demo Gemeente Nijmegen",
           "nl": "Demo Gemeente Nijmegen"
         },
@@ -461,10 +369,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo Nuts",
           "nl": "Demo Nuts"
         },
-        "ShortName": {
-          "en": "Demo Nuts",
-          "nl": "Demo Nuts"
-        },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://nuts.nl",
         "ContactEMail": "info@nuts.nl",
@@ -475,10 +379,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.rdw": {
         "ID": "rdw",
         "Name": {
-          "en": "Demo RDW",
-          "nl": "Demo RDW"
-        },
-        "ShortName": {
           "en": "Demo RDW",
           "nl": "Demo RDW"
         },
@@ -495,10 +395,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo SURF",
           "nl": "Demo SURF"
         },
-        "ShortName": {
-          "en": "Demo SURF",
-          "nl": "Demo SURF"
-        },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://surfnet.nl",
         "ContactEMail": "info@surfnet.nl",
@@ -509,10 +405,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.suwinet": {
         "ID": "suwinet",
         "Name": {
-          "en": "Demo Suwinet",
-          "nl": "Demo Suwinet"
-        },
-        "ShortName": {
           "en": "Demo Suwinet",
           "nl": "Demo Suwinet"
         },
@@ -529,10 +421,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo VGZ",
           "nl": "Demo VGZ"
         },
-        "ShortName": {
-          "en": "Demo VGZ",
-          "nl": "Demo VGZ"
-        },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://www.vgz.nl",
         "ContactEMail": "digitalcooperation@vgz.nl",
@@ -543,10 +431,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.vngrealisatie": {
         "ID": "vngrealisatie",
         "Name": {
-          "en": "Demo VNG Realisatie",
-          "nl": "Demo VNG Realisatie"
-        },
-        "ShortName": {
           "en": "Demo VNG Realisatie",
           "nl": "Demo VNG Realisatie"
         },
@@ -563,10 +447,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo VZVZ",
           "nl": "Demo VZVZ"
         },
-        "ShortName": {
-          "en": "Demo VZVZ",
-          "nl": "Demo VZVZ"
-        },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://www.vzvz.nl",
         "ContactEMail": "support@vzvz.nl",
@@ -577,10 +457,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.wigo4it": {
         "ID": "wigo4it",
         "Name": {
-          "en": "Demo WIGO4IT",
-          "nl": "Demo WIGO4IT"
-        },
-        "ShortName": {
           "en": "Demo WIGO4IT",
           "nl": "Demo WIGO4IT"
         },
@@ -597,10 +473,6 @@ String irmaConfigurationEventJson = r"""
           "en": "ChipSoft",
           "nl": "ChipSoft"
         },
-        "ShortName": {
-          "en": "ChipSoft",
-          "nl": "ChipSoft"
-        },
         "SchemeManagerID": "pbdf",
         "ContactAddress": "https://www.chipsoft.nl",
         "ContactEMail": "eerstelijn@chipsoft.nl",
@@ -611,10 +483,6 @@ String irmaConfigurationEventJson = r"""
       "pbdf.gebiedonline": {
         "ID": "gebiedonline",
         "Name": {
-          "en": "Gebiedonline",
-          "nl": "Gebiedonline"
-        },
-        "ShortName": {
           "en": "Gebiedonline",
           "nl": "Gebiedonline"
         },
@@ -631,10 +499,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Your Municipality",
           "nl": "Uw Gemeente"
         },
-        "ShortName": {
-          "en": "Your Municipality",
-          "nl": "Uw Gemeente"
-        },
         "SchemeManagerID": "pbdf",
         "ContactAddress": "https://www.nijmegen.nl",
         "ContactEMail": "b.withaar@nijmegen.nl",
@@ -645,10 +509,6 @@ String irmaConfigurationEventJson = r"""
       "pbdf.nijmegen": {
         "ID": "nijmegen",
         "Name": {
-          "en": "Gemeente Nijmegen",
-          "nl": "Gemeente Nijmegen"
-        },
-        "ShortName": {
           "en": "Gemeente Nijmegen",
           "nl": "Gemeente Nijmegen"
         },
@@ -665,10 +525,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Nuts",
           "nl": "Nuts"
         },
-        "ShortName": {
-          "en": "Nuts",
-          "nl": "Nuts"
-        },
         "SchemeManagerID": "pbdf",
         "ContactAddress": "https://nuts.nl",
         "ContactEMail": "info@nuts.nl",
@@ -681,10 +537,6 @@ String irmaConfigurationEventJson = r"""
         "Name": {
           "en": "Privacy by Design Foundation",
           "nl": "Stichting Privacy by Design"
-        },
-        "ShortName": {
-          "en": "PbD.f",
-          "nl": "PbD.f"
         },
         "SchemeManagerID": "pbdf",
         "ContactAddress": "",
@@ -699,10 +551,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Privacy by Design Foundation via SIDN",
           "nl": "Stichting Privacy by Design via SIDN"
         },
-        "ShortName": {
-          "en": "PbDF via SIDN",
-          "nl": "PbDF via SIDN"
-        },
         "SchemeManagerID": "pbdf",
         "ContactAddress": "https://www.sidn.nl",
         "ContactEMail": "support@sidn.nl",
@@ -713,10 +561,6 @@ String irmaConfigurationEventJson = r"""
       "pbdf.surf": {
         "ID": "surf",
         "Name": {
-          "en": "SURF",
-          "nl": "SURF"
-        },
-        "ShortName": {
           "en": "SURF",
           "nl": "SURF"
         },
@@ -733,10 +577,6 @@ String irmaConfigurationEventJson = r"""
           "en": "VGZ",
           "nl": "VGZ"
         },
-        "ShortName": {
-          "en": "VGZ",
-          "nl": "VGZ"
-        },
         "SchemeManagerID": "pbdf",
         "ContactAddress": "https://www.vgz.nl",
         "ContactEMail": "digitalcooperation@vgz.nl",
@@ -749,10 +589,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.DemoDuo.demodiploma": {
         "ID": "demodiploma",
         "Name": {
-          "en": "DemoDiploma",
-          "nl": "DemoDiploma"
-        },
-        "ShortName": {
           "en": "DemoDiploma",
           "nl": "DemoDiploma"
         },
@@ -789,10 +625,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Member",
           "nl": "Member"
         },
-        "ShortName": {
-          "en": "IRMATube",
-          "nl": "IRMATube"
-        },
         "IssuerID": "IRMATube",
         "SchemeManagerID": "irma-demo",
         "IsSingleton": false,
@@ -823,10 +655,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.MijnOverheid.address": {
         "ID": "address",
         "Name": {
-          "en": "Address",
-          "nl": "Adres"
-        },
-        "ShortName": {
           "en": "Address",
           "nl": "Adres"
         },
@@ -863,10 +691,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Senior Age limits",
           "nl": "Senior-leeftijdslimieten"
         },
-        "ShortName": {
-          "en": "Age (Senior)",
-          "nl": "Leeftijd (senior)"
-        },
         "IssuerID": "MijnOverheid",
         "SchemeManagerID": "irma-demo",
         "IsSingleton": true,
@@ -900,10 +724,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Lower Age limits",
           "nl": "Junior-leeftijdslimieten"
         },
-        "ShortName": {
-          "en": "Age (lower)",
-          "nl": "Leeftijd (junior)"
-        },
         "IssuerID": "MijnOverheid",
         "SchemeManagerID": "irma-demo",
         "IsSingleton": true,
@@ -934,10 +754,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.MijnOverheid.birthCertificate": {
         "ID": "birthCertificate",
         "Name": {
-          "en": "Birth Certificate",
-          "nl": "geboorteakte"
-        },
-        "ShortName": {
           "en": "Birth Certificate",
           "nl": "geboorteakte"
         },
@@ -974,10 +790,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo Driving license",
           "nl": "Demo Rijbewijs"
         },
-        "ShortName": {
-          "en": "Driving license",
-          "nl": "Rijbewijs"
-        },
         "IssuerID": "MijnOverheid",
         "SchemeManagerID": "irma-demo",
         "IsSingleton": false,
@@ -1008,10 +820,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.MijnOverheid.fullName": {
         "ID": "fullName",
         "Name": {
-          "en": "Name",
-          "nl": "Naam"
-        },
-        "ShortName": {
           "en": "Name",
           "nl": "Naam"
         },
@@ -1048,10 +856,6 @@ String irmaConfigurationEventJson = r"""
           "en": "ID Document",
           "nl": "Identiteitsbewijs"
         },
-        "ShortName": {
-          "en": "ID Document",
-          "nl": "Identiteitsbewijs"
-        },
         "IssuerID": "MijnOverheid",
         "SchemeManagerID": "irma-demo",
         "IsSingleton": false,
@@ -1082,10 +886,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.MijnOverheid.root": {
         "ID": "root",
         "Name": {
-          "en": "Root",
-          "nl": "Root"
-        },
-        "ShortName": {
           "en": "Root",
           "nl": "Root"
         },
@@ -1122,10 +922,6 @@ String irmaConfigurationEventJson = r"""
           "en": "iDIN data",
           "nl": ""
         },
-        "ShortName": {
-          "en": "iDIN data",
-          "nl": ""
-        },
         "IssuerID": "RU",
         "SchemeManagerID": "irma-demo",
         "IsSingleton": false,
@@ -1156,10 +952,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.RU.studentCard": {
         "ID": "studentCard",
         "Name": {
-          "en": "Student Card",
-          "nl": "Studentenkaart"
-        },
-        "ShortName": {
           "en": "Student Card",
           "nl": "Studentenkaart"
         },
@@ -1196,10 +988,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo TWIpilot attributen",
           "nl": "Demo TWIpilot attributes"
         },
-        "ShortName": {
-          "en": "Demo TWIpilot",
-          "nl": "Demo TWIpilot"
-        },
         "IssuerID": "TWIpilot",
         "SchemeManagerID": "irma-demo",
         "IsSingleton": false,
@@ -1230,10 +1018,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.alliander.connection": {
         "ID": "connection",
         "Name": {
-          "en": "Demo Energy connection",
-          "nl": "Demo Energieaansluiting"
-        },
-        "ShortName": {
           "en": "Demo Energy connection",
           "nl": "Demo Energieaansluiting"
         },
@@ -1270,10 +1054,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo OpenStad ballot",
           "nl": "Demo OpenStad stembiljet"
         },
-        "ShortName": {
-          "en": "Demo Ballot",
-          "nl": "Demo Stembiljet"
-        },
         "IssuerID": "amsterdam",
         "SchemeManagerID": "irma-demo",
         "IsSingleton": true,
@@ -1304,10 +1084,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.asito.loonstaat": {
         "ID": "loonstaat",
         "Name": {
-          "en": "Demo Payroll Asito",
-          "nl": "Demo Loonstaat Asito"
-        },
-        "ShortName": {
           "en": "Demo Payroll Asito",
           "nl": "Demo Loonstaat Asito"
         },
@@ -1344,10 +1120,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo Paysheet Asito",
           "nl": "Demo Loonstaat Asito"
         },
-        "ShortName": {
-          "en": "Demo Paysheet Asito",
-          "nl": "Demo Loonstaat Asito"
-        },
         "IssuerID": "asito",
         "SchemeManagerID": "irma-demo",
         "IsSingleton": false,
@@ -1378,10 +1150,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.belastingdienst.verzamelinkomen": {
         "ID": "verzamelinkomen",
         "Name": {
-          "en": "Demo Total year income",
-          "nl": "Demo Verzamelinkomen"
-        },
-        "ShortName": {
           "en": "Demo Total year income",
           "nl": "Demo Verzamelinkomen"
         },
@@ -1418,10 +1186,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo Yearly income houshold",
           "nl": "Demo Verzamelinkomen huishouden"
         },
-        "ShortName": {
-          "en": "Demo Yearly income household",
-          "nl": "Demo Verzamelinkomen huishouden"
-        },
         "IssuerID": "belastingdienst",
         "SchemeManagerID": "irma-demo",
         "IsSingleton": false,
@@ -1455,10 +1219,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo BSN from healthcare",
           "nl": "Demo BSN vanuit de zorg"
         },
-        "ShortName": {
-          "en": "Demo BSN healthcare",
-          "nl": "Demo BSN zorg"
-        },
         "IssuerID": "chipsoft",
         "SchemeManagerID": "irma-demo",
         "IsSingleton": true,
@@ -1489,10 +1249,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.enschede.bijstandsgerechtigd": {
         "ID": "bijstandsgerechtigd",
         "Name": {
-          "en": "Demo Bijstand - Aanvaarden Werk",
-          "nl": "Demo Bijstand - Aanvaarden Werk"
-        },
-        "ShortName": {
           "en": "Demo Bijstand - Aanvaarden Werk",
           "nl": "Demo Bijstand - Aanvaarden Werk"
         },
@@ -1529,10 +1285,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo kindpakket",
           "nl": "Demo kindpakket"
         },
-        "ShortName": {
-          "en": "Demo kindpakket",
-          "nl": "Demo kindpakket"
-        },
         "IssuerID": "forus",
         "SchemeManagerID": "irma-demo",
         "IsSingleton": false,
@@ -1563,10 +1315,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.gebiedonline.locality": {
         "ID": "locality",
         "Name": {
-          "en": "Demo Gebiedonline",
-          "nl": "Demo Gebiedonline"
-        },
-        "ShortName": {
           "en": "Demo Gebiedonline",
           "nl": "Demo Gebiedonline"
         },
@@ -1603,10 +1351,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo Gebiedonline",
           "nl": "Demo Gebiedonline"
         },
-        "ShortName": {
-          "en": "Demo Gebiedonline",
-          "nl": "Demo Gebiedonline"
-        },
         "IssuerID": "gebiedonline",
         "SchemeManagerID": "irma-demo",
         "IsSingleton": false,
@@ -1637,10 +1381,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.gebiedonline.stakeholder": {
         "ID": "stakeholder",
         "Name": {
-          "en": "Demo Gebiedonline",
-          "nl": "Demo Gebiedonline"
-        },
-        "ShortName": {
           "en": "Demo Gebiedonline",
           "nl": "Demo Gebiedonline"
         },
@@ -1677,10 +1417,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo Address",
           "nl": "Demo Adres"
         },
-        "ShortName": {
-          "en": "Demo Address",
-          "nl": "Demo Adres"
-        },
         "IssuerID": "gemeente",
         "SchemeManagerID": "irma-demo",
         "IsSingleton": true,
@@ -1711,10 +1447,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.gemeente.personalData": {
         "ID": "personalData",
         "Name": {
-          "en": "Demo Personal data",
-          "nl": "Demo Persoonsgegevens"
-        },
-        "ShortName": {
           "en": "Demo Personal data",
           "nl": "Demo Persoonsgegevens"
         },
@@ -1751,10 +1483,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo Address",
           "nl": "Demo Adres"
         },
-        "ShortName": {
-          "en": "Demo Address",
-          "nl": "Demo Adres"
-        },
         "IssuerID": "gemeenten",
         "SchemeManagerID": "irma-demo",
         "IsSingleton": true,
@@ -1785,10 +1513,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.gemeenten.personalData": {
         "ID": "personalData",
         "Name": {
-          "en": "Demo Personal data",
-          "nl": "Demo Persoonsgegevens"
-        },
-        "ShortName": {
           "en": "Demo Personal data",
           "nl": "Demo Persoonsgegevens"
         },
@@ -1825,10 +1549,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo Employee",
           "nl": "Demo Medewerker"
         },
-        "ShortName": {
-          "en": "Demo Employee",
-          "nl": "Demo Medewerker"
-        },
         "IssuerID": "haarlem",
         "SchemeManagerID": "irma-demo",
         "IsSingleton": false,
@@ -1859,10 +1579,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.ideal.ideal": {
         "ID": "ideal",
         "Name": {
-          "en": "iDeal demo",
-          "nl": "iDeal demo"
-        },
-        "ShortName": {
           "en": "iDeal demo",
           "nl": "iDeal demo"
         },
@@ -1899,10 +1615,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo Age limits",
           "nl": "Demo Leeftijdslimieten"
         },
-        "ShortName": {
-          "en": "Demo Age",
-          "nl": "Demo Leeftijd"
-        },
         "IssuerID": "idin",
         "SchemeManagerID": "irma-demo",
         "IsSingleton": true,
@@ -1933,10 +1645,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.idin.idin": {
         "ID": "idin",
         "Name": {
-          "en": "iDIN demo",
-          "nl": "iDIN demo"
-        },
-        "ShortName": {
           "en": "iDIN demo",
           "nl": "iDIN demo"
         },
@@ -1973,10 +1681,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Photos",
           "nl": "Pasfoto's"
         },
-        "ShortName": {
-          "en": "Photos",
-          "nl": "Pasfoto's"
-        },
         "IssuerID": "irmages",
         "SchemeManagerID": "irma-demo",
         "IsSingleton": true,
@@ -2007,10 +1711,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.ivido.login": {
         "ID": "login",
         "Name": {
-          "en": "Demo Ivido Login",
-          "nl": "Demo Ivido Login"
-        },
-        "ShortName": {
           "en": "Demo Ivido Login",
           "nl": "Demo Ivido Login"
         },
@@ -2047,10 +1747,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo Official of a legal entity",
           "nl": "Demo Functionaris voor een rechtspersoon"
         },
-        "ShortName": {
-          "en": "Demo Official",
-          "nl": "Demo Functionaris"
-        },
         "IssuerID": "kvk",
         "SchemeManagerID": "irma-demo",
         "IsSingleton": false,
@@ -2081,10 +1777,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.maas.maasid": {
         "ID": "maasid",
         "Name": {
-          "en": "Demo MaaS ID",
-          "nl": "Demo MaaS ID"
-        },
-        "ShortName": {
           "en": "Demo MaaS ID",
           "nl": "Demo MaaS ID"
         },
@@ -2121,10 +1813,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo Address",
           "nl": "Demo Adres"
         },
-        "ShortName": {
-          "en": "Demo Address",
-          "nl": "Demo Adres"
-        },
         "IssuerID": "nijmegen",
         "SchemeManagerID": "irma-demo",
         "IsSingleton": true,
@@ -2158,10 +1846,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo Age limits",
           "nl": "Demo Leeftijdslimieten"
         },
-        "ShortName": {
-          "en": "Demo Age",
-          "nl": "Demo Leeftijd"
-        },
         "IssuerID": "nijmegen",
         "SchemeManagerID": "irma-demo",
         "IsSingleton": true,
@@ -2192,10 +1876,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.nijmegen.bsn": {
         "ID": "bsn",
         "Name": {
-          "en": "Demo BSN",
-          "nl": "Demo BSN"
-        },
-        "ShortName": {
           "en": "Demo BSN",
           "nl": "Demo BSN"
         },
@@ -2232,10 +1912,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo Personal data",
           "nl": "Demo Persoonsgegevens"
         },
-        "ShortName": {
-          "en": "Demo Personal data",
-          "nl": "Demo Persoonsgegevens"
-        },
         "IssuerID": "nijmegen",
         "SchemeManagerID": "irma-demo",
         "IsSingleton": true,
@@ -2266,10 +1942,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.nijmegen.travelDocument": {
         "ID": "travelDocument",
         "Name": {
-          "en": "Demo Travel Document",
-          "nl": "Demo Reisdocument"
-        },
-        "ShortName": {
           "en": "Demo Travel Document",
           "nl": "Demo Reisdocument"
         },
@@ -2306,10 +1978,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo Vektis agb by Nuts",
           "nl": "Demo Vektis agb by Nuts"
         },
-        "ShortName": {
-          "en": "Demo agb",
-          "nl": "Demo agb"
-        },
         "IssuerID": "nuts",
         "SchemeManagerID": "irma-demo",
         "IsSingleton": false,
@@ -2340,10 +2008,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.rdw.vrn": {
         "ID": "vrn",
         "Name": {
-          "en": "vehicle registration demo",
-          "nl": "kentekennummer demo"
-        },
-        "ShortName": {
           "en": "vehicle registration demo",
           "nl": "kentekennummer demo"
         },
@@ -2380,10 +2044,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo SURFdrive license",
           "nl": "Demo SURFdrive licentie"
         },
-        "ShortName": {
-          "en": "Demo SURFdrive license",
-          "nl": "Demo SURFdrive licentie"
-        },
         "IssuerID": "surf",
         "SchemeManagerID": "irma-demo",
         "IsSingleton": false,
@@ -2414,10 +2074,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.suwinet.income": {
         "ID": "income",
         "Name": {
-          "en": "Demo Suwinet Income",
-          "nl": "Demo Suwinet Inkomensgegevens"
-        },
-        "ShortName": {
           "en": "Demo Suwinet Income",
           "nl": "Demo Suwinet Inkomensgegevens"
         },
@@ -2454,10 +2110,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo Mandate",
           "nl": "Demo Machtiging"
         },
-        "ShortName": {
-          "en": "Demo Mandate",
-          "nl": "Demo Machtiging"
-        },
         "IssuerID": "vgz",
         "SchemeManagerID": "irma-demo",
         "IsSingleton": false,
@@ -2488,10 +2140,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.vngrealisatie.fieldlabparticipant": {
         "ID": "fieldlabparticipant",
         "Name": {
-          "en": "Demo Fieldlab Participant",
-          "nl": "Demo Fieldlabdeelnemer"
-        },
-        "ShortName": {
           "en": "Demo Fieldlab Participant",
           "nl": "Demo Fieldlabdeelnemer"
         },
@@ -2528,10 +2176,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Demo healthcare identity",
           "nl": "Demo zorgidentiteit"
         },
-        "ShortName": {
-          "en": "Demo healthcare identity",
-          "nl": "Demo zorgidentiteit"
-        },
         "IssuerID": "vzvz",
         "SchemeManagerID": "irma-demo",
         "IsSingleton": true,
@@ -2562,10 +2206,6 @@ String irmaConfigurationEventJson = r"""
       "irma-demo.wigo4it.stadspas": {
         "ID": "stadspas",
         "Name": {
-          "en": "Demo City Pass",
-          "nl": "Demo Stadspas"
-        },
-        "ShortName": {
           "en": "Demo City Pass",
           "nl": "Demo Stadspas"
         },
@@ -2602,10 +2242,6 @@ String irmaConfigurationEventJson = r"""
           "en": "BSN from healthcare",
           "nl": "BSN vanuit de zorg"
         },
-        "ShortName": {
-          "en": "BSN healthcare",
-          "nl": "BSN zorg"
-        },
         "IssuerID": "chipsoft",
         "SchemeManagerID": "pbdf",
         "IsSingleton": true,
@@ -2636,10 +2272,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Test BSN from healthcare",
           "nl": "Test BSN vanuit de zorg"
         },
-        "ShortName": {
-          "en": "Test BSN healthcare",
-          "nl": "Test BSN zorg"
-        },
         "IssuerID": "chipsoft",
         "SchemeManagerID": "pbdf",
         "IsSingleton": true,
@@ -2667,10 +2299,6 @@ String irmaConfigurationEventJson = r"""
       "pbdf.gebiedonline.livingarea": {
         "ID": "livingarea",
         "Name": {
-          "en": "Living area",
-          "nl": "Woongebied"
-        },
-        "ShortName": {
           "en": "Living area",
           "nl": "Woongebied"
         },
@@ -2707,10 +2335,6 @@ String irmaConfigurationEventJson = r"""
           "en": "User identification",
           "nl": "Gebruikersidentificatie"
         },
-        "ShortName": {
-          "en": "User identification",
-          "nl": "Gebruikersidentificatie"
-        },
         "IssuerID": "gebiedonline",
         "SchemeManagerID": "pbdf",
         "IsSingleton": true,
@@ -2741,10 +2365,6 @@ String irmaConfigurationEventJson = r"""
       "pbdf.gebiedonline.workingarea": {
         "ID": "workingarea",
         "Name": {
-          "en": "Working area",
-          "nl": "Werkgebied"
-        },
-        "ShortName": {
           "en": "Working area",
           "nl": "Werkgebied"
         },
@@ -2781,10 +2401,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Address",
           "nl": "Adres"
         },
-        "ShortName": {
-          "en": "Address",
-          "nl": "Adres"
-        },
         "IssuerID": "gemeente",
         "SchemeManagerID": "pbdf",
         "IsSingleton": true,
@@ -2815,10 +2431,6 @@ String irmaConfigurationEventJson = r"""
       "pbdf.gemeente.personalData": {
         "ID": "personalData",
         "Name": {
-          "en": "Citizen data",
-          "nl": "Inwonersgegevens"
-        },
-        "ShortName": {
           "en": "Citizen data",
           "nl": "Inwonersgegevens"
         },
@@ -2870,10 +2482,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Address",
           "nl": "Adres"
         },
-        "ShortName": {
-          "en": "Address",
-          "nl": "Adres"
-        },
         "IssuerID": "nijmegen",
         "SchemeManagerID": "pbdf",
         "IsSingleton": true,
@@ -2907,10 +2515,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Age limits",
           "nl": "Leeftijdslimieten"
         },
-        "ShortName": {
-          "en": "Age",
-          "nl": "Leeftijd"
-        },
         "IssuerID": "nijmegen",
         "SchemeManagerID": "pbdf",
         "IsSingleton": true,
@@ -2941,10 +2545,6 @@ String irmaConfigurationEventJson = r"""
       "pbdf.nijmegen.bsn": {
         "ID": "bsn",
         "Name": {
-          "en": "BSN",
-          "nl": "BSN"
-        },
-        "ShortName": {
           "en": "BSN",
           "nl": "BSN"
         },
@@ -2981,10 +2581,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Personal data",
           "nl": "Persoonsgegevens"
         },
-        "ShortName": {
-          "en": "Personal data",
-          "nl": "Persoonsgegevens"
-        },
         "IssuerID": "nijmegen",
         "SchemeManagerID": "pbdf",
         "IsSingleton": true,
@@ -3018,10 +2614,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Travel Document",
           "nl": "Reisdocument"
         },
-        "ShortName": {
-          "en": "Travel Document",
-          "nl": "Reisdocument"
-        },
         "IssuerID": "nijmegen",
         "SchemeManagerID": "pbdf",
         "IsSingleton": false,
@@ -3052,10 +2644,6 @@ String irmaConfigurationEventJson = r"""
       "pbdf.nuts.agb": {
         "ID": "agb",
         "Name": {
-          "en": "AGB",
-          "nl": "AGB"
-        },
-        "ShortName": {
           "en": "AGB",
           "nl": "AGB"
         },
@@ -3107,10 +2695,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Age limits",
           "nl": "Leeftijdslimieten"
         },
-        "ShortName": {
-          "en": "Age",
-          "nl": "Leeftijd"
-        },
         "IssuerID": "pbdf",
         "SchemeManagerID": "pbdf",
         "IsSingleton": true,
@@ -3144,10 +2728,6 @@ String irmaConfigurationEventJson = r"""
           "en": "BIG registration",
           "nl": "BIG-registratie"
         },
-        "ShortName": {
-          "en": "BIG",
-          "nl": "BIG"
-        },
         "IssuerID": "pbdf",
         "SchemeManagerID": "pbdf",
         "IsSingleton": false,
@@ -3178,10 +2758,6 @@ String irmaConfigurationEventJson = r"""
       "pbdf.pbdf.diploma": {
         "ID": "diploma",
         "Name": {
-          "en": "Diploma",
-          "nl": "Diploma"
-        },
-        "ShortName": {
           "en": "Diploma",
           "nl": "Diploma"
         },
@@ -3217,10 +2793,6 @@ String irmaConfigurationEventJson = r"""
         "Name": {
           "en": "Email address",
           "nl": "E-mailadres"
-        },
-        "ShortName": {
-          "en": "Email",
-          "nl": "E-mail"
         },
         "IssuerID": "pbdf",
         "SchemeManagerID": "pbdf",
@@ -3270,10 +2842,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Facebook",
           "nl": "Facebook"
         },
-        "ShortName": {
-          "en": "Facebook",
-          "nl": "Facebook"
-        },
         "IssuerID": "pbdf",
         "SchemeManagerID": "pbdf",
         "IsSingleton": false,
@@ -3307,10 +2875,6 @@ String irmaConfigurationEventJson = r"""
           "en": "iDEAL",
           "nl": "iDEAL"
         },
-        "ShortName": {
-          "en": "iDEAL",
-          "nl": "iDEAL"
-        },
         "IssuerID": "pbdf",
         "SchemeManagerID": "pbdf",
         "IsSingleton": false,
@@ -3341,10 +2905,6 @@ String irmaConfigurationEventJson = r"""
       "pbdf.pbdf.idin": {
         "ID": "idin",
         "Name": {
-          "en": "iDIN",
-          "nl": "iDIN"
-        },
-        "ShortName": {
           "en": "iDIN",
           "nl": "iDIN"
         },
@@ -3396,10 +2956,6 @@ String irmaConfigurationEventJson = r"""
           "en": "IRMATube membership",
           "nl": "IRMATube lidmaatschap"
         },
-        "ShortName": {
-          "en": "IRMATube",
-          "nl": "IRMATube"
-        },
         "IssuerID": "pbdf",
         "SchemeManagerID": "pbdf",
         "IsSingleton": true,
@@ -3430,10 +2986,6 @@ String irmaConfigurationEventJson = r"""
       "pbdf.pbdf.linkedin": {
         "ID": "linkedin",
         "Name": {
-          "en": "LinkedIn",
-          "nl": "LinkedIn"
-        },
-        "ShortName": {
           "en": "LinkedIn",
           "nl": "LinkedIn"
         },
@@ -3470,10 +3022,6 @@ String irmaConfigurationEventJson = r"""
           "en": "MyIRMA",
           "nl": "MijnIRMA"
         },
-        "ShortName": {
-          "en": "MyIRMA",
-          "nl": "MijnIRMA"
-        },
         "IssuerID": "pbdf",
         "SchemeManagerID": "pbdf",
         "IsSingleton": true,
@@ -3502,10 +3050,6 @@ String irmaConfigurationEventJson = r"""
         "ID": "mobilenumber",
         "Name": {
           "en": "Telephone number",
-          "nl": "Telefoongegevens"
-        },
-        "ShortName": {
-          "en": "Phone",
           "nl": "Telefoongegevens"
         },
         "IssuerID": "pbdf",
@@ -3556,10 +3100,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Surfnet",
           "nl": "Surfnet"
         },
-        "ShortName": {
-          "en": "Surfnet",
-          "nl": "Surfnet"
-        },
         "IssuerID": "pbdf",
         "SchemeManagerID": "pbdf",
         "IsSingleton": true,
@@ -3590,10 +3130,6 @@ String irmaConfigurationEventJson = r"""
       "pbdf.pbdf.surfnet-2": {
         "ID": "surfnet-2",
         "Name": {
-          "en": "Surfnet",
-          "nl": "Surfnet"
-        },
-        "ShortName": {
           "en": "Surfnet",
           "nl": "Surfnet"
         },
@@ -3645,10 +3181,6 @@ String irmaConfigurationEventJson = r"""
           "en": "Twitter",
           "nl": "Twitter"
         },
-        "ShortName": {
-          "en": "Twitter",
-          "nl": "Twitter"
-        },
         "IssuerID": "pbdf",
         "SchemeManagerID": "pbdf",
         "IsSingleton": false,
@@ -3682,10 +3214,6 @@ String irmaConfigurationEventJson = r"""
           "en": "MyIRMA",
           "nl": "MijnIRMA"
         },
-        "ShortName": {
-          "en": "MyIRMA",
-          "nl": "MijnIRMA"
-        },
         "IssuerID": "sidn-pbdf",
         "SchemeManagerID": "pbdf",
         "IsSingleton": true,
@@ -3713,10 +3241,6 @@ String irmaConfigurationEventJson = r"""
       "pbdf.surf.secureid": {
         "ID": "secureid",
         "Name": {
-          "en": "SURFsecureID",
-          "nl": "SURFsecureID"
-        },
-        "ShortName": {
           "en": "SURFsecureID",
           "nl": "SURFsecureID"
         },
@@ -3753,10 +3277,6 @@ String irmaConfigurationEventJson = r"""
           "en": "SURFdrive license",
           "nl": "SURFdrive licentie"
         },
-        "ShortName": {
-          "en": "SURFdrive license",
-          "nl": "SURFdrive licentie"
-        },
         "IssuerID": "surf",
         "SchemeManagerID": "pbdf",
         "IsSingleton": false,
@@ -3784,10 +3304,6 @@ String irmaConfigurationEventJson = r"""
       "pbdf.vgz.machtiging": {
         "ID": "machtiging",
         "Name": {
-          "en": "Mandate",
-          "nl": "Machtiging"
-        },
-        "ShortName": {
           "en": "Mandate",
           "nl": "Machtiging"
         },
