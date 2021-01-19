@@ -99,16 +99,13 @@ class AppVersion {
 // colors and backgrounds (not from irma scheme right now).
 @JsonSerializable(nullable: false, createToJson: false)
 class Issuer {
-  Issuer({this.id, this.name, this.shortName, this.schemeManagerId, this.contactAddress, this.contactEmail});
+  Issuer({this.id, this.name, this.schemeManagerId, this.contactAddress, this.contactEmail});
 
   @JsonKey(name: 'ID')
   final String id;
 
   @JsonKey(name: 'Name')
   final TranslatedValue name;
-
-  @JsonKey(name: 'ShortName')
-  final TranslatedValue shortName;
 
   @JsonKey(name: 'SchemeManagerID')
   final String schemeManagerId;
@@ -129,7 +126,6 @@ class CredentialType {
   CredentialType({
     this.id,
     this.name,
-    this.shortName,
     this.issuerId,
     this.schemeManagerId,
     this.isSingleton,
@@ -154,9 +150,6 @@ class CredentialType {
 
   @JsonKey(name: 'Name')
   final TranslatedValue name;
-
-  @JsonKey(name: 'ShortName')
-  final TranslatedValue shortName;
 
   @JsonKey(name: 'IssuerID')
   final String issuerId;

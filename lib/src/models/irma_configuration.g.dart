@@ -55,7 +55,6 @@ Issuer _$IssuerFromJson(Map<String, dynamic> json) {
   return Issuer(
     id: json['ID'] as String,
     name: TranslatedValue.fromJson(json['Name'] as Map<String, dynamic>),
-    shortName: TranslatedValue.fromJson(json['ShortName'] as Map<String, dynamic>),
     schemeManagerId: json['SchemeManagerID'] as String,
     contactAddress: json['ContactAddress'] as String,
     contactEmail: json['ContactEmail'] as String,
@@ -66,7 +65,6 @@ CredentialType _$CredentialTypeFromJson(Map<String, dynamic> json) {
   return CredentialType(
     id: json['ID'] as String,
     name: TranslatedValue.fromJson(json['Name'] as Map<String, dynamic>),
-    shortName: TranslatedValue.fromJson(json['ShortName'] as Map<String, dynamic>),
     issuerId: json['IssuerID'] as String,
     schemeManagerId: json['SchemeManagerID'] as String,
     isSingleton: json['IsSingleton'] as bool,
