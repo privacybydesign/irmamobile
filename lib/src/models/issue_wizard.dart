@@ -115,6 +115,7 @@ class IssueWizardItem {
     this.sessionURL,
     this.url,
     this.inApp,
+    this.completed,
   });
 
   @JsonKey(name: 'type')
@@ -140,6 +141,8 @@ class IssueWizardItem {
 
   @JsonKey(name: 'inapp')
   final bool inApp;
+
+  final bool completed;
 
   factory IssueWizardItem.fromJson(Map<String, dynamic> json) => _$IssueWizardItemFromJson(json);
   Map<String, dynamic> toJson() => _$IssueWizardItemToJson(this);

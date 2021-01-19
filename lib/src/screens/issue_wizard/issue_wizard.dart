@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -27,8 +28,9 @@ class IssueWizardScreen extends StatefulWidget {
 }
 
 class _IssueWizardScreenState extends State<IssueWizardScreen> {
-  int activeItem = 0;
-  bool showIntro = true;
+  int _activeItem = 0;
+  bool _showIntro = true;
+  bool _showSuccess = false;
 
   final GlobalKey _scrollviewKey = GlobalKey();
   final ScrollController _controller = ScrollController();
@@ -75,7 +77,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
   Widget _buildIntroButtons() {
     return IrmaBottomBar(
       primaryButtonLabel: FlutterI18n.translate(context, "issue_wizard.add"),
-      onPrimaryPressed: () => setState(() => showIntro = false),
+      onPrimaryPressed: () => setState(() => _showIntro = false),
       secondaryButtonLabel: FlutterI18n.translate(context, "issue_wizard.back"),
       onSecondaryPressed: () => popToWallet(context),
     );
@@ -86,7 +88,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
     TranslatedValue intro,
     TranslatedValue successHeader,
     TranslatedValue successText,
-    List<ProgressingListItem> data,
+    List<ProgressingListItem> contents,
   ) {
     assert((successHeader == null) == (successText == null),
         "Either specify both successHeader and successText, or neither.");
@@ -101,14 +103,14 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
           ),
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
-          child: ProgressingList(data: data, activeItem: activeItem),
+          child: ProgressingList(data: contents, activeItem: activeItem(contents)),
         ),
-        if (successHeader != null && activeItem == data.length)
+        if (_showSuccess)
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
             child: Text(successHeader.translate(lang), style: Theme.of(context).textTheme.headline3),
           ),
-        if (successText != null && activeItem == data.length)
+        if (_showSuccess)
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
             child: IrmaMarkdown(successText.translate(lang)),
@@ -117,13 +119,35 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
     );
   }
 
-  Widget _buildWizardButtons(ProgressingListItem item, int count, bool showSuccessMessage) {
+  Widget _buildWizardButtons(List<ProgressingListItem> contents, {bool successMessage}) {
+    final idx = activeItem(contents);
     return IrmaBottomBar(
-      primaryButtonLabel: item?.buttonLabel ?? FlutterI18n.translate(context, "issue_wizard.done"),
-      onPrimaryPressed: () => setState(() {
-        activeItem = (activeItem + 1) % (showSuccessMessage ? count + 1 : count);
-      }),
+      primaryButtonLabel:
+          _showSuccess ? FlutterI18n.translate(context, "issue_wizard.done") : contents[idx].buttonLabel,
+      onPrimaryPressed: () => next(contents, successMessage: successMessage),
     );
+  }
+
+  int activeItem(List<ProgressingListItem> contents) =>
+      max(_activeItem, contents.indexWhere((item) => !item.completed));
+
+  void next(List<ProgressingListItem> contents, {bool successMessage}) {
+    final nextIdx = contents.indexWhere((item) => !item.completed, activeItem(contents) + 1);
+    if (nextIdx == -1) {
+      if (!successMessage || _showSuccess) {
+        popToWallet(context);
+      } else {
+        setState(() {
+          _activeItem = contents.length + 1;
+          _showSuccess = true;
+        });
+      }
+      return;
+    }
+
+    setState(() {
+      _activeItem = nextIdx;
+    });
   }
 
   @override
@@ -143,6 +167,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
               (item) => ProgressingListItem(
                 header: item.header.translate(lang),
                 text: item.text.translate(lang),
+                completed: item.completed,
                 buttonLabel: item.label?.translate(lang) ??
                     FlutterI18n.translate(
                       context,
@@ -159,13 +184,9 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
             leadingAction: () => Navigator.of(context).pop(),
             leadingIcon: Icon(Icons.arrow_back, semanticLabel: FlutterI18n.translate(context, "accessibility.back")),
           ),
-          bottomNavigationBar: showIntro
+          bottomNavigationBar: _showIntro
               ? _buildIntroButtons()
-              : _buildWizardButtons(
-                  activeItem < contents.length ? contents[activeItem] : null,
-                  contents.length,
-                  wizard.successHeader != null,
-                ),
+              : _buildWizardButtons(contents, successMessage: wizard.successHeader != null),
           body: SingleChildScrollView(
             controller: _controller,
             key: _scrollviewKey,
@@ -183,7 +204,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
                       padding: const EdgeInsets.all(20),
                       child: Heading(wizard.title.translate(lang), style: Theme.of(context).textTheme.headline5),
                     ),
-                    if (showIntro)
+                    if (_showIntro)
                       _buildIntro(context, wizard.info, wizard.faq)
                     else
                       _buildWizard(context, wizard.intro, wizard.successHeader, wizard.successText, contents),

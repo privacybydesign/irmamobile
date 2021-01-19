@@ -107,6 +107,12 @@ class IrmaRepository {
       repo: this,
       sessionEventStream: _eventSubject.where((event) => event is SessionEvent).cast<SessionEvent>(),
     );
+    _credentialsSubject.forEach((creds) async {
+      final event = await _issueWizardSubject.first;
+      if (event != null) {
+        _issueWizardSubject.add(await processIssueWizard(event.wizard.id, event.wizardContents, creds));
+      }
+    });
   }
 
   Future<void> _eventListener(Event event) async {
@@ -159,7 +165,11 @@ class IrmaRepository {
     } else if (event is ClientPreferencesEvent) {
       _preferencesSubject.add(event);
     } else if (event is IssueWizardContentsEvent) {
-      _issueWizardSubject.add(await processIssueWizard(event));
+      _issueWizardSubject.add(await processIssueWizard(
+        event.id,
+        event.wizardContents,
+        await _credentialsSubject.first,
+      ));
     }
   }
 
@@ -359,17 +369,23 @@ class IrmaRepository {
     return _issueWizardSubject.stream;
   }
 
-  Future<IssueWizardEvent> processIssueWizard(IssueWizardContentsEvent event) async {
+  Future<IssueWizardEvent> processIssueWizard(
+    String id,
+    List<IssueWizardItem> contents,
+    Credentials credentials,
+  ) async {
     final conf = await irmaConfigurationSubject.first;
+    final creds = Set.from(credentials.values.map((cred) => cred.info.fullId));
     return IssueWizardEvent(
-      wizard: conf.issueWizards[event.id],
-      wizardContents: event.wizardContents.map((item) {
+      wizard: conf.issueWizards[id],
+      wizardContents: contents.map((item) {
         if (item.type != "credential") return item;
         final credtype = conf.credentialTypes[item.credential];
         return IssueWizardItem(
           type: "credential",
           credential: item.credential,
           label: item.label,
+          completed: creds.contains(item.credential),
           header: item.header ?? credtype.name,
           text: item.text ?? credtype.faqSummary,
         );
