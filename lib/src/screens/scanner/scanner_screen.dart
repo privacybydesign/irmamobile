@@ -51,44 +51,34 @@ class ScannerScreen extends StatelessWidget {
       inAppCredential: await repo.getInAppCredential(),
     );
 
-    repo.hasActiveSessions().then((hasActiveSessions) {
-      repo.dispatch(event, isBridgedEvent: true);
+    final hasActiveSessions = await repo.hasActiveSessions();
+    repo.dispatch(event, isBridgedEvent: true);
 
-      if (hasActiveSessions) {
-        // After this session finishes, we want to go back to the previous session
-        if (webview) {
-          // replace webview with session screen
-          navigator.pushReplacementNamed(
-            SessionScreen.routeName,
-            arguments: SessionScreenArguments(
-              sessionID: event.sessionID,
-              sessionType: event.request.irmaqr,
-              hasUnderlyingSession: true,
-            ),
-          );
-        } else {
-          // webview is already dismissed, just push the session screen
-          navigator.pushNamed(
-            SessionScreen.routeName,
-            arguments: SessionScreenArguments(
-              sessionID: event.sessionID,
-              sessionType: event.request.irmaqr,
-              hasUnderlyingSession: true,
-            ),
-          );
-        }
+    final args = SessionScreenArguments(
+      sessionID: event.sessionID,
+      sessionType: event.request.irmaqr,
+      hasUnderlyingSession: hasActiveSessions,
+    );
+    if (hasActiveSessions) {
+      // After this session finishes, we want to go back to the previous session
+      if (webview) {
+        // replace webview with session screen
+        navigator.pushReplacementNamed(SessionScreen.routeName, arguments: args);
+      } else {
+        // webview is already dismissed, just push the session screen
+        navigator.pushNamed(SessionScreen.routeName, arguments: args);
+      }
+    } else {
+      if (repo.wizardActive) {
+        navigator.pushNamed(SessionScreen.routeName, arguments: args);
       } else {
         navigator.pushNamedAndRemoveUntil(
           SessionScreen.routeName,
           ModalRoute.withName(WalletScreen.routeName),
-          arguments: SessionScreenArguments(
-            sessionID: event.sessionID,
-            sessionType: event.request.irmaqr,
-            hasUnderlyingSession: false,
-          ),
+          arguments: args,
         );
       }
-    });
+    }
   }
 
   @override

@@ -9,6 +9,7 @@ import 'package:irmamobile/src/models/native_events.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/screens/error/session_error_screen.dart';
+import 'package:irmamobile/src/screens/issue_wizard/issue_wizard.dart';
 import 'package:irmamobile/src/screens/pin/session_pin_screen.dart';
 import 'package:irmamobile/src/screens/session/call_info_screen.dart';
 import 'package:irmamobile/src/screens/session/session.dart';
@@ -202,6 +203,8 @@ class _SessionScreenState extends State<SessionScreen> {
           widget.arguments.hasUnderlyingSession ? Navigator.of(context).pop() : popToWallet(context);
         }
       });
+    } else if (_repo.wizardActive) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => popToWizard(context));
     } else if (_isSpecialIssuanceSession(session)) {
       WidgetsBinding.instance.addPostFrameCallback((_) => popToWallet(context));
     } else if (widget.arguments.hasUnderlyingSession) {
@@ -232,7 +235,9 @@ class _SessionScreenState extends State<SessionScreen> {
         child: SessionErrorScreen(
           error: session.error,
           onTapClose: () {
-            if (session.continueOnSecondDevice) {
+            if (_repo.wizardActive) {
+              popToWizard(context);
+            } else if (session.continueOnSecondDevice) {
               popToWallet(context);
             } else if (session.clientReturnURL != null && !session.isReturnPhoneNumber) {
               // canLaunch check is already done in the session repository.

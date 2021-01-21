@@ -6,14 +6,12 @@ class ProgressingListItem {
   final String header;
   final String subheader;
   final String text;
-  final String buttonLabel;
   final bool completed;
 
   ProgressingListItem({
     @required this.header,
     this.subheader,
     @required this.text,
-    this.buttonLabel,
     this.completed = false,
   });
 }

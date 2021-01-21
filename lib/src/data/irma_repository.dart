@@ -79,6 +79,7 @@ class IrmaRepository {
   final _eventSubject = PublishSubject<Event>();
 
   SessionRepository _sessionRepository;
+  bool wizardActive = false;
 
   final irmaConfigurationSubject = BehaviorSubject<IrmaConfiguration>(); // TODO: Make this member private
   final _credentialsSubject = BehaviorSubject<Credentials>();
