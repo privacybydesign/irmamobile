@@ -18,9 +18,8 @@ class ProgressingListItem {
 
 class ProgressingList extends StatelessWidget {
   final List<ProgressingListItem> data;
-  final int activeItem;
 
-  const ProgressingList({Key key, this.data, this.activeItem}) : super(key: key);
+  const ProgressingList({Key key, this.data}) : super(key: key);
 
   Color _color(BuildContext context, {bool active, bool completed}) {
     if (active) return IrmaTheme.of(context).primaryBlue;
@@ -84,6 +83,7 @@ class ProgressingList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final activeItem = data.indexWhere((item) => !item.completed);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: data
@@ -94,7 +94,7 @@ class ProgressingList extends StatelessWidget {
                 item.value,
                 last: item.key == data.length - 1,
                 active: item.key == activeItem,
-                completed: item.value.completed || item.key < activeItem,
+                completed: item.value.completed,
               ))
           .expand((i) => i)
           .toList(),

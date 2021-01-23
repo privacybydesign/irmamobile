@@ -366,8 +366,8 @@ class IrmaRepository {
     return _preferencesSubject.stream.map((pref) => pref.clientPreferences.developerMode);
   }
 
-  Stream<IssueWizardEvent> getIssueWizard() {
-    return _issueWizardSubject.stream;
+  BehaviorSubject<IssueWizardEvent> getIssueWizard() {
+    return _issueWizardSubject;
   }
 
   Future<IssueWizardEvent> processIssueWizard(
@@ -380,7 +380,7 @@ class IrmaRepository {
     return IssueWizardEvent(
       wizard: conf.issueWizards[id],
       wizardContents: contents.map((item) {
-        if (item.type != "credential") return item;
+        if (item.type != "credential") return item.copyWith(completed: item.completed ?? false);
         final credtype = conf.credentialTypes[item.credential];
         return IssueWizardItem(
           type: "credential",

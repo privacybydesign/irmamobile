@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,7 +8,6 @@ import 'package:irmamobile/src/models/issue_wizard.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
-import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:irmamobile/src/screens/issue_wizard/widgets/progressing_list.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/session/session.dart';
@@ -44,9 +42,7 @@ class IssueWizardScreen extends StatefulWidget {
 }
 
 class _IssueWizardScreenState extends State<IssueWizardScreen> {
-  int _activeItem = 0;
   bool _showIntro = true;
-  bool _showSuccess = false;
   int _sessionID;
 
   final GlobalKey _scrollviewKey = GlobalKey();
@@ -65,8 +61,8 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
     );
   }
 
-  Widget _buildIntro(BuildContext context, TranslatedValue intro, List<IssueWizardQA> questions) {
-    final _collapsableKeys = List<GlobalKey>.generate(questions.length, (int index) => GlobalKey());
+  Widget _buildIntro(BuildContext context, IssueWizard wizard) {
+    final _collapsableKeys = List<GlobalKey>.generate(wizard.faq.length, (int index) => GlobalKey());
     final lang = FlutterI18n.currentLocale(context).languageCode;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,9 +74,9 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
             IrmaTheme.of(context).defaultSpacing,
             IrmaTheme.of(context).defaultSpacing,
           ),
-          child: IrmaMarkdown(intro.translate(lang)),
+          child: IrmaMarkdown(wizard.intro.translate(lang)),
         ),
-        ...questions.asMap().entries.map(
+        ...wizard.faq.asMap().entries.map(
               (q) => _buildCollapsible(
                 context,
                 _collapsableKeys[q.key],
@@ -92,30 +88,12 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
     );
   }
 
-  Widget _buildIntroButtons() {
-    return IrmaBottomBar(
-      primaryButtonLabel: FlutterI18n.translate(context, "issue_wizard.add"),
-      onPrimaryPressed: () {
-        _repo.wizardActive = true;
-        setState(() => _showIntro = false);
-      },
-      secondaryButtonLabel: FlutterI18n.translate(context, "issue_wizard.back"),
-      onSecondaryPressed: () => popToWallet(context),
-    );
-  }
-
   Widget _buildWizard(
     BuildContext context,
-    TranslatedValue intro,
-    TranslatedValue successHeader,
-    TranslatedValue successText,
-    List<IssueWizardItem> wizard,
+    IssueWizardEvent event,
   ) {
-    assert((successHeader == null) == (successText == null),
-        "Either specify both successHeader and successText, or neither.");
-
     final lang = FlutterI18n.currentLocale(context).languageCode;
-    final contents = wizard
+    final contents = event.wizardContents
         .map((item) => ProgressingListItem(
               header: item.header.translate(lang),
               text: item.text.translate(lang),
@@ -123,9 +101,12 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
             ))
         .toList();
 
+    final successHeader = event.wizard.successHeader;
+    final successText = event.wizard.successText;
+    final intro = event.wizard.intro;
     return VisibilityDetector(
       key: const Key('wizard-key'),
-      onVisibilityChanged: (v) => _onVisibilityChanged(v, wizard, successText != null),
+      onVisibilityChanged: (v) => _onVisibilityChanged(v, event),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -136,14 +117,14 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
             ),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
-            child: ProgressingList(data: contents, activeItem: activeItem(wizard)),
+            child: ProgressingList(data: contents),
           ),
-          if (_showSuccess)
+          if (successHeader != null && event.completed)
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
               child: Text(successHeader.translate(lang), style: Theme.of(context).textTheme.headline3),
             ),
-          if (_showSuccess)
+          if (successText != null && event.completed)
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
               child: IrmaMarkdown(successText.translate(lang)),
@@ -153,14 +134,9 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
     );
   }
 
-  int activeItem(List<IssueWizardItem> wizard) =>
-      max(_activeItem, wizard.indexWhere((item) => !(item.completed ?? false)));
+  Future<void> _onVisibilityChanged(VisibilityInfo visibility, IssueWizardEvent event) async {
+    if (_sessionID == null) return;
 
-  Future<void> _onVisibilityChanged(
-    VisibilityInfo visibility,
-    List<IssueWizardItem> wizard,
-    bool successMessage,
-  ) async {
     // If we became visible and the session that was started by the currently active wizard item
     // is done and has succeeded, we need to progress to the next item or close the wizard.
     final state = await _repo.getSessionState(_sessionID).first;
@@ -168,62 +144,59 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
       return;
     }
 
-    final nextIdx = wizard.indexWhere((item) => !(item.completed ?? false), activeItem(wizard) + 1);
-    if (nextIdx != -1) {
-      setState(() => _activeItem = nextIdx);
-    } else if (successMessage) {
-      setState(() {
-        _activeItem = wizard.length + 1;
-        _showSuccess = true;
-      });
-    } else {
+    // we're done tracking this session, prevent it from being handled again if we return again
+    _sessionID = null;
+
+    final nextEvent = event.next;
+    _repo.getIssueWizard().add(nextEvent);
+
+    if (!nextEvent.showSuccess && nextEvent.completed) {
       _repo.wizardActive = false;
       popToWallet(context);
     }
   }
 
-  void _onButtonPress(
-    BuildContext context,
-    List<IssueWizardItem> wizard,
-    bool successMessage,
-  ) {
-    if (_showSuccess) {
+  void _onButtonPress(BuildContext context, IssueWizardEvent event) {
+    if (event.completed) {
       _repo.wizardActive = false;
       popToWallet(context);
       return;
     }
 
-    final idx = activeItem(wizard);
-    final item = idx < wizard.length ? wizard[idx] : null;
-    if (item != null) {
+    final item = event.activeItem;
+    if (item.type != "credential") {
       // One way or another, the wizard item will start a session. When it does, we save the session ID,
-      // so that when the user returns to this screen, we can check if it finished.
+      // so that when the user returns to this screen, we can check if it completed.
+      // (In case of items of type credential, we don't need to do this because then the item will be marked
+      // as completed when the wallet contents is updated.)
       _repo
           .getEvents()
           .where((event) => event is NewSessionEvent)
           .first
           .then((event) => _sessionID = (event as SessionEvent).sessionID);
+    }
 
-      // Handle the different wizard item types
-      try {
-        switch (item.type) {
-          case "credential":
-            _repo.openIssueURL(context, item.credential);
-            break;
-          case "session":
-            ScannerScreen.startSessionAndNavigate(
-              Navigator.of(context),
-              SessionPointer(u: item.sessionURL, irmaqr: "redirect"),
-            );
-            break;
-          case "website":
-            _repo.openURL(context, getTranslation(context, item.url));
-            break;
-        }
-      } on PlatformException catch (e, stacktrace) {
-        // TODO error screen
-        reportError(e, stacktrace);
+    // Handle the different wizard item types
+    try {
+      switch (item.type) {
+        case "credential":
+          _repo.openIssueURL(context, item.credential);
+          break;
+        case "session":
+          ScannerScreen.startSessionAndNavigate(
+            Navigator.of(context),
+            SessionPointer(u: item.sessionURL, irmaqr: "redirect"),
+          );
+          break;
+        case "website":
+          item.inApp ?? true
+              ? _repo.openURL(context, getTranslation(context, item.url))
+              : _repo.openURLinExternalBrowser(context, getTranslation(context, item.url));
+          break;
       }
+    } on PlatformException catch (e, stacktrace) {
+      // TODO error screen
+      reportError(e, stacktrace);
     }
   }
 
@@ -237,16 +210,16 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
           return Container();
         }
 
-        final wizard = snapshot.data.wizard;
-        final contents = snapshot.data.wizardContents;
-        final idx = activeItem(contents);
-        final buttonLabel = _showSuccess
+        final event = snapshot.data;
+        final wizard = event.wizard;
+        final activeItem = event.activeItem;
+        final buttonLabel = activeItem == null
             ? FlutterI18n.translate(context, "issue_wizard.done")
-            : contents[idx].label?.translate(lang) ??
+            : activeItem.label?.translate(lang) ??
                 FlutterI18n.translate(
                   context,
                   "issue_wizard.add_credential",
-                  translationParams: {"credential": contents[idx].header.translate(lang)},
+                  translationParams: {"credential": activeItem.header.translate(lang)},
                 );
         final logoFile = File(wizard.logoPath ?? "");
         final logo = logoFile.existsSync()
@@ -263,10 +236,18 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
             leadingIcon: Icon(Icons.arrow_back, semanticLabel: FlutterI18n.translate(context, "accessibility.back")),
           ),
           bottomNavigationBar: _showIntro
-              ? _buildIntroButtons()
+              ? IrmaBottomBar(
+                  primaryButtonLabel: FlutterI18n.translate(context, "issue_wizard.add"),
+                  onPrimaryPressed: () {
+                    _repo.wizardActive = true;
+                    setState(() => _showIntro = false);
+                  },
+                  secondaryButtonLabel: FlutterI18n.translate(context, "issue_wizard.back"),
+                  onSecondaryPressed: () => popToWallet(context),
+                )
               : IrmaBottomBar(
                   primaryButtonLabel: buttonLabel,
-                  onPrimaryPressed: () => _onButtonPress(context, contents, wizard.successHeader != null),
+                  onPrimaryPressed: () => _onButtonPress(context, event),
                 ),
           body: SingleChildScrollView(
             controller: _controller,
@@ -281,10 +262,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
                       padding: const EdgeInsets.all(20),
                       child: Heading(wizard.title.translate(lang), style: Theme.of(context).textTheme.headline5),
                     ),
-                    if (_showIntro)
-                      _buildIntro(context, wizard.info, wizard.faq)
-                    else
-                      _buildWizard(context, wizard.intro, wizard.successHeader, wizard.successText, contents),
+                    if (_showIntro) _buildIntro(context, wizard) else _buildWizard(context, event),
                   ],
                 ),
               ],

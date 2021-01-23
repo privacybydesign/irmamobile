@@ -35,6 +35,20 @@ class IssueWizardEvent extends Event {
 
   final IssueWizard wizard;
   final List<IssueWizardItem> wizardContents;
+
+  bool get showSuccess => wizard.successHeader != null && wizard.successText != null;
+  bool get completed => wizardContents.every((item) => item.completed);
+  IssueWizardItem get activeItem => wizardContents.firstWhere((item) => !item.completed, orElse: () => null);
+  IssueWizardEvent get next => IssueWizardEvent(
+        wizard: wizard,
+        wizardContents: wizardContents
+            .asMap()
+            .entries
+            .map((e) => e.value.copyWith(
+                  completed: e.key == wizardContents.indexWhere((item) => !item.completed) || e.value.completed,
+                ))
+            .toList(),
+      );
 }
 
 @JsonSerializable()
@@ -143,6 +157,30 @@ class IssueWizardItem {
   final bool inApp;
 
   final bool completed;
+
+  IssueWizardItem copyWith({
+    String type,
+    String credential,
+    TranslatedValue header,
+    TranslatedValue text,
+    TranslatedValue label,
+    String sessionURL,
+    TranslatedValue url,
+    bool inApp,
+    bool completed,
+  }) {
+    return IssueWizardItem(
+      type: type ?? this.type,
+      credential: credential ?? this.credential,
+      header: header ?? this.header,
+      text: text ?? this.text,
+      label: label ?? this.label,
+      sessionURL: sessionURL ?? this.sessionURL,
+      url: url ?? this.url,
+      inApp: inApp ?? this.inApp,
+      completed: completed ?? this.completed,
+    );
+  }
 
   factory IssueWizardItem.fromJson(Map<String, dynamic> json) => _$IssueWizardItemFromJson(json);
   Map<String, dynamic> toJson() => _$IssueWizardItemToJson(this);
