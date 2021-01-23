@@ -184,6 +184,8 @@ class _SessionScreenState extends State<SessionScreen> {
       return _buildFinishedReturnPhoneNumber(session);
     }
 
+    final popToMainScreen = _repo.wizardActive ? popToWizard : popToWallet;
+
     // It concerns a mobile session.
     if (session.clientReturnURL != null) {
       // If there is a return URL, navigate to it when we're done; canLaunch check is already
@@ -193,20 +195,18 @@ class _SessionScreenState extends State<SessionScreen> {
         // hasUnderlyingSession during issuance is handled at the beginning of _buildFinished, so
         // we don't have to explicitly exclude issuance here.
         if (Uri.parse(session.clientReturnURL).queryParameters.containsKey("inapp")) {
-          widget.arguments.hasUnderlyingSession ? Navigator.of(context).pop() : popToWallet(context);
+          widget.arguments.hasUnderlyingSession ? Navigator.of(context).pop() : popToMainScreen(context);
           if (session.inAppCredential != null && session.inAppCredential != "") {
             _repo.expectInactivationForCredentialType(session.inAppCredential);
           }
           _repo.openURLinAppBrowser(session.clientReturnURL);
         } else {
           _repo.openURLinExternalBrowser(context, session.clientReturnURL);
-          widget.arguments.hasUnderlyingSession ? Navigator.of(context).pop() : popToWallet(context);
+          widget.arguments.hasUnderlyingSession ? Navigator.of(context).pop() : popToMainScreen(context);
         }
       });
-    } else if (_repo.wizardActive) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => popToWizard(context));
-    } else if (_isSpecialIssuanceSession(session)) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => popToWallet(context));
+    } else if (_repo.wizardActive || _isSpecialIssuanceSession(session)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => popToMainScreen(context));
     } else if (widget.arguments.hasUnderlyingSession) {
       // In case of a disclosure having an underlying session we only continue to underlying session
       // if it is a mobile session and there was no clientReturnUrl.
