@@ -98,8 +98,6 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
             ))
         .toList();
 
-    final successHeader = wizard.wizardData.successHeader;
-    final successText = wizard.wizardData.successText;
     final intro = wizard.wizardData.intro;
     return VisibilityDetector(
       key: const Key('wizard-key'),
@@ -116,15 +114,18 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
             child: ProgressingList(data: contents),
           ),
-          if (successHeader != null && wizard.completed)
+          if (wizard.showSuccess && wizard.completed)
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
-              child: Text(successHeader.translate(lang), style: Theme.of(context).textTheme.headline3),
+              child: Text(
+                wizard.wizardData.successHeader.translate(lang),
+                style: Theme.of(context).textTheme.headline3,
+              ),
             ),
-          if (successText != null && wizard.completed)
+          if (wizard.showSuccess && wizard.completed)
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
-              child: IrmaMarkdown(successText.translate(lang)),
+              child: IrmaMarkdown(wizard.wizardData.successText.translate(lang)),
             ),
         ],
       ),
