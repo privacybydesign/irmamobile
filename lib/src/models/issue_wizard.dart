@@ -31,19 +31,19 @@ class IssueWizardContentsEvent extends Event {
 }
 
 class IssueWizardEvent extends Event {
-  IssueWizardEvent({this.wizard, this.wizardContents});
+  IssueWizardEvent({this.wizardData, this.wizardContents});
 
-  final IssueWizard wizard;
+  final IssueWizard wizardData;
   final List<IssueWizardItem> wizardContents;
 
-  bool get showSuccess => wizard.successHeader != null && wizard.successText != null;
+  bool get showSuccess => wizardData.successHeader != null && wizardData.successText != null;
   bool get completed => wizardContents.every((item) => item.completed);
   IssueWizardItem get activeItem => wizardContents.firstWhere((item) => !item.completed, orElse: () => null);
   int get _activeItemIndex => wizardContents.indexWhere((item) => !item.completed);
 
   /// A copy of the event with the currently active item marked completed.
-  IssueWizardEvent get next => IssueWizardEvent(
-        wizard: wizard,
+  IssueWizardEvent get nextEvent => IssueWizardEvent(
+        wizardData: wizardData,
         wizardContents: wizardContents
             .asMap()
             .entries

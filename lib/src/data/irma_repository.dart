@@ -111,7 +111,7 @@ class IrmaRepository {
     _credentialsSubject.forEach((creds) async {
       final event = await _issueWizardSubject.first;
       if (event != null) {
-        _issueWizardSubject.add(await processIssueWizard(event.wizard.id, event.wizardContents, creds));
+        _issueWizardSubject.add(await processIssueWizard(event.wizardData.id, event.wizardContents, creds));
       }
     });
   }
@@ -378,7 +378,7 @@ class IrmaRepository {
     final conf = await irmaConfigurationSubject.first;
     final creds = Set.from(credentials.values.map((cred) => cred.info.fullId));
     return IssueWizardEvent(
-      wizard: conf.issueWizards[id],
+      wizardData: conf.issueWizards[id],
       wizardContents: contents.map((item) {
         // The credential field may be non-nil for any wizard item type
         final haveCredential = item.credential != null && creds.contains(item.credential);

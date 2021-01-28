@@ -61,8 +61,8 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
     );
   }
 
-  Widget _buildIntro(BuildContext context, IssueWizard wizard) {
-    final _collapsableKeys = List<GlobalKey>.generate(wizard.faq.length, (int index) => GlobalKey());
+  Widget _buildIntro(BuildContext context, IssueWizard wizardData) {
+    final _collapsableKeys = List<GlobalKey>.generate(wizardData.faq.length, (int index) => GlobalKey());
     final lang = FlutterI18n.currentLocale(context).languageCode;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,9 +74,9 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
             IrmaTheme.of(context).defaultSpacing,
             IrmaTheme.of(context).defaultSpacing,
           ),
-          child: IrmaMarkdown(wizard.intro.translate(lang)),
+          child: IrmaMarkdown(wizardData.intro.translate(lang)),
         ),
-        ...wizard.faq.asMap().entries.map(
+        ...wizardData.faq.asMap().entries.map(
               (q) => _buildCollapsible(
                 context,
                 _collapsableKeys[q.key],
@@ -88,12 +88,9 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
     );
   }
 
-  Widget _buildWizard(
-    BuildContext context,
-    IssueWizardEvent event,
-  ) {
+  Widget _buildWizard(BuildContext context, IssueWizardEvent wizard) {
     final lang = FlutterI18n.currentLocale(context).languageCode;
-    final contents = event.wizardContents
+    final contents = wizard.wizardContents
         .map((item) => ProgressingListItem(
               header: item.header.translate(lang),
               text: item.text.translate(lang),
@@ -101,12 +98,12 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
             ))
         .toList();
 
-    final successHeader = event.wizard.successHeader;
-    final successText = event.wizard.successText;
-    final intro = event.wizard.intro;
+    final successHeader = wizard.wizardData.successHeader;
+    final successText = wizard.wizardData.successText;
+    final intro = wizard.wizardData.intro;
     return VisibilityDetector(
       key: const Key('wizard-key'),
-      onVisibilityChanged: (v) => _onVisibilityChanged(v, event),
+      onVisibilityChanged: (v) => _onVisibilityChanged(v, wizard),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -119,12 +116,12 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
             child: ProgressingList(data: contents),
           ),
-          if (successHeader != null && event.completed)
+          if (successHeader != null && wizard.completed)
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
               child: Text(successHeader.translate(lang), style: Theme.of(context).textTheme.headline3),
             ),
-          if (successText != null && event.completed)
+          if (successText != null && wizard.completed)
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
               child: IrmaMarkdown(successText.translate(lang)),
@@ -134,7 +131,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
     );
   }
 
-  Future<void> _onVisibilityChanged(VisibilityInfo visibility, IssueWizardEvent event) async {
+  Future<void> _onVisibilityChanged(VisibilityInfo visibility, IssueWizardEvent wizard) async {
     if (_sessionID == null) return;
 
     // If we became visible and the session that was started by the currently active wizard item
@@ -147,7 +144,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
     // we're done tracking this session, prevent it from being handled again if we return again
     _sessionID = null;
 
-    final nextEvent = event.next;
+    final nextEvent = wizard.nextEvent;
     _repo.getIssueWizard().add(nextEvent);
 
     if (!nextEvent.showSuccess && nextEvent.completed) {
@@ -156,19 +153,19 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
     }
   }
 
-  void _onButtonPress(BuildContext context, IssueWizardEvent event) {
-    if (event.completed) {
+  void _onButtonPress(BuildContext context, IssueWizardEvent wizard) {
+    if (wizard.completed) {
       _repo.wizardActive = false;
       popToWallet(context);
       return;
     }
 
-    final item = event.activeItem;
+    final item = wizard.activeItem;
     if (item.credential == null) {
-      // One way or another, the wizard item will start a session. When it does, we save the session ID,
+      // If it is not known in advance which credential a wizard item will issue (if it issues anything at all),
+      // then the only reasonable condition that we can use to consider the item to be completed is whenenver the
+      // session that it starts has finished succesfully. So when the session starts, we save the session ID,
       // so that when the user returns to this screen, we can check if it completed.
-      // (In case of items of type credential, we don't need to do this because then the item will be marked
-      // as completed when the wallet contents is updated.)
       _repo
           .getEvents()
           .where((event) => event is NewSessionEvent)
@@ -204,15 +201,15 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
   Widget build(BuildContext context) {
     final lang = FlutterI18n.currentLocale(context).languageCode;
     return StreamBuilder(
-      stream: _repo.getIssueWizard().where((event) => event.wizard.id == widget.id),
+      stream: _repo.getIssueWizard().where((event) => event.wizardData.id == widget.id),
       builder: (context, AsyncSnapshot<IssueWizardEvent> snapshot) {
         if (!snapshot.hasData) {
           return Container();
         }
 
-        final event = snapshot.data;
-        final wizard = event.wizard;
-        final activeItem = event.activeItem;
+        final wizard = snapshot.data;
+        final wizardData = wizard.wizardData;
+        final activeItem = wizard.activeItem;
         final buttonLabel = activeItem == null
             ? FlutterI18n.translate(context, "issue_wizard.done")
             : activeItem.label?.translate(lang) ??
@@ -221,7 +218,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
                   "issue_wizard.add_credential",
                   translationParams: {"credential": activeItem.header.translate(lang)},
                 );
-        final logoFile = File(wizard.logoPath ?? "");
+        final logoFile = File(wizardData.logoPath ?? "");
         final logo = logoFile.existsSync()
             ? Image.file(logoFile, excludeFromSemantics: true)
             : Image.asset("assets/non-free/irmalogo.png", excludeFromSemantics: true);
@@ -247,7 +244,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
                 )
               : IrmaBottomBar(
                   primaryButtonLabel: buttonLabel,
-                  onPrimaryPressed: () => _onButtonPress(context, event),
+                  onPrimaryPressed: () => _onButtonPress(context, wizard),
                 ),
           body: SingleChildScrollView(
             controller: _controller,
@@ -260,9 +257,9 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
                   children: <Widget>[
                     Padding(
                       padding: const EdgeInsets.all(20),
-                      child: Heading(wizard.title.translate(lang), style: Theme.of(context).textTheme.headline5),
+                      child: Heading(wizardData.title.translate(lang), style: Theme.of(context).textTheme.headline5),
                     ),
-                    if (_showIntro) _buildIntro(context, wizard) else _buildWizard(context, event),
+                    if (_showIntro) _buildIntro(context, wizardData) else _buildWizard(context, wizard),
                   ],
                 ),
               ],
