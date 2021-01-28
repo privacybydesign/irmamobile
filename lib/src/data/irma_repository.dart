@@ -380,13 +380,17 @@ class IrmaRepository {
     return IssueWizardEvent(
       wizard: conf.issueWizards[id],
       wizardContents: contents.map((item) {
-        if (item.type != "credential") return item.copyWith(completed: item.completed ?? false);
+        // The credential field may be non-nil for any wizard item type
+        final haveCredential = item.credential != null && creds.contains(item.credential);
+        if (item.type != "credential") {
+          return item.copyWith(completed: haveCredential || (item.completed ?? false));
+        }
         final credtype = conf.credentialTypes[item.credential];
         return IssueWizardItem(
           type: "credential",
           credential: item.credential,
           label: item.label,
-          completed: creds.contains(item.credential),
+          completed: haveCredential,
           header: item.header ?? credtype.name,
           text: item.text ?? credtype.faqSummary,
         );

@@ -164,7 +164,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
     }
 
     final item = event.activeItem;
-    if (item.type != "credential") {
+    if (item.credential == null) {
       // One way or another, the wizard item will start a session. When it does, we save the session ID,
       // so that when the user returns to this screen, we can check if it completed.
       // (In case of items of type credential, we don't need to do this because then the item will be marked

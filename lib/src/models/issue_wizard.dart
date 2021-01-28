@@ -39,14 +39,15 @@ class IssueWizardEvent extends Event {
   bool get showSuccess => wizard.successHeader != null && wizard.successText != null;
   bool get completed => wizardContents.every((item) => item.completed);
   IssueWizardItem get activeItem => wizardContents.firstWhere((item) => !item.completed, orElse: () => null);
+  int get _activeItemIndex => wizardContents.indexWhere((item) => !item.completed);
+
+  /// A copy of the event with the currently active item marked completed.
   IssueWizardEvent get next => IssueWizardEvent(
         wizard: wizard,
         wizardContents: wizardContents
             .asMap()
             .entries
-            .map((e) => e.value.copyWith(
-                  completed: e.key == wizardContents.indexWhere((item) => !item.completed) || e.value.completed,
-                ))
+            .map((e) => e.value.copyWith(completed: e.key == _activeItemIndex || e.value.completed))
             .toList(),
       );
 }
