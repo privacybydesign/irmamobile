@@ -69,7 +69,7 @@ class ScannerScreen extends StatelessWidget {
         navigator.pushNamed(SessionScreen.routeName, arguments: args);
       }
     } else {
-      if (repo.wizardActive) {
+      if (await repo.getIssueWizardActive().first) {
         navigator.pushNamed(SessionScreen.routeName, arguments: args);
       } else {
         navigator.pushNamedAndRemoveUntil(

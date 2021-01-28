@@ -79,7 +79,6 @@ class IrmaRepository {
   final _eventSubject = PublishSubject<Event>();
 
   SessionRepository _sessionRepository;
-  bool wizardActive = false;
 
   final irmaConfigurationSubject = BehaviorSubject<IrmaConfiguration>(); // TODO: Make this member private
   final _credentialsSubject = BehaviorSubject<Credentials>();
@@ -97,6 +96,7 @@ class IrmaRepository {
   final _resumedWithURLSubject = BehaviorSubject<bool>.seeded(false);
   final _resumedFromBrowserSubject = BehaviorSubject<bool>.seeded(false);
   final _issueWizardSubject = BehaviorSubject<IssueWizardEvent>.seeded(null);
+  final _issueWizardActiveSubject = BehaviorSubject<bool>.seeded(false);
 
   // _internal is a named constructor only used by the factory
   IrmaRepository._internal({
@@ -368,6 +368,10 @@ class IrmaRepository {
 
   BehaviorSubject<IssueWizardEvent> getIssueWizard() {
     return _issueWizardSubject;
+  }
+
+  BehaviorSubject<bool> getIssueWizardActive() {
+    return _issueWizardActiveSubject;
   }
 
   Future<IssueWizardEvent> processIssueWizard(

@@ -148,14 +148,14 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
     _repo.getIssueWizard().add(nextEvent);
 
     if (!nextEvent.showSuccess && nextEvent.completed) {
-      _repo.wizardActive = false;
+      _repo.getIssueWizardActive().add(false);
       popToWallet(context);
     }
   }
 
   void _onButtonPress(BuildContext context, IssueWizardEvent wizard) {
     if (wizard.completed) {
-      _repo.wizardActive = false;
+      _repo.getIssueWizardActive().add(false);
       popToWallet(context);
       return;
     }
@@ -227,7 +227,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
           appBar: IrmaAppBar(
             title: Text(FlutterI18n.translate(context, "issue_wizard.add_cards")),
             leadingAction: () {
-              _repo.wizardActive = false;
+              _repo.getIssueWizardActive().add(false);
               Navigator.of(context).pop();
             },
             leadingIcon: Icon(Icons.arrow_back, semanticLabel: FlutterI18n.translate(context, "accessibility.back")),
@@ -236,7 +236,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
               ? IrmaBottomBar(
                   primaryButtonLabel: FlutterI18n.translate(context, "issue_wizard.add"),
                   onPrimaryPressed: () {
-                    _repo.wizardActive = true;
+                    _repo.getIssueWizardActive().add(true);
                     setState(() => _showIntro = false);
                   },
                   secondaryButtonLabel: FlutterI18n.translate(context, "issue_wizard.back"),
