@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/issue_wizard.dart';
@@ -11,7 +10,6 @@ import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/screens/issue_wizard/widgets/progressing_list.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/session/session.dart';
-import 'package:irmamobile/src/sentry/sentry.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/collapsible_helper.dart';
 import 'package:irmamobile/src/util/language.dart';
@@ -175,26 +173,21 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
     }
 
     // Handle the different wizard item types
-    try {
-      switch (item.type) {
-        case "credential":
-          _repo.openIssueURL(context, item.credential);
-          break;
-        case "session":
-          ScannerScreen.startSessionAndNavigate(
-            Navigator.of(context),
-            SessionPointer(u: item.sessionURL, irmaqr: "redirect"),
-          );
-          break;
-        case "website":
-          item.inApp ?? true
-              ? _repo.openURL(context, getTranslation(context, item.url))
-              : _repo.openURLinExternalBrowser(context, getTranslation(context, item.url));
-          break;
-      }
-    } on PlatformException catch (e, stacktrace) {
-      // TODO error screen
-      reportError(e, stacktrace);
+    switch (item.type) {
+      case "credential":
+        _repo.openIssueURL(context, item.credential);
+        break;
+      case "session":
+        ScannerScreen.startSessionAndNavigate(
+          Navigator.of(context),
+          SessionPointer(u: item.sessionURL, irmaqr: "redirect"),
+        );
+        break;
+      case "website":
+        item.inApp ?? true
+            ? _repo.openURL(context, getTranslation(context, item.url))
+            : _repo.openURLinExternalBrowser(context, getTranslation(context, item.url));
+        break;
     }
   }
 
