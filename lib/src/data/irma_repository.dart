@@ -380,9 +380,11 @@ class IrmaRepository {
     Credentials credentials,
   ) async {
     final conf = await irmaConfigurationSubject.first;
+    final wizardData = conf.issueWizards[id];
     final creds = Set.from(credentials.values.map((cred) => cred.info.fullId));
     return IssueWizardEvent(
-      wizardData: conf.issueWizards[id],
+      haveCredential: wizardData.issues != null && creds.contains(wizardData.issues),
+      wizardData: wizardData,
       wizardContents: contents.map((item) {
         // The credential field may be non-nil for any wizard item type
         final haveCredential = item.credential != null && creds.contains(item.credential);

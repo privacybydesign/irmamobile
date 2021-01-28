@@ -112,7 +112,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
             ),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
-            child: ProgressingList(data: contents),
+            child: ProgressingList(data: contents, completed: wizard.completed),
           ),
           if (wizard.showSuccess && wizard.completed)
             Padding(
@@ -211,7 +211,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
         final wizard = snapshot.data;
         final wizardData = wizard.wizardData;
         final activeItem = wizard.activeItem;
-        final buttonLabel = activeItem == null
+        final buttonLabel = wizard.completed
             ? FlutterI18n.translate(context, "issue_wizard.done")
             : activeItem.label?.translate(lang) ??
                 FlutterI18n.translate(
