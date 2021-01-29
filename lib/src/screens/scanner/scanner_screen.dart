@@ -25,18 +25,19 @@ class ScannerScreen extends StatelessWidget {
     sessionPointer.continueOnSecondDevice = true;
 
     HapticFeedback.vibrate();
-    startSessionAndNavigate(
-      Navigator.of(context),
-      sessionPointer,
-    );
+    if (sessionPointer.wizard != null) {
+      startIssueWizard(Navigator.of(context), sessionPointer);
+    } else {
+      startSessionAndNavigate(Navigator.of(context), sessionPointer);
+    }
   }
 
-  static void startIssueWizard(NavigatorState navigator, String id) {
+  static Future<void> startIssueWizard(NavigatorState navigator, SessionPointer sessionPointer) async {
     final repo = IrmaRepository.get();
-    final event = GetIssueWizardContentsEvent(id: id);
+    final event = GetIssueWizardContentsEvent(id: sessionPointer.wizard);
 
     repo.dispatch(event, isBridgedEvent: true);
-    navigator.pushNamed(IssueWizardScreen.routeName, arguments: id);
+    navigator.pushNamed(IssueWizardScreen.routeName, arguments: sessionPointer);
   }
 
   // TODO: Make this function private again and / or split it out to a utility function

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/native_events.dart';
+import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/screens/about/about_screen.dart';
 import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
 import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
@@ -46,7 +47,7 @@ class Routing {
       case EmailSentScreen.routeName:
         return (context) => EmailSentScreen(email: arguments as String);
       case IssueWizardScreen.routeName:
-        return (context) => IssueWizardScreen(id: arguments as String);
+        return (context) => IssueWizardScreen(sessionPointer: arguments as SessionPointer);
 
       default:
         return simpleRoutes[routeName];

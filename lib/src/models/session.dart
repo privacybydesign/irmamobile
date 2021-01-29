@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -13,13 +14,16 @@ class MissingSessionPointer implements Exception {
 
 @JsonSerializable()
 class SessionPointer {
-  SessionPointer({this.u, this.irmaqr, this.continueOnSecondDevice = false, this.returnURL});
+  SessionPointer({this.u, this.irmaqr, this.continueOnSecondDevice = false, this.returnURL, this.wizard});
 
   @JsonKey(name: 'u')
   String u;
 
   @JsonKey(name: 'irmaqr')
   String irmaqr;
+
+  @JsonKey(name: 'wizard')
+  String wizard;
 
   // Whether the session should be continued on the mobile device,
   // or on the device which has displayed a QR code
@@ -29,6 +33,13 @@ class SessionPointer {
   @Deprecated("This parameter is deprecated and will be removed at the end of 2020. Use clientReturnURL instead.")
   @JsonKey(name: 'returnURL')
   String returnURL;
+
+  Future<void> validate() async {
+    if (wizard == null) return;
+    if (!(await IrmaRepository.get().getIrmaConfiguration().first).issueWizards.containsKey(wizard)) {
+      throw ArgumentError.value(wizard, "wizard");
+    }
+  }
 
   factory SessionPointer.fromString(String content) {
     // Use lookahead and lookbehinds to block out the non-JSON part of the string

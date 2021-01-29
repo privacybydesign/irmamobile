@@ -10,6 +10,7 @@ SessionPointer _$SessionPointerFromJson(Map<String, dynamic> json) {
   return SessionPointer(
     u: json['u'] as String,
     irmaqr: json['irmaqr'] as String,
+    wizard: json['wizard'] as String,
     continueOnSecondDevice: json['continueOnSecondDevice'] as bool ?? false,
     returnURL: json['returnURL'] as String,
   );
@@ -18,6 +19,7 @@ SessionPointer _$SessionPointerFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$SessionPointerToJson(SessionPointer instance) => <String, dynamic>{
       'u': instance.u,
       'irmaqr': instance.irmaqr,
+      'wizard': instance.wizard,
       'continueOnSecondDevice': instance.continueOnSecondDevice,
       'returnURL': instance.returnURL,
     };

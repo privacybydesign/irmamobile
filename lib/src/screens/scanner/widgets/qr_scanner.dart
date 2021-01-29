@@ -70,7 +70,7 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
     );
   }
 
-  void _foundQR(String qr) {
+  Future<void> _foundQR(String qr) async {
     // If we already found a correct QR, cancel the current error message
     if (_errorTimer != null && _errorTimer.isActive) {
       _errorTimer.cancel();
@@ -85,6 +85,7 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
     SessionPointer sessionPointer;
     try {
       sessionPointer = SessionPointer.fromString(qr);
+      await sessionPointer.validate();
     } catch (e) {
       // pass
     }

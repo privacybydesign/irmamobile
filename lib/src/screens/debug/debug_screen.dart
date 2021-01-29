@@ -207,7 +207,8 @@ class DebugScreen extends StatelessWidget {
           ),
           IconButton(
             icon: Icon(Icons.list_alt),
-            onPressed: () => ScannerScreen.startIssueWizard(Navigator.of(context), "ivido_client"),
+            onPressed: () =>
+                ScannerScreen.startIssueWizard(Navigator.of(context), SessionPointer(wizard: "ivido_client")),
           ),
           IconButton(
             icon: Icon(Icons.delete),

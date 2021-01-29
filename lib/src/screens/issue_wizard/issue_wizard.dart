@@ -32,8 +32,8 @@ void popToWizard(BuildContext context) {
 class IssueWizardScreen extends StatefulWidget {
   static const routeName = "/issuewizard";
 
-  final String id;
-  const IssueWizardScreen({Key key, @required this.id}) : super(key: key);
+  final SessionPointer sessionPointer;
+  const IssueWizardScreen({Key key, @required this.sessionPointer}) : super(key: key);
 
   @override
   _IssueWizardScreenState createState() => _IssueWizardScreenState();
@@ -195,7 +195,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
   Widget build(BuildContext context) {
     final lang = FlutterI18n.currentLocale(context).languageCode;
     return StreamBuilder(
-      stream: _repo.getIssueWizard().where((event) => event.wizardData.id == widget.id),
+      stream: _repo.getIssueWizard().where((event) => event.wizardData.id == widget.sessionPointer.wizard),
       builder: (context, AsyncSnapshot<IssueWizardEvent> snapshot) {
         if (!snapshot.hasData) {
           return Container();

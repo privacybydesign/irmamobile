@@ -144,6 +144,7 @@ class IrmaRepository {
     } else if (event is HandleURLEvent) {
       try {
         final sessionPointer = SessionPointer.fromString(event.url);
+        await sessionPointer.validate();
         _pendingSessionPointerSubject.add(sessionPointer);
         _resumedWithURLSubject.add(true);
         closeWebView();
