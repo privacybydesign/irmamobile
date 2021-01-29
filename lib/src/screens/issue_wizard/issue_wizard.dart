@@ -130,6 +130,15 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
     );
   }
 
+  void _finish(BuildContext context) {
+    _repo.getIssueWizardActive().add(false);
+    if (widget.sessionPointer.irmaqr != null) {
+      ScannerScreen.startSessionAndNavigate(Navigator.of(context), widget.sessionPointer);
+    } else {
+      popToWallet(context);
+    }
+  }
+
   Future<void> _onVisibilityChanged(VisibilityInfo visibility, IssueWizardEvent wizard) async {
     if (_sessionID == null) return;
 
@@ -147,15 +156,13 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
     _repo.getIssueWizard().add(nextEvent);
 
     if (!nextEvent.showSuccess && nextEvent.completed) {
-      _repo.getIssueWizardActive().add(false);
-      popToWallet(context);
+      _finish(context);
     }
   }
 
   void _onButtonPress(BuildContext context, IssueWizardEvent wizard) {
     if (wizard.completed) {
-      _repo.getIssueWizardActive().add(false);
-      popToWallet(context);
+      _finish(context);
       return;
     }
 
