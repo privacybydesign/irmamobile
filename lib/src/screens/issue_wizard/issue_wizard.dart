@@ -32,8 +32,8 @@ void popToWizard(BuildContext context) {
 class IssueWizardScreen extends StatefulWidget {
   static const routeName = "/issuewizard";
 
-  final SessionPointer sessionPointer;
-  const IssueWizardScreen({Key key, @required this.sessionPointer}) : super(key: key);
+  final String wizardID;
+  const IssueWizardScreen({Key key, @required this.wizardID}) : super(key: key);
 
   @override
   _IssueWizardScreenState createState() => _IssueWizardScreenState();
@@ -130,10 +130,11 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
     );
   }
 
-  void _finish(BuildContext context) {
+  Future<void> _finish(BuildContext context) async {
     _repo.getIssueWizardActive().add(false);
-    if (widget.sessionPointer.irmaqr != null) {
-      ScannerScreen.startSessionAndNavigate(Navigator.of(context), widget.sessionPointer);
+    if (await IrmaRepository.get().hasActiveSessions()) {
+      // Pop to underlying session screen
+      Navigator.of(context).pop();
     } else {
       popToWallet(context);
     }
@@ -156,7 +157,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
     _repo.getIssueWizard().add(nextEvent);
 
     if (!nextEvent.showSuccess && nextEvent.completed) {
-      _finish(context);
+      await _finish(context);
     }
   }
 
@@ -202,7 +203,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
   Widget build(BuildContext context) {
     final lang = FlutterI18n.currentLocale(context).languageCode;
     return StreamBuilder(
-      stream: _repo.getIssueWizard().where((event) => event.wizardData.id == widget.sessionPointer.wizard),
+      stream: _repo.getIssueWizard().where((event) => event.wizardData.id == widget.wizardID),
       builder: (context, AsyncSnapshot<IssueWizardEvent> snapshot) {
         if (!snapshot.hasData) {
           return Container();
@@ -229,7 +230,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
             title: Text(FlutterI18n.translate(context, "issue_wizard.add_cards")),
             leadingAction: () {
               _repo.getIssueWizardActive().add(false);
-              Navigator.of(context).pop();
+              popToWallet(context);
             },
             leadingIcon: Icon(Icons.arrow_back, semanticLabel: FlutterI18n.translate(context, "accessibility.back")),
           ),
