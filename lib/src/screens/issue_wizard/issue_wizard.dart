@@ -1,24 +1,16 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/issue_wizard.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
-import 'package:irmamobile/src/screens/issue_wizard/widgets/progressing_list.dart';
+import 'package:irmamobile/src/screens/issue_wizard/widgets/wizard_contents.dart';
+import 'package:irmamobile/src/screens/issue_wizard/widgets/wizard_info.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/session/session.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/util/collapsible_helper.dart';
 import 'package:irmamobile/src/util/language.dart';
-import 'package:irmamobile/src/widgets/collapsible.dart';
-import 'package:irmamobile/src/widgets/heading.dart';
-import 'package:irmamobile/src/widgets/irma_app_bar.dart';
-import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
-import 'package:irmamobile/src/widgets/irma_markdown.dart';
-import 'package:irmamobile/src/widgets/logo_banner.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 void popToWizard(BuildContext context) {
@@ -46,89 +38,6 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
   final GlobalKey _scrollviewKey = GlobalKey();
   final ScrollController _controller = ScrollController();
   final _repo = IrmaRepository.get();
-
-  Widget _buildCollapsible(BuildContext context, GlobalKey key, String header, String body) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
-      child: Collapsible(
-        header: header,
-        onExpansionChanged: (v) => {if (v) jumpToCollapsable(_controller, _scrollviewKey, key)},
-        content: SizedBox(width: double.infinity, child: IrmaMarkdown(body)),
-        key: key,
-      ),
-    );
-  }
-
-  Widget _buildIntro(BuildContext context, IssueWizard wizardData) {
-    final _collapsableKeys = List<GlobalKey>.generate(wizardData.faq.length, (int index) => GlobalKey());
-    final lang = FlutterI18n.currentLocale(context).languageCode;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Padding(
-          padding: EdgeInsets.fromLTRB(
-            IrmaTheme.of(context).defaultSpacing,
-            0,
-            IrmaTheme.of(context).defaultSpacing,
-            IrmaTheme.of(context).defaultSpacing,
-          ),
-          child: IrmaMarkdown(wizardData.intro.translate(lang)),
-        ),
-        ...wizardData.faq.asMap().entries.map(
-              (q) => _buildCollapsible(
-                context,
-                _collapsableKeys[q.key],
-                q.value.question.translate(lang),
-                q.value.answer.translate(lang),
-              ),
-            )
-      ],
-    );
-  }
-
-  Widget _buildWizard(BuildContext context, IssueWizardEvent wizard) {
-    final lang = FlutterI18n.currentLocale(context).languageCode;
-    final contents = wizard.wizardContents
-        .map((item) => ProgressingListItem(
-              header: item.header.translate(lang),
-              text: item.text.translate(lang),
-              completed: item.completed ?? false,
-            ))
-        .toList();
-
-    final intro = wizard.wizardData.intro;
-    return VisibilityDetector(
-      key: const Key('wizard-key'),
-      onVisibilityChanged: (v) => _onVisibilityChanged(v, wizard),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          if (intro != null)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: IrmaMarkdown(intro.translate(lang)),
-            ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
-            child: ProgressingList(data: contents, completed: wizard.completed),
-          ),
-          if (wizard.showSuccess && wizard.completed)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
-              child: Text(
-                wizard.wizardData.successHeader.translate(lang),
-                style: Theme.of(context).textTheme.headline3,
-              ),
-            ),
-          if (wizard.showSuccess && wizard.completed)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
-              child: IrmaMarkdown(wizard.wizardData.successText.translate(lang)),
-            ),
-        ],
-      ),
-    );
-  }
 
   Future<void> _finish(BuildContext context) async {
     _repo.getIssueWizardActive().add(false);
@@ -199,9 +108,13 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
     }
   }
 
+  void _onBackPress() {
+    _repo.getIssueWizardActive().add(false);
+    popToWallet(context);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final lang = FlutterI18n.currentLocale(context).languageCode;
     return StreamBuilder(
       stream: _repo.getIssueWizard().where((event) => event.wizardData.id == widget.wizardID),
       builder: (context, AsyncSnapshot<IssueWizardEvent> snapshot) {
@@ -211,63 +124,34 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
 
         final wizard = snapshot.data;
         final wizardData = wizard.wizardData;
-        final activeItem = wizard.activeItem;
-        final buttonLabel = wizard.completed
-            ? FlutterI18n.translate(context, "issue_wizard.done")
-            : activeItem.label?.translate(lang) ??
-                FlutterI18n.translate(
-                  context,
-                  "issue_wizard.add_credential",
-                  translationParams: {"credential": activeItem.header.translate(lang)},
-                );
         final logoFile = File(wizardData.logoPath ?? "");
         final logo = logoFile.existsSync()
             ? Image.file(logoFile, excludeFromSemantics: true)
             : Image.asset("assets/non-free/irmalogo.png", excludeFromSemantics: true);
 
-        return Scaffold(
-          appBar: IrmaAppBar(
-            title: Text(FlutterI18n.translate(context, "issue_wizard.add_cards")),
-            leadingAction: () {
-              _repo.getIssueWizardActive().add(false);
-              popToWallet(context);
-            },
-            leadingIcon: Icon(Icons.arrow_back, semanticLabel: FlutterI18n.translate(context, "accessibility.back")),
-          ),
-          bottomNavigationBar: _showIntro
-              ? IrmaBottomBar(
-                  primaryButtonLabel: FlutterI18n.translate(context, "issue_wizard.add"),
-                  onPrimaryPressed: () {
-                    _repo.getIssueWizardActive().add(true);
-                    setState(() => _showIntro = false);
-                  },
-                  secondaryButtonLabel: FlutterI18n.translate(context, "issue_wizard.back"),
-                  onSecondaryPressed: () => popToWallet(context),
-                )
-              : IrmaBottomBar(
-                  primaryButtonLabel: buttonLabel,
-                  onPrimaryPressed: () => _onButtonPress(context, wizard),
-                ),
-          body: SingleChildScrollView(
+        if (_showIntro) {
+          return IssueWizardInfo(
+            scrollviewKey: _scrollviewKey,
             controller: _controller,
-            key: _scrollviewKey,
-            child: Column(
-              children: <Widget>[
-                LogoBanner(logo: logo),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Heading(wizardData.title.translate(lang), style: Theme.of(context).textTheme.headline5),
-                    ),
-                    if (_showIntro) _buildIntro(context, wizardData) else _buildWizard(context, wizard),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
+            logo: logo,
+            wizardData: wizardData,
+            onBack: _onBackPress,
+            onNext: () {
+              _repo.getIssueWizardActive().add(true);
+              setState(() => _showIntro = false);
+            },
+          );
+        } else {
+          return IssueWizardContents(
+            scrollviewKey: _scrollviewKey,
+            controller: _controller,
+            logo: logo,
+            wizard: wizard,
+            onBack: _onBackPress,
+            onNext: _onButtonPress,
+            onVisibilityChanged: _onVisibilityChanged,
+          );
+        }
       },
     );
   }
