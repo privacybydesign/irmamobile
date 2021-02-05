@@ -38,7 +38,15 @@ attaching data to signed statements. These data can be relevant properties, such
 * Install the Android SDK tools by going to the [Android developer download page](https://developer.android.com/studio/).
   You may just want to install the Command line tools only if you are not going to use Android
   Studio. If you are going to use it, you can use the initial setup process of Android Studio to
-  setup the SDK. Make sure to install the build-tools and platform for Android >= 28.
+  setup the SDK. Make sure to install the build-tools and platform for Android >= 28. In addition
+  to the SDK platform, the following SDK tools need to be installed:
+  * Android SDK Build-Tools
+  * Android SDK Platform-Tools
+  * NDK version 21.x (version 22.x is not supported by `gomobile` yet)
+  * CMake
+
+  If you're using the SDK Manager of Android Studio: you can find specific versions for Build-Tools
+  by enabling the option `Show Package Details`.
 
 * Update your environment. You installed the Android SDK in the previous step, but
   you will still need to update your `PATH` to make sure you can access the utilities provided and to
