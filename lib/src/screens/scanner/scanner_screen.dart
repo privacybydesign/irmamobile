@@ -33,6 +33,8 @@ class ScannerScreen extends StatelessWidget {
   }
 
   static Future<void> startIssueWizard(NavigatorState navigator, SessionPointer sessionPointer) async {
+    await sessionPointer.validate();
+
     IrmaRepository.get().dispatch(
       GetIssueWizardContentsEvent(id: sessionPointer.wizard),
       isBridgedEvent: true,
