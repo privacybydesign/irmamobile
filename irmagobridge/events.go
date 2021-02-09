@@ -64,7 +64,7 @@ type clientPreferencesEvent struct {
 }
 
 type getIssueWizardContentsEvent struct {
-	ID string
+	ID irma.IssueWizardIdentifier
 }
 
 // //
@@ -124,7 +124,7 @@ type changePinFailedEvent struct {
 }
 
 type issueWizardContentsEvent struct {
-	ID             string
+	ID             irma.IssueWizardIdentifier
 	WizardContents []irma.IssueWizardItem
 }
 
