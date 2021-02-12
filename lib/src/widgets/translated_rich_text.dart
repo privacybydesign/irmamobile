@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
+// Markdown translations are not supported by this class.
 class TranslatedRichText extends StatelessWidget {
   final String _key;
   final String fallbackKey;
@@ -21,9 +22,7 @@ class TranslatedRichText extends StatelessWidget {
     this.semanticsParams,
     this.style,
     this.textAlign,
-  })  : assert(translationParams.keys.every((k) => semanticsParams.keys.contains(k))),
-        // We don't allow markdown to be used such that we can determine the semantics value manually.
-        assert(!_key.endsWith("_markdown"));
+  }) : assert(translationParams.keys.every((k) => semanticsParams.keys.contains(k)));
 
   String _translate(BuildContext context, {bool forSemantics = false}) {
     return FlutterI18n.translate(
