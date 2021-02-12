@@ -10,7 +10,7 @@ import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/language.dart';
-import 'package:irmamobile/src/util/translated_text.dart';
+import 'package:irmamobile/src/widgets/translated_text.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 

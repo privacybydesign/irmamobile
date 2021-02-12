@@ -5,7 +5,7 @@ import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/screens/about/widgets/links.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/util/translated_text.dart';
+import 'package:irmamobile/src/widgets/translated_text.dart';
 import 'package:irmamobile/src/widgets/collapsible.dart';
 
 class AboutItems extends StatefulWidget {

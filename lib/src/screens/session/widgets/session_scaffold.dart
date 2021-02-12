@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/util/translated_text.dart';
+import 'package:irmamobile/src/widgets/translated_text.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 class SessionScaffold extends Scaffold {

@@ -76,6 +76,7 @@ class IrmaThemeData extends Equatable {
   TextStyle hyperlinkTextStyle;
   TextStyle hyperlinkVisitedTextStyle;
   TextStyle boldBody;
+  TextStyle highlightedTextStyle;
 
   ThemeData themeData;
 
@@ -289,6 +290,14 @@ class IrmaThemeData extends Equatable {
       height: 24.0 / 16.0,
       fontWeight: FontWeight.w600,
       color: primaryDark,
+    );
+
+    highlightedTextStyle = TextStyle(
+      fontFamily: fontFamilyMontserrat,
+      fontSize: 16.0,
+      height: 19.0 / 16.0,
+      fontWeight: FontWeight.w600,
+      color: primaryBlue,
     );
 
     // Final ThemeData composed of all individual theme components.

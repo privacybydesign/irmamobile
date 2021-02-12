@@ -7,15 +7,13 @@ import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/screens/session/session.dart';
 import 'package:irmamobile/src/screens/session/widgets/disclosure_feedback_screen.dart';
+import 'package:irmamobile/src/screens/session/widgets/disclosure_header.dart';
 import 'package:irmamobile/src/screens/session/widgets/session_scaffold.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/util/translated_text.dart';
 import 'package:irmamobile/src/widgets/disclosure/disclosure_card.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
-import 'package:irmamobile/src/widgets/irma_message.dart';
-import 'package:irmamobile/src/widgets/irma_quote.dart';
 import 'package:irmamobile/src/widgets/irma_text_button.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 
@@ -102,65 +100,6 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
     Navigator.of(_navigatorKey.currentContext).pop();
   }
 
-  Widget _buildDisclosureHeader() {
-    final serverName = widget.session.serverName.name.translate(FlutterI18n.currentLocale(context).languageCode);
-    return Column(
-      children: <Widget>[
-        if (!widget.session.satisfiable)
-          Padding(
-            padding: EdgeInsets.only(bottom: IrmaTheme.of(context).mediumSpacing),
-            child: const IrmaMessage(
-              'disclosure.unsatisfiable_title',
-              'disclosure.unsatisfiable_message',
-              type: IrmaMessageType.info,
-            ),
-          ),
-        TranslatedText(
-          'disclosure.disclosure${widget.session.isReturnPhoneNumber ? "_call" : ""}_header',
-          translationParams: widget.session.isReturnPhoneNumber
-              ? {
-                  "otherParty": serverName,
-                  "phoneNumber": widget.session.clientReturnURL.substring(4).split(",").first,
-                }
-              : {
-                  "otherParty": serverName,
-                },
-          style: Theme.of(context).textTheme.bodyText2,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSigningHeader() {
-    return Column(children: [
-      if (!widget.session.satisfiable)
-        Padding(
-          padding: EdgeInsets.only(bottom: IrmaTheme.of(context).mediumSpacing),
-          child: const IrmaMessage(
-            'disclosure.unsatisfiable_title',
-            'disclosure.unsatisfiable_message',
-            type: IrmaMessageType.info,
-          ),
-        ),
-      Text.rich(
-        TextSpan(children: [
-          TextSpan(
-            text: widget.session.serverName.name.translate(FlutterI18n.currentLocale(context).languageCode),
-            style: IrmaTheme.of(context).textTheme.bodyText1,
-          ),
-          TextSpan(
-            text: FlutterI18n.translate(context, 'disclosure.signing_header'),
-            style: IrmaTheme.of(context).textTheme.bodyText2,
-          ),
-        ]),
-      ),
-      Padding(
-        padding: EdgeInsets.only(top: IrmaTheme.of(context).mediumSpacing),
-        child: IrmaQuote(quote: widget.session.signedMessage),
-      ),
-    ]);
-  }
-
   void _checkScrolledToEnd() {
     if (!_scrolledToEnd &&
         _scrollController.hasClients &&
@@ -198,11 +137,14 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
       controller: _scrollController,
       children: <Widget>[
         Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: IrmaTheme.of(context).mediumSpacing,
-              horizontal: IrmaTheme.of(context).smallSpacing,
-            ),
-            child: widget.session.isSignatureSession ? _buildSigningHeader() : _buildDisclosureHeader()),
+          padding: EdgeInsets.symmetric(
+            vertical: IrmaTheme.of(context).mediumSpacing,
+            horizontal: IrmaTheme.of(context).smallSpacing,
+          ),
+          child: DisclosureHeader(
+            session: widget.session,
+          ),
+        ),
         DisclosureCard(
           candidatesConDisCon: widget.session.disclosuresCandidates,
           onCurrentPageUpdate: _carouselPageUpdate,

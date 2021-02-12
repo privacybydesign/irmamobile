@@ -141,7 +141,13 @@ class RequestorInfo {
   @JsonKey(name: 'logo', nullable: true)
   String logo;
 
-  RequestorInfo({this.name, this.industry, this.logo});
+  @JsonKey(name: 'logoPath', nullable: true)
+  String logoPath;
+
+  @JsonKey(name: 'unverified')
+  bool unverified;
+
+  RequestorInfo({this.name, this.industry, this.logo, this.logoPath, this.unverified});
   factory RequestorInfo.fromJson(Map<String, dynamic> json) => _$RequestorInfoFromJson(json);
   Map<String, dynamic> toJson() => _$RequestorInfoToJson(this);
 }
