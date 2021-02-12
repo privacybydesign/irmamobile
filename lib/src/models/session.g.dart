@@ -10,9 +10,9 @@ SessionPointer _$SessionPointerFromJson(Map<String, dynamic> json) {
   return SessionPointer(
     u: json['u'] as String,
     irmaqr: json['irmaqr'] as String,
-    wizard: json['wizard'] as String,
     continueOnSecondDevice: json['continueOnSecondDevice'] as bool ?? false,
     returnURL: json['returnURL'] as String,
+    wizard: json['wizard'] as String,
   );
 }
 

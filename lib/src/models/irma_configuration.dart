@@ -22,6 +22,7 @@ class IrmaConfigurationEvent extends Event {
 class IrmaConfiguration {
   IrmaConfiguration({
     this.schemeManagers,
+    this.requestorSchemes,
     this.issuers,
     this.credentialTypes,
     this.attributeTypes,
@@ -31,6 +32,9 @@ class IrmaConfiguration {
 
   @JsonKey(name: 'SchemeManagers')
   final Map<String, SchemeManager> schemeManagers;
+
+  @JsonKey(name: 'RequestorSchemes')
+  final Map<String, RequestorScheme> requestorSchemes;
 
   @JsonKey(name: 'Issuers')
   final Map<String, Issuer> issuers;
@@ -91,6 +95,20 @@ class SchemeManager {
   final int timestamp;
 
   factory SchemeManager.fromJson(Map<String, dynamic> json) => _$SchemeManagerFromJson(json);
+}
+
+@JsonSerializable()
+class RequestorScheme {
+  RequestorScheme({this.id, this.demo});
+
+  @JsonKey(name: 'id')
+  final String id;
+
+  @JsonKey(name: 'demo')
+  final bool demo;
+
+  factory RequestorScheme.fromJson(Map<String, dynamic> json) => _$RequestorSchemeFromJson(json);
+  Map<String, dynamic> toJson() => _$RequestorSchemeToJson(this);
 }
 
 @JsonSerializable(nullable: false, createToJson: false)

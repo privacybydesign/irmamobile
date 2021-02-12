@@ -86,6 +86,7 @@ IssueWizardItem _$IssueWizardItemFromJson(Map<String, dynamic> json) {
     sessionURL: json['sessionUrl'] as String,
     url: json['url'] == null ? null : TranslatedValue.fromJson(json['url'] as Map<String, dynamic>),
     inApp: json['inapp'] as bool,
+    completed: json['completed'] as bool,
   );
 }
 
@@ -98,4 +99,5 @@ Map<String, dynamic> _$IssueWizardItemToJson(IssueWizardItem instance) => <Strin
       'sessionUrl': instance.sessionURL,
       'url': instance.url,
       'inapp': instance.inApp,
+      'completed': instance.completed,
     };

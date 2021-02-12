@@ -36,7 +36,15 @@ class SessionPointer {
 
   Future<void> validate() async {
     if (wizard == null) return;
-    if (!(await IrmaRepository.get().getIrmaConfiguration().first).issueWizards.containsKey(wizard)) {
+
+    final repo = IrmaRepository.get();
+    final irmaConfig = await repo.getIrmaConfiguration().first;
+    final devMode = await repo.getDeveloperMode().first;
+    final scheme = wizard.contains(".") ? wizard.split(".").first : null;
+
+    if (!irmaConfig.issueWizards.containsKey(wizard) ||
+        !irmaConfig.requestorSchemes.containsKey(scheme) ||
+        (!devMode && irmaConfig.requestorSchemes[scheme].demo)) {
       throw ArgumentError.value(wizard, "wizard");
     }
   }

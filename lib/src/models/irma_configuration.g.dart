@@ -17,6 +17,9 @@ IrmaConfiguration _$IrmaConfigurationFromJson(Map<String, dynamic> json) {
     schemeManagers: (json['SchemeManagers'] as Map<String, dynamic>).map(
       (k, e) => MapEntry(k, SchemeManager.fromJson(e as Map<String, dynamic>)),
     ),
+    requestorSchemes: (json['RequestorSchemes'] as Map<String, dynamic>).map(
+      (k, e) => MapEntry(k, RequestorScheme.fromJson(e as Map<String, dynamic>)),
+    ),
     issuers: (json['Issuers'] as Map<String, dynamic>).map(
       (k, e) => MapEntry(k, Issuer.fromJson(e as Map<String, dynamic>)),
     ),
@@ -46,6 +49,18 @@ SchemeManager _$SchemeManagerFromJson(Map<String, dynamic> json) {
     timestamp: json['Timestamp'] as int,
   );
 }
+
+RequestorScheme _$RequestorSchemeFromJson(Map<String, dynamic> json) {
+  return RequestorScheme(
+    id: json['id'] as String,
+    demo: json['demo'] as bool,
+  );
+}
+
+Map<String, dynamic> _$RequestorSchemeToJson(RequestorScheme instance) => <String, dynamic>{
+      'id': instance.id,
+      'demo': instance.demo,
+    };
 
 AppVersion _$AppVersionFromJson(Map<String, dynamic> json) {
   return AppVersion(
