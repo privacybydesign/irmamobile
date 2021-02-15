@@ -65,6 +65,8 @@ RequestorInfo _$RequestorInfoFromJson(Map<String, dynamic> json) {
     name: json['name'] == null ? null : TranslatedValue.fromJson(json['name'] as Map<String, dynamic>),
     industry: json['industry'] == null ? null : TranslatedValue.fromJson(json['industry'] as Map<String, dynamic>),
     logo: json['logo'] as String,
+    logoPath: json['logoPath'] as String,
+    unverified: json['unverified'] as bool,
   );
 }
 
@@ -72,4 +74,6 @@ Map<String, dynamic> _$RequestorInfoToJson(RequestorInfo instance) => <String, d
       'name': instance.name,
       'industry': instance.industry,
       'logo': instance.logo,
+      'logoPath': instance.logoPath,
+      'unverified': instance.unverified,
     };

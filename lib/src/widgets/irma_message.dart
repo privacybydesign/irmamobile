@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/util/translated_text.dart';
+import 'package:irmamobile/src/widgets/translated_text.dart';
 
 enum IrmaMessageType {
   valid,
