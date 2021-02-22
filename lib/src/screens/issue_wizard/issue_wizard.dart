@@ -39,9 +39,18 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
   final ScrollController _controller = ScrollController();
   final _repo = IrmaRepository.get();
 
-  Future<void> _finish(BuildContext context) async {
+  @override
+  void dispose() {
     _repo.getIssueWizardActive().add(false);
-    if (await IrmaRepository.get().hasActiveSessions()) {
+    super.dispose();
+  }
+
+  Future<void> _finish() async {
+    final activeSessions = await IrmaRepository.get().hasActiveSessions();
+    if (!mounted) {
+      return; // can't do anything if our context vanished while awaiting
+    }
+    if (activeSessions) {
       // Pop to underlying session screen
       Navigator.of(context).pop();
     } else {
@@ -66,13 +75,13 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
     _repo.getIssueWizard().add(nextEvent);
 
     if (!nextEvent.showSuccess && nextEvent.completed) {
-      await _finish(context);
+      await _finish();
     }
   }
 
   void _onButtonPress(BuildContext context, IssueWizardEvent wizard) {
     if (wizard.completed) {
-      _finish(context);
+      _finish();
       return;
     }
 
@@ -109,7 +118,6 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
   }
 
   void _onBackPress() {
-    _repo.getIssueWizardActive().add(false);
     popToWallet(context);
   }
 
