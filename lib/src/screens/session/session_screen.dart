@@ -19,6 +19,7 @@ import 'package:irmamobile/src/screens/session/widgets/disclosure_permission.dar
 import 'package:irmamobile/src/screens/session/widgets/issuance_permission.dart';
 import 'package:irmamobile/src/screens/session/widgets/session_scaffold.dart';
 import 'package:irmamobile/src/util/combine.dart';
+import 'package:irmamobile/src/util/navigation.dart';
 import 'package:irmamobile/src/util/translated_text.dart';
 import 'package:irmamobile/src/widgets/action_feedback.dart';
 import 'package:irmamobile/src/widgets/loading_indicator.dart';

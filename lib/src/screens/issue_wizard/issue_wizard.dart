@@ -9,17 +9,9 @@ import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/screens/issue_wizard/widgets/wizard_contents.dart';
 import 'package:irmamobile/src/screens/issue_wizard/widgets/wizard_info.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
-import 'package:irmamobile/src/screens/session/session.dart';
 import 'package:irmamobile/src/util/language.dart';
+import 'package:irmamobile/src/util/navigation.dart';
 import 'package:visibility_detector/visibility_detector.dart';
-
-void popToWizard(BuildContext context) {
-  Navigator.of(context).popUntil(
-    ModalRoute.withName(
-      IssueWizardScreen.routeName,
-    ),
-  );
-}
 
 class IssueWizardScreen extends StatefulWidget {
   static const routeName = "/issuewizard";
