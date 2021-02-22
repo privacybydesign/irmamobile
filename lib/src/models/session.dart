@@ -38,6 +38,11 @@ class SessionPointer {
     if (wizard == null) return;
 
     final repo = IrmaRepository.get();
+
+    if (await repo.getIssueWizardActive().first) {
+      throw UnsupportedError("cannot start wizard within a wizard");
+    }
+
     final irmaConfig = await repo.getIrmaConfiguration().first;
     final devMode = await repo.getDeveloperMode().first;
     final scheme = wizard.contains(".") ? wizard.split(".").first : null;
