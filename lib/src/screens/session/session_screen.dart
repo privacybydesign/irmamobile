@@ -65,7 +65,6 @@ class _SessionScreenState extends State<SessionScreen> {
   final IrmaRepository _repo = IrmaRepository.get();
 
   Stream<SessionState> _sessionStateStream;
-  bool _wizardActive;
 
   final ValueNotifier<bool> _displayArrowBack = ValueNotifier<bool>(false);
 
@@ -73,9 +72,6 @@ class _SessionScreenState extends State<SessionScreen> {
   void initState() {
     super.initState();
     _sessionStateStream = _repo.getSessionState(widget.arguments.sessionID);
-    _repo.getIssueWizardActive().first.then((value) => setState(() {
-          _wizardActive = value;
-        }));
   }
 
   @override
@@ -188,7 +184,7 @@ class _SessionScreenState extends State<SessionScreen> {
       return _buildFinishedReturnPhoneNumber(session);
     }
 
-    final popToMainScreen = _wizardActive ? popToWizard : popToWallet;
+    final popToMainScreen = widget.arguments.wizardActive ? popToWizard : popToWallet;
 
     // It concerns a mobile session.
     if (session.clientReturnURL != null) {
@@ -209,7 +205,7 @@ class _SessionScreenState extends State<SessionScreen> {
           widget.arguments.hasUnderlyingSession ? Navigator.of(context).pop() : popToMainScreen(context);
         }
       });
-    } else if (_wizardActive || _isSpecialIssuanceSession(session)) {
+    } else if (widget.arguments.wizardActive || _isSpecialIssuanceSession(session)) {
       WidgetsBinding.instance.addPostFrameCallback((_) => popToMainScreen(context));
     } else if (widget.arguments.hasUnderlyingSession) {
       // In case of a disclosure having an underlying session we only continue to underlying session
@@ -239,7 +235,7 @@ class _SessionScreenState extends State<SessionScreen> {
         child: SessionErrorScreen(
           error: session.error,
           onTapClose: () {
-            if (_wizardActive) {
+            if (widget.arguments.wizardActive) {
               popToWizard(context);
             } else if (session.continueOnSecondDevice) {
               popToWallet(context);

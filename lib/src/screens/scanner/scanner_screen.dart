@@ -58,14 +58,16 @@ class ScannerScreen extends StatelessWidget {
     );
 
     final hasActiveSessions = await repo.hasActiveSessions();
+    final wizardActive = await repo.getIssueWizardActive().first;
     repo.dispatch(event, isBridgedEvent: true);
 
     final args = SessionScreenArguments(
       sessionID: event.sessionID,
       sessionType: event.request.irmaqr,
       hasUnderlyingSession: hasActiveSessions,
+      wizardActive: wizardActive,
     );
-    if (hasActiveSessions || await repo.getIssueWizardActive().first) {
+    if (hasActiveSessions || wizardActive) {
       navigator.pushNamed(SessionScreen.routeName, arguments: args);
     } else {
       navigator.pushNamedAndRemoveUntil(
