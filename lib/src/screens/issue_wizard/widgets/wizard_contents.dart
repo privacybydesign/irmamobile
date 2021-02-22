@@ -3,6 +3,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/models/issue_wizard.dart';
 import 'package:irmamobile/src/screens/issue_wizard/widgets/logo_banner_header.dart';
 import 'package:irmamobile/src/screens/issue_wizard/widgets/progressing_list.dart';
+import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 import 'package:irmamobile/src/widgets/irma_markdown.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -39,6 +40,7 @@ class IssueWizardContents extends StatelessWidget {
         .toList();
 
     final intro = wizard.wizardData.intro;
+    final theme = IrmaTheme.of(context);
     return VisibilityDetector(
       key: const Key('wizard-key'),
       onVisibilityChanged: (v) => onVisibilityChanged(v, wizard),
@@ -47,16 +49,21 @@ class IssueWizardContents extends StatelessWidget {
         children: <Widget>[
           if (intro != null)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
               child: IrmaMarkdown(intro.translate(lang)),
             ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+            padding: EdgeInsets.fromLTRB(
+              theme.defaultSpacing,
+              theme.mediumSpacing,
+              theme.defaultSpacing,
+              theme.smallSpacing,
+            ),
             child: ProgressingList(data: contents, completed: wizard.completed),
           ),
           if (wizard.showSuccess && wizard.completed)
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
+              padding: EdgeInsets.fromLTRB(theme.defaultSpacing, 0, theme.defaultSpacing, theme.smallSpacing),
               child: Text(
                 wizard.wizardData.successHeader.translate(lang),
                 style: Theme.of(context).textTheme.headline3,
@@ -64,7 +71,7 @@ class IssueWizardContents extends StatelessWidget {
             ),
           if (wizard.showSuccess && wizard.completed)
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
+              padding: EdgeInsets.fromLTRB(theme.defaultSpacing, 0, theme.defaultSpacing, theme.smallSpacing),
               child: IrmaMarkdown(wizard.wizardData.successText.translate(lang)),
             ),
         ],

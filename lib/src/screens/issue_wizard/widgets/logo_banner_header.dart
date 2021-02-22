@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/heading.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/logo_banner.dart';
@@ -42,7 +43,7 @@ class LogoBannerHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
                   child: Heading(header, style: Theme.of(context).textTheme.headline5),
                 ),
                 child,
