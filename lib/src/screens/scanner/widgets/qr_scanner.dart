@@ -87,7 +87,7 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
       sessionPointer = SessionPointer.fromString(qr);
       await sessionPointer.validate();
     } catch (e) {
-      // pass
+      sessionPointer = null; // trigger error message below
     }
 
     // If invalid, show an error message for a certain time
