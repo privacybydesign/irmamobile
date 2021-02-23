@@ -5,6 +5,7 @@ import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/issue_wizard.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
+import 'package:irmamobile/src/screens/error/error_screen.dart';
 import 'package:irmamobile/src/screens/issue_wizard/issue_wizard.dart';
 import 'package:irmamobile/src/screens/scanner/widgets/qr_scanner.dart';
 import 'package:irmamobile/src/screens/session/session.dart';
@@ -33,7 +34,17 @@ class ScannerScreen extends StatelessWidget {
   }
 
   static Future<void> startIssueWizard(NavigatorState navigator, SessionPointer sessionPointer) async {
-    await sessionPointer.validate();
+    try {
+      await sessionPointer.validate();
+    } catch (e) {
+      navigator.pushReplacement(MaterialPageRoute(
+        builder: (context) => GeneralErrorScreen(
+          errorText: "error starting wizard: ${e.toString()}",
+          onTapClose: () => navigator.pop(),
+        ),
+      ));
+      return;
+    }
 
     IrmaRepository.get().dispatch(
       GetIssueWizardContentsEvent(id: sessionPointer.wizard),
