@@ -51,17 +51,21 @@ class ScannerScreen extends StatelessWidget {
       isBridgedEvent: true,
     );
 
+    int sessionID;
     if (sessionPointer.irmaqr != null) {
-      await startSessionAndNavigate(navigator, sessionPointer);
+      sessionID = await startSessionAndNavigate(navigator, sessionPointer);
     }
 
     // Push wizard on top of session screen (if any). If the user cancels the wizard by going back
     // to the wallet, then the session screen is automatically dismissed, which cancels the session.
-    navigator.pushNamed(IssueWizardScreen.routeName, arguments: sessionPointer.wizard);
+    navigator.pushNamed(
+      IssueWizardScreen.routeName,
+      arguments: IssueWizardScreenArguments(wizardID: sessionPointer.wizard, sessionID: sessionID),
+    );
   }
 
   // TODO: Make this function private again and / or split it out to a utility function
-  static Future<void> startSessionAndNavigate(NavigatorState navigator, SessionPointer sessionPointer) async {
+  static Future<int> startSessionAndNavigate(NavigatorState navigator, SessionPointer sessionPointer) async {
     final repo = IrmaRepository.get();
     final event = NewSessionEvent(
       request: sessionPointer,
@@ -87,6 +91,8 @@ class ScannerScreen extends StatelessWidget {
         arguments: args,
       );
     }
+
+    return event.sessionID;
   }
 
   @override

@@ -46,7 +46,7 @@ class Routing {
       case EmailSentScreen.routeName:
         return (context) => EmailSentScreen(email: arguments as String);
       case IssueWizardScreen.routeName:
-        return (context) => IssueWizardScreen(wizardID: arguments as String);
+        return (context) => IssueWizardScreen(arguments: arguments as IssueWizardScreenArguments);
 
       default:
         return simpleRoutes[routeName];

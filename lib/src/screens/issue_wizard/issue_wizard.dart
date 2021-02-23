@@ -16,11 +16,18 @@ import 'package:visibility_detector/visibility_detector.dart';
 class IssueWizardScreen extends StatefulWidget {
   static const routeName = "/issuewizard";
 
-  final String wizardID;
-  const IssueWizardScreen({Key key, @required this.wizardID}) : super(key: key);
+  final IssueWizardScreenArguments arguments;
+  const IssueWizardScreen({Key key, @required this.arguments}) : super(key: key);
 
   @override
   _IssueWizardScreenState createState() => _IssueWizardScreenState();
+}
+
+class IssueWizardScreenArguments {
+  final String wizardID;
+  final int sessionID;
+
+  IssueWizardScreenArguments({this.wizardID, this.sessionID});
 }
 
 class _IssueWizardScreenState extends State<IssueWizardScreen> {
@@ -30,6 +37,20 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
   final GlobalKey _scrollviewKey = GlobalKey();
   final ScrollController _controller = ScrollController();
   final _repo = IrmaRepository.get();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.arguments.sessionID == null) {
+      return;
+    }
+    _repo.getSessionState(widget.arguments.sessionID).where((event) => event.isFinished).first.then((event) {
+      if (event.status == SessionStatus.error) {
+        // Pop to underlying session screen which is showing an error screen
+        Navigator.of(context).pop();
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -116,7 +137,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: _repo.getIssueWizard().where((event) => event.wizardData.id == widget.wizardID),
+      stream: _repo.getIssueWizard().where((event) => event.wizardData.id == widget.arguments.wizardID),
       builder: (context, AsyncSnapshot<IssueWizardEvent> snapshot) {
         if (!snapshot.hasData) {
           return Container();
