@@ -9,7 +9,6 @@ import 'package:irmamobile/src/models/native_events.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/screens/error/session_error_screen.dart';
-import 'package:irmamobile/src/screens/issue_wizard/issue_wizard.dart';
 import 'package:irmamobile/src/screens/pin/session_pin_screen.dart';
 import 'package:irmamobile/src/screens/session/call_info_screen.dart';
 import 'package:irmamobile/src/screens/session/session.dart';
@@ -41,12 +40,16 @@ class SessionScreen extends StatefulWidget {
       case "redirect":
         return _SessionScreenState();
       default:
-        return _UnknownSessionScreenState();
+        return _UnknownSessionScreenState(wizardActive: arguments.wizardActive);
     }
   }
 }
 
 class _UnknownSessionScreenState extends State<SessionScreen> {
+  final bool wizardActive;
+
+  _UnknownSessionScreenState({this.wizardActive});
+
   @override
   Widget build(BuildContext context) => ActionFeedback(
         success: false,
@@ -58,16 +61,14 @@ class _UnknownSessionScreenState extends State<SessionScreen> {
           "session.unknown_session_type.explanation",
           textAlign: TextAlign.center,
         ),
-        onDismiss: () => popToWallet(context),
+        onDismiss: () => (wizardActive ? popToWizard : popToWallet)(context),
       );
 }
 
 class _SessionScreenState extends State<SessionScreen> {
   final IrmaRepository _repo = IrmaRepository.get();
-
-  Stream<SessionState> _sessionStateStream;
-
   final ValueNotifier<bool> _displayArrowBack = ValueNotifier<bool>(false);
+  Stream<SessionState> _sessionStateStream;
 
   @override
   void initState() {
