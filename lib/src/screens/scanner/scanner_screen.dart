@@ -37,7 +37,7 @@ class ScannerScreen extends StatelessWidget {
     try {
       await sessionPointer.validate();
     } catch (e) {
-      navigator.pushReplacement(MaterialPageRoute(
+      navigator.push(MaterialPageRoute(
         builder: (context) => GeneralErrorScreen(
           errorText: "error starting wizard: ${e.toString()}",
           onTapClose: () => navigator.pop(),
