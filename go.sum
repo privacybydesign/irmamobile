@@ -302,6 +302,8 @@ github.com/privacybydesign/irmago v0.6.2-0.20210112152806-f0682024c56a h1:QW9agU
 github.com/privacybydesign/irmago v0.6.2-0.20210112152806-f0682024c56a/go.mod h1:Vml9NoGIDVnFVbXd6tvyiHlB/dbqN2yfYYctKLlkQQE=
 github.com/privacybydesign/irmago v0.6.2-0.20210212170229-0d8439ff633f h1:m90LoxehgwWHylXWuNV3dinfHrwXsjebKrcaZM7/5Fc=
 github.com/privacybydesign/irmago v0.6.2-0.20210212170229-0d8439ff633f/go.mod h1:Vml9NoGIDVnFVbXd6tvyiHlB/dbqN2yfYYctKLlkQQE=
+github.com/privacybydesign/irmago v0.6.2-0.20210219164520-7cb83927a8bb h1:smn0EIpEFRP5TdllIXZkO3FI0qK8wB8QI3u+TnMiCcQ=
+github.com/privacybydesign/irmago v0.6.2-0.20210219164520-7cb83927a8bb/go.mod h1:Vml9NoGIDVnFVbXd6tvyiHlB/dbqN2yfYYctKLlkQQE=
 github.com/prometheus/client_golang v0.9.1/go.mod h1:7SWBe2y4D6OKWSNQJUaRYU/AaXPKyh/dDVn+NZz0KFw=
 github.com/prometheus/client_golang v0.9.3/go.mod h1:/TN21ttK/J9q6uSwhBd54HahCDft0ttaMvbicHlPoso=
 github.com/prometheus/client_model v0.0.0-20180712105110-5c3871d89910/go.mod h1:MbSGuTsp3dbXC40dX6PRTWyKYBIrTGTE9sqQNg2J8bo=

@@ -242,7 +242,7 @@ func (ah *eventHandler) getIssueWizardContents(event *getIssueWizardContentsEven
 	if wizard == nil {
 		return errors.New("issue wizard not found")
 	}
-	contents, err := wizard.Choose(client.Configuration, client.CredentialInfoList())
+	contents, err := wizard.Path(client.Configuration, client.CredentialInfoList())
 	if err != nil {
 		return errors.WrapPrefix(err, "failed to process issue wizard", 0)
 	}
