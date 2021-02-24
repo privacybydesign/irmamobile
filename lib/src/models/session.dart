@@ -47,10 +47,25 @@ class SessionPointer {
     final devMode = await repo.getDeveloperMode().first;
     final scheme = wizard.contains(".") ? wizard.split(".").first : null;
 
-    if (!irmaConfig.issueWizards.containsKey(wizard) ||
-        !irmaConfig.requestorSchemes.containsKey(scheme) ||
-        (!devMode && irmaConfig.requestorSchemes[scheme].demo)) {
+    if (!irmaConfig.issueWizards.containsKey(wizard) || !irmaConfig.requestorSchemes.containsKey(scheme)) {
       throw ArgumentError.value(wizard, "wizard");
+    }
+
+    final demoScheme = irmaConfig.requestorSchemes[scheme].demo;
+    if (!devMode && demoScheme) {
+      throw UnsupportedError("cannot start wizard from demo scheme: developer mode not enabled");
+    }
+
+    if (u == null || demoScheme || irmaConfig.issueWizards[wizard].allowOtherRequestors) {
+      return;
+    }
+    final host = Uri.parse(u).host;
+    final requestor = irmaConfig.requestors[host];
+    if (requestor == null) {
+      throw UnsupportedError("cannot start wizard: unknown requestor");
+    }
+    if (!requestor.hostnames.contains(host)) {
+      throw UnsupportedError("cannot start wizard not belonging to session requestor");
     }
   }
 
@@ -156,6 +171,9 @@ class RemoteError {
 
 @JsonSerializable()
 class RequestorInfo {
+  @JsonKey(name: 'id')
+  String id;
+
   @JsonKey(name: 'name')
   TranslatedValue name;
 
@@ -165,7 +183,10 @@ class RequestorInfo {
   @JsonKey(name: 'logo', nullable: true)
   String logo;
 
-  RequestorInfo({this.name, this.industry, this.logo});
+  @JsonKey(name: 'hostnames')
+  List<String> hostnames;
+
+  RequestorInfo({this.id, this.name, this.industry, this.logo, this.hostnames});
   factory RequestorInfo.fromJson(Map<String, dynamic> json) => _$RequestorInfoFromJson(json);
   Map<String, dynamic> toJson() => _$RequestorInfoToJson(this);
 }

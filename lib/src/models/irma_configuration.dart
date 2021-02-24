@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:irmamobile/src/models/event.dart';
 import 'package:irmamobile/src/models/issue_wizard.dart';
+import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -23,6 +24,7 @@ class IrmaConfiguration {
   IrmaConfiguration({
     this.schemeManagers,
     this.requestorSchemes,
+    this.requestors,
     this.issuers,
     this.credentialTypes,
     this.attributeTypes,
@@ -35,6 +37,9 @@ class IrmaConfiguration {
 
   @JsonKey(name: 'RequestorSchemes')
   final Map<String, RequestorScheme> requestorSchemes;
+
+  @JsonKey(name: 'Requestors')
+  final Map<String, RequestorInfo> requestors;
 
   @JsonKey(name: 'Issuers')
   final Map<String, Issuer> issuers;

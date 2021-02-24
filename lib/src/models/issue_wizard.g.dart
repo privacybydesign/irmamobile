@@ -37,6 +37,7 @@ IssueWizard _$IssueWizardFromJson(Map<String, dynamic> json) {
     logo: json['logo'] as String,
     logoPath: json['logoPath'] as String,
     issues: json['issues'] as String,
+    allowOtherRequestors: json['allowOtherRequestors'] as bool,
     info: json['info'] == null ? null : TranslatedValue.fromJson(json['info'] as Map<String, dynamic>),
     faq: (json['faq'] as List)
         ?.map((e) => e == null ? null : IssueWizardQA.fromJson(e as Map<String, dynamic>))
@@ -56,6 +57,7 @@ Map<String, dynamic> _$IssueWizardToJson(IssueWizard instance) => <String, dynam
       'logo': instance.logo,
       'logoPath': instance.logoPath,
       'issues': instance.issues,
+      'allowOtherRequestors': instance.allowOtherRequestors,
       'info': instance.info,
       'faq': instance.faq,
       'intro': instance.intro,

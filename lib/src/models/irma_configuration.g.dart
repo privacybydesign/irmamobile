@@ -20,6 +20,9 @@ IrmaConfiguration _$IrmaConfigurationFromJson(Map<String, dynamic> json) {
     requestorSchemes: (json['RequestorSchemes'] as Map<String, dynamic>).map(
       (k, e) => MapEntry(k, RequestorScheme.fromJson(e as Map<String, dynamic>)),
     ),
+    requestors: (json['Requestors'] as Map<String, dynamic>).map(
+      (k, e) => MapEntry(k, RequestorInfo.fromJson(e as Map<String, dynamic>)),
+    ),
     issuers: (json['Issuers'] as Map<String, dynamic>).map(
       (k, e) => MapEntry(k, Issuer.fromJson(e as Map<String, dynamic>)),
     ),

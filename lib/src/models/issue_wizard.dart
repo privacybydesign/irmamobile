@@ -62,6 +62,7 @@ class IssueWizard {
     this.logo,
     this.logoPath,
     this.issues,
+    this.allowOtherRequestors,
     this.info,
     this.faq,
     this.intro,
@@ -84,6 +85,9 @@ class IssueWizard {
 
   @JsonKey(name: 'issues')
   final String issues;
+
+  @JsonKey(name: 'allowOtherRequestors')
+  final bool allowOtherRequestors;
 
   @JsonKey(name: 'info')
   final TranslatedValue info;

@@ -64,14 +64,18 @@ Map<String, dynamic> _$RemoteErrorToJson(RemoteError instance) => <String, dynam
 
 RequestorInfo _$RequestorInfoFromJson(Map<String, dynamic> json) {
   return RequestorInfo(
+    id: json['id'] as String,
     name: json['name'] == null ? null : TranslatedValue.fromJson(json['name'] as Map<String, dynamic>),
     industry: json['industry'] == null ? null : TranslatedValue.fromJson(json['industry'] as Map<String, dynamic>),
     logo: json['logo'] as String,
+    hostnames: (json['hostnames'] as List)?.map((e) => e as String)?.toList(),
   );
 }
 
 Map<String, dynamic> _$RequestorInfoToJson(RequestorInfo instance) => <String, dynamic>{
+      'id': instance.id,
       'name': instance.name,
       'industry': instance.industry,
       'logo': instance.logo,
+      'hostnames': instance.hostnames,
     };
