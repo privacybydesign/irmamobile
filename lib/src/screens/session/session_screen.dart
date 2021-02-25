@@ -40,16 +40,12 @@ class SessionScreen extends StatefulWidget {
       case "redirect":
         return _SessionScreenState();
       default:
-        return _UnknownSessionScreenState(wizardActive: arguments.wizardActive);
+        return _UnknownSessionScreenState();
     }
   }
 }
 
 class _UnknownSessionScreenState extends State<SessionScreen> {
-  final bool wizardActive;
-
-  _UnknownSessionScreenState({this.wizardActive});
-
   @override
   Widget build(BuildContext context) => ActionFeedback(
         success: false,
@@ -61,7 +57,7 @@ class _UnknownSessionScreenState extends State<SessionScreen> {
           "session.unknown_session_type.explanation",
           textAlign: TextAlign.center,
         ),
-        onDismiss: () => (wizardActive ? popToWizard : popToWallet)(context),
+        onDismiss: () => (widget.arguments.wizardActive ? popToWizard : popToWallet)(context),
       );
 }
 
