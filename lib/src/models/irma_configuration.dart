@@ -70,7 +70,8 @@ class SchemeManager {
       this.keyshareServer,
       this.keyshareWebsite,
       this.keyshareAttribute,
-      this.timestamp});
+      this.timestamp,
+      this.demo});
 
   @JsonKey(name: 'ID')
   final String id;
@@ -98,6 +99,9 @@ class SchemeManager {
 
   @JsonKey(name: 'Timestamp')
   final int timestamp;
+
+  @JsonKey(name: 'Demo')
+  final bool demo;
 
   factory SchemeManager.fromJson(Map<String, dynamic> json) => _$SchemeManagerFromJson(json);
 }

@@ -4,8 +4,10 @@ import 'dart:io';
 
 // Imports the Flutter Driver API.
 import 'package:flutter_driver/flutter_driver.dart';
+import 'package:screenshots/screenshots.dart';
 import 'package:test/test.dart';
 
+// TODO: Improve ability to run this script, maybe integrate with test_driver/main.dart.
 void main() {
   group('IrmaMobile', () {
     FlutterDriver driver;
@@ -38,8 +40,11 @@ void main() {
       await driver.requestData(jsonEncode(data["sessionPtr"]));
     }
 
-    test('main', () async {
+    test('screenshots', () async {
+      final config = Config();
+
       // Wait for initialization
+      await driver.waitUntilFirstFrameRasterized();
       await driver.waitFor(find.byValueKey('next_enrollment_p1'));
 
       // Enable developer mode
@@ -48,6 +53,7 @@ void main() {
       // Tap through enrollment info screens
       await driver.tap(find.byValueKey('next_enrollment_p1'));
       await driver.tap(find.byValueKey('next_enrollment_p2'));
+      await screenshot(driver, config, 'enrollment');
       await driver.tap(find.byValueKey('next_enrollment_p3'));
 
       // Enter pin
@@ -70,7 +76,7 @@ void main() {
         "@context": "https://irma.app/ld/request/issuance/v2",
         "credentials": [
           {
-            "credential": "irma-demo.gemeente.personalData",
+            "credential": "test.gemeente.personalData",
             "attributes": {
               "initials": "W.L.",
               "firstnames": "Willeke Liselotte",
@@ -93,7 +99,7 @@ void main() {
             }
           },
           {
-            "credential": "irma-demo.gemeente.address",
+            "credential": "test.gemeente.address",
             "attributes": {
               "street":"","houseNumber":"","zipcode":"1234AB","municipality":"","city":""
             }
@@ -106,6 +112,74 @@ void main() {
 
       // Wait until done
       await driver.waitFor(find.byValueKey('wallet_present'));
+
+      // And wait until new-credential animation is done (with margin)
+      await Future.delayed(const Duration(seconds: 10));
+
+      // Show off wallet with personalData card visible
+      await driver.tap(find.byValueKey('walletcard_test.gemeente.personalData'));
+
+      await screenshot(driver, config, 'wallet');
+
+      // Show off pin screen
+      await driver.tap(find.byValueKey('wallet_lock'));
+
+      await screenshot(driver, config, 'lockscreen');
+
+      await driver.enterText('12345');
+
+      // Open store
+      await driver.tap(find.byValueKey('wallet_menu'));
+      await driver.tap(find.byValueKey('menu_add_cards'));
+
+      await screenshot(driver, config, 'credential_store');
+
+      // open personaldata store
+      await driver.tap(find.byValueKey('add_card_test.gemeente.personalData'));
+      await driver.tap(find.byValueKey('purpose_question'));
+
+      await screenshot(driver, config, 'credential_store_personalData');
+
+      // show disclosure screen
+      await _startIrmaSession("""{
+        "@context": "https://irma.app/ld/request/disclosure/v2",
+        "disclose": [
+          [
+            [
+              "test.gemeente.personalData.firstnames",
+              "test.gemeente.address.zipcode"
+            ],
+            [
+              "test.sidn-pbdf.email.email"
+            ]
+          ]
+        ]
+      }
+      """);
+
+      await driver.waitFor(find.byValueKey('disclosure_yes'));
+
+      // dismiss choice prompt
+      await driver.tap(find.byValueKey('choose_ok'));
+
+      await screenshot(driver, config, 'disclosure_permission');
+
+      // finish session
+      await driver.tap(find.byValueKey('disclosure_yes'));
+
+      await driver.tap(find.byValueKey('feedback_dismiss'));
+
+      // go to history
+      await driver.tap(find.byValueKey('wallet_menu'));
+
+      await driver.tap(find.byValueKey('menu_history'));
+
+      await screenshot(driver, config, 'history_overview');
+
+      // open history details
+      await driver.tap(find.byValueKey('logentry_1'));
+
+      await screenshot(driver, config, 'history_details');
     }, timeout: const Timeout(Duration(minutes: 5)));
   });
 }
