@@ -50,7 +50,7 @@ class IssueWizardInfo extends StatelessWidget {
             IrmaTheme.of(context).defaultSpacing,
             IrmaTheme.of(context).defaultSpacing,
           ),
-          child: IrmaMarkdown(wizardData.intro.translate(lang)),
+          child: IrmaMarkdown(wizardData.info.translate(lang)),
         ),
         ...wizardData.faq.asMap().entries.map(
               (q) => _buildCollapsible(
