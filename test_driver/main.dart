@@ -23,8 +23,7 @@ Future<void> main(List<String> args) async {
     }
   });
 
-  final isRemote = Platform.environment.containsKey('SCHEME_URL');
-  if (isRemote) {
+  if (Platform.environment.containsKey('SCHEME_URL')) {
     print('Downloading test configuration. This might take a while...');
     await Process.run('irma', ['scheme', 'download', testConfigDir.path, Platform.environment['SCHEME_URL']]);
   } else {
@@ -51,7 +50,6 @@ Future<void> main(List<String> args) async {
     // https://github.com/google/process.dart/issues/42
   });
 
-  // Running tests.
   print('Starting Flutter tests...\n');
   final flutter = await Process.start('flutter', ['drive', '--target=test_driver/app.dart', ...args],
       mode: ProcessStartMode.inheritStdio);
@@ -63,8 +61,8 @@ Future<void> main(List<String> args) async {
 }
 
 void clean(Directory testConfigDir, Directory prodConfigDir) {
-  if (sigintSubscription != null) sigintSubscription.cancel();
-  if (irmaServerSubscription != null) irmaServerSubscription.cancel();
+  sigintSubscription?.cancel();
+  irmaServerSubscription?.cancel();
 
   print('\nRestoring irma_configuration...');
   testConfigDir.deleteSync(recursive: true);
