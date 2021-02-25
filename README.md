@@ -93,6 +93,28 @@ attaching data to signed statements. These data can be relevant properties, such
 
 This project uses json_serializer. To re-generate serialization code, run `./codegen.sh`
 
+## Integration tests
+_The integration tests are in development, so not all use cases are covered yet._
+
+As preliminary to run the integration tests, you need a fully configured [irmamobile development setup](#development-setup).
+Furthermore, we require the [`irma` CLI tool](https://github.com/privacybydesign/irmago#installing) to be installed and available in your PATH.
+
+By default, the integration tests run using the `pbdf` issuer scheme in `./irma_configuration`. This scheme uses the `pbdf` production keyshare server. The tests can be started in the following way:
+
+      // For an iOS testing device/simulator
+      dart test_driver/main.dart
+      // For an Android testing device/simulator
+      dart test_driver/main.dart --flavor=alpha
+
+You can also run the tests using a custom issuer scheme, for example to prevent tests to be executed against a production keyshare server.
+You can do this by specifying the issuer scheme URL of the custom scheme using an environment variable.
+
+      SCHEME_URL=https://example.com/schememanager/test
+
+If you want to use a local issuer scheme, you can use the following environment variable instead.
+
+      SCHEME_PATH=./irma_configuration/test
+
 ## Troubleshooting
 
 * Have you checked out the two submodules of this repository? If `find ./irma_configuration` is empty, this is the case.
