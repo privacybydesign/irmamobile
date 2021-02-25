@@ -37,12 +37,15 @@ class ScannerScreen extends StatelessWidget {
     try {
       await sessionPointer.validate();
     } catch (e) {
-      navigator.push(MaterialPageRoute(
-        builder: (context) => GeneralErrorScreen(
-          errorText: "error starting wizard: ${e.toString()}",
-          onTapClose: () => navigator.pop(),
+      navigator.pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (context) => GeneralErrorScreen(
+            errorText: "error starting wizard: ${e.toString()}",
+            onTapClose: () => navigator.pop(),
+          ),
         ),
-      ));
+        ModalRoute.withName(WalletScreen.routeName),
+      );
       return;
     }
 
