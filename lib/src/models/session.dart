@@ -56,7 +56,8 @@ class SessionPointer {
       throw UnsupportedError("cannot start wizard from demo scheme: developer mode not enabled");
     }
 
-    if (u == null || demoScheme || irmaConfig.issueWizards[wizard].allowOtherRequestors) {
+    final wizardData = irmaConfig.issueWizards[wizard];
+    if (u == null || demoScheme || wizardData.allowOtherRequestors) {
       return;
     }
     final host = Uri.parse(u).host;
@@ -64,7 +65,7 @@ class SessionPointer {
     if (requestor == null) {
       throw UnsupportedError("cannot start wizard: unknown requestor");
     }
-    if (!requestor.hostnames.contains(host)) {
+    if (wizardData.id.split(".").getRange(0, 2).join(".") != requestor.id) {
       throw UnsupportedError("cannot start wizard not belonging to session requestor");
     }
   }
