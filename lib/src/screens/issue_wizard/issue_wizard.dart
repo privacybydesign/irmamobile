@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -33,6 +34,7 @@ class IssueWizardScreenArguments {
 class _IssueWizardScreenState extends State<IssueWizardScreen> {
   bool _showIntro = true;
   int _sessionID;
+  StreamSubscription<SessionState> _sessionSubscription;
 
   final GlobalKey _scrollviewKey = GlobalKey();
   final ScrollController _controller = ScrollController();
@@ -44,16 +46,19 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
     if (widget.arguments.sessionID == null) {
       return;
     }
-    _repo.getSessionState(widget.arguments.sessionID).where((event) => event.isFinished).first.then((event) {
-      if (event.status == SessionStatus.error) {
-        // Pop to underlying session screen which is showing an error screen
-        Navigator.of(context).pop();
-      }
+    _sessionSubscription = _repo
+        .getSessionState(widget.arguments.sessionID)
+        .firstWhere((event) => event.isFinished)
+        .asStream()
+        .listen((event) {
+      // Pop to underlying session screen which is showing an error screen
+      Navigator.of(context).pop();
     });
   }
 
   @override
   void dispose() {
+    _sessionSubscription?.cancel();
     _repo.getIssueWizardActive().add(false);
     super.dispose();
   }
