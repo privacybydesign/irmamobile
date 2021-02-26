@@ -47,11 +47,13 @@ Future<void> main(List<String> args) async {
       .whenComplete(() => clean(testConfigDir, prodConfigDir)); // Makes sure that errors are re-thrown after clean.
 }
 
-void clean(Directory testConfigDir, Directory prodConfigDir) {
+Future<void> clean(Directory testConfigDir, Directory prodConfigDir) async {
   sigintSubscription?.cancel();
   irmaServerSubscription?.cancel();
 
   print('\nRestoring irma_configuration...');
+  // Wait two seconds to make sure all resources are released by child processes on sigint.
+  await Future.delayed(const Duration(seconds: 2));
   testConfigDir.deleteSync(recursive: true);
   prodConfigDir.renameSync(testConfigDir.path);
   print('Restored.');
