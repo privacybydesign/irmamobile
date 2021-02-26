@@ -42,7 +42,7 @@ Future<void> main(List<String> args) async {
   }
 
   print('Starting IRMA server...');
-  final irmaServer = await Process.start('irma', ['server', '-s=${testConfigDir.path}']);
+  final irmaServer = await Process.start('irma', ['server', '-s=${testConfigDir.path}'], runInShell: true);
   irmaServerSubscription = irmaServer.exitCode.asStream().listen((result) {
     print('IRMA server stopped unexpectedly:');
     irmaServer.stderr.pipe(stdout);
@@ -52,7 +52,7 @@ Future<void> main(List<String> args) async {
 
   print('Starting Flutter tests...\n');
   final flutter = await Process.start('flutter', ['drive', '--target=test_driver/app.dart', ...args],
-      mode: ProcessStartMode.inheritStdio);
+      mode: ProcessStartMode.inheritStdio, runInShell: true);
   await flutter.exitCode;
 
   // Clean test configuration.
