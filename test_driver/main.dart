@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 StreamSubscription sigintSubscription;
-StreamSubscription irmaServerSubscription;
 
 Future<void> main(List<String> args) async {
   final tempDir = Directory.systemTemp.createTempSync();
@@ -49,7 +48,6 @@ Future<void> main(List<String> args) async {
 
 Future<void> clean(Directory testConfigDir, Directory prodConfigDir) async {
   sigintSubscription?.cancel();
-  irmaServerSubscription?.cancel();
 
   print('\nRestoring irma_configuration...');
   // Wait two seconds to make sure all resources are released by child processes on sigint.
