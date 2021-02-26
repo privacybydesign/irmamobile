@@ -18,9 +18,10 @@ import 'package:irmamobile/src/screens/session/widgets/disclosure_permission.dar
 import 'package:irmamobile/src/screens/session/widgets/issuance_permission.dart';
 import 'package:irmamobile/src/screens/session/widgets/session_scaffold.dart';
 import 'package:irmamobile/src/util/combine.dart';
-import 'package:irmamobile/src/widgets/translated_text.dart';
+import 'package:irmamobile/src/util/navigation.dart';
 import 'package:irmamobile/src/widgets/action_feedback.dart';
 import 'package:irmamobile/src/widgets/loading_indicator.dart';
+import 'package:irmamobile/src/widgets/translated_text.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SessionScreen extends StatefulWidget {
@@ -56,16 +57,14 @@ class _UnknownSessionScreenState extends State<SessionScreen> {
           "session.unknown_session_type.explanation",
           textAlign: TextAlign.center,
         ),
-        onDismiss: () => popToWallet(context),
+        onDismiss: () => (widget.arguments.wizardActive ? popToWizard : popToWallet)(context),
       );
 }
 
 class _SessionScreenState extends State<SessionScreen> {
   final IrmaRepository _repo = IrmaRepository.get();
-
-  Stream<SessionState> _sessionStateStream;
-
   final ValueNotifier<bool> _displayArrowBack = ValueNotifier<bool>(false);
+  Stream<SessionState> _sessionStateStream;
 
   @override
   void initState() {
@@ -183,6 +182,8 @@ class _SessionScreenState extends State<SessionScreen> {
       return _buildFinishedReturnPhoneNumber(session);
     }
 
+    final popToMainScreen = widget.arguments.wizardActive ? popToWizard : popToWallet;
+
     // It concerns a mobile session.
     if (session.clientReturnURL != null) {
       // If there is a return URL, navigate to it when we're done; canLaunch check is already
@@ -192,18 +193,18 @@ class _SessionScreenState extends State<SessionScreen> {
         // hasUnderlyingSession during issuance is handled at the beginning of _buildFinished, so
         // we don't have to explicitly exclude issuance here.
         if (Uri.parse(session.clientReturnURL).queryParameters.containsKey("inapp")) {
-          widget.arguments.hasUnderlyingSession ? Navigator.of(context).pop() : popToWallet(context);
+          widget.arguments.hasUnderlyingSession ? Navigator.of(context).pop() : popToMainScreen(context);
           if (session.inAppCredential != null && session.inAppCredential != "") {
             _repo.expectInactivationForCredentialType(session.inAppCredential);
           }
           _repo.openURLinAppBrowser(session.clientReturnURL);
         } else {
           _repo.openURLinExternalBrowser(context, session.clientReturnURL);
-          widget.arguments.hasUnderlyingSession ? Navigator.of(context).pop() : popToWallet(context);
+          widget.arguments.hasUnderlyingSession ? Navigator.of(context).pop() : popToMainScreen(context);
         }
       });
-    } else if (_isSpecialIssuanceSession(session)) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => popToWallet(context));
+    } else if (widget.arguments.wizardActive || _isSpecialIssuanceSession(session)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => popToMainScreen(context));
     } else if (widget.arguments.hasUnderlyingSession) {
       // In case of a disclosure having an underlying session we only continue to underlying session
       // if it is a mobile session and there was no clientReturnUrl.
@@ -232,7 +233,9 @@ class _SessionScreenState extends State<SessionScreen> {
         child: SessionErrorScreen(
           error: session.error,
           onTapClose: () {
-            if (session.continueOnSecondDevice) {
+            if (widget.arguments.wizardActive) {
+              popToWizard(context);
+            } else if (session.continueOnSecondDevice) {
               popToWallet(context);
             } else if (session.clientReturnURL != null && !session.isReturnPhoneNumber) {
               // canLaunch check is already done in the session repository.

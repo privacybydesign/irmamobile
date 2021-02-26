@@ -41,6 +41,7 @@ class IrmaThemeData extends Equatable {
   final Color interactionAlert = const Color(0xFFF97D08);
   final Color interactionInformation = const Color(0xFF004C92);
   final Color interactionInvalidTransparant = const Color(0x22D44454);
+  final Color interactionCompleted = const Color(0xFF8BBEAF);
 
   final Color notificationSuccess = const Color(0xFF029B17);
   final Color notificationSuccessBg = const Color(0xFFAADACE);

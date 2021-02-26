@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -13,13 +14,16 @@ class MissingSessionPointer implements Exception {
 
 @JsonSerializable()
 class SessionPointer {
-  SessionPointer({this.u, this.irmaqr, this.continueOnSecondDevice = false, this.returnURL});
+  SessionPointer({this.u, this.irmaqr, this.continueOnSecondDevice = false, this.returnURL, this.wizard});
 
   @JsonKey(name: 'u')
   String u;
 
   @JsonKey(name: 'irmaqr')
   String irmaqr;
+
+  @JsonKey(name: 'wizard')
+  String wizard;
 
   // Whether the session should be continued on the mobile device,
   // or on the device which has displayed a QR code
@@ -29,6 +33,42 @@ class SessionPointer {
   @Deprecated("This parameter is deprecated and will be removed at the end of 2020. Use clientReturnURL instead.")
   @JsonKey(name: 'returnURL')
   String returnURL;
+
+  Future<void> validate() async {
+    if (wizard == null) return;
+
+    final repo = IrmaRepository.get();
+
+    if (await repo.getIssueWizardActive().first) {
+      throw UnsupportedError("cannot start wizard within a wizard");
+    }
+
+    final irmaConfig = await repo.getIrmaConfiguration().first;
+    final devMode = await repo.getDeveloperMode().first;
+    final scheme = wizard.contains(".") ? wizard.split(".").first : null;
+
+    if (!irmaConfig.issueWizards.containsKey(wizard) || !irmaConfig.requestorSchemes.containsKey(scheme)) {
+      throw ArgumentError.value(wizard, "wizard");
+    }
+
+    final demoScheme = irmaConfig.requestorSchemes[scheme].demo;
+    if (!devMode && demoScheme) {
+      throw UnsupportedError("cannot start wizard from demo scheme: developer mode not enabled");
+    }
+
+    final wizardData = irmaConfig.issueWizards[wizard];
+    if (u == null || demoScheme || wizardData.allowOtherRequestors) {
+      return;
+    }
+    final host = Uri.parse(u).host;
+    final requestor = irmaConfig.requestors[host];
+    if (requestor == null) {
+      throw UnsupportedError("cannot start wizard: unknown requestor");
+    }
+    if (wizardData.id.split(".").getRange(0, 2).join(".") != requestor.id) {
+      throw UnsupportedError("cannot start wizard not belonging to session requestor");
+    }
+  }
 
   factory SessionPointer.fromString(String content) {
     // Use lookahead and lookbehinds to block out the non-JSON part of the string
@@ -132,6 +172,9 @@ class RemoteError {
 
 @JsonSerializable()
 class RequestorInfo {
+  @JsonKey(name: 'id')
+  String id;
+
   @JsonKey(name: 'name')
   TranslatedValue name;
 
@@ -147,7 +190,10 @@ class RequestorInfo {
   @JsonKey(name: 'unverified')
   bool unverified;
 
-  RequestorInfo({this.name, this.industry, this.logo, this.logoPath, this.unverified});
+  @JsonKey(name: 'hostnames')
+  List<String> hostnames;
+
+  RequestorInfo({this.id, this.name, this.industry, this.logo, this.logoPath, this.unverified, this.hostnames});
   factory RequestorInfo.fromJson(Map<String, dynamic> json) => _$RequestorInfoFromJson(json);
   Map<String, dynamic> toJson() => _$RequestorInfoToJson(this);
 }

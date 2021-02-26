@@ -2,6 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:irmamobile/src/models/event.dart';
+import 'package:irmamobile/src/models/issue_wizard.dart';
+import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -19,10 +21,25 @@ class IrmaConfigurationEvent extends Event {
 
 @JsonSerializable(nullable: false, createToJson: false)
 class IrmaConfiguration {
-  IrmaConfiguration({this.schemeManagers, this.issuers, this.credentialTypes, this.attributeTypes, this.path});
+  IrmaConfiguration({
+    this.schemeManagers,
+    this.requestorSchemes,
+    this.requestors,
+    this.issuers,
+    this.credentialTypes,
+    this.attributeTypes,
+    this.issueWizards,
+    this.path,
+  });
 
   @JsonKey(name: 'SchemeManagers')
   final Map<String, SchemeManager> schemeManagers;
+
+  @JsonKey(name: 'RequestorSchemes')
+  final Map<String, RequestorScheme> requestorSchemes;
+
+  @JsonKey(name: 'Requestors')
+  final Map<String, RequestorInfo> requestors;
 
   @JsonKey(name: 'Issuers')
   final Map<String, Issuer> issuers;
@@ -32,6 +49,9 @@ class IrmaConfiguration {
 
   @JsonKey(name: 'AttributeTypes')
   final Map<String, AttributeType> attributeTypes;
+
+  @JsonKey(name: 'IssueWizards')
+  final Map<String, IssueWizard> issueWizards;
 
   @JsonKey(name: 'Path')
   final String path;
@@ -80,6 +100,20 @@ class SchemeManager {
   final int timestamp;
 
   factory SchemeManager.fromJson(Map<String, dynamic> json) => _$SchemeManagerFromJson(json);
+}
+
+@JsonSerializable()
+class RequestorScheme {
+  RequestorScheme({this.id, this.demo});
+
+  @JsonKey(name: 'id')
+  final String id;
+
+  @JsonKey(name: 'demo')
+  final bool demo;
+
+  factory RequestorScheme.fromJson(Map<String, dynamic> json) => _$RequestorSchemeFromJson(json);
+  Map<String, dynamic> toJson() => _$RequestorSchemeToJson(this);
 }
 
 @JsonSerializable(nullable: false, createToJson: false)
@@ -142,6 +176,7 @@ class CredentialType {
     this.faqPurpose,
     this.faqContent,
     this.faqHowto,
+    this.faqSummary,
     this.logo,
   });
 
@@ -198,6 +233,9 @@ class CredentialType {
 
   @JsonKey(name: 'FAQHowto', nullable: true)
   final TranslatedValue faqHowto;
+
+  @JsonKey(name: 'FAQSummary', nullable: true)
+  final TranslatedValue faqSummary;
 
   @JsonKey(name: 'Logo')
   final String logo;

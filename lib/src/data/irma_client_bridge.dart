@@ -12,6 +12,7 @@ import 'package:irmamobile/src/models/enrollment_events.dart';
 import 'package:irmamobile/src/models/event.dart';
 import 'package:irmamobile/src/models/handle_url_event.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
+import 'package:irmamobile/src/models/issue_wizard.dart';
 import 'package:irmamobile/src/models/log_entry.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 
@@ -50,6 +51,8 @@ class IrmaClientBridge extends IrmaBridge {
     KeyshareBlockedSessionEvent: (j) => KeyshareBlockedSessionEvent.fromJson(j),
     ClientReturnURLSetSessionEvent: (j) => ClientReturnURLSetSessionEvent.fromJson(j),
     FailureSessionEvent: (j) => FailureSessionEvent.fromJson(j),
+
+    IssueWizardContentsEvent: (j) => IssueWizardContentsEvent.fromJson(j),
 
     // FooBar: (j) => FooBar.fromJson(j),
   };

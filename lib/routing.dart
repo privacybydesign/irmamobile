@@ -7,15 +7,16 @@ import 'package:irmamobile/src/screens/about/about_screen.dart';
 import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
 import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
 import 'package:irmamobile/src/screens/debug/debug_screen.dart';
-import 'package:irmamobile/src/screens/session/session.dart';
-import 'package:irmamobile/src/screens/session/session_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/email_sent_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/help/help_screen.dart';
 import 'package:irmamobile/src/screens/history/history_screen.dart';
+import 'package:irmamobile/src/screens/issue_wizard/issue_wizard.dart';
 import 'package:irmamobile/src/screens/loading/redirect_screen.dart';
 import 'package:irmamobile/src/screens/reset_pin/reset_pin_screen.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
+import 'package:irmamobile/src/screens/session/session.dart';
+import 'package:irmamobile/src/screens/session/session_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 
@@ -44,6 +45,8 @@ class Routing {
         return (context) => SessionScreen(arguments: arguments as SessionScreenArguments);
       case EmailSentScreen.routeName:
         return (context) => EmailSentScreen(email: arguments as String);
+      case IssueWizardScreen.routeName:
+        return (context) => IssueWizardScreen(arguments: arguments as IssueWizardScreenArguments);
 
       default:
         return simpleRoutes[routeName];

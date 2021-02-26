@@ -508,5 +508,12 @@
     "title": "Toestel onveilig",
     "body": "Het lijkt erop dat het besturingssysteem op jouw toestel is aangepast, hierdoor kan de veiligheid van jouw gegevens niet gegarandeerd worden.",
     "button_accept_risk": "Ik aanvaard het risico"
+  },
+  "issue_wizard": {
+    "back": "Annuleer",
+    "done": "OK",
+    "add": "Ophalen",
+    "add_cards": "Kaartjes ophalen",
+    "add_credential": "Haal {credential} op"
   }
 }

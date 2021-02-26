@@ -20,6 +20,7 @@ import 'package:irmamobile/src/models/error_event.dart';
 import 'package:irmamobile/src/models/event.dart';
 import 'package:irmamobile/src/models/handle_url_event.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
+import 'package:irmamobile/src/models/issue_wizard.dart';
 import 'package:irmamobile/src/models/native_events.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
@@ -94,6 +95,8 @@ class IrmaRepository {
   final _inAppCredentialSubject = BehaviorSubject<_InAppCredentialState>();
   final _resumedWithURLSubject = BehaviorSubject<bool>.seeded(false);
   final _resumedFromBrowserSubject = BehaviorSubject<bool>.seeded(false);
+  final _issueWizardSubject = BehaviorSubject<IssueWizardEvent>.seeded(null);
+  final _issueWizardActiveSubject = BehaviorSubject<bool>.seeded(false);
 
   // _internal is a named constructor only used by the factory
   IrmaRepository._internal({
@@ -105,6 +108,12 @@ class IrmaRepository {
       repo: this,
       sessionEventStream: _eventSubject.where((event) => event is SessionEvent).cast<SessionEvent>(),
     );
+    _credentialsSubject.forEach((creds) async {
+      final event = await _issueWizardSubject.first;
+      if (event != null) {
+        _issueWizardSubject.add(await processIssueWizard(event.wizardData.id, event.wizardContents, creds));
+      }
+    });
   }
 
   Future<void> _eventListener(Event event) async {
@@ -156,6 +165,12 @@ class IrmaRepository {
       }
     } else if (event is ClientPreferencesEvent) {
       _preferencesSubject.add(event);
+    } else if (event is IssueWizardContentsEvent) {
+      _issueWizardSubject.add(await processIssueWizard(
+        event.id,
+        event.wizardContents,
+        await _credentialsSubject.first,
+      ));
     }
   }
 
@@ -349,6 +364,44 @@ class IrmaRepository {
 
   Stream<bool> getDeveloperMode() {
     return _preferencesSubject.stream.map((pref) => pref.clientPreferences.developerMode);
+  }
+
+  BehaviorSubject<IssueWizardEvent> getIssueWizard() {
+    return _issueWizardSubject;
+  }
+
+  BehaviorSubject<bool> getIssueWizardActive() {
+    return _issueWizardActiveSubject;
+  }
+
+  Future<IssueWizardEvent> processIssueWizard(
+    String id,
+    List<IssueWizardItem> contents,
+    Credentials credentials,
+  ) async {
+    final conf = await irmaConfigurationSubject.first;
+    final wizardData = conf.issueWizards[id];
+    final creds = Set.from(credentials.values.map((cred) => cred.info.fullId));
+    return IssueWizardEvent(
+      haveCredential: wizardData.issues != null && creds.contains(wizardData.issues),
+      wizardData: wizardData,
+      wizardContents: contents.map((item) {
+        // The credential field may be non-nil for any wizard item type
+        final haveCredential = item.credential != null && creds.contains(item.credential);
+        if (item.type != "credential") {
+          return item.copyWith(completed: haveCredential || (item.completed ?? false));
+        }
+        final credtype = conf.credentialTypes[item.credential];
+        return IssueWizardItem(
+          type: "credential",
+          credential: item.credential,
+          label: item.label,
+          completed: haveCredential,
+          header: item.header ?? credtype.name,
+          text: item.text ?? credtype.faqSummary,
+        );
+      }).toList(),
+    );
   }
 
   final List<ExternalBrowserCredtype> externalBrowserCredtypes = const [

@@ -77,6 +77,11 @@ func DispatchFromNative(eventName, payloadString string) {
 		if err = json.Unmarshal(payloadBytes, &event); err == nil {
 			err = bridgeEventHandler.setPreferences(event)
 		}
+	case "GetIssueWizardContentsEvent":
+		event := &getIssueWizardContentsEvent{}
+		if err = json.Unmarshal(payloadBytes, &event); err == nil {
+			err = bridgeEventHandler.getIssueWizardContents(event)
+		}
 	}
 
 	if err != nil {

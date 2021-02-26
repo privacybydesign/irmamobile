@@ -206,6 +206,11 @@ class DebugScreen extends StatelessWidget {
             ),
           ),
           IconButton(
+            icon: Icon(Icons.list_alt),
+            onPressed: () => ScannerScreen.startIssueWizard(
+                Navigator.of(context), SessionPointer(wizard: "irma-demo-requestors.ivido.demo-client")),
+          ),
+          IconButton(
             icon: Icon(Icons.delete),
             onPressed: () => _deleteAllDeletableCards(),
           ),

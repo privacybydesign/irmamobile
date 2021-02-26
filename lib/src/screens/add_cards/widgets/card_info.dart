@@ -7,6 +7,7 @@ import 'package:irmamobile/src/screens/add_cards/widgets/card_questions.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/widgets/heading.dart';
+import 'package:irmamobile/src/widgets/logo_banner.dart';
 
 class CardInfo extends StatefulWidget {
   const CardInfo({this.irmaConfiguration, this.credentialType, this.parentKey, this.parentScrollController});
@@ -39,41 +40,10 @@ class _CardInfoState extends State<CardInfo> with TickerProviderStateMixin {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Stack(
-          children: <Widget>[
-            Container(
-              width: MediaQuery.of(context).size.width,
-              height: 112,
-              color: IrmaTheme.of(context).grayscale60,
-            ),
-            Align(
-              alignment: Alignment.center,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: IrmaTheme.of(context).grayscaleWhite,
-                  border: Border.all(
-                    color: IrmaTheme.of(context).grayscale90,
-                    width: 3,
-                  ),
-                ),
-                margin: const EdgeInsets.only(top: 78),
-                width: 68,
-                height: 68,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
-                  child: logoFile.existsSync()
-                      ? Image.file(
-                          logoFile,
-                          excludeFromSemantics: true,
-                        )
-                      : Image.asset(
-                          "assets/non-free/irmalogo.png",
-                          excludeFromSemantics: true,
-                        ),
-                ),
-              ),
-            ),
-          ],
+        LogoBanner(
+          logo: logoFile.existsSync()
+              ? Image.file(logoFile, excludeFromSemantics: true)
+              : Image.asset("assets/non-free/irmalogo.png", excludeFromSemantics: true),
         ),
         SizedBox(
           height: IrmaTheme.of(context).mediumSpacing,

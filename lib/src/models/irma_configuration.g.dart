@@ -17,6 +17,12 @@ IrmaConfiguration _$IrmaConfigurationFromJson(Map<String, dynamic> json) {
     schemeManagers: (json['SchemeManagers'] as Map<String, dynamic>).map(
       (k, e) => MapEntry(k, SchemeManager.fromJson(e as Map<String, dynamic>)),
     ),
+    requestorSchemes: (json['RequestorSchemes'] as Map<String, dynamic>).map(
+      (k, e) => MapEntry(k, RequestorScheme.fromJson(e as Map<String, dynamic>)),
+    ),
+    requestors: (json['Requestors'] as Map<String, dynamic>).map(
+      (k, e) => MapEntry(k, RequestorInfo.fromJson(e as Map<String, dynamic>)),
+    ),
     issuers: (json['Issuers'] as Map<String, dynamic>).map(
       (k, e) => MapEntry(k, Issuer.fromJson(e as Map<String, dynamic>)),
     ),
@@ -25,6 +31,9 @@ IrmaConfiguration _$IrmaConfigurationFromJson(Map<String, dynamic> json) {
     ),
     attributeTypes: (json['AttributeTypes'] as Map<String, dynamic>).map(
       (k, e) => MapEntry(k, AttributeType.fromJson(e as Map<String, dynamic>)),
+    ),
+    issueWizards: (json['IssueWizards'] as Map<String, dynamic>).map(
+      (k, e) => MapEntry(k, IssueWizard.fromJson(e as Map<String, dynamic>)),
     ),
     path: json['Path'] as String,
   );
@@ -43,6 +52,18 @@ SchemeManager _$SchemeManagerFromJson(Map<String, dynamic> json) {
     timestamp: json['Timestamp'] as int,
   );
 }
+
+RequestorScheme _$RequestorSchemeFromJson(Map<String, dynamic> json) {
+  return RequestorScheme(
+    id: json['id'] as String,
+    demo: json['demo'] as bool,
+  );
+}
+
+Map<String, dynamic> _$RequestorSchemeToJson(RequestorScheme instance) => <String, dynamic>{
+      'id': instance.id,
+      'demo': instance.demo,
+    };
 
 AppVersion _$AppVersionFromJson(Map<String, dynamic> json) {
   return AppVersion(
@@ -83,6 +104,8 @@ CredentialType _$CredentialTypeFromJson(Map<String, dynamic> json) {
     faqContent:
         json['FAQContent'] == null ? null : TranslatedValue.fromJson(json['FAQContent'] as Map<String, dynamic>),
     faqHowto: json['FAQHowto'] == null ? null : TranslatedValue.fromJson(json['FAQHowto'] as Map<String, dynamic>),
+    faqSummary:
+        json['FAQSummary'] == null ? null : TranslatedValue.fromJson(json['FAQSummary'] as Map<String, dynamic>),
     logo: json['Logo'] as String,
   );
 }

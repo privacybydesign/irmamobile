@@ -507,5 +507,12 @@
     "title": "Device unsafe",
     "body": "The operating system on your device seems to be modified. Because of this, the safety of your data cannot be guaranteed.",
     "button_accept_risk": "I accept the risk"
+  },
+  "issue_wizard": {
+    "back": "Cancel",
+    "done": "OK",
+    "add": "Add",
+    "add_cards": "Add cards",
+    "add_credential": "Add {credential}"
   }
 }

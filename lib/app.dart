@@ -235,10 +235,11 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   }
 
   void _startSession(SessionPointer sessionPointer) {
-    ScannerScreen.startSessionAndNavigate(
-      _navigatorKey.currentState,
-      sessionPointer,
-    );
+    if (sessionPointer.wizard != null) {
+      ScannerScreen.startIssueWizard(navigator, sessionPointer);
+    } else {
+      ScannerScreen.startSessionAndNavigate(_navigatorKey.currentState, sessionPointer);
+    }
   }
 
   Widget _buildPinScreen(bool isLocked) {
