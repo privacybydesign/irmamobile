@@ -17,11 +17,11 @@ Future<void> main(List<String> args) async {
   });
 
   // Remain irma-demo configuration from production config if present.
-  prodConfigDir.listSync().where((entity) => entity.path.endsWith('/irma-demo')).forEach((entity) {
-    if (entity is Directory) {
-      copyDir(entity, Directory('${testConfigDir.path}/irma-demo'));
-    }
-  });
+  prodConfigDir
+      .listSync()
+      .expand<Directory>((entity) => entity is Directory ? [entity] : [])
+      .where((entity) => entity.dirName.startsWith('irma-demo'))
+      .forEach((entity) => entity.copy(Directory('${testConfigDir.path}/irma-demo')));
 
   if (Platform.environment.containsKey('SCHEME_URL')) {
     print('Downloading test configuration. This might take a while...');
@@ -37,8 +37,7 @@ Future<void> main(List<String> args) async {
       schemePath = schemePath.replaceFirst(prodConfigDir.path, testConfigDir.path);
     }
     final schemeDir = Directory(schemePath);
-    final schemeName = schemeDir.uri.pathSegments[schemeDir.uri.pathSegments.length - 2];
-    copyDir(schemeDir, Directory('${testConfigDir.path}/$schemeName'));
+    schemeDir.copy(Directory('${testConfigDir.path}/${schemeDir.dirName}'));
   }
 
   print('Starting IRMA server...');
@@ -70,13 +69,17 @@ void clean(Directory testConfigDir, Directory prodConfigDir) {
   print('Restored.');
 }
 
-void copyDir(Directory src, Directory target) {
-  for (final entity in src.listSync(recursive: true)) {
-    // Deliberately don't support symbolic links, since this requires admin on Windows.
-    if (entity is File) {
-      final targetFile = File(entity.path.replaceFirst(src.path, target.path));
-      targetFile.createSync(recursive: true);
-      entity.copySync(targetFile.path);
+extension DirectoryUtil on Directory {
+  String get dirName => path.split(Platform.pathSeparator).last;
+
+  void copy(Directory target) {
+    for (final entity in listSync(recursive: true)) {
+      // Deliberately don't support symbolic links, since this requires admin on Windows.
+      if (entity is File) {
+        final targetFile = File(entity.path.replaceFirst(path, target.path));
+        targetFile.createSync(recursive: true);
+        entity.copySync(targetFile.path);
+      }
     }
   }
 }
