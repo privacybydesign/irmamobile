@@ -10,7 +10,6 @@ import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/screens/issue_wizard/widgets/wizard_contents.dart';
 import 'package:irmamobile/src/screens/issue_wizard/widgets/wizard_info.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
-import 'package:irmamobile/src/screens/session/session_screen.dart';
 import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/util/navigation.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -53,16 +52,10 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
         .asStream()
         .listen((event) {
       // Pop to underlying session screen which is showing an error screen
-      // Deal with the possibility that a session is on top of the wizard which is on top of a session:
-      // then we need to pop until the bottom sesssion
-      bool firstPop = true;
-      Navigator.of(context).popUntil((route) {
-        if (firstPop) {
-          firstPop = false;
-          return false;
-        }
-        return route.settings.name == SessionScreen.routeName;
-      });
+      // First pop all screens on top of this wizard and then pop the wizard screen itself
+      Navigator.of(context)
+        ..popUntil(ModalRoute.withName(IssueWizardScreen.routeName))
+        ..pop();
     });
   }
 
