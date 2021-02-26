@@ -40,23 +40,11 @@ Future<void> main(List<String> args) async {
     schemeDir.copy(Directory('${testConfigDir.path}/${schemeDir.dirName}'));
   }
 
-  print('Starting IRMA server...');
-  final irmaServer = await Process.start('irma', ['server', '-s=${testConfigDir.path}'], runInShell: true);
-  irmaServerSubscription = irmaServer.exitCode.asStream().listen((result) {
-    print('IRMA server stopped unexpectedly:');
-    irmaServer.stderr.pipe(stdout);
-    // We cannot nicely kill the script here due to a bug in Dart.
-    // https://github.com/google/process.dart/issues/42
-  });
-
   print('Starting Flutter tests...\n');
-  final flutter = await Process.start('flutter', ['drive', '--target=test_driver/app.dart', ...args],
-      mode: ProcessStartMode.inheritStdio, runInShell: true);
-  await flutter.exitCode;
-
-  // Clean test configuration.
-  clean(testConfigDir, prodConfigDir);
-  irmaServer.kill();
+  Process.start('flutter', ['drive', '--target=test_driver/app.dart', ...args],
+          mode: ProcessStartMode.inheritStdio, runInShell: true)
+      .then((process) => process.exitCode)
+      .whenComplete(() => clean(testConfigDir, prodConfigDir)); // Makes sure that errors are re-thrown after clean.
 }
 
 void clean(Directory testConfigDir, Directory prodConfigDir) {

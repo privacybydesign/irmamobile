@@ -10,6 +10,7 @@ void main() {
   group('IrmaMobile', () {
     FlutterDriver driver;
     StreamSubscription streamSubscription;
+    Process irmaServer;
     setUpAll(() async {
       // Connect to a running Flutter application instance.
       driver = await FlutterDriver.connect();
@@ -18,6 +19,9 @@ void main() {
         isolateRef.resume();
       });
 
+      print('Starting IRMA server...');
+      irmaServer = await Process.start('irma', ['server'], mode: ProcessStartMode.inheritStdio, runInShell: true);
+
       // Forward neccessary ports
       await Process.run('adb', ['reverse', 'tcp:8080', 'tcp:8080']);
       await Process.run('adb', ['reverse', 'tcp:8088', 'tcp:8088']);
@@ -25,7 +29,8 @@ void main() {
 
     tearDownAll(() async {
       if (driver != null) await driver.close();
-      if (streamSubscription != null) streamSubscription.cancel();
+      streamSubscription?.cancel();
+      irmaServer?.kill();
     });
 
     Future<void> _startIrmaSession(String request) async {
