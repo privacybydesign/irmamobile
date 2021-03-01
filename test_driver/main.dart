@@ -9,6 +9,10 @@ Future<void> main(List<String> args) async {
   final testConfigDir = Directory('irma_configuration');
   testConfigDir.createSync();
 
+  print('Loading test configuration...');
+  print('Configuration in ./irma_configuration will be restored on completion automatically.');
+  print('In case this fails, the configuration can be recovered from ${prodConfigDir.path}');
+
   // Register sigint listener to handle clean-up.
   sigintSubscription = ProcessSignal.sigint.watch().listen((_) {
     clean(testConfigDir, prodConfigDir);
@@ -50,8 +54,8 @@ Future<void> clean(Directory testConfigDir, Directory prodConfigDir) async {
   sigintSubscription?.cancel();
 
   print('\nRestoring irma_configuration...');
-  // Wait two seconds to make sure all resources are released by child processes on sigint.
-  await Future.delayed(const Duration(seconds: 2));
+  // Wait a seconds to make sure all resources are released by child processes on sigint.
+  await Future.delayed(const Duration(seconds: 1));
   testConfigDir.deleteSync(recursive: true);
   prodConfigDir.renameSync(testConfigDir.path);
   print('Restored.');
