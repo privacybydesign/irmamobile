@@ -75,20 +75,25 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
             child: PinWrongBlockedDialog(blocked: pinState.blockedUntil.difference(DateTime.now()).inSeconds),
           );
         }
-      } else {
-        Future.delayed(const Duration(milliseconds: 100), () => FocusScope.of(context).requestFocus(_focusNode));
-      }
-
-      if (pinState.error != null) {
+      } else if (pinState.error != null) {
         Navigator.of(context).push(MaterialPageRoute(
           builder: (context) => SessionErrorScreen(
             error: pinState.error,
             onTapClose: () {
               Navigator.of(context).pop();
+              _delayedKeyboardFocus();
             },
           ),
         ));
+      } else {
+        _delayedKeyboardFocus();
       }
+    });
+  }
+
+  void _delayedKeyboardFocus() {
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (mounted) FocusScope.of(context).requestFocus(_focusNode);
     });
   }
 
