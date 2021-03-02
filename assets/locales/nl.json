@@ -202,9 +202,7 @@
     "choose": "Kies de gegevens die je wilt toevoegen.",
     "search": "Zoek...",
     "personal_data": "Persoonsgegevens",
-    "identity_cards": "Identiteitsbewijzen",
-    "education": "Onderwijs",
-    "health": "Zorg",
+    "category_other": "Overig",
     "card_info": {
       "app_bar": "Gegevens toevoegen",
       "header_credential_type": "{credential_type} toevoegen",

@@ -202,9 +202,7 @@
     "choose": "Choose the data you wish to add.",
     "search": "Search...",
     "personal_data": "Personal data",
-    "identity_cards": "Identity cards",
-    "education": "Education",
-    "health": "Health",
+    "category_other": "Other",
     "card_info": {
       "app_bar": "Adding data",
       "header_credential_type": "Adding {credential_type}",

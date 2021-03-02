@@ -26,45 +26,48 @@ class _CardQuestionsState extends State<CardQuestions> with TickerProviderStateM
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Collapsible(
-            header: FlutterI18n.translate(context, 'card_store.card_info.purpose_question'),
-            onExpansionChanged: (v) =>
-                {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[0])},
-            content: SizedBox(
-              width: double.infinity,
-              child: Text(
-                getTranslation(context, widget.credentialType.faqPurpose).replaceAll('\\n', '\n'),
-                style: IrmaTheme.of(context).textTheme.body1,
-                textAlign: TextAlign.left,
+        if (widget.credentialType.faqPurpose != null)
+          Collapsible(
+              header: FlutterI18n.translate(context, 'card_store.card_info.purpose_question'),
+              onExpansionChanged: (v) =>
+                  {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[0])},
+              content: SizedBox(
+                width: double.infinity,
+                child: Text(
+                  getTranslation(context, widget.credentialType.faqPurpose).replaceAll('\\n', '\n'),
+                  style: IrmaTheme.of(context).textTheme.bodyText2,
+                  textAlign: TextAlign.left,
+                ),
               ),
-            ),
-            key: _collapsableKeys[0]),
-        Collapsible(
-            header: FlutterI18n.translate(context, 'card_store.card_info.content_question'),
-            onExpansionChanged: (v) =>
-                {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[1])},
-            content: SizedBox(
-              width: double.infinity,
-              child: Text(
-                getTranslation(context, widget.credentialType.faqContent).replaceAll('\\n', '\n'),
-                style: IrmaTheme.of(context).textTheme.body1,
-                textAlign: TextAlign.left,
+              key: _collapsableKeys[0]),
+        if (widget.credentialType.faqContent != null)
+          Collapsible(
+              header: FlutterI18n.translate(context, 'card_store.card_info.content_question'),
+              onExpansionChanged: (v) =>
+                  {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[1])},
+              content: SizedBox(
+                width: double.infinity,
+                child: Text(
+                  getTranslation(context, widget.credentialType.faqContent).replaceAll('\\n', '\n'),
+                  style: IrmaTheme.of(context).textTheme.bodyText2,
+                  textAlign: TextAlign.left,
+                ),
               ),
-            ),
-            key: _collapsableKeys[1]),
-        Collapsible(
-            header: FlutterI18n.translate(context, 'card_store.card_info.howto_question'),
-            onExpansionChanged: (v) =>
-                {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[2])},
-            content: SizedBox(
-              width: double.infinity,
-              child: Text(
-                getTranslation(context, widget.credentialType.faqHowto).replaceAll('\\n', '\n'),
-                style: IrmaTheme.of(context).textTheme.body1,
-                textAlign: TextAlign.left,
+              key: _collapsableKeys[1]),
+        if (widget.credentialType.faqHowto != null)
+          Collapsible(
+              header: FlutterI18n.translate(context, 'card_store.card_info.howto_question'),
+              onExpansionChanged: (v) =>
+                  {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[2])},
+              content: SizedBox(
+                width: double.infinity,
+                child: Text(
+                  getTranslation(context, widget.credentialType.faqHowto).replaceAll('\\n', '\n'),
+                  style: IrmaTheme.of(context).textTheme.bodyText2,
+                  textAlign: TextAlign.left,
+                ),
               ),
-            ),
-            key: _collapsableKeys[2]),
+              key: _collapsableKeys[2]),
       ],
     );
   }
