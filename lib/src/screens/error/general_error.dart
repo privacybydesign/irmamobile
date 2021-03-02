@@ -55,7 +55,7 @@ class GeneralError extends StatelessWidget {
                                     child: IrmaButton(
                                       size: IrmaButtonSize.small,
                                       onPressed: () => Navigator.of(context).pop(),
-                                      label: 'change_pin.choose_pin.error_action',
+                                      label: 'error.button_ok',
                                     ),
                                   );
                                 },
