@@ -13,7 +13,7 @@ class GeneralErrorScreen extends StatefulWidget {
   const GeneralErrorScreen({@required this.errorText, @required this.onTapClose, this.onTapReport});
 
   @override
-  createState() => _GeneralErrorScreenState();
+  State<GeneralErrorScreen> createState() => _GeneralErrorScreenState();
 }
 
 class _GeneralErrorScreenState extends State<GeneralErrorScreen> {

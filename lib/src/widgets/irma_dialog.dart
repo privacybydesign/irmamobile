@@ -10,7 +10,10 @@ class IrmaDialog extends StatelessWidget {
   final Function() onClose;
   final String image;
 
-  const IrmaDialog({@required this.title, @required this.content, @required this.child, this.image, this.onClose});
+  const IrmaDialog({@required this.title, @required this.content, @required this.child, this.image, this.onClose})
+      : assert(title != null),
+        assert(content != null),
+        assert(child != null);
 
   @override
   Widget build(BuildContext context) {
@@ -52,12 +55,12 @@ class IrmaDialog extends StatelessWidget {
                               children: <Widget>[
                                 Text(
                                   title,
-                                  style: IrmaTheme.of(context).textTheme.display2,
+                                  style: IrmaTheme.of(context).textTheme.headline3,
                                 ),
                                 SizedBox(height: IrmaTheme.of(context).tinySpacing),
                                 Text(
                                   content,
-                                  style: IrmaTheme.of(context).textTheme.body1,
+                                  style: IrmaTheme.of(context).textTheme.bodyText2,
                                 ),
                                 if (image != null) ...[
                                   SizedBox(height: IrmaTheme.of(context).defaultSpacing),

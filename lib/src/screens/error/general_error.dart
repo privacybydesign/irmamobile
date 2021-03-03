@@ -4,6 +4,8 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
+import 'package:irmamobile/src/widgets/irma_dialog.dart';
+import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 
 class GeneralError extends StatelessWidget {
   final String errorText;
@@ -34,11 +36,11 @@ class GeneralError extends StatelessWidget {
                   Text.rich(
                     TextSpan(
                       text: FlutterI18n.translate(context, "error.types.general"),
-                      style: IrmaTheme.of(context).textTheme.body1,
+                      style: IrmaTheme.of(context).textTheme.bodyText2,
                       children: <TextSpan>[
                         TextSpan(
                           text: "\n\n ${FlutterI18n.translate(context, 'error.button_show_error')}",
-                          style: IrmaTheme.of(context).textTheme.body1.copyWith(
+                          style: IrmaTheme.of(context).textTheme.bodyText2.copyWith(
                                 decoration: TextDecoration.underline,
                                 color: IrmaTheme.of(context).linkColor,
                               ),
@@ -47,27 +49,14 @@ class GeneralError extends StatelessWidget {
                               showDialog(
                                 context: context,
                                 builder: (context) {
-                                  return AlertDialog(
-                                    title: Text(
-                                      "Foutmelding",
-                                      style: IrmaTheme.of(context).textTheme.display2,
+                                  return IrmaDialog(
+                                    title: FlutterI18n.translate(context, 'error.details_title'),
+                                    content: errorText,
+                                    child: IrmaButton(
+                                      size: IrmaButtonSize.small,
+                                      onPressed: () => Navigator.of(context).pop(),
+                                      label: 'error.button_ok',
                                     ),
-                                    content: Container(
-                                      width: MediaQuery.of(context).size.width,
-                                      child: Text(
-                                        errorText,
-                                        style: IrmaTheme.of(context).textTheme.body1,
-                                      ),
-                                    ),
-                                    actions: <Widget>[
-                                      IrmaButton(
-                                        label: FlutterI18n.translate(context, 'error.button_ok'),
-                                        textStyle: IrmaTheme.of(context).textTheme.button,
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                      ),
-                                    ],
                                   );
                                 },
                               );

@@ -139,7 +139,7 @@ class SessionError {
 
   @override
   String toString() => [
-        if (remoteStatus != null) "$remoteStatus ",
+        if (remoteStatus != null && remoteStatus > 0) "$remoteStatus ",
         "$errorType",
         if (info?.isNotEmpty ?? false) " ($info)",
         if (wrappedError?.isNotEmpty ?? false) ": $wrappedError",
