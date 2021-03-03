@@ -23,17 +23,28 @@ import Flutter
   override func applicationDidEnterBackground(_ application: UIApplication) {
     super.applicationDidEnterBackground(application)
 
-    let blankViewController = UIViewController()
-    blankViewController.view.backgroundColor = UIColor.black
-
-    // Pass NO for the animated parameter. Any animation will not complete
-    // before the snapshot is taken.
-    window.rootViewController?.present(blankViewController, animated: false)
+    // Make sure no presentedViewController (like the SafariViewController) is covering the FlutterViewController.
+    if (window.rootViewController?.presentedViewController == nil) {
+        let blankViewController = PrivacyCoverViewController()
+        
+        // Pass NO for the animated parameter. Any animation will not complete
+        // before the snapshot is taken.
+        window.rootViewController?.present(blankViewController, animated: false)
+    }
   }
 
   override func applicationWillEnterForeground(_ application: UIApplication) {
-    window.rootViewController?.dismiss(animated: false)
+    if (window.rootViewController?.presentedViewController is PrivacyCoverViewController) {
+        window.rootViewController?.dismiss(animated: false)
+    }
 
     super.applicationWillEnterForeground(application)
   }
+}
+
+class PrivacyCoverViewController: UIViewController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = UIColor.black
+    }
 }
