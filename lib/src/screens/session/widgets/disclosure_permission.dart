@@ -67,7 +67,6 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
         title: FlutterI18n.translate(context, 'disclosure.explanation.title'),
         content: FlutterI18n.translate(context, 'disclosure.explanation.body'),
         image: 'assets/disclosure/disclosure-explanation.webp',
-        onClose: _hideExplanation,
         child: Wrap(
           direction: Axis.horizontal,
           verticalDirection: VerticalDirection.up,
