@@ -23,6 +23,7 @@ type IrmaMobileBridge interface {
 var bridge IrmaMobileBridge
 var client *irmaclient.Client
 var appDataVersion = "v2"
+var clientLoaded = make(chan struct{})
 
 // eventHandler maintains a sessionLookup for actions incoming
 // from irma_mobile (see action_handler.go)
@@ -51,6 +52,10 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) 
 	defer recoverFromPanic()
 
 	bridge = givenBridge
+
+	defer func() {
+		close(clientLoaded) // make all future reads return immediately
+	}()
 
 	// Check for user data directory, and create version-specific directory
 	exists, err := pathExists(appDataPath)

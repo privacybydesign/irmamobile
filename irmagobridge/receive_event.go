@@ -13,6 +13,13 @@ func DispatchFromNative(eventName, payloadString string) {
 	payloadBytes := []byte(payloadString)
 	var err error
 
+	<-clientLoaded
+	if client == nil {
+		// Error occured during client initialization. In that case the error is already
+		// reported, and we can't do anything sensible here, so just return
+		return
+	}
+
 	switch eventName {
 	case "AppReadyEvent":
 		dispatchEnrollmentStatusEvent()
