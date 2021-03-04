@@ -9,6 +9,7 @@ import 'package:irmamobile/src/models/change_pin_events.dart';
 import 'package:irmamobile/src/models/client_preferences.dart';
 import 'package:irmamobile/src/models/credential_events.dart';
 import 'package:irmamobile/src/models/enrollment_events.dart';
+import 'package:irmamobile/src/models/error_event.dart';
 import 'package:irmamobile/src/models/event.dart';
 import 'package:irmamobile/src/models/handle_url_event.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
@@ -53,6 +54,8 @@ class IrmaClientBridge extends IrmaBridge {
     FailureSessionEvent: (j) => FailureSessionEvent.fromJson(j),
 
     IssueWizardContentsEvent: (j) => IssueWizardContentsEvent.fromJson(j),
+
+    ErrorEvent: (j) => ErrorEvent.fromJson(j),
 
     // FooBar: (j) => FooBar.fromJson(j),
   };
