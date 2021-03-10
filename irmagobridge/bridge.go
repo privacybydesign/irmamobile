@@ -24,6 +24,7 @@ var bridge IrmaMobileBridge
 var client *irmaclient.Client
 var appDataVersion = "v2"
 var clientLoaded = make(chan struct{})
+var clientErr error
 
 // eventHandler maintains a sessionLookup for actions incoming
 // from irma_mobile (see action_handler.go)
@@ -53,12 +54,22 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) 
 
 	bridge = givenBridge
 
+	if client != nil || clientErr != nil {
+		// If this function was run previously, either client or clientErr (or both) will be non-nil.
+		// In the first case, nothing to do. In the second case, retrying won't help. Either way, we
+		// just return - also ensuring that clientLoaded is not closed a second time, which would panic.
+		return
+	}
+
+	var err error
 	defer func() {
+		clientErr = err
 		close(clientLoaded) // make all future reads return immediately
 	}()
 
 	// Check for user data directory, and create version-specific directory
-	exists, err := pathExists(appDataPath)
+	var exists bool
+	exists, err = pathExists(appDataPath)
 	if err != nil || !exists {
 		reportError(errors.WrapPrefix(err, "Cannot access app data directory", 0))
 		return
