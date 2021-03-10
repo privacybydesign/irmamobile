@@ -18,7 +18,6 @@ class PinWrongAttemptsDialog extends StatelessWidget {
     return IrmaDialog(
       title: FlutterI18n.translate(context, 'pin_common.invalid_title'),
       content: FlutterI18n.plural(context, 'pin_common.invalid_pin.attempts', attemptsRemaining),
-      onClose: onClose,
       child: IrmaButton(
         size: IrmaButtonSize.small,
         onPressed: onClose ?? () => Navigator.of(context).pop(),

@@ -21,7 +21,6 @@ class PinWrongBlockedDialog extends StatelessWidget {
     return IrmaDialog(
       title: FlutterI18n.translate(context, 'pin_common.blocked_title'),
       content: FlutterI18n.translate(context, "pin_common.blocked_pin", translationParams: {"blocked": blockedForStr}),
-      onClose: onClose,
       child: IrmaButton(
         size: IrmaButtonSize.small,
         onPressed: onClose ?? () => Navigator.of(context).pop(),

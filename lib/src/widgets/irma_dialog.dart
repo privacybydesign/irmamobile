@@ -8,10 +8,9 @@ class IrmaDialog extends StatelessWidget {
   final String title;
   final String content;
   final Widget child;
-  final Function() onClose;
   final String image;
 
-  const IrmaDialog({@required this.title, @required this.content, @required this.child, this.image, this.onClose})
+  const IrmaDialog({@required this.title, @required this.content, @required this.child, this.image})
       : assert(title != null),
         assert(content != null),
         assert(child != null);
