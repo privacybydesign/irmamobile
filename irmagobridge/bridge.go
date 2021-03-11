@@ -24,7 +24,7 @@ var bridge IrmaMobileBridge
 var client *irmaclient.Client
 var appDataVersion = "v2"
 var clientLoaded = make(chan struct{})
-var clientErr error
+var clientErr *errors.Error
 
 // eventHandler maintains a sessionLookup for actions incoming
 // from irma_mobile (see action_handler.go)
@@ -63,7 +63,9 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) 
 
 	var err error
 	defer func() {
-		clientErr = err
+		if clientErr == nil && err != nil {
+			clientErr = errors.WrapPrefix(err, "Unknown error while starting bridge", 0)
+		}
 		close(clientLoaded) // make all future reads return immediately
 	}()
 
@@ -71,14 +73,14 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) 
 	var exists bool
 	exists, err = pathExists(appDataPath)
 	if err != nil || !exists {
-		reportError(errors.WrapPrefix(err, "Cannot access app data directory", 0))
+		clientErr = errors.WrapPrefix(err, "Cannot access app data directory", 0)
 		return
 	}
 
 	appVersionDataPath := filepath.Join(appDataPath, appDataVersion)
 	exists, err = pathExists(appVersionDataPath)
 	if err != nil {
-		reportError(errors.WrapPrefix(err, "Cannot check for app data path existence", 0))
+		clientErr = errors.WrapPrefix(err, "Cannot check for app data path existence", 0)
 		return
 	}
 
@@ -97,7 +99,7 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) 
 	configurationPath := filepath.Join(assetsPath, "irma_configuration")
 	client, err = irmaclient.New(appVersionDataPath, configurationPath, bridgeClientHandler)
 	if err != nil {
-		reportError(errors.WrapPrefix(err, "Cannot initialize client", 0))
+		clientErr = errors.WrapPrefix(err, "Cannot initialize client", 0)
 		return
 	}
 
@@ -109,7 +111,7 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) 
 func dispatchEvent(event interface{}) {
 	jsonBytes, err := json.Marshal(event)
 	if err != nil {
-		reportError(errors.Errorf("Cannot marshal event payload: %s", err))
+		reportError(errors.Errorf("Cannot marshal event payload: %s", err), false)
 		return
 	}
 
@@ -122,14 +124,14 @@ func Stop() {
 	client.Close()
 }
 
-func reportError(err *errors.Error) {
+func reportError(err *errors.Error, fatal bool) {
 	message := fmt.Sprintf("%s\n%s", err.Error(), err.ErrorStack())
 
 	// raven.CaptureError(err, nil)
 	bridge.DebugLog(message)
 
 	// We need to json encode the error, but cant do full error checking
-	jsonBytes, err2 := json.Marshal(errorEvent{Exception: err.Error(), Stack: err.ErrorStack()})
+	jsonBytes, err2 := json.Marshal(errorEvent{Exception: err.Error(), Stack: err.ErrorStack(), Fatal: fatal})
 	if err2 != nil {
 		bridge.DebugLog(err2.Error())
 	} else {
@@ -151,6 +153,6 @@ func pathExists(path string) (bool, error) {
 
 func recoverFromPanic() {
 	if e := recover(); e != nil {
-		reportError(errors.New(e))
+		clientErr = errors.WrapPrefix(e, "Starting of bridge panicked", 0)
 	}
 }

@@ -10,7 +10,7 @@ import 'package:irmamobile/src/widgets/irma_tooltip.dart';
 class IrmaBottomBar extends StatelessWidget {
   const IrmaBottomBar({
     Key key,
-    @required this.primaryButtonLabel,
+    this.primaryButtonLabel,
     this.primaryButtonColor,
     this.onPrimaryPressed,
     this.onPrimaryDisabledPressed,
@@ -19,7 +19,6 @@ class IrmaBottomBar extends StatelessWidget {
     this.onSecondaryPressed,
     this.toolTipLabel,
   })  : assert((showTooltipOnPrimary == false) || (toolTipLabel != null)),
-        assert(primaryButtonLabel != null),
         super(key: key);
 
   final String primaryButtonLabel;
@@ -46,21 +45,23 @@ class IrmaBottomBar extends StatelessWidget {
       ));
     }
 
-    Widget primaryButton = IrmaButton(
-      size: IrmaButtonSize.large,
-      minWidth: buttonWidth,
-      onPressed: onPrimaryPressed,
-      onPressedDisabled: onPrimaryDisabledPressed,
-      label: primaryButtonLabel,
-      color: primaryButtonColor,
-    );
+    if (primaryButtonLabel != null) {
+      Widget primaryButton = IrmaButton(
+        size: IrmaButtonSize.large,
+        minWidth: buttonWidth,
+        onPressed: onPrimaryPressed,
+        onPressedDisabled: onPrimaryDisabledPressed,
+        label: primaryButtonLabel,
+        color: primaryButtonColor,
+      );
 
-    if (toolTipLabel != null) {
-      primaryButton = IrmaTooltip(
-          label: FlutterI18n.translate(context, toolTipLabel), show: showTooltipOnPrimary, child: primaryButton);
+      if (toolTipLabel != null) {
+        primaryButton = IrmaTooltip(
+            label: FlutterI18n.translate(context, toolTipLabel), show: showTooltipOnPrimary, child: primaryButton);
+      }
+
+      btns.add(primaryButton);
     }
-
-    btns.add(primaryButton);
 
     return btns;
   }

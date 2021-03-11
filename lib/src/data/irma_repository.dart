@@ -97,6 +97,7 @@ class IrmaRepository {
   final _resumedFromBrowserSubject = BehaviorSubject<bool>.seeded(false);
   final _issueWizardSubject = BehaviorSubject<IssueWizardEvent>.seeded(null);
   final _issueWizardActiveSubject = BehaviorSubject<bool>.seeded(false);
+  final _fatalErrorSubject = BehaviorSubject<ErrorEvent>();
 
   // _internal is a named constructor only used by the factory
   IrmaRepository._internal({
@@ -118,7 +119,12 @@ class IrmaRepository {
 
   Future<void> _eventListener(Event event) async {
     if (event is ErrorEvent) {
-      reportError(event.exception, event.stack);
+      if (event.fatal) {
+        _fatalErrorSubject.add(event);
+      } else {
+        // Only fatal errors on start-up are caught at the moment, so we have to report other errors manually.
+        reportError(event.exception, event.stack);
+      }
     } else if (event is IrmaConfigurationEvent) {
       irmaConfigurationSubject.add(event.irmaConfiguration);
     } else if (event is CredentialsEvent) {
@@ -426,6 +432,10 @@ class IrmaRepository {
           .toList()
             ..addAll(externalBrowserUrls),
     );
+  }
+
+  Stream<ErrorEvent> getFatalErrors() {
+    return _fatalErrorSubject.stream;
   }
 
   static const _iiabchannel = MethodChannel('irma.app/iiab');

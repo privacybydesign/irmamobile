@@ -73,6 +73,7 @@ type getIssueWizardContentsEvent struct {
 type errorEvent struct {
 	Exception string
 	Stack     string
+	Fatal     bool
 }
 
 type irmaConfigurationEvent struct {

@@ -10,7 +10,7 @@ class GeneralErrorScreen extends StatefulWidget {
   final VoidCallback onTapClose;
   final VoidCallback onTapReport;
 
-  const GeneralErrorScreen({@required this.errorText, @required this.onTapClose, this.onTapReport});
+  const GeneralErrorScreen({@required this.errorText, this.onTapClose, this.onTapReport});
 
   @override
   State<GeneralErrorScreen> createState() => _GeneralErrorScreenState();
@@ -23,7 +23,7 @@ class _GeneralErrorScreenState extends State<GeneralErrorScreen> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        widget.onTapClose();
+        if (widget.onTapClose != null) widget.onTapClose();
         return false;
       },
       child: Scaffold(
@@ -40,7 +40,7 @@ class _GeneralErrorScreenState extends State<GeneralErrorScreen> {
           errorText: widget.errorText,
         ),
         bottomNavigationBar: IrmaBottomBar(
-          primaryButtonLabel: FlutterI18n.translate(context, 'error.button_ok'),
+          primaryButtonLabel: widget.onTapClose != null ? FlutterI18n.translate(context, 'error.button_ok') : null,
           onPrimaryPressed: widget.onTapClose,
           secondaryButtonLabel: FlutterI18n.translate(context, 'error.button_send_to_irma'),
           onSecondaryPressed: hasReported

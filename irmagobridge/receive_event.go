@@ -14,10 +14,15 @@ func DispatchFromNative(eventName, payloadString string) {
 	var err error
 
 	<-clientLoaded
-	if client == nil {
-		// Error occured during client initialization. In that case the error is already
-		// reported, and we can't do anything sensible here, so just return
-		return
+	if clientErr != nil {
+		// Error occurred during client initialization. If the app is ready, we can report it.
+		// If the client couldn't be started at all, we can't do anything sensible here, so then just return.
+		if eventName == "AppReadyEvent" {
+			reportError(clientErr, client == nil)
+		}
+		if client == nil {
+			return
+		}
 	}
 
 	switch eventName {
@@ -71,7 +76,7 @@ func DispatchFromNative(eventName, payloadString string) {
 		go func() {
 			err := bridgeEventHandler.updateSchemes()
 			if err != nil {
-				reportError(errors.New(err))
+				reportError(errors.New(err), false)
 			}
 		}()
 	case "LoadLogsEvent":
@@ -92,6 +97,6 @@ func DispatchFromNative(eventName, payloadString string) {
 	}
 
 	if err != nil {
-		reportError(errors.New(err))
+		reportError(errors.New(err), false)
 	}
 }
