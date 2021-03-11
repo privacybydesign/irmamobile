@@ -34,6 +34,7 @@ class _GeneralErrorScreenState extends State<GeneralErrorScreen> {
               'error.title',
             ),
           ),
+          noLeading: widget.onTapClose == null,
           leadingAction: widget.onTapClose,
         ),
         body: GeneralError(
