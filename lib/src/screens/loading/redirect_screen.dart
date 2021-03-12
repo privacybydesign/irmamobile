@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/enrollment_status.dart';
+import 'package:irmamobile/src/models/error_event.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/error/error_screen.dart';
 import 'package:irmamobile/src/screens/loading/loading_screen.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
+import 'package:irmamobile/src/sentry/sentry.dart';
 
 class RedirectScreen extends StatelessWidget {
   static const routeName = "/";
@@ -27,12 +29,15 @@ class RedirectScreen extends StatelessWidget {
             }
           }
           // TODO Re-consider when the splash screen logic in app.dart (see TODO there) is improved.
-          return StreamBuilder(
+          return StreamBuilder<ErrorEvent>(
             stream: repo.getFatalErrors(),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 final error = snapshot.data;
-                return GeneralErrorScreen(errorText: error.toString());
+                return GeneralErrorScreen(
+                  errorText: error.toString(),
+                  onTapReport: () => reportError(error.exception, error.stack, userInitiated: true),
+                );
               }
               return LoadingScreen();
             },
