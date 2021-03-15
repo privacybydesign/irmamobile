@@ -50,7 +50,7 @@ func (p writer) Write(b []byte) (int, error) {
 
 // Start is invoked from the native side, when the app starts
 func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) {
-	defer recoverFromPanic()
+	defer recoverFromPanicOnStartup()
 
 	bridge = givenBridge
 
@@ -61,17 +61,12 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) 
 		return
 	}
 
-	var err error
 	defer func() {
-		if clientErr == nil && err != nil {
-			clientErr = errors.WrapPrefix(err, "Unknown error while starting bridge", 0)
-		}
 		close(clientLoaded) // make all future reads return immediately
 	}()
 
 	// Check for user data directory, and create version-specific directory
-	var exists bool
-	exists, err = pathExists(appDataPath)
+	exists, err := pathExists(appDataPath)
 	if err != nil || !exists {
 		clientErr = errors.WrapPrefix(err, "Cannot access app data directory", 0)
 		return
@@ -86,6 +81,7 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) 
 
 	if !exists {
 		if err = os.Mkdir(appVersionDataPath, 0770); err != nil {
+			clientErr = errors.WrapPrefix(err, "Cannot create app data directory", 0)
 			return
 		}
 	}
@@ -121,7 +117,18 @@ func dispatchEvent(event interface{}) {
 }
 
 func Stop() {
-	client.Close()
+	defer recoverFromPanicOnStartup()
+
+	if client != nil {
+		if err := client.Close(); err != nil {
+			clientErr = errors.WrapPrefix(err, "Cannot close client", 0)
+			return
+		}
+	}
+
+	client = nil
+	clientErr = nil
+	clientLoaded = make(chan struct{})
 }
 
 func reportError(err *errors.Error, fatal bool) {
@@ -152,6 +159,14 @@ func pathExists(path string) (bool, error) {
 }
 
 func recoverFromPanic() {
+	if e := recover(); e != nil {
+		reportError(errors.New(e), false)
+	}
+}
+
+// Use this function when the app is not ready yet to handle errors. The recovered panic is
+// converted to an error and cached in clientErr. It will be handled as soon as the app is ready.
+func recoverFromPanicOnStartup() {
 	if e := recover(); e != nil {
 		clientErr = errors.WrapPrefix(e, "Starting of bridge panicked", 0)
 	}

@@ -17,10 +17,11 @@ func DispatchFromNative(eventName, payloadString string) {
 	if clientErr != nil {
 		// Error occurred during client initialization. If the app is ready, we can report it.
 		// If the client couldn't be started at all, we can't do anything sensible here, so then just return.
+		fatal := client == nil
 		if eventName == "AppReadyEvent" {
-			reportError(clientErr, client == nil)
+			reportError(clientErr, fatal)
 		}
-		if client == nil {
+		if fatal {
 			return
 		}
 	}
