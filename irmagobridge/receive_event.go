@@ -8,7 +8,11 @@ import (
 
 // DispatchFromNative receives events from the Android / iOS native side
 func DispatchFromNative(eventName, payloadString string) {
-	defer recoverFromPanic()
+	defer func() {
+		if e := recover(); e != nil {
+			reportError(errors.New(e), false)
+		}
+	}()
 
 	payloadBytes := []byte(payloadString)
 	var err error

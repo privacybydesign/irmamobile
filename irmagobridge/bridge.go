@@ -50,7 +50,7 @@ func (p writer) Write(b []byte) (int, error) {
 
 // Start is invoked from the native side, when the app starts
 func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) {
-	defer recoverFromPanicOnStartup()
+	defer recoverFromPanic("Starting of bridge panicked")
 
 	bridge = givenBridge
 
@@ -117,7 +117,7 @@ func dispatchEvent(event interface{}) {
 }
 
 func Stop() {
-	defer recoverFromPanicOnStartup()
+	defer recoverFromPanic("Closing of bridge panicked")
 
 	if client != nil {
 		if err := client.Close(); err != nil {
@@ -158,16 +158,10 @@ func pathExists(path string) (bool, error) {
 	return true, err
 }
 
-func recoverFromPanic() {
-	if e := recover(); e != nil {
-		reportError(errors.New(e), false)
-	}
-}
-
 // Use this function when the app is not ready yet to handle errors. The recovered panic is
 // converted to an error and cached in clientErr. It will be handled as soon as the app is ready.
-func recoverFromPanicOnStartup() {
+func recoverFromPanic(message string) {
 	if e := recover(); e != nil {
-		clientErr = errors.WrapPrefix(e, "Starting of bridge panicked", 0)
+		clientErr = errors.WrapPrefix(e, message, 0)
 	}
 }
