@@ -17,7 +17,7 @@ attaching data to signed statements. These data can be relevant properties, such
 
 ## Development setup
 
-* Clone the project 
+* Clone the project
 
       git clone --recursive git@github.com:privacybydesign/irmamobile.git
 
@@ -31,14 +31,22 @@ attaching data to signed statements. These data can be relevant properties, such
 
       # On Debian / Ubuntu
       apt install openjdk-11-jdk
-      
+
       # On MacOS
       # TODO: Install via `brew install openjdk@11`, but how to replace system Java?
 
 * Install the Android SDK tools by going to the [Android developer download page](https://developer.android.com/studio/).
   You may just want to install the Command line tools only if you are not going to use Android
   Studio. If you are going to use it, you can use the initial setup process of Android Studio to
-  setup the SDK. Make sure to install the build-tools and platform for Android >= 28.
+  setup the SDK. Make sure to install the build-tools and platform for Android >= 28. In addition
+  to the SDK platform, the following SDK tools need to be installed:
+  * Android SDK Build-Tools
+  * Android SDK Platform-Tools
+  * NDK version 21.x (version 22.x is not supported by `gomobile` yet)
+  * CMake
+
+  If you're using the SDK Manager of Android Studio: you can find specific versions for Build-Tools
+  by enabling the option `Show Package Details`.
 
 * Update your environment. You installed the Android SDK in the previous step, but
   you will still need to update your `PATH` to make sure you can access the utilities provided and to
@@ -64,7 +72,11 @@ attaching data to signed statements. These data can be relevant properties, such
 * Create the irmagobridge: `./bind_go.sh`.
 
 * Start an emulator or connect a device via USB and run the flutter project: `flutter run`. You can
-  also use Android Studio or Visual Studio Code for this step.
+  also use Android Studio or Visual Studio Code for this step. On Android, sometimes the build flavor
+  is not picked up automatically. This can be identified when the flutter tool cannot
+  find the generated apk after building. In this case run `flutter run --flavor alpha`.
+  In case you run the flutter project via Android Studio, you
+  can specify the build flavor in the run configuration. On iOS, no custom flavor should be specified.
 
 * You can use `flutter run -t` to run different app configurations, for example run `flutter run -t lib/main_prototypes.dart` to start the app in the prototypes menu.
 
@@ -76,6 +88,12 @@ This project uses json_serializer. To re-generate serialization code, run `./cod
 
 * Have you checked out the two submodules of this repository? If `find ./irma_configuration` is empty, this is the case.
 * If something has changed in the `irmagobridge` or in `irmago` then rerunning `./build_go.sh` is required.
+* In case you get the warning that the `ndk-bundle` cannot be found, please set the `ANDROID_NDK_HOME`
+  environment variable to the right ndk version directory. These version directories can be found in `$ANDROID_HOME/ndk`.
+  For example, you have to specify `export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/21.1.6352462`.
+  You can also make a symlink in `ANDROID_HOME` by doing
+  `ln -s $ANDROID_HOME/ndk/<NDK_VERSION> $ANDROID_HOME/ndk-bundle`. In here `<NDK_VERSION>` should be replaced
+  with the NDK version you want to use.
 
 ### Installing Java 8
 
