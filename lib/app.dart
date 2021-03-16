@@ -289,15 +289,19 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
       return Container();
     }
 
-    return AnimatedOpacity(
-      opacity: enrollmentStatus == EnrollmentStatus.undetermined || _showSplash ? 1.0 : 0.0,
-      duration: const Duration(milliseconds: 500),
-      onEnd: () {
-        setState(() {
-          _removeSplash = true;
-        });
-      },
-      child: const SplashScreen(),
+    // In case of a fatal error, we have to lift the splash to make the error visible.
+    return StreamBuilder(
+      stream: IrmaRepository.get().getFatalErrors(),
+      builder: (context, fatalError) => AnimatedOpacity(
+        opacity: !fatalError.hasData && (enrollmentStatus == EnrollmentStatus.undetermined || _showSplash) ? 1.0 : 0.0,
+        duration: const Duration(milliseconds: 500),
+        onEnd: () {
+          setState(() {
+            _removeSplash = true;
+          });
+        },
+        child: const SplashScreen(),
+      ),
     );
   }
 
