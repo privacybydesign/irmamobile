@@ -37,6 +37,8 @@ class HistoryState {
 }
 
 class HistoryRepository {
+  static const _serverNameOptional = [LogEntryType.issuing, LogEntryType.removal];
+
   IrmaRepository repo = IrmaRepository.get();
 
   final _historyStateSubject = BehaviorSubject<HistoryState>();
@@ -50,8 +52,14 @@ class HistoryRepository {
           logEntries: event.before == null ? [] : prevState.logEntries,
         );
       } else if (event is LogsEvent) {
+        // Some legacy log formats don't specify a serverName. For disclosing and signing logs this is an issue,
+        // because the serverName has a prominent place in the UX there. For now we skip those as temporary solution.
+        // TODO: Remove filtering when legacy logs are converted to the right format in irmago
+        final supportedLogEntries =
+            event.logEntries.where((entry) => _serverNameOptional.contains(entry.type) || entry.serverName != null);
+
         final logEntries = List.of(prevState.logEntries);
-        logEntries.addAll(event.logEntries);
+        logEntries.addAll(supportedLogEntries);
 
         return prevState.copyWith(
           loading: false,
