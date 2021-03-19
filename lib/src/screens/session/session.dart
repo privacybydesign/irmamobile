@@ -3,6 +3,13 @@ class SessionScreenArguments {
   final String sessionType;
   final bool hasUnderlyingSession;
   final bool wizardActive;
+  final String wizardCred;
 
-  SessionScreenArguments({this.sessionID, this.sessionType, this.hasUnderlyingSession, this.wizardActive});
+  SessionScreenArguments({
+    this.sessionID,
+    this.sessionType,
+    this.hasUnderlyingSession,
+    this.wizardActive,
+    this.wizardCred,
+  });
 }
