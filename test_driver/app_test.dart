@@ -20,9 +20,12 @@ void main() {
       });
 
       print('Starting IRMA server...');
-      irmaServer = await Process.start('irma', ['server'], mode: ProcessStartMode.inheritStdio, runInShell: true);
+      irmaServer = await Process.start('irma', ['server', '--url=http://localhost:port'], runInShell: true);
+      final outputStream = irmaServer.stderr.asBroadcastStream(); // IRMA server only writes to stderr.
+      outputStream.pipe(stderr);
+      await outputStream.transform(utf8.decoder).firstWhere((line) => line.contains('Server listening at :8088'));
 
-      // Forward neccessary ports
+      print('Forwarding necessary ports...');
       await Process.run('adb', ['reverse', 'tcp:8080', 'tcp:8080']);
       await Process.run('adb', ['reverse', 'tcp:8088', 'tcp:8088']);
     });
