@@ -5,13 +5,21 @@ import 'package:irmamobile/src/theme/theme.dart';
 import 'package:path_drawing/path_drawing.dart';
 
 class ArrowBack extends StatefulWidget {
+  final bool success;
+  final int amountIssued;
+
+  const ArrowBack({
+    this.success = false,
+    this.amountIssued,
+  }) : assert(!success || amountIssued != null);
+
   @override
   State<StatefulWidget> createState() {
-    return ArrowBackState();
+    return _ArrowBackState();
   }
 }
 
-class ArrowBackState extends State with WidgetsBindingObserver {
+class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
@@ -38,18 +46,19 @@ class ArrowBackState extends State with WidgetsBindingObserver {
                 child: RichText(
                   textAlign: TextAlign.center,
                   text: TextSpan(
-                    style: IrmaTheme.of(context).textTheme.body2,
+                    style: IrmaTheme.of(context).textTheme.bodyText1,
                     children: <TextSpan>[
                       TextSpan(
-                        text: FlutterI18n.translate(context, 'arrow_back.info_1'),
+                        text: widget.success
+                            ? FlutterI18n.plural(context, 'arrow_back.info_success', widget.amountIssued)
+                            : FlutterI18n.translate(context, 'arrow_back.info_no_success'),
+                      ),
+                      const TextSpan(
+                        text: '\n\n',
                       ),
                       TextSpan(
                         text: FlutterI18n.translate(context, 'arrow_back.safari'),
-                        style: IrmaTheme.of(context).textTheme.body1,
-                      ),
-                      TextSpan(
-                        text: FlutterI18n.translate(context, 'arrow_back.info_2'),
-                        style: IrmaTheme.of(context).textTheme.body1,
+                        style: IrmaTheme.of(context).textTheme.bodyText2,
                       ),
                     ],
                   ),

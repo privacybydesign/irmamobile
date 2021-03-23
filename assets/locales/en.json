@@ -494,9 +494,11 @@
     "existing_data_removed": "All cards in your IRMA app are deleted."
   },
   "arrow_back": {
-    "info_1": "Done, your data have been disclosed.\n\n",
-    "safari": "Tap on the name of the application (such as Safari, Chrome, Firefox) ",
-    "info_2": "in the top left corner to return to the application you came from."
+    "info_no_success": "Cancelled.",
+    "info_success-0": "Done, your data have been disclosed.",
+    "info_success-1": "Done, the card is added.",
+    "info_success-2": "Done, the cards are added.",
+    "safari": "Tap on the name of the application (such as Safari, Chrome, Firefox) in the top left corner to return to the application you came from."
   },
   "update": {
     "required": "In order to continue using IRMA, you will need to update the app",

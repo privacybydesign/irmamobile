@@ -210,8 +210,11 @@ class _SessionScreenState extends State<SessionScreen> {
       // if it is a mobile session and there was no clientReturnUrl.
       WidgetsBinding.instance.addPostFrameCallback((_) => Navigator.of(context).pop());
     } else if (Platform.isIOS) {
-      // On iOS show a screen to press the return arrow in the top-left corner,
-      return ArrowBack();
+      // On iOS, show a screen to press the return arrow in the top-left corner.
+      return ArrowBack(
+        success: session.status == SessionStatus.success,
+        amountIssued: session.issuedCredentials?.length ?? 0,
+      );
     } else {
       // On Android just background the app to let the user return to the previous activity
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -226,7 +229,7 @@ class _SessionScreenState extends State<SessionScreen> {
         valueListenable: _displayArrowBack,
         builder: (BuildContext context, bool displayArrowBack, Widget child) {
           if (displayArrowBack) {
-            return ArrowBack();
+            return const ArrowBack();
           }
           return child;
         },
