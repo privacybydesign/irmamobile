@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 StreamSubscription sigintSubscription;
+Process irmaServer, flutter;
 
 Future<void> main(List<String> args) async {
   // Move regular configuration to temp dir
@@ -10,18 +12,26 @@ Future<void> main(List<String> args) async {
   final configDir = Directory('irma_configuration');
   configDir.createSync();
 
-  print('Loading test configuration...');
-  print('Configuration in ${configDir.path} will be restored on completion automatically.');
-  print('In case this fails, the configuration can be recovered from ${tempDir.path}');
-
-  // Register sigint listener to handle clean-up.
+  // Register sigint listener to nicely kill the tests when requested.
   sigintSubscription = ProcessSignal.sigint.watch().listen((_) {
     clean(configDir, tempDir);
     exit(1);
   });
 
+  try {
+    await startTests(args, configDir, tempDir);
+  } finally {
+    clean(configDir, tempDir);
+  }
+}
+
+Future<void> startTests(List<String> args, Directory configDir, Directory recoveryConfigDir) async {
+  print('Loading test configuration...');
+  print('Configuration in ${configDir.path} will be restored on completion automatically.');
+  print('In case this fails, the configuration can be recovered from ${recoveryConfigDir.path}');
+
   // Remain irma-demo configuration from production config if present.
-  tempDir
+  recoveryConfigDir
       .listSync()
       .expand<Directory>((entity) => entity is Directory ? [entity] : [])
       .where((entity) => entity.dirName.startsWith('irma-demo'))
@@ -39,27 +49,35 @@ Future<void> main(List<String> args) async {
     }
 
     // Take into account that configuration has been moved to temporary dir.
-    schemePath = schemePath.replaceFirst(configDir.path, tempPath);
+    schemePath = schemePath.replaceFirst(configDir.path, recoveryConfigDir.path);
     final schemeDir = Directory(schemePath);
     schemeDir.copy(Directory([configDir.path, schemeDir.dirName].join(Platform.pathSeparator)));
   }
 
-  print('Starting Flutter tests...\n');
+  print('Starting IRMA server...');
+  irmaServer = await Process.start('irma', ['server', '--url=http://localhost:port']);
+  final outputStream = irmaServer.stderr.asBroadcastStream(); // IRMA server only writes to stderr.
+  outputStream.pipe(stderr);
+  await outputStream.transform(utf8.decoder).firstWhere((line) => line.contains('Server listening at :8088'));
+
+  print('Starting Flutter tests...');
+  final flutterTool = Platform.isWindows ? 'flutter.bat' : 'flutter';
   final appTestPath = ['test_driver', 'app.dart'].join(Platform.pathSeparator);
-  Process.start('flutter', ['drive', '--target=$appTestPath', ...args],
-          mode: ProcessStartMode.inheritStdio, runInShell: true)
-      .then((process) => process.exitCode)
-      .whenComplete(() => clean(configDir, tempDir)); // Makes sure that errors are re-thrown after clean.
+  flutter = await Process.start(flutterTool, ['drive', '--target=$appTestPath', ...args],
+      mode: ProcessStartMode.inheritStdio);
+  await flutter.exitCode;
 }
 
-Future<void> clean(Directory testConfigDir, Directory prodConfigDir) async {
+void clean(Directory configDir, Directory recoveryConfigDir) {
   sigintSubscription?.cancel();
+  flutter?.kill();
+  irmaServer?.kill();
 
   print('\nRestoring irma_configuration...');
   // Wait a seconds to make sure all resources are released by child processes on sigint.
-  await Future.delayed(const Duration(seconds: 1));
-  testConfigDir.deleteSync(recursive: true);
-  prodConfigDir.renameSync(testConfigDir.path);
+  sleep(const Duration(seconds: 1));
+  configDir.deleteSync(recursive: true);
+  recoveryConfigDir.renameSync(configDir.path);
   print('Restored.');
 }
 
