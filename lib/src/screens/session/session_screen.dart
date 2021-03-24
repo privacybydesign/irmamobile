@@ -183,9 +183,12 @@ class _SessionScreenState extends State<SessionScreen> {
     }
 
     final popToMainScreen = widget.arguments.wizardActive ? popToWizard : popToWallet;
+    final issuedWizardCred = widget.arguments.wizardActive &&
+        widget.arguments.wizardCred != null &&
+        (session.issuedCredentials?.map((c) => c.info.fullId)?.contains(widget.arguments.wizardCred) ?? false);
 
     // It concerns a mobile session.
-    if (session.clientReturnURL != null) {
+    if (session.clientReturnURL != null && !issuedWizardCred) {
       // If there is a return URL, navigate to it when we're done; canLaunch check is already
       // done in the session repository, so we know for sure this url is valid.
       WidgetsBinding.instance.addPostFrameCallback((_) {
