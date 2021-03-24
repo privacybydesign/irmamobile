@@ -62,13 +62,14 @@ class _CardInfoState extends State<CardInfo> with TickerProviderStateMixin {
         SizedBox(
           height: IrmaTheme.of(context).defaultSpacing,
         ),
-        Padding(
-          padding: paddingText,
-          child: Text(
-            getTranslation(context, widget.credentialType.faqIntro).replaceAll('\\n', '\n'),
-            style: IrmaTheme.of(context).textTheme.body1,
+        if (widget.credentialType.faqIntro != null)
+          Padding(
+            padding: paddingText,
+            child: Text(
+              getTranslation(context, widget.credentialType.faqIntro).replaceAll('\\n', '\n'),
+              style: IrmaTheme.of(context).textTheme.bodyText2,
+            ),
           ),
-        ),
         SizedBox(
           height: IrmaTheme.of(context).defaultSpacing,
         ),
