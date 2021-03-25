@@ -18,12 +18,13 @@ class PairingRequired extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     final boxes = List<Widget>.generate(
-        pairingCode.length,
-        (i) => PinBox(
-              height: 60,
-              margin: EdgeInsets.only(right: i == pairingCode.length - 1 ? 0 : theme.smallSpacing),
-              char: pairingCode[i],
-            ));
+      pairingCode.length,
+      (i) => PinBox(
+        height: 60,
+        margin: EdgeInsets.only(right: i == pairingCode.length - 1 ? 0 : theme.smallSpacing),
+        char: pairingCode[i],
+      ),
+    );
 
     return Row(
       mainAxisSize: MainAxisSize.max,
