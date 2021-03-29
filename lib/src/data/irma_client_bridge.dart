@@ -87,7 +87,7 @@ class IrmaClientBridge extends IrmaBridge {
       }
 
       if (kDebugMode) {
-        debugPrint("Received bridge event: ${call.method} with payload ${call.arguments}");
+        debugPrint('Received bridge event: ${call.method} with payload ${call.arguments}');
       }
 
       final Event event = unmarshaller(data);
@@ -103,7 +103,7 @@ class IrmaClientBridge extends IrmaBridge {
   void dispatch(Event event) {
     final encodedEvent = jsonEncode(event);
     if (kDebugMode) {
-      debugPrint("Sending ${event.runtimeType.toString()} to bridge: $encodedEvent");
+      debugPrint('Sending ${event.runtimeType.toString()} to bridge: $encodedEvent');
     }
 
     _methodChannel.invokeMethod(event.runtimeType.toString(), encodedEvent);
