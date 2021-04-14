@@ -9,6 +9,15 @@ The IRMA app manages the user's IRMA cards containing personal data. It can rece
 attaching data to signed statements. These data can be relevant properties, such as: "I am over 18", "my name is
 ..." and "I am entitled to access ....". They are only stored on the user's device and nowhere else.
 
+[<img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png"
+     alt="Get it on Google Play"
+     height="80">](https://play.google.com/store/apps/details?id=org.irmacard.cardemu)
+[<img src="https://privacybydesign.foundation/images/app-store-badge.png"
+     alt="Get it on Apple App Store"
+     height="52">](https://itunes.apple.com/nl/app/irma-authentication/id1294092994)
+[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
+     alt="Get it on F-Droid"
+     height="80">](https://f-droid.org/packages/org.irmacard.cardemu/)
 
 <img src="https://irma.app/docs/assets/irmamobile/ios_pin.png" width="200" alt="Screenshot of the IRMA app on iOS, showing the PIN screen" /> &nbsp;
 <img src="https://irma.app/docs/assets/irmamobile/android_wallet.png" width="200" alt="Screenshot of the IRMA app on Android, showing the wallet screen with three cards" /> &nbsp;
