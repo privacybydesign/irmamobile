@@ -12,9 +12,9 @@ attaching data to signed statements. These data can be relevant properties, such
 [<img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png"
      alt="Get it on Google Play"
      height="80">](https://play.google.com/store/apps/details?id=org.irmacard.cardemu)
-[<img src="https://privacybydesign.foundation/images/app-store-badge.png"
+[<img src="https://privacybydesign.foundation/images/app-store-badge-padded.png"
      alt="Get it on Apple App Store"
-     height="52">](https://itunes.apple.com/nl/app/irma-authentication/id1294092994)
+     height="80">](https://itunes.apple.com/nl/app/irma-authentication/id1294092994)
 [<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
      alt="Get it on F-Droid"
      height="80">](https://f-droid.org/packages/org.irmacard.cardemu/)
