@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/heading.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/logo_banner.dart';
 
@@ -38,16 +37,13 @@ class LogoBannerHeader extends StatelessWidget {
         key: scrollviewKey,
         child: Column(
           children: <Widget>[
-            LogoBanner(logo: logo),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
-                  child: Heading(header, style: Theme.of(context).textTheme.headline5),
-                ),
-                child,
-              ],
+            LogoBanner(
+              text: header,
+              logo: logo,
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: IrmaTheme.of(context).mediumSpacing),
+              child: child,
             ),
           ],
         ),
