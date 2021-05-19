@@ -4,6 +4,7 @@ import 'package:irmamobile/src/models/issue_wizard.dart';
 import 'package:irmamobile/src/screens/issue_wizard/widgets/logo_banner_header.dart';
 import 'package:irmamobile/src/screens/issue_wizard/widgets/progressing_list.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/util/color.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 import 'package:irmamobile/src/widgets/irma_markdown.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -97,6 +98,7 @@ class IssueWizardContents extends StatelessWidget {
       controller: controller,
       header: wizard.wizardData.title.translate(lang),
       logo: logo,
+      backgroundColor: getColorFromHex(wizard.wizardData.color),
       onBack: onBack,
       bottomBar: IrmaBottomBar(
         primaryButtonLabel: buttonLabel,

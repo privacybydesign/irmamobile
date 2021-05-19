@@ -7,6 +7,7 @@ import 'package:irmamobile/src/widgets/logo_banner.dart';
 class LogoBannerHeader extends StatelessWidget {
   final Image logo;
   final String header;
+  final Color backgroundColor;
   final Widget bottomBar;
   final Widget child;
   final void Function() onBack;
@@ -16,6 +17,7 @@ class LogoBannerHeader extends StatelessWidget {
   const LogoBannerHeader({
     this.logo,
     this.header,
+    this.backgroundColor,
     this.bottomBar,
     this.child,
     this.scrollviewKey,
@@ -40,6 +42,7 @@ class LogoBannerHeader extends StatelessWidget {
             LogoBanner(
               text: header,
               logo: logo,
+              backgroundColor: backgroundColor,
             ),
             Padding(
               padding: EdgeInsets.only(top: IrmaTheme.of(context).mediumSpacing),

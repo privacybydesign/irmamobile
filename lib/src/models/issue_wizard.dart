@@ -61,6 +61,7 @@ class IssueWizard {
     this.title,
     this.logo,
     this.logoPath,
+    this.color,
     this.issues,
     this.allowOtherRequestors,
     this.info,
@@ -82,6 +83,9 @@ class IssueWizard {
 
   @JsonKey(name: 'logoPath')
   final String logoPath;
+
+  @JsonKey(name: 'color')
+  final String color;
 
   @JsonKey(name: 'issues')
   final String issues;
