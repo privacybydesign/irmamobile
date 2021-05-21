@@ -21,7 +21,7 @@ void main() {
           final keyshareAttr = schemeManager.keyshareAttribute?.split('.') ?? [];
           final keyshareCred = keyshareAttr.length == 4 ? keyshareAttr.sublist(0, 3).join('.') : '';
           if (cred.fullId == keyshareCred || !schemeManager.demo && cred.disallowDelete) {
-            repo.myIRMACredentials.add(cred.fullId);
+            repo.addMyIrmaCredential(cred);
           }
         });
         break;
