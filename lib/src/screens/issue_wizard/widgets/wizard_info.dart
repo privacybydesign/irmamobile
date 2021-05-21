@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/issue_wizard.dart';
 import 'package:irmamobile/src/screens/issue_wizard/widgets/logo_banner_header.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/collapsible_helper.dart';
-import 'package:irmamobile/src/util/color.dart';
 import 'package:irmamobile/src/widgets/collapsible.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 import 'package:irmamobile/src/widgets/irma_markdown.dart';
@@ -72,7 +72,7 @@ class IssueWizardInfo extends StatelessWidget {
       controller: controller,
       header: wizardData.title.translate(FlutterI18n.currentLocale(context).languageCode),
       logo: logo,
-      backgroundColor: getColorFromHex(wizardData.color),
+      backgroundColor: colorFromCode(wizardData.color),
       onBack: onBack,
       bottomBar: IrmaBottomBar(
         primaryButtonLabel: FlutterI18n.translate(context, "issue_wizard.add"),
