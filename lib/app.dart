@@ -43,7 +43,6 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   StreamSubscription<SessionPointer> _sessionPointerSubscription;
   bool _qrScannerActive = false;
   DateTime lastSchemeUpdate;
-  static StreamController<SessionPointer> fakeQRStream = StreamController();
 
   // We keep track of the last two life cycle states
   // to be able to determine the flow
@@ -209,15 +208,6 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
         return;
       }
 
-      _startSession(sessionPointer);
-    });
-
-    fakeQRStream.stream.listen((sessionPointer) {
-      if (sessionPointer == null) {
-        return;
-      }
-
-      sessionPointer.continueOnSecondDevice = true;
       _startSession(sessionPointer);
     });
   }

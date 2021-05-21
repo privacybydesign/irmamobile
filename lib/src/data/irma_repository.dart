@@ -515,4 +515,10 @@ class IrmaRepository {
   void addMyIrmaCredential(CredentialType ct) {
     _myIrmaCredentials.add(ct.fullId);
   }
+
+  void startSessionManually(SessionPointer sessionPointer) {
+    // Sessions that are started manually should be handled as QRs to prevent the app from backgrounding
+    sessionPointer.continueOnSecondDevice = true;
+    _pendingSessionPointerSubject.add(sessionPointer);
+  }
 }

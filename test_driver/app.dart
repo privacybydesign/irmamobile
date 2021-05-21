@@ -8,10 +8,10 @@ import 'package:irmamobile/src/models/session.dart';
 void main() {
   // This line enables the extension.
   enableFlutterDriverExtension(handler: (msg) async {
+    final repo = IrmaRepository.get();
     switch (msg) {
       case 'initialize':
         IrmaPreferences.get().setAcceptedRootedRisk(true);
-        final repo = IrmaRepository.get();
         repo.setDeveloperMode(true);
         // The scheme's KeyshareAttribute field is not fully accurate, so
         // we do a educated guess for additional myIRMA credentials.
@@ -27,7 +27,7 @@ void main() {
         break;
       default:
         // In case we don't know the format, we assume it is a SessionPointer.
-        AppState.fakeQRStream.add(SessionPointer.fromString(msg));
+        repo.startSessionManually(SessionPointer.fromString(msg));
         break;
     }
     return "";
