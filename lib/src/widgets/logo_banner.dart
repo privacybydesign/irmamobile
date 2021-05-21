@@ -19,7 +19,7 @@ class LogoBanner extends StatelessWidget {
       children: <Widget>[
         Container(
           width: MediaQuery.of(context).size.width,
-          height: 112,
+          constraints: const BoxConstraints(minHeight: 112),
           color: color,
           child: Align(
             alignment: Alignment.centerLeft,
