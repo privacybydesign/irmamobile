@@ -13,6 +13,7 @@ class IrmaOutlinedButton extends StatelessWidget {
   final double minWidth;
 
   const IrmaOutlinedButton({
+    Key key,
     @required this.label,
     this.onPressed,
     this.onPressedDisabled,
@@ -20,7 +21,7 @@ class IrmaOutlinedButton extends StatelessWidget {
     this.minWidth = 232,
     this.size,
     this.icon,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

@@ -77,6 +77,7 @@ class HistoryScreenState extends State<HistoryScreen> {
 
         final logEntry = historyState.logEntries[index - 1];
         return LogEntryCard(
+          key: Key('logentry_$index'),
           irmaConfiguration: irmaConfiguration,
           logEntry: logEntry,
           onTap: () {

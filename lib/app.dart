@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_i18n/flutter_i18n_delegate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:irmamobile/debug.dart';
 import 'package:irmamobile/routing.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
@@ -43,6 +44,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   StreamSubscription<SessionPointer> _sessionPointerSubscription;
   bool _qrScannerActive = false;
   DateTime lastSchemeUpdate;
+  static StreamController<SessionPointer> fakeQRStream = StreamController();
 
   // We keep track of the last two life cycle states
   // to be able to determine the flow
@@ -208,6 +210,15 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
         return;
       }
 
+      _startSession(sessionPointer);
+    });
+
+    fakeQRStream.stream.listen((sessionPointer) {
+      if (sessionPointer == null) {
+        return;
+      }
+
+      sessionPointer.continueOnSecondDevice = true;
       _startSession(sessionPointer);
     });
   }
@@ -393,6 +404,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
                   navigatorKey: _navigatorKey,
                   navigatorObservers: [this],
                   onGenerateRoute: Routing.generateRoute,
+                  debugShowCheckedModeBanner: enableDebug,
 
                   // Set showSemanticsDebugger to true to view semantics in emulator.
                   showSemanticsDebugger: false,

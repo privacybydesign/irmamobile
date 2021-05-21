@@ -5,6 +5,7 @@ import 'package:irmamobile/src/theme/irma_icons.dart';
 class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget title;
   final Icon leadingIcon;
+  final Key leadingActionKey;
   final void Function() leadingAction;
   final void Function() leadingCancel;
   final String leadingTooltip;
@@ -14,6 +15,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   const IrmaAppBar(
       {this.title,
       this.leadingIcon,
+      this.leadingActionKey,
       this.leadingAction,
       this.leadingTooltip,
       this.leadingCancel,
@@ -27,6 +29,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: noLeading
           ? null
           : IconButton(
+              key: leadingActionKey,
               icon: leadingIcon ??
                   Icon(
                     IrmaIcons.arrowBack,

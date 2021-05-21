@@ -275,6 +275,7 @@ class WalletState extends State<Wallet> with TickerProviderStateMixin {
                 ),
               ),
               Container(
+                key: const Key('wallet_present'),
                 alignment: Alignment.bottomCenter,
                 height: _walletHeight,
                 width: _walletWidth,

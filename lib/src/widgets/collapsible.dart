@@ -10,8 +10,9 @@ import 'package:irmamobile/src/widgets/configurable_expansion_tile.dart';
 class Collapsible extends StatefulWidget {
   final String header;
   final Widget content;
+  final Key actionKey;
 
-  const Collapsible({Key key, this.header, this.content, this.onExpansionChanged}) : super(key: key);
+  const Collapsible({Key key, this.actionKey, this.header, this.content, this.onExpansionChanged}) : super(key: key);
   final ValueChanged<bool> onExpansionChanged;
 
   @override
@@ -53,6 +54,7 @@ class _CollapsibleState extends State<Collapsible> {
               ? FlutterI18n.translate(context, 'accessibility.expanded')
               : FlutterI18n.translate(context, 'accessibility.collapsed'),
           child: Padding(
+            key: widget.actionKey,
             padding: EdgeInsets.only(
                 top: IrmaTheme.of(context).tinySpacing * 3,
                 bottom: IrmaTheme.of(context).tinySpacing * 3,

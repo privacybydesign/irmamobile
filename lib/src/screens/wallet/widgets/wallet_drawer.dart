@@ -70,12 +70,16 @@ class WalletDrawer extends StatelessWidget {
                         ),
                       ),
                       _createDrawerItem(context,
-                          icon: IrmaIcons.add, text: FlutterI18n.translate(context, 'drawer.add_cards'), onTap: () {
+                          icon: IrmaIcons.add,
+                          key: const Key('menu_add_cards'),
+                          text: FlutterI18n.translate(context, 'drawer.add_cards'), onTap: () {
                         Navigator.of(context).pop();
                         Navigator.of(context).pushNamed(CardStoreScreen.routeName);
                       }),
                       _createDrawerItem(context,
-                          icon: IrmaIcons.time, text: FlutterI18n.translate(context, 'drawer.history'), onTap: () {
+                          icon: IrmaIcons.time,
+                          key: const Key('menu_history'),
+                          text: FlutterI18n.translate(context, 'drawer.history'), onTap: () {
                         Navigator.of(context).pop();
                         Navigator.of(context).pushNamed(HistoryScreen.routeName);
                       }),
@@ -132,10 +136,11 @@ class WalletDrawer extends StatelessWidget {
     );
   }
 
-  Widget _createDrawerItem(BuildContext context, {IconData icon, String text, GestureTapCallback onTap}) {
+  Widget _createDrawerItem(BuildContext context, {Key key, IconData icon, String text, GestureTapCallback onTap}) {
     return Semantics(
         button: true,
         child: ListTile(
+          key: key,
           contentPadding: EdgeInsets.only(left: IrmaTheme.of(context).mediumSpacing),
           title: Text(
             text,

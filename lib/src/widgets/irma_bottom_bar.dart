@@ -18,6 +18,7 @@ class IrmaBottomBar extends StatelessWidget {
     this.secondaryButtonLabel,
     this.onSecondaryPressed,
     this.toolTipLabel,
+    this.primaryButtonKey,
   })  : assert((showTooltipOnPrimary == false) || (toolTipLabel != null)),
         super(key: key);
 
@@ -29,6 +30,7 @@ class IrmaBottomBar extends StatelessWidget {
   final String secondaryButtonLabel;
   final VoidCallback onSecondaryPressed;
   final String toolTipLabel;
+  final Key primaryButtonKey;
 
   List<Widget> buildButtons(BuildContext context, BoxConstraints constraints) {
     final List<Widget> btns = [];
@@ -47,6 +49,7 @@ class IrmaBottomBar extends StatelessWidget {
 
     if (primaryButtonLabel != null) {
       Widget primaryButton = IrmaButton(
+        key: primaryButtonKey,
         size: IrmaButtonSize.large,
         minWidth: buttonWidth,
         onPressed: onPrimaryPressed,

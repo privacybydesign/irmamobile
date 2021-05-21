@@ -2,10 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/models/credentials.dart';
-import 'package:irmamobile/src/widgets/issuing_detail.dart';
 import 'package:irmamobile/src/screens/session/widgets/session_scaffold.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
+import 'package:irmamobile/src/widgets/issuing_detail.dart';
 
 class IssuancePermission extends StatelessWidget {
   final Function() onDismiss;
@@ -20,6 +20,7 @@ class IssuancePermission extends StatelessWidget {
   Widget _buildNavigationBar(BuildContext context) {
     return satisfiable
         ? IrmaBottomBar(
+            primaryButtonKey: const Key("issuance_accept_yes"),
             primaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.yes"),
             onPrimaryPressed: () => onGivePermission(),
             secondaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.no"),

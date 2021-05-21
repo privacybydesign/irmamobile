@@ -87,6 +87,7 @@ class CardStoreScreen extends StatelessWidget {
                                   // Default needed since File crashes on Null argument
                                   final File logoFile = File(credentialType.logo ?? "");
                                   return CardSuggestion(
+                                    key: Key('add_card_${credentialType.fullId}'),
                                     icon: logoFile.existsSync()
                                         ? Image.file(logoFile)
                                         : Image.asset("assets/non-free/irmalogo.png"),
