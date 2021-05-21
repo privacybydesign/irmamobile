@@ -45,7 +45,7 @@ class LogoBanner extends StatelessWidget {
                 ),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 22),
+                    padding: const EdgeInsets.all(22),
                     child: Heading(
                       text,
                       style: Theme.of(context).textTheme.headline5.copyWith(color: textColor),
