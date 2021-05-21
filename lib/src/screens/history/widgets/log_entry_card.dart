@@ -12,7 +12,7 @@ class LogEntryCard extends StatelessWidget {
   final LogEntry logEntry;
   final VoidCallback onTap;
 
-  const LogEntryCard({Key key, this.irmaConfiguration, this.logEntry, this.onTap}) : super(key: key);
+  LogEntryCard({this.irmaConfiguration, this.logEntry, this.onTap});
 
   @override
   Widget build(BuildContext context) {

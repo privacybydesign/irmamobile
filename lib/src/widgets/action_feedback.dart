@@ -61,7 +61,6 @@ class ActionFeedback extends StatelessWidget {
             ),
             const SizedBox(height: 38),
             IrmaOutlinedButton(
-              key: const Key('feedback_dismiss'),
               label: FlutterI18n.translate(context, "action_feedback.ok"),
               onPressed: () => dismiss(context),
             ),

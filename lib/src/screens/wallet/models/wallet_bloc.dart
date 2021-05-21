@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:irmamobile/debug.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/screens/wallet/models/wallet_events.dart';
@@ -42,7 +41,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
   }
 
   bool _isMyIRMACredential(_, Credential credential) {
-    return myIRMACredentials.contains(credential.info.credentialType.fullId);
+    return IrmaRepository.get().myIRMACredentials.contains(credential.info.credentialType.fullId);
   }
 
   @override

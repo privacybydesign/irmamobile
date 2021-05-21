@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_i18n/flutter_i18n_delegate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:irmamobile/debug.dart';
 import 'package:irmamobile/routing.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
@@ -404,7 +403,6 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
                   navigatorKey: _navigatorKey,
                   navigatorObservers: [this],
                   onGenerateRoute: Routing.generateRoute,
-                  debugShowCheckedModeBanner: enableDebug,
 
                   // Set showSemanticsDebugger to true to view semantics in emulator.
                   showSemanticsDebugger: false,

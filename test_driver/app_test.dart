@@ -43,8 +43,8 @@ void main() {
       // Wait for initialization
       await driver.waitFor(find.byValueKey('next_enrollment_p1'));
 
-      // Enable developer mode
-      await driver.requestData("");
+      // Initialize the app for integration tests (enable developer mode, etc.)
+      await driver.requestData("initialize");
 
       // Tap through enrollment info screens
       await driver.tap(find.byValueKey('next_enrollment_p1'));

@@ -28,7 +28,6 @@ class _CardQuestionsState extends State<CardQuestions> with TickerProviderStateM
       children: <Widget>[
         if (widget.credentialType.faqPurpose != null)
           Collapsible(
-              actionKey: const Key('purpose_question'),
               header: FlutterI18n.translate(context, 'card_store.card_info.purpose_question'),
               onExpansionChanged: (v) =>
                   {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[0])},

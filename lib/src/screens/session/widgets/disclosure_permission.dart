@@ -79,7 +79,6 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
               },
               minWidth: 0.0,
               label: 'disclosure.explanation.dismiss-remember',
-              key: const Key('choose_ok'),
             ),
             IrmaButton(
               size: IrmaButtonSize.small,
@@ -158,7 +157,6 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
   Widget _buildNavigationBar() {
     final showTooltip = _showTooltip && !_scrolledToEnd;
     return IrmaBottomBar(
-      primaryButtonKey: const Key('disclosure_yes'),
       primaryButtonLabel: FlutterI18n.translate(context, 'session.navigation_bar.yes'),
       onPrimaryPressed: widget.session.canDisclose && _scrolledToEnd ? () => widget.onGivePermission() : null,
       secondaryButtonLabel: FlutterI18n.translate(context, 'session.navigation_bar.no'),

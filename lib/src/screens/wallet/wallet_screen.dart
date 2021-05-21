@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/debug.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
 import 'package:irmamobile/src/screens/debug/debug_screen.dart';
@@ -95,7 +94,6 @@ class _WalletScreenState extends State<_WalletScreen> {
         child: Scaffold(
           key: _scaffoldKey,
           appBar: IrmaAppBar(
-            leadingActionKey: const Key('wallet_menu'),
             title: Text(FlutterI18n.translate(context, 'wallet.title')),
             leadingIcon:
                 Icon(IrmaIcons.menu, semanticLabel: FlutterI18n.translate(context, "accessibility.menu"), size: 20.0),
@@ -103,14 +101,13 @@ class _WalletScreenState extends State<_WalletScreen> {
               _scaffoldKey.currentState.openDrawer();
             },
             actions: <Widget>[
-              if (kDebugMode && enableDebug) ...[
+              if (kDebugMode) ...[
                 IconButton(
                   icon: Icon(Icons.videogame_asset),
                   onPressed: onDebugPressed,
                 )
               ],
               IconButton(
-                key: const Key('wallet_lock'),
                 icon: Icon(
                   IrmaIcons.lock,
                   size: 20,

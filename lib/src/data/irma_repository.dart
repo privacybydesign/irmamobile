@@ -99,6 +99,10 @@ class IrmaRepository {
   final _issueWizardActiveSubject = BehaviorSubject<bool>.seeded(false);
   final _fatalErrorSubject = BehaviorSubject<ErrorEvent>();
 
+  // MyIRMA credentials are not specifically labelled in the issuer scheme, so for now we hardcode them.
+  // We don't make this final, such that we can modify this field when doing tests.
+  List<String> myIRMACredentials = ["pbdf.sidn-pbdf.irma", "pbdf.pbdf.mijnirma"];
+
   // _internal is a named constructor only used by the factory
   IrmaRepository._internal({
     @required this.bridge,

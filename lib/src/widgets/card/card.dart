@@ -148,7 +148,6 @@ class IrmaCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         getTranslation(context, credentialInfo.credentialType.name),
-                        key: Key('walletcard_${credentialInfo.fullId}'),
                         style: Theme.of(context).textTheme.subhead.copyWith(
                               color: cardTheme.foregroundColor,
                             ),
