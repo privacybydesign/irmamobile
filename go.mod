@@ -9,8 +9,8 @@ require (
 	github.com/hashicorp/go-retryablehttp v0.6.4 // indirect
 	github.com/jasonlvhit/gocron v0.0.0-20191111122648-5c21418a78e8 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
-	github.com/privacybydesign/gabi v0.0.0-20210311130659-b4e094b964d8
-	github.com/privacybydesign/irmago v0.7.1-0.20210326134428-9f023686ffd4
+	github.com/privacybydesign/gabi v0.0.0-20210409092845-6113e0d3ec81
+	github.com/privacybydesign/irmago v0.7.1-0.20210531113345-a1218203cf89
 	github.com/sirupsen/logrus v1.4.2
 	github.com/timshannon/bolthold v0.0.0-20191212204344-59576e1e7b0b // indirect
 	go.etcd.io/bbolt v1.3.3 // indirect
