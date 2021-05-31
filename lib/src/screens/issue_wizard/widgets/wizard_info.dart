@@ -73,6 +73,7 @@ class IssueWizardInfo extends StatelessWidget {
       header: wizardData.title.translate(FlutterI18n.currentLocale(context).languageCode),
       logo: logo,
       backgroundColor: colorFromCode(wizardData.color),
+      textColor: wizardData.color == null ? null : colorFromCode(wizardData.textColor),
       onBack: onBack,
       bottomBar: IrmaBottomBar(
         primaryButtonLabel: FlutterI18n.translate(context, "issue_wizard.add"),

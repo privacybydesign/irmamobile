@@ -99,6 +99,7 @@ class IssueWizardContents extends StatelessWidget {
       header: wizard.wizardData.title.translate(lang),
       logo: logo,
       backgroundColor: colorFromCode(wizard.wizardData.color),
+      textColor: wizard.wizardData.color == null ? null : colorFromCode(wizard.wizardData.textColor),
       onBack: onBack,
       bottomBar: IrmaBottomBar(
         primaryButtonLabel: buttonLabel,

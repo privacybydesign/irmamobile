@@ -8,13 +8,14 @@ class LogoBanner extends StatelessWidget {
   final Image logo;
   final String text;
   final Color backgroundColor;
-  const LogoBanner({this.logo, this.text, this.backgroundColor});
+  final Color textColor;
+  const LogoBanner({this.logo, this.text, this.backgroundColor, this.textColor});
 
   @override
   Widget build(BuildContext context) {
     final color = backgroundColor ?? IrmaTheme.of(context).grayscale60;
-    final textColor =
-        color.computeLuminance() > 0.5 ? IrmaTheme.of(context).primaryDark : IrmaTheme.of(context).grayscaleWhite;
+    final textColor = this.textColor ??
+        (color.computeLuminance() > 0.5 ? IrmaTheme.of(context).primaryDark : IrmaTheme.of(context).grayscaleWhite);
     return Stack(
       children: <Widget>[
         Container(

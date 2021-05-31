@@ -8,6 +8,7 @@ class LogoBannerHeader extends StatelessWidget {
   final Image logo;
   final String header;
   final Color backgroundColor;
+  final Color textColor;
   final Widget bottomBar;
   final Widget child;
   final void Function() onBack;
@@ -18,6 +19,7 @@ class LogoBannerHeader extends StatelessWidget {
     this.logo,
     this.header,
     this.backgroundColor,
+    this.textColor,
     this.bottomBar,
     this.child,
     this.scrollviewKey,
@@ -43,6 +45,7 @@ class LogoBannerHeader extends StatelessWidget {
               text: header,
               logo: logo,
               backgroundColor: backgroundColor,
+              textColor: textColor,
             ),
             Padding(
               padding: EdgeInsets.only(top: IrmaTheme.of(context).mediumSpacing),
