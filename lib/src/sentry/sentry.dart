@@ -12,7 +12,7 @@ Future<void> reportError(dynamic error, dynamic stackTrace, {bool userInitiated 
   if (_sentry == null) {
     // Print the full stacktrace when not provided with dsn
     debugPrint(error.toString());
-    debugPrint(stackTrace.toString());
+    if (stackTrace != null) debugPrint(stackTrace.toString());
   } else {
     final enabled = await IrmaPreferences.get().getReportErrors().first;
     // Send the Exception and Stacktrace to Sentry when enabled
