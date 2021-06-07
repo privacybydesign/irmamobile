@@ -6,6 +6,7 @@ import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/card/irma_card_theme.dart';
 import 'package:irmamobile/src/widgets/card/models/card_expiry_date.dart';
+import 'package:irmamobile/src/widgets/translated_text.dart';
 
 import '../irma_themed_button.dart';
 
@@ -195,17 +196,26 @@ class _CardAttributesState extends State<CardAttributes> {
                         ),
                   ),
                   SizedBox(height: IrmaTheme.of(context).mediumSpacing),
-                  IrmaThemedButton(
-                    label: FlutterI18n.translate(context, 'wallet.refresh'),
-                    onPressed: widget.onRefreshCredential,
-                    size: IrmaButtonSize.small,
-                    icon: null,
-                    color: widget.irmaCardTheme.foregroundColor,
-                    textColor: widget.color,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30.0),
+                  if (widget.onRefreshCredential == null)
+                    TranslatedText(
+                      'wallet.cannot_be_refreshed',
+                      textAlign: TextAlign.center,
+                      style: IrmaTheme.of(context).textTheme.bodyText2.copyWith(
+                            color: widget.irmaCardTheme.foregroundColor,
+                          ),
+                    )
+                  else
+                    IrmaThemedButton(
+                      label: FlutterI18n.translate(context, 'wallet.refresh'),
+                      onPressed: widget.onRefreshCredential,
+                      size: IrmaButtonSize.small,
+                      icon: null,
+                      color: widget.irmaCardTheme.foregroundColor,
+                      textColor: widget.color,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
                     ),
-                  ),
                   SizedBox(height: IrmaTheme.of(context).smallSpacing),
                   GestureDetector(
                     onTap: () {
