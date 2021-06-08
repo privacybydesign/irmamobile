@@ -5,10 +5,6 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/card/irma_card_theme.dart';
-import 'package:irmamobile/src/widgets/irma_button.dart';
-import 'package:irmamobile/src/widgets/irma_dialog.dart';
-import 'package:irmamobile/src/widgets/irma_text_button.dart';
-import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 
 enum CardMenuOption {
   refresh,
@@ -23,41 +19,6 @@ class CardMenu extends StatelessWidget {
 
   const CardMenu({this.cardTheme, this.onRefreshCredential, this.onDeleteCredential, this.allGood});
 
-  void _showDeleteDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return IrmaDialog(
-          title: FlutterI18n.translate(context, 'card.delete_title'),
-          content: FlutterI18n.translate(context, 'card.delete_content'),
-          child: Wrap(
-            direction: Axis.horizontal,
-            verticalDirection: VerticalDirection.up,
-            alignment: WrapAlignment.spaceEvenly,
-            children: <Widget>[
-              IrmaTextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                minWidth: 0.0,
-                label: 'card.delete_deny',
-              ),
-              IrmaButton(
-                size: IrmaButtonSize.small,
-                minWidth: 0.0,
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  onDeleteCredential();
-                },
-                label: 'card.delete_confirm',
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     // If the menu wouldn't have any options, don't show it at all
@@ -69,7 +30,7 @@ class CardMenu extends StatelessWidget {
         if (value == CardMenuOption.refresh) {
           onRefreshCredential();
         } else if (value == CardMenuOption.delete) {
-          _showDeleteDialog(context);
+          onDeleteCredential();
         }
       },
       itemBuilder: (context) => [

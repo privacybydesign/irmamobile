@@ -363,6 +363,7 @@
     "revoked": "Dit kaartje is niet meer geldig",
     "not_valid": "Kaartje niet geldig",
     "refresh": "Ververs kaartje",
+    "delete": "Verwijder kaartje",
     "cannot_be_refreshed": "Dit kaartje kan niet meer worden ververst.",
     "close": "Sluiten",
     "help": "Help",
