@@ -195,17 +195,14 @@ class Attribute {
   final CredentialInfo credentialInfo;
   final AttributeType attributeType;
   final AttributeValue value;
-  final bool haveOther;
 
   Attribute({
     @required this.credentialInfo,
     @required this.attributeType,
     @required this.value,
-    this.haveOther = false,
   })  : assert(credentialInfo != null),
         assert(attributeType != null),
-        assert(value != null),
-        assert(haveOther != null);
+        assert(value != null);
 
   bool get expired => false;
   bool get revoked => false;
@@ -234,10 +231,6 @@ class Attribute {
         ),
         attributeType: attributeType,
         value: value,
-        haveOther: credentials.values.any(
-          (cred) =>
-              cred.info.fullId == attributeType.fullCredentialId && cred.attributes[attributeType]?.raw != value.raw,
-        ),
       );
     }
   }

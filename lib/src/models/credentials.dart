@@ -44,6 +44,14 @@ class Credential {
 
   bool get expired => expires.isBefore(DateTime.now());
 
+  List<Attribute> get attributeInstances => attributes.entries
+      .map((entry) => Attribute(
+            credentialInfo: info,
+            attributeType: entry.key,
+            value: entry.value,
+          ))
+      .toList();
+
   Credential({
     @required this.info,
     @required this.signedOn,

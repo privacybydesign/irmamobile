@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attributes.dart';
+import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/disclosure/carousel.dart';
 
@@ -44,12 +46,20 @@ class _DisclosureCardState extends State<DisclosureCard> {
                     Divider(
                       color: IrmaTheme.of(context).grayscale80,
                     ),
-                  Carousel(
-                    candidatesDisCon: entry.value,
-                    onCurrentPageUpdate: (int page) => widget.onCurrentPageUpdate(entry.key, page),
-                    showObtainButton: widget.showObtainButton,
-                    onIssue: widget.onIssue,
-                  )
+                  StreamBuilder<Credentials>(
+                    stream: IrmaRepository.get().getCredentials(),
+                    builder: (context, credentialsSnapshot) => credentialsSnapshot.hasData
+                        ? Carousel(
+                            candidatesDisCon: entry.value,
+                            onCurrentPageUpdate: (int page) => widget.onCurrentPageUpdate(entry.key, page),
+                            showObtainButton: widget.showObtainButton,
+                            onIssue: widget.onIssue,
+                            credentials: credentialsSnapshot.data.values.toList(),
+                          )
+
+                        /// Credentials are already loaded on app start-up, so the fallback is never visible.
+                        : Container(),
+                  ),
                 ],
               )
               .toList(),
