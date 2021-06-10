@@ -207,13 +207,13 @@ class CredentialType {
   @JsonKey(name: 'DisallowDelete', nullable: true)
   final bool disallowDelete;
 
-  @JsonKey(name: 'ForegroundColor', fromJson: _fromColorCode)
+  @JsonKey(name: 'ForegroundColor', fromJson: colorFromCode)
   final Color foregroundColor;
 
-  @JsonKey(name: 'BackgroundGradientStart', fromJson: _fromColorCode)
+  @JsonKey(name: 'BackgroundGradientStart', fromJson: colorFromCode)
   final Color backgroundGradientStart;
 
-  @JsonKey(name: 'BackgroundGradientEnd', fromJson: _fromColorCode)
+  @JsonKey(name: 'BackgroundGradientEnd', fromJson: colorFromCode)
   final Color backgroundGradientEnd;
 
   @JsonKey(name: 'IsInCredentialStore', nullable: true)
@@ -302,7 +302,7 @@ class AttributeType {
   String get fullCredentialId => "$schemeManagerId.$issuerId.$credentialTypeId";
 }
 
-Color _fromColorCode(String colorCode) {
+Color colorFromCode(String colorCode) {
   if (colorCode == null || colorCode.length != 7 || colorCode[0] != "#") {
     return null;
   }

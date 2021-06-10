@@ -308,7 +308,7 @@
     "invalid_title": "PIN incorrect",
     "invalid_pin": {
       "attempts-0": "This PIN is not correct. You have {attemps} attempts left before your IRMA app will be blocked temporarily.",
-      "attempts-1": "This PIN is not correct. You have {attemps} attempts left before your IRMA app will be blocked temporarily.",
+      "attempts-1": "This PIN is not correct. You have {attemps} attempt left before your IRMA app will be blocked temporarily.",
       "attempts-2": "This PIN is not correct. You have {attemps} attempts left before your IRMA app will be blocked temporarily."
     },
     "invalid_close": "Try again",

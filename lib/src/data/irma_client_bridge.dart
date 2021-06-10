@@ -16,6 +16,7 @@ import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/issue_wizard.dart';
 import 'package:irmamobile/src/models/log_entry.dart';
 import 'package:irmamobile/src/models/session_events.dart';
+import 'package:irmamobile/src/sentry/sentry.dart';
 
 typedef EventUnmarshaller = Event Function(Map<String, dynamic>);
 
@@ -81,17 +82,19 @@ class IrmaClientBridge extends IrmaBridge {
       final EventUnmarshaller unmarshaller = _eventUnmarshallerLookup[call.method];
 
       if (unmarshaller == null) {
-        debugPrint("Unrecognized bridge event received: ${call.method} with payload ${call.arguments}");
+        // Don't send 'call.arguments' to Sentry; it might contain personal data.
+        reportError('Unrecognized bridge event received: ${call.method}', null);
         return success;
       }
 
-      debugPrint("Received bridge event: ${call.method} with payload ${call.arguments}");
+      if (kDebugMode) {
+        debugPrint('Received bridge event: ${call.method} with payload ${call.arguments}');
+      }
 
       final Event event = unmarshaller(data);
       IrmaRepository.get().dispatch(event);
     } catch (e, stacktrace) {
-      debugPrint("Error receiving or parsing method call from native: ${e.toString()}");
-      debugPrint(stacktrace.toString());
+      reportError(e, stacktrace);
     }
 
     return success;
@@ -100,7 +103,9 @@ class IrmaClientBridge extends IrmaBridge {
   @override
   void dispatch(Event event) {
     final encodedEvent = jsonEncode(event);
-    debugPrint("Sending ${event.runtimeType.toString()} to bridge: $encodedEvent");
+    if (kDebugMode) {
+      debugPrint('Sending ${event.runtimeType.toString()} to bridge: $encodedEvent');
+    }
 
     _methodChannel.invokeMethod(event.runtimeType.toString(), encodedEvent);
   }

@@ -238,6 +238,8 @@ github.com/privacybydesign/gabi v0.0.0-20200823153621-467696543652 h1:cglj/IsZVP
 github.com/privacybydesign/gabi v0.0.0-20200823153621-467696543652/go.mod h1:HQ6L5rKBY7qaqcheK6zpaVf7fhGWD0PvUAXJTDws+0M=
 github.com/privacybydesign/gabi v0.0.0-20210311130659-b4e094b964d8 h1:nDH/LwI33DuTBcFGXtrPg/rVviwqeypayf3RKGbyUsk=
 github.com/privacybydesign/gabi v0.0.0-20210311130659-b4e094b964d8/go.mod h1:HQ6L5rKBY7qaqcheK6zpaVf7fhGWD0PvUAXJTDws+0M=
+github.com/privacybydesign/gabi v0.0.0-20210409092845-6113e0d3ec81 h1:tqsIByctPGR225Tj3fYFdkeVeFz+LOsBjTInnkr6Y2Y=
+github.com/privacybydesign/gabi v0.0.0-20210409092845-6113e0d3ec81/go.mod h1:HQ6L5rKBY7qaqcheK6zpaVf7fhGWD0PvUAXJTDws+0M=
 github.com/privacybydesign/irmago v0.5.0-rc.1.0.20200317184428-7fae4f8ad22f h1:ycOiIPKeECblC6y+CFOVGeAhWUtnTaGP9JwEZEwZdNQ=
 github.com/privacybydesign/irmago v0.5.0-rc.1.0.20200317184428-7fae4f8ad22f/go.mod h1:xsJZPAp4mtGSUQLFdfhTgcxU0PfRrI4ZVC3APDF49G0=
 github.com/privacybydesign/irmago v0.5.0-rc.1.0.20200323180637-e9223f58f656 h1:DN/z/9ADzL8uWRshChfF3SpyvHGWzFc5/2yO+NI9xhc=
@@ -318,6 +320,14 @@ github.com/privacybydesign/irmago v0.7.1-0.20210325153950-8d26cf57c97b h1:sVhqFp
 github.com/privacybydesign/irmago v0.7.1-0.20210325153950-8d26cf57c97b/go.mod h1:AF3bsuqm8nKZcei2VCiKW3+7I6zZ2B5DYZ+/ib3UMik=
 github.com/privacybydesign/irmago v0.7.1-0.20210326134428-9f023686ffd4 h1:kmcoWHqRlCug9ebK42o6NfPaLMTIVHpzTeptcPs//iI=
 github.com/privacybydesign/irmago v0.7.1-0.20210326134428-9f023686ffd4/go.mod h1:I6JbDXy+VQPyNyMka8LHL1pF68BS5Ssh5XHku666U3w=
+github.com/privacybydesign/irmago v0.7.1-0.20210517105252-dbc031531e26 h1:jcCfA/pEanWp8Pofnh2aS74naRUJWWE5oc8zM20+jC0=
+github.com/privacybydesign/irmago v0.7.1-0.20210517105252-dbc031531e26/go.mod h1:tH2i0xICj36iEc8VKaAFziG+Fk7tr3YQR5Wdp4cgCEE=
+github.com/privacybydesign/irmago v0.7.1-0.20210531094934-3bbc058469c4 h1:MwcjgyEov77EV8BYd8cvUKvpiqxj/8byOLSvWx9JGog=
+github.com/privacybydesign/irmago v0.7.1-0.20210531094934-3bbc058469c4/go.mod h1:tH2i0xICj36iEc8VKaAFziG+Fk7tr3YQR5Wdp4cgCEE=
+github.com/privacybydesign/irmago v0.7.1-0.20210531113345-a1218203cf89 h1:52f4CvNKzfD9Ob754bjtEb3M3haM1GDfkyYsEUBccRw=
+github.com/privacybydesign/irmago v0.7.1-0.20210531113345-a1218203cf89/go.mod h1:tH2i0xICj36iEc8VKaAFziG+Fk7tr3YQR5Wdp4cgCEE=
+github.com/privacybydesign/irmago v0.7.1-0.20210608140604-a72a41610778 h1:eFVj519LphMbFX46nlIdZc+DvbQcYde/PGkcQHabZrY=
+github.com/privacybydesign/irmago v0.7.1-0.20210608140604-a72a41610778/go.mod h1:5pMX5ccFa5a6KWtuN1HGFDSQyDruwgGNYGzI/BP9HQw=
 github.com/prometheus/client_golang v0.9.1/go.mod h1:7SWBe2y4D6OKWSNQJUaRYU/AaXPKyh/dDVn+NZz0KFw=
 github.com/prometheus/client_golang v0.9.3/go.mod h1:/TN21ttK/J9q6uSwhBd54HahCDft0ttaMvbicHlPoso=
 github.com/prometheus/client_model v0.0.0-20180712105110-5c3871d89910/go.mod h1:MbSGuTsp3dbXC40dX6PRTWyKYBIrTGTE9sqQNg2J8bo=

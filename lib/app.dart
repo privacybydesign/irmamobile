@@ -67,8 +67,8 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
 
   static List<Locale> defaultSupportedLocales() {
     return const [
-      Locale('nl', 'NL'),
       Locale('en', 'US'),
+      Locale('nl', 'NL'),
     ];
   }
 

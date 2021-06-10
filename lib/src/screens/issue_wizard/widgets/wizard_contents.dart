@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/issue_wizard.dart';
 import 'package:irmamobile/src/screens/issue_wizard/widgets/logo_banner_header.dart';
 import 'package:irmamobile/src/screens/issue_wizard/widgets/progressing_list.dart';
@@ -97,6 +98,8 @@ class IssueWizardContents extends StatelessWidget {
       controller: controller,
       header: wizard.wizardData.title.translate(lang),
       logo: logo,
+      backgroundColor: colorFromCode(wizard.wizardData.color),
+      textColor: wizard.wizardData.color == null ? null : colorFromCode(wizard.wizardData.textColor),
       onBack: onBack,
       bottomBar: IrmaBottomBar(
         primaryButtonLabel: buttonLabel,
