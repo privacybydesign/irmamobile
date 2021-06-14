@@ -104,21 +104,26 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
     );
   }
 
-  Widget _buildCredentialSnippet(List<Attribute> attributes, Color color) => Card(
-        color: color,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            TearLine(padding: EdgeInsets.only(top: IrmaTheme.of(context).tinySpacing)),
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: CarouselAttributes(attributes: attributes),
-            ),
-            TearLine(padding: EdgeInsets.only(bottom: IrmaTheme.of(context).tinySpacing)),
-            //_buildCredentialFooter(cred),
-          ],
-        ),
-      );
+  Widget _buildCredentialSnippet(List<Attribute> attributes, Color color) {
+    final tinySpacing = IrmaTheme.of(context).tinySpacing;
+    final smallSpacing = IrmaTheme.of(context).smallSpacing;
+    return Card(
+      margin: EdgeInsets.fromLTRB(tinySpacing, smallSpacing, tinySpacing, tinySpacing),
+      color: color,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          TearLine(padding: EdgeInsets.only(top: IrmaTheme.of(context).tinySpacing)),
+          Padding(
+            padding: EdgeInsets.all(smallSpacing),
+            child: CarouselAttributes(attributes: attributes),
+          ),
+          TearLine(padding: EdgeInsets.only(bottom: IrmaTheme.of(context).tinySpacing)),
+          //_buildCredentialFooter(cred),
+        ],
+      ),
+    );
+  }
 
   void _onTapPresentCredential() {
     final nextIndex = (_visiblePresentCredentialIndex.value + 1) % widget.presentCredentials.length;
@@ -149,10 +154,10 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
                     ),
                   ),
 
-              /// If we have multiple cards, we add a button to toggle between them.
+              /// If we have multiple cards, we add an indicator to show how many cards there are.
               if (widget.presentCredentials.length > 1)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
+                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 1),
                   decoration: const BoxDecoration(
                     borderRadius: BorderRadius.all(
                       Radius.circular(15.0),
@@ -176,7 +181,6 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
 
   @override
   Widget build(BuildContext context) {
-    // TODO: What to do if it is singleton?
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
