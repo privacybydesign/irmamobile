@@ -6,9 +6,14 @@ import 'package:irmamobile/src/util/language.dart';
 
 // The Offstage in the Carousel widget requires this widget to persist a constant height.
 class CarouselAttributes extends StatelessWidget {
-  final Iterable<Attribute> attributes;
+  final List<Attribute> attributes;
+  final bool showNullValues;
 
-  const CarouselAttributes({Key key, this.attributes}) : super(key: key);
+  const CarouselAttributes({
+    Key key,
+    @required this.attributes,
+    this.showNullValues = false,
+  }) : super(key: key);
 
   Widget _buildCandidateValue(BuildContext context, Attribute candidate) {
     if (candidate.value is PhotoValue) {
@@ -26,11 +31,10 @@ class CarouselAttributes extends StatelessWidget {
       );
     }
 
-    //TODO: Does this always work?
-    String text;
-    if (candidate.value is NullValue) {
+    String text = '';
+    if (candidate.value is NullValue && showNullValues) {
       text = '…';
-    } else {
+    } else if (candidate.value is TextValue) {
       text = getTranslation(context, (candidate.value as TextValue).translated);
     }
     return Text(

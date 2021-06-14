@@ -110,19 +110,22 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
     );
   }
 
-  Widget _buildCredentialSnippet(List<Attribute> attributes, Color color) {
+  Widget _buildCredentialSnippet(List<Attribute> attributes, {bool isPresent = false}) {
     final tinySpacing = IrmaTheme.of(context).tinySpacing;
     final smallSpacing = IrmaTheme.of(context).smallSpacing;
     return Card(
       margin: EdgeInsets.fromLTRB(tinySpacing, smallSpacing, tinySpacing, tinySpacing),
-      color: color,
+      color: isPresent ? IrmaTheme.of(context).notificationSuccessBg : IrmaTheme.of(context).notificationInfoBg,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           TearLine(margin: EdgeInsets.only(top: tinySpacing)),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: smallSpacing, vertical: tinySpacing),
-            child: CarouselAttributes(attributes: attributes),
+            child: CarouselAttributes(
+              attributes: attributes,
+              showNullValues: !isPresent,
+            ),
           ),
           TearLine(margin: EdgeInsets.only(bottom: tinySpacing)),
           //_buildCredentialFooter(cred),
@@ -157,7 +160,7 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
                             .where((presentAttr) => widget.unsatisfiableCredential.attributes.any(
                                 (missingAttr) => missingAttr.attributeType.fullId == presentAttr.attributeType.fullId))
                             .toList(),
-                        IrmaTheme.of(context).notificationSuccessBg,
+                        isPresent: true,
                       ),
                     ),
                   ),
@@ -198,7 +201,7 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
           _buildPresentCredentials(),
         ],
         const Opacity(opacity: 0.5, child: TranslatedText('disclosure.requested_for')),
-        _buildCredentialSnippet(widget.unsatisfiableCredential.attributes, IrmaTheme.of(context).notificationInfoBg),
+        _buildCredentialSnippet(widget.unsatisfiableCredential.attributes, isPresent: false),
       ],
     );
   }
