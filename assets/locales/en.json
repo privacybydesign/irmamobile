@@ -446,8 +446,6 @@
     "expired": "These data are expired.",
     "revoked": "These data have been revoked.",
     "not_revokable": "These data have to be refreshed first.",
-    "unsatisfiable_title": "Add data",
-    "unsatisfiable_message_markdown": "You are asked to disclose personal data that are not yet present in your IRMA app or that have expired. Add the data to your IRMA app and then disclose them.",
     "obtain": "Add",
     "refresh": "Refresh",
     "nothing_selected": "Nothing selected",

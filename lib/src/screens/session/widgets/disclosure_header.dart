@@ -114,16 +114,6 @@ class DisclosureHeader extends StatelessWidget {
       explicitChildNodes: true,
       child: Column(
         children: <Widget>[
-          // TODO: Check whether this can really be deleted in all cases.
-          /*if (!session.satisfiable)
-            Padding(
-              padding: EdgeInsets.only(bottom: IrmaTheme.of(context).mediumSpacing),
-              child: const IrmaMessage(
-                'disclosure.unsatisfiable_title',
-                'disclosure.unsatisfiable_message',
-                type: IrmaMessageType.info,
-              ),
-            ),*/
           Row(
             children: [
               if (logoFile.existsSync())
