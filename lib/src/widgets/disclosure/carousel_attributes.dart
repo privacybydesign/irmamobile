@@ -27,11 +27,12 @@ class CarouselAttributes extends StatelessWidget {
       );
     }
 
+    //TODO: Does this always work?
     String text;
     if (candidate.value is NullValue) {
       text = '…';
     } else {
-      getTranslation(context, (candidate.value as TextValue).translated);
+      text = getTranslation(context, (candidate.value as TextValue).translated);
     }
     return Text(
       text,
