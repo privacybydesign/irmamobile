@@ -3,17 +3,17 @@ import 'package:irmamobile/src/theme/theme.dart';
 
 // The Offstage in the Carousel widget requires this widget to persist a constant height.
 class TearLine extends StatelessWidget {
-  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry margin;
 
   // TODO: Use margin
-  const TearLine({Key key, this.padding}) : super(key: key);
+  const TearLine({Key key, this.margin}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
         builder: (context, constraints) => Container(
           height: 17,
           width: constraints.maxWidth,
-          padding: padding,
+          margin: margin,
 
           /// Wrap the CustomPaint in a Opacity to make the line color less dominant
           child: Opacity(

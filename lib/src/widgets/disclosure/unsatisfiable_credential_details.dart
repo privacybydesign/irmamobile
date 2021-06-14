@@ -119,12 +119,12 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          TearLine(padding: EdgeInsets.only(top: smallSpacing)),
+          TearLine(margin: EdgeInsets.only(top: tinySpacing)),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: smallSpacing, vertical: tinySpacing),
             child: CarouselAttributes(attributes: attributes),
           ),
-          TearLine(padding: EdgeInsets.only(bottom: smallSpacing)),
+          TearLine(margin: EdgeInsets.only(bottom: tinySpacing)),
           //_buildCredentialFooter(cred),
         ],
       ),
