@@ -4,8 +4,7 @@ import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/language.dart';
 
-// The Offstage in the Carousel widget requires this being a StatelessWidget. Otherwise the
-// size calculations cannot be done reliably anymore.
+// The Offstage in the Carousel widget requires this widget to persist a constant height.
 class CarouselAttributes extends StatelessWidget {
   final Iterable<Attribute> attributes;
 

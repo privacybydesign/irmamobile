@@ -12,6 +12,9 @@ import 'package:irmamobile/src/widgets/translated_text.dart';
 
 import 'carousel_attributes.dart';
 
+/* The Offstage in the Carousel widget requires this widget to persist a constant height when
+   persistMaxHeight is true. This height is being used by the Carousel widget to calculate the maximum
+   height. When persistMaxHeight is false, this widget may never grow larger than that height. */
 class UnsatisfiableCredentialDetails extends StatefulWidget {
   /// A DisclosureCredential which is not satisfiable for the current session.
   final DisclosureCredential unsatisfiableCredential;
@@ -19,17 +22,20 @@ class UnsatisfiableCredentialDetails extends StatefulWidget {
   /// List of credentials that are present in the user's wallet having the same type as the unsatisfiable one.
   final List<Credential> presentCredentials;
 
-  /// Indicates whether we are rendering for an offstage.
-  final bool isOffstage;
+  /// Indicates whether this widget should grow to the maximum height it wants to use.
+  final bool persistMaxHeight;
 
-  const UnsatisfiableCredentialDetails(
-      {Key key, @required this.presentCredentials, @required this.unsatisfiableCredential, this.isOffstage = false})
-      : super(key: key);
+  const UnsatisfiableCredentialDetails({
+    Key key,
+    @required this.presentCredentials,
+    @required this.unsatisfiableCredential,
+    this.persistMaxHeight = false,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
     if (unsatisfiableCredential.satisfiable) {
-      throw Exception('');
+      throw Exception('Given unsatisfiable credential appears to be satisfiable');
     }
     return _UnsatisfiableCredentialDetailsState();
   }
@@ -113,12 +119,12 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          TearLine(padding: EdgeInsets.only(top: IrmaTheme.of(context).tinySpacing)),
+          TearLine(padding: EdgeInsets.only(top: smallSpacing)),
           Padding(
-            padding: EdgeInsets.all(smallSpacing),
+            padding: EdgeInsets.symmetric(horizontal: smallSpacing, vertical: tinySpacing),
             child: CarouselAttributes(attributes: attributes),
           ),
-          TearLine(padding: EdgeInsets.only(bottom: IrmaTheme.of(context).tinySpacing)),
+          TearLine(padding: EdgeInsets.only(bottom: smallSpacing)),
           //_buildCredentialFooter(cred),
         ],
       ),
@@ -141,9 +147,11 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
             children: [
               ...widget.presentCredentials.asMap().entries.map(
                     (credEntry) => Offstage(
-                      /// When our parent is offstage, we have to show all we've got for size measuring.
-                      /// This means all our widgets should be on stage then (so not offstage).
-                      offstage: !(widget.isOffstage || index == credEntry.key),
+                      /// When persistMaxHeight is true, we should render the largest possible state in height.
+                      /// We don't know in advance which presentCredential has the biggest height. Therefore, we
+                      /// render them all, stacked upon each other, such that the widget gets the size of the
+                      /// largest one. This means all presentCredentials should be on stage then (so not offstage).
+                      offstage: !(widget.persistMaxHeight || index == credEntry.key),
                       child: _buildCredentialSnippet(
                         credEntry.value.attributeInstances
                             .where((presentAttr) => widget.unsatisfiableCredential.attributes.any(

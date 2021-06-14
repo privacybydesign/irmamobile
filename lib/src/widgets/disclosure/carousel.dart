@@ -40,7 +40,7 @@ class _CarouselState extends State<Carousel> {
   final _footerColumnWidth = 60.0;
   int _currentPage = 0;
 
-  double height;
+  double _height;
 
   int get currentPage => _currentPage;
   set currentPage(int val) {
@@ -69,17 +69,25 @@ class _CarouselState extends State<Carousel> {
 
   void _afterLayout(_) {
     final newHeight = _getSize().height;
-    if (newHeight != height) {
+    if (newHeight != _height) {
       setState(() {
-        height = _getSize().height;
+        _height = _getSize().height;
       });
     }
   }
 
   @override
   void initState() {
-    WidgetsBinding.instance.addPostFrameCallback(_afterLayout);
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback(_afterLayout);
+  }
+
+  @override
+  void didUpdateWidget(Carousel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Make sure the height is recalculated when the widget's parameters are updated.
+    _height = null;
+    WidgetsBinding.instance.addPostFrameCallback(_afterLayout);
   }
 
   // getChangedPageAndMoveBar and dotsIndicator from
@@ -108,12 +116,12 @@ class _CarouselState extends State<Carousel> {
         ],
       );
 
-  Widget _buildPageViewer() => height == null
+  Widget _buildPageViewer() => _height == null
       ? Container()
       : Column(
           children: <Widget>[
             Container(
-              height: height,
+              height: _height,
               child: PageView.builder(
                 itemCount: widget.candidatesDisCon.length,
                 physics: const AlwaysScrollableScrollPhysics(),
@@ -322,7 +330,7 @@ class _CarouselState extends State<Carousel> {
           presentCredentials:
               widget.credentials.where((cred) => cred.info.fullId == missingCred.credentialInfo.fullId).toList(),
           unsatisfiableCredential: missingCred,
-          isOffstage: isOffstage,
+          persistMaxHeight: isOffstage,
         ),
         _buildCredentialFooter(missingCred),
         if (missingCred.obtainable) _buildGetButton(missingCred),

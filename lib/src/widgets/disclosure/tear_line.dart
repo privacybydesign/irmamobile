@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
-// The Offstage in the Carousel widget requires this being a StatelessWidget. Otherwise the
-// size calculations cannot be done reliably anymore.
+// The Offstage in the Carousel widget requires this widget to persist a constant height.
 class TearLine extends StatelessWidget {
   final EdgeInsetsGeometry padding;
 
+  // TODO: Use margin
   const TearLine({Key key, this.padding}) : super(key: key);
 
   @override
@@ -14,12 +14,13 @@ class TearLine extends StatelessWidget {
           height: 17,
           width: constraints.maxWidth,
           padding: padding,
+
+          /// Wrap the CustomPaint in a Opacity to make the line color less dominant
           child: Opacity(
-            // TODO: Check whether we can remove Opacity
             opacity: 0.8,
             child: CustomPaint(
               painter: _TearLinePainter(
-                lineColor: IrmaTheme.of(context).grayscale95,
+                lineColor: IrmaTheme.of(context).primaryLight,
               ),
             ),
           ),
@@ -34,7 +35,6 @@ class _TearLinePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // TODO: Check number of repaints.
     final paint = Paint();
     paint.style = PaintingStyle.stroke;
     paint.strokeCap = StrokeCap.round;
@@ -60,8 +60,7 @@ class _TearLinePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    // Always repaint, because the parent widget size might have changed.
-    return false; //TODO: check
+  bool shouldRepaint(_TearLinePainter prev) {
+    return prev.lineColor != lineColor;
   }
 }
