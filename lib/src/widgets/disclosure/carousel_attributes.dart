@@ -43,26 +43,24 @@ class CarouselAttributes extends StatelessWidget {
     );
   }
 
-  Widget _buildAttribute(BuildContext context, Attribute attribute) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).tinySpacing),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            getTranslation(context, attribute.attributeType.name),
-            style: IrmaTheme.of(context)
-                .textTheme
-                .bodyText2
-                .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 14),
-            overflow: TextOverflow.ellipsis,
-          ),
-          _buildCandidateValue(context, attribute),
-        ],
-      ),
-    );
-  }
+  Widget _buildAttribute(BuildContext context, Attribute attribute) => Padding(
+        padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).tinySpacing),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              getTranslation(context, attribute.attributeType.name),
+              style: IrmaTheme.of(context)
+                  .textTheme
+                  .bodyText2
+                  .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 14),
+              overflow: TextOverflow.ellipsis,
+            ),
+            _buildCandidateValue(context, attribute),
+          ],
+        ),
+      );
 
   @override
   Widget build(BuildContext context) => Column(

@@ -128,7 +128,6 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
             ),
           ),
           TearLine(margin: EdgeInsets.only(bottom: tinySpacing)),
-          //_buildCredentialFooter(cred),
         ],
       ),
     );

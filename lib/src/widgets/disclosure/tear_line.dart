@@ -5,7 +5,6 @@ import 'package:irmamobile/src/theme/theme.dart';
 class TearLine extends StatelessWidget {
   final EdgeInsetsGeometry margin;
 
-  // TODO: Use margin
   const TearLine({Key key, this.margin}) : super(key: key);
 
   @override

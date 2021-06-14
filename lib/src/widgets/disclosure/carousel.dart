@@ -68,12 +68,9 @@ class _CarouselState extends State<Carousel> {
   }
 
   void _afterLayout(_) {
-    final newHeight = _getSize().height;
-    if (newHeight != _height) {
-      setState(() {
-        _height = _getSize().height;
-      });
-    }
+    setState(() {
+      _height = _getSize().height;
+    });
   }
 
   @override
@@ -102,9 +99,9 @@ class _CarouselState extends State<Carousel> {
   Widget build(BuildContext context) => Column(
         children: <Widget>[
           /* An offstage IndexedStack is used because an IndexedStack always has
-          the height of the highest element. The height is then used to determine
-          the height of a PageViewer (who needs to be in an element of pre-determined height).
-          FUTURE: implement a more elegant solution */
+        the height of the highest element. The height is then used to determine
+        the height of a PageViewer (who needs to be in an element of pre-determined height).
+        FUTURE: implement a more elegant solution */
           Offstage(
             offstage: true,
             child: IndexedStack(
@@ -325,15 +322,16 @@ class _CarouselState extends State<Carousel> {
     );
   }
 
-  List<Widget> _buildUnsatisfiableCredential(DisclosureCredential missingCred, {bool isOffstage = false}) => <Widget>[
+  List<Widget> _buildUnsatisfiableCredential(DisclosureCredential unsatisfiableCred, {bool isOffstage = false}) =>
+      <Widget>[
         UnsatisfiableCredentialDetails(
+          unsatisfiableCredential: unsatisfiableCred,
           presentCredentials:
-              widget.credentials.where((cred) => cred.info.fullId == missingCred.credentialInfo.fullId).toList(),
-          unsatisfiableCredential: missingCred,
+              widget.credentials.where((cred) => cred.info.fullId == unsatisfiableCred.credentialInfo.fullId).toList(),
           persistMaxHeight: isOffstage,
         ),
-        _buildCredentialFooter(missingCred),
-        if (missingCred.obtainable) _buildGetButton(missingCred),
+        _buildCredentialFooter(unsatisfiableCred),
+        if (unsatisfiableCred.obtainable) _buildGetButton(unsatisfiableCred),
       ];
 
   List<Widget> _buildCredential(DisclosureCredential cred) => <Widget>[
