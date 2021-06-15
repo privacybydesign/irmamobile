@@ -44,6 +44,14 @@ class UnsatisfiableCredentialDetails extends StatefulWidget {
 class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredentialDetails> {
   final ValueNotifier<int> _visiblePresentCredentialIndex = ValueNotifier<int>(0);
 
+  // TODO: Maybe there are more cases we want to show the present credentials.
+  bool get _showPresentCredentials =>
+      !widget.unsatisfiableCredential.expired &&
+      !widget.unsatisfiableCredential.revoked &&
+      !widget.unsatisfiableCredential.notRevokable &&
+      widget.unsatisfiableCredential.hasValues &&
+      widget.presentCredentials.isNotEmpty;
+
   @override
   void dispose() {
     _visiblePresentCredentialIndex.dispose();
@@ -195,11 +203,11 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _buildNotice(),
-        if (widget.presentCredentials.isNotEmpty) ...[
+        if (_showPresentCredentials) ...[
           const Opacity(opacity: 0.5, child: TranslatedText('disclosure.you_have')),
           _buildPresentCredentials(),
+          const Opacity(opacity: 0.5, child: TranslatedText('disclosure.requested_for')),
         ],
-        const Opacity(opacity: 0.5, child: TranslatedText('disclosure.requested_for')),
         _buildCredentialSnippet(widget.unsatisfiableCredential.attributes, isPresent: false),
       ],
     );

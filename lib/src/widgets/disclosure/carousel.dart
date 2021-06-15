@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
@@ -20,12 +22,10 @@ class Carousel extends StatefulWidget {
   final ValueChanged<int> onCurrentPageUpdate;
   final bool showObtainButton;
   final Function() onIssue;
-  final List<Credential> credentials;
 
   const Carousel({
     @required this.candidatesDisCon,
     @required this.onCurrentPageUpdate,
-    @required this.credentials,
     this.onIssue,
     this.showObtainButton = true,
   });
@@ -41,6 +41,9 @@ class _CarouselState extends State<Carousel> {
   int _currentPage = 0;
 
   double _height;
+
+  StreamSubscription _credentialsSubscription;
+  List<Credential> _credentials;
 
   int get currentPage => _currentPage;
   set currentPage(int val) {
@@ -76,15 +79,21 @@ class _CarouselState extends State<Carousel> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback(_afterLayout);
+    // When the credentials change, we have to calculate the height again. Therefore, we listen
+    // for credentials async instead of using a StreamBuilder widget.
+    _credentialsSubscription = IrmaRepository.get().getCredentials().listen((credentials) {
+      setState(() {
+        _credentials = credentials.values.toList();
+        _height = null;
+        WidgetsBinding.instance.addPostFrameCallback(_afterLayout);
+      });
+    });
   }
 
   @override
-  void didUpdateWidget(Carousel oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Make sure the height is recalculated when the widget's parameters are updated.
-    _height = null;
-    WidgetsBinding.instance.addPostFrameCallback(_afterLayout);
+  void dispose() {
+    _credentialsSubscription.cancel();
+    super.dispose();
   }
 
   // getChangedPageAndMoveBar and dotsIndicator from
@@ -96,22 +105,28 @@ class _CarouselState extends State<Carousel> {
   }
 
   @override
-  Widget build(BuildContext context) => Column(
-        children: <Widget>[
-          /* An offstage IndexedStack is used because an IndexedStack always has
+  Widget build(BuildContext context) {
+    // We cannot render the carousel as long as we don't know the credentials.
+    if (_credentials == null) {
+      return Container();
+    }
+    return Column(
+      children: <Widget>[
+        /* An offstage IndexedStack is used because an IndexedStack always has
         the height of the highest element. The height is then used to determine
         the height of a PageViewer (who needs to be in an element of pre-determined height).
         FUTURE: implement a more elegant solution */
-          Offstage(
-            offstage: true,
-            child: IndexedStack(
-                key: _keyStackedIndex,
-                index: currentPage,
-                children: widget.candidatesDisCon.map((con) => _buildCarouselWidget(con, isOffstage: true)).toList()),
-          ),
-          _buildPageViewer(),
-        ],
-      );
+        Offstage(
+          offstage: true,
+          child: IndexedStack(
+              key: _keyStackedIndex,
+              index: currentPage,
+              children: widget.candidatesDisCon.map((con) => _buildCarouselWidget(con, isOffstage: true)).toList()),
+        ),
+        _buildPageViewer(),
+      ],
+    );
+  }
 
   Widget _buildPageViewer() => _height == null
       ? Container()
@@ -327,7 +342,7 @@ class _CarouselState extends State<Carousel> {
         UnsatisfiableCredentialDetails(
           unsatisfiableCredential: unsatisfiableCred,
           presentCredentials:
-              widget.credentials.where((cred) => cred.info.fullId == unsatisfiableCred.credentialInfo.fullId).toList(),
+              _credentials.where((cred) => cred.info.fullId == unsatisfiableCred.credentialInfo.fullId).toList(),
           persistMaxHeight: isOffstage,
         ),
         _buildCredentialFooter(unsatisfiableCred),
