@@ -5,14 +5,11 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/credentials.dart';
-import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/widgets/disclosure/carousel_attributes.dart';
+import 'package:irmamobile/src/widgets/disclosure/carousel_credential_footer.dart';
 import 'package:irmamobile/src/widgets/disclosure/unsatisfiable_credential_details.dart';
-import 'package:irmamobile/src/widgets/irma_button.dart';
-import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 import 'package:irmamobile/src/widgets/translated_text.dart';
 
 import 'models/disclosure_credential.dart';
@@ -37,7 +34,6 @@ class Carousel extends StatefulWidget {
 class _CarouselState extends State<Carousel> {
   final GlobalKey _keyStackedIndex = GlobalKey();
   final _animationDuration = 250;
-  final _footerColumnWidth = 60.0;
   int _currentPage = 0;
 
   double _height;
@@ -52,15 +48,6 @@ class _CarouselState extends State<Carousel> {
   }
 
   final _controller = PageController();
-
-  Function() _createOnRefreshCredential(CredentialType type) {
-    return () {
-      if (widget.onIssue != null) {
-        widget.onIssue();
-      }
-      IrmaRepository.get().openIssueURL(context, type.fullId);
-    };
-  }
 
   // Determining size of widget as described here:
   // https://medium.com/@diegoveloper/flutter-widget-size-and-position-b0a9ffed9407
@@ -121,7 +108,7 @@ class _CarouselState extends State<Carousel> {
           child: IndexedStack(
               key: _keyStackedIndex,
               index: currentPage,
-              children: widget.candidatesDisCon.map((con) => _buildCarouselWidget(con, isOffstage: true)).toList()),
+              children: widget.candidatesDisCon.map((con) => _buildCarouselWidget(con, offstage: true)).toList()),
         ),
         _buildPageViewer(),
       ],
@@ -245,113 +232,18 @@ class _CarouselState extends State<Carousel> {
         ),
       );
 
-  Widget _buildGetButton(DisclosureCredential cred) {
-    final label = cred.attributes.first.credentialHash == ""
-        ? FlutterI18n.translate(context, 'disclosure.obtain')
-        : FlutterI18n.translate(context, 'disclosure.refresh');
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).defaultSpacing),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          IrmaButton(
-            label: label,
-            size: IrmaButtonSize.small,
-            onPressed: _createOnRefreshCredential(cred.attributes.first.credentialInfo.credentialType),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCredentialFooter(DisclosureCredential cred) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).smallSpacing),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Container(
-                width: _footerColumnWidth,
-                child: Opacity(
-                  opacity: 0.5,
-                  child: Text(
-                    FlutterI18n.translate(context, 'disclosure.credential_name'),
-                    style: IrmaTheme.of(context)
-                        .textTheme
-                        .body1
-                        .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(left: IrmaTheme.of(context).smallSpacing),
-                  child: Text(
-                    getTranslation(context, cred.credentialInfo.credentialType.name),
-                    style: IrmaTheme.of(context)
-                        .textTheme
-                        .body1
-                        .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Container(
-                width: _footerColumnWidth,
-                child: Opacity(
-                  opacity: 0.5,
-                  child: Text(
-                    FlutterI18n.translate(context, 'disclosure.issuer'),
-                    style: IrmaTheme.of(context)
-                        .textTheme
-                        .body1
-                        .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(left: IrmaTheme.of(context).smallSpacing),
-                  child: Text(
-                    getTranslation(context, cred.issuer),
-                    style: IrmaTheme.of(context)
-                        .textTheme
-                        .body1
-                        .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  List<Widget> _buildUnsatisfiableCredential(DisclosureCredential unsatisfiableCred, {bool isOffstage = false}) =>
-      <Widget>[
-        UnsatisfiableCredentialDetails(
-          unsatisfiableCredential: unsatisfiableCred,
-          presentCredentials:
-              _credentials.where((cred) => cred.info.fullId == unsatisfiableCred.credentialInfo.fullId).toList(),
-          persistMaxHeight: isOffstage,
-        ),
-        _buildCredentialFooter(unsatisfiableCred),
-        if (unsatisfiableCred.obtainable) _buildGetButton(unsatisfiableCred),
-      ];
+  Widget _buildUnsatisfiableCredential(DisclosureCredential unsatisfiableCred, {bool offstage = false}) =>
+      UnsatisfiableCredentialDetails(
+        unsatisfiableCredential: unsatisfiableCred,
+        presentCredentials:
+            _credentials.where((cred) => cred.info.fullId == unsatisfiableCred.credentialInfo.fullId).toList(),
+        fixedSize: offstage,
+        onIssue: widget.onIssue,
+      );
 
   List<Widget> _buildCredential(DisclosureCredential cred) => <Widget>[
         CarouselAttributes(attributes: cred.attributes),
-        _buildCredentialFooter(cred),
+        CarouselCredentialFooter(credential: cred),
       ];
 
   bool _group(List<List<Attribute>> list, Attribute attr) {
@@ -361,7 +253,7 @@ class _CarouselState extends State<Carousel> {
     return list.last.last.credentialInfo.fullId == attr.credentialInfo.fullId;
   }
 
-  Widget _buildCarouselWidget(Con<Attribute> candidatesCon, {bool isOffstage = false}) {
+  Widget _buildCarouselWidget(Con<Attribute> candidatesCon, {bool offstage = false}) {
     // Handle empty conjunctions (if chosen, nothing is disclosed)
     if (candidatesCon.isEmpty) {
       return Column(
@@ -400,7 +292,7 @@ class _CarouselState extends State<Carousel> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: cred.satisfiable
                         ? _buildCredential(cred)
-                        : _buildUnsatisfiableCredential(cred, isOffstage: isOffstage),
+                        : [_buildUnsatisfiableCredential(cred, offstage: offstage)],
                   ),
                 ),
                 if (!cred.isLast)

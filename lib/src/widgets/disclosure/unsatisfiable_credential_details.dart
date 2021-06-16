@@ -3,18 +3,23 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/credentials.dart';
+import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/disclosure/carousel_credential_footer.dart';
 import 'package:irmamobile/src/widgets/disclosure/models/disclosure_credential.dart';
 import 'package:irmamobile/src/widgets/disclosure/tear_line.dart';
+import 'package:irmamobile/src/widgets/irma_button.dart';
+import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 import 'package:irmamobile/src/widgets/translated_text.dart';
 
 import 'carousel_attributes.dart';
 
-/* The Offstage in the Carousel widget requires this widget to persist a constant height when
-   persistMaxHeight is true. This height is being used by the Carousel widget to calculate the maximum
-   height. When persistMaxHeight is false, this widget may never grow larger than that height. */
+/* The Offstage in the Carousel widget requires this widget to persist a fixed height when
+   fixedSize is true. This height is being used by the Carousel widget to calculate the maximum
+   height. When fixedSize is false, this widget may never grow larger than that height. */
 class UnsatisfiableCredentialDetails extends StatefulWidget {
   /// A DisclosureCredential which is not satisfiable for the current session.
   final DisclosureCredential unsatisfiableCredential;
@@ -22,14 +27,18 @@ class UnsatisfiableCredentialDetails extends StatefulWidget {
   /// List of credentials that are present in the user's wallet having the same type as the unsatisfiable one.
   final List<Credential> presentCredentials;
 
-  /// Indicates whether this widget should grow to the maximum height it wants to use.
-  final bool persistMaxHeight;
+  /// Indicates whether the widget should have a fixed size, independent of the widget's state.
+  final bool fixedSize;
+
+  /// Handler that is called when obtain/refresh button is pressed.
+  final Function() onIssue;
 
   const UnsatisfiableCredentialDetails({
     Key key,
     @required this.presentCredentials,
     @required this.unsatisfiableCredential,
-    this.persistMaxHeight = false,
+    this.fixedSize = false,
+    this.onIssue,
   }) : super(key: key);
 
   @override
@@ -64,6 +73,15 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
     if (_visiblePresentCredentialIndex.value >= widget.presentCredentials.length) {
       _visiblePresentCredentialIndex.value = widget.presentCredentials.length - 1;
     }
+  }
+
+  Function() _createOnRefreshCredential(CredentialType type) {
+    return () {
+      if (widget.onIssue != null) {
+        widget.onIssue();
+      }
+      IrmaRepository.get().openIssueURL(context, type.fullId);
+    };
   }
 
   String _notice() {
@@ -146,31 +164,30 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
     _visiblePresentCredentialIndex.value = nextIndex;
   }
 
-  // TODO: Semantics?
-  Widget _buildPresentCredentials() => ValueListenableBuilder<int>(
-        valueListenable: _visiblePresentCredentialIndex,
-        builder: (context, index, _) => GestureDetector(
-          excludeFromSemantics: true,
-          onTap: _onTapPresentCredential,
-          child: Stack(
+  Widget _buildPresentCredential(Credential credential) => _buildCredentialSnippet(
+        credential.attributeInstances
+            .where((presentAttr) => widget.unsatisfiableCredential.attributes
+                .any((missingAttr) => missingAttr.attributeType.fullId == presentAttr.attributeType.fullId))
+            .toList(),
+        isPresent: true,
+      );
+
+  Widget _buildPresentCredentials() => GestureDetector(
+        excludeFromSemantics: true,
+        onTap: _onTapPresentCredential,
+        child: ValueListenableBuilder<int>(
+          valueListenable: _visiblePresentCredentialIndex,
+          builder: (context, index, _) => Stack(
             alignment: AlignmentDirectional.topEnd,
             children: [
-              ...widget.presentCredentials.asMap().entries.map(
-                    (credEntry) => Offstage(
-                      /// When persistMaxHeight is true, we should render the largest possible state in height.
-                      /// We don't know in advance which presentCredential has the biggest height. Therefore, we
-                      /// render them all, stacked upon each other, such that the widget gets the size of the
-                      /// largest one. This means all presentCredentials should be on stage then (so not offstage).
-                      offstage: !(widget.persistMaxHeight || index == credEntry.key),
-                      child: _buildCredentialSnippet(
-                        credEntry.value.attributeInstances
-                            .where((presentAttr) => widget.unsatisfiableCredential.attributes.any(
-                                (missingAttr) => missingAttr.attributeType.fullId == presentAttr.attributeType.fullId))
-                            .toList(),
-                        isPresent: true,
-                      ),
-                    ),
-                  ),
+              /// For fixed size builds we use an IndexedStack, since it always uses the size of the largest child.
+              if (widget.fixedSize)
+                IndexedStack(
+                  index: index,
+                  children: widget.presentCredentials.map(_buildPresentCredential).toList(),
+                )
+              else
+                _buildPresentCredential(widget.presentCredentials[index]),
 
               /// If we have multiple cards, we add an indicator to show how many cards there are.
               if (widget.presentCredentials.length > 1)
@@ -197,19 +214,48 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
         ),
       );
 
+  Widget _buildGetButton() {
+    final label = widget.unsatisfiableCredential.attributes.first.credentialHash == ""
+        ? FlutterI18n.translate(context, 'disclosure.obtain')
+        : FlutterI18n.translate(context, 'disclosure.refresh');
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).defaultSpacing),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          IrmaButton(
+            label: label,
+            size: IrmaButtonSize.small,
+            onPressed: _createOnRefreshCredential(
+                widget.unsatisfiableCredential.attributes.first.credentialInfo.credentialType),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // We need a work-around for an inconsistency in the semantics order of a column (at least on Android).
+  // Therefore, we number the items in the widget list manually.
+  List<Widget> _listSemantics(List<Widget> widgets) =>
+      widgets.asMap().entries.map((entry) => IndexedSemantics(index: entry.key, child: entry.value)).toList();
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildNotice(),
-        if (_showPresentCredentials) ...[
-          const Opacity(opacity: 0.5, child: TranslatedText('disclosure.you_have')),
-          _buildPresentCredentials(),
+    return MergeSemantics(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: _listSemantics([
+          _buildNotice(),
+          if (_showPresentCredentials) ...[
+            const Opacity(opacity: 0.5, child: TranslatedText('disclosure.you_have')),
+            _buildPresentCredentials(),
+          ],
           const Opacity(opacity: 0.5, child: TranslatedText('disclosure.requested_for')),
-        ],
-        _buildCredentialSnippet(widget.unsatisfiableCredential.attributes, isPresent: false),
-      ],
+          _buildCredentialSnippet(widget.unsatisfiableCredential.attributes, isPresent: false),
+          CarouselCredentialFooter(credential: widget.unsatisfiableCredential),
+          if (widget.unsatisfiableCredential.obtainable) _buildGetButton(),
+        ]),
+      ),
     );
   }
 }
