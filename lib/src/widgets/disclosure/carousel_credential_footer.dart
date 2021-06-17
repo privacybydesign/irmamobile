@@ -4,6 +4,7 @@ import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/widgets/disclosure/models/disclosure_credential.dart';
 
+// The Offstage in the Carousel widget requires this widget to persist a constant height.
 class CarouselCredentialFooter extends StatelessWidget {
   static const _footerColumnWidth = 60.0;
 

@@ -9,10 +9,9 @@ import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/disclosure/carousel_attributes.dart';
 import 'package:irmamobile/src/widgets/disclosure/carousel_credential_footer.dart';
+import 'package:irmamobile/src/widgets/disclosure/models/disclosure_credential.dart';
 import 'package:irmamobile/src/widgets/disclosure/unsatisfiable_credential_details.dart';
 import 'package:irmamobile/src/widgets/translated_text.dart';
-
-import 'models/disclosure_credential.dart';
 
 class Carousel extends StatefulWidget {
   final DisCon<Attribute> candidatesDisCon;

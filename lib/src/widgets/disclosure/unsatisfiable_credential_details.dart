@@ -8,14 +8,13 @@ import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/disclosure/carousel_attributes.dart';
 import 'package:irmamobile/src/widgets/disclosure/carousel_credential_footer.dart';
 import 'package:irmamobile/src/widgets/disclosure/models/disclosure_credential.dart';
 import 'package:irmamobile/src/widgets/disclosure/tear_line.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 import 'package:irmamobile/src/widgets/translated_text.dart';
-
-import 'carousel_attributes.dart';
 
 /* The Offstage in the Carousel widget requires this widget to persist a fixed height when fixedSize
    is true. This height is being used by the Carousel widget to calculate the maximum height.
@@ -39,7 +38,9 @@ class UnsatisfiableCredentialDetails extends StatefulWidget {
     @required this.unsatisfiableCredential,
     this.fixedSize = false,
     this.onIssue,
-  }) : super(key: key);
+  })  : assert(presentCredentials != null),
+        assert(unsatisfiableCredential != null),
+        super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -51,7 +52,7 @@ class UnsatisfiableCredentialDetails extends StatefulWidget {
 }
 
 class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredentialDetails> {
-  final ValueNotifier<int> _visiblePresentCredentialIndex = ValueNotifier<int>(0);
+  final ValueNotifier<int> _selectedPresentCredential = ValueNotifier<int>(0);
 
   // Maybe there are more cases we want to show the present credentials, but for now we
   // only show the present credentials when attributes with specific values are requested.
@@ -64,15 +65,15 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
 
   @override
   void dispose() {
-    _visiblePresentCredentialIndex.dispose();
+    _selectedPresentCredential.dispose();
     super.dispose();
   }
 
   @override
   void didUpdateWidget(UnsatisfiableCredentialDetails oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (_visiblePresentCredentialIndex.value >= widget.presentCredentials.length) {
-      _visiblePresentCredentialIndex.value = widget.presentCredentials.length - 1;
+    if (_selectedPresentCredential.value >= widget.presentCredentials.length) {
+      _selectedPresentCredential.value = widget.presentCredentials.length - 1;
     }
   }
 
@@ -162,8 +163,8 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
   }
 
   void _onTapPresentCredential() {
-    final nextIndex = (_visiblePresentCredentialIndex.value + 1) % widget.presentCredentials.length;
-    _visiblePresentCredentialIndex.value = nextIndex;
+    final nextIndex = (_selectedPresentCredential.value + 1) % widget.presentCredentials.length;
+    _selectedPresentCredential.value = nextIndex;
   }
 
   Widget _buildPresentCredential(Credential credential) => _buildCredentialSnippet(
@@ -180,7 +181,7 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
         excludeFromSemantics: true,
         onTap: _onTapPresentCredential,
         child: ValueListenableBuilder<int>(
-          valueListenable: _visiblePresentCredentialIndex,
+          valueListenable: _selectedPresentCredential,
           builder: (context, index, _) => Stack(
             alignment: AlignmentDirectional.topEnd,
             children: [
@@ -194,7 +195,7 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
                 _buildPresentCredential(widget.presentCredentials[index]),
 
               /// If we have multiple cards, we add an indicator to show how many cards there are.
-              /// Above we disabled the gesture to cycle through all present cards for semantics.
+              /// Above we disabled the gesture to cycle through all present cards from semantics.
               /// Therefore, we also exclude the total amount of cards from semantics. We replace
               /// it with a general comment that the visible card is just one among others.
               if (widget.presentCredentials.length > 1)
@@ -226,7 +227,7 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
       );
 
   Widget _buildGetButton() {
-    final label = widget.unsatisfiableCredential.attributes.first.credentialHash == ""
+    final label = widget.unsatisfiableCredential.attributes.first.credentialHash == ''
         ? FlutterI18n.translate(context, 'disclosure.obtain')
         : FlutterI18n.translate(context, 'disclosure.refresh');
     return Padding(
@@ -245,8 +246,8 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
     );
   }
 
-  // We need a work-around for an inconsistency in the semantics order of a column (at least on Android).
-  // Therefore, we number the items in the widget list manually.
+  // We need a work-around for an inconsistency in the semantics order of a column being nested
+  // in a MergeSemantics (at least on Android). Therefore, we number the items in the widget list manually.
   List<Widget> _listSemantics(List<Widget> widgets) =>
       widgets.asMap().entries.map((entry) => IndexedSemantics(index: entry.key, child: entry.value)).toList();
 

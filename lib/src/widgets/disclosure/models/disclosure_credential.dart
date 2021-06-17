@@ -15,7 +15,7 @@ class DisclosureCredential {
   bool get expired => attributes.first.expired;
   bool get revoked => attributes.first.revoked;
   bool get notRevokable => attributes.first.notRevokable;
-  bool get present => attributes.first.credentialHash != "";
+  bool get present => attributes.first.credentialHash != '';
   bool get hasValues => attributes.first.value.raw != null;
 
   DisclosureCredential({@required this.attributes, @required this.isLast})

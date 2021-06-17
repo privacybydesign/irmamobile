@@ -49,7 +49,7 @@ class _DisclosureCardState extends State<DisclosureCard> {
                     onCurrentPageUpdate: (int page) => widget.onCurrentPageUpdate(entry.key, page),
                     showObtainButton: widget.showObtainButton,
                     onIssue: widget.onIssue,
-                  ),
+                  )
                 ],
               )
               .toList(),
