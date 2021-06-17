@@ -442,6 +442,7 @@
     "you_have": "You have:",
     "requested_for": "There is requested for:",
     "card_count": "{i} of {total}",
+    "among_others": "Among others",
     "add_additional": "Want to show different information? Add an additional '{credential}' card.",
     "expired": "These data are expired.",
     "revoked": "These data have been revoked.",

@@ -17,9 +17,9 @@ import 'package:irmamobile/src/widgets/translated_text.dart';
 
 import 'carousel_attributes.dart';
 
-/* The Offstage in the Carousel widget requires this widget to persist a fixed height when
-   fixedSize is true. This height is being used by the Carousel widget to calculate the maximum
-   height. When fixedSize is false, this widget may never grow larger than that height. */
+/* The Offstage in the Carousel widget requires this widget to persist a fixed height when fixedSize
+   is true. This height is being used by the Carousel widget to calculate the maximum height.
+   When fixedSize is false, this widget may never be larger than the size when fixedSize is true. */
 class UnsatisfiableCredentialDetails extends StatefulWidget {
   /// A DisclosureCredential which is not satisfiable for the current session.
   final DisclosureCredential unsatisfiableCredential;
@@ -53,7 +53,8 @@ class UnsatisfiableCredentialDetails extends StatefulWidget {
 class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredentialDetails> {
   final ValueNotifier<int> _visiblePresentCredentialIndex = ValueNotifier<int>(0);
 
-  // TODO: Maybe there are more cases we want to show the present credentials.
+  // Maybe there are more cases we want to show the present credentials, but for now we
+  // only show the present credentials when attributes with specific values are requested.
   bool get _showPresentCredentials =>
       !widget.unsatisfiableCredential.expired &&
       !widget.unsatisfiableCredential.revoked &&
@@ -112,6 +113,7 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
           child: SvgPicture.asset(
             'assets/generic/info.svg',
             width: 22,
+            excludeFromSemantics: true,
           ),
         ),
         Expanded(
@@ -172,6 +174,8 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
         isPresent: true,
       );
 
+  // To not overcomplicate accessibility semantics, we exclude the gestures to cycle
+  // through all present credentials from semantics.
   Widget _buildPresentCredentials() => GestureDetector(
         excludeFromSemantics: true,
         onTap: _onTapPresentCredential,
@@ -180,7 +184,7 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
           builder: (context, index, _) => Stack(
             alignment: AlignmentDirectional.topEnd,
             children: [
-              /// For fixed size builds we use an IndexedStack, since it always uses the size of the largest child.
+              /// When the widget should have a fixed size we use an IndexedStack, since it always uses the size of the largest child.
               if (widget.fixedSize)
                 IndexedStack(
                   index: index,
@@ -190,23 +194,30 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
                 _buildPresentCredential(widget.presentCredentials[index]),
 
               /// If we have multiple cards, we add an indicator to show how many cards there are.
+              /// Above we disabled the gesture to cycle through all present cards for semantics.
+              /// Therefore, we also exclude the total amount of cards from semantics. We replace
+              /// it with a general comment that the visible card is just one among others.
               if (widget.presentCredentials.length > 1)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 1),
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(15.0),
+                Semantics(
+                  label: FlutterI18n.translate(context, 'disclosure.among_others'),
+                  excludeSemantics: true,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 1),
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(15.0),
+                      ),
+                      color: Colors.green,
                     ),
-                    color: Colors.green,
-                  ),
-                  child: TranslatedText(
-                    'disclosure.card_count',
-                    translationParams: {
-                      "i": (index + 1).toString(),
-                      "total": widget.presentCredentials.length.toString()
-                    },
-                    textAlign: TextAlign.center,
-                    style: IrmaTheme.of(context).textTheme.bodyText1.apply(color: Colors.white),
+                    child: TranslatedText(
+                      'disclosure.card_count',
+                      translationParams: {
+                        "i": (index + 1).toString(),
+                        "total": widget.presentCredentials.length.toString()
+                      },
+                      textAlign: TextAlign.center,
+                      style: IrmaTheme.of(context).textTheme.bodyText1.apply(color: Colors.white),
+                    ),
                   ),
                 ),
             ],
