@@ -428,10 +428,11 @@
   },
   "disclosure": {
     "title": "Jezelf bekend maken",
-    "disclosure_header": "Je mist nog gegevens waar {otherParty} om vraagt in je IRMA-app.",
+    "disclosure_header": "Wil je de volgende gegevens aan {otherParty} doorgeven?",
     "disclosure_call_header": "Wil je de volgende gegevens aan {otherParty} doorgeven en bellen naar {phoneNumber}?",
     "signing_header": "{otherParty} verzoekt jou om een bericht te ondertekenen",
     "signing_call_header": "{otherParty} verzoekt jou om een bericht te ondertekenen en te bellen naar {phoneNumber}",
+    "unsatisfiable_header": "Je mist nog gegevens waar {otherParty} om vraagt in je IRMA-app.",
     "issuer": "Uitgever",
     "logo_semantic": "Logo van {otherParty}",
     "credential_name": "Kaartje",

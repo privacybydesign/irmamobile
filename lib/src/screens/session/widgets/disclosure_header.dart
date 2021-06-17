@@ -80,8 +80,13 @@ class DisclosureHeader extends StatelessWidget {
   }
 
   Widget _buildHeaderText(BuildContext context) {
-    final sessionType = session.isSignatureSession ? 'signing' : 'disclosure';
-    final textKey = 'disclosure.$sessionType${session.isReturnPhoneNumber ? '_call' : ''}_header';
+    String textKey;
+    if (session.satisfiable) {
+      final sessionType = session.isSignatureSession ? 'signing' : 'disclosure';
+      textKey = 'disclosure.$sessionType${session.isReturnPhoneNumber ? '_call' : ''}_header';
+    } else {
+      textKey = 'disclosure.unsatisfiable_header';
+    }
 
     final serverName = session.serverName.name.translate(FlutterI18n.currentLocale(context).languageCode);
     final phoneNumber = session.isReturnPhoneNumber ? session.clientReturnURL.substring(4).split(',').first : '';
