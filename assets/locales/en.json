@@ -362,6 +362,8 @@
     "revoked": "This card is no longer valid",
     "not_valid": "Card not valid",
     "refresh": "Refresh card",
+    "delete": "Remove card",
+    "cannot_be_refreshed": "This card cannot be refreshed anymore.",
     "close": "Close",
     "help": "Help",
     "caption": "Your data securely on your mobile",

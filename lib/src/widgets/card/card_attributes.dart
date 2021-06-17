@@ -6,6 +6,7 @@ import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/card/irma_card_theme.dart';
 import 'package:irmamobile/src/widgets/card/models/card_expiry_date.dart';
+import 'package:irmamobile/src/widgets/translated_text.dart';
 
 import '../irma_themed_button.dart';
 
@@ -22,6 +23,7 @@ class CardAttributes extends StatefulWidget {
   final bool showWarnings;
   final Color color;
   final Function() onRefreshCredential;
+  final Function() onDeleteCredential;
 
   const CardAttributes({
     this.attributes,
@@ -32,6 +34,7 @@ class CardAttributes extends StatefulWidget {
     this.expiryDate,
     this.color,
     this.onRefreshCredential,
+    @required this.onDeleteCredential,
     this.showWarnings,
   });
 
@@ -195,9 +198,23 @@ class _CardAttributesState extends State<CardAttributes> {
                         ),
                   ),
                   SizedBox(height: IrmaTheme.of(context).mediumSpacing),
+                  if (widget.onRefreshCredential == null)
+                    Container(
+                      padding: EdgeInsets.only(bottom: IrmaTheme.of(context).smallSpacing),
+                      child: TranslatedText(
+                        'wallet.cannot_be_refreshed',
+                        textAlign: TextAlign.center,
+                        style: IrmaTheme.of(context).textTheme.bodyText2.copyWith(
+                              color: widget.irmaCardTheme.foregroundColor,
+                            ),
+                      ),
+                    ),
                   IrmaThemedButton(
-                    label: FlutterI18n.translate(context, 'wallet.refresh'),
-                    onPressed: widget.onRefreshCredential,
+                    label: FlutterI18n.translate(
+                      context,
+                      widget.onRefreshCredential == null ? 'wallet.delete' : 'wallet.refresh',
+                    ),
+                    onPressed: widget.onRefreshCredential ?? widget.onDeleteCredential,
                     size: IrmaButtonSize.small,
                     icon: null,
                     color: widget.irmaCardTheme.foregroundColor,
