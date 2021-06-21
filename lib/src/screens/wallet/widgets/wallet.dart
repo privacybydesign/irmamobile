@@ -572,6 +572,7 @@ class WalletState extends State<Wallet> with TickerProviderStateMixin {
               }
             : null,
         child: IrmaCard.fromCredential(
+          key: Key('wallet_card_$index'),
           credential: credential,
           scrollBeyondBoundsCallback: scrollBeyondBound,
           onRefreshCredential: _createOnRefreshCredential(credential),

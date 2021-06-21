@@ -107,6 +107,10 @@ void main() {
 
       // Wait until done
       await driver.waitFor(find.byValueKey('wallet_present'));
+
+      // Check whether the cards are present in the wallet
+      await driver.waitFor(find.byValueKey('wallet_card_0'));
+      await driver.waitFor(find.byValueKey('wallet_card_1'));
     }, timeout: const Timeout(Duration(minutes: 5)));
   });
 }

@@ -36,6 +36,7 @@ class IrmaCard extends StatelessWidget {
   final bool expanded;
 
   IrmaCard.fromCredential({
+    Key key,
     Credential credential,
     this.onRefreshCredential,
     this.onDeleteCredential,
@@ -46,7 +47,8 @@ class IrmaCard extends StatelessWidget {
         attributes = credential.attributes,
         revoked = credential.revoked,
         expiryDate = CardExpiryDate(credential.expires),
-        cardTheme = IrmaCardTheme.fromCredentialInfo(credential.info);
+        cardTheme = IrmaCardTheme.fromCredentialInfo(credential.info),
+        super(key: key);
 
   IrmaCard.fromRemovedCredential({
     RemovedCredential credential,
