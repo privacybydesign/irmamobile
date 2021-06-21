@@ -35,7 +35,7 @@ Future<void> startTests(List<String> args, Directory configDir, Directory recove
       .listSync()
       .expand<Directory>((entity) => entity is Directory ? [entity] : [])
       .where((entity) => entity.dirName.startsWith('irma-demo'))
-      .forEach((entity) => entity.copy(Directory([configDir.path, 'irma-demo'].join(Platform.pathSeparator))));
+      .forEach((entity) => entity.copy(Directory([configDir.path, entity.dirName].join(Platform.pathSeparator))));
 
   if (Platform.environment.containsKey('SCHEME_URL')) {
     print('Downloading test configuration. This might take a while...');
