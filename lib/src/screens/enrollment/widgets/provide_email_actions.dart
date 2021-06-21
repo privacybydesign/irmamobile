@@ -49,7 +49,7 @@ class ProvideEmailActions extends StatelessWidget {
                               },
                               minWidth: 0.0,
                               label: 'enrollment.provide_email.skip',
-                              key: const Key('skip_confirm'),
+                              key: const Key('enrollment_skip_confirm'),
                             ),
                             IrmaButton(
                               size: IrmaButtonSize.small,

@@ -41,15 +41,15 @@ void main() {
 
     test('main', () async {
       // Wait for initialization
-      await driver.waitFor(find.byValueKey('next_enrollment_p1'));
+      await driver.waitFor(find.byValueKey('enrollment_p1'));
 
       // Initialize the app for integration tests (enable developer mode, etc.)
       await driver.requestData("initialize");
 
       // Tap through enrollment info screens
-      await driver.tap(find.byValueKey('next_enrollment_p1'));
-      await driver.tap(find.byValueKey('next_enrollment_p2'));
-      await driver.tap(find.byValueKey('next_enrollment_p3'));
+      await driver.tap(find.descendant(of: find.byValueKey('enrollment_p1'), matching: find.byValueKey('next')));
+      await driver.tap(find.descendant(of: find.byValueKey('enrollment_p2'), matching: find.byValueKey('next')));
+      await driver.tap(find.descendant(of: find.byValueKey('enrollment_p3'), matching: find.byValueKey('next')));
 
       // Enter pin
       await driver.waitFor(find.byValueKey('enrollment_choose_pin'));
@@ -61,7 +61,7 @@ void main() {
 
       // Skip email providing
       await driver.tap(find.byValueKey('enrollment_skip_email'));
-      await driver.tap(find.byValueKey('skip_confirm'));
+      await driver.tap(find.byValueKey('enrollment_skip_confirm'));
 
       // Wait until wallet displayed
       await driver.waitFor(find.byValueKey('wallet_present'));
@@ -103,7 +103,7 @@ void main() {
       }""");
 
       // Accept issued credential
-      await driver.tap(find.byValueKey('issuance_accept_yes'));
+      await driver.tap(find.descendant(of: find.byValueKey('issuance_accept'), matching: find.byValueKey('primary')));
 
       // Wait until done
       await driver.waitFor(find.byValueKey('wallet_present'));
