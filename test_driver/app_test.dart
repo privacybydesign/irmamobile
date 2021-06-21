@@ -44,7 +44,7 @@ void main() {
       await driver.waitFor(find.byValueKey('enrollment_p1'));
 
       // Initialize the app for integration tests (enable developer mode, etc.)
-      await driver.requestData("initialize");
+      await driver.requestData('initialize');
 
       // Tap through enrollment info screens
       await driver.tap(find.descendant(of: find.byValueKey('enrollment_p1'), matching: find.byValueKey('next')));
