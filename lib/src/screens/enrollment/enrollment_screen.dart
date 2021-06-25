@@ -25,7 +25,7 @@ class _EnrollmentScreenState extends State<EnrollmentScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<EnrollmentBloc>(
-        builder: (_) => EnrollmentBloc(FlutterI18n.currentLocale(context).languageCode),
+        create: (_) => EnrollmentBloc(FlutterI18n.currentLocale(context).languageCode),
         child: BlocBuilder<EnrollmentBloc, EnrollmentState>(builder: (context, _) {
           final bloc = BlocProvider.of<EnrollmentBloc>(context);
           return ProvidedEnrollmentScreen(bloc: bloc);
@@ -86,28 +86,28 @@ class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
   }
 
   void _submitPin(BuildContext context, String pin) {
-    bloc.dispatch(PinSubmitted(pin: pin));
+    bloc.add(PinSubmitted(pin: pin));
     navigatorKey.currentState.pushNamed(ConfirmPin.routeName);
   }
 
   void _submitConfirmationPin(String pin) {
-    bloc.dispatch(ConfirmationPinSubmitted(pin: pin));
+    bloc.add(ConfirmationPinSubmitted(pin: pin));
   }
 
   void _submitEmail(String email) {
-    bloc.dispatch(EmailSubmitted(email: email));
+    bloc.add(EmailSubmitted(email: email));
   }
 
   void _skipEmail() {
-    bloc.dispatch(EmailSkipped());
+    bloc.add(EmailSkipped());
   }
 
   void _retryEnrollment() {
-    bloc.dispatch(Enroll());
+    bloc.add(Enroll());
   }
 
   void _cancelAndNavigate(BuildContext context) {
-    bloc.dispatch(EnrollmentCanceled());
+    bloc.add(EnrollmentCanceled());
 
     // Always pop at least one route (unless at the root), but return to Introduction or ChoosePin
     Navigator.maybePop(context).then(

@@ -16,15 +16,15 @@ class PinBloc extends Bloc<PinEvent, PinState> {
   PinBloc() {
     _lockedStreamSubscription = IrmaRepository.get().getLocked().listen((isLocked) {
       if (isLocked) {
-        dispatch(Locked());
+        add(Locked());
       }
     });
   }
 
   @override
-  void dispose() {
+  Future<void> close() async {
     _lockedStreamSubscription.cancel();
-    super.dispose();
+    super.close();
   }
 
   @override

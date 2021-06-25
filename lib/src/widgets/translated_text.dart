@@ -53,9 +53,9 @@ class TranslatedText extends StatelessWidget {
     final flutterI18n = Localizations.of<FlutterI18n>(context, FlutterI18n);
 
     // Check if there's a translation with the same key suffixed with _markdown
-    final probeTranslator = SimpleTranslator(flutterI18n.decodedMap, "dummy");
+    final probeTranslator = SimpleTranslator(flutterI18n.decodedMap, 'dummy', '.');
     final submap = probeTranslator.calculateSubmap(_key);
-    final lastSubkey = _key.split(SimpleTranslator.KEY_SEPARATOR).last;
+    final lastSubkey = _key.split(probeTranslator.keySeparator).last;
 
     if (submap.containsKey("${lastSubkey}_markdown")) {
       return _buildMarkdown(

@@ -21,7 +21,7 @@ class IrmaMarkdown extends StatelessWidget {
       selectable: false,
 
       // Effectively disable image rendering (to prevent remote image loading)
-      imageBuilder: (Uri uri) => Container(),
+      imageBuilder: (uri, title, alt) => Container(),
 
       // Define small stylesheet, and merge in any passed styleSheet
       styleSheet: MarkdownStyleSheet(
@@ -31,7 +31,7 @@ class IrmaMarkdown extends StatelessWidget {
       ).merge(styleSheet),
 
       // View links in in-app browser
-      onTapLink: (href) {
+      onTapLink: (text, href, alt) {
         IrmaRepository.get().openURL(context, href);
       },
     );

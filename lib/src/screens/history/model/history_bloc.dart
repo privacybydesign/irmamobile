@@ -13,7 +13,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
 
   HistoryBloc(this.irmaRepository)
       : startingState = HistoryState(loading: true, logs: <LogEntry>[], moreLogsAvailable: true) {
-    dispatch(LoadMore());
+    add(LoadMore());
   }
 
   HistoryBloc.test(this.irmaRepository, this.startingState);
@@ -26,7 +26,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
   @override
   Stream<HistoryState> mapEventToState(HistoryEvent event) async* {
     if (event is LoadMore) {
-      yield currentState.copyWith(loading: true);
+      yield state.copyWith(loading: true);
       irmaRepository.bridgedDispatch(LoadLogsEvent(max: 10));
       // await for (final logs in irmaRepository.loadLogs(_getBeforeDate(), _numberOfLogs)) {
       //   currentState.logs.addAll(logs);
@@ -35,8 +35,8 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
     }
 
     if (event is Refresh) {
-      currentState.logs.clear();
-      yield currentState.copyWith(loading: true);
+      state.logs.clear();
+      yield state.copyWith(loading: true);
       irmaRepository.bridgedDispatch(LoadLogsEvent(max: 10));
       // await for (final logs in irmaRepository.loadLogs(DateTime.now().millisecondsSinceEpoch, _numberOfLogs)) {
       //   currentState.logs.addAll(logs);
@@ -46,7 +46,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
   }
 
   int _getBeforeDate() {
-    if (currentState.logs.isEmpty) {
+    if (state.logs.isEmpty) {
       return DateTime.now().millisecondsSinceEpoch;
     }
     return 0;

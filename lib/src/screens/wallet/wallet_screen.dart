@@ -63,7 +63,7 @@ class _WalletScreenState extends State<_WalletScreen> {
   }
 
   void onNewCardAnimationShown() {
-    widget.bloc.dispatch(NewCardAnitmationShown());
+    widget.bloc.add(NewCardAnitmationShown());
   }
 
   @override
