@@ -48,6 +48,7 @@ dependencies:
   path_drawing: ^0.4.0
   flutter_jailbreak_detection: ^1.4.0
   visibility_detector: ^0.1.5
+  flutter_privacy_screen: ^1.1.0
 
 flutter_native_splash:
   image: assets/splash/startup.png
