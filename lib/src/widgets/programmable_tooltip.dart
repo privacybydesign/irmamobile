@@ -136,7 +136,7 @@ class _TooltipState extends State<ProgrammableTooltip> with WidgetsBindingObserv
   }
 
   OverlayEntry _buildOverlayEntry() {
-    if (context == null) {
+    if (!mounted) {
       return null;
     }
     final RenderBox box = context.findRenderObject() as RenderBox;

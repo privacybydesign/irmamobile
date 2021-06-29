@@ -24,11 +24,13 @@ class IrmaMarkdown extends StatelessWidget {
       imageBuilder: (uri, title, alt) => Container(),
 
       // Define small stylesheet, and merge in any passed styleSheet
-      styleSheet: MarkdownStyleSheet(
-        strong: IrmaTheme.of(context).textTheme.body2,
-        a: IrmaTheme.of(context).hyperlinkTextStyle,
-        textScaleFactor: MediaQuery.textScaleFactorOf(context),
-      ).merge(styleSheet),
+      styleSheet: MarkdownStyleSheet.fromTheme(IrmaTheme.of(context).themeData)
+          .merge(MarkdownStyleSheet(
+            strong: IrmaTheme.of(context).textTheme.body2,
+            a: IrmaTheme.of(context).hyperlinkTextStyle,
+            textScaleFactor: MediaQuery.textScaleFactorOf(context),
+          ))
+          .merge(styleSheet),
 
       // View links in in-app browser
       onTapLink: (text, href, alt) {
