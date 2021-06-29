@@ -14,6 +14,7 @@ Future<void> main() async {
 
   runZonedGuarded<Future<void>>(() async {
     WidgetsFlutterBinding.ensureInitialized();
+    await initSentry();
     IrmaRepository(client: IrmaClientBridge());
 
     runApp(
