@@ -25,9 +25,8 @@ dependencies:
   equatable: ^2.0.3
 
   email_validator: ^2.0.1
-  url_launcher: ^6.0.7
-  json_annotation: ^4.0.1
-  build_runner: ^2.0.5
+  url_launcher: ^6.0.8
+  json_annotation: ^3.1.1
   rxdart: ^0.22.2
   version: ^2.0.0
   package_info: ^2.0.2
@@ -57,9 +56,10 @@ flutter_native_splash:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  json_serializable: ^4.1.3
+  json_serializable: ^3.5.1
   lint: ^1.5.3
   flutter_native_splash: ^1.2.0
+  build_runner: ^1.11.5
 
 
 # For information on the generic Dart part of this file, see the
