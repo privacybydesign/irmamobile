@@ -45,7 +45,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
 
     // Listener uses context from _navigatorKey, so we have to wait until the navigator is built.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _pinBlocSubscription = _pinBloc.listen((pinState) async {
+      _pinBlocSubscription = _pinBloc.stream.listen((pinState) async {
         if (pinState.pinInvalid) {
           _handleInvalidPin(pinState);
         } else {
@@ -126,7 +126,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
     return WillPopScope(
       onWillPop: () async {
         // Wait on irmago response before closing, calling widget expects a result
-        return _pinBloc.firstWhere((state) => !state.authenticateInProgress, orElse: () => null).then((state) {
+        return _pinBloc.stream.firstWhere((state) => !state.authenticateInProgress, orElse: () => null).then((state) {
           if (state != null && !state.authenticated) _cancel();
           return false;
         });
@@ -138,7 +138,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
         key: _navigatorKey,
         onGenerateRoute: (settings) => MaterialPageRoute(
           builder: (context) => BlocBuilder<PinBloc, PinState>(
-            cubit: _pinBloc,
+            bloc: _pinBloc,
             builder: (context, state) {
               if (state.authenticated) {
                 // Wait until parent screen pops this widget.

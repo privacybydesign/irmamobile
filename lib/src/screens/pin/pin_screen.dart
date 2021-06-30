@@ -54,7 +54,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
       }
     });
 
-    _pinBlocSubscription = _pinBloc.listen((pinState) async {
+    _pinBlocSubscription = _pinBloc.stream.listen((pinState) async {
       if (pinState.authenticated) {
         _pinBlocSubscription.cancel();
       } else if (pinState.pinInvalid) {
@@ -112,17 +112,15 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
     if (state == AppLifecycleState.paused) {
       FocusScope.of(context).unfocus();
     } else if (state == AppLifecycleState.resumed) {
-      _pinBloc.first.then((pinstate) {
-        if (pinstate.pinInvalid || pinstate.authenticateInProgress || pinstate.error != null) return;
-        Future.delayed(const Duration(milliseconds: 100), () => FocusScope.of(context).requestFocus(_focusNode));
-      });
+      if (_pinBloc.state.pinInvalid || _pinBloc.state.authenticateInProgress || _pinBloc.state.error != null) return;
+      Future.delayed(const Duration(milliseconds: 100), () => FocusScope.of(context).requestFocus(_focusNode));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<PinBloc, PinState>(
-      cubit: _pinBloc,
+      bloc: _pinBloc,
       builder: (context, state) {
         // Hide pin screen once authenticated
         if (state.authenticated == true) {

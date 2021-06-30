@@ -121,7 +121,7 @@ class _WalletScreenState extends State<_WalletScreen> {
           ),
           drawer: WalletDrawer(),
           body: BlocBuilder<WalletBloc, walletblocstate.WalletState>(
-            cubit: widget.bloc,
+            bloc: widget.bloc,
             builder: (context, state) {
               if (state.credentials == null) {
                 return Container(height: 0);
