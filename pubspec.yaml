@@ -2,7 +2,6 @@ name: irmamobile
 description: IRMA Authentication
 version: 6.1.1+131
 
-# TODO: Update SDK?
 environment:
   sdk: ">=2.7.0 <3.0.0"
 
@@ -30,7 +29,7 @@ dependencies:
   rxdart: ^0.22.6
   package_info: ^2.0.2
   stream_transform: ^2.0.0
-  collection: ^1.14.11
+  collection: ^1.15.0
   qr_code_scanner:
     git:
       url: https://gitlab.science.ru.nl/irma/github-mirrors/qr-code-scanner.git
