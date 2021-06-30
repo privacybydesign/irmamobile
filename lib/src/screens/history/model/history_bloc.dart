@@ -6,22 +6,16 @@ import 'package:irmamobile/src/models/log_entry.dart';
 import 'package:irmamobile/src/screens/history/model/history_events.dart';
 import 'package:irmamobile/src/screens/history/model/history_state.dart';
 
+// TODO: This currently is dead code. Refactor history repository to use block or remove this bloc entirely.
 class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
-  final HistoryState startingState;
   final IrmaRepository irmaRepository;
   final _numberOfLogs = 10;
 
-  HistoryBloc(this.irmaRepository)
-      : startingState = HistoryState(loading: true, logs: <LogEntry>[], moreLogsAvailable: true) {
+  HistoryBloc(this.irmaRepository) : super(HistoryState(loading: true, logs: <LogEntry>[], moreLogsAvailable: true)) {
     add(LoadMore());
   }
 
-  HistoryBloc.test(this.irmaRepository, this.startingState);
-
-  @override
-  HistoryState get initialState {
-    return startingState;
-  }
+  HistoryBloc.test(this.irmaRepository, HistoryState startingState) : super(startingState);
 
   @override
   Stream<HistoryState> mapEventToState(HistoryEvent event) async* {

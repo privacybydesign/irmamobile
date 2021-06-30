@@ -138,7 +138,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
         key: _navigatorKey,
         onGenerateRoute: (settings) => MaterialPageRoute(
           builder: (context) => BlocBuilder<PinBloc, PinState>(
-            bloc: _pinBloc,
+            cubit: _pinBloc,
             builder: (context, state) {
               if (state.authenticated) {
                 // Wait until parent screen pops this widget.

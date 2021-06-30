@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/native_events.dart';
 import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
 import 'package:irmamobile/src/screens/debug/debug_screen.dart';
 import 'package:irmamobile/src/screens/help/help_screen.dart';
@@ -122,7 +121,7 @@ class _WalletScreenState extends State<_WalletScreen> {
           ),
           drawer: WalletDrawer(),
           body: BlocBuilder<WalletBloc, walletblocstate.WalletState>(
-            bloc: widget.bloc,
+            cubit: widget.bloc,
             builder: (context, state) {
               if (state.credentials == null) {
                 return Container(height: 0);

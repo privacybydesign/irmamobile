@@ -122,7 +122,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<PinBloc, PinState>(
-      bloc: _pinBloc,
+      cubit: _pinBloc,
       builder: (context, state) {
         // Hide pin screen once authenticated
         if (state.authenticated == true) {
