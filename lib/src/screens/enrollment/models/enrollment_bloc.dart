@@ -8,12 +8,9 @@ import 'package:irmamobile/src/screens/enrollment/models/enrollment_event.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
 
 class EnrollmentBloc extends Bloc<Object, EnrollmentState> {
-  @override
-  final EnrollmentState initialState;
+  EnrollmentBloc(String languageCode) : super(EnrollmentState(languageCode: languageCode));
 
-  EnrollmentBloc(String languageCode) : initialState = EnrollmentState(languageCode: languageCode);
-
-  EnrollmentBloc.test(this.initialState);
+  EnrollmentBloc.test(EnrollmentState initialState) : super(initialState);
 
   @override
   Stream<EnrollmentState> mapEventToState(Object event) async* {

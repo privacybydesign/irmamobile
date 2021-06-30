@@ -131,7 +131,7 @@ class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
           return false;
         },
         child: BlocListener<EnrollmentBloc, EnrollmentState>(
-          condition: (EnrollmentState previous, EnrollmentState current) {
+          listenWhen: (EnrollmentState previous, EnrollmentState current) {
             return (current.pinConfirmed != previous.pinConfirmed ||
                     current.showPinValidation != previous.showPinValidation) ||
                 (!previous.isSubmitting && current.isSubmitting);

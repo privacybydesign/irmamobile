@@ -9,10 +9,7 @@ import 'package:irmamobile/src/screens/wallet/models/wallet_state.dart';
 class WalletBloc extends Bloc<WalletEvent, WalletState> {
   StreamSubscription<Credentials> credentialStreamSubscription;
 
-  @override
-  final WalletState initialState;
-
-  WalletBloc() : initialState = WalletState() {
+  WalletBloc() : super(WalletState()) {
     credentialStreamSubscription = IrmaRepository.get().getCredentials().listen((allCredentials) {
       final credentials = allCredentials.rebuiltRemoveWhere(_isMyIRMACredential);
       String newCardHash;

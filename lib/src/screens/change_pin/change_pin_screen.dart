@@ -88,7 +88,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
     final routeBuilders = _routeBuilders();
 
     return BlocListener<ChangePinBloc, ChangePinState>(
-        condition: (ChangePinState previous, ChangePinState current) {
+        listenWhen: (ChangePinState previous, ChangePinState current) {
           return current.newPinConfirmed != previous.newPinConfirmed ||
               current.oldPinVerified != previous.oldPinVerified ||
               current.validatingPin != previous.validatingPin ||
