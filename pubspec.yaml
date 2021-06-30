@@ -2,6 +2,7 @@ name: irmamobile
 description: IRMA Authentication
 version: 6.1.1+131
 
+# TODO: Update SDK?
 environment:
   sdk: ">=2.7.0 <3.0.0"
 
@@ -21,7 +22,7 @@ dependencies:
   flutter_svg: ^0.22.0
   flutter_i18n: ^0.22.4
   flutter_bloc: ^7.0.1
-  equatable: ^0.5.1
+  equatable: ^2.0.3
 
   email_validator: ^2.0.1
   url_launcher: ^6.0.7
