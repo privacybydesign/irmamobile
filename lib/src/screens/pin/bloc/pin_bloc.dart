@@ -13,7 +13,7 @@ class PinBloc extends Bloc<PinEvent, PinState> {
   CountdownTimer _pinBlockedCountdown;
   final BehaviorSubject<Duration> _pinBlockedFor = BehaviorSubject<Duration>();
 
-  PinBloc() : super(PinBloc.initialState) {
+  PinBloc() : super(PinBloc._initialState) {
     _lockedStreamSubscription = IrmaRepository.get().getLocked().listen((isLocked) {
       if (isLocked) {
         add(Locked());
@@ -27,7 +27,7 @@ class PinBloc extends Bloc<PinEvent, PinState> {
     super.close();
   }
 
-  static PinState get initialState => PinState(
+  static PinState get _initialState => PinState(
         authenticated: false,
         authenticateInProgress: false,
         pinInvalid: false,

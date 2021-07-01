@@ -5,7 +5,6 @@ version: 6.1.1+131
 environment:
   sdk: ">=2.7.0 <3.0.0"
 
-# TODO: Check whether versions can be upgraded even more (and fix the breaking changes)
 dependencies:
   flutter:
     sdk: flutter
