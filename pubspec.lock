@@ -591,10 +591,12 @@ packages:
   qr_code_scanner:
     dependency: "direct main"
     description:
-      name: qr_code_scanner
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.5.1"
+      path: "."
+      ref: "7e5a098be84b2487febe48f2d858eb4c38056aee"
+      resolved-ref: "7e5a098be84b2487febe48f2d858eb4c38056aee"
+      url: "https://gitlab.science.ru.nl/irma/github-mirrors/qr-code-scanner.git"
+    source: git
+    version: "0.0.12"
   quiver:
     dependency: "direct main"
     description:

@@ -41,8 +41,8 @@ dependencies:
   shared_preferences: ^2.0.6
   async: ^2.4.0
   streaming_shared_preferences: ^2.0.0
-  path_drawing: ^0.5.0
-  flutter_jailbreak_detection: ^1.4.0
+  path_drawing: ^0.5.1
+  flutter_jailbreak_detection: ^1.6.0
   visibility_detector: ^0.2.0
   quiver: ^3.0.1
 
