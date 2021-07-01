@@ -30,10 +30,7 @@ dependencies:
   package_info: ^2.0.2
   stream_transform: ^2.0.0
   collection: ^1.15.0
-  qr_code_scanner:
-    git:
-      url: https://gitlab.science.ru.nl/irma/github-mirrors/qr-code-scanner.git
-      ref: 7e5a098be84b2487febe48f2d858eb4c38056aee
+  qr_code_scanner: ^0.0.13 # TODO: Library should be updated further to improve the stability
   font_awesome_flutter: ^9.1.0 # TODO remove once this package is no longer used
   share: ^2.0.4
   intl: ^0.17.0
