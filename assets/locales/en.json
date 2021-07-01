@@ -439,7 +439,7 @@
     "next": "next choices",
     "previous": "previous choices",
     "not_present": "These data have not yet been added to IRMA.",
-    "not_present_have_other": "The requested data does not match with the cards you already have.",
+    "not_present_have_other": "The requested data do not match with the cards you already have.",
     "you_have": "You have:",
     "requested_for": "There is requested for:",
     "card_count": "{i} of {total}",
