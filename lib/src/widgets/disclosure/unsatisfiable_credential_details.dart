@@ -46,6 +46,8 @@ class UnsatisfiableCredentialDetails extends StatefulWidget {
   State<StatefulWidget> createState() {
     if (unsatisfiableCredential.satisfiable) {
       throw Exception('Given unsatisfiable credential appears to be satisfiable');
+    } else if (presentCredentials.any((cred) => cred.info.fullId != unsatisfiableCredential.credentialInfo.fullId)) {
+      throw Exception('Present credentials should have the same type as the unsatisfiable once');
     }
     return _UnsatisfiableCredentialDetailsState();
   }
@@ -167,13 +169,21 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
     _selectedPresentCredential.value = nextIndex;
   }
 
-  Widget _buildPresentCredential(Credential credential) => _buildCredentialSnippet(
-        credential.attributeInstances
-            .where((presentAttr) => widget.unsatisfiableCredential.attributes
-                .any((missingAttr) => missingAttr.attributeType.fullId == presentAttr.attributeType.fullId))
-            .toList(),
-        isPresent: true,
-      );
+  int _findIndexOfAttribute(Attribute attr) => widget.unsatisfiableCredential.attributes
+      .asMap()
+      .entries
+      .firstWhere((entry) => entry.value.attributeType.fullId == attr.attributeType.fullId)
+      .key;
+
+  Widget _buildPresentCredential(Credential credential) {
+    final presentAttributes = credential.attributeInstances
+        .where((presentAttr) => widget.unsatisfiableCredential.attributes
+            .any((missingAttr) => missingAttr.attributeType.fullId == presentAttr.attributeType.fullId))
+        .toList();
+    // Use the attribute order of the requested conjunction, also when this deviates from the attribute order on the card.
+    presentAttributes.sort((x, y) => _findIndexOfAttribute(x).compareTo(_findIndexOfAttribute(y)));
+    return _buildCredentialSnippet(presentAttributes, isPresent: true);
+  }
 
   // To not overcomplicate accessibility semantics, we exclude the gestures to cycle
   // through all present credentials from semantics.

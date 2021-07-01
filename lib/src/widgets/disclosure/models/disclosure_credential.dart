@@ -16,7 +16,7 @@ class DisclosureCredential {
   bool get revoked => attributes.first.revoked;
   bool get notRevokable => attributes.first.notRevokable;
   bool get present => attributes.first.credentialHash != '';
-  bool get hasValues => attributes.first.value.raw != null;
+  bool get hasValues => attributes.any((attr) => attr.value.raw != null);
 
   DisclosureCredential({@required this.attributes, @required this.isLast})
       : assert(isLast != null &&
