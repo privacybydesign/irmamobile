@@ -16,47 +16,48 @@ class EmailSentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-        onWillPop: () => Navigator.of(context, rootNavigator: true).pushReplacementNamed(WalletScreen.routeName),
-        child: Scaffold(
-          appBar: IrmaAppBar(
-            title: Text(
-              FlutterI18n.translate(context, 'enrollment.email_sent.title'),
+      onWillPop: () => Navigator.of(context, rootNavigator: true).pushReplacementNamed(WalletScreen.routeName),
+      child: Scaffold(
+        appBar: IrmaAppBar(
+          title: Text(
+            FlutterI18n.translate(context, 'enrollment.email_sent.title'),
+          ),
+          noLeading: true,
+        ),
+        bottomNavigationBar: IrmaBottomBar(
+          primaryButtonLabel: FlutterI18n.translate(context, 'enrollment.email_sent.button'),
+          onPrimaryPressed: () {
+            Navigator.of(context, rootNavigator: true).pushReplacementNamed(WalletScreen.routeName);
+          },
+        ),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
+            child: Column(
+              children: <Widget>[
+                const IrmaMessage(
+                  'enrollment.email_sent.message_title',
+                  'enrollment.email_sent.message',
+                  type: IrmaMessageType.info,
+                ),
+                SizedBox(
+                  height: IrmaTheme.of(context).defaultSpacing,
+                ),
+                SizedBox(
+                    width: double.infinity, // seems necessary to left-align short texts
+                    child: Container(
+                      child: TranslatedText('enrollment.email_sent.mail_sent_text',
+                          translationParams: {"emailaddress": email}),
+                    )),
+                SizedBox(
+                  height: IrmaTheme.of(context).defaultSpacing,
+                ),
+                const TranslatedText('enrollment.email_sent.check_spam'),
+              ],
             ),
-            noLeading: true,
           ),
-          bottomNavigationBar: IrmaBottomBar(
-            primaryButtonLabel: FlutterI18n.translate(context, 'enrollment.email_sent.button'),
-            onPrimaryPressed: () {
-              Navigator.of(context, rootNavigator: true).pushReplacementNamed(WalletScreen.routeName);
-            },
-          ),
-          body: SafeArea(
-            child: Padding(
-              padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
-              child: Column(
-                children: <Widget>[
-                  IrmaMessage(
-                    'enrollment.email_sent.message_title',
-                    'enrollment.email_sent.message',
-                    type: IrmaMessageType.info,
-                  ),
-                  SizedBox(
-                    height: IrmaTheme.of(context).defaultSpacing,
-                  ),
-                  SizedBox(
-                      width: double.infinity, // seems necessary to left-align short texts
-                      child: Container(
-                        child: TranslatedText('enrollment.email_sent.mail_sent_text',
-                            translationParams: {"emailaddress": email}),
-                      )),
-                  SizedBox(
-                    height: IrmaTheme.of(context).defaultSpacing,
-                  ),
-                  const TranslatedText('enrollment.email_sent.check_spam'),
-                ],
-              ),
-            ),
-          ),
-        ));
+        ),
+      ),
+    );
   }
 }
