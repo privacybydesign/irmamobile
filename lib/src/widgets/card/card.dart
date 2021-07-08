@@ -153,6 +153,7 @@ class IrmaCard extends StatelessWidget {
                         style: Theme.of(context).textTheme.subhead.copyWith(
                               color: cardTheme.foregroundColor,
                             ),
+                        key: const Key('card_title'),
                       ),
                     ),
                     CardMenu(
