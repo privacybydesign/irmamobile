@@ -115,6 +115,8 @@ class IrmaRepository {
         _issueWizardSubject.add(await processIssueWizard(event.wizardData.id, event.wizardContents, creds));
       }
     });
+    // Listen for bridge events and send them to our event subject.
+    bridge.events.listen((event) => _eventSubject.add(event));
   }
 
   Future<void> _eventListener(Event event) async {

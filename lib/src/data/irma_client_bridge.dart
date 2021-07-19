@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:irmamobile/src/data/irma_bridge.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/authentication_events.dart';
 import 'package:irmamobile/src/models/change_pin_events.dart';
 import 'package:irmamobile/src/models/client_preferences.dart';
@@ -91,7 +90,7 @@ class IrmaClientBridge extends IrmaBridge {
       }
 
       final Event event = unmarshaller(data);
-      IrmaRepository.get().dispatch(event);
+      addEvent(event);
     } catch (e, stacktrace) {
       reportError(e, stacktrace);
     }
