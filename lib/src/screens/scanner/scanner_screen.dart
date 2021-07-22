@@ -39,8 +39,8 @@ class ScannerScreen extends StatelessWidget {
     } catch (e) {
       navigator.pushAndRemoveUntil(
         MaterialPageRoute(
-          builder: (context) => GeneralErrorScreen(
-            errorText: "error starting wizard: ${e.toString()}",
+          builder: (context) => ErrorScreen(
+            details: "error starting wizard: ${e.toString()}",
             onTapClose: () => navigator.pop(),
           ),
         ),

@@ -118,8 +118,8 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
               ));
             } else {
               navigatorKey.currentState.pushReplacement(MaterialPageRoute(
-                builder: (context) => GeneralErrorScreen(
-                  errorText: state.errorMessage,
+                builder: (context) => ErrorScreen(
+                  details: state.errorMessage,
                   onTapClose: () => navigatorKey.currentState.pop(),
                 ),
               ));
