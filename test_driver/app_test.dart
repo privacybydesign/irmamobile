@@ -24,6 +24,9 @@ void main() {
       await Process.run('adb', ['reverse', 'tcp:8088', 'tcp:8088']);
     });
 
+    // Reset the app after each test.
+    tearDown(() => driver.requestData('reset'));
+
     tearDownAll(() async {
       streamSubscription?.cancel();
       if (driver != null) await driver.close();
@@ -39,7 +42,99 @@ void main() {
       await driver.requestData(jsonEncode(data["sessionPtr"]));
     }
 
-    test('main', () async {
+    test('irma-enroll-tc1', () async {
+
+
+      // Wait for initialization
+      await driver.waitFor(find.byValueKey('enrollment_p1'));
+      // Initialize the app for integration tests (enable developer mode, etc.)
+      await driver.requestData('initialize');
+
+      // Tap through enrollment info screens
+      await driver.tap(find.descendant(of: find.byValueKey('enrollment_p1'), matching: find.byValueKey('next')));
+      await driver.tap(find.descendant(of: find.byValueKey('enrollment_p2'), matching: find.byValueKey('next')));
+      await driver.tap(find.descendant(of: find.byValueKey('enrollment_p3'), matching: find.byValueKey('next')));
+
+      // Choose new pin screen
+      await driver.waitFor(find.byValueKey('enrollment_choose_pin'));
+      //Enter Pin
+      await driver.enterText('12345');
+      // Enter wrong pin
+      await driver.waitFor(find.byValueKey('enrollment_confirm_pin'));
+      await driver.enterText('67890');
+
+      await driver.waitFor(find.byValueKey('irma_dialog'));
+
+      //check "Wrong PIN" dialog title text
+      print("check dialog title");
+      String string = await driver.getText(find.byValueKey('irma_dialog_title'));
+      expect(string, 'PIN incorrect');
+      print("Check dialog text");
+      //check dialog text
+      string = await driver.getText(find.byValueKey('irma_dialog_content'));
+      expect(string, 'PINs do not match. Choose a new PIN.');
+      print("escape dialog");
+      await driver.tap(find.descendant(of: find.byValueKey('irma_dialog'), matching: find.byType('IrmaButton'), firstMatchOnly: true));
+
+
+
+
+
+      // Choose new pin screen
+      await driver.waitFor(find.byValueKey('enrollment_choose_pin'));
+      //Enter Pin
+      await driver.enterText('12345');
+      // Enter wrong pin
+      await driver.waitFor(find.byValueKey('enrollment_confirm_pin'));
+      await driver.enterText('12345');
+
+      //enter email address
+      await driver.waitFor(find.byValueKey('enrollment_provide_email'));
+
+      //check error message is not displayed
+      await driver.waitForAbsent(find.descendant(of: find.byValueKey('enrollment_provide_email_textfield'), matching: find.text("This is not a valid email address")));
+
+      await driver.enterText('Wrong_syntax');
+      await driver.tap(find.byValueKey('enrollment_email_next'));
+
+      //Check error message
+      await driver.waitFor(find.descendant(of: find.byValueKey('enrollment_provide_email_textfield'), matching: find.text("This is not a valid email address")));
+
+      //expect(string, 'This is not a valid email address');
+
+      //check textfield is still present
+      await driver.waitFor(find.descendant(of: find.byValueKey('enrollment_provide_email'), matching: find.byType('TextField'), firstMatchOnly: true));
+
+      await driver.enterText('testing_irma_app@sidn.nl');
+      await driver.tap(find.byValueKey('enrollment_email_next'));
+
+      //wait for Email confirmation screen
+      await driver.waitFor(find.byValueKey('email_sent_screen'));
+      print("check screen title");
+      //Check screen title
+      string = await driver.getText(find.byValueKey('email_sent_screen_title'));
+      expect(string, 'Secure your IRMA app');
+      print("check text on email sent screen");
+      //Check text
+      string = await driver.getText(find.descendant(of: find.byValueKey('email_sent_screen'), matching: find.byType('Text'), firstMatchOnly: true));
+      expect(string, 'Confirm your email address');
+
+      //click continue
+      await driver.tap(find.descendant(of: find.byValueKey('email_sent_screen_continue'), matching: find.byValueKey('primary')));
+
+      // Wait until wallet displayed
+      await driver.waitFor(find.byValueKey('wallet_present'));
+      //No cards should be available in the wallet
+      await driver.waitForAbsent(find.byValueKey('wallet_card_0'));
+
+
+    }, timeout: const Timeout(Duration(minutes: 4)));
+
+    test('irma-enroll-tc2', () async {
+
+
+      //scenario 2
+
       // Wait for initialization
       await driver.waitFor(find.byValueKey('enrollment_p1'));
 
@@ -51,189 +146,72 @@ void main() {
       await driver.tap(find.descendant(of: find.byValueKey('enrollment_p2'), matching: find.byValueKey('next')));
       await driver.tap(find.descendant(of: find.byValueKey('enrollment_p3'), matching: find.byValueKey('next')));
 
-      // Enter pin
+      // Choose new pin screen
       await driver.waitFor(find.byValueKey('enrollment_choose_pin'));
+
+      //Check screen title
+      String string = await driver.getText(find.byValueKey('enrollment_choose_pin_title'));
+      expect(string, 'Secure your IRMA app');
+
+      //Check text
+      string = await driver.getText(find.descendant(of: find.byValueKey('enrollment_choose_pin'), matching: find.byType('Text'), firstMatchOnly: true));
+      expect(string, 'Choose a 5-digit PIN');
+
+      //Enter Pin
       await driver.enterText('12345');
 
       // Confirm pin
       await driver.waitFor(find.byValueKey('enrollment_confirm_pin'));
+
+      //Check screen title
+      string = await driver.getText(find.byValueKey('enrollment_confirm_pin_title'));
+      expect(string, 'Secure your IRMA app');
+
+      //Check text
+      string = await driver.getText(find.descendant(of: find.byValueKey('enrollment_confirm_pin'), matching: find.byType('Text'), firstMatchOnly: true));
+      expect(string, 'Enter your PIN again');
+
       await driver.enterText('12345');
 
-      // Skip email providing
+      //Check screen title
+      string = await driver.getText(find.byValueKey('enrollment_provide_email_title'));
+      expect(string, 'Secure your IRMA app');
+
+      //Check text
+      string = await driver.getText(find.descendant(of: find.byValueKey('enrollment_provide_email'), matching: find.byType('Text'), firstMatchOnly: true));
+      expect(string, 'An email address allows you to disable your IRMA app when your mobile has been lost or stolen.');
+
+      //check textfield
+      await driver.waitFor(find.descendant(of: find.byValueKey('enrollment_provide_email'), matching: find.byType('TextField'), firstMatchOnly: true));
+
+      //check buttons Skip & Next
+      await driver.waitFor(find.byValueKey('enrollment_skip_email'));
+      await driver.waitFor(find.byValueKey('enrollment_email_next'));
+
+      //click Skip
+      print("Skip Email");
       await driver.tap(find.byValueKey('enrollment_skip_email'));
+      print("check irma dialog is displayed");
+      await driver.waitFor(find.byValueKey('irma_dialog'));
+      print("check dialog title");
+      //check dialog title text
+      string = await driver.getText(find.byValueKey('irma_dialog_title'));
+      expect(string, 'Are you sure?');
+      print("check dialog text...");
+      //check dialog text
+      string = await driver.getText(find.byValueKey('irma_dialog_content'));
+      print(string);
+      expect(string, 'Protect your data. When you enter an email address, you can block your IRMA app when your mobile has been lost or stolen.');
+
+      //confirm Skip
       await driver.tap(find.byValueKey('enrollment_skip_confirm'));
+
 
       // Wait until wallet displayed
       await driver.waitFor(find.byValueKey('wallet_present'));
+      //No cards should be available in the wallet
+      await driver.waitForAbsent(find.byValueKey('wallet_card_0'));
 
-      // Start session
-      await _startIrmaSession("""{
-        "@context": "https://irma.app/ld/request/issuance/v2",
-        "credentials": [
-          {
-            "credential": "irma-demo.gemeente.personalData",
-            "attributes": {
-              "initials": "W.L.",
-              "firstnames": "Willeke Liselotte",
-              "prefix": "de",
-              "familyname": "Bruijn",
-              "fullname": "W.L. de Bruijn",
-              "gender": "V",
-              "nationality": "Ja",
-              "surname": "de Bruijn",
-              "dateofbirth": "10-04-1965",
-              "cityofbirth": "Amsterdam",
-              "countryofbirth": "Nederland",
-              "over12": "Yes",
-              "over16": "Yes",
-              "over18": "Yes",
-              "over21": "Yes",
-              "over65": "No",
-              "bsn": "999999990",
-              "digidlevel": "Substantieel"
-            }
-          },
-          {
-            "credential": "irma-demo.gemeente.address",
-            "attributes": {
-              "street":"Meander","houseNumber":"501","zipcode":"1234AB","municipality":"Arnhem","city":"Arnhem"
-            }
-          }
-        ]
-      }""");
-
-      // Accept issued credential
-      await driver.tap(find.descendant(of: find.byValueKey('issuance_accept'), matching: find.byValueKey('primary')));
-
-      // Wait until done
-      await driver.waitFor(find.byValueKey('wallet_present'));
-
-      // Check whether the cards are present in the wallet
-      await driver.waitFor(find.byValueKey('wallet_card_0'));
-      await driver.waitFor(find.byValueKey('wallet_card_1'));
-      print("wait 5 seconds");
-      await Future.delayed(Duration(seconds: 5));
-      print("Tap personal data card to open");
-      await driver.tap(find.descendant(of: find.byValueKey('wallet_card_1'), matching: find.byValueKey('card_title')));
-      print("wait 2 seconds");
-      await Future.delayed(Duration(seconds: 2));
-      print("Checking Personal data card");
-      String string = await driver.getText(find.descendant(of: find.byValueKey('wallet_card_1'), matching: find.byValueKey('card_title')));
-
-      expect(string, 'Demo Personal data');
-
-
-
-      print("Checking Names and values");
-
-      print("checking initials");
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_0_name', 'Initials');
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_0_value', 'W.L.');
-
-      print("checking First names");
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_1_name', 'First names');
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_1_value', 'Willeke Liselotte');
-
-      print("checking Prefix");
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_2_name', 'Prefix');
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_2_value', 'de');
-
-      print("checking Family name");
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_3_name', 'Family name');
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_3_value', 'Bruijn');
-
-
-      print("checking Full name");
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_4_name', 'Full name');
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_4_value', 'W.L. de Bruijn');
-
-      print("checking Gender");
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_5_name', 'Gender');
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_5_value', 'V');
-
-
-
-      print("checking nationality");
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_6_name', 'Dutch nationality');
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_6_value', 'Ja');
-
-      print("checking Surname");
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_7_name', 'Surname');
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_7_value', 'de Bruijn');
-
-      print("checking Date of birth");
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_8_name', 'Date of birth');
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_8_value', '10-04-1965');
-
-
-      print("checking City of birth");
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_9_name', 'City of birth');
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_9_value', 'Amsterdam');
-
-      print("checking Country of birth");
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_10_name', 'Country of birth');
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_10_value', 'Nederland');
-
-      print("checking Age");
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_11_name', 'Over 12');
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_11_value', 'Yes');
-
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_12_name', 'Over 16');
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_12_value', 'Yes');
-
-
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_13_name', 'Over 18');
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_13_value', 'Yes');
-
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_14_name', 'Over 21');
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_14_value', 'Yes');
-
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_15_name', 'Over 65');
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_15_value', 'No');
-
-      print("Checking BSN");
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_16_name', 'BSN');
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_16_value', '999999990');
-
-      print("checking DigiD assurance level");
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_17_name', 'DigiD assurance level');
-      await scrollAndCheckText(driver, 'wallet_card_1', 'attr_17_value', 'Substantieel');
-
-      print("Tap personal data card to close");
-      await driver.tap(find.descendant(of: find.byValueKey('wallet_card_1'), matching: find.byValueKey('card_title')));
-
-      await Future.delayed(Duration(seconds: 2));
-      print("Tap Demo address card to open");
-      await driver.tap(find.descendant(of: find.byValueKey('wallet_card_0'), matching: find.byValueKey('card_title')));
-      await Future.delayed(Duration(seconds: 2));
-
-      print("Checking Demo address card");
-
-      string = await driver.getText(find.descendant(of: find.byValueKey('wallet_card_0'), matching: find.byValueKey('card_title')));
-      expect(string, 'Demo Address');
-      print("Checking Gemeente adresgegevens - Names and values");
-
-      print("Checking Address");
-      await scrollAndCheckText(driver, 'wallet_card_0', 'attr_0_name', 'Street');
-      await scrollAndCheckText(driver, 'wallet_card_0', 'attr_0_value', 'Meander');
-
-      print("Checking Huisnummer");
-      await scrollAndCheckText(driver, 'wallet_card_0', 'attr_1_name', 'House number');
-      await scrollAndCheckText(driver, 'wallet_card_0', 'attr_1_value', '501');
-
-      print("Checking Postcode");
-      await scrollAndCheckText(driver, 'wallet_card_0', 'attr_2_name', 'Zip code');
-      await scrollAndCheckText(driver, 'wallet_card_0', 'attr_2_value', '1234AB');
-
-      print("Checking Gemeente");
-      await scrollAndCheckText(driver, 'wallet_card_0', 'attr_3_name', 'Municipality');
-      await scrollAndCheckText(driver, 'wallet_card_0', 'attr_3_value', 'Arnhem');
-
-      print("Checking City");
-      await scrollAndCheckText(driver, 'wallet_card_0', 'attr_4_name', 'City');
-      await scrollAndCheckText(driver, 'wallet_card_0', 'attr_4_value', 'Arnhem');
-
-      await Future.delayed(Duration(seconds: 520));
     }, timeout: const Timeout(Duration(minutes: 4)));
   });
 

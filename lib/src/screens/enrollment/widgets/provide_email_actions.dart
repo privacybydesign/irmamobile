@@ -75,6 +75,7 @@ class ProvideEmailActions extends StatelessWidget {
                   onPressed: submitEmail,
                   minWidth: 0.0,
                   label: 'enrollment.provide_email.next',
+                  key: const Key('enrollment_email_next'),
                 ),
               ),
             ],

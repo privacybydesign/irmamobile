@@ -4,6 +4,7 @@ import 'package:irmamobile/main.dart' as app;
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/session.dart';
+import 'package:irmamobile/src/models/clear_all_data_event.dart';
 
 void main() {
   // This line enables the extension.
@@ -25,6 +26,12 @@ void main() {
           }
         });
         break;
+        case 'reset':
+          IrmaRepository.get().bridgedDispatch(
+            ClearAllDataEvent(),
+          );
+        break;
+
       default:
         // In case we don't know the format, we assume it is a SessionPointer.
         repo.startSessionManually(SessionPointer.fromString(msg));
