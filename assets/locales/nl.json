@@ -424,8 +424,8 @@
       "cancel": "Annuleer"
     },
     "pairing": {
-      "title": "Extra controle",
-      "explanation": "Vul onderstaande code in op het scherm van de website.",
+      "title": "Extra veiligheidscontrole",
+      "explanation": "Vul onderstaande code in op de website.",
       "message_title": "Koppelcode",
       "message_body_markdown": "Een koppelcode zorgt ervoor dat de volgende stappen alleen in *jouw* IRMA-app gedaan kunnen worden."
     },

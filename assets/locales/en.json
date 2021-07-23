@@ -423,8 +423,8 @@
       "cancel": "Cancel"
     },
     "pairing": {
-      "title": "Extra security check",
-      "explanation": "Please enter the code below on the screen of the website.",
+      "title": "Extra safety check",
+      "explanation": "Please enter the code below on the website.",
       "message_title": "Pairing code",
       "message_body_markdown": "A pairing code makes sure that the following steps can only be done in *your* IRMA app."
     },
