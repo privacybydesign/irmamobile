@@ -14,7 +14,7 @@ class PairingRequired extends StatelessWidget {
 
   const PairingRequired({this.pairingCode, this.onDismiss});
 
-  Widget _buildCodeBoxes(BuildContext context) {
+  Widget _buildPinBoxes(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
     final boxes = List<Widget>.generate(
@@ -66,7 +66,7 @@ class PairingRequired extends StatelessWidget {
               SizedBox(
                 height: IrmaTheme.of(context).largeSpacing,
               ),
-              _buildCodeBoxes(context),
+              _buildPinBoxes(context),
             ],
           ),
         ),
