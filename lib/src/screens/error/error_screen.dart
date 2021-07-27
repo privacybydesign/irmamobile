@@ -27,7 +27,7 @@ class ErrorScreen extends StatefulWidget {
         onTapClose: onTapClose,
         type: type,
         details: details,
-        onReportError: () => details != null ? reportError(details, null, userInitiated: true) : null,
+        onReportError: details != null ? () => reportError(details, null, userInitiated: true) : null,
       );
 
   /// Display an error screen for an ErrorEvent. The user can choose to report the error to Sentry.
