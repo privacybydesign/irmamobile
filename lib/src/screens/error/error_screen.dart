@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/models/error_event.dart';
+import 'package:irmamobile/src/screens/error/error_details.dart';
 import 'package:irmamobile/src/sentry/sentry.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
-
-import 'error_details.dart';
 
 enum ErrorType {
   general,
