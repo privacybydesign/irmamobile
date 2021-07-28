@@ -30,7 +30,7 @@ void main() {
           IrmaRepository.get().bridgedDispatch(
             ClearAllDataEvent(),
           );
-        break;
+          break;
 
       default:
         // In case we don't know the format, we assume it is a SessionPointer.
