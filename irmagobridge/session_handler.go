@@ -15,7 +15,7 @@ type sessionHandler struct {
 // SessionHandler implements irmaclient.Handler
 var _ irmaclient.Handler = (*sessionHandler)(nil)
 
-func (sh *sessionHandler) StatusUpdate(action irma.Action, status irma.Status) {
+func (sh *sessionHandler) StatusUpdate(action irma.Action, status irma.ClientStatus) {
 	dispatchEvent(&statusUpdateSessionEvent{
 		SessionID: sh.sessionID,
 		Action:    action,
@@ -101,6 +101,13 @@ func (sh *sessionHandler) RequestPin(remainingAttempts int, ph irmaclient.PinHan
 	dispatchEvent(&requestPinSessionEvent{
 		SessionID:         sh.sessionID,
 		RemainingAttempts: remainingAttempts,
+	})
+}
+
+func (sh *sessionHandler) PairingRequired(pairingCode string) {
+	dispatchEvent(&pairingRequiredSessionEvent{
+		SessionID:   sh.sessionID,
+		PairingCode: pairingCode,
 	})
 }
 

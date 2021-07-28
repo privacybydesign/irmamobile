@@ -47,6 +47,7 @@ class IrmaClientBridge extends IrmaBridge {
     RequestVerificationPermissionSessionEvent: (j) => RequestVerificationPermissionSessionEvent.fromJson(j),
     RequestIssuancePermissionSessionEvent: (j) => RequestIssuancePermissionSessionEvent.fromJson(j),
     RequestPinSessionEvent: (j) => RequestPinSessionEvent.fromJson(j),
+    PairingRequiredSessionEvent: (j) => PairingRequiredSessionEvent.fromJson(j),
     SuccessSessionEvent: (j) => SuccessSessionEvent.fromJson(j),
     CanceledSessionEvent: (j) => CanceledSessionEvent.fromJson(j),
     KeyshareBlockedSessionEvent: (j) => KeyshareBlockedSessionEvent.fromJson(j),

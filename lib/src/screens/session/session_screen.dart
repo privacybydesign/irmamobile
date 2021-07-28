@@ -13,6 +13,7 @@ import 'package:irmamobile/src/screens/pin/session_pin_screen.dart';
 import 'package:irmamobile/src/screens/session/call_info_screen.dart';
 import 'package:irmamobile/src/screens/session/session.dart';
 import 'package:irmamobile/src/screens/session/widgets/arrow_back_screen.dart';
+import 'package:irmamobile/src/screens/session/widgets/pairing_required.dart';
 import 'package:irmamobile/src/screens/session/widgets/disclosure_feedback_screen.dart';
 import 'package:irmamobile/src/screens/session/widgets/disclosure_permission.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_permission.dart';
@@ -293,6 +294,11 @@ class _SessionScreenState extends State<SessionScreen> {
         final session = snapshot.data.b;
 
         switch (session.status) {
+          case SessionStatus.pairing:
+            return PairingRequired(
+              pairingCode: session.pairingCode,
+              onDismiss: () => _dismissSession(),
+            );
           case SessionStatus.requestDisclosurePermission:
             return DisclosurePermission(
               session: session,

@@ -6,7 +6,6 @@ import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/error/error_screen.dart';
 import 'package:irmamobile/src/screens/loading/loading_screen.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
-import 'package:irmamobile/src/sentry/sentry.dart';
 
 class RedirectScreen extends StatelessWidget {
   static const routeName = "/";
@@ -34,9 +33,9 @@ class RedirectScreen extends StatelessWidget {
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 final error = snapshot.data;
-                return GeneralErrorScreen(
-                  errorText: error.toString(),
-                  onTapReport: () => reportError(error.exception, error.stack, userInitiated: true),
+                return ErrorScreen.fromEvent(
+                  error: error,
+                  onTapClose: () {}, // Error is fatal, so closing the error is not possible anyway.
                 );
               }
               return LoadingScreen();
