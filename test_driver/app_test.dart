@@ -42,6 +42,153 @@ void main() {
       await driver.requestData(jsonEncode(data["sessionPtr"]));
     }
 
+    test('irma-login-tc1', () async {
+      //scenario 1 of login process
+      await driver.waitFor(find.byValueKey('enrollment_p1'));
+      // Initialize the app for integration tests (enable developer mode, etc.)
+      await driver.requestData('initialize');
+      // Tap through enrollment info screens
+      await driver.tap(find.descendant(of: find.byValueKey('enrollment_p1'), matching: find.byValueKey('next')));
+      await driver.tap(find.descendant(of: find.byValueKey('enrollment_p2'), matching: find.byValueKey('next')));
+      await driver.tap(find.descendant(of: find.byValueKey('enrollment_p3'), matching: find.byValueKey('next')));
+      // Enter pin
+      await driver.waitFor(find.byValueKey('enrollment_choose_pin'));
+      await driver.enterText('12345');
+      // Confirm pin
+      await driver.waitFor(find.byValueKey('enrollment_confirm_pin'));
+      await driver.enterText('12345');
+      // Skip email providing
+      await driver.tap(find.byValueKey('enrollment_skip_email'));
+      await driver.tap(find.byValueKey('enrollment_skip_confirm'));
+      // Wait until wallet displayed
+      await driver.waitFor(find.byValueKey('wallet_present'));
+      //Open menu
+      await driver.tap(find.byValueKey('open_menu_icon'));
+      await Future.delayed(Duration(seconds: 1));
+      //Logout
+      await driver.tap(find.byValueKey('menu_logout'));
+      await Future.delayed(Duration(seconds: 1));
+      //login using wrong pin
+      await driver.waitFor(find.byValueKey('pin_screen'));
+      await driver.enterText('54321');
+      //check error dialog
+      await driver.waitFor(find.byValueKey('irma_dialog'));
+      await Future.delayed(Duration(seconds: 10));
+      //check "Wrong PIN" dialog title text
+      print("check dialog title");
+      String string = await driver.getText(find.byValueKey('irma_dialog_title'));
+      expect(string, 'PIN incorrect');
+      //check dialog text
+      string = await driver.getText(find.byValueKey('irma_dialog_content'));
+      expect(string,
+          'This PIN is not correct. You have 2 attempts left before your IRMA app will be blocked temporarily.');
+
+      await driver.tap(find.descendant(
+        of: find.byValueKey('irma_dialog'),
+        matching: find.byType('IrmaButton'),
+        firstMatchOnly: true,
+      ));
+      // Wait until wallet displayed: Successful login
+      await driver.waitFor(find.byValueKey('wallet_present'));
+    }, timeout: const Timeout(Duration(minutes: 4)));
+
+    test('irma-login-tc2', () async {
+      //scenario 2 of login process: User is blocked after 3 failed attempts.
+      await driver.waitFor(find.byValueKey('enrollment_p1'));
+      // Initialize the app for integration tests (enable developer mode, etc.)
+      await driver.requestData('initialize');
+      // Tap through enrollment info screens
+      await driver.tap(find.descendant(of: find.byValueKey('enrollment_p1'), matching: find.byValueKey('next')));
+      await driver.tap(find.descendant(of: find.byValueKey('enrollment_p2'), matching: find.byValueKey('next')));
+      await driver.tap(find.descendant(of: find.byValueKey('enrollment_p3'), matching: find.byValueKey('next')));
+      // Enter pin
+      await driver.tap(find.byValueKey('pin_field_key'));
+      await driver.waitFor(find.byValueKey('enrollment_choose_pin'));
+      await driver.enterText('12345');
+      // Confirm pin
+      await driver.waitFor(find.byValueKey('enrollment_confirm_pin'));
+      await driver.enterText('12345');
+      // Skip email providing
+      await driver.tap(find.byValueKey('enrollment_skip_email'));
+      await driver.tap(find.byValueKey('enrollment_skip_confirm'));
+      // Wait until wallet displayed
+      await driver.waitFor(find.byValueKey('wallet_present'));
+      //Open menu
+      await driver.tap(find.byValueKey('open_menu_icon'));
+      await Future.delayed(Duration(seconds: 1));
+      //Logout
+      await driver.tap(find.byValueKey('menu_logout'));
+      await Future.delayed(Duration(seconds: 1));
+      //login using wrong pin
+      await driver.waitFor(find.byValueKey('pin_screen'));
+      await driver.enterText('54321');
+      //check error dialog
+      await driver.waitFor(find.byValueKey('irma_dialog'));
+      await Future.delayed(Duration(seconds: 1));
+      //check "Wrong PIN" dialog title text
+      print("check dialog title - attempt no.1");
+      String string = await driver.getText(find.byValueKey('irma_dialog_title'));
+      expect(string, 'PIN incorrect');
+      //check dialog text
+      string = await driver.getText(find.byValueKey('irma_dialog_content'));
+      expect(string,
+          'This PIN is not correct. You have 2 attempts left before your IRMA app will be blocked temporarily.');
+      await driver.tap(find.descendant(
+        of: find.byValueKey('irma_dialog'),
+        matching: find.byType('IrmaButton'),
+        firstMatchOnly: true,
+      ));
+      //login using wrong pin
+      await driver.waitFor(find.byValueKey('pin_screen'));
+      await driver.enterText('54321');
+      //check error dialog
+      await driver.waitFor(find.byValueKey('irma_dialog'));
+      await Future.delayed(Duration(seconds: 1));
+      //check "Wrong PIN" dialog title text
+      print("check dialog title - attempt no.2");
+      string = await driver.getText(find.byValueKey('irma_dialog_title'));
+      expect(string, 'PIN incorrect');
+      //check dialog text
+      string = await driver.getText(find.byValueKey('irma_dialog_content'));
+      expect(string,
+          'This PIN is not correct. You have 1 attempts left before your IRMA app will be blocked temporarily.');
+      await driver.tap(find.descendant(
+        of: find.byValueKey('irma_dialog'),
+        matching: find.byType('IrmaButton'),
+        firstMatchOnly: true,
+      ));
+      //login using wrong pin
+      await driver.waitFor(find.byValueKey('pin_screen'));
+      await driver.enterText('54321');
+      //check error dialog
+      await driver.waitFor(find.byValueKey('irma_dialog'));
+      await Future.delayed(Duration(seconds: 1));
+      //check "Wrong PIN" dialog title text
+      print("check dialog title - attempt no.3");
+      string = await driver.getText(find.byValueKey('irma_dialog_title'));
+      expect(string, 'Account blocked');
+      //check dialog text
+      string = await driver.getText(find.byValueKey('irma_dialog_content'));
+      print(string);
+      expect(string, 'Your account has been blocked for 1 minute. Please try again later.');
+      await driver.tap(find.descendant(
+        of: find.byValueKey('irma_dialog'),
+        matching: find.byType('IrmaButton'),
+        firstMatchOnly: true,
+      ));
+      //wait 65 seconds and try again using the correct pin
+      print("Wait 65 seconds for account to get unlocked...");
+      await Future.delayed(Duration(seconds: 65));
+      //login using correct pin
+      await driver.waitFor(find.byValueKey('pin_screen'));
+      //click pin field to open keyboard
+      await driver.tap(find.byValueKey('pin_field_key'));
+      await Future.delayed(Duration(seconds: 1));
+      await driver.enterText('54321');
+      // Wait until wallet displayed: Successful login
+      await driver.waitFor(find.byValueKey('wallet_present'));
+    }, timeout: const Timeout(Duration(minutes: 10)));
+
     test('irma-enroll-tc1', () async {
       //scenario 1 of enrollment process
       // Wait for initialization
@@ -111,7 +258,6 @@ void main() {
       await driver.waitFor(find.byValueKey('email_sent_screen'));
       print("check screen title");
       //Check screen title
-      //string = await driver.getText(find.byValueKey('email_sent_screen_title'));
       string = await getTextFirstMatch(driver, find.byValueKey('irma_app_bar'));
       expect(string, 'Secure your IRMA app');
       print("check text on email sent screen");
@@ -147,7 +293,6 @@ void main() {
       await driver.waitFor(find.byValueKey('enrollment_choose_pin'));
 
       //Check screen title
-      //String string = await driver.getText(find.byValueKey('enrollment_choose_pin_title'));
       String string = await getTextFirstMatch(driver, find.byValueKey('irma_app_bar'));
       expect(string, 'Secure your IRMA app');
 

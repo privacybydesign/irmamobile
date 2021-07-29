@@ -142,6 +142,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
               return SafeArea(
                 child: SingleChildScrollView(
                   child: Column(
+                    key: const Key('pin_screen'),
                     children: <Widget>[
                       SizedBox(
                         height: IrmaTheme.of(context).largeSpacing,
