@@ -73,7 +73,7 @@ void main() {
       await driver.enterText('54321');
       // Check error dialog
       await driver.waitFor(find.byValueKey('irma_dialog'));
-      await Future.delayed(const Duration(seconds: 10));
+      await Future.delayed(const Duration(seconds: 2));
       // Check "Wrong PIN" dialog title text
       print("check dialog title");
       String string = await driver.getText(find.byValueKey('irma_dialog_title'));
@@ -315,6 +315,9 @@ void main() {
       expect(string, 'Enter your PIN again');
 
       await driver.enterText('12345');
+
+      // Wait for screen to provide email address
+      await driver.waitFor(find.byValueKey('enrollment_provide_email'));
 
       // Check screen title
       print("check screen title Secure your irma app");
