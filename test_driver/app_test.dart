@@ -39,7 +39,7 @@ void main() {
       final response = await requestH.close();
       final sessionData = await response.transform(utf8.decoder).first;
       final data = jsonDecode(sessionData) as Map<String, dynamic>;
-      await driver.requestData(jsonEncode(data["sessionPtr"]));
+      await driver.requestData(jsonEncode(data['sessionPtr']));
     }
 
     test('irma-login-tc1', () async {
@@ -75,7 +75,7 @@ void main() {
       await driver.waitFor(find.byValueKey('irma_dialog'));
       await Future.delayed(const Duration(seconds: 2));
       // Check "Wrong PIN" dialog title text
-      print("check dialog title");
+      print('check dialog title');
       String string = await driver.getText(find.byValueKey('irma_dialog_title'));
       expect(string, 'PIN incorrect');
       // Check dialog text
@@ -148,8 +148,8 @@ void main() {
       expect(string, 'PIN incorrect');
       // Check dialog text
       string = await driver.getText(find.byValueKey('irma_dialog_content'));
-      expect(string,
-          'This PIN is not correct. You have 1 attempts left before your IRMA app will be blocked temporarily.');
+      expect(
+          string, 'This PIN is not correct. You have 1 attempt left before your IRMA app will be blocked temporarily.');
       await driver.tap(find.descendant(
         of: find.byValueKey('irma_dialog'),
         matching: find.byType('IrmaButton'),
@@ -174,7 +174,7 @@ void main() {
         firstMatchOnly: true,
       ));
       // Wait 65 seconds and try again using the correct pin
-      print("Wait 65 seconds for account to get unlocked...");
+      print('Wait 65 seconds for account to get unlocked...');
       await Future.delayed(const Duration(seconds: 65));
       // login using correct pin
       await driver.waitFor(find.byValueKey('pin_screen'));
@@ -232,7 +232,7 @@ void main() {
       // Check error message is not displayed
       await driver.waitForAbsent(find.descendant(
           of: find.byValueKey('enrollment_provide_email_textfield'),
-          matching: find.text("This is not a valid email address")));
+          matching: find.text('This is not a valid email address')));
 
       await driver.enterText('Wrong_syntax');
       await driver.tap(find.byValueKey('enrollment_email_next'));
@@ -240,7 +240,7 @@ void main() {
       // Check error message
       await driver.waitFor(find.descendant(
           of: find.byValueKey('enrollment_provide_email_textfield'),
-          matching: find.text("This is not a valid email address")));
+          matching: find.text('This is not a valid email address')));
 
       // Check textfield is still present
       await driver.waitFor(find.descendant(
@@ -251,7 +251,7 @@ void main() {
 
       //wait for Email confirmation screen
       await driver.waitFor(find.byValueKey('email_sent_screen'));
-      print("check screen title");
+      print('check screen title');
       // Check screen title
       string = await getTextFirstMatch(driver, find.byValueKey('irma_app_bar'));
       expect(string, 'Secure your IRMA app');
@@ -297,19 +297,19 @@ void main() {
       expect(string, 'Choose a 5-digit PIN');
 
       // Enter Pin
-      print("Enter pin");
+      print('Enter pin');
       await driver.enterText('12345');
 
       // Confirm pin
       await driver.waitFor(find.byValueKey('enrollment_confirm_pin'));
 
       // Check screen title
-      print("check screen title Secure your irma app");
+      print('check screen title Secure your irma app');
       string = await getTextFirstMatch(driver, find.byValueKey('irma_app_bar'));
       expect(string, 'Secure your IRMA app');
 
       // Check text
-      print("check text Enter your pin");
+      print('check text Enter your pin');
       string = await driver.getText(find.descendant(
           of: find.byValueKey('enrollment_confirm_pin'), matching: find.byType('Text'), firstMatchOnly: true));
       expect(string, 'Enter your PIN again');
@@ -320,30 +320,30 @@ void main() {
       await driver.waitFor(find.byValueKey('enrollment_provide_email'));
 
       // Check screen title
-      print("check screen title Secure your irma app");
+      print('check screen title Secure your irma app');
       string = await getTextFirstMatch(driver, find.byValueKey('irma_app_bar'));
       expect(string, 'Secure your IRMA app');
 
       // Check text
-      print("check text email enrollment");
+      print('check text email enrollment');
       string = await driver.getText(find.descendant(
           of: find.byValueKey('enrollment_provide_email'), matching: find.byType('Text'), firstMatchOnly: true));
       expect(string, 'An email address allows you to disable your IRMA app when your mobile has been lost or stolen.');
 
       // Check textfield
-      print("check textfield email");
+      print('check textfield email');
       await driver.waitFor(find.descendant(
           of: find.byValueKey('enrollment_provide_email'), matching: find.byType('TextField'), firstMatchOnly: true));
 
       // Check buttons Skip & Next
-      print("check buttons Skip & Next");
+      print('check buttons Skip & Next');
       await driver.waitFor(find.byValueKey('enrollment_skip_email'));
       await driver.waitFor(find.byValueKey('enrollment_email_next'));
 
       // Click Skip
-      print("Skip Email");
+      print('Skip Email');
       await driver.tap(find.byValueKey('enrollment_skip_email'));
-      print("check irma dialog is displayed");
+      print('check irma dialog is displayed');
       await driver.waitFor(find.byValueKey('irma_dialog'));
       // Check dialog title text
       string = await driver.getText(find.byValueKey('irma_dialog_title'));
@@ -425,65 +425,65 @@ void main() {
       // Check whether the cards are present in the wallet
       await driver.waitFor(find.byValueKey('wallet_card_0'));
       await driver.waitFor(find.byValueKey('wallet_card_1'));
-      print("wait 5 seconds");
+      print('wait 5 seconds');
       await Future.delayed(const Duration(seconds: 5));
-      print("Tap personal data card to open");
+      print('Tap personal data card to open');
       await driver.tap(find.descendant(of: find.byValueKey('wallet_card_0'), matching: find.byValueKey('card_title')));
-      print("wait 2 seconds");
+      print('wait 2 seconds');
       await Future.delayed(const Duration(seconds: 2));
-      print("Checking Personal data card");
+      print('Checking Personal data card');
       String string = await driver
           .getText(find.descendant(of: find.byValueKey('wallet_card_0'), matching: find.byValueKey('card_title')));
 
       expect(string, 'Demo Personal data');
 
-      print("Checking Names and values");
+      print('Checking Names and values');
 
-      print("checking initials");
+      print('checking initials');
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_0_name', 'Initials');
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_0_value', 'W.L.');
 
-      print("checking First names");
+      print('checking First names');
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_1_name', 'First names');
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_1_value', 'Willeke Liselotte');
 
-      print("checking Prefix");
+      print('checking Prefix');
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_2_name', 'Prefix');
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_2_value', 'de');
 
-      print("checking Family name");
+      print('checking Family name');
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_3_name', 'Family name');
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_3_value', 'Bruijn');
 
-      print("checking Full name");
+      print('checking Full name');
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_4_name', 'Full name');
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_4_value', 'W.L. de Bruijn');
 
-      print("checking Gender");
+      print('checking Gender');
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_5_name', 'Gender');
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_5_value', 'V');
 
-      print("checking nationality");
+      print('checking nationality');
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_6_name', 'Dutch nationality');
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_6_value', 'Ja');
 
-      print("checking Surname");
+      print('checking Surname');
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_7_name', 'Surname');
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_7_value', 'de Bruijn');
 
-      print("checking Date of birth");
+      print('checking Date of birth');
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_8_name', 'Date of birth');
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_8_value', '10-04-1965');
 
-      print("checking City of birth");
+      print('checking City of birth');
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_9_name', 'City of birth');
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_9_value', 'Amsterdam');
 
-      print("checking Country of birth");
+      print('checking Country of birth');
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_10_name', 'Country of birth');
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_10_value', 'Nederland');
 
-      print("checking Age");
+      print('checking Age');
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_11_name', 'Over 12');
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_11_value', 'Yes');
 
@@ -499,46 +499,46 @@ void main() {
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_15_name', 'Over 65');
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_15_value', 'No');
 
-      print("Checking BSN");
+      print('Checking BSN');
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_16_name', 'BSN');
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_16_value', '999999990');
 
-      print("checking DigiD assurance level");
+      print('checking DigiD assurance level');
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_17_name', 'DigiD assurance level');
       await scrollAndCheckText(driver, 'wallet_card_0', 'attr_17_value', 'Substantieel');
 
-      print("Tap personal data card to close");
+      print('Tap personal data card to close');
       await driver.tap(find.descendant(of: find.byValueKey('wallet_card_0'), matching: find.byValueKey('card_title')));
 
       await Future.delayed(const Duration(seconds: 2));
-      print("Tap Demo address card to open");
+      print('Tap Demo address card to open');
       await driver.tap(find.descendant(of: find.byValueKey('wallet_card_1'), matching: find.byValueKey('card_title')));
       await Future.delayed(const Duration(seconds: 2));
 
-      print("Checking Demo address card");
+      print('Checking Demo address card');
 
       string = await driver
           .getText(find.descendant(of: find.byValueKey('wallet_card_1'), matching: find.byValueKey('card_title')));
       expect(string, 'Demo Address');
-      print("Checking Gemeente adresgegevens - Names and values");
+      print('Checking Gemeente adresgegevens - Names and values');
 
-      print("Checking Address");
+      print('Checking Address');
       await scrollAndCheckText(driver, 'wallet_card_1', 'attr_0_name', 'Street');
       await scrollAndCheckText(driver, 'wallet_card_1', 'attr_0_value', 'Meander');
 
-      print("Checking Huisnummer");
+      print('Checking Huisnummer');
       await scrollAndCheckText(driver, 'wallet_card_1', 'attr_1_name', 'House number');
       await scrollAndCheckText(driver, 'wallet_card_1', 'attr_1_value', '501');
 
-      print("Checking Postcode");
+      print('Checking Postcode');
       await scrollAndCheckText(driver, 'wallet_card_1', 'attr_2_name', 'Zip code');
       await scrollAndCheckText(driver, 'wallet_card_1', 'attr_2_value', '1234AB');
 
-      print("Checking Gemeente");
+      print('Checking Gemeente');
       await scrollAndCheckText(driver, 'wallet_card_1', 'attr_3_name', 'Municipality');
       await scrollAndCheckText(driver, 'wallet_card_1', 'attr_3_value', 'Arnhem');
 
-      print("Checking City");
+      print('Checking City');
       await scrollAndCheckText(driver, 'wallet_card_1', 'attr_4_name', 'City');
       await scrollAndCheckText(driver, 'wallet_card_1', 'attr_4_value', 'Arnhem');
     }, timeout: const Timeout(Duration(minutes: 4)));

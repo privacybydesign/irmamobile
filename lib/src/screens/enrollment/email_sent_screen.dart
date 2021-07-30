@@ -19,14 +19,13 @@ class EmailSentScreen extends StatelessWidget {
       onWillPop: () => Navigator.of(context, rootNavigator: true).pushReplacementNamed(WalletScreen.routeName),
       child: Scaffold(
         appBar: IrmaAppBar(
-          key: const Key('email_sent_screen_title'),
           title: Text(
             FlutterI18n.translate(context, 'enrollment.email_sent.title'),
           ),
           noLeading: true,
         ),
         bottomNavigationBar: IrmaBottomBar(
-          key: const Key("email_sent_screen_continue"),
+          key: const Key('email_sent_screen_continue'),
           primaryButtonLabel: FlutterI18n.translate(context, 'enrollment.email_sent.button'),
           onPrimaryPressed: () {
             Navigator.of(context, rootNavigator: true).pushReplacementNamed(WalletScreen.routeName);
