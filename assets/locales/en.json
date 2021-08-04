@@ -330,7 +330,7 @@
     "explanation": "For your safety, the IRMA app regularly asks for your PIN."
   },
   "error": {
-    "title": "Something goes wrong",
+    "title": "Something went wrong",
     "blocked_title": "App blocked",
     "button_ok": "OK",
     "button_send_to_irma": "Send to IRMA's technical team",
