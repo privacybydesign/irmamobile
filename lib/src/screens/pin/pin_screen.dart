@@ -208,6 +208,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
     return AppBar(
       centerTitle: true,
       backgroundColor: IrmaTheme.of(context).backgroundBlue,
+      key: const Key('pinscreen_app_bar'),
       leading: Container(),
       title: Text(
         FlutterI18n.translate(context, "pin.title"),

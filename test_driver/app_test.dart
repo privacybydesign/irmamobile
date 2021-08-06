@@ -42,6 +42,181 @@ void main() {
       await driver.requestData(jsonEncode(data['sessionPtr']));
     }
 
+    test('irma-screens-tc1', () async {
+      // Scenario 1 of IRMA app screens
+      // Wait for initialization
+      await driver.waitFor(find.byValueKey('enrollment_p1'));
+      // Initialize the app for integration tests (enable developer mode, etc.)
+      await driver.requestData('initialize');
+
+      // Check first screen
+      //Check Next button is available
+      await driver.waitFor(find.descendant(of: find.byValueKey('enrollment_p1'), matching: find.byValueKey('next')));
+      print("Check intro heading");
+      String string = await getTextFirstMatch(driver, find.byValueKey('intro_heading'));
+      expect(string, 'IRMA is your identity on your mobile');
+      print("Check intro text");
+      string = await getTextFirstMatch(driver, find.byValueKey('intro_body'));
+      expect(string, 'Your official name, date of birth, address, and more. All securely stored in your IRMA app.');
+
+      // Tap through enrollment info screens
+      await driver.tap(find.descendant(of: find.byValueKey('enrollment_p1'), matching: find.byValueKey('next')));
+
+      // Check second screen
+      // Check Next button is available
+      await driver.waitFor(find.descendant(of: find.byValueKey('enrollment_p2'), matching: find.byValueKey('next')));
+      print("Check intro heading");
+      string = await getTextFirstMatch(driver, find.byValueKey('intro_heading'));
+      expect(string, 'Make yourself known with IRMA');
+      print("Check intro text");
+      string = await getTextFirstMatch(driver, find.byValueKey('intro_body'));
+      expect(string, "Easy, secure, and fast. It's all in your hands.");
+
+      await driver.tap(find.descendant(of: find.byValueKey('enrollment_p2'), matching: find.byValueKey('next')));
+
+      // Check third screen
+      // Check Next button is available
+      await driver.waitFor(find.descendant(of: find.byValueKey('enrollment_p3'), matching: find.byValueKey('next')));
+      print("Check intro heading");
+      string = await getTextFirstMatch(driver, find.byValueKey('intro_heading'));
+      expect(string, 'IRMA provides certainty, to you and to others');
+      print("Check intro text");
+      string = await getTextFirstMatch(driver, find.byValueKey('intro_body'));
+      expect(string, "Your data are stored solely within the IRMA app. Only you have access.");
+      string = await getTextFirstMatch(driver, find.byValueKey('intro_body_link'));
+
+      expect(string, "Please read the privacy rules");
+
+      await driver.tap(find.descendant(of: find.byValueKey('enrollment_p3'), matching: find.byValueKey('next')));
+
+      // Choose new pin screen
+      await driver.waitFor(find.byValueKey('enrollment_choose_pin'));
+    }, timeout: const Timeout(Duration(minutes: 4)));
+
+    test('irma-screens-tc2', () async {
+      // Scenario 2 of IRMA app screens
+      await driver.waitFor(find.byValueKey('enrollment_p1'));
+      // Initialize the app for integration tests (enable developer mode, etc.)
+      await driver.requestData('initialize');
+      // Tap through enrollment info screens
+      await driver.tap(find.descendant(of: find.byValueKey('enrollment_p1'), matching: find.byValueKey('next')));
+      await driver.tap(find.descendant(of: find.byValueKey('enrollment_p2'), matching: find.byValueKey('next')));
+      await driver.tap(find.descendant(of: find.byValueKey('enrollment_p3'), matching: find.byValueKey('next')));
+      // Enter pin
+      await driver.waitFor(find.byValueKey('enrollment_choose_pin'));
+      await driver.enterText('12345');
+      // Confirm pin
+      await driver.waitFor(find.byValueKey('enrollment_confirm_pin'));
+      await driver.enterText('12345');
+      // Skip email providing
+      await driver.tap(find.byValueKey('enrollment_skip_email'));
+      await driver.tap(find.byValueKey('enrollment_skip_confirm'));
+      // Wait until wallet displayed
+      await driver.waitFor(find.byValueKey('wallet_present'));
+      // Open menu
+      await driver.tap(find.byValueKey('open_menu_icon'));
+      await Future.delayed(const Duration(seconds: 1));
+      // Logout
+      await driver.tap(find.byValueKey('menu_logout'));
+      await Future.delayed(const Duration(seconds: 1));
+      // login window is displayed
+      await driver.waitFor(find.byValueKey('pin_screen'));
+      // Check screen title
+      String string = await getTextFirstMatch(driver, find.byValueKey('pinscreen_app_bar'));
+      expect(string, 'Login');
+
+      string = await driver.getText(
+          find.descendant(of: find.byValueKey('pin_screen'), matching: find.byType('Text'), firstMatchOnly: true));
+      expect(string, 'Enter your PIN');
+      await driver.waitFor(find.byValueKey('pin_field_key'));
+      string = await getTextFirstMatch(driver, find.byValueKey('irma_link'));
+      expect(string, 'PIN forgotten');
+
+      await driver.tap(find.byValueKey('irma_link'));
+      await Future.delayed(const Duration(seconds: 1));
+
+      await driver.waitFor(find.byValueKey('reset_pin_screen'));
+
+      string = await getTextFirstMatch(driver, find.byValueKey('reset_pin_screen'));
+
+      String screenText =
+          '''Lost your PIN? We\'re sorry but the IRMA organisation does not keep record of your PIN. If you wish to continue using IRMA, you will have to enter a new PIN and reload all data.''';
+
+      expect(string, screenText);
+
+      // Check buttons Back and Reset
+      await driver
+          .waitFor(find.descendant(of: find.byValueKey('reset_pin_buttons'), matching: find.byValueKey('primary')));
+      await driver
+          .waitFor(find.descendant(of: find.byValueKey('reset_pin_buttons'), matching: find.byValueKey('secondary')));
+    }, timeout: const Timeout(Duration(minutes: 2)));
+
+    test('irma-screens-tc4', () async {
+      // Scenario 4 of IRMA app screens
+      await driver.waitFor(find.byValueKey('enrollment_p1'));
+      // Initialize the app for integration tests (enable developer mode, etc.)
+      await driver.requestData('initialize');
+      // Tap through enrollment info screens
+      await driver.tap(find.descendant(of: find.byValueKey('enrollment_p1'), matching: find.byValueKey('next')));
+      await driver.tap(find.descendant(of: find.byValueKey('enrollment_p2'), matching: find.byValueKey('next')));
+      await driver.tap(find.descendant(of: find.byValueKey('enrollment_p3'), matching: find.byValueKey('next')));
+      // Enter pin
+      await driver.waitFor(find.byValueKey('enrollment_choose_pin'));
+      await driver.enterText('12345');
+      // Confirm pin
+      await driver.waitFor(find.byValueKey('enrollment_confirm_pin'));
+      await driver.enterText('12345');
+      // Skip email providing
+      await driver.tap(find.byValueKey('enrollment_skip_email'));
+      await driver.tap(find.byValueKey('enrollment_skip_confirm'));
+      // Wait until wallet displayed
+      await driver.waitFor(find.byValueKey('wallet_present'));
+      // Check wallet text
+      String string = await getTextFirstMatch(driver, find.byValueKey('wallet_screen'));
+      expect(string, 'Your data securely on your mobile');
+      // Check button Add more data
+      await driver.waitFor(find.byValueKey('add_cards_button'));
+
+      // Wallet should not contain any cards
+      await driver.waitForAbsent(find.byValueKey('wallet_card_0'));
+    }, timeout: const Timeout(Duration(minutes: 4)));
+
+    test('irma-screens-tc5', () async {
+      // Scenario 5 of IRMA app screens: Help screen
+      await driver.waitFor(find.byValueKey('enrollment_p1'));
+      // Initialize the app for integration tests (enable developer mode, etc.)
+      await driver.requestData('initialize');
+      // Tap through enrollment info screens
+      await driver.tap(find.descendant(of: find.byValueKey('enrollment_p1'), matching: find.byValueKey('next')));
+      await driver.tap(find.descendant(of: find.byValueKey('enrollment_p2'), matching: find.byValueKey('next')));
+      await driver.tap(find.descendant(of: find.byValueKey('enrollment_p3'), matching: find.byValueKey('next')));
+      // Enter pin
+      await driver.waitFor(find.byValueKey('enrollment_choose_pin'));
+      await driver.enterText('12345');
+      // Confirm pin
+      await driver.waitFor(find.byValueKey('enrollment_confirm_pin'));
+      await driver.enterText('12345');
+      // Skip email providing
+      await driver.tap(find.byValueKey('enrollment_skip_email'));
+      await driver.tap(find.byValueKey('enrollment_skip_confirm'));
+      // Wait until wallet displayed
+      await driver.waitFor(find.byValueKey('wallet_present'));
+
+      await driver.tap(find.byValueKey('wallet_button_help'));
+
+      // Check screen title
+      String string = await getTextFirstMatch(driver, find.byValueKey('irma_app_bar'));
+      expect(string, 'Help');
+      // Check screen header
+      string = await getTextFirstMatch(driver, find.byValueKey('help_screen_heading'));
+      expect(string, 'Manual');
+      // Check box content
+      string = await getTextFirstMatch(driver, find.byValueKey('help_screen_content'));
+      expect(string, 'How to use IRMA? See the explanations below.');
+      // Check button "Back to IRMA cards"
+      await driver.waitFor(find.byValueKey('back_to_wallet_button'));
+    }, timeout: const Timeout(Duration(minutes: 4)));
+
     test('irma-login-tc1', () async {
       // Scenario 1 of login process
       await driver.waitFor(find.byValueKey('enrollment_p1'));
@@ -113,7 +288,7 @@ void main() {
       await driver.tap(find.byValueKey('enrollment_skip_confirm'));
       // Wait until wallet displayed
       await driver.waitFor(find.byValueKey('wallet_present'));
-      //Open menu
+      // Open menu
       await driver.tap(find.byValueKey('open_menu_icon'));
       await Future.delayed(const Duration(seconds: 1));
       // Logout
@@ -249,7 +424,7 @@ void main() {
       await driver.enterText('testing_irma_app@example.com');
       await driver.tap(find.byValueKey('enrollment_email_next'));
 
-      //wait for Email confirmation screen
+      // Wait for Email confirmation screen
       await driver.waitFor(find.byValueKey('email_sent_screen'));
       print('check screen title');
       // Check screen title

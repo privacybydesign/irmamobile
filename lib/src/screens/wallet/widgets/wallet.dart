@@ -323,6 +323,7 @@ class WalletState extends State<Wallet> with TickerProviderStateMixin {
                             left: 16,
                             bottom: (_walletWidth * _walletAspectRatio - _walletIconHeight) / 2,
                             child: WalletButton(
+                              key: const Key('wallet_button_help'),
                               svgFile: 'assets/wallet/btn_help.svg',
                               accessibleName: "wallet.help",
                               clickStreamSink: widget.onHelpPressed,
@@ -332,6 +333,7 @@ class WalletState extends State<Wallet> with TickerProviderStateMixin {
                             right: 16,
                             bottom: (_walletWidth * _walletAspectRatio - _walletIconHeight) / 2,
                             child: WalletButton(
+                              key: const Key('wallet_button_scanqr'),
                               svgFile: 'assets/wallet/btn_qrscan.svg',
                               accessibleName: "wallet.scan_qr_code",
                               clickStreamSink: widget.onQRScannerPressed,
@@ -666,6 +668,7 @@ class WalletState extends State<Wallet> with TickerProviderStateMixin {
 
             if (credentialNudge == null || _hasCredential(credentialNudge.fullCredentialTypeId)) {
               return GetCardsNudge(
+                key: const Key('add_cards_button'),
                 credentials: widget.credentials,
                 size: MediaQuery.of(context).size,
                 onAddCardsPressed: widget.onAddCardsPressed,

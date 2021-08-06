@@ -13,7 +13,13 @@ class GetCardsNudge extends StatelessWidget {
   final List<Credential> credentials;
   final bool showButton;
 
-  const GetCardsNudge({this.credentials, this.size, this.onAddCardsPressed, this.showButton = true});
+  const GetCardsNudge({
+    this.credentials,
+    this.size,
+    this.onAddCardsPressed,
+    this.showButton = true,
+    Key key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

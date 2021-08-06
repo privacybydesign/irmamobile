@@ -128,6 +128,7 @@ class Walkthrough extends StatelessWidget {
                     titleContent,
                     style: IrmaTheme.of(context).textTheme.display2,
                     textAlign: TextAlign.center,
+                    key: const Key('intro_heading'),
                   ),
                 ),
                 Container(
@@ -138,6 +139,7 @@ class Walkthrough extends StatelessWidget {
                     textContent,
                     style: IrmaTheme.of(context).textTheme.body1,
                     textAlign: TextAlign.center,
+                    key: const Key('intro_body'),
                   ),
                 ),
                 if (linkText != null)
@@ -145,6 +147,7 @@ class Walkthrough extends StatelessWidget {
                     padding: EdgeInsets.only(top: IrmaTheme.of(context).defaultSpacing),
                     alignment: Alignment.center,
                     constraints: const BoxConstraints(maxWidth: 288.0),
+                    key: const Key('intro_body_link'),
                     child: Link(
                       label: FlutterI18n.translate(context, linkText),
                       onTap: () {
