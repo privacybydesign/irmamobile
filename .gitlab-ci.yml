@@ -10,7 +10,7 @@ variables:
   PACKAGE_NAME: github.com/privacybydesign/irmamobile
 
 image:
-  name: privacybydesign/android_golang_gomobile_flutter:latest
+  name: privacybydesign/android_golang_gomobile_flutter:flutter1
 
 cache:
   paths:
