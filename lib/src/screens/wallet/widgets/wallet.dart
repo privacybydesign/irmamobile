@@ -201,7 +201,9 @@ class WalletState extends State<Wallet> with TickerProviderStateMixin {
       });
 
       Future.delayed(Duration(milliseconds: _cardVisibleDelay)).then((_) {
-        setNewLayout(_cardInStackLayout);
+        if (mounted) {
+          setNewLayout(_cardInStackLayout);
+        }
       });
     } else if (_drawnCardIndex < (oldWidget.credentials?.length ?? 0) && widget.credentials != null) {
       // Check whether drawn card still exists in the new state. Index might have changed due to removal.
@@ -388,7 +390,9 @@ class WalletState extends State<Wallet> with TickerProviderStateMixin {
       });
       return Future.delayed(Duration(milliseconds: _walletShowCardsDelay));
     }).then((_) {
-      setNewLayout(WalletLayout.tightlyfolded);
+      if (mounted) {
+        setNewLayout(WalletLayout.tightlyfolded);
+      }
     });
   }
 

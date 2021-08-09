@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/screens/error/blocked_screen.dart';
-import 'package:irmamobile/src/screens/error/session_expired_screen.dart';
-import 'package:irmamobile/src/sentry/sentry.dart';
-
-import 'error_screen.dart';
-import 'no_internet_screen.dart';
+import 'package:irmamobile/src/screens/error/error_screen.dart';
+import 'package:irmamobile/src/screens/error/no_internet_screen.dart';
 
 class SessionErrorScreen extends StatelessWidget {
   final SessionError error;
@@ -22,17 +19,18 @@ class SessionErrorScreen extends StatelessWidget {
         onTapClose: onTapClose,
         onTapRetry: onTapRetry,
       );
+    } else if (error.errorType == 'pairingRejected') {
+      return ErrorScreen(onTapClose: onTapClose, type: ErrorType.pairingRejected);
     } else if (error.remoteError != null && error.remoteError.errorName == "USER_NOT_FOUND") {
       return BlockedScreen();
     } else if (error.remoteError != null && error.remoteError.errorName == "SESSION_UNKNOWN") {
-      return SessionExpiredScreen(onTapClose: onTapClose);
+      return ErrorScreen(onTapClose: onTapClose, type: ErrorType.expired);
     } else if (error.remoteError != null && error.remoteError.errorName == "UNEXPECTED_REQUEST") {
-      return SessionExpiredScreen(onTapClose: onTapClose);
+      return ErrorScreen(onTapClose: onTapClose, type: ErrorType.expired);
     } else {
-      return GeneralErrorScreen(
-        errorText: error.toString(),
+      return ErrorScreen(
+        details: error.toString(),
         onTapClose: onTapClose,
-        onTapReport: () => reportError(error, null, userInitiated: true),
       );
     }
   }

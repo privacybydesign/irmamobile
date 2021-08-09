@@ -214,6 +214,18 @@ class RequestPinSessionEvent extends SessionEvent {
 }
 
 @JsonSerializable()
+class PairingRequiredSessionEvent extends SessionEvent {
+  PairingRequiredSessionEvent({int sessionID, this.pairingCode}) : super(sessionID);
+
+  @JsonKey(name: 'PairingCode')
+  String pairingCode;
+
+  factory PairingRequiredSessionEvent.fromJson(Map<String, dynamic> json) =>
+      _$PairingRequiredSessionEventFromJson(json);
+  Map<String, dynamic> toJson() => _$PairingRequiredSessionEventToJson(this);
+}
+
+@JsonSerializable()
 class KeyshareEnrollmentMissingSessionEvent extends SessionEvent {
   KeyshareEnrollmentMissingSessionEvent({int sessionID, this.schemeManagerID}) : super(sessionID);
 

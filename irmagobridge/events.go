@@ -137,7 +137,7 @@ type issueWizardContentsEvent struct {
 type statusUpdateSessionEvent struct {
 	SessionID int
 	Action    irma.Action
-	Status    irma.Status
+	Status    irma.ClientStatus
 }
 
 type clientReturnURLSetSessionEvent struct {
@@ -182,6 +182,11 @@ type requestVerificationPermissionSessionEvent struct {
 type requestPinSessionEvent struct {
 	SessionID         int
 	RemainingAttempts int
+}
+
+type pairingRequiredSessionEvent struct {
+	SessionID   int
+	PairingCode string
 }
 
 type keyshareEnrollmentMissingSessionEvent struct {

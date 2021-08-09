@@ -1,6 +1,6 @@
 name: irmamobile
 description: IRMA Authentication
-version: 6.1.1+131
+version: 6.2.0+133
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -41,6 +41,7 @@ dependencies:
   flutter_jailbreak_detection: ^1.6.0
   visibility_detector: ^0.2.0
   quiver: ^3.0.1
+  flutter_privacy_screen: ^1.1.0
 
 flutter_native_splash:
   image: assets/splash/startup.png
