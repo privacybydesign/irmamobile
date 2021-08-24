@@ -10,6 +10,7 @@ Future<void> initSentry() async {
         options.dsn = dsn;
       },
     );
+    Sentry.configureScope((scope) => scope.setTag('git', version));
   }
 }
 
