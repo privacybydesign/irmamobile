@@ -88,6 +88,11 @@ class SessionRepository {
         pairingCode: event.pairingCode,
       );
     } else if (event is RequestIssuancePermissionSessionEvent) {
+      try {
+        _validateCandidates(event.disclosuresCandidates);
+      } on SessionError catch (e) {
+        return prevState.copyWith(status: SessionStatus.error, error: e);
+      }
       final condiscon = _processCandidates(event.disclosuresCandidates, prevState, irmaConfiguration, credentials);
       // All discons must have an option to choose from. Otherwise the session can never be finished.
       final canBeFinished = condiscon.every((discon) => discon.isNotEmpty);
@@ -114,6 +119,11 @@ class SessionRepository {
             .toList(),
       );
     } else if (event is RequestVerificationPermissionSessionEvent) {
+      try {
+        _validateCandidates(event.disclosuresCandidates);
+      } on SessionError catch (e) {
+        return prevState.copyWith(status: SessionStatus.error, error: e);
+      }
       final condiscon = _processCandidates(event.disclosuresCandidates, prevState, irmaConfiguration, credentials);
       // All discons must have an option to choose from. Otherwise the session can never be finished.
       final canBeFinished = condiscon.every((discon) => discon.isNotEmpty);
@@ -159,6 +169,24 @@ class SessionRepository {
     }
 
     return prevState;
+  }
+
+  void _validateCandidates(List<List<List<DisclosureCandidate>>> candidates) {
+    for (final discon in candidates) {
+      for (final con in discon) {
+        for (final cand in con) {
+          // We support cand.type consisting of four dot-separated parts; three parts is forbidden here;
+          // any other amount of parts is forbidden by irmago before we end up here
+          if (cand.type.split('.').length == 3) {
+            throw SessionError(
+              errorType: 'notSupported',
+              info: 'non-attribute disclosures are not supported',
+              wrappedError: "'${cand.type}' consists of three parts; four expected",
+            );
+          }
+        }
+      }
+    }
   }
 
   ConDisCon<Attribute> _processCandidates(
