@@ -45,7 +45,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
 
     // Listener uses context from _navigatorKey, so we have to wait until the navigator is built.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _pinBlocSubscription = _pinBloc.state.listen((pinState) async {
+      _pinBlocSubscription = _pinBloc.stream.listen((pinState) async {
         if (pinState.pinInvalid) {
           _handleInvalidPin(pinState);
         } else {
@@ -62,7 +62,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
   void dispose() {
     _pinBlocSubscription?.cancel();
     _focusNode.dispose();
-    _pinBloc.dispose();
+    _pinBloc.close();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -110,7 +110,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
     if (state == AppLifecycleState.paused) {
       FocusScope.of(_navigatorKey.currentContext).unfocus();
     } else if (state == AppLifecycleState.resumed) {
-      final pinState = _pinBloc.currentState;
+      final pinState = _pinBloc.state;
       if (pinState.pinInvalid || pinState.authenticateInProgress || pinState.error != null) return;
       Future.delayed(const Duration(milliseconds: 100), () {
         // Screen might have popped during the delay, so check whether currentContext exists first
@@ -126,7 +126,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
     return WillPopScope(
       onWillPop: () async {
         // Wait on irmago response before closing, calling widget expects a result
-        return _pinBloc.state.firstWhere((state) => !state.authenticateInProgress, orElse: () => null).then((state) {
+        return _pinBloc.stream.firstWhere((state) => !state.authenticateInProgress, orElse: () => null).then((state) {
           if (state != null && !state.authenticated) _cancel();
           return false;
         });
@@ -173,7 +173,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
                             enabled: !state.authenticateInProgress,
                             onSubmit: (pin) {
                               FocusScope.of(context).requestFocus();
-                              _pinBloc.dispatch(
+                              _pinBloc.add(
                                 SessionPin(widget.sessionID, pin),
                               );
                             },

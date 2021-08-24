@@ -9,19 +9,16 @@ import 'package:irmamobile/src/screens/wallet/models/wallet_state.dart';
 class WalletBloc extends Bloc<WalletEvent, WalletState> {
   StreamSubscription<Credentials> credentialStreamSubscription;
 
-  @override
-  final WalletState initialState;
-
-  WalletBloc() : initialState = WalletState() {
+  WalletBloc() : super(WalletState()) {
     credentialStreamSubscription = IrmaRepository.get().getCredentials().listen((allCredentials) {
       final credentials = allCredentials.rebuiltRemoveWhere(_isMyIRMACredential);
       String newCardHash;
-      final newKeyIndexes = _getIndexesOfNewKeys(currentState.credentials, credentials);
+      final newKeyIndexes = _getIndexesOfNewKeys(state.credentials, credentials);
       if (newKeyIndexes.isNotEmpty) {
         newCardHash = credentials.values.elementAt(newKeyIndexes.first).hash;
       }
 
-      dispatch(CredentialUpdate(credentials, newCardHash, showNewCardAnimation: newCardHash != null));
+      add(CredentialUpdate(credentials, newCardHash, showNewCardAnimation: newCardHash != null));
     });
   }
 
@@ -45,22 +42,22 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
   }
 
   @override
-  void dispose() {
+  Future<void> close() async {
     credentialStreamSubscription.cancel();
-    super.dispose();
+    return super.close();
   }
 
   @override
   Stream<WalletState> mapEventToState(WalletEvent event) async* {
     if (event is CredentialUpdate) {
-      yield currentState.copyWith(
+      yield state.copyWith(
           credentials: event.credentials,
           newCardHash: event.newCardHash,
           showNewCardAnimation: event.showNewCardAnimation);
     }
 
     if (event is NewCardAnitmationShown) {
-      yield currentState.copyWith(showNewCardAnimation: false);
+      yield state.copyWith(showNewCardAnimation: false);
     }
   }
 }

@@ -37,7 +37,7 @@ class _IntroductionState extends State<Introduction> {
   Widget build(BuildContext context) {
     return Scaffold(
       // Prevent overflow when returning from pin input
-      resizeToAvoidBottomPadding: false,
+      resizeToAvoidBottomInset: false,
 
       body: Container(
         padding: EdgeInsets.only(top: IrmaTheme.of(context).largeSpacing),

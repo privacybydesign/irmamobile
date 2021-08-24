@@ -38,7 +38,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
 
   _PinScreenState(PinEvent initialEvent) {
     if (initialEvent != null) {
-      _pinBloc.dispatch(initialEvent);
+      _pinBloc.add(initialEvent);
     }
   }
 
@@ -50,18 +50,18 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
 
     IrmaRepository.get().getBlockTime().first.then((blockedUntil) {
       if (blockedUntil != null) {
-        _pinBloc.dispatch(Blocked(blockedUntil));
+        _pinBloc.add(Blocked(blockedUntil));
       }
     });
 
-    _pinBlocSubscription = _pinBloc.state.listen((pinState) async {
+    _pinBlocSubscription = _pinBloc.stream.listen((pinState) async {
       if (pinState.authenticated) {
         _pinBlocSubscription.cancel();
       } else if (pinState.pinInvalid) {
         if (pinState.remainingAttempts != 0) {
           showDialog(
             context: context,
-            child: PinWrongAttemptsDialog(
+            builder: (context) => PinWrongAttemptsDialog(
               attemptsRemaining: pinState.remainingAttempts,
               onClose: () {
                 Navigator.of(context).pop();
@@ -72,7 +72,9 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
         } else {
           showDialog(
             context: context,
-            child: PinWrongBlockedDialog(blocked: pinState.blockedUntil.difference(DateTime.now()).inSeconds),
+            builder: (context) => PinWrongBlockedDialog(
+              blocked: pinState.blockedUntil.difference(DateTime.now()).inSeconds,
+            ),
           );
         }
       } else if (pinState.error != null) {
@@ -100,7 +102,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
   @override
   void dispose() {
     _focusNode.dispose();
-    _pinBloc.dispose();
+    _pinBloc.close();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -110,10 +112,8 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
     if (state == AppLifecycleState.paused) {
       FocusScope.of(context).unfocus();
     } else if (state == AppLifecycleState.resumed) {
-      _pinBloc.state.first.then((pinstate) {
-        if (pinstate.pinInvalid || pinstate.authenticateInProgress || pinstate.error != null) return;
-        Future.delayed(const Duration(milliseconds: 100), () => FocusScope.of(context).requestFocus(_focusNode));
-      });
+      if (_pinBloc.state.pinInvalid || _pinBloc.state.authenticateInProgress || _pinBloc.state.error != null) return;
+      Future.delayed(const Duration(milliseconds: 100), () => FocusScope.of(context).requestFocus(_focusNode));
     }
   }
 
@@ -171,7 +171,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                           longPin: longPin.hasData && longPin.data,
                           onSubmit: (pin) {
                             FocusScope.of(context).requestFocus();
-                            _pinBloc.dispatch(
+                            _pinBloc.add(
                               Unlock(pin),
                             );
                           },

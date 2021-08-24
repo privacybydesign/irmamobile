@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/native_events.dart';
 import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
 import 'package:irmamobile/src/screens/debug/debug_screen.dart';
 import 'package:irmamobile/src/screens/help/help_screen.dart';
@@ -63,7 +62,7 @@ class _WalletScreenState extends State<_WalletScreen> {
   }
 
   void onNewCardAnimationShown() {
-    widget.bloc.dispatch(NewCardAnitmationShown());
+    widget.bloc.add(NewCardAnitmationShown());
   }
 
   @override
