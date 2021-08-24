@@ -24,7 +24,7 @@ class PinBloc extends Bloc<PinEvent, PinState> {
   @override
   Future<void> close() async {
     _lockedStreamSubscription.cancel();
-    super.close();
+    return super.close();
   }
 
   static PinState get _initialState => PinState(

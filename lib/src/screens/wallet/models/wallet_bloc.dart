@@ -44,7 +44,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
   @override
   Future<void> close() async {
     credentialStreamSubscription.cancel();
-    super.close();
+    return super.close();
   }
 
   @override
