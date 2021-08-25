@@ -21,12 +21,17 @@ class ErrorScreen extends StatefulWidget {
 
   /// Display an error screen. If error details are provided, the user can choose to report
   /// those error details to Sentry.
-  factory ErrorScreen({@required VoidCallback onTapClose, ErrorType type = ErrorType.general, String details}) =>
+  factory ErrorScreen({
+    @required VoidCallback onTapClose,
+    ErrorType type = ErrorType.general,
+    String details,
+    bool reportable = true,
+  }) =>
       ErrorScreen._(
         onTapClose: onTapClose,
         type: type,
         details: details,
-        onReportError: details != null ? () => reportError(details, null, userInitiated: true) : null,
+        onReportError: reportable ? () => reportError(details, null, userInitiated: true) : null,
       );
 
   /// Display an error screen for an ErrorEvent. The user can choose to report the error to Sentry.

@@ -15,21 +15,20 @@ class SessionErrorScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // Handle internet errors separately
     if (error.errorType == 'transport') {
-      return NoInternetScreen(
-        onTapClose: onTapClose,
-        onTapRetry: onTapRetry,
-      );
+      return NoInternetScreen(onTapClose: onTapClose, onTapRetry: onTapRetry);
     } else if (error.errorType == 'pairingRejected') {
-      return ErrorScreen(onTapClose: onTapClose, type: ErrorType.pairingRejected);
+      return ErrorScreen(onTapClose: onTapClose, type: ErrorType.pairingRejected, reportable: false);
     } else if (error.remoteError != null && error.remoteError.errorName == "USER_NOT_FOUND") {
       return BlockedScreen();
     } else if (error.remoteError != null && error.remoteError.errorName == "SESSION_UNKNOWN") {
-      return ErrorScreen(onTapClose: onTapClose, type: ErrorType.expired);
+      return ErrorScreen(onTapClose: onTapClose, type: ErrorType.expired, reportable: false);
     } else if (error.remoteError != null && error.remoteError.errorName == "UNEXPECTED_REQUEST") {
-      return ErrorScreen(onTapClose: onTapClose, type: ErrorType.expired);
+      return ErrorScreen(onTapClose: onTapClose, type: ErrorType.expired, reportable: false);
     } else {
+      final details = error.toString();
       return ErrorScreen(
-        details: error.toString(),
+        details: details,
+        reportable: error.reportable ?? details != null,
         onTapClose: onTapClose,
       );
     }
