@@ -25,10 +25,9 @@ class SessionErrorScreen extends StatelessWidget {
     } else if (error.remoteError != null && error.remoteError.errorName == "UNEXPECTED_REQUEST") {
       return ErrorScreen(onTapClose: onTapClose, type: ErrorType.expired, reportable: false);
     } else {
-      final details = error.toString();
       return ErrorScreen(
-        details: details,
-        reportable: error.reportable ?? details != null,
+        details: error.toString(),
+        reportable: error.reportable,
         onTapClose: onTapClose,
       );
     }

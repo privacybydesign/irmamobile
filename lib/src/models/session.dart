@@ -114,7 +114,7 @@ class SessionError {
     this.stack,
     this.remoteStatus,
     this.remoteError,
-    this.reportable,
+    this.reportable = true,
   });
 
   @JsonKey(name: 'ErrorType')
