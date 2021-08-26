@@ -181,7 +181,7 @@ class SessionRepository {
             throw SessionError(
               errorType: 'notSupported',
               info: 'non-attribute disclosures are not supported',
-              wrappedError: "'${cand.type}' consists of three parts; four expected",
+              wrappedError: '"${cand.type}" consists of three parts; four expected',
             );
           }
         }
