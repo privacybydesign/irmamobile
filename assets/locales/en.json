@@ -339,8 +339,9 @@
     "button_back": "Back",
     "button_reset": "Start all over",
     "details_title": "Error message",
+    "report": "If this happens again, please inform IRMA's technical team.",
     "types": {
-      "general": "Something went wrong.\n\nWhen this happens again, please inform IRMA's technical team.",
+      "general": "Something went wrong.",
       "blocked": "Your IRMA app has been remotely blocked.\n\nThis has either been done via MyIRMA for your app, or because you did not use IRMA on this device for more than a year. If you want to continue using IRMA on this device, you will need to start over.",
       "expired": "The session has expired. Please start over.",
       "pairing_rejected": "The session was rejected. Please start over.",
