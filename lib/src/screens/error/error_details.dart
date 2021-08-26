@@ -18,8 +18,9 @@ class ErrorDetails extends StatelessWidget {
 
   final ErrorType type;
   final String details;
+  final bool reportable;
 
-  const ErrorDetails({@required this.type, this.details});
+  const ErrorDetails({@required this.type, this.details, this.reportable});
 
   @override
   Widget build(BuildContext context) {
@@ -43,13 +44,15 @@ class ErrorDetails extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  TranslatedText(
-                    _translationKeys[type],
-                    style: IrmaTheme.of(context).textTheme.bodyText2,
-                  ),
-                  SizedBox(
-                    height: IrmaTheme.of(context).defaultSpacing,
-                  ),
+                  TranslatedText(_translationKeys[type], style: IrmaTheme.of(context).textTheme.bodyText2),
+                  SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+                  if (reportable)
+                    Column(
+                      children: [
+                        TranslatedText('error.report', style: IrmaTheme.of(context).textTheme.bodyText2),
+                        SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+                      ],
+                    ),
                   if (details != null)
                     Text.rich(
                       TextSpan(
