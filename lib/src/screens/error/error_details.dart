@@ -46,13 +46,10 @@ class ErrorDetails extends StatelessWidget {
                 children: <Widget>[
                   TranslatedText(_translationKeys[type], style: IrmaTheme.of(context).textTheme.bodyText2),
                   SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-                  if (reportable)
-                    Column(
-                      children: [
-                        TranslatedText('error.report', style: IrmaTheme.of(context).textTheme.bodyText2),
-                        SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-                      ],
-                    ),
+                  if (reportable) ...[
+                    TranslatedText('error.report', style: IrmaTheme.of(context).textTheme.bodyText2),
+                    SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+                  ],
                   if (details != null)
                     Text.rich(
                       TextSpan(
