@@ -20,7 +20,7 @@ class ErrorDetails extends StatelessWidget {
   final String details;
   final bool reportable;
 
-  const ErrorDetails({@required this.type, this.details, this.reportable});
+  const ErrorDetails({@required this.type, this.details, @required this.reportable});
 
   @override
   Widget build(BuildContext context) {
