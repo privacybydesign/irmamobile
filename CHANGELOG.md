@@ -4,8 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.2.1] - in beta 2021-08-27
+### Changed
+- Migrated to Flutter 2
+- Small improvements to English texts
+- Made some error cases non-reportable
 
-## [6.2.0] - in beta 2021-08-02
+### Fixed
+- Crash on session requests containing non-attribute disclosures (e.g. "irma-demo.MijnOverheid.fullName" instead of "irma-demo.MijnOverheid.fullName.familyname")
+
+## [6.2.0] - 2021-08-27 (in beta 2021-08-02)
 ### Added
 - Support for device pairing to protect against shoulder surfing (QR code stealing)
 
@@ -124,6 +132,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Various bug fixes
 
 
+[6.2.0]: https://github.com/privacybydesign/irmamobile/compare/v6.2.0...v6.2.1
 [6.2.0]: https://github.com/privacybydesign/irmamobile/compare/v6.1.2...v6.2.0
 [6.1.2]: https://github.com/privacybydesign/irmamobile/compare/v6.1.1...v6.1.2
 [6.1.1]: https://github.com/privacybydesign/irmamobile/compare/v6.1.0...v6.1.1
