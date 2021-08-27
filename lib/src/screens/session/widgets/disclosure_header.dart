@@ -7,9 +7,9 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/translated_rich_text.dart';
 import 'package:irmamobile/src/widgets/irma_message.dart';
 import 'package:irmamobile/src/widgets/irma_quote.dart';
+import 'package:irmamobile/src/widgets/translated_rich_text.dart';
 
 class DisclosureHeader extends StatelessWidget {
   final SessionState session;
@@ -88,10 +88,10 @@ class DisclosureHeader extends StatelessWidget {
 
   Widget _buildHeaderText(BuildContext context) {
     final sessionType = session.isSignatureSession ? 'signing' : 'disclosure';
-    final textKey = 'disclosure.$sessionType${session.isReturnPhoneNumber ? '_call' : ''}_header';
+    final textKey = 'disclosure.$sessionType${session.clientReturnURL.isReturnPhoneNumber ? '_call' : ''}_header';
 
     final serverName = session.serverName.name.translate(FlutterI18n.currentLocale(context).languageCode);
-    final phoneNumber = session.isReturnPhoneNumber ? session.clientReturnURL.substring(4).split(',').first : '';
+    final phoneNumber = session.clientReturnURL.phoneNumber;
 
     return LayoutBuilder(
       builder: (context, constraints) => TranslatedRichText(

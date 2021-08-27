@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/native_events.dart';
+import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/screens/error/session_error_screen.dart';
@@ -13,10 +14,10 @@ import 'package:irmamobile/src/screens/pin/session_pin_screen.dart';
 import 'package:irmamobile/src/screens/session/call_info_screen.dart';
 import 'package:irmamobile/src/screens/session/session.dart';
 import 'package:irmamobile/src/screens/session/widgets/arrow_back_screen.dart';
-import 'package:irmamobile/src/screens/session/widgets/pairing_required.dart';
 import 'package:irmamobile/src/screens/session/widgets/disclosure_feedback_screen.dart';
 import 'package:irmamobile/src/screens/session/widgets/disclosure_permission.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_permission.dart';
+import 'package:irmamobile/src/screens/session/widgets/pairing_required.dart';
 import 'package:irmamobile/src/screens/session/widgets/session_scaffold.dart';
 import 'package:irmamobile/src/util/combine.dart';
 import 'package:irmamobile/src/util/navigation.dart';
@@ -152,8 +153,24 @@ class _SessionScreenState extends State<SessionScreen> {
     if (session.status == SessionStatus.success) {
       return CallInfoScreen(
         otherParty: serverName,
-        clientReturnURL: session.clientReturnURL,
-        popToWallet: popToWallet,
+        onContinue: () async {
+          try {
+            await _repo.openURLExternally(session.clientReturnURL.toString());
+            if (mounted) popToWallet(context);
+          } catch (e) {
+            _dispatchSessionEvent(
+              FailureSessionEvent(
+                error: SessionError(
+                  errorType: 'clientReturnUrl',
+                  info: 'the phone number in the clientReturnUrl could not be handled',
+                  wrappedError: e.toString(),
+                ),
+              ),
+              isBridgedEvent: false,
+            );
+          }
+        },
+        onCancel: () => popToWallet(context),
       );
     } else if (session.isIssuanceSession) {
       WidgetsBinding.instance.addPostFrameCallback((_) => popToWallet(context));
@@ -175,11 +192,11 @@ class _SessionScreenState extends State<SessionScreen> {
       return _buildLoadingScreen(true);
     }
 
-    if (session.continueOnSecondDevice && !session.isReturnPhoneNumber) {
+    if (session.continueOnSecondDevice && !session.clientReturnURL.isReturnPhoneNumber) {
       return _buildFinishedContinueSecondDevice(session);
     }
 
-    if (session.isReturnPhoneNumber) {
+    if (session.clientReturnURL.isReturnPhoneNumber) {
       return _buildFinishedReturnPhoneNumber(session);
     }
 
@@ -190,21 +207,34 @@ class _SessionScreenState extends State<SessionScreen> {
 
     // It concerns a mobile session.
     if (session.clientReturnURL != null && !issuedWizardCred) {
-      // If there is a return URL, navigate to it when we're done; canLaunch check is already
-      // done in the session repository, so we know for sure this url is valid.
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      // If there is a return URL, navigate to it when we're done.
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
         // When being in a disclosure, we can continue to underlying sessions in this case;
         // hasUnderlyingSession during issuance is handled at the beginning of _buildFinished, so
         // we don't have to explicitly exclude issuance here.
-        if (Uri.parse(session.clientReturnURL).queryParameters.containsKey("inapp")) {
-          widget.arguments.hasUnderlyingSession ? Navigator.of(context).pop() : popToMainScreen(context);
-          if (session.inAppCredential != null && session.inAppCredential != "") {
-            _repo.expectInactivationForCredentialType(session.inAppCredential);
+        try {
+          if (session.clientReturnURL.isInApp) {
+            widget.arguments.hasUnderlyingSession ? Navigator.of(context).pop() : popToMainScreen(context);
+            if (session.inAppCredential != null && session.inAppCredential != "") {
+              _repo.expectInactivationForCredentialType(session.inAppCredential);
+            }
+            await _repo.openURLinAppBrowser(session.clientReturnURL.toString());
+          } else {
+            await _repo.openURLExternally(session.clientReturnURL.toString());
+            if (!mounted) return;
+            widget.arguments.hasUnderlyingSession ? Navigator.of(context).pop() : popToMainScreen(context);
           }
-          _repo.openURLinAppBrowser(session.clientReturnURL);
-        } else {
-          _repo.openURLinExternalBrowser(context, session.clientReturnURL);
-          widget.arguments.hasUnderlyingSession ? Navigator.of(context).pop() : popToMainScreen(context);
+        } catch (e) {
+          _dispatchSessionEvent(
+            FailureSessionEvent(
+              error: SessionError(
+                errorType: 'clientReturnUrl',
+                info: 'the clientReturnUrl could not be handled',
+                wrappedError: e.toString(),
+              ),
+            ),
+            isBridgedEvent: false,
+          );
         }
       });
     } else if (widget.arguments.wizardActive || _isSpecialIssuanceSession(session)) {
@@ -244,9 +274,8 @@ class _SessionScreenState extends State<SessionScreen> {
               popToWizard(context);
             } else if (session.continueOnSecondDevice) {
               popToWallet(context);
-            } else if (session.clientReturnURL != null && !session.isReturnPhoneNumber) {
-              // canLaunch check is already done in the session repository.
-              launch(session.clientReturnURL, forceSafariVC: false);
+            } else if (session.clientReturnURL != null && !session.clientReturnURL.isReturnPhoneNumber) {
+              launch(session.clientReturnURL.toString(), forceSafariVC: false);
               popToWallet(context);
             } else {
               if (Platform.isIOS) {

@@ -146,7 +146,7 @@ class Walkthrough extends StatelessWidget {
                       label: FlutterI18n.translate(context, linkText),
                       onTap: () {
                         try {
-                          IrmaRepository.get().openURL(context, FlutterI18n.translate(context, linkUrl));
+                          IrmaRepository.get().openURL(FlutterI18n.translate(context, linkUrl));
                         } on PlatformException catch (e, stacktrace) {
                           reportError(e,
                               stacktrace); //TODO: reconsider whether this should be handled this way, or is better of with an error screens

@@ -470,8 +470,7 @@ class IrmaRepository {
 
   Future<void> openIssueURL(BuildContext context, String type) async {
     expectInactivationForCredentialType(type);
-    openURL(
-      context,
+    return openURL(
       getTranslation(
         context,
         await irmaConfigurationSubject.first
@@ -480,28 +479,36 @@ class IrmaRepository {
     );
   }
 
-  Future<void> openURL(BuildContext context, String url) async {
+  Future<void> openURL(String url) async {
     if ((await getExternalBrowserURLs().first).contains(url)) {
-      openURLinExternalBrowser(context, url, suppressQrScanner: true);
+      return openURLExternally(url, suppressQrScanner: true);
     } else {
-      openURLinAppBrowser(url);
+      return openURLinAppBrowser(url);
     }
   }
 
-  void openURLinAppBrowser(String url) {
+  Future<void> openURLinAppBrowser(String url) async {
     _resumedFromBrowserSubject.add(true);
     if (Platform.isAndroid) {
-      _iiabchannel.invokeMethod('open_browser', url);
+      await _iiabchannel.invokeMethod('open_browser', url);
     } else {
-      launch(url, forceSafariVC: true);
+      final hasOpened = await launch(url, forceSafariVC: true);
+      // Sometimes launch does not throw an exception itself on failure. Therefore, we also check the return value.
+      if (!hasOpened) {
+        throw Exception('url could not be opened: $url');
+      }
     }
   }
 
-  void openURLinExternalBrowser(BuildContext context, String url, {bool suppressQrScanner = false}) {
+  Future<void> openURLExternally(String url, {bool suppressQrScanner = false}) async {
     if (suppressQrScanner) {
       _resumedFromBrowserSubject.add(true);
     }
     // On iOS, open Safari rather than Safari view controller
-    launch(url, forceSafariVC: false);
+    final hasOpened = await launch(url, forceSafariVC: false);
+    // Sometimes launch does not throw an exception itself on failure. Therefore, we also check the return value.
+    if (!hasOpened) {
+      throw Exception('url could not be opened: $url');
+    }
   }
 }
