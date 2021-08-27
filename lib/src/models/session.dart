@@ -134,6 +134,8 @@ class SessionError {
   @JsonKey(name: 'RemoteError')
   RemoteError remoteError;
 
+  bool get reportable => !['https', 'notSupported'].contains(errorType);
+
   factory SessionError.fromJson(Map<String, dynamic> json) => _$SessionErrorFromJson(json);
   Map<String, dynamic> toJson() => _$SessionErrorToJson(this);
 

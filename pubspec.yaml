@@ -1,6 +1,6 @@
 name: irmamobile
 description: IRMA Authentication
-version: 6.1.2+132
+version: 6.2.1+134
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -12,42 +12,35 @@ dependencies:
     sdk: flutter
   flutter_cupertino_localizations: ^1.0.1
 
-  sentry: ^3.0.1
+  sentry_flutter: ^5.1.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^0.1.2
-  flutter_svg: ^0.19.0
-  flutter_i18n:
-    git:
-      url: https://github.com/davidv1992/flutter_i18n
-      ref: 97a5ea4f8b44a849d3bebd6d9676df5ef6716515
-  flutter_bloc: ^0.21.0
-  equatable: ^0.5.1
+  cupertino_icons: ^1.0.3
+  flutter_svg: ^0.22.0
+  flutter_i18n: ^0.22.4
+  flutter_bloc: ^7.0.1
+  equatable: ^2.0.3
 
-  email_validator: ^1.0.0
-  url_launcher: ^5.4.1
-  json_annotation: ^3.0.0
-  build_runner: ^1.6.6
-  rxdart: ^0.22.2
-  version: ^1.0.3
-  package_info: ^0.4.0
-  stream_transform: ^0.0.19
-  collection: ^1.14.11
-  qr_code_scanner:
-    git:
-      url: https://gitlab.science.ru.nl/irma/github-mirrors/qr-code-scanner.git
-      ref: 7e5a098be84b2487febe48f2d858eb4c38056aee
-  font_awesome_flutter: ^8.5.0 # TODO remove once this package is no longer used
-  share: ^0.6.3
-  intl: ^0.16.0
-  flutter_markdown: ^0.3.2
-  shared_preferences: ^0.5.6
+  email_validator: ^2.0.1
+  url_launcher: ^6.0.8
+  json_annotation: ^3.1.1
+  rxdart: ^0.22.6
+  package_info: ^2.0.2
+  stream_transform: ^2.0.0
+  collection: ^1.15.0
+  qr_code_scanner: ^0.0.13 # TODO: Library should be updated further to improve the stability
+  font_awesome_flutter: ^9.1.0 # TODO remove once this package is no longer used
+  share: ^2.0.4
+  intl: ^0.17.0
+  flutter_markdown: ^0.6.2
+  shared_preferences: ^2.0.6
   async: ^2.4.0
-  streaming_shared_preferences: ^1.0.1
-  path_drawing: ^0.4.0
-  flutter_jailbreak_detection: ^1.4.0
-  visibility_detector: ^0.1.5
+  streaming_shared_preferences: ^2.0.0
+  path_drawing: ^0.5.1
+  flutter_jailbreak_detection: ^1.6.0
+  visibility_detector: ^0.2.0
+  quiver: ^3.0.1
   flutter_privacy_screen: ^1.1.0
 
 flutter_native_splash:
@@ -58,12 +51,12 @@ flutter_native_splash:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  json_serializable: ^3.2.0
-  lint: ^0.3.0
-  flutter_native_splash: ^0.1.9
+  json_serializable: ^3.5.1
+  lint: ^1.5.3
+  flutter_native_splash: ^1.2.0
+  build_runner: ^1.11.5
   flutter_driver:
     sdk: flutter
-  test: any
 
 
 # For information on the generic Dart part of this file, see the
