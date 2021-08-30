@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 StreamSubscription sigintSubscription;
@@ -54,16 +53,11 @@ Future<void> startTests(List<String> args, Directory configDir, Directory recove
     schemeDir.copy(Directory([configDir.path, schemeDir.dirName].join(Platform.pathSeparator)));
   }
 
-  print('Starting IRMA server...');
-  irmaServer = await Process.start('irma', ['server', '--url=http://localhost:port']);
-  final outputStream = irmaServer.stderr.asBroadcastStream(); // IRMA server only writes to stderr.
-  outputStream.pipe(stderr);
-  await outputStream.transform(utf8.decoder).firstWhere((line) => line.contains('Server listening at :8088'));
-
   print('Starting Flutter tests...');
   final flutterTool = Platform.isWindows ? 'flutter.bat' : 'flutter';
-  final appTestPath = ['test_driver', 'app.dart'].join(Platform.pathSeparator);
-  flutter = await Process.start(flutterTool, ['drive', '--target=$appTestPath', ...args],
+  final appTestPath = ['test_driver', 'app_test.dart'].join(Platform.pathSeparator);
+  final driverPath = ['test_driver', 'integration_test.dart'].join(Platform.pathSeparator);
+  flutter = await Process.start(flutterTool, ['drive', '--driver=$driverPath', '--target=$appTestPath', ...args],
       mode: ProcessStartMode.inheritStdio);
   await flutter.exitCode;
 }

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -512,13 +513,33 @@ class IrmaRepository {
     return _myIrmaCredentials.contains(ct.fullId);
   }
 
+  /// Only meant for testing and debug purposes.
   void addMyIrmaCredential(CredentialType ct) {
     _myIrmaCredentials.add(ct.fullId);
   }
 
-  void startSessionManually(SessionPointer sessionPointer) {
-    // Sessions that are started manually should be handled as QRs to prevent the app from backgrounding
-    sessionPointer.continueOnSecondDevice = true;
-    _pendingSessionPointerSubject.add(sessionPointer);
+  /// Only meant for testing and debug purposes.
+  Future<void> startTestSession(String requestBody) async {
+    final Uri uri = Uri.parse('https://demo.privacybydesign.foundation/backend/session');
+
+    final request = await HttpClient().postUrl(uri);
+    request.headers.set('Content-Type', 'application/json');
+    request.write(requestBody);
+
+    final response = await request.close();
+    final responseBody = await response.transform(utf8.decoder).first;
+
+    if (response.statusCode != 200) {
+      debugPrint('Status ${response.statusCode}: $responseBody');
+      return;
+    }
+
+    final responseObject = jsonDecode(responseBody) as Map<String, dynamic>;
+    final sessionPtr = SessionPointer.fromJson(responseObject['sessionPtr'] as Map<String, dynamic>);
+
+    // A debug session is not a regular mobile session, because there is no initiating app.
+    // Therefore treat this session like it was started by scanning a QR.
+    sessionPtr.continueOnSecondDevice = true;
+    _pendingSessionPointerSubject.add(sessionPtr);
   }
 }

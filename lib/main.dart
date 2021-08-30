@@ -20,11 +20,14 @@ Future<void> main() async {
 
     await FlutterPrivacyScreen.enablePrivacyScreen();
 
-    runApp(
-      const CredentialNudgeProvider(
+    runApp(IrmaApp());
+  }, (error, stackTrace) => reportError(error, stackTrace));
+}
+
+class IrmaApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) => const CredentialNudgeProvider(
         credentialNudge: null,
         child: App(),
-      ),
-    );
-  }, (error, stackTrace) => reportError(error, stackTrace));
+      );
 }
