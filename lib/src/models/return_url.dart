@@ -9,7 +9,7 @@ class ReturnURL {
       try {
         return ReturnURL._(Uri.parse(url));
       } catch (_) {
-        // Nop
+        // For now we silently dismiss errors, because the SessionRepository does not expect errors to happen here.
       }
     }
     return null;
