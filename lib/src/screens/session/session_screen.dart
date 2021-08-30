@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/native_events.dart';
+import 'package:irmamobile/src/models/return_url.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
@@ -19,6 +20,7 @@ import 'package:irmamobile/src/screens/session/widgets/disclosure_permission.dar
 import 'package:irmamobile/src/screens/session/widgets/issuance_permission.dart';
 import 'package:irmamobile/src/screens/session/widgets/pairing_required.dart';
 import 'package:irmamobile/src/screens/session/widgets/session_scaffold.dart';
+import 'package:irmamobile/src/sentry/sentry.dart';
 import 'package:irmamobile/src/util/combine.dart';
 import 'package:irmamobile/src/util/navigation.dart';
 import 'package:irmamobile/src/widgets/action_feedback.dart';
@@ -126,33 +128,37 @@ class _SessionScreenState extends State<SessionScreen> {
     return session.issuedCredentials.where((credential) => creds.contains(credential.info.fullId)).isNotEmpty;
   }
 
-  Future<void> _openClientReturnUrl(SessionState session, Function(BuildContext) popToMainScreen) async {
-    // When being in a disclosure, we can continue to underlying sessions in this case;
-    // hasUnderlyingSession during issuance is handled at the beginning of _buildFinished, so
-    // we don't have to explicitly exclude issuance here.
+  /// Opens the given clientReturnUrl in the in-app browser, if the url is suitable for the in-app browser, otherwise
+  /// the URL is opened externally. In case the URL cannot be opened, a FailureSessionEvent is dispatched. In case
+  /// of a silentFailure, only an error report is made for Sentry.
+  Future<bool> _openClientReturnUrl(
+    ReturnURL clientReturnUrl, {
+    bool alwaysOpenExternally = false,
+    bool silentFailure = false,
+  }) async {
     try {
-      if (session.clientReturnURL.isInApp) {
-        widget.arguments.hasUnderlyingSession ? Navigator.of(context).pop() : popToMainScreen(context);
-        if (session.inAppCredential != null && session.inAppCredential != "") {
-          _repo.expectInactivationForCredentialType(session.inAppCredential);
-        }
-        await _repo.openURLinAppBrowser(session.clientReturnURL.toString());
+      if (clientReturnUrl.isInApp && !alwaysOpenExternally) {
+        await _repo.openURLinAppBrowser(clientReturnUrl.toString());
       } else {
-        await _repo.openURLExternally(session.clientReturnURL.toString());
-        if (!mounted) return;
-        widget.arguments.hasUnderlyingSession ? Navigator.of(context).pop() : popToMainScreen(context);
+        await _repo.openURLExternally(clientReturnUrl.toString());
       }
-    } catch (e) {
-      _dispatchSessionEvent(
-        FailureSessionEvent(
-          error: SessionError(
-            errorType: 'clientReturnUrl',
-            info: 'the clientReturnUrl could not be handled',
-            wrappedError: e.toString(),
+      return true;
+    } catch (e, stackTrace) {
+      if (silentFailure) {
+        reportError(e, stackTrace);
+      } else {
+        _dispatchSessionEvent(
+          FailureSessionEvent(
+            error: SessionError(
+              errorType: 'clientReturnUrl',
+              info: 'the clientReturnUrl could not be handled',
+              wrappedError: e.toString(),
+            ),
           ),
-        ),
-        isBridgedEvent: false,
-      );
+          isBridgedEvent: false,
+        );
+      }
+      return false;
     }
   }
 
@@ -221,11 +227,11 @@ class _SessionScreenState extends State<SessionScreen> {
       return _buildLoadingScreen(true);
     }
 
-    if (session.continueOnSecondDevice && !session.clientReturnURL.isReturnPhoneNumber) {
+    if (session.continueOnSecondDevice && !session.clientReturnURL.isPhoneNumber) {
       return _buildFinishedContinueSecondDevice(session);
     }
 
-    if (session.clientReturnURL.isReturnPhoneNumber) {
+    if (session.clientReturnURL.isPhoneNumber) {
       return _buildFinishedReturnPhoneNumber(session);
     }
 
@@ -237,7 +243,22 @@ class _SessionScreenState extends State<SessionScreen> {
     // It concerns a mobile session.
     if (session.clientReturnURL != null && !issuedWizardCred) {
       // If there is a return URL, navigate to it when we're done.
-      WidgetsBinding.instance.addPostFrameCallback((_) => _openClientReturnUrl(session, popToMainScreen));
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        // When being in a disclosure, we can continue to underlying sessions in this case;
+        // hasUnderlyingSession during issuance is handled at the beginning of _buildFinished, so
+        // we don't have to explicitly exclude issuance here.
+        if (session.clientReturnURL.isInApp) {
+          widget.arguments.hasUnderlyingSession ? Navigator.of(context).pop() : popToMainScreen(context);
+          if (session.inAppCredential != null && session.inAppCredential != "") {
+            _repo.expectInactivationForCredentialType(session.inAppCredential);
+          }
+          await _openClientReturnUrl(session.clientReturnURL);
+        } else {
+          final hasOpened = await _openClientReturnUrl(session.clientReturnURL);
+          if (!hasOpened || !mounted) return;
+          widget.arguments.hasUnderlyingSession ? Navigator.of(context).pop() : popToMainScreen(context);
+        }
+      });
     } else if (widget.arguments.wizardActive || _isSpecialIssuanceSession(session)) {
       WidgetsBinding.instance.addPostFrameCallback((_) => popToMainScreen(context));
     } else if (widget.arguments.hasUnderlyingSession) {
@@ -270,18 +291,18 @@ class _SessionScreenState extends State<SessionScreen> {
         },
         child: SessionErrorScreen(
           error: session.error,
-          onTapClose: () {
+          onTapClose: () async {
             if (widget.arguments.wizardActive) {
               popToWizard(context);
             } else if (session.continueOnSecondDevice) {
               popToWallet(context);
-            } else if (session.clientReturnURL != null && !session.clientReturnURL.isReturnPhoneNumber) {
+            } else if (session.clientReturnURL != null && !session.clientReturnURL.isPhoneNumber) {
               // If the error was caused by the client return url itself, we should not open it again.
-              if (session.error.errorType == 'clientReturnUrl') {
-                popToWallet(context);
-              } else {
-                _openClientReturnUrl(session, popToWallet);
+              if (session.error.errorType != 'clientReturnUrl') {
+                // For now we do a silentFailure if an error occurs, to prevent two subsequent error screens.
+                await _openClientReturnUrl(session.clientReturnURL, alwaysOpenExternally: true, silentFailure: true);
               }
+              popToWallet(context);
             } else {
               if (Platform.isIOS) {
                 _displayArrowBack.value = true;
