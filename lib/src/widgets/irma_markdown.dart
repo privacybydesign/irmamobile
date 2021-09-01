@@ -34,7 +34,7 @@ class IrmaMarkdown extends StatelessWidget {
 
       // View links in in-app browser
       onTapLink: (text, href, alt) {
-        IrmaRepository.get().openURL(context, href);
+        IrmaRepository.get().openURL(href);
       },
     );
   }

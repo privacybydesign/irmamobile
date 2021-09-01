@@ -1,5 +1,6 @@
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/credentials.dart';
+import 'package:irmamobile/src/models/return_url.dart';
 import 'package:irmamobile/src/models/session.dart';
 
 class SessionState {
@@ -8,7 +9,7 @@ class SessionState {
   final SessionStatus status;
   final RequestorInfo serverName;
   final ConDisCon<Attribute> disclosuresCandidates;
-  final String clientReturnURL;
+  final ReturnURL clientReturnURL;
   final bool isSignatureSession;
   final String signedMessage;
   final List<Credential> issuedCredentials;
@@ -55,7 +56,6 @@ class SessionState {
   // mismatch between both values, so we can safely do this.
   bool get isIssuanceSession => issuedCredentials?.isNotEmpty ?? sessionType == 'issuing';
 
-  bool get isReturnPhoneNumber => clientReturnURL?.startsWith("tel:") ?? false;
   bool get didIssueInappCredential =>
       issuedCredentials?.any((element) => element.info.fullId == inAppCredential) ?? false;
 
@@ -70,7 +70,7 @@ class SessionState {
     SessionStatus status,
     RequestorInfo serverName,
     ConDisCon<Attribute> disclosuresCandidates,
-    String clientReturnURL,
+    ReturnURL clientReturnURL,
     bool isSignatureSession,
     String signedMessage,
     List<Credential> issuedCredentials,

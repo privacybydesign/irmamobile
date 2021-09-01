@@ -3,6 +3,7 @@ import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
+import 'package:irmamobile/src/models/return_url.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
@@ -10,7 +11,6 @@ import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:quiver/iterables.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:stream_transform/stream_transform.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class SessionStates extends UnmodifiableMapView<int, SessionState> {
   SessionStates(Map<int, SessionState> map) : super(map);
@@ -59,9 +59,7 @@ class SessionRepository {
         serverName = null;
       }
       return prevState.copyWith(
-        clientReturnURL: await _isValidClientReturnUrl(event.request.returnURL)
-            ? event.request.returnURL
-            : prevState.clientReturnURL,
+        clientReturnURL: ReturnURL(event.request.returnURL),
         continueOnSecondDevice: event.request.continueOnSecondDevice,
         inAppCredential: event.inAppCredential,
         status: SessionStatus.initialized,
@@ -79,8 +77,7 @@ class SessionRepository {
       );
     } else if (event is ClientReturnURLSetSessionEvent) {
       return prevState.copyWith(
-        clientReturnURL:
-            await _isValidClientReturnUrl(event.clientReturnURL) ? event.clientReturnURL : prevState.clientReturnURL,
+        clientReturnURL: ReturnURL(event.clientReturnURL),
       );
     } else if (event is PairingRequiredSessionEvent) {
       return prevState.copyWith(
@@ -260,10 +257,6 @@ class SessionRepository {
       i += max;
     }
     return i;
-  }
-
-  Future<bool> _isValidClientReturnUrl(String clientReturnUrl) async {
-    return clientReturnUrl != null && await canLaunch(clientReturnUrl);
   }
 
   Stream<SessionState> getSessionState(int sessionID) {
