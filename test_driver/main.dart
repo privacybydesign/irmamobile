@@ -4,6 +4,7 @@ import 'dart:io';
 StreamSubscription sigintSubscription;
 Process irmaServer, flutter;
 
+// Script can be removed when there is proper support in irmamobile/irmago to use a custom keyshare server.
 Future<void> main(List<String> args) async {
   // Move regular configuration to temp dir
   final tempPath = Directory.systemTemp.createTempSync().path;
@@ -38,7 +39,10 @@ Future<void> startTests(List<String> args, Directory configDir, Directory recove
 
   if (Platform.environment.containsKey('SCHEME_URL')) {
     print('Downloading test configuration. This might take a while...');
-    await Process.run('irma', ['scheme', 'download', configDir.path, Platform.environment['SCHEME_URL']]);
+    await Process.run('irma', ['scheme', 'download', configDir.path, Platform.environment['SCHEME_URL']])
+        .then((result) {
+      if (result.exitCode != 0) throw Exception('Test configuration could not be downloaded');
+    });
   } else {
     // Use production config if no other config is specified.
     String schemePath = Platform.environment['SCHEME_PATH'];
@@ -55,10 +59,14 @@ Future<void> startTests(List<String> args, Directory configDir, Directory recove
 
   print('Starting Flutter tests...');
   final flutterTool = Platform.isWindows ? 'flutter.bat' : 'flutter';
-  final appTestPath = ['test_driver', 'app_test.dart'].join(Platform.pathSeparator);
   final driverPath = ['test_driver', 'integration_test.dart'].join(Platform.pathSeparator);
-  flutter = await Process.start(flutterTool, ['drive', '--driver=$driverPath', '--target=$appTestPath', ...args],
-      mode: ProcessStartMode.inheritStdio);
+  final flutterArgs = ['drive', '--driver=$driverPath', ...args];
+  if (!args.any((arg) => arg.contains('--target'))) {
+    final testPath = ['integration_test', 'main_test.dart'].join(Platform.pathSeparator);
+    print('No test target specified, assuming $testPath (i.e. running all tests)');
+    flutterArgs.add('--target=$testPath');
+  }
+  flutter = await Process.start(flutterTool, flutterArgs, mode: ProcessStartMode.inheritStdio);
   await flutter.exitCode;
 }
 
