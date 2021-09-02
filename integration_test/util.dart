@@ -5,7 +5,7 @@ extension WidgetTesterUtil on WidgetTester {
   /// Renders the given widget and waits until it settles.
   Future<void> pumpWidgetAndSettle(Widget w) async {
     await pumpWidget(w);
-    await pumpAndSettle();
+    await waitFor(find.byWidget(w));
   }
 
   /// Enters the given text in the EditableText that currently is in focus.

@@ -62,8 +62,8 @@ Future<void> startTests(List<String> args, Directory configDir, Directory recove
   final driverPath = ['test_driver', 'integration_test.dart'].join(Platform.pathSeparator);
   final flutterArgs = ['drive', '--driver=$driverPath', ...args];
   if (!args.any((arg) => arg.contains('--target'))) {
-    final testPath = ['integration_test', 'main_test.dart'].join(Platform.pathSeparator);
-    print('No test target specified, assuming $testPath (i.e. running all tests)');
+    final testPath = ['integration_test', 'test_all.dart'].join(Platform.pathSeparator);
+    print('No test target specified, assuming $testPath');
     flutterArgs.add('--target=$testPath');
   }
   flutter = await Process.start(flutterTool, flutterArgs, mode: ProcessStartMode.inheritStdio);
