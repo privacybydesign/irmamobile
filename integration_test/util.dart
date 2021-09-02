@@ -8,10 +8,9 @@ extension WidgetTesterUtil on WidgetTester {
     await pumpAndSettle();
   }
 
-  // TODO: Find element that currently has focus to test autofocus
   /// Enters the given text in the EditableText that currently is in focus.
   Future<void> enterTextAtFocusedAndSettle(String text) async {
-    await enterText(find.byType(EditableText), text);
+    await enterText(find.byWidgetPredicate((w) => w is EditableText && w.focusNode.hasFocus), text);
     await pumpAndSettle(const Duration(milliseconds: 500));
   }
 
