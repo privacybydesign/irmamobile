@@ -42,7 +42,42 @@ void main() {
       await tester.waitFor(find.byKey(const Key('wallet_present')));
 
       // Start session
-      await testRepo.inner.startTestSession(_issuanceRequest);
+      await testRepo.inner.startTestSession('''
+        {
+          "@context": "https://irma.app/ld/request/issuance/v2",
+          "credentials": [
+            {
+              "credential": "irma-demo.gemeente.personalData",
+              "attributes": {
+                "initials": "W.L.",
+                "firstnames": "Willeke Liselotte",
+                "prefix": "de",
+                "familyname": "Bruijn",
+                "fullname": "W.L. de Bruijn",
+                "gender": "V",
+                "nationality": "Ja",
+                "surname": "de Bruijn",
+                "dateofbirth": "10-04-1965",
+                "cityofbirth": "Amsterdam",
+                "countryofbirth": "Nederland",
+                "over12": "Yes",
+                "over16": "Yes",
+                "over18": "Yes",
+                "over21": "Yes",
+                "over65": "No",
+                "bsn": "999999990",
+                "digidlevel": "Substantieel"
+              }
+            },
+            {
+              "credential": "irma-demo.gemeente.address",
+              "attributes": {
+                "street":"Meander","houseNumber":"501","zipcode":"1234AB","municipality":"Arnhem","city":"Arnhem"
+              }
+            }
+          ]
+        }
+      ''');
       // Accept issued credential
       await tester.waitFor(find.byKey(const Key('issuance_accept')));
       await tester.tap(
@@ -172,41 +207,3 @@ void main() {
     }, timeout: const Timeout(Duration(minutes: 4)));
   });
 }
-
-// Gitlab does not correctly parse multiline strings, so therefore we put them at the end of the file.
-const _issuanceRequest = '''
-  {
-    "@context": "https://irma.app/ld/request/issuance/v2",
-    "credentials": [
-      {
-        "credential": "irma-demo.gemeente.personalData",
-        "attributes": {
-          "initials": "W.L.",
-          "firstnames": "Willeke Liselotte",
-          "prefix": "de",
-          "familyname": "Bruijn",
-          "fullname": "W.L. de Bruijn",
-          "gender": "V",
-          "nationality": "Ja",
-          "surname": "de Bruijn",
-          "dateofbirth": "10-04-1965",
-          "cityofbirth": "Amsterdam",
-          "countryofbirth": "Nederland",
-          "over12": "Yes",
-          "over16": "Yes",
-          "over18": "Yes",
-          "over21": "Yes",
-          "over65": "No",
-          "bsn": "999999990",
-          "digidlevel": "Substantieel"
-        }
-      },
-      {
-        "credential": "irma-demo.gemeente.address",
-        "attributes": {
-          "street":"Meander","houseNumber":"501","zipcode":"1234AB","municipality":"Arnhem","city":"Arnhem"
-        }
-      }
-    ]
-  }
-''';
