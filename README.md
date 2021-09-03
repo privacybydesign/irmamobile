@@ -127,11 +127,18 @@ Note: we currently use `flutter drive` to run the integration tests, because `fl
 
 To natively run the integration tests on Android, you can use the command below. It uses the configuration from the `irma_configuration` directory.
 
+      flutter pub get
       (cd android && ./gradlew app:connectedAlphaDebugAndroidTest -Ptarget=`pwd`/../integration_test/test_all.dart)
 
-You can also build an APK and install it on a device manually.
+You can also manually build APKs for testing.
 
-      (cd android && ./gradlew app:assembleAlphaDebugAndroidTest -Ptarget=`pwd`/../integration_test/test_all.dart)
+      flutter pub get
+      (cd android && ./gradlew app:assembleAndroidTest)
+      (cd android && ./gradlew app:assembleAlphaDebug -Ptarget=`pwd`/../integration_test/test_all.dart)
+
+You can use those APKs for testing with services like [Google Firebase](https://flutter.dev/docs/testing/integration-tests#uploading-an-android-apk).
+You can also run them locally using the following commands:
+
       adb install build/app/outputs/apk/alpha/debug/app-alpha-debug.apk
       adb install build/app/outputs/apk/androidTest/alpha/debug/app-alpha-debug-androidTest.apk
       adb shell am instrument -w -r foundation.privacybydesign.irmamobile.alpha.test/androidx.test.runner.AndroidJUnitRunner
