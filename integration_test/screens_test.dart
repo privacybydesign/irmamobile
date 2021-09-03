@@ -33,9 +33,6 @@ void main() {
           find.descendant(of: find.byKey(const Key('enrollment_p1')), matching: find.byKey(const Key('next'))));
 
       // Check second screen
-      // Check Next button is available
-      //await driver
-      //    .waitFor(find.descendant(of: find.byKey(const Key('enrollment_p2')), matching: find.byKey(const Key('next'))));
       print("Check intro heading");
       string = tester.getText(find.byKey(const Key('intro_heading')), firstMatchOnly: true);
       expect(string, 'Make yourself known with IRMA');
@@ -47,9 +44,6 @@ void main() {
           find.descendant(of: find.byKey(const Key('enrollment_p2')), matching: find.byKey(const Key('next'))));
 
       // Check third screen
-      // Check Next button is available
-      //await driver
-      //    .waitFor(find.descendant(of: find.byKey(const Key('enrollment_p3')), matching: find.byKey(const Key('next'))));
       print("Check intro heading");
       string = tester.getText(find.byKey(const Key('intro_heading')), firstMatchOnly: true);
       expect(string, 'IRMA provides certainty, to you and to others');
@@ -69,7 +63,6 @@ void main() {
 
     testWidgets('tc2', (tester) async {
       // Scenario 2 of IRMA app screens
-      //await tester.waitFor(find.byKey(const Key('enrollment_p1')));
       // Initialize the app for integration tests
       await tester.pumpWidgetAndSettle(IrmaApp());
       // Tap through enrollment info screens
@@ -80,10 +73,8 @@ void main() {
       await tester.tapAndSettle(
           find.descendant(of: find.byKey(const Key('enrollment_p3')), matching: find.byKey(const Key('next'))));
       // Enter pin
-      //await tester.waitFor(find.byKey(const Key('enrollment_choose_pin')));
       await tester.enterTextAtFocusedAndSettle('12345');
       // Confirm pin
-      //await tester.waitFor(find.byKey(const Key('enrollment_confirm_pin')));
       await tester.enterTextAtFocusedAndSettle('12345');
       // Skip email providing
       await tester.tapAndSettle(find.byKey(const Key('enrollment_skip_email')));
@@ -95,7 +86,6 @@ void main() {
       // Logout
       await tester.tapAndSettle(find.byKey(const Key('menu_logout')));
       // login window is displayed
-      //await tester.waitFor(find.byKey(const Key('pin_screen')));
       // Check screen title
       String string = tester.getText(find.byKey(const Key('pinscreen_app_bar')), firstMatchOnly: true);
       expect(string, 'Login');
@@ -107,8 +97,6 @@ void main() {
       expect(string, 'PIN forgotten');
 
       await tester.tapAndSettle(find.byKey(const Key('irma_link')));
-
-      //await tester.waitFor(find.byKey(const Key('reset_pin_screen')));
 
       string = tester.getText(find.byKey(const Key('reset_pin_screen')), firstMatchOnly: true);
 
@@ -126,7 +114,6 @@ void main() {
 
     testWidgets('tc3', (tester) async {
       // Scenario 3 of IRMA app screens
-      //await tester.waitFor(find.byKey(const Key('enrollment_p1')));
       // Initialize the app for integration tests
       await tester.pumpWidgetAndSettle(IrmaApp());
       // Tap through enrollment info screens
@@ -137,10 +124,8 @@ void main() {
       await tester.tapAndSettle(
           find.descendant(of: find.byKey(const Key('enrollment_p3')), matching: find.byKey(const Key('next'))));
       // Enter pin
-      //await tester.waitFor(find.byKey(const Key('enrollment_choose_pin')));
       await tester.enterTextAtFocusedAndSettle('12345');
       // Confirm pin
-      //await tester.waitFor(find.byKey(const Key('enrollment_confirm_pin')));
       await tester.enterTextAtFocusedAndSettle('12345');
       // Skip email providing
       await tester.tapAndSettle(find.byKey(const Key('enrollment_skip_email')));
@@ -159,7 +144,6 @@ void main() {
 
     testWidgets('tc4', (tester) async {
       // Scenario 4 of IRMA app screens: Help screen
-      //await tester.waitFor(find.byKey(const Key('enrollment_p1')));
       // Initialize the app for integration tests
       await tester.pumpWidgetAndSettle(IrmaApp());
       // Tap through enrollment info screens
@@ -170,10 +154,8 @@ void main() {
       await tester.tapAndSettle(
           find.descendant(of: find.byKey(const Key('enrollment_p3')), matching: find.byKey(const Key('next'))));
       // Enter pin
-      //await tester.waitFor(find.byKey(const Key('enrollment_choose_pin')));
       await tester.enterTextAtFocusedAndSettle('12345');
       // Confirm pin
-      //await tester.waitFor(find.byKey(const Key('enrollment_confirm_pin')));
       await tester.enterTextAtFocusedAndSettle('12345');
       // Skip email providing
       await tester.tapAndSettle(find.byKey(const Key('enrollment_skip_email')));

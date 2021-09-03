@@ -20,8 +20,6 @@ void main() {
 
     testWidgets('tc1', (tester) async {
       // Scenario 1 of enrollment process
-      // Wait for initialization
-      //await tester.waitFor(find.byKey(const Key('enrollment_p1')));
       // Initialize the app for integration tests
       await tester.pumpWidgetAndSettle(IrmaApp());
 
@@ -33,12 +31,9 @@ void main() {
       await tester.tapAndSettle(
           find.descendant(of: find.byKey(const Key('enrollment_p3')), matching: find.byKey(const Key('next'))));
 
-      // Choose new pin screen
-      //await tester.waitFor(find.byKey(const Key('enrollment_choose_pin')));
       // Enter Pin
       await tester.enterTextAtFocusedAndSettle('12345');
       // Enter wrong pin
-      //await tester.waitFor(find.byKey(const Key('enrollment_confirm_pin')));
       await tester.enterTextAtFocusedAndSettle('67890');
 
       await tester.waitFor(find.byKey(const Key('irma_dialog')));
@@ -53,16 +48,10 @@ void main() {
       await tester
           .tapAndSettle(find.descendant(of: find.byKey(const Key('irma_dialog')), matching: find.byType(IrmaButton)));
 
-      // Choose new pin screen
-      //await tester.waitFor(find.byKey(const Key('enrollment_choose_pin')));
-      // Enter Pin
+      // Enter pin
       await tester.enterTextAtFocusedAndSettle('12345');
-      // Enter wrong pin
-      //await tester.waitFor(find.byKey(const Key('enrollment_confirm_pin')));
+      // Confirm pin
       await tester.enterTextAtFocusedAndSettle('12345');
-
-      // Enter email address
-      //await tester.waitFor(find.byKey(const Key('enrollment_provide_email')));
 
       // Check error message is not displayed
       expect(
@@ -119,9 +108,6 @@ void main() {
 
     testWidgets('tc2', (tester) async {
       // Scenario 2 of enrollment process
-      // Wait for initialization
-      //await tester.waitFor(find.byKey(const Key('enrollment_p1')));
-
       // Initialize the app for integration tests
       await tester.pumpWidgetAndSettle(IrmaApp());
 
@@ -132,9 +118,6 @@ void main() {
           find.descendant(of: find.byKey(const Key('enrollment_p2')), matching: find.byKey(const Key('next'))));
       await tester.tapAndSettle(
           find.descendant(of: find.byKey(const Key('enrollment_p3')), matching: find.byKey(const Key('next'))));
-
-      // Choose new pin screen
-      //await tester.waitFor(find.byKey(const Key('enrollment_choose_pin')));
 
       // Check screen title
       String string = tester.getText(find.byKey(const Key('irma_app_bar')), firstMatchOnly: true);
@@ -151,9 +134,6 @@ void main() {
       print('Enter pin');
       await tester.enterTextAtFocusedAndSettle('12345');
 
-      // Confirm pin
-      //await tester.waitFor(find.byKey(const Key('enrollment_confirm_pin')));
-
       // Check screen title
       print('check screen title Secure your irma app');
       string = tester.getText(find.byKey(const Key('irma_app_bar')), firstMatchOnly: true);
@@ -164,10 +144,8 @@ void main() {
       string = tester.getText(find.byKey(const Key('enrollment_confirm_pin')), firstMatchOnly: true);
       expect(string, 'Enter your PIN again');
 
+      // Confirm pin
       await tester.enterTextAtFocusedAndSettle('12345');
-
-      // Wait for screen to provide email address
-      //await tester.waitFor(find.byKey(const Key('enrollment_provide_email')));
 
       // Check screen title
       print('check screen title Secure your irma app');

@@ -19,7 +19,6 @@ void main() {
 
     testWidgets('tc1', (tester) async {
       // Scenario 1 of issuance process
-      //await tester.waitFor(find.byKey(const Key('enrollment_p1')));
       // Initialize the app for integration tests
       await tester.pumpWidgetAndSettle(IrmaApp());
       // Tap through enrollment info screens
@@ -30,10 +29,8 @@ void main() {
       await tester.tapAndSettle(
           find.descendant(of: find.byKey(const Key('enrollment_p3')), matching: find.byKey(const Key('next'))));
       // Enter pin
-      //await tester.waitFor(find.byKey(const Key('enrollment_choose_pin')));
       await tester.enterTextAtFocusedAndSettle('12345');
       // Confirm pin
-      //await tester.waitFor(find.byKey(const Key('enrollment_confirm_pin')));
       await tester.enterTextAtFocusedAndSettle('12345');
       // Skip email providing
       await tester.tapAndSettle(find.byKey(const Key('enrollment_skip_email')));

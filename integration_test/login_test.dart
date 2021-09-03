@@ -22,7 +22,6 @@ void main() {
 
     testWidgets('tc1', (tester) async {
       // Scenario 1 of login process
-      //await tester.waitFor(find.byKey(const Key('enrollment_p1')));
       // Initialize the app for integration tests
       await tester.pumpWidgetAndSettle(IrmaApp());
       // Tap through enrollment info screens
@@ -33,10 +32,8 @@ void main() {
       await tester.tapAndSettle(
           find.descendant(of: find.byKey(const Key('enrollment_p3')), matching: find.byKey(const Key('next'))));
       // Enter pin
-      //await tester.waitFor(find.byKey(const Key('enrollment_choose_pin')));
       await tester.enterTextAtFocusedAndSettle('12345');
       // Confirm pin
-      //await tester.waitFor(find.byKey(const Key('enrollment_confirm_pin')));
       await tester.enterTextAtFocusedAndSettle('12345');
       // Skip email providing
       await tester.tapAndSettle(find.byKey(const Key('enrollment_skip_email')));
@@ -71,7 +68,6 @@ void main() {
 
     testWidgets('tc2', (tester) async {
       // Scenario 2 of login process: User is blocked after 3 failed attempts.
-      //await tester.waitFor(find.byKey(const Key('enrollment_p1')));
       // Initialize the app for integration tests
       await tester.pumpWidgetAndSettle(IrmaApp());
       // Tap through enrollment info screens
@@ -83,10 +79,8 @@ void main() {
           find.descendant(of: find.byKey(const Key('enrollment_p3')), matching: find.byKey(const Key('next'))));
       // Enter pin
       await tester.tapAndSettle(find.byKey(const Key('pin_field_key')));
-      //await tester.waitFor(find.byKey(const Key('enrollment_choose_pin')));
       await tester.enterTextAtFocusedAndSettle('12345');
       // Confirm pin
-      //await tester.waitFor(find.byKey(const Key('enrollment_confirm_pin')));
       await tester.enterTextAtFocusedAndSettle('12345');
       // Skip email providing
       await tester.tapAndSettle(find.byKey(const Key('enrollment_skip_email')));
@@ -114,7 +108,6 @@ void main() {
         matching: find.byType(IrmaButton),
       ));
       // login using wrong pin
-      //await tester.waitFor(find.byKey(const Key('pin_screen')));
       await tester.enterTextAtFocusedAndSettle('54321');
       // Check error dialog
       await tester.waitFor(find.byKey(const Key('irma_dialog')));
@@ -130,7 +123,6 @@ void main() {
         matching: find.byType(IrmaButton),
       ));
       // login using wrong pin
-      //await tester.waitFor(find.byKey(const Key('pin_screen')));
       await tester.enterTextAtFocusedAndSettle('54321');
       // Check error dialog
       await tester.waitFor(find.byKey(const Key('irma_dialog')));
