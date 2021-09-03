@@ -124,8 +124,8 @@ void main() {
           of: find.byKey(const Key('reset_pin_buttons')), matching: find.byKey(const Key('secondary'))));
     }, timeout: const Timeout(Duration(minutes: 2)));
 
-    testWidgets('tc4', (tester) async {
-      // Scenario 4 of IRMA app screens
+    testWidgets('tc3', (tester) async {
+      // Scenario 3 of IRMA app screens
       //await tester.waitFor(find.byKey(const Key('enrollment_p1')));
       // Initialize the app for integration tests
       await tester.pumpWidgetAndSettle(IrmaApp());
@@ -157,8 +157,8 @@ void main() {
       expect(tester.any(find.byKey(const Key('wallet_card_0'))), false);
     }, timeout: const Timeout(Duration(minutes: 4)));
 
-    testWidgets('tc5', (tester) async {
-      // Scenario 5 of IRMA app screens: Help screen
+    testWidgets('tc4', (tester) async {
+      // Scenario 4 of IRMA app screens: Help screen
       //await tester.waitFor(find.byKey(const Key('enrollment_p1')));
       // Initialize the app for integration tests
       await tester.pumpWidgetAndSettle(IrmaApp());
