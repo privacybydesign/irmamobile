@@ -14,7 +14,7 @@ extension WidgetTesterUtil on WidgetTester {
     await pumpAndSettle(const Duration(milliseconds: 500));
   }
 
-  /// Taps on the element the given widget, waits for a response, triggers a new frame sequence
+  /// Taps on the given widget, waits for a response, triggers a new frame sequence
   /// to be rendered (check the description of pump) and waits until the widget settles.
   /// The waiting time can be specified using 'duration'.
   Future<void> tapAndSettle(Finder f, {Duration duration = const Duration(milliseconds: 100)}) async {
