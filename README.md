@@ -97,23 +97,51 @@ This project uses json_serializer. To re-generate serialization code, run `./cod
 _The integration tests are in development, so not all use cases are covered yet._
 
 As preliminary to run the integration tests, you need a fully configured [irmamobile development setup](#development-setup).
-Furthermore, we require the [`irma` CLI tool](https://github.com/privacybydesign/irmago#installing) to be installed and available in your PATH.
 
-By default, the integration tests run using the `pbdf` issuer scheme in `./irma_configuration`. This scheme uses the `pbdf` production keyshare server. The tests can be started in the following way:
+### Run locally using an iOS/Android simulator
+By default, the script runs all integration tests and uses the `pbdf` issuer scheme in `./irma_configuration`. This scheme uses the `pbdf` production keyshare server. The tests can be started in the following way:
 
       // For an iOS testing device/simulator
       dart test_driver/main.dart
       // For an Android testing device/simulator
       dart test_driver/main.dart --flavor=alpha
 
+To run a specific set of integration tests, you can override the test target using the `--target` command line argument.
+
+      dart test_driver/main.dart --target=integration_test/issuance_test.dart
+
 You can also run the tests using a custom issuer scheme, for example to prevent tests to be executed against a production keyshare server.
 You can do this by specifying the issuer scheme URL of the custom scheme using an environment variable.
 
       SCHEME_URL=https://example.com/schememanager/test
 
+To use the `SCHEME_URL` option, you need the [`irma` CLI tool](https://github.com/privacybydesign/irmago#installing) to be installed and available in your PATH.
+
 If you want to use a local issuer scheme, you can use the following environment variable instead.
 
       SCHEME_PATH=./irma_configuration/test
+
+Note: we currently use `flutter drive` to run the integration tests, because `flutter test` does not allow us to specify a `--flavor` on Android.
+
+### Run on Android natively
+
+To natively run the integration tests on Android, you can use the command below. It uses the configuration from the `irma_configuration` directory.
+
+      flutter pub get
+      (cd android && ./gradlew app:connectedAlphaDebugAndroidTest -Ptarget=`pwd`/../integration_test/test_all.dart)
+
+You can also manually build APKs for testing.
+
+      flutter pub get
+      (cd android && ./gradlew app:assembleAndroidTest)
+      (cd android && ./gradlew app:assembleAlphaDebug -Ptarget=`pwd`/../integration_test/test_all.dart)
+
+You can use those APKs for testing with services like [Google Firebase](https://flutter.dev/docs/testing/integration-tests#uploading-an-android-apk).
+You can also run them locally using the following commands:
+
+      adb install build/app/outputs/apk/alpha/debug/app-alpha-debug.apk
+      adb install build/app/outputs/apk/androidTest/alpha/debug/app-alpha-debug-androidTest.apk
+      adb shell am instrument -w -r foundation.privacybydesign.irmamobile.alpha.test/androidx.test.runner.AndroidJUnitRunner
 
 ## Troubleshooting
 

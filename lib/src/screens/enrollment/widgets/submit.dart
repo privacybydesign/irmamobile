@@ -45,7 +45,7 @@ class _SubmitState extends State<Submit> {
         noLeading: true,
       ),
       body: BlocListener<EnrollmentBloc, EnrollmentState>(
-          condition: (previous, current) {
+          listenWhen: (previous, current) {
             return previous.isSubmitting && !current.isSubmitting;
           },
           listener: (context, state) {

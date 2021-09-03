@@ -8,19 +8,16 @@ import 'package:irmamobile/src/screens/enrollment/models/enrollment_event.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
 
 class EnrollmentBloc extends Bloc<Object, EnrollmentState> {
-  @override
-  final EnrollmentState initialState;
+  EnrollmentBloc(String languageCode) : super(EnrollmentState(languageCode: languageCode));
 
-  EnrollmentBloc(String languageCode) : initialState = EnrollmentState(languageCode: languageCode);
-
-  EnrollmentBloc.test(this.initialState);
+  EnrollmentBloc.test(EnrollmentState initialState) : super(initialState);
 
   @override
   Stream<EnrollmentState> mapEventToState(Object event) async* {
     if (event is EnrollmentCanceled) {
       yield EnrollmentState();
     } else if (event is PinSubmitted) {
-      yield currentState.copyWith(
+      yield state.copyWith(
         pin: event.pin,
         pinConfirmed: false,
         pinMismatch: false,
@@ -30,53 +27,53 @@ class EnrollmentBloc extends Bloc<Object, EnrollmentState> {
         showEmailValidation: false,
       );
     } else if (event is ConfirmationPinSubmitted) {
-      final bool pinConfirmed = event.pin == currentState.pin;
-      yield currentState.copyWith(
+      final bool pinConfirmed = event.pin == state.pin;
+      yield state.copyWith(
         pinConfirmed: pinConfirmed,
         pinMismatch: !pinConfirmed,
         showPinValidation: true,
         showEmailValidation: false,
         emailValid: false,
         emailSkipped: false,
-        retry: currentState.retry + 1,
+        retry: state.retry + 1,
       );
     } else if (event is EmailSubmitted) {
       final isEmailValid = EmailValidator.validate(event.email);
-      yield currentState.copyWith(
+      yield state.copyWith(
         email: event.email,
         emailValid: isEmailValid,
         showEmailValidation: true,
       );
 
       if (isEmailValid) {
-        dispatch(Enroll());
+        add(Enroll());
       }
     } else if (event is EmailSkipped) {
-      yield currentState.copyWith(
+      yield state.copyWith(
         emailSkipped: true,
       );
 
-      dispatch(Enroll());
+      add(Enroll());
     } else if (event is Enroll) {
-      yield currentState.copyWith(
+      yield state.copyWith(
         isSubmitting: true,
         submittingFailed: false, // reset incase of retrying
       );
 
       final status = await IrmaRepository.get().enroll(
-        email: currentState.email.trim(),
-        pin: currentState.pin,
-        language: currentState.languageCode,
+        email: state.email.trim(),
+        pin: state.pin,
+        language: state.languageCode,
       );
 
       if (status is EnrollmentFailureEvent) {
-        yield currentState.copyWith(
+        yield state.copyWith(
           isSubmitting: false,
           submittingFailed: true,
           error: status.error,
         );
       } else if (status is EnrollmentSuccessEvent) {
-        yield currentState.copyWith(
+        yield state.copyWith(
           isSubmitting: false,
         );
       }

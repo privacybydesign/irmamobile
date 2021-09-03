@@ -18,15 +18,21 @@ class ErrorScreen extends StatefulWidget {
 
   final ErrorType type;
   final String details;
+  final bool reportable;
 
-  /// Display an error screen. If error details are provided, the user can choose to report
-  /// those error details to Sentry.
-  factory ErrorScreen({@required VoidCallback onTapClose, ErrorType type = ErrorType.general, String details}) =>
+  /// Display an error screen. The user can optionally choose to report those error details to Sentry.
+  factory ErrorScreen({
+    @required VoidCallback onTapClose,
+    ErrorType type = ErrorType.general,
+    String details,
+    bool reportable = true,
+  }) =>
       ErrorScreen._(
         onTapClose: onTapClose,
         type: type,
         details: details,
-        onReportError: details != null ? () => reportError(details, null, userInitiated: true) : null,
+        reportable: reportable,
+        onReportError: reportable ? () => reportError(details, null, userInitiated: true) : null,
       );
 
   /// Display an error screen for an ErrorEvent. The user can choose to report the error to Sentry.
@@ -35,10 +41,11 @@ class ErrorScreen extends StatefulWidget {
         onTapClose: error.fatal ? null : onTapClose,
         type: ErrorType.general,
         details: error.toString(),
+        reportable: true,
         onReportError: () => reportError(error.exception, error.stack, userInitiated: true),
       );
 
-  const ErrorScreen._({this.onTapClose, this.onReportError, this.type, this.details});
+  const ErrorScreen._({this.onTapClose, this.onReportError, this.type, this.details, this.reportable});
 
   @override
   State<StatefulWidget> createState() => _ErrorScreenState();
@@ -74,6 +81,7 @@ class _ErrorScreenState extends State<ErrorScreen> {
           body: ErrorDetails(
             type: widget.type,
             details: widget.details,
+            reportable: widget.reportable,
           ),
           bottomNavigationBar: IrmaBottomBar(
             primaryButtonLabel: widget.onTapClose != null ? FlutterI18n.translate(context, 'error.button_ok') : null,

@@ -15,15 +15,19 @@ Future<void> main() async {
 
   runZonedGuarded<Future<void>>(() async {
     WidgetsFlutterBinding.ensureInitialized();
+    await initSentry();
     IrmaRepository(client: IrmaClientBridge());
 
     await FlutterPrivacyScreen.enablePrivacyScreen();
 
-    runApp(
-      const CredentialNudgeProvider(
+    runApp(IrmaApp());
+  }, (error, stackTrace) => reportError(error, stackTrace));
+}
+
+class IrmaApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) => const CredentialNudgeProvider(
         credentialNudge: null,
         child: App(),
-      ),
-    );
-  }, (error, stackTrace) => reportError(error, stackTrace));
+      );
 }

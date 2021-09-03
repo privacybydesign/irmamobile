@@ -340,8 +340,9 @@
     "button_back": "Terug",
     "button_reset": "Begin opnieuw",
     "details_title": "Foutmelding",
+    "report": "Als het fout blijft gaan, laat het dan weten aan het technische team van IRMA.",
     "types": {
-      "general": "Er is iets misgegaan.\n\nAls het fout blijft gaan, laat het dan weten aan het technische team van IRMA.",
+      "general": "Er is iets misgegaan.",
       "blocked": "Je IRMA-app is op afstand geblokeerd.\n\nDit is omdat dit via MijnIRMA voor jouw app is gedaan, of omdat je langer dan een jaar geen gebruik hebt gemaakt van IRMA op dit apparaat. Als je op dit apparaat IRMA wilt blijven gebruiken moet je opnieuw beginnen.",
       "expired": "De sessie is verlopen. Start alstublieft opnieuw.",
       "pairing_rejected": "De sessie is geweigerd. Start alstublieft opnieuw.",

@@ -1,10 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 StreamSubscription sigintSubscription;
 Process irmaServer, flutter;
 
+// Script can be removed when there is proper support in irmamobile/irmago to use a custom keyshare server.
 Future<void> main(List<String> args) async {
   // Move regular configuration to temp dir
   final tempPath = Directory.systemTemp.createTempSync().path;
@@ -39,7 +39,10 @@ Future<void> startTests(List<String> args, Directory configDir, Directory recove
 
   if (Platform.environment.containsKey('SCHEME_URL')) {
     print('Downloading test configuration. This might take a while...');
-    await Process.run('irma', ['scheme', 'download', configDir.path, Platform.environment['SCHEME_URL']]);
+    await Process.run('irma', ['scheme', 'download', configDir.path, Platform.environment['SCHEME_URL']])
+        .then((result) {
+      if (result.exitCode != 0) throw Exception('Test configuration could not be downloaded');
+    });
   } else {
     // Use production config if no other config is specified.
     String schemePath = Platform.environment['SCHEME_PATH'];
@@ -54,17 +57,16 @@ Future<void> startTests(List<String> args, Directory configDir, Directory recove
     schemeDir.copy(Directory([configDir.path, schemeDir.dirName].join(Platform.pathSeparator)));
   }
 
-  print('Starting IRMA server...');
-  irmaServer = await Process.start('irma', ['server', '--url=http://localhost:port']);
-  final outputStream = irmaServer.stderr.asBroadcastStream(); // IRMA server only writes to stderr.
-  outputStream.pipe(stderr);
-  await outputStream.transform(utf8.decoder).firstWhere((line) => line.contains('Server listening at :8088'));
-
   print('Starting Flutter tests...');
   final flutterTool = Platform.isWindows ? 'flutter.bat' : 'flutter';
-  final appTestPath = ['test_driver', 'app.dart'].join(Platform.pathSeparator);
-  flutter = await Process.start(flutterTool, ['drive', '--target=$appTestPath', ...args],
-      mode: ProcessStartMode.inheritStdio);
+  final driverPath = ['test_driver', 'integration_test.dart'].join(Platform.pathSeparator);
+  final flutterArgs = ['drive', '--driver=$driverPath', ...args];
+  if (!args.any((arg) => arg.contains('--target'))) {
+    final testPath = ['integration_test', 'test_all.dart'].join(Platform.pathSeparator);
+    print('No test target specified, assuming $testPath');
+    flutterArgs.add('--target=$testPath');
+  }
+  flutter = await Process.start(flutterTool, flutterArgs, mode: ProcessStartMode.inheritStdio);
   await flutter.exitCode;
 }
 
