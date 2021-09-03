@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 StreamSubscription sigintSubscription;
-Process irmaServer, flutter;
+Process flutter;
 
 // Script can be removed when there is proper support in irmamobile/irmago to use a custom keyshare server.
 Future<void> main(List<String> args) async {
@@ -73,7 +73,6 @@ Future<void> startTests(List<String> args, Directory configDir, Directory recove
 void clean(Directory configDir, Directory recoveryConfigDir) {
   sigintSubscription?.cancel();
   flutter?.kill();
-  irmaServer?.kill();
 
   print('\nRestoring irma_configuration...');
   // Wait a seconds to make sure all resources are released by child processes on sigint.
