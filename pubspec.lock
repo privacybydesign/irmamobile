@@ -237,13 +237,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "7.0.1"
-  flutter_cupertino_localizations:
-    dependency: "direct main"
-    description:
-      name: flutter_cupertino_localizations
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.1"
   flutter_i18n:
     dependency: "direct main"
     description:
