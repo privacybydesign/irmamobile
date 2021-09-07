@@ -43,11 +43,11 @@
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
   [self debugLog:[NSString stringWithFormat:@"handling %@", call.method]];
-  
-  if([call.method isEqualToString:@"AppReadyEvent"]) {
+
+  if([call.method isEqualToString:@"AppReadyEvent"] && initialURL != nil) {
     [channel invokeMethod:@"HandleURLEvent" arguments:[NSString stringWithFormat:@"{\"isInitialURL\": true, \"url\": \"%@\"}", initialURL]];
   }
-  
+
   IrmagobridgeDispatchFromNative(call.method, (NSString*)call.arguments);
   result(nil);
 }
@@ -67,7 +67,9 @@
 - (BOOL)application:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
   NSURL *url = (NSURL *)launchOptions[UIApplicationLaunchOptionsURLKey];
-  initialURL = [url absoluteString];
+  if (url != nil) {
+    initialURL = [url absoluteString];
+  }
   return YES;
 }
 
@@ -81,7 +83,7 @@
 - (BOOL)application:(UIApplication *)application
     continueUserActivity:(NSUserActivity *)userActivity
       restorationHandler:(void (^)(NSArray *_Nullable))restorationHandler {
-  if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb]) {
+  if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb] && userActivity.webpageURL != nil) {
     NSString *url = [userActivity.webpageURL absoluteString];
     [channel invokeMethod:@"HandleURLEvent" arguments:[NSString stringWithFormat:@"{\"url\": \"%@\"}", url]];
     return YES;
