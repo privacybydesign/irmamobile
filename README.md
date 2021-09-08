@@ -36,7 +36,7 @@ attaching data to signed statements. These data can be relevant properties, such
       git submodule init
       git submodule update
 
-* Install Java development kit. Java 11 _should_ work, but if your Android development environment is too old, you might need to fall back to Java 8. See troubleshooting on how to install Java 8 under Debian/Ubuntu or MacOS.
+* Install Java development kit. Java 11 _should_ work. Java 8 is not supported anymore.
 
       # On Debian / Ubuntu
       apt install openjdk-11-jdk
@@ -104,27 +104,3 @@ This project uses json_serializer. To re-generate serialization code, run `./cod
   `ln -s $ANDROID_HOME/ndk/<NDK_VERSION> $ANDROID_HOME/ndk-bundle`. In here `<NDK_VERSION>` should be replaced
   with the NDK version you want to use.
 * When you get an error related to `x_cgo_inittls` while running `./bind_go.sh`, you probably use an incorrect version of the Android NDK (see above) or your Go version is too old.
-
-### Installing Java 8
-
-* Install Java JDK 8, using a package manager or by manually downloading one. Once installed, you
-  will also have to set the `JAVA_HOME` environment variable. For a Debian based OS you can use:
-
-      sudo apt install openjdk-8-jdk
-      export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-      echo 'export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64' >> "$HOME/.bashrc"
-
-  Starting from Debian Buster OpenJDK version 8 is no longer available, but it is currently the
-  only version of Java fully supported by the Android SDK. You can use the AdoptOpenJDK community
-  apt repository:
-
-       wget -qO - https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | sudo apt-key add -
-       sudo add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/
-       sudo apt update
-       sudo apt install adoptopenjdk-8-hotspot
-
-  For MacOS, you can use homebrew to install java 8:
-
-      brew cask install adoptopenjdk/openjdk/adoptopenjdk8
-      export JAVA_HOME=`/usr/libexec/java_home -v 1.8`
-      echo 'export JAVA_HOME=`/usr/libexec/java_home -v 1.8`' >> "$HOME/.bashrc"
