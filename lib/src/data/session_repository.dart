@@ -1,3 +1,6 @@
+// This file is not null safe yet.
+// @dart=2.11
+
 import 'package:collection/collection.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attributes.dart';

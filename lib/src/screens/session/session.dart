@@ -1,3 +1,6 @@
+// This file is not null safe yet.
+// @dart=2.11
+
 class SessionScreenArguments {
   final int sessionID;
   final String sessionType;

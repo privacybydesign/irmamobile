@@ -1,3 +1,6 @@
+// This file is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
@@ -6,7 +9,6 @@ import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/log_entry.dart';
 import 'package:irmamobile/src/screens/history/widgets/header.dart';
-import 'package:irmamobile/src/widgets/issuing_detail.dart';
 import 'package:irmamobile/src/screens/history/widgets/removal_detail.dart';
 import 'package:irmamobile/src/screens/history/widgets/subtitle.dart';
 import 'package:irmamobile/src/theme/theme.dart';
@@ -14,6 +16,7 @@ import 'package:irmamobile/src/widgets/disclosure/disclosure_card.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 import 'package:irmamobile/src/widgets/irma_quote.dart';
+import 'package:irmamobile/src/widgets/issuing_detail.dart';
 
 class DetailScreen extends StatelessWidget {
   final LogEntry logEntry;

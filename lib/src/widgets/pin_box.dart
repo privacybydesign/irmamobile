@@ -1,3 +1,6 @@
+// This file is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/theme/theme.dart';

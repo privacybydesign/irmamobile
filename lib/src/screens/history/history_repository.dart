@@ -1,3 +1,6 @@
+// This file is not null safe yet.
+// @dart=2.11
+
 import 'dart:async';
 
 import 'package:collection/collection.dart';

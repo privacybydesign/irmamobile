@@ -1,3 +1,6 @@
+// This file is not null safe yet.
+// @dart=2.11
+
 import 'package:rxdart/subjects.dart';
 import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 

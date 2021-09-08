@@ -1,3 +1,5 @@
+// This file is not null safe yet.
+// @dart=2.11
 // This Heading is used to make headlines more accessible.
 // It wraps a Text() widget with a Semantics() widget to indicate that
 // the text is a heading. VoiceOver will now append the word "heading"

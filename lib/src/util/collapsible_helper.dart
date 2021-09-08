@@ -1,3 +1,6 @@
+// This file is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 
 Duration expandDuration = const Duration(milliseconds: 250); // expand duration of _Collapsible

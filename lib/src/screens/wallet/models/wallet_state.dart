@@ -1,3 +1,6 @@
+// This file is not null safe yet.
+// @dart=2.11
+
 import 'package:equatable/equatable.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:meta/meta.dart';

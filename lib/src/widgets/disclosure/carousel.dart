@@ -1,3 +1,6 @@
+// This file is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
@@ -10,9 +13,9 @@ import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/language.dart';
-import 'package:irmamobile/src/widgets/translated_text.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
+import 'package:irmamobile/src/widgets/translated_text.dart';
 
 class Carousel extends StatefulWidget {
   final DisCon<Attribute> candidatesDisCon;
