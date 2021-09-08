@@ -25,6 +25,7 @@ class _QRViewContainerState extends State<QRViewContainer> {
     // Due to an issue in the qr code scanner library, the camera is not always
     // disabled properly on iOS. Therefore we pause it manually for now.
     // https://github.com/juliuscanute/qr_code_scanner/issues/137
+    // TODO: Is this still necessary? (check CHANGELOG qr_code_scanner 0.0.14)
     if (Platform.isIOS) {
       _qrViewController?.pauseCamera();
     }
@@ -34,7 +35,7 @@ class _QRViewContainerState extends State<QRViewContainer> {
 
   void _onQRViewCreated(QRViewController controller) {
     _qrViewController = controller;
-    _qrViewSubscription = controller.scannedDataStream.listen((qr) => widget.onFound(qr));
+    _qrViewSubscription = controller.scannedDataStream.listen((qr) => widget.onFound(qr.code));
   }
 
   @override

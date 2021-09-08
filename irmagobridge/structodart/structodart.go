@@ -256,7 +256,7 @@ type changePinBlocked struct {
 type statusUpdateSessionEvent struct {
 	SessionID int
 	Action    irma.Action
-	Status    irma.Status
+	Status    irma.ClientStatus
 }
 
 type clientReturnURLSetSessionEvent struct {

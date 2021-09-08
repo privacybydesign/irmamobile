@@ -11,36 +11,36 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  sentry_flutter: ^5.1.0
+  sentry_flutter: ^6.0.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.3
   flutter_svg: ^0.22.0
-  flutter_i18n: ^0.22.4
-  flutter_bloc: ^7.0.1
+  flutter_i18n: ^0.30.0
+  flutter_bloc: ^7.2.0
   equatable: ^2.0.3
 
   email_validator: ^2.0.1
-  url_launcher: ^6.0.8
-  json_annotation: ^3.1.1
-  rxdart: ^0.22.6
+  url_launcher: ^6.0.10
+  json_annotation: ^4.0.1
+  rxdart: ^0.27.2
   package_info: ^2.0.2
   stream_transform: ^2.0.0
   collection: ^1.15.0
-  qr_code_scanner: ^0.0.13 # TODO: Library should be updated further to improve the stability
+  qr_code_scanner: ^0.5.2 # TODO: Library should be updated further to improve the stability
   font_awesome_flutter: ^9.1.0 # TODO remove once this package is no longer used
   share: ^2.0.4
   intl: ^0.17.0
-  flutter_markdown: ^0.6.2
-  shared_preferences: ^2.0.6
-  async: ^2.4.0
+  flutter_markdown: ^0.6.6
+  shared_preferences: ^2.0.7
+  async: ^2.6.1
   streaming_shared_preferences: ^2.0.0
   path_drawing: ^0.5.1
-  flutter_jailbreak_detection: ^1.6.0
+  flutter_jailbreak_detection: ^1.7.0
   visibility_detector: ^0.2.0
   quiver: ^3.0.1
-  flutter_privacy_screen: ^1.1.0
+  flutter_privacy_screen: ^1.2.0
 
 flutter_native_splash:
   image: assets/splash/startup.png
@@ -50,10 +50,10 @@ flutter_native_splash:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  json_serializable: ^3.5.1
-  lint: ^1.5.3
-  flutter_native_splash: ^1.2.0
-  build_runner: ^1.11.5
+  json_serializable: ^4.1.4
+  lint: ^1.6.0
+  flutter_native_splash: ^1.2.1
+  build_runner: ^2.1.2
 
 
 # For information on the generic Dart part of this file, see the

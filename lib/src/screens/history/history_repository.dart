@@ -45,7 +45,7 @@ class HistoryRepository {
   StreamSubscription _historyStateSubscription;
 
   HistoryRepository() {
-    _historyStateSubscription = repo.getEvents().scan<HistoryState>(HistoryState(), (prevState, event) {
+    _historyStateSubscription = Scan(repo.getEvents()).scan<HistoryState>(HistoryState(), (prevState, event) {
       if (event is LoadLogsEvent) {
         return prevState.copyWith(
           loading: true,

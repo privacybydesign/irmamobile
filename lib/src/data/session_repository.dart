@@ -32,7 +32,7 @@ class SessionRepository {
     // The scan method uses the initialValue only to accumulate on.
     // We have to add it to the stream ourselves.
     _sessionStatesSubject.add(initialValue);
-    sessionEventStream.scan<SessionStates>(initialValue, (prevStates, event) async {
+    Scan(sessionEventStream).scan<SessionStates>(initialValue, (prevStates, event) async {
       // Calculate the nextState from the previousState by handling the event
       final prevState = prevStates[event.sessionID];
       final nextState = await _eventHandler(prevState, event);

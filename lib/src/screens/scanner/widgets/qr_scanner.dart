@@ -47,6 +47,7 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
           // Therefore we make sure the QRView only renders when the app is unlocked
           // and the pin screen overlay is not active.
           // https://github.com/juliuscanute/qr_code_scanner/issues/87
+          // TODO: Is this still an issue? (check CHANGELOG of qr_code_scanner 0.3.0)
           StreamBuilder<bool>(
             stream: IrmaRepository.get().getLocked(),
             builder: (context, isLocked) {

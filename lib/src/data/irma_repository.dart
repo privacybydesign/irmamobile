@@ -304,7 +304,7 @@ class IrmaRepository {
     final packageInfoStream = PackageInfo.fromPlatform().asStream();
     final irmaVersionInfoStream = irmaConfigurationSubject.stream; // TODO: add filtering
 
-    return Observable.combineLatest2(packageInfoStream, irmaVersionInfoStream,
+    return Rx.combineLatest2(packageInfoStream, irmaVersionInfoStream,
         (PackageInfo packageInfo, IrmaConfiguration irmaVersionInfo) {
       int minimumBuild = 0;
       irmaVersionInfo.schemeManagers.forEach((_, scheme) {
@@ -352,7 +352,7 @@ class IrmaRepository {
   // 1) coming back from the browser, or
   // 2) handling an incoming URL
   Future<bool> appResumedAutomatically() {
-    return Observable.combineLatest2(
+    return Rx.combineLatest2(
             _resumedFromBrowserSubject.stream, _resumedWithURLSubject.stream, (bool a, bool b) => a || b)
         .first
         .then((result) {
