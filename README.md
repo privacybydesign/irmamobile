@@ -65,8 +65,8 @@ attaching data to signed statements. These data can be relevant properties, such
       echo 'export ANDROID_HOME="/YOUR/PATH/TO/android-sdk"' >> "$HOME/.bashrc"
       echo 'export PATH="$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$PATH"' >> "$HOME/.bashrc"
 
-* Download Flutter from the [download page](https://flutter.dev/docs/get-started/install) and
-  follow their installation steps. Make sure to update your $PATH again.
+* Download Flutter 1.22.6 from the [Flutter SDK Releases page](https://flutter.dev/docs/development/tools/sdk/releases) and
+  follow the [installation steps](https://flutter.dev/docs/get-started/install). Make sure to update your $PATH again.
 
 * Run `flutter doctor` to see what steps remain to get a fully operational development environment
   for flutter (this may include accepting the android licenses). At this point you could also
