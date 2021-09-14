@@ -1,4 +1,4 @@
-// This file is not null safe yet.
+// This code is not null safe yet.
 // @dart=2.11
 
 import 'package:flutter/material.dart';
@@ -26,19 +26,19 @@ class LogEntryCard extends StatelessWidget {
     switch (logEntry.type) {
       case LogEntryType.disclosing:
         title = FlutterI18n.plural(context, "history.type.disclosing.data", logEntry.disclosedAttributes.length);
-        subtitle = logEntry.serverName.name[lang];
+        subtitle = logEntry.serverName.name.translate(lang);
         break;
       case LogEntryType.signing:
         title = FlutterI18n.plural(context, "history.type.signing.data", logEntry.disclosedAttributes.length);
-        subtitle = logEntry.serverName.name[lang];
+        subtitle = logEntry.serverName.name.translate(lang);
         break;
       case LogEntryType.issuing:
         title = FlutterI18n.plural(context, "history.type.issuing.data", logEntry.issuedCredentials.length);
-        subtitle = irmaConfiguration.issuers[logEntry.issuedCredentials.first.fullIssuerId].name[lang];
+        subtitle = irmaConfiguration.issuers[logEntry.issuedCredentials.first.fullIssuerId].name.translate(lang);
         break;
       case LogEntryType.removal:
         title = FlutterI18n.plural(context, "history.type.removal.data", logEntry.removedCredentials.length);
-        subtitle = irmaConfiguration.credentialTypes[logEntry.removedCredentials.keys.first].name[lang];
+        subtitle = irmaConfiguration.credentialTypes[logEntry.removedCredentials.keys.first].name.translate(lang);
         break;
     }
 

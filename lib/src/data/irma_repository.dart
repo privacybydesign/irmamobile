@@ -1,4 +1,4 @@
-// This file is not null safe yet.
+// This code is not null safe yet.
 // @dart=2.11
 
 import 'dart:io';
@@ -399,17 +399,14 @@ class IrmaRepository {
       wizardContents: contents.map((item) {
         // The credential field may be non-nil for any wizard item type
         final haveCredential = item.credential != null && creds.contains(item.credential);
-        if (item.type != "credential") {
+        if (item.type != 'credential') {
           return item.copyWith(completed: haveCredential || (item.completed ?? false));
         }
         final credtype = conf.credentialTypes[item.credential];
-        return IssueWizardItem(
-          type: "credential",
-          credential: item.credential,
-          label: item.label,
+        return item.copyWith(
           completed: haveCredential,
-          header: item.header ?? credtype.name,
-          text: item.text ?? credtype.faqSummary,
+          header: item.header.isNotEmpty ? item.header : credtype.name,
+          text: item.text.isNotEmpty ? item.text : credtype.faqSummary,
         );
       }).toList(),
     );

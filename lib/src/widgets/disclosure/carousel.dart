@@ -1,4 +1,4 @@
-// This file is not null safe yet.
+// This code is not null safe yet.
 // @dart=2.11
 
 import 'package:flutter/material.dart';
@@ -542,5 +542,5 @@ class _DisclosureCredential {
         id = attributes.first.credentialInfo.fullId,
         issuer = attributes.first.credentialInfo.issuer.name,
         credentialInfo = attributes.first.credentialInfo,
-        obtainable = attributes.last.credentialInfo.credentialType.issueUrl?.isNotEmpty ?? false;
+        obtainable = attributes.last.credentialInfo.credentialType.issueUrl.isNotEmpty;
 }

@@ -1,4 +1,4 @@
-// This file is not null safe yet.
+// This code is not null safe yet.
 // @dart=2.11
 // configurable_expansion_tile
 // From: https://github.com/matthewstyler/configurable_expansion_tile/blob/master/lib/configurable_expansion_tile.dart

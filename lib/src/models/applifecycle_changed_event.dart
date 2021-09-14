@@ -4,7 +4,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'applifecycle_changed_event.g.dart';
 
-@JsonSerializable(nullable: false)
+@JsonSerializable()
 class AppLifecycleChangedEvent extends Event {
   final AppLifecycleState state;
 

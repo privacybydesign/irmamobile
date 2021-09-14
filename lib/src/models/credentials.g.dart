@@ -13,8 +13,8 @@ RawCredential _$RawCredentialFromJson(Map<String, dynamic> json) {
     schemeManagerId: json['SchemeManagerID'] as String,
     signedOn: json['SignedOn'] as int,
     expires: json['Expires'] as int,
-    attributes: (json['Attributes'] as Map<String, dynamic>)?.map(
-      (k, e) => MapEntry(k, e == null ? null : TranslatedValue.fromJson(e as Map<String, dynamic>)),
+    attributes: (json['Attributes'] as Map<String, dynamic>).map(
+      (k, e) => MapEntry(k, TranslatedValue.fromJson(e as Map<String, dynamic>?)),
     ),
     hash: json['Hash'] as String,
     revoked: json['Revoked'] as bool,

@@ -1,4 +1,4 @@
-// This file is not null safe yet.
+// This code is not null safe yet.
 // @dart=2.11
 
 import 'dart:async';
@@ -881,7 +881,7 @@ class WalletState extends State<Wallet> with TickerProviderStateMixin {
 
   /// Handler for refresh in ... menu
   Function() _createOnRefreshCredential(Credential credential) {
-    if (credential.info.credentialType.issueUrl == null) {
+    if (credential.info.credentialType.issueUrl.isEmpty) {
       return null;
     }
 

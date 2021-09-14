@@ -1,4 +1,4 @@
-// This file is not null safe yet.
+// This code is not null safe yet.
 // @dart=2.11
 
 import 'dart:io';
@@ -60,7 +60,7 @@ class CardStoreScreen extends StatelessWidget {
 
                       final otherKey = FlutterI18n.translate(context, 'card_store.category_other');
                       final credentialTypesByCategory = groupBy<CredentialType, String>(credentialTypes,
-                          (ct) => ct.category != null ? getTranslation(context, ct.category) : otherKey);
+                          (ct) => ct.category.isNotEmpty ? getTranslation(context, ct.category) : otherKey);
                       final categories = credentialTypesByCategory.keys.toList(growable: true);
                       // Make sure that 'Other' category is always at the end.
                       if (categories.remove(otherKey)) categories.add(otherKey);

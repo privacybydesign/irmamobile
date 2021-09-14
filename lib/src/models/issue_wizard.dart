@@ -6,7 +6,7 @@ part 'issue_wizard.g.dart';
 
 @JsonSerializable()
 class GetIssueWizardContentsEvent extends Event {
-  GetIssueWizardContentsEvent({this.id});
+  GetIssueWizardContentsEvent({required this.id});
 
   @JsonKey(name: 'ID')
   final String id;
@@ -18,7 +18,7 @@ class GetIssueWizardContentsEvent extends Event {
 
 @JsonSerializable()
 class IssueWizardContentsEvent extends Event {
-  IssueWizardContentsEvent({this.id, this.wizardContents});
+  IssueWizardContentsEvent({required this.id, required this.wizardContents});
 
   @JsonKey(name: 'ID')
   final String id;
@@ -31,15 +31,15 @@ class IssueWizardContentsEvent extends Event {
 }
 
 class IssueWizardEvent extends Event {
-  IssueWizardEvent({this.wizardData, this.wizardContents, this.haveCredential = false});
+  IssueWizardEvent({required this.wizardData, required this.wizardContents, this.haveCredential = false});
 
   final IssueWizard wizardData;
   final List<IssueWizardItem> wizardContents;
   final bool haveCredential;
 
-  bool get showSuccess => wizardData.successHeader != null && wizardData.successText != null;
+  bool get showSuccess => wizardData.successHeader.isNotEmpty && wizardData.successText.isNotEmpty;
   bool get completed => haveCredential || wizardContents.every((item) => item.completed);
-  IssueWizardItem get activeItem => wizardContents.firstWhere((item) => !item.completed, orElse: () => null);
+  IssueWizardItem get activeItem => wizardContents.firstWhere((item) => !item.completed);
   int get _activeItemIndex => wizardContents.indexWhere((item) => !item.completed);
 
   /// A copy of the event with the currently active item marked completed.
@@ -57,20 +57,20 @@ class IssueWizardEvent extends Event {
 @JsonSerializable()
 class IssueWizard {
   IssueWizard({
-    this.id,
-    this.title,
+    required this.id,
+    required this.title,
+    required this.allowOtherRequestors,
     this.logo,
     this.logoPath,
     this.color,
     this.textColor,
     this.issues,
-    this.allowOtherRequestors,
-    this.info,
-    this.faq,
-    this.intro,
-    this.successHeader,
-    this.successText,
-    this.expandDependencies,
+    this.info = const TranslatedValue.empty(),
+    this.faq = const [],
+    this.intro = const TranslatedValue.empty(),
+    this.successHeader = const TranslatedValue.empty(),
+    this.successText = const TranslatedValue.empty(),
+    this.expandDependencies = false,
   });
 
   @JsonKey(name: 'id')
@@ -80,39 +80,39 @@ class IssueWizard {
   final TranslatedValue title;
 
   @JsonKey(name: 'logo')
-  final String logo;
+  final String? logo;
 
   @JsonKey(name: 'logoPath')
-  final String logoPath;
+  final String? logoPath;
 
   @JsonKey(name: 'color')
-  final String color;
+  final String? color;
 
   @JsonKey(name: 'textColor')
-  final String textColor;
+  final String? textColor;
 
   @JsonKey(name: 'issues')
-  final String issues;
+  final String? issues;
 
   @JsonKey(name: 'allowOtherRequestors')
   final bool allowOtherRequestors;
 
-  @JsonKey(name: 'info')
+  @JsonKey(name: 'info') // Default value is set by fromJson of TranslatedValue
   final TranslatedValue info;
 
-  @JsonKey(name: 'faq')
+  @JsonKey(name: 'faq', defaultValue: [])
   final List<IssueWizardQA> faq;
 
-  @JsonKey(name: 'intro')
+  @JsonKey(name: 'intro') // Default value is set by fromJson of TranslatedValue
   final TranslatedValue intro;
 
-  @JsonKey(name: 'successHeader')
+  @JsonKey(name: 'successHeader') // Default value is set by fromJson of TranslatedValue
   final TranslatedValue successHeader;
 
-  @JsonKey(name: 'successText')
+  @JsonKey(name: 'successText') // Default value is set by fromJson of TranslatedValue
   final TranslatedValue successText;
 
-  @JsonKey(name: 'expandDependencies')
+  @JsonKey(name: 'expandDependencies', defaultValue: false)
   final bool expandDependencies;
 
   factory IssueWizard.fromJson(Map<String, dynamic> json) => _$IssueWizardFromJson(json);
@@ -121,7 +121,7 @@ class IssueWizard {
 
 @JsonSerializable()
 class IssueWizardQA {
-  IssueWizardQA({this.question, this.answer});
+  IssueWizardQA({required this.question, required this.answer});
 
   @JsonKey(name: 'question')
   final TranslatedValue question;
@@ -136,53 +136,53 @@ class IssueWizardQA {
 @JsonSerializable()
 class IssueWizardItem {
   IssueWizardItem({
-    this.type,
+    required this.type,
     this.credential,
-    this.header,
-    this.text,
-    this.label,
+    this.header = const TranslatedValue.empty(),
+    this.text = const TranslatedValue.empty(),
+    this.label = const TranslatedValue.empty(),
     this.sessionURL,
-    this.url,
-    this.inApp,
-    this.completed,
+    this.url = const TranslatedValue.empty(),
+    this.inApp = false,
+    this.completed = false,
   });
 
   @JsonKey(name: 'type')
   final String type;
 
   @JsonKey(name: 'credential')
-  final String credential;
+  final String? credential;
 
-  @JsonKey(name: 'header')
+  @JsonKey(name: 'header') // Default value is set by fromJson of TranslatedValue
   final TranslatedValue header;
 
-  @JsonKey(name: 'text')
+  @JsonKey(name: 'text') // Default value is set by fromJson of TranslatedValue
   final TranslatedValue text;
 
-  @JsonKey(name: 'label')
+  @JsonKey(name: 'label') // Default value is set by fromJson of TranslatedValue
   final TranslatedValue label;
 
   @JsonKey(name: 'sessionUrl')
-  final String sessionURL;
+  final String? sessionURL;
 
-  @JsonKey(name: 'url')
+  @JsonKey(name: 'url') // Default value is set by fromJson of TranslatedValue
   final TranslatedValue url;
 
-  @JsonKey(name: 'inapp')
+  @JsonKey(name: 'inapp', defaultValue: false)
   final bool inApp;
 
   final bool completed;
 
   IssueWizardItem copyWith({
-    String type,
-    String credential,
-    TranslatedValue header,
-    TranslatedValue text,
-    TranslatedValue label,
-    String sessionURL,
-    TranslatedValue url,
-    bool inApp,
-    bool completed,
+    String? type,
+    String? credential,
+    TranslatedValue? header,
+    TranslatedValue? text,
+    TranslatedValue? label,
+    String? sessionURL,
+    TranslatedValue? url,
+    bool? inApp,
+    bool? completed,
   }) {
     return IssueWizardItem(
       type: type ?? this.type,

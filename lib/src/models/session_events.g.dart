@@ -7,10 +7,12 @@ part of 'session_events.dart';
 // **************************************************************************
 
 NewSessionEvent _$NewSessionEventFromJson(Map<String, dynamic> json) {
+  $checkKeys(json, requiredKeys: const ['SessionID'], disallowNullValues: const ['SessionID']);
   return NewSessionEvent(
-    request: json['Request'] == null ? null : SessionPointer.fromJson(json['Request'] as Map<String, dynamic>),
+    sessionID: json['SessionID'] as int?,
+    request: SessionPointer.fromJson(json['Request'] as Map<String, dynamic>),
     inAppCredential: json['inAppCredential'] as String,
-  )..sessionID = json['SessionID'] as int;
+  );
 }
 
 Map<String, dynamic> _$NewSessionEventToJson(NewSessionEvent instance) => <String, dynamic>{
@@ -20,14 +22,13 @@ Map<String, dynamic> _$NewSessionEventToJson(NewSessionEvent instance) => <Strin
     };
 
 RespondPermissionEvent _$RespondPermissionEventFromJson(Map<String, dynamic> json) {
+  $checkKeys(json, requiredKeys: const ['SessionID'], disallowNullValues: const ['SessionID']);
   return RespondPermissionEvent(
-    sessionID: json['SessionID'] as int,
+    sessionID: json['SessionID'] as int?,
     proceed: json['Proceed'] as bool,
-    disclosureChoices: (json['DisclosureChoices'] as List)
-        ?.map((e) => (e as List)
-            ?.map((e) => e == null ? null : AttributeIdentifier.fromJson(e as Map<String, dynamic>))
-            ?.toList())
-        ?.toList(),
+    disclosureChoices: (json['DisclosureChoices'] as List<dynamic>)
+        .map((e) => (e as List<dynamic>).map((e) => AttributeIdentifier.fromJson(e as Map<String, dynamic>)).toList())
+        .toList(),
   );
 }
 
@@ -38,10 +39,11 @@ Map<String, dynamic> _$RespondPermissionEventToJson(RespondPermissionEvent insta
     };
 
 RespondPinEvent _$RespondPinEventFromJson(Map<String, dynamic> json) {
+  $checkKeys(json, requiredKeys: const ['SessionID'], disallowNullValues: const ['SessionID']);
   return RespondPinEvent(
-    sessionID: json['SessionID'] as int,
+    sessionID: json['SessionID'] as int?,
     proceed: json['Proceed'] as bool,
-    pin: json['Pin'] as String,
+    pin: json['Pin'] as String?,
   );
 }
 
@@ -52,8 +54,9 @@ Map<String, dynamic> _$RespondPinEventToJson(RespondPinEvent instance) => <Strin
     };
 
 DismissSessionEvent _$DismissSessionEventFromJson(Map<String, dynamic> json) {
+  $checkKeys(json, requiredKeys: const ['SessionID'], disallowNullValues: const ['SessionID']);
   return DismissSessionEvent(
-    sessionID: json['SessionID'] as int,
+    sessionID: json['SessionID'] as int?,
   );
 }
 
@@ -62,8 +65,9 @@ Map<String, dynamic> _$DismissSessionEventToJson(DismissSessionEvent instance) =
     };
 
 StatusUpdateSessionEvent _$StatusUpdateSessionEventFromJson(Map<String, dynamic> json) {
+  $checkKeys(json, requiredKeys: const ['SessionID'], disallowNullValues: const ['SessionID']);
   return StatusUpdateSessionEvent(
-    sessionID: json['SessionID'] as int,
+    sessionID: json['SessionID'] as int?,
     action: json['Action'] as String,
     status: json['Status'] as String,
   );
@@ -76,8 +80,9 @@ Map<String, dynamic> _$StatusUpdateSessionEventToJson(StatusUpdateSessionEvent i
     };
 
 ClientReturnURLSetSessionEvent _$ClientReturnURLSetSessionEventFromJson(Map<String, dynamic> json) {
+  $checkKeys(json, requiredKeys: const ['SessionID'], disallowNullValues: const ['SessionID']);
   return ClientReturnURLSetSessionEvent(
-    sessionID: json['SessionID'] as int,
+    sessionID: json['SessionID'] as int?,
     clientReturnURL: json['ClientReturnURL'] as String,
   );
 }
@@ -89,8 +94,9 @@ Map<String, dynamic> _$ClientReturnURLSetSessionEventToJson(ClientReturnURLSetSe
     };
 
 SuccessSessionEvent _$SuccessSessionEventFromJson(Map<String, dynamic> json) {
+  $checkKeys(json, requiredKeys: const ['SessionID'], disallowNullValues: const ['SessionID']);
   return SuccessSessionEvent(
-    sessionID: json['SessionID'] as int,
+    sessionID: json['SessionID'] as int?,
     result: json['Result'] as String,
   );
 }
@@ -101,9 +107,10 @@ Map<String, dynamic> _$SuccessSessionEventToJson(SuccessSessionEvent instance) =
     };
 
 FailureSessionEvent _$FailureSessionEventFromJson(Map<String, dynamic> json) {
+  $checkKeys(json, requiredKeys: const ['SessionID'], disallowNullValues: const ['SessionID']);
   return FailureSessionEvent(
-    sessionID: json['SessionID'] as int,
-    error: json['Error'] == null ? null : SessionError.fromJson(json['Error'] as Map<String, dynamic>),
+    sessionID: json['SessionID'] as int?,
+    error: SessionError.fromJson(json['Error'] as Map<String, dynamic>),
   );
 }
 
@@ -113,8 +120,9 @@ Map<String, dynamic> _$FailureSessionEventToJson(FailureSessionEvent instance) =
     };
 
 CanceledSessionEvent _$CanceledSessionEventFromJson(Map<String, dynamic> json) {
+  $checkKeys(json, requiredKeys: const ['SessionID'], disallowNullValues: const ['SessionID']);
   return CanceledSessionEvent(
-    sessionID: json['SessionID'] as int,
+    sessionID: json['SessionID'] as int?,
   );
 }
 
@@ -123,23 +131,23 @@ Map<String, dynamic> _$CanceledSessionEventToJson(CanceledSessionEvent instance)
     };
 
 RequestIssuancePermissionSessionEvent _$RequestIssuancePermissionSessionEventFromJson(Map<String, dynamic> json) {
+  $checkKeys(json, requiredKeys: const ['SessionID'], disallowNullValues: const ['SessionID']);
   return RequestIssuancePermissionSessionEvent(
-    sessionID: json['SessionID'] as int,
-    serverName: json['ServerName'] == null ? null : RequestorInfo.fromJson(json['ServerName'] as Map<String, dynamic>),
+    sessionID: json['SessionID'] as int?,
+    serverName: RequestorInfo.fromJson(json['ServerName'] as Map<String, dynamic>),
     satisfiable: json['Satisfiable'] as bool,
-    issuedCredentials: (json['IssuedCredentials'] as List)
-        ?.map((e) => e == null ? null : RawCredential.fromJson(e as Map<String, dynamic>))
-        ?.toList(),
-    disclosuresLabels: (json['DisclosuresLabels'] as Map<String, dynamic>)?.map(
-      (k, e) => MapEntry(int.parse(k), e == null ? null : TranslatedValue.fromJson(e as Map<String, dynamic>)),
+    issuedCredentials: (json['IssuedCredentials'] as List<dynamic>)
+        .map((e) => RawCredential.fromJson(e as Map<String, dynamic>))
+        .toList(),
+    disclosuresLabels: (json['DisclosuresLabels'] as Map<String, dynamic>?)?.map(
+      (k, e) => MapEntry(int.parse(k), TranslatedValue.fromJson(e as Map<String, dynamic>?)),
     ),
-    disclosuresCandidates: (json['DisclosuresCandidates'] as List)
-        ?.map((e) => (e as List)
-            ?.map((e) => (e as List)
-                ?.map((e) => e == null ? null : DisclosureCandidate.fromJson(e as Map<String, dynamic>))
-                ?.toList())
-            ?.toList())
-        ?.toList(),
+    disclosuresCandidates: (json['DisclosuresCandidates'] as List<dynamic>)
+        .map((e) => (e as List<dynamic>)
+            .map((e) =>
+                (e as List<dynamic>).map((e) => DisclosureCandidate.fromJson(e as Map<String, dynamic>)).toList())
+            .toList())
+        .toList(),
   );
 }
 
@@ -155,23 +163,23 @@ Map<String, dynamic> _$RequestIssuancePermissionSessionEventToJson(RequestIssuan
 
 RequestVerificationPermissionSessionEvent _$RequestVerificationPermissionSessionEventFromJson(
     Map<String, dynamic> json) {
+  $checkKeys(json, requiredKeys: const ['SessionID'], disallowNullValues: const ['SessionID']);
   return RequestVerificationPermissionSessionEvent(
-    sessionID: json['SessionID'] as int,
-    serverName: json['ServerName'] == null ? null : RequestorInfo.fromJson(json['ServerName'] as Map<String, dynamic>),
+    sessionID: json['SessionID'] as int?,
+    serverName: RequestorInfo.fromJson(json['ServerName'] as Map<String, dynamic>),
     satisfiable: json['Satisfiable'] as bool,
-    disclosuresLabels: (json['DisclosuresLabels'] as Map<String, dynamic>)?.map(
-      (k, e) => MapEntry(int.parse(k), e == null ? null : TranslatedValue.fromJson(e as Map<String, dynamic>)),
+    disclosuresLabels: (json['DisclosuresLabels'] as Map<String, dynamic>?)?.map(
+      (k, e) => MapEntry(int.parse(k), TranslatedValue.fromJson(e as Map<String, dynamic>?)),
     ),
-    disclosuresCandidates: (json['DisclosuresCandidates'] as List)
-        ?.map((e) => (e as List)
-            ?.map((e) => (e as List)
-                ?.map((e) => e == null ? null : DisclosureCandidate.fromJson(e as Map<String, dynamic>))
-                ?.toList())
-            ?.toList())
-        ?.toList(),
-  )
-    ..isSignatureSession = json['IsSignatureSession'] as bool
-    ..signedMessage = json['SignedMessage'] as String;
+    disclosuresCandidates: (json['DisclosuresCandidates'] as List<dynamic>)
+        .map((e) => (e as List<dynamic>)
+            .map((e) =>
+                (e as List<dynamic>).map((e) => DisclosureCandidate.fromJson(e as Map<String, dynamic>)).toList())
+            .toList())
+        .toList(),
+    isSignatureSession: json['IsSignatureSession'] as bool,
+    signedMessage: json['SignedMessage'] as String?,
+  );
 }
 
 Map<String, dynamic> _$RequestVerificationPermissionSessionEventToJson(
@@ -187,8 +195,9 @@ Map<String, dynamic> _$RequestVerificationPermissionSessionEventToJson(
     };
 
 RequestPinSessionEvent _$RequestPinSessionEventFromJson(Map<String, dynamic> json) {
+  $checkKeys(json, requiredKeys: const ['SessionID'], disallowNullValues: const ['SessionID']);
   return RequestPinSessionEvent(
-    sessionID: json['SessionID'] as int,
+    sessionID: json['SessionID'] as int?,
     remainingAttempts: json['RemainingAttempts'] as int,
   );
 }
@@ -199,8 +208,9 @@ Map<String, dynamic> _$RequestPinSessionEventToJson(RequestPinSessionEvent insta
     };
 
 PairingRequiredSessionEvent _$PairingRequiredSessionEventFromJson(Map<String, dynamic> json) {
+  $checkKeys(json, requiredKeys: const ['SessionID'], disallowNullValues: const ['SessionID']);
   return PairingRequiredSessionEvent(
-    sessionID: json['SessionID'] as int,
+    sessionID: json['SessionID'] as int?,
     pairingCode: json['PairingCode'] as String,
   );
 }
@@ -211,8 +221,9 @@ Map<String, dynamic> _$PairingRequiredSessionEventToJson(PairingRequiredSessionE
     };
 
 KeyshareEnrollmentMissingSessionEvent _$KeyshareEnrollmentMissingSessionEventFromJson(Map<String, dynamic> json) {
+  $checkKeys(json, requiredKeys: const ['SessionID'], disallowNullValues: const ['SessionID']);
   return KeyshareEnrollmentMissingSessionEvent(
-    sessionID: json['SessionID'] as int,
+    sessionID: json['SessionID'] as int?,
     schemeManagerID: json['SchemeManagerID'] as String,
   );
 }
@@ -224,8 +235,9 @@ Map<String, dynamic> _$KeyshareEnrollmentMissingSessionEventToJson(KeyshareEnrol
     };
 
 KeyshareEnrollmentDeletedSessionEvent _$KeyshareEnrollmentDeletedSessionEventFromJson(Map<String, dynamic> json) {
+  $checkKeys(json, requiredKeys: const ['SessionID'], disallowNullValues: const ['SessionID']);
   return KeyshareEnrollmentDeletedSessionEvent(
-    sessionID: json['SessionID'] as int,
+    sessionID: json['SessionID'] as int?,
     schemeManagerID: json['SchemeManagerID'] as String,
   );
 }
@@ -237,8 +249,9 @@ Map<String, dynamic> _$KeyshareEnrollmentDeletedSessionEventToJson(KeyshareEnrol
     };
 
 KeyshareBlockedSessionEvent _$KeyshareBlockedSessionEventFromJson(Map<String, dynamic> json) {
+  $checkKeys(json, requiredKeys: const ['SessionID'], disallowNullValues: const ['SessionID']);
   return KeyshareBlockedSessionEvent(
-    sessionID: json['SessionID'] as int,
+    sessionID: json['SessionID'] as int?,
     schemeManagerID: json['SchemeManagerID'] as String,
     duration: json['Duration'] as int,
   );
@@ -251,8 +264,9 @@ Map<String, dynamic> _$KeyshareBlockedSessionEventToJson(KeyshareBlockedSessionE
     };
 
 KeyshareEnrollmentIncompleteSessionEvent _$KeyshareEnrollmentIncompleteSessionEventFromJson(Map<String, dynamic> json) {
+  $checkKeys(json, requiredKeys: const ['SessionID'], disallowNullValues: const ['SessionID']);
   return KeyshareEnrollmentIncompleteSessionEvent(
-    sessionID: json['SessionID'] as int,
+    sessionID: json['SessionID'] as int?,
     schemeManagerID: json['SchemeManagerID'] as String,
   );
 }

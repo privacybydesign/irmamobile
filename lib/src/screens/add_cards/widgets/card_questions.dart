@@ -1,4 +1,4 @@
-// This file is not null safe yet.
+// This code is not null safe yet.
 // @dart=2.11
 
 import 'package:flutter/material.dart';
@@ -29,7 +29,7 @@ class _CardQuestionsState extends State<CardQuestions> with TickerProviderStateM
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        if (widget.credentialType.faqPurpose != null)
+        if (widget.credentialType.faqPurpose.isNotEmpty)
           Collapsible(
               header: FlutterI18n.translate(context, 'card_store.card_info.purpose_question'),
               onExpansionChanged: (v) =>
@@ -43,7 +43,7 @@ class _CardQuestionsState extends State<CardQuestions> with TickerProviderStateM
                 ),
               ),
               key: _collapsableKeys[0]),
-        if (widget.credentialType.faqContent != null)
+        if (widget.credentialType.faqContent.isNotEmpty)
           Collapsible(
               header: FlutterI18n.translate(context, 'card_store.card_info.content_question'),
               onExpansionChanged: (v) =>
@@ -57,7 +57,7 @@ class _CardQuestionsState extends State<CardQuestions> with TickerProviderStateM
                 ),
               ),
               key: _collapsableKeys[1]),
-        if (widget.credentialType.faqHowto != null)
+        if (widget.credentialType.faqHowto.isNotEmpty)
           Collapsible(
               header: FlutterI18n.translate(context, 'card_store.card_info.howto_question'),
               onExpansionChanged: (v) =>

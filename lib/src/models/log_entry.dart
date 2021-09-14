@@ -9,7 +9,7 @@ part 'log_entry.g.dart';
 
 @JsonSerializable()
 class LogsEvent extends Event {
-  LogsEvent({this.logEntries});
+  LogsEvent({required this.logEntries});
 
   @JsonKey(name: 'LogEntries')
   final List<LogEntry> logEntries;
@@ -19,10 +19,10 @@ class LogsEvent extends Event {
 
 @JsonSerializable()
 class LoadLogsEvent extends Event {
-  LoadLogsEvent({this.before, this.max});
+  LoadLogsEvent({required this.max, this.before});
 
   @JsonKey(name: 'Before')
-  final int before;
+  final int? before;
 
   @JsonKey(name: 'Max')
   final int max;
@@ -40,29 +40,23 @@ enum LogEntryType {
 LogEntryType _toLogEntryType(String type) {
   return LogEntryType.values.firstWhere(
     (v) => v.toString() == 'LogEntryType.$type',
-    orElse: () => null,
   );
 }
 
-DateTime _epochSecondsToDateTime(int secondsSinceEpoch) {
-  if (secondsSinceEpoch == null) {
-    return null;
-  }
-
-  return DateTime.fromMillisecondsSinceEpoch(secondsSinceEpoch * 1000);
-}
+DateTime _epochSecondsToDateTime(int secondsSinceEpoch) =>
+    DateTime.fromMillisecondsSinceEpoch(secondsSinceEpoch * 1000);
 
 @JsonSerializable()
 class LogEntry {
   const LogEntry({
-    this.id,
-    this.type,
-    this.time,
+    required this.id,
+    required this.type,
+    required this.time,
+    required this.issuedCredentials,
+    required this.disclosedAttributes,
+    required this.removedCredentials,
     this.serverName,
-    this.issuedCredentials,
-    this.disclosedAttributes,
     this.signedMessage,
-    this.removedCredentials,
   });
 
   @JsonKey(name: 'ID')
@@ -75,7 +69,8 @@ class LogEntry {
   final DateTime time;
 
   @JsonKey(name: 'ServerName')
-  final RequestorInfo serverName;
+  // Due to some legacy log entries, serverName might be null sometimes. This should be fixed in irmago.
+  final RequestorInfo? serverName;
 
   @JsonKey(name: 'IssuedCredentials')
   final List<RawCredential> issuedCredentials;
@@ -87,14 +82,14 @@ class LogEntry {
   final Map<String, Map<String, TranslatedValue>> removedCredentials;
 
   @JsonKey(name: 'SignedMessage')
-  final SignedMessage signedMessage;
+  final SignedMessage? signedMessage;
 
   factory LogEntry.fromJson(Map<String, dynamic> json) => _$LogEntryFromJson(json);
 }
 
 @JsonSerializable()
 class SignedMessage {
-  SignedMessage({this.message});
+  SignedMessage({required this.message});
 
   @JsonKey(name: 'message')
   final String message;

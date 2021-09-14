@@ -1,4 +1,4 @@
-// This file is not null safe yet.
+// This code is not null safe yet.
 // @dart=2.11
 
 import 'package:flutter/material.dart';
@@ -37,8 +37,13 @@ class ScannerScreen extends StatelessWidget {
   }
 
   static Future<void> startIssueWizard(NavigatorState navigator, SessionPointer sessionPointer) async {
+    final repo = IrmaRepository.get();
     try {
-      await sessionPointer.validate();
+      sessionPointer.validate(
+        wizardActive: await repo.getIssueWizardActive().first,
+        developerMode: await repo.getDeveloperMode().first,
+        irmaConfiguration: await repo.getIrmaConfiguration().first,
+      );
     } catch (e) {
       navigator.pushAndRemoveUntil(
         MaterialPageRoute(
@@ -80,6 +85,13 @@ class ScannerScreen extends StatelessWidget {
 
     final hasActiveSessions = await repo.hasActiveSessions();
     final wizardActive = await repo.getIssueWizardActive().first;
+    String wizardCred;
+    if (wizardActive) {
+      final activeWizard = await repo.getIssueWizard().first;
+      if (!activeWizard.completed) {
+        wizardCred = activeWizard.activeItem.credential;
+      }
+    }
     repo.dispatch(event, isBridgedEvent: true);
 
     final args = SessionScreenArguments(
@@ -87,7 +99,7 @@ class ScannerScreen extends StatelessWidget {
       sessionType: event.request.irmaqr,
       hasUnderlyingSession: hasActiveSessions,
       wizardActive: wizardActive,
-      wizardCred: wizardActive ? (await repo.getIssueWizard().first)?.activeItem?.credential : null,
+      wizardCred: wizardCred,
     );
     if (hasActiveSessions || wizardActive) {
       navigator.pushNamed(SessionScreen.routeName, arguments: args);

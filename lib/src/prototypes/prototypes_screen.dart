@@ -1,4 +1,4 @@
-// This file is not null safe yet.
+// This code is not null safe yet.
 // @dart=2.11
 
 import 'package:flutter/material.dart';
@@ -97,7 +97,10 @@ class PrototypesScreen extends StatelessWidget {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => SessionScreen()));
           }),
           _buildListItem(context, "Call info screen", () {
-            Navigator.of(context).push(MaterialPageRoute(builder: (context) => CallInfoScreen()));
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => const CallInfoScreen(
+                      otherParty: 'requestor',
+                    )));
           }),
           _buildListItem(context, "Settings", () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => SettingsScreen()));

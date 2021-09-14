@@ -1,13 +1,13 @@
-// This file is not null safe yet.
+// This code is not null safe yet.
 // @dart=2.11
 
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/issue_wizard.dart';
 import 'package:irmamobile/src/screens/issue_wizard/widgets/logo_banner_header.dart';
 import 'package:irmamobile/src/screens/issue_wizard/widgets/progressing_list.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/util/color_from_code.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 import 'package:irmamobile/src/widgets/irma_markdown.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -51,7 +51,7 @@ class IssueWizardContents extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          if (intro != null)
+          if (intro.isNotEmpty)
             Padding(
               padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
               child: IrmaMarkdown(intro.translate(lang)),
@@ -86,15 +86,14 @@ class IssueWizardContents extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final lang = FlutterI18n.currentLocale(context).languageCode;
-    final activeItem = wizard.activeItem;
     final buttonLabel = wizard.completed
         ? FlutterI18n.translate(context, "issue_wizard.done")
-        : activeItem.label?.translate(lang) ??
-            FlutterI18n.translate(
+        : wizard.activeItem.label.translate(lang,
+            fallback: FlutterI18n.translate(
               context,
               "issue_wizard.add_credential",
-              translationParams: {"credential": activeItem.header.translate(lang)},
-            );
+              translationParams: {"credential": wizard.activeItem.header.translate(lang)},
+            ));
 
     return LogoBannerHeader(
       scrollviewKey: scrollviewKey,

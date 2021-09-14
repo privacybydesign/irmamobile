@@ -1,4 +1,4 @@
-// This file is not null safe yet.
+// This code is not null safe yet.
 // @dart=2.11
 
 import 'package:flutter/material.dart';
@@ -74,7 +74,7 @@ class CardFooter extends StatelessWidget {
         ),
         Expanded(
           child: Text(
-            credentialInfo.issuer.name[lang],
+            credentialInfo.issuer.name.translate(lang),
             style: body1Theme.copyWith(fontSize: 12),
             textAlign: TextAlign.end,
             overflow: TextOverflow.ellipsis,

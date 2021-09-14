@@ -8,8 +8,8 @@ part of 'enrollment_events.dart';
 
 EnrollmentStatusEvent _$EnrollmentStatusEventFromJson(Map<String, dynamic> json) {
   return EnrollmentStatusEvent(
-    enrolledSchemeManagerIds: (json['EnrolledSchemeManagerIds'] as List)?.map((e) => e as String)?.toList(),
-    unenrolledSchemeManagerIds: (json['UnenrolledSchemeManagerIds'] as List)?.map((e) => e as String)?.toList(),
+    enrolledSchemeManagerIds: (json['EnrolledSchemeManagerIds'] as List<dynamic>).map((e) => e as String).toList(),
+    unenrolledSchemeManagerIds: (json['UnenrolledSchemeManagerIds'] as List<dynamic>).map((e) => e as String).toList(),
   );
 }
 
@@ -35,7 +35,7 @@ Map<String, dynamic> _$EnrollEventToJson(EnrollEvent instance) => <String, dynam
 EnrollmentFailureEvent _$EnrollmentFailureEventFromJson(Map<String, dynamic> json) {
   return EnrollmentFailureEvent(
     schemeManagerID: json['SchemeManagerID'] as String,
-    error: json['Error'] == null ? null : SessionError.fromJson(json['Error'] as Map<String, dynamic>),
+    error: SessionError.fromJson(json['Error'] as Map<String, dynamic>),
   );
 }
 

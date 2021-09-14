@@ -5,21 +5,23 @@ import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
 
 abstract class AttributeValue {
-  String get raw;
+  String? get raw;
 
   factory AttributeValue.fromRaw(AttributeType attributeType, TranslatedValue rawAttribute) {
-    // In IrmaGo attribute values are set to null when an optional attribute is empty.
-    if (rawAttribute == null) {
+    // In IrmaGo attribute values are set to an empty map when an optional attribute is empty.
+    if (rawAttribute.isEmpty) {
       return NullValue();
     }
 
     switch (attributeType.displayHint) {
-      case "portraitPhoto":
+      case 'portraitPhoto':
         try {
           return PhotoValue.fromRaw(rawAttribute);
         } catch (_) {}
         // When rendering of the photo fails, fall back to NullValue.
         return NullValue();
+      case 'yesno':
+        return YesNoValue(textValue: TextValue.fromRaw(rawAttribute));
       default:
         return TextValue.fromRaw(rawAttribute);
     }
@@ -29,7 +31,7 @@ abstract class AttributeValue {
 // Used in optional attributes when value is null
 class NullValue implements AttributeValue {
   @override
-  String get raw => null;
+  String? get raw => null;
 }
 
 class TextValue implements AttributeValue {
@@ -37,14 +39,14 @@ class TextValue implements AttributeValue {
   @override
   final String raw;
 
-  TextValue({this.translated, this.raw});
+  TextValue({required this.translated, required this.raw});
 
   // A raw TextValue is received as TranslatedValue.
-  factory TextValue.fromRaw(rawAttribute) {
-    final translatedValue = TranslatedValue.fromJson(rawAttribute as Map<String, dynamic>);
+  factory TextValue.fromRaw(TranslatedValue rawAttribute) {
+    if (!rawAttribute.hasTranslation('')) throw Exception('No raw value could be found');
     return TextValue(
-      translated: translatedValue,
-      raw: translatedValue[""],
+      translated: rawAttribute,
+      raw: rawAttribute.translate(''),
     );
   }
 }
@@ -54,11 +56,11 @@ class PhotoValue implements AttributeValue {
   @override
   final String raw;
 
-  PhotoValue({this.image, this.raw});
+  PhotoValue({required this.image, required this.raw});
 
   // A raw PhotoValue is received in a TextValue's raw block.
   // Is a bit hacky now, should be converted when irmago has knowledge of types
-  factory PhotoValue.fromRaw(rawAttribute) {
+  factory PhotoValue.fromRaw(TranslatedValue rawAttribute) {
     final textValue = TextValue.fromRaw(rawAttribute);
     return PhotoValue(
       image: Image.memory(
@@ -66,5 +68,36 @@ class PhotoValue implements AttributeValue {
       ),
       raw: textValue.raw,
     );
+  }
+}
+
+class YesNoValue implements TextValue {
+  final TextValue textValue;
+
+  YesNoValue({required this.textValue});
+
+  @override
+  String get raw => textValue.raw;
+
+  @override
+  TranslatedValue get translated {
+    // Translate yes and no
+    // in the future this will be done by irmago (when we have typed attributes)
+    // but for now we do it here. We have hardcoded strings here because
+    // flutter_i18n does not provide access to its strings directly, and we
+    // don't have a buildcontext here, so this is the least worst option.
+    if (raw.toLowerCase() == "yes" || raw.toLowerCase() == "ja") {
+      return const TranslatedValue({
+        "en": "Yes",
+        "nl": "Ja",
+      });
+    } else if (raw.toLowerCase() == "no" || raw.toLowerCase() == "nee") {
+      return const TranslatedValue({
+        "en": "No",
+        "nl": "Nee",
+      });
+    } else {
+      return textValue.translated;
+    }
   }
 }

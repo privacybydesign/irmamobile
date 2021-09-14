@@ -8,9 +8,7 @@ part of 'log_entry.dart';
 
 LogsEvent _$LogsEventFromJson(Map<String, dynamic> json) {
   return LogsEvent(
-    logEntries: (json['LogEntries'] as List)
-        ?.map((e) => e == null ? null : LogEntry.fromJson(e as Map<String, dynamic>))
-        ?.toList(),
+    logEntries: (json['LogEntries'] as List<dynamic>).map((e) => LogEntry.fromJson(e as Map<String, dynamic>)).toList(),
   );
 }
 
@@ -20,8 +18,8 @@ Map<String, dynamic> _$LogsEventToJson(LogsEvent instance) => <String, dynamic>{
 
 LoadLogsEvent _$LoadLogsEventFromJson(Map<String, dynamic> json) {
   return LoadLogsEvent(
-    before: json['Before'] as int,
     max: json['Max'] as int,
+    before: json['Before'] as int?,
   );
 }
 
@@ -35,31 +33,29 @@ LogEntry _$LogEntryFromJson(Map<String, dynamic> json) {
     id: json['ID'] as int,
     type: _toLogEntryType(json['Type'] as String),
     time: _epochSecondsToDateTime(json['Time'] as int),
-    serverName: json['ServerName'] == null ? null : RequestorInfo.fromJson(json['ServerName'] as Map<String, dynamic>),
-    issuedCredentials: (json['IssuedCredentials'] as List)
-        ?.map((e) => e == null ? null : RawCredential.fromJson(e as Map<String, dynamic>))
-        ?.toList(),
-    disclosedAttributes: (json['DisclosedCredentials'] as List)
-        ?.map((e) => (e as List)
-            ?.map((e) => e == null ? null : DisclosedAttribute.fromJson(e as Map<String, dynamic>))
-            ?.toList())
-        ?.toList(),
-    signedMessage:
-        json['SignedMessage'] == null ? null : SignedMessage.fromJson(json['SignedMessage'] as Map<String, dynamic>),
-    removedCredentials: (json['RemovedCredentials'] as Map<String, dynamic>)?.map(
+    issuedCredentials: (json['IssuedCredentials'] as List<dynamic>)
+        .map((e) => RawCredential.fromJson(e as Map<String, dynamic>))
+        .toList(),
+    disclosedAttributes: (json['DisclosedCredentials'] as List<dynamic>)
+        .map((e) => (e as List<dynamic>).map((e) => DisclosedAttribute.fromJson(e as Map<String, dynamic>)).toList())
+        .toList(),
+    removedCredentials: (json['RemovedCredentials'] as Map<String, dynamic>).map(
       (k, e) => MapEntry(
           k,
-          (e as Map<String, dynamic>)?.map(
-            (k, e) => MapEntry(k, e == null ? null : TranslatedValue.fromJson(e as Map<String, dynamic>)),
+          (e as Map<String, dynamic>).map(
+            (k, e) => MapEntry(k, TranslatedValue.fromJson(e as Map<String, dynamic>?)),
           )),
     ),
+    serverName: json['ServerName'] == null ? null : RequestorInfo.fromJson(json['ServerName'] as Map<String, dynamic>),
+    signedMessage:
+        json['SignedMessage'] == null ? null : SignedMessage.fromJson(json['SignedMessage'] as Map<String, dynamic>),
   );
 }
 
 Map<String, dynamic> _$LogEntryToJson(LogEntry instance) => <String, dynamic>{
       'ID': instance.id,
       'Type': _$LogEntryTypeEnumMap[instance.type],
-      'Time': instance.time?.toIso8601String(),
+      'Time': instance.time.toIso8601String(),
       'ServerName': instance.serverName,
       'IssuedCredentials': instance.issuedCredentials,
       'DisclosedCredentials': instance.disclosedAttributes,

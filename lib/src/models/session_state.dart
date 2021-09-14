@@ -8,25 +8,27 @@ class SessionState {
   final bool continueOnSecondDevice;
   final SessionStatus status;
   final RequestorInfo serverName;
-  final ConDisCon<Attribute> disclosuresCandidates;
-  final ReturnURL clientReturnURL;
-  final bool isSignatureSession;
-  final String signedMessage;
-  final List<Credential> issuedCredentials;
-  final List<int> disclosureIndices;
-  final ConCon<AttributeIdentifier> disclosureChoices;
-  final bool satisfiable;
-  final bool canBeFinished;
-  final SessionError error;
+  final ConDisCon<Attribute>? disclosuresCandidates;
+  final ReturnURL? clientReturnURL;
+  final bool? isSignatureSession;
+  final String? signedMessage;
+  final List<Credential>? issuedCredentials;
+  final List<int>? disclosureIndices;
+  final ConCon<AttributeIdentifier>? disclosureChoices;
+  final bool? satisfiable;
+  final bool? canBeFinished;
+  final SessionError? error;
   final String inAppCredential;
   final String sessionType;
-  final String pairingCode;
+  final String? pairingCode;
 
   SessionState({
-    this.sessionID,
-    this.continueOnSecondDevice,
-    this.status = SessionStatus.uninitialized,
-    this.serverName,
+    required this.sessionID,
+    required this.continueOnSecondDevice,
+    required this.status,
+    required this.serverName,
+    required this.inAppCredential,
+    required this.sessionType,
     this.disclosuresCandidates,
     this.clientReturnURL,
     this.isSignatureSession,
@@ -37,16 +39,15 @@ class SessionState {
     this.satisfiable,
     this.canBeFinished,
     this.error,
-    this.inAppCredential,
-    this.sessionType,
     this.pairingCode,
   });
 
   bool get canDisclose =>
       disclosuresCandidates == null ||
-      disclosuresCandidates
+      disclosuresCandidates!
           .asMap()
-          .map((i, discon) => MapEntry(i, discon[disclosureIndices[i]]))
+          // The SessionRepository enforces that the disclosuresCandidates and the disclosureIndices are in sync.
+          .map((i, discon) => MapEntry(i, discon[disclosureIndices![i]]))
           .values
           .every((con) => con.every((attr) => attr.choosable));
 
@@ -66,26 +67,23 @@ class SessionState {
       ].contains(status);
 
   SessionState copyWith({
-    bool continueOnSecondDevice,
-    SessionStatus status,
-    RequestorInfo serverName,
-    ConDisCon<Attribute> disclosuresCandidates,
-    ReturnURL clientReturnURL,
-    bool isSignatureSession,
-    String signedMessage,
-    List<Credential> issuedCredentials,
-    List<int> disclosureIndices,
-    ConCon<AttributeIdentifier> disclosureChoices,
-    bool satisfiable,
-    bool canBeFinished,
-    SessionError error,
-    String inAppCredential,
-    String sessionType,
-    String pairingCode,
+    SessionStatus? status,
+    RequestorInfo? serverName,
+    ConDisCon<Attribute>? disclosuresCandidates,
+    ReturnURL? clientReturnURL,
+    bool? isSignatureSession,
+    String? signedMessage,
+    List<Credential>? issuedCredentials,
+    List<int>? disclosureIndices,
+    ConCon<AttributeIdentifier>? disclosureChoices,
+    bool? satisfiable,
+    bool? canBeFinished,
+    SessionError? error,
+    String? pairingCode,
   }) {
     return SessionState(
       sessionID: sessionID,
-      continueOnSecondDevice: continueOnSecondDevice ?? this.continueOnSecondDevice,
+      continueOnSecondDevice: continueOnSecondDevice,
       status: status ?? this.status,
       serverName: serverName ?? this.serverName,
       disclosuresCandidates: disclosuresCandidates ?? this.disclosuresCandidates,
@@ -98,15 +96,14 @@ class SessionState {
       satisfiable: satisfiable ?? this.satisfiable,
       canBeFinished: canBeFinished ?? this.canBeFinished,
       error: error ?? this.error,
-      inAppCredential: inAppCredential ?? this.inAppCredential,
-      sessionType: sessionType ?? this.sessionType,
+      inAppCredential: inAppCredential,
+      sessionType: sessionType,
       pairingCode: pairingCode ?? this.pairingCode,
     );
   }
 }
 
 enum SessionStatus {
-  uninitialized,
   initialized,
   communicating,
   pairing,
@@ -121,6 +118,5 @@ enum SessionStatus {
 extension SessionStatusParser on String {
   SessionStatus toSessionStatus() => SessionStatus.values.firstWhere(
         (v) => v.toString() == 'SessionStatus.$this',
-        orElse: () => null,
       );
 }

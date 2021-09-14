@@ -21,7 +21,7 @@ Map<String, dynamic> _$ChangePinEventToJson(ChangePinEvent instance) => <String,
 ChangePinErrorEvent _$ChangePinErrorEventFromJson(Map<String, dynamic> json) {
   return ChangePinErrorEvent(
     schemeManagerID: json['SchemeManagerID'] as String,
-    error: json['Error'] == null ? null : SessionError.fromJson(json['Error'] as Map<String, dynamic>),
+    error: SessionError.fromJson(json['Error'] as Map<String, dynamic>),
   );
 }
 

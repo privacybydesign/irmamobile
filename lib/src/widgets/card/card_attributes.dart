@@ -1,4 +1,4 @@
-// This file is not null safe yet.
+// This code is not null safe yet.
 // @dart=2.11
 
 import 'package:flutter/material.dart';
@@ -285,13 +285,13 @@ class _CardAttributesState extends State<CardAttributes> {
           Opacity(
             opacity: 0.8,
             child: Text(
-              attributeType.name[_lang],
+              attributeType.name.translate(_lang),
               style: body1Theme.copyWith(fontSize: 14),
               overflow: TextOverflow.ellipsis,
             ),
           ),
           Text(
-            (attributeValue as TextValue).translated[_lang],
+            (attributeValue as TextValue).translated.translate(_lang),
             style: IrmaTheme.of(context).textTheme.body2.copyWith(color: widget.irmaCardTheme.foregroundColor),
           ),
           SizedBox(

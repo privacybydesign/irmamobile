@@ -8,8 +8,8 @@ part of 'handle_url_event.dart';
 
 HandleURLEvent _$HandleURLEventFromJson(Map<String, dynamic> json) {
   return HandleURLEvent(
-    isInitialUrl: json['isInitialURL'] as bool ?? false,
     url: json['url'] as String,
+    isInitialUrl: json['isInitialURL'] as bool? ?? false,
   );
 }
 

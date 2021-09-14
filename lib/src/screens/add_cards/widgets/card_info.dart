@@ -1,4 +1,4 @@
-// This file is not null safe yet.
+// This code is not null safe yet.
 // @dart=2.11
 
 import 'dart:io';
@@ -56,7 +56,7 @@ class _CardInfoState extends State<CardInfo> with TickerProviderStateMixin {
               ? Image.file(logoFile, excludeFromSemantics: true)
               : Image.asset("assets/non-free/irmalogo.png", excludeFromSemantics: true),
         ),
-        if (widget.credentialType.faqIntro != null)
+        if (widget.credentialType.faqIntro.isNotEmpty)
           Padding(
             padding: paddingText,
             child: Text(
