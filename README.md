@@ -96,13 +96,14 @@ This project uses json_serializer. To re-generate serialization code, run `./cod
 ## Troubleshooting
 
 * Have you checked out the two submodules of this repository? If `find ./irma_configuration` is empty, this is the case.
-* If something has changed in the `irmagobridge` or in `irmago` then rerunning `./build_go.sh` is required.
+* If something has changed in the `irmagobridge` or in `irmago` then rerunning `./bind_go.sh` is required.
 * In case you get the warning that the `ndk-bundle` cannot be found, please set the `ANDROID_NDK_HOME`
   environment variable to the right ndk version directory. These version directories can be found in `$ANDROID_HOME/ndk`.
   For example, you have to specify `export ANDROID_NDK_HOME=$ANDROID_HOME/ndk/21.1.6352462`.
   You can also make a symlink in `ANDROID_HOME` by doing
   `ln -s $ANDROID_HOME/ndk/<NDK_VERSION> $ANDROID_HOME/ndk-bundle`. In here `<NDK_VERSION>` should be replaced
   with the NDK version you want to use.
+* When you get an error related to `x_cgo_inittls` while running `./bind_go.sh`, you probably use an incorrect version of the Android NDK (see above) or your Go version is too old.
 
 ### Installing Java 8
 
