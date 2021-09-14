@@ -227,11 +227,11 @@ class _SessionScreenState extends State<SessionScreen> {
       return _buildLoadingScreen(true);
     }
 
-    if (session.continueOnSecondDevice && !session.clientReturnURL.isPhoneNumber) {
+    if (session.continueOnSecondDevice && !(session.clientReturnURL?.isPhoneNumber ?? false)) {
       return _buildFinishedContinueSecondDevice(session);
     }
 
-    if (session.clientReturnURL.isPhoneNumber) {
+    if (session.clientReturnURL?.isPhoneNumber ?? false) {
       return _buildFinishedReturnPhoneNumber(session);
     }
 
