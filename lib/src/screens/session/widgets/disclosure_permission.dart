@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/models/attributes.dart';
-import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/screens/session/widgets/disclosure_feedback_screen.dart';
 import 'package:irmamobile/src/screens/session/widgets/disclosure_header.dart';
@@ -23,11 +22,11 @@ import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 class DisclosurePermission extends StatefulWidget {
   final Function() onDismiss;
   final Function() onGivePermission;
-  final Function(SessionEvent event, {bool isBridgedEvent}) dispatchSessionEvent;
+  final Function({int disconIndex, int conIndex}) onUpdateChoice;
 
   final SessionState session;
 
-  const DisclosurePermission({Key key, this.onDismiss, this.onGivePermission, this.session, this.dispatchSessionEvent})
+  const DisclosurePermission({Key key, this.onDismiss, this.onGivePermission, this.session, this.onUpdateChoice})
       : super(key: key);
 
   @override
@@ -113,12 +112,9 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
   }
 
   void _carouselPageUpdate(int disconIndex, int conIndex) {
-    widget.dispatchSessionEvent(
-      DisclosureChoiceUpdateSessionEvent(
-        disconIndex: disconIndex,
-        conIndex: conIndex,
-      ),
-      isBridgedEvent: false,
+    widget.onUpdateChoice(
+      disconIndex: disconIndex,
+      conIndex: conIndex,
     );
 
     _scrolledToEnd = false;

@@ -8,30 +8,19 @@ import 'package:json_annotation/json_annotation.dart';
 part 'session_events.g.dart';
 
 abstract class SessionEvent extends Event {
-  // The sessionID is not always known when constructing the class.
-  // However, we need a sessionID to be present for a valid SessionEvent.
-  // Therefore, we now check this at runtime by making the sessionID
-  // 'late final' and by adding extra json annotations.
-  // It might be good to re-consider the initialization of sessionID in the future,
-  // such that it is known at construction time. Then we would not
-  // have to rely on runtime checks.
-  SessionEvent(int? sessionID) {
-    if (sessionID != null) this.sessionID = sessionID;
-  }
+  SessionEvent(this.sessionID);
 
-  @JsonKey(name: 'SessionID', required: true, disallowNullValue: true)
-  late final int sessionID;
+  @JsonKey(name: 'SessionID')
+  final int sessionID;
 }
 
-@JsonSerializable()
+@JsonSerializable(createFactory: false)
 class NewSessionEvent extends SessionEvent {
   // This counter is used to give each session a unique number to correlate events
   // We start at some arbitrary point above zero
   static int sessionIDCounter = 42;
 
-  NewSessionEvent({int? sessionID, required this.request, this.inAppCredential = ''}) : super(sessionID) {
-    if (sessionID == null) this.sessionID = sessionIDCounter++;
-  }
+  NewSessionEvent({required this.request, this.inAppCredential = ''}) : super(sessionIDCounter++);
 
   @JsonKey(name: 'Request')
   final SessionPointer request;
@@ -39,14 +28,13 @@ class NewSessionEvent extends SessionEvent {
   // Which credential's issue page, if any relevant, was last opened with the in-app browser
   final String inAppCredential;
 
-  factory NewSessionEvent.fromJson(Map<String, dynamic> json) => _$NewSessionEventFromJson(json);
   Map<String, dynamic> toJson() => _$NewSessionEventToJson(this);
 }
 
 @JsonSerializable()
 class RespondPermissionEvent extends SessionEvent {
   RespondPermissionEvent({
-    int? sessionID,
+    required int sessionID,
     required this.proceed,
     required this.disclosureChoices,
   }) : super(sessionID);
@@ -62,12 +50,12 @@ class RespondPermissionEvent extends SessionEvent {
 }
 
 class ContinueToIssuanceEvent extends SessionEvent {
-  ContinueToIssuanceEvent({int? sessionID}) : super(sessionID);
+  ContinueToIssuanceEvent({required int sessionID}) : super(sessionID);
 }
 
 @JsonSerializable()
 class RespondPinEvent extends SessionEvent {
-  RespondPinEvent({int? sessionID, required this.proceed, this.pin}) : super(sessionID);
+  RespondPinEvent({required int sessionID, required this.proceed, this.pin}) : super(sessionID);
 
   @JsonKey(name: 'Proceed')
   final bool proceed;
@@ -84,7 +72,7 @@ class DisclosureChoiceUpdateSessionEvent extends SessionEvent {
   final int conIndex;
 
   DisclosureChoiceUpdateSessionEvent({
-    int? sessionID,
+    required int sessionID,
     required this.disconIndex,
     required this.conIndex,
   }) : super(sessionID);
@@ -92,7 +80,7 @@ class DisclosureChoiceUpdateSessionEvent extends SessionEvent {
 
 @JsonSerializable()
 class DismissSessionEvent extends SessionEvent {
-  DismissSessionEvent({int? sessionID}) : super(sessionID);
+  DismissSessionEvent({required int sessionID}) : super(sessionID);
 
   factory DismissSessionEvent.fromJson(Map<String, dynamic> json) => _$DismissSessionEventFromJson(json);
   Map<String, dynamic> toJson() => _$DismissSessionEventToJson(this);
@@ -100,7 +88,7 @@ class DismissSessionEvent extends SessionEvent {
 
 @JsonSerializable()
 class StatusUpdateSessionEvent extends SessionEvent {
-  StatusUpdateSessionEvent({int? sessionID, required this.action, required this.status}) : super(sessionID);
+  StatusUpdateSessionEvent({required int sessionID, required this.action, required this.status}) : super(sessionID);
 
   @JsonKey(name: 'Action')
   final String action;
@@ -114,7 +102,7 @@ class StatusUpdateSessionEvent extends SessionEvent {
 
 @JsonSerializable()
 class ClientReturnURLSetSessionEvent extends SessionEvent {
-  ClientReturnURLSetSessionEvent({int? sessionID, required this.clientReturnURL}) : super(sessionID);
+  ClientReturnURLSetSessionEvent({required int sessionID, required this.clientReturnURL}) : super(sessionID);
 
   @JsonKey(name: 'ClientReturnURL')
   final String clientReturnURL;
@@ -126,7 +114,7 @@ class ClientReturnURLSetSessionEvent extends SessionEvent {
 
 @JsonSerializable()
 class SuccessSessionEvent extends SessionEvent {
-  SuccessSessionEvent({int? sessionID, required this.result}) : super(sessionID);
+  SuccessSessionEvent({required int sessionID, required this.result}) : super(sessionID);
 
   @JsonKey(name: 'Result')
   final String result;
@@ -138,7 +126,7 @@ class SuccessSessionEvent extends SessionEvent {
 @JsonSerializable()
 class FailureSessionEvent extends SessionEvent {
   FailureSessionEvent({
-    int? sessionID,
+    required int sessionID,
     required this.error,
   }) : super(sessionID);
 
@@ -151,7 +139,7 @@ class FailureSessionEvent extends SessionEvent {
 
 @JsonSerializable()
 class CanceledSessionEvent extends SessionEvent {
-  CanceledSessionEvent({int? sessionID}) : super(sessionID);
+  CanceledSessionEvent({required int sessionID}) : super(sessionID);
 
   factory CanceledSessionEvent.fromJson(Map<String, dynamic> json) => _$CanceledSessionEventFromJson(json);
   Map<String, dynamic> toJson() => _$CanceledSessionEventToJson(this);
@@ -160,7 +148,7 @@ class CanceledSessionEvent extends SessionEvent {
 @JsonSerializable()
 class RequestIssuancePermissionSessionEvent extends SessionEvent {
   RequestIssuancePermissionSessionEvent({
-    int? sessionID,
+    required int sessionID,
     required this.serverName,
     required this.satisfiable,
     required this.issuedCredentials,
@@ -191,7 +179,7 @@ class RequestIssuancePermissionSessionEvent extends SessionEvent {
 @JsonSerializable()
 class RequestVerificationPermissionSessionEvent extends SessionEvent {
   RequestVerificationPermissionSessionEvent({
-    int? sessionID,
+    required int sessionID,
     required this.serverName,
     required this.satisfiable,
     required this.disclosuresLabels,
@@ -225,7 +213,7 @@ class RequestVerificationPermissionSessionEvent extends SessionEvent {
 
 @JsonSerializable()
 class RequestPinSessionEvent extends SessionEvent {
-  RequestPinSessionEvent({int? sessionID, required this.remainingAttempts}) : super(sessionID);
+  RequestPinSessionEvent({required int sessionID, required this.remainingAttempts}) : super(sessionID);
 
   @JsonKey(name: 'RemainingAttempts')
   final int remainingAttempts;
@@ -236,7 +224,7 @@ class RequestPinSessionEvent extends SessionEvent {
 
 @JsonSerializable()
 class PairingRequiredSessionEvent extends SessionEvent {
-  PairingRequiredSessionEvent({int? sessionID, required this.pairingCode}) : super(sessionID);
+  PairingRequiredSessionEvent({required int sessionID, required this.pairingCode}) : super(sessionID);
 
   @JsonKey(name: 'PairingCode')
   final String pairingCode;
@@ -248,7 +236,7 @@ class PairingRequiredSessionEvent extends SessionEvent {
 
 @JsonSerializable()
 class KeyshareEnrollmentMissingSessionEvent extends SessionEvent {
-  KeyshareEnrollmentMissingSessionEvent({int? sessionID, required this.schemeManagerID}) : super(sessionID);
+  KeyshareEnrollmentMissingSessionEvent({required int sessionID, required this.schemeManagerID}) : super(sessionID);
 
   @JsonKey(name: 'SchemeManagerID')
   final String schemeManagerID;
@@ -260,7 +248,7 @@ class KeyshareEnrollmentMissingSessionEvent extends SessionEvent {
 
 @JsonSerializable()
 class KeyshareEnrollmentDeletedSessionEvent extends SessionEvent {
-  KeyshareEnrollmentDeletedSessionEvent({int? sessionID, required this.schemeManagerID}) : super(sessionID);
+  KeyshareEnrollmentDeletedSessionEvent({required int sessionID, required this.schemeManagerID}) : super(sessionID);
 
   @JsonKey(name: 'SchemeManagerID')
   final String schemeManagerID;
@@ -273,7 +261,7 @@ class KeyshareEnrollmentDeletedSessionEvent extends SessionEvent {
 @JsonSerializable()
 class KeyshareBlockedSessionEvent extends SessionEvent {
   KeyshareBlockedSessionEvent({
-    int? sessionID,
+    required int sessionID,
     required this.schemeManagerID,
     required this.duration,
   }) : super(sessionID);
@@ -291,7 +279,7 @@ class KeyshareBlockedSessionEvent extends SessionEvent {
 
 @JsonSerializable()
 class KeyshareEnrollmentIncompleteSessionEvent extends SessionEvent {
-  KeyshareEnrollmentIncompleteSessionEvent({int? sessionID, required this.schemeManagerID}) : super(sessionID);
+  KeyshareEnrollmentIncompleteSessionEvent({required int sessionID, required this.schemeManagerID}) : super(sessionID);
 
   @JsonKey(name: 'SchemeManagerID')
   final String schemeManagerID;
