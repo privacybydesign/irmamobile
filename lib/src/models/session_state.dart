@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/return_url.dart';
@@ -116,7 +117,7 @@ enum SessionStatus {
 }
 
 extension SessionStatusParser on String {
-  SessionStatus toSessionStatus() => SessionStatus.values.firstWhere(
+  SessionStatus? toSessionStatus() => SessionStatus.values.firstWhereOrNull(
         (v) => v.toString() == 'SessionStatus.$this',
       );
 }
