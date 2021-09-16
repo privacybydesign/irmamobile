@@ -2,8 +2,7 @@ import 'package:collection/collection.dart';
 
 /// TranslatedValue contains translated values for attributes, etc.
 class TranslatedValue {
-  // TODO: Why is the fallback language nl?
-  static const _defaultFallbackLang = 'nl';
+  static const _defaultFallbackLang = 'en';
 
   final Map<String, String> _map;
 
