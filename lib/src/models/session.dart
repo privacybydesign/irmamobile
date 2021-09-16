@@ -176,7 +176,7 @@ class RemoteError {
   @JsonKey(name: 'stacktrace')
   final String? stacktrace;
 
-  RemoteError redacted() => RemoteError(
+  RemoteError copyWithoutStacktrace() => RemoteError(
         status: status,
         errorName: errorName,
         description: description,
@@ -187,7 +187,7 @@ class RemoteError {
   Map<String, dynamic> toJson() => _$RemoteErrorToJson(this);
 
   @override
-  String toString() => jsonEncode(redacted());
+  String toString() => jsonEncode(copyWithoutStacktrace());
 }
 
 @JsonSerializable()
