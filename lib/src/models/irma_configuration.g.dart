@@ -91,7 +91,7 @@ CredentialType _$CredentialTypeFromJson(Map<String, dynamic> json) {
     isSingleton: json['IsSingleton'] as bool,
     description: TranslatedValue.fromJson(json['Description'] as Map<String, dynamic>?),
     issueUrl: TranslatedValue.fromJson(json['IssueURL'] as Map<String, dynamic>?),
-    isULIssueUrl: json['IsULIssueURL'] as bool?,
+    isULIssueUrl: json['IsULIssueURL'] as bool,
     disallowDelete: json['DisallowDelete'] as bool? ?? false,
     foregroundColor: colorFromCode(json['ForegroundColor'] as String?),
     backgroundGradientStart: colorFromCode(json['BackgroundGradientStart'] as String?),

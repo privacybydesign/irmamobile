@@ -171,7 +171,7 @@ class CredentialType {
     required this.isSingleton,
     required this.description,
     this.issueUrl = const TranslatedValue.empty(),
-    this.isULIssueUrl,
+    this.isULIssueUrl = false,
     this.disallowDelete = false,
     this.foregroundColor,
     this.backgroundGradientStart,
@@ -208,7 +208,7 @@ class CredentialType {
   final TranslatedValue issueUrl;
 
   @JsonKey(name: 'IsULIssueURL')
-  final bool? isULIssueUrl;
+  final bool isULIssueUrl;
 
   @JsonKey(name: 'DisallowDelete', defaultValue: false)
   final bool disallowDelete;
