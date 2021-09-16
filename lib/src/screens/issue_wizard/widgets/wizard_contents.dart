@@ -86,13 +86,14 @@ class IssueWizardContents extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final lang = FlutterI18n.currentLocale(context).languageCode;
+    final activeItem = wizard.activeItem;
     final buttonLabel = wizard.completed
         ? FlutterI18n.translate(context, "issue_wizard.done")
-        : wizard.activeItem.label.translate(lang,
+        : activeItem.label.translate(lang,
             fallback: FlutterI18n.translate(
               context,
               "issue_wizard.add_credential",
-              translationParams: {"credential": wizard.activeItem.header.translate(lang)},
+              translationParams: {"credential": activeItem.header.translate(lang)},
             ));
 
     return LogoBannerHeader(

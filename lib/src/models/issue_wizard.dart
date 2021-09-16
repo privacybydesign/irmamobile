@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:irmamobile/src/models/event.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -39,7 +40,7 @@ class IssueWizardEvent extends Event {
 
   bool get showSuccess => wizardData.successHeader.isNotEmpty && wizardData.successText.isNotEmpty;
   bool get completed => haveCredential || wizardContents.every((item) => item.completed);
-  IssueWizardItem get activeItem => wizardContents.firstWhere((item) => !item.completed);
+  IssueWizardItem? get activeItem => wizardContents.firstWhereOrNull((item) => !item.completed);
   int get _activeItemIndex => wizardContents.indexWhere((item) => !item.completed);
 
   /// A copy of the event with the currently active item marked completed.
