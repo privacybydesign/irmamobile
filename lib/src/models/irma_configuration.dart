@@ -183,7 +183,7 @@ class CredentialType {
     this.faqContent = const TranslatedValue.empty(),
     this.faqHowto = const TranslatedValue.empty(),
     this.faqSummary = const TranslatedValue.empty(),
-    this.logo = '',
+    this.logo,
   });
 
   @JsonKey(name: 'ID')
@@ -243,9 +243,8 @@ class CredentialType {
   @JsonKey(name: 'FAQSummary') // Default value is set by fromJson of TranslatedValue
   final TranslatedValue faqSummary;
 
-  /// When no logo is present, the empty string is used.
   @JsonKey(name: 'Logo')
-  final String logo;
+  final String? logo;
 
   factory CredentialType.fromJson(Map<String, dynamic> json) => _$CredentialTypeFromJson(json);
 

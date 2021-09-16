@@ -103,7 +103,7 @@ CredentialType _$CredentialTypeFromJson(Map<String, dynamic> json) {
     faqContent: TranslatedValue.fromJson(json['FAQContent'] as Map<String, dynamic>?),
     faqHowto: TranslatedValue.fromJson(json['FAQHowto'] as Map<String, dynamic>?),
     faqSummary: TranslatedValue.fromJson(json['FAQSummary'] as Map<String, dynamic>?),
-    logo: json['Logo'] as String,
+    logo: json['Logo'] as String?,
   );
 }
 
