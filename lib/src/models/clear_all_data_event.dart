@@ -3,7 +3,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'clear_all_data_event.g.dart';
 
-@JsonSerializable(nullable: false)
+@JsonSerializable()
 class ClearAllDataEvent extends Event {
   ClearAllDataEvent();
 

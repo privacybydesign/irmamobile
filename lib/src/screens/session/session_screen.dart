@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'dart:async';
 import 'dart:io';
 
@@ -89,20 +92,19 @@ class _SessionScreenState extends State<SessionScreen> {
     return isIssuance ? "issuance.title" : "disclosure.title";
   }
 
-  void _dispatchSessionEvent(SessionEvent event, {bool isBridgedEvent = true}) {
-    event.sessionID = widget.arguments.sessionID;
-    _repo.dispatch(event, isBridgedEvent: isBridgedEvent);
-  }
+  void _dispatchSessionEvent(SessionEvent event, {bool isBridgedEvent = true}) =>
+      _repo.dispatch(event, isBridgedEvent: isBridgedEvent);
 
   void _dismissSession() {
-    _dispatchSessionEvent(DismissSessionEvent());
+    _dispatchSessionEvent(DismissSessionEvent(sessionID: widget.arguments.sessionID));
   }
 
   void _givePermission(SessionState session) {
     if (session.status == SessionStatus.requestDisclosurePermission && session.isIssuanceSession) {
-      _dispatchSessionEvent(ContinueToIssuanceEvent(), isBridgedEvent: false);
+      _dispatchSessionEvent(ContinueToIssuanceEvent(sessionID: widget.arguments.sessionID), isBridgedEvent: false);
     } else {
       _dispatchSessionEvent(RespondPermissionEvent(
+        sessionID: widget.arguments.sessionID,
         proceed: true,
         disclosureChoices: session.disclosureChoices,
       ));
@@ -149,6 +151,7 @@ class _SessionScreenState extends State<SessionScreen> {
       } else {
         _dispatchSessionEvent(
           FailureSessionEvent(
+            sessionID: widget.arguments.sessionID,
             error: SessionError(
               errorType: 'clientReturnUrl',
               info: 'the clientReturnUrl could not be handled',
@@ -195,6 +198,7 @@ class _SessionScreenState extends State<SessionScreen> {
           } catch (e) {
             _dispatchSessionEvent(
               FailureSessionEvent(
+                sessionID: widget.arguments.sessionID,
                 error: SessionError(
                   errorType: 'clientReturnUrl',
                   info: 'the phone number in the clientReturnUrl could not be handled',
@@ -359,7 +363,14 @@ class _SessionScreenState extends State<SessionScreen> {
               session: session,
               onDismiss: () => _dismissSession(),
               onGivePermission: () => _givePermission(session),
-              dispatchSessionEvent: _dispatchSessionEvent,
+              onUpdateChoice: ({int disconIndex, int conIndex}) => _dispatchSessionEvent(
+                DisclosureChoiceUpdateSessionEvent(
+                  sessionID: widget.arguments.sessionID,
+                  disconIndex: disconIndex,
+                  conIndex: conIndex,
+                ),
+                isBridgedEvent: false,
+              ),
             );
           case SessionStatus.requestIssuancePermission:
             return IssuancePermission(

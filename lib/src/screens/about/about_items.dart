@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -5,8 +8,8 @@ import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/screens/about/widgets/links.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/translated_text.dart';
 import 'package:irmamobile/src/widgets/collapsible.dart';
+import 'package:irmamobile/src/widgets/translated_text.dart';
 
 class AboutItems extends StatefulWidget {
   const AboutItems({this.credentialType, this.parentKey, this.parentScrollController});

@@ -7,13 +7,13 @@ part 'enrollment_events.g.dart';
 
 @JsonSerializable()
 class EnrollmentStatusEvent extends Event {
-  EnrollmentStatusEvent({this.enrolledSchemeManagerIds, this.unenrolledSchemeManagerIds});
+  EnrollmentStatusEvent({required this.enrolledSchemeManagerIds, required this.unenrolledSchemeManagerIds});
 
   @JsonKey(name: 'EnrolledSchemeManagerIds')
-  List<String> enrolledSchemeManagerIds;
+  final List<String> enrolledSchemeManagerIds;
 
   @JsonKey(name: 'UnenrolledSchemeManagerIds')
-  List<String> unenrolledSchemeManagerIds;
+  final List<String> unenrolledSchemeManagerIds;
 
   factory EnrollmentStatusEvent.fromJson(Map<String, dynamic> json) => _$EnrollmentStatusEventFromJson(json);
   Map<String, dynamic> toJson() => _$EnrollmentStatusEventToJson(this);
@@ -24,16 +24,16 @@ class EnrollmentStatusEvent extends Event {
 
 @JsonSerializable()
 class EnrollEvent extends Event {
-  EnrollEvent({this.email, this.pin, this.language});
+  EnrollEvent({required this.email, required this.pin, required this.language});
 
   @JsonKey(name: 'Email')
-  String email;
+  final String email;
 
   @JsonKey(name: 'Pin')
-  String pin;
+  final String pin;
 
   @JsonKey(name: 'Language')
-  String language;
+  final String language;
 
   factory EnrollEvent.fromJson(Map<String, dynamic> json) => _$EnrollEventFromJson(json);
   Map<String, dynamic> toJson() => _$EnrollEventToJson(this);
@@ -44,15 +44,15 @@ class EnrollmentEvent extends Event {}
 @JsonSerializable()
 class EnrollmentFailureEvent extends EnrollmentEvent {
   EnrollmentFailureEvent({
-    this.schemeManagerID,
-    this.error,
+    required this.schemeManagerID,
+    required this.error,
   });
 
   @JsonKey(name: 'SchemeManagerID')
-  String schemeManagerID;
+  final String schemeManagerID;
 
   @JsonKey(name: 'Error')
-  SessionError error;
+  final SessionError error;
 
   factory EnrollmentFailureEvent.fromJson(Map<String, dynamic> json) => _$EnrollmentFailureEventFromJson(json);
   Map<String, dynamic> toJson() => _$EnrollmentFailureEventToJson(this);
@@ -60,10 +60,10 @@ class EnrollmentFailureEvent extends EnrollmentEvent {
 
 @JsonSerializable()
 class EnrollmentSuccessEvent extends EnrollmentEvent {
-  EnrollmentSuccessEvent({this.schemeManagerID});
+  EnrollmentSuccessEvent({required this.schemeManagerID});
 
   @JsonKey(name: 'SchemeManagerID')
-  String schemeManagerID;
+  final String schemeManagerID;
 
   factory EnrollmentSuccessEvent.fromJson(Map<String, dynamic> json) => _$EnrollmentSuccessEventFromJson(json);
   Map<String, dynamic> toJson() => _$EnrollmentSuccessEventToJson(this);

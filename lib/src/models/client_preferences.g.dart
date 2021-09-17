@@ -8,8 +8,7 @@ part of 'client_preferences.dart';
 
 ClientPreferencesEvent _$ClientPreferencesEventFromJson(Map<String, dynamic> json) {
   return ClientPreferencesEvent(
-    clientPreferences:
-        json['Preferences'] == null ? null : ClientPreferences.fromJson(json['Preferences'] as Map<String, dynamic>),
+    clientPreferences: ClientPreferences.fromJson(json['Preferences'] as Map<String, dynamic>),
   );
 }
 

@@ -4,12 +4,14 @@ class ReturnURL {
   final Uri uri;
 
   /// Parses and validates the given url as return url. In case the url is invalid, it returns null.
-  factory ReturnURL(String url) {
+  static ReturnURL? parse(String? url) {
     if (url?.isNotEmpty ?? false) {
       try {
-        return ReturnURL._(Uri.parse(url));
+        return ReturnURL._(Uri.parse(url!));
       } catch (_) {
         // For now we silently dismiss errors, because the SessionRepository does not expect errors to happen here.
+        // Factory constructors may not return null, so therefore we use a static function.
+        // The function can be converted to a normal constructor when the error handling is fixed.
       }
     }
     return null;

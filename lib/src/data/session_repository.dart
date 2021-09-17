@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:collection/collection.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attributes.dart';
@@ -12,13 +15,9 @@ import 'package:quiver/iterables.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:stream_transform/stream_transform.dart';
 
+// Typedefs are still experimental in Flutter. Therefore, we use inheritance for now.
 class SessionStates extends UnmodifiableMapView<int, SessionState> {
   SessionStates(Map<int, SessionState> map) : super(map);
-
-  @override
-  SessionState operator [](Object sessionID) {
-    return super[sessionID] ?? SessionState(sessionID: sessionID as int);
-  }
 }
 
 class SessionRepository {
@@ -32,41 +31,51 @@ class SessionRepository {
     // The scan method uses the initialValue only to accumulate on.
     // We have to add it to the stream ourselves.
     _sessionStatesSubject.add(initialValue);
-    sessionEventStream.scan<SessionStates>(initialValue, (prevStates, event) async {
-      // Calculate the nextState from the previousState by handling the event
-      final prevState = prevStates[event.sessionID];
-      final nextState = await _eventHandler(prevState, event);
+    Scan(sessionEventStream).scan<SessionStates>(initialValue, (prevStates, event) async {
+      // Calculate the nextState from the previousState by handling the event.
+      // In case a new session is created, we create a new session state.
+      SessionState nextState;
+      if (prevStates.containsKey(event.sessionID)) {
+        final prevState = prevStates[event.sessionID];
+        nextState = await _eventHandler(prevState, event);
+      } else if (event is NewSessionEvent) {
+        nextState = _newSessionState(event);
+      }
 
       // Copy the prevStates into a new map, and add the next state
       final nextStates = Map.of(prevStates);
-      nextStates[event.sessionID] = nextState;
+      if (nextState != null) nextStates[event.sessionID] = nextState;
+
       return SessionStates(nextStates);
     }).pipe(_sessionStatesSubject);
+  }
+
+  SessionState _newSessionState(NewSessionEvent event) {
+    // Set the url as fallback serverName in case session is canceled before the translated serverName is known.
+    RequestorInfo serverName;
+    try {
+      final url = Uri.parse(event.request.u).host;
+      serverName = RequestorInfo(name: TranslatedValue.fromString(url));
+    } catch (_) {
+      // Error with url will be resolved by bridge, so we don't have to act on that.
+      serverName = null;
+    }
+    return SessionState(
+      sessionID: event.sessionID,
+      clientReturnURL: ReturnURL.parse(event.request.returnURL),
+      continueOnSecondDevice: event.request.continueOnSecondDevice,
+      inAppCredential: event.inAppCredential,
+      status: SessionStatus.initialized,
+      serverName: serverName,
+      sessionType: event.request.irmaqr,
+    );
   }
 
   Future<SessionState> _eventHandler(SessionState prevState, SessionEvent event) async {
     final irmaConfiguration = await repo.getIrmaConfiguration().first;
     final credentials = await repo.getCredentials().first;
 
-    if (event is NewSessionEvent) {
-      // Set the url as fallback serverName in case session is canceled before the translated serverName is known.
-      RequestorInfo serverName;
-      try {
-        final url = Uri.parse(event.request.u).host;
-        serverName = RequestorInfo(name: TranslatedValue({TranslatedValue.defaultFallbackLang: url}));
-      } catch (_) {
-        // Error with url will be resolved by bridge, so we don't have to act on that.
-        serverName = null;
-      }
-      return prevState.copyWith(
-        clientReturnURL: ReturnURL(event.request.returnURL),
-        continueOnSecondDevice: event.request.continueOnSecondDevice,
-        inAppCredential: event.inAppCredential,
-        status: SessionStatus.initialized,
-        serverName: serverName,
-        sessionType: event.request.irmaqr,
-      );
-    } else if (event is FailureSessionEvent) {
+    if (event is FailureSessionEvent) {
       return prevState.copyWith(
         status: SessionStatus.error,
         error: event.error,
@@ -77,7 +86,7 @@ class SessionRepository {
       );
     } else if (event is ClientReturnURLSetSessionEvent) {
       return prevState.copyWith(
-        clientReturnURL: ReturnURL(event.clientReturnURL),
+        clientReturnURL: ReturnURL.parse(event.clientReturnURL),
       );
     } else if (event is PairingRequiredSessionEvent) {
       return prevState.copyWith(
@@ -251,7 +260,7 @@ class SessionRepository {
 
   int _sortIndex(int max, MapEntry<int, Con<Attribute>> con) {
     var i = con.key;
-    if (con.value.any((attr) => !attr.choosable && (attr.credentialInfo.credentialType.issueUrl?.isEmpty ?? true))) {
+    if (con.value.any((attr) => !attr.choosable && attr.credentialInfo.credentialType.issueUrl.isEmpty)) {
       i += 2 * max;
     } else if (con.value.any((attr) => !attr.choosable)) {
       i += max;

@@ -5,13 +5,14 @@ import 'package:irmamobile/src/models/event.dart';
 import 'package:irmamobile/src/models/issue_wizard.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
+import 'package:irmamobile/src/util/color_from_code.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'irma_configuration.g.dart';
 
-@JsonSerializable(nullable: false, createToJson: false)
+@JsonSerializable(createToJson: false)
 class IrmaConfigurationEvent extends Event {
-  IrmaConfigurationEvent({this.irmaConfiguration});
+  IrmaConfigurationEvent({required this.irmaConfiguration});
 
   @JsonKey(name: 'IrmaConfiguration')
   final IrmaConfiguration irmaConfiguration;
@@ -19,17 +20,17 @@ class IrmaConfigurationEvent extends Event {
   factory IrmaConfigurationEvent.fromJson(Map<String, dynamic> json) => _$IrmaConfigurationEventFromJson(json);
 }
 
-@JsonSerializable(nullable: false, createToJson: false)
+@JsonSerializable(createToJson: false)
 class IrmaConfiguration {
   IrmaConfiguration({
-    this.schemeManagers,
-    this.requestorSchemes,
-    this.requestors,
-    this.issuers,
-    this.credentialTypes,
-    this.attributeTypes,
-    this.issueWizards,
-    this.path,
+    required this.schemeManagers,
+    required this.requestorSchemes,
+    required this.requestors,
+    required this.issuers,
+    required this.credentialTypes,
+    required this.attributeTypes,
+    required this.issueWizards,
+    required this.path,
   });
 
   @JsonKey(name: 'SchemeManagers')
@@ -59,18 +60,19 @@ class IrmaConfiguration {
   factory IrmaConfiguration.fromJson(Map<String, dynamic> json) => _$IrmaConfigurationFromJson(json);
 }
 
-@JsonSerializable(nullable: false, createToJson: false)
+@JsonSerializable(createToJson: false)
 class SchemeManager {
-  SchemeManager(
-      {this.id,
-      this.name,
-      this.url,
-      this.description,
-      this.minimumAppVersion,
-      this.keyshareServer,
-      this.keyshareWebsite,
-      this.keyshareAttribute,
-      this.timestamp});
+  SchemeManager({
+    required this.id,
+    required this.name,
+    required this.url,
+    required this.description,
+    required this.minimumAppVersion,
+    required this.keyshareServer,
+    required this.keyshareWebsite,
+    required this.keyshareAttribute,
+    required this.timestamp,
+  });
 
   @JsonKey(name: 'ID')
   final String id;
@@ -104,7 +106,7 @@ class SchemeManager {
 
 @JsonSerializable()
 class RequestorScheme {
-  RequestorScheme({this.id, this.demo});
+  RequestorScheme({required this.id, required this.demo});
 
   @JsonKey(name: 'id')
   final String id;
@@ -116,9 +118,9 @@ class RequestorScheme {
   Map<String, dynamic> toJson() => _$RequestorSchemeToJson(this);
 }
 
-@JsonSerializable(nullable: false, createToJson: false)
+@JsonSerializable(createToJson: false)
 class AppVersion {
-  AppVersion({this.android, this.iOS});
+  AppVersion({required this.android, required this.iOS});
 
   @JsonKey(name: 'Android')
   final int android;
@@ -129,11 +131,15 @@ class AppVersion {
   factory AppVersion.fromJson(Map<String, dynamic> json) => _$AppVersionFromJson(json);
 }
 
-// TODO: move to a RawIssuer type and re-introduce the issuer type which has
-// colors and backgrounds (not from irma scheme right now).
-@JsonSerializable(nullable: false, createToJson: false)
+@JsonSerializable(createToJson: false)
 class Issuer {
-  Issuer({this.id, this.name, this.schemeManagerId, this.contactAddress, this.contactEmail});
+  Issuer({
+    required this.id,
+    required this.name,
+    required this.schemeManagerId,
+    required this.contactAddress,
+    required this.contactEmail,
+  });
 
   @JsonKey(name: 'ID')
   final String id;
@@ -152,31 +158,31 @@ class Issuer {
 
   factory Issuer.fromJson(Map<String, dynamic> json) => _$IssuerFromJson(json);
 
-  String get fullId => "$schemeManagerId.$id";
+  String get fullId => '$schemeManagerId.$id';
 }
 
-@JsonSerializable(nullable: false, createToJson: false)
+@JsonSerializable(createToJson: false)
 class CredentialType {
   CredentialType({
-    this.id,
-    this.name,
-    this.issuerId,
-    this.schemeManagerId,
-    this.isSingleton,
-    this.description,
-    this.issueUrl,
-    this.isULIssueUrl,
-    this.disallowDelete,
+    required this.id,
+    required this.name,
+    required this.issuerId,
+    required this.schemeManagerId,
+    required this.isSingleton,
+    required this.description,
+    this.issueUrl = const TranslatedValue.empty(),
+    this.isULIssueUrl = false,
+    this.disallowDelete = false,
     this.foregroundColor,
     this.backgroundGradientStart,
     this.backgroundGradientEnd,
-    this.isInCredentialStore,
-    this.category,
-    this.faqIntro,
-    this.faqPurpose,
-    this.faqContent,
-    this.faqHowto,
-    this.faqSummary,
+    this.isInCredentialStore = false,
+    this.category = const TranslatedValue.empty(),
+    this.faqIntro = const TranslatedValue.empty(),
+    this.faqPurpose = const TranslatedValue.empty(),
+    this.faqContent = const TranslatedValue.empty(),
+    this.faqHowto = const TranslatedValue.empty(),
+    this.faqSummary = const TranslatedValue.empty(),
     this.logo,
   });
 
@@ -198,94 +204,90 @@ class CredentialType {
   @JsonKey(name: 'Description')
   final TranslatedValue description;
 
-  @JsonKey(name: 'IssueURL', nullable: true)
+  @JsonKey(name: 'IssueURL') // Default value is set by fromJson of TranslatedValue
   final TranslatedValue issueUrl;
 
-  @JsonKey(name: 'IsULIssueURL', nullable: true)
+  @JsonKey(name: 'IsULIssueURL')
   final bool isULIssueUrl;
 
-  @JsonKey(name: 'DisallowDelete', nullable: true)
+  @JsonKey(name: 'DisallowDelete', defaultValue: false)
   final bool disallowDelete;
 
   @JsonKey(name: 'ForegroundColor', fromJson: colorFromCode)
-  final Color foregroundColor;
+  final Color? foregroundColor;
 
   @JsonKey(name: 'BackgroundGradientStart', fromJson: colorFromCode)
-  final Color backgroundGradientStart;
+  final Color? backgroundGradientStart;
 
   @JsonKey(name: 'BackgroundGradientEnd', fromJson: colorFromCode)
-  final Color backgroundGradientEnd;
+  final Color? backgroundGradientEnd;
 
-  @JsonKey(name: 'IsInCredentialStore', nullable: true)
+  @JsonKey(name: 'IsInCredentialStore', defaultValue: false)
   final bool isInCredentialStore;
 
-  @JsonKey(name: 'Category', nullable: true)
+  @JsonKey(name: 'Category') // Default value is set by fromJson of TranslatedValue
   final TranslatedValue category;
 
-  @JsonKey(name: 'FAQIntro', nullable: true)
+  @JsonKey(name: 'FAQIntro') // Default value is set by fromJson of TranslatedValue
   final TranslatedValue faqIntro;
 
-  @JsonKey(name: 'FAQPurpose', nullable: true)
+  @JsonKey(name: 'FAQPurpose') // Default value is set by fromJson of TranslatedValue
   final TranslatedValue faqPurpose;
 
-  @JsonKey(name: 'FAQContent', nullable: true)
+  @JsonKey(name: 'FAQContent') // Default value is set by fromJson of TranslatedValue
   final TranslatedValue faqContent;
 
-  @JsonKey(name: 'FAQHowto', nullable: true)
+  @JsonKey(name: 'FAQHowto') // Default value is set by fromJson of TranslatedValue
   final TranslatedValue faqHowto;
 
-  @JsonKey(name: 'FAQSummary', nullable: true)
+  @JsonKey(name: 'FAQSummary') // Default value is set by fromJson of TranslatedValue
   final TranslatedValue faqSummary;
 
   @JsonKey(name: 'Logo')
-  final String logo;
+  final String? logo;
 
   factory CredentialType.fromJson(Map<String, dynamic> json) => _$CredentialTypeFromJson(json);
 
-  String get fullId => "$schemeManagerId.$issuerId.$id";
-  String get fullIssuerId => "$schemeManagerId.$issuerId";
+  String get fullId => '$schemeManagerId.$issuerId.$id';
+  String get fullIssuerId => '$schemeManagerId.$issuerId';
 }
 
-const translatedValueDefault = <String, String>{};
-
-// TODO: Change this to RawAttributeType and move to a new AttributeType that
-// has TranslatedValues for `name` and `description`.
-@JsonSerializable(nullable: false, createToJson: false)
+@JsonSerializable(createToJson: false)
 class AttributeType {
   AttributeType({
-    this.id,
-    this.optional,
-    this.name,
-    this.description,
-    this.index,
+    required this.id,
+    required this.index,
+    required this.credentialTypeId,
+    required this.issuerId,
+    required this.schemeManagerId,
+    this.name = const TranslatedValue.empty(),
+    this.description = const TranslatedValue.empty(),
+    this.optional = false,
     this.displayIndex,
     this.displayHint,
-    this.credentialTypeId,
-    this.issuerId,
-    this.schemeManagerId,
   });
 
   @JsonKey(name: 'ID')
   final String id;
 
-  @JsonKey(name: 'Optional')
-  final String optional;
+  @JsonKey(name: 'Optional', fromJson: _parseOptional)
+  final bool optional;
 
   // In case of revocation attributes, Name and Description are not present
-  @JsonKey(name: 'Name', nullable: true, defaultValue: translatedValueDefault)
+  @JsonKey(name: 'Name') // Default value is set by fromJson of TranslatedValue
   final TranslatedValue name;
 
-  @JsonKey(name: 'Description', nullable: true, defaultValue: translatedValueDefault)
+  @JsonKey(name: 'Description') // Default value is set by fromJson of TranslatedValue
   final TranslatedValue description;
 
   @JsonKey(name: 'Index')
   final int index;
 
   @JsonKey(name: 'DisplayIndex')
-  final int displayIndex;
+  final int? displayIndex;
 
   @JsonKey(name: 'DisplayHint')
-  final String displayHint;
+  final String? displayHint;
 
   @JsonKey(name: 'CredentialTypeID')
   final String credentialTypeId;
@@ -298,20 +300,9 @@ class AttributeType {
 
   factory AttributeType.fromJson(Map<String, dynamic> json) => _$AttributeTypeFromJson(json);
 
-  String get fullId => "$schemeManagerId.$issuerId.$credentialTypeId.$id";
-  String get fullCredentialId => "$schemeManagerId.$issuerId.$credentialTypeId";
-}
+  String get fullId => '$schemeManagerId.$issuerId.$credentialTypeId.$id';
+  String get fullCredentialId => '$schemeManagerId.$issuerId.$credentialTypeId';
 
-Color colorFromCode(String colorCode) {
-  if (colorCode == null || colorCode.length != 7 || colorCode[0] != "#") {
-    return null;
-  }
-
-  final rgbInt = int.tryParse(colorCode.substring(1, 7), radix: 16);
-  if (rgbInt == null) {
-    return null;
-  }
-
-  const alphaInt = 0xFF000000;
-  return Color(alphaInt + rgbInt);
+  // Helpers for json annotation
+  static bool _parseOptional(String? raw) => raw != null && raw.toLowerCase() == 'true';
 }
