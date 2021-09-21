@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -152,7 +155,7 @@ class Walkthrough extends StatelessWidget {
                       label: FlutterI18n.translate(context, linkText),
                       onTap: () {
                         try {
-                          IrmaRepository.get().openURL(context, FlutterI18n.translate(context, linkUrl));
+                          IrmaRepository.get().openURL(FlutterI18n.translate(context, linkUrl));
                         } on PlatformException catch (e, stacktrace) {
                           reportError(e,
                               stacktrace); //TODO: reconsider whether this should be handled this way, or is better of with an error screens

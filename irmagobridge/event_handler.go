@@ -196,7 +196,11 @@ func (ah *eventHandler) loadLogs(action *loadLogsEvent) error {
 				var removedCredential = make(map[irma.AttributeTypeIdentifier]irma.TranslatedString)
 				attributeTypes := client.Configuration.CredentialTypes[credentialTypeId].AttributeTypes
 				for index, attributeValue := range attributeValues {
-					removedCredential[attributeTypes[index].GetAttributeTypeIdentifier()] = attributeValue
+					typ := attributeTypes[index]
+					if typ.RevocationAttribute {
+						continue
+					}
+					removedCredential[typ.GetAttributeTypeIdentifier()] = attributeValue
 				}
 				removedCredentials[credentialTypeId] = removedCredential
 			}

@@ -6,13 +6,6 @@ part of 'session_events.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-NewSessionEvent _$NewSessionEventFromJson(Map<String, dynamic> json) {
-  return NewSessionEvent(
-    request: json['Request'] == null ? null : SessionPointer.fromJson(json['Request'] as Map<String, dynamic>),
-    inAppCredential: json['inAppCredential'] as String,
-  )..sessionID = json['SessionID'] as int;
-}
-
 Map<String, dynamic> _$NewSessionEventToJson(NewSessionEvent instance) => <String, dynamic>{
       'SessionID': instance.sessionID,
       'Request': instance.request,
@@ -23,11 +16,9 @@ RespondPermissionEvent _$RespondPermissionEventFromJson(Map<String, dynamic> jso
   return RespondPermissionEvent(
     sessionID: json['SessionID'] as int,
     proceed: json['Proceed'] as bool,
-    disclosureChoices: (json['DisclosureChoices'] as List)
-        ?.map((e) => (e as List)
-            ?.map((e) => e == null ? null : AttributeIdentifier.fromJson(e as Map<String, dynamic>))
-            ?.toList())
-        ?.toList(),
+    disclosureChoices: (json['DisclosureChoices'] as List<dynamic>)
+        .map((e) => (e as List<dynamic>).map((e) => AttributeIdentifier.fromJson(e as Map<String, dynamic>)).toList())
+        .toList(),
   );
 }
 
@@ -41,7 +32,7 @@ RespondPinEvent _$RespondPinEventFromJson(Map<String, dynamic> json) {
   return RespondPinEvent(
     sessionID: json['SessionID'] as int,
     proceed: json['Proceed'] as bool,
-    pin: json['Pin'] as String,
+    pin: json['Pin'] as String?,
   );
 }
 
@@ -103,7 +94,7 @@ Map<String, dynamic> _$SuccessSessionEventToJson(SuccessSessionEvent instance) =
 FailureSessionEvent _$FailureSessionEventFromJson(Map<String, dynamic> json) {
   return FailureSessionEvent(
     sessionID: json['SessionID'] as int,
-    error: json['Error'] == null ? null : SessionError.fromJson(json['Error'] as Map<String, dynamic>),
+    error: SessionError.fromJson(json['Error'] as Map<String, dynamic>),
   );
 }
 
@@ -125,21 +116,20 @@ Map<String, dynamic> _$CanceledSessionEventToJson(CanceledSessionEvent instance)
 RequestIssuancePermissionSessionEvent _$RequestIssuancePermissionSessionEventFromJson(Map<String, dynamic> json) {
   return RequestIssuancePermissionSessionEvent(
     sessionID: json['SessionID'] as int,
-    serverName: json['ServerName'] == null ? null : RequestorInfo.fromJson(json['ServerName'] as Map<String, dynamic>),
+    serverName: RequestorInfo.fromJson(json['ServerName'] as Map<String, dynamic>),
     satisfiable: json['Satisfiable'] as bool,
-    issuedCredentials: (json['IssuedCredentials'] as List)
-        ?.map((e) => e == null ? null : RawCredential.fromJson(e as Map<String, dynamic>))
-        ?.toList(),
-    disclosuresLabels: (json['DisclosuresLabels'] as Map<String, dynamic>)?.map(
-      (k, e) => MapEntry(int.parse(k), e == null ? null : TranslatedValue.fromJson(e as Map<String, dynamic>)),
+    issuedCredentials: (json['IssuedCredentials'] as List<dynamic>)
+        .map((e) => RawCredential.fromJson(e as Map<String, dynamic>))
+        .toList(),
+    disclosuresLabels: (json['DisclosuresLabels'] as Map<String, dynamic>?)?.map(
+      (k, e) => MapEntry(int.parse(k), TranslatedValue.fromJson(e as Map<String, dynamic>?)),
     ),
-    disclosuresCandidates: (json['DisclosuresCandidates'] as List)
-        ?.map((e) => (e as List)
-            ?.map((e) => (e as List)
-                ?.map((e) => e == null ? null : DisclosureCandidate.fromJson(e as Map<String, dynamic>))
-                ?.toList())
-            ?.toList())
-        ?.toList(),
+    disclosuresCandidates: (json['DisclosuresCandidates'] as List<dynamic>)
+        .map((e) => (e as List<dynamic>)
+            .map((e) =>
+                (e as List<dynamic>).map((e) => DisclosureCandidate.fromJson(e as Map<String, dynamic>)).toList())
+            .toList())
+        .toList(),
   );
 }
 
@@ -157,21 +147,20 @@ RequestVerificationPermissionSessionEvent _$RequestVerificationPermissionSession
     Map<String, dynamic> json) {
   return RequestVerificationPermissionSessionEvent(
     sessionID: json['SessionID'] as int,
-    serverName: json['ServerName'] == null ? null : RequestorInfo.fromJson(json['ServerName'] as Map<String, dynamic>),
+    serverName: RequestorInfo.fromJson(json['ServerName'] as Map<String, dynamic>),
     satisfiable: json['Satisfiable'] as bool,
-    disclosuresLabels: (json['DisclosuresLabels'] as Map<String, dynamic>)?.map(
-      (k, e) => MapEntry(int.parse(k), e == null ? null : TranslatedValue.fromJson(e as Map<String, dynamic>)),
+    disclosuresLabels: (json['DisclosuresLabels'] as Map<String, dynamic>?)?.map(
+      (k, e) => MapEntry(int.parse(k), TranslatedValue.fromJson(e as Map<String, dynamic>?)),
     ),
-    disclosuresCandidates: (json['DisclosuresCandidates'] as List)
-        ?.map((e) => (e as List)
-            ?.map((e) => (e as List)
-                ?.map((e) => e == null ? null : DisclosureCandidate.fromJson(e as Map<String, dynamic>))
-                ?.toList())
-            ?.toList())
-        ?.toList(),
-  )
-    ..isSignatureSession = json['IsSignatureSession'] as bool
-    ..signedMessage = json['SignedMessage'] as String;
+    disclosuresCandidates: (json['DisclosuresCandidates'] as List<dynamic>)
+        .map((e) => (e as List<dynamic>)
+            .map((e) =>
+                (e as List<dynamic>).map((e) => DisclosureCandidate.fromJson(e as Map<String, dynamic>)).toList())
+            .toList())
+        .toList(),
+    isSignatureSession: json['IsSignatureSession'] as bool,
+    signedMessage: json['SignedMessage'] as String?,
+  );
 }
 
 Map<String, dynamic> _$RequestVerificationPermissionSessionEventToJson(

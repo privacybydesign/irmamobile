@@ -31,7 +31,7 @@ extension WidgetTesterUtil on WidgetTester {
   /// Returns the string being inside the given Text widget.
   /// When 'firstMatchOnly' is true, it also checks descendants of the given widget for text being present.
   /// Only the first match is returned.
-  String getText(Finder f, {bool firstMatchOnly = false}) => firstMatchOnly
+  String? getText(Finder f, {bool firstMatchOnly = false}) => firstMatchOnly
       ? firstWidget<Text>(find.descendant(of: f, matching: find.byType(Text), matchRoot: true)).data
       : widget<Text>(f).data;
 

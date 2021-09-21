@@ -5,7 +5,7 @@ import 'irma_preferences.dart';
 import 'irma_repository.dart';
 
 class IrmaTestRepository {
-  static IrmaTestRepository _instance;
+  static IrmaTestRepository? _instance;
 
   final IrmaRepository inner;
   final IrmaPreferences preferences;
@@ -24,8 +24,8 @@ class IrmaTestRepository {
       // we do a educated guess for additional myIRMA credentials.
       final config = await repo.getIrmaConfiguration().first;
       config.credentialTypes.forEach((_, cred) {
-        final schemeManager = config.schemeManagers[cred.schemeManagerId];
-        final keyshareAttr = schemeManager.keyshareAttribute?.split('.') ?? [];
+        final schemeManager = config.schemeManagers[cred.schemeManagerId]!;
+        final keyshareAttr = schemeManager.keyshareAttribute.split('.');
         final keyshareCred = keyshareAttr.length == 4 ? keyshareAttr.sublist(0, 3).join('.') : '';
         if (cred.fullId == keyshareCred || !schemeManager.demo && cred.disallowDelete) {
           repo.addMyIrmaCredential(cred);
@@ -34,7 +34,7 @@ class IrmaTestRepository {
 
       _instance = IrmaTestRepository._(repo, pref);
     }
-    return _instance;
+    return _instance!;
   }
 
   Future<void> init() async {

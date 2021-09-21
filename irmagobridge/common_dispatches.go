@@ -9,7 +9,7 @@ import (
 // needed to inject logo into issuers
 type WrappedConfiguration irma.Configuration
 type WrappedCredentialType struct {
-	Logo string
+	Logo string `json:",omitempty"`
 	irma.CredentialType
 }
 

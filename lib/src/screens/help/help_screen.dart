@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -11,7 +14,6 @@ import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 import 'package:irmamobile/src/widgets/link.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'demo_items.dart';
 import 'help_items.dart';
@@ -128,7 +130,7 @@ class _HelpScreenState extends State<HelpScreen> {
                         label: FlutterI18n.translate(context, 'help.more'),
                         onTap: () {
                           try {
-                            IrmaRepository.get().openURL(context, FlutterI18n.translate(context, 'help.more_link'));
+                            IrmaRepository.get().openURL(FlutterI18n.translate(context, 'help.more_link'));
                           } on PlatformException catch (e, stacktrace) {
                             //TODO: consider if we want an error screen here
                             reportError(e, stacktrace);
@@ -162,9 +164,9 @@ class _HelpScreenState extends State<HelpScreen> {
                                 final String subject =
                                     Uri.encodeComponent(FlutterI18n.translate(context, 'help.mail_subject'));
                                 final mail = 'mailto:$address?subject=$subject';
-                                if (await canLaunch(mail)) {
-                                  await launch(mail);
-                                } else {
+                                try {
+                                  await IrmaRepository.get().openURLExternally(mail);
+                                } catch (_) {
                                   showDialog(
                                     context: context,
                                     builder: (BuildContext context) {

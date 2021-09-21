@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -34,8 +37,13 @@ class ScannerScreen extends StatelessWidget {
   }
 
   static Future<void> startIssueWizard(NavigatorState navigator, SessionPointer sessionPointer) async {
+    final repo = IrmaRepository.get();
     try {
-      await sessionPointer.validate();
+      sessionPointer.validate(
+        wizardActive: await repo.getIssueWizardActive().first,
+        developerMode: await repo.getDeveloperMode().first,
+        irmaConfiguration: await repo.getIrmaConfiguration().first,
+      );
     } catch (e) {
       navigator.pushAndRemoveUntil(
         MaterialPageRoute(

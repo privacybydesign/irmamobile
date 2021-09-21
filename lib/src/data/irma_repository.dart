@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -308,7 +311,7 @@ class IrmaRepository {
     final packageInfoStream = PackageInfo.fromPlatform().asStream();
     final irmaVersionInfoStream = irmaConfigurationSubject.stream; // TODO: add filtering
 
-    return Observable.combineLatest2(packageInfoStream, irmaVersionInfoStream,
+    return Rx.combineLatest2(packageInfoStream, irmaVersionInfoStream,
         (PackageInfo packageInfo, IrmaConfiguration irmaVersionInfo) {
       int minimumBuild = 0;
       irmaVersionInfo.schemeManagers.forEach((_, scheme) {
@@ -356,7 +359,7 @@ class IrmaRepository {
   // 1) coming back from the browser, or
   // 2) handling an incoming URL
   Future<bool> appResumedAutomatically() {
-    return Observable.combineLatest2(
+    return Rx.combineLatest2(
             _resumedFromBrowserSubject.stream, _resumedWithURLSubject.stream, (bool a, bool b) => a || b)
         .first
         .then((result) {
@@ -400,17 +403,14 @@ class IrmaRepository {
       wizardContents: contents.map((item) {
         // The credential field may be non-nil for any wizard item type
         final haveCredential = item.credential != null && creds.contains(item.credential);
-        if (item.type != "credential") {
+        if (item.type != 'credential') {
           return item.copyWith(completed: haveCredential || (item.completed ?? false));
         }
         final credtype = conf.credentialTypes[item.credential];
-        return IssueWizardItem(
-          type: "credential",
-          credential: item.credential,
-          label: item.label,
+        return item.copyWith(
           completed: haveCredential,
-          header: item.header ?? credtype.name,
-          text: item.text ?? credtype.faqSummary,
+          header: item.header.isNotEmpty ? item.header : credtype.name,
+          text: item.text.isNotEmpty ? item.text : credtype.faqSummary,
         );
       }).toList(),
     );
@@ -474,8 +474,7 @@ class IrmaRepository {
 
   Future<void> openIssueURL(BuildContext context, String type) async {
     expectInactivationForCredentialType(type);
-    openURL(
-      context,
+    return openURL(
       getTranslation(
         context,
         await irmaConfigurationSubject.first
@@ -484,29 +483,37 @@ class IrmaRepository {
     );
   }
 
-  Future<void> openURL(BuildContext context, String url) async {
+  Future<void> openURL(String url) async {
     if ((await getExternalBrowserURLs().first).contains(url)) {
-      openURLinExternalBrowser(context, url, suppressQrScanner: true);
+      return openURLExternally(url, suppressQrScanner: true);
     } else {
-      openURLinAppBrowser(url);
+      return openURLinAppBrowser(url);
     }
   }
 
-  void openURLinAppBrowser(String url) {
+  Future<void> openURLinAppBrowser(String url) async {
     _resumedFromBrowserSubject.add(true);
     if (Platform.isAndroid) {
-      _iiabchannel.invokeMethod('open_browser', url);
+      await _iiabchannel.invokeMethod('open_browser', url);
     } else {
-      launch(url, forceSafariVC: true);
+      final hasOpened = await launch(url, forceSafariVC: true);
+      // Sometimes launch does not throw an exception itself on failure. Therefore, we also check the return value.
+      if (!hasOpened) {
+        throw Exception('url could not be opened: $url');
+      }
     }
   }
 
-  void openURLinExternalBrowser(BuildContext context, String url, {bool suppressQrScanner = false}) {
+  Future<void> openURLExternally(String url, {bool suppressQrScanner = false}) async {
     if (suppressQrScanner) {
       _resumedFromBrowserSubject.add(true);
     }
     // On iOS, open Safari rather than Safari view controller
-    launch(url, forceSafariVC: false);
+    final hasOpened = await launch(url, forceSafariVC: false);
+    // Sometimes launch does not throw an exception itself on failure. Therefore, we also check the return value.
+    if (!hasOpened) {
+      throw Exception('url could not be opened: $url');
+    }
   }
 
   bool isMyIrmaCredential(CredentialType ct) {

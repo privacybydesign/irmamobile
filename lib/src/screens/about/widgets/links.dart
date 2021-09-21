@@ -11,7 +11,6 @@ import 'package:irmamobile/src/widgets/irma_dialog.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 import 'package:irmamobile/src/widgets/link.dart';
 import 'package:share/share.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ExternalLink extends StatelessWidget {
   final String link;
@@ -42,7 +41,6 @@ class ExternalLink extends StatelessWidget {
               onTap: () {
                 try {
                   IrmaRepository.get().openURL(
-                    context,
                     FlutterI18n.translate(context, link),
                   );
                 } on PlatformException catch (e, stacktrace) {
@@ -163,9 +161,9 @@ class ContactLink extends StatelessWidget {
               final String address = FlutterI18n.translate(context, 'help.contact');
               final String subject = Uri.encodeComponent(FlutterI18n.translate(context, 'about.contact_subject'));
               final mail = 'mailto:$address?subject=$subject';
-              if (await canLaunch(mail)) {
-                await launch(mail);
-              } else {
+              try {
+                await IrmaRepository.get().openURLExternally(mail);
+              } catch (_) {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {

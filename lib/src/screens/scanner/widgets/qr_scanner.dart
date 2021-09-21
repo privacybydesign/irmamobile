@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -47,6 +50,7 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
           // Therefore we make sure the QRView only renders when the app is unlocked
           // and the pin screen overlay is not active.
           // https://github.com/juliuscanute/qr_code_scanner/issues/87
+          // TODO: Is this still an issue? (check CHANGELOG of qr_code_scanner 0.3.0)
           StreamBuilder<bool>(
             stream: IrmaRepository.get().getLocked(),
             builder: (context, isLocked) {
@@ -82,10 +86,15 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
     }
 
     // Decode QR and determine if it's valid
+    final repo = IrmaRepository.get();
     SessionPointer sessionPointer;
     try {
       sessionPointer = SessionPointer.fromString(qr);
-      await sessionPointer.validate();
+      sessionPointer.validate(
+        wizardActive: await repo.getIssueWizardActive().first,
+        developerMode: await repo.getDeveloperMode().first,
+        irmaConfiguration: await repo.getIrmaConfiguration().first,
+      );
     } catch (e) {
       sessionPointer = null; // trigger error message below
     }

@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
@@ -34,7 +37,7 @@ class IrmaMarkdown extends StatelessWidget {
 
       // View links in in-app browser
       onTapLink: (text, href, alt) {
-        IrmaRepository.get().openURL(context, href);
+        IrmaRepository.get().openURL(href);
       },
     );
   }

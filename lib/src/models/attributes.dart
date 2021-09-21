@@ -11,79 +11,43 @@ part 'attributes.g.dart';
 
 // Attributes of a credential.
 class Attributes extends UnmodifiableMapView<AttributeType, AttributeValue> {
-  List<AttributeType> sortedAttributeTypes;
-  Image portraitPhoto;
+  late final List<AttributeType> sortedAttributeTypes;
+  late final Image? portraitPhoto;
 
-  Attributes(Map<AttributeType, AttributeValue> map)
-      : assert(map != null),
-        super(map.map((type, value) {
-          // Map yes/no to display in proper language if attribute is present.
-          if (type.displayHint != "yesno" || value is NullValue) {
-            return MapEntry(type, value);
-          }
-          // Translate yes and no
-          // in the future this will be done by irmago (when we have typed attributes)
-          // but for now we do it here. We have hardcoded strings here because
-          // flutter_i18n does not provide access to its strings directly, and we
-          // don't have a buildcontext here, so this is the least worst option.
-          if (value.raw.toLowerCase() == "yes" || value.raw.toLowerCase() == "ja") {
-            return MapEntry(
-              type,
-              TextValue(
-                raw: value.raw,
-                translated: TranslatedValue({
-                  "en": "Yes",
-                  "nl": "Ja",
-                }),
-              ),
-            );
-          }
-          if (value.raw.toLowerCase() == "no" || value.raw.toLowerCase() == "nee") {
-            return MapEntry(
-              type,
-              TextValue(
-                raw: value.raw,
-                translated: TranslatedValue({
-                  "en": "No",
-                  "nl": "Nee",
-                }),
-              ),
-            );
-          }
-          return MapEntry(type, value);
-        })) {
+  Attributes(Map<AttributeType, AttributeValue> map) : super(map) {
     // Pre-calculate an ordered list of attributeTypes, initially on index, finally on displayIndex
     sortedAttributeTypes = keys.toList();
     sortedAttributeTypes.sort((a1, a2) => a1.index.compareTo(a2.index));
     if (sortedAttributeTypes.every((a) => a.displayIndex != null)) {
-      sortedAttributeTypes.sort((a1, a2) => (a1.displayIndex).compareTo(a2.displayIndex));
+      sortedAttributeTypes.sort((a1, a2) => a1.displayIndex!.compareTo(a2.displayIndex!));
     }
 
-    // Pre-convert the first portraitPhoto, if present
-    final photoAttributeType = sortedAttributeTypes.firstWhere(
+    // Pre-convert the first portraitPhoto, if present.
+    // Remove this when we support multiple photo attributes in one credential.
+    final photoIndex = sortedAttributeTypes.indexWhere(
       (at) => this[at] is PhotoValue,
-      orElse: () => null,
     );
 
-    if (photoAttributeType != null) {
-      portraitPhoto = (this[photoAttributeType] as PhotoValue).image;
-    }
+    portraitPhoto = photoIndex >= 0 ? (this[sortedAttributeTypes[photoIndex]]! as PhotoValue).image : null;
   }
 
-  factory Attributes.fromRaw({IrmaConfiguration irmaConfiguration, Map<String, TranslatedValue> rawAttributes}) {
+  factory Attributes.fromRaw({
+    required IrmaConfiguration irmaConfiguration,
+    required Map<String, TranslatedValue> rawAttributes,
+  }) {
     return Attributes(rawAttributes.map<AttributeType, AttributeValue>((k, v) {
+      // irmago enforces that the type of the given attributes is known in the configuration.
+      final attributeType = irmaConfiguration.attributeTypes[k]!;
       return MapEntry(
-        irmaConfiguration.attributeTypes[k],
-        AttributeValue.fromRaw(irmaConfiguration.attributeTypes[k], v),
+        attributeType,
+        AttributeValue.fromRaw(attributeType, v),
       );
     }));
   }
 }
 
 class ConDisCon<T> extends UnmodifiableListView<DisCon<T>> {
-  ConDisCon(Iterable<DisCon<T>> list)
-      : assert(list != null),
-        super(list);
+  ConDisCon(Iterable<DisCon<T>> list) : super(list);
 
   // This can't be a contructor due to dart-lang/sdk#26391
   static ConDisCon<T> fromRaw<R, T>(List<List<List<R>>> rawConDisCon, T Function(R) fromRaw) {
@@ -105,15 +69,11 @@ class ConDisCon<T> extends UnmodifiableListView<DisCon<T>> {
 }
 
 class DisCon<T> extends UnmodifiableListView<Con<T>> {
-  DisCon(Iterable<Con<T>> list)
-      : assert(list != null),
-        super(list);
+  DisCon(Iterable<Con<T>> list) : super(list);
 }
 
 class ConCon<T> extends UnmodifiableListView<Con<T>> {
-  ConCon(Iterable<Con<T>> list)
-      : assert(list != null),
-        super(list);
+  ConCon(Iterable<Con<T>> list) : super(list);
 
   // This can't be a contructor due to dart-lang/sdk#26391
   static ConCon<T> fromRaw<R, T>(List<List<R>> rawConCon, T Function(R) fromRaw) {
@@ -126,45 +86,26 @@ class ConCon<T> extends UnmodifiableListView<Con<T>> {
 }
 
 class Con<T> extends UnmodifiableListView<T> {
-  Con(Iterable<T> list)
-      : assert(list != null),
-        super(list);
-}
-
-@JsonSerializable()
-class AttributeRequest {
-  AttributeRequest({this.type, this.value, this.notNull});
-
-  @JsonKey(name: 'Type')
-  String type;
-
-  @JsonKey(name: 'Value')
-  String value;
-
-  @JsonKey(name: 'NotNull')
-  bool notNull;
-
-  factory AttributeRequest.fromJson(Map<String, dynamic> json) => _$AttributeRequestFromJson(json);
-  Map<String, dynamic> toJson() => _$AttributeRequestToJson(this);
+  Con(Iterable<T> list) : super(list);
 }
 
 @JsonSerializable()
 class AttributeIdentifier {
-  AttributeIdentifier({this.type, this.credentialHash});
+  const AttributeIdentifier({required this.type, required this.credentialHash});
 
   @JsonKey(name: 'Type')
-  String type;
+  final String type;
 
   @JsonKey(name: 'CredentialHash')
-  String credentialHash;
+  final String credentialHash;
 
   factory AttributeIdentifier.fromJson(Map<String, dynamic> json) => _$AttributeIdentifierFromJson(json);
   Map<String, dynamic> toJson() => _$AttributeIdentifierToJson(this);
 
-  AttributeIdentifier.fromAttribute(Attribute attribute) {
-    type = attribute.attributeType.fullId;
-    credentialHash = attribute.credentialHash;
-  }
+  factory AttributeIdentifier.fromAttribute(Attribute attribute) => AttributeIdentifier(
+        type: attribute.attributeType.fullId,
+        credentialHash: attribute.credentialHash,
+      );
 }
 
 class CredentialAttribute extends Attribute {
@@ -174,12 +115,11 @@ class CredentialAttribute extends Attribute {
   final bool notRevokable;
 
   CredentialAttribute({
-    @required this.credential,
-    @required AttributeType attributeType,
-    @required AttributeValue value,
-    @required this.notRevokable,
-  })  : assert(credential != null),
-        super(credentialInfo: credential.info, attributeType: attributeType, value: value);
+    required this.credential,
+    required AttributeType attributeType,
+    required AttributeValue value,
+    required this.notRevokable,
+  }) : super(credentialInfo: credential.info, attributeType: attributeType, value: value);
 
   @override
   bool get expired => credential.expired;
@@ -198,27 +138,26 @@ class Attribute {
   final bool haveOther;
 
   Attribute({
-    @required this.credentialInfo,
-    @required this.attributeType,
-    @required this.value,
+    required this.credentialInfo,
+    required this.attributeType,
+    required this.value,
     this.haveOther = false,
-  })  : assert(credentialInfo != null),
-        assert(attributeType != null),
-        assert(value != null),
-        assert(haveOther != null);
+  });
 
   bool get expired => false;
   bool get revoked => false;
   bool get notRevokable => false;
   bool get choosable => false;
-  String get credentialHash => "";
+  String get credentialHash => '';
 
   factory Attribute.fromCandidate(
       IrmaConfiguration irmaConfiguration, Credentials credentials, DisclosureCandidate candidate) {
-    final attributeType = irmaConfiguration.attributeTypes[candidate.type];
-    final credential = credentials[candidate.credentialHash];
-    if (candidate.credentialHash != null && candidate.credentialHash != "") {
-      final value = credential.attributes[attributeType];
+    // irmago enforces that the type of the given attributes is known in the configuration.
+    final attributeType = irmaConfiguration.attributeTypes[candidate.type]!;
+    if (candidate.credentialHash != null && candidate.credentialHash != '') {
+      // irmago enforces that the a credential instance exists for the given candidate.
+      final credential = credentials[candidate.credentialHash]!;
+      final value = credential.attributes[attributeType]!;
       return CredentialAttribute(
         credential: credential,
         attributeType: attributeType,
@@ -230,7 +169,7 @@ class Attribute {
       return Attribute(
         credentialInfo: CredentialInfo.fromConfiguration(
           irmaConfiguration: irmaConfiguration,
-          credentialIdentifier: candidate.type.split(".").take(3).join("."),
+          credentialIdentifier: candidate.type.split('.').take(3).join('.'),
         ),
         attributeType: attributeType,
         value: value,
@@ -243,11 +182,12 @@ class Attribute {
   }
 
   factory Attribute.fromDisclosedAttribute(IrmaConfiguration irmaConfiguration, DisclosedAttribute disclosedAttribute) {
-    final attributeType = irmaConfiguration.attributeTypes[disclosedAttribute.identifier];
+    // irmago enforces that the type of the given attribute is known in the configuration.
+    final attributeType = irmaConfiguration.attributeTypes[disclosedAttribute.identifier]!;
     return Attribute(
       credentialInfo: CredentialInfo.fromConfiguration(
         irmaConfiguration: irmaConfiguration,
-        credentialIdentifier: disclosedAttribute.identifier.split(".").take(3).join("."),
+        credentialIdentifier: disclosedAttribute.identifier.split('.').take(3).join('.'),
       ),
       attributeType: attributeType,
       value: AttributeValue.fromRaw(attributeType, disclosedAttribute.value),
@@ -258,17 +198,17 @@ class Attribute {
 @JsonSerializable()
 class DisclosedAttribute {
   const DisclosedAttribute({
+    required this.identifier,
+    required this.status,
+    required this.issuanceTime,
+    this.value = const TranslatedValue.empty(),
     this.rawValue,
-    this.value,
-    this.identifier,
-    this.status,
-    this.issuanceTime,
   });
 
   @JsonKey(name: 'rawValue')
-  final String rawValue;
+  final String? rawValue;
 
-  @JsonKey(name: 'value')
+  @JsonKey(name: 'value') // Default value is set by fromJson of TranslatedValue
   final TranslatedValue value;
 
   @JsonKey(name: 'id')
@@ -286,19 +226,24 @@ class DisclosedAttribute {
 
 @JsonSerializable()
 class DisclosureCandidate {
-  DisclosureCandidate({this.type, this.credentialHash, this.notRevokable});
+  DisclosureCandidate({
+    required this.type,
+    required this.notRevokable,
+    this.value = const TranslatedValue.empty(),
+    this.credentialHash,
+  });
 
   @JsonKey(name: 'Type')
-  String type;
+  final String type;
 
   @JsonKey(name: 'CredentialHash')
-  String credentialHash;
+  final String? credentialHash;
 
-  @JsonKey(name: 'Value')
-  TranslatedValue value;
+  @JsonKey(name: 'Value') // Default value is set by fromJson of TranslatedValue
+  final TranslatedValue value;
 
   @JsonKey(name: 'NotRevokable')
-  bool notRevokable;
+  final bool notRevokable;
 
   factory DisclosureCandidate.fromJson(Map<String, dynamic> json) => _$DisclosureCandidateFromJson(json);
   Map<String, dynamic> toJson() => _$DisclosureCandidateToJson(this);
