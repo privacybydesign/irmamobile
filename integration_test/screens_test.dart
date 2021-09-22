@@ -104,7 +104,7 @@ void main() {
       string = tester.getText(find.byKey(const Key('reset_pin_screen')), firstMatchOnly: true);
 
       String screenText =
-          '''Lost your PIN? We\'re sorry but the IRMA organisation does not keep record of your PIN. If you wish to continue using IRMA, you will have to enter a new PIN and reload all data.''';
+          "Lost your PIN? We're sorry but the IRMA organisation does not keep record of your PIN. If you wish to continue using IRMA, you will have to enter a new PIN and reload all data.";
 
       expect(string, screenText);
 
