@@ -21,13 +21,13 @@ class IrmaTestRepository {
       await repo.bridge.events.first;
 
       // The scheme's KeyshareAttribute field is not fully accurate, so
-      // we do a educated guess for additional myIRMA credentials.
+      // we do an educated guess for additional myIRMA credentials.
       final config = await repo.getIrmaConfiguration().first;
       config.credentialTypes.forEach((_, cred) {
         final schemeManager = config.schemeManagers[cred.schemeManagerId]!;
         final keyshareAttr = schemeManager.keyshareAttribute.split('.');
         final keyshareCred = keyshareAttr.length == 4 ? keyshareAttr.sublist(0, 3).join('.') : '';
-        if (cred.fullId == keyshareCred || !schemeManager.demo && cred.disallowDelete) {
+        if (cred.fullId == keyshareCred || (!schemeManager.demo && cred.disallowDelete)) {
           repo.addMyIrmaCredential(cred);
         }
       });
