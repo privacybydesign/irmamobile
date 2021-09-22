@@ -53,7 +53,6 @@ void main() {
       // Check error dialog
       await tester.waitFor(find.byKey(const Key('irma_dialog')));
       // Check "Wrong PIN" dialog title text
-      print('check dialog title');
       String string = tester.getText(find.byKey(const Key('irma_dialog_title')));
       expect(string, 'PIN incorrect');
       // Check dialog text
@@ -141,7 +140,6 @@ void main() {
         matching: find.byType(IrmaButton),
       ));
       // Wait 65 seconds and try again using the correct pin
-      print('Wait 65 seconds for account to get unlocked...');
       await Future.delayed(const Duration(seconds: 65));
       // login using correct pin
       await tester.waitFor(find.byKey(const Key('pin_screen')));

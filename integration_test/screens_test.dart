@@ -24,10 +24,10 @@ void main() {
       await tester.pumpWidgetAndSettle(IrmaApp());
 
       // Check first screen
-      print("Check intro heading");
+      // Check intro heading
       String string = tester.getText(find.byKey(const Key('intro_heading')), firstMatchOnly: true);
       expect(string, 'IRMA is your identity on your mobile');
-      print("Check intro text");
+      // Check intro text
       string = tester.getText(find.byKey(const Key('intro_body')), firstMatchOnly: true);
       expect(string, 'Your official name, date of birth, address, and more. All securely stored in your IRMA app.');
 
@@ -36,10 +36,10 @@ void main() {
           find.descendant(of: find.byKey(const Key('enrollment_p1')), matching: find.byKey(const Key('next'))));
 
       // Check second screen
-      print("Check intro heading");
+      // Check intro heading
       string = tester.getText(find.byKey(const Key('intro_heading')), firstMatchOnly: true);
       expect(string, 'Make yourself known with IRMA');
-      print("Check intro text");
+      // Check intro text
       string = tester.getText(find.byKey(const Key('intro_body')), firstMatchOnly: true);
       expect(string, "Easy, secure, and fast. It's all in your hands.");
 
@@ -47,10 +47,10 @@ void main() {
           find.descendant(of: find.byKey(const Key('enrollment_p2')), matching: find.byKey(const Key('next'))));
 
       // Check third screen
-      print("Check intro heading");
+      // Check intro heading
       string = tester.getText(find.byKey(const Key('intro_heading')), firstMatchOnly: true);
       expect(string, 'IRMA provides certainty, to you and to others');
-      print("Check intro text");
+      // Check intro text
       string = tester.getText(find.byKey(const Key('intro_body')), firstMatchOnly: true);
       expect(string, "Your data are stored solely within the IRMA app. Only you have access.");
       string = tester.getText(find.byKey(const Key('intro_body_link')), firstMatchOnly: true);

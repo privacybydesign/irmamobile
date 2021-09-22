@@ -87,7 +87,6 @@ void main() {
 
       // Wait for Email confirmation screen
       await tester.waitFor(find.byKey(const Key('email_sent_screen')));
-      print('check screen title');
       // Check screen title
       string = tester.getText(find.byKey(const Key('irma_app_bar')), firstMatchOnly: true);
       expect(string, 'Secure your IRMA app');
@@ -134,16 +133,13 @@ void main() {
       expect(string, 'Choose a 5-digit PIN');
 
       // Enter Pin
-      print('Enter pin');
       await tester.enterTextAtFocusedAndSettle('12345');
 
       // Check screen title
-      print('check screen title Secure your irma app');
       string = tester.getText(find.byKey(const Key('irma_app_bar')), firstMatchOnly: true);
       expect(string, 'Secure your IRMA app');
 
       // Check text
-      print('check text Enter your pin');
       string = tester.getText(find.byKey(const Key('enrollment_confirm_pin')), firstMatchOnly: true);
       expect(string, 'Enter your PIN again');
 
@@ -151,17 +147,14 @@ void main() {
       await tester.enterTextAtFocusedAndSettle('12345');
 
       // Check screen title
-      print('check screen title Secure your irma app');
       string = tester.getText(find.byKey(const Key('irma_app_bar')), firstMatchOnly: true);
       expect(string, 'Secure your IRMA app');
 
       // Check text
-      print('check text email enrollment');
       string = tester.getText(find.byKey(const Key('enrollment_provide_email')), firstMatchOnly: true);
       expect(string, 'An email address allows you to disable your IRMA app when your mobile has been lost or stolen.');
 
       // Check textfield
-      print('check textfield email');
       expect(
         tester.any(
             find.descendant(of: find.byKey(const Key('enrollment_provide_email')), matching: find.byType(TextField))),
@@ -169,14 +162,12 @@ void main() {
       );
 
       // Check buttons Skip & Next
-      print('check buttons Skip & Next');
       expect(tester.any(find.byKey(const Key('enrollment_skip_email'))), true);
       expect(tester.any(find.byKey(const Key('enrollment_email_next'))), true);
 
       // Click Skip
-      print('Skip Email');
       await tester.tapAndSettle(find.byKey(const Key('enrollment_skip_email')));
-      print('check irma dialog is displayed');
+      // Wait until irma dialog is displayed
       await tester.waitFor(find.byKey(const Key('irma_dialog')));
       // Check dialog title text
       string = tester.getText(find.byKey(const Key('irma_dialog_title')));

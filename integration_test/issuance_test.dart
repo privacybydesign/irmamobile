@@ -88,65 +88,64 @@ void main() {
       // Check whether the cards are present in the wallet
       expect(tester.any(find.byKey(const Key('wallet_card_0'))), true);
       expect(tester.any(find.byKey(const Key('wallet_card_1'))), true);
-      print('wait 5 seconds');
+      // Wait 5 seconds
       await tester.pumpAndSettle(const Duration(seconds: 5));
-      print('Tap personal data card to open');
+      // Tap personal data card to open
       await tester.tapAndSettle(
           find.descendant(of: find.byKey(const Key('wallet_card_0')), matching: find.byKey(const Key('card_title'))));
 
-      print('Checking Personal data card');
+      // Checking Personal data card
       String string = tester.getText(
           find.descendant(of: find.byKey(const Key('wallet_card_0')), matching: find.byKey(const Key('card_title'))));
 
       expect(string, 'Demo Personal data');
 
-      print('Checking Names and values');
-
-      print('checking initials');
+      // Checking Names and values
+      // Checking initials
       await tester.scrollAndCheckText('wallet_card_0', 'attr_0_name', 'Initials');
       await tester.scrollAndCheckText('wallet_card_0', 'attr_0_value', 'W.L.');
 
-      print('checking First names');
+      // Checking first names
       await tester.scrollAndCheckText('wallet_card_0', 'attr_1_name', 'First names');
       await tester.scrollAndCheckText('wallet_card_0', 'attr_1_value', 'Willeke Liselotte');
 
-      print('checking Prefix');
+      // Checking prefix
       await tester.scrollAndCheckText('wallet_card_0', 'attr_2_name', 'Prefix');
       await tester.scrollAndCheckText('wallet_card_0', 'attr_2_value', 'de');
 
-      print('checking Family name');
+      // Checking family name
       await tester.scrollAndCheckText('wallet_card_0', 'attr_3_name', 'Family name');
       await tester.scrollAndCheckText('wallet_card_0', 'attr_3_value', 'Bruijn');
 
-      print('checking Full name');
+      // Checking full name
       await tester.scrollAndCheckText('wallet_card_0', 'attr_4_name', 'Full name');
       await tester.scrollAndCheckText('wallet_card_0', 'attr_4_value', 'W.L. de Bruijn');
 
-      print('checking Gender');
+      // Checking gender
       await tester.scrollAndCheckText('wallet_card_0', 'attr_5_name', 'Gender');
       await tester.scrollAndCheckText('wallet_card_0', 'attr_5_value', 'V');
 
-      print('checking nationality');
+      // Checking nationality
       await tester.scrollAndCheckText('wallet_card_0', 'attr_6_name', 'Dutch nationality');
       await tester.scrollAndCheckText('wallet_card_0', 'attr_6_value', 'Ja');
 
-      print('checking Surname');
+      // Checking surname
       await tester.scrollAndCheckText('wallet_card_0', 'attr_7_name', 'Surname');
       await tester.scrollAndCheckText('wallet_card_0', 'attr_7_value', 'de Bruijn');
 
-      print('checking Date of birth');
+      // Checking date of birth
       await tester.scrollAndCheckText('wallet_card_0', 'attr_8_name', 'Date of birth');
       await tester.scrollAndCheckText('wallet_card_0', 'attr_8_value', '10-04-1965');
 
-      print('checking City of birth');
+      // Checking city of birth
       await tester.scrollAndCheckText('wallet_card_0', 'attr_9_name', 'City of birth');
       await tester.scrollAndCheckText('wallet_card_0', 'attr_9_value', 'Amsterdam');
 
-      print('checking Country of birth');
+      // Checking country of birth
       await tester.scrollAndCheckText('wallet_card_0', 'attr_10_name', 'Country of birth');
       await tester.scrollAndCheckText('wallet_card_0', 'attr_10_value', 'Nederland');
 
-      print('checking Age');
+      // Checking age
       await tester.scrollAndCheckText('wallet_card_0', 'attr_11_name', 'Over 12');
       await tester.scrollAndCheckText('wallet_card_0', 'attr_11_value', 'Yes');
 
@@ -162,46 +161,46 @@ void main() {
       await tester.scrollAndCheckText('wallet_card_0', 'attr_15_name', 'Over 65');
       await tester.scrollAndCheckText('wallet_card_0', 'attr_15_value', 'No');
 
-      print('Checking BSN');
+      // Checking BSN
       await tester.scrollAndCheckText('wallet_card_0', 'attr_16_name', 'BSN');
       await tester.scrollAndCheckText('wallet_card_0', 'attr_16_value', '999999990');
 
-      print('checking DigiD assurance level');
+      // Checking DigiD assurance level
       await tester.scrollAndCheckText('wallet_card_0', 'attr_17_name', 'DigiD assurance level');
       await tester.scrollAndCheckText('wallet_card_0', 'attr_17_value', 'Substantieel');
 
-      print('Tap personal data card to close');
+      // Tap personal data card to close
       await tester.tapAndSettle(
           find.descendant(of: find.byKey(const Key('wallet_card_0')), matching: find.byKey(const Key('card_title'))));
 
-      print('Tap Demo address card to open');
+      // Tap Demo address card to open
       await tester.tapAndSettle(
           find.descendant(of: find.byKey(const Key('wallet_card_1')), matching: find.byKey(const Key('card_title'))));
 
-      print('Checking Demo address card');
+      // Checking Demo address card
 
       string = tester.getText(
           find.descendant(of: find.byKey(const Key('wallet_card_1')), matching: find.byKey(const Key('card_title'))));
       expect(string, 'Demo Address');
-      print('Checking Gemeente adresgegevens - Names and values');
+      // Checking Gemeente adresgegevens - Names and values
 
-      print('Checking Address');
+      // Checking Address
       await tester.scrollAndCheckText('wallet_card_1', 'attr_0_name', 'Street');
       await tester.scrollAndCheckText('wallet_card_1', 'attr_0_value', 'Meander');
 
-      print('Checking Huisnummer');
+      // Checking Huisnummer
       await tester.scrollAndCheckText('wallet_card_1', 'attr_1_name', 'House number');
       await tester.scrollAndCheckText('wallet_card_1', 'attr_1_value', '501');
 
-      print('Checking Postcode');
+      // Checking Postcode
       await tester.scrollAndCheckText('wallet_card_1', 'attr_2_name', 'Zip code');
       await tester.scrollAndCheckText('wallet_card_1', 'attr_2_value', '1234AB');
 
-      print('Checking Gemeente');
+      // Checking Gemeente
       await tester.scrollAndCheckText('wallet_card_1', 'attr_3_name', 'Municipality');
       await tester.scrollAndCheckText('wallet_card_1', 'attr_3_value', 'Arnhem');
 
-      print('Checking City');
+      // Checking City
       await tester.scrollAndCheckText('wallet_card_1', 'attr_4_name', 'City');
       await tester.scrollAndCheckText('wallet_card_1', 'attr_4_value', 'Arnhem');
     }, timeout: const Timeout(Duration(minutes: 4)));
