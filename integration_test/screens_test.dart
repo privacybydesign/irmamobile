@@ -113,7 +113,7 @@ void main() {
           find.descendant(of: find.byKey(const Key('reset_pin_buttons')), matching: find.byKey(const Key('primary'))));
       await tester.waitFor(find.descendant(
           of: find.byKey(const Key('reset_pin_buttons')), matching: find.byKey(const Key('secondary'))));
-    }, timeout: const Timeout(Duration(minutes: 2)));
+    }, timeout: const Timeout(Duration(minutes: 1)));
 
     testWidgets('tc3', (tester) async {
       // Scenario 3 of IRMA app screens
@@ -179,6 +179,6 @@ void main() {
       expect(string, 'How to use IRMA? See the explanations below.');
       // Check button "Back to IRMA cards"
       await tester.waitFor(find.byKey(const Key('back_to_wallet_button')));
-    }, timeout: const Timeout(Duration(minutes: 4)));
+    }, timeout: const Timeout(Duration(minutes: 1)));
   });
 }

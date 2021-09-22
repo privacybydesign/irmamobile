@@ -203,6 +203,6 @@ void main() {
       // Checking City
       await tester.scrollAndCheckText('wallet_card_1', 'attr_4_name', 'City');
       await tester.scrollAndCheckText('wallet_card_1', 'attr_4_value', 'Arnhem');
-    }, timeout: const Timeout(Duration(minutes: 4)));
+    }, timeout: const Timeout(Duration(minutes: 1)));
   });
 }

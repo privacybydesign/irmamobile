@@ -66,7 +66,7 @@ void main() {
       ));
       // Wait until wallet displayed: Successful login
       await tester.waitFor(find.byKey(const Key('wallet_present')));
-    }, timeout: const Timeout(Duration(minutes: 4)));
+    }, timeout: const Timeout(Duration(minutes: 1)));
 
     testWidgets('tc2', (tester) async {
       // Scenario 2 of login process: User is blocked after 3 failed attempts.
@@ -148,6 +148,6 @@ void main() {
       await tester.enterTextAtFocusedAndSettle('54321');
       // Wait until wallet displayed: Successful login
       await tester.waitFor(find.byKey(const Key('wallet_present')));
-    }, timeout: const Timeout(Duration(minutes: 10)));
+    }, timeout: const Timeout(Duration(minutes: 2)));
   });
 }

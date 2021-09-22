@@ -106,7 +106,7 @@ void main() {
       await tester.waitFor(find.byKey(const Key('wallet_present')));
       // No cards should be available in the wallet
       expect(tester.any(find.byKey(const Key('wallet_card_0'))), false);
-    }, timeout: const Timeout(Duration(minutes: 4)));
+    }, timeout: const Timeout(Duration(minutes: 1)));
 
     testWidgets('tc2', (tester) async {
       // Scenario 2 of enrollment process
@@ -184,6 +184,6 @@ void main() {
       await tester.waitFor(find.byKey(const Key('wallet_present')));
       // No cards should be available in the wallet
       expect(tester.any(find.byKey(const Key('wallet_card_0'))), false);
-    }, timeout: const Timeout(Duration(minutes: 4)));
+    }, timeout: const Timeout(Duration(minutes: 1)));
   });
 }
