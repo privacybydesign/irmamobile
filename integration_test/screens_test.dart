@@ -25,10 +25,10 @@ void main() {
 
       // Check first screen
       // Check intro heading
-      String string = tester.getText(find.byKey(const Key('intro_heading')), firstMatchOnly: true);
+      String string = tester.getAllText(find.byKey(const Key('intro_heading'))).first;
       expect(string, 'IRMA is your identity on your mobile');
       // Check intro text
-      string = tester.getText(find.byKey(const Key('intro_body')), firstMatchOnly: true);
+      string = tester.getAllText(find.byKey(const Key('intro_body'))).first;
       expect(string, 'Your official name, date of birth, address, and more. All securely stored in your IRMA app.');
 
       // Tap through enrollment info screens
@@ -37,10 +37,10 @@ void main() {
 
       // Check second screen
       // Check intro heading
-      string = tester.getText(find.byKey(const Key('intro_heading')), firstMatchOnly: true);
+      string = tester.getAllText(find.byKey(const Key('intro_heading'))).first;
       expect(string, 'Make yourself known with IRMA');
       // Check intro text
-      string = tester.getText(find.byKey(const Key('intro_body')), firstMatchOnly: true);
+      string = tester.getAllText(find.byKey(const Key('intro_body'))).first;
       expect(string, "Easy, secure, and fast. It's all in your hands.");
 
       await tester.tapAndSettle(
@@ -48,12 +48,12 @@ void main() {
 
       // Check third screen
       // Check intro heading
-      string = tester.getText(find.byKey(const Key('intro_heading')), firstMatchOnly: true);
+      string = tester.getAllText(find.byKey(const Key('intro_heading'))).first;
       expect(string, 'IRMA provides certainty, to you and to others');
       // Check intro text
-      string = tester.getText(find.byKey(const Key('intro_body')), firstMatchOnly: true);
+      string = tester.getAllText(find.byKey(const Key('intro_body'))).first;
       expect(string, "Your data are stored solely within the IRMA app. Only you have access.");
-      string = tester.getText(find.byKey(const Key('intro_body_link')), firstMatchOnly: true);
+      string = tester.getAllText(find.byKey(const Key('intro_body_link'))).first;
 
       expect(string, "Please read the privacy rules");
 
@@ -90,18 +90,18 @@ void main() {
       await tester.tapAndSettle(find.byKey(const Key('menu_logout')));
       // login window is displayed
       // Check screen title
-      String string = tester.getText(find.byKey(const Key('pinscreen_app_bar')), firstMatchOnly: true);
+      String string = tester.getAllText(find.byKey(const Key('pinscreen_app_bar'))).first;
       expect(string, 'Login');
 
-      string = tester.getText(find.byKey(const Key('pin_screen')), firstMatchOnly: true);
+      string = tester.getAllText(find.byKey(const Key('pin_screen'))).first;
       expect(string, 'Enter your PIN');
       await tester.waitFor(find.byKey(const Key('pin_field_key')));
-      string = tester.getText(find.byKey(const Key('irma_link')), firstMatchOnly: true);
+      string = tester.getAllText(find.byKey(const Key('irma_link'))).first;
       expect(string, 'PIN forgotten');
 
       await tester.tapAndSettle(find.byKey(const Key('irma_link')));
 
-      string = tester.getText(find.byKey(const Key('reset_pin_screen')), firstMatchOnly: true);
+      string = tester.getAllText(find.byKey(const Key('reset_pin_screen'))).first;
 
       String screenText =
           "Lost your PIN? We're sorry but the IRMA organisation does not keep record of your PIN. If you wish to continue using IRMA, you will have to enter a new PIN and reload all data.";
@@ -136,7 +136,7 @@ void main() {
       // Wait until wallet displayed
       await tester.waitFor(find.byKey(const Key('wallet_present')));
       // Check wallet text
-      String string = tester.getText(find.byKey(const Key('wallet_screen')), firstMatchOnly: true);
+      String string = tester.getAllText(find.byKey(const Key('wallet_screen'))).first;
       expect(string, 'Your data securely on your mobile');
       // Check button Add more data
       expect(tester.any(find.byKey(const Key('add_cards_button'))), true);
@@ -169,13 +169,13 @@ void main() {
       await tester.tapAndSettle(find.byKey(const Key('wallet_button_help')));
 
       // Check screen title
-      String string = tester.getText(find.byKey(const Key('irma_app_bar')), firstMatchOnly: true);
+      String string = tester.getAllText(find.byKey(const Key('irma_app_bar'))).first;
       expect(string, 'Help');
       // Check screen header
-      string = tester.getText(find.byKey(const Key('help_screen_heading')), firstMatchOnly: true);
+      string = tester.getAllText(find.byKey(const Key('help_screen_heading'))).first;
       expect(string, 'Manual');
       // Check box content
-      string = tester.getText(find.byKey(const Key('help_screen_content')), firstMatchOnly: true);
+      string = tester.getAllText(find.byKey(const Key('help_screen_content'))).first;
       expect(string, 'How to use IRMA? See the explanations below.');
       // Check button "Back to IRMA cards"
       await tester.waitFor(find.byKey(const Key('back_to_wallet_button')));

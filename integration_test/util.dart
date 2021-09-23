@@ -28,12 +28,13 @@ extension WidgetTesterUtil on WidgetTester {
         return !any(f);
       }).timeout(timeout);
 
-  /// Returns the string being inside the given Text widget.
-  /// When 'firstMatchOnly' is true, it also checks descendants of the given widget for text being present.
-  /// Only the first match is returned.
-  String? getText(Finder f, {bool firstMatchOnly = false}) => firstMatchOnly
-      ? firstWidget<Text>(find.descendant(of: f, matching: find.byType(Text), matchRoot: true)).data
-      : widget<Text>(f).data;
+  /// Returns the data strings of all populated Text widgets being descendant of the given widget. If the
+  /// given widget is a Text widget itself, it only returns the data string of that Text widget.
+  Iterable<String> getAllText(Finder f) =>
+      widgetList(find.descendant(of: f, matching: find.byType(Text), matchRoot: true))
+          .cast<Text>()
+          .where((w) => w.data != null)
+          .map((w) => w.data!);
 
   /// Looks for a Scrollable inside a widget with Key 'parentKey', scrolls through all items
   /// to look for a Text widget with Key 'textKey' and checks whether its value equals to 'textValue'.
@@ -46,7 +47,7 @@ extension WidgetTesterUtil on WidgetTester {
           matching: find.byWidgetPredicate((widget) => widget is Scrollable),
           matchRoot: true,
         ));
-    final string = getText(textWidget);
+    final string = getAllText(textWidget).first;
     expect(string, textValue);
   }
 }

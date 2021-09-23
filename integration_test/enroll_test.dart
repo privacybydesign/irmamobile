@@ -42,10 +42,10 @@ void main() {
       await tester.waitFor(find.byKey(const Key('irma_dialog')));
 
       // Check "Wrong PIN" dialog title text
-      String string = tester.getText(find.byKey(const Key('irma_dialog_title')));
+      String string = tester.getAllText(find.byKey(const Key('irma_dialog_title'))).first;
       expect(string, 'PIN incorrect');
       // Check dialog text
-      string = tester.getText(find.byKey(const Key('irma_dialog_content')));
+      string = tester.getAllText(find.byKey(const Key('irma_dialog_content'))).first;
       expect(string, 'PINs do not match. Choose a new PIN.');
 
       await tester
@@ -88,14 +88,13 @@ void main() {
       // Wait for Email confirmation screen
       await tester.waitFor(find.byKey(const Key('email_sent_screen')));
       // Check screen title
-      string = tester.getText(find.byKey(const Key('irma_app_bar')), firstMatchOnly: true);
+      string = tester.getAllText(find.byKey(const Key('irma_app_bar'))).first;
       expect(string, 'Secure your IRMA app');
 
       // Check text
-      string = tester.getText(
-        find.descendant(of: find.byKey(const Key('email_sent_screen')), matching: find.byType(Text)),
-        firstMatchOnly: true,
-      );
+      string = tester
+          .getAllText(find.descendant(of: find.byKey(const Key('email_sent_screen')), matching: find.byType(Text)))
+          .first;
       expect(string, 'Confirm your email address');
 
       // Click continue
@@ -122,36 +121,35 @@ void main() {
           find.descendant(of: find.byKey(const Key('enrollment_p3')), matching: find.byKey(const Key('next'))));
 
       // Check screen title
-      String string = tester.getText(find.byKey(const Key('irma_app_bar')), firstMatchOnly: true);
+      String string = tester.getAllText(find.byKey(const Key('irma_app_bar'))).first;
       expect(string, 'Secure your IRMA app');
 
       // Check text
-      string = tester.getText(
-        find.descendant(of: find.byKey(const Key('enrollment_choose_pin')), matching: find.byType(Text)),
-        firstMatchOnly: true,
-      );
+      string = tester
+          .getAllText(find.descendant(of: find.byKey(const Key('enrollment_choose_pin')), matching: find.byType(Text)))
+          .first;
       expect(string, 'Choose a 5-digit PIN');
 
       // Enter Pin
       await tester.enterTextAtFocusedAndSettle('12345');
 
       // Check screen title
-      string = tester.getText(find.byKey(const Key('irma_app_bar')), firstMatchOnly: true);
+      string = tester.getAllText(find.byKey(const Key('irma_app_bar'))).first;
       expect(string, 'Secure your IRMA app');
 
       // Check text
-      string = tester.getText(find.byKey(const Key('enrollment_confirm_pin')), firstMatchOnly: true);
+      string = tester.getAllText(find.byKey(const Key('enrollment_confirm_pin'))).first;
       expect(string, 'Enter your PIN again');
 
       // Confirm pin
       await tester.enterTextAtFocusedAndSettle('12345');
 
       // Check screen title
-      string = tester.getText(find.byKey(const Key('irma_app_bar')), firstMatchOnly: true);
+      string = tester.getAllText(find.byKey(const Key('irma_app_bar'))).first;
       expect(string, 'Secure your IRMA app');
 
       // Check text
-      string = tester.getText(find.byKey(const Key('enrollment_provide_email')), firstMatchOnly: true);
+      string = tester.getAllText(find.byKey(const Key('enrollment_provide_email'))).first;
       expect(string, 'An email address allows you to disable your IRMA app when your mobile has been lost or stolen.');
 
       // Check textfield
@@ -170,10 +168,10 @@ void main() {
       // Wait until irma dialog is displayed
       await tester.waitFor(find.byKey(const Key('irma_dialog')));
       // Check dialog title text
-      string = tester.getText(find.byKey(const Key('irma_dialog_title')));
+      string = tester.getAllText(find.byKey(const Key('irma_dialog_title'))).first;
       expect(string, 'Are you sure?');
       // Check dialog text
-      string = tester.getText(find.byKey(const Key('irma_dialog_content')));
+      string = tester.getAllText(find.byKey(const Key('irma_dialog_content'))).first;
       expect(string,
           'Protect your data. When you enter an email address, you can block your IRMA app when your mobile has been lost or stolen.');
 

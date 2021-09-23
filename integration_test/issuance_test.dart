@@ -95,8 +95,10 @@ void main() {
           find.descendant(of: find.byKey(const Key('wallet_card_0')), matching: find.byKey(const Key('card_title'))));
 
       // Checking Personal data card
-      String string = tester.getText(
-          find.descendant(of: find.byKey(const Key('wallet_card_0')), matching: find.byKey(const Key('card_title'))));
+      String string = tester
+          .getAllText(find.descendant(
+              of: find.byKey(const Key('wallet_card_0')), matching: find.byKey(const Key('card_title'))))
+          .first;
 
       expect(string, 'Demo Personal data');
 
@@ -179,8 +181,10 @@ void main() {
 
       // Checking Demo address card
 
-      string = tester.getText(
-          find.descendant(of: find.byKey(const Key('wallet_card_1')), matching: find.byKey(const Key('card_title'))));
+      string = tester
+          .getAllText(find.descendant(
+              of: find.byKey(const Key('wallet_card_1')), matching: find.byKey(const Key('card_title'))))
+          .first;
       expect(string, 'Demo Address');
       // Checking Gemeente adresgegevens - Names and values
 
