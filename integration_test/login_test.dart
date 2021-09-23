@@ -10,6 +10,7 @@ import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/data/irma_test_repository.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 
+import 'helpers.dart';
 import 'util.dart';
 
 void main() {
@@ -27,22 +28,7 @@ void main() {
       // Scenario 1 of login process
       // Initialize the app for integration tests
       await tester.pumpWidgetAndSettle(IrmaApp());
-      // Tap through enrollment info screens
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p1')), matching: find.byKey(const Key('next'))));
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p2')), matching: find.byKey(const Key('next'))));
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p3')), matching: find.byKey(const Key('next'))));
-      // Enter pin
-      await tester.enterTextAtFocusedAndSettle('12345');
-      // Confirm pin
-      await tester.enterTextAtFocusedAndSettle('12345');
-      // Skip email providing
-      await tester.tapAndSettle(find.byKey(const Key('enrollment_skip_email')));
-      await tester.tap(find.byKey(const Key('enrollment_skip_confirm')));
-      // Wait until wallet displayed
-      await tester.waitFor(find.byKey(const Key('wallet_present')));
+      await unlock(tester);
       // Open menu
       await tester.tapAndSettle(find.byKey(const Key('open_menu_icon')));
       // Logout
@@ -72,23 +58,7 @@ void main() {
       // Scenario 2 of login process: User is blocked after 3 failed attempts.
       // Initialize the app for integration tests
       await tester.pumpWidgetAndSettle(IrmaApp());
-      // Tap through enrollment info screens
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p1')), matching: find.byKey(const Key('next'))));
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p2')), matching: find.byKey(const Key('next'))));
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p3')), matching: find.byKey(const Key('next'))));
-      // Enter pin
-      await tester.tapAndSettle(find.byKey(const Key('pin_field_key')));
-      await tester.enterTextAtFocusedAndSettle('12345');
-      // Confirm pin
-      await tester.enterTextAtFocusedAndSettle('12345');
-      // Skip email providing
-      await tester.tapAndSettle(find.byKey(const Key('enrollment_skip_email')));
-      await tester.tap(find.byKey(const Key('enrollment_skip_confirm')));
-      // Wait until wallet displayed
-      await tester.waitFor(find.byKey(const Key('wallet_present')));
+      await unlock(tester);
       // Open menu
       await tester.tapAndSettle(find.byKey(const Key('open_menu_icon')));
       // Logout
@@ -145,7 +115,7 @@ void main() {
       await tester.waitFor(find.byKey(const Key('pin_screen')));
       // Click pin field to open keyboard
       await tester.tapAndSettle(find.byKey(const Key('pin_field_key')));
-      await tester.enterTextAtFocusedAndSettle('54321');
+      await tester.enterTextAtFocusedAndSettle('12345');
       // Wait until wallet displayed: Successful login
       await tester.waitFor(find.byKey(const Key('wallet_present')));
     }, timeout: const Timeout(Duration(minutes: 2)));

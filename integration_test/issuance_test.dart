@@ -7,6 +7,7 @@ import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/data/irma_test_repository.dart';
 
+import 'helpers.dart';
 import 'util.dart';
 
 void main() {
@@ -24,22 +25,7 @@ void main() {
       // Scenario 1 of issuance process
       // Initialize the app for integration tests
       await tester.pumpWidgetAndSettle(IrmaApp());
-      // Tap through enrollment info screens
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p1')), matching: find.byKey(const Key('next'))));
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p2')), matching: find.byKey(const Key('next'))));
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p3')), matching: find.byKey(const Key('next'))));
-      // Enter pin
-      await tester.enterTextAtFocusedAndSettle('12345');
-      // Confirm pin
-      await tester.enterTextAtFocusedAndSettle('12345');
-      // Skip email providing
-      await tester.tapAndSettle(find.byKey(const Key('enrollment_skip_email')));
-      await tester.tap(find.byKey(const Key('enrollment_skip_confirm')));
-      // Wait until wallet displayed
-      await tester.waitFor(find.byKey(const Key('wallet_present')));
+      await unlock(tester);
 
       // Start session
       await testRepo.inner.startTestSession('''

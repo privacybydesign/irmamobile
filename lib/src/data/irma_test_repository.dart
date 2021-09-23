@@ -1,4 +1,5 @@
 import 'package:irmamobile/src/models/clear_all_data_event.dart';
+import 'package:irmamobile/src/models/enrollment_status.dart';
 
 import 'irma_client_bridge.dart';
 import 'irma_preferences.dart';
@@ -37,7 +38,18 @@ class IrmaTestRepository {
     return _instance!;
   }
 
-  Future<void> init() async {
+  Future<void> init({EnrollmentStatus ensureEnrollmentStatus = EnrollmentStatus.enrolled}) async {
+    assert(ensureEnrollmentStatus != EnrollmentStatus.undetermined);
+    final enrollmentStatus = await inner.getEnrollmentStatus().firstWhere((s) => s != EnrollmentStatus.undetermined);
+    if (enrollmentStatus != EnrollmentStatus.unenrolled) {
+      throw Exception('Test repository is not clean');
+    }
+    if (ensureEnrollmentStatus == EnrollmentStatus.enrolled) {
+      inner.enroll(email: '', pin: '12345', language: 'en');
+      await inner.getEnrollmentStatus().firstWhere((status) => status == EnrollmentStatus.enrolled);
+      inner.lock();
+    }
+
     await preferences.setAcceptedRootedRisk(true);
     inner.setDeveloperMode(true);
   }

@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/data/irma_test_repository.dart';
+import 'package:irmamobile/src/models/enrollment_status.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 
 import 'util.dart';
@@ -18,8 +19,53 @@ void main() {
     // Initialize the app's repository for integration tests (enable developer mode, etc.)
     IrmaTestRepository testRepo;
     setUpAll(() async => testRepo = await IrmaTestRepository.ensureInitialized());
-    setUp(() => testRepo.init());
+    setUp(() => testRepo.init(ensureEnrollmentStatus: EnrollmentStatus.unenrolled));
     tearDown(() => testRepo.clean());
+
+    testWidgets('screens', (tester) async {
+      // Screens test of enrollment process
+      await tester.pumpWidgetAndSettle(IrmaApp());
+
+      // Check first screen
+      // Check intro heading
+      String string = tester.getAllText(find.byKey(const Key('intro_heading'))).first;
+      expect(string, 'IRMA is your identity on your mobile');
+      // Check intro text
+      string = tester.getAllText(find.byKey(const Key('intro_body'))).first;
+      expect(string, 'Your official name, date of birth, address, and more. All securely stored in your IRMA app.');
+
+      // Tap through enrollment info screens
+      await tester.tapAndSettle(
+          find.descendant(of: find.byKey(const Key('enrollment_p1')), matching: find.byKey(const Key('next'))));
+
+      // Check second screen
+      // Check intro heading
+      string = tester.getAllText(find.byKey(const Key('intro_heading'))).first;
+      expect(string, 'Make yourself known with IRMA');
+      // Check intro text
+      string = tester.getAllText(find.byKey(const Key('intro_body'))).first;
+      expect(string, "Easy, secure, and fast. It's all in your hands.");
+
+      await tester.tapAndSettle(
+          find.descendant(of: find.byKey(const Key('enrollment_p2')), matching: find.byKey(const Key('next'))));
+
+      // Check third screen
+      // Check intro heading
+      string = tester.getAllText(find.byKey(const Key('intro_heading'))).first;
+      expect(string, 'IRMA provides certainty, to you and to others');
+      // Check intro text
+      string = tester.getAllText(find.byKey(const Key('intro_body'))).first;
+      expect(string, "Your data are stored solely within the IRMA app. Only you have access.");
+      string = tester.getAllText(find.byKey(const Key('intro_body_link'))).first;
+
+      expect(string, "Please read the privacy rules");
+
+      await tester.tapAndSettle(
+          find.descendant(of: find.byKey(const Key('enrollment_p3')), matching: find.byKey(const Key('next'))));
+
+      // Choose new pin screen
+      expect(tester.any(find.byKey(const Key('enrollment_choose_pin'))), true);
+    }, timeout: const Timeout(Duration(minutes: 1)));
 
     testWidgets('tc1', (tester) async {
       // Scenario 1 of enrollment process

@@ -7,6 +7,7 @@ import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/data/irma_test_repository.dart';
 
+import 'helpers.dart';
 import 'util.dart';
 
 void main() {
@@ -21,69 +22,10 @@ void main() {
     tearDown(() => testRepo.clean());
 
     testWidgets('tc1', (tester) async {
-      await tester.pumpWidgetAndSettle(IrmaApp());
-
-      // Check first screen
-      // Check intro heading
-      String string = tester.getAllText(find.byKey(const Key('intro_heading'))).first;
-      expect(string, 'IRMA is your identity on your mobile');
-      // Check intro text
-      string = tester.getAllText(find.byKey(const Key('intro_body'))).first;
-      expect(string, 'Your official name, date of birth, address, and more. All securely stored in your IRMA app.');
-
-      // Tap through enrollment info screens
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p1')), matching: find.byKey(const Key('next'))));
-
-      // Check second screen
-      // Check intro heading
-      string = tester.getAllText(find.byKey(const Key('intro_heading'))).first;
-      expect(string, 'Make yourself known with IRMA');
-      // Check intro text
-      string = tester.getAllText(find.byKey(const Key('intro_body'))).first;
-      expect(string, "Easy, secure, and fast. It's all in your hands.");
-
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p2')), matching: find.byKey(const Key('next'))));
-
-      // Check third screen
-      // Check intro heading
-      string = tester.getAllText(find.byKey(const Key('intro_heading'))).first;
-      expect(string, 'IRMA provides certainty, to you and to others');
-      // Check intro text
-      string = tester.getAllText(find.byKey(const Key('intro_body'))).first;
-      expect(string, "Your data are stored solely within the IRMA app. Only you have access.");
-      string = tester.getAllText(find.byKey(const Key('intro_body_link'))).first;
-
-      expect(string, "Please read the privacy rules");
-
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p3')), matching: find.byKey(const Key('next'))));
-
-      // Choose new pin screen
-      expect(tester.any(find.byKey(const Key('enrollment_choose_pin'))), true);
-    }, timeout: const Timeout(Duration(minutes: 4)));
-
-    testWidgets('tc2', (tester) async {
-      // Scenario 2 of IRMA app screens
+      // Scenario 1 of IRMA app screens
       // Initialize the app for integration tests
       await tester.pumpWidgetAndSettle(IrmaApp());
-      // Tap through enrollment info screens
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p1')), matching: find.byKey(const Key('next'))));
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p2')), matching: find.byKey(const Key('next'))));
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p3')), matching: find.byKey(const Key('next'))));
-      // Enter pin
-      await tester.enterTextAtFocusedAndSettle('12345');
-      // Confirm pin
-      await tester.enterTextAtFocusedAndSettle('12345');
-      // Skip email providing
-      await tester.tapAndSettle(find.byKey(const Key('enrollment_skip_email')));
-      await tester.tap(find.byKey(const Key('enrollment_skip_confirm')));
-      // Wait until wallet displayed
-      await tester.waitFor(find.byKey(const Key('wallet_present')));
+      await unlock(tester);
       // Open menu
       await tester.tapAndSettle(find.byKey(const Key('open_menu_icon')));
       // Logout
@@ -115,26 +57,11 @@ void main() {
           of: find.byKey(const Key('reset_pin_buttons')), matching: find.byKey(const Key('secondary'))));
     }, timeout: const Timeout(Duration(minutes: 1)));
 
-    testWidgets('tc3', (tester) async {
-      // Scenario 3 of IRMA app screens
+    testWidgets('tc2', (tester) async {
+      // Scenario 2 of IRMA app screens
       // Initialize the app for integration tests
       await tester.pumpWidgetAndSettle(IrmaApp());
-      // Tap through enrollment info screens
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p1')), matching: find.byKey(const Key('next'))));
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p2')), matching: find.byKey(const Key('next'))));
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p3')), matching: find.byKey(const Key('next'))));
-      // Enter pin
-      await tester.enterTextAtFocusedAndSettle('12345');
-      // Confirm pin
-      await tester.enterTextAtFocusedAndSettle('12345');
-      // Skip email providing
-      await tester.tapAndSettle(find.byKey(const Key('enrollment_skip_email')));
-      await tester.tap(find.byKey(const Key('enrollment_skip_confirm')));
-      // Wait until wallet displayed
-      await tester.waitFor(find.byKey(const Key('wallet_present')));
+      await unlock(tester);
       // Check wallet text
       String string = tester.getAllText(find.byKey(const Key('wallet_screen'))).first;
       expect(string, 'Your data securely on your mobile');
@@ -145,26 +72,11 @@ void main() {
       expect(tester.any(find.byKey(const Key('wallet_card_0'))), false);
     }, timeout: const Timeout(Duration(minutes: 4)));
 
-    testWidgets('tc4', (tester) async {
-      // Scenario 4 of IRMA app screens: Help screen
+    testWidgets('tc3', (tester) async {
+      // Scenario 3 of IRMA app screens: Help screen
       // Initialize the app for integration tests
       await tester.pumpWidgetAndSettle(IrmaApp());
-      // Tap through enrollment info screens
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p1')), matching: find.byKey(const Key('next'))));
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p2')), matching: find.byKey(const Key('next'))));
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p3')), matching: find.byKey(const Key('next'))));
-      // Enter pin
-      await tester.enterTextAtFocusedAndSettle('12345');
-      // Confirm pin
-      await tester.enterTextAtFocusedAndSettle('12345');
-      // Skip email providing
-      await tester.tapAndSettle(find.byKey(const Key('enrollment_skip_email')));
-      await tester.tap(find.byKey(const Key('enrollment_skip_confirm')));
-      // Wait until wallet displayed
-      await tester.waitFor(find.byKey(const Key('wallet_present')));
+      await unlock(tester);
 
       await tester.tapAndSettle(find.byKey(const Key('wallet_button_help')));
 
