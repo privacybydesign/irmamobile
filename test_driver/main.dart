@@ -53,11 +53,17 @@ Future<void> startTests(List<String> args, Directory configDir, Directory recove
       schemePath = [configDir.path, 'pbdf'].join(Platform.pathSeparator);
       print('No test configuration specified, assuming $schemePath');
     }
+    Directory schemeDir = Directory(schemePath);
 
     // Take into account that configuration has been moved to temporary dir.
-    schemePath = schemePath.replaceFirst(configDir.path, recoveryConfigDir.path);
-    final schemeDir = Directory(schemePath);
-    schemeDir.copy(Directory([configDir.path, schemeDir.dirName].join(Platform.pathSeparator)));
+    // Convert to uri first to make sure the path format is equal.
+    final schemeDirPath = schemeDir.absolute.uri.path;
+    final configDirPath = configDir.absolute.uri.path;
+    if (schemeDirPath.startsWith(configDirPath)) {
+      schemeDir = Directory(schemeDirPath.replaceFirst(configDirPath, recoveryConfigDir.absolute.uri.path));
+    }
+
+    schemeDir.copy(Directory([configDirPath, schemeDir.dirName].join(Platform.pathSeparator)));
   }
 
   print('Starting Flutter tests...');
@@ -86,13 +92,20 @@ void clean(Directory configDir, Directory recoveryConfigDir) {
 }
 
 extension DirectoryUtil on Directory {
-  String get dirName => path.split(Platform.pathSeparator).last;
+  String get dirName {
+    final tree = path.split(Platform.pathSeparator);
+    // Optionally, we have to skip the path separator at the end that marks this being the directory.
+    return tree.reversed.firstWhere((name) => name.isNotEmpty);
+  }
 
   void copy(Directory target) {
+    // Convert to uri first to make sure the path format is equal.
+    final sourcePath = uri.path;
+    final targetPath = target.uri.path;
     for (final entity in listSync(recursive: true)) {
       // Deliberately don't support symbolic links, since this requires admin on Windows.
       if (entity is File) {
-        final targetFile = File(entity.path.replaceFirst(path, target.path));
+        final targetFile = File(entity.uri.path.replaceFirst(sourcePath, targetPath));
         targetFile.createSync(recursive: true);
         entity.copySync(targetFile.path);
       }
