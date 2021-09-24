@@ -5,21 +5,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/main.dart';
-import 'package:irmamobile/src/data/irma_test_repository.dart';
+import 'package:irmamobile/src/data/integration_test_irma_binding.dart';
 
 import 'helpers.dart';
 import 'util.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
 
   group('irma-issuance', () {
     // Initialize the app's repository for integration tests (enable developer mode, etc.)
-    IrmaTestRepository testRepo;
-    setUpAll(() async => testRepo = await IrmaTestRepository.ensureInitialized());
-    setUp(() => testRepo.setUp());
-    tearDown(() => testRepo.tearDown());
+    setUp(() async => irmaBinding.setUp());
+    tearDown(() => irmaBinding.tearDown());
 
     testWidgets('tc1', (tester) async {
       // Scenario 1 of issuance process
@@ -28,7 +27,7 @@ void main() {
       await unlock(tester);
 
       // Start session
-      await testRepo.inner.startTestSession('''
+      await irmaBinding.repository.startTestSession('''
         {
           "@context": "https://irma.app/ld/request/issuance/v2",
           "credentials": [

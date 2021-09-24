@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/main.dart';
-import 'package:irmamobile/src/data/irma_test_repository.dart';
+import 'package:irmamobile/src/data/integration_test_irma_binding.dart';
 import 'package:irmamobile/src/models/enrollment_status.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 
@@ -13,14 +13,13 @@ import 'util.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
 
   group('irma-enroll', () {
     // Initialize the app's repository for integration tests (enable developer mode, etc.)
-    IrmaTestRepository testRepo;
-    setUpAll(() async => testRepo = await IrmaTestRepository.ensureInitialized());
-    setUp(() => testRepo.setUp(enrollmentStatus: EnrollmentStatus.unenrolled));
-    tearDown(() => testRepo.tearDown());
+    setUp(() => irmaBinding.setUp(enrollmentStatus: EnrollmentStatus.unenrolled));
+    tearDown(() => irmaBinding.tearDown());
 
     testWidgets('screens', (tester) async {
       // Screens test of enrollment process

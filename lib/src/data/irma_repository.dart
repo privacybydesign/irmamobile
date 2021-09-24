@@ -1,6 +1,7 @@
 // This code is not null safe yet.
 // @dart=2.11
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -84,7 +85,7 @@ class IrmaRepository {
 
   SessionRepository _sessionRepository;
 
-  final irmaConfigurationSubject = BehaviorSubject<IrmaConfiguration>(); // TODO: Make this member private
+  final _irmaConfigurationSubject = BehaviorSubject<IrmaConfiguration>();
   final _credentialsSubject = BehaviorSubject<Credentials>();
   final _enrollmentStatusSubject = BehaviorSubject<EnrollmentStatus>.seeded(EnrollmentStatus.undetermined);
   final _enrollmentEventSubject = PublishSubject<EnrollmentEvent>();
@@ -93,7 +94,6 @@ class IrmaRepository {
   final _lockedSubject = BehaviorSubject<bool>.seeded(true);
   final _blockedSubject = BehaviorSubject<DateTime>();
   final _lastActiveTimeSubject = BehaviorSubject<DateTime>();
-  final _appLifecycleState = BehaviorSubject<AppLifecycleState>();
   final _pendingSessionPointerSubject = BehaviorSubject<SessionPointer>.seeded(null);
   final _preferencesSubject = BehaviorSubject<ClientPreferencesEvent>();
   final _inAppCredentialSubject = BehaviorSubject<_InAppCredentialState>();
@@ -103,8 +103,9 @@ class IrmaRepository {
   final _issueWizardActiveSubject = BehaviorSubject<bool>.seeded(false);
   final _fatalErrorSubject = BehaviorSubject<ErrorEvent>();
 
-  // MyIRMA credentials are not specifically labelled in the issuer scheme, so for now we hardcode them.
-  final _myIrmaCredentials = ["pbdf.sidn-pbdf.irma", "pbdf.pbdf.mijnirma"];
+  StreamSubscription<Event> _bridgeEventSubscription;
+
+  IrmaConfiguration get irmaConfiguration => _irmaConfigurationSubject.value;
 
   // _internal is a named constructor only used by the factory
   IrmaRepository._internal({
@@ -123,7 +124,31 @@ class IrmaRepository {
       }
     });
     // Listen for bridge events and send them to our event subject.
-    bridge.events.listen((event) => _eventSubject.add(event));
+    _bridgeEventSubscription = bridge.events.listen((event) => _eventSubject.add(event));
+  }
+
+  Future<void> close() async {
+    // Cancel bridge event subscription
+    await _bridgeEventSubscription.cancel();
+
+    // Close all internal subjects
+    await _irmaConfigurationSubject.close();
+    await _credentialsSubject.close();
+    await _enrollmentStatusSubject.close();
+    await _enrollmentEventSubject.close();
+    await _authenticationEventSubject.close();
+    await _changePinEventSubject.close();
+    await _lockedSubject.close();
+    await _blockedSubject.close();
+    await _lastActiveTimeSubject.close();
+    await _pendingSessionPointerSubject.close();
+    await _preferencesSubject.close();
+    await _inAppCredentialSubject.close();
+    await _resumedWithURLSubject.close();
+    await _resumedFromBrowserSubject.close();
+    await _issueWizardSubject.close();
+    await _issueWizardActiveSubject.close();
+    await _fatalErrorSubject.close();
   }
 
   Future<void> _eventListener(Event event) async {
@@ -135,10 +160,10 @@ class IrmaRepository {
         reportError(event.exception, event.stack);
       }
     } else if (event is IrmaConfigurationEvent) {
-      irmaConfigurationSubject.add(event.irmaConfiguration);
+      _irmaConfigurationSubject.add(event.irmaConfiguration);
     } else if (event is CredentialsEvent) {
       _credentialsSubject.add(Credentials.fromRaw(
-        irmaConfiguration: await irmaConfigurationSubject.first,
+        irmaConfiguration: await _irmaConfigurationSubject.first,
         rawCredentials: event.credentials,
       ));
     } else if (event is AuthenticationEvent) {
@@ -207,11 +232,11 @@ class IrmaRepository {
 
   // -- Scheme manager, issuer, credential and attribute definitions
   Stream<IrmaConfiguration> getIrmaConfiguration() {
-    return irmaConfigurationSubject.stream;
+    return _irmaConfigurationSubject.stream;
   }
 
   Stream<Map<String, Issuer>> getIssuers() {
-    return irmaConfigurationSubject.stream.map<Map<String, Issuer>>(
+    return _irmaConfigurationSubject.stream.map<Map<String, Issuer>>(
       (config) => config.issuers,
     );
   }
@@ -309,7 +334,7 @@ class IrmaRepository {
   Stream<VersionInformation> getVersionInformation() {
     // Get two Streams before waiting on them to allow for asynchronicity.
     final packageInfoStream = PackageInfo.fromPlatform().asStream();
-    final irmaVersionInfoStream = irmaConfigurationSubject.stream; // TODO: add filtering
+    final irmaVersionInfoStream = _irmaConfigurationSubject.stream; // TODO: add filtering
 
     return Rx.combineLatest2(packageInfoStream, irmaVersionInfoStream,
         (PackageInfo packageInfo, IrmaConfiguration irmaVersionInfo) {
@@ -394,7 +419,7 @@ class IrmaRepository {
     List<IssueWizardItem> contents,
     Credentials credentials,
   ) async {
-    final conf = await irmaConfigurationSubject.first;
+    final conf = await _irmaConfigurationSubject.first;
     final wizardData = conf.issueWizards[id];
     final creds = Set.from(credentials.values.map((cred) => cred.info.fullId));
     return IssueWizardEvent(
@@ -430,7 +455,7 @@ class IrmaRepository {
 
   // TODO Remove when disclosure sessions can be started from custom tabs
   Stream<List<String>> getExternalBrowserURLs() {
-    return irmaConfigurationSubject.map(
+    return _irmaConfigurationSubject.map(
       (irmaConfiguration) => externalBrowserCredtypes
           .where((type) => type.os == null || type.os == Platform.operatingSystem)
           .map((type) => irmaConfiguration.credentialTypes[type.cred].issueUrl.values)
@@ -477,7 +502,7 @@ class IrmaRepository {
     return openURL(
       getTranslation(
         context,
-        await irmaConfigurationSubject.first
+        await _irmaConfigurationSubject.first
             .then((irmaConfiguration) => irmaConfiguration.credentialTypes[type].issueUrl),
       ),
     );
@@ -514,15 +539,6 @@ class IrmaRepository {
     if (!hasOpened) {
       throw Exception('url could not be opened: $url');
     }
-  }
-
-  bool isMyIrmaCredential(CredentialType ct) {
-    return _myIrmaCredentials.contains(ct.fullId);
-  }
-
-  /// Only meant for testing and debug purposes.
-  void addMyIrmaCredential(CredentialType ct) {
-    _myIrmaCredentials.add(ct.fullId);
   }
 
   /// Only meant for testing and debug purposes.

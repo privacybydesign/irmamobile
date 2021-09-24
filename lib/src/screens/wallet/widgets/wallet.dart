@@ -663,7 +663,7 @@ class WalletState extends State<Wallet> with TickerProviderStateMixin {
   }
 
   Widget _buildNudge(BuildContext context) => StreamBuilder(
-        stream: _irmaClient.irmaConfigurationSubject,
+        stream: _irmaClient.getIrmaConfiguration(),
         builder: (context, snapshot) {
           if (snapshot.data != null) {
             final irmaConfiguration = snapshot.data as IrmaConfiguration;

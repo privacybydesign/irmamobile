@@ -5,21 +5,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/main.dart';
-import 'package:irmamobile/src/data/irma_test_repository.dart';
+import 'package:irmamobile/src/data/integration_test_irma_binding.dart';
 
 import 'helpers.dart';
 import 'util.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
 
   group('irma-screens', () {
     // Initialize the app's repository for integration tests (enable developer mode, etc.)
-    IrmaTestRepository testRepo;
-    setUpAll(() async => testRepo = await IrmaTestRepository.ensureInitialized());
-    setUp(() => testRepo.setUp());
-    tearDown(() => testRepo.tearDown());
+    setUp(() => irmaBinding.setUp());
+    tearDown(() => irmaBinding.tearDown());
 
     testWidgets('tc1', (tester) async {
       // Scenario 1 of IRMA app screens
@@ -70,7 +69,7 @@ void main() {
 
       // Wallet should not contain any cards
       expect(tester.any(find.byKey(const Key('wallet_card_0'))), false);
-    }, timeout: const Timeout(Duration(minutes: 4)));
+    }, timeout: const Timeout(Duration(minutes: 1)));
 
     testWidgets('tc3', (tester) async {
       // Scenario 3 of IRMA app screens: Help screen
