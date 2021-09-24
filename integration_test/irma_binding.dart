@@ -1,10 +1,9 @@
+import 'package:irmamobile/src/data/irma_client_bridge.dart';
+import 'package:irmamobile/src/data/irma_preferences.dart';
+import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/clear_all_data_event.dart';
 import 'package:irmamobile/src/models/enrollment_events.dart';
 import 'package:irmamobile/src/models/enrollment_status.dart';
-
-import 'irma_client_bridge.dart';
-import 'irma_preferences.dart';
-import 'irma_repository.dart';
 
 /// Binding to use the static IrmaClientBridge and IrmaPreferences in integration tests.
 class IntegrationTestIrmaBinding {

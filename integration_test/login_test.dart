@@ -7,10 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/main.dart';
-import 'package:irmamobile/src/data/integration_test_irma_binding.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 
 import 'helpers.dart';
+import 'irma_binding.dart';
 import 'util.dart';
 
 void main() {
