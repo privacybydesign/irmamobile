@@ -38,13 +38,14 @@ class IrmaTestRepository {
     return _instance!;
   }
 
-  Future<void> init({EnrollmentStatus ensureEnrollmentStatus = EnrollmentStatus.enrolled}) async {
-    assert(ensureEnrollmentStatus != EnrollmentStatus.undetermined);
-    final enrollmentStatus = await inner.getEnrollmentStatus().firstWhere((s) => s != EnrollmentStatus.undetermined);
-    if (enrollmentStatus != EnrollmentStatus.unenrolled) {
-      throw Exception('Test repository is not clean');
+  Future<void> setUp({EnrollmentStatus enrollmentStatus = EnrollmentStatus.enrolled}) async {
+    assert(enrollmentStatus != EnrollmentStatus.undetermined);
+    final currentEnrollmentStatus =
+        await inner.getEnrollmentStatus().firstWhere((s) => s != EnrollmentStatus.undetermined);
+    if (currentEnrollmentStatus != EnrollmentStatus.unenrolled) {
+      throw Exception('Test repository has not been teared down yet');
     }
-    if (ensureEnrollmentStatus == EnrollmentStatus.enrolled) {
+    if (enrollmentStatus == EnrollmentStatus.enrolled) {
       inner.enroll(email: '', pin: '12345', language: 'en');
       await inner.getEnrollmentStatus().firstWhere((status) => status == EnrollmentStatus.enrolled);
       inner.lock();
@@ -54,7 +55,7 @@ class IrmaTestRepository {
     inner.setDeveloperMode(true);
   }
 
-  Future<void> clean() async {
+  Future<void> tearDown() async {
     inner.dispatch(ClearAllDataEvent(), isBridgedEvent: true);
     await inner.getEvents().firstWhere((event) => event is! ClearAllDataEvent);
   }

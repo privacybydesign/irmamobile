@@ -19,8 +19,8 @@ void main() {
     // Initialize the app's repository for integration tests (enable developer mode, etc.)
     IrmaTestRepository testRepo;
     setUpAll(() async => testRepo = await IrmaTestRepository.ensureInitialized());
-    setUp(() => testRepo.init(ensureEnrollmentStatus: EnrollmentStatus.unenrolled));
-    tearDown(() => testRepo.clean());
+    setUp(() => testRepo.setUp(enrollmentStatus: EnrollmentStatus.unenrolled));
+    tearDown(() => testRepo.tearDown());
 
     testWidgets('screens', (tester) async {
       // Screens test of enrollment process

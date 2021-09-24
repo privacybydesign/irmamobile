@@ -18,8 +18,8 @@ void main() {
     // Initialize the app's repository for integration tests (enable developer mode, etc.)
     IrmaTestRepository testRepo;
     setUpAll(() async => testRepo = await IrmaTestRepository.ensureInitialized());
-    setUp(() => testRepo.init());
-    tearDown(() => testRepo.clean());
+    setUp(() => testRepo.setUp());
+    tearDown(() => testRepo.tearDown());
 
     testWidgets('tc1', (tester) async {
       // Scenario 1 of IRMA app screens
