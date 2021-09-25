@@ -6,27 +6,27 @@ import 'package:irmamobile/src/models/client_preferences.dart';
 import 'package:irmamobile/src/models/enrollment_events.dart';
 import 'package:irmamobile/src/models/enrollment_status.dart';
 
-/// Binding to use the static IrmaClientBridge and IrmaPreferences in integration tests.
+/// Binding to use the static IrmaClientBridge in integration tests.
 class IntegrationTestIrmaBinding {
   static IntegrationTestIrmaBinding? _instance;
 
   final IrmaClientBridge _bridge;
 
-  final IrmaPreferences preferences;
   late IrmaRepository repository;
 
-  IntegrationTestIrmaBinding._(this._bridge, this.preferences);
+  IntegrationTestIrmaBinding._(this._bridge);
 
   factory IntegrationTestIrmaBinding.ensureInitialized() {
     _instance ??= IntegrationTestIrmaBinding._(
       IrmaClientBridge(),
-      IrmaPreferences.get(),
     );
     return _instance!;
   }
 
   Future<void> setUp({EnrollmentStatus enrollmentStatus = EnrollmentStatus.enrolled}) async {
     assert(enrollmentStatus != EnrollmentStatus.undetermined);
+    final preferences = await IrmaPreferences.fromInstance();
+
     // Enable developer mode before enrollment, such that we can use a local keyshare server.
     _bridge.dispatch(ClientPreferencesEvent(clientPreferences: ClientPreferences(developerMode: true)));
     if (enrollmentStatus == EnrollmentStatus.enrolled) {
@@ -35,7 +35,10 @@ class IntegrationTestIrmaBinding {
       await _bridge.events.firstWhere((event) => event is EnrollmentSuccessEvent);
     }
 
-    repository = IrmaRepository(client: _bridge);
+    repository = IrmaRepository(
+      client: _bridge,
+      preferences: preferences,
+    );
 
     // We do not consistently enable the 'demo' flag for all test schemes. Therefore, we hardcode
     // the name of the production scheme for now.
@@ -52,7 +55,7 @@ class IntegrationTestIrmaBinding {
     final dataClearedFuture = _bridge.events
         .firstWhere((event) => event is EnrollmentStatusEvent && event.enrollmentStatus == EnrollmentStatus.unenrolled);
     _bridge.dispatch(ClearAllDataEvent());
-    await preferences.clearAll();
+    await repository.preferences.clearAll();
     await dataClearedFuture;
   }
 }

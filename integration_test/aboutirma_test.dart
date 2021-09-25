@@ -24,7 +24,7 @@ void main() {
     testWidgets('screen-content-test', (tester) async {
       // Scenario 1 of IRMA app About Irma
       // Initialize the app for integration tests
-      await tester.pumpWidgetAndSettle(IrmaApp());
+      await tester.pumpWidgetAndSettle(IrmaApp(repository: irmaBinding.repository));
       await unlock(tester);
       // Open menu
       await tester.tapAndSettle(find.byKey(const Key('open_menu_icon')));

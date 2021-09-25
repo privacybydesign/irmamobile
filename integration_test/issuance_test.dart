@@ -23,7 +23,7 @@ void main() {
     testWidgets('add-cards-municipality', (tester) async {
       // Scenario 1 of issuance process
       // Initialize the app for integration tests
-      await tester.pumpWidgetAndSettle(const IrmaApp());
+      await tester.pumpWidgetAndSettle(IrmaApp(repository: irmaBinding.repository));
       await unlock(tester);
       // start session
       await issueCardsMunicipality(tester, irmaBinding);
@@ -150,7 +150,10 @@ void main() {
     testWidgets('add-cards-municipality-nl', (tester) async {
       // Scenario 2 yesno-display-hint
       // Initialize the app for integration tests
-      await tester.pumpWidgetAndSettle(const IrmaApp(forcedLocale: Locale('nl', 'NL')));
+      await tester.pumpWidgetAndSettle(IrmaApp(
+        forcedLocale: const Locale('nl', 'NL'),
+        repository: irmaBinding.repository,
+      ));
       await unlock(tester);
       // start session
       await issueCardsMunicipality(tester, irmaBinding);

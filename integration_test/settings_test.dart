@@ -25,7 +25,8 @@ void main() {
     testWidgets('screentest', (tester) async {
       // Scenario 1 of IRMA app settings
       // Initialize the app for integration tests
-      await tester.pumpWidgetAndSettle(const IrmaApp());
+      final repo = irmaBinding.repository;
+      await tester.pumpWidgetAndSettle(IrmaApp(repository: repo));
       await unlock(tester);
       // Open menu
       await tester.tapAndSettle(find.byKey(const Key('open_menu_icon')));
@@ -50,24 +51,24 @@ void main() {
       ]);
       // Check the initial value of all settings.
       expect(tester.getSwitchListTileValue(find.text(textQRscanner)), false);
-      expect(await irmaBinding.preferences.getStartQRScan().first, false);
+      expect(await repo.preferences.getStartQRScan().first, false);
       expect(tester.getSwitchListTileValue(find.text(textErrorReports)), false);
-      expect(await irmaBinding.preferences.getStartQRScan().first, false);
+      expect(await repo.preferences.getStartQRScan().first, false);
       // Enable all settings.
       await tester.tapAndSettle(find.text(textQRscanner));
       await tester.tapAndSettle(find.text(textErrorReports));
       // Check whether all settings are enabled.
       expect(tester.getSwitchListTileValue(find.text(textQRscanner)), true);
-      expect(await irmaBinding.preferences.getStartQRScan().first, true);
+      expect(await repo.preferences.getStartQRScan().first, true);
       expect(tester.getSwitchListTileValue(find.text(textErrorReports)), true);
-      expect(await irmaBinding.preferences.getStartQRScan().first, true);
+      expect(await repo.preferences.getStartQRScan().first, true);
       // Only on Android, check setting to enable screenshots. On iOS, the option should not be there.
       if (Platform.isAndroid) {
         expect(tester.getSwitchListTileValue(find.text(textEnableScreenshots)), false);
-        expect(await irmaBinding.preferences.getScreenshotsEnabled().first, false);
+        expect(await repo.preferences.getScreenshotsEnabled().first, false);
         await tester.tapAndSettle(find.text(textEnableScreenshots));
         expect(tester.getSwitchListTileValue(find.text(textEnableScreenshots)), true);
-        expect(await irmaBinding.preferences.getScreenshotsEnabled().first, true);
+        expect(await repo.preferences.getScreenshotsEnabled().first, true);
       } else {
         expect(find.text(textEnableScreenshots), findsNothing);
       }
@@ -75,7 +76,7 @@ void main() {
 
     testWidgets('change-PIN', (tester) async {
       // Scenario 2 of IRMA app settings
-      await tester.pumpWidgetAndSettle(const IrmaApp());
+      await tester.pumpWidgetAndSettle(IrmaApp(repository: irmaBinding.repository));
       await unlock(tester);
       // Open menu
       await tester.tapAndSettle(find.byKey(const Key('open_menu_icon')));
@@ -112,7 +113,7 @@ void main() {
     testWidgets('delete-all-data', (tester) async {
       // Scenario 3 of IRMA app settings
       // Initialize the app for integration tests
-      await tester.pumpWidgetAndSettle(const IrmaApp());
+      await tester.pumpWidgetAndSettle(IrmaApp(repository: irmaBinding.repository));
       await unlock(tester);
       // Open menu
       await tester.tapAndSettle(find.byKey(const Key('open_menu_icon')));

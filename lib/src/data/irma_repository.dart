@@ -66,13 +66,14 @@ class ExternalBrowserCredtype {
 
 class IrmaRepository {
   static IrmaRepository _instance;
-  factory IrmaRepository({@required IrmaBridge client}) {
-    _instance = IrmaRepository._internal(bridge: client);
+  factory IrmaRepository({@required IrmaBridge client, @required IrmaPreferences preferences}) {
+    _instance = IrmaRepository._internal(client, preferences);
     _instance.dispatch(AppReadyEvent(), isBridgedEvent: true);
 
     return _instance;
   }
 
+  @Deprecated('Use IrmaRepositoryProvider.of(context) instead')
   static IrmaRepository get() {
     if (_instance == null) {
       throw Exception('IrmaRepository has not been initialized');
@@ -80,11 +81,14 @@ class IrmaRepository {
     return _instance;
   }
 
-  final IrmaBridge bridge;
+  final IrmaPreferences preferences;
+
+  final IrmaBridge _bridge;
   final _eventSubject = PublishSubject<Event>();
 
   SessionRepository _sessionRepository;
 
+  // Try to pipe events from the _eventSubject, otherwise you have to explicitly close the subject in close().
   final _irmaConfigurationSubject = BehaviorSubject<IrmaConfiguration>();
   final _credentialsSubject = BehaviorSubject<Credentials>();
   final _enrollmentStatusSubject = BehaviorSubject<EnrollmentStatus>.seeded(EnrollmentStatus.undetermined);
@@ -108,9 +112,10 @@ class IrmaRepository {
   IrmaConfiguration get irmaConfiguration => _irmaConfigurationSubject.value;
 
   // _internal is a named constructor only used by the factory
-  IrmaRepository._internal({
-    @required this.bridge,
-  }) : assert(bridge != null) {
+  IrmaRepository._internal(
+    this._bridge,
+    this.preferences,
+  ) : assert(_bridge != null) {
     _inAppCredentialSubject.add(_InAppCredentialState());
     _eventSubject.listen(_eventListener);
     _sessionRepository = SessionRepository(
@@ -124,7 +129,7 @@ class IrmaRepository {
       }
     });
     // Listen for bridge events and send them to our event subject.
-    _bridgeEventSubscription = bridge.events.listen((event) => _eventSubject.add(event));
+    _bridgeEventSubscription = _bridge.events.listen((event) => _eventSubject.add(event));
   }
 
   Future<void> close() async {
@@ -201,7 +206,7 @@ class IrmaRepository {
       _enrollmentStatusSubject.add(EnrollmentStatus.unenrolled);
       _lockedSubject.add(false);
       _blockedSubject.add(null);
-      IrmaPreferences.get().clearAll();
+      preferences.clearAll();
     } else if (event is AppLifecycleChangedEvent) {
       if (event.state == AppLifecycleState.paused) {
         _lastActiveTimeSubject.add(DateTime.now());
@@ -226,7 +231,7 @@ class IrmaRepository {
     _eventSubject.add(event);
 
     if (isBridgedEvent) {
-      bridge.dispatch(event);
+      _bridge.dispatch(event);
     }
   }
 
@@ -260,7 +265,7 @@ class IrmaRepository {
     return _enrollmentEventSubject.where((event) {
       switch (event.runtimeType) {
         case EnrollmentSuccessEvent:
-          IrmaPreferences.get().setLongPin(pin.length != 5);
+          preferences.setLongPin(pin.length != 5);
           return true;
           break;
         case EnrollmentFailureEvent:
@@ -293,7 +298,7 @@ class IrmaRepository {
     return _authenticationEventSubject.where((event) {
       switch (event.runtimeType) {
         case AuthenticationSuccessEvent:
-          IrmaPreferences.get().setLongPin(pin.length != 5);
+          preferences.setLongPin(pin.length != 5);
           return true;
           break;
         case AuthenticationFailedEvent:
@@ -313,7 +318,7 @@ class IrmaRepository {
       switch (event.runtimeType) {
         case ChangePinSuccessEvent:
           // Change pin length
-          IrmaPreferences.get().setLongPin(newPin.length != 5);
+          preferences.setLongPin(newPin.length != 5);
           return true;
           break;
         case ChangePinFailedEvent:
