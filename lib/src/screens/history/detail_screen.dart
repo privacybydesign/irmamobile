@@ -3,7 +3,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
@@ -74,7 +73,7 @@ class DetailScreen extends StatelessWidget {
         IssuingDetail(
           logEntry.issuedCredentials
               .map((rawCredential) => Credential.fromRaw(
-                    irmaConfiguration: IrmaRepository.get().irmaConfiguration,
+                    irmaConfiguration: irmaConfiguration,
                     rawCredential: rawCredential,
                   ))
               .toList(),
@@ -88,7 +87,7 @@ class DetailScreen extends StatelessWidget {
         LogEntryType.removal,
         RemovalDetail(logEntry.removedCredentials.entries
             .map<RemovedCredential>((entry) => RemovedCredential.fromRaw(
-                  irmaConfiguration: IrmaRepository.get().irmaConfiguration,
+                  irmaConfiguration: irmaConfiguration,
                   credentialIdentifier: entry.key,
                   rawAttributes: entry.value,
                 ))

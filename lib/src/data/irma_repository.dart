@@ -109,8 +109,6 @@ class IrmaRepository {
 
   StreamSubscription<Event> _bridgeEventSubscription;
 
-  IrmaConfiguration get irmaConfiguration => _irmaConfigurationSubject.value;
-
   // _internal is a named constructor only used by the factory
   IrmaRepository._internal(
     this._bridge,
