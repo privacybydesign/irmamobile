@@ -4,7 +4,7 @@ class IrmaPreferences {
   static IrmaPreferences? _instance;
 
   // This function is deprecated, because it ignores the StreamingSharedPreferences instance to return a future.
-  @Deprecated('Use preferences from IrmaRepository')
+  @Deprecated('Use preferences from IrmaRepository instead')
   static IrmaPreferences get() {
     if (_instance == null) throw Exception('IrmaPreferences has not been initialized');
     return _instance!;
