@@ -46,15 +46,9 @@ Future<void> startTests(List<String> args, Directory configDir, Directory recove
         .then((result) {
       if (result.exitCode != 0) throw Exception('Test configuration could not be downloaded');
     });
-  } else {
-    // Use production config if no other config is specified.
-    String schemePath = Platform.environment['SCHEME_PATH'];
-    if (schemePath == null) {
-      schemePath = [configDir.path, 'pbdf'].join(Platform.pathSeparator);
-      print('No test configuration specified, assuming $schemePath');
-    }
+  } else if (Platform.environment.containsKey('SCHEME_PATH')) {
+    final schemePath = Platform.environment['SCHEME_PATH'];
     Directory schemeDir = Directory(schemePath);
-
     // Take into account that configuration has been moved to temporary dir.
     // Convert to uri first to make sure the path format is equal.
     final schemeDirPath = schemeDir.absolute.uri.path;
@@ -63,7 +57,15 @@ Future<void> startTests(List<String> args, Directory configDir, Directory recove
       schemeDir = Directory(schemeDirPath.replaceFirst(configDirPath, recoveryConfigDir.absolute.uri.path));
     }
 
+    if (!schemeDir.existsSync()) {
+      print('Directory $schemePath could not be found.');
+      return;
+    }
+
     schemeDir.copy(Directory([configDirPath, schemeDir.dirName].join(Platform.pathSeparator)));
+  } else {
+    print('No test configuration could be found. Please specify a SCHEME_URL or SCHEME_PATH.');
+    return;
   }
 
   print('Starting Flutter tests...');

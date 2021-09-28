@@ -2,6 +2,7 @@ import 'package:irmamobile/src/data/irma_client_bridge.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/clear_all_data_event.dart';
+import 'package:irmamobile/src/models/client_preferences.dart';
 import 'package:irmamobile/src/models/enrollment_events.dart';
 import 'package:irmamobile/src/models/enrollment_status.dart';
 
@@ -26,6 +27,8 @@ class IntegrationTestIrmaBinding {
 
   Future<void> setUp({EnrollmentStatus enrollmentStatus = EnrollmentStatus.enrolled}) async {
     assert(enrollmentStatus != EnrollmentStatus.undetermined);
+    // Enable developer mode before enrollment, such that we can use a local keyshare server.
+    _bridge.dispatch(ClientPreferencesEvent(clientPreferences: ClientPreferences(developerMode: true)));
     if (enrollmentStatus == EnrollmentStatus.enrolled) {
       _bridge.dispatch(EnrollEvent(email: '', pin: '12345', language: 'en'));
       preferences.setLongPin(false);
@@ -34,8 +37,11 @@ class IntegrationTestIrmaBinding {
 
     repository = IrmaRepository(client: _bridge);
 
+    if ((await repository.getIrmaConfiguration().first).schemeManagers.containsKey('pbdf')) {
+      throw Exception('Integration tests should not be run using a production scheme');
+    }
+
     await preferences.setAcceptedRootedRisk(true);
-    repository.setDeveloperMode(true);
   }
 
   Future<void> tearDown() async {
