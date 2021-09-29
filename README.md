@@ -98,8 +98,25 @@ _The integration tests are in development, so not all use cases are covered yet.
 
 As preliminary to run the integration tests, you need a fully configured [irmamobile development setup](#development-setup).
 
+### Setting up a keyshare server for testing
+The integration tests need a running `irma keyshare server` for testing enrollment. You cannot use the production keyshare server.
+
+If you don't have access to a remote test environment, you can set up your own keyshare server locally using Docker.
+For an explanation on how to do this, you can check the [running instructions of `irmago`](https://github.com/privacybydesign/irmago#running).
+
 ### Run locally using an iOS/Android simulator
-By default, the script runs all integration tests and uses the `pbdf` issuer scheme in `./irma_configuration`. This scheme uses the `pbdf` production keyshare server. The tests can be started in the following way:
+First, you have to specify which keyshare server the integration tests should use. This can be done by setting the `SCHEME_URL` or the `SCHEME_PATH` environment variable.
+
+In case you are using a remote test environment, you should specify the issuer scheme URL of its custom scheme using the `SCHEME_URL` environment variable.
+To use this option, you need the [`irma` CLI tool](https://github.com/privacybydesign/irmago#installing) to be installed and available in your PATH.
+
+    SCHEME_URL=https://example.com/schememanager/test
+
+If you have a local set-up, you should specify the path to the test configuration of your local keyshare server. For instance, when you are using the Docker set-up from `irmago`:
+
+    SCHEME_PATH=/path/to/irmago/testdata/irma_configuration/test
+
+By default, the script runs all integration tests. The tests can be started in the following way:
 
       // For an iOS testing device/simulator
       dart test_driver/main.dart
@@ -110,22 +127,12 @@ To run a specific set of integration tests, you can override the test target usi
 
       dart test_driver/main.dart --target=integration_test/issuance_test.dart
 
-You can also run the tests using a custom issuer scheme, for example to prevent tests to be executed against a production keyshare server.
-You can do this by specifying the issuer scheme URL of the custom scheme using an environment variable.
-
-      SCHEME_URL=https://example.com/schememanager/test
-
-To use the `SCHEME_URL` option, you need the [`irma` CLI tool](https://github.com/privacybydesign/irmago#installing) to be installed and available in your PATH.
-
-If you want to use a local issuer scheme, you can use the following environment variable instead.
-
-      SCHEME_PATH=./irma_configuration/test
-
 Note: we currently use `flutter drive` to run the integration tests, because `flutter test` does not allow us to specify a `--flavor` on Android.
 
 ### Run on Android natively
 
 To natively run the integration tests on Android, you can use the command below. It uses the configuration from the `irma_configuration` directory.
+You have to manually set the `irma_configuration` for testing. When using the default set-up, the tests will fail because the `pbdf` production scheme cannot be used.
 
       flutter pub get
       (cd android && ./gradlew app:connectedAlphaDebugAndroidTest -Ptarget=`pwd`/../integration_test/test_all.dart)
