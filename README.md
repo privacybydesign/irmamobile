@@ -99,7 +99,7 @@ _The integration tests are in development, so not all use cases are covered yet.
 As preliminary to run the integration tests, you need a fully configured [irmamobile development setup](#development-setup).
 
 ### Setting up a keyshare server for testing
-The integration tests need a running `irma keyshare server` for testing enrollment. You cannot use the production keyshare server.
+The integration tests need a running `irma keyshare server` to test enrollment. You cannot use the production keyshare server for this.
 
 If you don't have access to a remote test environment, you can set up your own keyshare server locally using Docker.
 For an explanation on how to do this, you can check the [running instructions of `irmago`](https://github.com/privacybydesign/irmago#running).
@@ -128,6 +128,7 @@ To run a specific set of integration tests, you can override the test target usi
       dart test_driver/main.dart --target=integration_test/issuance_test.dart
 
 Note: we currently use `flutter drive` to run the integration tests, because `flutter test` does not allow us to specify a `--flavor` on Android.
+Due to this, the tests sometimes hang when "attempting to resume isolate" on Android. For now, the easiest work-around is to run the tests a second time then.
 
 ### Run on Android natively
 
