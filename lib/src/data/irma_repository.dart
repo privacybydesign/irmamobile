@@ -128,27 +128,30 @@ class IrmaRepository {
   }
 
   Future<void> close() async {
-    // Cancel bridge event subscription
+    // First we have to cancel the bridge event subscription
     await _bridgeEventSubscription.cancel();
 
-    // Close all internal subjects
-    await _irmaConfigurationSubject.close();
-    await _credentialsSubject.close();
-    await _enrollmentStatusSubject.close();
-    await _enrollmentEventSubject.close();
-    await _authenticationEventSubject.close();
-    await _changePinEventSubject.close();
-    await _lockedSubject.close();
-    await _blockedSubject.close();
-    await _lastActiveTimeSubject.close();
-    await _pendingSessionPointerSubject.close();
-    await _preferencesSubject.close();
-    await _inAppCredentialSubject.close();
-    await _resumedWithURLSubject.close();
-    await _resumedFromBrowserSubject.close();
-    await _issueWizardSubject.close();
-    await _issueWizardActiveSubject.close();
-    await _fatalErrorSubject.close();
+    // Then we can close all internal subjects
+    await Future.wait([
+      _eventSubject.close(),
+      _irmaConfigurationSubject.close(),
+      _credentialsSubject.close(),
+      _enrollmentStatusSubject.close(),
+      _enrollmentEventSubject.close(),
+      _authenticationEventSubject.close(),
+      _changePinEventSubject.close(),
+      _lockedSubject.close(),
+      _blockedSubject.close(),
+      _lastActiveTimeSubject.close(),
+      _pendingSessionPointerSubject.close(),
+      _preferencesSubject.close(),
+      _inAppCredentialSubject.close(),
+      _resumedWithURLSubject.close(),
+      _resumedFromBrowserSubject.close(),
+      _issueWizardSubject.close(),
+      _issueWizardActiveSubject.close(),
+      _fatalErrorSubject.close(),
+    ]);
   }
 
   Future<void> _eventListener(Event event) async {
