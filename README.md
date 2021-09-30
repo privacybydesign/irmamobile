@@ -118,9 +118,10 @@ If you have a local set-up, you should specify the path to the test configuratio
 
 By default, the script runs all integration tests. The tests can be started in the following way:
 
-      // For an iOS testing device/simulator
+      # For an iOS testing device/simulator
       dart test_driver/main.dart
-      // For an Android testing device/simulator
+      # For an Android testing device/simulator
+      adb reverse tcp:8080 tcp:8080
       dart test_driver/main.dart --flavor=alpha
 
 To run a specific set of integration tests, you can override the test target using the `--target` command line argument.
