@@ -37,6 +37,8 @@ class IntegrationTestIrmaBinding {
 
     repository = IrmaRepository(client: _bridge);
 
+    // We do not consistently enable the 'demo' flag for all test schemes. Therefore, we hardcode
+    // the name of the production scheme for now.
     if ((await repository.getIrmaConfiguration().first).schemeManagers.containsKey('pbdf')) {
       throw Exception('Integration tests should not be run using a production scheme');
     }
