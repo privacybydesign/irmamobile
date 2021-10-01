@@ -43,6 +43,8 @@ class Credential {
   final String hash;
 
   bool get expired => expires.isBefore(DateTime.now());
+  bool get isKeyshareCredential =>
+      attributes.keys.any((attributeType) => info.schemeManager.keyshareAttributes.contains(attributeType.fullId));
 
   Credential({
     required this.info,

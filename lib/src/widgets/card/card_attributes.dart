@@ -273,9 +273,9 @@ class _CardAttributesState extends State<CardAttributes> {
   }
 
   List<Widget> _buildAttributes(BuildContext context, TextStyle body1Theme) {
-    return widget.attributes.sortedAttributeTypes.expand<Widget>(
-      (attributeType) {
-        final attributeValue = widget.attributes[attributeType];
+    return widget.attributes.sortedAttributeTypes.asMap().entries.expand<Widget>(
+      (entry) {
+        final attributeValue = widget.attributes[entry.value];
         // PhotoValue cannot be rendered yet and NullValue must be skipped
         if (!(attributeValue is TextValue)) {
           return [];
@@ -285,7 +285,8 @@ class _CardAttributesState extends State<CardAttributes> {
           Opacity(
             opacity: 0.8,
             child: Text(
-              attributeType.name.translate(_lang),
+              entry.value.name.translate(_lang),
+              key: Key('attr_${entry.key}_name'),
               style: body1Theme.copyWith(fontSize: 14),
               overflow: TextOverflow.ellipsis,
             ),
@@ -293,6 +294,7 @@ class _CardAttributesState extends State<CardAttributes> {
           Text(
             (attributeValue as TextValue).translated.translate(_lang),
             style: IrmaTheme.of(context).textTheme.body2.copyWith(color: widget.irmaCardTheme.foregroundColor),
+            key: Key('attr_${entry.key}_value'),
           ),
           SizedBox(
             height: IrmaTheme.of(context).smallSpacing,

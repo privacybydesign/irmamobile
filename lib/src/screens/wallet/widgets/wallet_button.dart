@@ -13,7 +13,7 @@ class WalletButton extends StatefulWidget {
   final String accessibleName;
   final VoidCallback clickStreamSink;
 
-  const WalletButton({this.svgFile, this.accessibleName, this.clickStreamSink});
+  const WalletButton({this.svgFile, this.accessibleName, this.clickStreamSink, Key key}) : super(key: key);
 
   @override
   _WalletButtonState createState() => _WalletButtonState();

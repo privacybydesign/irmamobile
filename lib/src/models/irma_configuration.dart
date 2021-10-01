@@ -70,8 +70,9 @@ class SchemeManager {
     required this.minimumAppVersion,
     required this.keyshareServer,
     required this.keyshareWebsite,
-    required this.keyshareAttribute,
+    @Deprecated('Use keyshareAttributes instead') required this.keyshareAttribute,
     required this.timestamp,
+    required this.demo,
   });
 
   @JsonKey(name: 'ID')
@@ -96,12 +97,23 @@ class SchemeManager {
   final String keyshareWebsite;
 
   @JsonKey(name: 'KeyshareAttribute')
+  @Deprecated('Use keyshareAttributes instead')
   final String keyshareAttribute;
 
   @JsonKey(name: 'Timestamp')
   final int timestamp;
 
+  @JsonKey(name: 'Demo')
+  final bool demo;
+
   factory SchemeManager.fromJson(Map<String, dynamic> json) => _$SchemeManagerFromJson(json);
+
+  // In the pbdf scheme, not all keyshare attributes are mentioned. Therefore, we hardcode them for now.
+  // This should be fixed in the scheme description.
+  Iterable<String> get keyshareAttributes => {
+        keyshareAttribute,
+        if (id == 'pbdf') ...['pbdf.sidn-pbdf.irma.pseudonym', 'pbdf.pbdf.mijnirma.email'],
+      };
 }
 
 @JsonSerializable()

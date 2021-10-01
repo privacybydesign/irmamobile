@@ -114,6 +114,7 @@ class WalletDrawer extends StatelessWidget {
                     child: Semantics(
                         button: true,
                         child: ListTile(
+                          key: const Key('menu_logout'),
                           contentPadding: EdgeInsets.only(left: IrmaTheme.of(context).mediumSpacing),
                           title: Text(
                             FlutterI18n.translate(context, 'drawer.lock_wallet'),

@@ -257,6 +257,7 @@ class _PinFieldState extends State<PinField> {
                     duration: Duration(milliseconds: widget.longPin ? 200 : 0),
                     width: widget.longPin ? MediaQuery.of(context).size.width - 2 * theme.hugeSpacing : 0.1,
                     child: TextField(
+                      key: const Key('pin_field_key'),
                       controller: _textEditingController,
                       enabled: widget.enabled,
                       focusNode: focusNode,

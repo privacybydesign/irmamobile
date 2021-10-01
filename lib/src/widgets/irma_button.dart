@@ -17,6 +17,7 @@ class IrmaButton extends StatelessWidget {
   final Color color;
 
   const IrmaButton({
+    Key key,
     @required this.label,
     @required this.onPressed,
     this.onPressedDisabled,
@@ -25,7 +26,7 @@ class IrmaButton extends StatelessWidget {
     this.minWidth = 232,
     this.icon,
     this.color,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

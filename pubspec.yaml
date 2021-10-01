@@ -48,7 +48,11 @@ flutter_native_splash:
   android_disable_fullscreen: true
 
 dev_dependencies:
+  flutter_driver:
+    sdk: flutter
   flutter_test:
+    sdk: flutter
+  integration_test:
     sdk: flutter
   json_serializable: ^4.1.4
   lint: ^1.6.0

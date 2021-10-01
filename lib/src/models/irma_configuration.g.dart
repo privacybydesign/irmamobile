@@ -50,6 +50,7 @@ SchemeManager _$SchemeManagerFromJson(Map<String, dynamic> json) {
     keyshareWebsite: json['KeyshareWebsite'] as String,
     keyshareAttribute: json['KeyshareAttribute'] as String,
     timestamp: json['Timestamp'] as int,
+    demo: json['Demo'] as bool,
   );
 }
 

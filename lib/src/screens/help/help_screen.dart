@@ -70,6 +70,7 @@ class _HelpScreenState extends State<HelpScreen> {
                             child: Container(
                               child: Heading(
                                 FlutterI18n.translate(context, 'manual.faq'),
+                                key: const Key('help_screen_heading'),
                               ),
                             ),
                           ),
@@ -80,6 +81,7 @@ class _HelpScreenState extends State<HelpScreen> {
                               FlutterI18n.translate(context, 'manual.faq_info'),
                               style: Theme.of(context).textTheme.body1,
                               textAlign: TextAlign.left,
+                              key: const Key('help_screen_content'),
                             ),
                           ),
                         ],
@@ -212,6 +214,7 @@ class _HelpScreenState extends State<HelpScreen> {
                   vertical: IrmaTheme.of(context).defaultSpacing * 1.5, horizontal: IrmaTheme.of(context).largeSpacing),
               child: IrmaButton(
                 label: 'help.back_button',
+                key: const Key('back_to_wallet_button'),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },

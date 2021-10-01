@@ -26,6 +26,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      key: const Key('irma_app_bar'),
       centerTitle: true,
       leading: noLeading
           ? null

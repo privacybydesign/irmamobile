@@ -98,8 +98,12 @@ class _WalletScreenState extends State<_WalletScreen> {
           key: _scaffoldKey,
           appBar: IrmaAppBar(
             title: Text(FlutterI18n.translate(context, 'wallet.title')),
-            leadingIcon:
-                Icon(IrmaIcons.menu, semanticLabel: FlutterI18n.translate(context, "accessibility.menu"), size: 20.0),
+            leadingIcon: Icon(
+              IrmaIcons.menu,
+              semanticLabel: FlutterI18n.translate(context, "accessibility.menu"),
+              size: 20.0,
+              key: const Key('open_menu_icon'),
+            ),
             leadingAction: () {
               _scaffoldKey.currentState.openDrawer();
             },
@@ -115,6 +119,7 @@ class _WalletScreenState extends State<_WalletScreen> {
                   IrmaIcons.lock,
                   size: 20,
                   semanticLabel: FlutterI18n.translate(context, "wallet.lock"),
+                  key: const Key('menu_logout_icon'),
                 ),
                 onPressed: () {
                   IrmaRepository.get().lock();
@@ -125,6 +130,7 @@ class _WalletScreenState extends State<_WalletScreen> {
           drawer: WalletDrawer(),
           body: BlocBuilder<WalletBloc, walletblocstate.WalletState>(
             bloc: widget.bloc,
+            key: const Key('wallet_screen'),
             builder: (context, state) {
               if (state.credentials == null) {
                 return Container(height: 0);

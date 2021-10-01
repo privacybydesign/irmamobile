@@ -18,6 +18,7 @@ class Link extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       link: true,
+      key: const Key('irma_link'),
       child: InkWell(
         onTap: onTap,
         child: Text(

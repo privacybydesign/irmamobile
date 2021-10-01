@@ -14,6 +14,7 @@ import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/applifecycle_changed_event.dart';
 import 'package:irmamobile/src/models/clear_all_data_event.dart';
 import 'package:irmamobile/src/models/enrollment_status.dart';
+import 'package:irmamobile/src/models/event.dart';
 import 'package:irmamobile/src/models/native_events.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/update_schemes_event.dart';
@@ -44,6 +45,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   final _detectRootedDeviceRepo = DetectRootedDeviceIrmaPrefsRepository();
   StreamSubscription<SessionPointer> _sessionPointerSubscription;
+  StreamSubscription<Event> _dataClearSubscription;
   bool _qrScannerActive = false;
   DateTime lastSchemeUpdate;
 
@@ -98,6 +100,8 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _sessionPointerSubscription?.cancel();
+    _dataClearSubscription?.cancel();
     super.dispose();
   }
 
@@ -221,7 +225,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     // we cannot there manipulate the desired navigation stack for the enrollment
     // screen. Hence, we do that here, pushing the enrollment screen on the main
     // stack whenever the user clears all of his/her data.
-    IrmaRepository.get().getEvents().where((event) => event is ClearAllDataEvent).listen((_) {
+    _dataClearSubscription = IrmaRepository.get().getEvents().where((event) => event is ClearAllDataEvent).listen((_) {
       _navigatorKey.currentState.pushNamedAndRemoveUntil(EnrollmentScreen.routeName, (_) => false);
     });
   }

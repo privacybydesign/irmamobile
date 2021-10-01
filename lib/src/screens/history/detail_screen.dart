@@ -74,7 +74,7 @@ class DetailScreen extends StatelessWidget {
         IssuingDetail(
           logEntry.issuedCredentials
               .map((rawCredential) => Credential.fromRaw(
-                    irmaConfiguration: IrmaRepository.get().irmaConfigurationSubject.value,
+                    irmaConfiguration: IrmaRepository.get().irmaConfiguration,
                     rawCredential: rawCredential,
                   ))
               .toList(),
@@ -88,7 +88,7 @@ class DetailScreen extends StatelessWidget {
         LogEntryType.removal,
         RemovalDetail(logEntry.removedCredentials.entries
             .map<RemovedCredential>((entry) => RemovedCredential.fromRaw(
-                  irmaConfiguration: IrmaRepository.get().irmaConfigurationSubject.value,
+                  irmaConfiguration: IrmaRepository.get().irmaConfiguration,
                   credentialIdentifier: entry.key,
                   rawAttributes: entry.value,
                 ))

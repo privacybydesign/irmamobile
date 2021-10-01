@@ -93,6 +93,65 @@ attaching data to signed statements. These data can be relevant properties, such
 
 This project uses json_serializer. To re-generate serialization code, run `./codegen.sh`
 
+## Integration tests
+_The integration tests are in development, so not all use cases are covered yet._
+
+As preliminary to run the integration tests, you need a fully configured [irmamobile development setup](#development-setup).
+
+### Setting up a keyshare server for testing
+The integration tests need a running `irma keyshare server` to test enrollment. You cannot use the production keyshare server for this.
+
+If you don't have access to a remote test environment, you can set up your own keyshare server locally using Docker.
+For an explanation on how to do this, you can check the [running instructions of `irmago`](https://github.com/privacybydesign/irmago#running).
+
+### Run locally using an iOS/Android simulator
+First, you have to specify which keyshare server the integration tests should use. This can be done by setting the `SCHEME_URL` or the `SCHEME_PATH` environment variable.
+
+In case you are using a remote test environment, you should specify the issuer scheme URL of its custom scheme using the `SCHEME_URL` environment variable.
+To use this option, you need the [`irma` CLI tool](https://github.com/privacybydesign/irmago#installing) to be installed and available in your PATH.
+
+    SCHEME_URL=https://example.com/schememanager/test
+
+If you have a local set-up, you should specify the path to the test configuration of your local keyshare server. For instance, when you are using the Docker set-up from `irmago`:
+
+    SCHEME_PATH=/path/to/irmago/testdata/irma_configuration/test
+
+By default, the script runs all integration tests. The tests can be started in the following way:
+
+      # For an iOS testing device/simulator
+      dart test_driver/main.dart
+      # For an Android testing device/simulator
+      adb reverse tcp:8080 tcp:8080
+      dart test_driver/main.dart --flavor=alpha
+
+To run a specific set of integration tests, you can override the test target using the `--target` command line argument.
+
+      dart test_driver/main.dart --target=integration_test/issuance_test.dart
+
+Note: we currently use `flutter drive` to run the integration tests, because `flutter test` does not allow us to specify a `--flavor` on Android.
+Due to this, the tests sometimes hang when "attempting to resume isolate" on Android. For now, the easiest work-around is to run the tests a second time then.
+
+### Run on Android natively
+
+To natively run the integration tests on Android, you can use the command below. It uses the configuration from the `irma_configuration` directory.
+You have to manually set the `irma_configuration` for testing. When using the default set-up, the tests will fail because the `pbdf` production scheme cannot be used.
+
+      flutter pub get
+      (cd android && ./gradlew app:connectedAlphaDebugAndroidTest -Ptarget=`pwd`/../integration_test/test_all.dart)
+
+You can also manually build APKs for testing.
+
+      flutter pub get
+      (cd android && ./gradlew app:assembleAndroidTest)
+      (cd android && ./gradlew app:assembleAlphaDebug -Ptarget=`pwd`/../integration_test/test_all.dart)
+
+You can use those APKs for testing with services like [Google Firebase](https://flutter.dev/docs/testing/integration-tests#uploading-an-android-apk).
+You can also run them locally using the following commands:
+
+      adb install build/app/outputs/apk/alpha/debug/app-alpha-debug.apk
+      adb install build/app/outputs/apk/androidTest/alpha/debug/app-alpha-debug-androidTest.apk
+      adb shell am instrument -w -r foundation.privacybydesign.irmamobile.alpha.test/androidx.test.runner.AndroidJUnitRunner
+
 ## Troubleshooting
 
 * Have you checked out the two submodules of this repository? If `find ./irma_configuration` is empty, this is the case.

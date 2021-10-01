@@ -63,6 +63,7 @@ class RootedWarningScreen extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
+        key: const Key('warning_screen_accept_button'),
         primaryButtonLabel: FlutterI18n.translate(context, 'device_rooted_warning.button_accept_risk'),
         onPrimaryPressed: () => _onAcceptRiskButtonPressed(),
       ),

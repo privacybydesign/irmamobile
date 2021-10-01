@@ -28,6 +28,7 @@ class EmailSentScreen extends StatelessWidget {
           noLeading: true,
         ),
         bottomNavigationBar: IrmaBottomBar(
+          key: const Key('email_sent_screen_continue'),
           primaryButtonLabel: FlutterI18n.translate(context, 'enrollment.email_sent.button'),
           onPrimaryPressed: () {
             Navigator.of(context, rootNavigator: true).pushReplacementNamed(WalletScreen.routeName);
@@ -35,6 +36,7 @@ class EmailSentScreen extends StatelessWidget {
         ),
         body: SafeArea(
           child: SingleChildScrollView(
+            key: const Key('email_sent_screen'),
             padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
             child: Column(
               children: <Widget>[

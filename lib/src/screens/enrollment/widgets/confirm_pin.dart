@@ -21,12 +21,14 @@ class ConfirmPin extends StatelessWidget {
       appBar: IrmaAppBar(
         title: Text(
           FlutterI18n.translate(context, 'enrollment.choose_pin.title'),
+          key: const Key('enrollment_confirm_pin_title'),
         ),
         leadingAction: () => cancelAndNavigate(context),
         leadingTooltip: MaterialLocalizations.of(context).backButtonTooltip,
       ),
       body: SingleChildScrollView(
         child: Column(
+          key: const Key('enrollment_confirm_pin'),
           children: [
             SizedBox(height: IrmaTheme.of(context).hugeSpacing),
             Text(

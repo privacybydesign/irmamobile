@@ -41,6 +41,7 @@ class IrmaBottomBar extends StatelessWidget {
       buttonWidth = constraints.maxWidth / 2 - 2 * IrmaTheme.of(context).defaultSpacing;
 
       btns.add(IrmaTextButton(
+        key: const Key('secondary'),
         size: IrmaButtonSize.large,
         minWidth: buttonWidth,
         onPressed: onSecondaryPressed,
@@ -50,6 +51,7 @@ class IrmaBottomBar extends StatelessWidget {
 
     if (primaryButtonLabel != null) {
       Widget primaryButton = IrmaButton(
+        key: const Key('primary'),
         size: IrmaButtonSize.large,
         minWidth: buttonWidth,
         onPressed: onPrimaryPressed,
