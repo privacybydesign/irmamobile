@@ -239,7 +239,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   void _startSession(SessionPointer sessionPointer) {
     if (sessionPointer.wizard != null) {
       ScannerScreen.startIssueWizard(navigator, sessionPointer);
-    } else {
+    } else if (sessionPointer is IrmaQRSessionPointer) {
       ScannerScreen.startSessionAndNavigate(_navigatorKey.currentState, sessionPointer);
     }
   }

@@ -4,7 +4,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/issue_wizard.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
@@ -15,6 +14,7 @@ import 'package:irmamobile/src/screens/session/session.dart';
 import 'package:irmamobile/src/screens/session/session_screen.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
+import 'package:irmamobile/src/widgets/irma_repository_provider.dart';
 
 class ScannerScreen extends StatelessWidget {
   static const routeName = "/scanner";
@@ -31,19 +31,17 @@ class ScannerScreen extends StatelessWidget {
     HapticFeedback.vibrate();
     if (sessionPointer.wizard != null) {
       startIssueWizard(Navigator.of(context), sessionPointer);
-    } else {
+    } else if (sessionPointer is IrmaQRSessionPointer) {
       startSessionAndNavigate(Navigator.of(context), sessionPointer);
+    } else {
+      throw UnsupportedError('unknown session pointer type');
     }
   }
 
   static Future<void> startIssueWizard(NavigatorState navigator, SessionPointer sessionPointer) async {
-    final repo = IrmaRepository.get();
+    final repo = IrmaRepositoryProvider.of(navigator.context);
     try {
-      sessionPointer.validate(
-        wizardActive: await repo.getIssueWizardActive().first,
-        developerMode: await repo.getDeveloperMode().first,
-        irmaConfiguration: await repo.getIrmaConfiguration().first,
-      );
+      sessionPointer.validate(irmaRepository: repo);
     } catch (e) {
       navigator.pushAndRemoveUntil(
         MaterialPageRoute(
@@ -57,13 +55,13 @@ class ScannerScreen extends StatelessWidget {
       return;
     }
 
-    IrmaRepository.get().dispatch(
+    repo.dispatch(
       GetIssueWizardContentsEvent(id: sessionPointer.wizard),
       isBridgedEvent: true,
     );
 
     int sessionID;
-    if (sessionPointer.irmaqr != null) {
+    if (sessionPointer is IrmaQRSessionPointer) {
       sessionID = await startSessionAndNavigate(navigator, sessionPointer);
     }
 
@@ -76,8 +74,8 @@ class ScannerScreen extends StatelessWidget {
   }
 
   // TODO: Make this function private again and / or split it out to a utility function
-  static Future<int> startSessionAndNavigate(NavigatorState navigator, SessionPointer sessionPointer) async {
-    final repo = IrmaRepository.get();
+  static Future<int> startSessionAndNavigate(NavigatorState navigator, IrmaQRSessionPointer sessionPointer) async {
+    final repo = IrmaRepositoryProvider.of(navigator.context);
     final event = NewSessionEvent(
       request: sessionPointer,
       inAppCredential: await repo.getInAppCredential(),

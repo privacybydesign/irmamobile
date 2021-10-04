@@ -6,22 +6,41 @@ part of 'session.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+Map<String, dynamic> _$IrmaQRToJson(IrmaQR instance) => <String, dynamic>{
+      'u': instance.u,
+      'irmaqr': instance.irmaqr,
+    };
+
 SessionPointer _$SessionPointerFromJson(Map<String, dynamic> json) {
   return SessionPointer(
-    u: json['u'] as String?,
-    irmaqr: json['irmaqr'] as String?,
+    wizard: json['wizard'] as String?,
     continueOnSecondDevice: json['continueOnSecondDevice'] as bool? ?? false,
     returnURL: json['returnURL'] as String?,
-    wizard: json['wizard'] as String?,
   );
 }
 
 Map<String, dynamic> _$SessionPointerToJson(SessionPointer instance) => <String, dynamic>{
-      'u': instance.u,
-      'irmaqr': instance.irmaqr,
       'wizard': instance.wizard,
       'continueOnSecondDevice': instance.continueOnSecondDevice,
       'returnURL': instance.returnURL,
+    };
+
+IrmaQRSessionPointer _$IrmaQRSessionPointerFromJson(Map<String, dynamic> json) {
+  return IrmaQRSessionPointer(
+    u: json['u'] as String,
+    irmaqr: json['irmaqr'] as String,
+    wizard: json['wizard'] as String?,
+    continueOnSecondDevice: json['continueOnSecondDevice'] as bool? ?? false,
+    returnURL: json['returnURL'] as String?,
+  );
+}
+
+Map<String, dynamic> _$IrmaQRSessionPointerToJson(IrmaQRSessionPointer instance) => <String, dynamic>{
+      'wizard': instance.wizard,
+      'continueOnSecondDevice': instance.continueOnSecondDevice,
+      'returnURL': instance.returnURL,
+      'u': instance.u,
+      'irmaqr': instance.irmaqr,
     };
 
 SessionError _$SessionErrorFromJson(Map<String, dynamic> json) {

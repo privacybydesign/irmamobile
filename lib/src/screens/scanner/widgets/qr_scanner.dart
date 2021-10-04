@@ -86,15 +86,10 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
     }
 
     // Decode QR and determine if it's valid
-    final repo = IrmaRepository.get();
     SessionPointer sessionPointer;
     try {
       sessionPointer = SessionPointer.fromString(qr);
-      sessionPointer.validate(
-        wizardActive: await repo.getIssueWizardActive().first,
-        developerMode: await repo.getDeveloperMode().first,
-        irmaConfiguration: await repo.getIrmaConfiguration().first,
-      );
+      sessionPointer.validate(irmaRepository: IrmaRepository.get());
     } catch (e) {
       sessionPointer = null; // trigger error message below
     }

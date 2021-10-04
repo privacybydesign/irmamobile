@@ -130,7 +130,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
       case "session":
         ScannerScreen.startSessionAndNavigate(
           Navigator.of(context),
-          SessionPointer(u: item.sessionURL, irmaqr: "redirect"),
+          IrmaQRSessionPointer(u: item.sessionURL, irmaqr: "redirect"),
         );
         break;
       case "website":

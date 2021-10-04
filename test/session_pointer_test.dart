@@ -13,7 +13,7 @@ void main() {
     ];
 
     for (final testCase in positiveTestCases) {
-      final pointer = SessionPointer.fromString(testCase);
+      final pointer = SessionPointer.fromString(testCase) as IrmaQRSessionPointer;
       expect(pointer.u, url);
       expect(pointer.irmaqr, irmaQr);
     }

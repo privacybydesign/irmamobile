@@ -1,6 +1,3 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:equatable/equatable.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:meta/meta.dart';
@@ -10,7 +7,7 @@ enum ValidationState { initial, valid, invalid }
 @immutable
 class EnrollmentState with EquatableMixin {
   // Pin and email values as submitted
-  final String pin;
+  final String? pin;
   final String email;
   final String languageCode;
 
@@ -26,13 +23,13 @@ class EnrollmentState with EquatableMixin {
   final bool pinMismatch;
   final bool isSubmitting;
   final bool submittingFailed;
-  final SessionError error;
+  final SessionError? error;
   final int retry;
 
   EnrollmentState({
     this.pin,
-    this.email = "",
-    this.languageCode = "nl",
+    this.email = '',
+    this.languageCode = 'nl',
     this.pinConfirmed = false,
     this.pinMismatch = false,
     this.emailValid = false,
@@ -46,19 +43,19 @@ class EnrollmentState with EquatableMixin {
   });
 
   EnrollmentState copyWith({
-    String pin,
-    String email,
-    String languageCode,
-    bool pinConfirmed,
-    bool pinMismatch,
-    bool emailValid,
-    bool emailSkipped,
-    bool showEmailValidation,
-    bool showPinValidation,
-    bool isSubmitting,
-    bool submittingFailed,
-    SessionError error,
-    int retry,
+    String? pin,
+    String? email,
+    String? languageCode,
+    bool? pinConfirmed,
+    bool? pinMismatch,
+    bool? emailValid,
+    bool? emailSkipped,
+    bool? showEmailValidation,
+    bool? showPinValidation,
+    bool? isSubmitting,
+    bool? submittingFailed,
+    SessionError? error,
+    int? retry,
   }) {
     return EnrollmentState(
       pin: pin ?? this.pin,
@@ -81,7 +78,7 @@ class EnrollmentState with EquatableMixin {
   String toString() {
     return '''EnrollmentState
      {
-        pin: ${pin == null ? null : '*' * pin.length},
+        pin: ${pin == null ? null : '*' * pin!.length},
         email: $email,
         languageCode: $languageCode,
         pinConfirmed: $pinConfirmed,
@@ -97,7 +94,7 @@ class EnrollmentState with EquatableMixin {
   }
 
   @override
-  List<Object> get props {
+  List<Object?> get props {
     return [
       pin,
       email,
