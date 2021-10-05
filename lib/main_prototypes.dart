@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 import 'package:irmamobile/app.dart';
 import 'package:irmamobile/src/data/irma_mock_bridge.dart';

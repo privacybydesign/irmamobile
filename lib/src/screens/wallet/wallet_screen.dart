@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -5,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/native_events.dart';
 import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
 import 'package:irmamobile/src/screens/debug/debug_screen.dart';
 import 'package:irmamobile/src/screens/help/help_screen.dart';
@@ -63,7 +65,7 @@ class _WalletScreenState extends State<_WalletScreen> {
   }
 
   void onNewCardAnimationShown() {
-    widget.bloc.dispatch(NewCardAnitmationShown());
+    widget.bloc.add(NewCardAnitmationShown());
   }
 
   @override
@@ -96,8 +98,12 @@ class _WalletScreenState extends State<_WalletScreen> {
           key: _scaffoldKey,
           appBar: IrmaAppBar(
             title: Text(FlutterI18n.translate(context, 'wallet.title')),
-            leadingIcon:
-                Icon(IrmaIcons.menu, semanticLabel: FlutterI18n.translate(context, "accessibility.menu"), size: 20.0),
+            leadingIcon: Icon(
+              IrmaIcons.menu,
+              semanticLabel: FlutterI18n.translate(context, "accessibility.menu"),
+              size: 20.0,
+              key: const Key('open_menu_icon'),
+            ),
             leadingAction: () {
               _scaffoldKey.currentState.openDrawer();
             },
@@ -113,6 +119,7 @@ class _WalletScreenState extends State<_WalletScreen> {
                   IrmaIcons.lock,
                   size: 20,
                   semanticLabel: FlutterI18n.translate(context, "wallet.lock"),
+                  key: const Key('menu_logout_icon'),
                 ),
                 onPressed: () {
                   IrmaRepository.get().lock();
@@ -123,6 +130,7 @@ class _WalletScreenState extends State<_WalletScreen> {
           drawer: WalletDrawer(),
           body: BlocBuilder<WalletBloc, walletblocstate.WalletState>(
             bloc: widget.bloc,
+            key: const Key('wallet_screen'),
             builder: (context, state) {
               if (state.credentials == null) {
                 return Container(height: 0);

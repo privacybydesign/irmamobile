@@ -1,6 +1,9 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/widgets/translated_text.dart';
 import 'package:irmamobile/src/widgets/action_feedback.dart';
+import 'package:irmamobile/src/widgets/translated_text.dart';
 
 class Success extends StatelessWidget {
   static const String routeName = 'change_pin/success';

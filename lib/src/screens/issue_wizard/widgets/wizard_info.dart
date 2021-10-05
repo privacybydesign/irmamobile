@@ -1,10 +1,13 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/issue_wizard.dart';
 import 'package:irmamobile/src/screens/issue_wizard/widgets/logo_banner_header.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/collapsible_helper.dart';
+import 'package:irmamobile/src/util/color_from_code.dart';
 import 'package:irmamobile/src/widgets/collapsible.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 import 'package:irmamobile/src/widgets/irma_markdown.dart';

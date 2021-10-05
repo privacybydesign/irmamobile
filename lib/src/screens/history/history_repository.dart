@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'dart:async';
 
 import 'package:collection/collection.dart';
@@ -45,7 +48,7 @@ class HistoryRepository {
   StreamSubscription _historyStateSubscription;
 
   HistoryRepository() {
-    _historyStateSubscription = repo.getEvents().scan<HistoryState>(HistoryState(), (prevState, event) {
+    _historyStateSubscription = Scan(repo.getEvents()).scan<HistoryState>(HistoryState(), (prevState, event) {
       if (event is LoadLogsEvent) {
         return prevState.copyWith(
           loading: true,

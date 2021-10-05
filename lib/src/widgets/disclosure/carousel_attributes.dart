@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/cupertino.dart';
 import 'package:irmamobile/src/models/attribute_value.dart';
 import 'package:irmamobile/src/models/attributes.dart';

@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -46,6 +49,7 @@ class IrmaDialog extends StatelessWidget {
                   children: <Widget>[
                     Container(
                       margin: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
+                      key: const Key('irma_dialog'),
                       child: ListView(
                         shrinkWrap: true,
                         addSemanticIndexes: false,
@@ -62,12 +66,14 @@ class IrmaDialog extends StatelessWidget {
                                     label: FlutterI18n.translate(context, "accessibility.alert"),
                                     child: Text(
                                       title,
+                                      key: const Key('irma_dialog_title'),
                                       style: IrmaTheme.of(context).textTheme.headline3,
                                     ),
                                   ),
                                   SizedBox(height: IrmaTheme.of(context).tinySpacing),
                                   Text(
                                     content,
+                                    key: const Key('irma_dialog_content'),
                                     style: IrmaTheme.of(context).textTheme.bodyText2,
                                   ),
                                   if (image != null) ...[

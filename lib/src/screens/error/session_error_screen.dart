@@ -1,11 +1,11 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/screens/error/blocked_screen.dart';
-import 'package:irmamobile/src/screens/error/session_expired_screen.dart';
-import 'package:irmamobile/src/sentry/sentry.dart';
-
-import 'error_screen.dart';
-import 'no_internet_screen.dart';
+import 'package:irmamobile/src/screens/error/error_screen.dart';
+import 'package:irmamobile/src/screens/error/no_internet_screen.dart';
 
 class SessionErrorScreen extends StatelessWidget {
   final SessionError error;
@@ -18,21 +18,20 @@ class SessionErrorScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // Handle internet errors separately
     if (error.errorType == 'transport') {
-      return NoInternetScreen(
-        onTapClose: onTapClose,
-        onTapRetry: onTapRetry,
-      );
+      return NoInternetScreen(onTapClose: onTapClose, onTapRetry: onTapRetry);
+    } else if (error.errorType == 'pairingRejected') {
+      return ErrorScreen(onTapClose: onTapClose, type: ErrorType.pairingRejected, reportable: false);
     } else if (error.remoteError != null && error.remoteError.errorName == "USER_NOT_FOUND") {
       return BlockedScreen();
     } else if (error.remoteError != null && error.remoteError.errorName == "SESSION_UNKNOWN") {
-      return SessionExpiredScreen(onTapClose: onTapClose);
+      return ErrorScreen(onTapClose: onTapClose, type: ErrorType.expired, reportable: false);
     } else if (error.remoteError != null && error.remoteError.errorName == "UNEXPECTED_REQUEST") {
-      return SessionExpiredScreen(onTapClose: onTapClose);
+      return ErrorScreen(onTapClose: onTapClose, type: ErrorType.expired, reportable: false);
     } else {
-      return GeneralErrorScreen(
-        errorText: error.toString(),
+      return ErrorScreen(
+        details: error.toString(),
+        reportable: error.reportable,
         onTapClose: onTapClose,
-        onTapReport: () => reportError(error, null, userInitiated: true),
       );
     }
   }

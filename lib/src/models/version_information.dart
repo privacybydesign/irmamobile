@@ -1,17 +1,13 @@
-import 'package:flutter/foundation.dart';
-
 class VersionInformation {
-  int currentVersion;
-  int requiredVersion;
-  int availableVersion;
+  final int currentVersion;
+  final int requiredVersion;
+  final int availableVersion;
 
   VersionInformation({
-    @required this.availableVersion,
-    @required this.requiredVersion,
-    @required this.currentVersion,
-  })  : assert(availableVersion != null),
-        assert(requiredVersion != null),
-        assert(currentVersion != null);
+    required this.availableVersion,
+    required this.requiredVersion,
+    required this.currentVersion,
+  });
 
   bool updateAvailable() {
     return availableVersion > currentVersion;

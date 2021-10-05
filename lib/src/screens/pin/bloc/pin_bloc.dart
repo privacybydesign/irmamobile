@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
@@ -13,22 +16,21 @@ class PinBloc extends Bloc<PinEvent, PinState> {
   CountdownTimer _pinBlockedCountdown;
   final BehaviorSubject<Duration> _pinBlockedFor = BehaviorSubject<Duration>();
 
-  PinBloc() {
+  PinBloc() : super(PinBloc._initialState) {
     _lockedStreamSubscription = IrmaRepository.get().getLocked().listen((isLocked) {
       if (isLocked) {
-        dispatch(Locked());
+        add(Locked());
       }
     });
   }
 
   @override
-  void dispose() {
+  Future<void> close() async {
     _lockedStreamSubscription.cancel();
-    super.dispose();
+    return super.close();
   }
 
-  @override
-  PinState get initialState => PinState(
+  static PinState get _initialState => PinState(
         authenticated: false,
         authenticateInProgress: false,
         pinInvalid: false,

@@ -1,8 +1,12 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:collection/collection.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
+import 'package:irmamobile/src/models/return_url.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
@@ -10,15 +14,10 @@ import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:quiver/iterables.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:stream_transform/stream_transform.dart';
-import 'package:url_launcher/url_launcher.dart';
 
+// Typedefs are still experimental in Flutter. Therefore, we use inheritance for now.
 class SessionStates extends UnmodifiableMapView<int, SessionState> {
   SessionStates(Map<int, SessionState> map) : super(map);
-
-  @override
-  SessionState operator [](Object sessionID) {
-    return super[sessionID] ?? SessionState(sessionID: sessionID as int);
-  }
 }
 
 class SessionRepository {
@@ -32,43 +31,51 @@ class SessionRepository {
     // The scan method uses the initialValue only to accumulate on.
     // We have to add it to the stream ourselves.
     _sessionStatesSubject.add(initialValue);
-    sessionEventStream.scan<SessionStates>(initialValue, (prevStates, event) async {
-      // Calculate the nextState from the previousState by handling the event
-      final prevState = prevStates[event.sessionID];
-      final nextState = await _eventHandler(prevState, event);
+    Scan(sessionEventStream).scan<SessionStates>(initialValue, (prevStates, event) async {
+      // Calculate the nextState from the previousState by handling the event.
+      // In case a new session is created, we create a new session state.
+      SessionState nextState;
+      if (prevStates.containsKey(event.sessionID)) {
+        final prevState = prevStates[event.sessionID];
+        nextState = await _eventHandler(prevState, event);
+      } else if (event is NewSessionEvent) {
+        nextState = _newSessionState(event);
+      }
 
       // Copy the prevStates into a new map, and add the next state
       final nextStates = Map.of(prevStates);
-      nextStates[event.sessionID] = nextState;
+      if (nextState != null) nextStates[event.sessionID] = nextState;
+
       return SessionStates(nextStates);
     }).pipe(_sessionStatesSubject);
+  }
+
+  SessionState _newSessionState(NewSessionEvent event) {
+    // Set the url as fallback serverName in case session is canceled before the translated serverName is known.
+    RequestorInfo serverName;
+    try {
+      final url = Uri.parse(event.request.u).host;
+      serverName = RequestorInfo(name: TranslatedValue.fromString(url));
+    } catch (_) {
+      // Error with url will be resolved by bridge, so we don't have to act on that.
+      serverName = null;
+    }
+    return SessionState(
+      sessionID: event.sessionID,
+      clientReturnURL: ReturnURL.parse(event.request.returnURL),
+      continueOnSecondDevice: event.request.continueOnSecondDevice,
+      inAppCredential: event.inAppCredential,
+      status: SessionStatus.initialized,
+      serverName: serverName,
+      sessionType: event.request.irmaqr,
+    );
   }
 
   Future<SessionState> _eventHandler(SessionState prevState, SessionEvent event) async {
     final irmaConfiguration = await repo.getIrmaConfiguration().first;
     final credentials = await repo.getCredentials().first;
 
-    if (event is NewSessionEvent) {
-      // Set the url as fallback serverName in case session is canceled before the translated serverName is known.
-      RequestorInfo serverName;
-      try {
-        final url = Uri.parse(event.request.u).host;
-        serverName = RequestorInfo(name: TranslatedValue({TranslatedValue.defaultFallbackLang: url}));
-      } catch (_) {
-        // Error with url will be resolved by bridge, so we don't have to act on that.
-        serverName = null;
-      }
-      return prevState.copyWith(
-        clientReturnURL: await _isValidClientReturnUrl(event.request.returnURL)
-            ? event.request.returnURL
-            : prevState.clientReturnURL,
-        continueOnSecondDevice: event.request.continueOnSecondDevice,
-        inAppCredential: event.inAppCredential,
-        status: SessionStatus.initialized,
-        serverName: serverName,
-        sessionType: event.request.irmaqr,
-      );
-    } else if (event is FailureSessionEvent) {
+    if (event is FailureSessionEvent) {
       return prevState.copyWith(
         status: SessionStatus.error,
         error: event.error,
@@ -79,10 +86,19 @@ class SessionRepository {
       );
     } else if (event is ClientReturnURLSetSessionEvent) {
       return prevState.copyWith(
-        clientReturnURL:
-            await _isValidClientReturnUrl(event.clientReturnURL) ? event.clientReturnURL : prevState.clientReturnURL,
+        clientReturnURL: ReturnURL.parse(event.clientReturnURL),
+      );
+    } else if (event is PairingRequiredSessionEvent) {
+      return prevState.copyWith(
+        status: SessionStatus.pairing,
+        pairingCode: event.pairingCode,
       );
     } else if (event is RequestIssuancePermissionSessionEvent) {
+      try {
+        _validateCandidates(event.disclosuresCandidates);
+      } on SessionError catch (e) {
+        return prevState.copyWith(status: SessionStatus.error, error: e);
+      }
       final condiscon = _processCandidates(event.disclosuresCandidates, prevState, irmaConfiguration, credentials);
       // All discons must have an option to choose from. Otherwise the session can never be finished.
       final canBeFinished = condiscon.every((discon) => discon.isNotEmpty);
@@ -109,6 +125,11 @@ class SessionRepository {
             .toList(),
       );
     } else if (event is RequestVerificationPermissionSessionEvent) {
+      try {
+        _validateCandidates(event.disclosuresCandidates);
+      } on SessionError catch (e) {
+        return prevState.copyWith(status: SessionStatus.error, error: e);
+      }
       final condiscon = _processCandidates(event.disclosuresCandidates, prevState, irmaConfiguration, credentials);
       // All discons must have an option to choose from. Otherwise the session can never be finished.
       final canBeFinished = condiscon.every((discon) => discon.isNotEmpty);
@@ -154,6 +175,24 @@ class SessionRepository {
     }
 
     return prevState;
+  }
+
+  void _validateCandidates(List<List<List<DisclosureCandidate>>> candidates) {
+    for (final discon in candidates) {
+      for (final con in discon) {
+        for (final cand in con) {
+          // We support cand.type consisting of four dot-separated parts; three parts is forbidden here;
+          // any other amount of parts is forbidden by irmago before we end up here
+          if (cand.type.split('.').length == 3) {
+            throw SessionError(
+              errorType: 'notSupported',
+              info: 'non-attribute disclosures are not supported',
+              wrappedError: '"${cand.type}" consists of three parts; four expected',
+            );
+          }
+        }
+      }
+    }
   }
 
   ConDisCon<Attribute> _processCandidates(
@@ -221,16 +260,12 @@ class SessionRepository {
 
   int _sortIndex(int max, MapEntry<int, Con<Attribute>> con) {
     var i = con.key;
-    if (con.value.any((attr) => !attr.choosable && (attr.credentialInfo.credentialType.issueUrl?.isEmpty ?? true))) {
+    if (con.value.any((attr) => !attr.choosable && attr.credentialInfo.credentialType.issueUrl.isEmpty)) {
       i += 2 * max;
     } else if (con.value.any((attr) => !attr.choosable)) {
       i += max;
     }
     return i;
-  }
-
-  Future<bool> _isValidClientReturnUrl(String clientReturnUrl) async {
-    return clientReturnUrl != null && await canLaunch(clientReturnUrl);
   }
 
   Stream<SessionState> getSessionState(int sessionID) {

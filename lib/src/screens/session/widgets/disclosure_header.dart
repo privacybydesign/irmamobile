@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
@@ -47,7 +50,12 @@ class DisclosureHeader extends StatelessWidget {
     );
 
     // Calculate whether the badge check icon and the first word fit on one line.
-    final tp = TextPainter(text: firstWordSpan, textDirection: TextDirection.ltr, maxLines: 1);
+    final tp = TextPainter(
+      text: firstWordSpan,
+      textDirection: TextDirection.ltr,
+      maxLines: 1,
+      textScaleFactor: MediaQuery.of(context).textScaleFactor,
+    );
     // Flutter does not know the size of the icon yet, so we use a placeholder of the same size.
     tp.setPlaceholderDimensions([
       PlaceholderDimensions(
@@ -71,8 +79,9 @@ class DisclosureHeader extends StatelessWidget {
               TextSpan(text: verifiedName),
             ]
           : [
+              // The Text.rich that uses this TextSpan determines the textScaleFactor, so we should prevent additional scaling.
               WidgetSpan(
-                child: Text.rich(firstWordSpan, softWrap: false),
+                child: Text.rich(firstWordSpan, softWrap: false, textScaleFactor: 1.0),
               ),
               TextSpan(text: otherWords),
             ],
@@ -83,13 +92,13 @@ class DisclosureHeader extends StatelessWidget {
     String textKey;
     if (session.satisfiable) {
       final sessionType = session.isSignatureSession ? 'signing' : 'disclosure';
-      textKey = 'disclosure.$sessionType${session.isReturnPhoneNumber ? '_call' : ''}_header';
+      textKey = 'disclosure.$sessionType${session.clientReturnURL?.isPhoneNumber ?? false ? '_call' : ''}_header';
     } else {
       textKey = 'disclosure.unsatisfiable_header';
     }
 
     final serverName = session.serverName.name.translate(FlutterI18n.currentLocale(context).languageCode);
-    final phoneNumber = session.isReturnPhoneNumber ? session.clientReturnURL.substring(4).split(',').first : '';
+    final phoneNumber = session.clientReturnURL?.phoneNumber ?? '';
 
     return LayoutBuilder(
       builder: (context, constraints) => TranslatedRichText(

@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 
 // Can be removed once https://github.com/flutter/flutter/pull/61662 arrives in stable.

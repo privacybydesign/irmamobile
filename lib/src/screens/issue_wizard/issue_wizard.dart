@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'dart:async';
 import 'dart:io';
 
@@ -132,8 +135,8 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
         break;
       case "website":
         item.inApp ?? true
-            ? _repo.openURL(context, getTranslation(context, item.url))
-            : _repo.openURLinExternalBrowser(context, getTranslation(context, item.url));
+            ? _repo.openURL(getTranslation(context, item.url))
+            : _repo.openURLExternally(getTranslation(context, item.url));
         break;
     }
   }

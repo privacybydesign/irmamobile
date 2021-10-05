@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -10,7 +13,7 @@ class WalletButton extends StatefulWidget {
   final String accessibleName;
   final VoidCallback clickStreamSink;
 
-  const WalletButton({this.svgFile, this.accessibleName, this.clickStreamSink});
+  const WalletButton({this.svgFile, this.accessibleName, this.clickStreamSink, Key key}) : super(key: key);
 
   @override
   _WalletButtonState createState() => _WalletButtonState();

@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -37,7 +40,7 @@ class _IntroductionState extends State<Introduction> {
   Widget build(BuildContext context) {
     return Scaffold(
       // Prevent overflow when returning from pin input
-      resizeToAvoidBottomPadding: false,
+      resizeToAvoidBottomInset: false,
 
       body: Container(
         padding: EdgeInsets.only(top: IrmaTheme.of(context).largeSpacing),
@@ -54,6 +57,7 @@ class _IntroductionState extends State<Introduction> {
                     excludeFromSemantics: true, width: 280, height: 245),
                 titleContent: FlutterI18n.translate(context, 'enrollment.introduction.screen1.title'),
                 textContent: FlutterI18n.translate(context, 'enrollment.introduction.screen1.text'),
+                key: const Key('enrollment_p1'),
                 onNextScreen: () =>
                     _controller.nextPage(curve: Curves.ease, duration: const Duration(milliseconds: 800)),
               ),
@@ -62,6 +66,7 @@ class _IntroductionState extends State<Introduction> {
                     excludeFromSemantics: true, width: 280, height: 231),
                 titleContent: FlutterI18n.translate(context, 'enrollment.introduction.screen2.title'),
                 textContent: FlutterI18n.translate(context, 'enrollment.introduction.screen2.text'),
+                key: const Key('enrollment_p2'),
                 onNextScreen: () =>
                     _controller.nextPage(curve: Curves.ease, duration: const Duration(milliseconds: 800)),
               ),
@@ -72,6 +77,7 @@ class _IntroductionState extends State<Introduction> {
                 textContent: FlutterI18n.translate(context, 'enrollment.introduction.screen3.text'),
                 linkText: 'enrollment.introduction.screen3.privacy.text',
                 linkUrl: 'enrollment.introduction.screen3.privacy.url',
+                key: const Key('enrollment_p3'),
                 onNextScreen: () => {},
                 onPressButton: () => Navigator.of(context).pushNamed(ChoosePin.routeName),
                 finalScreen: true,
@@ -125,6 +131,7 @@ class Walkthrough extends StatelessWidget {
                     titleContent,
                     style: IrmaTheme.of(context).textTheme.display2,
                     textAlign: TextAlign.center,
+                    key: const Key('intro_heading'),
                   ),
                 ),
                 Container(
@@ -135,6 +142,7 @@ class Walkthrough extends StatelessWidget {
                     textContent,
                     style: IrmaTheme.of(context).textTheme.body1,
                     textAlign: TextAlign.center,
+                    key: const Key('intro_body'),
                   ),
                 ),
                 if (linkText != null)
@@ -142,11 +150,12 @@ class Walkthrough extends StatelessWidget {
                     padding: EdgeInsets.only(top: IrmaTheme.of(context).defaultSpacing),
                     alignment: Alignment.center,
                     constraints: const BoxConstraints(maxWidth: 288.0),
+                    key: const Key('intro_body_link'),
                     child: Link(
                       label: FlutterI18n.translate(context, linkText),
                       onTap: () {
                         try {
-                          IrmaRepository.get().openURL(context, FlutterI18n.translate(context, linkUrl));
+                          IrmaRepository.get().openURL(FlutterI18n.translate(context, linkUrl));
                         } on PlatformException catch (e, stacktrace) {
                           reportError(e,
                               stacktrace); //TODO: reconsider whether this should be handled this way, or is better of with an error screens
@@ -164,10 +173,12 @@ class Walkthrough extends StatelessWidget {
             color: finalScreen ? IrmaTheme.of(context).backgroundBlue : null,
             child: finalScreen
                 ? IrmaButton(
+                    key: const Key('next'),
                     label: 'enrollment.introduction.button_text',
                     onPressed: onPressButton,
                   )
                 : IconButton(
+                    key: const Key('next'),
                     onPressed: onNextScreen,
                     icon: Icon(IrmaIcons.chevronDown,
                         semanticLabel: FlutterI18n.translate(context, "accessibility.next"),

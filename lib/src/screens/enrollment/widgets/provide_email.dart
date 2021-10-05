@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -48,6 +51,7 @@ class _ProvideEmailState extends State<ProvideEmail> {
       appBar: IrmaAppBar(
         title: Text(
           FlutterI18n.translate(context, 'enrollment.provide_email.title'),
+          key: const Key('enrollment_provide_email_title'),
         ),
         leadingAction: () => widget.cancelAndNavigate(context),
         leadingTooltip: MaterialLocalizations.of(context).backButtonTooltip,
@@ -70,6 +74,7 @@ class _ProvideEmailState extends State<ProvideEmail> {
                   ),
                   child: IntrinsicHeight(
                     child: Column(
+                      key: const Key('enrollment_provide_email'),
                       children: [
                         Padding(
                           padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
@@ -82,6 +87,7 @@ class _ProvideEmailState extends State<ProvideEmail> {
                               ),
                               SizedBox(height: IrmaTheme.of(context).defaultSpacing),
                               TextField(
+                                key: const Key('enrollment_provide_email_textfield'),
                                 controller: _textEditingController,
                                 autofocus: true,
                                 autofillHints: const [AutofillHints.email],

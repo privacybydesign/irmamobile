@@ -6,10 +6,10 @@ part 'client_preferences.g.dart';
 
 @JsonSerializable()
 class ClientPreferencesEvent extends Event {
-  ClientPreferencesEvent({this.clientPreferences});
+  ClientPreferencesEvent({required this.clientPreferences});
 
   @JsonKey(name: 'Preferences')
-  ClientPreferences clientPreferences;
+  final ClientPreferences clientPreferences;
 
   factory ClientPreferencesEvent.fromJson(Map<String, dynamic> json) => _$ClientPreferencesEventFromJson(json);
   Map<String, dynamic> toJson() => _$ClientPreferencesEventToJson(this);
@@ -17,10 +17,10 @@ class ClientPreferencesEvent extends Event {
 
 @JsonSerializable()
 class ClientPreferences {
-  ClientPreferences({this.developerMode});
+  ClientPreferences({required this.developerMode});
 
   @JsonKey(name: 'DeveloperMode')
-  bool developerMode;
+  final bool developerMode;
 
   factory ClientPreferences.fromJson(Map<String, dynamic> json) => _$ClientPreferencesFromJson(json);
   Map<String, dynamic> toJson() => _$ClientPreferencesToJson(this);

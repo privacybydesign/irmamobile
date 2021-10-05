@@ -1,3 +1,5 @@
+// This code is not null safe yet.
+// @dart=2.11
 // Based on flutter source of their tooltip.
 // Copyright 2015 The Chromium Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
@@ -136,7 +138,7 @@ class _TooltipState extends State<ProgrammableTooltip> with WidgetsBindingObserv
   }
 
   OverlayEntry _buildOverlayEntry() {
-    if (context == null) {
+    if (!mounted) {
       return null;
     }
     final RenderBox box = context.findRenderObject() as RenderBox;

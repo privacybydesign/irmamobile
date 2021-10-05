@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -25,6 +28,7 @@ class ChoosePin extends StatelessWidget {
       appBar: IrmaAppBar(
         title: Text(
           FlutterI18n.translate(context, 'enrollment.choose_pin.title'),
+          key: const Key('enrollment_choose_pin_title'),
         ),
         leadingAction: () => cancelAndNavigate(context),
         leadingTooltip: MaterialLocalizations.of(context).backButtonTooltip,
@@ -33,6 +37,7 @@ class ChoosePin extends StatelessWidget {
         builder: (context, state) {
           return SingleChildScrollView(
             child: Column(
+              key: const Key('enrollment_choose_pin'),
               children: [
                 SizedBox(height: IrmaTheme.of(context).hugeSpacing),
                 Text(

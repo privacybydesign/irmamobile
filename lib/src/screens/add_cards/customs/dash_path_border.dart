@@ -1,3 +1,5 @@
+// This code is not null safe yet.
+// @dart=2.11
 // DashPathBorder from: https://github.com/flutter/flutter/issues/4858#issuecomment-472716207
 
 import 'package:flutter/material.dart';

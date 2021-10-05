@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -45,7 +48,7 @@ class _SubmitState extends State<Submit> {
         noLeading: true,
       ),
       body: BlocListener<EnrollmentBloc, EnrollmentState>(
-          condition: (previous, current) {
+          listenWhen: (previous, current) {
             return previous.isSubmitting && !current.isSubmitting;
           },
           listener: (context, state) {

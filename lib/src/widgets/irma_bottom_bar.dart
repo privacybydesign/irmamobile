@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -38,6 +41,7 @@ class IrmaBottomBar extends StatelessWidget {
       buttonWidth = constraints.maxWidth / 2 - 2 * IrmaTheme.of(context).defaultSpacing;
 
       btns.add(IrmaTextButton(
+        key: const Key('secondary'),
         size: IrmaButtonSize.large,
         minWidth: buttonWidth,
         onPressed: onSecondaryPressed,
@@ -47,6 +51,7 @@ class IrmaBottomBar extends StatelessWidget {
 
     if (primaryButtonLabel != null) {
       Widget primaryButton = IrmaButton(
+        key: const Key('primary'),
         size: IrmaButtonSize.large,
         minWidth: buttonWidth,
         onPressed: onPrimaryPressed,

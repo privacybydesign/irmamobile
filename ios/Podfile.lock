@@ -4,13 +4,24 @@ PODS:
   - flutter_jailbreak_detection (1.0.0):
     - DTTJailbreakDetection
     - Flutter
+  - flutter_privacy_screen (0.0.1):
+    - Flutter
   - MTBBarcodeScanner (5.0.11)
   - package_info (0.0.1):
     - Flutter
-  - qr_code_scanner (0.0.2):
+  - package_info_plus (0.4.5):
+    - Flutter
+  - qr_code_scanner (0.2.0):
     - Flutter
     - MTBBarcodeScanner
-  - share (0.5.2):
+  - Sentry (7.2.8):
+    - Sentry/Core (= 7.2.8)
+  - Sentry/Core (7.2.8)
+  - sentry_flutter (0.0.1):
+    - Flutter
+    - FlutterMacOS
+    - Sentry (~> 7.2.7)
+  - share (0.0.1):
     - Flutter
   - shared_preferences (0.0.1):
     - Flutter
@@ -20,8 +31,11 @@ PODS:
 DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_jailbreak_detection (from `.symlinks/plugins/flutter_jailbreak_detection/ios`)
+  - flutter_privacy_screen (from `.symlinks/plugins/flutter_privacy_screen/ios`)
   - package_info (from `.symlinks/plugins/package_info/ios`)
+  - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - qr_code_scanner (from `.symlinks/plugins/qr_code_scanner/ios`)
+  - sentry_flutter (from `.symlinks/plugins/sentry_flutter/ios`)
   - share (from `.symlinks/plugins/share/ios`)
   - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
   - url_launcher (from `.symlinks/plugins/url_launcher/ios`)
@@ -30,16 +44,23 @@ SPEC REPOS:
   trunk:
     - DTTJailbreakDetection
     - MTBBarcodeScanner
+    - Sentry
 
 EXTERNAL SOURCES:
   Flutter:
     :path: Flutter
   flutter_jailbreak_detection:
     :path: ".symlinks/plugins/flutter_jailbreak_detection/ios"
+  flutter_privacy_screen:
+    :path: ".symlinks/plugins/flutter_privacy_screen/ios"
   package_info:
     :path: ".symlinks/plugins/package_info/ios"
+  package_info_plus:
+    :path: ".symlinks/plugins/package_info_plus/ios"
   qr_code_scanner:
     :path: ".symlinks/plugins/qr_code_scanner/ios"
+  sentry_flutter:
+    :path: ".symlinks/plugins/sentry_flutter/ios"
   share:
     :path: ".symlinks/plugins/share/ios"
   shared_preferences:
@@ -49,15 +70,19 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   DTTJailbreakDetection: 5e356c5badc17995f65a83ed9483f787a0057b71
-  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
   flutter_jailbreak_detection: f6c01e4bc73641c6b69c5112e50301240601abb4
+  flutter_privacy_screen: 60e2b67bb00f0bba6ccfbdf8c5ad353ef928fb68
   MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
-  package_info: 48b108e75b8802c2d5e126f208ef540561c98aef
-  qr_code_scanner: 16107718bdad7d708cdf6a5eacdca24b56cdf471
-  share: bae0a282aab4483288913fc4dc0b935d4b491f2e
-  shared_preferences: 430726339841afefe5142b9c1f50cb6bd7793e01
-  url_launcher: a1c0cc845906122c4784c542523d8cacbded5626
+  package_info: 873975fc26034f0b863a300ad47e7f1ac6c7ec62
+  package_info_plus: 6c92f08e1f853dc01228d6f553146438dafcd14e
+  qr_code_scanner: bb67d64904c3b9658ada8c402e8b4d406d5d796e
+  Sentry: f315ca2086f72f825b1b2e0cdebe81b44131cbd2
+  sentry_flutter: 28e1e38fe797d3e5d766c596324834fed599bc0f
+  share: 0b2c3e82132f5888bccca3351c504d0003b3b410
+  shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
+  url_launcher: 6fef411d543ceb26efce54b05a0a40bfd74cbbef
 
 PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
 
-COCOAPODS: 1.9.1
+COCOAPODS: 1.10.1

@@ -1,7 +1,9 @@
-import 'package:equatable/equatable.dart';
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 
-class IrmaThemeData extends Equatable {
+class IrmaThemeData {
   static const double _spaceBase = 16.0;
   @Deprecated(
       "Move to tinySpacing, smallSpacing, defaultSpacing or largeSpacing, don't use local divisions/multiplications")

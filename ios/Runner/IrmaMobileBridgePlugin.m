@@ -7,6 +7,7 @@
   NSObject<FlutterPluginRegistrar>* registrar;
   FlutterMethodChannel* channel;
   NSString* initialURL;
+  BOOL appReady;
 }
 
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
@@ -22,6 +23,7 @@
   if (self = [super init]) {
     registrar = r;
     channel = c;
+    appReady = false;
   }
 
   NSString* bundlePath = NSBundle.mainBundle.bundlePath;
@@ -43,11 +45,14 @@
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
   [self debugLog:[NSString stringWithFormat:@"handling %@", call.method]];
-  
+
   if([call.method isEqualToString:@"AppReadyEvent"]) {
-    [channel invokeMethod:@"HandleURLEvent" arguments:[NSString stringWithFormat:@"{\"isInitialURL\": true, \"url\": \"%@\"}", initialURL]];
+    appReady = true;
+    if (initialURL != nil) {
+      [channel invokeMethod:@"HandleURLEvent" arguments:[NSString stringWithFormat:@"{\"isInitialURL\": true, \"url\": \"%@\"}", initialURL]];
+    }
   }
-  
+
   IrmagobridgeDispatchFromNative(call.method, (NSString*)call.arguments);
   result(nil);
 }
@@ -67,23 +72,34 @@
 - (BOOL)application:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
   NSURL *url = (NSURL *)launchOptions[UIApplicationLaunchOptionsURLKey];
-  initialURL = [url absoluteString];
+  if (url != nil) {
+    initialURL = [url absoluteString];
+  }
   return YES;
 }
 
 - (BOOL)application:(UIApplication *)application
             openURL:(NSURL *)url
             options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options {
-  [channel invokeMethod:@"HandleURLEvent" arguments:[NSString stringWithFormat:@"{\"url\": \"%@\"}", url]];
+  NSString *urlStr = [url absoluteString];
+  if (appReady) {
+    [channel invokeMethod:@"HandleURLEvent" arguments:[NSString stringWithFormat:@"{\"url\": \"%@\"}", urlStr]];
+  } else {
+    initialURL = urlStr;
+  }
   return YES;
 }
 
 - (BOOL)application:(UIApplication *)application
     continueUserActivity:(NSUserActivity *)userActivity
       restorationHandler:(void (^)(NSArray *_Nullable))restorationHandler {
-  if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb]) {
+  if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb] && userActivity.webpageURL != nil) {
     NSString *url = [userActivity.webpageURL absoluteString];
-    [channel invokeMethod:@"HandleURLEvent" arguments:[NSString stringWithFormat:@"{\"url\": \"%@\"}", url]];
+    if (appReady) {
+      [channel invokeMethod:@"HandleURLEvent" arguments:[NSString stringWithFormat:@"{\"url\": \"%@\"}", url]];
+    } else {
+      initialURL = url;
+    }
     return YES;
   }
   return NO;

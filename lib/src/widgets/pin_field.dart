@@ -1,9 +1,13 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/pin_box.dart';
 
 import 'irma_button.dart';
 
@@ -181,49 +185,23 @@ class _PinFieldState extends State<PinField> {
   // PIN boxes for short pins
   Widget _buildPinBoxes() {
     final theme = IrmaTheme.of(context);
-    final bool complete = value.length == widget.maxLength;
+    final bool completed = value.length == widget.maxLength;
 
     final boxes = List<Widget>.generate(widget.maxLength, (i) {
       String char = i < value.length ? value[i] : '';
       final bool filled = char != '';
 
-      final hasBorder = i > value.length || !widget.enabled;
+      final highlightBorder = i == value.length && widget.enabled;
       if (obscureText && filled) {
         char = '●';
       }
 
-      Color setBorderColor() {
-        if (hasBorder) {
-          // empty boxes that are not in focus
-          return theme.grayscale60;
-        } else if (hasBorder || filled) {
-          return theme.grayscale40; // filled boxes
-        } else {
-          // the box that is currently in focus
-          return theme.primaryBlue;
-        }
-      }
-
-      return AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+      return PinBox(
         margin: EdgeInsets.only(right: i == widget.maxLength - 1 ? 0 : theme.smallSpacing),
-        width: 30.0,
-        height: 40.0,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(theme.tinySpacing)),
-            border: Border.all(
-              color: setBorderColor(),
-              width: filled || hasBorder ? 1 : 2,
-            ),
-            color: widget.enabled ? theme.grayscaleWhite : theme.disabled),
-        child: Text(
-          char,
-          style: Theme.of(context).textTheme.display2.copyWith(
-                height: 22.0 / 18.0,
-                color: complete ? theme.primaryBlue : theme.grayscale40,
-              ),
-        ),
+        char: char,
+        disabled: !widget.enabled,
+        completed: completed,
+        highlightBorder: highlightBorder,
       );
     });
 
@@ -279,6 +257,7 @@ class _PinFieldState extends State<PinField> {
                     duration: Duration(milliseconds: widget.longPin ? 200 : 0),
                     width: widget.longPin ? MediaQuery.of(context).size.width - 2 * theme.hugeSpacing : 0.1,
                     child: TextField(
+                      key: const Key('pin_field_key'),
                       controller: _textEditingController,
                       enabled: widget.enabled,
                       focusNode: focusNode,

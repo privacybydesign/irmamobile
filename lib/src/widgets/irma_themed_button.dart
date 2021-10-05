@@ -1,6 +1,10 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/theme/theme.dart';
 
 class IrmaThemedButton extends StatelessWidget {
   final String label;
@@ -20,7 +24,7 @@ class IrmaThemedButton extends StatelessWidget {
     @required this.onPressed,
     this.onPressedDisabled,
     @required this.color,
-    @required this.disabledColor,
+    this.disabledColor,
     @required this.textColor,
     @required this.shape,
     this.size,
@@ -52,7 +56,7 @@ class IrmaThemedButton extends StatelessWidget {
           onPressed: onPressed,
           elevation: 0.0,
           color: color,
-          disabledColor: disabledColor,
+          disabledColor: disabledColor ?? IrmaTheme.of(context).disabled,
           textColor: textColor,
           shape: shape,
           child: icon == null

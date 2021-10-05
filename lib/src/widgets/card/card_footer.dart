@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:intl/intl.dart';
@@ -71,7 +74,7 @@ class CardFooter extends StatelessWidget {
         ),
         Expanded(
           child: Text(
-            credentialInfo.issuer.name[lang],
+            credentialInfo.issuer.name.translate(lang),
             style: body1Theme.copyWith(fontSize: 12),
             textAlign: TextAlign.end,
             overflow: TextOverflow.ellipsis,
