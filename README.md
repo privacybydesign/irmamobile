@@ -45,10 +45,9 @@ attaching data to signed statements. These data can be relevant properties, such
       # TODO: Install via `brew install openjdk@11`, but how to replace system Java?
 
 * Install the Android SDK tools by going to the [Android developer download page](https://developer.android.com/studio/).
-  You may just want to install the Command line tools only if you are not going to use Android
-  Studio. If you are going to use it, you can use the initial setup process of Android Studio to
-  setup the SDK. Make sure to install the build-tools and platform for Android >= 28. In addition
+  Make sure to install the build-tools and platform for Android >= 28. In addition
   to the SDK platform, the following SDK tools need to be installed:
+  * Android SDK Command-line Tools
   * Android SDK Build-Tools
   * Android SDK Platform-Tools
   * NDK version 21.x (version 22.x is not supported by `gomobile` yet)
