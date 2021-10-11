@@ -179,7 +179,7 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
       .key;
 
   Widget _buildPresentCredential(Credential credential) {
-    final presentAttributes = credential.attributeInstances
+    final presentAttributes = credential.attributeList
         .where((presentAttr) => widget.unsatisfiableCredential.attributes
             .any((missingAttr) => missingAttr.attributeType.fullId == presentAttr.attributeType.fullId))
         .toList();

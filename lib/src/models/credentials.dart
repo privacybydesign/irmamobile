@@ -46,7 +46,7 @@ class Credential {
   bool get isKeyshareCredential =>
       attributes.keys.any((attributeType) => info.schemeManager.keyshareAttributes.contains(attributeType.fullId));
 
-  List<Attribute> get attributeInstances => attributes.entries
+  List<Attribute> get attributeList => attributes.entries
       .map((entry) => Attribute(
             credentialInfo: info,
             attributeType: entry.key,
