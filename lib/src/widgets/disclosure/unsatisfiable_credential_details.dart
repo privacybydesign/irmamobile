@@ -35,7 +35,7 @@ class UnsatisfiableCredentialDetails extends StatefulWidget {
   /// Handler that is called when obtain/refresh button is pressed.
   final Function() onIssue;
 
-  const UnsatisfiableCredentialDetails({
+  UnsatisfiableCredentialDetails({
     Key key,
     @required this.presentCredentials,
     @required this.unsatisfiableCredential,
@@ -43,17 +43,12 @@ class UnsatisfiableCredentialDetails extends StatefulWidget {
     this.onIssue,
   })  : assert(presentCredentials != null),
         assert(unsatisfiableCredential != null),
+        assert(!unsatisfiableCredential.satisfiable),
+        assert(presentCredentials.every((cred) => cred.info.fullId == unsatisfiableCredential.credentialInfo.fullId)),
         super(key: key);
 
   @override
-  State<StatefulWidget> createState() {
-    if (unsatisfiableCredential.satisfiable) {
-      throw Exception('Given unsatisfiable credential appears to be satisfiable');
-    } else if (presentCredentials.any((cred) => cred.info.fullId != unsatisfiableCredential.credentialInfo.fullId)) {
-      throw Exception('Present credentials should have the same type as the unsatisfiable once');
-    }
-    return _UnsatisfiableCredentialDetailsState();
-  }
+  State<StatefulWidget> createState() => _UnsatisfiableCredentialDetailsState();
 }
 
 class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredentialDetails> {
@@ -112,7 +107,6 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
 
   Widget _buildNotice() {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         Padding(
           padding: const EdgeInsets.fromLTRB(0, 8, 11, 4),
@@ -198,7 +192,7 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
           builder: (context, index, _) => Stack(
             alignment: AlignmentDirectional.topEnd,
             children: [
-              /// When the widget should have a fixed size we use an IndexedStack, since it always uses the size of the largest child.
+              // When the widget should have a fixed size we use an IndexedStack, since it always uses the size of the largest child.
               if (widget.fixedSize)
                 IndexedStack(
                   index: index,
@@ -207,10 +201,10 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
               else
                 _buildPresentCredential(widget.presentCredentials[index]),
 
-              /// If we have multiple cards, we add an indicator to show how many cards there are.
-              /// Above we disabled the gesture to cycle through all present cards from semantics.
-              /// Therefore, we also exclude the total amount of cards from semantics. We replace
-              /// it with a general comment that the visible card is just one among others.
+              // If we have multiple cards, we add an indicator to show how many cards there are.
+              // Above we disabled the gesture to cycle through all present cards from semantics.
+              // Therefore, we also exclude the total amount of cards from semantics. We replace
+              // it with a general comment that the visible card is just one among others.
               if (widget.presentCredentials.length > 1)
                 Semantics(
                   label: FlutterI18n.translate(context, 'disclosure.among_others'),
@@ -276,7 +270,7 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
             _buildPresentCredentials(),
           ],
           const Opacity(opacity: 0.5, child: TranslatedText('disclosure.requested_for')),
-          _buildCredentialSnippet(widget.unsatisfiableCredential.attributes, isPresent: false),
+          _buildCredentialSnippet(widget.unsatisfiableCredential.attributes),
           CarouselCredentialFooter(credential: widget.unsatisfiableCredential),
           if (widget.unsatisfiableCredential.obtainable) _buildGetButton(),
         ]),
