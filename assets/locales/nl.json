@@ -451,7 +451,7 @@
     "next": "volgende kiezen",
     "previous": "vorige kiezen",
     "not_present": "Deze gegevens zijn nog niet aan IRMA toegevoegd.",
-    "not_present_have_other": "De gevraagde gegevens komen niet overeen met de kaartjes die je al hebt.",
+    "not_present_have_other": "De gevraagde gegevens komen niet overeen met de gegevens die je al hebt.",
     "you_have": "Je hebt:",
     "requested_for": "Er wordt gevraagd om:",
     "card_count": "{i} van {total}",
