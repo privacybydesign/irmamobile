@@ -268,8 +268,8 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
           if (_showPresentCredentials) ...[
             const Opacity(opacity: 0.5, child: TranslatedText('disclosure.you_have')),
             _buildPresentCredentials(),
+            const Opacity(opacity: 0.5, child: TranslatedText('disclosure.requested_for')),
           ],
-          const Opacity(opacity: 0.5, child: TranslatedText('disclosure.requested_for')),
           _buildCredentialSnippet(widget.unsatisfiableCredential.attributes),
           CarouselCredentialFooter(credential: widget.unsatisfiableCredential),
           if (widget.unsatisfiableCredential.obtainable) _buildGetButton(),
