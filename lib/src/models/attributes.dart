@@ -135,13 +135,11 @@ class Attribute {
   final CredentialInfo credentialInfo;
   final AttributeType attributeType;
   final AttributeValue value;
-  final bool haveOther;
 
   Attribute({
     required this.credentialInfo,
     required this.attributeType,
     required this.value,
-    this.haveOther = false,
   });
 
   bool get expired => false;
@@ -173,10 +171,6 @@ class Attribute {
         ),
         attributeType: attributeType,
         value: value,
-        haveOther: credentials.values.any(
-          (cred) =>
-              cred.info.fullId == attributeType.fullCredentialId && cred.attributes[attributeType]?.raw != value.raw,
-        ),
       );
     }
   }

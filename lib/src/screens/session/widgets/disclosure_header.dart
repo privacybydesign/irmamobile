@@ -10,7 +10,6 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/irma_message.dart';
 import 'package:irmamobile/src/widgets/irma_quote.dart';
 import 'package:irmamobile/src/widgets/translated_rich_text.dart';
 
@@ -90,8 +89,13 @@ class DisclosureHeader extends StatelessWidget {
   }
 
   Widget _buildHeaderText(BuildContext context) {
-    final sessionType = session.isSignatureSession ? 'signing' : 'disclosure';
-    final textKey = 'disclosure.$sessionType${session.clientReturnURL?.isPhoneNumber ?? false ? '_call' : ''}_header';
+    String textKey;
+    if (session.satisfiable) {
+      final sessionType = session.isSignatureSession ? 'signing' : 'disclosure';
+      textKey = 'disclosure.$sessionType${session.clientReturnURL?.isPhoneNumber ?? false ? '_call' : ''}_header';
+    } else {
+      textKey = 'disclosure.unsatisfiable_header';
+    }
 
     final serverName = session.serverName.name.translate(FlutterI18n.currentLocale(context).languageCode);
     final phoneNumber = session.clientReturnURL?.phoneNumber ?? '';
@@ -124,15 +128,6 @@ class DisclosureHeader extends StatelessWidget {
       explicitChildNodes: true,
       child: Column(
         children: <Widget>[
-          if (!session.satisfiable)
-            Padding(
-              padding: EdgeInsets.only(bottom: IrmaTheme.of(context).mediumSpacing),
-              child: const IrmaMessage(
-                'disclosure.unsatisfiable_title',
-                'disclosure.unsatisfiable_message',
-                type: IrmaMessageType.info,
-              ),
-            ),
           Row(
             children: [
               if (logoFile.existsSync())
