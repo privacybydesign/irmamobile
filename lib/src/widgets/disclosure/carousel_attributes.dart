@@ -10,12 +10,10 @@ import 'package:irmamobile/src/util/language.dart';
 // The Offstage in the Carousel widget requires this widget to persist a constant height.
 class CarouselAttributes extends StatelessWidget {
   final List<Attribute> attributes;
-  final bool showNullValues;
 
   const CarouselAttributes({
     Key key,
     @required this.attributes,
-    this.showNullValues = false,
   }) : super(key: key);
 
   Widget _buildCandidateValue(BuildContext context, Attribute candidate) {
@@ -32,18 +30,16 @@ class CarouselAttributes extends StatelessWidget {
           child: (candidate.value as PhotoValue).image,
         ),
       );
-    }
-
-    String text = '';
-    if (candidate.value is NullValue && showNullValues) {
-      text = '…';
     } else if (candidate.value is TextValue) {
-      text = getTranslation(context, (candidate.value as TextValue).translated);
+      return Text(
+        getTranslation(context, (candidate.value as TextValue).translated),
+        style: IrmaTheme.of(context).textTheme.bodyText1,
+      );
+    } else {
+      // In case of a NullValue we fully skip the candidate value. A NullValue occurs in non-present optional
+      // attributes and when the requested attribute is missing in the user's wallet and no specific value is specified.
+      return Container();
     }
-    return Text(
-      text,
-      style: IrmaTheme.of(context).textTheme.bodyText1,
-    );
   }
 
   Widget _buildAttribute(BuildContext context, Attribute attribute) => Padding(

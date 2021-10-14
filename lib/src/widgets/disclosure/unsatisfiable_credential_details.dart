@@ -150,10 +150,7 @@ class _UnsatisfiableCredentialDetailsState extends State<UnsatisfiableCredential
           TearLine(margin: EdgeInsets.only(top: tinySpacing)),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: smallSpacing, vertical: tinySpacing),
-            child: CarouselAttributes(
-              attributes: attributes,
-              showNullValues: !isPresent,
-            ),
+            child: CarouselAttributes(attributes: attributes),
           ),
           TearLine(margin: EdgeInsets.only(bottom: tinySpacing)),
         ],
