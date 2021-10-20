@@ -13,7 +13,6 @@ import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:quiver/iterables.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:stream_transform/stream_transform.dart';
 
 // Typedefs are still experimental in Flutter. Therefore, we use inheritance for now.
 class SessionStates extends UnmodifiableMapView<int, SessionState> {
@@ -22,16 +21,13 @@ class SessionStates extends UnmodifiableMapView<int, SessionState> {
 
 class SessionRepository {
   final IrmaRepository repo;
-  final Stream<SessionEvent> sessionEventStream;
 
-  final _sessionStatesSubject = BehaviorSubject<SessionStates>();
+  final _sessionStatesSubject = BehaviorSubject<SessionStates>.seeded(SessionStates({}));
 
-  SessionRepository({this.repo, this.sessionEventStream}) {
-    final initialValue = SessionStates({});
-    // The scan method uses the initialValue only to accumulate on.
-    // We have to add it to the stream ourselves.
-    _sessionStatesSubject.add(initialValue);
-    Scan(sessionEventStream).scan<SessionStates>(initialValue, (prevStates, event) async {
+  SessionRepository({this.repo, Stream<SessionEvent> sessionEventStream}) {
+    // Don't pipe states to the subject directly, because then potential errors are piped to the subject as well.
+    sessionEventStream.listen((event) async {
+      final prevStates = _sessionStatesSubject.value;
       // Calculate the nextState from the previousState by handling the event.
       // In case a new session is created, we create a new session state.
       SessionState nextState;
@@ -46,8 +42,8 @@ class SessionRepository {
       final nextStates = Map.of(prevStates);
       if (nextState != null) nextStates[event.sessionID] = nextState;
 
-      return SessionStates(nextStates);
-    }).pipe(_sessionStatesSubject);
+      _sessionStatesSubject.add(SessionStates(nextStates));
+    }, onDone: _sessionStatesSubject.close);
   }
 
   SessionState _newSessionState(NewSessionEvent event) {
@@ -269,9 +265,9 @@ class SessionRepository {
   }
 
   Stream<SessionState> getSessionState(int sessionID) {
-    return _sessionStatesSubject.map(
-      (sessionStates) => sessionStates[sessionID],
-    );
+    return _sessionStatesSubject.where((sessionStates) => sessionStates.containsKey(sessionID)).map(
+          (sessionStates) => sessionStates[sessionID],
+        );
   }
 
   Future<bool> hasActiveSessions() async {
