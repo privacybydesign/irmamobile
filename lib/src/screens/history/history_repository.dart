@@ -47,7 +47,6 @@ class HistoryRepository {
   StreamSubscription _historyStateSubscription;
 
   HistoryRepository() {
-    // TODO: Diff screen on log screen?
     _historyStateSubscription = repo.getEvents().scan<HistoryState>((prevState, event, _) {
       if (event is LoadLogsEvent) {
         return prevState.copyWith(
