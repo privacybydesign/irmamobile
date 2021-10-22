@@ -56,7 +56,7 @@ class ChangePinBloc extends Bloc<Object, ChangePinState> {
         newPinConfirmed: ValidationState.initial,
       );
     } else if (event is NewPinConfirmed) {
-      if (event.pin != state.newPin || (state.oldPin?.isEmpty ?? true) || (state.newPin?.isEmpty ?? true)) {
+      if (event.pin != state.newPin) {
         yield state.copyWith(
           newPinConfirmed: ValidationState.invalid,
         );
@@ -65,7 +65,7 @@ class ChangePinBloc extends Bloc<Object, ChangePinState> {
           updatingPin: true,
         );
 
-        final changePinEvent = await IrmaRepository.get().changePin(state.oldPin!, state.newPin!);
+        final changePinEvent = await IrmaRepository.get().changePin(state.oldPin, state.newPin);
         if (changePinEvent is ChangePinSuccessEvent) {
           yield state.copyWith(
             updatingPin: false,
