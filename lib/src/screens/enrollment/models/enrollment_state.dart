@@ -7,7 +7,7 @@ enum ValidationState { initial, valid, invalid }
 @immutable
 class EnrollmentState with EquatableMixin {
   // Pin and email values as submitted
-  final String? pin;
+  final String pin;
   final String email;
   final String languageCode;
 
@@ -27,7 +27,7 @@ class EnrollmentState with EquatableMixin {
   final int retry;
 
   EnrollmentState({
-    this.pin,
+    this.pin = '',
     this.email = '',
     this.languageCode = 'nl',
     this.pinConfirmed = false,
@@ -76,9 +76,10 @@ class EnrollmentState with EquatableMixin {
 
   @override
   String toString() {
-    return '''EnrollmentState
+    return '''
+    EnrollmentState
      {
-        pin: ${pin == null ? null : '*' * pin!.length},
+        pin: ${'*' * pin.length},
         email: $email,
         languageCode: $languageCode,
         pinConfirmed: $pinConfirmed,
@@ -90,7 +91,8 @@ class EnrollmentState with EquatableMixin {
         retry: $retry,
         isSubmitting: $isSubmitting,
         submittingFailed: $submittingFailed,
-    }''';
+    }
+    ''';
   }
 
   @override
