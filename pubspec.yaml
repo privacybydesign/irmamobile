@@ -26,7 +26,6 @@ dependencies:
   json_annotation: ^4.0.1
   rxdart: ^0.27.2
   package_info: ^2.0.2
-  stream_transform: ^2.0.0
   collection: ^1.15.0
   qr_code_scanner: ^0.5.2
   font_awesome_flutter: ^9.1.0 # TODO remove once this package is no longer used

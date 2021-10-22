@@ -292,7 +292,7 @@ class _CarouselState extends State<Carousel> {
                   padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).mediumSpacing),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: cred.satisfiable
+                    children: cred.satisfiable || !widget.showObtainButton
                         ? _buildCredential(cred)
                         : [_buildUnsatisfiableCredential(cred, offstage: offstage)],
                   ),

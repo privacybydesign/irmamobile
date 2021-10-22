@@ -7,7 +7,6 @@ import 'package:collection/collection.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/log_entry.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:stream_transform/stream_transform.dart';
 
 class LogEntries extends UnmodifiableListView<LogEntry> {
   LogEntries(Iterable<LogEntry> list)
@@ -48,7 +47,7 @@ class HistoryRepository {
   StreamSubscription _historyStateSubscription;
 
   HistoryRepository() {
-    _historyStateSubscription = Scan(repo.getEvents()).scan<HistoryState>(HistoryState(), (prevState, event) {
+    _historyStateSubscription = repo.getEvents().scan<HistoryState>((prevState, event, _) {
       if (event is LoadLogsEvent) {
         return prevState.copyWith(
           loading: true,
@@ -72,7 +71,7 @@ class HistoryRepository {
       }
 
       return prevState;
-    }).listen((historyState) {
+    }, HistoryState()).listen((historyState) {
       _historyStateSubject.add(historyState);
     });
   }
