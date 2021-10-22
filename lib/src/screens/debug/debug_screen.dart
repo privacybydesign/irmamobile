@@ -16,7 +16,7 @@ class DemoSessionHelper {
   static final _random = Random();
 
   static String disclosureSessionRequest() {
-    return """
+    return '''
       {
         "@context": "https://irma.app/ld/request/disclosure/v2",
         "disclose": [
@@ -34,11 +34,11 @@ class DemoSessionHelper {
         ],
         "clientReturnUrl": "tel:+31612345678,1234567"
       }
-    """;
+    ''';
   }
 
   static String signingSessionRequest() {
-    return """
+    return '''
       {
         "@context": "https://irma.app/ld/request/signature/v2",
         "message": "Ik geef hierbij toestemming aan Partij A om mijn gegevens uit te wisselen met Partij B. Deze toestemming is geldig tot 1 juni 2019.",
@@ -50,16 +50,16 @@ class DemoSessionHelper {
           ]
         ]
       }
-    """;
+    ''';
   }
 
   static String issuanceSessionRequest(List<String> credentialsJson) {
-    return """
+    return '''
       {
         "@context": "https://irma.app/ld/request/issuance/v2",
         "credentials": [${credentialsJson.join(", ")}]
       }
-    """;
+    ''';
   }
 
   static Map<String, List<AttributeType>> _attributeTypesByCredentialType(IrmaConfiguration irmaConfiguration) {
@@ -70,16 +70,16 @@ class DemoSessionHelper {
   }
 
   static String _credentialRequest(CredentialType credentialType, attributeValues) {
-    return """
+    return '''
       {
         "credential": "${credentialType.fullId}",
         "attributes": {${attributeValues.join(", ")}}
       }
-    """;
+    ''';
   }
 
   static String _randomAttributeValue() {
-    const attributeValues = ["lorem", "ipsum"];
+    const attributeValues = ['lorem', 'ipsum'];
     return attributeValues[_random.nextInt(attributeValues.length)];
   }
 
@@ -90,7 +90,7 @@ class DemoSessionHelper {
     final attributeTypesLookup = _attributeTypesByCredentialType(irmaConfiguration)[credentialTypeId]!;
 
     final attributeValues = attributeTypesLookup.map((attributeType) {
-      final value = attributeType.displayHint == "portraitPhoto" ? portraitPhotoMock : _randomAttributeValue();
+      final value = attributeType.displayHint == 'portraitPhoto' ? portraitPhotoMock : _randomAttributeValue();
       return '"${attributeType.id}": "$value"';
     }).toList();
 
@@ -102,7 +102,7 @@ class DemoSessionHelper {
   static Future<String> randomIssuanceRequest(Future<IrmaConfiguration> irmaConfigurationFuture, int amount) async {
     final irmaConfiguration = await irmaConfigurationFuture;
     final credentialTypes =
-        irmaConfiguration.credentialTypes.values.where((ct) => ct.schemeManagerId == "irma-demo").toList();
+        irmaConfiguration.credentialTypes.values.where((ct) => ct.schemeManagerId == 'irma-demo').toList();
     final attributeTypesLookup = _attributeTypesByCredentialType(irmaConfiguration);
 
     final credentialsJson = List<String>.generate(amount, (int i) {
@@ -119,7 +119,7 @@ class DemoSessionHelper {
 }
 
 class DebugScreen extends StatelessWidget {
-  static const routeName = "/debug";
+  static const routeName = '/debug';
 
   void _onClose(BuildContext context) {
     Navigator.of(context).pop();
@@ -152,7 +152,7 @@ class DebugScreen extends StatelessWidget {
       appBar: IrmaAppBar(
         title: const Text('Debugger'),
         leadingAction: () => _onClose(context),
-        leadingIcon: Icon(Icons.arrow_back, semanticLabel: FlutterI18n.translate(context, "accessibility.back")),
+        leadingIcon: Icon(Icons.arrow_back, semanticLabel: FlutterI18n.translate(context, 'accessibility.back')),
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.image),
