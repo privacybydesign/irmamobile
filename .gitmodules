@@ -9,4 +9,4 @@
 	url = https://github.com/privacybydesign/pbdf-requestors.git
 [submodule "irma_configuration/irma-demo-requestors"]
 	path = irma_configuration/irma-demo-requestors
-	url = https://github.com/privacybydesign/irma-demo-requestors
+	url = https://github.com/privacybydesign/irma-demo-requestors.git
