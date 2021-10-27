@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -35,6 +36,15 @@ extension WidgetTesterUtil on WidgetTester {
           .cast<Text>()
           .where((w) => w.data != null)
           .map((w) => w.data!);
+
+  /// Returns the switch value of the SwitchListTile that contains the widget being found by the given finder.
+  bool getSwitchListTileValue(Finder f) => (widget(find.byWidgetPredicate((widget) =>
+          widget is SwitchListTile &&
+          any(find.descendant(
+            of: find.byWidget(widget),
+            matching: f,
+          )))) as SwitchListTile)
+      .value;
 
   /// Looks for a Scrollable inside a widget with Key 'parentKey', scrolls through all items
   /// to look for a Text widget with Key 'textKey' and checks whether its value equals to 'textValue'.
