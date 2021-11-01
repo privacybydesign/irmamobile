@@ -31,6 +31,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: noLeading
           ? null
           : IconButton(
+              key: const Key('irma_app_bar_leading'),
               icon: leadingIcon ??
                   Icon(
                     IrmaIcons.arrowBack,
