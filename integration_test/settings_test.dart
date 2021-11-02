@@ -27,7 +27,7 @@ void main() {
       await unlock(tester);
       // Open menu
       await tester.tapAndSettle(find.byKey(const Key('open_menu_icon')));
-      // Open menu_settings
+      // Open settings
       await tester.tapAndSettle(find.text('Settings'));
       // Check screen settings text
       String textQRscanner = 'Open QR scanner automatically after start-up';
@@ -52,6 +52,59 @@ void main() {
       // Enabled the option 'Send error reports to IRMA'
       expect(tester.getSwitchListTileValue(find.text(textErrorReports)), true);
       expect(await irmaBinding.preferences.getStartQRScan().first, true);
-    });
+    }, timeout: const Timeout(Duration(seconds: 30)));
+
+    testWidgets('change-PIN', (tester) async {
+      // Scenario 2 of IRMA app settings
+      await tester.pumpWidgetAndSettle(IrmaApp());
+      await unlock(tester);
+      // Open menu
+      await tester.tapAndSettle(find.byKey(const Key('open_menu_icon')));
+      // Open settings
+      await tester.tapAndSettle(find.text('Settings'));
+      // Tap on option to change PIN
+      await tester.tapAndSettle(find.text('Change your PIN'));
+      // Enter current PIN
+      await tester.enterTextAtFocusedAndSettle('12345');
+      // Enter new PIN
+      await tester.waitFor(find.text('Choose your new PIN'));
+      await tester.enterTextAtFocusedAndSettle('54321');
+      // Enter new PIN (again)
+      await tester.waitFor(find.text('Enter your PIN one more time.'));
+      await tester.enterTextAtFocusedAndSettle('54321');
+      await tester.pumpAndSettle();
+      // Check whether changing the PIN has succeeded
+      final column = tester.getAllText(find.byType(Column));
+      expect(column, [
+        'Success',
+        'Your PIN has been changed.',
+        'OK',
+      ]);
+      await tester.tapAndSettle(find.text('OK'));
+      await tester.tapAndSettle(find.byKey(const Key('irma_app_bar_leading')));
+      // Log out
+      await tester.tapAndSettle(find.byKey(const Key('menu_logout_icon')));
+      // Check whether login has succeeded
+      await tester.waitFor(find.byKey(const Key('pin_screen')));
+      await tester.enterTextAtFocusedAndSettle('54321');
+      await tester.tapAndSettle(find.byKey(const Key('menu_logout_icon')));
+    }, timeout: const Timeout(Duration(seconds: 30)));
+
+    testWidgets('delete-all-data', (tester) async {
+      // Scenario 3 of IRMA app settings
+      // Initialize the app for integration tests
+      await tester.pumpWidgetAndSettle(IrmaApp());
+      await unlock(tester);
+      // Open menu
+      await tester.tapAndSettle(find.byKey(const Key('open_menu_icon')));
+      // Open settings
+      await tester.tapAndSettle(find.text('Settings'));
+      // Tap on option to delete everything and start over
+      await tester.tapAndSettle(find.text('Delete everything and start over'));
+      // Tap on the confirmation to delete all data
+      await tester.tapAndSettle(find.text('Yes, delete everything'));
+      // Check whether the enrollment info screen is shown
+      await tester.waitFor(find.byKey(const Key('enrollment_p1')));
+    }, timeout: const Timeout(Duration(seconds: 30)));
   });
 }
