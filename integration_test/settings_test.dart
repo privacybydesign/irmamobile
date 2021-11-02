@@ -1,12 +1,10 @@
 // We cannot test using null safety as long as there are widgets that are not migrated yet.
 // @dart=2.11
 
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/main.dart';
-import 'package:irmamobile/src/widgets/irma_button.dart';
 
 import 'helpers.dart';
 import 'irma_binding.dart';
@@ -54,27 +52,28 @@ void main() {
       // Enabled the option 'Send error reports to IRMA'
       expect(tester.getSwitchListTileValue(find.text(textErrorReports)), true);
       expect(await irmaBinding.preferences.getStartQRScan().first, true);
-    });
+    }, timeout: const Timeout(Duration(seconds: 30)));
+
     testWidgets('change-PIN', (tester) async {
       // Scenario 2 of IRMA app settings
       await tester.pumpWidgetAndSettle(IrmaApp());
       await unlock(tester);
       // Open menu
       await tester.tapAndSettle(find.byKey(const Key('open_menu_icon')));
-      // Open menu_settings
+      // Open menu settings
       await tester.tapAndSettle(find.text('Settings'));
-      //open settings_change your PIN
+      // Open settings change-PIN
       await tester.tapAndSettle(find.text('Change your PIN'));
-      // Enter your current pin
+      // Enter current PIN
       await tester.enterTextAtFocusedAndSettle('12345');
-      // Enter your new PIN
+      // Enter new PIN
       await tester.waitFor(find.text('Choose your new PIN'));
       await tester.enterTextAtFocusedAndSettle('54321');
-      // Enter your new PIN (again)
+      // Enter new PIN (again)
       await tester.waitFor(find.text('Enter your PIN one more time.'));
       await tester.enterTextAtFocusedAndSettle('54321');
       await tester.pumpAndSettle();
-      //Check Change PIN success
+      // Check if Change-PIN is succeed
       final column = tester.getAllText(find.byType(Column));
       expect(column, [
         'Success',
@@ -85,13 +84,12 @@ void main() {
       await tester.tapAndSettle(find.byKey(const Key('irma_app_bar_leading')));
       // Log out
       await tester.tapAndSettle(find.byKey(const Key('menu_logout_icon')));
-      // Enter New PIN
+      // Check whether login is succeeded
       await tester.waitFor(find.byKey(const Key('pin_screen')));
       await tester.enterTextAtFocusedAndSettle('54321');
-      // Check whether login is succeeded
-      String string = tester.getAllText(find.byKey(const Key('wallet_screen'))).first;
-      expect(string, 'Your data securely on your mobile');
-    });
+      await tester.tapAndSettle(find.byKey(const Key('menu_logout_icon')));
+    }, timeout: const Timeout(Duration(seconds: 30)));
+
     testWidgets('delete-all-data', (tester) async {
       // Scenario 3 of IRMA app settings
       // Initialize the app for integration tests
@@ -99,14 +97,14 @@ void main() {
       await unlock(tester);
       // Open menu
       await tester.tapAndSettle(find.byKey(const Key('open_menu_icon')));
-      // Open menu_settings
+      // Open menu settings
       await tester.tapAndSettle(find.text('Settings'));
-      // Tap setting_on Delete everything and start over
+      // Tap setting on Delete everything and start over
       await tester.tapAndSettle(find.text('Delete everything and start over'));
-      // Click on the confirmation to delete all data
+      // Click on the confirmation to delete-all-data
       await tester.tapAndSettle(find.text('Yes, delete everything'));
       // Check if you on the enrollment info screen
       await tester.waitFor(find.byKey(const Key('enrollment_p1')));
-    }, timeout: const Timeout(Duration(minutes: 2)));
+    }, timeout: const Timeout(Duration(seconds: 30)));
   });
 }
