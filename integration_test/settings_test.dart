@@ -27,7 +27,7 @@ void main() {
       await unlock(tester);
       // Open menu
       await tester.tapAndSettle(find.byKey(const Key('open_menu_icon')));
-      // Open menu_settings
+      // Open settings
       await tester.tapAndSettle(find.text('Settings'));
       // Check screen settings text
       String textQRscanner = 'Open QR scanner automatically after start-up';
@@ -60,9 +60,9 @@ void main() {
       await unlock(tester);
       // Open menu
       await tester.tapAndSettle(find.byKey(const Key('open_menu_icon')));
-      // Open menu settings
+      // Open settings
       await tester.tapAndSettle(find.text('Settings'));
-      // Open settings change-PIN
+      // Tap on option to change PIN
       await tester.tapAndSettle(find.text('Change your PIN'));
       // Enter current PIN
       await tester.enterTextAtFocusedAndSettle('12345');
@@ -73,7 +73,7 @@ void main() {
       await tester.waitFor(find.text('Enter your PIN one more time.'));
       await tester.enterTextAtFocusedAndSettle('54321');
       await tester.pumpAndSettle();
-      // Check if Change-PIN is succeed
+      // Check whether changing the PIN has succeeded
       final column = tester.getAllText(find.byType(Column));
       expect(column, [
         'Success',
@@ -84,7 +84,7 @@ void main() {
       await tester.tapAndSettle(find.byKey(const Key('irma_app_bar_leading')));
       // Log out
       await tester.tapAndSettle(find.byKey(const Key('menu_logout_icon')));
-      // Check whether login is succeeded
+      // Check whether login has succeeded
       await tester.waitFor(find.byKey(const Key('pin_screen')));
       await tester.enterTextAtFocusedAndSettle('54321');
       await tester.tapAndSettle(find.byKey(const Key('menu_logout_icon')));
@@ -97,13 +97,13 @@ void main() {
       await unlock(tester);
       // Open menu
       await tester.tapAndSettle(find.byKey(const Key('open_menu_icon')));
-      // Open menu settings
+      // Open settings
       await tester.tapAndSettle(find.text('Settings'));
-      // Tap setting on Delete everything and start over
+      // Tap on option to delete everything and start over
       await tester.tapAndSettle(find.text('Delete everything and start over'));
-      // Click on the confirmation to delete-all-data
+      // Tap on the confirmation to delete all data
       await tester.tapAndSettle(find.text('Yes, delete everything'));
-      // Check if you on the enrollment info screen
+      // Check whether the enrollment info screen is shown
       await tester.waitFor(find.byKey(const Key('enrollment_p1')));
     }, timeout: const Timeout(Duration(seconds: 30)));
   });
