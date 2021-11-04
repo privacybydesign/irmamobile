@@ -138,15 +138,16 @@ class _WalletScreenState extends State<_WalletScreen> {
 
               final credentialList = state.credentials.values.toList();
               credentialList.sort((a, b) {
+                // sort() is not stable when two elements are equal according to the sorting function,
+                // but that doesn't matter, because if two credentials are completely identical,
+                // irmago keeps only one of them.
                 if (a.signedOn != b.signedOn) return a.signedOn.compareTo(b.signedOn);
-                return a.hash.compareTo(b.hash);
+                if (a.info.fullId != b.info.fullId) return a.info.fullId.compareTo(b.info.fullId);
+                return a.attributes.values.join('').compareTo(b.attributes.values.join(''));
               });
-              int newCardIndex;
-              for (var i = 0; i < credentialList.length; i++) {
-                if (credentialList[i].hash == state.newCardHash) {
-                  newCardIndex = i;
-                }
-              }
+              final newCardIndex = state.newCardHash != null
+                  ? credentialList.indexWhere((element) => element.hash == state.newCardHash)
+                  : 0;
               return Wallet(
                 key: _walletKey,
                 credentials: credentialList,
