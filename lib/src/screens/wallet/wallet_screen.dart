@@ -140,7 +140,7 @@ class _WalletScreenState extends State<_WalletScreen> {
               credentialList.sort((a, b) {
                 if (a.signedOn != b.signedOn) return a.signedOn.compareTo(b.signedOn);
                 if (a.info.fullId != b.info.fullId) return a.info.fullId.compareTo(b.info.fullId);
-                return a.attributes.values.join("").compareTo(b.attributes.values.join(""));
+                return a.attributes.values.join('').compareTo(b.attributes.values.join(''));
               });
               final newCardIndex = state.newCardHash != null
                   ? credentialList.indexWhere((element) => element.hash == state.newCardHash)
