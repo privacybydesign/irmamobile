@@ -138,6 +138,9 @@ class _WalletScreenState extends State<_WalletScreen> {
 
               final credentialList = state.credentials.values.toList();
               credentialList.sort((a, b) {
+                // sort() is not stable when two elements are equal according to the sorting function,
+                // but that doesn't matter, because if two credentials are completely identical,
+                // irmago keeps only one of them.
                 if (a.signedOn != b.signedOn) return a.signedOn.compareTo(b.signedOn);
                 if (a.info.fullId != b.info.fullId) return a.info.fullId.compareTo(b.info.fullId);
                 return a.attributes.values.join('').compareTo(b.attributes.values.join(''));
