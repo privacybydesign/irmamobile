@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -64,6 +65,22 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) 
 	defer func() {
 		close(clientLoaded) // make all future reads return immediately
 	}()
+
+	// Older Android versions don't have the most recent cacerts in storage. Because web browsers either ship their own
+	// cacerts or rely on expired cacerts (the trust anchor approach), websites keep working on these devices.
+	// To make sure the IRMA app keeps working too, we ship it with some cacerts that are known to be missing.
+	// Because other applications run in a separate process, they cannot change the environment variables of this process.
+	// Therefore, we can safely add a certificate directory by setting the SSL_CERT_DIR variable.
+	// On iOS, the SSL_CERT_DIR variable is ignored. This is not a problem, because the cacerts for iOS are hardcoded by Go.
+	androidCertDirs := []string{
+		"/system/etc/security/cacerts",
+		path.Join(assetsPath, "cacerts"),
+	}
+	err := os.Setenv("SSL_CERT_DIR", strings.Join(androidCertDirs, ":"))
+	if err != nil {
+		clientErr = errors.WrapPrefix(err, "Cannot set SSL certificate directory", 0)
+		return
+	}
 
 	// Check for user data directory, and create version-specific directory
 	exists, err := pathExists(appDataPath)

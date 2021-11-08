@@ -27,7 +27,7 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
     this.activity = activity;
     this.initialURL = initialURL;
 
-    IrmaConfigurationCopier copier = new IrmaConfigurationCopier(context);
+    AssetsCopier copier = new AssetsCopier(context);
 
     try {
       PackageInfo pi = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
