@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.Set;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -22,8 +23,7 @@ import android.content.Context;
 // TODO: Use a more reasonable approach to path handling, rather than reinventing a couple
 // of classes due to the complete implementation missing from some Android versions
 
-public class AssetsCopier {
-    private static final String[] staticAssets = {"cacerts"};
+public class IrmaConfigurationCopier {
 
     private Context context;
     private AssetManager assetManager;
@@ -33,7 +33,7 @@ public class AssetsCopier {
 
     private ArrayList<Path> configurationFilePaths;
 
-    public AssetsCopier(Context context) {
+    public IrmaConfigurationCopier(Context context) {
         this.context = context;
         this.assetManager = context.getAssets();
 
@@ -43,19 +43,9 @@ public class AssetsCopier {
         try {
             this.ensureDirExists(Paths.get(context.getFilesDir().getPath()).resolve("tmp"));
             this.ensureConfigurationAssets();
-            this.copyStaticAssets();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private void copyStaticAssets() throws IOException {
-      this.ensureDirExists(this.destAssetsPath);
-      // Delete destination directories first to make sure they don't get polluted.
-      for (String asset : staticAssets) {
-        this.deleteFileOrDir(this.destAssetsPath.resolve(asset));
-        this.copyFileOrDirFromAssets(Paths.get(asset));
-      }
     }
 
     private void ensureConfigurationAssets() throws IOException {
@@ -142,25 +132,12 @@ public class AssetsCopier {
             if (configurationFilePath.startsWith(sourceSchemePath)) {
                 // Create a folder structure for this file, then copy over
                 this.destAssetsPath.resolve(configurationFilePath.subpath(0, -2)).toFile().mkdirs();
-                this.copyFileFromAssets(configurationFilePath);
+                this.copyFile(configurationFilePath);
             }
         }
     }
 
-    private void copyFileOrDirFromAssets(Path path) throws IOException {
-      final String[] dirList = this.assetManager.list(path.toString());
-      // If no items are listed, then it concerns a file; otherwise a directory.
-      if (dirList.length == 0) {
-        this.copyFileFromAssets(path);
-      } else {
-        this.ensureDirExists(this.destAssetsPath.resolve(path));
-        for (String fileOrDirName : dirList) {
-          this.copyFileOrDirFromAssets(path.resolve(fileOrDirName));
-        }
-      }
-    }
-
-    private void copyFileFromAssets(Path path) throws IOException {
+    private void copyFile(Path path) throws IOException {
         InputStream sourceStream = this.assetManager.open(path.toString());
 
         Path destPath = this.destAssetsPath.resolve(path);
@@ -174,20 +151,5 @@ public class AssetsCopier {
         sourceStream.close();
         destStream.flush();
         destStream.close();
-    }
-
-    private void deleteFileOrDir(Path path) throws IOException {
-      final File fileOrDir = path.toFile();
-      if (fileOrDir.exists()) {
-        final String[] dirList = fileOrDir.list();
-        // We can only delete empty directories, so if it is a directory we have to delete all content first.
-        if (dirList != null) {
-          for (String f : dirList) {
-            this.deleteFileOrDir(path.resolve(f));
-          }
-        }
-        if (!fileOrDir.delete())
-          throw new IOException("Could not delete " + path);
-      }
     }
 }

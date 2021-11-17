@@ -1,10 +1,12 @@
 package irmagobridge
 
 import (
+	"crypto/x509"
+	"embed"
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"os"
-	"path"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -26,6 +28,9 @@ var client *irmaclient.Client
 var appDataVersion = "v2"
 var clientLoaded = make(chan struct{})
 var clientErr *errors.Error
+
+//go:embed assets
+var embeddedAssets embed.FS
 
 // eventHandler maintains a sessionLookup for actions incoming
 // from irma_mobile (see action_handler.go)
@@ -69,16 +74,31 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) 
 	// Older Android versions don't have the most recent cacerts in storage. Because web browsers either ship their own
 	// cacerts or rely on expired cacerts (the trust anchor approach), websites keep working on these devices.
 	// To make sure the IRMA app keeps working too, we ship it with some cacerts that are known to be missing.
-	// Because other applications run in a separate process, they cannot change the environment variables of this process.
-	// Therefore, we can safely add a certificate directory by setting the SSL_CERT_DIR variable.
-	// On iOS, the SSL_CERT_DIR variable is ignored. This is not a problem, because the cacerts for iOS are hardcoded by Go.
-	androidCertDirs := []string{
-		"/system/etc/security/cacerts",
-		path.Join(assetsPath, "cacerts"),
-	}
-	err := os.Setenv("SSL_CERT_DIR", strings.Join(androidCertDirs, ":"))
+	var err error
+	irma.RootCAs, err = x509.SystemCertPool()
 	if err != nil {
-		clientErr = errors.WrapPrefix(err, "Cannot set SSL certificate directory", 0)
+		clientErr = errors.WrapPrefix(err, "System certificate pool could not be loaded", 0)
+		return
+	}
+
+	err = fs.WalkDir(embeddedAssets, "assets/cacerts", func(path string, d fs.DirEntry, err error) error {
+		// We have to skip the root directory itself.
+		if err != nil || d.IsDir() {
+			return err
+		}
+
+		f, err := embeddedAssets.ReadFile(path)
+		if err != nil {
+			return err
+		}
+
+		if !irma.RootCAs.AppendCertsFromPEM(f) {
+			return errors.Errorf("Certificate could not be parsed: %s", path)
+		}
+		return nil
+	})
+	if err != nil {
+		clientErr = errors.WrapPrefix(err, "Embedded certificates could not be loaded", 0)
 		return
 	}
 
