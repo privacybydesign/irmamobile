@@ -72,7 +72,7 @@ void main() {
       // Enter new PIN (again)
       await tester.waitFor(find.text('Enter your PIN one more time.'));
       await tester.enterTextAtFocusedAndSettle('54321');
-      await tester.pumpAndSettle();
+      await tester.waitFor(find.text('Success'));
       // Check whether changing the PIN has succeeded
       final column = tester.getAllText(find.byType(Column));
       expect(column, [
