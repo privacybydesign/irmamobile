@@ -1,6 +1,7 @@
 package irmagobridge
 
 import (
+	"crypto/tls"
 	"crypto/x509"
 	"embed"
 	"encoding/json"
@@ -74,8 +75,7 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) 
 	// Older Android versions don't have the most recent cacerts in storage. Because web browsers either ship their own
 	// cacerts or rely on expired cacerts (the trust anchor approach), websites keep working on these devices.
 	// To make sure the IRMA app keeps working too, we ship it with some cacerts that are known to be missing.
-	var err error
-	irma.RootCAs, err = x509.SystemCertPool()
+	rootCAs, err := x509.SystemCertPool()
 	if err != nil {
 		clientErr = errors.WrapPrefix(err, "System certificate pool could not be loaded", 0)
 		return
@@ -92,7 +92,7 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) 
 			return err
 		}
 
-		if !irma.RootCAs.AppendCertsFromPEM(f) {
+		if !rootCAs.AppendCertsFromPEM(f) {
 			return errors.Errorf("Certificate could not be parsed: %s", path)
 		}
 		return nil
@@ -101,6 +101,9 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) 
 		clientErr = errors.WrapPrefix(err, "Embedded certificates could not be loaded", 0)
 		return
 	}
+	irma.SetTLSClientConfig(&tls.Config{
+		RootCAs: rootCAs,
+	})
 
 	// Check for user data directory, and create version-specific directory
 	exists, err := pathExists(appDataPath)
