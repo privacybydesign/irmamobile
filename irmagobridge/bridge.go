@@ -1,8 +1,12 @@
 package irmagobridge
 
 import (
+	"crypto/tls"
+	"crypto/x509"
+	"embed"
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -25,6 +29,9 @@ var client *irmaclient.Client
 var appDataVersion = "v2"
 var clientLoaded = make(chan struct{})
 var clientErr *errors.Error
+
+//go:embed assets
+var embeddedAssets embed.FS
 
 // eventHandler maintains a sessionLookup for actions incoming
 // from irma_mobile (see action_handler.go)
@@ -64,6 +71,39 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string) 
 	defer func() {
 		close(clientLoaded) // make all future reads return immediately
 	}()
+
+	// Older Android versions don't have the most recent cacerts in storage. Because web browsers either ship their own
+	// cacerts or rely on expired cacerts (the trust anchor approach), websites keep working on these devices.
+	// To make sure the IRMA app keeps working too, we ship it with some cacerts that are known to be missing.
+	rootCAs, err := x509.SystemCertPool()
+	if err != nil {
+		clientErr = errors.WrapPrefix(err, "System certificate pool could not be loaded", 0)
+		return
+	}
+
+	err = fs.WalkDir(embeddedAssets, "assets/cacerts", func(path string, d fs.DirEntry, err error) error {
+		// We have to skip the root directory itself.
+		if err != nil || d.IsDir() {
+			return err
+		}
+
+		f, err := embeddedAssets.ReadFile(path)
+		if err != nil {
+			return err
+		}
+
+		if !rootCAs.AppendCertsFromPEM(f) {
+			return errors.Errorf("Certificate could not be parsed: %s", path)
+		}
+		return nil
+	})
+	if err != nil {
+		clientErr = errors.WrapPrefix(err, "Embedded certificates could not be loaded", 0)
+		return
+	}
+	irma.SetTLSClientConfig(&tls.Config{
+		RootCAs: rootCAs,
+	})
 
 	// Check for user data directory, and create version-specific directory
 	exists, err := pathExists(appDataPath)
