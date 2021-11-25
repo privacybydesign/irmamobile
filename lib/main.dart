@@ -23,14 +23,20 @@ Future<void> main() async {
 
     await FlutterPrivacyScreen.enablePrivacyScreen();
 
-    runApp(IrmaApp());
+    runApp(const IrmaApp());
   }, (error, stackTrace) => reportError(error, stackTrace));
 }
 
 class IrmaApp extends StatelessWidget {
+  final Locale forcedLocale;
+
+  const IrmaApp({Key key, this.forcedLocale}) : super(key: key);
+
   @override
-  Widget build(BuildContext context) => const CredentialNudgeProvider(
+  Widget build(BuildContext context) => CredentialNudgeProvider(
         credentialNudge: null,
-        child: App(),
+        child: App(
+          forcedLocale: forcedLocale,
+        ),
       );
 }

@@ -60,4 +60,8 @@ extension WidgetTesterUtil on WidgetTester {
     final string = getAllText(textWidget).first;
     expect(string, textValue);
   }
+
+  /// Returns a finder matching all widgets from a given type that contain the given content.
+  Finder findByTypeWithContent({required Type type, required Finder content}) => find.byWidgetPredicate(
+      (widget) => widget.runtimeType == type && any(find.descendant(of: find.byWidget(widget), matching: content)));
 }

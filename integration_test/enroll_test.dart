@@ -23,7 +23,7 @@ void main() {
 
     testWidgets('screens', (tester) async {
       // Screens test of enrollment process
-      await tester.pumpWidgetAndSettle(IrmaApp());
+      await tester.pumpWidgetAndSettle(const IrmaApp());
 
       // Check first screen
       // Check intro heading
@@ -69,7 +69,7 @@ void main() {
     testWidgets('tc1', (tester) async {
       // Scenario 1 of enrollment process
       // Initialize the app for integration tests
-      await tester.pumpWidgetAndSettle(IrmaApp());
+      await tester.pumpWidgetAndSettle(const IrmaApp());
 
       // Tap through enrollment info screens
       await tester.tapAndSettle(
@@ -155,7 +155,7 @@ void main() {
     testWidgets('tc2', (tester) async {
       // Scenario 2 of enrollment process
       // Initialize the app for integration tests
-      await tester.pumpWidgetAndSettle(IrmaApp());
+      await tester.pumpWidgetAndSettle(const IrmaApp());
 
       // Tap through enrollment info screens
       await tester.tapAndSettle(
