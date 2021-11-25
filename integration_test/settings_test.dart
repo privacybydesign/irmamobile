@@ -23,7 +23,7 @@ void main() {
     testWidgets('screentest', (tester) async {
       // Scenario 1 of IRMA app settings
       // Initialize the app for integration tests
-      await tester.pumpWidgetAndSettle(IrmaApp());
+      await tester.pumpWidgetAndSettle(const IrmaApp());
       await unlock(tester);
       // Open menu
       await tester.tapAndSettle(find.byKey(const Key('open_menu_icon')));
@@ -56,7 +56,7 @@ void main() {
 
     testWidgets('change-PIN', (tester) async {
       // Scenario 2 of IRMA app settings
-      await tester.pumpWidgetAndSettle(IrmaApp());
+      await tester.pumpWidgetAndSettle(const IrmaApp());
       await unlock(tester);
       // Open menu
       await tester.tapAndSettle(find.byKey(const Key('open_menu_icon')));
@@ -93,7 +93,7 @@ void main() {
     testWidgets('delete-all-data', (tester) async {
       // Scenario 3 of IRMA app settings
       // Initialize the app for integration tests
-      await tester.pumpWidgetAndSettle(IrmaApp());
+      await tester.pumpWidgetAndSettle(const IrmaApp());
       await unlock(tester);
       // Open menu
       await tester.tapAndSettle(find.byKey(const Key('open_menu_icon')));

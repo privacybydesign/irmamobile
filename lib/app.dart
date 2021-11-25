@@ -35,7 +35,9 @@ import 'package:irmamobile/src/util/hero_controller.dart';
 const schemeUpdateIntervalHours = 3;
 
 class App extends StatefulWidget {
-  const App({Key key}) : super(key: key);
+  final Locale forcedLocale;
+
+  const App({Key key, this.forcedLocale}) : super(key: key);
 
   @override
   AppState createState() => AppState();
@@ -396,7 +398,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
                   title: 'IRMA',
                   theme: IrmaTheme.of(context).themeData,
                   localizationsDelegates: defaultLocalizationsDelegates(),
-                  supportedLocales: defaultSupportedLocales(),
+                  supportedLocales: widget.forcedLocale == null ? defaultSupportedLocales() : [widget.forcedLocale],
                   navigatorKey: _navigatorKey,
                   navigatorObservers: [this],
                   onGenerateRoute: Routing.generateRoute,

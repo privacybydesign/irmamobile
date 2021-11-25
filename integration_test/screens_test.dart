@@ -23,7 +23,7 @@ void main() {
     testWidgets('tc1', (tester) async {
       // Scenario 1 of IRMA app screens
       // Initialize the app for integration tests
-      await tester.pumpWidgetAndSettle(IrmaApp());
+      await tester.pumpWidgetAndSettle(const IrmaApp());
       await unlock(tester);
       // Open menu
       await tester.tapAndSettle(find.byKey(const Key('open_menu_icon')));
@@ -59,7 +59,7 @@ void main() {
     testWidgets('tc2', (tester) async {
       // Scenario 2 of IRMA app screens
       // Initialize the app for integration tests
-      await tester.pumpWidgetAndSettle(IrmaApp());
+      await tester.pumpWidgetAndSettle(const IrmaApp());
       await unlock(tester);
       // Check wallet text
       String string = tester.getAllText(find.byKey(const Key('wallet_screen'))).first;
@@ -74,7 +74,7 @@ void main() {
     testWidgets('tc3', (tester) async {
       // Scenario 3 of IRMA app screens: Help screen
       // Initialize the app for integration tests
-      await tester.pumpWidgetAndSettle(IrmaApp());
+      await tester.pumpWidgetAndSettle(const IrmaApp());
       await unlock(tester);
 
       await tester.tapAndSettle(find.byKey(const Key('wallet_button_help')));
