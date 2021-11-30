@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [6.2.2] - in beta 2021-11-30
 ### Added
-- Integration tests for the following screens: about, enrollment, history, issuance, PIN entry, settings, wallet
+- Integration tests (partly) for the following screens: about, enrollment, history, issuance, PIN entry, settings, wallet
 
 ### Changed
 - Improved session screen when specific attribute values are requested that are not present
@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - HTTPS connections with servers using Let's Encrypt TLS certificates should now again work on Android 7-
 - Fixed bug where universal link was sometimes dropped on iOS when app was not already running
 - Fixed glitch in history screen due to null deref when showing issuance of revokable credential
+- Universal links to other apps should work again
 - Order of cards in the wallet is now always stable
 
 ## [6.2.1] - 2021-11-30 (in beta 2021-08-27)
