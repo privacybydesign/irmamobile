@@ -4,7 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [6.2.1] - in beta 2021-08-27
+## [6.2.2] - in beta 2021-11-30
+### Added
+- Integration tests for the following screens: about, enrollment, history, issuance, PIN entry, settings, wallet
+
+### Changed
+- Improved session screen when specific attribute values are requested that are not present
+- Improved return URL and return phone number handling
+- Partially migrated to null-safe Dart
+
+### Fixed
+- HTTPS connections with servers using Let's Encrypt TLS certificates should now again work on Android 7-
+- Fixed bug where universal link was sometimes dropped on iOS when app was not already running
+- Fixed glitch in history screen due to null deref when showing issuance of revokable credential
+- Order of cards in the wallet is now always stable
+
+## [6.2.1] - 2021-11-30 (in beta 2021-08-27)
 ### Changed
 - Migrated to Flutter 2
 - Small improvements to English texts
@@ -132,6 +147,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Various bug fixes
 
 
+[6.2.2]: https://github.com/privacybydesign/irmamobile/compare/v6.2.1...v6.2.2
 [6.2.1]: https://github.com/privacybydesign/irmamobile/compare/v6.2.0...v6.2.1
 [6.2.0]: https://github.com/privacybydesign/irmamobile/compare/v6.1.2...v6.2.0
 [6.1.2]: https://github.com/privacybydesign/irmamobile/compare/v6.1.1...v6.1.2
