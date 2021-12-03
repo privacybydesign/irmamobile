@@ -6,6 +6,8 @@ PODS:
     - Flutter
   - flutter_privacy_screen (0.0.1):
     - Flutter
+  - integration_test (0.0.1):
+    - Flutter
   - MTBBarcodeScanner (5.0.11)
   - package_info (0.0.1):
     - Flutter
@@ -32,6 +34,7 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_jailbreak_detection (from `.symlinks/plugins/flutter_jailbreak_detection/ios`)
   - flutter_privacy_screen (from `.symlinks/plugins/flutter_privacy_screen/ios`)
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
   - package_info (from `.symlinks/plugins/package_info/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - qr_code_scanner (from `.symlinks/plugins/qr_code_scanner/ios`)
@@ -53,6 +56,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_jailbreak_detection/ios"
   flutter_privacy_screen:
     :path: ".symlinks/plugins/flutter_privacy_screen/ios"
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
   package_info:
     :path: ".symlinks/plugins/package_info/ios"
   package_info_plus:
@@ -73,6 +78,7 @@ SPEC CHECKSUMS:
   Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
   flutter_jailbreak_detection: f6c01e4bc73641c6b69c5112e50301240601abb4
   flutter_privacy_screen: 60e2b67bb00f0bba6ccfbdf8c5ad353ef928fb68
+  integration_test: 6eb66a19f7104200dcfdd62bc0077e1b09686e4f
   MTBBarcodeScanner: f453b33c4b7dfe545d8c6484ed744d55671788cb
   package_info: 873975fc26034f0b863a300ad47e7f1ac6c7ec62
   package_info_plus: 6c92f08e1f853dc01228d6f553146438dafcd14e
@@ -85,4 +91,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
 
-COCOAPODS: 1.10.1
+COCOAPODS: 1.10.2
