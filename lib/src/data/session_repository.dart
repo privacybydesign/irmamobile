@@ -235,7 +235,11 @@ class SessionRepository {
   }
 
   bool _attributesEqual(Attribute left, Attribute right) {
-    return left.attributeType.fullId == right.attributeType.fullId &&
+    // For placeholder attributes, that still need to be obtained using issuance-in-disclosure, the credential hash is
+    // always empty. If we would check the hash only, then placeholder attributes would always be considered equal.
+    // Therefore, we have to compare attribute type and value too.
+    return left.credentialHash == right.credentialHash &&
+        left.attributeType.fullId == right.attributeType.fullId &&
         left.value.runtimeType == right.value.runtimeType &&
         left.value.raw == right.value.raw;
   }
