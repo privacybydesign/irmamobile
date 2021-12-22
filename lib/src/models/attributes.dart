@@ -222,7 +222,7 @@ class DisclosedAttribute {
 class DisclosureCandidate {
   DisclosureCandidate({
     required this.type,
-    required this.notRevokable,
+    this.notRevokable = false,
     this.value = const TranslatedValue.empty(),
     this.credentialHash,
   });

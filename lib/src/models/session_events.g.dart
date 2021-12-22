@@ -82,13 +82,11 @@ Map<String, dynamic> _$ClientReturnURLSetSessionEventToJson(ClientReturnURLSetSe
 SuccessSessionEvent _$SuccessSessionEventFromJson(Map<String, dynamic> json) {
   return SuccessSessionEvent(
     sessionID: json['SessionID'] as int,
-    result: json['Result'] as String,
   );
 }
 
 Map<String, dynamic> _$SuccessSessionEventToJson(SuccessSessionEvent instance) => <String, dynamic>{
       'SessionID': instance.sessionID,
-      'Result': instance.result,
     };
 
 FailureSessionEvent _$FailureSessionEventFromJson(Map<String, dynamic> json) {
@@ -149,9 +147,6 @@ RequestVerificationPermissionSessionEvent _$RequestVerificationPermissionSession
     sessionID: json['SessionID'] as int,
     serverName: RequestorInfo.fromJson(json['ServerName'] as Map<String, dynamic>),
     satisfiable: json['Satisfiable'] as bool,
-    disclosuresLabels: (json['DisclosuresLabels'] as Map<String, dynamic>?)?.map(
-      (k, e) => MapEntry(int.parse(k), TranslatedValue.fromJson(e as Map<String, dynamic>?)),
-    ),
     disclosuresCandidates: (json['DisclosuresCandidates'] as List<dynamic>)
         .map((e) => (e as List<dynamic>)
             .map((e) =>
@@ -159,6 +154,9 @@ RequestVerificationPermissionSessionEvent _$RequestVerificationPermissionSession
             .toList())
         .toList(),
     isSignatureSession: json['IsSignatureSession'] as bool,
+    disclosuresLabels: (json['DisclosuresLabels'] as Map<String, dynamic>?)?.map(
+      (k, e) => MapEntry(int.parse(k), TranslatedValue.fromJson(e as Map<String, dynamic>?)),
+    ),
     signedMessage: json['SignedMessage'] as String?,
   );
 }

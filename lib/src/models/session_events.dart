@@ -114,10 +114,7 @@ class ClientReturnURLSetSessionEvent extends SessionEvent {
 
 @JsonSerializable()
 class SuccessSessionEvent extends SessionEvent {
-  SuccessSessionEvent({required int sessionID, required this.result}) : super(sessionID);
-
-  @JsonKey(name: 'Result')
-  final String result;
+  SuccessSessionEvent({required int sessionID}) : super(sessionID);
 
   factory SuccessSessionEvent.fromJson(Map<String, dynamic> json) => _$SuccessSessionEventFromJson(json);
   Map<String, dynamic> toJson() => _$SuccessSessionEventToJson(this);
@@ -152,8 +149,8 @@ class RequestIssuancePermissionSessionEvent extends SessionEvent {
     required this.serverName,
     required this.satisfiable,
     required this.issuedCredentials,
-    required this.disclosuresLabels,
-    required this.disclosuresCandidates,
+    this.disclosuresLabels,
+    this.disclosuresCandidates = const [],
   }) : super(sessionID);
 
   @JsonKey(name: 'ServerName')
@@ -182,9 +179,9 @@ class RequestVerificationPermissionSessionEvent extends SessionEvent {
     required int sessionID,
     required this.serverName,
     required this.satisfiable,
-    required this.disclosuresLabels,
     required this.disclosuresCandidates,
     required this.isSignatureSession,
+    this.disclosuresLabels,
     this.signedMessage,
   }) : super(sessionID);
 

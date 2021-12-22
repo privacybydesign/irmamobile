@@ -11,6 +11,7 @@ class TranslatedValue {
   const TranslatedValue.empty() : _map = const {};
 
   factory TranslatedValue.fromString(String text) => TranslatedValue({_defaultFallbackLang: text});
+  factory TranslatedValue.fromStringWithRaw(String text) => TranslatedValue({_defaultFallbackLang: text, '': text});
 
   bool get isEmpty => _map.isEmpty;
   bool get isNotEmpty => _map.isNotEmpty;

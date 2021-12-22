@@ -63,6 +63,8 @@ String irmaConfigurationEventJson = r"""
         "Timestamp": 1574921350
       }
     },
+    "RequestorSchemes": {},
+    "Requestors": {},
     "Issuers": {
       "irma-demo.DemoDuo": {
         "ID": "DemoDuo",
@@ -9510,6 +9512,7 @@ String irmaConfigurationEventJson = r"""
         "SchemeManagerID": "pbdf"
       }
     },
+    "IssueWizards": {},
     "Path": "/tmp/v2/irma_configuration",
     "DisabledSchemeManagers": {}
   }
