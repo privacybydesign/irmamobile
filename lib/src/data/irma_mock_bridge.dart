@@ -123,9 +123,10 @@ class IrmaMockBridge extends IrmaBridge {
       }()
           .forEach(addEvent);
 
-  /// Mock an issuing session of the given credentials.
+  /// Mock an issuing session of the given list credentials. Credentials should be given by
+  /// specifying an attribute value for each attribute id in a map.
   @visibleForTesting
-  Future<void> mockIssuanceSession(int sessionId, List<RawCredential> credentials) => () async* {
+  Future<void> mockIssuanceSession(int sessionId, List<Map<String, TranslatedValue>> credentials) => () async* {
         await _receivedEvents.firstWhere((event) => event is NewSessionEvent && event.sessionID == sessionId);
         yield StatusUpdateSessionEvent(
           sessionID: sessionId,
@@ -141,11 +142,35 @@ class IrmaMockBridge extends IrmaBridge {
           action: 'issuing',
           status: 'connected',
         );
+
+        // Convert given credentials to RawCredentials.
+        final now = DateTime.now();
+        final issuedCredentials = credentials.map((attrs) {
+          // All attributes in a credential should be known in the configuration.
+          assert(attrs.entries
+                  .map((attr) => _irmaConfiguration.attributeTypes[attr.key]!.fullCredentialId)
+                  .toSet()
+                  .length ==
+              1);
+          final attributeType = _irmaConfiguration.attributeTypes[attrs.keys.first]!;
+          return RawCredential(
+            schemeManagerId: attributeType.schemeManagerId,
+            issuerId: attributeType.issuerId,
+            id: attributeType.credentialTypeId,
+            signedOn: now.microsecondsSinceEpoch ~/ 1000,
+            expires: now.add(const Duration(days: 365)).microsecondsSinceEpoch ~/ 1000,
+            attributes: attrs,
+            hash: 'session-$sessionId', // Use the session id as a dummy hash to make it unique and predicable.
+            revoked: false,
+            revocationSupported: false,
+          );
+        }).toList();
+
         yield RequestIssuancePermissionSessionEvent(
           sessionID: sessionId,
           serverName: RequestorInfo(name: TranslatedValue.fromString('test')),
           satisfiable: true,
-          issuedCredentials: credentials,
+          issuedCredentials: issuedCredentials,
         );
 
         // Wait for the RespondPermissionEvent to come.
@@ -154,7 +179,7 @@ class IrmaMockBridge extends IrmaBridge {
 
         if (permissionEvent.proceed) {
           yield SuccessSessionEvent(sessionID: sessionId);
-          _storedCredentials.addAll(credentials);
+          _storedCredentials.addAll(issuedCredentials);
           yield CredentialsEvent(credentials: _storedCredentials);
         } else {
           yield CanceledSessionEvent(sessionID: sessionId);

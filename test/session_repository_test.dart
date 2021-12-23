@@ -4,7 +4,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/src/data/irma_mock_bridge.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
@@ -44,23 +43,11 @@ void main() {
     expect(disclosureSession.disclosureChoices[0][0].credentialHash, '');
     expect(disclosureSession.disclosureIndices, [0]);
 
-    // TODO: template
-    final now = DateTime.now();
     mockBridge.mockIssuanceSession(43, [
-      RawCredential(
-        schemeManagerId: 'irma-demo',
-        issuerId: 'IRMATube',
-        id: 'member',
-        signedOn: now.microsecondsSinceEpoch ~/ 1000,
-        expires: now.add(const Duration(days: 365)).microsecondsSinceEpoch ~/ 1000,
-        attributes: {
-          'irma-demo.IRMATube.member.id': TranslatedValue.fromStringWithRaw('12345'),
-          'irma-demo.IRMATube.member.type': TranslatedValue.fromStringWithRaw('member'),
-        },
-        hash: 'abcdef',
-        revoked: false,
-        revocationSupported: false,
-      )
+      {
+        'irma-demo.IRMATube.member.id': TranslatedValue.fromStringWithRaw('12345'),
+        'irma-demo.IRMATube.member.type': TranslatedValue.fromStringWithRaw('member'),
+      }
     ]);
     repo.dispatch(NewSessionEvent(sessionId: 43, request: SessionPointer(irmaqr: 'issuing')), isBridgedEvent: true);
 
@@ -90,7 +77,7 @@ void main() {
     expect(disclosureSession.disclosureChoices.length, 1);
     expect(disclosureSession.disclosureChoices[0].length, 1);
     expect(disclosureSession.disclosureChoices[0][0].type, 'irma-demo.IRMATube.member.id');
-    expect(disclosureSession.disclosureChoices[0][0].credentialHash, 'abcdef');
+    expect(disclosureSession.disclosureChoices[0][0].credentialHash, 'session-43');
     expect(disclosureSession.disclosureIndices, [0]);
     repo.dispatch(
       RespondPermissionEvent(sessionID: 42, proceed: true, disclosureChoices: disclosureSession.disclosureChoices),
