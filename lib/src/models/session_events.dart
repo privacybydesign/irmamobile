@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/event.dart';
@@ -20,7 +21,8 @@ class NewSessionEvent extends SessionEvent {
   // We start at some arbitrary point above zero
   static int sessionIDCounter = 42;
 
-  NewSessionEvent({required this.request, this.inAppCredential = ''}) : super(sessionIDCounter++);
+  NewSessionEvent({@visibleForTesting int? sessionId, required this.request, this.inAppCredential = ''})
+      : super(sessionId ?? sessionIDCounter++);
 
   @JsonKey(name: 'Request')
   final SessionPointer request;

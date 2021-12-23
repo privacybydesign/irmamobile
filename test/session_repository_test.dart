@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/src/data/irma_mock_bridge.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/credentials.dart';
+import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
@@ -23,7 +24,8 @@ void main() {
   });
 
   test('issuance-in-disclosure', () async {
-    mockBridge.mockDisclosureSession({'irma-demo.IRMATube.member.id': null});
+    mockBridge.mockDisclosureSession(42, {'irma-demo.IRMATube.member.id': null});
+    repo.dispatch(NewSessionEvent(sessionId: 42, request: SessionPointer(irmaqr: 'disclosing')), isBridgedEvent: true);
 
     SessionState disclosureSession = await repo
         .getSessionState(42)
@@ -44,7 +46,7 @@ void main() {
 
     // TODO: template
     final now = DateTime.now();
-    mockBridge.mockIssuanceSession([
+    mockBridge.mockIssuanceSession(43, [
       RawCredential(
         schemeManagerId: 'irma-demo',
         issuerId: 'IRMATube',
@@ -60,6 +62,7 @@ void main() {
         revocationSupported: false,
       )
     ]);
+    repo.dispatch(NewSessionEvent(sessionId: 43, request: SessionPointer(irmaqr: 'issuing')), isBridgedEvent: true);
 
     // Check whether the pairing status is being triggered.
     await repo.getSessionState(43).firstWhere((session) => session.status == SessionStatus.pairing);

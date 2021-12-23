@@ -93,10 +93,8 @@ class IrmaMockBridge extends IrmaBridge {
   /// to condiscon in such a way that all attributes from the same credentials are being
   /// clustered in the inner con of a condiscon.
   @visibleForTesting
-  Future<void> mockDisclosureSession(Map<String, String?> candidates) => () async* {
-        final newSessionEvent = NewSessionEvent(request: SessionPointer(irmaqr: 'disclosing'));
-        yield newSessionEvent;
-        final sessionId = newSessionEvent.sessionID;
+  Future<void> mockDisclosureSession(int sessionId, Map<String, String?> candidates) => () async* {
+        await _receivedEvents.firstWhere((event) => event is NewSessionEvent && event.sessionID == sessionId);
         yield StatusUpdateSessionEvent(
           sessionID: sessionId,
           action: 'disclosing',
@@ -127,10 +125,8 @@ class IrmaMockBridge extends IrmaBridge {
 
   /// Mock an issuing session of the given credentials.
   @visibleForTesting
-  Future<void> mockIssuanceSession(List<RawCredential> credentials) => () async* {
-        final newSessionEvent = NewSessionEvent(request: SessionPointer(irmaqr: 'issuing'));
-        yield newSessionEvent;
-        final sessionId = newSessionEvent.sessionID;
+  Future<void> mockIssuanceSession(int sessionId, List<RawCredential> credentials) => () async* {
+        await _receivedEvents.firstWhere((event) => event is NewSessionEvent && event.sessionID == sessionId);
         yield StatusUpdateSessionEvent(
           sessionID: sessionId,
           action: 'issuing',
