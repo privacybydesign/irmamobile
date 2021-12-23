@@ -23,13 +23,13 @@ lint:dart:
 
 test:flutter:
   script:
-    - flutter test
+    - flutter test --no-sound-null-safety
   stage: test
 
 build_bridge:
   stage: build_bridge
   interruptible: true
-  only: 
+  only:
     - master
     - merge_requests
   artifacts:
@@ -37,11 +37,11 @@ build_bridge:
       - android/irmagobridge/irmagobridge.aar
   script:
     - gomobile bind -target android -o android/irmagobridge/irmagobridge.aar github.com/privacybydesign/irmamobile/irmagobridge
-  
+
 build_app:
   stage: build_app
   interruptible: true
-  only: 
+  only:
     - master
     - merge_requests
   artifacts:
