@@ -131,7 +131,7 @@ class IrmaMockBridge extends IrmaBridge {
           .forEach(addEvent);
 
   /// Mock an issuing session of the given list credentials. Credentials should be given by
-  /// specifying an attribute value for each attribute id in a map.
+  /// specifying a text value for each attribute in a map.
   @visibleForTesting
   Future<void> mockIssuanceSession(int sessionId, List<Map<String, TextValue>> credentials) => () async* {
         await _sessionEventsSubject.firstWhere((event) => event is NewSessionEvent && event.sessionID == sessionId);
