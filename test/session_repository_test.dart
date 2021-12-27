@@ -4,10 +4,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/src/data/irma_mock_bridge.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
+import 'package:irmamobile/src/models/attribute_value.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
-import 'package:irmamobile/src/models/translated_value.dart';
 
 void main() {
   IrmaRepository repo;
@@ -23,7 +23,9 @@ void main() {
   });
 
   test('issuance-in-disclosure', () async {
-    mockBridge.mockDisclosureSession(42, {'irma-demo.IRMATube.member.id': null});
+    mockBridge.mockDisclosureSession(42, [
+      {'irma-demo.IRMATube.member.id': null}
+    ]);
     repo.dispatch(NewSessionEvent(sessionId: 42, request: SessionPointer(irmaqr: 'disclosing')), isBridgedEvent: true);
 
     final disclosureSessionStream = repo.getSessionState(42).asBroadcastStream();
@@ -43,8 +45,8 @@ void main() {
 
     mockBridge.mockIssuanceSession(43, [
       {
-        'irma-demo.IRMATube.member.id': TranslatedValue.fromStringWithRaw('12345'),
-        'irma-demo.IRMATube.member.type': TranslatedValue.fromStringWithRaw('member'),
+        'irma-demo.IRMATube.member.id': TextValue.fromString('12345'),
+        'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
       }
     ]);
     repo.dispatch(NewSessionEvent(sessionId: 43, request: SessionPointer(irmaqr: 'issuing')), isBridgedEvent: true);
@@ -86,7 +88,9 @@ void main() {
   });
 
   test('issuance-in-disclosure-using-specific-attributes', () async {
-    mockBridge.mockDisclosureSession(42, {'irma-demo.IRMATube.member.id': '123'});
+    mockBridge.mockDisclosureSession(42, [
+      {'irma-demo.IRMATube.member.id': '123'}
+    ]);
     repo.dispatch(NewSessionEvent(sessionId: 42, request: SessionPointer(irmaqr: 'disclosing')), isBridgedEvent: true);
 
     // The disclosure session should not be satisfiable yet.
@@ -104,8 +108,8 @@ void main() {
     // Start an issuance session to get a non-matching credential.
     mockBridge.mockIssuanceSession(43, [
       {
-        'irma-demo.IRMATube.member.id': TranslatedValue.fromStringWithRaw('124'),
-        'irma-demo.IRMATube.member.type': TranslatedValue.fromStringWithRaw('member'),
+        'irma-demo.IRMATube.member.id': TextValue.fromString('124'),
+        'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
       }
     ]);
     repo.dispatch(NewSessionEvent(sessionId: 43, request: SessionPointer(irmaqr: 'issuing')), isBridgedEvent: true);
@@ -130,8 +134,8 @@ void main() {
     // Start a second issuance session to get the right credential.
     mockBridge.mockIssuanceSession(44, [
       {
-        'irma-demo.IRMATube.member.id': TranslatedValue.fromStringWithRaw('123'),
-        'irma-demo.IRMATube.member.type': TranslatedValue.fromStringWithRaw('member'),
+        'irma-demo.IRMATube.member.id': TextValue.fromString('123'),
+        'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
       }
     ]);
     repo.dispatch(NewSessionEvent(sessionId: 44, request: SessionPointer(irmaqr: 'issuing')), isBridgedEvent: true);
