@@ -7,6 +7,8 @@ Future<void> initSentry() async {
   if (dsn != '') {
     await SentryFlutter.init(
       (options) {
+        // Build number is automatically set by Sentry via the 'dist' tag.
+        options.release = version;
         options.dsn = dsn;
       },
     );
