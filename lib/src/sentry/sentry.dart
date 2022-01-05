@@ -8,9 +8,9 @@ Future<void> initSentry() async {
   if (dsn != '') {
     await SentryFlutter.init(
       (options) async {
-        final info = await PackageInfo.fromPlatform();
         // Build number is automatically set by Sentry via the 'dist' tag.
-        options.release = info.version;
+        final release = await PackageInfo.fromPlatform().then((info) => info.version).catchError((_) => version);
+        options.release = release;
         options.dsn = dsn;
       },
     );
