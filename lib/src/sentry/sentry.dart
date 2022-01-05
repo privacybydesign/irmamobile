@@ -1,14 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:irmamobile/sentry_dsn.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
+import 'package:package_info/package_info.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 Future<void> initSentry() async {
   if (dsn != '') {
     await SentryFlutter.init(
-      (options) {
+      (options) async {
+        final info = await PackageInfo.fromPlatform();
         // Build number is automatically set by Sentry via the 'dist' tag.
-        options.release = version;
+        options.release = info.version;
         options.dsn = dsn;
       },
     );
