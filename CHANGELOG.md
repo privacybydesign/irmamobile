@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.2.3] - in beta 2022-01-06
+### Fixed
+- Fixed crash on Android 6 when scanning QR codes
+- Fixed session screen not updating when issuing a non-singleton during disclosure
+- Fixed race condition on Android causing it sometimes to not pick up the universal link during startup
+
 ## [6.2.2] - 2021-12-24 (in beta 2021-11-30)
 ### Added
 - Integration tests (partly) for the following screens: about, enrollment, history, issuance, PIN entry, settings, wallet
@@ -148,6 +154,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Various bug fixes
 
 
+[6.2.3]: https://github.com/privacybydesign/irmamobile/compare/v6.2.2...v6.2.3
 [6.2.2]: https://github.com/privacybydesign/irmamobile/compare/v6.2.1...v6.2.2
 [6.2.1]: https://github.com/privacybydesign/irmamobile/compare/v6.2.0...v6.2.1
 [6.2.0]: https://github.com/privacybydesign/irmamobile/compare/v6.1.2...v6.2.0
