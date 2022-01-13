@@ -229,7 +229,8 @@
       "delete_content": "Als je doorgaat, verwijder je al je kaartjes en je toegang tot de IRMA-app. Wil je de IRMA-app opnieuw gebruiken? Kies een nieuwe pincode en haal je kaartjes opnieuw op.",
       "delete_confirm": "Verwijder alles",
       "delete_deny": "Annuleer",
-      "developer_mode": "Developer modus"
+      "developer_mode": "Developer modus",
+      "enable_screenshots": "Sta screenshots toe"
     }
   },
   "change_pin": {

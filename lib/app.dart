@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_i18n/flutter_i18n_delegate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_privacy_screen/flutter_privacy_screen.dart';
 import 'package:irmamobile/routing.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
@@ -97,6 +98,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     });
 
     _listenForDataClear();
+    _listenScreenshotPref();
   }
 
   @override
@@ -312,6 +314,12 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
         child: const SplashScreen(),
       ),
     );
+  }
+
+  void _listenScreenshotPref() {
+    IrmaPreferences.get().getScreenshotsEnabled().listen((enabled) {
+      enabled ? FlutterPrivacyScreen.disablePrivacyScreen() : FlutterPrivacyScreen.enablePrivacyScreen();
+    });
   }
 
   Stream<bool> _displayDeviceIsRootedWarning() {

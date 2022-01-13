@@ -13,6 +13,9 @@ class IrmaPreferences {
 
   IrmaPreferences._internal() {
     StreamingSharedPreferences.instance.then((preferences) {
+      final screenshotsEnabledPref = preferences.getBool(_screenshotsEnabledKey, defaultValue: false);
+      screenshotsEnabledPref.listen(_screenshotsEnabled.add);
+
       final longPinPref = preferences.getBool(_longPinKey, defaultValue: true);
       longPinPref.listen(_longPin.add);
 
@@ -36,6 +39,19 @@ class IrmaPreferences {
   Future<void> clearAll() {
     return StreamingSharedPreferences.instance.then((preferences) {
       return preferences.clear();
+    });
+  }
+
+  static const String _screenshotsEnabledKey = "preference.screenshots_enabled";
+  final BehaviorSubject<bool> _screenshotsEnabled = BehaviorSubject<bool>();
+
+  Stream<bool> getScreenshotsEnabled() {
+    return _screenshotsEnabled;
+  }
+
+  Future<bool> setScreenshotsEnabled(bool value) {
+    return StreamingSharedPreferences.instance.then((preferences) {
+      return preferences.setBool(_screenshotsEnabledKey, value);
     });
   }
 

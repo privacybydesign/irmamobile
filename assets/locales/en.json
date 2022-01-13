@@ -229,7 +229,8 @@
       "delete_content": "If you proceed, all your cards will be deleted from your IRMA app. Do you wish to use IRMA again later? You will have to reload cards first.",
       "delete_confirm": "Yes, delete everything",
       "delete_deny": "Cancel",
-      "developer_mode": "Developer mode"
+      "developer_mode": "Developer mode",
+      "enable_screenshots": "Enable screenshots"
     }
   },
   "change_pin": {

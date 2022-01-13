@@ -1,6 +1,8 @@
 // This code is not null safe yet.
 // @dart=2.11
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
@@ -88,6 +90,22 @@ class SettingsScreen extends StatelessWidget {
             },
             leading: Icon(IrmaIcons.delete, color: IrmaTheme.of(context).textTheme.body1.color),
           ),
+          if (Platform.operatingSystem == "android")
+            StreamBuilder(
+              stream: irmaPrefs.getScreenshotsEnabled(),
+              builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+                return SwitchListTile.adaptive(
+                  title: Text(
+                    FlutterI18n.translate(context, 'settings.advanced.enable_screenshots'),
+                    style: IrmaTheme.of(context).textTheme.body1,
+                  ),
+                  activeColor: IrmaTheme.of(context).interactionValid,
+                  value: snapshot.data != null && snapshot.data,
+                  onChanged: irmaPrefs.setScreenshotsEnabled,
+                  secondary: Icon(IrmaIcons.phone, color: IrmaTheme.of(context).textTheme.body1.color),
+                );
+              },
+            ),
           StreamBuilder(
             stream: irmaPrefs.getDeveloperModeVisible(),
             builder: (BuildContext context, AsyncSnapshot<bool> visible) {
