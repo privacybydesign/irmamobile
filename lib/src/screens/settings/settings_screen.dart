@@ -99,6 +99,10 @@ class SettingsScreen extends StatelessWidget {
                     FlutterI18n.translate(context, 'settings.advanced.enable_screenshots'),
                     style: IrmaTheme.of(context).textTheme.body1,
                   ),
+                  subtitle: Text(
+                    FlutterI18n.translate(context, 'settings.advanced.enable_screenshots_note'),
+                    style: IrmaTheme.of(context).textTheme.caption.copyWith(color: IrmaTheme.of(context).grayscale40),
+                  ),
                   activeColor: IrmaTheme.of(context).interactionValid,
                   value: snapshot.data != null && snapshot.data,
                   onChanged: irmaPrefs.setScreenshotsEnabled,

@@ -230,7 +230,8 @@
       "delete_confirm": "Verwijder alles",
       "delete_deny": "Annuleer",
       "developer_mode": "Developer modus",
-      "enable_screenshots": "Sta screenshots toe"
+      "enable_screenshots": "Sta screenshots toe",
+      "enable_screenshots_note": "Als dit is ingeschakeld wordt de app niet vervaagd in de app-switcher."
     }
   },
   "change_pin": {
