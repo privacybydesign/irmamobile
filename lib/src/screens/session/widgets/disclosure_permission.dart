@@ -156,7 +156,6 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
 
   @protected
   Widget _buildNavigationBar() {
-    final showTooltip = _showTooltip && !_scrolledToEnd;
     return IrmaBottomBar(
       primaryButtonLabel: _scrolledToEnd
           ? FlutterI18n.translate(context, 'session.navigation_bar.yes')
