@@ -156,7 +156,7 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
 
   void _scrollDown() {
     final target = _scrollController.offset +
-        min(_scrollController.position.extentInside / 2.0, _scrollController.position.extentAfter);
+        min(_scrollController.position.extentInside * 0.75, _scrollController.position.extentAfter);
     _scrollController.animateTo(target, curve: Curves.easeInOut, duration: const Duration(milliseconds: 400));
   }
 
