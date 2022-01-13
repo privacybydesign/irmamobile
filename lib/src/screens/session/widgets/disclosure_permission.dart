@@ -162,12 +162,15 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
 
   @protected
   Widget _buildNavigationBar() {
+    // Note that even if the "Yes" button is shown, it may be disabled.
+    final showYesButton = !widget.session.canDisclose || _scrolledToEnd;
+
     return IrmaBottomBar(
-      primaryButtonLabel: _scrolledToEnd
+      primaryButtonLabel: showYesButton
           ? FlutterI18n.translate(context, 'session.navigation_bar.yes')
           : FlutterI18n.translate(context, 'session.navigation_bar.more'),
       onPrimaryPressed:
-          _scrolledToEnd ? (widget.session.canDisclose ? () => widget.onGivePermission() : null) : _scrollDown,
+          showYesButton ? (widget.session.canDisclose ? () => widget.onGivePermission() : null) : _scrollDown,
       secondaryButtonLabel: FlutterI18n.translate(context, 'session.navigation_bar.no'),
       onSecondaryPressed: () => widget.onDismiss(),
     );
