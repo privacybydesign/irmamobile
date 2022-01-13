@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -11,6 +14,7 @@ import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/applifecycle_changed_event.dart';
 import 'package:irmamobile/src/models/clear_all_data_event.dart';
 import 'package:irmamobile/src/models/enrollment_status.dart';
+import 'package:irmamobile/src/models/event.dart';
 import 'package:irmamobile/src/models/native_events.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/update_schemes_event.dart';
@@ -31,7 +35,9 @@ import 'package:irmamobile/src/util/hero_controller.dart';
 const schemeUpdateIntervalHours = 3;
 
 class App extends StatefulWidget {
-  const App({Key key}) : super(key: key);
+  final Locale forcedLocale;
+
+  const App({Key key, this.forcedLocale}) : super(key: key);
 
   @override
   AppState createState() => AppState();
@@ -41,6 +47,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   final _detectRootedDeviceRepo = DetectRootedDeviceIrmaPrefsRepository();
   StreamSubscription<SessionPointer> _sessionPointerSubscription;
+  StreamSubscription<Event> _dataClearSubscription;
   bool _qrScannerActive = false;
   DateTime lastSchemeUpdate;
 
@@ -67,8 +74,8 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
 
   static List<Locale> defaultSupportedLocales() {
     return const [
-      Locale('nl', 'NL'),
       Locale('en', 'US'),
+      Locale('nl', 'NL'),
     ];
   }
 
@@ -95,6 +102,8 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _sessionPointerSubscription?.cancel();
+    _dataClearSubscription?.cancel();
     super.dispose();
   }
 
@@ -218,7 +227,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     // we cannot there manipulate the desired navigation stack for the enrollment
     // screen. Hence, we do that here, pushing the enrollment screen on the main
     // stack whenever the user clears all of his/her data.
-    IrmaRepository.get().getEvents().where((event) => event is ClearAllDataEvent).listen((_) {
+    _dataClearSubscription = IrmaRepository.get().getEvents().where((event) => event is ClearAllDataEvent).listen((_) {
       _navigatorKey.currentState.pushNamedAndRemoveUntil(EnrollmentScreen.routeName, (_) => false);
     });
   }
@@ -235,10 +244,11 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   }
 
   void _startSession(SessionPointer sessionPointer) {
-    ScannerScreen.startSessionAndNavigate(
-      _navigatorKey.currentState,
-      sessionPointer,
-    );
+    if (sessionPointer.wizard != null) {
+      ScannerScreen.startIssueWizard(navigator, sessionPointer);
+    } else {
+      ScannerScreen.startSessionAndNavigate(_navigatorKey.currentState, sessionPointer);
+    }
   }
 
   Widget _buildPinScreen(bool isLocked) {
@@ -288,15 +298,19 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
       return Container();
     }
 
-    return AnimatedOpacity(
-      opacity: enrollmentStatus == EnrollmentStatus.undetermined || _showSplash ? 1.0 : 0.0,
-      duration: const Duration(milliseconds: 500),
-      onEnd: () {
-        setState(() {
-          _removeSplash = true;
-        });
-      },
-      child: const SplashScreen(),
+    // In case of a fatal error, we have to lift the splash to make the error visible.
+    return StreamBuilder(
+      stream: IrmaRepository.get().getFatalErrors(),
+      builder: (context, fatalError) => AnimatedOpacity(
+        opacity: !fatalError.hasData && (enrollmentStatus == EnrollmentStatus.undetermined || _showSplash) ? 1.0 : 0.0,
+        duration: const Duration(milliseconds: 500),
+        onEnd: () {
+          setState(() {
+            _removeSplash = true;
+          });
+        },
+        child: const SplashScreen(),
+      ),
     );
   }
 
@@ -384,7 +398,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
                   title: 'IRMA',
                   theme: IrmaTheme.of(context).themeData,
                   localizationsDelegates: defaultLocalizationsDelegates(),
-                  supportedLocales: defaultSupportedLocales(),
+                  supportedLocales: widget.forcedLocale == null ? defaultSupportedLocales() : [widget.forcedLocale],
                   navigatorKey: _navigatorKey,
                   navigatorObservers: [this],
                   onGenerateRoute: Routing.generateRoute,

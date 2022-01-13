@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
@@ -21,7 +24,6 @@ class PinWrongBlockedDialog extends StatelessWidget {
     return IrmaDialog(
       title: FlutterI18n.translate(context, 'pin_common.blocked_title'),
       content: FlutterI18n.translate(context, "pin_common.blocked_pin", translationParams: {"blocked": blockedForStr}),
-      onClose: onClose,
       child: IrmaButton(
         size: IrmaButtonSize.small,
         onPressed: onClose ?? () => Navigator.of(context).pop(),

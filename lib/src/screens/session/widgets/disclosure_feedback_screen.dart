@@ -1,7 +1,10 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/util/translated_text.dart';
 import 'package:irmamobile/src/widgets/action_feedback.dart';
+import 'package:irmamobile/src/widgets/translated_text.dart';
 
 enum DisclosureFeedbackType {
   success,

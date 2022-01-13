@@ -8,7 +8,8 @@ part of 'credential_events.dart';
 
 CredentialsEvent _$CredentialsEventFromJson(Map<String, dynamic> json) {
   return CredentialsEvent(
-    credentials: (json['Credentials'] as List).map((e) => RawCredential.fromJson(e as Map<String, dynamic>)).toList(),
+    credentials:
+        (json['Credentials'] as List<dynamic>).map((e) => RawCredential.fromJson(e as Map<String, dynamic>)).toList(),
   );
 }
 

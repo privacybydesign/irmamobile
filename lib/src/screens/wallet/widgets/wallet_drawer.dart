@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -111,6 +114,7 @@ class WalletDrawer extends StatelessWidget {
                     child: Semantics(
                         button: true,
                         child: ListTile(
+                          key: const Key('menu_logout'),
                           contentPadding: EdgeInsets.only(left: IrmaTheme.of(context).mediumSpacing),
                           title: Text(
                             FlutterI18n.translate(context, 'drawer.lock_wallet'),

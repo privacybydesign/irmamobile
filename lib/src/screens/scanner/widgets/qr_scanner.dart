@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -30,6 +33,14 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
   Timer _errorTimer;
 
   @override
+  void dispose() {
+    if (_errorTimer?.isActive ?? false) {
+      _errorTimer.cancel();
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Stack(
@@ -39,6 +50,7 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
           // Therefore we make sure the QRView only renders when the app is unlocked
           // and the pin screen overlay is not active.
           // https://github.com/juliuscanute/qr_code_scanner/issues/87
+          // TODO: Is this still an issue? (check CHANGELOG of qr_code_scanner 0.3.0)
           StreamBuilder<bool>(
             stream: IrmaRepository.get().getLocked(),
             builder: (context, isLocked) {
@@ -62,7 +74,7 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
     );
   }
 
-  void _foundQR(String qr) {
+  Future<void> _foundQR(String qr) async {
     // If we already found a correct QR, cancel the current error message
     if (_errorTimer != null && _errorTimer.isActive) {
       _errorTimer.cancel();
@@ -74,11 +86,17 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
     }
 
     // Decode QR and determine if it's valid
+    final repo = IrmaRepository.get();
     SessionPointer sessionPointer;
     try {
       sessionPointer = SessionPointer.fromString(qr);
+      sessionPointer.validate(
+        wizardActive: await repo.getIssueWizardActive().first,
+        developerMode: await repo.getDeveloperMode().first,
+        irmaConfiguration: await repo.getIrmaConfiguration().first,
+      );
     } catch (e) {
-      // pass
+      sessionPointer = null; // trigger error message below
     }
 
     // If invalid, show an error message for a certain time
@@ -103,7 +121,10 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
     });
 
     Future.delayed(const Duration(milliseconds: 500), () {
-      widget.onFound(sessionPointer);
+      // Widget might have disposed during the timeout, so check for this first.
+      if (mounted) {
+        widget.onFound(sessionPointer);
+      }
     });
   }
 }

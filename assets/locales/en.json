@@ -173,11 +173,15 @@
   },
   "accessibility": {
     "irma_logo": "IRMA Logo",
+    "slideshow": "Slide {i} of {n}: {description}",
     "menu": "Menu",
     "back": "Back",
     "close": "Close",
     "next": "Next",
+    "alert": "Alert",
     "previous": "Previous",
+    "expanded": "Expanded",
+    "collapsed": "Collapsed",
     "unfold": "Expand",
     "update": "Update",
     "remove": "Remove",
@@ -199,9 +203,7 @@
     "choose": "Choose the data you wish to add.",
     "search": "Search...",
     "personal_data": "Personal data",
-    "identity_cards": "Identity cards",
-    "education": "Education",
-    "health": "Health",
+    "category_other": "Other",
     "card_info": {
       "app_bar": "Adding data",
       "header_credential_type": "Adding {credential_type}",
@@ -306,7 +308,7 @@
     "invalid_title": "PIN incorrect",
     "invalid_pin": {
       "attempts-0": "This PIN is not correct. You have {attemps} attempts left before your IRMA app will be blocked temporarily.",
-      "attempts-1": "This PIN is not correct. You have {attemps} attempts left before your IRMA app will be blocked temporarily.",
+      "attempts-1": "This PIN is not correct. You have {attemps} attempt left before your IRMA app will be blocked temporarily.",
       "attempts-2": "This PIN is not correct. You have {attemps} attempts left before your IRMA app will be blocked temporarily."
     },
     "invalid_close": "Try again",
@@ -328,7 +330,7 @@
     "explanation": "For your safety, the IRMA app regularly asks for your PIN."
   },
   "error": {
-    "title": "Something goes wrong",
+    "title": "Something went wrong",
     "blocked_title": "App blocked",
     "button_ok": "OK",
     "button_send_to_irma": "Send to IRMA's technical team",
@@ -336,10 +338,13 @@
     "button_retry": "Please try again",
     "button_back": "Back",
     "button_reset": "Start all over",
+    "details_title": "Error message",
+    "report": "If this happens again, please inform IRMA's technical team.",
     "types": {
-      "general": "Something went wrong.\n\nWhen this happens again, please inform IRMA's technical team.",
+      "general": "Something went wrong.",
       "blocked": "Your IRMA app has been remotely blocked.\n\nThis has either been done via MyIRMA for your app, or because you did not use IRMA on this device for more than a year. If you want to continue using IRMA on this device, you will need to start over.",
       "expired": "The session has expired. Please start over.",
+      "pairing_rejected": "The session was rejected. Please start over.",
       "no_internet": "Something went wrong. IRMA needs internet.\n\nPlease check your internet connection."
     }
   },
@@ -359,6 +364,8 @@
     "revoked": "This card is no longer valid",
     "not_valid": "Card not valid",
     "refresh": "Refresh card",
+    "delete": "Remove card",
+    "cannot_be_refreshed": "This card cannot be refreshed anymore.",
     "close": "Close",
     "help": "Help",
     "caption": "Your data securely on your mobile",
@@ -415,8 +422,15 @@
     "navigation_bar": {
       "more": "Meer",
       "yes": "Yes",
-      "no": "No, rather not",
-      "back": "Back"
+      "no": "No",
+      "back": "Back",
+      "cancel": "Cancel"
+    },
+    "pairing": {
+      "title": "Extra safety check",
+      "explanation": "Please enter the code below on the website.",
+      "message_title": "Pairing code",
+      "message_body_markdown": "A pairing code makes sure that the following steps can only be done in *your* IRMA app."
     },
     "unknown_session_type": {
       "title": "Cancelled",
@@ -425,22 +439,27 @@
   },
   "disclosure": {
     "title": "Make yourself known",
-    "disclosure_header_markdown": "Do you wish to disclose the following data to **{otherParty}**?",
-    "disclosure_call_header_markdown": "Do you wish to diclose the following data to **{otherParty}** and call to **{phoneNumber}**?",
-    "signing_header": " asks you to sign a message",
+    "disclosure_header": "Do you wish to disclose the following data to {otherParty}?",
+    "disclosure_call_header": "Do you wish to diclose the following data to {otherParty} and call to {phoneNumber}?",
+    "signing_header": "{otherParty} asks you to sign a message",
+    "signing_call_header": "{otherParty} asks you to sign a message and call to {phoneNumber}",
+    "unsatisfiable_header": "You don't yet have all data that {otherParty} is asking for in your IRMA app.",
     "issuer": "Issuer",
+    "logo_semantic": "Logo of {otherParty}",
     "credential_name": "Card",
     "choices": "{choices} choices",
     "next": "next choices",
     "previous": "previous choices",
     "not_present": "These data have not yet been added to IRMA.",
-    "not_present_have_other": "You have a card of this type, but not with the requested data.",
+    "not_present_have_other": "The requested data do not match with the data you already have.",
+    "you_have": "You have:",
+    "requested_for": "This is requested:",
+    "card_count": "{i} of {total}",
+    "among_others": "Among others",
     "add_additional": "Want to show different information? Add an additional '{credential}' card.",
     "expired": "These data are expired.",
     "revoked": "These data have been revoked.",
     "not_revokable": "These data have to be refreshed first.",
-    "unsatisfiable_title": "Add data",
-    "unsatisfiable_message_markdown": "You are asked to disclose personal data that are not yet present in your IRMA app or that have expired. Add the data to your IRMA app and then disclose them.",
     "obtain": "Add",
     "refresh": "Refresh",
     "nothing_selected": "Nothing selected",
@@ -487,9 +506,11 @@
     "existing_data_removed": "All cards in your IRMA app are deleted."
   },
   "arrow_back": {
-    "info_1": "Done, your data have been disclosed.\n\n",
-    "safari": "Tap on the name of the application (such as Safari, Chrome, Firefox) ",
-    "info_2": "in the top left corner to return to the application you came from."
+    "info_no_success": "Cancelled.",
+    "info_success-0": "Done, your data have been disclosed.",
+    "info_success-1": "Done, the card is added.",
+    "info_success-2": "Done, the cards are added.",
+    "safari": "Tap on the name of the application (such as Safari, Chrome, Firefox) in the top left corner to return to the application you came from."
   },
   "update": {
     "required": "In order to continue using IRMA, you will need to update the app",
@@ -502,5 +523,12 @@
     "title": "Device unsafe",
     "body": "The operating system on your device seems to be modified. Because of this, the safety of your data cannot be guaranteed.",
     "button_accept_risk": "I accept the risk"
+  },
+  "issue_wizard": {
+    "back": "Cancel",
+    "done": "OK",
+    "add": "Add",
+    "add_cards": "Add cards",
+    "add_credential": "Add {credential}"
   }
 }

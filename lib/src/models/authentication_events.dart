@@ -11,7 +11,7 @@ class AuthenticateEvent extends AuthenticationEvent {
   @JsonKey(name: "Pin")
   final String pin;
 
-  AuthenticateEvent({this.pin});
+  AuthenticateEvent({required this.pin});
   factory AuthenticateEvent.fromJson(Map<String, dynamic> json) => _$AuthenticateEventFromJson(json);
   Map<String, dynamic> toJson() => _$AuthenticateEventToJson(this);
 }
@@ -30,9 +30,9 @@ class AuthenticationFailedEvent extends AuthenticationEvent {
   final int remainingAttempts;
 
   @JsonKey(name: "BlockedDuration")
-  int blockedDuration;
+  final int blockedDuration;
 
-  AuthenticationFailedEvent({this.remainingAttempts, this.blockedDuration});
+  AuthenticationFailedEvent({required this.remainingAttempts, required this.blockedDuration});
   factory AuthenticationFailedEvent.fromJson(Map<String, dynamic> json) => _$AuthenticationFailedEventFromJson(json);
   Map<String, dynamic> toJson() => _$AuthenticationFailedEventToJson(this);
 }
@@ -42,7 +42,7 @@ class AuthenticationErrorEvent extends AuthenticationEvent {
   @JsonKey(name: "Error")
   final SessionError error;
 
-  AuthenticationErrorEvent({this.error});
+  AuthenticationErrorEvent({required this.error});
   factory AuthenticationErrorEvent.fromJson(Map<String, dynamic> json) => _$AuthenticationErrorEventFromJson(json);
   Map<String, dynamic> toJson() => _$AuthenticationErrorEventToJson(this);
 }

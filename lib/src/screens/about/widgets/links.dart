@@ -9,8 +9,8 @@ import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
+import 'package:irmamobile/src/widgets/link.dart';
 import 'package:share/share.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ExternalLink extends StatelessWidget {
   final String link;
@@ -37,11 +37,10 @@ class ExternalLink extends StatelessWidget {
         ),
         Expanded(
           child: Container(
-            child: InkWell(
+            child: Link(
               onTap: () {
                 try {
                   IrmaRepository.get().openURL(
-                    context,
                     FlutterI18n.translate(context, link),
                   );
                 } on PlatformException catch (e, stacktrace) {
@@ -49,13 +48,7 @@ class ExternalLink extends StatelessWidget {
                   reportError(e, stacktrace);
                 }
               },
-              child: Text(
-                FlutterI18n.translate(context, linkText),
-                style: TextStyle(
-                  color: IrmaTheme.of(context).linkColor,
-                  decoration: TextDecoration.underline,
-                ),
-              ),
+              label: FlutterI18n.translate(context, linkText),
             ),
           ),
         ),
@@ -89,17 +82,11 @@ class InternalLink extends StatelessWidget {
         ),
         Expanded(
           child: Container(
-            child: InkWell(
+            child: Link(
               onTap: () {
                 Navigator.pushNamed(context, link);
               },
-              child: Text(
-                FlutterI18n.translate(context, linkText),
-                style: TextStyle(
-                  color: IrmaTheme.of(context).linkColor,
-                  decoration: TextDecoration.underline,
-                ),
-              ),
+              label: FlutterI18n.translate(context, linkText),
             ),
           ),
         ),
@@ -134,18 +121,12 @@ class ShareLink extends StatelessWidget {
         ),
         Expanded(
           child: Container(
-            child: InkWell(
+            child: Link(
               onTap: () {
                 final RenderBox box = context.findRenderObject() as RenderBox;
                 Share.share(shareText, sharePositionOrigin: box.localToGlobal(Offset.zero) & box.size);
               },
-              child: Text(
-                FlutterI18n.translate(context, displayText),
-                style: TextStyle(
-                  color: IrmaTheme.of(context).linkColor,
-                  decoration: TextDecoration.underline,
-                ),
-              ),
+              label: FlutterI18n.translate(context, displayText),
             ),
           ),
         ),
@@ -175,14 +156,14 @@ class ContactLink extends StatelessWidget {
         ),
         Expanded(
           // TODO: make one general widget for all spots where we offer contact possibilities
-          child: InkWell(
+          child: Link(
             onTap: () async {
               final String address = FlutterI18n.translate(context, 'help.contact');
               final String subject = Uri.encodeComponent(FlutterI18n.translate(context, 'about.contact_subject'));
               final mail = 'mailto:$address?subject=$subject';
-              if (await canLaunch(mail)) {
-                await launch(mail);
-              } else {
+              try {
+                await IrmaRepository.get().openURLExternally(mail);
+              } catch (_) {
                 showDialog(
                   context: context,
                   builder: (BuildContext context) {
@@ -201,12 +182,7 @@ class ContactLink extends StatelessWidget {
                 );
               }
             },
-            child: Text(
-              FlutterI18n.translate(context, 'about.contact'),
-              style: IrmaTheme.of(context).hyperlinkTextStyle.copyWith(
-                    decoration: TextDecoration.underline,
-                  ),
-            ),
+            label: FlutterI18n.translate(context, 'about.contact'),
           ),
         ),
       ],

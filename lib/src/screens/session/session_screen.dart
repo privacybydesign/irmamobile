@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'dart:async';
 import 'dart:io';
 
@@ -6,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/native_events.dart';
+import 'package:irmamobile/src/models/return_url.dart';
+import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/screens/error/session_error_screen.dart';
@@ -16,11 +21,14 @@ import 'package:irmamobile/src/screens/session/widgets/arrow_back_screen.dart';
 import 'package:irmamobile/src/screens/session/widgets/disclosure_feedback_screen.dart';
 import 'package:irmamobile/src/screens/session/widgets/disclosure_permission.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_permission.dart';
+import 'package:irmamobile/src/screens/session/widgets/pairing_required.dart';
 import 'package:irmamobile/src/screens/session/widgets/session_scaffold.dart';
-import 'package:irmamobile/src/util/translated_text.dart';
+import 'package:irmamobile/src/sentry/sentry.dart';
+import 'package:irmamobile/src/util/combine.dart';
+import 'package:irmamobile/src/util/navigation.dart';
 import 'package:irmamobile/src/widgets/action_feedback.dart';
 import 'package:irmamobile/src/widgets/loading_indicator.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:irmamobile/src/widgets/translated_text.dart';
 
 class SessionScreen extends StatefulWidget {
   static const String routeName = "/session";
@@ -55,16 +63,14 @@ class _UnknownSessionScreenState extends State<SessionScreen> {
           "session.unknown_session_type.explanation",
           textAlign: TextAlign.center,
         ),
-        onDismiss: () => popToWallet(context),
+        onDismiss: () => (widget.arguments.wizardActive ? popToWizard : popToWallet)(context),
       );
 }
 
 class _SessionScreenState extends State<SessionScreen> {
   final IrmaRepository _repo = IrmaRepository.get();
-
-  Stream<SessionState> _sessionStateStream;
-
   final ValueNotifier<bool> _displayArrowBack = ValueNotifier<bool>(false);
+  Stream<SessionState> _sessionStateStream;
 
   @override
   void initState() {
@@ -86,20 +92,19 @@ class _SessionScreenState extends State<SessionScreen> {
     return isIssuance ? "issuance.title" : "disclosure.title";
   }
 
-  void _dispatchSessionEvent(SessionEvent event, {bool isBridgedEvent = true}) {
-    event.sessionID = widget.arguments.sessionID;
-    _repo.dispatch(event, isBridgedEvent: isBridgedEvent);
-  }
+  void _dispatchSessionEvent(SessionEvent event, {bool isBridgedEvent = true}) =>
+      _repo.dispatch(event, isBridgedEvent: isBridgedEvent);
 
   void _dismissSession() {
-    _dispatchSessionEvent(DismissSessionEvent());
+    _dispatchSessionEvent(DismissSessionEvent(sessionID: widget.arguments.sessionID));
   }
 
   void _givePermission(SessionState session) {
     if (session.status == SessionStatus.requestDisclosurePermission && session.isIssuanceSession) {
-      _dispatchSessionEvent(ContinueToIssuanceEvent(), isBridgedEvent: false);
+      _dispatchSessionEvent(ContinueToIssuanceEvent(sessionID: widget.arguments.sessionID), isBridgedEvent: false);
     } else {
       _dispatchSessionEvent(RespondPermissionEvent(
+        sessionID: widget.arguments.sessionID,
         proceed: true,
         disclosureChoices: session.disclosureChoices,
       ));
@@ -123,6 +128,41 @@ class _SessionScreenState extends State<SessionScreen> {
       "pbdf.pbdf.idin",
     ];
     return session.issuedCredentials.where((credential) => creds.contains(credential.info.fullId)).isNotEmpty;
+  }
+
+  /// Opens the given clientReturnUrl in the in-app browser, if the url is suitable for the in-app browser, otherwise
+  /// the URL is opened externally. In case the URL cannot be opened, a FailureSessionEvent is dispatched. In case
+  /// of a silentFailure, only an error report is made for Sentry.
+  Future<bool> _openClientReturnUrl(
+    ReturnURL clientReturnUrl, {
+    bool alwaysOpenExternally = false,
+    bool silentFailure = false,
+  }) async {
+    try {
+      if (clientReturnUrl.isInApp && !alwaysOpenExternally) {
+        await _repo.openURLinAppBrowser(clientReturnUrl.toString());
+      } else {
+        await _repo.openURLExternally(clientReturnUrl.toString());
+      }
+      return true;
+    } catch (e, stackTrace) {
+      if (silentFailure) {
+        reportError(e, stackTrace);
+      } else {
+        _dispatchSessionEvent(
+          FailureSessionEvent(
+            sessionID: widget.arguments.sessionID,
+            error: SessionError(
+              errorType: 'clientReturnUrl',
+              info: 'the clientReturnUrl could not be handled',
+              wrappedError: e.toString(),
+            ),
+          ),
+          isBridgedEvent: false,
+        );
+      }
+      return false;
+    }
   }
 
   Widget _buildFinishedContinueSecondDevice(SessionState session) {
@@ -151,8 +191,25 @@ class _SessionScreenState extends State<SessionScreen> {
     if (session.status == SessionStatus.success) {
       return CallInfoScreen(
         otherParty: serverName,
-        clientReturnURL: session.clientReturnURL,
-        popToWallet: popToWallet,
+        onContinue: () async {
+          try {
+            await _repo.openURLExternally(session.clientReturnURL.toString());
+            if (mounted) popToWallet(context);
+          } catch (e) {
+            _dispatchSessionEvent(
+              FailureSessionEvent(
+                sessionID: widget.arguments.sessionID,
+                error: SessionError(
+                  errorType: 'clientReturnUrl',
+                  info: 'the phone number in the clientReturnUrl could not be handled',
+                  wrappedError: e.toString(),
+                ),
+              ),
+              isBridgedEvent: false,
+            );
+          }
+        },
+        onCancel: () => popToWallet(context),
       );
     } else if (session.isIssuanceSession) {
       WidgetsBinding.instance.addPostFrameCallback((_) => popToWallet(context));
@@ -174,42 +231,50 @@ class _SessionScreenState extends State<SessionScreen> {
       return _buildLoadingScreen(true);
     }
 
-    if (session.continueOnSecondDevice && !session.isReturnPhoneNumber) {
+    if (session.continueOnSecondDevice && !(session.clientReturnURL?.isPhoneNumber ?? false)) {
       return _buildFinishedContinueSecondDevice(session);
     }
 
-    if (session.isReturnPhoneNumber) {
+    if (session.clientReturnURL?.isPhoneNumber ?? false) {
       return _buildFinishedReturnPhoneNumber(session);
     }
 
+    final popToMainScreen = widget.arguments.wizardActive ? popToWizard : popToWallet;
+    final issuedWizardCred = widget.arguments.wizardActive &&
+        widget.arguments.wizardCred != null &&
+        (session.issuedCredentials?.map((c) => c.info.fullId)?.contains(widget.arguments.wizardCred) ?? false);
+
     // It concerns a mobile session.
-    if (session.clientReturnURL != null) {
-      // If there is a return URL, navigate to it when we're done; canLaunch check is already
-      // done in the session repository, so we know for sure this url is valid.
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (session.clientReturnURL != null && !issuedWizardCred) {
+      // If there is a return URL, navigate to it when we're done.
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
         // When being in a disclosure, we can continue to underlying sessions in this case;
         // hasUnderlyingSession during issuance is handled at the beginning of _buildFinished, so
         // we don't have to explicitly exclude issuance here.
-        if (Uri.parse(session.clientReturnURL).queryParameters.containsKey("inapp")) {
-          widget.arguments.hasUnderlyingSession ? Navigator.of(context).pop() : popToWallet(context);
+        if (session.clientReturnURL.isInApp) {
+          widget.arguments.hasUnderlyingSession ? Navigator.of(context).pop() : popToMainScreen(context);
           if (session.inAppCredential != null && session.inAppCredential != "") {
             _repo.expectInactivationForCredentialType(session.inAppCredential);
           }
-          _repo.openURLinAppBrowser(session.clientReturnURL);
+          await _openClientReturnUrl(session.clientReturnURL);
         } else {
-          _repo.openURLinExternalBrowser(context, session.clientReturnURL);
-          widget.arguments.hasUnderlyingSession ? Navigator.of(context).pop() : popToWallet(context);
+          final hasOpened = await _openClientReturnUrl(session.clientReturnURL);
+          if (!hasOpened || !mounted) return;
+          widget.arguments.hasUnderlyingSession ? Navigator.of(context).pop() : popToMainScreen(context);
         }
       });
-    } else if (_isSpecialIssuanceSession(session)) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => popToWallet(context));
+    } else if (widget.arguments.wizardActive || _isSpecialIssuanceSession(session)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => popToMainScreen(context));
     } else if (widget.arguments.hasUnderlyingSession) {
       // In case of a disclosure having an underlying session we only continue to underlying session
       // if it is a mobile session and there was no clientReturnUrl.
       WidgetsBinding.instance.addPostFrameCallback((_) => Navigator.of(context).pop());
     } else if (Platform.isIOS) {
-      // On iOS show a screen to press the return arrow in the top-left corner,
-      return ArrowBack();
+      // On iOS, show a screen to press the return arrow in the top-left corner.
+      return ArrowBack(
+        success: session.status == SessionStatus.success,
+        amountIssued: session.issuedCredentials?.length ?? 0,
+      );
     } else {
       // On Android just background the app to let the user return to the previous activity
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -224,18 +289,23 @@ class _SessionScreenState extends State<SessionScreen> {
         valueListenable: _displayArrowBack,
         builder: (BuildContext context, bool displayArrowBack, Widget child) {
           if (displayArrowBack) {
-            return ArrowBack();
+            return const ArrowBack();
           }
           return child;
         },
         child: SessionErrorScreen(
           error: session.error,
-          onTapClose: () {
-            if (session.continueOnSecondDevice) {
+          onTapClose: () async {
+            if (widget.arguments.wizardActive) {
+              popToWizard(context);
+            } else if (session.continueOnSecondDevice) {
               popToWallet(context);
-            } else if (session.clientReturnURL != null && !session.isReturnPhoneNumber) {
-              // canLaunch check is already done in the session repository.
-              launch(session.clientReturnURL, forceSafariVC: false);
+            } else if (session.clientReturnURL != null && !session.clientReturnURL.isPhoneNumber) {
+              // If the error was caused by the client return url itself, we should not open it again.
+              if (session.error.errorType != 'clientReturnUrl') {
+                // For now we do a silentFailure if an error occurs, to prevent two subsequent error screens.
+                await _openClientReturnUrl(session.clientReturnURL, alwaysOpenExternally: true, silentFailure: true);
+              }
               popToWallet(context);
             } else {
               if (Platform.isIOS) {
@@ -266,22 +336,41 @@ class _SessionScreenState extends State<SessionScreen> {
       // should be handled by stateful child widgets of this screen. We make an exception for the
       // requestDisclosurePermission status such that the disclosure candidates are being refreshed in
       // an issuance-in-disclosure session.
-      stream: _sessionStateStream.distinct(
-          (prev, curr) => prev.status == curr.status && curr.status != SessionStatus.requestDisclosurePermission),
-      builder: (BuildContext context, AsyncSnapshot<SessionState> sessionStateSnapshot) {
-        if (!sessionStateSnapshot.hasData) {
+      stream: combine2(
+        _repo.getLocked(),
+        _sessionStateStream.distinct(
+            (prev, curr) => prev.status == curr.status && curr.status != SessionStatus.requestDisclosurePermission),
+      ),
+      builder: (BuildContext context, AsyncSnapshot<CombinedState2<bool, SessionState>> snapshot) {
+        if (!snapshot.hasData) {
           return _buildLoadingScreen(widget.arguments.sessionType == "issuing");
         }
 
-        final session = sessionStateSnapshot.data;
+        // Prevent stealing focus from pin screen in case app is locked
+        final locked = snapshot.data.a;
+        Navigator.of(context).focusScopeNode.canRequestFocus = !locked;
+
+        final session = snapshot.data.b;
 
         switch (session.status) {
+          case SessionStatus.pairing:
+            return PairingRequired(
+              pairingCode: session.pairingCode,
+              onDismiss: () => _dismissSession(),
+            );
           case SessionStatus.requestDisclosurePermission:
             return DisclosurePermission(
               session: session,
               onDismiss: () => _dismissSession(),
               onGivePermission: () => _givePermission(session),
-              dispatchSessionEvent: _dispatchSessionEvent,
+              onUpdateChoice: ({int disconIndex, int conIndex}) => _dispatchSessionEvent(
+                DisclosureChoiceUpdateSessionEvent(
+                  sessionID: widget.arguments.sessionID,
+                  disconIndex: disconIndex,
+                  conIndex: conIndex,
+                ),
+                isBridgedEvent: false,
+              ),
             );
           case SessionStatus.requestIssuancePermission:
             return IssuancePermission(

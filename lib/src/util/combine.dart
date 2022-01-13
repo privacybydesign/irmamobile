@@ -19,7 +19,7 @@ Stream<CombinedState2<A, B>> combine2<A, B>(
   Stream<A> streamA,
   Stream<B> streamB,
 ) {
-  return Observable.combineLatest2(streamA, streamB, (A a, B b) {
+  return Rx.combineLatest2(streamA, streamB, (A a, B b) {
     return CombinedState2<A, B>(a, b);
   });
 }
@@ -29,7 +29,7 @@ Stream<CombinedState3<A, B, C>> combine3<A, B, C>(
   Stream<B> streamB,
   Stream<C> streamC,
 ) {
-  return Observable.combineLatest3(streamA, streamB, streamC, (A a, B b, C c) {
+  return Rx.combineLatest3(streamA, streamB, streamC, (A a, B b, C c) {
     return CombinedState3<A, B, C>(a, b, c);
   });
 }

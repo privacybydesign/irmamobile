@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'dart:async';
 import 'dart:math';
 
@@ -201,7 +204,9 @@ class WalletState extends State<Wallet> with TickerProviderStateMixin {
       });
 
       Future.delayed(Duration(milliseconds: _cardVisibleDelay)).then((_) {
-        setNewLayout(_cardInStackLayout);
+        if (mounted) {
+          setNewLayout(_cardInStackLayout);
+        }
       });
     } else if (_drawnCardIndex < (oldWidget.credentials?.length ?? 0) && widget.credentials != null) {
       // Check whether drawn card still exists in the new state. Index might have changed due to removal.
@@ -273,6 +278,7 @@ class WalletState extends State<Wallet> with TickerProviderStateMixin {
                 ),
               ),
               Container(
+                key: const Key('wallet_present'),
                 alignment: Alignment.bottomCenter,
                 height: _walletHeight,
                 width: _walletWidth,
@@ -320,6 +326,7 @@ class WalletState extends State<Wallet> with TickerProviderStateMixin {
                             left: 16,
                             bottom: (_walletWidth * _walletAspectRatio - _walletIconHeight) / 2,
                             child: WalletButton(
+                              key: const Key('wallet_button_help'),
                               svgFile: 'assets/wallet/btn_help.svg',
                               accessibleName: "wallet.help",
                               clickStreamSink: widget.onHelpPressed,
@@ -329,6 +336,7 @@ class WalletState extends State<Wallet> with TickerProviderStateMixin {
                             right: 16,
                             bottom: (_walletWidth * _walletAspectRatio - _walletIconHeight) / 2,
                             child: WalletButton(
+                              key: const Key('wallet_button_scanqr'),
                               svgFile: 'assets/wallet/btn_qrscan.svg',
                               accessibleName: "wallet.scan_qr_code",
                               clickStreamSink: widget.onQRScannerPressed,
@@ -388,7 +396,9 @@ class WalletState extends State<Wallet> with TickerProviderStateMixin {
       });
       return Future.delayed(Duration(milliseconds: _walletShowCardsDelay));
     }).then((_) {
-      setNewLayout(WalletLayout.tightlyfolded);
+      if (mounted) {
+        setNewLayout(WalletLayout.tightlyfolded);
+      }
     });
   }
 
@@ -567,6 +577,7 @@ class WalletState extends State<Wallet> with TickerProviderStateMixin {
               }
             : null,
         child: IrmaCard.fromCredential(
+          key: Key('wallet_card_$index'),
           credential: credential,
           scrollBeyondBoundsCallback: scrollBeyondBound,
           onRefreshCredential: _createOnRefreshCredential(credential),
@@ -652,7 +663,7 @@ class WalletState extends State<Wallet> with TickerProviderStateMixin {
   }
 
   Widget _buildNudge(BuildContext context) => StreamBuilder(
-        stream: _irmaClient.irmaConfigurationSubject,
+        stream: _irmaClient.getIrmaConfiguration(),
         builder: (context, snapshot) {
           if (snapshot.data != null) {
             final irmaConfiguration = snapshot.data as IrmaConfiguration;
@@ -660,6 +671,7 @@ class WalletState extends State<Wallet> with TickerProviderStateMixin {
 
             if (credentialNudge == null || _hasCredential(credentialNudge.fullCredentialTypeId)) {
               return GetCardsNudge(
+                key: const Key('add_cards_button'),
                 credentials: widget.credentials,
                 size: MediaQuery.of(context).size,
                 onAddCardsPressed: widget.onAddCardsPressed,
@@ -874,7 +886,7 @@ class WalletState extends State<Wallet> with TickerProviderStateMixin {
 
   /// Handler for refresh in ... menu
   Function() _createOnRefreshCredential(Credential credential) {
-    if (credential.info.credentialType.issueUrl == null) {
+    if (credential.info.credentialType.issueUrl.isEmpty) {
       return null;
     }
 

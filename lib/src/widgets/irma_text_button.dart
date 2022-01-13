@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -12,12 +15,13 @@ class IrmaTextButton extends StatelessWidget {
   final IrmaButtonSize size;
 
   const IrmaTextButton({
+    Key key,
     @required this.label,
     this.onPressed,
     this.textStyle,
     this.size,
     this.minWidth = 232,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

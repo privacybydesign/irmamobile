@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'dart:io';
 
 import 'package:collection/collection.dart';
@@ -15,11 +18,6 @@ import 'card_info_screen.dart';
 
 class CardStoreScreen extends StatelessWidget {
   static const String routeName = '/store';
-
-  Future<void> _onStartIssuance(BuildContext context, CredentialType credentialType) async {
-    final url = getTranslation(context, credentialType.issueUrl);
-    IrmaRepository.get().openURL(context, url);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +39,7 @@ class CardStoreScreen extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Text(
                 FlutterI18n.translate(context, 'card_store.choose'),
-                style: IrmaTheme.of(context).textTheme.body1,
+                style: IrmaTheme.of(context).textTheme.bodyText2,
               ),
             ),
           ),
@@ -60,9 +58,12 @@ class CardStoreScreen extends StatelessWidget {
                         (ct) => ct.isInCredentialStore,
                       );
 
-                      final credentialTypesByCategory = groupBy<CredentialType, String>(
-                          credentialTypes, (ct) => getTranslation(context, ct.category));
-                      final categories = credentialTypesByCategory.keys.toList();
+                      final otherKey = FlutterI18n.translate(context, 'card_store.category_other');
+                      final credentialTypesByCategory = groupBy<CredentialType, String>(credentialTypes,
+                          (ct) => ct.category.isNotEmpty ? getTranslation(context, ct.category) : otherKey);
+                      final categories = credentialTypesByCategory.keys.toList(growable: true);
+                      // Make sure that 'Other' category is always at the end.
+                      if (categories.remove(otherKey)) categories.add(otherKey);
 
                       return ListView.builder(
                           itemCount: credentialTypesByCategory.length,

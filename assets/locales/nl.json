@@ -173,11 +173,15 @@
   },
   "accessibility": {
     "irma_logo": "IRMA Logo",
+    "slideshow": "Slide {i} van {n}: {description}",
     "menu": "Menu",
     "back": "Terug",
     "close": "Sluiten",
     "next": "Volgende",
+    "alert": "Alert",
     "previous": "Vorige",
+    "expanded": "Uitgevouwen",
+    "collapsed": "Ingeklapt",
     "unfold": "Uitvouwen",
     "update": "Bijwerken",
     "remove": "Verwijderen",
@@ -199,9 +203,7 @@
     "choose": "Kies de gegevens die je wilt toevoegen.",
     "search": "Zoek...",
     "personal_data": "Persoonsgegevens",
-    "identity_cards": "Identiteitsbewijzen",
-    "education": "Onderwijs",
-    "health": "Zorg",
+    "category_other": "Overig",
     "card_info": {
       "app_bar": "Gegevens toevoegen",
       "header_credential_type": "{credential_type} toevoegen",
@@ -337,10 +339,13 @@
     "button_retry": "Opnieuw proberen",
     "button_back": "Terug",
     "button_reset": "Begin opnieuw",
+    "details_title": "Foutmelding",
+    "report": "Als het fout blijft gaan, laat het dan weten aan het technische team van IRMA.",
     "types": {
-      "general": "Er is iets misgegaan.\n\nAls het fout blijft gaan, laat het dan weten aan het technische team van IRMA.",
+      "general": "Er is iets misgegaan.",
       "blocked": "Je IRMA-app is op afstand geblokeerd.\n\nDit is omdat dit via MijnIRMA voor jouw app is gedaan, of omdat je langer dan een jaar geen gebruik hebt gemaakt van IRMA op dit apparaat. Als je op dit apparaat IRMA wilt blijven gebruiken moet je opnieuw beginnen.",
       "expired": "De sessie is verlopen. Start alstublieft opnieuw.",
+      "pairing_rejected": "De sessie is geweigerd. Start alstublieft opnieuw.",
       "no_internet": "Er is iets misgegaan. Er kan geen verbinding gemaakt worden met de IRMA-server.\n\nControleer je internetverbinding. IRMA werkt niet zonder internet."
     }
   },
@@ -360,6 +365,8 @@
     "revoked": "Dit kaartje is niet meer geldig",
     "not_valid": "Kaartje niet geldig",
     "refresh": "Ververs kaartje",
+    "delete": "Verwijder kaartje",
+    "cannot_be_refreshed": "Dit kaartje kan niet meer worden ververst.",
     "close": "Sluiten",
     "help": "Help",
     "caption": "Jouw gegevens veilig op je mobiel",
@@ -408,16 +415,23 @@
   },
   "issuance": {
     "title": "Kaartjes toevoegen",
-    "header-0": "Wil je dit kaartje in je IRMA app zetten?",
-    "header-1": "Wil je dit kaartje in je IRMA app zetten?",
-    "header-2": "Wil je deze kaartjes in je IRMA app zetten?"
+    "header-0": "Wil je dit kaartje in je IRMA-app zetten?",
+    "header-1": "Wil je dit kaartje in je IRMA-app zetten?",
+    "header-2": "Wil je deze kaartjes in je IRMA-app zetten?"
   },
   "session": {
     "navigation_bar": {
       "more": "More",
       "yes": "Ja",
-      "no": "Nee, liever niet",
-      "back": "Terug"
+      "no": "Nee",
+      "back": "Terug",
+      "cancel": "Annuleer"
+    },
+    "pairing": {
+      "title": "Extra veiligheidscontrole",
+      "explanation": "Vul onderstaande code in op de website.",
+      "message_title": "Koppelcode",
+      "message_body_markdown": "Een koppelcode zorgt ervoor dat de volgende stappen alleen in *jouw* IRMA-app gedaan kunnen worden."
     },
     "unknown_session_type": {
       "title": "Afgebroken",
@@ -426,22 +440,27 @@
   },
   "disclosure": {
     "title": "Jezelf bekend maken",
-    "disclosure_header_markdown": "Wil je de volgende gegevens aan **{otherParty}** doorgeven?",
-    "disclosure_call_header_markdown": "Wil je de volgende gegevens aan **{otherParty}** doorgeven en bellen naar **{phoneNumber}**?",
-    "signing_header": " verzoekt jou om een bericht te ondertekenen",
+    "disclosure_header": "Wil je de volgende gegevens aan {otherParty} doorgeven?",
+    "disclosure_call_header": "Wil je de volgende gegevens aan {otherParty} doorgeven en bellen naar {phoneNumber}?",
+    "signing_header": "{otherParty} verzoekt jou om een bericht te ondertekenen",
+    "signing_call_header": "{otherParty} verzoekt jou om een bericht te ondertekenen en te bellen naar {phoneNumber}",
+    "unsatisfiable_header": "Je hebt nog niet alle gegevens waar {otherParty} om vraagt in je IRMA-app.",
     "issuer": "Uitgever",
+    "logo_semantic": "Logo van {otherParty}",
     "credential_name": "Kaartje",
     "choices": "{choices} keuzes",
     "next": "volgende kiezen",
     "previous": "vorige kiezen",
     "not_present": "Deze gegevens zijn nog niet aan IRMA toegevoegd.",
-    "not_present_have_other": "Je hebt wel het juiste kaartje, maar daarop niet de gevraagde gegevens.",
+    "not_present_have_other": "De gevraagde gegevens komen niet overeen met de gegevens die je al hebt.",
+    "you_have": "Je hebt:",
+    "requested_for": "Er wordt gevraagd om:",
+    "card_count": "{i} van {total}",
+    "among_others": "Onder andere",
     "add_additional": "Wil je andere gegevens doorgeven? Voeg dan een extra '{credential}'-kaartje toe.",
     "expired": "Deze gegevens zijn verlopen.",
     "revoked": "Deze gegevens zijn teruggetrokken.",
     "not_revokable": "Deze gegevens moeten eerst ververst worden.",
-    "unsatisfiable_title": "Gegevens ophalen",
-    "unsatisfiable_message_markdown": "Er worden gegevens gevraagd die nog niet in je IRMA-app staan of verlopen zijn. Voeg de gegevens toe om ze vervolgens door te kunnen geven.",
     "obtain": "Toevoegen",
     "refresh": "Verversen",
     "nothing_selected": "Niets gekozen",
@@ -488,9 +507,11 @@
     "existing_data_removed": "Alle kaartjes in je IRMA-app worden verwijderd."
   },
   "arrow_back": {
-    "info_1": "Gelukt, je gegevens zijn doorgegeven.\n\n",
-    "safari": "Tik bovenin op de naam van het programma ",
-    "info_2": "(bijvoorbeeld Safari, Chrome, Firefox) om terug te gaan naar het programma waar je mee bezig was."
+    "info_no_success": "Afgebroken.",
+    "info_success-0": "Gelukt, je gegevens zijn doorgegeven.",
+    "info_success-1": "Gelukt, het kaartje is toegevoegd.",
+    "info_success-2": "Gelukt, de kaartjes zijn toegevoegd.",
+    "safari": "Tik bovenin op de naam van het programma (bijvoorbeeld Safari, Chrome, Firefox) om terug te gaan naar het programma waar je mee bezig was."
   },
   "update": {
     "required": "Om IRMA te blijven gebruiken, zul je de app moeten updaten.",
@@ -503,5 +524,12 @@
     "title": "Toestel onveilig",
     "body": "Het lijkt erop dat het besturingssysteem op jouw toestel is aangepast, hierdoor kan de veiligheid van jouw gegevens niet gegarandeerd worden.",
     "button_accept_risk": "Ik aanvaard het risico"
+  },
+  "issue_wizard": {
+    "back": "Annuleer",
+    "done": "OK",
+    "add": "Ophalen",
+    "add_cards": "Kaartjes ophalen",
+    "add_credential": "Haal {credential} op"
   }
 }

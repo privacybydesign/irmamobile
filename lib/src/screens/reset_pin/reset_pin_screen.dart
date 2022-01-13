@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -38,6 +41,7 @@ class ResetPinScreen extends StatelessWidget {
         ),
       ),
       bottomSheet: IrmaBottomBar(
+        key: const Key('reset_pin_buttons'),
         primaryButtonLabel: FlutterI18n.translate(context, 'reset_pin.reset'),
         onPrimaryPressed: () {
           openWalletResetDialog(context);
@@ -50,6 +54,7 @@ class ResetPinScreen extends StatelessWidget {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
+        key: const Key('reset_pin_screen'),
         children: <Widget>[
           Expanded(
             child: SingleChildScrollView(

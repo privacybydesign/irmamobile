@@ -5,10 +5,10 @@ part 'set_crash_reporting_preference.g.dart';
 
 @JsonSerializable()
 class SetCrashReportingPreferenceEvent extends Event {
-  SetCrashReportingPreferenceEvent({this.enableCrashReporting});
+  SetCrashReportingPreferenceEvent({required this.enableCrashReporting});
 
   @JsonKey(name: 'EnableCrashReporting')
-  bool enableCrashReporting;
+  final bool enableCrashReporting;
 
   factory SetCrashReportingPreferenceEvent.fromJson(Map<String, dynamic> json) =>
       _$SetCrashReportingPreferenceEventFromJson(json);

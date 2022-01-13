@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/theme/theme.dart';
@@ -14,6 +17,7 @@ class IrmaButton extends StatelessWidget {
   final Color color;
 
   const IrmaButton({
+    Key key,
     @required this.label,
     @required this.onPressed,
     this.onPressedDisabled,
@@ -22,7 +26,7 @@ class IrmaButton extends StatelessWidget {
     this.minWidth = 232,
     this.icon,
     this.color,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

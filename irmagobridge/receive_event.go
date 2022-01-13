@@ -8,10 +8,27 @@ import (
 
 // DispatchFromNative receives events from the Android / iOS native side
 func DispatchFromNative(eventName, payloadString string) {
-	defer recoverFromPanic()
+	defer func() {
+		if e := recover(); e != nil {
+			reportError(errors.New(e), false)
+		}
+	}()
 
 	payloadBytes := []byte(payloadString)
 	var err error
+
+	<-clientLoaded
+	if clientErr != nil {
+		// Error occurred during client initialization. If the app is ready, we can report it.
+		// If the client couldn't be started at all, we can't do anything sensible here, so then just return.
+		fatal := client == nil
+		if eventName == "AppReadyEvent" {
+			reportError(clientErr, fatal)
+		}
+		if fatal {
+			return
+		}
+	}
 
 	switch eventName {
 	case "AppReadyEvent":
@@ -64,7 +81,7 @@ func DispatchFromNative(eventName, payloadString string) {
 		go func() {
 			err := bridgeEventHandler.updateSchemes()
 			if err != nil {
-				reportError(errors.New(err))
+				reportError(errors.New(err), false)
 			}
 		}()
 	case "LoadLogsEvent":
@@ -77,9 +94,14 @@ func DispatchFromNative(eventName, payloadString string) {
 		if err = json.Unmarshal(payloadBytes, &event); err == nil {
 			err = bridgeEventHandler.setPreferences(event)
 		}
+	case "GetIssueWizardContentsEvent":
+		event := &getIssueWizardContentsEvent{}
+		if err = json.Unmarshal(payloadBytes, &event); err == nil {
+			err = bridgeEventHandler.getIssueWizardContents(event)
+		}
 	}
 
 	if err != nil {
-		reportError(errors.New(err))
+		reportError(errors.New(err), false)
 	}
 }

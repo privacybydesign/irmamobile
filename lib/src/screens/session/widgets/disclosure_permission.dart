@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
@@ -5,30 +8,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/models/attributes.dart';
-import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
-import 'package:irmamobile/src/screens/session/session.dart';
 import 'package:irmamobile/src/screens/session/widgets/disclosure_feedback_screen.dart';
+import 'package:irmamobile/src/screens/session/widgets/disclosure_header.dart';
 import 'package:irmamobile/src/screens/session/widgets/session_scaffold.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/util/translated_text.dart';
+import 'package:irmamobile/src/util/navigation.dart';
 import 'package:irmamobile/src/widgets/disclosure/disclosure_card.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
-import 'package:irmamobile/src/widgets/irma_message.dart';
-import 'package:irmamobile/src/widgets/irma_quote.dart';
 import 'package:irmamobile/src/widgets/irma_text_button.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 
 class DisclosurePermission extends StatefulWidget {
   final Function() onDismiss;
   final Function() onGivePermission;
-  final Function(SessionEvent event, {bool isBridgedEvent}) dispatchSessionEvent;
+  final Function({int disconIndex, int conIndex}) onUpdateChoice;
 
   final SessionState session;
 
-  const DisclosurePermission({Key key, this.onDismiss, this.onGivePermission, this.session, this.dispatchSessionEvent})
+  const DisclosurePermission({Key key, this.onDismiss, this.onGivePermission, this.session, this.onUpdateChoice})
       : super(key: key);
 
   @override
@@ -71,7 +71,6 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
         title: FlutterI18n.translate(context, 'disclosure.explanation.title'),
         content: FlutterI18n.translate(context, 'disclosure.explanation.body'),
         image: 'assets/disclosure/disclosure-explanation.webp',
-        onClose: _hideExplanation,
         child: Wrap(
           direction: Axis.horizontal,
           verticalDirection: VerticalDirection.up,
@@ -104,65 +103,6 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
     Navigator.of(_navigatorKey.currentContext).pop();
   }
 
-  Widget _buildDisclosureHeader() {
-    final serverName = widget.session.serverName.name.translate(FlutterI18n.currentLocale(context).languageCode);
-    return Column(
-      children: <Widget>[
-        if (!widget.session.satisfiable)
-          Padding(
-            padding: EdgeInsets.only(bottom: IrmaTheme.of(context).mediumSpacing),
-            child: const IrmaMessage(
-              'disclosure.unsatisfiable_title',
-              'disclosure.unsatisfiable_message',
-              type: IrmaMessageType.info,
-            ),
-          ),
-        TranslatedText(
-          'disclosure.disclosure${widget.session.isReturnPhoneNumber ? "_call" : ""}_header',
-          translationParams: widget.session.isReturnPhoneNumber
-              ? {
-                  "otherParty": serverName,
-                  "phoneNumber": widget.session.clientReturnURL.substring(4).split(",").first,
-                }
-              : {
-                  "otherParty": serverName,
-                },
-          style: Theme.of(context).textTheme.bodyText2,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSigningHeader() {
-    return Column(children: [
-      if (!widget.session.satisfiable)
-        Padding(
-          padding: EdgeInsets.only(bottom: IrmaTheme.of(context).mediumSpacing),
-          child: const IrmaMessage(
-            'disclosure.unsatisfiable_title',
-            'disclosure.unsatisfiable_message',
-            type: IrmaMessageType.info,
-          ),
-        ),
-      Text.rich(
-        TextSpan(children: [
-          TextSpan(
-            text: widget.session.serverName.name.translate(FlutterI18n.currentLocale(context).languageCode),
-            style: IrmaTheme.of(context).textTheme.bodyText1,
-          ),
-          TextSpan(
-            text: FlutterI18n.translate(context, 'disclosure.signing_header'),
-            style: IrmaTheme.of(context).textTheme.bodyText2,
-          ),
-        ]),
-      ),
-      Padding(
-        padding: EdgeInsets.only(top: IrmaTheme.of(context).mediumSpacing),
-        child: IrmaQuote(quote: widget.session.signedMessage),
-      ),
-    ]);
-  }
-
   void _checkScrolledToEnd() {
     if (!_scrolledToEnd &&
         _scrollController.hasClients &&
@@ -174,12 +114,9 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
   }
 
   void _carouselPageUpdate(int disconIndex, int conIndex) {
-    widget.dispatchSessionEvent(
-      DisclosureChoiceUpdateSessionEvent(
-        disconIndex: disconIndex,
-        conIndex: conIndex,
-      ),
-      isBridgedEvent: false,
+    widget.onUpdateChoice(
+      disconIndex: disconIndex,
+      conIndex: conIndex,
     );
 
     _scrolledToEnd = false;
@@ -200,11 +137,14 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
       controller: _scrollController,
       children: <Widget>[
         Padding(
-            padding: EdgeInsets.symmetric(
-              vertical: IrmaTheme.of(context).mediumSpacing,
-              horizontal: IrmaTheme.of(context).smallSpacing,
-            ),
-            child: widget.session.isSignatureSession ? _buildSigningHeader() : _buildDisclosureHeader()),
+          padding: EdgeInsets.symmetric(
+            vertical: IrmaTheme.of(context).mediumSpacing,
+            horizontal: IrmaTheme.of(context).smallSpacing,
+          ),
+          child: DisclosureHeader(
+            session: widget.session,
+          ),
+        ),
         DisclosureCard(
           candidatesConDisCon: widget.session.disclosuresCandidates,
           onCurrentPageUpdate: _carouselPageUpdate,

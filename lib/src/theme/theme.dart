@@ -1,7 +1,9 @@
-import 'package:equatable/equatable.dart';
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 
-class IrmaThemeData extends Equatable {
+class IrmaThemeData {
   static const double _spaceBase = 16.0;
   @Deprecated(
       "Move to tinySpacing, smallSpacing, defaultSpacing or largeSpacing, don't use local divisions/multiplications")
@@ -41,6 +43,7 @@ class IrmaThemeData extends Equatable {
   final Color interactionAlert = const Color(0xFFF97D08);
   final Color interactionInformation = const Color(0xFF004C92);
   final Color interactionInvalidTransparant = const Color(0x22D44454);
+  final Color interactionCompleted = const Color(0xFF8BBEAF);
 
   final Color notificationSuccess = const Color(0xFF029B17);
   final Color notificationSuccessBg = const Color(0xFFAADACE);
@@ -76,6 +79,7 @@ class IrmaThemeData extends Equatable {
   TextStyle hyperlinkTextStyle;
   TextStyle hyperlinkVisitedTextStyle;
   TextStyle boldBody;
+  TextStyle highlightedTextStyle;
 
   ThemeData themeData;
 
@@ -289,6 +293,14 @@ class IrmaThemeData extends Equatable {
       height: 24.0 / 16.0,
       fontWeight: FontWeight.w600,
       color: primaryDark,
+    );
+
+    highlightedTextStyle = TextStyle(
+      fontFamily: fontFamilyMontserrat,
+      fontSize: 16.0,
+      height: 19.0 / 16.0,
+      fontWeight: FontWeight.w600,
+      color: primaryBlue,
     );
 
     // Final ThemeData composed of all individual theme components.

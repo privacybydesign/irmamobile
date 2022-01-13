@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -10,7 +13,7 @@ import 'package:irmamobile/src/widgets/irma_tooltip.dart';
 class IrmaBottomBar extends StatelessWidget {
   const IrmaBottomBar({
     Key key,
-    @required this.primaryButtonLabel,
+    this.primaryButtonLabel,
     this.primaryButtonColor,
     this.onPrimaryPressed,
     this.onPrimaryDisabledPressed,
@@ -19,7 +22,6 @@ class IrmaBottomBar extends StatelessWidget {
     this.onSecondaryPressed,
     this.toolTipLabel,
   })  : assert((showTooltipOnPrimary == false) || (toolTipLabel != null)),
-        assert(primaryButtonLabel != null),
         super(key: key);
 
   final String primaryButtonLabel;
@@ -39,6 +41,7 @@ class IrmaBottomBar extends StatelessWidget {
       buttonWidth = constraints.maxWidth / 2 - 2 * IrmaTheme.of(context).defaultSpacing;
 
       btns.add(IrmaTextButton(
+        key: const Key('secondary'),
         size: IrmaButtonSize.large,
         minWidth: buttonWidth,
         onPressed: onSecondaryPressed,
@@ -46,21 +49,24 @@ class IrmaBottomBar extends StatelessWidget {
       ));
     }
 
-    Widget primaryButton = IrmaButton(
-      size: IrmaButtonSize.large,
-      minWidth: buttonWidth,
-      onPressed: onPrimaryPressed,
-      onPressedDisabled: onPrimaryDisabledPressed,
-      label: primaryButtonLabel,
-      color: primaryButtonColor,
-    );
+    if (primaryButtonLabel != null) {
+      Widget primaryButton = IrmaButton(
+        key: const Key('primary'),
+        size: IrmaButtonSize.large,
+        minWidth: buttonWidth,
+        onPressed: onPrimaryPressed,
+        onPressedDisabled: onPrimaryDisabledPressed,
+        label: primaryButtonLabel,
+        color: primaryButtonColor,
+      );
 
-    if (toolTipLabel != null) {
-      primaryButton = IrmaTooltip(
-          label: FlutterI18n.translate(context, toolTipLabel), show: showTooltipOnPrimary, child: primaryButton);
+      if (toolTipLabel != null) {
+        primaryButton = IrmaTooltip(
+            label: FlutterI18n.translate(context, toolTipLabel), show: showTooltipOnPrimary, child: primaryButton);
+      }
+
+      btns.add(primaryButton);
     }
-
-    btns.add(primaryButton);
 
     return btns;
   }

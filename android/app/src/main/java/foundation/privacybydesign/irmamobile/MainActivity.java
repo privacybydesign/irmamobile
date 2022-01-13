@@ -24,7 +24,6 @@ import foundation.privacybydesign.irmamobile.plugins.iiab.IIABPlugin;
 import irmagobridge.Irmagobridge;
 
 public class MainActivity extends FlutterActivity {
-  private View RenderView;
   private Uri initialURL;
   private IrmaMobileBridge bridge;
 
@@ -35,8 +34,9 @@ public class MainActivity extends FlutterActivity {
 
     // Initialize the Go binding here by calling a seemingly noop function
     Irmagobridge.prestart();
+
     // Capture initial url only during onCreate, for use during first engine instantiation
-    Uri initialURL = getIntent().getData();
+    this.initialURL = getIntent().getData();
 
     // Hand of to parent
     super.onCreate(savedInstanceState);
@@ -52,31 +52,6 @@ public class MainActivity extends FlutterActivity {
     bridge = new IrmaMobileBridge(this, this, channel, initialURL);
     channel.setMethodCallHandler(bridge);
     initialURL = null; // Ensure we only use the initialURL once
-  }
-
-  // Capture the render view to hide/unhide it on pause/resume
-  @Override
-  public void onFlutterSurfaceViewCreated(@NonNull FlutterSurfaceView flutterSurfaceView) {
-    super.onFlutterSurfaceViewCreated(flutterSurfaceView);
-    RenderView = flutterSurfaceView;
-  }
-  // It can be one of two types, just catching both is most robust.
-  @Override
-  public void onFlutterTextureViewCreated(@NonNull FlutterTextureView flutterTextureView) {
-    super.onFlutterTextureViewCreated(flutterTextureView);
-    RenderView = flutterTextureView;
-  }
-
-  @Override
-  protected void onPause() {
-    super.onPause();
-    if (RenderView != null) RenderView.setVisibility(View.INVISIBLE);
-  }
-
-  @Override
-  protected void onResume() {
-    if (RenderView != null) RenderView.setVisibility(View.VISIBLE);
-    super.onResume();
   }
 
   // Forward new intents to the bridge

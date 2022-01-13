@@ -63,12 +63,17 @@ type clientPreferencesEvent struct {
 	Preferences irmaclient.Preferences
 }
 
+type getIssueWizardContentsEvent struct {
+	ID irma.IssueWizardIdentifier
+}
+
 // //
 // Outgoing events
 // //
 type errorEvent struct {
 	Exception string
 	Stack     string
+	Fatal     bool
 }
 
 type irmaConfigurationEvent struct {
@@ -119,6 +124,11 @@ type changePinFailedEvent struct {
 	Timeout           int
 }
 
+type issueWizardContentsEvent struct {
+	ID             irma.IssueWizardIdentifier
+	WizardContents []irma.IssueWizardItem
+}
+
 // //
 // Session events
 // //
@@ -127,7 +137,7 @@ type changePinFailedEvent struct {
 type statusUpdateSessionEvent struct {
 	SessionID int
 	Action    irma.Action
-	Status    irma.Status
+	Status    irma.ClientStatus
 }
 
 type clientReturnURLSetSessionEvent struct {
@@ -172,6 +182,11 @@ type requestVerificationPermissionSessionEvent struct {
 type requestPinSessionEvent struct {
 	SessionID         int
 	RemainingAttempts int
+}
+
+type pairingRequiredSessionEvent struct {
+	SessionID   int
+	PairingCode string
 }
 
 type keyshareEnrollmentMissingSessionEvent struct {

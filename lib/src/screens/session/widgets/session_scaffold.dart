@@ -1,6 +1,9 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/util/translated_text.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
+import 'package:irmamobile/src/widgets/translated_text.dart';
 
 class SessionScaffold extends Scaffold {
   SessionScaffold({

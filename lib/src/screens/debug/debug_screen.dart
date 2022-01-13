@@ -1,9 +1,9 @@
-import 'dart:convert';
-import 'dart:io';
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'dart:math';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
@@ -118,29 +118,6 @@ class DemoSessionHelper {
 
     return issuanceSessionRequest(credentialsJson);
   }
-
-  static Future<SessionPointer> startDebugSession(String requestBody) async {
-    final Uri uri = Uri.parse("https://demo.privacybydesign.foundation/backend/session");
-
-    final request = await HttpClient().postUrl(uri);
-    request.headers.set('Content-Type', 'application/json');
-    request.write(requestBody);
-
-    final response = await request.close();
-    final responseBody = await response.transform(utf8.decoder).first;
-
-    if (response.statusCode != 200) {
-      debugPrint("Status ${response.statusCode}: $responseBody");
-      return null;
-    }
-
-    final responseObject = jsonDecode(responseBody) as Map<String, dynamic>;
-    final sessionPtr = SessionPointer.fromJson(responseObject["sessionPtr"] as Map<String, dynamic>);
-    // A debug session is not a regular mobile session, because there is no initiating app.
-    // Therefore treat this session like it was started by scanning a QR.
-    sessionPtr.continueOnSecondDevice = true;
-    return sessionPtr;
-  }
 }
 
 class DebugScreen extends StatelessWidget {
@@ -150,19 +127,11 @@ class DebugScreen extends StatelessWidget {
     Navigator.of(context).pop();
   }
 
-  Future<void> _startDisclosureSession(BuildContext context) async {
-    ScannerScreen.startSessionAndNavigate(
-      Navigator.of(context),
-      await DemoSessionHelper.startDebugSession(
-        DemoSessionHelper.disclosureSessionRequest(),
-      ),
-    );
-  }
+  Future<void> _startDisclosureSession() =>
+      IrmaRepository.get().startTestSession(DemoSessionHelper.disclosureSessionRequest());
 
-  Future<void> _getCards(BuildContext context, Future<String> issuanceRequest) async {
-    final sessionPointer = await DemoSessionHelper.startDebugSession(await issuanceRequest);
-    ScannerScreen.startSessionAndNavigate(Navigator.of(context), sessionPointer);
-  }
+  Future<void> _getCards(Future<String> issuanceRequest) async =>
+      IrmaRepository.get().startTestSession(await issuanceRequest);
 
   Future<void> _deleteAllDeletableCards() async {
     final repo = IrmaRepository.get();
@@ -190,20 +159,23 @@ class DebugScreen extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.image),
             onPressed: () => _getCards(
-              context,
               DemoSessionHelper.digidProefIssuanceRequest(irmaConfigurationFuture),
             ),
           ),
           IconButton(
             icon: Icon(Icons.share),
-            onPressed: () => _startDisclosureSession(context),
+            onPressed: () => _startDisclosureSession(),
           ),
           IconButton(
             icon: Icon(Icons.exposure_plus_2),
             onPressed: () => _getCards(
-              context,
               DemoSessionHelper.randomIssuanceRequest(irmaConfigurationFuture, 2),
             ),
+          ),
+          IconButton(
+            icon: Icon(Icons.list_alt),
+            onPressed: () => ScannerScreen.startIssueWizard(
+                Navigator.of(context), SessionPointer(wizard: "irma-demo-requestors.ivido.demo-client")),
           ),
           IconButton(
             icon: Icon(Icons.delete),

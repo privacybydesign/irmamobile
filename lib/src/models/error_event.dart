@@ -11,7 +11,16 @@ class ErrorEvent extends Event {
   @JsonKey(name: "Stack")
   final String stack;
 
-  ErrorEvent({this.exception, this.stack});
+  @JsonKey(name: "Fatal")
+  final bool fatal;
+
+  ErrorEvent({required this.exception, required this.stack, required this.fatal});
   factory ErrorEvent.fromJson(Map<String, dynamic> json) => _$ErrorEventFromJson(json);
   Map<String, dynamic> toJson() => _$ErrorEventToJson(this);
+
+  @override
+  String toString() => [
+        "$exception\n",
+        stack,
+      ].join();
 }

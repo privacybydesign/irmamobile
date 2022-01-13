@@ -1,3 +1,5 @@
+// This code is not null safe yet.
+// @dart=2.11
 // This Heading is used to make headlines more accessible.
 // It wraps a Text() widget with a Semantics() widget to indicate that
 // the text is a heading. VoiceOver will now append the word "heading"
@@ -11,7 +13,7 @@ class Heading extends StatelessWidget {
   final String title;
   final TextStyle style;
   final TextAlign textAlign;
-  const Heading(this.title, {this.style, this.textAlign});
+  const Heading(this.title, {this.style, this.textAlign, Key key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Semantics(

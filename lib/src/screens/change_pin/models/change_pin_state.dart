@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:equatable/equatable.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:meta/meta.dart';

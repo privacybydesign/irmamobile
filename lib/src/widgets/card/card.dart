@@ -1,4 +1,8 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/theme/theme.dart';
@@ -6,6 +10,10 @@ import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/widgets/card/card_footer.dart';
 import 'package:irmamobile/src/widgets/card/irma_card_theme.dart';
 import 'package:irmamobile/src/widgets/card/models/card_expiry_date.dart';
+import 'package:irmamobile/src/widgets/irma_button.dart';
+import 'package:irmamobile/src/widgets/irma_dialog.dart';
+import 'package:irmamobile/src/widgets/irma_text_button.dart';
+import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 
 import 'card_attributes.dart';
 import 'card_menu.dart';
@@ -31,6 +39,7 @@ class IrmaCard extends StatelessWidget {
   final bool expanded;
 
   IrmaCard.fromCredential({
+    Key key,
     Credential credential,
     this.onRefreshCredential,
     this.onDeleteCredential,
@@ -41,7 +50,8 @@ class IrmaCard extends StatelessWidget {
         attributes = credential.attributes,
         revoked = credential.revoked,
         expiryDate = CardExpiryDate(credential.expires),
-        cardTheme = IrmaCardTheme.fromCredentialInfo(credential.info);
+        cardTheme = IrmaCardTheme.fromCredentialInfo(credential.info),
+        super(key: key);
 
   IrmaCard.fromRemovedCredential({
     RemovedCredential credential,
@@ -55,6 +65,46 @@ class IrmaCard extends StatelessWidget {
         showWarnings = false,
         onRefreshCredential = null,
         onDeleteCredential = null;
+
+  void _showDeleteDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return IrmaDialog(
+          title: FlutterI18n.translate(context, 'card.delete_title'),
+          content: FlutterI18n.translate(context, 'card.delete_content'),
+          child: Wrap(
+            direction: Axis.horizontal,
+            verticalDirection: VerticalDirection.up,
+            alignment: WrapAlignment.spaceEvenly,
+            children: <Widget>[
+              IrmaTextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                minWidth: 0.0,
+                label: 'card.delete_deny',
+              ),
+              IrmaButton(
+                size: IrmaButtonSize.small,
+                minWidth: 0.0,
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  onDeleteCredential();
+                },
+                label: 'card.delete_confirm',
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Function() _onDeleteCredentialHandler(BuildContext context) {
+    if (onDeleteCredential == null) return null;
+    return () => _showDeleteDialog(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,12 +156,13 @@ class IrmaCard extends StatelessWidget {
                         style: Theme.of(context).textTheme.subhead.copyWith(
                               color: cardTheme.foregroundColor,
                             ),
+                        key: const Key('card_title'),
                       ),
                     ),
                     CardMenu(
                       cardTheme: cardTheme,
                       onRefreshCredential: onRefreshCredential,
-                      onDeleteCredential: onDeleteCredential,
+                      onDeleteCredential: _onDeleteCredentialHandler(context),
                       allGood: !revoked && (expiryDate == null || !expiryDate.expired && !expiryDate.expiresSoon),
                     ),
                   ],
@@ -130,6 +181,7 @@ class IrmaCard extends StatelessWidget {
                       revoked: revoked,
                       color: cardTheme.backgroundGradientEnd,
                       onRefreshCredential: onRefreshCredential,
+                      onDeleteCredential: _onDeleteCredentialHandler(context),
                     ),
                     CardFooter(
                       credentialInfo: credentialInfo,

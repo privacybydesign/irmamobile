@@ -1,9 +1,15 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
+import 'package:irmamobile/src/models/issue_wizard.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
+import 'package:irmamobile/src/screens/error/error_screen.dart';
+import 'package:irmamobile/src/screens/issue_wizard/issue_wizard.dart';
 import 'package:irmamobile/src/screens/scanner/widgets/qr_scanner.dart';
 import 'package:irmamobile/src/screens/session/session.dart';
 import 'package:irmamobile/src/screens/session/session_screen.dart';
@@ -23,62 +29,82 @@ class ScannerScreen extends StatelessWidget {
     sessionPointer.continueOnSecondDevice = true;
 
     HapticFeedback.vibrate();
-    startSessionAndNavigate(
-      Navigator.of(context),
-      sessionPointer,
+    if (sessionPointer.wizard != null) {
+      startIssueWizard(Navigator.of(context), sessionPointer);
+    } else {
+      startSessionAndNavigate(Navigator.of(context), sessionPointer);
+    }
+  }
+
+  static Future<void> startIssueWizard(NavigatorState navigator, SessionPointer sessionPointer) async {
+    final repo = IrmaRepository.get();
+    try {
+      sessionPointer.validate(
+        wizardActive: await repo.getIssueWizardActive().first,
+        developerMode: await repo.getDeveloperMode().first,
+        irmaConfiguration: await repo.getIrmaConfiguration().first,
+      );
+    } catch (e) {
+      navigator.pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (context) => ErrorScreen(
+            details: "error starting wizard: ${e.toString()}",
+            onTapClose: () => navigator.pop(),
+          ),
+        ),
+        ModalRoute.withName(WalletScreen.routeName),
+      );
+      return;
+    }
+
+    IrmaRepository.get().dispatch(
+      GetIssueWizardContentsEvent(id: sessionPointer.wizard),
+      isBridgedEvent: true,
+    );
+
+    int sessionID;
+    if (sessionPointer.irmaqr != null) {
+      sessionID = await startSessionAndNavigate(navigator, sessionPointer);
+    }
+
+    // Push wizard on top of session screen (if any). If the user cancels the wizard by going back
+    // to the wallet, then the session screen is automatically dismissed, which cancels the session.
+    navigator.pushNamed(
+      IssueWizardScreen.routeName,
+      arguments: IssueWizardScreenArguments(wizardID: sessionPointer.wizard, sessionID: sessionID),
     );
   }
 
   // TODO: Make this function private again and / or split it out to a utility function
-  static Future<void> startSessionAndNavigate(
-    NavigatorState navigator,
-    SessionPointer sessionPointer, {
-    bool webview = false,
-  }) async {
+  static Future<int> startSessionAndNavigate(NavigatorState navigator, SessionPointer sessionPointer) async {
     final repo = IrmaRepository.get();
     final event = NewSessionEvent(
       request: sessionPointer,
       inAppCredential: await repo.getInAppCredential(),
     );
 
-    repo.hasActiveSessions().then((hasActiveSessions) {
-      repo.dispatch(event, isBridgedEvent: true);
+    final hasActiveSessions = await repo.hasActiveSessions();
+    final wizardActive = await repo.getIssueWizardActive().first;
+    repo.dispatch(event, isBridgedEvent: true);
 
-      if (hasActiveSessions) {
-        // After this session finishes, we want to go back to the previous session
-        if (webview) {
-          // replace webview with session screen
-          navigator.pushReplacementNamed(
-            SessionScreen.routeName,
-            arguments: SessionScreenArguments(
-              sessionID: event.sessionID,
-              sessionType: event.request.irmaqr,
-              hasUnderlyingSession: true,
-            ),
-          );
-        } else {
-          // webview is already dismissed, just push the session screen
-          navigator.pushNamed(
-            SessionScreen.routeName,
-            arguments: SessionScreenArguments(
-              sessionID: event.sessionID,
-              sessionType: event.request.irmaqr,
-              hasUnderlyingSession: true,
-            ),
-          );
-        }
-      } else {
-        navigator.pushNamedAndRemoveUntil(
-          SessionScreen.routeName,
-          ModalRoute.withName(WalletScreen.routeName),
-          arguments: SessionScreenArguments(
-            sessionID: event.sessionID,
-            sessionType: event.request.irmaqr,
-            hasUnderlyingSession: false,
-          ),
-        );
-      }
-    });
+    final args = SessionScreenArguments(
+      sessionID: event.sessionID,
+      sessionType: event.request.irmaqr,
+      hasUnderlyingSession: hasActiveSessions,
+      wizardActive: wizardActive,
+      wizardCred: wizardActive ? (await repo.getIssueWizard().first)?.activeItem?.credential : null,
+    );
+    if (hasActiveSessions || wizardActive) {
+      navigator.pushNamed(SessionScreen.routeName, arguments: args);
+    } else {
+      navigator.pushNamedAndRemoveUntil(
+        SessionScreen.routeName,
+        ModalRoute.withName(WalletScreen.routeName),
+        arguments: args,
+      );
+    }
+
+    return event.sessionID;
   }
 
   @override

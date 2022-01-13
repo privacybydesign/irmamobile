@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -13,7 +16,13 @@ class GetCardsNudge extends StatelessWidget {
   final List<Credential> credentials;
   final bool showButton;
 
-  const GetCardsNudge({this.credentials, this.size, this.onAddCardsPressed, this.showButton = true});
+  const GetCardsNudge({
+    this.credentials,
+    this.size,
+    this.onAddCardsPressed,
+    this.showButton = true,
+    Key key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

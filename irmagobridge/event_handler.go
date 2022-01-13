@@ -195,8 +195,12 @@ func (ah *eventHandler) loadLogs(action *loadLogsEvent) error {
 			for credentialTypeId, attributeValues := range entry.Removed {
 				var removedCredential = make(map[irma.AttributeTypeIdentifier]irma.TranslatedString)
 				attributeTypes := client.Configuration.CredentialTypes[credentialTypeId].AttributeTypes
-				for index, attributeType := range attributeTypes {
-					removedCredential[attributeType.GetAttributeTypeIdentifier()] = attributeValues[index]
+				for index, attributeValue := range attributeValues {
+					typ := attributeTypes[index]
+					if typ.RevocationAttribute {
+						continue
+					}
+					removedCredential[typ.GetAttributeTypeIdentifier()] = attributeValue
 				}
 				removedCredentials[credentialTypeId] = removedCredential
 			}
@@ -234,5 +238,21 @@ func (ah *eventHandler) loadLogs(action *loadLogsEvent) error {
 
 func (ah *eventHandler) setPreferences(event *clientPreferencesEvent) error {
 	client.SetPreferences(event.Preferences)
+	return nil
+}
+
+func (ah *eventHandler) getIssueWizardContents(event *getIssueWizardContentsEvent) error {
+	wizard := client.Configuration.IssueWizards[event.ID]
+	if wizard == nil {
+		return errors.New("issue wizard not found")
+	}
+	contents, err := wizard.Path(client.Configuration, client.CredentialInfoList())
+	if err != nil {
+		return errors.WrapPrefix(err, "failed to process issue wizard", 0)
+	}
+	dispatchEvent(&issueWizardContentsEvent{
+		ID:             event.ID,
+		WizardContents: contents,
+	})
 	return nil
 }

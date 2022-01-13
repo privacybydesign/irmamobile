@@ -20,18 +20,20 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
   private Activity activity;
   private Uri initialURL;
   private boolean debug;
+  private boolean appReady;
 
   public IrmaMobileBridge(Context context, Activity activity, MethodChannel channel, Uri initialURL) {
     this.channel = channel;
     this.context = context;
     this.activity = activity;
     this.initialURL = initialURL;
+    appReady = false;
 
     IrmaConfigurationCopier copier = new IrmaConfigurationCopier(context);
 
     try {
       PackageInfo pi = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-      Irmagobridge.start(this, pi.applicationInfo.dataDir, copier.destAssetsPath.toString(), context.getFilesDir().getPath() + "/tmp");
+      Irmagobridge.start(this, pi.applicationInfo.dataDir, copier.destAssetsPath.toString());
       this.debug = (pi.applicationInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
     } catch (PackageManager.NameNotFoundException e) {
       throw new RuntimeException(e);
@@ -43,6 +45,7 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
     switch (call.method) {
       // Send a previously recorded initial URL back to the UI once the app is ready
       case "AppReadyEvent":
+        appReady = true;
         if (initialURL != null) {
           channel.invokeMethod("HandleURLEvent",
               String.format("{\"url\": \"%s\", \"isInitialURL\": true}", initialURL));
@@ -71,8 +74,15 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
 
   public boolean onNewIntent(Intent intent) {
     Uri link = intent.getData();
-    if (link != null)
+    if (link == null) {
+      return true;
+    }
+
+    if (appReady) {
       channel.invokeMethod("HandleURLEvent", String.format("{\"url\": \"%s\"}", link));
+    } else {
+      initialURL = link;
+    }
     return true;
   }
 

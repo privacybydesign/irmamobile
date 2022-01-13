@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:irmamobile/src/data/irma_bridge.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/data/mock_data.dart';
 import 'package:irmamobile/src/models/enrollment_events.dart';
 import 'package:irmamobile/src/models/event.dart';
@@ -16,8 +15,7 @@ class IrmaMockBridge extends IrmaBridge {
   @override
   void dispatch(Event event) {
     if (event is AppReadyEvent) {
-      IrmaRepository.get()
-          .dispatch(IrmaConfigurationEvent.fromJson(jsonDecode(irmaConfigurationEventJson) as Map<String, dynamic>));
+      addEvent(IrmaConfigurationEvent.fromJson(jsonDecode(irmaConfigurationEventJson) as Map<String, dynamic>));
     } else if (event is EnrollEvent) {
       // For example respond with IrmaRepository.get().dispatch(EnrollmentSuccessEvent(...))
     }

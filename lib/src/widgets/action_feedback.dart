@@ -1,10 +1,13 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/util/translated_text.dart';
 import 'package:irmamobile/src/widgets/irma_outlined_button.dart';
+import 'package:irmamobile/src/widgets/translated_text.dart';
 
 class ActionFeedback extends StatelessWidget {
   final Function() onDismiss;

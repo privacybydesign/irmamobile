@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -60,6 +63,7 @@ class RootedWarningScreen extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
+        key: const Key('warning_screen_accept_button'),
         primaryButtonLabel: FlutterI18n.translate(context, 'device_rooted_warning.button_accept_risk'),
         onPrimaryPressed: () => _onAcceptRiskButtonPressed(),
       ),

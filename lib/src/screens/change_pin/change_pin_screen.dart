@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
@@ -23,7 +26,7 @@ class ChangePinScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ChangePinBloc>(
-        builder: (_) => ChangePinBloc(),
+        create: (_) => ChangePinBloc(),
         child: BlocBuilder<ChangePinBloc, ChangePinState>(builder: (context, _) {
           final bloc = BlocProvider.of<ChangePinBloc>(context);
           return ProvidedChangePinScreen(bloc: bloc);
@@ -63,24 +66,24 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
   }
 
   void submitOldPin(String pin) {
-    bloc.dispatch(OldPinEntered(pin: pin));
+    bloc.add(OldPinEntered(pin: pin));
   }
 
   void toggleLongPin() {
-    bloc.dispatch(ToggleLongPin());
+    bloc.add(ToggleLongPin());
   }
 
   void chooseNewPin(BuildContext context, String pin) {
-    bloc.dispatch(NewPinChosen(pin: pin));
+    bloc.add(NewPinChosen(pin: pin));
     navigatorKey.currentState.pushNamed(ConfirmPin.routeName);
   }
 
   void confirmNewPin(String pin) {
-    bloc.dispatch(NewPinConfirmed(pin: pin));
+    bloc.add(NewPinConfirmed(pin: pin));
   }
 
   void cancel() {
-    bloc.dispatch(ChangePinCanceled());
+    bloc.add(ChangePinCanceled());
   }
 
   @override
@@ -88,7 +91,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
     final routeBuilders = _routeBuilders();
 
     return BlocListener<ChangePinBloc, ChangePinState>(
-        condition: (ChangePinState previous, ChangePinState current) {
+        listenWhen: (ChangePinState previous, ChangePinState current) {
           return current.newPinConfirmed != previous.newPinConfirmed ||
               current.oldPinVerified != previous.oldPinVerified ||
               current.validatingPin != previous.validatingPin ||
@@ -118,8 +121,8 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
               ));
             } else {
               navigatorKey.currentState.pushReplacement(MaterialPageRoute(
-                builder: (context) => GeneralErrorScreen(
-                  errorText: state.errorMessage,
+                builder: (context) => ErrorScreen(
+                  details: state.errorMessage,
                   onTapClose: () => navigatorKey.currentState.pop(),
                 ),
               ));
@@ -133,7 +136,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
             if (state.attemptsRemaining != 0) {
               showDialog(
                 context: context,
-                child: PinWrongAttemptsDialog(attemptsRemaining: state.attemptsRemaining),
+                builder: (context) => PinWrongAttemptsDialog(attemptsRemaining: state.attemptsRemaining),
               );
             } else {
               Navigator.of(context, rootNavigator: true).popUntil(ModalRoute.withName(WalletScreen.routeName));

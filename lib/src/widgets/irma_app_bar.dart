@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
@@ -23,10 +26,12 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
+      key: const Key('irma_app_bar'),
       centerTitle: true,
       leading: noLeading
           ? null
           : IconButton(
+              key: const Key('irma_app_bar_leading'),
               icon: leadingIcon ??
                   Icon(
                     IrmaIcons.arrowBack,

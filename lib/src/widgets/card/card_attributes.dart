@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/models/attribute_value.dart';
@@ -6,6 +9,7 @@ import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/card/irma_card_theme.dart';
 import 'package:irmamobile/src/widgets/card/models/card_expiry_date.dart';
+import 'package:irmamobile/src/widgets/translated_text.dart';
 
 import '../irma_themed_button.dart';
 
@@ -22,6 +26,7 @@ class CardAttributes extends StatefulWidget {
   final bool showWarnings;
   final Color color;
   final Function() onRefreshCredential;
+  final Function() onDeleteCredential;
 
   const CardAttributes({
     this.attributes,
@@ -32,6 +37,7 @@ class CardAttributes extends StatefulWidget {
     this.expiryDate,
     this.color,
     this.onRefreshCredential,
+    @required this.onDeleteCredential,
     this.showWarnings,
   });
 
@@ -195,9 +201,23 @@ class _CardAttributesState extends State<CardAttributes> {
                         ),
                   ),
                   SizedBox(height: IrmaTheme.of(context).mediumSpacing),
+                  if (widget.onRefreshCredential == null)
+                    Container(
+                      padding: EdgeInsets.only(bottom: IrmaTheme.of(context).smallSpacing),
+                      child: TranslatedText(
+                        'wallet.cannot_be_refreshed',
+                        textAlign: TextAlign.center,
+                        style: IrmaTheme.of(context).textTheme.bodyText2.copyWith(
+                              color: widget.irmaCardTheme.foregroundColor,
+                            ),
+                      ),
+                    ),
                   IrmaThemedButton(
-                    label: FlutterI18n.translate(context, 'wallet.refresh'),
-                    onPressed: widget.onRefreshCredential,
+                    label: FlutterI18n.translate(
+                      context,
+                      widget.onRefreshCredential == null ? 'wallet.delete' : 'wallet.refresh',
+                    ),
+                    onPressed: widget.onRefreshCredential ?? widget.onDeleteCredential,
                     size: IrmaButtonSize.small,
                     icon: null,
                     color: widget.irmaCardTheme.foregroundColor,
@@ -253,9 +273,9 @@ class _CardAttributesState extends State<CardAttributes> {
   }
 
   List<Widget> _buildAttributes(BuildContext context, TextStyle body1Theme) {
-    return widget.attributes.sortedAttributeTypes.expand<Widget>(
-      (attributeType) {
-        final attributeValue = widget.attributes[attributeType];
+    return widget.attributes.sortedAttributeTypes.asMap().entries.expand<Widget>(
+      (entry) {
+        final attributeValue = widget.attributes[entry.value];
         // PhotoValue cannot be rendered yet and NullValue must be skipped
         if (!(attributeValue is TextValue)) {
           return [];
@@ -265,14 +285,16 @@ class _CardAttributesState extends State<CardAttributes> {
           Opacity(
             opacity: 0.8,
             child: Text(
-              attributeType.name[_lang],
+              entry.value.name.translate(_lang),
+              key: Key('attr_${entry.key}_name'),
               style: body1Theme.copyWith(fontSize: 14),
               overflow: TextOverflow.ellipsis,
             ),
           ),
           Text(
-            (attributeValue as TextValue).translated[_lang],
+            (attributeValue as TextValue).translated.translate(_lang),
             style: IrmaTheme.of(context).textTheme.body2.copyWith(color: widget.irmaCardTheme.foregroundColor),
+            key: Key('attr_${entry.key}_value'),
           ),
           SizedBox(
             height: IrmaTheme.of(context).smallSpacing,

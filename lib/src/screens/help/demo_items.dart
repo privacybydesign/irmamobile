@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
@@ -131,48 +134,42 @@ class _DemoItemsState extends State<DemoItems> with TickerProviderStateMixin {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
-        Semantics(
-          button: true,
-          child: Collapsible(
-              header: FlutterI18n.translate(context, 'manual.question_1'),
-              onExpansionChanged: (v) =>
-                  {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[0])},
-              content: Column(
-                children: <Widget>[
-                  SizedBox(
-                    height: IrmaTheme.of(context).smallSpacing,
-                  ),
-                  Illustrator(
-                    imageSet: _demoPagesQuestion1,
-                    textSet: _demoTextsQuestion1,
-                    width: 280.0,
-                    height: 220.0,
-                  ),
-                ],
-              ),
-              key: _collapsableKeys[0]),
-        ),
-        Semantics(
-          button: true,
-          child: Collapsible(
-              header: FlutterI18n.translate(context, 'manual.question_2'),
-              onExpansionChanged: (v) =>
-                  {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[1])},
-              content: Column(
-                children: <Widget>[
-                  SizedBox(
-                    height: IrmaTheme.of(context).smallSpacing,
-                  ),
-                  Illustrator(
-                    imageSet: _demoPagesQuestion2,
-                    textSet: _demoTextsQuestion2,
-                    width: 280.0,
-                    height: 220.0,
-                  ),
-                ],
-              ),
-              key: _collapsableKeys[1]),
-        ),
+        Collapsible(
+            header: FlutterI18n.translate(context, 'manual.question_1'),
+            onExpansionChanged: (v) =>
+                {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[0])},
+            content: Column(
+              children: <Widget>[
+                SizedBox(
+                  height: IrmaTheme.of(context).smallSpacing,
+                ),
+                Illustrator(
+                  imageSet: _demoPagesQuestion1,
+                  textSet: _demoTextsQuestion1,
+                  width: 280.0,
+                  height: 220.0,
+                ),
+              ],
+            ),
+            key: _collapsableKeys[0]),
+        Collapsible(
+            header: FlutterI18n.translate(context, 'manual.question_2'),
+            onExpansionChanged: (v) =>
+                {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[1])},
+            content: Column(
+              children: <Widget>[
+                SizedBox(
+                  height: IrmaTheme.of(context).smallSpacing,
+                ),
+                Illustrator(
+                  imageSet: _demoPagesQuestion2,
+                  textSet: _demoTextsQuestion2,
+                  width: 280.0,
+                  height: 220.0,
+                ),
+              ],
+            ),
+            key: _collapsableKeys[1]),
       ],
     );
   }

@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
@@ -18,7 +21,6 @@ class PinWrongAttemptsDialog extends StatelessWidget {
     return IrmaDialog(
       title: FlutterI18n.translate(context, 'pin_common.invalid_title'),
       content: FlutterI18n.plural(context, 'pin_common.invalid_pin.attempts', attemptsRemaining),
-      onClose: onClose,
       child: IrmaButton(
         size: IrmaButtonSize.small,
         onPressed: onClose ?? () => Navigator.of(context).pop(),

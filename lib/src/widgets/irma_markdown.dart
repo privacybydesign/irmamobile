@@ -1,3 +1,6 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
@@ -21,17 +24,20 @@ class IrmaMarkdown extends StatelessWidget {
       selectable: false,
 
       // Effectively disable image rendering (to prevent remote image loading)
-      imageBuilder: (Uri uri) => Container(),
+      imageBuilder: (uri, title, alt) => Container(),
 
       // Define small stylesheet, and merge in any passed styleSheet
-      styleSheet: MarkdownStyleSheet(
-        strong: IrmaTheme.of(context).textTheme.body2,
-        a: IrmaTheme.of(context).hyperlinkTextStyle,
-      ).merge(styleSheet),
+      styleSheet: MarkdownStyleSheet.fromTheme(IrmaTheme.of(context).themeData)
+          .merge(MarkdownStyleSheet(
+            strong: IrmaTheme.of(context).textTheme.body2,
+            a: IrmaTheme.of(context).hyperlinkTextStyle,
+            textScaleFactor: MediaQuery.textScaleFactorOf(context),
+          ))
+          .merge(styleSheet),
 
       // View links in in-app browser
-      onTapLink: (href) {
-        IrmaRepository.get().openURL(context, href);
+      onTapLink: (text, href, alt) {
+        IrmaRepository.get().openURL(href);
       },
     );
   }

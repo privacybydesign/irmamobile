@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -13,22 +14,69 @@ class MissingSessionPointer implements Exception {
 
 @JsonSerializable()
 class SessionPointer {
-  SessionPointer({this.u, this.irmaqr, this.continueOnSecondDevice = false, this.returnURL});
+  SessionPointer({
+    this.u,
+    this.irmaqr,
+    this.continueOnSecondDevice = false,
+    @Deprecated('This parameter is deprecated.') this.returnURL,
+    this.wizard,
+  });
 
   @JsonKey(name: 'u')
-  String u;
+  String? u;
 
   @JsonKey(name: 'irmaqr')
-  String irmaqr;
+  String? irmaqr;
+
+  @JsonKey(name: 'wizard')
+  String? wizard;
 
   // Whether the session should be continued on the mobile device,
   // or on the device which has displayed a QR code
   @JsonKey(name: 'continueOnSecondDevice', defaultValue: false)
   bool continueOnSecondDevice;
 
-  @Deprecated("This parameter is deprecated and will be removed at the end of 2020. Use clientReturnURL instead.")
+  @Deprecated('This parameter is deprecated and will be removed at the end of 2020. Use clientReturnURL instead.')
   @JsonKey(name: 'returnURL')
-  String returnURL;
+  String? returnURL;
+
+  // We cannot use IrmaRepository directly, because it has not been migrated to null safety yet.
+  void validate({
+    required bool wizardActive,
+    required bool developerMode,
+    required IrmaConfiguration irmaConfiguration,
+  }) {
+    if (wizard == null) return;
+
+    if (wizardActive) {
+      throw UnsupportedError("cannot start wizard within a wizard");
+    }
+
+    final scheme = wizard!.contains(".") ? wizard!.split(".").first : null;
+
+    if (!irmaConfiguration.issueWizards.containsKey(wizard) ||
+        !irmaConfiguration.requestorSchemes.containsKey(scheme)) {
+      throw ArgumentError.value(wizard, "wizard");
+    }
+
+    final demoScheme = irmaConfiguration.requestorSchemes[scheme]!.demo;
+    if (!developerMode && demoScheme) {
+      throw UnsupportedError("cannot start wizard from demo scheme: developer mode not enabled");
+    }
+
+    final wizardData = irmaConfiguration.issueWizards[wizard]!;
+    if (u == null || demoScheme || wizardData.allowOtherRequestors) {
+      return;
+    }
+    final host = Uri.parse(u!).host;
+    final requestor = irmaConfiguration.requestors[host];
+    if (requestor == null) {
+      throw UnsupportedError("cannot start wizard: unknown requestor");
+    }
+    if (wizardData.id.split(".").getRange(0, 2).join(".") != requestor.id) {
+      throw UnsupportedError("cannot start wizard not belonging to session requestor");
+    }
+  }
 
   factory SessionPointer.fromString(String content) {
     // Use lookahead and lookbehinds to block out the non-JSON part of the string
@@ -42,9 +90,9 @@ class SessionPointer {
     ];
 
     try {
-      String jsonString;
+      String? jsonString;
       for (final regex in regexps) {
-        final String match = regex.stringMatch(content);
+        final match = regex.stringMatch(content);
         if (match != null && match.isNotEmpty) {
           jsonString = Uri.decodeComponent(match);
           break;
@@ -68,42 +116,44 @@ class SessionPointer {
 @JsonSerializable()
 class SessionError {
   SessionError({
-    this.errorType,
-    this.wrappedError,
-    this.info,
-    this.stack,
+    required this.errorType,
+    required this.info,
+    this.wrappedError = '',
+    this.stack = '',
     this.remoteStatus,
     this.remoteError,
   });
 
   @JsonKey(name: 'ErrorType')
-  String errorType;
+  final String errorType;
 
   @JsonKey(name: 'WrappedError')
-  String wrappedError;
+  final String wrappedError;
 
   @JsonKey(name: 'Info')
-  String info;
+  final String info;
 
   @JsonKey(name: 'Stack')
-  String stack;
+  final String stack;
 
   @JsonKey(name: 'RemoteStatus')
-  int remoteStatus;
+  final int? remoteStatus;
 
   @JsonKey(name: 'RemoteError')
-  RemoteError remoteError;
+  final RemoteError? remoteError;
+
+  bool get reportable => !['https', 'notSupported'].contains(errorType);
 
   factory SessionError.fromJson(Map<String, dynamic> json) => _$SessionErrorFromJson(json);
   Map<String, dynamic> toJson() => _$SessionErrorToJson(this);
 
   @override
   String toString() => [
-        if (remoteStatus != null) "$remoteStatus ",
-        "$errorType",
-        if (info?.isNotEmpty ?? false) " ($info)",
-        if (wrappedError?.isNotEmpty ?? false) ": $wrappedError",
-        if (remoteError != null) "\n${jsonEncode(remoteError..stacktrace = null)}",
+        if (remoteStatus != null && remoteStatus! > 0) '$remoteStatus ',
+        errorType,
+        if (info.isNotEmpty) ' ($info)',
+        if (wrappedError.isNotEmpty) ': $wrappedError',
+        if (remoteError != null) '\n$remoteError',
       ].join();
 }
 
@@ -112,36 +162,66 @@ class RemoteError {
   RemoteError({this.status, this.errorName, this.description, this.message, this.stacktrace});
 
   @JsonKey(name: 'status')
-  int status;
+  final int? status;
 
   @JsonKey(name: 'error')
-  String errorName;
+  final String? errorName;
 
   @JsonKey(name: 'description')
-  String description;
+  final String? description;
 
   @JsonKey(name: 'message')
-  String message;
+  final String? message;
 
   @JsonKey(name: 'stacktrace')
-  String stacktrace;
+  final String? stacktrace;
+
+  RemoteError copyWithoutStacktrace() => RemoteError(
+        status: status,
+        errorName: errorName,
+        description: description,
+        message: message,
+      );
 
   factory RemoteError.fromJson(Map<String, dynamic> json) => _$RemoteErrorFromJson(json);
   Map<String, dynamic> toJson() => _$RemoteErrorToJson(this);
+
+  @override
+  String toString() => jsonEncode(copyWithoutStacktrace());
 }
 
 @JsonSerializable()
 class RequestorInfo {
+  @JsonKey(name: 'id')
+  final String? id;
+
   @JsonKey(name: 'name')
-  TranslatedValue name;
+  final TranslatedValue name;
 
-  @JsonKey(name: 'industry', nullable: true)
-  TranslatedValue industry;
+  @JsonKey(name: 'industry') // Default value is set by fromJson of TranslatedValue
+  final TranslatedValue industry;
 
-  @JsonKey(name: 'logo', nullable: true)
-  String logo;
+  @JsonKey(name: 'logo')
+  final String? logo;
 
-  RequestorInfo({this.name, this.industry, this.logo});
+  @JsonKey(name: 'logoPath')
+  final String? logoPath;
+
+  @JsonKey(name: 'unverified')
+  final bool unverified;
+
+  @JsonKey(name: 'hostnames')
+  final List<String> hostnames;
+
+  RequestorInfo({
+    required this.name,
+    this.unverified = true,
+    this.hostnames = const [],
+    this.industry = const TranslatedValue.empty(),
+    this.id,
+    this.logo,
+    this.logoPath,
+  });
   factory RequestorInfo.fromJson(Map<String, dynamic> json) => _$RequestorInfoFromJson(json);
   Map<String, dynamic> toJson() => _$RequestorInfoToJson(this);
 }

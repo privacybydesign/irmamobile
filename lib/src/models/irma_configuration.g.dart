@@ -17,6 +17,12 @@ IrmaConfiguration _$IrmaConfigurationFromJson(Map<String, dynamic> json) {
     schemeManagers: (json['SchemeManagers'] as Map<String, dynamic>).map(
       (k, e) => MapEntry(k, SchemeManager.fromJson(e as Map<String, dynamic>)),
     ),
+    requestorSchemes: (json['RequestorSchemes'] as Map<String, dynamic>).map(
+      (k, e) => MapEntry(k, RequestorScheme.fromJson(e as Map<String, dynamic>)),
+    ),
+    requestors: (json['Requestors'] as Map<String, dynamic>).map(
+      (k, e) => MapEntry(k, RequestorInfo.fromJson(e as Map<String, dynamic>)),
+    ),
     issuers: (json['Issuers'] as Map<String, dynamic>).map(
       (k, e) => MapEntry(k, Issuer.fromJson(e as Map<String, dynamic>)),
     ),
@@ -26,6 +32,9 @@ IrmaConfiguration _$IrmaConfigurationFromJson(Map<String, dynamic> json) {
     attributeTypes: (json['AttributeTypes'] as Map<String, dynamic>).map(
       (k, e) => MapEntry(k, AttributeType.fromJson(e as Map<String, dynamic>)),
     ),
+    issueWizards: (json['IssueWizards'] as Map<String, dynamic>).map(
+      (k, e) => MapEntry(k, IssueWizard.fromJson(e as Map<String, dynamic>)),
+    ),
     path: json['Path'] as String,
   );
 }
@@ -33,16 +42,29 @@ IrmaConfiguration _$IrmaConfigurationFromJson(Map<String, dynamic> json) {
 SchemeManager _$SchemeManagerFromJson(Map<String, dynamic> json) {
   return SchemeManager(
     id: json['ID'] as String,
-    name: TranslatedValue.fromJson(json['Name'] as Map<String, dynamic>),
+    name: TranslatedValue.fromJson(json['Name'] as Map<String, dynamic>?),
     url: json['URL'] as String,
-    description: TranslatedValue.fromJson(json['Description'] as Map<String, dynamic>),
+    description: TranslatedValue.fromJson(json['Description'] as Map<String, dynamic>?),
     minimumAppVersion: AppVersion.fromJson(json['MinimumAppVersion'] as Map<String, dynamic>),
     keyshareServer: json['KeyshareServer'] as String,
     keyshareWebsite: json['KeyshareWebsite'] as String,
     keyshareAttribute: json['KeyshareAttribute'] as String,
     timestamp: json['Timestamp'] as int,
+    demo: json['Demo'] as bool,
   );
 }
+
+RequestorScheme _$RequestorSchemeFromJson(Map<String, dynamic> json) {
+  return RequestorScheme(
+    id: json['id'] as String,
+    demo: json['demo'] as bool,
+  );
+}
+
+Map<String, dynamic> _$RequestorSchemeToJson(RequestorScheme instance) => <String, dynamic>{
+      'id': instance.id,
+      'demo': instance.demo,
+    };
 
 AppVersion _$AppVersionFromJson(Map<String, dynamic> json) {
   return AppVersion(
@@ -54,8 +76,7 @@ AppVersion _$AppVersionFromJson(Map<String, dynamic> json) {
 Issuer _$IssuerFromJson(Map<String, dynamic> json) {
   return Issuer(
     id: json['ID'] as String,
-    name: TranslatedValue.fromJson(json['Name'] as Map<String, dynamic>),
-    shortName: TranslatedValue.fromJson(json['ShortName'] as Map<String, dynamic>),
+    name: TranslatedValue.fromJson(json['Name'] as Map<String, dynamic>?),
     schemeManagerId: json['SchemeManagerID'] as String,
     contactAddress: json['ContactAddress'] as String,
     contactEmail: json['ContactEmail'] as String,
@@ -65,43 +86,39 @@ Issuer _$IssuerFromJson(Map<String, dynamic> json) {
 CredentialType _$CredentialTypeFromJson(Map<String, dynamic> json) {
   return CredentialType(
     id: json['ID'] as String,
-    name: TranslatedValue.fromJson(json['Name'] as Map<String, dynamic>),
-    shortName: TranslatedValue.fromJson(json['ShortName'] as Map<String, dynamic>),
+    name: TranslatedValue.fromJson(json['Name'] as Map<String, dynamic>?),
     issuerId: json['IssuerID'] as String,
     schemeManagerId: json['SchemeManagerID'] as String,
     isSingleton: json['IsSingleton'] as bool,
-    description: TranslatedValue.fromJson(json['Description'] as Map<String, dynamic>),
-    issueUrl: json['IssueURL'] == null ? null : TranslatedValue.fromJson(json['IssueURL'] as Map<String, dynamic>),
+    description: TranslatedValue.fromJson(json['Description'] as Map<String, dynamic>?),
+    issueUrl: TranslatedValue.fromJson(json['IssueURL'] as Map<String, dynamic>?),
     isULIssueUrl: json['IsULIssueURL'] as bool,
-    disallowDelete: json['DisallowDelete'] as bool,
-    foregroundColor: _fromColorCode(json['ForegroundColor'] as String),
-    backgroundGradientStart: _fromColorCode(json['BackgroundGradientStart'] as String),
-    backgroundGradientEnd: _fromColorCode(json['BackgroundGradientEnd'] as String),
-    isInCredentialStore: json['IsInCredentialStore'] as bool,
-    category: json['Category'] == null ? null : TranslatedValue.fromJson(json['Category'] as Map<String, dynamic>),
-    faqIntro: json['FAQIntro'] == null ? null : TranslatedValue.fromJson(json['FAQIntro'] as Map<String, dynamic>),
-    faqPurpose:
-        json['FAQPurpose'] == null ? null : TranslatedValue.fromJson(json['FAQPurpose'] as Map<String, dynamic>),
-    faqContent:
-        json['FAQContent'] == null ? null : TranslatedValue.fromJson(json['FAQContent'] as Map<String, dynamic>),
-    faqHowto: json['FAQHowto'] == null ? null : TranslatedValue.fromJson(json['FAQHowto'] as Map<String, dynamic>),
-    logo: json['Logo'] as String,
+    disallowDelete: json['DisallowDelete'] as bool? ?? false,
+    foregroundColor: colorFromCode(json['ForegroundColor'] as String?),
+    backgroundGradientStart: colorFromCode(json['BackgroundGradientStart'] as String?),
+    backgroundGradientEnd: colorFromCode(json['BackgroundGradientEnd'] as String?),
+    isInCredentialStore: json['IsInCredentialStore'] as bool? ?? false,
+    category: TranslatedValue.fromJson(json['Category'] as Map<String, dynamic>?),
+    faqIntro: TranslatedValue.fromJson(json['FAQIntro'] as Map<String, dynamic>?),
+    faqPurpose: TranslatedValue.fromJson(json['FAQPurpose'] as Map<String, dynamic>?),
+    faqContent: TranslatedValue.fromJson(json['FAQContent'] as Map<String, dynamic>?),
+    faqHowto: TranslatedValue.fromJson(json['FAQHowto'] as Map<String, dynamic>?),
+    faqSummary: TranslatedValue.fromJson(json['FAQSummary'] as Map<String, dynamic>?),
+    logo: json['Logo'] as String?,
   );
 }
 
 AttributeType _$AttributeTypeFromJson(Map<String, dynamic> json) {
   return AttributeType(
     id: json['ID'] as String,
-    optional: json['Optional'] as String,
-    name: json['Name'] == null ? null : TranslatedValue.fromJson(json['Name'] as Map<String, dynamic>) ?? {},
-    description: json['Description'] == null
-        ? null
-        : TranslatedValue.fromJson(json['Description'] as Map<String, dynamic>) ?? {},
     index: json['Index'] as int,
-    displayIndex: json['DisplayIndex'] as int,
-    displayHint: json['DisplayHint'] as String,
     credentialTypeId: json['CredentialTypeID'] as String,
     issuerId: json['IssuerID'] as String,
     schemeManagerId: json['SchemeManagerID'] as String,
+    name: TranslatedValue.fromJson(json['Name'] as Map<String, dynamic>?),
+    description: TranslatedValue.fromJson(json['Description'] as Map<String, dynamic>?),
+    optional: AttributeType._parseOptional(json['Optional'] as String?),
+    displayIndex: json['DisplayIndex'] as int?,
+    displayHint: json['DisplayHint'] as String?,
   );
 }

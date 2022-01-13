@@ -1,26 +1,28 @@
+// This code is not null safe yet.
+// @dart=2.11
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/util/translated_text.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 import 'package:irmamobile/src/widgets/irma_message.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:irmamobile/src/widgets/translated_text.dart';
 
 class CallInfoScreen extends StatelessWidget {
   final String otherParty;
-  final String clientReturnURL;
-  final Function(BuildContext) popToWallet;
-  const CallInfoScreen({@required this.otherParty, this.clientReturnURL, this.popToWallet});
+  final Function() onContinue;
+  final Function() onCancel;
+  const CallInfoScreen({@required this.otherParty, this.onContinue, this.onCancel});
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        popToWallet(context);
+        onCancel();
         return false;
       },
       child: Scaffold(
@@ -28,16 +30,11 @@ class CallInfoScreen extends StatelessWidget {
           title: Text(
             FlutterI18n.translate(context, 'disclosure.call_info.title'),
           ),
-          leadingAction: () => popToWallet(context),
+          leadingAction: () => onCancel(),
         ),
         bottomNavigationBar: IrmaBottomBar(
           primaryButtonLabel: FlutterI18n.translate(context, 'disclosure.call_info.continue_button'),
-          onPrimaryPressed: () async {
-            if (await canLaunch(clientReturnURL)) {
-              launch(clientReturnURL);
-              popToWallet(context);
-            }
-          },
+          onPrimaryPressed: () => onContinue(),
         ),
         body: SingleChildScrollView(
           child: Column(

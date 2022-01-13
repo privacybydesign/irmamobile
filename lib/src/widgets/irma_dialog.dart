@@ -1,16 +1,22 @@
+// This code is not null safe yet.
+// @dart=2.11
+
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class IrmaDialog extends StatelessWidget {
   final String title;
   final String content;
   final Widget child;
-  final Function() onClose;
   final String image;
 
-  const IrmaDialog({@required this.title, @required this.content, @required this.child, this.image, this.onClose});
+  const IrmaDialog({@required this.title, @required this.content, @required this.child, this.image})
+      : assert(title != null),
+        assert(content != null),
+        assert(child != null);
 
   @override
   Widget build(BuildContext context) {
@@ -29,64 +35,66 @@ class IrmaDialog extends StatelessWidget {
         child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(minWidth: 280.0),
-            child: Material(
-              color: IrmaTheme.of(context).grayscaleWhite,
-              elevation: 24.0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(IrmaTheme.of(context).smallSpacing),
-              ),
-              type: MaterialType.card,
-              child: Stack(
-                children: <Widget>[
-                  Container(
-                    margin: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
-                    child: ListView(
-                      shrinkWrap: true,
-                      // crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: <Widget>[
-                        Container(
-                          child: Padding(
-                            padding: EdgeInsets.only(bottom: IrmaTheme.of(context).defaultSpacing),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Text(
-                                  title,
-                                  style: IrmaTheme.of(context).textTheme.display2,
-                                ),
-                                SizedBox(height: IrmaTheme.of(context).tinySpacing),
-                                Text(
-                                  content,
-                                  style: IrmaTheme.of(context).textTheme.body1,
-                                ),
-                                if (image != null) ...[
-                                  SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-                                  Center(
-                                    child: Image.asset(
-                                      image,
-                                      width: 240,
+            child: Semantics(
+              scopesRoute: true,
+              explicitChildNodes: true,
+              child: Material(
+                color: IrmaTheme.of(context).grayscaleWhite,
+                elevation: 24.0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(IrmaTheme.of(context).smallSpacing),
+                ),
+                type: MaterialType.card,
+                child: Stack(
+                  children: <Widget>[
+                    Container(
+                      margin: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
+                      key: const Key('irma_dialog'),
+                      child: ListView(
+                        shrinkWrap: true,
+                        addSemanticIndexes: false,
+                        // crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          Container(
+                            child: Padding(
+                              padding: EdgeInsets.only(bottom: IrmaTheme.of(context).defaultSpacing),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Semantics(
+                                    namesRoute: !Platform.isIOS, // Set to false on iOS to prevent double read
+                                    label: FlutterI18n.translate(context, "accessibility.alert"),
+                                    child: Text(
+                                      title,
+                                      key: const Key('irma_dialog_title'),
+                                      style: IrmaTheme.of(context).textTheme.headline3,
                                     ),
                                   ),
-                                ]
-                              ],
+                                  SizedBox(height: IrmaTheme.of(context).tinySpacing),
+                                  Text(
+                                    content,
+                                    key: const Key('irma_dialog_content'),
+                                    style: IrmaTheme.of(context).textTheme.bodyText2,
+                                  ),
+                                  if (image != null) ...[
+                                    SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+                                    Center(
+                                      child: Image.asset(
+                                        image,
+                                        width: 240,
+                                      ),
+                                    ),
+                                  ]
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                        child,
-                      ],
+                          child,
+                        ],
+                      ),
                     ),
-                  ),
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: IconButton(
-                      iconSize: 18.0,
-                      icon: Icon(IrmaIcons.close, semanticLabel: FlutterI18n.translate(context, "accessibility.close")),
-                      color: IrmaTheme.of(context).primaryBlue,
-                      onPressed: onClose ?? () => Navigator.pop(context),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
