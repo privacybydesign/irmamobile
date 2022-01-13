@@ -90,7 +90,7 @@ class SettingsScreen extends StatelessWidget {
             },
             leading: Icon(IrmaIcons.delete, color: IrmaTheme.of(context).textTheme.body1.color),
           ),
-          if (Platform.operatingSystem == "android")
+          if (Platform.operatingSystem == 'android')
             StreamBuilder(
               stream: irmaPrefs.getScreenshotsEnabled(),
               builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
