@@ -36,8 +36,8 @@ class DisclosurePermission extends StatefulWidget {
 }
 
 class _DisclosurePermissionState extends State<DisclosurePermission> {
-  bool _showTooltip = true;
   bool _scrolledToEnd = false;
+  ValueNotifier<double> _heightChangeNotifier;
 
   final _scrollController = ScrollController();
   final _navigatorKey = GlobalKey();
@@ -46,11 +46,23 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
   @override
   void initState() {
     super.initState();
+
+    // When not all choices are available, loading of all disclosure choices may take a while.
+    // Because the final size is only known when everything is loaded, we have to recheck the scroll state then.
+    _heightChangeNotifier = ValueNotifier(0);
+    _heightChangeNotifier.addListener(() => setState(() => _checkScrolledToEnd(reset: true)));
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.session.canBeFinished) {
         _showExplanation(widget.session.disclosuresCandidates);
       }
     });
+  }
+
+  @override
+  void dispose() {
+    _heightChangeNotifier.dispose();
+    super.dispose();
   }
 
   Future<void> _showExplanation(ConDisCon<Attribute> candidatesConDisCon) async {
@@ -63,7 +75,6 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
       return;
     }
 
-    setState(() => _showTooltip = false);
     showDialog(
       context: _navigatorKey.currentContext,
       useRootNavigator: false,
@@ -97,18 +108,19 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
   }
 
   void _hideExplanation() {
-    setState(() {
-      _showTooltip = true;
-    });
     Navigator.of(_navigatorKey.currentContext).pop();
   }
 
-  void _checkScrolledToEnd() {
-    if (!_scrolledToEnd &&
-        _scrollController.hasClients &&
+  void _checkScrolledToEnd({bool reset = false}) {
+    bool newScrolledToEnd = _scrolledToEnd && !reset;
+    if (_scrollController.hasClients &&
         _scrollController.offset >= _scrollController.position.maxScrollExtent - _scrollEndGive) {
+      newScrolledToEnd = true;
+    }
+
+    if (_scrolledToEnd != newScrolledToEnd) {
       setState(() {
-        _scrolledToEnd = true;
+        _scrolledToEnd = newScrolledToEnd;
       });
     }
   }
@@ -119,18 +131,12 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
       conIndex: conIndex,
     );
 
-    _scrolledToEnd = false;
-    _checkScrolledToEnd();
+    _checkScrolledToEnd(reset: true);
   }
 
   Widget _buildDisclosureChoices() {
     _scrollController.addListener(_checkScrolledToEnd);
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Unfortunately, if this is run immediately the ListView does not yet have height
-      // so _checkScrolledToEnd would conclude the end is reached, even if it is not.
-      await Future.delayed(const Duration(milliseconds: 50));
-      _checkScrolledToEnd();
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkScrolledToEnd());
 
     return ListView(
       padding: EdgeInsets.all(IrmaTheme.of(context).smallSpacing),
@@ -145,10 +151,18 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
             session: widget.session,
           ),
         ),
-        DisclosureCard(
-          candidatesConDisCon: widget.session.disclosuresCandidates,
-          onCurrentPageUpdate: _carouselPageUpdate,
-          onIssue: () => setState(() => _showTooltip = false),
+        NotificationListener<SizeChangedLayoutNotification>(
+          onNotification: (_) {
+            WidgetsBinding.instance
+                .addPostFrameCallback((_) => _heightChangeNotifier.value = _scrollController.position.maxScrollExtent);
+            return false;
+          },
+          child: SizeChangedLayoutNotifier(
+            child: DisclosureCard(
+              candidatesConDisCon: widget.session.disclosuresCandidates,
+              onCurrentPageUpdate: _carouselPageUpdate,
+            ),
+          ),
         ),
       ],
     );
