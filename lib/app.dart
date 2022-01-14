@@ -49,6 +49,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   final _detectRootedDeviceRepo = DetectRootedDeviceIrmaPrefsRepository();
   StreamSubscription<SessionPointer> _sessionPointerSubscription;
   StreamSubscription<Event> _dataClearSubscription;
+  StreamSubscription<bool> _screenshotPrefSubscription;
   bool _qrScannerActive = false;
   DateTime lastSchemeUpdate;
 
@@ -106,6 +107,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     WidgetsBinding.instance.removeObserver(this);
     _sessionPointerSubscription?.cancel();
     _dataClearSubscription?.cancel();
+    _screenshotPrefSubscription?.cancel();
     super.dispose();
   }
 
@@ -317,7 +319,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   }
 
   void _listenScreenshotPref() {
-    IrmaPreferences.get().getScreenshotsEnabled().listen((enabled) {
+    _screenshotPrefSubscription = IrmaPreferences.get().getScreenshotsEnabled().listen((enabled) {
       enabled ? FlutterPrivacyScreen.disablePrivacyScreen() : FlutterPrivacyScreen.enablePrivacyScreen();
     });
   }
