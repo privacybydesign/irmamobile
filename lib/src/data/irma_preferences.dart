@@ -42,7 +42,7 @@ class IrmaPreferences {
     });
   }
 
-  static const String _screenshotsEnabledKey = "preference.screenshots_enabled";
+  static const String _screenshotsEnabledKey = 'preference.screenshots_enabled';
   final BehaviorSubject<bool> _screenshotsEnabled = BehaviorSubject<bool>();
 
   Stream<bool> getScreenshotsEnabled() {
@@ -55,7 +55,7 @@ class IrmaPreferences {
     });
   }
 
-  static const String _longPinKey = "preference.long_pin";
+  static const String _longPinKey = 'preference.long_pin';
   final BehaviorSubject<bool> _longPin = BehaviorSubject<bool>();
 
   Stream<bool> getLongPin() {
@@ -68,7 +68,7 @@ class IrmaPreferences {
     });
   }
 
-  static const String _reportErrorsKey = "preference.report_errors";
+  static const String _reportErrorsKey = 'preference.report_errors';
   final BehaviorSubject<bool> _reportErrors = BehaviorSubject<bool>();
 
   Stream<bool> getReportErrors() {
@@ -81,7 +81,7 @@ class IrmaPreferences {
     });
   }
 
-  static const String _startQRScanKey = "preference.open_qr_scanner_on_launch";
+  static const String _startQRScanKey = 'preference.open_qr_scanner_on_launch';
   final BehaviorSubject<bool> _startQRScan = BehaviorSubject<bool>();
 
   Stream<bool> getStartQRScan() {
@@ -94,7 +94,7 @@ class IrmaPreferences {
     });
   }
 
-  static const String _showDisclosureDialogKey = "preference.show_disclosure_dialog";
+  static const String _showDisclosureDialogKey = 'preference.show_disclosure_dialog';
   final BehaviorSubject<bool> _showDisclosureDialog = BehaviorSubject<bool>();
 
   Stream<bool> getShowDisclosureDialog() {
@@ -107,7 +107,7 @@ class IrmaPreferences {
     });
   }
 
-  static const String _developerModePrefVisibleKey = "preference.devmode_visible";
+  static const String _developerModePrefVisibleKey = 'preference.devmode_visible';
   final BehaviorSubject<bool> _developerModePrefVisible = BehaviorSubject<bool>();
 
   Stream<bool> getDeveloperModeVisible() {
@@ -120,7 +120,7 @@ class IrmaPreferences {
     });
   }
 
-  static const String _acceptedRootedRiskKey = "preference.accepted_rooted_risk";
+  static const String _acceptedRootedRiskKey = 'preference.accepted_rooted_risk';
   final BehaviorSubject<bool> _acceptedRootedRisk = BehaviorSubject<bool>();
 
   Stream<bool> getAcceptedRootedRisk() {
