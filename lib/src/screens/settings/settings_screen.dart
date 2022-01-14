@@ -97,7 +97,7 @@ class SettingsScreen extends StatelessWidget {
                 return SwitchListTile.adaptive(
                   title: Text(
                     FlutterI18n.translate(context, 'settings.advanced.enable_screenshots'),
-                    style: IrmaTheme.of(context).textTheme.body1,
+                    style: IrmaTheme.of(context).textTheme.bodyText2,
                   ),
                   subtitle: Text(
                     FlutterI18n.translate(context, 'settings.advanced.enable_screenshots_note'),
@@ -106,7 +106,7 @@ class SettingsScreen extends StatelessWidget {
                   activeColor: IrmaTheme.of(context).interactionValid,
                   value: snapshot.data != null && snapshot.data,
                   onChanged: irmaPrefs.setScreenshotsEnabled,
-                  secondary: Icon(IrmaIcons.phone, color: IrmaTheme.of(context).textTheme.body1.color),
+                  secondary: Icon(IrmaIcons.phone, color: IrmaTheme.of(context).textTheme.bodyText2.color),
                 );
               },
             ),
