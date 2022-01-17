@@ -47,6 +47,7 @@ class App extends StatefulWidget {
 class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   final _detectRootedDeviceRepo = DetectRootedDeviceIrmaPrefsRepository();
+  final _privacyScreenLoaded = ValueNotifier(false);
   StreamSubscription<SessionPointer> _sessionPointerSubscription;
   StreamSubscription<Event> _dataClearSubscription;
   StreamSubscription<bool> _screenshotPrefSubscription;
@@ -303,24 +304,39 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     }
 
     // In case of a fatal error, we have to lift the splash to make the error visible.
-    return StreamBuilder(
-      stream: IrmaRepository.get().getFatalErrors(),
-      builder: (context, fatalError) => AnimatedOpacity(
-        opacity: !fatalError.hasData && (enrollmentStatus == EnrollmentStatus.undetermined || _showSplash) ? 1.0 : 0.0,
-        duration: const Duration(milliseconds: 500),
-        onEnd: () {
-          setState(() {
-            _removeSplash = true;
-          });
-        },
-        child: const SplashScreen(),
+    return ValueListenableBuilder<bool>(
+      valueListenable: _privacyScreenLoaded,
+      builder: (context, privacyScreenLoaded, child) => StreamBuilder(
+        stream: IrmaRepository.get().getFatalErrors(),
+        builder: (context, fatalError) => AnimatedOpacity(
+          opacity: !privacyScreenLoaded &&
+                  !fatalError.hasData &&
+                  (enrollmentStatus == EnrollmentStatus.undetermined || _showSplash)
+              ? 1.0
+              : 0.0,
+          duration: const Duration(milliseconds: 500),
+          onEnd: () {
+            setState(() {
+              _removeSplash = true;
+            });
+          },
+          child: child,
+        ),
       ),
+      child: const SplashScreen(),
     );
   }
 
   void _listenScreenshotPref() {
-    _screenshotPrefSubscription = IrmaPreferences.get().getScreenshotsEnabled().listen((enabled) {
-      enabled ? FlutterPrivacyScreen.disablePrivacyScreen() : FlutterPrivacyScreen.enablePrivacyScreen();
+    // We only wait for the privacy screen to be loaded on start-up.
+    _privacyScreenLoaded.value = false;
+    _screenshotPrefSubscription = IrmaPreferences.get().getScreenshotsEnabled().listen((enabled) async {
+      if (enabled) {
+        await FlutterPrivacyScreen.disablePrivacyScreen();
+      } else {
+        await FlutterPrivacyScreen.enablePrivacyScreen();
+      }
+      if (!_privacyScreenLoaded.value) _privacyScreenLoaded.value = true;
     });
   }
 
