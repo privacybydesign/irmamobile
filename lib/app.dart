@@ -311,7 +311,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     return streamController.stream;
   }
 
-  Widget _buildAppOverlay(BuildContext context, EnrollmentStatus enrollmentStatus) {
+  Widget _buildAppOverlay(BuildContext context) {
     final repo = IrmaRepository.get();
     return StreamBuilder<CombinedState3<bool, VersionInformation, bool>>(
       stream: combine3(_displayDeviceIsRootedWarning(), repo.getVersionInformation(), repo.getLocked()),
@@ -345,16 +345,12 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     );
   }
 
-  Widget _buildAppStack(
-    BuildContext context,
-    Widget navigationChild,
-    EnrollmentStatus enrollmentStatus,
-  ) {
+  Widget _buildAppStack(BuildContext context, Widget navigationChild) {
     // Use this Stack to force an overlay when loading and when an update is required.
     return Stack(
       children: <Widget>[
         navigationChild,
-        _buildAppOverlay(context, enrollmentStatus),
+        _buildAppOverlay(context),
       ],
     );
   }
@@ -374,9 +370,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
       builder: (BuildContext context) {
         return StreamBuilder<EnrollmentStatus>(
           stream: enrollmentStatusStream,
-          builder: (context, enrollmentStatusSnapshop) {
-            final enrollmentStatus = enrollmentStatusSnapshop.data;
-
+          builder: (context, _) {
             return Stack(
               textDirection: TextDirection.ltr,
               children: <Widget>[
@@ -394,7 +388,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
                   showSemanticsDebugger: false,
 
                   builder: (context, child) {
-                    return _buildAppStack(context, child, enrollmentStatus);
+                    return _buildAppStack(context, child);
                   },
                 ),
               ],
