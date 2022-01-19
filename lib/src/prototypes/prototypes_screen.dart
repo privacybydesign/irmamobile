@@ -18,7 +18,6 @@ import 'package:irmamobile/src/screens/enrollment/email_sent_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/introduction.dart';
 import 'package:irmamobile/src/screens/help/help_screen.dart';
 import 'package:irmamobile/src/screens/history/history_screen.dart';
-import 'package:irmamobile/src/screens/loading/loading_screen.dart';
 import 'package:irmamobile/src/screens/reset_pin/reset_pin_screen.dart';
 import 'package:irmamobile/src/screens/session/call_info_screen.dart';
 import 'package:irmamobile/src/screens/session/session_screen.dart';
@@ -82,9 +81,6 @@ class PrototypesScreen extends StatelessWidget {
           }),
           _buildListItem(context, "Hoofdmenu", () {
             startPrototype26(context);
-          }),
-          _buildListItem(context, "Loading screen", () {
-            Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoadingScreen()));
           }),
           _buildListItem(context, "History", () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => HistoryScreen()));

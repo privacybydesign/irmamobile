@@ -47,11 +47,11 @@ class App extends StatefulWidget {
 class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   final _detectRootedDeviceRepo = DetectRootedDeviceIrmaPrefsRepository();
-  final _privacyScreenLoaded = ValueNotifier(false);
   StreamSubscription<SessionPointer> _sessionPointerSubscription;
   StreamSubscription<Event> _dataClearSubscription;
   StreamSubscription<bool> _screenshotPrefSubscription;
   bool _qrScannerActive = false;
+  bool _privacyScreenLoaded = false;
   DateTime lastSchemeUpdate;
 
   // We keep track of the last two life cycle states
@@ -82,23 +82,10 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     ];
   }
 
-  bool _showSplash = true;
-  bool _removeSplash = false;
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-
-    // TODO: the delay before splash is hidden is quite long. This is because we
-    // currently have a long startup time (although that may be because we run
-    // in debug). This value should eventually be lowered to 500.
-    Future.delayed(const Duration(milliseconds: 2500)).then((_) {
-      setState(() {
-        _showSplash = false;
-      });
-    });
-
     _listenForDataClear();
     _listenScreenshotPref();
   }
@@ -256,9 +243,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     }
   }
 
-  Widget _buildPinScreen(bool isLocked) {
-    // Display nothing if we are not locked
-    if (!isLocked) return Container();
+  Widget _buildPinScreen() {
     // We use a navigator here, instead of just rendering the pin screen
     //  to give error screens a place to go.
     return HeroControllerScope(
@@ -298,45 +283,16 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     );
   }
 
-  Widget _buildSplash(EnrollmentStatus enrollmentStatus) {
-    if (_removeSplash) {
-      return Container();
-    }
-
-    // In case of a fatal error, we have to lift the splash to make the error visible.
-    return ValueListenableBuilder<bool>(
-      valueListenable: _privacyScreenLoaded,
-      builder: (context, privacyScreenLoaded, child) => StreamBuilder(
-        stream: IrmaRepository.get().getFatalErrors(),
-        builder: (context, fatalError) => AnimatedOpacity(
-          opacity: !privacyScreenLoaded &&
-                  !fatalError.hasData &&
-                  (enrollmentStatus == EnrollmentStatus.undetermined || _showSplash)
-              ? 1.0
-              : 0.0,
-          duration: const Duration(milliseconds: 500),
-          onEnd: () {
-            setState(() {
-              _removeSplash = true;
-            });
-          },
-          child: child,
-        ),
-      ),
-      child: const SplashScreen(),
-    );
-  }
-
   void _listenScreenshotPref() {
     // We only wait for the privacy screen to be loaded on start-up.
-    _privacyScreenLoaded.value = false;
+    _privacyScreenLoaded = false;
     _screenshotPrefSubscription = IrmaPreferences.get().getScreenshotsEnabled().listen((enabled) async {
       if (enabled) {
         await FlutterPrivacyScreen.disablePrivacyScreen();
       } else {
         await FlutterPrivacyScreen.enablePrivacyScreen();
       }
-      if (!_privacyScreenLoaded.value) _privacyScreenLoaded.value = true;
+      if (!_privacyScreenLoaded) setState(() => _privacyScreenLoaded = true);
     });
   }
 
@@ -360,8 +316,8 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     return StreamBuilder<CombinedState3<bool, VersionInformation, bool>>(
       stream: combine3(_displayDeviceIsRootedWarning(), repo.getVersionInformation(), repo.getLocked()),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return _buildSplash(enrollmentStatus);
+        if (!snapshot.hasData || !_privacyScreenLoaded) {
+          return const SplashScreen();
         }
 
         final displayRootedWarning = snapshot.data.a;
@@ -379,7 +335,12 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
         }
 
         final isLocked = snapshot.data.c;
-        return _buildPinScreen(isLocked);
+        if (isLocked) {
+          return _buildPinScreen();
+        }
+
+        // There is no need for an overlay; the underlying screen can be shown.
+        return Container();
       },
     );
   }
