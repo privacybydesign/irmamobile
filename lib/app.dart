@@ -32,6 +32,7 @@ import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/combine.dart';
 import 'package:irmamobile/src/util/hero_controller.dart';
+import 'package:rxdart/rxdart.dart';
 
 const schemeUpdateIntervalHours = 3;
 
@@ -314,7 +315,12 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   Widget _buildAppOverlay(BuildContext context) {
     final repo = IrmaRepository.get();
     return StreamBuilder<CombinedState3<bool, VersionInformation, bool>>(
-      stream: combine3(_displayDeviceIsRootedWarning(), repo.getVersionInformation(), repo.getLocked()),
+      stream: combine3(
+        _displayDeviceIsRootedWarning(),
+        // combine3 cannot handle empty streams, so we have to make sure always a value is present.
+        repo.getVersionInformation().defaultIfEmpty(null),
+        repo.getLocked(),
+      ),
       builder: (context, snapshot) {
         if (!snapshot.hasData || !_privacyScreenLoaded) {
           return const SplashScreen();

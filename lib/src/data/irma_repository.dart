@@ -158,6 +158,7 @@ class IrmaRepository {
     if (event is ErrorEvent) {
       if (event.fatal) {
         _fatalErrorSubject.add(event);
+        _lockedSubject.add(false);
       } else {
         // Only fatal errors on start-up are caught at the moment, so we have to report other errors manually.
         reportError(event.exception, event.stack);
@@ -340,7 +341,7 @@ class IrmaRepository {
     final irmaVersionInfoStream = _irmaConfigurationSubject.stream; // TODO: add filtering
 
     return Rx.combineLatest2(packageInfoStream, irmaVersionInfoStream,
-        (PackageInfo packageInfo, IrmaConfiguration irmaVersionInfo) {
+            (PackageInfo packageInfo, IrmaConfiguration irmaVersionInfo) {
       int minimumBuild = 0;
       irmaVersionInfo.schemeManagers.forEach((_, scheme) {
         int thisRequirement = 0;
@@ -371,7 +372,9 @@ class IrmaRepository {
         requiredVersion: minimumBuild,
         currentVersion: currentBuild,
       );
-    });
+    })
+        // When a fatal error occurs, no new IrmaConfiguration will be found anymore. This means we can close the stream.
+        .takeUntil(_fatalErrorSubject);
   }
 
   // -- Session
