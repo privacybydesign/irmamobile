@@ -10,7 +10,7 @@ import 'package:irmamobile/src/screens/error/error_screen.dart';
 import 'package:irmamobile/src/screens/splash_screen/splash_screen.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 
-class RedirectScreen extends StatelessWidget {
+class LoadingScreen extends StatelessWidget {
   static const routeName = "/";
 
   @override
