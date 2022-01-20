@@ -12,6 +12,7 @@ Future<void> initSentry() async {
         final release = await PackageInfo.fromPlatform().then((info) => info.version).catchError((_) => version);
         options.release = release;
         options.dsn = dsn;
+        options.enableNativeCrashHandling = await IrmaPreferences.get().getReportErrors().first;
       },
     );
     Sentry.configureScope((scope) => scope.setTag('git', version));
