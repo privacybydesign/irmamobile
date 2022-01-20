@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:irmamobile/sentry_dsn.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
@@ -6,18 +8,25 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 
 Future<void> initSentry() async {
   if (dsn != '') {
-    await SentryFlutter.init(
-      (options) async {
-        // Build number is automatically set by Sentry via the 'dist' tag.
-        final release = await PackageInfo.fromPlatform().then((info) => info.version).catchError((_) => version);
-        options.release = release;
-        options.dsn = dsn;
-        options.enableNativeCrashHandling = await IrmaPreferences.get().getReportErrors().first;
-        // In the privacy policy we only mention error events, so we don't send the session health information.
-        options.enableAutoSessionTracking = false;
-      },
-    );
-    Sentry.configureScope((scope) => scope.setTag('git', version));
+    final completer = Completer();
+    // Keep listening to make sure preference changes are immediately processed.
+    IrmaPreferences.get().getReportErrors().listen((reportErrors) async {
+      if (Sentry.isEnabled) await Sentry.close();
+      await SentryFlutter.init(
+        (options) async {
+          // Build number is automatically set by Sentry via the 'dist' tag.
+          final release = await PackageInfo.fromPlatform().then((info) => info.version).catchError((_) => version);
+          options.release = release;
+          options.dsn = dsn;
+          options.enableNativeCrashHandling = reportErrors;
+          // In the privacy policy we only mention error events, so we don't send the session health information.
+          options.enableAutoSessionTracking = false;
+        },
+      );
+      Sentry.configureScope((scope) => scope.setTag('git', version));
+      if (!completer.isCompleted) completer.complete();
+    });
+    await completer.future;
   }
 }
 
