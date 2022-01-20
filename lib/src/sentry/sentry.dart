@@ -13,6 +13,8 @@ Future<void> initSentry() async {
         options.release = release;
         options.dsn = dsn;
         options.enableNativeCrashHandling = await IrmaPreferences.get().getReportErrors().first;
+        // In the privacy policy we only mention error events, so we don't send the session health information.
+        options.enableAutoSessionTracking = false;
       },
     );
     Sentry.configureScope((scope) => scope.setTag('git', version));
