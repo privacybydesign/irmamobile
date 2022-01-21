@@ -420,6 +420,7 @@
   },
   "session": {
     "navigation_bar": {
+      "more": "More",
       "yes": "Yes",
       "no": "No",
       "back": "Back",
@@ -469,7 +470,6 @@
       "dismiss-remember": "Do not show anymore"
     },
     "redirect": "You are being redirected back to the webpage...",
-    "see_more": "Scroll down to see the rest.",
     "feedback": {
       "header": {
         "success": "Success",

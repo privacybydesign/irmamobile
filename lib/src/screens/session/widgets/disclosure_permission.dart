@@ -1,6 +1,8 @@
 // This code is not null safe yet.
 // @dart=2.11
 
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -34,7 +36,6 @@ class DisclosurePermission extends StatefulWidget {
 }
 
 class _DisclosurePermissionState extends State<DisclosurePermission> {
-  bool _showTooltip = true;
   bool _scrolledToEnd = false;
 
   final _scrollController = ScrollController();
@@ -46,9 +47,11 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.session.canBeFinished) {
+        _checkScrolledToEnd();
         _showExplanation(widget.session.disclosuresCandidates);
       }
     });
+    _scrollController.addListener(_checkScrolledToEnd);
   }
 
   Future<void> _showExplanation(ConDisCon<Attribute> candidatesConDisCon) async {
@@ -61,7 +64,6 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
       return;
     }
 
-    setState(() => _showTooltip = false);
     showDialog(
       context: _navigatorKey.currentContext,
       useRootNavigator: false,
@@ -95,18 +97,19 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
   }
 
   void _hideExplanation() {
-    setState(() {
-      _showTooltip = true;
-    });
     Navigator.of(_navigatorKey.currentContext).pop();
   }
 
-  void _checkScrolledToEnd() {
-    if (!_scrolledToEnd &&
-        _scrollController.hasClients &&
+  void _checkScrolledToEnd({bool reset = false}) {
+    bool newScrolledToEnd = _scrolledToEnd && !reset;
+    if (_scrollController.hasClients &&
         _scrollController.offset >= _scrollController.position.maxScrollExtent - _scrollEndGive) {
+      newScrolledToEnd = true;
+    }
+
+    if (_scrolledToEnd != newScrolledToEnd) {
       setState(() {
-        _scrolledToEnd = true;
+        _scrolledToEnd = newScrolledToEnd;
       });
     }
   }
@@ -117,51 +120,62 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
       conIndex: conIndex,
     );
 
-    _scrolledToEnd = false;
-    _checkScrolledToEnd();
+    _checkScrolledToEnd(reset: true);
   }
 
-  Widget _buildDisclosureChoices() {
-    _scrollController.addListener(_checkScrolledToEnd);
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Unfortunately, if this is run immediately the ListView does not yet have height
-      // so _checkScrolledToEnd would conclude the end is reached, even if it is not.
-      await Future.delayed(const Duration(milliseconds: 50));
-      _checkScrolledToEnd();
-    });
+  Widget _buildDisclosureChoices() => ListView(
+        padding: EdgeInsets.all(IrmaTheme.of(context).smallSpacing),
+        controller: _scrollController,
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: IrmaTheme.of(context).mediumSpacing,
+              horizontal: IrmaTheme.of(context).smallSpacing,
+            ),
+            child: DisclosureHeader(
+              session: widget.session,
+            ),
+          ),
+          NotificationListener<SizeChangedLayoutNotification>(
+            onNotification: (_) {
+              // SizeChangedLayoutNotification is already triggered during layout, so the size is not updated yet.
+              final prevMaxScrollExtent = _scrollController.position.maxScrollExtent;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (prevMaxScrollExtent != _scrollController.position.maxScrollExtent) {
+                  _checkScrolledToEnd(reset: true);
+                }
+              });
+              return false;
+            },
+            child: SizeChangedLayoutNotifier(
+              child: DisclosureCard(
+                candidatesConDisCon: widget.session.disclosuresCandidates,
+                onCurrentPageUpdate: _carouselPageUpdate,
+              ),
+            ),
+          ),
+        ],
+      );
 
-    return ListView(
-      padding: EdgeInsets.all(IrmaTheme.of(context).smallSpacing),
-      controller: _scrollController,
-      children: <Widget>[
-        Padding(
-          padding: EdgeInsets.symmetric(
-            vertical: IrmaTheme.of(context).mediumSpacing,
-            horizontal: IrmaTheme.of(context).smallSpacing,
-          ),
-          child: DisclosureHeader(
-            session: widget.session,
-          ),
-        ),
-        DisclosureCard(
-          candidatesConDisCon: widget.session.disclosuresCandidates,
-          onCurrentPageUpdate: _carouselPageUpdate,
-          onIssue: () => setState(() => _showTooltip = false),
-        ),
-      ],
-    );
+  void _scrollDown() {
+    final target = _scrollController.offset +
+        min(_scrollController.position.extentInside * 0.75, _scrollController.position.extentAfter);
+    _scrollController.animateTo(target, curve: Curves.easeInOut, duration: const Duration(milliseconds: 400));
   }
 
   @protected
   Widget _buildNavigationBar() {
-    final showTooltip = _showTooltip && !_scrolledToEnd;
+    // Note that even if the "Yes" button is shown, it may be disabled.
+    final showYesButton = !widget.session.canDisclose || _scrolledToEnd;
+
     return IrmaBottomBar(
-      primaryButtonLabel: FlutterI18n.translate(context, 'session.navigation_bar.yes'),
-      onPrimaryPressed: widget.session.canDisclose && _scrolledToEnd ? () => widget.onGivePermission() : null,
+      primaryButtonLabel: showYesButton
+          ? FlutterI18n.translate(context, 'session.navigation_bar.yes')
+          : FlutterI18n.translate(context, 'session.navigation_bar.more'),
+      onPrimaryPressed:
+          showYesButton ? (widget.session.canDisclose ? () => widget.onGivePermission() : null) : _scrollDown,
       secondaryButtonLabel: FlutterI18n.translate(context, 'session.navigation_bar.no'),
       onSecondaryPressed: () => widget.onDismiss(),
-      toolTipLabel: showTooltip ? FlutterI18n.translate(context, 'disclosure.see_more') : null,
-      showTooltipOnPrimary: showTooltip,
     );
   }
 
