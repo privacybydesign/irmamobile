@@ -54,9 +54,11 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.session.canBeFinished) {
+        _checkScrolledToEnd();
         _showExplanation(widget.session.disclosuresCandidates);
       }
     });
+    _scrollController.addListener(_checkScrolledToEnd);
   }
 
   @override
@@ -134,39 +136,34 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
     _checkScrolledToEnd(reset: true);
   }
 
-  Widget _buildDisclosureChoices() {
-    _scrollController.addListener(_checkScrolledToEnd);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _checkScrolledToEnd());
-
-    return ListView(
-      padding: EdgeInsets.all(IrmaTheme.of(context).smallSpacing),
-      controller: _scrollController,
-      children: <Widget>[
-        Padding(
-          padding: EdgeInsets.symmetric(
-            vertical: IrmaTheme.of(context).mediumSpacing,
-            horizontal: IrmaTheme.of(context).smallSpacing,
-          ),
-          child: DisclosureHeader(
-            session: widget.session,
-          ),
-        ),
-        NotificationListener<SizeChangedLayoutNotification>(
-          onNotification: (_) {
-            WidgetsBinding.instance
-                .addPostFrameCallback((_) => _heightChangeNotifier.value = _scrollController.position.maxScrollExtent);
-            return false;
-          },
-          child: SizeChangedLayoutNotifier(
-            child: DisclosureCard(
-              candidatesConDisCon: widget.session.disclosuresCandidates,
-              onCurrentPageUpdate: _carouselPageUpdate,
+  Widget _buildDisclosureChoices() => ListView(
+        padding: EdgeInsets.all(IrmaTheme.of(context).smallSpacing),
+        controller: _scrollController,
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: IrmaTheme.of(context).mediumSpacing,
+              horizontal: IrmaTheme.of(context).smallSpacing,
+            ),
+            child: DisclosureHeader(
+              session: widget.session,
             ),
           ),
-        ),
-      ],
-    );
-  }
+          NotificationListener<SizeChangedLayoutNotification>(
+            onNotification: (_) {
+              WidgetsBinding.instance.addPostFrameCallback(
+                  (_) => _heightChangeNotifier.value = _scrollController.position.maxScrollExtent);
+              return false;
+            },
+            child: SizeChangedLayoutNotifier(
+              child: DisclosureCard(
+                candidatesConDisCon: widget.session.disclosuresCandidates,
+                onCurrentPageUpdate: _carouselPageUpdate,
+              ),
+            ),
+          ),
+        ],
+      );
 
   void _scrollDown() {
     final target = _scrollController.offset +
