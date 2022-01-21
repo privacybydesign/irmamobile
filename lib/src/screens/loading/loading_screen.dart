@@ -21,6 +21,7 @@ class LoadingScreen extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             if (snapshot.data == EnrollmentStatus.enrolled) {
+              // We don't add a smooth transition here like below, because it will be covered by the PinScreen anyway.
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 Navigator.of(context).pushReplacementNamed(WalletScreen.routeName);
               });
