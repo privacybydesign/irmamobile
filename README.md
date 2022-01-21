@@ -163,3 +163,13 @@ You can also run them locally using the following commands:
   with the NDK version you want to use.
 * When you get an error related to `x_cgo_inittls` while running `./bind_go.sh`, you probably use an incorrect version of the Android NDK (see above) or your Go version is too old.
 * When you are working with Windows, you need to manually make a symlink between the configuration folders. You can do this by opening a terminal as administrator and use the following command: `mklink /d .\android\app\src\main\assets\irma_configuration .\irma_configuration`.
+* When you are building for iOS using XCode and you get `Dart Error: Can't load Kernel binary: Invalid kernel binary format version.`, then likely your Flutter cache is corrupted. You can empty and reload the Flutter cache in the following way:
+```shell
+pushd $(which flutter)/../
+rm -rf ./cache
+flutter doctor
+flutter precache --ios
+popd
+flutter pub get
+cd ./ios && pod install
+```
