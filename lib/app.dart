@@ -363,9 +363,6 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
 
   @override
   Widget build(BuildContext context) {
-    final irmaRepo = IrmaRepository.get();
-    final enrollmentStatusStream = irmaRepo.getEnrollmentStatus();
-
     // Device orientation: force portrait mode
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
@@ -374,32 +371,27 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
 
     return IrmaTheme(
       builder: (BuildContext context) {
-        return StreamBuilder<EnrollmentStatus>(
-          stream: enrollmentStatusStream,
-          builder: (context, _) {
-            return Stack(
-              textDirection: TextDirection.ltr,
-              children: <Widget>[
-                MaterialApp(
-                  key: const Key("app"),
-                  title: 'IRMA',
-                  theme: IrmaTheme.of(context).themeData,
-                  localizationsDelegates: defaultLocalizationsDelegates(),
-                  supportedLocales: widget.forcedLocale == null ? defaultSupportedLocales() : [widget.forcedLocale],
-                  navigatorKey: _navigatorKey,
-                  navigatorObservers: [this],
-                  onGenerateRoute: Routing.generateRoute,
+        return Stack(
+          textDirection: TextDirection.ltr,
+          children: <Widget>[
+            MaterialApp(
+              key: const Key("app"),
+              title: 'IRMA',
+              theme: IrmaTheme.of(context).themeData,
+              localizationsDelegates: defaultLocalizationsDelegates(),
+              supportedLocales: widget.forcedLocale == null ? defaultSupportedLocales() : [widget.forcedLocale],
+              navigatorKey: _navigatorKey,
+              navigatorObservers: [this],
+              onGenerateRoute: Routing.generateRoute,
 
-                  // Set showSemanticsDebugger to true to view semantics in emulator.
-                  showSemanticsDebugger: false,
+              // Set showSemanticsDebugger to true to view semantics in emulator.
+              showSemanticsDebugger: false,
 
-                  builder: (context, child) {
-                    return _buildAppStack(context, child);
-                  },
-                ),
-              ],
-            );
-          },
+              builder: (context, child) {
+                return _buildAppStack(context, child);
+              },
+            ),
+          ],
         );
       },
     );
