@@ -37,7 +37,6 @@ class DisclosurePermission extends StatefulWidget {
 
 class _DisclosurePermissionState extends State<DisclosurePermission> {
   bool _scrolledToEnd = false;
-  ValueNotifier<double> _heightChangeNotifier;
 
   final _scrollController = ScrollController();
   final _navigatorKey = GlobalKey();
@@ -46,12 +45,6 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
   @override
   void initState() {
     super.initState();
-
-    // When not all choices are available, loading of all disclosure choices may take a while.
-    // Because the final size is only known when everything is loaded, we have to recheck the scroll state then.
-    _heightChangeNotifier = ValueNotifier(0);
-    _heightChangeNotifier.addListener(() => setState(() => _checkScrolledToEnd(reset: true)));
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.session.canBeFinished) {
         _checkScrolledToEnd();
@@ -59,12 +52,6 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
       }
     });
     _scrollController.addListener(_checkScrolledToEnd);
-  }
-
-  @override
-  void dispose() {
-    _heightChangeNotifier.dispose();
-    super.dispose();
   }
 
   Future<void> _showExplanation(ConDisCon<Attribute> candidatesConDisCon) async {
@@ -151,8 +138,13 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
           ),
           NotificationListener<SizeChangedLayoutNotification>(
             onNotification: (_) {
-              WidgetsBinding.instance.addPostFrameCallback(
-                  (_) => _heightChangeNotifier.value = _scrollController.position.maxScrollExtent);
+              // SizeChangedLayoutNotification is already triggered during layout, so the size is not updated yet.
+              final prevMaxScrollExtent = _scrollController.position.maxScrollExtent;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (prevMaxScrollExtent != _scrollController.position.maxScrollExtent) {
+                  _checkScrolledToEnd(reset: true);
+                }
+              });
               return false;
             },
             child: SizeChangedLayoutNotifier(
