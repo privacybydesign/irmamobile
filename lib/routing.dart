@@ -15,7 +15,7 @@ import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/help/help_screen.dart';
 import 'package:irmamobile/src/screens/history/history_screen.dart';
 import 'package:irmamobile/src/screens/issue_wizard/issue_wizard.dart';
-import 'package:irmamobile/src/screens/loading/redirect_screen.dart';
+import 'package:irmamobile/src/screens/loading/loading_screen.dart';
 import 'package:irmamobile/src/screens/reset_pin/reset_pin_screen.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/session/session.dart';
@@ -25,7 +25,7 @@ import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 
 class Routing {
   static Map<String, WidgetBuilder> simpleRoutes = {
-    RedirectScreen.routeName: (context) => RedirectScreen(),
+    LoadingScreen.routeName: (context) => LoadingScreen(),
     WalletScreen.routeName: (context) => WalletScreen(),
     EnrollmentScreen.routeName: (context) => EnrollmentScreen(),
     ScannerScreen.routeName: (context) => ScannerScreen(),

@@ -1,6 +1,8 @@
 // We cannot test using null safety as long as there are widgets that are not migrated yet.
 // @dart=2.11
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -32,6 +34,7 @@ void main() {
       // Check screen settings text
       String textQRscanner = 'Open QR scanner automatically after start-up';
       String textErrorReports = 'Send error reports to IRMA';
+      String textEnableScreenshots = 'Enable screenshots';
       final list = tester.getAllText(find.byType(ListView));
       expect(list, [
         textQRscanner,
@@ -39,19 +42,35 @@ void main() {
         'Advanced',
         textErrorReports,
         'Delete everything and start over',
+        if (Platform.isAndroid)
+          {
+            textEnableScreenshots,
+            'When enabled, the app will not be blurred in the app switcher.',
+          }
       ]);
-      // Check the options and enabled the option 'open QR scanner automatically after-start-up'
+      // Check the initial value of all settings.
       expect(tester.getSwitchListTileValue(find.text(textQRscanner)), false);
       expect(await irmaBinding.preferences.getStartQRScan().first, false);
       expect(tester.getSwitchListTileValue(find.text(textErrorReports)), false);
       expect(await irmaBinding.preferences.getStartQRScan().first, false);
+      // Enable all settings.
       await tester.tapAndSettle(find.text(textQRscanner));
       await tester.tapAndSettle(find.text(textErrorReports));
+      // Check whether all settings are enabled.
       expect(tester.getSwitchListTileValue(find.text(textQRscanner)), true);
       expect(await irmaBinding.preferences.getStartQRScan().first, true);
-      // Enabled the option 'Send error reports to IRMA'
       expect(tester.getSwitchListTileValue(find.text(textErrorReports)), true);
       expect(await irmaBinding.preferences.getStartQRScan().first, true);
+      // Only on Android, check setting to enable screenshots. On iOS, the option should not be there.
+      if (Platform.isAndroid) {
+        expect(tester.getSwitchListTileValue(find.text(textEnableScreenshots)), false);
+        expect(await irmaBinding.preferences.getScreenshotsEnabled().first, false);
+        await tester.tapAndSettle(find.text(textEnableScreenshots));
+        expect(tester.getSwitchListTileValue(find.text(textEnableScreenshots)), true);
+        expect(await irmaBinding.preferences.getScreenshotsEnabled().first, true);
+      } else {
+        expect(find.text(textEnableScreenshots), findsNothing);
+      }
     }, timeout: const Timeout(Duration(seconds: 30)));
 
     testWidgets('change-PIN', (tester) async {
