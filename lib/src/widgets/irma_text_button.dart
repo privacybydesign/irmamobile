@@ -25,25 +25,22 @@ class IrmaTextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ButtonTheme(
-      textTheme: ButtonTextTheme.primary,
-      height: size?.value ?? 45.0,
-      minWidth: minWidth,
-      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-      child: FlatButton(
-        onPressed: onPressed,
-        textColor: IrmaTheme.of(context).primaryBlue,
-        // splashColor: Colors.transparent,
-        focusColor: Colors.transparent,
-        // highlightColor: Colors.transparent,
+    final fixedHeight = size?.value ?? 45.0;
+    return TextButton(
+      onPressed: onPressed,
+      style: TextButton.styleFrom(
+        primary: IrmaTheme.of(context).primaryBlue,
+        minimumSize: Size(minWidth, fixedHeight),
+        maximumSize: Size.fromHeight(fixedHeight),
+        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(30.0),
         ),
-        child: Text(
-          FlutterI18n.translate(context, label),
-          style: textStyle,
-          textAlign: TextAlign.center,
-        ),
+      ),
+      child: Text(
+        FlutterI18n.translate(context, label),
+        style: textStyle,
+        textAlign: TextAlign.center,
       ),
     );
   }

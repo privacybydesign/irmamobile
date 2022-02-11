@@ -17,7 +17,7 @@ class InfoAlert extends StatelessWidget {
     final boxWidgets = <Widget>[
       Text(
         title,
-        style: Theme.of(context).textTheme.title,
+        style: Theme.of(context).textTheme.headline6,
       ),
       SizedBox(
         height: IrmaTheme.of(context).defaultSpacing,
@@ -25,7 +25,7 @@ class InfoAlert extends StatelessWidget {
       Center(
         child: Text(
           body,
-          style: Theme.of(context).textTheme.body1.copyWith(
+          style: Theme.of(context).textTheme.bodyText2.copyWith(
                 color: IrmaTheme.of(context).grayscale40,
               ),
         ),

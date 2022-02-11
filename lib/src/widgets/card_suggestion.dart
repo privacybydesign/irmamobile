@@ -100,13 +100,13 @@ class CardSuggestion extends StatelessWidget {
                         children: <Widget>[
                           Text(
                             title,
-                            style: IrmaTheme.of(context).textTheme.display2,
+                            style: IrmaTheme.of(context).textTheme.headline3,
                           ),
                           Padding(
                             padding: EdgeInsets.only(top: IrmaTheme.of(context).tinySpacing),
                             child: Text(
                               subTitle,
-                              style: IrmaTheme.of(context).textTheme.body1.copyWith(
+                              style: IrmaTheme.of(context).textTheme.bodyText2.copyWith(
                                     color: IrmaTheme.of(context).linkVisitedColor,
                                   ),
                             ),

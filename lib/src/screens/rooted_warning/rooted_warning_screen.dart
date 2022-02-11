@@ -41,7 +41,7 @@ class RootedWarningScreen extends StatelessWidget {
                 alignment: Alignment.center,
                 child: Text(
                   FlutterI18n.translate(context, 'device_rooted_warning.title'),
-                  style: IrmaTheme.of(context).textTheme.display2,
+                  style: IrmaTheme.of(context).textTheme.headline3,
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -54,7 +54,7 @@ class RootedWarningScreen extends StatelessWidget {
                 alignment: Alignment.center,
                 child: Text(
                   FlutterI18n.translate(context, 'device_rooted_warning.body'),
-                  style: IrmaTheme.of(context).textTheme.body1,
+                  style: IrmaTheme.of(context).textTheme.bodyText2,
                   textAlign: TextAlign.center,
                 ),
               ),

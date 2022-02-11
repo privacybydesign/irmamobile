@@ -16,7 +16,7 @@ class Subtitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Heading(
       _text(context),
-      style: IrmaTheme.of(context).textTheme.display2,
+      style: IrmaTheme.of(context).textTheme.headline3,
     );
   }
 

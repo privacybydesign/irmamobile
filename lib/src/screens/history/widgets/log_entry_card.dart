@@ -67,17 +67,17 @@ class LogEntryCard extends StatelessWidget {
                   children: <Widget>[
                     Text(
                       title,
-                      style: IrmaTheme.of(context).textTheme.body1.copyWith(
+                      style: IrmaTheme.of(context).textTheme.bodyText2.copyWith(
                             fontSize: 14,
                           ),
                     ),
                     Text(
                       subtitle,
-                      style: IrmaTheme.of(context).textTheme.display2,
+                      style: IrmaTheme.of(context).textTheme.headline3,
                     ),
                     Text(
                       formatDate(logEntry.time, lang),
-                      style: IrmaTheme.of(context).textTheme.body1.copyWith(
+                      style: IrmaTheme.of(context).textTheme.bodyText2.copyWith(
                             fontSize: 14,
                           ),
                     ),

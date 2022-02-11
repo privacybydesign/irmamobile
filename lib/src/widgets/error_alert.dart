@@ -36,14 +36,14 @@ class ErrorAlert extends StatelessWidget {
                 children: <Widget>[
                   Text(
                     title,
-                    style: Theme.of(context).textTheme.title,
+                    style: Theme.of(context).textTheme.headline6,
                   ),
                   SizedBox(
                     height: IrmaTheme.of(context).defaultSpacing,
                   ),
                   Text(
                     body,
-                    style: Theme.of(context).textTheme.body1.copyWith(
+                    style: Theme.of(context).textTheme.bodyText2.copyWith(
                           color: IrmaTheme.of(context).grayscale40,
                         ),
                   ),

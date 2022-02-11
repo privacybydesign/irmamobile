@@ -152,7 +152,7 @@ class _TooltipState extends State<ProgrammableTooltip> with WidgetsBindingObserv
     TextStyle defaultTextStyle;
     BoxDecoration defaultDecoration;
     if (theme.brightness == Brightness.dark) {
-      defaultTextStyle = theme.textTheme.body1.copyWith(
+      defaultTextStyle = theme.textTheme.bodyText2.copyWith(
         color: Colors.black,
       );
       defaultDecoration = BoxDecoration(
@@ -160,7 +160,7 @@ class _TooltipState extends State<ProgrammableTooltip> with WidgetsBindingObserv
         borderRadius: const BorderRadius.all(Radius.circular(4)),
       );
     } else {
-      defaultTextStyle = theme.textTheme.body1.copyWith(
+      defaultTextStyle = theme.textTheme.bodyText2.copyWith(
         color: Colors.white,
       );
       defaultDecoration = BoxDecoration(
@@ -305,7 +305,7 @@ class _TooltipOverlay extends StatelessWidget {
             child: ConstrainedBox(
               constraints: BoxConstraints(minHeight: height, maxWidth: width),
               child: DefaultTextStyle(
-                style: Theme.of(context).textTheme.body1,
+                style: Theme.of(context).textTheme.bodyText2,
                 child: Container(
                   decoration: decoration,
                   padding: padding,

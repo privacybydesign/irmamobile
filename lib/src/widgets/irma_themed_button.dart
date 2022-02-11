@@ -13,7 +13,7 @@ class IrmaThemedButton extends StatelessWidget {
   final Color color;
   final Color disabledColor;
   final Color textColor;
-  final ShapeBorder shape;
+  final OutlinedBorder shape;
   final IrmaButtonSize size;
   final double minWidth;
   final TextStyle textStyle;
@@ -40,6 +40,7 @@ class IrmaThemedButton extends StatelessWidget {
       style: textStyle,
     );
 
+    final fixedHeight = size?.value ?? IrmaButtonSize.medium.value;
     return GestureDetector(
       excludeFromSemantics: true,
       onTapUp: (_) {
@@ -47,31 +48,30 @@ class IrmaThemedButton extends StatelessWidget {
           onPressedDisabled();
         }
       },
-      child: ButtonTheme(
-        textTheme: ButtonTextTheme.primary,
-        height: size?.value ?? IrmaButtonSize.medium.value,
-        minWidth: minWidth,
-        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-        child: RaisedButton(
-          onPressed: onPressed,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
           elevation: 0.0,
-          color: color,
-          disabledColor: disabledColor ?? IrmaTheme.of(context).disabled,
-          textColor: textColor,
+          primary: color,
+          onPrimary: textColor,
+          onSurface: disabledColor ?? IrmaTheme.of(context).disabled,
           shape: shape,
-          child: icon == null
-              ? text
-              : Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Icon(icon),
-                    const SizedBox(
-                      width: 10.0,
-                    ),
-                    text,
-                  ],
-                ),
+          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+          minimumSize: Size(minWidth, fixedHeight),
+          maximumSize: Size.fromHeight(fixedHeight),
         ),
+        child: icon == null
+            ? text
+            : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Icon(icon),
+                  const SizedBox(
+                    width: 10.0,
+                  ),
+                  text,
+                ],
+              ),
       ),
     );
   }

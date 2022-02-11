@@ -44,7 +44,7 @@ class GetCardsNudge extends StatelessWidget {
             child: Text(
               FlutterI18n.translate(context, 'wallet.caption'),
               textAlign: TextAlign.center,
-              style: IrmaTheme.of(context).textTheme.body1,
+              style: IrmaTheme.of(context).textTheme.bodyText2,
             ),
           ),
           if (showButton) ...[

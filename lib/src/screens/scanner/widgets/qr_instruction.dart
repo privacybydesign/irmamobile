@@ -42,12 +42,12 @@ class QRInstruction extends StatelessWidget {
             children: <Widget>[
               Text(
                 FlutterI18n.translate(context, "qr_scanner.$screen.title"),
-                style: Theme.of(context).textTheme.display2.copyWith(color: Colors.white),
+                style: Theme.of(context).textTheme.headline3.copyWith(color: Colors.white),
                 textAlign: TextAlign.center,
               ),
               Text(
                 FlutterI18n.translate(context, "qr_scanner.$screen.message"),
-                style: Theme.of(context).textTheme.body1.copyWith(
+                style: Theme.of(context).textTheme.bodyText2.copyWith(
                       color: Colors.white,
                       height: 1.5,
                     ),

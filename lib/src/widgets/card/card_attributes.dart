@@ -60,7 +60,7 @@ class _CardAttributesState extends State<CardAttributes> {
   @override
   Widget build(BuildContext context) {
     final TextStyle body1Theme =
-        IrmaTheme.of(context).textTheme.body1.copyWith(color: widget.irmaCardTheme.foregroundColor);
+        IrmaTheme.of(context).textTheme.bodyText2.copyWith(color: widget.irmaCardTheme.foregroundColor);
     _lang = FlutterI18n.currentLocale(context).languageCode;
 
     final ScrollController scrollController = ScrollController();
@@ -293,7 +293,7 @@ class _CardAttributesState extends State<CardAttributes> {
           ),
           Text(
             (attributeValue as TextValue).translated.translate(_lang),
-            style: IrmaTheme.of(context).textTheme.body2.copyWith(color: widget.irmaCardTheme.foregroundColor),
+            style: IrmaTheme.of(context).textTheme.bodyText1.copyWith(color: widget.irmaCardTheme.foregroundColor),
             key: Key('attr_${entry.key}_value'),
           ),
           SizedBox(

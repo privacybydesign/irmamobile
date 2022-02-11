@@ -143,7 +143,7 @@ class WalletDrawer extends StatelessWidget {
           contentPadding: EdgeInsets.only(left: IrmaTheme.of(context).mediumSpacing),
           title: Text(
             text,
-            style: IrmaTheme.of(context).textTheme.body1,
+            style: IrmaTheme.of(context).textTheme.bodyText2,
           ),
           leading: Icon(icon, color: IrmaTheme.of(context).primaryDark),
           onTap: onTap,

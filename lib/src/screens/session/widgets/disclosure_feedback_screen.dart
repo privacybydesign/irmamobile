@@ -55,7 +55,7 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen> with
       title: TranslatedText(
         "disclosure.feedback.header.${widget._translationKey}",
         translationParams: {"otherParty": widget.otherParty},
-        style: Theme.of(context).textTheme.display3,
+        style: Theme.of(context).textTheme.headline2,
       ),
       explanation: TranslatedText(
         "disclosure.feedback.text.${widget._translationKey}",

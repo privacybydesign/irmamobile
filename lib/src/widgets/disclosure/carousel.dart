@@ -173,7 +173,7 @@ class _CarouselState extends State<Carousel> {
                     translationParams: {"choices": widget.candidatesDisCon.length.toString()},
                     style: IrmaTheme.of(context)
                         .textTheme
-                        .body1
+                        .bodyText2
                         .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 12),
                   ),
                 ),
@@ -264,8 +264,10 @@ class _CarouselState extends State<Carousel> {
         children: [
           Text(
             FlutterI18n.translate(context, 'disclosure.nothing_selected'),
-            style:
-                IrmaTheme.of(context).textTheme.body1.copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 14),
+            style: IrmaTheme.of(context)
+                .textTheme
+                .bodyText2
+                .copyWith(color: IrmaTheme.of(context).grayscale40, fontSize: 14),
           ),
         ],
       );

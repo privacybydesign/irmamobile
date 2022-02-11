@@ -54,9 +54,9 @@ class PrototypesScreen extends StatelessWidget {
               children: <Widget>[
                 Text(
                   "Schermflows",
-                  style: Theme.of(context).textTheme.display1,
+                  style: Theme.of(context).textTheme.headline4,
                 ),
-                Text("op basis van UX designs", style: Theme.of(context).textTheme.subhead),
+                Text("op basis van UX designs", style: Theme.of(context).textTheme.subtitle1),
               ],
             ),
           ),
@@ -126,7 +126,7 @@ class PrototypesScreen extends StatelessWidget {
               children: <Widget>[
                 Text(
                   "Dev experimenten",
-                  style: Theme.of(context).textTheme.display1,
+                  style: Theme.of(context).textTheme.headline4,
                 ),
               ],
             ),
@@ -140,7 +140,7 @@ class PrototypesScreen extends StatelessWidget {
               children: <Widget>[
                 Text(
                   "Design previews",
-                  style: Theme.of(context).textTheme.display1,
+                  style: Theme.of(context).textTheme.headline4,
                 ),
               ],
             ),
@@ -173,7 +173,7 @@ class PrototypesScreen extends StatelessWidget {
   }
 
   Widget _buildListItem(BuildContext context, String name, void Function() onTap) {
-    var itemTextTheme = Theme.of(context).textTheme.body2;
+    var itemTextTheme = Theme.of(context).textTheme.bodyText1;
     if (onTap == null) {
       itemTextTheme = itemTextTheme.copyWith(
         color: IrmaTheme.of(context).grayscale60,
@@ -185,7 +185,7 @@ class PrototypesScreen extends StatelessWidget {
         InkWell(
           onTap: () {
             if (onTap == null) {
-              Scaffold.of(context).showSnackBar(const SnackBar(content: Text("Not implemented yet.")));
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Not implemented yet.")));
               return;
             }
             onTap();
@@ -203,7 +203,7 @@ class PrototypesScreen extends StatelessWidget {
                     maxLines: 1,
                   ),
                 ),
-                Text(">", style: Theme.of(context).textTheme.body2),
+                Text(">", style: Theme.of(context).textTheme.bodyText1),
               ],
             ),
           ),

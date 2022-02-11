@@ -30,7 +30,7 @@ class DesignButtons extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: ListView(
             children: <Widget>[
-              Text("Contained", style: IrmaTheme.of(context).textTheme.display3),
+              Text("Contained", style: IrmaTheme.of(context).textTheme.headline2),
               Wrap(
                 children: <Widget>[
                   _buildButtonExample(
@@ -56,7 +56,7 @@ class DesignButtons extends StatelessWidget {
                   ),
                 ],
               ),
-              Text("Outlined", style: IrmaTheme.of(context).textTheme.display3),
+              Text("Outlined", style: IrmaTheme.of(context).textTheme.headline2),
               Wrap(
                 children: <Widget>[
                   _buildButtonExample(
@@ -81,7 +81,7 @@ class DesignButtons extends StatelessWidget {
                   ),
                 ],
               ),
-              Text("Text", style: IrmaTheme.of(context).textTheme.display3),
+              Text("Text", style: IrmaTheme.of(context).textTheme.headline2),
               const Text(
                 "These do not work properly yet, text color changes are not available in Material Design Buttons so we need to build a custom component for that. IrmaTextButton is currently implemented using a Material FlatButton.",
               ),
@@ -104,7 +104,7 @@ class DesignButtons extends StatelessWidget {
                   ),
                 ],
               ),
-              Text("Button sizes", style: IrmaTheme.of(context).textTheme.display3),
+              Text("Button sizes", style: IrmaTheme.of(context).textTheme.headline2),
               Wrap(
                 children: <Widget>[
                   _buildButtonExample(
@@ -136,7 +136,7 @@ class DesignButtons extends StatelessWidget {
                   ),
                 ],
               ),
-              Text("With an icon", style: IrmaTheme.of(context).textTheme.display3),
+              Text("With an icon", style: IrmaTheme.of(context).textTheme.headline2),
               Wrap(
                 children: <Widget>[
                   _buildButtonExample(
@@ -159,7 +159,7 @@ class DesignButtons extends StatelessWidget {
                   ),
                 ],
               ),
-              Text("Icon button", style: IrmaTheme.of(context).textTheme.display3),
+              Text("Icon button", style: IrmaTheme.of(context).textTheme.headline2),
               const Text("Not implemented yet."),
             ],
           ),

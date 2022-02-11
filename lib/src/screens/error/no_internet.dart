@@ -25,7 +25,7 @@ class NoInternet extends StatelessWidget {
             child: SingleChildScrollView(
                 child: Text(
               FlutterI18n.translate(context, "error.types.no_internet"),
-              style: IrmaTheme.of(context).textTheme.body1,
+              style: IrmaTheme.of(context).textTheme.bodyText2,
             )),
           ),
         ),

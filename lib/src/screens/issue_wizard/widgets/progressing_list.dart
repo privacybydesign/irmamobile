@@ -58,8 +58,8 @@ class ProgressingList extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(item.header,
-                    style: active ? Theme.of(context).textTheme.headline3 : Theme.of(context).textTheme.body1),
-                if (item.subheader != null) Text(item.subheader, style: Theme.of(context).textTheme.body1),
+                    style: active ? Theme.of(context).textTheme.headline3 : Theme.of(context).textTheme.bodyText2),
+                if (item.subheader != null) Text(item.subheader, style: Theme.of(context).textTheme.bodyText2),
               ],
             ),
           ),

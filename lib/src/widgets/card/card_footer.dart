@@ -29,7 +29,9 @@ class CardFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle body1Theme = IrmaTheme.of(context).textTheme.body1.copyWith(color: irmaCardTheme.foregroundColor);
+    final TextStyle body1Theme = IrmaTheme.of(context).textTheme.bodyText2.copyWith(
+          color: irmaCardTheme.foregroundColor,
+        );
     final lang = FlutterI18n.currentLocale(context).languageCode;
 
     final ScrollController scrollController = ScrollController();

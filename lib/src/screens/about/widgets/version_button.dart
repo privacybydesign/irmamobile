@@ -38,7 +38,7 @@ class _VersionButtonState extends State<VersionButton> {
                   tappedCount++;
                   if (tappedCount == 7) {
                     tappedCount = 0;
-                    Scaffold.of(context).showSnackBar(
+                    ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text(FlutterI18n.translate(context, 'about.developer_mode_enabled'))));
                     IrmaPreferences.get().setDeveloperModeVisible(true);
                     IrmaRepository.get().setDeveloperMode(true);
@@ -51,7 +51,7 @@ class _VersionButtonState extends State<VersionButton> {
                   FlutterI18n.translate(context, 'about.version', translationParams: {
                     'version': buildVersionString(info),
                   }),
-                  style: Theme.of(context).textTheme.body1,
+                  style: Theme.of(context).textTheme.bodyText2,
                 ),
               ),
             ),

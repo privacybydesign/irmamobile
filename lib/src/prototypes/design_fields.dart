@@ -60,8 +60,8 @@ class _DesignFieldsState extends State<DesignFields> {
           padding: const EdgeInsets.all(8.0),
           child: ListView(
             children: <Widget>[
-              Text("TextField", style: IrmaTheme.of(context).textTheme.display3),
-              Text("Enabled", style: Theme.of(context).textTheme.display2),
+              Text("TextField", style: IrmaTheme.of(context).textTheme.headline2),
+              Text("Enabled", style: Theme.of(context).textTheme.headline3),
               Wrap(
                 children: <Widget>[
                   _buildTextFieldExample(
@@ -95,7 +95,7 @@ class _DesignFieldsState extends State<DesignFields> {
                   ),
                 ],
               ),
-              Text("Disabled", style: Theme.of(context).textTheme.display2),
+              Text("Disabled", style: Theme.of(context).textTheme.headline3),
               Wrap(
                 children: <Widget>[
                   _buildTextFieldExample(
@@ -121,7 +121,7 @@ class _DesignFieldsState extends State<DesignFields> {
                   ),
                 ],
               ),
-              Text("Validated", style: Theme.of(context).textTheme.display2),
+              Text("Validated", style: Theme.of(context).textTheme.headline3),
               Wrap(
                 children: <Widget>[
                   _buildTextFieldExample(
@@ -160,7 +160,7 @@ class _DesignFieldsState extends State<DesignFields> {
                   ),
                 ],
               ),
-              Text("Multi-line", style: Theme.of(context).textTheme.display2),
+              Text("Multi-line", style: Theme.of(context).textTheme.headline3),
               Wrap(
                 children: <Widget>[
                   _buildTextFieldExample(
@@ -176,7 +176,7 @@ class _DesignFieldsState extends State<DesignFields> {
                   ),
                 ],
               ),
-              Text("Dropdown", style: IrmaTheme.of(context).textTheme.display3),
+              Text("Dropdown", style: IrmaTheme.of(context).textTheme.headline2),
               Wrap(
                 children: <Widget>[
                   _buildTextFieldExample(
@@ -224,7 +224,7 @@ class _DesignFieldsState extends State<DesignFields> {
                   ),
                 ],
               ),
-              Text("Card Group", style: IrmaTheme.of(context).textTheme.display3),
+              Text("Card Group", style: IrmaTheme.of(context).textTheme.headline2),
               CardSuggestionGroup(
                 title: FlutterI18n.translate(context, 'card_store.personal_data'),
                 credentials: <CardSuggestion>[
