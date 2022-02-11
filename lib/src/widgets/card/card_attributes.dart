@@ -106,6 +106,7 @@ class _CardAttributesState extends State<CardAttributes> {
                         right: IrmaTheme.of(context).smallSpacing,
                       ),
                       child: Scrollbar(
+                        controller: scrollController,
                         child: ListView(
                           shrinkWrap: true,
                           controller: scrollController,
