@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/event.dart';
@@ -20,7 +21,8 @@ class NewSessionEvent extends SessionEvent {
   // We start at some arbitrary point above zero
   static int sessionIDCounter = 42;
 
-  NewSessionEvent({required this.request, this.inAppCredential = ''}) : super(sessionIDCounter++);
+  NewSessionEvent({@visibleForTesting int? sessionId, required this.request, this.inAppCredential = ''})
+      : super(sessionId ?? sessionIDCounter++);
 
   @JsonKey(name: 'Request')
   final SessionPointer request;
@@ -114,10 +116,7 @@ class ClientReturnURLSetSessionEvent extends SessionEvent {
 
 @JsonSerializable()
 class SuccessSessionEvent extends SessionEvent {
-  SuccessSessionEvent({required int sessionID, required this.result}) : super(sessionID);
-
-  @JsonKey(name: 'Result')
-  final String result;
+  SuccessSessionEvent({required int sessionID}) : super(sessionID);
 
   factory SuccessSessionEvent.fromJson(Map<String, dynamic> json) => _$SuccessSessionEventFromJson(json);
   Map<String, dynamic> toJson() => _$SuccessSessionEventToJson(this);
@@ -152,8 +151,8 @@ class RequestIssuancePermissionSessionEvent extends SessionEvent {
     required this.serverName,
     required this.satisfiable,
     required this.issuedCredentials,
-    required this.disclosuresLabels,
-    required this.disclosuresCandidates,
+    this.disclosuresLabels,
+    this.disclosuresCandidates = const [],
   }) : super(sessionID);
 
   @JsonKey(name: 'ServerName')
@@ -182,9 +181,9 @@ class RequestVerificationPermissionSessionEvent extends SessionEvent {
     required int sessionID,
     required this.serverName,
     required this.satisfiable,
-    required this.disclosuresLabels,
     required this.disclosuresCandidates,
     required this.isSignatureSession,
+    this.disclosuresLabels,
     this.signedMessage,
   }) : super(sessionID);
 

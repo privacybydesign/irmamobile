@@ -40,6 +40,7 @@ class TextValue implements AttributeValue {
   final String raw;
 
   TextValue({required this.translated, required this.raw});
+  TextValue.fromString(this.raw) : translated = TranslatedValue.fromString(raw);
 
   // A raw TextValue is received as TranslatedValue.
   factory TextValue.fromRaw(TranslatedValue rawAttribute) {
@@ -49,6 +50,8 @@ class TextValue implements AttributeValue {
       raw: rawAttribute.translate(''),
     );
   }
+
+  TranslatedValue toRaw() => TranslatedValue.fromJson({...translated.toJson(), '': raw});
 }
 
 class PhotoValue implements AttributeValue {
@@ -100,4 +103,7 @@ class YesNoValue implements TextValue {
       return textValue.translated;
     }
   }
+
+  @override
+  TranslatedValue toRaw() => TranslatedValue.fromJson({...translated.toJson(), '': raw});
 }
