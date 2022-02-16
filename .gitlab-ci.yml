@@ -10,7 +10,7 @@ variables:
   PACKAGE_NAME: github.com/privacybydesign/irmamobile
 
 image:
-  name: privacybydesign/android_golang_gomobile_flutter:latest
+  name: privacybydesign/android_golang_gomobile_flutter:go1.16.6-flutter2.10.1
 
 cache:
   paths:
@@ -29,7 +29,7 @@ test:flutter:
 build_bridge:
   stage: build_bridge
   interruptible: true
-  only: 
+  only:
     - master
     - merge_requests
   artifacts:
@@ -37,11 +37,11 @@ build_bridge:
       - android/irmagobridge/irmagobridge.aar
   script:
     - gomobile bind -target android -o android/irmagobridge/irmagobridge.aar github.com/privacybydesign/irmamobile/irmagobridge
-  
+
 build_app:
   stage: build_app
   interruptible: true
-  only: 
+  only:
     - master
     - merge_requests
   artifacts:
