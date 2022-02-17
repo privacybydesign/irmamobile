@@ -42,11 +42,10 @@ void main() {
         'Advanced',
         textErrorReports,
         'Delete everything and start over',
-        if (Platform.isAndroid)
-          {
-            textEnableScreenshots,
-            'When enabled, the app will not be blurred in the app switcher.',
-          }
+        if (Platform.isAndroid) ...[
+          textEnableScreenshots,
+          'When enabled, the app will not be blurred in the app switcher.',
+        ]
       ]);
       // Check the initial value of all settings.
       expect(tester.getSwitchListTileValue(find.text(textQRscanner)), false);
