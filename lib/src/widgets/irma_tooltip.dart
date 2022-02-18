@@ -29,7 +29,7 @@ class IrmaTooltip extends StatelessWidget {
           shadows: [BoxShadow(color: Colors.black54, blurRadius: 0.8, offset: const Offset(0, 1))]),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
       margin: EdgeInsets.only(bottom: IrmaTheme.of(context).smallSpacing),
-      textStyle: IrmaTheme.of(context).textTheme.display1.merge(const TextStyle(height: 1.25, fontSize: 15)),
+      textStyle: IrmaTheme.of(context).textTheme.headline4.merge(const TextStyle(height: 1.25, fontSize: 15)),
       message: FlutterI18n.translate(context, label),
       width: 160,
       preferBelow: false,

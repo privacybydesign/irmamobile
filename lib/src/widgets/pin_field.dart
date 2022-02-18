@@ -154,21 +154,12 @@ class _PinFieldState extends State<PinField> {
       );
     }
 
-    const transparentBorder = OutlineInputBorder(
-      borderSide: BorderSide(
-        color: Colors.transparent,
-        width: 0.0,
-      ),
-    );
-
     return InputDecoration(
-      focusedErrorBorder: transparentBorder,
-      errorBorder: transparentBorder,
-      disabledBorder: transparentBorder,
-      enabledBorder: transparentBorder,
-      focusedBorder: transparentBorder,
-      counterText: null,
-      counterStyle: null,
+      focusedErrorBorder: InputBorder.none,
+      errorBorder: InputBorder.none,
+      disabledBorder: InputBorder.none,
+      enabledBorder: InputBorder.none,
+      focusedBorder: InputBorder.none,
       hintText: FlutterI18n.translate(context, 'enrollment.choose_pin.textfield'),
       // make hintText invisible so it is only available for screenreaders
       hintStyle: const TextStyle(height: 0.0, color: Colors.transparent),
@@ -269,9 +260,9 @@ class _PinFieldState extends State<PinField> {
                       enableInteractiveSelection: false,
 
                       // Only allow numeric input, without signs or decimal points
-                      keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
+                      keyboardType: TextInputType.number,
                       inputFormatters: [
-                        WhitelistingTextInputFormatter(RegExp('[0-9]')),
+                        FilteringTextInputFormatter.allow(RegExp('[0-9]')),
                       ],
 
                       // Set the style (dependent on if the input is for long PINs)

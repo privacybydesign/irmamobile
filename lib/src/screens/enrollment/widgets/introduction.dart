@@ -129,7 +129,7 @@ class Walkthrough extends StatelessWidget {
                   constraints: const BoxConstraints(maxWidth: 288.0),
                   child: Heading(
                     titleContent,
-                    style: IrmaTheme.of(context).textTheme.display2,
+                    style: IrmaTheme.of(context).textTheme.headline3,
                     textAlign: TextAlign.center,
                     key: const Key('intro_heading'),
                   ),
@@ -140,7 +140,7 @@ class Walkthrough extends StatelessWidget {
                   constraints: const BoxConstraints(maxWidth: 288.0),
                   child: Text(
                     textContent,
-                    style: IrmaTheme.of(context).textTheme.body1,
+                    style: IrmaTheme.of(context).textTheme.bodyText2,
                     textAlign: TextAlign.center,
                     key: const Key('intro_body'),
                   ),

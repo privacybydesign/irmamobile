@@ -41,12 +41,12 @@ class SettingsScreen extends StatelessWidget {
               return SwitchListTile.adaptive(
                 title: Text(
                   FlutterI18n.translate(context, 'settings.start_qr'),
-                  style: IrmaTheme.of(context).textTheme.body1,
+                  style: IrmaTheme.of(context).textTheme.bodyText2,
                 ),
                 activeColor: IrmaTheme.of(context).interactionValid,
                 value: snapshot.hasData && snapshot.data,
                 onChanged: irmaPrefs.setStartQRScan,
-                secondary: Icon(IrmaIcons.scanQrcode, color: IrmaTheme.of(context).textTheme.body1.color),
+                secondary: Icon(IrmaIcons.scanQrcode, color: IrmaTheme.of(context).textTheme.bodyText2.color),
               );
             },
           ),
@@ -56,10 +56,10 @@ class SettingsScreen extends StatelessWidget {
             },
             title: Text(
               FlutterI18n.translate(context, 'settings.change_pin'),
-              style: IrmaTheme.of(context).textTheme.body1,
+              style: IrmaTheme.of(context).textTheme.bodyText2,
             ),
-            leading: Icon(IrmaIcons.edit, color: IrmaTheme.of(context).textTheme.body1.color),
-            trailing: Icon(IrmaIcons.chevronRight, color: IrmaTheme.of(context).textTheme.body1.color),
+            leading: Icon(IrmaIcons.edit, color: IrmaTheme.of(context).textTheme.bodyText2.color),
+            trailing: Icon(IrmaIcons.chevronRight, color: IrmaTheme.of(context).textTheme.bodyText2.color),
           ),
           const Divider(),
           SettingsHeader(
@@ -71,24 +71,24 @@ class SettingsScreen extends StatelessWidget {
               return SwitchListTile.adaptive(
                 title: Text(
                   FlutterI18n.translate(context, 'settings.advanced.report_errors'),
-                  style: IrmaTheme.of(context).textTheme.body1,
+                  style: IrmaTheme.of(context).textTheme.bodyText2,
                 ),
                 activeColor: IrmaTheme.of(context).interactionValid,
                 value: snapshot.data != null && snapshot.data,
                 onChanged: irmaPrefs.setReportErrors,
-                secondary: Icon(IrmaIcons.invalid, color: IrmaTheme.of(context).textTheme.body1.color),
+                secondary: Icon(IrmaIcons.invalid, color: IrmaTheme.of(context).textTheme.bodyText2.color),
               );
             },
           ),
           ListTile(
             title: Text(
               FlutterI18n.translate(context, 'settings.advanced.delete'),
-              style: IrmaTheme.of(context).textTheme.body1,
+              style: IrmaTheme.of(context).textTheme.bodyText2,
             ),
             onTap: () {
               openWalletResetDialog(context);
             },
-            leading: Icon(IrmaIcons.delete, color: IrmaTheme.of(context).textTheme.body1.color),
+            leading: Icon(IrmaIcons.delete, color: IrmaTheme.of(context).textTheme.bodyText2.color),
           ),
           if (Platform.isAndroid)
             StreamBuilder(
@@ -121,12 +121,12 @@ class SettingsScreen extends StatelessWidget {
                         return SwitchListTile.adaptive(
                           title: Text(
                             FlutterI18n.translate(context, 'settings.advanced.developer_mode'),
-                            style: IrmaTheme.of(context).textTheme.body1,
+                            style: IrmaTheme.of(context).textTheme.bodyText2,
                           ),
                           activeColor: IrmaTheme.of(context).interactionValid,
                           value: snapshot.data != null && snapshot.data,
                           onChanged: (enabled) => irmaRepo.setDeveloperMode(enabled),
-                          secondary: Icon(IrmaIcons.settings, color: IrmaTheme.of(context).textTheme.body1.color),
+                          secondary: Icon(IrmaIcons.settings, color: IrmaTheme.of(context).textTheme.bodyText2.color),
                         );
                       },
                     );

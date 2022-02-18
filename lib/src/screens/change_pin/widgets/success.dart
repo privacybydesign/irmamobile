@@ -18,7 +18,7 @@ class Success extends StatelessWidget {
       success: true,
       title: TranslatedText(
         "change_pin.success.title",
-        style: Theme.of(context).textTheme.display3,
+        style: Theme.of(context).textTheme.headline2,
       ),
       explanation: const TranslatedText(
         "change_pin.success.message",

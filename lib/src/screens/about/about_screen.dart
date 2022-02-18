@@ -79,7 +79,7 @@ class _AboutScreenState extends State<AboutScreen> {
                           SizedBox(height: IrmaTheme.of(context).smallSpacing),
                           Text(
                             FlutterI18n.translate(context, 'about.slogan'),
-                            style: Theme.of(context).textTheme.body1,
+                            style: Theme.of(context).textTheme.bodyText2,
                           ),
                           SizedBox(height: IrmaTheme.of(context).defaultSpacing),
                         ],
@@ -130,7 +130,7 @@ class _AboutScreenState extends State<AboutScreen> {
                           SizedBox(height: IrmaTheme.of(context).tinySpacing),
                           Text(
                             FlutterI18n.translate(context, 'about.copyright'),
-                            style: Theme.of(context).textTheme.body1,
+                            style: Theme.of(context).textTheme.bodyText2,
                           ),
                           SizedBox(height: IrmaTheme.of(context).largeSpacing),
                         ],

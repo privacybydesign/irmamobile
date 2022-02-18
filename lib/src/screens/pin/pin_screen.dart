@@ -215,7 +215,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
       leading: Container(),
       title: Text(
         FlutterI18n.translate(context, "pin.title"),
-        style: IrmaTheme.of(context).textTheme.display1,
+        style: IrmaTheme.of(context).textTheme.headline4,
       ),
     );
   }

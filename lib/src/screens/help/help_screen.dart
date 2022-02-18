@@ -79,7 +79,7 @@ class _HelpScreenState extends State<HelpScreen> {
                             width: double.infinity,
                             child: Text(
                               FlutterI18n.translate(context, 'manual.faq_info'),
-                              style: Theme.of(context).textTheme.body1,
+                              style: Theme.of(context).textTheme.bodyText2,
                               textAlign: TextAlign.left,
                               key: const Key('help_screen_content'),
                             ),
@@ -111,7 +111,7 @@ class _HelpScreenState extends State<HelpScreen> {
                             width: double.infinity,
                             child: Text(
                               FlutterI18n.translate(context, 'help.faq_info'),
-                              style: Theme.of(context).textTheme.body1,
+                              style: Theme.of(context).textTheme.bodyText2,
                               textAlign: TextAlign.left,
                             ),
                           ),
@@ -154,7 +154,7 @@ class _HelpScreenState extends State<HelpScreen> {
                           SizedBox(height: IrmaTheme.of(context).smallSpacing),
                           Text(
                             FlutterI18n.translate(context, 'help.send'),
-                            style: Theme.of(context).textTheme.body1,
+                            style: Theme.of(context).textTheme.bodyText2,
                           ),
                           SizedBox(height: IrmaTheme.of(context).smallSpacing),
                           Center(

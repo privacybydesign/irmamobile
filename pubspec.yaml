@@ -36,10 +36,13 @@ dependencies:
   async: ^2.6.1
   streaming_shared_preferences: ^2.0.0
   path_drawing: ^0.5.1
-  flutter_jailbreak_detection: ^1.7.0
-  visibility_detector: ^0.2.0
+  flutter_jailbreak_detection: ^1.8.0
+  visibility_detector: ^0.2.2
   quiver: ^3.0.1
-  flutter_privacy_screen: ^1.2.0
+  flutter_privacy_screen:
+    # Remove link to fork when change is merged and released.
+    # https://github.com/jeroentrappers/flutter_privacy_screen/pull/2
+    git: https://github.com/ivard/flutter_privacy_screen.git
 
 flutter_native_splash:
   image: assets/splash/startup.png

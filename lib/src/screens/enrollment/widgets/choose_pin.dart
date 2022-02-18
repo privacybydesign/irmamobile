@@ -42,7 +42,7 @@ class ChoosePin extends StatelessWidget {
                 SizedBox(height: IrmaTheme.of(context).hugeSpacing),
                 Text(
                   FlutterI18n.translate(context, 'enrollment.choose_pin.insert_pin'),
-                  style: IrmaTheme.of(context).textTheme.body1,
+                  style: IrmaTheme.of(context).textTheme.bodyText2,
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: IrmaTheme.of(context).mediumSpacing),

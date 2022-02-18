@@ -45,7 +45,7 @@ class FutureCard extends StatelessWidget {
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
                           name,
-                          style: Theme.of(context).textTheme.subhead,
+                          style: Theme.of(context).textTheme.subtitle1,
                         ),
                       ))),
                 ],

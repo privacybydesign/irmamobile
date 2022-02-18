@@ -66,12 +66,12 @@ class CallInfoScreen extends StatelessWidget {
         SizedBox(height: IrmaTheme.of(context).defaultSpacing),
         Text(
           FlutterI18n.translate(context, 'disclosure.call_info.continue'),
-          style: Theme.of(context).textTheme.body2,
+          style: Theme.of(context).textTheme.bodyText1,
         ),
         SizedBox(height: IrmaTheme.of(context).tinySpacing),
         TranslatedText(
           'disclosure.call_info.continue_message',
-          style: Theme.of(context).textTheme.body1,
+          style: Theme.of(context).textTheme.bodyText2,
         ),
         SizedBox(height: IrmaTheme.of(context).smallSpacing),
         Center(
@@ -86,12 +86,12 @@ class CallInfoScreen extends StatelessWidget {
         SizedBox(height: IrmaTheme.of(context).defaultSpacing),
         Text(
           FlutterI18n.translate(context, 'disclosure.call_info.call'),
-          style: Theme.of(context).textTheme.body2,
+          style: Theme.of(context).textTheme.bodyText1,
         ),
         SizedBox(height: IrmaTheme.of(context).tinySpacing),
         TranslatedText(
           'disclosure.call_info.call_message',
-          style: Theme.of(context).textTheme.body1,
+          style: Theme.of(context).textTheme.bodyText2,
         ),
         SizedBox(height: IrmaTheme.of(context).smallSpacing),
         Center(
@@ -123,7 +123,7 @@ class CallInfoScreen extends StatelessWidget {
           SizedBox(height: IrmaTheme.of(context).largeSpacing),
           Text(
             FlutterI18n.translate(context, 'disclosure.call_info.continue_ios'),
-            style: Theme.of(context).textTheme.body2,
+            style: Theme.of(context).textTheme.bodyText1,
           ),
           SizedBox(height: IrmaTheme.of(context).smallSpacing),
           Row(
@@ -132,7 +132,7 @@ class CallInfoScreen extends StatelessWidget {
               Expanded(
                 child: TranslatedText(
                   'disclosure.call_info.continue_message_ios',
-                  style: Theme.of(context).textTheme.body1,
+                  style: Theme.of(context).textTheme.bodyText2,
                 ),
               ),
             ],

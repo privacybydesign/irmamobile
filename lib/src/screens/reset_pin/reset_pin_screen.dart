@@ -84,7 +84,7 @@ class ResetPinScreen extends StatelessWidget {
                       child: Container(
                         child: Text(
                           FlutterI18n.translate(context, 'reset_pin.existing_data_title'),
-                          style: Theme.of(context).textTheme.body2,
+                          style: Theme.of(context).textTheme.bodyText1,
                           textAlign: TextAlign.left,
                         ),
                       ),

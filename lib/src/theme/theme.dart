@@ -2,6 +2,7 @@
 // @dart=2.11
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class IrmaThemeData {
   static const double _spaceBase = 16.0;
@@ -87,10 +88,8 @@ class IrmaThemeData {
     textTheme = TextTheme(
       // Headings
 
-      // display4 is used for extremely large text
-      //
-      // md2018: headline1
-      display4: TextStyle(
+      // headline1 is used for extremely large text
+      headline1: TextStyle(
         fontFamily: fontFamilyKarla,
         fontSize: 18.0,
         height: 28.0 / 18.0,
@@ -98,10 +97,8 @@ class IrmaThemeData {
         color: grayscale40,
       ),
 
-      // display3 is used for very, very large text
-      //
-      // md2018: headline2
-      display3: TextStyle(
+      // headline2 is used for very, very large text
+      headline2: TextStyle(
         fontFamily: fontFamilyKarla,
         fontSize: 24.0,
         height: 28.0 / 24.0,
@@ -109,10 +106,8 @@ class IrmaThemeData {
         color: grayscale40,
       ),
 
-      // display2 is used for very large text
-      //
-      // md2018: headline3
-      display2: TextStyle(
+      // headline3 is used for very large text
+      headline3: TextStyle(
         fontFamily: fontFamilyKarla,
         fontSize: 18.0,
         height: 24.0 / 18.0,
@@ -120,10 +115,8 @@ class IrmaThemeData {
         color: grayscale40,
       ),
 
-      // display1 is used for large text
-      //
-      // md2018: headline4
-      display1: TextStyle(
+      // headline4 is used for large text
+      headline4: TextStyle(
         fontFamily: fontFamilyKarla,
         fontSize: 16.0,
         height: 24.0 / 16.0,
@@ -133,10 +126,8 @@ class IrmaThemeData {
 
       // Paragraph text
 
-      // body2 is used for emphasizing text that would otherwise be body1
-      //
-      // md2018: body1
-      body2: TextStyle(
+      // bodyText1 is used for emphasizing text that would otherwise be body1
+      bodyText1: TextStyle(
         fontFamily: fontFamilyMontserrat,
         fontSize: 16.0,
         height: 24.0 / 16.0,
@@ -144,10 +135,8 @@ class IrmaThemeData {
         color: primaryDark,
       ),
 
-      // body1 is the default text style
-      //
-      // md2018: body2
-      body1: TextStyle(
+      // bodyText2 is the default text style
+      bodyText2: TextStyle(
         fontFamily: fontFamilyMontserrat,
         fontSize: 16.0,
         height: 24.0 / 16.0,
@@ -157,11 +146,9 @@ class IrmaThemeData {
 
       // Specific styles
 
-      // headline is used for large text in dialogs
-      //
-      // md2018: headline5
-      headline: TextStyle(
-        // TODO: Misisng in designs
+      // headline5 is used for large text in dialogs
+      headline5: TextStyle(
+        // TODO: Missing in designs
         fontFamily: fontFamilyKarla,
         fontSize: 24.0,
         height: 28.0 / 24.0,
@@ -169,10 +156,8 @@ class IrmaThemeData {
         color: grayscale40,
       ),
 
-      // title is used for the primary text in app bars and dialogs
-      //
-      // md2018: headline6
-      title: TextStyle(
+      // headline6 is used for the primary text in app bars and dialogs
+      headline6: TextStyle(
         fontFamily: fontFamilyKarla,
         fontSize: 18.0,
         height: 28.0 / 18.0,
@@ -180,11 +165,9 @@ class IrmaThemeData {
         color: grayscale40,
       ),
 
-      // subhead is used for the primary text in lists
+      // subtitle1 is used for the primary text in lists
       // also used in textfield inputs' text style
-      //
-      // md2018: subtitle1
-      subhead: TextStyle(
+      subtitle1: TextStyle(
         fontFamily: fontFamilyMontserrat,
         fontSize: 16.0,
         height: 22.0 / 18.0,
@@ -192,10 +175,8 @@ class IrmaThemeData {
         color: primaryDark,
       ),
 
-      // subtitle is used for medium emphasis text that's a little smaller than subhead.
-      //
-      // md2018: subtitle2
-      subtitle: TextStyle(
+      // subtitle2 is used for medium emphasis text that's a little smaller than subhead.
+      subtitle2: TextStyle(
         fontFamily: fontFamilyMontserrat,
         fontSize: 16.0,
         height: 22.0 / 16.0,
@@ -204,8 +185,6 @@ class IrmaThemeData {
       ),
 
       // caption is used for auxiliary text associated with images
-      //
-      // md2018: caption
       caption: TextStyle(
         fontFamily: fontFamilyMontserrat,
         fontSize: 14.0,
@@ -215,8 +194,6 @@ class IrmaThemeData {
       ),
 
       // button is used for text on RaisedButton and FlatButton
-      //
-      // md2018: button
       button: TextStyle(
         fontFamily: fontFamilyMontserrat,
         fontSize: 16.0,
@@ -225,9 +202,7 @@ class IrmaThemeData {
         color: Colors.white,
       ),
 
-      // is used for the smallest text
-      //
-      // md2018: overline
+      // overline is used for the smallest text
       overline: TextStyle(
         fontFamily: fontFamilyMontserrat,
         fontSize: 12.0,
@@ -307,27 +282,25 @@ class IrmaThemeData {
     themeData = ThemeData(
         brightness: Brightness.light,
         primaryColor: primaryBlue,
-        accentColor: cardRed,
         disabledColor: disabled,
         scaffoldBackgroundColor: primaryLight,
         fontFamily: fontFamilyKarla,
         textTheme: textTheme,
         appBarTheme: AppBarTheme(
           elevation: 0,
-          brightness: Brightness.light,
           color: grayscale85,
-          // TODO: validate
-          textTheme: textTheme,
           iconTheme: IconThemeData(
             color: primaryDark,
           ),
+          systemOverlayStyle: SystemUiOverlayStyle.dark,
+          toolbarTextStyle: textTheme.bodyText2,
+          titleTextStyle: textTheme.headline6,
         ),
         inputDecorationTheme: InputDecorationTheme(
           labelStyle: textTheme.overline,
           enabledBorder: UnderlineInputBorder(
             borderSide: BorderSide(
               color: grayscale60,
-              width: 1.0,
             ),
           ),
           focusedBorder: UnderlineInputBorder(
@@ -345,11 +318,11 @@ class IrmaThemeData {
           disabledBorder: UnderlineInputBorder(
             borderSide: BorderSide(
               color: grayscale80,
-              width: 1.0,
             ),
           ),
-          errorStyle: textTheme.body1.copyWith(color: interactionInvalid),
-        ));
+          errorStyle: textTheme.bodyText2.copyWith(color: interactionInvalid),
+        ),
+        colorScheme: ColorScheme.fromSwatch().copyWith(secondary: cardRed));
   }
 }
 

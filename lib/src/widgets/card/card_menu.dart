@@ -51,7 +51,7 @@ class CardMenu extends StatelessWidget {
                 ),
                 Text(
                   FlutterI18n.translate(context, 'card.refresh'),
-                  style: IrmaTheme.of(context).textTheme.subtitle.copyWith(color: IrmaTheme.of(context).primaryDark),
+                  style: IrmaTheme.of(context).textTheme.subtitle2.copyWith(color: IrmaTheme.of(context).primaryDark),
                 ),
               ],
             ),
@@ -71,7 +71,7 @@ class CardMenu extends StatelessWidget {
                 ),
                 Text(
                   FlutterI18n.translate(context, 'card.delete'),
-                  style: IrmaTheme.of(context).textTheme.subtitle.copyWith(color: IrmaTheme.of(context).primaryDark),
+                  style: IrmaTheme.of(context).textTheme.subtitle2.copyWith(color: IrmaTheme.of(context).primaryDark),
                 ),
               ],
             ),

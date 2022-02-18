@@ -153,7 +153,7 @@ class IrmaCard extends StatelessWidget {
                     Expanded(
                       child: Text(
                         getTranslation(context, credentialInfo.credentialType.name),
-                        style: Theme.of(context).textTheme.subhead.copyWith(
+                        style: Theme.of(context).textTheme.subtitle1.copyWith(
                               color: cardTheme.foregroundColor,
                             ),
                         key: const Key('card_title'),

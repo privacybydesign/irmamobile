@@ -63,7 +63,7 @@ class _CollapsibleState extends State<Collapsible> {
                 right: IrmaTheme.of(context).defaultSpacing),
             child: Text(
               widget.header,
-              style: IrmaTheme.of(context).textTheme.display2,
+              style: IrmaTheme.of(context).textTheme.headline3,
             ),
           ),
         ),

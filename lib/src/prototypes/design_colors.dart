@@ -68,7 +68,7 @@ class DesignColors extends StatelessWidget {
       children: <Widget>[
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Text(name, style: IrmaTheme.of(context).textTheme.display3),
+          child: Text(name, style: IrmaTheme.of(context).textTheme.headline2),
         ),
         Wrap(children: colorWidgets),
       ],
@@ -93,7 +93,7 @@ class DesignColors extends StatelessWidget {
               border: border,
             ),
           ),
-          Text(name, style: IrmaTheme.of(context).textTheme.body1),
+          Text(name, style: IrmaTheme.of(context).textTheme.bodyText2),
           Text("#${color.value.toRadixString(16)}", style: IrmaTheme.of(context).textTheme.caption),
         ],
       ),

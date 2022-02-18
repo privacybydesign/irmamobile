@@ -27,7 +27,7 @@ class CardSuggestionGroup extends StatelessWidget {
               ),
               child: Heading(
                 title,
-                style: IrmaTheme.of(context).textTheme.display3,
+                style: IrmaTheme.of(context).textTheme.headline2,
               ),
             );
           }

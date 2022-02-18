@@ -467,7 +467,7 @@ class IrmaRepository {
           .map((type) => irmaConfiguration.credentialTypes[type.cred].issueUrl.values)
           .expand((v) => v)
           .toList()
-            ..addAll(externalBrowserUrls),
+        ..addAll(externalBrowserUrls),
     );
   }
 

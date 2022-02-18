@@ -24,7 +24,7 @@ class ConfirmPin extends StatelessWidget {
       appBar: IrmaAppBar(
         title: Text(
           FlutterI18n.translate(context, 'change_pin.confirm_pin.title'),
-          style: IrmaTheme.of(context).textTheme.display2,
+          style: IrmaTheme.of(context).textTheme.headline3,
         ),
         leadingAction: () async {
           if (cancel != null) {
@@ -43,7 +43,7 @@ class ConfirmPin extends StatelessWidget {
               SizedBox(height: IrmaTheme.of(context).hugeSpacing),
               Text(
                 FlutterI18n.translate(context, 'change_pin.confirm_pin.instruction'),
-                style: IrmaTheme.of(context).textTheme.body1,
+                style: IrmaTheme.of(context).textTheme.bodyText2,
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: IrmaTheme.of(context).mediumSpacing),

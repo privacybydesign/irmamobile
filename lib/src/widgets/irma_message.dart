@@ -87,14 +87,14 @@ class IrmaMessage extends StatelessWidget {
                   children: <Widget>[
                     TranslatedText(
                       titleKey,
-                      style: IrmaTheme.of(context).textTheme.body2.copyWith(color: foregroundColor),
+                      style: IrmaTheme.of(context).textTheme.bodyText1.copyWith(color: foregroundColor),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 5, bottom: 11),
                       child: TranslatedText(
                         descriptionKey,
                         translationParams: descriptionParams,
-                        style: IrmaTheme.of(context).textTheme.body1.copyWith(color: foregroundColor),
+                        style: IrmaTheme.of(context).textTheme.bodyText2.copyWith(color: foregroundColor),
                       ),
                     ),
                   ],

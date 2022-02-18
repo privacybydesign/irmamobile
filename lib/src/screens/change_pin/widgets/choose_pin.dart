@@ -50,7 +50,7 @@ class ChoosePin extends StatelessWidget {
                       bottom: IrmaTheme.of(context).mediumSpacing),
                   child: Text(
                     FlutterI18n.translate(context, 'change_pin.choose_pin.instruction'),
-                    style: IrmaTheme.of(context).textTheme.body1,
+                    style: IrmaTheme.of(context).textTheme.bodyText2,
                     textAlign: TextAlign.center,
                   ),
                 ),

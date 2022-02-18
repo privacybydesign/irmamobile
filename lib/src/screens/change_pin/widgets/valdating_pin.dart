@@ -45,7 +45,7 @@ class ValidatingPin extends StatelessWidget {
                     child: Text(
                       FlutterI18n.translate(context, 'change_pin.validating_pin.header'),
                       textAlign: TextAlign.center,
-                      style: IrmaTheme.of(context).textTheme.display1,
+                      style: IrmaTheme.of(context).textTheme.headline4,
                     ),
                   ),
                   SizedBox(height: IrmaTheme.of(context).defaultSpacing),
@@ -54,7 +54,7 @@ class ValidatingPin extends StatelessWidget {
                     child: Text(
                       FlutterI18n.translate(context, 'change_pin.validating_pin.details'),
                       textAlign: TextAlign.center,
-                      style: IrmaTheme.of(context).textTheme.body1,
+                      style: IrmaTheme.of(context).textTheme.bodyText2,
                     ),
                   ),
                 ]))));

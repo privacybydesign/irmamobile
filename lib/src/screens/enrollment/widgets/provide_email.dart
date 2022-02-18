@@ -82,7 +82,7 @@ class _ProvideEmailState extends State<ProvideEmail> {
                             children: <Widget>[
                               Text(
                                 FlutterI18n.translate(context, 'enrollment.provide_email.instruction'),
-                                style: IrmaTheme.of(context).textTheme.body1,
+                                style: IrmaTheme.of(context).textTheme.bodyText2,
                                 textAlign: TextAlign.left,
                               ),
                               SizedBox(height: IrmaTheme.of(context).defaultSpacing),

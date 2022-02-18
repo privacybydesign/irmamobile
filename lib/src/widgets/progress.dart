@@ -25,14 +25,14 @@ class IrmaProgress extends StatelessWidget {
               context,
               "ui.loading",
             ),
-            style: IrmaTheme.of(context).textTheme.display2,
+            style: IrmaTheme.of(context).textTheme.headline3,
           ),
           SizedBox(
             height: IrmaTheme.of(context).smallSpacing,
           ),
           Text(
             description,
-            style: IrmaTheme.of(context).textTheme.body1,
+            style: IrmaTheme.of(context).textTheme.bodyText2,
           )
         ],
       ),

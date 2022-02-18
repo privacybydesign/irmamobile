@@ -28,18 +28,18 @@ class Header extends StatelessWidget {
               children: <Widget>[
                 Text(
                   _getHeaderText(context),
-                  style: IrmaTheme.of(context).textTheme.body1.copyWith(
+                  style: IrmaTheme.of(context).textTheme.bodyText2.copyWith(
                         fontSize: 14,
                       ),
                 ),
                 if (logEntry.serverName != null)
                   Text(
                     logEntry.serverName.name.translate(lang),
-                    style: IrmaTheme.of(context).textTheme.display2.copyWith(),
+                    style: IrmaTheme.of(context).textTheme.headline3.copyWith(),
                   ),
                 Text(
                   formatDate(logEntry.time, lang),
-                  style: IrmaTheme.of(context).textTheme.body1.copyWith(
+                  style: IrmaTheme.of(context).textTheme.bodyText2.copyWith(
                         fontSize: 14,
                       ),
                 ),

@@ -16,7 +16,7 @@ class SettingsHeader extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
       child: Heading(
         headerText,
-        style: IrmaTheme.of(context).textTheme.display1,
+        style: IrmaTheme.of(context).textTheme.headline4,
       ),
     );
   }
