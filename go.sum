@@ -408,8 +408,12 @@ github.com/posener/complete v1.1.1/go.mod h1:em0nMJCgc9GFtwrmVmEMR/ZL6WyhyjMBndr
 github.com/posener/complete v1.2.3/go.mod h1:WZIdtGGp+qx0sLrYKtIRAruyNpv6hFCicSgv7Sy7s/s=
 github.com/privacybydesign/gabi v0.0.0-20210714094051-ba80a6a8c5d8 h1:vqFxqLGTYN2hknHUlL/pbQxRDkvp9CbaYyKO208+evs=
 github.com/privacybydesign/gabi v0.0.0-20210714094051-ba80a6a8c5d8/go.mod h1:HQ6L5rKBY7qaqcheK6zpaVf7fhGWD0PvUAXJTDws+0M=
+github.com/privacybydesign/gabi v0.0.0-20220412064428-d1eff7721dca h1:dT51jTkbGzk9vDXHRZZsL8mlhCnSBQEiQe4yvJBjJ3g=
+github.com/privacybydesign/gabi v0.0.0-20220412064428-d1eff7721dca/go.mod h1:HQ6L5rKBY7qaqcheK6zpaVf7fhGWD0PvUAXJTDws+0M=
 github.com/privacybydesign/irmago v0.10.1-0.20220314075132-f5d9e2e4db98 h1:p0Ol6Z+ajKh7eKbzY/xYipmFIhaThVtljSFcFHPyG/A=
 github.com/privacybydesign/irmago v0.10.1-0.20220314075132-f5d9e2e4db98/go.mod h1:hddJDDsfgllT2iL5D7SNEDJwgbGbDUKrtU8F+y9H3w0=
+github.com/privacybydesign/irmago v0.10.1-0.20220429112052-ba81fcbd8951 h1:QpEQSY0jAu+uysBkUtSki29fy9LiBzqB/wA6vv1dyaI=
+github.com/privacybydesign/irmago v0.10.1-0.20220429112052-ba81fcbd8951/go.mod h1:fBjADeoGMtcj+ADxrikzqa3qK1g6jWkfvxP2x7CpjIU=
 github.com/prometheus/client_golang v0.9.1/go.mod h1:7SWBe2y4D6OKWSNQJUaRYU/AaXPKyh/dDVn+NZz0KFw=
 github.com/prometheus/client_golang v1.0.0/go.mod h1:db9x61etRT2tGnBNRi70OPL5FsnadC4Ky3P0J6CfImo=
 github.com/prometheus/client_golang v1.4.0/go.mod h1:e9GMxYsXl05ICDXkRhurwBS4Q3OK1iX/F2sw+iXX5zU=
