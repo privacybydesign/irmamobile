@@ -1,5 +1,8 @@
 package foundation.privacybydesign.irmamobile.irma_mobile_bridge;
 
+import android.content.pm.PackageManager;
+import android.os.Build;
+
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 
@@ -22,11 +25,14 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.GCMParameterSpec;
 
 public class Storage {
+    private final PackageManager packageManager;
     private final KeyStore keyStore;
     private final String keyAlias = "storageKey";
     private final Cipher cipher;
 
-    public Storage() {
+    public Storage(PackageManager pm) {
+        packageManager = pm;
+
         try {
             keyStore = KeyStore.getInstance("AndroidKeyStore");
             keyStore.load(null);
@@ -53,6 +59,12 @@ public class Storage {
                 .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
                 .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
                 .setKeySize(256);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            spec.setUnlockedDeviceRequired(true);
+            if (packageManager.hasSystemFeature(PackageManager.FEATURE_STRONGBOX_KEYSTORE))
+                spec.setIsStrongBoxBacked(true);
+        }
 
         try {
             KeyGenerator keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
