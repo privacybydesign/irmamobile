@@ -121,6 +121,17 @@ flutter:
         - asset: fonts/montserrat/Montserrat-BoldItalic.ttf
           weight: 700
           style: italic
+    - family: Ubuntu
+      fonts: 
+        - asset: fonts/ubuntu/Ubuntu-Regular.ttf
+        - asset: fonts/ubuntu/Ubuntu-Medium.ttf
+          weight: 500
+        - asset: fonts/ubuntu/Ubuntu-Bold.ttf
+          weight: 700
+    - family: SF Pro Text
+      fonts: 
+        - asset: fonts/sf-pro-text/SFProText-Regular.ttf
+          weight: 400
     - family: IrmaIcons
       fonts:
         - asset: fonts/irma-icons/IrmaIcons.ttf
