@@ -77,34 +77,27 @@ class IrmaThemeData {
   final String fontFamilyKarla = "Karla";
   final String fontFamilyMontserrat = "Montserrat";
 
-
-  late TextTheme textTheme;
-  late ThemeData themeData;
-  late TextStyle collapseTextStyle;
-  late TextStyle textButtonTextStyle;
-  late TextStyle issuerNameTextStyle;
-  late TextStyle newCardButtonTextStyle;
-  late TextStyle hyperlinkTextStyle;
-  late TextStyle hyperlinkVisitedTextStyle;
-  late TextStyle boldBody;
-  late TextStyle highlightedTextStyle;
+  late final TextTheme textTheme;
+  late final ThemeData themeData;
+  late final TextStyle collapseTextStyle;
+  late final TextStyle textButtonTextStyle;
+  late final TextStyle issuerNameTextStyle;
+  late final TextStyle newCardButtonTextStyle;
+  late final TextStyle hyperlinkTextStyle;
+  late final TextStyle hyperlinkVisitedTextStyle;
+  late final TextStyle boldBody;
+  late final TextStyle highlightedTextStyle;
+  late final TextStyle overline;
 
   IrmaThemeData() {
     textTheme = TextTheme(
-        headline1:
-            TextStyle(fontSize: 36.0, fontFamily: "Ubuntu", fontWeight: FontWeight.w700, color: darkPurple),
-        headline2:
-            TextStyle(fontSize: 24.0, fontFamily: "Ubuntu", fontWeight: FontWeight.w700, color: darkPurple),
-        headline3:
-            TextStyle(fontSize: 18.0, fontFamily: "Ubuntu", fontWeight: FontWeight.w700, color: grayscale30),
-        headline4:
-            TextStyle(fontSize: 16.0, fontFamily: "Ubuntu", fontWeight: FontWeight.w700, color: grayscale40),
-        headline5:
-            TextStyle(fontSize: 14.0, fontFamily: "Ubuntu", fontWeight: FontWeight.w500, color: grayscale20),
-        bodyText1:
-            TextStyle(fontSize: 16.0, fontFamily: "Roboto", fontWeight: FontWeight.w400, color: grayscale50),
-        bodyText2: TextStyle(
-            fontSize: 14.0, fontFamily: "Roboto", fontWeight: FontWeight.w400, color: grayscale70));
+        headline1: TextStyle(fontSize: 36.0, fontFamily: "Ubuntu", fontWeight: FontWeight.w700, color: darkPurple),
+        headline2: TextStyle(fontSize: 24.0, fontFamily: "Ubuntu", fontWeight: FontWeight.w700, color: darkPurple),
+        headline3: TextStyle(fontSize: 18.0, fontFamily: "Ubuntu", fontWeight: FontWeight.w700, color: grayscale30),
+        headline4: TextStyle(fontSize: 16.0, fontFamily: "Ubuntu", fontWeight: FontWeight.w700, color: grayscale40),
+        headline5: TextStyle(fontSize: 14.0, fontFamily: "Ubuntu", fontWeight: FontWeight.w500, color: grayscale20),
+        bodyText1: TextStyle(fontSize: 16.0, fontFamily: "Roboto", fontWeight: FontWeight.w400, color: grayscale50),
+        bodyText2: TextStyle(fontSize: 14.0, fontFamily: "Roboto", fontWeight: FontWeight.w400, color: grayscale70));
 
     themeData = ThemeData(
         brightness: Brightness.light,
@@ -207,6 +200,14 @@ class IrmaThemeData {
       height: 19.0 / 16.0,
       fontWeight: FontWeight.w600,
       color: primaryBlue,
+    );
+
+    overline = TextStyle(
+      fontFamily: fontFamilyMontserrat,
+      fontSize: 12.0,
+      height: 16.0 / 12.0,
+      fontWeight: FontWeight.w600,
+      color: grayscale40,
     );
   }
 }
