@@ -38,9 +38,8 @@ public class Storage {
             keyStore.load(null);
             cipher = Cipher.getInstance("AES/GCM/NoPadding");
 
-            if (!keyExists()) {
+            if (!keyExists())
                 generateKey();
-            }
         } catch (KeyStoreException | CertificateException | IOException | NoSuchAlgorithmException | NoSuchPaddingException e) {
             throw new RuntimeException(e);
         }
