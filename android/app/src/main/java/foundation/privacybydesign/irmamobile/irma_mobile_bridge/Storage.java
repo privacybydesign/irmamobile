@@ -2,7 +2,6 @@ package foundation.privacybydesign.irmamobile.irma_mobile_bridge;
 
 import android.content.pm.PackageManager;
 import android.os.Build;
-
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 
@@ -16,6 +15,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.util.Arrays;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -29,6 +29,7 @@ public class Storage {
     private final KeyStore keyStore;
     private final String keyAlias = "storageKey";
     private final Cipher cipher;
+    private static final int ivLength = 12;
 
     public Storage(PackageManager pm) {
         packageManager = pm;
@@ -78,8 +79,18 @@ public class Storage {
         try {
             Key secretKey = keyStore.getKey(keyAlias, null);
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            byte[] iv = cipher.getIV();
+            if (iv.length != ivLength) {
+                throw new RuntimeException("Unexpected IV length");
+            }
+            
+            byte[] ciphertext = cipher.doFinal(plaintext);
 
-            return cipher.doFinal(plaintext);
+            byte[] result = new byte[ivLength + ciphertext.length];
+            System.arraycopy(iv, 0, result, 0, ivLength);
+            System.arraycopy(ciphertext, 0, result, ivLength, ciphertext.length);
+
+            return result;
 
         } catch (NoSuchAlgorithmException | UnrecoverableKeyException | KeyStoreException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
             throw new RuntimeException(e);
@@ -88,10 +99,12 @@ public class Storage {
 
     public byte[] decrypt(byte[] encrypted) {
         try {
+            byte[] iv = Arrays.copyOfRange(encrypted, 0, ivLength);
+            byte[] ciphertext = Arrays.copyOfRange(encrypted, ivLength, encrypted.length);
             Key secretKey = keyStore.getKey(keyAlias, null);
-            cipher.init(Cipher.DECRYPT_MODE, secretKey, new GCMParameterSpec(128, cipher.getIV()));
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, new GCMParameterSpec(128, iv));
 
-            return cipher.doFinal(encrypted);
+            return cipher.doFinal(ciphertext);
 
         } catch (NoSuchAlgorithmException | UnrecoverableKeyException | KeyStoreException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException | InvalidAlgorithmParameterException e) {
             throw new RuntimeException(e);
