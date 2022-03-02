@@ -45,24 +45,18 @@ class DesignTypography extends StatelessWidget {
   }
 
   Widget _buildFontExample(BuildContext context, String name, TextStyle style) {
-    if (style != null) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(name, style: style),
-            Text(
-              "Font-family: ${style.fontFamily} - Font-size: ${style.fontSize} - ${style.fontWeight.toString().replaceFirst("FontWeight.", "Font-weight: ")} - Line-height: ${style.height != null ? style.height.toStringAsFixed(2) : "Not specified"} - Color: #${style.color != null ? style.color.value.toRadixString(16) : "Not specified"}",
-              style: IrmaTheme.of(context).textTheme.caption,
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Container(
-      child: Text("Deprectated " + name),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(name, style: style),
+          Text(
+            "Font-family: ${style.fontFamily} - Font-size: ${style.fontSize} - ${style.fontWeight.toString().replaceFirst("FontWeight.", "Font-weight: ")} - Line-height: ${style.height != null ? style.height.toStringAsFixed(2) : "Not specified"} - Color: #${style.color != null ? style.color.value.toRadixString(16) : "Not specified"}",
+            style: IrmaTheme.of(context).textTheme.caption,
+          ),
+        ],
+      ),
     );
   }
 }
