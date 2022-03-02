@@ -87,7 +87,6 @@ flutter:
     - assets/disclosure/
     - assets/splash/
     - assets/rooted_warning/
-
   fonts:
     - family: Karla
       fonts:
@@ -122,16 +121,34 @@ flutter:
           weight: 700
           style: italic
     - family: Ubuntu
-      fonts: 
+      fonts:
         - asset: fonts/ubuntu/Ubuntu-Regular.ttf
+          weight: 400
+          style: italic
         - asset: fonts/ubuntu/Ubuntu-Medium.ttf
           weight: 500
+        - asset: fonts/ubuntu/Ubuntu-MediumItalic.ttf
+          weight: 500
+          style: italic
         - asset: fonts/ubuntu/Ubuntu-Bold.ttf
           weight: 700
-    - family: SF Pro Text
-      fonts: 
-        - asset: fonts/sf-pro-text/SFProText-Regular.ttf
+        - asset: fonts/ubuntu/Ubuntu-BoldItalic.ttf
+          weight: 700
+          style: italic
+    - family: Roboto
+      fonts:
+        - asset: fonts/roboto/Roboto-Regular.ttf
           weight: 400
+        - asset: fonts/roboto/Roboto-Medium.ttf
+          weight: 500
+        - asset: fonts/roboto/Roboto-MediumItalic.ttf
+          weight: 500
+          style: italic
+        - asset: fonts/roboto/Roboto-Bold.ttf
+          weight: 700
+        - asset: fonts/roboto/Roboto-BoldItalic.ttf
+          weight: 700
+          style: italic
     - family: IrmaIcons
       fonts:
         - asset: fonts/irma-icons/IrmaIcons.ttf

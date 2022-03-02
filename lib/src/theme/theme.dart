@@ -76,8 +76,7 @@ class IrmaThemeData {
   //Fonts
   final String fontFamilyKarla = "Karla";
   final String fontFamilyMontserrat = "Montserrat";
-  final String fontFamilyUbuntu = "Ubuntu";
-  final String fontFamilySfProText = "SF Pro Text";
+
 
   late TextTheme textTheme;
   late ThemeData themeData;
@@ -93,19 +92,19 @@ class IrmaThemeData {
   IrmaThemeData() {
     textTheme = TextTheme(
         headline1:
-            TextStyle(fontSize: 36.0, fontFamily: fontFamilyUbuntu, fontWeight: FontWeight.w700, color: darkPurple),
+            TextStyle(fontSize: 36.0, fontFamily: "Ubuntu", fontWeight: FontWeight.w700, color: darkPurple),
         headline2:
-            TextStyle(fontSize: 24.0, fontFamily: fontFamilyUbuntu, fontWeight: FontWeight.w700, color: darkPurple),
+            TextStyle(fontSize: 24.0, fontFamily: "Ubuntu", fontWeight: FontWeight.w700, color: darkPurple),
         headline3:
-            TextStyle(fontSize: 18.0, fontFamily: fontFamilyUbuntu, fontWeight: FontWeight.w700, color: grayscale30),
+            TextStyle(fontSize: 18.0, fontFamily: "Ubuntu", fontWeight: FontWeight.w700, color: grayscale30),
         headline4:
-            TextStyle(fontSize: 16.0, fontFamily: fontFamilyUbuntu, fontWeight: FontWeight.w700, color: grayscale40),
+            TextStyle(fontSize: 16.0, fontFamily: "Ubuntu", fontWeight: FontWeight.w700, color: grayscale40),
         headline5:
-            TextStyle(fontSize: 14.0, fontFamily: fontFamilyUbuntu, fontWeight: FontWeight.w500, color: grayscale20),
+            TextStyle(fontSize: 14.0, fontFamily: "Ubuntu", fontWeight: FontWeight.w500, color: grayscale20),
         bodyText1:
-            TextStyle(fontSize: 16.0, fontFamily: fontFamilySfProText, fontWeight: FontWeight.w400, color: grayscale50),
+            TextStyle(fontSize: 16.0, fontFamily: "Roboto", fontWeight: FontWeight.w400, color: grayscale50),
         bodyText2: TextStyle(
-            fontSize: 14.0, fontFamily: fontFamilySfProText, fontWeight: FontWeight.w400, color: grayscale70));
+            fontSize: 14.0, fontFamily: "Roboto", fontWeight: FontWeight.w400, color: grayscale70));
 
     themeData = ThemeData(
         brightness: Brightness.light,
