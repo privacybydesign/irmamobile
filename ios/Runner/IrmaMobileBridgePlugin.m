@@ -1,4 +1,5 @@
 #import "IrmaMobileBridgePlugin.h"
+#import "Runner-Swift.h"
 
 @interface IrmaMobileBridgePlugin ()
 @end
@@ -39,7 +40,9 @@
   }
 
   [self debugLog:[NSString stringWithFormat:@"Starting irmago, lib=%@, bundle=%@", libraryPath, bundlePath]];
-  IrmagobridgeStart(self, libraryPath, bundlePath);
+  NSData * aesKey = [[[AESKey alloc] init] getKeyAndReturnError:&error];
+
+  IrmagobridgeStart(self, libraryPath, bundlePath, aesKey);
   return self;
 }
 
