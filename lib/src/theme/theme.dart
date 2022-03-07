@@ -69,8 +69,8 @@ class IrmaThemeData {
   final Color grayscale40 = const Color(0xFF3C4B5A);
 
   //Fonts
-  final String fontFamilyHeadings = "Ubuntu";
-  final String fontFamilyBody = "Roboto";
+  final String fontFamilyHeadings = 'Ubuntu';
+  final String fontFamilyBody = 'Roboto';
 
   //TODO: The values below are marked late and have to be initialized in the constructor body.
   //In the future these values should be phased out and be move into ThemeData.colorScheme.
@@ -103,15 +103,20 @@ class IrmaThemeData {
     //Init Text theme
     textTheme = TextTheme(
       // headline1 is used for extremely large text
-      headline1: TextStyle(fontSize: 26.0, fontFamily:  fontFamilyHeadings,    fontWeight: FontWeight.bold, color: darkPurple),
+      headline1:
+          TextStyle(fontSize: 26.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.bold, color: darkPurple),
       // headline2 is used for very, very large text
-      headline2: TextStyle(fontSize: 24.0, fontFamily:  fontFamilyHeadings, fontWeight: FontWeight.bold, color: darkPurple),
+      headline2:
+          TextStyle(fontSize: 24.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.bold, color: darkPurple),
       // headline3 is used for very large text
-      headline3: TextStyle(fontSize: 18.0, fontFamily:  fontFamilyHeadings, fontWeight: FontWeight.bold, color: darkPurple),
+      headline3:
+          TextStyle(fontSize: 18.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.bold, color: darkPurple),
       // headline4 is used for large text
-      headline4: TextStyle(fontSize: 16.0, fontFamily:  fontFamilyHeadings, fontWeight: FontWeight.bold, color: grayscale40),
+      headline4:
+          TextStyle(fontSize: 16.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.bold, color: grayscale40),
       // headline5 is used for large text in dialogs
-      headline5: TextStyle(fontSize: 14.0, fontFamily:  fontFamilyHeadings, fontWeight: FontWeight.w500, color: Colors.grey.shade800),
+      headline5: TextStyle(
+          fontSize: 14.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.w500, color: Colors.grey.shade800),
       // headline6 is used for the primary text in app bars and dialogs
       headline6: TextStyle(
         fontSize: 18.0,
