@@ -27,13 +27,12 @@ class IrmaThemeData {
   final Color cardBlue = const Color(0xFF00B1E6);
   final Color cardOrange = const Color(0xFFFFBB58);
   final Color cardGreen = const Color(0xFF2BC194);
-  final Color infoBlue = const Color(0xFF004C92);
 
   // Support colors (for alerts and feedback on form elements)
   final Color interactionValid = const Color(0xFF079268);
   Color get interactionInvalid => error;
   final Color interactionAlert = const Color(0xFFF97D08);
-  Color get interactionInformation => infoBlue;
+  Color get interactionInformation => primaryBlue;
   final Color interactionInvalidTransparant = const Color(0x22D44454);
   final Color interactionCompleted = const Color(0xFF8BBEAF);
 
@@ -43,7 +42,7 @@ class IrmaThemeData {
   final Color notificationErrorBg = const Color(0xFFEDB6BF);
   final Color notificationWarning = const Color(0xFFDB6E07);
   final Color notificationWarningBg = const Color(0xFFFAD8B6);
-  Color get notificationInfo => infoBlue;
+  Color get notificationInfo => primaryBlue;
   final Color notificationInfoBg = const Color(0xFFB1CDE5);
 
   // Support colors (qr scanner)
@@ -51,7 +50,7 @@ class IrmaThemeData {
   Color get overlayInvalid => error;
 
   // Link colors
-  Color get linkColor => infoBlue;
+  Color get linkColor => primaryBlue;
   Color get linkVisitedColor => grayscale60;
 
   // Overlay color
@@ -69,6 +68,10 @@ class IrmaThemeData {
   final Color grayscale60 = const Color(0xFF71808F);
   final Color grayscale40 = const Color(0xFF3C4B5A);
 
+  //Fonts
+  final String fontFamilyHeadings = "Ubuntu";
+  final String fontFamilyBody = "Roboto";
+
   //TODO: The values below are marked late and have to be initialized in the constructor body.
   //In the future these values should be phased out and be move into ThemeData.colorScheme.
 
@@ -76,7 +79,7 @@ class IrmaThemeData {
   late final TextTheme textTheme;
   late final ThemeData themeData;
 
-  // Other textstyles that cannot be included in ThextTheme
+  // Other textstyles that cannot be included in TextTheme
   late final TextStyle textButtonTextStyle;
   late final TextStyle hyperlinkTextStyle;
   late final TextStyle boldBody;
@@ -100,15 +103,15 @@ class IrmaThemeData {
     //Init Text theme
     textTheme = TextTheme(
       // headline1 is used for extremely large text
-      headline1: TextStyle(fontSize: 26.0, fontWeight: FontWeight.bold, color: darkPurple),
+      headline1: TextStyle(fontSize: 26.0, fontFamily:  fontFamilyHeadings,    fontWeight: FontWeight.bold, color: darkPurple),
       // headline2 is used for very, very large text
-      headline2: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold, color: darkPurple),
+      headline2: TextStyle(fontSize: 24.0, fontFamily:  fontFamilyHeadings, fontWeight: FontWeight.bold, color: darkPurple),
       // headline3 is used for very large text
-      headline3: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold, color: darkPurple),
+      headline3: TextStyle(fontSize: 18.0, fontFamily:  fontFamilyHeadings, fontWeight: FontWeight.bold, color: darkPurple),
       // headline4 is used for large text
-      headline4: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: grayscale40),
+      headline4: TextStyle(fontSize: 16.0, fontFamily:  fontFamilyHeadings, fontWeight: FontWeight.bold, color: grayscale40),
       // headline5 is used for large text in dialogs
-      headline5: TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500, color: Colors.grey.shade800),
+      headline5: TextStyle(fontSize: 14.0, fontFamily:  fontFamilyHeadings, fontWeight: FontWeight.w500, color: Colors.grey.shade800),
       // headline6 is used for the primary text in app bars and dialogs
       headline6: TextStyle(
         fontSize: 18.0,
@@ -117,12 +120,12 @@ class IrmaThemeData {
         color: grayscale40,
       ),
       // bodyText1 is used for emphasizing text
-      bodyText1: TextStyle(fontSize: 16.0, fontFamily: "Roboto", fontWeight: FontWeight.w500, color: primaryDark),
+      bodyText1: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500, color: primaryDark),
       // bodyText2 is the default text style
-      bodyText2: TextStyle(fontSize: 16.0, fontFamily: "Roboto", fontWeight: FontWeight.normal, color: primaryDark),
+      bodyText2: TextStyle(fontSize: 16.0, fontWeight: FontWeight.normal, color: primaryDark),
       // overline is used for the smallest text
       overline: TextStyle(
-        fontFamily: "Karla",
+        fontFamily: fontFamilyHeadings,
         fontSize: 12.0,
         height: 16.0 / 12.0,
         fontWeight: FontWeight.w600,
@@ -202,14 +205,12 @@ class IrmaThemeData {
 
     //Init extra textstyles
     textButtonTextStyle = TextStyle(
-      fontFamily: "Montserrat",
       fontSize: 16.0,
       height: 19.0 / 16.0,
       fontWeight: FontWeight.w600,
       color: primaryBlue,
     );
     hyperlinkTextStyle = TextStyle(
-      fontFamily: "Montserrat",
       fontSize: 16.0,
       height: 24.0 / 16.0,
       fontWeight: FontWeight.normal,
@@ -218,7 +219,6 @@ class IrmaThemeData {
     );
 
     boldBody = TextStyle(
-      fontFamily: "Montserrat",
       fontSize: 16.0,
       height: 24.0 / 16.0,
       fontWeight: FontWeight.w600,
@@ -226,7 +226,6 @@ class IrmaThemeData {
     );
 
     highlightedTextStyle = TextStyle(
-      fontFamily: "Montserrat",
       fontSize: 16.0,
       height: 19.0 / 16.0,
       fontWeight: FontWeight.w600,
@@ -235,7 +234,7 @@ class IrmaThemeData {
 
     // Init final ThemeData composed of all theme components.
     themeData = ThemeData(
-      fontFamily: "Ubuntu",
+      fontFamily: fontFamilyBody,
       scaffoldBackgroundColor: Colors.white,
       bottomSheetTheme: const BottomSheetThemeData(backgroundColor: Colors.transparent),
       colorScheme: colorScheme,
