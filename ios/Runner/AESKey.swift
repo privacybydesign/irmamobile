@@ -23,23 +23,23 @@ import Foundation
         do {
             encrypted = try Data(contentsOf: path)
         } catch {
-            encrypted = try generateAESkey()
+            return try generateAESkey()
         }
         
         return try s.decrypt(encrypted!)
     }
 
     func generateAESkey() throws -> Data {
-        var keyData = Data(count: 32)
-        let result = keyData.withUnsafeMutableBytes {
+        var key = Data(count: 32)
+        let result = key.withUnsafeMutableBytes {
             SecRandomCopyBytes(kSecRandomDefault, 32, $0.baseAddress!)
         }
         
         if result == errSecSuccess {
-            let encrypted = try s.encrypt(keyData)
+            let encrypted = try s.encrypt(key)
             try encrypted.write(to: path)
             
-            return encrypted
+            return key
         } else {
             throw AESKeyError.keyNotGenerated
         }

@@ -19,28 +19,27 @@ public class AESKey {
         byte[] encrypted = FileSystem.read(path);
 
         if (encrypted == null) {
-            encrypted = generateKey();
+            return generateKey();
         }
 
         return s.decrypt(encrypted);
     }
 
-    // returns encrypted key
     private byte[] generateKey() {
-        byte[] b = new byte[32];
+        byte[] key = new byte[32];
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                SecureRandom.getInstanceStrong().nextBytes(b);
+                SecureRandom.getInstanceStrong().nextBytes(key);
             } else {
-                new SecureRandom().nextBytes(b);
+                new SecureRandom().nextBytes(key);
             }
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
 
-        byte[] encrypted = s.encrypt(b);
+        byte[] encrypted = s.encrypt(key);
         FileSystem.write(encrypted, path);
 
-        return encrypted;
+        return key;
     }
 }
