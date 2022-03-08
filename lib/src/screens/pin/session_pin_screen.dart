@@ -10,10 +10,10 @@ import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/screens/error/session_error_screen.dart';
+import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_state.dart';
-import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
@@ -91,7 +91,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
         ),
       );
     } else {
-      Navigator.of(context, rootNavigator: true).popUntil(ModalRoute.withName(WalletScreen.routeName));
+      Navigator.of(context, rootNavigator: true).popUntil(ModalRoute.withName(HomeScreen.routeName));
       _repo.lock(unblockTime: state.blockedUntil);
     }
   }

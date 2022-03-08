@@ -9,7 +9,6 @@ import 'package:irmamobile/src/prototypes/design_fields.dart';
 import 'package:irmamobile/src/prototypes/design_icons.dart';
 import 'package:irmamobile/src/prototypes/design_messages.dart';
 import 'package:irmamobile/src/prototypes/design_typography.dart';
-import 'package:irmamobile/src/prototypes/prototype_26.dart';
 import 'package:irmamobile/src/prototypes/schermflow_1.dart';
 import 'package:irmamobile/src/prototypes/schermflow_5.dart';
 import 'package:irmamobile/src/prototypes/schermflow_wallet.dart';
@@ -78,9 +77,6 @@ class PrototypesScreen extends StatelessWidget {
           }),
           _buildListItem(context, "Introductie", () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => Introduction()));
-          }),
-          _buildListItem(context, "Hoofdmenu", () {
-            startPrototype26(context);
           }),
           _buildListItem(context, "History", () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => HistoryScreen()));

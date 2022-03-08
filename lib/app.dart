@@ -21,6 +21,7 @@ import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/update_schemes_event.dart';
 import 'package:irmamobile/src/models/version_information.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
+import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/screens/pin/pin_screen.dart';
 import 'package:irmamobile/src/screens/required_update/required_update_screen.dart';
 import 'package:irmamobile/src/screens/reset_pin/reset_pin_screen.dart';
@@ -28,7 +29,6 @@ import 'package:irmamobile/src/screens/rooted_warning/repository.dart';
 import 'package:irmamobile/src/screens/rooted_warning/rooted_warning_screen.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/splash_screen/splash_screen.dart';
-import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/combine.dart';
 import 'package:irmamobile/src/util/hero_controller.dart';
@@ -168,11 +168,11 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
 
   void _onScreenPushed(Route route) {
     switch (route.settings.name) {
-      case WalletScreen.routeName:
+      case HomeScreen.routeName:
         // We have to make sure that sessions can be started once the
-        //  wallet screen has been pushed to the navigator. Otherwise
-        //  the session screens have no wallet screen to pop back to.
-        //  The wallet screen is only pushed when the user is fully enrolled.
+        //  home screen has been pushed to the navigator. Otherwise
+        //  the session screens have no home screen to pop back to.
+        //  The home screen is only pushed when the user is fully enrolled.
         _listenToPendingSessionPointer();
         _maybeOpenQrScanner();
         break;
@@ -189,7 +189,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
 
   void _onScreenPopped(Route route) {
     switch (route.settings.name) {
-      case WalletScreen.routeName:
+      case HomeScreen.routeName:
         _sessionPointerSubscription.cancel();
         break;
       case ScannerScreen.routeName:
@@ -202,7 +202,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   void _listenToPendingSessionPointer() {
     final repo = IrmaRepository.get();
 
-    // Listen for incoming SessionPointers as long as the wallet screen is there.
+    // Listen for incoming SessionPointers as long as the home screen is there.
     //  We can always act on these, because if the app is locked,
     //  their screens will simply be covered.
     _sessionPointerSubscription = repo.getPendingSessionPointer().listen((sessionPointer) {
@@ -363,12 +363,12 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
 
   @override
   Widget build(BuildContext context) {
-    // Device orientation: force portrait mode
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
     ]);
-
     return IrmaTheme(
       builder: (BuildContext context) {
         return Stack(

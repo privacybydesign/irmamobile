@@ -63,7 +63,7 @@ class _UnknownSessionScreenState extends State<SessionScreen> {
           "session.unknown_session_type.explanation",
           textAlign: TextAlign.center,
         ),
-        onDismiss: () => (widget.arguments.wizardActive ? popToWizard : popToWallet)(context),
+        onDismiss: () => (widget.arguments.wizardActive ? popToWizard : popToHome)(context),
       );
 }
 
@@ -168,7 +168,7 @@ class _SessionScreenState extends State<SessionScreen> {
   Widget _buildFinishedContinueSecondDevice(SessionState session) {
     // In case of issuance, always return to the wallet screen.
     if (session.isIssuanceSession) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => popToWallet(context));
+      WidgetsBinding.instance.addPostFrameCallback((_) => popToHome(context));
       return _buildLoadingScreen(true);
     }
 
@@ -179,7 +179,7 @@ class _SessionScreenState extends State<SessionScreen> {
     return DisclosureFeedbackScreen(
       feedbackType: feedbackType,
       otherParty: serverName,
-      popToWallet: popToWallet,
+      popToWallet: popToHome,
     );
   }
 
@@ -194,7 +194,7 @@ class _SessionScreenState extends State<SessionScreen> {
         onContinue: () async {
           try {
             await _repo.openURLExternally(session.clientReturnURL.toString());
-            if (mounted) popToWallet(context);
+            if (mounted) popToHome(context);
           } catch (e) {
             _dispatchSessionEvent(
               FailureSessionEvent(
@@ -209,16 +209,16 @@ class _SessionScreenState extends State<SessionScreen> {
             );
           }
         },
-        onCancel: () => popToWallet(context),
+        onCancel: () => popToHome(context),
       );
     } else if (session.isIssuanceSession) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => popToWallet(context));
+      WidgetsBinding.instance.addPostFrameCallback((_) => popToHome(context));
       return _buildLoadingScreen(true);
     } else {
       return DisclosureFeedbackScreen(
         feedbackType: DisclosureFeedbackType.canceled,
         otherParty: serverName,
-        popToWallet: popToWallet,
+        popToWallet: popToHome,
       );
     }
   }
@@ -239,7 +239,7 @@ class _SessionScreenState extends State<SessionScreen> {
       return _buildFinishedReturnPhoneNumber(session);
     }
 
-    final popToMainScreen = widget.arguments.wizardActive ? popToWizard : popToWallet;
+    final popToMainScreen = widget.arguments.wizardActive ? popToWizard : popToHome;
     final issuedWizardCred = widget.arguments.wizardActive &&
         widget.arguments.wizardCred != null &&
         (session.issuedCredentials?.map((c) => c.info.fullId)?.contains(widget.arguments.wizardCred) ?? false);
@@ -279,7 +279,7 @@ class _SessionScreenState extends State<SessionScreen> {
       // On Android just background the app to let the user return to the previous activity
       WidgetsBinding.instance.addPostFrameCallback((_) {
         IrmaRepository.get().bridgedDispatch(AndroidSendToBackgroundEvent());
-        popToWallet(context);
+        popToHome(context);
       });
     }
     return _buildLoadingScreen(session.isIssuanceSession);
@@ -299,20 +299,20 @@ class _SessionScreenState extends State<SessionScreen> {
             if (widget.arguments.wizardActive) {
               popToWizard(context);
             } else if (session.continueOnSecondDevice) {
-              popToWallet(context);
+              popToHome(context);
             } else if (session.clientReturnURL != null && !session.clientReturnURL.isPhoneNumber) {
               // If the error was caused by the client return url itself, we should not open it again.
               if (session.error.errorType != 'clientReturnUrl') {
                 // For now we do a silentFailure if an error occurs, to prevent two subsequent error screens.
                 await _openClientReturnUrl(session.clientReturnURL, alwaysOpenExternally: true, silentFailure: true);
               }
-              popToWallet(context);
+              popToHome(context);
             } else {
               if (Platform.isIOS) {
                 _displayArrowBack.value = true;
               } else {
                 IrmaRepository.get().bridgedDispatch(AndroidSendToBackgroundEvent());
-                popToWallet(context);
+                popToHome(context);
               }
             }
           },

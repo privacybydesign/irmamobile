@@ -9,11 +9,11 @@ import 'package:irmamobile/src/models/issue_wizard.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/screens/error/error_screen.dart';
+import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/screens/issue_wizard/issue_wizard.dart';
 import 'package:irmamobile/src/screens/scanner/widgets/qr_scanner.dart';
 import 'package:irmamobile/src/screens/session/session.dart';
 import 'package:irmamobile/src/screens/session/session_screen.dart';
-import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 class ScannerScreen extends StatelessWidget {
@@ -52,7 +52,7 @@ class ScannerScreen extends StatelessWidget {
             onTapClose: () => navigator.pop(),
           ),
         ),
-        ModalRoute.withName(WalletScreen.routeName),
+        ModalRoute.withName(HomeScreen.routeName),
       );
       return;
     }
@@ -99,7 +99,7 @@ class ScannerScreen extends StatelessWidget {
     } else {
       navigator.pushNamedAndRemoveUntil(
         SessionScreen.routeName,
-        ModalRoute.withName(WalletScreen.routeName),
+        ModalRoute.withName(HomeScreen.routeName),
         arguments: args,
       );
     }

@@ -14,6 +14,7 @@ import 'package:irmamobile/src/screens/enrollment/email_sent_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/help/help_screen.dart';
 import 'package:irmamobile/src/screens/history/history_screen.dart';
+import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/screens/issue_wizard/issue_wizard.dart';
 import 'package:irmamobile/src/screens/loading/loading_screen.dart';
 import 'package:irmamobile/src/screens/reset_pin/reset_pin_screen.dart';
@@ -21,12 +22,11 @@ import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/session/session.dart';
 import 'package:irmamobile/src/screens/session/session_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
-import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 
 class Routing {
   static Map<String, WidgetBuilder> simpleRoutes = {
     LoadingScreen.routeName: (context) => LoadingScreen(),
-    WalletScreen.routeName: (context) => WalletScreen(),
+    //WalletScreen.routeName: (context) => WalletScreen(),
     EnrollmentScreen.routeName: (context) => EnrollmentScreen(),
     ScannerScreen.routeName: (context) => ScannerScreen(),
     ChangePinScreen.routeName: (context) => ChangePinScreen(),
@@ -37,6 +37,7 @@ class Routing {
     HelpScreen.routeName: (context) => HelpScreen(),
     ResetPinScreen.routeName: (context) => ResetPinScreen(),
     DebugScreen.routeName: (context) => DebugScreen(),
+    HomeScreen.routeName: (context) => HomeScreen(),
   };
 
   // This function returns a `WidgetBuilder` of the screen found by `routeName`
@@ -58,7 +59,7 @@ class Routing {
 
   // Manually define what root routes are
   static bool _isRootRoute(RouteSettings settings) {
-    return settings.name == WalletScreen.routeName || settings.name == EnrollmentScreen.routeName;
+    return settings.name == HomeScreen.routeName || settings.name == EnrollmentScreen.routeName;
   }
 
   // A helper method to work around `willPopScope` limitations, see flutter/flutter#14083
@@ -88,7 +89,7 @@ class Routing {
 
             // Otherwise if it is a root route, background the app on backpress
             if (_isRootRoute(settings)) {
-              if (settings.name == WalletScreen.routeName) {
+              if (settings.name == HomeScreen.routeName) {
                 // Check if we are in the drawn state.
                 // We don't want the app to background in this case.
                 // Defer to wallet_screen.dart

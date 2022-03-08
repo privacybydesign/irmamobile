@@ -16,7 +16,7 @@ import 'package:irmamobile/src/screens/change_pin/widgets/updating_pin.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/valdating_pin.dart';
 import 'package:irmamobile/src/screens/error/error_screen.dart';
 import 'package:irmamobile/src/screens/error/session_error_screen.dart';
-import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
+import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/util/hero_controller.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_attempts.dart';
 
@@ -139,7 +139,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
                 builder: (context) => PinWrongAttemptsDialog(attemptsRemaining: state.attemptsRemaining),
               );
             } else {
-              Navigator.of(context, rootNavigator: true).popUntil(ModalRoute.withName(WalletScreen.routeName));
+              Navigator.of(context, rootNavigator: true).popUntil(ModalRoute.withName(HomeScreen.routeName));
               _repo.lock(unblockTime: state.blockedUntil);
             }
           } else if (state.oldPinVerified == ValidationState.error) {

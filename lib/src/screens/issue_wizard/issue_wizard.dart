@@ -78,7 +78,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
       // Pop to underlying session screen
       Navigator.of(context).pop();
     } else {
-      popToWallet(context);
+      popToHome(context);
     }
   }
 
@@ -142,7 +142,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
   }
 
   void _onBackPress() {
-    popToWallet(context);
+    popToHome(context);
   }
 
   @override
