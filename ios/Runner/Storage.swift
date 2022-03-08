@@ -8,7 +8,7 @@ enum StorageError: Error {
     case keyNotFound
 }
 public class Storage {
-    final let algorithm: SecKeyAlgorithm = .rsaEncryptionOAEPSHA512
+    final let algorithm: SecKeyAlgorithm = .eciesEncryptionCofactorVariableIVX963SHA256AESGCM
     final let tag: Data = "storageKey".data(using: .utf8)!
     var key: SecKey?
     
@@ -52,10 +52,6 @@ public class Storage {
             throw StorageError.unsupportedAlgorithm
         }
 
-        guard ciphertext.count == SecKeyGetBlockSize(key) else {
-            throw StorageError.incorrectBlockSize
-        }
-
         guard let plaintext = SecKeyCreateDecryptedData(key,
                                                         algorithm,
                                                         ciphertext as CFData,
@@ -74,7 +70,7 @@ public class Storage {
         let query: [String: Any] = [
             kSecClass as String                 : kSecClassKey,
             kSecAttrApplicationTag as String    : tag,
-            kSecAttrKeyType as String           : kSecAttrKeyTypeRSA,
+            kSecAttrKeyType as String           : kSecAttrKeyTypeEC,
             kSecReturnRef as String             : true
         ]
         
@@ -98,15 +94,16 @@ public class Storage {
         }
         
         let attributes: [String: Any] = [
-            kSecAttrKeyType as String           : kSecAttrKeyTypeRSA,
-            kSecAttrKeySizeInBits as String     : 2048,
-            kSecPrivateKeyAttrs as String : [
-                kSecAttrIsPermanent as String       : true,
-                kSecAttrApplicationTag as String    : tag,
-                kSecAttrAccessControl as String     : access
-            ]
-        ]
-        
+                    kSecAttrKeyType as String           : kSecAttrKeyTypeEC,
+                    kSecAttrTokenID as String           : kSecAttrTokenIDSecureEnclave,
+                    kSecAttrKeySizeInBits as String     : 256,
+                    kSecPrivateKeyAttrs as String : [
+                        kSecAttrIsPermanent as String       : true,
+                        kSecAttrApplicationTag as String    : tag,
+                        kSecAttrAccessControl as String     : access
+                    ]
+                ]
+
         guard SecKeyCreateRandomKey(attributes as CFDictionary, &error) != nil else {
             throw error!.takeRetainedValue() as Error
         }
