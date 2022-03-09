@@ -1,6 +1,3 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -18,9 +15,9 @@ class QRScanner extends StatefulWidget {
   final void Function(SessionPointer) onFound;
 
   const QRScanner({
-    Key key,
-    @required this.onClose,
-    @required this.onFound,
+    Key? key,
+    required this.onClose,
+    required this.onFound,
   }) : super(key: key);
 
   @override
@@ -30,54 +27,74 @@ class QRScanner extends StatefulWidget {
 class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMixin {
   bool found = false;
   bool error = false;
-  Timer _errorTimer;
+  Timer? _errorTimer;
 
   @override
   void dispose() {
     if (_errorTimer?.isActive ?? false) {
-      _errorTimer.cancel();
+      _errorTimer?.cancel();
     }
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Stack(
-        children: [
-          // Due to issues in the qr_code_scanner library, the scanner's QRView
-          // widget does not render properly when the pin screen overlay is active.
-          // Therefore we make sure the QRView only renders when the app is unlocked
-          // and the pin screen overlay is not active.
-          // https://github.com/juliuscanute/qr_code_scanner/issues/87
-          // TODO: Is this still an issue? (check CHANGELOG of qr_code_scanner 0.3.0)
-          StreamBuilder<bool>(
-            stream: IrmaRepository.get().getLocked(),
-            builder: (context, isLocked) {
-              if (!isLocked.hasData || isLocked.data) {
-                return Container(color: Colors.black);
-              }
-              return QRViewContainer(
-                onFound: (qr) => _foundQR(qr),
-              );
-            },
-          ),
-          Container(
-            constraints: const BoxConstraints.expand(),
-            child: CustomPaint(
-              painter: QROverlay(found: found, error: error, theme: IrmaTheme.of(context)),
-            ),
-          ),
-          QRInstruction(found: found, error: error),
-        ],
-      ),
-    );
+    return OrientationBuilder(
+        builder: (context, orientation) => SafeArea(
+                child: Stack(
+              children: [
+                //TODO: Test this in UX-2.0
+                // Due to issues in the qr_code_scanner library, the scanner's QRView
+                // widget does not render properly when the pin screen overlay is active.
+                // Therefore we make sure the QRView only renders when the app is unlocked
+                // and the pin screen overlay is not active.
+                // https://github.com/juliuscanute/qr_code_scanner/issues/87
+                // TODO: Is this still an issue? (check CHANGELOG of qr_code_scanner 0.3.0)
+                // StreamBuilder<bool>(
+                //   stream: IrmaRepository.get().getLocked(),
+                //   builder: (context, isLocked) {
+                //     if (!isLocked.hasData || isLocked.data) {
+                //       return Container(color: Colors.black);
+                //     }
+                //     return QRViewContainer(
+                //       onFound: (qr) => _foundQR(qr),
+                //     );
+                //   },
+                // ),
+                QRViewContainer(
+                  onFound: (qr) => _foundQR(qr),
+                ),
+                Container(
+                  constraints: const BoxConstraints.expand(),
+                  child: CustomPaint(
+                    painter:
+                        QROverlay(found: found, error: error, theme: IrmaTheme.of(context), orientation: orientation),
+                  ),
+                ),
+                QRInstruction(found: found, error: error, orientation: orientation),
+
+                Align(
+                    alignment: Alignment.topLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: CircleAvatar(
+                        backgroundColor: const Color(0xFFEAEAEA),
+                        radius: 24,
+                        child: IconButton(
+                            padding: EdgeInsets.zero,
+                            color: Colors.grey,
+                            onPressed: () => Navigator.pop(context),
+                            icon: const Icon(Icons.chevron_left, size: 24, color: Color(0xFF1A1919))),
+                      ),
+                    ))
+              ],
+            )));
   }
 
   Future<void> _foundQR(String qr) async {
     // If we already found a correct QR, cancel the current error message
-    if (_errorTimer != null && _errorTimer.isActive) {
-      _errorTimer.cancel();
+    if (_errorTimer != null && _errorTimer!.isActive) {
+      _errorTimer!.cancel();
     }
 
     // Don't continue if this screen has already been 'used'
@@ -87,7 +104,7 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
 
     // Decode QR and determine if it's valid
     final repo = IrmaRepository.get();
-    SessionPointer sessionPointer;
+    SessionPointer? sessionPointer;
     try {
       sessionPointer = SessionPointer.fromString(qr);
       sessionPointer.validate(
@@ -101,7 +118,7 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
 
     // If invalid, show an error message for a certain time
     if (sessionPointer == null) {
-      SemanticsService.announce(FlutterI18n.translate(context, "qr_scanner.error.semantic"), TextDirection.ltr);
+      SemanticsService.announce(FlutterI18n.translate(context, 'qr_scanner.error.semantic'), TextDirection.ltr);
       setState(() {
         error = true;
       });
@@ -114,7 +131,7 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
     }
 
     // Signal success after a small timeout
-    SemanticsService.announce(FlutterI18n.translate(context, "qr_scanner.success.semantic"), TextDirection.ltr);
+    SemanticsService.announce(FlutterI18n.translate(context, 'qr_scanner.success.semantic'), TextDirection.ltr);
     setState(() {
       found = true;
       error = false;
@@ -122,7 +139,7 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
 
     Future.delayed(const Duration(milliseconds: 500), () {
       // Widget might have disposed during the timeout, so check for this first.
-      if (mounted) {
+      if (mounted && sessionPointer != null) {
         widget.onFound(sessionPointer);
       }
     });

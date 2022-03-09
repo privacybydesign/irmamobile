@@ -27,7 +27,7 @@ dependencies:
   rxdart: ^0.27.2
   package_info: ^2.0.2
   collection: ^1.15.0
-  qr_code_scanner: ^0.6.1
+  qr_code_scanner: ^0.7.0
   font_awesome_flutter: ^9.1.0 # TODO remove once this package is no longer used
   share: ^2.0.4
   intl: ^0.17.0
