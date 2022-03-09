@@ -13,7 +13,7 @@ class IrmaNavBar extends StatefulWidget {
 }
 
 class _IrmaNavBarState extends State<IrmaNavBar> {
-  String selectedTab = "home";
+  String selectedTab = 'home';
 
   Widget _buildNavButton(IconData iconData, String label, [String? routeName]) => Expanded(
         child: InkWell(
@@ -38,7 +38,7 @@ class _IrmaNavBarState extends State<IrmaNavBar> {
                 height: 4,
               ),
               Text(
-                FlutterI18n.translate(context, "home.nav_bar.$label"),
+                FlutterI18n.translate(context, 'home.nav_bar.$label'),
                 style: TextStyle(
                     color: selectedTab == label
                         ? IrmaTheme.of(context).themeData.colorScheme.primary
@@ -66,7 +66,7 @@ class _IrmaNavBarState extends State<IrmaNavBar> {
           backgroundColor: IrmaTheme.of(context).themeData.colorScheme.primary,
           radius: 36,
           child: IconButton(
-              tooltip: FlutterI18n.translate(context, "home.nav_bar.open_scanner"),
+              tooltip: FlutterI18n.translate(context, 'home.nav_bar.open_scanner'),
               color: Colors.white,
               onPressed: () {
                 Navigator.pushNamed(context, ScannerScreen.routeName);
@@ -97,11 +97,11 @@ class _IrmaNavBarState extends State<IrmaNavBar> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildNavButton(Icons.home_filled, "home"),
-          _buildNavButton(Icons.folder_shared, "data"),
+          _buildNavButton(Icons.home_filled, 'home'),
+          _buildNavButton(Icons.folder_shared, 'data'),
           _buildQrButton(),
-          _buildNavButton(Icons.history, "activity", HistoryScreen.routeName),
-          _buildNavButton(Icons.smartphone, "app", SettingsScreen.routeName),
+          _buildNavButton(Icons.history, 'activity', HistoryScreen.routeName),
+          _buildNavButton(Icons.smartphone, 'app', SettingsScreen.routeName),
         ],
       ),
     );
