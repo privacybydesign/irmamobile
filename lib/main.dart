@@ -8,7 +8,7 @@ import 'package:irmamobile/app.dart';
 import 'package:irmamobile/src/data/irma_client_bridge.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/sentry/sentry.dart';
-import 'package:irmamobile/src/widgets/credential_nudge.dart';
+
 
 Future<void> main() async {
   FlutterError.onError = (FlutterErrorDetails details) {
@@ -30,10 +30,7 @@ class IrmaApp extends StatelessWidget {
   const IrmaApp({Key key, this.forcedLocale}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) => CredentialNudgeProvider(
-        credentialNudge: null,
-        child: App(
-          forcedLocale: forcedLocale,
-        ),
+  Widget build(BuildContext context) => App(
+        forcedLocale: forcedLocale,
       );
 }

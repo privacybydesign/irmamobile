@@ -26,7 +26,6 @@ import 'package:irmamobile/src/screens/settings/settings_screen.dart';
 class Routing {
   static Map<String, WidgetBuilder> simpleRoutes = {
     LoadingScreen.routeName: (context) => LoadingScreen(),
-    //WalletScreen.routeName: (context) => WalletScreen(),
     EnrollmentScreen.routeName: (context) => EnrollmentScreen(),
     ScannerScreen.routeName: (context) => ScannerScreen(),
     ChangePinScreen.routeName: (context) => ChangePinScreen(),

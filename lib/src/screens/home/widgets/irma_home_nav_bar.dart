@@ -22,6 +22,7 @@ class _IrmaNavBarState extends State<IrmaNavBar> {
             setState(() {
               selectedTab = label;
             });
+            //TODO: This navbar widget will not actually push new pages but rather change tabs in the parent widget. 
             if (routeName != null) {
               Navigator.pushNamed(context, routeName);
             }
