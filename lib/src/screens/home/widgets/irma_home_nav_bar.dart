@@ -22,7 +22,7 @@ class _IrmaNavBarState extends State<IrmaNavBar> {
             setState(() {
               selectedTab = label;
             });
-            //TODO: This navbar widget will not actually push new pages but rather change tabs in the parent widget. 
+            //TODO: This navbar widget will not actually push new pages but rather change tabs in the parent widget.
             if (routeName != null) {
               Navigator.pushNamed(context, routeName);
             }
@@ -80,7 +80,8 @@ class _IrmaNavBarState extends State<IrmaNavBar> {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6),
-      height: 110,
+      // Reduce vertical padding for screens with limited height (i.e. landscape mode).
+      height: MediaQuery.of(context).size.height > 450 ? 110 : 85,
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
