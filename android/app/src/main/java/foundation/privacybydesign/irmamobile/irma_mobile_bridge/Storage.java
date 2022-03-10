@@ -46,12 +46,8 @@ public class Storage {
         }
     }
 
-    private boolean keyExists() {
-        try {
-            return keyStore.containsAlias(keyAlias);
-        } catch (KeyStoreException e) {
-            return false;
-        }
+    private boolean keyExists() throws KeyStoreException {
+        return keyStore.containsAlias(keyAlias);
     }
 
     protected void generateKey() {
