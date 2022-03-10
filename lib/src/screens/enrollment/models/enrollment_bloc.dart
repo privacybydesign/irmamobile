@@ -61,7 +61,7 @@ class EnrollmentBloc extends Bloc<Object, EnrollmentState> {
         submittingFailed: false, // reset incase of retrying
       );
 
-      if (state.pin?.isEmpty ?? true) {
+      if (state.pin.isEmpty) {
         yield state.copyWith(
             error: SessionError(errorType: 'emptyPin', info: 'No pin code was specified for enrollment'));
         return;
@@ -69,7 +69,7 @@ class EnrollmentBloc extends Bloc<Object, EnrollmentState> {
 
       final status = await IrmaRepository.get().enroll(
         email: state.email.trim(),
-        pin: state.pin!,
+        pin: state.pin,
         language: state.languageCode,
       );
 
