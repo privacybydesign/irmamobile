@@ -6,7 +6,7 @@ import Foundation
 
 @objc public class AESKey: NSObject {
     var s: Storage
-    let path = FileManager.default.urls(for: .documentDirectory,
+    let path = FileManager.default.urls(for: .libraryDirectory,
                                            in: .userDomainMask)[0].appendingPathComponent("storageKey")
     
     override init() {
