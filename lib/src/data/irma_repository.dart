@@ -346,14 +346,14 @@ class IrmaRepository {
       irmaVersionInfo.schemeManagers.forEach((_, scheme) {
         int thisRequirement = 0;
         switch (Platform.operatingSystem) {
-          case "android":
+          case 'android':
             thisRequirement = scheme.minimumAppVersion.android;
             break;
-          case "ios":
+          case 'ios':
             thisRequirement = scheme.minimumAppVersion.iOS;
             break;
           default:
-            throw Exception("Unsupported Platfrom.operatingSystem");
+            throw Exception('Unsupported Platfrom.operatingSystem');
         }
         if (thisRequirement > minimumBuild) {
           minimumBuild = thisRequirement;
@@ -362,7 +362,7 @@ class IrmaRepository {
 
       int currentBuild = int.tryParse(packageInfo.buildNumber) ?? minimumBuild;
 
-      if (Platform.operatingSystem == "android") {
+      if (Platform.operatingSystem == 'android') {
         while (currentBuild > 1024 * 1024) {
           currentBuild -= 1024 * 1024;
         }
@@ -452,15 +452,15 @@ class IrmaRepository {
   }
 
   final List<_ExternalBrowserCredtype> externalBrowserCredtypes = const [
-    _ExternalBrowserCredtype(cred: "pbdf.gemeente.address", os: "ios"),
-    _ExternalBrowserCredtype(cred: "pbdf.gemeente.personalData", os: "ios"),
+    _ExternalBrowserCredtype(cred: 'pbdf.gemeente.address', os: 'ios'),
+    _ExternalBrowserCredtype(cred: 'pbdf.gemeente.personalData', os: 'ios'),
   ];
 
   final List<String> externalBrowserUrls = const [
-    "https://privacybydesign.foundation/myirma/",
-    "https://privacybydesign.foundation/mijnirma/",
-    "https://privacybydesign.foundation/demo/",
-    "https://privacybydesign.foundation/demo-en/"
+    'https://privacybydesign.foundation/myirma/',
+    'https://privacybydesign.foundation/mijnirma/',
+    'https://privacybydesign.foundation/demo/',
+    'https://privacybydesign.foundation/demo-en/'
   ];
 
   // TODO Remove when disclosure sessions can be started from custom tabs
