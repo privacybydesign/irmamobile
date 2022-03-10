@@ -4,6 +4,7 @@ import 'package:irmamobile/src/screens/history/history_screen.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/translated_text.dart';
 
 class IrmaNavBar extends StatefulWidget {
   const IrmaNavBar({Key? key}) : super(key: key);
@@ -37,15 +38,14 @@ class _IrmaNavBarState extends State<IrmaNavBar> {
               const SizedBox(
                 height: 4,
               ),
-              Text(
-                FlutterI18n.translate(context, 'home.nav_bar.$label'),
+              TranslatedText(
+                'home.nav_bar.$label',
                 style: TextStyle(
                     color: selectedTab == label
                         ? IrmaTheme.of(context).themeData.colorScheme.primary
                         : Colors.grey.shade600,
                     fontWeight: FontWeight.w600),
-                overflow: TextOverflow.ellipsis,
-              ),
+              )
             ],
           ),
         ),

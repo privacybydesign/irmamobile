@@ -537,10 +537,10 @@
   "home" : {
     "nav_bar" : {
       "home" : "Home",
-      "data" : "Data",
+      "data" : "Gegevens",
       "activity" : "Activiteit",
       "app" : "App",
-      "open_scanner": "Open QR Scanner"
+      "open_scanner": "Open QR-Scanner"
     }
   }
 }
