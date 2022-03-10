@@ -9,6 +9,6 @@ Future<void> main() async {
   IrmaRepository(client: IrmaClientBridge());
 
   runApp(
-   const App(),
+    const App(),
   );
 }
