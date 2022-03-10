@@ -12,7 +12,7 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 
 public class FileSystem {
-    public static byte[] read(String path) {
+    public static byte[] read(String path) throws IOException {
         byte[] bytes;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -20,8 +20,6 @@ public class FileSystem {
                 bytes = Files.readAllBytes(Paths.get(path));
             } catch (NoSuchFileException e) {
                 return null;
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             }
         } else {
             File file = new File(path);
@@ -33,15 +31,9 @@ public class FileSystem {
                 fis.read(bytes);
             }  catch (FileNotFoundException e) {
                 return null;
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             } finally {
                 if (fis != null) {
-                    try {
-                        fis.close();
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
+                    fis.close();
                 }
             }
         }
@@ -49,20 +41,19 @@ public class FileSystem {
         return bytes;
     }
 
-    public static void write(byte[] data, String path) {
+    public static void write(byte[] data, String path) throws IOException {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            try {
-                Files.createFile(Paths.get(path));
-                Files.write(Paths.get(path), data);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            Files.createFile(Paths.get(path));
+            Files.write(Paths.get(path), data);
         } else {
+            FileOutputStream fos = null;
             try {
-                FileOutputStream fos = new FileOutputStream(path);
+                fos = new FileOutputStream(path);
                 fos.write(data);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            } finally {
+                if (fos != null) {
+                    fos.close();
+                }
             }
         }
     }

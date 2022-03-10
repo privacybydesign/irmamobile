@@ -3,7 +3,8 @@ package foundation.privacybydesign.irmamobile.irma_mobile_bridge;
 import android.content.Context;
 import android.os.Build;
 
-import java.security.NoSuchAlgorithmException;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 
 public class AESKey {
@@ -16,29 +17,33 @@ public class AESKey {
     }
 
     public byte[] getKey() {
-        byte[] encrypted = FileSystem.read(path);
-
-        if (encrypted == null) {
-            return generateKey();
-        }
-
-        return s.decrypt(encrypted);
-    }
-
-    private byte[] generateKey() {
-        byte[] key = new byte[32];
         try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                SecureRandom.getInstanceStrong().nextBytes(key);
-            } else {
-                new SecureRandom().nextBytes(key);
+            byte[] encrypted = FileSystem.read(path);
+
+            if (encrypted == null) {
+                byte[] key = generateKey();
+
+                encrypted = s.encrypt(key);
+                FileSystem.write(encrypted, path);
+
+                return key;
             }
-        } catch (NoSuchAlgorithmException e) {
+
+            return s.decrypt(encrypted);
+
+        } catch (GeneralSecurityException | IOException e) {
             throw new RuntimeException(e);
         }
+    }
 
-        byte[] encrypted = s.encrypt(key);
-        FileSystem.write(encrypted, path);
+    private byte[] generateKey() throws GeneralSecurityException {
+        byte[] key = new byte[32];
+        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            SecureRandom.getInstanceStrong().nextBytes(key);
+        } else {
+            new SecureRandom().nextBytes(key);
+        }
 
         return key;
     }
