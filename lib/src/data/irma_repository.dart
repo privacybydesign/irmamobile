@@ -82,6 +82,7 @@ class IrmaRepository {
   final IrmaBridge _bridge;
   final _eventSubject = PublishSubject<Event>();
 
+  // SessionRepository depends on a IrmaRepository instance, so therefore it must be late final.
   late final SessionRepository _sessionRepository;
 
   // Try to pipe events from the _eventSubject, otherwise you have to explicitly close the subject in close().
