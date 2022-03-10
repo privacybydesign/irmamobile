@@ -37,7 +37,7 @@ import Foundation
         
         if result == errSecSuccess {
             let encrypted = try s.encrypt(key)
-            try encrypted.write(to: path)
+            try encrypted.write(to: path, options: .completeFileProtection)
             
             return key
         } else {
