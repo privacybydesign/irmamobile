@@ -7,7 +7,7 @@ import 'package:irmamobile/src/models/credential_events.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/screens/debug/portrait_photo_mock.dart';
-import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
+import 'package:irmamobile/src/util/handle_pointer.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_repository_provider.dart';
 
@@ -174,8 +174,10 @@ class DebugScreen extends StatelessWidget {
           ),
           IconButton(
             icon: const Icon(Icons.list_alt),
-            onPressed: () => ScannerScreen.startIssueWizard(
-                Navigator.of(context), SessionPointer(wizard: 'irma-demo-requestors.ivido.demo-client')),
+            onPressed: () => handlePointer(
+              Navigator.of(context),
+              IssueWizardPointer('irma-demo-requestors.ivido.demo-client'),
+            ),
           ),
           IconButton(
             icon: const Icon(Icons.delete),

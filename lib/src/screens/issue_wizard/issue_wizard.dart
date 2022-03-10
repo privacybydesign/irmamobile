@@ -12,7 +12,7 @@ import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/screens/issue_wizard/widgets/wizard_contents.dart';
 import 'package:irmamobile/src/screens/issue_wizard/widgets/wizard_info.dart';
-import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
+import 'package:irmamobile/src/util/handle_pointer.dart';
 import 'package:irmamobile/src/util/language.dart';
 import 'package:irmamobile/src/util/navigation.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -128,9 +128,9 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
         _repo.openIssueURL(context, item.credential);
         break;
       case "session":
-        ScannerScreen.startSessionAndNavigate(
+        handlePointer(
           Navigator.of(context),
-          IrmaQRSessionPointer(u: item.sessionURL, irmaqr: "redirect"),
+          SessionPointer(u: item.sessionURL, irmaqr: "redirect"),
         );
         break;
       case "website":

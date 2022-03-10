@@ -94,7 +94,7 @@ class IrmaRepository {
   final _lockedSubject = BehaviorSubject<bool>.seeded(true);
   final _blockedSubject = BehaviorSubject<DateTime?>();
   final _lastActiveTimeSubject = BehaviorSubject<DateTime>();
-  final _pendingSessionPointerSubject = BehaviorSubject<SessionPointer?>.seeded(null);
+  final _pendingPointerSubject = BehaviorSubject<Pointer?>.seeded(null);
   final _preferencesSubject = BehaviorSubject<ClientPreferencesEvent>();
   final _inAppCredentialSubject = BehaviorSubject<_InAppCredentialState>();
   final _resumedWithURLSubject = BehaviorSubject<bool>.seeded(false);
@@ -142,7 +142,7 @@ class IrmaRepository {
       _lockedSubject.close(),
       _blockedSubject.close(),
       _lastActiveTimeSubject.close(),
-      _pendingSessionPointerSubject.close(),
+      _pendingPointerSubject.close(),
       _preferencesSubject.close(),
       _inAppCredentialSubject.close(),
       _resumedWithURLSubject.close(),
@@ -186,15 +186,15 @@ class IrmaRepository {
       _enrollmentEventSubject.add(event);
     } else if (event is HandleURLEvent) {
       try {
-        final sessionPointer = SessionPointer.fromString(event.url);
-        _pendingSessionPointerSubject.add(sessionPointer);
+        final pointer = Pointer.fromString(event.url);
+        _pendingPointerSubject.add(pointer);
         _resumedWithURLSubject.add(true);
         closeWebView();
-      } on MissingSessionPointer {
+      } on MissingPointer {
         // pass
       }
     } else if (event is NewSessionEvent) {
-      _pendingSessionPointerSubject.add(null);
+      _pendingPointerSubject.add(null);
     } else if (event is ClearAllDataEvent) {
       _credentialsSubject.add(Credentials({}));
       _enrollmentStatusSubject.add(EnrollmentStatus.unenrolled);
@@ -398,8 +398,8 @@ class IrmaRepository {
     });
   }
 
-  Stream<SessionPointer?> getPendingSessionPointer() {
-    return _pendingSessionPointerSubject.stream;
+  Stream<Pointer?> getPendingPointer() {
+    return _pendingPointerSubject.stream;
   }
 
   // -- lastActiveTime
@@ -568,11 +568,11 @@ class IrmaRepository {
     }
 
     final responseObject = jsonDecode(responseBody) as Map<String, dynamic>;
-    final sessionPtr = IrmaQRSessionPointer.fromJson(responseObject['sessionPtr'] as Map<String, dynamic>);
+    final sessionPtr = SessionPointer.fromJson(responseObject['sessionPtr'] as Map<String, dynamic>);
 
     // A debug session is not a regular mobile session, because there is no initiating app.
     // Therefore treat this session like it was started by scanning a QR.
     sessionPtr.continueOnSecondDevice = true;
-    _pendingSessionPointerSubject.add(sessionPtr);
+    _pendingPointerSubject.add(sessionPtr);
   }
 }

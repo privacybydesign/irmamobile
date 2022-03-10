@@ -31,6 +31,7 @@ import 'package:irmamobile/src/screens/splash_screen/splash_screen.dart';
 import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/combine.dart';
+import 'package:irmamobile/src/util/handle_pointer.dart';
 import 'package:irmamobile/src/util/hero_controller.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -48,7 +49,7 @@ class App extends StatefulWidget {
 class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   final _detectRootedDeviceRepo = DetectRootedDeviceIrmaPrefsRepository();
-  StreamSubscription<SessionPointer> _sessionPointerSubscription;
+  StreamSubscription<Pointer> _pointerSubscription;
   StreamSubscription<Event> _dataClearSubscription;
   StreamSubscription<bool> _screenshotPrefSubscription;
   bool _qrScannerActive = false;
@@ -94,7 +95,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _sessionPointerSubscription?.cancel();
+    _pointerSubscription?.cancel();
     _dataClearSubscription?.cancel();
     _screenshotPrefSubscription?.cancel();
     super.dispose();
@@ -190,7 +191,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   void _onScreenPopped(Route route) {
     switch (route.settings.name) {
       case WalletScreen.routeName:
-        _sessionPointerSubscription.cancel();
+        _pointerSubscription.cancel();
         break;
       case ScannerScreen.routeName:
         _qrScannerActive = false;
@@ -205,12 +206,12 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     // Listen for incoming SessionPointers as long as the wallet screen is there.
     //  We can always act on these, because if the app is locked,
     //  their screens will simply be covered.
-    _sessionPointerSubscription = repo.getPendingSessionPointer().listen((sessionPointer) {
-      if (sessionPointer == null) {
+    _pointerSubscription = repo.getPendingPointer().listen((pointer) {
+      if (pointer == null) {
         return;
       }
 
-      _startSession(sessionPointer);
+      handlePointer(_navigatorKey.currentState, pointer);
     });
   }
 
@@ -233,14 +234,6 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     final appResumedAutomatically = await IrmaRepository.get().appResumedAutomatically();
     if (startQrScanner && !appResumedAutomatically && !_qrScannerActive) {
       _navigatorKey.currentState.pushNamed(ScannerScreen.routeName);
-    }
-  }
-
-  void _startSession(SessionPointer sessionPointer) {
-    if (sessionPointer.wizard != null) {
-      ScannerScreen.startIssueWizard(navigator, sessionPointer);
-    } else if (sessionPointer is IrmaQRSessionPointer) {
-      ScannerScreen.startSessionAndNavigate(_navigatorKey.currentState, sessionPointer);
     }
   }
 

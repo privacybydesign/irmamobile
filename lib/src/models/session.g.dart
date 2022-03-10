@@ -6,41 +6,32 @@ part of 'session.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Map<String, dynamic> _$IrmaQRToJson(IrmaQR instance) => <String, dynamic>{
-      'u': instance.u,
-      'irmaqr': instance.irmaqr,
+IssueWizardPointer _$IssueWizardPointerFromJson(Map<String, dynamic> json) {
+  $checkKeys(json, requiredKeys: const ['wizard']);
+  return IssueWizardPointer(
+    json['wizard'] as String,
+  );
+}
+
+Map<String, dynamic> _$IssueWizardPointerToJson(IssueWizardPointer instance) => <String, dynamic>{
+      'wizard': instance.wizard,
     };
 
 SessionPointer _$SessionPointerFromJson(Map<String, dynamic> json) {
+  $checkKeys(json, requiredKeys: const ['u', 'irmaqr']);
   return SessionPointer(
-    wizard: json['wizard'] as String?,
+    u: json['u'] as String,
+    irmaqr: json['irmaqr'] as String,
     continueOnSecondDevice: json['continueOnSecondDevice'] as bool? ?? false,
     returnURL: json['returnURL'] as String?,
   );
 }
 
 Map<String, dynamic> _$SessionPointerToJson(SessionPointer instance) => <String, dynamic>{
-      'wizard': instance.wizard,
-      'continueOnSecondDevice': instance.continueOnSecondDevice,
-      'returnURL': instance.returnURL,
-    };
-
-IrmaQRSessionPointer _$IrmaQRSessionPointerFromJson(Map<String, dynamic> json) {
-  return IrmaQRSessionPointer(
-    u: json['u'] as String,
-    irmaqr: json['irmaqr'] as String,
-    wizard: json['wizard'] as String?,
-    continueOnSecondDevice: json['continueOnSecondDevice'] as bool? ?? false,
-    returnURL: json['returnURL'] as String?,
-  );
-}
-
-Map<String, dynamic> _$IrmaQRSessionPointerToJson(IrmaQRSessionPointer instance) => <String, dynamic>{
-      'wizard': instance.wizard,
-      'continueOnSecondDevice': instance.continueOnSecondDevice,
-      'returnURL': instance.returnURL,
       'u': instance.u,
       'irmaqr': instance.irmaqr,
+      'continueOnSecondDevice': instance.continueOnSecondDevice,
+      'returnURL': instance.returnURL,
     };
 
 SessionError _$SessionErrorFromJson(Map<String, dynamic> json) {

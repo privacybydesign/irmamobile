@@ -25,7 +25,7 @@ class NewSessionEvent extends SessionEvent {
       : super(sessionId ?? sessionIDCounter++);
 
   @JsonKey(name: 'Request')
-  final IrmaQRSessionPointer request;
+  final SessionPointer request;
 
   // Which credential's issue page, if any relevant, was last opened with the in-app browser
   final String inAppCredential;
