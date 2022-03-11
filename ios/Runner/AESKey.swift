@@ -5,31 +5,23 @@ import Foundation
 }
 
 @objc public class AESKey: NSObject {
-    var s: Storage
     let path = FileManager.default.urls(for: .libraryDirectory,
                                            in: .userDomainMask)[0].appendingPathComponent("storageKey")
     
-    override init() {
-        self.s = try! Storage.init()
-        super.init()
-    }
-        
     @objc func getKey() throws -> Data {
-
-        s = try Storage.init()
-        
+        let s: Storage = try Storage.init()
         var encrypted: Data?
         
-        do {
+        if FileManager.default.fileExists(atPath: path.absoluteString) {
             encrypted = try Data(contentsOf: path)
-        } catch {
-            return try generateAESkey()
+        } else {
+            return try generateAESkey(s)
         }
         
         return try s.decrypt(encrypted!)
     }
 
-    func generateAESkey() throws -> Data {
+    func generateAESkey(_ s: Storage) throws -> Data {
         var key = Data(count: 32)
         let result = key.withUnsafeMutableBytes {
             SecRandomCopyBytes(kSecRandomDefault, 32, $0.baseAddress!)
