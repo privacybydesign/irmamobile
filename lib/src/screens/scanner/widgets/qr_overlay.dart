@@ -5,10 +5,10 @@ class QROverlay extends CustomPainter {
   // the width of the view box as a ratio of the screen width
   static const widthFactor = 0.9;
 
-  // minimum offset to the bottom of the screen as a ration to the total height
+  // minimum offset to the bottom of the screen as a ratio of the total height
   static const minBottomOffsetFactor = 0.05;
 
-  // to offset to the top of the screen as a ration to the total height
+  // offset to the top of the screen as a ratio of the total height
   final double topOffsetFactor;
 
   // the irma theme
