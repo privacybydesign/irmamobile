@@ -40,7 +40,12 @@
   }
 
   [self debugLog:[NSString stringWithFormat:@"Starting irmago, lib=%@, bundle=%@", libraryPath, bundlePath]];
-  NSData * aesKey = [[[AESKey alloc] init] getKeyAndReturnError:&error];
+
+  NSError* storageError = nil;
+  NSData * aesKey = [[[AESKey alloc] init] getKeyAndReturnError:&storageError];
+  if (storageError != nil) {
+    NSLog(@"Error retrieving storage key %@", storageError);
+  }
 
   IrmagobridgeStart(self, libraryPath, bundlePath, aesKey);
   return self;
