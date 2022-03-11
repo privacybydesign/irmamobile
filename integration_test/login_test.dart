@@ -26,7 +26,7 @@ void main() {
     testWidgets('tc1', (tester) async {
       // Scenario 1 of login process
       // Initialize the app for integration tests
-      await tester.pumpWidgetAndSettle(const IrmaApp());
+      await tester.pumpWidgetAndSettle(IrmaApp(repository: irmaBinding.repository));
       await unlock(tester);
       // Open menu
       await tester.tapAndSettle(find.byKey(const Key('open_menu_icon')));
@@ -56,7 +56,7 @@ void main() {
     testWidgets('tc2', (tester) async {
       // Scenario 2 of login process: User is blocked after 3 failed attempts.
       // Initialize the app for integration tests
-      await tester.pumpWidgetAndSettle(const IrmaApp());
+      await tester.pumpWidgetAndSettle(IrmaApp(repository: irmaBinding.repository));
       await unlock(tester);
       // Open menu
       await tester.tapAndSettle(find.byKey(const Key('open_menu_icon')));

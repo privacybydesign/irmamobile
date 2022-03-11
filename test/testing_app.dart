@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:irmamobile/app.dart';
 import 'package:irmamobile/src/data/irma_mock_bridge.dart';
+import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
@@ -11,7 +12,11 @@ class TestingApp extends StatelessWidget {
   final IrmaRepository repository;
   final WidgetBuilder builder;
 
-  TestingApp({this.builder}) : repository = IrmaRepository(client: IrmaMockBridge());
+  TestingApp({this.builder, IrmaPreferences preferences})
+      : repository = IrmaRepository(
+          client: IrmaMockBridge(),
+          preferences: preferences,
+        );
 
   @override
   Widget build(BuildContext context) {

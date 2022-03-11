@@ -6,9 +6,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:irmamobile/app.dart';
 import 'package:irmamobile/src/data/irma_client_bridge.dart';
+import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/sentry/sentry.dart';
 import 'package:irmamobile/src/widgets/credential_nudge.dart';
+import 'package:irmamobile/src/widgets/irma_repository_provider.dart';
 
 Future<void> main() async {
   FlutterError.onError = (FlutterErrorDetails details) {
@@ -18,22 +20,29 @@ Future<void> main() async {
   runZonedGuarded<Future<void>>(() async {
     WidgetsFlutterBinding.ensureInitialized();
     await initSentry();
-    IrmaRepository(client: IrmaClientBridge());
+    final repository = IrmaRepository(
+      client: IrmaClientBridge(),
+      preferences: await IrmaPreferences.fromInstance(),
+    );
 
-    runApp(const IrmaApp());
+    runApp(IrmaApp(repository: repository));
   }, (error, stackTrace) => reportError(error, stackTrace));
 }
 
 class IrmaApp extends StatelessWidget {
   final Locale forcedLocale;
+  final IrmaRepository repository;
 
-  const IrmaApp({Key key, this.forcedLocale}) : super(key: key);
+  const IrmaApp({Key key, this.forcedLocale, this.repository}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) => CredentialNudgeProvider(
-        credentialNudge: null,
-        child: App(
-          forcedLocale: forcedLocale,
+  Widget build(BuildContext context) => IrmaRepositoryProvider(
+        repository: repository,
+        child: CredentialNudgeProvider(
+          credentialNudge: null,
+          child: App(
+            forcedLocale: forcedLocale,
+          ),
         ),
       );
 }
