@@ -3,10 +3,10 @@ import 'package:irmamobile/src/theme/theme.dart';
 
 class QROverlay extends CustomPainter {
   // the width of the view box as a ratio of the screen width
-  static const widthFactor = 0.9;
+  static const _widthFactor = 0.9;
 
   // minimum offset to the bottom of the screen as a ratio of the total height
-  static const minBottomOffsetFactor = 0.05;
+  static const _minBottomOffsetFactor = 0.05;
 
   // offset to the top of the screen as a ratio of the total height
   final double topOffsetFactor;
@@ -25,8 +25,8 @@ class QROverlay extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     // hole size
-    double windowSize = size.width * widthFactor;
-    final maxWindowHeight = size.height - size.height * (topOffsetFactor + minBottomOffsetFactor);
+    double windowSize = size.width * _widthFactor;
+    final maxWindowHeight = size.height - size.height * (topOffsetFactor + _minBottomOffsetFactor);
     if (windowSize > maxWindowHeight) {
       windowSize = maxWindowHeight;
     }
