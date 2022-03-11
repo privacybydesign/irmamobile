@@ -7,8 +7,12 @@ import 'package:json_annotation/json_annotation.dart';
 part 'session.g.dart';
 
 class MissingPointer implements Exception {
+  final String details;
+
+  MissingPointer({required this.details});
+
   String errorMessage() {
-    return 'URI does not contain a session or wizard pointer';
+    return 'URI does not contain a session or wizard pointer: $details';
   }
 }
 
@@ -39,12 +43,12 @@ abstract class Pointer {
       }
 
       if (jsonString == null) {
-        throw MissingPointer();
+        throw MissingPointer(details: 'unsupported uri scheme');
       }
 
       json = jsonDecode(jsonString) as Map<String, dynamic>;
-    } catch (_) {
-      throw MissingPointer();
+    } catch (e) {
+      throw MissingPointer(details: e.toString());
     }
 
     for (final Pointer Function() parser in [
@@ -54,11 +58,11 @@ abstract class Pointer {
     ]) {
       try {
         return parser();
-      } catch (_) {
+      } catch (e) {
         // Continue until we tried all parsers.
       }
     }
-    throw MissingPointer();
+    throw MissingPointer(details: 'unsupported pointer type');
   }
 }
 
