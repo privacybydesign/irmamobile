@@ -467,10 +467,8 @@ class IrmaRepository {
   Stream<List<String>> getExternalBrowserURLs() {
     return _irmaConfigurationSubject.map(
       (irmaConfiguration) => externalBrowserCredtypes
-          .where(
-            (type) => type.os == Platform.operatingSystem && irmaConfiguration.credentialTypes.containsKey(type.cred),
-          )
-          .map((type) => irmaConfiguration.credentialTypes[type.cred]!.issueUrl.values)
+          .where((type) => type.os == Platform.operatingSystem)
+          .map((type) => irmaConfiguration.credentialTypes[type.cred]?.issueUrl.values ?? [])
           .expand((v) => v)
           .toList()
         ..addAll(externalBrowserUrls),
