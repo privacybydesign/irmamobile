@@ -47,22 +47,19 @@ abstract class Pointer {
       }
 
       json = jsonDecode(jsonString) as Map<String, dynamic>;
+
+      final hasWizard = json.containsKey('wizard');
+      final hasURL = json.containsKey('u');
+      if (hasWizard && hasURL) {
+        return IssueWizardSessionPointer.fromJson(json);
+      } else if (hasWizard) {
+        return IssueWizardPointer.fromJson(json);
+      } else {
+        return SessionPointer.fromJson(json);
+      }
     } catch (e) {
       throw MissingPointer(details: e.toString());
     }
-
-    for (final Pointer Function() parser in [
-      () => IssueWizardSessionPointer.fromJson(json),
-      () => SessionPointer.fromJson(json),
-      () => IssueWizardPointer.fromJson(json),
-    ]) {
-      try {
-        return parser();
-      } catch (e) {
-        // Continue until we tried all parsers.
-      }
-    }
-    throw MissingPointer(details: 'unsupported pointer type');
   }
 }
 
