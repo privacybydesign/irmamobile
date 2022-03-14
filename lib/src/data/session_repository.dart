@@ -1,6 +1,3 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:collection/collection.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attributes.dart';
@@ -24,15 +21,15 @@ class SessionRepository {
 
   final _sessionStatesSubject = BehaviorSubject<SessionStates>.seeded(SessionStates({}));
 
-  SessionRepository({this.repo, Stream<SessionEvent> sessionEventStream}) {
+  SessionRepository({required this.repo, required Stream<SessionEvent> sessionEventStream}) {
     // Don't pipe states to the subject directly, because then potential errors are piped to the subject as well.
     sessionEventStream.listen((event) async {
       final prevStates = _sessionStatesSubject.value;
       // Calculate the nextState from the previousState by handling the event.
       // In case a new session is created, we create a new session state.
-      SessionState nextState;
+      SessionState? nextState;
       if (prevStates.containsKey(event.sessionID)) {
-        final prevState = prevStates[event.sessionID];
+        final prevState = prevStates[event.sessionID]!;
         nextState = await _eventHandler(prevState, event);
       } else if (event is NewSessionEvent) {
         nextState = _newSessionState(event);
@@ -54,7 +51,7 @@ class SessionRepository {
       serverName = RequestorInfo(name: TranslatedValue.fromString(url));
     } catch (_) {
       // Error with url will be resolved by bridge, so we don't have to act on that.
-      serverName = null;
+      serverName = RequestorInfo(name: const TranslatedValue.empty());
     }
     return SessionState(
       sessionID: event.sessionID,
@@ -98,20 +95,20 @@ class SessionRepository {
       final condiscon = _processCandidates(event.disclosuresCandidates, prevState, irmaConfiguration, credentials);
       // All discons must have an option to choose from. Otherwise the session can never be finished.
       final canBeFinished = condiscon.every((discon) => discon.isNotEmpty);
-      List<int> disclosureIndices;
+      List<int>? disclosureIndices;
       if (canBeFinished) {
         disclosureIndices = prevState.disclosureIndices ?? List<int>.filled(condiscon.length, 0);
       }
       return prevState.copyWith(
-        status: event.disclosuresCandidates?.isEmpty ?? true
+        status: event.disclosuresCandidates.isEmpty
             ? SessionStatus.requestIssuancePermission
             : SessionStatus.requestDisclosurePermission,
         serverName: event.serverName,
         satisfiable: event.satisfiable,
         canBeFinished: canBeFinished,
         isSignatureSession: false,
-        disclosureIndices: canBeFinished ? disclosureIndices : null,
-        disclosureChoices: canBeFinished ? _choose(disclosureIndices, condiscon) : null,
+        disclosureIndices: disclosureIndices,
+        disclosureChoices: disclosureIndices != null ? _choose(disclosureIndices, condiscon) : null,
         disclosuresCandidates: condiscon,
         issuedCredentials: event.issuedCredentials
             .map((raw) => Credential.fromRaw(
@@ -129,7 +126,7 @@ class SessionRepository {
       final condiscon = _processCandidates(event.disclosuresCandidates, prevState, irmaConfiguration, credentials);
       // All discons must have an option to choose from. Otherwise the session can never be finished.
       final canBeFinished = condiscon.every((discon) => discon.isNotEmpty);
-      List<int> disclosureIndices;
+      List<int>? disclosureIndices;
       if (canBeFinished) {
         disclosureIndices = prevState.disclosureIndices ?? List<int>.filled(condiscon.length, 0);
       }
@@ -140,8 +137,8 @@ class SessionRepository {
         canBeFinished: canBeFinished,
         isSignatureSession: event.isSignatureSession,
         signedMessage: event.signedMessage,
-        disclosureIndices: canBeFinished ? disclosureIndices : null,
-        disclosureChoices: canBeFinished ? _choose(disclosureIndices, condiscon) : null,
+        disclosureIndices: disclosureIndices,
+        disclosureChoices: disclosureIndices != null ? _choose(disclosureIndices, condiscon) : null,
         disclosuresCandidates: condiscon,
       );
     } else if (event is ContinueToIssuanceEvent) {
@@ -149,10 +146,11 @@ class SessionRepository {
         status: SessionStatus.requestIssuancePermission,
       );
     } else if (event is DisclosureChoiceUpdateSessionEvent) {
-      final indices = List<int>.of(prevState.disclosureIndices)..[event.disconIndex] = event.conIndex;
+      // When this event occurs, disclosureCandidates should be available already.
+      final indices = List<int>.of(prevState.disclosureIndices!)..[event.disconIndex] = event.conIndex;
       return prevState.copyWith(
         disclosureIndices: indices,
-        disclosureChoices: _choose(indices, prevState.disclosuresCandidates),
+        disclosureChoices: _choose(indices, prevState.disclosuresCandidates!),
       );
     } else if (event is SuccessSessionEvent) {
       return prevState.copyWith(
@@ -212,27 +210,25 @@ class SessionRepository {
       return sorted;
     }
     return ConDisCon(zip<MapEntry<int, DisCon<Attribute>>>(
-      [prevCondiscon.asMap().entries, sorted.asMap().entries],
+      [prevCondiscon!.asMap().entries, sorted.asMap().entries],
     ).map((discons) {
       // take only cons appearing in both the old and new discons
       // use prev discon as basis to preserve order of candidates
       final oldCons = discons[0].value.where((con) => _contains(discons[1].value, con)).toList();
-      // insert cons added in the new con at the position the user is looking at
+      // insert cons added in the new con at the position the user is looking at.
       final addedCons = discons[1].value.where((con) => !_contains(discons[0].value, con));
-      return DisCon(oldCons..insertAll(prevState.disclosureIndices[discons[0].key], addedCons));
+      // The _choose function makes sure the disclosureCandidates and the disclosureIndices are in sync.
+      // Therefore, we can safely use the null assertion operator (!).
+      return DisCon(oldCons..insertAll(prevState.disclosureIndices![discons[0].key], addedCons));
     }));
   }
 
   // Returns whether or not the con is present in the discon.
-  bool _contains(DisCon<Attribute> discon, Con<Attribute> con) {
-    return discon.firstWhere(
-          (con2) =>
-              con.length == con2.length &&
-              zip<Attribute>([con, con2]).every((cons) => _attributesEqual(cons[0], cons[1])),
-          orElse: () => null,
-        ) !=
-        null;
-  }
+  bool _contains(DisCon<Attribute> discon, Con<Attribute> con) => discon.any(
+        (con2) =>
+            con.length == con2.length &&
+            zip<Attribute>([con, con2]).every((cons) => _attributesEqual(cons[0], cons[1])),
+      );
 
   bool _attributesEqual(Attribute left, Attribute right) {
     // For placeholder attributes, that still need to be obtained using issuance-in-disclosure, the credential hash is
@@ -268,11 +264,9 @@ class SessionRepository {
     return i;
   }
 
-  Stream<SessionState> getSessionState(int sessionID) {
-    return _sessionStatesSubject.where((sessionStates) => sessionStates.containsKey(sessionID)).map(
-          (sessionStates) => sessionStates[sessionID],
-        );
-  }
+  Stream<SessionState> getSessionState(int sessionID) => _sessionStatesSubject
+      .where((sessionStates) => sessionStates.containsKey(sessionID))
+      .map((sessionStates) => sessionStates[sessionID]!);
 
   Future<bool> hasActiveSessions() async {
     final sessions = await _sessionStatesSubject.first;

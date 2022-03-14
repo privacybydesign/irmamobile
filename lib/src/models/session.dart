@@ -1,84 +1,26 @@
 import 'dart:convert';
 
-import 'package:irmamobile/src/models/irma_configuration.dart';
+import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'session.g.dart';
 
-class MissingSessionPointer implements Exception {
+class MissingPointer implements Exception {
+  final String details;
+
+  MissingPointer({required this.details});
+
   String errorMessage() {
-    return 'URI does not contain a sessionpointer';
+    return 'URI does not contain a session or wizard pointer: $details';
   }
 }
 
-@JsonSerializable()
-class SessionPointer {
-  SessionPointer({
-    this.u,
-    this.irmaqr,
-    this.continueOnSecondDevice = false,
-    @Deprecated('This parameter is deprecated.') this.returnURL,
-    this.wizard,
-  });
+/// Interface for all pointers referring to new sessions and issue wizards.
+abstract class Pointer {
+  Future<void> validate({required IrmaRepository irmaRepository, RequestorInfo? requestor});
 
-  @JsonKey(name: 'u')
-  String? u;
-
-  @JsonKey(name: 'irmaqr')
-  String? irmaqr;
-
-  @JsonKey(name: 'wizard')
-  String? wizard;
-
-  // Whether the session should be continued on the mobile device,
-  // or on the device which has displayed a QR code
-  @JsonKey(name: 'continueOnSecondDevice', defaultValue: false)
-  bool continueOnSecondDevice;
-
-  @Deprecated('This parameter is deprecated and will be removed at the end of 2020. Use clientReturnURL instead.')
-  @JsonKey(name: 'returnURL')
-  String? returnURL;
-
-  // We cannot use IrmaRepository directly, because it has not been migrated to null safety yet.
-  void validate({
-    required bool wizardActive,
-    required bool developerMode,
-    required IrmaConfiguration irmaConfiguration,
-  }) {
-    if (wizard == null) return;
-
-    if (wizardActive) {
-      throw UnsupportedError("cannot start wizard within a wizard");
-    }
-
-    final scheme = wizard!.contains(".") ? wizard!.split(".").first : null;
-
-    if (!irmaConfiguration.issueWizards.containsKey(wizard) ||
-        !irmaConfiguration.requestorSchemes.containsKey(scheme)) {
-      throw ArgumentError.value(wizard, "wizard");
-    }
-
-    final demoScheme = irmaConfiguration.requestorSchemes[scheme]!.demo;
-    if (!developerMode && demoScheme) {
-      throw UnsupportedError("cannot start wizard from demo scheme: developer mode not enabled");
-    }
-
-    final wizardData = irmaConfiguration.issueWizards[wizard]!;
-    if (u == null || demoScheme || wizardData.allowOtherRequestors) {
-      return;
-    }
-    final host = Uri.parse(u!).host;
-    final requestor = irmaConfiguration.requestors[host];
-    if (requestor == null) {
-      throw UnsupportedError("cannot start wizard: unknown requestor");
-    }
-    if (wizardData.id.split(".").getRange(0, 2).join(".") != requestor.id) {
-      throw UnsupportedError("cannot start wizard not belonging to session requestor");
-    }
-  }
-
-  factory SessionPointer.fromString(String content) {
+  factory Pointer.fromString(String content) {
     // Use lookahead and lookbehinds to block out the non-JSON part of the string
     final regexps = [
       RegExp("(?<=^irma:\/\/qr\/json\/).*"),
@@ -89,6 +31,7 @@ class SessionPointer {
       RegExp(".*", multiLine: true, dotAll: true),
     ];
 
+    final Map<String, dynamic> json;
     try {
       String? jsonString;
       for (final regex in regexps) {
@@ -100,17 +43,149 @@ class SessionPointer {
       }
 
       if (jsonString == null) {
-        throw MissingSessionPointer();
+        throw MissingPointer(details: 'unsupported uri scheme');
       }
 
-      return SessionPointer.fromJson(jsonDecode(jsonString) as Map<String, dynamic>);
-    } catch (_) {
-      throw MissingSessionPointer();
+      json = jsonDecode(jsonString) as Map<String, dynamic>;
+
+      final hasWizard = json.containsKey('wizard');
+      final hasURL = json.containsKey('u');
+      if (hasWizard && hasURL) {
+        return IssueWizardSessionPointer.fromJson(json);
+      } else if (hasWizard) {
+        return IssueWizardPointer.fromJson(json);
+      } else {
+        return SessionPointer.fromJson(json);
+      }
+    } catch (e) {
+      throw MissingPointer(details: e.toString());
     }
   }
+}
+
+/// A pointer that refers to an issue wizard only.
+@JsonSerializable()
+class IssueWizardPointer implements Pointer {
+  @JsonKey(name: 'wizard', required: true)
+  final String wizard;
+
+  IssueWizardPointer(this.wizard);
+
+  factory IssueWizardPointer.fromJson(Map<String, dynamic> json) => _$IssueWizardPointerFromJson(json);
+  Map<String, dynamic> toJson() => _$IssueWizardPointerToJson(this);
+
+  @override
+  Future<void> validate({required IrmaRepository irmaRepository, RequestorInfo? requestor}) async {
+    if (await irmaRepository.getIssueWizardActive().first) {
+      throw UnsupportedError('cannot start wizard within a wizard');
+    }
+
+    final scheme = wizard.contains('.') ? wizard.split('.').first : null;
+
+    final irmaConfiguration = await irmaRepository.getIrmaConfiguration().first;
+    if (!irmaConfiguration.issueWizards.containsKey(wizard) ||
+        !irmaConfiguration.requestorSchemes.containsKey(scheme)) {
+      throw ArgumentError.value(wizard, 'wizard');
+    }
+
+    final demoScheme = irmaConfiguration.requestorSchemes[scheme]!.demo;
+    final developerMode = await irmaRepository.getDeveloperMode().first;
+    if (!developerMode && demoScheme) {
+      throw UnsupportedError('cannot start wizard from demo scheme: developer mode not enabled');
+    }
+
+    final wizardData = irmaConfiguration.issueWizards[wizard]!;
+    if (demoScheme || wizardData.allowOtherRequestors) {
+      return;
+    }
+
+    if (requestor == null) {
+      throw UnsupportedError('cannot start wizard: unknown requestor');
+    }
+    if (wizardData.id.split('.').getRange(0, 2).join('.') != requestor.id) {
+      throw UnsupportedError('cannot start wizard not belonging to session requestor');
+    }
+  }
+}
+
+/// A pointer that refers to a new IRMA session.
+@JsonSerializable()
+class SessionPointer implements Pointer {
+  @JsonKey(name: 'u', required: true)
+  final String u;
+
+  @JsonKey(name: 'irmaqr', required: true)
+  final String irmaqr;
+
+  /// Whether the session should be continued on the mobile device,
+  /// or on the device which has displayed a QR code.
+  /// Field is not always specified in QRs now.
+  /// To make sure we can override its value if necessary, the field is not final fow now.
+  @JsonKey(name: 'continueOnSecondDevice', defaultValue: false)
+  bool continueOnSecondDevice;
+
+  @Deprecated('This parameter is deprecated and will be removed at the end of 2020. Use clientReturnURL instead.')
+  @JsonKey(name: 'returnURL')
+  final String? returnURL;
+
+  SessionPointer({
+    required this.u,
+    required this.irmaqr,
+    this.continueOnSecondDevice = false,
+    @Deprecated('This parameter is deprecated.') this.returnURL,
+  });
 
   factory SessionPointer.fromJson(Map<String, dynamic> json) => _$SessionPointerFromJson(json);
   Map<String, dynamic> toJson() => _$SessionPointerToJson(this);
+
+  @override
+  Future<void> validate({required IrmaRepository irmaRepository, RequestorInfo? requestor}) async {
+    // Check whether returnURL is valid.
+    if (returnURL != null) Uri.parse(returnURL!);
+  }
+}
+
+/// A pointer that refers to an issue wizard being followed by an IRMA session.
+class IssueWizardSessionPointer implements IssueWizardPointer, SessionPointer {
+  final IssueWizardPointer _wizardPointer;
+  final SessionPointer _sessionPointer;
+
+  IssueWizardSessionPointer(this._wizardPointer, this._sessionPointer);
+
+  factory IssueWizardSessionPointer.fromJson(Map<String, dynamic> json) => IssueWizardSessionPointer(
+        IssueWizardPointer.fromJson(json),
+        SessionPointer.fromJson(json),
+      );
+
+  @override
+  bool get continueOnSecondDevice => _sessionPointer.continueOnSecondDevice;
+
+  @override
+  set continueOnSecondDevice(bool value) => _sessionPointer.continueOnSecondDevice = value;
+
+  @override
+  String get irmaqr => _sessionPointer.irmaqr;
+
+  @override
+  String? get returnURL => _sessionPointer.returnURL;
+
+  @override
+  String get wizard => _wizardPointer.wizard;
+
+  @override
+  String get u => _sessionPointer.u;
+
+  @override
+  Map<String, dynamic> toJson() => {
+        ..._wizardPointer.toJson(),
+        ..._sessionPointer.toJson(),
+      };
+
+  @override
+  Future<void> validate({required IrmaRepository irmaRepository, RequestorInfo? requestor}) async {
+    await _wizardPointer.validate(irmaRepository: irmaRepository, requestor: requestor);
+    await _sessionPointer.validate(irmaRepository: irmaRepository, requestor: requestor);
+  }
 }
 
 @JsonSerializable()

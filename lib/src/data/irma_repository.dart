@@ -1,14 +1,11 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_bridge.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/session_repository.dart';
@@ -32,7 +29,6 @@ import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/models/version_information.dart';
 import 'package:irmamobile/src/sentry/sentry.dart';
-import 'package:irmamobile/src/util/language.dart';
 import 'package:package_info/package_info.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -42,13 +38,13 @@ class _InAppCredentialState {
   final String credentialType;
 
   _InAppCredentialState({
-    this.pendingInactivations,
-    this.credentialType,
+    this.pendingInactivations = 0,
+    this.credentialType = '',
   });
 
   _InAppCredentialState copyWith({
-    int pendingInactivations,
-    String credentialType,
+    int? pendingInactivations,
+    String? credentialType,
   }) {
     return _InAppCredentialState(
       pendingInactivations: pendingInactivations ?? this.pendingInactivations,
@@ -57,28 +53,28 @@ class _InAppCredentialState {
   }
 }
 
-class ExternalBrowserCredtype {
+class _ExternalBrowserCredtype {
   final String cred;
   final String os;
 
-  const ExternalBrowserCredtype({this.cred, this.os});
+  const _ExternalBrowserCredtype({required this.cred, required this.os});
 }
 
 class IrmaRepository {
-  static IrmaRepository _instance;
-  factory IrmaRepository({@required IrmaBridge client, @required IrmaPreferences preferences}) {
+  static IrmaRepository? _instance;
+  factory IrmaRepository({required IrmaBridge client, required IrmaPreferences preferences}) {
     _instance = IrmaRepository._internal(client, preferences);
-    _instance.dispatch(AppReadyEvent(), isBridgedEvent: true);
+    _instance!.dispatch(AppReadyEvent(), isBridgedEvent: true);
 
-    return _instance;
+    return _instance!;
   }
 
   @Deprecated('Use IrmaRepositoryProvider.of(context) instead')
-  static IrmaRepository get() {
+  factory IrmaRepository.get() {
     if (_instance == null) {
       throw Exception('IrmaRepository has not been initialized');
     }
-    return _instance;
+    return _instance!;
   }
 
   final IrmaPreferences preferences;
@@ -86,7 +82,8 @@ class IrmaRepository {
   final IrmaBridge _bridge;
   final _eventSubject = PublishSubject<Event>();
 
-  SessionRepository _sessionRepository;
+  // SessionRepository depends on a IrmaRepository instance, so therefore it must be late final.
+  late final SessionRepository _sessionRepository;
 
   // Try to pipe events from the _eventSubject, otherwise you have to explicitly close the subject in close().
   final _irmaConfigurationSubject = BehaviorSubject<IrmaConfiguration>();
@@ -96,24 +93,24 @@ class IrmaRepository {
   final _authenticationEventSubject = PublishSubject<AuthenticationEvent>();
   final _changePinEventSubject = PublishSubject<ChangePinBaseEvent>();
   final _lockedSubject = BehaviorSubject<bool>.seeded(true);
-  final _blockedSubject = BehaviorSubject<DateTime>();
+  final _blockedSubject = BehaviorSubject<DateTime?>();
   final _lastActiveTimeSubject = BehaviorSubject<DateTime>();
-  final _pendingSessionPointerSubject = BehaviorSubject<SessionPointer>.seeded(null);
+  final _pendingPointerSubject = BehaviorSubject<Pointer?>.seeded(null);
   final _preferencesSubject = BehaviorSubject<ClientPreferencesEvent>();
   final _inAppCredentialSubject = BehaviorSubject<_InAppCredentialState>();
   final _resumedWithURLSubject = BehaviorSubject<bool>.seeded(false);
   final _resumedFromBrowserSubject = BehaviorSubject<bool>.seeded(false);
-  final _issueWizardSubject = BehaviorSubject<IssueWizardEvent>.seeded(null);
+  final _issueWizardSubject = BehaviorSubject<IssueWizardEvent?>.seeded(null);
   final _issueWizardActiveSubject = BehaviorSubject<bool>.seeded(false);
   final _fatalErrorSubject = BehaviorSubject<ErrorEvent>();
 
-  StreamSubscription<Event> _bridgeEventSubscription;
+  late StreamSubscription<Event> _bridgeEventSubscription;
 
   // _internal is a named constructor only used by the factory
   IrmaRepository._internal(
     this._bridge,
     this.preferences,
-  ) : assert(_bridge != null) {
+  ) {
     _inAppCredentialSubject.add(_InAppCredentialState());
     _eventSubject.listen(_eventListener);
     _sessionRepository = SessionRepository(
@@ -146,7 +143,7 @@ class IrmaRepository {
       _lockedSubject.close(),
       _blockedSubject.close(),
       _lastActiveTimeSubject.close(),
-      _pendingSessionPointerSubject.close(),
+      _pendingPointerSubject.close(),
       _preferencesSubject.close(),
       _inAppCredentialSubject.close(),
       _resumedWithURLSubject.close(),
@@ -190,15 +187,15 @@ class IrmaRepository {
       _enrollmentEventSubject.add(event);
     } else if (event is HandleURLEvent) {
       try {
-        final sessionPointer = SessionPointer.fromString(event.url);
-        _pendingSessionPointerSubject.add(sessionPointer);
+        final pointer = Pointer.fromString(event.url);
+        _pendingPointerSubject.add(pointer);
         _resumedWithURLSubject.add(true);
         closeWebView();
-      } on MissingSessionPointer {
+      } on MissingPointer {
         // pass
       }
     } else if (event is NewSessionEvent) {
-      _pendingSessionPointerSubject.add(null);
+      _pendingPointerSubject.add(null);
     } else if (event is ClearAllDataEvent) {
       _credentialsSubject.add(Credentials({}));
       _enrollmentStatusSubject.add(EnrollmentStatus.unenrolled);
@@ -254,7 +251,7 @@ class IrmaRepository {
   }
 
   // -- Enrollment
-  Future<EnrollmentEvent> enroll({String email, String pin, String language}) {
+  Future<EnrollmentEvent> enroll({required String email, required String pin, required String language}) {
     _lockedSubject.add(false);
     _blockedSubject.add(null);
 
@@ -280,7 +277,7 @@ class IrmaRepository {
   }
 
   // -- Authentication
-  void lock({DateTime unblockTime}) {
+  void lock({DateTime? unblockTime}) {
     // TODO: This should actually lock irmago up
     _lockedSubject.add(true);
     _blockedSubject.add(unblockTime);
@@ -333,7 +330,7 @@ class IrmaRepository {
     return _lockedSubject.distinct().asBroadcastStream();
   }
 
-  Stream<DateTime> getBlockTime() {
+  Stream<DateTime?> getBlockTime() {
     return _blockedSubject;
   }
 
@@ -349,14 +346,14 @@ class IrmaRepository {
       irmaVersionInfo.schemeManagers.forEach((_, scheme) {
         int thisRequirement = 0;
         switch (Platform.operatingSystem) {
-          case "android":
-            thisRequirement = scheme.minimumAppVersion.android ?? 0;
+          case 'android':
+            thisRequirement = scheme.minimumAppVersion.android;
             break;
-          case "ios":
-            thisRequirement = scheme.minimumAppVersion.iOS ?? 0;
+          case 'ios':
+            thisRequirement = scheme.minimumAppVersion.iOS;
             break;
           default:
-            throw Exception("Unsupported Platfrom.operatingSystem");
+            throw Exception('Unsupported Platfrom.operatingSystem');
         }
         if (thisRequirement > minimumBuild) {
           minimumBuild = thisRequirement;
@@ -365,7 +362,7 @@ class IrmaRepository {
 
       int currentBuild = int.tryParse(packageInfo.buildNumber) ?? minimumBuild;
 
-      if (Platform.operatingSystem == "android") {
+      if (Platform.operatingSystem == 'android') {
         while (currentBuild > 1024 * 1024) {
           currentBuild -= 1024 * 1024;
         }
@@ -402,8 +399,8 @@ class IrmaRepository {
     });
   }
 
-  Stream<SessionPointer> getPendingSessionPointer() {
-    return _pendingSessionPointerSubject.stream;
+  Stream<Pointer?> getPendingPointer() {
+    return _pendingPointerSubject.stream;
   }
 
   // -- lastActiveTime
@@ -415,7 +412,7 @@ class IrmaRepository {
     return _preferencesSubject.stream.map((pref) => pref.clientPreferences.developerMode);
   }
 
-  BehaviorSubject<IssueWizardEvent> getIssueWizard() {
+  BehaviorSubject<IssueWizardEvent?> getIssueWizard() {
     return _issueWizardSubject;
   }
 
@@ -429,7 +426,10 @@ class IrmaRepository {
     Credentials credentials,
   ) async {
     final conf = await _irmaConfigurationSubject.first;
-    final wizardData = conf.issueWizards[id];
+    if (!conf.issueWizards.containsKey(id)) {
+      throw UnsupportedError('Wizard id $id could not been found');
+    }
+    final wizardData = conf.issueWizards[id]!;
     final creds = Set.from(credentials.values.map((cred) => cred.info.fullId));
     return IssueWizardEvent(
       haveCredential: wizardData.issues != null && creds.contains(wizardData.issues),
@@ -438,9 +438,10 @@ class IrmaRepository {
         // The credential field may be non-nil for any wizard item type
         final haveCredential = item.credential != null && creds.contains(item.credential);
         if (item.type != 'credential') {
-          return item.copyWith(completed: haveCredential || (item.completed ?? false));
+          return item.copyWith(completed: haveCredential || item.completed);
         }
-        final credtype = conf.credentialTypes[item.credential];
+        // irmago does not allow wizard items with non-existing credentials, so we can safely ignore null values here.
+        final credtype = conf.credentialTypes[item.credential]!;
         return item.copyWith(
           completed: haveCredential,
           header: item.header.isNotEmpty ? item.header : credtype.name,
@@ -450,24 +451,24 @@ class IrmaRepository {
     );
   }
 
-  final List<ExternalBrowserCredtype> externalBrowserCredtypes = const [
-    ExternalBrowserCredtype(cred: "pbdf.gemeente.address", os: "ios"),
-    ExternalBrowserCredtype(cred: "pbdf.gemeente.personalData", os: "ios"),
+  final List<_ExternalBrowserCredtype> externalBrowserCredtypes = const [
+    _ExternalBrowserCredtype(cred: 'pbdf.gemeente.address', os: 'ios'),
+    _ExternalBrowserCredtype(cred: 'pbdf.gemeente.personalData', os: 'ios'),
   ];
 
   final List<String> externalBrowserUrls = const [
-    "https://privacybydesign.foundation/myirma/",
-    "https://privacybydesign.foundation/mijnirma/",
-    "https://privacybydesign.foundation/demo/",
-    "https://privacybydesign.foundation/demo-en/"
+    'https://privacybydesign.foundation/myirma/',
+    'https://privacybydesign.foundation/mijnirma/',
+    'https://privacybydesign.foundation/demo/',
+    'https://privacybydesign.foundation/demo-en/'
   ];
 
   // TODO Remove when disclosure sessions can be started from custom tabs
   Stream<List<String>> getExternalBrowserURLs() {
     return _irmaConfigurationSubject.map(
       (irmaConfiguration) => externalBrowserCredtypes
-          .where((type) => type.os == null || type.os == Platform.operatingSystem)
-          .map((type) => irmaConfiguration.credentialTypes[type.cred].issueUrl.values)
+          .where((type) => type.os == Platform.operatingSystem)
+          .map((type) => irmaConfiguration.credentialTypes[type.cred]?.issueUrl.values ?? [])
           .expand((v) => v)
           .toList()
         ..addAll(externalBrowserUrls),
@@ -486,7 +487,7 @@ class IrmaRepository {
 
   Future<void> processInactivation() async {
     final curState = await _inAppCredentialSubject.first;
-    if ((curState.pendingInactivations ?? 0) > 0) {
+    if (curState.pendingInactivations > 0) {
       // If there are still inactivations to be ignored, we ignore
       // and just decrement count
       _inAppCredentialSubject.add(curState.copyWith(
@@ -507,14 +508,15 @@ class IrmaRepository {
   }
 
   Future<void> openIssueURL(BuildContext context, String type) async {
+    final lang = FlutterI18n.currentLocale(context)!.languageCode;
+    final translated = await _irmaConfigurationSubject.first
+        .then((irmaConfiguration) => irmaConfiguration.credentialTypes[type]?.issueUrl);
+    final url = translated?.translate(lang, fallback: '') ?? '';
+    if (url.isEmpty) {
+      throw UnsupportedError('Credential type $type does not have a suitable issue url for $lang');
+    }
     expectInactivationForCredentialType(type);
-    return openURL(
-      getTranslation(
-        context,
-        await _irmaConfigurationSubject.first
-            .then((irmaConfiguration) => irmaConfiguration.credentialTypes[type].issueUrl),
-      ),
-    );
+    return openURL(url);
   }
 
   Future<void> openURL(String url) async {
@@ -572,6 +574,6 @@ class IrmaRepository {
     // A debug session is not a regular mobile session, because there is no initiating app.
     // Therefore treat this session like it was started by scanning a QR.
     sessionPtr.continueOnSecondDevice = true;
-    _pendingSessionPointerSubject.add(sessionPtr);
+    _pendingPointerSubject.add(sessionPtr);
   }
 }

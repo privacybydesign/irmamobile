@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/enrollment_events.dart';
+import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_event.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
 
@@ -59,6 +60,12 @@ class EnrollmentBloc extends Bloc<Object, EnrollmentState> {
         isSubmitting: true,
         submittingFailed: false, // reset incase of retrying
       );
+
+      if (state.pin.isEmpty) {
+        yield state.copyWith(
+            error: SessionError(errorType: 'emptyPin', info: 'No pin code was specified for enrollment'));
+        return;
+      }
 
       final status = await IrmaRepository.get().enroll(
         email: state.email.trim(),

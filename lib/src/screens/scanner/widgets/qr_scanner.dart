@@ -15,7 +15,7 @@ import 'package:irmamobile/src/theme/theme.dart';
 
 class QRScanner extends StatefulWidget {
   final void Function() onClose;
-  final void Function(SessionPointer) onFound;
+  final void Function(Pointer) onFound;
 
   const QRScanner({
     Key key,
@@ -86,21 +86,10 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
     }
 
     // Decode QR and determine if it's valid
-    final repo = IrmaRepository.get();
-    SessionPointer sessionPointer;
+    Pointer pointer;
     try {
-      sessionPointer = SessionPointer.fromString(qr);
-      sessionPointer.validate(
-        wizardActive: await repo.getIssueWizardActive().first,
-        developerMode: await repo.getDeveloperMode().first,
-        irmaConfiguration: await repo.getIrmaConfiguration().first,
-      );
+      pointer = Pointer.fromString(qr);
     } catch (e) {
-      sessionPointer = null; // trigger error message below
-    }
-
-    // If invalid, show an error message for a certain time
-    if (sessionPointer == null) {
       SemanticsService.announce(FlutterI18n.translate(context, "qr_scanner.error.semantic"), TextDirection.ltr);
       setState(() {
         error = true;
@@ -123,7 +112,7 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
     Future.delayed(const Duration(milliseconds: 500), () {
       // Widget might have disposed during the timeout, so check for this first.
       if (mounted) {
-        widget.onFound(sessionPointer);
+        widget.onFound(pointer);
       }
     });
   }
