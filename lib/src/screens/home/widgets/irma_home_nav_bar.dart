@@ -42,6 +42,7 @@ class _IrmaNavBarState extends State<IrmaNavBar> {
               TranslatedText(
                 'home.nav_bar.$label',
                 style: TextStyle(
+                    overflow: TextOverflow.ellipsis,
                     color: selectedTab == label
                         ? IrmaTheme.of(context).themeData.colorScheme.primary
                         : Colors.grey.shade600,
