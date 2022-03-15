@@ -16,6 +16,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Builder(builder: (context) {
+          //TODO: Replace placeholder values
           switch (selectedTab) {
             case IrmaNavBarTab.data:
               return const Text('data');
