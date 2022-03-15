@@ -27,16 +27,16 @@ class MyAppTab extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           shrinkWrap: true,
           children: [
-            _buildHeaderText("app_tab.app_management"),
+            _buildHeaderText('app_tab.app_management'),
             const InternalLink(
                 iconData: Icons.settings_outlined, translationKey: 'app_tab.settings', routeName: '/settings'),
             const InternalLink(
                 iconData: Icons.contact_support_outlined, translationKey: 'help.faq', routeName: '/help'),
-            _buildHeaderText("help.about_irma"),
+            _buildHeaderText('help.about_irma'),
             const ExternalLink(
                 iconData: Icons.info_outline, translationKey: 'app_tab.website', linkKey: 'app_tab.irma_website_link'),
             const ContactLink(iconData: Icons.mail_outline, translationKey: 'app_tab.contact'),
-            _buildHeaderText("app_tab.slogan"),
+            _buildHeaderText('app_tab.slogan'),
             const ShareLink(
               iconData: Icons.share_outlined,
               translationKey: 'app_tab.share',
@@ -46,7 +46,7 @@ class MyAppTab extends StatelessWidget {
                 iconData: Icons.description_outlined,
                 translationKey: 'app_tab.privacy_policy',
                 linkKey: 'enrollment.introduction.screen3.privacy.url'),
-            _buildHeaderText("app_tab.stay_informed"),
+            _buildHeaderText('app_tab.stay_informed'),
             const ExternalLink(
                 iconData: Icons.groups_outlined, translationKey: 'app_tab.meetups', linkKey: 'app_tab.meetups_link'),
             const ExternalLink(

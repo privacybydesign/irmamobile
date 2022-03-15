@@ -37,7 +37,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
                     icon: leadingIcon ??
                         Icon(
                           Icons.arrow_back_ios_new,
-                          semanticLabel: FlutterI18n.translate(context, "accessibility.back"),
+                          semanticLabel: FlutterI18n.translate(context, 'accessibility.back'),
                           size: 16.0,
                           color: Colors.grey.shade800,
                         ),

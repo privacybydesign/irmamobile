@@ -29,12 +29,12 @@ class _HelpScreenState extends State<HelpScreen> {
           padding: EdgeInsets.symmetric(horizontal: 32, vertical: IrmaTheme.of(context).defaultSpacing),
           child: ListView(key: _scrollviewKey, controller: _controller, children: [
             TranslatedText(
-              "help.faq",
+              'help.faq',
               style: IrmaTheme.of(context).textTheme.headline3,
             ),
             SizedBox(height: IrmaTheme.of(context).defaultSpacing),
             TranslatedText(
-              "help.about_irma",
+              'help.about_irma',
               style: IrmaTheme.of(context).textTheme.bodyText2,
             ),
             SizedBox(height: IrmaTheme.of(context).smallSpacing),
@@ -60,7 +60,7 @@ class _HelpScreenState extends State<HelpScreen> {
             ),
             SizedBox(height: IrmaTheme.of(context).defaultSpacing),
             TranslatedText(
-              "help.login",
+              'help.login',
               style: IrmaTheme.of(context).textTheme.bodyText2,
             ),
             SizedBox(height: IrmaTheme.of(context).smallSpacing),
@@ -90,7 +90,7 @@ class _HelpScreenState extends State<HelpScreen> {
             ),
             SizedBox(height: IrmaTheme.of(context).defaultSpacing),
             TranslatedText(
-              "help.device",
+              'help.device',
               style: IrmaTheme.of(context).textTheme.bodyText2,
             ),
             SizedBox(height: IrmaTheme.of(context).smallSpacing),
@@ -109,7 +109,7 @@ class _HelpScreenState extends State<HelpScreen> {
             ),
             SizedBox(height: IrmaTheme.of(context).defaultSpacing),
             TranslatedText(
-              "help.storage_and_privacy",
+              'help.storage_and_privacy',
               style: IrmaTheme.of(context).textTheme.bodyText2,
             ),
             SizedBox(height: IrmaTheme.of(context).smallSpacing),
@@ -142,12 +142,12 @@ class _HelpScreenState extends State<HelpScreen> {
             ),
             SizedBox(height: IrmaTheme.of(context).defaultSpacing),
             TranslatedText(
-              "help.ask",
+              'help.ask',
               style: IrmaTheme.of(context).textTheme.headline3,
             ),
             SizedBox(height: IrmaTheme.of(context).defaultSpacing),
             TranslatedText(
-              "help.send",
+              'help.send',
               style: IrmaTheme.of(context).textTheme.bodyText2,
             ),
             SizedBox(height: IrmaTheme.of(context).defaultSpacing),

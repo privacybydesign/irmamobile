@@ -18,13 +18,13 @@ class _HomeScreenState extends State<HomeScreen> {
         body: Builder(builder: (context) {
           switch (selectedTab) {
             case IrmaNavBarTab.data:
-              return const Text("data");
+              return const Text('data');
             case IrmaNavBarTab.activity:
-              return const Text("activity");
+              return const Text('activity');
             case IrmaNavBarTab.app:
               return MyAppTab();
             case IrmaNavBarTab.home:
-              return const Text("home");
+              return const Text('home');
           }
         }),
         bottomNavigationBar: IrmaNavBar(
