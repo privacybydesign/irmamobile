@@ -43,26 +43,22 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
   Widget build(BuildContext context) => SafeArea(
         child: Stack(
           children: [
-            //TODO: Test this in UX-2.0
             // Due to issues in the qr_code_scanner library, the scanner's QRView
             // widget does not render properly when the pin screen overlay is active.
             // Therefore we make sure the QRView only renders when the app is unlocked
             // and the pin screen overlay is not active.
             // https://github.com/juliuscanute/qr_code_scanner/issues/87
-            // TODO: Is this still an issue? (check CHANGELOG of qr_code_scanner 0.3.0)
-            // StreamBuilder<bool>(
-            //   stream: IrmaRepository.get().getLocked(),
-            //   builder: (context, isLocked) {
-            //     if (!isLocked.hasData || isLocked.data) {
-            //       return Container(color: Colors.black);
-            //     }
-            //     return QRViewContainer(
-            //       onFound: (qr) => _foundQR(qr),
-            //     );
-            //   },
-            // ),
-            QRViewContainer(
-              onFound: (qr) => _foundQR(qr),
+            // This is still an issue in qr_code_scanner 0.7.0
+            StreamBuilder<bool>(
+              stream: IrmaRepository.get().getLocked(),
+              builder: (context, isLocked) {
+                if (!isLocked.hasData || isLocked.data!) {
+                  return Container(color: Colors.black);
+                }
+                return QRViewContainer(
+                  onFound: (qr) => _foundQR(qr),
+                );
+              },
             ),
             Container(
               constraints: const BoxConstraints.expand(),
@@ -79,7 +75,7 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
               heightFactor: _qrInstructionHeightFactor,
               child: QRInstruction(found: found, error: error),
             ),
- 
+
             Align(
               alignment: Alignment.topLeft,
               child: Padding(
