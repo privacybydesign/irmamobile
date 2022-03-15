@@ -22,18 +22,17 @@ enum AESKeyError: Error {
     }
 
     func generateAESkey(_ aes: AES) throws -> Data {
-        var key = Data(count: 32)
-        let result = key.withUnsafeMutableBytes {
-            SecRandomCopyBytes(kSecRandomDefault, 32, $0.baseAddress!)
-        }
-        
-        if result == errSecSuccess {
-            let encrypted = try aes.encrypt(key)
-            try encrypted.write(to: path, options: .completeFileProtection)
-            
-            return key
-        } else {
+        var bytes = [UInt8](repeating: 0, count: 32)
+        let result = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
+
+        guard result == errSecSuccess else {
             throw AESKeyError.keyNotGenerated
         }
+        
+        let key = Data(bytes)
+        let encrypted = try aes.encrypt(key)
+        try encrypted.write(to: path, options: .completeFileProtection)
+        
+        return key
     }
 }
