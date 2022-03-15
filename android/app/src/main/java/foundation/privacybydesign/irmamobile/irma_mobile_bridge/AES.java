@@ -77,12 +77,12 @@ public class AES {
         return result;
     }
 
-    public byte[] decrypt(byte[] encrypted) throws GeneralSecurityException {
-        byte[] iv = Arrays.copyOfRange(encrypted, 0, ivLength);
-        byte[] ciphertext = Arrays.copyOfRange(encrypted, ivLength, encrypted.length);
+    public byte[] decrypt(byte[] ciphertext) throws GeneralSecurityException {
+        byte[] iv = Arrays.copyOfRange(ciphertext, 0, ivLength);
+        byte[] encryptedMessage = Arrays.copyOfRange(ciphertext, ivLength, ciphertext.length);
         Key secretKey = keyStore.getKey(keyAlias, null);
         cipher.init(Cipher.DECRYPT_MODE, secretKey, new GCMParameterSpec(128, iv));
 
-        return cipher.doFinal(ciphertext);
+        return cipher.doFinal(encryptedMessage);
     }
 }
