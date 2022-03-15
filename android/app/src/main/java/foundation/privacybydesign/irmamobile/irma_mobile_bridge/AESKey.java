@@ -8,11 +8,11 @@ import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 
 public class AESKey {
-    private Storage s;
+    private AES aes;
     private String path;
 
     public AESKey(Context context) {
-        s = new Storage(context.getPackageManager());
+        aes = new AES(context.getPackageManager());
         path = context.getFilesDir() + "/storageKey";
     }
 
@@ -23,13 +23,13 @@ public class AESKey {
             if (encrypted == null) {
                 byte[] key = generateKey();
 
-                encrypted = s.encrypt(key);
+                encrypted = aes.encrypt(key);
                 FileSystem.write(encrypted, path);
 
                 return key;
             }
 
-            return s.decrypt(encrypted);
+            return aes.decrypt(encrypted);
 
         } catch (GeneralSecurityException | IOException e) {
             throw new RuntimeException(e);

@@ -1,13 +1,13 @@
 import Foundation
 
-enum StorageError: Error {
+enum AESError: Error {
     case unsupportedAlgorithm
     case incorrectPublicKey
     case incorrectBlockSize
     case keyGenerationFailed
     case keyNotFound
 }
-public class Storage {
+public class AES {
     final let algorithm: SecKeyAlgorithm = .eciesEncryptionCofactorVariableIVX963SHA256AESGCM
     final let tag: Data = "storageKey".data(using: .utf8)!
     var key: SecKey?
@@ -25,12 +25,12 @@ public class Storage {
         let key: SecKey = try getKey()
         
         guard let pk = SecKeyCopyPublicKey(key) else {
-            throw StorageError.incorrectPublicKey
+            throw AESError.incorrectPublicKey
         }
 
         guard SecKeyIsAlgorithmSupported(pk, .encrypt, algorithm)
           else {
-              throw StorageError.unsupportedAlgorithm
+              throw AESError.unsupportedAlgorithm
         }
 
         guard let ciphertext = SecKeyCreateEncryptedData(pk,
@@ -49,7 +49,7 @@ public class Storage {
         let key: SecKey = try getKey()
 
         guard SecKeyIsAlgorithmSupported(key, .decrypt, algorithm) else {
-            throw StorageError.unsupportedAlgorithm
+            throw AESError.unsupportedAlgorithm
         }
 
         guard let plaintext = SecKeyCreateDecryptedData(key,
@@ -111,7 +111,7 @@ public class Storage {
     
     func getKey() throws -> SecKey {
         guard let key = tryLoadKey() else {
-            throw StorageError.keyNotFound
+            throw AESError.keyNotFound
         }
         return key
     }

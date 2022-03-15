@@ -9,26 +9,26 @@ import Foundation
                                            in: .userDomainMask)[0].appendingPathComponent("storageKey")
     
     @objc func getKey() throws -> Data {
-        let s: Storage = try Storage.init()
+        let aes: AES = try AES.init()
         var encrypted: Data?
         
         if FileManager.default.fileExists(atPath: path.absoluteString) {
             encrypted = try Data(contentsOf: path)
         } else {
-            return try generateAESkey(s)
+            return try generateAESkey(aes)
         }
         
-        return try s.decrypt(encrypted!)
+        return try aes.decrypt(encrypted!)
     }
 
-    func generateAESkey(_ s: Storage) throws -> Data {
+    func generateAESkey(_ aes: AES) throws -> Data {
         var key = Data(count: 32)
         let result = key.withUnsafeMutableBytes {
             SecRandomCopyBytes(kSecRandomDefault, 32, $0.baseAddress!)
         }
         
         if result == errSecSuccess {
-            let encrypted = try s.encrypt(key)
+            let encrypted = try aes.encrypt(key)
             try encrypted.write(to: path, options: .completeFileProtection)
             
             return key
