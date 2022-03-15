@@ -10,7 +10,7 @@ class MyAppTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget _buildHeaderText(String translationKey) => Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
           child: TranslatedText(
             translationKey,
             style: IrmaTheme.of(context).textTheme.headline3,
@@ -24,7 +24,7 @@ class MyAppTab extends StatelessWidget {
       ),
       Expanded(
         child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).defaultSpacing),
           shrinkWrap: true,
           children: [
             _buildHeaderText('app_tab.app_management'),
@@ -54,7 +54,7 @@ class MyAppTab extends StatelessWidget {
             const ExternalLink(
                 iconData: IrmaIcons.github, translationKey: 'app_tab.github', linkKey: 'app_tab.github_link'),
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
               child: VersionButton(),
             )
           ],

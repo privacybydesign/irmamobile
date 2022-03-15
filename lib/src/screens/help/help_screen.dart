@@ -26,7 +26,8 @@ class _HelpScreenState extends State<HelpScreen> {
         key: _scaffoldKey,
         appBar: const IrmaAppBar(title: TranslatedText('help.title')),
         body: Container(
-          padding: EdgeInsets.symmetric(horizontal: 32, vertical: IrmaTheme.of(context).defaultSpacing),
+          padding: EdgeInsets.symmetric(
+              horizontal: IrmaTheme.of(context).largeSpacing, vertical: IrmaTheme.of(context).defaultSpacing),
           child: ListView(key: _scrollviewKey, controller: _controller, children: [
             TranslatedText(
               'help.faq',
