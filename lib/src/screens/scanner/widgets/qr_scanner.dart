@@ -25,6 +25,8 @@ class QRScanner extends StatefulWidget {
 }
 
 class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMixin {
+  static const _qrInstructionHeightFactor = 0.33;
+
   bool found = false;
   bool error = false;
   Timer? _errorTimer;
@@ -38,58 +40,64 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
   }
 
   @override
-  Widget build(BuildContext context) {
-    return OrientationBuilder(
-        builder: (context, orientation) => SafeArea(
-                child: Stack(
-              children: [
-                //TODO: Test this in UX-2.0
-                // Due to issues in the qr_code_scanner library, the scanner's QRView
-                // widget does not render properly when the pin screen overlay is active.
-                // Therefore we make sure the QRView only renders when the app is unlocked
-                // and the pin screen overlay is not active.
-                // https://github.com/juliuscanute/qr_code_scanner/issues/87
-                // TODO: Is this still an issue? (check CHANGELOG of qr_code_scanner 0.3.0)
-                // StreamBuilder<bool>(
-                //   stream: IrmaRepository.get().getLocked(),
-                //   builder: (context, isLocked) {
-                //     if (!isLocked.hasData || isLocked.data) {
-                //       return Container(color: Colors.black);
-                //     }
-                //     return QRViewContainer(
-                //       onFound: (qr) => _foundQR(qr),
-                //     );
-                //   },
-                // ),
-                QRViewContainer(
-                  onFound: (qr) => _foundQR(qr),
+  Widget build(BuildContext context) => SafeArea(
+        child: Stack(
+          children: [
+            //TODO: Test this in UX-2.0
+            // Due to issues in the qr_code_scanner library, the scanner's QRView
+            // widget does not render properly when the pin screen overlay is active.
+            // Therefore we make sure the QRView only renders when the app is unlocked
+            // and the pin screen overlay is not active.
+            // https://github.com/juliuscanute/qr_code_scanner/issues/87
+            // TODO: Is this still an issue? (check CHANGELOG of qr_code_scanner 0.3.0)
+            // StreamBuilder<bool>(
+            //   stream: IrmaRepository.get().getLocked(),
+            //   builder: (context, isLocked) {
+            //     if (!isLocked.hasData || isLocked.data) {
+            //       return Container(color: Colors.black);
+            //     }
+            //     return QRViewContainer(
+            //       onFound: (qr) => _foundQR(qr),
+            //     );
+            //   },
+            // ),
+            QRViewContainer(
+              onFound: (qr) => _foundQR(qr),
+            ),
+            Container(
+              constraints: const BoxConstraints.expand(),
+              child: CustomPaint(
+                painter: QROverlay(
+                  found: found,
+                  error: error,
+                  theme: IrmaTheme.of(context),
+                  topOffsetFactor: _qrInstructionHeightFactor,
                 ),
-                Container(
-                  constraints: const BoxConstraints.expand(),
-                  child: CustomPaint(
-                    painter:
-                        QROverlay(found: found, error: error, theme: IrmaTheme.of(context), orientation: orientation),
-                  ),
-                ),
-                QRInstruction(found: found, error: error, orientation: orientation),
+              ),
+            ),
+            FractionallySizedBox(
+              heightFactor: _qrInstructionHeightFactor,
+              child: QRInstruction(found: found, error: error),
+            ),
 
-                Align(
-                    alignment: Alignment.topLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: CircleAvatar(
-                        backgroundColor: const Color(0xFFEAEAEA),
-                        radius: 24,
-                        child: IconButton(
-                            padding: EdgeInsets.zero,
-                            color: Colors.grey,
-                            onPressed: () => Navigator.pop(context),
-                            icon: const Icon(Icons.chevron_left, size: 24, color: Color(0xFF1A1919))),
-                      ),
-                    ))
-              ],
-            )));
-  }
+            Align(
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: CircleAvatar(
+                  backgroundColor: const Color(0xFFEAEAEA),
+                  radius: 24,
+                  child: IconButton(
+                      padding: EdgeInsets.zero,
+                      color: Colors.grey,
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.chevron_left, size: 24, color: Color(0xFF1A1919))),
+                ),
+              ),
+            )
+          ],
+        ),
+      );
 
   Future<void> _foundQR(String qr) async {
     // If we already found a correct QR, cancel the current error message

@@ -9,9 +9,7 @@ class QRInstruction extends StatelessWidget {
   // wrong QR code found
   final bool error;
 
-  final Orientation orientation;
-
-  const QRInstruction({required this.found, required final this.error, required this.orientation});
+  const QRInstruction({required this.found, required final this.error});
 
   @override
   Widget build(BuildContext context) {
@@ -28,12 +26,9 @@ class QRInstruction extends StatelessWidget {
 
     return Center(
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            margin: EdgeInsets.only(
-                top: orientation == Orientation.portrait
-                    ? IrmaTheme.of(context).hugeSpacing * 1.25
-                    : IrmaTheme.of(context).smallSpacing),
             padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
             color: color,
             child: Column(

@@ -3,35 +3,38 @@ import 'package:irmamobile/src/theme/theme.dart';
 
 class QROverlay extends CustomPainter {
   // the width of the view box as a ratio of the screen width
-  double width = 0.9;
+  static const _widthFactor = 0.9;
 
-  // to offset to the top of the screen as a ration to the total height
-  double topOffset = 0.3;
+  // minimum offset to the bottom of the screen as a ratio of the total height
+  static const _minBottomOffsetFactor = 0.05;
+
+  // offset to the top of the screen as a ratio of the total height
+  final double topOffsetFactor;
 
   // the irma theme
-  IrmaThemeData theme;
+  final IrmaThemeData theme;
 
   // QR code found
-  bool found;
+  final bool found;
 
   // wrong QR code found
-  bool error;
+  final bool error;
 
-  // Orienatation of the device
-  final Orientation orientation;
-
-  QROverlay({required this.found, required this.error, required this.theme, required this.orientation});
+  QROverlay({required this.found, required this.error, required this.theme, required this.topOffsetFactor});
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (orientation == Orientation.landscape) {
-      width = 0.65;
+    // hole size
+    double windowSize = size.width * _widthFactor;
+    final maxWindowHeight = size.height - size.height * (topOffsetFactor + _minBottomOffsetFactor);
+    if (windowSize > maxWindowHeight) {
+      windowSize = maxWindowHeight;
     }
+
     // hole coordinates
-    final left = size.width * (1 - width);
-    final right = size.width * width;
-    final windowSize = size.width - left * 2;
-    final top = size.height * topOffset;
+    final left = (size.width - windowSize) / 2;
+    final right = left + windowSize;
+    final top = size.height * topOffsetFactor;
     final bottom = top + windowSize;
     final cornerSize = windowSize * 0.15;
 
