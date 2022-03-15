@@ -2,7 +2,7 @@ import Foundation
 
 enum AESError: Error {
     case unsupportedAlgorithm
-    case incorrectPublicKey
+    case unavailablePublicKey
     case incorrectBlockSize
     case keyGenerationFailed
     case keyNotFound
@@ -25,7 +25,7 @@ public class AES {
         let key: SecKey = try getKey()
         
         guard let pk = SecKeyCopyPublicKey(key) else {
-            throw AESError.incorrectPublicKey
+            throw AESError.unavailablePublicKey
         }
 
         guard SecKeyIsAlgorithmSupported(pk, .encrypt, algorithm) else {
