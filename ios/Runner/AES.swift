@@ -28,8 +28,7 @@ public class AES {
             throw AESError.incorrectPublicKey
         }
 
-        guard SecKeyIsAlgorithmSupported(pk, .encrypt, algorithm)
-          else {
+        guard SecKeyIsAlgorithmSupported(pk, .encrypt, algorithm) else {
               throw AESError.unsupportedAlgorithm
         }
 
