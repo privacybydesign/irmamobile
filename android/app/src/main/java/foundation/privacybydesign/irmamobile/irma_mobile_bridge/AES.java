@@ -61,6 +61,8 @@ public class AES {
     public byte[] encrypt(byte[] plaintext) throws GeneralSecurityException {
         Key secretKey = keyStore.getKey(keyAlias, null);
         cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+
+        // The cipher will create an IV during initiation. No custom IV can be specified when using the algorithm AES/GCM/NoPadding.
         byte[] iv = cipher.getIV();
         if (iv.length != ivLength) {
             throw new RuntimeException("Unexpected IV length");
