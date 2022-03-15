@@ -8,15 +8,10 @@ import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 
 public class AESKey {
-    private AES aes;
-    private String path;
+    public static byte[] getKey(Context context) {
+        AES aes = new AES(context.getPackageManager());
+        String path = context.getFilesDir() + "/storageKey";
 
-    public AESKey(Context context) {
-        aes = new AES(context.getPackageManager());
-        path = context.getFilesDir() + "/storageKey";
-    }
-
-    public byte[] getKey() {
         try {
             byte[] encrypted = FileSystem.read(path);
 
@@ -36,7 +31,7 @@ public class AESKey {
         }
     }
 
-    private byte[] generateKey() throws GeneralSecurityException {
+    private static byte[] generateKey() throws GeneralSecurityException {
         byte[] key = new byte[32];
         
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
