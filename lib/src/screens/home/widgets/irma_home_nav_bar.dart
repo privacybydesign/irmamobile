@@ -53,6 +53,7 @@ class _IrmaNavBarState extends State<IrmaNavBar> {
       );
 
   Widget _buildQrButton() => Container(
+        padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).tinySpacing),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           boxShadow: [
@@ -79,7 +80,7 @@ class _IrmaNavBarState extends State<IrmaNavBar> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6),
+      padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).tinySpacing),
       // Reduce vertical padding for screens with limited height (i.e. landscape mode).
       height: MediaQuery.of(context).size.height > 450 ? 110 : 85,
       decoration: BoxDecoration(
