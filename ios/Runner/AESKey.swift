@@ -10,15 +10,15 @@ import Foundation
     
     @objc func getKey() throws -> Data {
         let aes: AES = try AES.init()
-        var encrypted: Data?
+        var encrypted: Data
         
-        if FileManager.default.fileExists(atPath: path.absoluteString) {
+        if FileManager.default.fileExists(atPath: path.path) {
             encrypted = try Data(contentsOf: path)
         } else {
             return try generateAESkey(aes)
         }
         
-        return try aes.decrypt(encrypted!)
+        return try aes.decrypt(encrypted)
     }
 
     func generateAESkey(_ aes: AES) throws -> Data {
