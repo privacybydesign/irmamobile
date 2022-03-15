@@ -65,71 +65,13 @@
       "progress_enrollment": "You're being logged in"
     }
   },
-  "about": {
-    "title": "About IRMA",
-    "header": "Make yourself known",
-    "slogan": "With IRMA it's all in your hands.",
-    "who_is_behind_irma_item": "Who is behind the IRMA app?",
-    "who_is_behind_irma_explanation_markdown": "IRMA is produced by the **Privacy by Design** foundation. In 2016 this foundation grew out of the Digital Security research group at Radboud University Nijmegen. This foundation is independent and non-profit.\n\nThe IRMA app is open source and is developed jointly with SIDN, the manager of the .nl-domain. This development is done jointly with local government and health care. Some 30 municipalities are involved, including Nijmegen, Amsterdam and Leiden. IRMA is recipient of the Dutch Privacy Awards 2018.",
-    "check_out": "See also: ",
-    "award": "Dutch Privacy Awards",
-    "award_link": "https://privacyawards.nl/2018-2/",
-    "why_irma_item": "Why does IRMA exist?",
-    "why_irma_explanation_markdown": "**IRMA exists because you have the right to an online identity that you really own.** IRMA is not a commercial app that is used to track you, to profile you and to sell your personal data to third parties.\n\nIRMA is in the spirit of the [General Data Protection Regulation (GDPR)](https://gdpr-info.eu/). Via the IRMA app you disclose only these data about yourself that are relevant and necessary in a particular situation.\n\n**With the IRMA app your identity is in your own hands, within the secured IRMA app on your own phone.** The IRMA app is is a powerful means for making yourself known (online) and for digital signing. With respect for your privacy.",
-    "privacy_item": "IRMA, privacy and security",
-    "privacy_explanation_markdown": "The IRMA app has been developed in such a way that you and only you can see and use your personal data. Your personal data are stored only on your phone and not in the cloud.\n\nThe IRMA app is designed so that a website or shop where you make yourself known can (cryptographically) check that the data that you disclose are genuine.\n\nThe IRMA app discloses your data directly from your phone to the website. No-one else can see that you identify yourself there. Even the organisation behind IRMA cannot observe such disclosures. \n\nWhen using IRMA, you agree with the privacy policy [link].",
-    "responsibility_item": "Own responsibility",
-    "responsibility_explanation": "A website that offers an IRMA long asks data that are needed for this login. Within the IRMA app you decide whether you agree (or not) with the requested disclosure.\nDoes the website ask too much data? Then it is wise not to agree. You can consider filing a complaint. You can do so at the website itself or at the [Data Protection Authorities](https://autoriteitpersoonsgegevens.nl/nl/zelf-doen/gebruik-uw-privacyrechten/klacht-melden-bij-de-ap).\n\nWith the IRMA app you can also put a digital signatures. Such a signature can have (legal) consequences. Hence, putting a digital signature with the IRMA app requires care.\n\nIf you put a digital signature with the IRMA app, you agree that the Privacy by Design foundation is in no way a party in any agreement that you enter into via an IRMA signature. The foundation is neither responsible nor liable.",
-    "learn_more": "Learn more",
-    "more_information": "IRMA website",
-    "irma_website_link": "https://irma.app/?lang=en",
-    "source_code": "Source code",
-    "source_code_link": "https://github.com/privacybydesign",
-    "contact": "Contact",
-    "contact_subject": "IRMA app",
-    "privacy_policy": "IRMA's privacy rules",
-    "privacy_policy_link": "https://privacybydesign.foundation/privacy-policy-en",
-    "demo": "Frequently asked questions & demos",
-    "demo_link": "in app link",
-    "get_involved": "Stay informed and get involved",
-    "meetups": "IRMA meetups",
-    "meetups_link": "https://privacybydesign.foundation/meetings/",
-    "twitter": "@irma_privacy",
-    "twitter_link": "https://twitter.com/irma_privacy",
-    "github": "GitHub",
-    "github_link": "https://github.com/privacybydesign",
-    "share_slogan": "Share IRMA with others",
-    "share_text": "Check out the IRMA app: https://irma.app",
-    "share": "Share IRMA",
-    "version": "Version {version}",
-    "copyright": "Copyright Privacy by Design Foundation, 2020, released under GPL License 3.0",
-    "pbdf": "Privacy by Design",
-    "pbdf_link": "https://privacybydesign.foundation/en/",
-    "developer_mode_enabled": "Developer mode enabled"
-  },
-  "manual": {
-    "faq": "Manual",
-    "faq_info": "How to use IRMA? See the explanations below.",
-    "question_1": "How to use IRMA for logging onto a mobile website?",
-    "answer_1": {
-      "step_1": "Open the website on your mobile and select logging in with IRMA.",
-      "step_2": "The IRMA app starts automatically.\nEnter your PIN.",
-      "step_3": "Agree (or disagree) to disclose your personal data.",
-      "step_4": "After disclosing you are logged in.\nYou can now use the website."
-    },
-    "question_2": "How to use IRMA for logging onto a website on my computer?",
-    "answer_2": {
-      "step_1": "Open the website on your computer and select logging in with IRMA.",
-      "step_2": "Open the IRMA app on your mobile and enter your PIN.",
-      "step_3": "Start the QR code scanner in the IRMA app. Scan the QR code on the screen of your computer.",
-      "step_4": "Agree (or not) to disclose your personal data.",
-      "step_5": "After disclosing you are logged in.\nYou can now use the website."
-    }
-  },
   "help": {
     "title": "Help",
+    "about_irma": "About IRMA",
     "faq": "Frequently asked questions",
-    "faq_info": "Check if your question is listed here",
+    "login": "Inloggen",
+    "device": "Apparaat",
+    "storage_and_privacy": "Storage en privacy",
     "question_1": "What can I do with IRMA?",
     "answer_1_markdown": "With IRMA it's easy to log in and make yourself known. You disclose only the necessary attributes of yourself. For instance, in order to watch a certain movie, you disclose that you are over 16 years old and nothing else. With IRMA you can digitally sign documents too. You only use relevant characteristics of yourself, in some sort of digital stamp. In this way IRMA allows you to sign as medical doctor, as citizen, or in some other role.\n\nMore and more websites support logging in with IRMA. For instance, doctors in The Netherlands can access medical dossiers via the website [helder](https://www.helder.health/). IRMA support is growing especially at municipalities and health care providers. To get an idea of the possibilities, you can try out yourself some of the available IRMA [demo's](https://privacybydesign.foundation/demo-en/).",
     "question_2": "What to do if I lose my mobile?",
@@ -143,16 +85,34 @@
     "question_6": "Can I install IRMA on multiple mobile devices?",
     "answer_6": "Yes, on every mobile device (Android or iOS) you can open a separate IRMA account and fill it with cards with your personal data. It is actually wise to do so. If you lose one device, you can still log on with your other device.",
     "ask": "Ask a question",
-    "more": "More questions and answers",
-    "more_link": "https://irma.app/?lang=en#faqs",
     "send": "Do you have other/more questions? Send an email. It may take a couple of days before you get a reply.",
-    "back_button": "Back to IRMA cards",
     "email": "Send an email",
     "contact": "app@privacybydesign.foundation",
     "mail_subject": "Assistance with the IRMA app",
     "mail_error_title": "Sorry",
     "mail_error": "Mail app cannot be opened",
-    "mail_error_button": "OK"
+    "mail_error_button": "OK",
+    "question_7": "How to use IRMA for logging onto a mobile website?",
+    "answer_7": {
+      "step_1": "Open the website on your mobile and select logging in with IRMA.",
+      "step_2": "The IRMA app starts automatically.\nEnter your PIN.",
+      "step_3": "Agree (or disagree) to disclose your personal data.",
+      "step_4": "After disclosing you are logged in.\nYou can now use the website."
+    },
+    "question_8": "How to use IRMA for logging onto a website on my computer?",
+    "answer_8": {
+      "step_1": "Open the website on your computer and select logging in with IRMA.",
+      "step_2": "Open the IRMA app on your mobile and enter your PIN.",
+      "step_3": "Start the QR code scanner in the IRMA app. Scan the QR code on the screen of your computer.",
+      "step_4": "Agree (or not) to disclose your personal data.",
+      "step_5": "After disclosing you are logged in.\nYou can now use the website."
+    },
+    "question_9": "Why does IRMA exist?",
+    "answer_9": "**IRMA exists because you have the right to an online identity that you really own.** IRMA is not a commercial app that is used to track you, to profile you and to sell your personal data to third parties.\n\nIRMA is in the spirit of the [General Data Protection Regulation (GDPR)](https://gdpr-info.eu/). Via the IRMA app you disclose only these data about yourself that are relevant and necessary in a particular situation.\n\n**With the IRMA app your identity is in your own hands, within the secured IRMA app on your own phone.** The IRMA app is is a powerful means for making yourself known (online) and for digital signing. With respect for your privacy.",
+    "question_10": "Who is behind the IRMA app?",
+    "answer_10": "IRMA is produced by the **Privacy by Design** foundation. In 2016 this foundation grew out of the Digital Security research group at Radboud University Nijmegen. This foundation is independent and non-profit.\n\nThe IRMA app is open source and is developed jointly with SIDN, the manager of the .nl-domain. This development is done jointly with local government and health care. Some 30 municipalities are involved, including Nijmegen, Amsterdam and Leiden. IRMA is recipient of the Dutch Privacy Awards 2018.",
+    "question_11": "What makes IRMA privacy-friendly and secure?",
+    "answer_11": "Your personal data are protected via your personal PIN. Your data are stored exclusively in the IRMA app and not in the cloud.\n\nThe data in your IRMA app are digitally signed by the source (issuer) where the data come from (such as the local authorities).\n\nIn this way a website or shop, where you make yourself known, can cryptographically verify that your data are genuine.\nThis exchange of personal data happens directly between your mobile and the website. No one else can see that you make yourself known there, not even the organisation behind IRMA."
   },
   "drawer": {
     "lock_wallet": "Logout",
@@ -324,6 +284,7 @@
   "pin": {
     "title": "Login",
     "subtitle": "Enter your PIN",
+    "seconds": "seconds",
     "button_forgot": "PIN forgotten",
     "button_block": "Block IRMA"
   },
@@ -533,13 +494,37 @@
     "add_cards": "Add cards",
     "add_credential": "Add {credential}"
   },
-  "home" : {
-    "nav_bar" : {
-      "home" : "Home",
-      "data" : "Data",
-      "activity" : "Activity",
-      "app" : "App",
+  "home": {
+    "nav_bar": {
+      "home": "Home",
+      "data": "Data",
+      "activity": "Activity",
+      "app": "App",
       "open_scanner": "Open QR Scanner"
     }
+  },
+  "app_tab": {
+    "app_management" : "App management",
+    "settings": "Settings",
+    "help": "Help",
+    "contact": "Contact us",
+    "share": "Share IRMA",
+    "website": "IRMA-website",
+    "meet_up": "IRMA-meetups",
+    "need_help": "Need help?",
+    "know_more": "More information",
+    "stay_informed": "Stay informed and join the conversation",
+    "slogan": "Everyone deserves privacy",
+    "meetups": "IRMA meetups",
+    "meetups_link": "https://privacybydesign.foundation/meetings/",
+    "twitter": "@irma_privacy",
+    "twitter_link": "https://twitter.com/irma_privacy",
+    "github": "GitHub",
+    "github_link": "https://github.com/privacybydesign",
+    "version": "Version {version}",
+    "developer_mode_enabled": "Developer mode enabled",
+    "irma_website": "IRMA-website",
+    "irma_website_link": "https://irma.app/?lang=en",
+    "privacy_policy": "IRMA's privacy policy"
   }
 }

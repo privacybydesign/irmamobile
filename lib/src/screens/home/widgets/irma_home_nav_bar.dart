@@ -3,29 +3,22 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/screens/history/history_screen.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
+import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/translated_text.dart';
 
-class IrmaNavBar extends StatefulWidget {
-  const IrmaNavBar({Key? key}) : super(key: key);
+enum IrmaNavBarTab { home, data, activity, app }
 
-  @override
-  _IrmaNavBarState createState() => _IrmaNavBarState();
-}
+class IrmaNavBar extends StatelessWidget {
+  final Function(IrmaNavBarTab tab) onChangeTab;
+  final IrmaNavBarTab selectedTab;
 
-class _IrmaNavBarState extends State<IrmaNavBar> {
-  String selectedTab = 'home';
+  const IrmaNavBar({Key? key, required this.onChangeTab, this.selectedTab = IrmaNavBarTab.home}) : super(key: key);
 
-  Widget _buildNavButton(IconData iconData, String label, [String? routeName]) => Expanded(
+  Widget _buildNavButton(BuildContext context, IconData iconData, IrmaNavBarTab tab) => Expanded(
         child: InkWell(
           onTap: () {
-            setState(() {
-              selectedTab = label;
-            });
-            //TODO: This navbar widget will not actually push new pages but rather change tabs in the parent widget.
-            if (routeName != null) {
-              Navigator.pushNamed(context, routeName);
-            }
+            onChangeTab(tab);
           },
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -33,19 +26,17 @@ class _IrmaNavBarState extends State<IrmaNavBar> {
               Icon(
                 iconData,
                 size: 28,
-                color:
-                    selectedTab == label ? IrmaTheme.of(context).themeData.colorScheme.primary : Colors.grey.shade600,
+                color: selectedTab == tab ? IrmaTheme.of(context).themeData.colorScheme.primary : Colors.grey.shade600,
               ),
               const SizedBox(
                 height: 4,
               ),
               TranslatedText(
-                'home.nav_bar.$label',
+                'home.nav_bar.${tab.toString().split('.').last}',
                 style: TextStyle(
                     overflow: TextOverflow.ellipsis,
-                    color: selectedTab == label
-                        ? IrmaTheme.of(context).themeData.colorScheme.primary
-                        : Colors.grey.shade600,
+                    color:
+                        selectedTab == tab ? IrmaTheme.of(context).themeData.colorScheme.primary : Colors.grey.shade600,
                     fontWeight: FontWeight.w600),
               )
             ],
@@ -53,33 +44,33 @@ class _IrmaNavBarState extends State<IrmaNavBar> {
         ),
       );
 
-  Widget _buildQrButton() => Container(
-        padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).tinySpacing),
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-                color: Colors.grey.shade600.withOpacity(0.5),
-                blurRadius: 10.0,
-                spreadRadius: 1.0,
-                offset: const Offset(0, 7))
-          ],
-        ),
-        child: CircleAvatar(
-          backgroundColor: IrmaTheme.of(context).themeData.colorScheme.primary,
-          radius: 36,
-          child: IconButton(
-              tooltip: FlutterI18n.translate(context, 'home.nav_bar.open_scanner'),
-              color: Colors.white,
-              onPressed: () {
-                Navigator.pushNamed(context, ScannerScreen.routeName);
-              },
-              icon: const Icon(Icons.qr_code, size: 34)),
-        ),
-      );
-
   @override
   Widget build(BuildContext context) {
+    Widget _buildQrButton() => Container(
+          padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).tinySpacing),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.grey.shade600.withOpacity(0.5),
+                  blurRadius: 10.0,
+                  spreadRadius: 1.0,
+                  offset: const Offset(0, 7))
+            ],
+          ),
+          child: CircleAvatar(
+            backgroundColor: IrmaTheme.of(context).themeData.colorScheme.primary,
+            radius: 36,
+            child: IconButton(
+                tooltip: FlutterI18n.translate(context, 'home.nav_bar.open_scanner'),
+                color: Colors.white,
+                onPressed: () {
+                  Navigator.pushNamed(context, ScannerScreen.routeName);
+                },
+                icon: const Icon(IrmaIcons.scanQrcode, size: 32)),
+          ),
+        );
+
     return Container(
       padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).tinySpacing),
       // Reduce vertical padding for screens with limited height (i.e. landscape mode).
@@ -101,11 +92,11 @@ class _IrmaNavBarState extends State<IrmaNavBar> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildNavButton(Icons.home_filled, 'home'),
-          _buildNavButton(Icons.folder_shared, 'data'),
+          _buildNavButton(context, Icons.home_filled, IrmaNavBarTab.home),
+          _buildNavButton(context, Icons.folder_shared, IrmaNavBarTab.data),
           _buildQrButton(),
-          _buildNavButton(Icons.history, 'activity', HistoryScreen.routeName),
-          _buildNavButton(Icons.smartphone, 'app', SettingsScreen.routeName),
+          _buildNavButton(context, Icons.history, IrmaNavBarTab.activity),
+          _buildNavButton(context, Icons.smartphone, IrmaNavBarTab.app),
         ],
       ),
     );

@@ -31,28 +31,26 @@ class _VersionButtonState extends State<VersionButton> {
     return Row(
       children: <Widget>[
         Expanded(
-          child: Container(
-            child: InkWell(
-              onTap: () {
-                setState(() {
-                  tappedCount++;
-                  if (tappedCount == 7) {
-                    tappedCount = 0;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(FlutterI18n.translate(context, 'about.developer_mode_enabled'))));
-                    IrmaPreferences.get().setDeveloperModeVisible(true);
-                    IrmaRepository.get().setDeveloperMode(true);
-                  }
-                });
-              },
-              child: FutureBuilder<PackageInfo>(
-                future: PackageInfo.fromPlatform(),
-                builder: (BuildContext context, AsyncSnapshot<PackageInfo> info) => Text(
-                  FlutterI18n.translate(context, 'about.version', translationParams: {
-                    'version': buildVersionString(info),
-                  }),
-                  style: Theme.of(context).textTheme.bodyText2,
-                ),
+          child: InkWell(
+            onTap: () {
+              setState(() {
+                tappedCount++;
+                if (tappedCount == 7) {
+                  tappedCount = 0;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(FlutterI18n.translate(context, 'app_tab.developer_mode_enabled'))));
+                  IrmaPreferences.get().setDeveloperModeVisible(true);
+                  IrmaRepository.get().setDeveloperMode(true);
+                }
+              });
+            },
+            child: FutureBuilder<PackageInfo>(
+              future: PackageInfo.fromPlatform(),
+              builder: (BuildContext context, AsyncSnapshot<PackageInfo> info) => Text(
+                FlutterI18n.translate(context, 'app_tab.version', translationParams: {
+                  'version': buildVersionString(info),
+                }),
+                style: Theme.of(context).textTheme.bodyText2,
               ),
             ),
           ),
