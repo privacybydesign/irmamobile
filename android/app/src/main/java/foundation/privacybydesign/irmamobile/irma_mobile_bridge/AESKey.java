@@ -33,7 +33,7 @@ public class AESKey {
 
     private static byte[] generateKey() throws GeneralSecurityException {
         byte[] key = new byte[32];
-        
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             SecureRandom.getInstanceStrong().nextBytes(key);
         } else {

@@ -32,7 +32,7 @@ public class AES {
 
             if (!keyExists())
                 generateKey();
-       } catch (GeneralSecurityException | IOException e) {
+        } catch (GeneralSecurityException | IOException e) {
             throw new RuntimeException(e);
         }
     }

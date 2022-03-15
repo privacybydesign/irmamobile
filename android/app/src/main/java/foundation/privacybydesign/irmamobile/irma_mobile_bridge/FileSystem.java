@@ -29,7 +29,7 @@ public class FileSystem {
             try {
                 fis = new FileInputStream(file);
                 fis.read(bytes);
-            }  catch (FileNotFoundException e) {
+            } catch (FileNotFoundException e) {
                 return null;
             } finally {
                 if (fis != null) {
