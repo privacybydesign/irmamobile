@@ -1,6 +1,6 @@
 import Foundation
 
-@objc enum AESKeyError:Int, Error {
+enum AESKeyError: Error {
     case keyNotGenerated
 }
 
