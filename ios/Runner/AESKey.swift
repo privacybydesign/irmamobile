@@ -21,7 +21,7 @@ enum AESKeyError: Error {
         return try aes.decrypt(encrypted)
     }
 
-    func generateAESkey(_ aes: AES) throws -> Data {
+    private func generateAESkey(_ aes: AES) throws -> Data {
         var bytes = [UInt8](repeating: 0, count: 32)
         let result = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
 

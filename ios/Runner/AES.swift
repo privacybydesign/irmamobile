@@ -61,11 +61,11 @@ public class AES {
         return plaintext
     }
     
-    func keyExists() -> Bool {
+    private func keyExists() -> Bool {
         return tryLoadKey() != nil
     }
     
-    func tryLoadKey() -> SecKey? {
+    private func tryLoadKey() -> SecKey? {
         let query: [String: Any] = [
             kSecClass as String                 : kSecClassKey,
             kSecAttrApplicationTag as String    : tag,
@@ -80,7 +80,7 @@ public class AES {
         return (item as! SecKey)
     }
     
-    func generateKey() throws {
+    private func generateKey() throws {
         var error: Unmanaged<CFError>?
         
         guard let access = SecAccessControlCreateWithFlags(
@@ -108,7 +108,7 @@ public class AES {
         }
     }
     
-    func getKey() throws -> SecKey {
+    private func getKey() throws -> SecKey {
         guard let key = tryLoadKey() else {
             throw AESError.keyNotFound
         }
