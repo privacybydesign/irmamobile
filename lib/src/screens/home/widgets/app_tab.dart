@@ -6,7 +6,7 @@ import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/translated_text.dart';
 
-class MyAppTab extends StatelessWidget {
+class AppTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget _buildHeaderText(String translationKey) => Padding(

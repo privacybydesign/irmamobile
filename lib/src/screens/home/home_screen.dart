@@ -23,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
             case IrmaNavBarTab.activity:
               return const Text('activity');
             case IrmaNavBarTab.app:
-              return MyAppTab();
+              return AppTab();
             case IrmaNavBarTab.home:
               return const Text('home');
           }
