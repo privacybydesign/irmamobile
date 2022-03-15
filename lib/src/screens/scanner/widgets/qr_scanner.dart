@@ -85,13 +85,12 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: CircleAvatar(
-                  backgroundColor: const Color(0xFFEAEAEA),
+                  backgroundColor: Colors.grey.shade300,
                   radius: 24,
                   child: IconButton(
                       padding: EdgeInsets.zero,
-                      color: Colors.grey,
                       onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.chevron_left, size: 24, color: Color(0xFF1A1919))),
+                      icon: Icon(Icons.chevron_left, size: 24, color: Colors.grey.shade800)),
                 ),
               ),
             )
