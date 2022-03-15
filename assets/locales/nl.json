@@ -284,7 +284,6 @@
   "pin": {
     "title": "Inloggen",
     "subtitle": "Voer je pincode in",
-    "seconds": "seconden",
     "button_forgot": "Pincode vergeten",
     "button_block": "IRMA blokkeren"
   },

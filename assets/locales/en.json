@@ -284,7 +284,6 @@
   "pin": {
     "title": "Login",
     "subtitle": "Enter your PIN",
-    "seconds": "seconds",
     "button_forgot": "PIN forgotten",
     "button_block": "Block IRMA"
   },
