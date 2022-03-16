@@ -1,7 +1,7 @@
 import Foundation
 
 enum AESKeyError: Error {
-    case keyNotGenerated
+    case keyNotGenerated(_: Int32)
 }
 
 @objc public class AESKey: NSObject {
@@ -26,7 +26,7 @@ enum AESKeyError: Error {
         let result = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
 
         guard result == errSecSuccess else {
-            throw AESKeyError.keyNotGenerated
+            throw AESKeyError.keyNotGenerated(result)
         }
         
         let key = Data(bytes)
