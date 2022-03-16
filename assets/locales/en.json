@@ -524,6 +524,7 @@
     "developer_mode_enabled": "Developer mode enabled",
     "irma_website": "IRMA-website",
     "irma_website_link": "https://irma.app/?lang=en",
-    "privacy_policy": "IRMA's privacy policy"
+    "privacy_policy": "IRMA's privacy policy",
+    "app_id": "App ID {id}"
   }
 }
