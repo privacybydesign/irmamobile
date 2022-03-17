@@ -7,8 +7,8 @@ import 'package:irmamobile/src/models/enrollment_status.dart';
 import 'package:irmamobile/src/models/error_event.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/error/error_screen.dart';
+import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/screens/splash_screen/splash_screen.dart';
-import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 
 class LoadingScreen extends StatelessWidget {
   static const routeName = "/";
@@ -23,7 +23,7 @@ class LoadingScreen extends StatelessWidget {
             if (snapshot.data == EnrollmentStatus.enrolled) {
               // We don't add a smooth transition here like below, because it will be covered by the PinScreen anyway.
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                Navigator.of(context).pushReplacementNamed(WalletScreen.routeName);
+                Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
               });
             } else if (snapshot.data == EnrollmentStatus.unenrolled) {
               // Because this happens on start-up immediately, we have to make sure a smooth transition is being made.

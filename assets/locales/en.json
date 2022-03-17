@@ -532,5 +532,14 @@
     "add": "Add",
     "add_cards": "Add cards",
     "add_credential": "Add {credential}"
+  },
+  "home" : {
+    "nav_bar" : {
+      "home" : "Home",
+      "data" : "Data",
+      "activity" : "Activity",
+      "app" : "App",
+      "open_scanner": "Open QR Scanner"
+    }
   }
 }

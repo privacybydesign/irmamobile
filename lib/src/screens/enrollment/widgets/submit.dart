@@ -8,7 +8,7 @@ import 'package:irmamobile/src/screens/enrollment/email_sent_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_bloc.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
 import 'package:irmamobile/src/screens/error/session_error_screen.dart';
-import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
+import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/progress.dart';
 
@@ -69,7 +69,7 @@ class _SubmitState extends State<Submit> {
                 Navigator.of(context, rootNavigator: true)
                     .pushReplacementNamed(EmailSentScreen.routeName, arguments: state.email);
               } else {
-                Navigator.of(context, rootNavigator: true).pushReplacementNamed(WalletScreen.routeName);
+                Navigator.of(context, rootNavigator: true).pushReplacementNamed(HomeScreen.routeName);
               }
             }
           },

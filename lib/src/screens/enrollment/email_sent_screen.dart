@@ -3,7 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
+import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
@@ -19,7 +19,7 @@ class EmailSentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () => Navigator.of(context, rootNavigator: true).pushReplacementNamed(WalletScreen.routeName),
+      onWillPop: () => Navigator.of(context, rootNavigator: true).pushReplacementNamed(HomeScreen.routeName),
       child: Scaffold(
         appBar: IrmaAppBar(
           title: Text(
@@ -31,7 +31,7 @@ class EmailSentScreen extends StatelessWidget {
           key: const Key('email_sent_screen_continue'),
           primaryButtonLabel: FlutterI18n.translate(context, 'enrollment.email_sent.button'),
           onPrimaryPressed: () {
-            Navigator.of(context, rootNavigator: true).pushReplacementNamed(WalletScreen.routeName);
+            Navigator.of(context, rootNavigator: true).pushReplacementNamed(HomeScreen.routeName);
           },
         ),
         body: SafeArea(

@@ -186,7 +186,7 @@ class _DisclosurePermissionState extends State<DisclosurePermission> {
       return DisclosureFeedbackScreen(
         feedbackType: DisclosureFeedbackType.notSatisfiable,
         otherParty: serverName,
-        popToWallet: popToWallet,
+        popToWallet: popToHome,
       );
     }
 
