@@ -10,10 +10,17 @@ import 'package:irmamobile/src/widgets/translated_text.dart';
 enum IrmaNavBarTab { home, data, activity, app }
 
 class IrmaNavBar extends StatelessWidget {
+  final _navBarTabTranslationKeys = {
+    IrmaNavBarTab.home: 'home.nav_bar.home',
+    IrmaNavBarTab.data: 'home.nav_bar.data',
+    IrmaNavBarTab.activity: 'home.nav_bar.activity',
+    IrmaNavBarTab.app: 'home.nav_bar.app'
+  };
+
   final Function(IrmaNavBarTab tab) onChangeTab;
   final IrmaNavBarTab selectedTab;
 
-  const IrmaNavBar({Key? key, required this.onChangeTab, this.selectedTab = IrmaNavBarTab.home}) : super(key: key);
+  IrmaNavBar({Key? key, required this.onChangeTab, this.selectedTab = IrmaNavBarTab.home}) : super(key: key);
 
   Widget _buildNavButton(BuildContext context, IconData iconData, IrmaNavBarTab tab) => Expanded(
         child: InkWell(
@@ -32,7 +39,7 @@ class IrmaNavBar extends StatelessWidget {
                 height: 4,
               ),
               TranslatedText(
-                'home.nav_bar.${tab.toString().split('.').last}',
+                _navBarTabTranslationKeys[tab],
                 style: TextStyle(
                     overflow: TextOverflow.ellipsis,
                     color:
