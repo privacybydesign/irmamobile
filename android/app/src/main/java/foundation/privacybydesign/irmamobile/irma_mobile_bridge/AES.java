@@ -42,7 +42,8 @@ public class AES {
     }
 
     protected void generateKey() throws GeneralSecurityException {
-        KeyGenParameterSpec.Builder spec = new KeyGenParameterSpec.Builder(keyAlias, KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+        KeyGenParameterSpec.Builder spec = new KeyGenParameterSpec.Builder(keyAlias,
+                KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
                 .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
                 .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
                 .setKeySize(256);
@@ -62,7 +63,8 @@ public class AES {
         Key secretKey = keyStore.getKey(keyAlias, null);
         cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 
-        // The cipher will create an IV during initiation. No custom IV can be specified when using the algorithm AES/GCM/NoPadding.
+        // The cipher will create an IV during initiation. No custom IV can be specified
+        // when using the algorithm AES/GCM/NoPadding.
         byte[] iv = cipher.getIV();
         if (iv.length != ivLength) {
             throw new RuntimeException("Unexpected IV length");
