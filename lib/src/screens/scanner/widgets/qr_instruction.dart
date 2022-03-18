@@ -45,7 +45,6 @@ class QRInstruction extends StatelessWidget {
                         height: 1.5,
                       ),
                   textAlign: TextAlign.center,
-                  maxLines: 1,
                 ),
               ],
             ),
