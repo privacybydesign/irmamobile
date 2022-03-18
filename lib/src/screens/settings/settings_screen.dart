@@ -1,6 +1,3 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -9,7 +6,6 @@ import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/clear_all_data_event.dart';
 import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
-import 'package:irmamobile/src/screens/settings/widgets/settings_header.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
@@ -19,7 +15,7 @@ import 'package:irmamobile/src/widgets/irma_text_button.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 
 class SettingsScreen extends StatelessWidget {
-  static const routeName = "/settings";
+  static const routeName = '/settings';
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +28,6 @@ class SettingsScreen extends StatelessWidget {
       ),
       body: Container(
         padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).tinySpacing),
-        color: Theme.of(context).canvasColor,
         child: ListView(children: <Widget>[
           SizedBox(height: IrmaTheme.of(context).largeSpacing),
           StreamBuilder(
@@ -43,27 +38,13 @@ class SettingsScreen extends StatelessWidget {
                   FlutterI18n.translate(context, 'settings.start_qr'),
                   style: IrmaTheme.of(context).textTheme.bodyText2,
                 ),
-                activeColor: IrmaTheme.of(context).interactionValid,
-                value: snapshot.hasData && snapshot.data,
+                activeColor: IrmaTheme.of(context).themeData.colorScheme.primary,
+                value: snapshot.hasData && snapshot.data!,
                 onChanged: irmaPrefs.setStartQRScan,
-                secondary: Icon(IrmaIcons.scanQrcode, color: IrmaTheme.of(context).textTheme.bodyText2.color),
+                secondary:
+                    Icon(IrmaIcons.scanQrcode, size: 30, color: IrmaTheme.of(context).themeData.colorScheme.primary),
               );
             },
-          ),
-          ListTile(
-            onTap: () {
-              Navigator.of(context).pushNamed(ChangePinScreen.routeName);
-            },
-            title: Text(
-              FlutterI18n.translate(context, 'settings.change_pin'),
-              style: IrmaTheme.of(context).textTheme.bodyText2,
-            ),
-            leading: Icon(IrmaIcons.edit, color: IrmaTheme.of(context).textTheme.bodyText2.color),
-            trailing: Icon(IrmaIcons.chevronRight, color: IrmaTheme.of(context).textTheme.bodyText2.color),
-          ),
-          const Divider(),
-          SettingsHeader(
-            headerText: FlutterI18n.translate(context, 'settings.advanced.header'),
           ),
           StreamBuilder(
             stream: irmaPrefs.getReportErrors(),
@@ -73,22 +54,36 @@ class SettingsScreen extends StatelessWidget {
                   FlutterI18n.translate(context, 'settings.advanced.report_errors'),
                   style: IrmaTheme.of(context).textTheme.bodyText2,
                 ),
-                activeColor: IrmaTheme.of(context).interactionValid,
-                value: snapshot.data != null && snapshot.data,
+                activeColor: IrmaTheme.of(context).themeData.colorScheme.primary,
+                value: snapshot.data != null && snapshot.data!,
                 onChanged: irmaPrefs.setReportErrors,
-                secondary: Icon(IrmaIcons.invalid, color: IrmaTheme.of(context).textTheme.bodyText2.color),
+                secondary:
+                    Icon(IrmaIcons.invalid, size: 30, color: IrmaTheme.of(context).themeData.colorScheme.primary),
               );
             },
           ),
-          ListTile(
-            title: Text(
-              FlutterI18n.translate(context, 'settings.advanced.delete'),
-              style: IrmaTheme.of(context).textTheme.bodyText2,
-            ),
-            onTap: () {
-              openWalletResetDialog(context);
+          StreamBuilder(
+            stream: irmaPrefs.getDeveloperModeVisible(),
+            builder: (BuildContext context, AsyncSnapshot<bool> visible) {
+              return !visible.hasData || !visible.data!
+                  ? Container()
+                  : StreamBuilder(
+                      stream: irmaRepo.getDeveloperMode(),
+                      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+                        return SwitchListTile.adaptive(
+                          title: Text(
+                            FlutterI18n.translate(context, 'settings.advanced.developer_mode'),
+                            style: IrmaTheme.of(context).textTheme.bodyText2,
+                          ),
+                          activeColor: IrmaTheme.of(context).themeData.colorScheme.primary,
+                          value: snapshot.data != null && snapshot.data!,
+                          onChanged: (enabled) => irmaRepo.setDeveloperMode(enabled),
+                          secondary: Icon(IrmaIcons.settings,
+                              size: 30, color: IrmaTheme.of(context).themeData.colorScheme.primary),
+                        );
+                      },
+                    );
             },
-            leading: Icon(IrmaIcons.delete, color: IrmaTheme.of(context).textTheme.bodyText2.color),
           ),
           if (Platform.isAndroid)
             StreamBuilder(
@@ -101,37 +96,37 @@ class SettingsScreen extends StatelessWidget {
                   ),
                   subtitle: Text(
                     FlutterI18n.translate(context, 'settings.advanced.enable_screenshots_note'),
-                    style: IrmaTheme.of(context).textTheme.caption.copyWith(color: IrmaTheme.of(context).grayscale40),
+                    style: IrmaTheme.of(context).textTheme.caption!.copyWith(color: IrmaTheme.of(context).grayscale40),
                   ),
-                  activeColor: IrmaTheme.of(context).interactionValid,
-                  value: snapshot.data != null && snapshot.data,
+                  activeColor: IrmaTheme.of(context).themeData.colorScheme.primary,
+                  value: snapshot.data != null && snapshot.data!,
                   onChanged: irmaPrefs.setScreenshotsEnabled,
-                  secondary: Icon(IrmaIcons.phone, color: IrmaTheme.of(context).textTheme.bodyText2.color),
+                  secondary:
+                      Icon(IrmaIcons.phone, size: 30, color: IrmaTheme.of(context).themeData.colorScheme.primary),
                 );
               },
             ),
-          StreamBuilder(
-            stream: irmaPrefs.getDeveloperModeVisible(),
-            builder: (BuildContext context, AsyncSnapshot<bool> visible) {
-              return !visible.hasData || !visible.data
-                  ? Container()
-                  : StreamBuilder(
-                      stream: irmaRepo.getDeveloperMode(),
-                      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-                        return SwitchListTile.adaptive(
-                          title: Text(
-                            FlutterI18n.translate(context, 'settings.advanced.developer_mode'),
-                            style: IrmaTheme.of(context).textTheme.bodyText2,
-                          ),
-                          activeColor: IrmaTheme.of(context).interactionValid,
-                          value: snapshot.data != null && snapshot.data,
-                          onChanged: (enabled) => irmaRepo.setDeveloperMode(enabled),
-                          secondary: Icon(IrmaIcons.settings, color: IrmaTheme.of(context).textTheme.bodyText2.color),
-                        );
-                      },
-                    );
+          const Divider(),
+          ListTile(
+            onTap: () {
+              Navigator.of(context).pushNamed(ChangePinScreen.routeName);
             },
-          )
+            title: Text(
+              FlutterI18n.translate(context, 'settings.change_pin'),
+              style: IrmaTheme.of(context).textTheme.bodyText2,
+            ),
+            leading: Icon(IrmaIcons.edit, size: 30, color: IrmaTheme.of(context).themeData.colorScheme.primary),
+          ),
+          ListTile(
+            title: Text(
+              FlutterI18n.translate(context, 'settings.advanced.delete'),
+              style: IrmaTheme.of(context).textTheme.bodyText2,
+            ),
+            onTap: () {
+              openWalletResetDialog(context);
+            },
+            leading: Icon(IrmaIcons.delete, color: IrmaTheme.of(context).themeData.colorScheme.primary),
+          ),
         ]),
       ),
     );
@@ -149,7 +144,6 @@ Future<void> openWalletResetDialog(BuildContext context) async {
       title: FlutterI18n.translate(context, 'settings.advanced.delete_title'),
       content: FlutterI18n.translate(context, 'settings.advanced.delete_content'),
       child: Wrap(
-        direction: Axis.horizontal,
         verticalDirection: VerticalDirection.up,
         alignment: WrapAlignment.spaceEvenly,
         children: <Widget>[

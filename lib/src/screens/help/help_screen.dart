@@ -1,30 +1,15 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'package:irmamobile/src/sentry/sentry.dart';
+import 'package:irmamobile/src/screens/help/widgets/help_item.dart';
+import 'package:irmamobile/src/screens/help/widgets/help_item_carousel.dart';
+import 'package:irmamobile/src/screens/home/widgets/links.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/heading.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
-import 'package:irmamobile/src/widgets/irma_button.dart';
-import 'package:irmamobile/src/widgets/irma_dialog.dart';
-import 'package:irmamobile/src/widgets/irma_themed_button.dart';
-import 'package:irmamobile/src/widgets/link.dart';
-
-import 'demo_items.dart';
-import 'help_items.dart';
+import 'package:irmamobile/src/widgets/irma_markdown.dart';
+import 'package:irmamobile/src/widgets/translated_text.dart';
 
 class HelpScreen extends StatefulWidget {
   static const String routeName = '/help';
-  static Key myKey = const Key(routeName);
-
-  final CredentialType credentialType;
-
-  HelpScreen({this.credentialType}) : super(key: myKey);
 
   @override
   _HelpScreenState createState() => _HelpScreenState();
@@ -38,191 +23,144 @@ class _HelpScreenState extends State<HelpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
-      appBar: IrmaAppBar(
-        title: Text(
-          FlutterI18n.translate(
-            context,
-            'help.title',
-          ),
-        ),
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Expanded(
-            child: SingleChildScrollView(
-              controller: _controller,
-              key: _scrollviewKey,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
-                      child: Column(
-                        children: <Widget>[
-                          SizedBox(
-                            width: double.infinity,
-                            child: Container(
-                              child: Heading(
-                                FlutterI18n.translate(context, 'manual.faq'),
-                                key: const Key('help_screen_heading'),
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: IrmaTheme.of(context).tinySpacing),
-                          SizedBox(
-                            width: double.infinity,
-                            child: Text(
-                              FlutterI18n.translate(context, 'manual.faq_info'),
-                              style: Theme.of(context).textTheme.bodyText2,
-                              textAlign: TextAlign.left,
-                              key: const Key('help_screen_content'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-                    DemoItems(
-                      credentialType: widget.credentialType,
-                      parentKey: _scrollviewKey,
-                      parentScrollController: _controller,
-                    ),
-                    SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
-                      child: Column(
-                        children: <Widget>[
-                          SizedBox(
-                            width: double.infinity,
-                            child: Container(
-                              child: Heading(
-                                FlutterI18n.translate(context, 'help.faq'),
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: IrmaTheme.of(context).tinySpacing),
-                          SizedBox(
-                            width: double.infinity,
-                            child: Text(
-                              FlutterI18n.translate(context, 'help.faq_info'),
-                              style: Theme.of(context).textTheme.bodyText2,
-                              textAlign: TextAlign.left,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-                    HelpItems(
-                      credentialType: widget.credentialType,
-                      parentKey: _scrollviewKey,
-                      parentScrollController: _controller,
-                    ),
-                    SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-                    Center(
-                      child: Link(
-                        label: FlutterI18n.translate(context, 'help.more'),
-                        onTap: () {
-                          try {
-                            IrmaRepository.get().openURL(FlutterI18n.translate(context, 'help.more_link'));
-                          } on PlatformException catch (e, stacktrace) {
-                            //TODO: consider if we want an error screen here
-                            reportError(e, stacktrace);
-                          }
-                        },
-                      ),
-                    ),
-                    SizedBox(height: IrmaTheme.of(context).largeSpacing),
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
-                      child: Column(
-                        children: <Widget>[
-                          SizedBox(
-                            width: double.infinity,
-                            child: Container(
-                              child: Heading(
-                                FlutterI18n.translate(context, 'help.ask'),
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: IrmaTheme.of(context).smallSpacing),
-                          Text(
-                            FlutterI18n.translate(context, 'help.send'),
-                            style: Theme.of(context).textTheme.bodyText2,
-                          ),
-                          SizedBox(height: IrmaTheme.of(context).smallSpacing),
-                          Center(
-                            child: Link(
-                              onTap: () async {
-                                final String address = FlutterI18n.translate(context, 'help.contact');
-                                final String subject =
-                                    Uri.encodeComponent(FlutterI18n.translate(context, 'help.mail_subject'));
-                                final mail = 'mailto:$address?subject=$subject';
-                                try {
-                                  await IrmaRepository.get().openURLExternally(mail);
-                                } catch (_) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return IrmaDialog(
-                                        title: FlutterI18n.translate(context, 'help.mail_error_title'),
-                                        content: FlutterI18n.translate(context, 'help.mail_error'),
-                                        child: IrmaButton(
-                                          size: IrmaButtonSize.small,
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          label: FlutterI18n.translate(context, 'help.mail_error_button'),
-                                        ),
-                                      );
-                                    },
-                                  );
-                                }
-                              },
-                              label: FlutterI18n.translate(context, 'help.email'),
-                            ),
-                          ),
-                          SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+        key: _scaffoldKey,
+        appBar: const IrmaAppBar(title: TranslatedText('help.title')),
+        body: Container(
+          padding: EdgeInsets.symmetric(
+              horizontal: IrmaTheme.of(context).largeSpacing, vertical: IrmaTheme.of(context).defaultSpacing),
+          child: ListView(key: _scrollviewKey, controller: _controller, children: [
+            TranslatedText(
+              'help.faq',
+              style: IrmaTheme.of(context).textTheme.headline3,
             ),
-          ),
-          Align(
-            alignment: FractionalOffset.bottomCenter,
-            child: Container(
-              decoration: BoxDecoration(
-                color: IrmaTheme.of(context).backgroundBlue,
-                border: Border(
-                  top: BorderSide(
-                    color: IrmaTheme.of(context).primaryLight,
-                    width: 2.0,
-                  ),
-                ),
-              ),
-              width: MediaQuery.of(context).size.width,
-              padding: EdgeInsets.symmetric(
-                  vertical: IrmaTheme.of(context).defaultSpacing * 1.5, horizontal: IrmaTheme.of(context).largeSpacing),
-              child: IrmaButton(
-                label: 'help.back_button',
-                key: const Key('back_to_wallet_button'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
+            SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+            TranslatedText(
+              'help.about_irma',
+              style: IrmaTheme.of(context).textTheme.bodyText2,
             ),
-          ),
-        ],
-      ),
-    );
+            SizedBox(height: IrmaTheme.of(context).smallSpacing),
+            HelpItem(
+              headerTranslationKey: 'help.question_1',
+              body: const TranslatedText('help.answer_1'),
+              parentKey: _scrollviewKey,
+              parentScrollController: _controller,
+            ),
+            SizedBox(height: IrmaTheme.of(context).smallSpacing),
+            HelpItem(
+              headerTranslationKey: 'help.question_2',
+              body: IrmaMarkdown(FlutterI18n.translate(context, 'help.answer_2')),
+              parentKey: _scrollviewKey,
+              parentScrollController: _controller,
+            ),
+            SizedBox(height: IrmaTheme.of(context).smallSpacing),
+            HelpItem(
+              headerTranslationKey: 'help.question_3',
+              body: const TranslatedText('help.answer_3'),
+              parentKey: _scrollviewKey,
+              parentScrollController: _controller,
+            ),
+            SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+            TranslatedText(
+              'help.login',
+              style: IrmaTheme.of(context).textTheme.bodyText2,
+            ),
+            SizedBox(height: IrmaTheme.of(context).smallSpacing),
+            HelpItem(
+              headerTranslationKey: 'help.question_4',
+              body: HelpCarousel(items: [
+                HelpCarouselItem('assets/help/q4_step_1.svg', 'help.answer_4.step_1'),
+                HelpCarouselItem('assets/help/q4_step_2.svg', 'help.answer_4.step_2'),
+                HelpCarouselItem('assets/help/q4_step_3.svg', 'help.answer_4.step_3'),
+                HelpCarouselItem('assets/help/q4_step_4.svg', 'help.answer_4.step_4'),
+              ]),
+              parentKey: _scrollviewKey,
+              parentScrollController: _controller,
+            ),
+            SizedBox(height: IrmaTheme.of(context).smallSpacing),
+            HelpItem(
+              headerTranslationKey: 'help.question_5',
+              body: HelpCarousel(items: [
+                HelpCarouselItem('assets/help/q5_step_1.svg', 'help.answer_5.step_1'),
+                HelpCarouselItem('assets/help/q5_step_2.svg', 'help.answer_5.step_2'),
+                HelpCarouselItem('assets/help/q5_step_3.svg', 'help.answer_5.step_3'),
+                HelpCarouselItem('assets/help/q5_step_4.svg', 'help.answer_5.step_4'),
+                HelpCarouselItem('assets/help/q5_step_5.svg', 'help.answer_5.step_5'),
+              ]),
+              parentKey: _scrollviewKey,
+              parentScrollController: _controller,
+            ),
+            SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+            TranslatedText(
+              'help.device',
+              style: IrmaTheme.of(context).textTheme.bodyText2,
+            ),
+            SizedBox(height: IrmaTheme.of(context).smallSpacing),
+            HelpItem(
+              headerTranslationKey: 'help.question_6',
+              body: const TranslatedText('help.answer_6'),
+              parentKey: _scrollviewKey,
+              parentScrollController: _controller,
+            ),
+            SizedBox(height: IrmaTheme.of(context).smallSpacing),
+            HelpItem(
+              headerTranslationKey: 'help.question_7',
+              body: const TranslatedText('help.answer_7'),
+              parentKey: _scrollviewKey,
+              parentScrollController: _controller,
+            ),
+            SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+            TranslatedText(
+              'help.storage_and_privacy',
+              style: IrmaTheme.of(context).textTheme.bodyText2,
+            ),
+            SizedBox(height: IrmaTheme.of(context).smallSpacing),
+            HelpItem(
+              headerTranslationKey: 'help.question_8',
+              body: const TranslatedText('help.answer_8'),
+              parentKey: _scrollviewKey,
+              parentScrollController: _controller,
+            ),
+            SizedBox(height: IrmaTheme.of(context).smallSpacing),
+            HelpItem(
+              headerTranslationKey: 'help.question_9',
+              body: const TranslatedText('help.answer_9'),
+              parentKey: _scrollviewKey,
+              parentScrollController: _controller,
+            ),
+            SizedBox(height: IrmaTheme.of(context).smallSpacing),
+            HelpItem(
+              headerTranslationKey: 'help.question_10',
+              body: const TranslatedText('help.answer_10'),
+              parentKey: _scrollviewKey,
+              parentScrollController: _controller,
+            ),
+            SizedBox(height: IrmaTheme.of(context).smallSpacing),
+            HelpItem(
+              headerTranslationKey: 'help.question_11',
+              body: IrmaMarkdown(FlutterI18n.translate(context, 'help.answer_11')),
+              parentKey: _scrollviewKey,
+              parentScrollController: _controller,
+            ),
+            SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+            TranslatedText(
+              'help.ask',
+              style: IrmaTheme.of(context).textTheme.headline3,
+            ),
+            SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+            TranslatedText(
+              'help.send',
+              style: IrmaTheme.of(context).textTheme.bodyText2,
+            ),
+            SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+            ContactLink(
+              translationKey: 'help.email',
+              textAlign: TextAlign.center,
+              style: IrmaTheme.of(context)
+                  .textTheme
+                  .bodyText2!
+                  .copyWith(color: IrmaTheme.of(context).themeData.primaryColor, decoration: TextDecoration.underline),
+            ),
+          ]),
+        ));
   }
 }

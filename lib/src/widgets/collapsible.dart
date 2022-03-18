@@ -40,43 +40,45 @@ class _CollapsibleState extends State<Collapsible> {
 
   @override
   Widget build(BuildContext context) {
-    return ConfigurableExpansionTile(
-      onExpansionChanged: onExpansionChanged,
-      initiallyExpanded: false,
-      animatedWidgetFollowingHeader: const Padding(
-        padding: EdgeInsets.all(4.0),
-        child: Icon(
-          Icons.expand_more,
-          color: Colors.black,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: ConfigurableExpansionTile(
+        onExpansionChanged: onExpansionChanged,
+        animatedWidgetFollowingHeader: const Padding(
+          padding: EdgeInsets.all(4.0),
+          child: Icon(
+            Icons.expand_more,
+            color: Colors.black,
+          ),
         ),
-      ),
-      header: Expanded(
-        child: Semantics(
-          label: _isExpanded
-              ? FlutterI18n.translate(context, 'accessibility.expanded')
-              : FlutterI18n.translate(context, 'accessibility.collapsed'),
-          child: Padding(
-            padding: EdgeInsets.only(
-                top: IrmaTheme.of(context).tinySpacing * 3,
-                bottom: IrmaTheme.of(context).tinySpacing * 3,
-                left: IrmaTheme.of(context).defaultSpacing,
-                right: IrmaTheme.of(context).defaultSpacing),
-            child: Text(
-              widget.header,
-              style: IrmaTheme.of(context).textTheme.headline3,
+        header: Expanded(
+          child: Semantics(
+            label: _isExpanded
+                ? FlutterI18n.translate(context, 'accessibility.expanded')
+                : FlutterI18n.translate(context, 'accessibility.collapsed'),
+            child: Padding(
+              padding: EdgeInsets.only(
+                  top: IrmaTheme.of(context).tinySpacing * 3,
+                  bottom: IrmaTheme.of(context).tinySpacing * 3,
+                  left: IrmaTheme.of(context).defaultSpacing,
+                  right: IrmaTheme.of(context).defaultSpacing),
+              child: Text(
+                widget.header,
+                style: IrmaTheme.of(context).textTheme.bodyText1,
+              ),
             ),
           ),
         ),
+        headerBackgroundColorStart: Color(0xFFE9F4FF),
+        expandedBackgroundColor: Color(0xFFE9F4FF),
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.symmetric(
+                vertical: IrmaTheme.of(context).smallSpacing, horizontal: IrmaTheme.of(context).defaultSpacing),
+            child: widget.content,
+          ),
+        ],
       ),
-      headerBackgroundColorStart: IrmaTheme.of(context).backgroundBlue,
-      expandedBackgroundColor: Colors.transparent,
-      children: <Widget>[
-        Padding(
-          padding: EdgeInsets.symmetric(
-              vertical: IrmaTheme.of(context).smallSpacing, horizontal: IrmaTheme.of(context).defaultSpacing),
-          child: widget.content,
-        ),
-      ],
     );
   }
 }

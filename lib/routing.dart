@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/native_events.dart';
-import 'package:irmamobile/src/screens/about/about_screen.dart';
 import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
 import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
 import 'package:irmamobile/src/screens/debug/debug_screen.dart';
@@ -26,11 +25,9 @@ import 'package:irmamobile/src/screens/settings/settings_screen.dart';
 class Routing {
   static Map<String, WidgetBuilder> simpleRoutes = {
     LoadingScreen.routeName: (context) => LoadingScreen(),
-    //WalletScreen.routeName: (context) => WalletScreen(),
     EnrollmentScreen.routeName: (context) => EnrollmentScreen(),
     ScannerScreen.routeName: (context) => ScannerScreen(),
     ChangePinScreen.routeName: (context) => ChangePinScreen(),
-    AboutScreen.routeName: (context) => AboutScreen(),
     SettingsScreen.routeName: (context) => SettingsScreen(),
     CardStoreScreen.routeName: (context) => CardStoreScreen(),
     HistoryScreen.routeName: (context) => HistoryScreen(),

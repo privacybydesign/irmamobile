@@ -30,8 +30,8 @@ class DesignMessages extends StatelessWidget {
                 context,
                 "Message with `valid` style",
                 IrmaMessage(
-                  "about.title",
-                  "about.slogan",
+                  "help.about_irma",
+                  "app_tab.slogan",
                   type: IrmaMessageType.valid,
                 ),
               ),
@@ -39,8 +39,8 @@ class DesignMessages extends StatelessWidget {
                 context,
                 "Message with `invalid` style",
                 IrmaMessage(
-                  "about.title",
-                  "about.slogan",
+                  "help.about_irma",
+                  "app_tab.slogan",
                   type: IrmaMessageType.invalid,
                 ),
               ),
@@ -48,8 +48,8 @@ class DesignMessages extends StatelessWidget {
                 context,
                 "Message with `alert` style",
                 IrmaMessage(
-                  "about.title",
-                  "about.slogan",
+                  "help.about_irma",
+                  "app_tab.slogan",
                   type: IrmaMessageType.alert,
                 ),
               ),
@@ -57,8 +57,8 @@ class DesignMessages extends StatelessWidget {
                 context,
                 "Message with `info` style",
                 IrmaMessage(
-                  "about.title",
-                  "about.slogan",
+                  "help.about_irma",
+                  "app_tab.slogan",
                   type: IrmaMessageType.info,
                 ),
               ),

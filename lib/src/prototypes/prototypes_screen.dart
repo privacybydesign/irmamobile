@@ -11,12 +11,12 @@ import 'package:irmamobile/src/prototypes/design_messages.dart';
 import 'package:irmamobile/src/prototypes/design_typography.dart';
 import 'package:irmamobile/src/prototypes/schermflow_1.dart';
 import 'package:irmamobile/src/prototypes/schermflow_5.dart';
-import 'package:irmamobile/src/prototypes/schermflow_wallet.dart';
 import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/email_sent_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/introduction.dart';
 import 'package:irmamobile/src/screens/help/help_screen.dart';
 import 'package:irmamobile/src/screens/history/history_screen.dart';
+import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/screens/reset_pin/reset_pin_screen.dart';
 import 'package:irmamobile/src/screens/session/call_info_screen.dart';
 import 'package:irmamobile/src/screens/session/session_screen.dart';
@@ -66,8 +66,8 @@ class PrototypesScreen extends StatelessWidget {
           _buildListItem(context, "Gegevens toevoegen", () {
             startSchermflow5(context);
           }),
-          _buildListItem(context, "Meerdere gegevenskaarten", () {
-            startSchermflowWallet(context);
+          _buildListItem(context, "Home", () {
+            Navigator.of(context).push(MaterialPageRoute(builder: (context) => HomeScreen()));
           }),
           _buildListItem(context, "Pincode veranderen", () {
             Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChangePinScreen()));

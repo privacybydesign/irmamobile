@@ -20,7 +20,6 @@ dependencies:
   flutter_i18n: ^0.30.0
   flutter_bloc: ^7.2.0
   equatable: ^2.0.3
-
   email_validator: ^2.0.1
   url_launcher: ^6.0.10
   json_annotation: ^4.0.1
@@ -28,7 +27,6 @@ dependencies:
   package_info: ^2.0.2
   collection: ^1.15.0
   qr_code_scanner: ^0.7.0
-  font_awesome_flutter: ^9.1.0 # TODO remove once this package is no longer used
   share: ^2.0.4
   intl: ^0.17.0
   flutter_markdown: ^0.6.6
