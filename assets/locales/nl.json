@@ -493,12 +493,12 @@
     "add_cards": "Kaartjes ophalen",
     "add_credential": "Haal {credential} op"
   },
-  "home": {
-    "nav_bar": {
-      "home": "Home",
-      "data": "Gegevens",
-      "activity": "Activiteit",
-      "app": "App",
+  "home" : {
+    "nav_bar" : {
+      "home" : "Overzicht",
+      "data" : "Gegevens",
+      "activity" : "Activiteit",
+      "app" : "App",
       "open_scanner": "Open QR-Scanner"
     }
   },
