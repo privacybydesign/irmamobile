@@ -1,34 +1,40 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class QROverlay extends CustomPainter {
   // the width of the view box as a ratio of the screen width
-  static const double width = 0.9;
+  static const _widthFactor = 0.9;
 
-  // to offset to the top of the screen as a ration to the total height
-  static const double topOffset = 0.3;
+  // minimum offset to the bottom of the screen as a ratio of the total height
+  static const _minBottomOffsetFactor = 0.05;
+
+  // offset to the top of the screen as a ratio of the total height
+  final double topOffsetFactor;
 
   // the irma theme
-  IrmaThemeData theme;
+  final IrmaThemeData theme;
 
   // QR code found
-  bool found;
+  final bool found;
 
   // wrong QR code found
-  bool error;
+  final bool error;
 
-  QROverlay({@required this.found, @required this.error, @required this.theme});
+  QROverlay({required this.found, required this.error, required this.theme, required this.topOffsetFactor});
 
   @override
   void paint(Canvas canvas, Size size) {
+    // hole size
+    double windowSize = size.width * _widthFactor;
+    final maxWindowHeight = size.height - size.height * (topOffsetFactor + _minBottomOffsetFactor);
+    if (windowSize > maxWindowHeight) {
+      windowSize = maxWindowHeight;
+    }
+
     // hole coordinates
-    final left = size.width * (1 - width);
-    final right = size.width * width;
-    final windowSize = size.width - left * 2;
-    final top = size.height * topOffset;
+    final left = (size.width - windowSize) / 2;
+    final right = left + windowSize;
+    final top = size.height * topOffsetFactor;
     final bottom = top + windowSize;
     final cornerSize = windowSize * 0.15;
 
@@ -36,8 +42,8 @@ class QROverlay extends CustomPainter {
     final Color green = theme.overlayValid;
     final Color red = theme.overlayInvalid;
 
-    Color overlayColor = theme.grayscale40;
-    Color cornerColor = theme.primaryBlue;
+    Color overlayColor = Colors.grey.shade800;
+    Color cornerColor = Colors.white;
 
     if (error) {
       overlayColor = red;
@@ -75,7 +81,7 @@ class QROverlay extends CustomPainter {
     // add decorative corners to the hole
     final cornerPaint = Paint()
       ..color = cornerColor
-      ..strokeWidth = 8
+      ..strokeWidth = 2
       ..strokeJoin = StrokeJoin.round
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;

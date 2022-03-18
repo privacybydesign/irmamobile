@@ -1,6 +1,3 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -17,7 +14,7 @@ import 'package:irmamobile/src/screens/session/session_screen.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 class ScannerScreen extends StatelessWidget {
-  static const routeName = "/scanner";
+  static const routeName = '/scanner';
 
   static void _onClose(BuildContext context) {
     Navigator.of(context).pop();
@@ -48,7 +45,7 @@ class ScannerScreen extends StatelessWidget {
       navigator.pushAndRemoveUntil(
         MaterialPageRoute(
           builder: (context) => ErrorScreen(
-            details: "error starting wizard: ${e.toString()}",
+            details: 'error starting wizard: ${e.toString()}',
             onTapClose: () => navigator.pop(),
           ),
         ),
@@ -58,21 +55,19 @@ class ScannerScreen extends StatelessWidget {
     }
 
     IrmaRepository.get().dispatch(
-      GetIssueWizardContentsEvent(id: sessionPointer.wizard),
+      GetIssueWizardContentsEvent(id: sessionPointer.wizard!),
       isBridgedEvent: true,
     );
 
-    int sessionID;
     if (sessionPointer.irmaqr != null) {
-      sessionID = await startSessionAndNavigate(navigator, sessionPointer);
+      final int sessionID = await startSessionAndNavigate(navigator, sessionPointer);
+      // Push wizard on top of session screen (if any). If the user cancels the wizard by going back
+      // to the wallet, then the session screen is automatically dismissed, which cancels the session.
+      navigator.pushNamed(
+        IssueWizardScreen.routeName,
+        arguments: IssueWizardScreenArguments(wizardID: sessionPointer.wizard, sessionID: sessionID),
+      );
     }
-
-    // Push wizard on top of session screen (if any). If the user cancels the wizard by going back
-    // to the wallet, then the session screen is automatically dismissed, which cancels the session.
-    navigator.pushNamed(
-      IssueWizardScreen.routeName,
-      arguments: IssueWizardScreenArguments(wizardID: sessionPointer.wizard, sessionID: sessionID),
-    );
   }
 
   // TODO: Make this function private again and / or split it out to a utility function
@@ -110,19 +105,9 @@ class ScannerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: IrmaAppBar(
-        title: const Text('QR code scan'),
-        leadingAction: () => _onClose(context),
-        leadingIcon: Icon(Icons.arrow_back, semanticLabel: FlutterI18n.translate(context, "accessibility.back")),
-        actions: const [],
-      ),
-      body: Stack(
-        children: <Widget>[
-          QRScanner(
-            onClose: () => _onClose(context),
-            onFound: (code) => _onSuccess(context, code),
-          ),
-        ],
+      body: QRScanner(
+        onClose: () => _onClose(context),
+        onFound: (code) => _onSuccess(context, code),
       ),
     );
   }
