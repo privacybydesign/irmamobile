@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -36,7 +35,11 @@ class _QRViewContainerState extends State<QRViewContainer> {
 
   void _onQRViewCreated(QRViewController controller) {
     _qrViewController = controller;
-    _qrViewSubscription = controller.scannedDataStream.listen((qr) => widget.onFound(qr.code!));
+    _qrViewSubscription = controller.scannedDataStream.listen((qr) {
+      if (qr.code != null) {
+        widget.onFound(qr.code!);
+      }
+    });
   }
 
   @override
