@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
+import 'package:irmamobile/src/models/clear_all_data_event.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
@@ -19,7 +20,7 @@ class ResetPinScreen extends StatelessWidget {
   }
 
   void confirm(BuildContext context) {
-    IrmaRepository.get().enroll();
+    IrmaRepository.get().dispatch(ClearAllDataEvent());
   }
 
   void _closeKeyboard(BuildContext context) {

@@ -1,24 +1,22 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/credential_events.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/screens/debug/portrait_photo_mock.dart';
-import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
+import 'package:irmamobile/src/util/handle_pointer.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
+import 'package:irmamobile/src/widgets/irma_repository_provider.dart';
 
+// ignore: avoid_classes_with_only_static_members
 class DemoSessionHelper {
   static final _random = Random();
 
   static String disclosureSessionRequest() {
-    return """
+    return '''
       {
         "@context": "https://irma.app/ld/request/disclosure/v2",
         "disclose": [
@@ -36,11 +34,11 @@ class DemoSessionHelper {
         ],
         "clientReturnUrl": "tel:+31612345678,1234567"
       }
-    """;
+    ''';
   }
 
   static String signingSessionRequest() {
-    return """
+    return '''
       {
         "@context": "https://irma.app/ld/request/signature/v2",
         "message": "Ik geef hierbij toestemming aan Partij A om mijn gegevens uit te wisselen met Partij B. Deze toestemming is geldig tot 1 juni 2019.",
@@ -52,16 +50,16 @@ class DemoSessionHelper {
           ]
         ]
       }
-    """;
+    ''';
   }
 
   static String issuanceSessionRequest(List<String> credentialsJson) {
-    return """
+    return '''
       {
         "@context": "https://irma.app/ld/request/issuance/v2",
         "credentials": [${credentialsJson.join(", ")}]
       }
-    """;
+    ''';
   }
 
   static Map<String, List<AttributeType>> _attributeTypesByCredentialType(IrmaConfiguration irmaConfiguration) {
@@ -72,27 +70,27 @@ class DemoSessionHelper {
   }
 
   static String _credentialRequest(CredentialType credentialType, attributeValues) {
-    return """
+    return '''
       {
         "credential": "${credentialType.fullId}",
         "attributes": {${attributeValues.join(", ")}}
       }
-    """;
+    ''';
   }
 
   static String _randomAttributeValue() {
-    const attributeValues = ["lorem", "ipsum"];
+    const attributeValues = ['lorem', 'ipsum'];
     return attributeValues[_random.nextInt(attributeValues.length)];
   }
 
   static Future<String> digidProefIssuanceRequest(Future<IrmaConfiguration> irmaConfigurationFuture) async {
     final irmaConfiguration = await irmaConfigurationFuture;
-    const credentialTypeId = "irma-demo.digidproef.personalData";
-    final credentialType = irmaConfiguration.credentialTypes[credentialTypeId];
-    final attributeTypesLookup = _attributeTypesByCredentialType(irmaConfiguration)[credentialTypeId];
+    const credentialTypeId = 'irma-demo.digidproef.personalData'; // We assume this credential is present.
+    final credentialType = irmaConfiguration.credentialTypes[credentialTypeId]!;
+    final attributeTypesLookup = _attributeTypesByCredentialType(irmaConfiguration)[credentialTypeId]!;
 
     final attributeValues = attributeTypesLookup.map((attributeType) {
-      final value = attributeType.displayHint == "portraitPhoto" ? portraitPhotoMock : _randomAttributeValue();
+      final value = attributeType.displayHint == 'portraitPhoto' ? portraitPhotoMock : _randomAttributeValue();
       return '"${attributeType.id}": "$value"';
     }).toList();
 
@@ -104,12 +102,12 @@ class DemoSessionHelper {
   static Future<String> randomIssuanceRequest(Future<IrmaConfiguration> irmaConfigurationFuture, int amount) async {
     final irmaConfiguration = await irmaConfigurationFuture;
     final credentialTypes =
-        irmaConfiguration.credentialTypes.values.where((ct) => ct.schemeManagerId == "irma-demo").toList();
+        irmaConfiguration.credentialTypes.values.where((ct) => ct.schemeManagerId == 'irma-demo').toList();
     final attributeTypesLookup = _attributeTypesByCredentialType(irmaConfiguration);
 
     final credentialsJson = List<String>.generate(amount, (int i) {
       final credentialType = credentialTypes[_random.nextInt(credentialTypes.length)];
-      final attributeValues = attributeTypesLookup[credentialType.fullId]
+      final attributeValues = attributeTypesLookup[credentialType.fullId]!
           .map((attributeType) => '"${attributeType.id}": "${_randomAttributeValue()}"')
           .toList();
 
@@ -121,20 +119,20 @@ class DemoSessionHelper {
 }
 
 class DebugScreen extends StatelessWidget {
-  static const routeName = "/debug";
+  static const routeName = '/debug';
 
   void _onClose(BuildContext context) {
     Navigator.of(context).pop();
   }
 
-  Future<void> _startDisclosureSession() =>
-      IrmaRepository.get().startTestSession(DemoSessionHelper.disclosureSessionRequest());
+  Future<void> _startDisclosureSession(BuildContext context) =>
+      IrmaRepositoryProvider.of(context).startTestSession(DemoSessionHelper.disclosureSessionRequest());
 
-  Future<void> _getCards(Future<String> issuanceRequest) async =>
-      IrmaRepository.get().startTestSession(await issuanceRequest);
+  Future<void> _getCards(BuildContext context, Future<String> issuanceRequest) async =>
+      IrmaRepositoryProvider.of(context).startTestSession(await issuanceRequest);
 
-  Future<void> _deleteAllDeletableCards() async {
-    final repo = IrmaRepository.get();
+  Future<void> _deleteAllDeletableCards(BuildContext context) async {
+    final repo = IrmaRepositoryProvider.of(context);
     final credentials = await repo.getCredentials().first;
 
     for (final credential in credentials.values) {
@@ -148,38 +146,42 @@ class DebugScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final irmaConfigurationFuture = IrmaRepository.get().getIrmaConfiguration().first;
+    final irmaConfigurationFuture = IrmaRepositoryProvider.of(context).getIrmaConfiguration().first;
 
     return Scaffold(
       appBar: IrmaAppBar(
         title: const Text('Debugger'),
         leadingAction: () => _onClose(context),
-        leadingIcon: Icon(Icons.arrow_back, semanticLabel: FlutterI18n.translate(context, "accessibility.back")),
+        leadingIcon: Icon(Icons.arrow_back, semanticLabel: FlutterI18n.translate(context, 'accessibility.back')),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.image),
+            icon: const Icon(Icons.image),
             onPressed: () => _getCards(
+              context,
               DemoSessionHelper.digidProefIssuanceRequest(irmaConfigurationFuture),
             ),
           ),
           IconButton(
-            icon: Icon(Icons.share),
-            onPressed: () => _startDisclosureSession(),
+            icon: const Icon(Icons.share),
+            onPressed: () => _startDisclosureSession(context),
           ),
           IconButton(
-            icon: Icon(Icons.exposure_plus_2),
+            icon: const Icon(Icons.exposure_plus_2),
             onPressed: () => _getCards(
+              context,
               DemoSessionHelper.randomIssuanceRequest(irmaConfigurationFuture, 2),
             ),
           ),
           IconButton(
-            icon: Icon(Icons.list_alt),
-            onPressed: () => ScannerScreen.startIssueWizard(
-                Navigator.of(context), SessionPointer(wizard: "irma-demo-requestors.ivido.demo-client")),
+            icon: const Icon(Icons.list_alt),
+            onPressed: () => handlePointer(
+              Navigator.of(context),
+              IssueWizardPointer('irma-demo-requestors.ivido.demo-client'),
+            ),
           ),
           IconButton(
-            icon: Icon(Icons.delete),
-            onPressed: () => _deleteAllDeletableCards(),
+            icon: const Icon(Icons.delete),
+            onPressed: () => _deleteAllDeletableCards(context),
           ),
         ],
       ),

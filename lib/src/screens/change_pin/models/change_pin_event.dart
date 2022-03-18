@@ -1,13 +1,9 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:equatable/equatable.dart';
-import 'package:meta/meta.dart';
 
 class OldPinEntered extends Equatable {
   final String pin;
 
-  const OldPinEntered({@required this.pin});
+  const OldPinEntered({required this.pin});
 
   @override
   String toString() => 'OldPinEntered { pin: ${'*' * pin.length} }';
@@ -19,7 +15,7 @@ class OldPinEntered extends Equatable {
 class NewPinChosen extends Equatable {
   final String pin;
 
-  const NewPinChosen({@required this.pin});
+  const NewPinChosen({required this.pin});
 
   @override
   String toString() => 'NewPinChosen { pin: ${'*' * pin.length} }';
@@ -39,7 +35,7 @@ class ToggleLongPin extends Equatable {
 class NewPinConfirmed extends Equatable {
   final String pin;
 
-  const NewPinConfirmed({@required this.pin});
+  const NewPinConfirmed({required this.pin});
 
   @override
   String toString() => 'NewPinConfirmed { pin: ${'*' * pin.length} }';

@@ -26,7 +26,7 @@ void main() {
     testWidgets('screen-check-issuance', (tester) async {
       // Scenario 1 of IRMA app11 settings
       // Initialize the app for integration tests
-      await tester.pumpWidgetAndSettle(const IrmaApp());
+      await tester.pumpWidgetAndSettle(IrmaApp(repository: irmaBinding.repository));
       await unlock(tester);
       // Start session
       await issueCardsMunicipality(tester, irmaBinding);

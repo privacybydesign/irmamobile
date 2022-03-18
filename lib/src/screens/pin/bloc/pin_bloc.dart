@@ -30,11 +30,7 @@ class PinBloc extends Bloc<PinEvent, PinState> {
     return super.close();
   }
 
-  static PinState get _initialState => PinState(
-        authenticated: false,
-        authenticateInProgress: false,
-        pinInvalid: false,
-      );
+  static PinState get _initialState => PinState();
 
   @override
   Stream<PinState> mapEventToState(PinEvent pinEvent) async* {
@@ -44,7 +40,6 @@ class PinBloc extends Bloc<PinEvent, PinState> {
         pinInvalid: true,
         blockedUntil: pinEvent.blockedUntil,
         remainingAttempts: 0,
-        authenticateInProgress: false,
       );
     } else if (pinEvent is Authenticate) {
       yield PinState(
@@ -55,7 +50,6 @@ class PinBloc extends Bloc<PinEvent, PinState> {
       if (authenticationEvent is AuthenticationSuccessEvent) {
         yield PinState(
           authenticated: true,
-          authenticateInProgress: false,
         );
       } else if (authenticationEvent is AuthenticationFailedEvent) {
         // To have some timing slack we add some time to the blocked duration.
@@ -66,27 +60,22 @@ class PinBloc extends Bloc<PinEvent, PinState> {
             pinInvalid: true,
             blockedUntil: blockedUntil,
             remainingAttempts: authenticationEvent.remainingAttempts,
-            authenticateInProgress: false,
           );
         } else {
           yield PinState(
             pinInvalid: true,
             remainingAttempts: authenticationEvent.remainingAttempts,
-            authenticateInProgress: false,
           );
         }
       } else if (authenticationEvent is AuthenticationErrorEvent) {
         yield PinState(
           error: authenticationEvent.error,
-          authenticateInProgress: false,
         );
       } else {
         throw Exception("Unexpected subtype of AuthenticationResult");
       }
     } else if (pinEvent is Locked) {
-      yield PinState(
-        authenticated: false,
-      );
+      yield PinState();
     }
   }
 

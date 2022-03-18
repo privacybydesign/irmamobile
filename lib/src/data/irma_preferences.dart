@@ -1,135 +1,78 @@
-// This code is not null safe yet.
-// @dart=2.11
-
-import 'package:rxdart/subjects.dart';
 import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 
 class IrmaPreferences {
-  static IrmaPreferences _instance;
+  static IrmaPreferences? _instance;
 
+  // This function is deprecated, because it ignores the StreamingSharedPreferences instance to return a future.
+  @Deprecated('Use preferences from IrmaRepository instead')
   static IrmaPreferences get() {
-    return _instance ??= IrmaPreferences._internal();
+    if (_instance == null) throw Exception('IrmaPreferences has not been initialized');
+    return _instance!;
   }
 
-  IrmaPreferences._internal() {
-    StreamingSharedPreferences.instance.then((preferences) {
-      final screenshotsEnabledPref = preferences.getBool(_screenshotsEnabledKey, defaultValue: false);
-      screenshotsEnabledPref.listen(_screenshotsEnabled.add);
-
-      final longPinPref = preferences.getBool(_longPinKey, defaultValue: true);
-      longPinPref.listen(_longPin.add);
-
-      final reportErrorsPref = preferences.getBool(_reportErrorsKey, defaultValue: false);
-      reportErrorsPref.listen(_reportErrors.add);
-
-      final startQRScanPref = preferences.getBool(_startQRScanKey, defaultValue: false);
-      startQRScanPref.listen(_startQRScan.add);
-
-      final showDisclosureDialogPref = preferences.getBool(_showDisclosureDialogKey, defaultValue: true);
-      showDisclosureDialogPref.listen(_showDisclosureDialog.add);
-
-      final developerModePrefVisiblePref = preferences.getBool(_developerModePrefVisibleKey, defaultValue: false);
-      developerModePrefVisiblePref.listen(_developerModePrefVisible.add);
-
-      final accepterRootedRiskPref = preferences.getBool(_acceptedRootedRiskKey, defaultValue: false);
-      accepterRootedRiskPref.listen(_acceptedRootedRisk.add);
-    });
+  // This factory constructor can be removed when IrmaPreferences.get() is phased out.
+  // The standard constructor below can be converted to default constructor then.
+  factory IrmaPreferences(StreamingSharedPreferences preferences) {
+    _instance = IrmaPreferences._(preferences);
+    return _instance!;
   }
+
+  IrmaPreferences._(StreamingSharedPreferences preferences)
+      : _screenshotsEnabled = preferences.getBool(_screenshotsEnabledKey, defaultValue: false),
+        _longPin = preferences.getBool(_longPinKey, defaultValue: true),
+        _reportErrors = preferences.getBool(_reportErrorsKey, defaultValue: false),
+        _startQRScan = preferences.getBool(_startQRScanKey, defaultValue: false),
+        _showDisclosureDialog = preferences.getBool(_showDisclosureDialogKey, defaultValue: true),
+        _developerModePrefVisible = preferences.getBool(_developerModePrefVisibleKey, defaultValue: false),
+        _acceptedRootedRisk = preferences.getBool(_acceptedRootedRiskKey, defaultValue: false);
+
+  static Future<IrmaPreferences> fromInstance() async => IrmaPreferences(await StreamingSharedPreferences.instance);
 
   Future<void> clearAll() {
-    return StreamingSharedPreferences.instance.then((preferences) {
-      return preferences.clear();
+    return StreamingSharedPreferences.instance.then((preferences) async {
+      await preferences.clear();
     });
   }
 
   static const String _screenshotsEnabledKey = 'preference.screenshots_enabled';
-  final BehaviorSubject<bool> _screenshotsEnabled = BehaviorSubject<bool>();
+  final Preference<bool> _screenshotsEnabled;
 
-  Stream<bool> getScreenshotsEnabled() {
-    return _screenshotsEnabled;
-  }
+  Stream<bool> getScreenshotsEnabled() => _screenshotsEnabled;
+  Future<bool> setScreenshotsEnabled(bool value) => _screenshotsEnabled.setValue(value);
 
-  Future<bool> setScreenshotsEnabled(bool value) {
-    return StreamingSharedPreferences.instance.then((preferences) {
-      return preferences.setBool(_screenshotsEnabledKey, value);
-    });
-  }
+  static const String _longPinKey = "preference.long_pin";
+  final Preference<bool> _longPin;
 
-  static const String _longPinKey = 'preference.long_pin';
-  final BehaviorSubject<bool> _longPin = BehaviorSubject<bool>();
+  Stream<bool> getLongPin() => _longPin;
+  Future<bool> setLongPin(bool value) => _longPin.setValue(value);
 
-  Stream<bool> getLongPin() {
-    return _longPin;
-  }
+  static const String _reportErrorsKey = "preference.report_errors";
+  final Preference<bool> _reportErrors;
 
-  Future<bool> setLongPin(bool value) {
-    return StreamingSharedPreferences.instance.then((preferences) {
-      return preferences.setBool(_longPinKey, value);
-    });
-  }
+  Stream<bool> getReportErrors() => _reportErrors;
+  Future<bool> setReportErrors(bool value) => _reportErrors.setValue(value);
 
-  static const String _reportErrorsKey = 'preference.report_errors';
-  final BehaviorSubject<bool> _reportErrors = BehaviorSubject<bool>();
+  static const String _startQRScanKey = "preference.open_qr_scanner_on_launch";
+  final Preference<bool> _startQRScan;
 
-  Stream<bool> getReportErrors() {
-    return _reportErrors;
-  }
+  Stream<bool> getStartQRScan() => _startQRScan;
+  Future<bool> setStartQRScan(bool value) => _startQRScan.setValue(value);
 
-  Future<bool> setReportErrors(bool value) {
-    return StreamingSharedPreferences.instance.then((preferences) {
-      return preferences.setBool(_reportErrorsKey, value);
-    });
-  }
+  static const String _showDisclosureDialogKey = "preference.show_disclosure_dialog";
+  final Preference<bool> _showDisclosureDialog;
 
-  static const String _startQRScanKey = 'preference.open_qr_scanner_on_launch';
-  final BehaviorSubject<bool> _startQRScan = BehaviorSubject<bool>();
+  Stream<bool> getShowDisclosureDialog() => _showDisclosureDialog;
+  Future<bool> setShowDisclosureDialog(bool value) => _showDisclosureDialog.setValue(value);
 
-  Stream<bool> getStartQRScan() {
-    return _startQRScan;
-  }
+  static const String _developerModePrefVisibleKey = "preference.devmode_visible";
+  final Preference<bool> _developerModePrefVisible;
 
-  Future<bool> setStartQRScan(bool value) {
-    return StreamingSharedPreferences.instance.then((preferences) {
-      return preferences.setBool(_startQRScanKey, value);
-    });
-  }
+  Stream<bool> getDeveloperModeVisible() => _developerModePrefVisible;
+  Future<bool> setDeveloperModeVisible(bool value) => _developerModePrefVisible.setValue(value);
 
-  static const String _showDisclosureDialogKey = 'preference.show_disclosure_dialog';
-  final BehaviorSubject<bool> _showDisclosureDialog = BehaviorSubject<bool>();
+  static const String _acceptedRootedRiskKey = "preference.accepted_rooted_risk";
+  final Preference<bool> _acceptedRootedRisk;
 
-  Stream<bool> getShowDisclosureDialog() {
-    return _showDisclosureDialog;
-  }
-
-  Future<bool> setShowDisclosureDialog(bool value) {
-    return StreamingSharedPreferences.instance.then((preferences) {
-      return preferences.setBool(_showDisclosureDialogKey, value);
-    });
-  }
-
-  static const String _developerModePrefVisibleKey = 'preference.devmode_visible';
-  final BehaviorSubject<bool> _developerModePrefVisible = BehaviorSubject<bool>();
-
-  Stream<bool> getDeveloperModeVisible() {
-    return _developerModePrefVisible;
-  }
-
-  Future<bool> setDeveloperModeVisible(bool value) {
-    return StreamingSharedPreferences.instance.then((preferences) {
-      return preferences.setBool(_developerModePrefVisibleKey, value);
-    });
-  }
-
-  static const String _acceptedRootedRiskKey = 'preference.accepted_rooted_risk';
-  final BehaviorSubject<bool> _acceptedRootedRisk = BehaviorSubject<bool>();
-
-  Stream<bool> getAcceptedRootedRisk() {
-    return _acceptedRootedRisk;
-  }
-
-  Future<bool> setAcceptedRootedRisk(bool value) {
-    return StreamingSharedPreferences.instance.then((preferences) {
-      return preferences.setBool(_acceptedRootedRiskKey, value);
-    });
-  }
+  Stream<bool> getAcceptedRootedRisk() => _acceptedRootedRisk;
+  Future<bool> setAcceptedRootedRisk(bool value) => _acceptedRootedRisk.setValue(value);
 }

@@ -1,6 +1,3 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:equatable/equatable.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:meta/meta.dart';
@@ -26,13 +23,13 @@ class EnrollmentState with EquatableMixin {
   final bool pinMismatch;
   final bool isSubmitting;
   final bool submittingFailed;
-  final SessionError error;
+  final SessionError? error;
   final int retry;
 
   EnrollmentState({
-    this.pin,
-    this.email = "",
-    this.languageCode = "nl",
+    this.pin = '',
+    this.email = '',
+    this.languageCode = 'nl',
     this.pinConfirmed = false,
     this.pinMismatch = false,
     this.emailValid = false,
@@ -46,19 +43,19 @@ class EnrollmentState with EquatableMixin {
   });
 
   EnrollmentState copyWith({
-    String pin,
-    String email,
-    String languageCode,
-    bool pinConfirmed,
-    bool pinMismatch,
-    bool emailValid,
-    bool emailSkipped,
-    bool showEmailValidation,
-    bool showPinValidation,
-    bool isSubmitting,
-    bool submittingFailed,
-    SessionError error,
-    int retry,
+    String? pin,
+    String? email,
+    String? languageCode,
+    bool? pinConfirmed,
+    bool? pinMismatch,
+    bool? emailValid,
+    bool? emailSkipped,
+    bool? showEmailValidation,
+    bool? showPinValidation,
+    bool? isSubmitting,
+    bool? submittingFailed,
+    SessionError? error,
+    int? retry,
   }) {
     return EnrollmentState(
       pin: pin ?? this.pin,
@@ -79,9 +76,10 @@ class EnrollmentState with EquatableMixin {
 
   @override
   String toString() {
-    return '''EnrollmentState
+    return '''
+    EnrollmentState
      {
-        pin: ${pin == null ? null : '*' * pin.length},
+        pin: ${'*' * pin.length},
         email: $email,
         languageCode: $languageCode,
         pinConfirmed: $pinConfirmed,
@@ -93,11 +91,12 @@ class EnrollmentState with EquatableMixin {
         retry: $retry,
         isSubmitting: $isSubmitting,
         submittingFailed: $submittingFailed,
-    }''';
+    }
+    ''';
   }
 
   @override
-  List<Object> get props {
+  List<Object?> get props {
     return [
       pin,
       email,

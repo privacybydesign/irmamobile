@@ -1,6 +1,3 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -23,9 +20,9 @@ import 'package:irmamobile/src/sentry/sentry.dart';
 typedef EventUnmarshaller = Event Function(Map<String, dynamic>);
 
 class IrmaClientBridge extends IrmaBridge {
-  MethodChannel _methodChannel;
+  final MethodChannel _methodChannel;
 
-  final Map<Type, EventUnmarshaller> _eventUnmarshallers = {
+  static final Map<Type, EventUnmarshaller> _eventUnmarshallers = {
     IrmaConfigurationEvent: (j) => IrmaConfigurationEvent.fromJson(j),
     CredentialsEvent: (j) => CredentialsEvent.fromJson(j),
     EnrollmentStatusEvent: (j) => EnrollmentStatusEvent.fromJson(j),
@@ -64,29 +61,24 @@ class IrmaClientBridge extends IrmaBridge {
     // FooBar: (j) => FooBar.fromJson(j),
   };
 
-  final Map<String, EventUnmarshaller> _eventUnmarshallerLookup = {};
+  // Create a lookup of unmarshallers
+  static final Map<String, EventUnmarshaller> _eventUnmarshallerLookup =
+      _eventUnmarshallers.map((Type t, EventUnmarshaller u) => MapEntry<String, EventUnmarshaller>(t.toString(), u));
 
-  IrmaClientBridge() {
-    // Create a lookup of unmarshallers
-    _eventUnmarshallerLookup.addAll(
-        _eventUnmarshallers.map((Type t, EventUnmarshaller u) => MapEntry<String, EventUnmarshaller>(t.toString(), u)));
-
-    // Start listening to method calls from the native side and
-    _methodChannel = const MethodChannel('irma.app/irma_mobile_bridge');
+  IrmaClientBridge() : _methodChannel = const MethodChannel('irma.app/irma_mobile_bridge') {
+    // Start listening to method calls from the native side
     _methodChannel.setMethodCallHandler(_handleMethodCall);
   }
 
-  Future<dynamic> _handleMethodCall(MethodCall call) async {
-    final success = Future<dynamic>.value(null);
-
+  Future<void> _handleMethodCall(MethodCall call) async {
     try {
       final data = jsonDecode(call.arguments as String) as Map<String, dynamic>;
-      final EventUnmarshaller unmarshaller = _eventUnmarshallerLookup[call.method];
+      final unmarshaller = _eventUnmarshallerLookup[call.method];
 
       if (unmarshaller == null) {
         // Don't send 'call.arguments' to Sentry; it might contain personal data.
         reportError('Unrecognized bridge event received: ${call.method}', null);
-        return success;
+        return;
       }
 
       if (kDebugMode) {
@@ -99,7 +91,7 @@ class IrmaClientBridge extends IrmaBridge {
       reportError(e, stacktrace);
     }
 
-    return success;
+    return;
   }
 
   @override
