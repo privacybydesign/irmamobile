@@ -27,6 +27,7 @@ dependencies:
   package_info: ^2.0.2
   collection: ^1.15.0
   mobile_scanner: ^1.0.0
+  native_device_orientation: ^1.0.0 # TODO: Remove this package once mobile_scanner supports landscape
   share: ^2.0.4
   intl: ^0.17.0
   flutter_markdown: ^0.6.6
