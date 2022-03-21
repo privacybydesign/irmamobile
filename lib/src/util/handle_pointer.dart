@@ -12,7 +12,7 @@ import '../widgets/irma_repository_provider.dart';
 
 /// First handles the issue wizard if one is present, and subsequently the session is handled.
 /// If no wizard is specified, only the session will be performed.
-/// If no session is specified, the user will be returned to the WalletScreen after completing the wizard.
+/// If no session is specified, the user will be returned to the HomeScreen after completing the wizard.
 Future<void> handlePointer(NavigatorState navigator, Pointer pointer) async {
   try {
     await pointer.validate(irmaRepository: IrmaRepositoryProvider.of(navigator.context));
