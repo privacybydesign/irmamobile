@@ -9,22 +9,22 @@ import java.security.SecureRandom;
 
 public class AESKey {
     public static byte[] getKey(Context context) {
-        AES aes = new AES(context.getPackageManager());
+        TEEEncryption tee = new TEEEncryption(context.getPackageManager());
         String path = context.getFilesDir() + "/storageKey";
 
         try {
-            byte[] encrypted = FileSystem.read(path);
+            byte[] ciphertext = FileSystem.read(path);
 
-            if (encrypted == null) {
+            if (ciphertext == null) {
                 byte[] key = generateKey();
 
-                encrypted = aes.encrypt(key);
-                FileSystem.write(encrypted, path);
+                ciphertext = tee.encrypt(key);
+                FileSystem.write(ciphertext, path);
 
                 return key;
             }
 
-            return aes.decrypt(encrypted);
+            return tee.decrypt(ciphertext);
 
         } catch (GeneralSecurityException | IOException e) {
             throw new RuntimeException(e);

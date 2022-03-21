@@ -1,18 +1,21 @@
 import Foundation
 
-enum AESError: Error {
+enum TEEError: Error {
     case unsupportedAlgorithm
     case unavailablePublicKey
     case incorrectBlockSize
     case keyGenerationFailed
     case keyNotFound
 }
-public class AES {
+// Trusted Execution Environment (TEE) class
+public class TEE {
     final let algorithm: SecKeyAlgorithm = .eciesEncryptionCofactorVariableIVX963SHA256AESGCM
-    final let tag: Data = "storageKey".data(using: .utf8)!
+    let tag: Data
     var key: SecKey?
     
-    init() throws {
+    init(_ name: String) throws {
+        tag = name.data(using: .utf8)!
+
         if (!keyExists()) {
             try generateKey()
         }
@@ -25,11 +28,11 @@ public class AES {
         let key: SecKey = try getKey()
         
         guard let pk = SecKeyCopyPublicKey(key) else {
-            throw AESError.unavailablePublicKey
+            throw TEEError.unavailablePublicKey
         }
 
         guard SecKeyIsAlgorithmSupported(pk, .encrypt, algorithm) else {
-              throw AESError.unsupportedAlgorithm
+              throw TEEError.unsupportedAlgorithm
         }
 
         guard let ciphertext = SecKeyCreateEncryptedData(pk,
@@ -48,7 +51,7 @@ public class AES {
         let key: SecKey = try getKey()
 
         guard SecKeyIsAlgorithmSupported(key, .decrypt, algorithm) else {
-            throw AESError.unsupportedAlgorithm
+            throw TEEError.unsupportedAlgorithm
         }
 
         guard let plaintext = SecKeyCreateDecryptedData(key,
@@ -110,7 +113,7 @@ public class AES {
     
     private func getKey() throws -> SecKey {
         guard let key = tryLoadKey() else {
-            throw AESError.keyNotFound
+            throw TEEError.keyNotFound
         }
         return key
     }

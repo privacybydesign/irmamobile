@@ -15,14 +15,15 @@ import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.spec.GCMParameterSpec;
 
-public class AES {
+// Encryption and decryption via the Trusted Execution Environment (TEE)
+public class TEEEncryption {
     private final PackageManager packageManager;
     private final KeyStore keyStore;
     private final String keyAlias = "storageKey";
     private final Cipher cipher;
     private static final int ivLength = 12;
 
-    public AES(PackageManager pm) {
+    public TEEEncryption(PackageManager pm) {
         packageManager = pm;
 
         try {
