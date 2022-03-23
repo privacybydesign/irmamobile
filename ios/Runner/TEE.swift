@@ -9,7 +9,7 @@ enum TEEError: Error {
 }
 // Trusted Execution Environment (TEE) class
 public class TEE {
-    final let algorithm: SecKeyAlgorithm = .eciesEncryptionCofactorVariableIVX963SHA256AESGCM
+    final let encryptionAlgorithm: SecKeyAlgorithm = .eciesEncryptionCofactorVariableIVX963SHA256AESGCM
     let tag: Data
     var key: SecKey?
     
@@ -31,12 +31,12 @@ public class TEE {
             throw TEEError.unavailablePublicKey
         }
 
-        guard SecKeyIsAlgorithmSupported(pk, .encrypt, algorithm) else {
+        guard SecKeyIsAlgorithmSupported(pk, .encrypt, encryptionAlgorithm) else {
               throw TEEError.unsupportedAlgorithm
         }
 
         guard let ciphertext = SecKeyCreateEncryptedData(pk,
-                                                         algorithm,
+                                                         encryptionAlgorithm,
                                                          plaintext as CFData,
                                                          &error) as Data? else {
             throw error!.takeRetainedValue() as Error
@@ -50,12 +50,12 @@ public class TEE {
 
         let key: SecKey = try getKey()
 
-        guard SecKeyIsAlgorithmSupported(key, .decrypt, algorithm) else {
+        guard SecKeyIsAlgorithmSupported(key, .decrypt, encryptionAlgorithm) else {
             throw TEEError.unsupportedAlgorithm
         }
 
         guard let plaintext = SecKeyCreateDecryptedData(key,
-                                                        algorithm,
+                                                        encryptionAlgorithm,
                                                         ciphertext as CFData,
                                                         &error) as Data? else {
             throw error!.takeRetainedValue() as Error
