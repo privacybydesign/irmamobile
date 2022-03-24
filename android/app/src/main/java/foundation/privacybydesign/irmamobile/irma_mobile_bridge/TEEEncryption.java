@@ -7,6 +7,7 @@ import android.security.keystore.KeyProperties;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.Key;
 import java.security.KeyStore;
 import java.util.Arrays;
@@ -23,19 +24,14 @@ public class TEEEncryption {
     private final Cipher cipher;
     private static final int ivLength = 12;
 
-    public TEEEncryption(PackageManager pm) {
+    public TEEEncryption(PackageManager pm) throws GeneralSecurityException, IOException {
         packageManager = pm;
+        keyStore = KeyStore.getInstance("AndroidKeyStore");
+        keyStore.load(null);
+        cipher = Cipher.getInstance("AES/GCM/NoPadding");
 
-        try {
-            keyStore = KeyStore.getInstance("AndroidKeyStore");
-            keyStore.load(null);
-            cipher = Cipher.getInstance("AES/GCM/NoPadding");
-
-            if (!keyExists())
-                generateKey();
-        } catch (GeneralSecurityException | IOException e) {
-            throw new RuntimeException(e);
-        }
+        if (!keyExists())
+            generateKey();
     }
 
     private boolean keyExists() throws GeneralSecurityException {
@@ -68,7 +64,7 @@ public class TEEEncryption {
         // when using the algorithm AES/GCM/NoPadding.
         byte[] iv = cipher.getIV();
         if (iv.length != ivLength) {
-            throw new RuntimeException("Unexpected IV length");
+            throw new InvalidAlgorithmParameterException("Unexpected IV length");
         }
 
         byte[] ciphertext = cipher.doFinal(plaintext);

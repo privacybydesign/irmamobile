@@ -8,27 +8,22 @@ import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 
 public class AESKey {
-    public static byte[] getKey(Context context) {
+    public static byte[] getKey(Context context) throws GeneralSecurityException, IOException {
         TEEEncryption tee = new TEEEncryption(context.getPackageManager());
         String path = context.getFilesDir() + "/storageKey";
 
-        try {
-            byte[] ciphertext = FileSystem.read(path);
+        byte[] ciphertext = FileSystem.read(path);
 
-            if (ciphertext == null) {
-                byte[] key = generateKey();
+        if (ciphertext == null) {
+            byte[] key = generateKey();
 
-                ciphertext = tee.encrypt(key);
-                FileSystem.write(ciphertext, path);
+            ciphertext = tee.encrypt(key);
+            FileSystem.write(ciphertext, path);
 
-                return key;
-            }
-
-            return tee.decrypt(ciphertext);
-
-        } catch (GeneralSecurityException | IOException e) {
-            throw new RuntimeException(e);
+            return key;
         }
+
+        return tee.decrypt(ciphertext);
     }
 
     private static byte[] generateKey() throws GeneralSecurityException {
