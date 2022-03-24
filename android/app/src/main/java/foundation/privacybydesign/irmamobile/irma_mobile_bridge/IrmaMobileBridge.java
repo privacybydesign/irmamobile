@@ -32,8 +32,8 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
     this.initialURL = initialURL;
     appReady = false;
 
-    IrmaConfigurationCopier copier = new IrmaConfigurationCopier(context);
     try {
+      IrmaConfigurationCopier copier = new IrmaConfigurationCopier(context);
       byte[] aesKey = AESKey.getKey(context);
       PackageInfo pi = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
       Irmagobridge.start(this, pi.applicationInfo.dataDir, copier.destAssetsPath.toString(), aesKey);
