@@ -8,6 +8,7 @@
   NSObject<FlutterPluginRegistrar>* registrar;
   FlutterMethodChannel* channel;
   NSString* initialURL;
+  NSString* nativeError;
   BOOL appReady;
 }
 
@@ -45,6 +46,8 @@
   NSData * aesKey = [[[AESKey alloc] init] getKeyAndReturnError:&storageError];
   if (storageError != nil) {
     NSLog(@"Error retrieving storage key %@", storageError);
+    nativeError = [NSString stringWithFormat:@"{\"Exception\":\"%@\",\"Stack\":\"%@\",\"Fatal\":true}", storageError.localizedFailureReason, storageError.localizedDescription];
+    return self;
   }
 
   IrmagobridgeStart(self, libraryPath, bundlePath, aesKey);
@@ -53,6 +56,11 @@
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
   [self debugLog:[NSString stringWithFormat:@"handling %@", call.method]];
+
+  if (nativeError != nil) {
+    [channel invokeMethod:@"ErrorEvent" arguments:nativeError];
+    return;
+  }
 
   if([call.method isEqualToString:@"AppReadyEvent"]) {
     appReady = true;
