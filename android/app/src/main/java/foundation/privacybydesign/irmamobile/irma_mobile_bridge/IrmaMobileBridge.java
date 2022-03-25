@@ -46,8 +46,7 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
   @Override
   public void onMethodCall(MethodCall call, Result result) {
     if (this.nativeError != null) {
-      channel.invokeMethod("ErrorEvent",
-      this.nativeError);
+      channel.invokeMethod("ErrorEvent", this.nativeError);
       return;
     }
 
