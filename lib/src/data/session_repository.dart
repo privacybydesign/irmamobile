@@ -92,6 +92,7 @@ class SessionRepository {
       } on SessionError catch (e) {
         return prevState.copyWith(status: SessionStatus.error, error: e);
       }
+      // TODO: Can we move this logic to the bloc?
       final condiscon = _processCandidates(event.disclosuresCandidates, prevState, irmaConfiguration, credentials);
       // All discons must have an option to choose from. Otherwise the session can never be finished.
       final canBeFinished = condiscon.every((discon) => discon.isNotEmpty);
@@ -264,6 +265,8 @@ class SessionRepository {
     return i;
   }
 
+  SessionState? getCurrentSessionState(int sessionID) => _sessionStatesSubject.value[sessionID];
+
   Stream<SessionState> getSessionState(int sessionID) => _sessionStatesSubject
       .where((sessionStates) => sessionStates.containsKey(sessionID))
       .map((sessionStates) => sessionStates[sessionID]!);
@@ -279,5 +282,9 @@ class SessionRepository {
             (attr) => AttributeIdentifier.fromAttribute(attr),
           )),
         ));
+  }
+
+  void dispatch(SessionEvent event) {
+    repo.dispatch(event, isBridgedEvent: true);
   }
 }

@@ -246,6 +246,8 @@ class IrmaRepository {
   }
 
   // -- Credential instances
+  Credentials getCurrentCredentials() => _credentialsSubject.value;
+
   Stream<Credentials> getCredentials() {
     return _credentialsSubject.stream;
   }
@@ -378,6 +380,8 @@ class IrmaRepository {
   }
 
   // -- Session
+  SessionState? getCurrentSessionState(int sessionID) => _sessionRepository.getCurrentSessionState(sessionID);
+
   Stream<SessionState> getSessionState(int sessionID) {
     return _sessionRepository.getSessionState(sessionID);
   }
