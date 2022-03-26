@@ -29,7 +29,7 @@ void main() {
     mockBridge.mockDisclosureSession(42, [
       {'irma-demo.IRMATube.member.id': null}
     ]);
-    repo.dispatch(NewSessionEvent(sessionId: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+    repo.dispatch(NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
         isBridgedEvent: true);
 
     final disclosureSessionStream = repo.getSessionState(42).asBroadcastStream();
@@ -54,7 +54,7 @@ void main() {
       }
     ]);
     repo.dispatch(
-      NewSessionEvent(sessionId: 43, request: SessionPointer(irmaqr: 'issuing', u: '')),
+      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'issuing', u: '')),
       isBridgedEvent: true,
     );
     final issuanceSessionStream = repo.getSessionState(43).asBroadcastStream();
@@ -99,7 +99,7 @@ void main() {
       {'irma-demo.IRMATube.member.id': '123'}
     ]);
     repo.dispatch(
-      NewSessionEvent(sessionId: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
       isBridgedEvent: true,
     );
 
@@ -123,7 +123,7 @@ void main() {
       }
     ]);
     repo.dispatch(
-      NewSessionEvent(sessionId: 43, request: SessionPointer(irmaqr: 'issuing', u: '')),
+      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'issuing', u: '')),
       isBridgedEvent: true,
     );
 
@@ -152,7 +152,7 @@ void main() {
       }
     ]);
     repo.dispatch(
-      NewSessionEvent(sessionId: 44, request: SessionPointer(irmaqr: 'issuing', u: '')),
+      NewSessionEvent(sessionID: 44, request: SessionPointer(irmaqr: 'issuing', u: '')),
       isBridgedEvent: true,
     );
     final secondIssuanceSessionStream = repo.getSessionState(44).asBroadcastStream();

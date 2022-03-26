@@ -383,7 +383,8 @@ class IrmaRepository {
   SessionState? getCurrentSessionState(int sessionID) => _sessionRepository.getCurrentSessionState(sessionID);
 
   Stream<SessionState> getSessionState(int sessionID) {
-    return _sessionRepository.getSessionState(sessionID);
+    // Prevent states to be emitted twice when multiple sessions run in parallel.
+    return _sessionRepository.getSessionState(sessionID).distinct();
   }
 
   Future<bool> hasActiveSessions() {

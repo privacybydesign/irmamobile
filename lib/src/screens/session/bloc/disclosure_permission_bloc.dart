@@ -17,7 +17,8 @@ import '../models/abstract_disclosure_credential.dart';
 
 class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, DisclosurePermissionBlocState> {
   final int sessionID;
-  final IrmaRepository repo;
+
+  final IrmaRepository _repo; // Hide repository, because this bloc shadows all the repository's functionality.
 
   late StreamSubscription _sessionStateSubscription;
 
@@ -26,9 +27,9 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
   // TODO: Determine initial state async?
   DisclosurePermissionBloc({
     required this.sessionID,
-    required this.repo,
-  })  : assert(repo.getCurrentSessionState(sessionID)?.status == SessionStatus.requestDisclosurePermission),
-        super(_determineInitialState(repo, sessionID)) {
+    required IrmaRepository repo,
+  })  : _repo = repo,
+        super(WaitingForSessionState()) {
     _sessionStateSubscription = repo.getSessionState(sessionID).asyncExpand(_mapSessionStateToBlocState).listen(emit);
     stream.whereType<DisclosurePermissionChoiceState>().pipe(_currentChoiceStateSubject);
   }
@@ -37,31 +38,6 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
   Future<void> close() async {
     await _sessionStateSubscription.cancel();
     super.close();
-  }
-
-  static DisclosurePermissionBlocState _determineInitialState(IrmaRepository repo, int sessionID) {
-    // Due to assertion in constructor we can safely use the null assertion operator here.
-    final session = repo.getCurrentSessionState(sessionID)!;
-    final parsedCandidates = _parseDisclosureCandidates(repo, session.disclosuresCandidates!);
-    final issueWizardCandidates = parsedCandidates
-        .where((discon) => discon.every((con) => con.any((cred) => cred is DisclosureCredentialTemplate)));
-    if (issueWizardCandidates.isEmpty) {
-      return DisclosurePermissionChoiceState(
-        choices: parsedCandidates,
-      );
-    }
-    // In an issue wizard, only the credential templates are relevant.
-    final filteredIssueWizardCandidates = ConDisCon(issueWizardCandidates
-        .map((discon) => DisCon(discon.map((con) => Con(con.whereType<DisclosureCredentialTemplate>())))));
-    if (issueWizardCandidates.every((discon) => discon.length == 1)) {
-      return DisclosurePermissionIssueWizardState(
-        issueWizard: filteredIssueWizardCandidates.flattened.flattened.toList(),
-      );
-    } else {
-      return DisclosurePermissionIssueWizardChoiceState(
-        issueWizardChoices: filteredIssueWizardCandidates,
-      );
-    }
   }
 
   @override
@@ -83,16 +59,19 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       );
     } else if (state is DisclosurePermissionIssueWizardState && event is GoToNextStateEvent) {
       yield DisclosurePermissionChoiceState(
-        choices: _parseDisclosureCandidates(repo, repo.getCurrentSessionState(sessionID)!.disclosuresCandidates!),
+        choices: _parseDisclosureCandidates(_repo.getCurrentSessionState(sessionID)!.disclosuresCandidates!),
       );
-    } else if (state is DisclosurePermissionChoiceState && event is DisclosureViewAllChoicesEvent) {
+    } else if (state is DisclosurePermissionChoiceState && event is DisclosureSelectStepEvent) {
       yield DisclosurePermissionChoiceState(
         choices: state.choices,
         choiceIndices: state.choiceIndices,
         selectedStepIndex: event.stepIndex,
       );
     } else if (state is DisclosurePermissionChoiceState && event is DisclosureUpdateChoiceEvent) {
-      // TODO: throw exception if an template is chosen, or remove templates from choices.
+      if (state.choices[event.stepIndex][event.choiceIndex].any((cred) => cred is DisclosureCredentialTemplate)) {
+        throw Exception('Cannot choose a template option');
+      }
+      // TODO: race condition in the state?
       yield DisclosurePermissionChoiceState(
         selectedStepIndex: state.selectedStepIndex,
         choices: state.choices,
@@ -100,7 +79,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
             .mapIndexed((i, choiceIndex) => i == event.stepIndex ? event.choiceIndex : choiceIndex)
             .toList(),
       );
-      repo.dispatch(
+      _repo.dispatch(
         DisclosureChoiceUpdateSessionEvent(
           sessionID: sessionID,
           disconIndex: event.stepIndex,
@@ -108,23 +87,17 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         ),
         isBridgedEvent: true,
       );
-    } else if (state is DisclosurePermissionChoiceState && event is DisclosureConfirmChoiceEvent) {
-      // selectedStepIndex should be set to null again.
-      yield DisclosurePermissionChoiceState(
-        choices: state.choices,
-        choiceIndices: state.choiceIndices,
-      );
     } else if (state is DisclosurePermissionChoiceState && event is GoToNextStateEvent) {
       yield DisclosurePermissionConfirmState(
         currentSelection: state.currentSelection.flattened.toList(),
       );
     } else if (state is DisclosurePermissionConfirmState && event is GoToNextStateEvent) {
-      repo.dispatch(
+      _repo.dispatch(
         RespondPermissionEvent(
           sessionID: sessionID,
           proceed: true,
           disclosureChoices:
-              repo.getCurrentSessionState(sessionID)!.disclosureChoices!, // TODO: Check whether this works.
+              _repo.getCurrentSessionState(sessionID)!.disclosureChoices!, // TODO: Check whether this works.
         ),
         isBridgedEvent: true,
       );
@@ -140,27 +113,44 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     final state = this.state;
     if (session.status != SessionStatus.requestDisclosurePermission) {
       return;
-    }
-
-    final parsedCandidates = _parseDisclosureCandidates(repo, session.disclosuresCandidates!);
-    if (state is DisclosurePermissionIssueWizardState) {
+    } else if (state is DisclosurePermissionIssueWizardState) {
       yield DisclosurePermissionIssueWizardState(
-        issueWizard: state.issueWizard.map((template) => _refreshCredentialTemplate(repo, template)).toList(),
-      );
-    } else if (state is DisclosurePermissionChoiceState) {
-      yield DisclosurePermissionChoiceState(
-        choices: parsedCandidates,
-        choiceIndices: state.choiceIndices, // TODO: Check whether this works.
+        issueWizard: state.issueWizard.map((template) => _refreshCredentialTemplate(template)).toList(),
       );
     } else {
-      // If the session state changes in another bloc state than expected, we have to restart from the beginning
-      // to make sure we don't skip a stage. This should normally not happen.
-      yield _determineInitialState(repo, sessionID);
+      final parsedCandidates = _parseDisclosureCandidates(session.disclosuresCandidates!);
+      if (state is DisclosurePermissionChoiceState) {
+        yield DisclosurePermissionChoiceState(
+          choices: parsedCandidates,
+          choiceIndices: state.choiceIndices, // TODO: Check whether this works.
+        );
+      } else {
+        // Check whether an issue wizard is needed to bootstrap the session.
+        final issueWizardCandidates = parsedCandidates
+            .where((discon) => discon.every((con) => con.any((cred) => cred is DisclosureCredentialTemplate)));
+        if (issueWizardCandidates.isEmpty) {
+          yield DisclosurePermissionChoiceState(
+            choices: parsedCandidates,
+          );
+        } else {
+          // In an issue wizard, only the credential templates are relevant.
+          final filteredIssueWizardCandidates = ConDisCon(issueWizardCandidates
+              .map((discon) => DisCon(discon.map((con) => Con(con.whereType<DisclosureCredentialTemplate>())))));
+          if (issueWizardCandidates.every((discon) => discon.length == 1)) {
+            yield DisclosurePermissionIssueWizardState(
+              issueWizard: filteredIssueWizardCandidates.flattened.flattened.toList(),
+            );
+          } else {
+            yield DisclosurePermissionIssueWizardChoiceState(
+              issueWizardChoices: filteredIssueWizardCandidates,
+            );
+          }
+        }
+      }
     }
   }
 
-  static ConDisCon<AbstractDisclosureCredential> _parseDisclosureCandidates(
-          IrmaRepository repo, ConDisCon<Attribute> candidates) =>
+  ConDisCon<AbstractDisclosureCredential> _parseDisclosureCandidates(ConDisCon<Attribute> candidates) =>
       ConDisCon(candidates.map((discon) => DisCon(discon.map((con) {
             final groupedCon = groupBy(con, (Attribute attr) => attr.credentialInfo.fullId);
             return Con(groupedCon.entries.map((entry) {
@@ -169,7 +159,6 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
                 return DisclosureCredential(attributes: credentialAttributes);
               } else {
                 return _refreshCredentialTemplate(
-                  repo,
                   DisclosureCredentialTemplate(
                     attributes: credentialAttributes,
                   ),
@@ -178,9 +167,9 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
             }));
           }))));
 
-  static DisclosureCredentialTemplate _refreshCredentialTemplate(
-      IrmaRepository repo, DisclosureCredentialTemplate template) {
-    final presentCreds = repo.getCurrentCredentials().values.where((cred) => cred.info.fullId == template.fullId);
+  // TODO: Why is this executed so often?
+  DisclosureCredentialTemplate _refreshCredentialTemplate(DisclosureCredentialTemplate template) {
+    final presentCreds = _repo.getCurrentCredentials().values.where((cred) => cred.info.fullId == template.fullId);
     final Map<bool, List<DisclosureCredential>> mapped = groupBy(
         // Only include the attributes that are included in the template.
         presentCreds.map((cred) => DisclosureCredential(
