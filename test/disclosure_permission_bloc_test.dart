@@ -32,7 +32,9 @@ void main() {
 
   test('simple-issuance-in-disclosure', () async {
     mockBridge.mockDisclosureSession(42, [
-      {'irma-demo.IRMATube.member.id': null}
+      [
+        {'irma-demo.IRMATube.member.id': null}
+      ]
     ]);
 
     final bloc = DisclosurePermissionBloc(sessionID: 42, repo: repo);
