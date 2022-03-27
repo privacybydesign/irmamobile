@@ -43,6 +43,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
   @override
   Stream<DisclosurePermissionBlocState> mapEventToState(DisclosurePermissionBlocEvent event) async* {
     final state = this.state; // To prevent the need for type casting.
+    final session = _repo.getCurrentSessionState(sessionID)!;
     if (state is DisclosurePermissionIssueWizardChoiceState && event is IssueWizardChoiceEvent) {
       yield DisclosurePermissionIssueWizardChoiceState(
         issueWizardChoices: state.issueWizardChoices,
@@ -51,13 +52,19 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
             .toList(),
       );
     } else if (state is DisclosurePermissionIssueWizardChoiceState && event is GoToNextStateEvent) {
+      // We have to insert again the credential templates that contain no choice.
+      final otherWizardCandidates = _parseDisclosureCandidates(session.disclosuresCandidates!)
+          .where((discon) => discon.length == 1)
+          .map((discon) => discon[0].whereType<DisclosureCredentialTemplate>())
+          .flattened;
       yield DisclosurePermissionIssueWizardState(
-        issueWizard: state.issueWizardChoices
-            .mapIndexed((i, discon) => discon[state.issueWizardChoiceIndices[i]])
-            .flattened
-            .toList(),
+        issueWizard: [
+          ...state.issueWizardChoices.mapIndexed((i, discon) => discon[state.issueWizardChoiceIndices[i]]).flattened,
+          ...otherWizardCandidates,
+        ],
       );
     } else if (state is DisclosurePermissionIssueWizardState && event is GoToNextStateEvent) {
+      if (!state.completed) throw Exception('Issue wizard is not completed yet');
       yield DisclosurePermissionChoiceState(
         choices: _parseDisclosureCandidates(_repo.getCurrentSessionState(sessionID)!.disclosuresCandidates!),
       );
@@ -92,15 +99,22 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         currentSelection: state.currentSelection.flattened.toList(),
       );
     } else if (state is DisclosurePermissionConfirmState && event is GoToNextStateEvent) {
-      _repo.dispatch(
-        RespondPermissionEvent(
-          sessionID: sessionID,
-          proceed: true,
-          disclosureChoices:
-              _repo.getCurrentSessionState(sessionID)!.disclosureChoices!, // TODO: Check whether this works.
-        ),
-        isBridgedEvent: true,
-      );
+      if (session.isIssuanceSession) {
+        _repo.dispatch(
+          ContinueToIssuanceEvent(sessionID: sessionID),
+          isBridgedEvent: true,
+        );
+      } else {
+        _repo.dispatch(
+          RespondPermissionEvent(
+            sessionID: sessionID,
+            proceed: true,
+            disclosureChoices:
+                _repo.getCurrentSessionState(sessionID)!.disclosureChoices!, // TODO: Check whether this works.
+          ),
+          isBridgedEvent: true,
+        );
+      }
     } else if (state is DisclosurePermissionConfirmState && event is DisclosureChangeChoicesEvent) {
       // TODO: Sync disclosureChoices and DisclosurePermissionChoiceState.
       yield _currentChoiceStateSubject.value;
@@ -112,6 +126,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
   Stream<DisclosurePermissionBlocState> _mapSessionStateToBlocState(SessionState session) async* {
     final state = this.state;
     if (session.status != SessionStatus.requestDisclosurePermission) {
+      // TODO: Shouldn't we indicate a permission has been finished?
       return;
     } else if (state is DisclosurePermissionIssueWizardState) {
       yield DisclosurePermissionIssueWizardState(
@@ -141,8 +156,9 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
               issueWizard: filteredIssueWizardCandidates.flattened.flattened.toList(),
             );
           } else {
+            // Only include the discons in which a choice must be made.
             yield DisclosurePermissionIssueWizardChoiceState(
-              issueWizardChoices: filteredIssueWizardCandidates,
+              issueWizardChoices: ConDisCon(filteredIssueWizardCandidates.where((discon) => discon.length > 1)),
             );
           }
         }

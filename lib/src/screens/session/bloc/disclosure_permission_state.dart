@@ -30,7 +30,7 @@ class DisclosurePermissionIssueWizardState implements DisclosurePermissionBlocSt
   /// Templates of all DisclosureCredentials that needs to be obtained first.
   final List<DisclosureCredentialTemplate> issueWizard;
 
-  bool get canBeFinished => issueWizard.every((template) => template.obtained);
+  bool get completed => issueWizard.every((template) => template.obtained);
 
   DisclosurePermissionIssueWizardState({required this.issueWizard});
 }

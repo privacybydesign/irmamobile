@@ -30,7 +30,7 @@ void main() {
     await repo.close();
   });
 
-  test('simple-issuance-in-disclosure', () async {
+  test('issuance-in-disclosure-single-attribute', () async {
     mockBridge.mockDisclosureSession(42, [
       [
         {'irma-demo.IRMATube.member.id': null}
@@ -161,6 +161,326 @@ void main() {
     bloc.add(GoToNextStateEvent());
     await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.success);
   });
+
+  test('issuance-in-disclosure-condiscon', () async {
+    // Disclose the following:
+    // - address issued by gemeente or iDIN
+    // - email address issued by pbdf
+    // - mobile number issued by pbdf
+    // and the user already has the email address credential in its app.
+
+    await _issueCredential(repo, mockBridge, 42, [
+      {
+        'pbdf.pbdf.email.email': TextValue.fromString('test@example.com'),
+        'pbdf.pbdf.email.domain': TextValue.fromString('example.com'),
+      }
+    ]);
+
+    mockBridge.mockDisclosureSession(43, [
+      [
+        {
+          'pbdf.pbdf.idin.address': null,
+        },
+        {
+          'pbdf.gemeente.address.street': null,
+          'pbdf.gemeente.address.houseNumber': null,
+        },
+      ],
+      [
+        {'pbdf.pbdf.email.email': null},
+      ],
+      [
+        {'pbdf.pbdf.mobilenumber.mobilenumber': null},
+      ],
+    ]);
+
+    final bloc = DisclosurePermissionBloc(sessionID: 43, repo: repo);
+    repo.dispatch(
+      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      isBridgedEvent: true,
+    );
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizardChoiceState>());
+    DisclosurePermissionIssueWizardChoiceState issueWizardChoiceBlocState =
+        bloc.state as DisclosurePermissionIssueWizardChoiceState;
+    // Only for address a choice needs to be made before the issue wizard can be generated.
+    expect(issueWizardChoiceBlocState.issueWizardChoices.length, 1);
+    expect(issueWizardChoiceBlocState.issueWizardChoices[0].length, 2);
+    expect(issueWizardChoiceBlocState.issueWizardChoices[0][0].length, 1);
+    expect(issueWizardChoiceBlocState.issueWizardChoices[0][0][0].fullId, 'pbdf.pbdf.idin');
+    expect(issueWizardChoiceBlocState.issueWizardChoices[0][0][0].presentMatching, []);
+    expect(issueWizardChoiceBlocState.issueWizardChoices[0][0][0].presentNonMatching, []);
+    expect(issueWizardChoiceBlocState.issueWizardChoices[0][1][0].fullId, 'pbdf.gemeente.address');
+    expect(issueWizardChoiceBlocState.issueWizardChoices[0][1][0].presentMatching, []);
+    expect(issueWizardChoiceBlocState.issueWizardChoices[0][1][0].presentNonMatching, []);
+    expect(issueWizardChoiceBlocState.issueWizardChoiceIndices, [0]);
+
+    bloc.add(IssueWizardChoiceEvent(stepIndex: 0, choiceIndex: 1));
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizardChoiceState>());
+    issueWizardChoiceBlocState = bloc.state as DisclosurePermissionIssueWizardChoiceState;
+    expect(issueWizardChoiceBlocState.issueWizardChoiceIndices, [1]);
+
+    bloc.add(GoToNextStateEvent());
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizardState>());
+    DisclosurePermissionIssueWizardState issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizardState;
+    expect(issueWizardBlocState.completed, false);
+    expect(issueWizardBlocState.issueWizard.length, 2);
+    expect(issueWizardBlocState.issueWizard[0].fullId, 'pbdf.gemeente.address');
+    expect(issueWizardBlocState.issueWizard[0].obtained, false);
+    expect(issueWizardBlocState.issueWizard[1].fullId, 'pbdf.pbdf.mobilenumber');
+    expect(issueWizardBlocState.issueWizard[1].obtained, false);
+
+    await _issueCredential(repo, mockBridge, 44, [
+      {
+        'pbdf.gemeente.address.street': TextValue.fromString('Beukenlaan'),
+        'pbdf.gemeente.address.houseNumber': TextValue.fromString('1'),
+        'pbdf.gemeente.address.city': TextValue.fromString('Amsterdam'),
+        'pbdf.gemeente.address.municipality': TextValue.fromString('Amsterdam'),
+        'pbdf.gemeente.address.zipcode': TextValue.fromString('1000AA'),
+      }
+    ]);
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizardState>());
+    issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizardState;
+    expect(issueWizardBlocState.completed, false);
+    expect(issueWizardBlocState.issueWizard.length, 2);
+    expect(issueWizardBlocState.issueWizard[0].fullId, 'pbdf.gemeente.address');
+    expect(issueWizardBlocState.issueWizard[0].obtained, true);
+    expect(issueWizardBlocState.issueWizard[0].presentMatching.length, 1);
+    expect(issueWizardBlocState.issueWizard[0].presentMatching[0].fullId, 'pbdf.gemeente.address');
+    expect(issueWizardBlocState.issueWizard[0].presentMatching[0].attributes.length, 2);
+    expect(issueWizardBlocState.issueWizard[0].presentMatching[0].attributes[0].value.raw, 'Beukenlaan');
+    expect(issueWizardBlocState.issueWizard[0].presentMatching[0].attributes[1].value.raw, '1');
+    expect(issueWizardBlocState.issueWizard[1].fullId, 'pbdf.pbdf.mobilenumber');
+    expect(issueWizardBlocState.issueWizard[1].obtained, false);
+
+    await _issueCredential(repo, mockBridge, 45, [
+      {
+        'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678'),
+      }
+    ]);
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizardState>());
+    issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizardState;
+    expect(issueWizardBlocState.completed, true);
+    expect(issueWizardBlocState.issueWizard[0].fullId, 'pbdf.gemeente.address');
+    expect(issueWizardBlocState.issueWizard[0].obtained, true);
+    expect(issueWizardBlocState.issueWizard[1].fullId, 'pbdf.pbdf.mobilenumber');
+    expect(issueWizardBlocState.issueWizard[1].obtained, true);
+    expect(issueWizardBlocState.issueWizard[1].presentMatching.length, 1);
+    expect(issueWizardBlocState.issueWizard[1].presentMatching[0].fullId, 'pbdf.pbdf.mobilenumber');
+    expect(issueWizardBlocState.issueWizard[1].presentMatching[0].attributes.length, 1);
+    expect(issueWizardBlocState.issueWizard[1].presentMatching[0].attributes[0].value.raw, '+31612345678');
+
+    bloc.add(GoToNextStateEvent());
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoiceState>());
+    DisclosurePermissionChoiceState choiceBlocState = bloc.state as DisclosurePermissionChoiceState;
+    expect(choiceBlocState.choices.length, 3);
+    expect(choiceBlocState.choices[0].length, 2);
+    expect(choiceBlocState.choices[0][0].length, 1);
+    expect(choiceBlocState.choices[0][0][0].fullId, 'pbdf.gemeente.address');
+    expect(choiceBlocState.choices[0][0][0].attributes.length, 2);
+    expect(choiceBlocState.choices[0][0][0].attributes[0].attributeType.fullId, 'pbdf.gemeente.address.street');
+    expect(choiceBlocState.choices[0][0][0].attributes[0].value.raw, 'Beukenlaan');
+    expect(choiceBlocState.choices[0][1].length, 1);
+    expect(choiceBlocState.choices[0][1][0].fullId, 'pbdf.pbdf.idin');
+    expect(choiceBlocState.choices[0][1][0], isA<DisclosureCredentialTemplate>());
+    expect(choiceBlocState.choices[0][1][0].attributes[0].attributeType.fullId, 'pbdf.pbdf.idin.address');
+    expect(choiceBlocState.choices[0][1][0].attributes[0].value.raw, null);
+    expect(choiceBlocState.choices[1].length, 2);
+    expect(choiceBlocState.choices[1][0].length, 1);
+    expect(choiceBlocState.choices[1][0][0].fullId, 'pbdf.pbdf.email');
+    expect(choiceBlocState.choices[1][0][0].attributes[0].attributeType.fullId, 'pbdf.pbdf.email.email');
+    expect(choiceBlocState.choices[1][0][0].attributes[0].value.raw, 'test@example.com');
+    expect(choiceBlocState.choices[1][1].length, 1);
+    expect(choiceBlocState.choices[1][1][0], isA<DisclosureCredentialTemplate>());
+    expect(choiceBlocState.choices[2].length, 2);
+    expect(choiceBlocState.choices[2][0].length, 1);
+    expect(choiceBlocState.choices[2][0][0].fullId, 'pbdf.pbdf.mobilenumber');
+    expect(choiceBlocState.choices[2][0][0].attributes[0].attributeType.fullId, 'pbdf.pbdf.mobilenumber.mobilenumber');
+    expect(choiceBlocState.choices[2][0][0].attributes[0].value.raw, '+31612345678');
+    expect(choiceBlocState.choices[2][1].length, 1);
+    expect(choiceBlocState.choices[2][1][0], isA<DisclosureCredentialTemplate>());
+    expect(choiceBlocState.choiceIndices, [0, 0, 0]);
+
+    await _issueCredential(repo, mockBridge, 46, [
+      {
+        'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31687654321'),
+      }
+    ]);
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoiceState>());
+    choiceBlocState = bloc.state as DisclosurePermissionChoiceState;
+    expect(choiceBlocState.choices.length, 3);
+    expect(choiceBlocState.choices[2].length, 3);
+    expect(choiceBlocState.choices[2][0].length, 1);
+    expect(choiceBlocState.choices[2][0][0].fullId, 'pbdf.pbdf.mobilenumber');
+    expect(choiceBlocState.choices[2][0][0].attributes[0].attributeType.fullId, 'pbdf.pbdf.mobilenumber.mobilenumber');
+    expect(choiceBlocState.choices[2][0][0].attributes[0].value.raw, '+31687654321');
+    expect(choiceBlocState.choices[2][1].length, 1);
+    expect(choiceBlocState.choices[2][1][0].fullId, 'pbdf.pbdf.mobilenumber');
+    expect(choiceBlocState.choices[2][1][0].attributes[0].attributeType.fullId, 'pbdf.pbdf.mobilenumber.mobilenumber');
+    expect(choiceBlocState.choices[2][1][0].attributes[0].value.raw, '+31612345678');
+    expect(choiceBlocState.choices[2][2].length, 1);
+    expect(choiceBlocState.choices[2][2][0], isA<DisclosureCredentialTemplate>());
+
+    bloc.add(DisclosureUpdateChoiceEvent(stepIndex: 2, choiceIndex: 1));
+
+    // Wait for state renewal caused by the dispatched DisclosureChoiceUpdateSessionEvent.
+    // TODO: Check whether we can prevent this superfluous state change.
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoiceState>());
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoiceState>());
+    choiceBlocState = bloc.state as DisclosurePermissionChoiceState;
+    expect(choiceBlocState.choiceIndices, [0, 0, 1]);
+
+    bloc.add(GoToNextStateEvent());
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionConfirmState>());
+    final confirmBlocState = bloc.state as DisclosurePermissionConfirmState;
+    expect(confirmBlocState.currentSelection.length, 3);
+    expect(confirmBlocState.currentSelection[0].fullId, 'pbdf.gemeente.address');
+    expect(confirmBlocState.currentSelection[0].attributes.length, 2);
+    expect(confirmBlocState.currentSelection[0].attributes[0].value.raw, 'Beukenlaan');
+    expect(confirmBlocState.currentSelection[1].fullId, 'pbdf.pbdf.email');
+    expect(confirmBlocState.currentSelection[1].attributes.length, 1);
+    expect(confirmBlocState.currentSelection[1].attributes[0].value.raw, 'test@example.com');
+    expect(confirmBlocState.currentSelection[2].fullId, 'pbdf.pbdf.mobilenumber');
+    expect(confirmBlocState.currentSelection[2].attributes.length, 1);
+    expect(confirmBlocState.currentSelection[2].attributes[0].value.raw, '+31612345678');
+
+    bloc.add(GoToNextStateEvent());
+    await repo.getSessionState(43).firstWhere((session) => session.status == SessionStatus.success);
+  });
+
+  test('discon', () async {
+    await _issueCredential(repo, mockBridge, 42, [
+      {
+        'pbdf.pbdf.email.email': TextValue.fromString('test@example.com'),
+        'pbdf.pbdf.email.domain': TextValue.fromString('example.com'),
+      }
+    ]);
+
+    mockBridge.mockDisclosureSession(43, [
+      [
+        {'pbdf.pbdf.email.email': null},
+        {'pbdf.pbdf.mobilenumber.mobilenumber': null},
+      ],
+    ]);
+
+    final bloc = DisclosurePermissionBloc(sessionID: 43, repo: repo);
+    repo.dispatch(
+      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      isBridgedEvent: true,
+    );
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoiceState>());
+    final choiceBlocState = bloc.state as DisclosurePermissionChoiceState;
+    expect(choiceBlocState.choices.length, 1);
+    expect(choiceBlocState.choices[0].length, 3);
+    expect(choiceBlocState.choices[0][0].length, 1);
+    expect(choiceBlocState.choices[0][0][0].fullId, 'pbdf.pbdf.email');
+    expect(choiceBlocState.choices[0][0][0].attributes.length, 1);
+    expect(choiceBlocState.choices[0][0][0].attributes[0].attributeType.fullId, 'pbdf.pbdf.email.email');
+    expect(choiceBlocState.choices[0][0][0].attributes[0].value.raw, 'test@example.com');
+    expect(choiceBlocState.choices[0][1].length, 1);
+    expect(choiceBlocState.choices[0][1][0].fullId, 'pbdf.pbdf.email');
+    expect(choiceBlocState.choices[0][1][0], isA<DisclosureCredentialTemplate>());
+    expect(choiceBlocState.choices[0][1][0].attributes[0].attributeType.fullId, 'pbdf.pbdf.email.email');
+    expect(choiceBlocState.choices[0][1][0].attributes[0].value.raw, null);
+    expect(choiceBlocState.choices[0][2].length, 1);
+    expect(choiceBlocState.choices[0][2][0].fullId, 'pbdf.pbdf.mobilenumber');
+    expect(choiceBlocState.choices[0][2][0], isA<DisclosureCredentialTemplate>());
+    expect(choiceBlocState.choices[0][2][0].attributes[0].attributeType.fullId, 'pbdf.pbdf.mobilenumber.mobilenumber');
+    expect(choiceBlocState.choices[0][2][0].attributes[0].value.raw, null);
+
+    bloc.add(GoToNextStateEvent());
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionConfirmState>());
+    final confirmBlocState = bloc.state as DisclosurePermissionConfirmState;
+    expect(confirmBlocState.currentSelection.length, 1);
+    expect(confirmBlocState.currentSelection[0].fullId, 'pbdf.pbdf.email');
+    expect(confirmBlocState.currentSelection[0].attributes.length, 1);
+    expect(confirmBlocState.currentSelection[0].attributes[0].value.raw, 'test@example.com');
+
+    bloc.add(GoToNextStateEvent());
+    await repo.getSessionState(43).firstWhere((session) => session.status == SessionStatus.success);
+  });
+
+  test('issuance-in-disclosure-specific-attributes', () async {
+    mockBridge.mockDisclosureSession(42, [
+      [
+        {'pbdf.pbdf.email.email': 'test@example.com'},
+      ],
+    ]);
+
+    final bloc = DisclosurePermissionBloc(sessionID: 42, repo: repo);
+    repo.dispatch(
+      NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      isBridgedEvent: true,
+    );
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizardState>());
+    DisclosurePermissionIssueWizardState issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizardState;
+    expect(issueWizardBlocState.completed, false);
+    expect(issueWizardBlocState.issueWizard.length, 1);
+    expect(issueWizardBlocState.issueWizard[0].fullId, 'pbdf.pbdf.email');
+    expect(issueWizardBlocState.issueWizard[0].obtained, false);
+    expect(issueWizardBlocState.issueWizard[0].presentMatching.length, 0);
+    expect(issueWizardBlocState.issueWizard[0].presentNonMatching.length, 0);
+
+    await _issueCredential(repo, mockBridge, 43, [
+      {
+        'pbdf.pbdf.email.email': TextValue.fromString('wrong@example.com'),
+        'pbdf.pbdf.email.domain': TextValue.fromString('example.com'),
+      }
+    ]);
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizardState>());
+    issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizardState;
+    expect(issueWizardBlocState.completed, false);
+    expect(issueWizardBlocState.issueWizard.length, 1);
+    expect(issueWizardBlocState.issueWizard[0].fullId, 'pbdf.pbdf.email');
+    expect(issueWizardBlocState.issueWizard[0].obtained, false);
+    expect(issueWizardBlocState.issueWizard[0].presentMatching.length, 0);
+    expect(issueWizardBlocState.issueWizard[0].presentNonMatching.length, 1);
+    expect(issueWizardBlocState.issueWizard[0].presentNonMatching[0].attributes.length, 1);
+    expect(issueWizardBlocState.issueWizard[0].presentNonMatching[0].attributes[0].value.raw, 'wrong@example.com');
+
+    await _issueCredential(repo, mockBridge, 44, [
+      {
+        'pbdf.pbdf.email.email': TextValue.fromString('test@example.com'),
+        'pbdf.pbdf.email.domain': TextValue.fromString('example.com'),
+      }
+    ]);
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizardState>());
+    issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizardState;
+    expect(issueWizardBlocState.completed, true);
+    expect(issueWizardBlocState.issueWizard.length, 1);
+    expect(issueWizardBlocState.issueWizard[0].fullId, 'pbdf.pbdf.email');
+    expect(issueWizardBlocState.issueWizard[0].obtained, true);
+    expect(issueWizardBlocState.issueWizard[0].presentMatching.length, 1);
+    expect(issueWizardBlocState.issueWizard[0].presentNonMatching.length, 1);
+    expect(issueWizardBlocState.issueWizard[0].presentMatching[0].attributes.length, 1);
+    expect(issueWizardBlocState.issueWizard[0].presentMatching[0].attributes[0].value.raw, 'test@example.com');
+
+    bloc.add(GoToNextStateEvent());
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoiceState>());
+    final choiceBlocState = bloc.state as DisclosurePermissionChoiceState;
+    expect(choiceBlocState.choices.length, 1);
+    expect(choiceBlocState.choices[0].length, 2);
+    expect(choiceBlocState.choices[0][0].length, 1);
+    expect(choiceBlocState.choices[0][0][0], isA<DisclosureCredential>());
+    expect(choiceBlocState.choices[0][1].length, 1);
+    expect(choiceBlocState.choices[0][1][0], isA<DisclosureCredentialTemplate>());
+  });
+
+  // TODO: test with credential type being used in different outer cons.
 }
 
 Future<void> _issueCredential(
