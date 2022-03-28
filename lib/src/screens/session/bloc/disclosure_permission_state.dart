@@ -25,7 +25,6 @@ class DisclosurePermissionIssueWizardChoiceState implements DisclosurePermission
       issueWizardChoices.asMap().entries.expand((entry) => entry.value[issueWizardChoiceIndices[entry.key]]);
 }
 
-// TODO: Do we want to display optional credentials in the wizard?
 class DisclosurePermissionIssueWizardState implements DisclosurePermissionBlocState {
   /// Templates of all DisclosureCredentials that needs to be obtained first.
   final List<DisclosureCredentialTemplate> issueWizard;

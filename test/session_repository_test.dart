@@ -28,7 +28,9 @@ void main() {
   test('issuance-in-disclosure', () async {
     mockBridge.mockDisclosureSession(42, [
       [
-        {'irma-demo.IRMATube.member.id': null}
+        {
+          'irma-demo.IRMATube.member.id': null,
+        }
       ]
     ]);
     repo.dispatch(NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
@@ -99,7 +101,9 @@ void main() {
   test('issuance-in-disclosure-using-specific-attributes', () async {
     mockBridge.mockDisclosureSession(42, [
       [
-        {'irma-demo.IRMATube.member.id': '123'}
+        {
+          'irma-demo.IRMATube.member.id': '123',
+        }
       ]
     ]);
     repo.dispatch(

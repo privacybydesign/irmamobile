@@ -51,12 +51,18 @@ class IrmaMockBridge extends IrmaBridge {
     // Expand candidates with concrete options, based on the given credentials.
     final disclosureCandidates = condiscon
         .map((discon) => discon.expand((con) {
+              final List<List<DisclosureCandidate>> disconCandidates = [];
+
+              // Check whether it concerns an optional disjunction.
+              if (con.isEmpty) {
+                disconCandidates.add([]);
+                return disconCandidates;
+              }
+
               // For mocking simplicity we assume all attributes in an inner con are from the same credential.
-              assert(con.isNotEmpty);
               final credentialId = con.keys.first.split('.').take(3).join('.');
               assert(con.keys.every((attrType) => attrType.startsWith('$credentialId.')));
 
-              final List<List<DisclosureCandidate>> disconCandidates = [];
               // Look through all credentials for attributes that match the request.
               for (final RawCredential c in credentials) {
                 if (c.fullId == credentialId &&
@@ -88,8 +94,8 @@ class IrmaMockBridge extends IrmaBridge {
             }))
         .map((discon) {
       // All choosable candidates should come first in the list.
-      final choosableCandidates = discon.where((con) => con[0].credentialHash != null);
-      final templateCandidates = discon.where((con) => con[0].credentialHash == null);
+      final choosableCandidates = discon.where((con) => con.isEmpty || con[0].credentialHash != null);
+      final templateCandidates = discon.where((con) => con.isNotEmpty && con[0].credentialHash == null);
       return [...choosableCandidates, ...templateCandidates];
     }).toList();
 
