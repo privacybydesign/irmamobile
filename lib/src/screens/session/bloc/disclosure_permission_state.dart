@@ -40,7 +40,8 @@ class DisclosurePermissionChoiceState implements DisclosurePermissionBlocState {
   final int? selectedStepIndex;
 
   /// ConDisCon representing choices that need to be made when there are multiple options to disclose.
-  /// TODO: Can't we immediately filter out the templates?
+  /// This includes all DisclosureCredentialTemplates, such that they can be presented as placeholders.
+  /// These templates are not choosable.
   final ConDisCon<AbstractDisclosureCredential> choices;
 
   /// List with indices of the currently selected disjunctions in choices.
