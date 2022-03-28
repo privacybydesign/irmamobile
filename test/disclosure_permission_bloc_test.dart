@@ -57,8 +57,6 @@ void main() {
     expect(issueWizardBlocState.issueWizard[0].attributes[0].value.raw, null);
     expect(issueWizardBlocState.issueWizard[0].attributes[0].choosable, false);
 
-    // TODO: Check false issuance
-
     await _issueCredential(repo, mockBridge, 43, [
       {
         'irma-demo.IRMATube.member.id': TextValue.fromString('12345'),
