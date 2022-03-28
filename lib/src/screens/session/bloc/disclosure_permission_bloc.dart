@@ -15,7 +15,7 @@ import 'package:irmamobile/src/screens/session/models/template_disclosure_creden
 class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, DisclosurePermissionBlocState> {
   final int sessionID;
 
-  final IrmaRepository _repo; // Hide repository, because this bloc shadows all the repository's functionality.
+  final IrmaRepository _repo; // Repository is hidden by design, because behaviour should be triggered via bloc events.
 
   late StreamSubscription _sessionStateSubscription;
 
