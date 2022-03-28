@@ -57,13 +57,19 @@ class DisclosurePermissionChoiceState implements DisclosurePermissionBlocState {
 }
 
 class DisclosurePermissionConfirmState implements DisclosurePermissionBlocState {
-  // TODO: signatures.
-
   /// List with all DisclosureCredentials currently selected to be disclosed.
   final UnmodifiableListView<DisclosureCredential> currentSelection;
 
-  DisclosurePermissionConfirmState({required List<DisclosureCredential> currentSelection})
-      : currentSelection = UnmodifiableListView(currentSelection);
+  /// Message to be signed, in case of a signature session.
+  final String? signedMessage;
+
+  /// Returns whether the session is a signature session.
+  bool get isSignatureSession => signedMessage != null;
+
+  DisclosurePermissionConfirmState({
+    required List<DisclosureCredential> currentSelection,
+    this.signedMessage,
+  }) : currentSelection = UnmodifiableListView(currentSelection);
 }
 
 /// State to indicate that the requestDisclosurePermission phase has been completed.
