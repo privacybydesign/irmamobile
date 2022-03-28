@@ -9,7 +9,6 @@ import 'package:irmamobile/src/screens/session/bloc/disclosure_permission_event.
 import 'package:irmamobile/src/screens/session/bloc/disclosure_permission_state.dart';
 import 'package:irmamobile/src/screens/session/models/disclosure_credential.dart';
 import 'package:irmamobile/src/screens/session/models/disclosure_credential_template.dart';
-import 'package:rxdart/rxdart.dart';
 
 import '../../../models/attributes.dart';
 import '../models/abstract_disclosure_credential.dart';
@@ -21,16 +20,12 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
 
   late StreamSubscription _sessionStateSubscription;
 
-  final _currentChoiceStateSubject = BehaviorSubject<DisclosurePermissionChoiceState>();
-
-  // TODO: Determine initial state async?
   DisclosurePermissionBloc({
     required this.sessionID,
     required IrmaRepository repo,
   })  : _repo = repo,
         super(WaitingForSessionState()) {
     _sessionStateSubscription = repo.getSessionState(sessionID).asyncExpand(_mapSessionStateToBlocState).listen(emit);
-    stream.whereType<DisclosurePermissionChoiceState>().pipe(_currentChoiceStateSubject);
   }
 
   @override
@@ -62,10 +57,14 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
           ...otherWizardCandidates,
         ]),
       );
-    } else if (state is DisclosurePermissionIssueWizardState && event is GoToNextStateEvent) {
-      if (!state.completed) throw Exception('Issue wizard is not completed yet');
+    } else if (state is DisclosurePermissionIssueWizardState && event is GoToNextStateEvent ||
+        state is DisclosurePermissionConfirmState && event is DisclosureChangeChoicesEvent) {
+      if (state is DisclosurePermissionIssueWizardState && !state.completed) {
+        throw Exception('Issue wizard is not completed yet');
+      }
       yield DisclosurePermissionChoiceState(
-        choices: _parseDisclosureCandidates(_repo.getCurrentSessionState(sessionID)!.disclosuresCandidates!),
+        choices: _parseDisclosureCandidates(session.disclosuresCandidates!),
+        choiceIndices: session.disclosureIndices,
       );
     } else if (state is DisclosurePermissionChoiceState && event is DisclosureSelectStepEvent) {
       yield DisclosurePermissionChoiceState(
@@ -100,15 +99,11 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
           RespondPermissionEvent(
             sessionID: sessionID,
             proceed: true,
-            disclosureChoices:
-                _repo.getCurrentSessionState(sessionID)!.disclosureChoices!, // TODO: Check whether this works.
+            disclosureChoices: session.disclosureChoices!,
           ),
           isBridgedEvent: true,
         );
       }
-    } else if (state is DisclosurePermissionConfirmState && event is DisclosureChangeChoicesEvent) {
-      // TODO: Sync disclosureChoices and DisclosurePermissionChoiceState.
-      yield _currentChoiceStateSubject.value;
     } else {
       throw Exception('Event ${event.runtimeType.toString()} not supported in state ${state.runtimeType.toString()}');
     }
