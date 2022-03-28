@@ -37,7 +37,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
   Stream<DisclosurePermissionBlocState> mapEventToState(DisclosurePermissionBlocEvent event) async* {
     final state = this.state; // To prevent the need for type casting.
     final session = _repo.getCurrentSessionState(sessionID)!;
-    if (state is IssueWizardChoicesBlocState && event is IssueWizardChoiceBlocEvent) {
+    if (state is IssueWizardChoicesBlocState && event is IssueWizardUpdateChoiceBlocEvent) {
       yield IssueWizardChoicesBlocState(
         issueWizardChoices: state.issueWizardChoices,
         issueWizardChoiceIndices: state.issueWizardChoiceIndices

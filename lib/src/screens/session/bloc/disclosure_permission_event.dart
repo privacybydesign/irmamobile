@@ -1,11 +1,11 @@
 abstract class DisclosurePermissionBlocEvent {}
 
 /// Event to indicate that the user changed a choice for the upcoming issue wizard.
-class IssueWizardChoiceBlocEvent implements DisclosurePermissionBlocEvent {
+class IssueWizardUpdateChoiceBlocEvent implements DisclosurePermissionBlocEvent {
   final int stepIndex;
   final int choiceIndex;
 
-  IssueWizardChoiceBlocEvent({required this.stepIndex, required this.choiceIndex});
+  IssueWizardUpdateChoiceBlocEvent({required this.stepIndex, required this.choiceIndex});
 }
 
 /// Event to indicate that the user wants to continue to the next state.

@@ -215,7 +215,7 @@ void main() {
     expect(issueWizardChoiceBlocState.issueWizardChoices[0][1][0].presentNonMatching, []);
     expect(issueWizardChoiceBlocState.issueWizardChoiceIndices, [0]);
 
-    bloc.add(IssueWizardChoiceBlocEvent(stepIndex: 0, choiceIndex: 1));
+    bloc.add(IssueWizardUpdateChoiceBlocEvent(stepIndex: 0, choiceIndex: 1));
 
     expect(await bloc.stream.first, isA<IssueWizardChoicesBlocState>());
     issueWizardChoiceBlocState = bloc.state as IssueWizardChoicesBlocState;
