@@ -3,27 +3,27 @@ import 'package:quiver/iterables.dart';
 
 import '../../../models/attributes.dart';
 import '../../../models/credentials.dart';
-import 'abstract_disclosure_credential.dart';
+import 'choosable_disclosure_credential.dart';
 import 'disclosure_credential.dart';
 
 /// Template of a DisclosureCredential that needs to be obtained first.
-class DisclosureCredentialTemplate extends AbstractDisclosureCredential {
+class TemplateDisclosureCredential extends DisclosureCredential {
   /// List of DisclosureCredentials that match the template.
-  final UnmodifiableListView<DisclosureCredential> presentMatching;
+  final UnmodifiableListView<ChoosableDisclosureCredential> presentMatching;
 
   /// List of DisclosureCredentials with the same credential type that are present, but do not match with the template.
-  final UnmodifiableListView<DisclosureCredential> presentNonMatching;
+  final UnmodifiableListView<ChoosableDisclosureCredential> presentNonMatching;
 
-  factory DisclosureCredentialTemplate({
+  factory TemplateDisclosureCredential({
     required List<Attribute> attributes,
     required Iterable<Credential> credentials,
   }) =>
-      DisclosureCredentialTemplate._(attributes: attributes).refresh(credentials);
+      TemplateDisclosureCredential._(attributes: attributes).refresh(credentials);
 
-  DisclosureCredentialTemplate._({
+  TemplateDisclosureCredential._({
     required List<Attribute> attributes,
-    List<DisclosureCredential> presentMatching = const [],
-    List<DisclosureCredential> presentNonMatching = const [],
+    List<ChoosableDisclosureCredential> presentMatching = const [],
+    List<ChoosableDisclosureCredential> presentNonMatching = const [],
   })  : presentMatching = UnmodifiableListView(presentMatching),
         presentNonMatching = UnmodifiableListView(presentNonMatching),
         super(attributes: attributes);
@@ -33,25 +33,25 @@ class DisclosureCredentialTemplate extends AbstractDisclosureCredential {
 
   // TODO: Why is this executed so often?
   /// Returns a new credential template with presentMatching and presentNonMatching being refreshed using the given credentials.
-  DisclosureCredentialTemplate refresh(Iterable<Credential> credentials) {
+  TemplateDisclosureCredential refresh(Iterable<Credential> credentials) {
     final presentCreds = credentials.where((cred) => cred.info.fullId == fullId);
     return _refreshPresentCredentials(
       // Only include the attributes that are included in the template.
-      presentCreds.map((cred) => DisclosureCredential(
+      presentCreds.map((cred) => ChoosableDisclosureCredential(
           attributes: cred.attributeList
               .where((attr1) => attributes.any((attr2) => attr1.attributeType.fullId == attr2.attributeType.fullId))
               .toList())),
     );
   }
 
-  DisclosureCredentialTemplate _refreshPresentCredentials(Iterable<DisclosureCredential> presentCredentials) {
-    final Map<bool, List<DisclosureCredential>> mapped = groupBy(
+  TemplateDisclosureCredential _refreshPresentCredentials(Iterable<ChoosableDisclosureCredential> presentCredentials) {
+    final Map<bool, List<ChoosableDisclosureCredential>> mapped = groupBy(
         presentCredentials,
         // Group based on whether the credentials match the template or not.
         // The attribute lists have an equal length and order due to the filtering above and guarantees from irmago.
         (cred) => zip([attributes, cred.attributes])
             .every((entry) => entry[0].value.raw == null || entry[0].value.raw == entry[1].value.raw));
-    return DisclosureCredentialTemplate._(
+    return TemplateDisclosureCredential._(
       attributes: attributes,
       presentMatching: mapped[true] ?? [],
       presentNonMatching: mapped[false] ?? [],
@@ -59,7 +59,7 @@ class DisclosureCredentialTemplate extends AbstractDisclosureCredential {
   }
 
   /// Merges this template with the given other template if they don't contradict, and returns null otherwise.
-  DisclosureCredentialTemplate? merge(DisclosureCredentialTemplate other) {
+  TemplateDisclosureCredential? merge(TemplateDisclosureCredential other) {
     if (fullId != other.fullId) return null;
 
     // If a attribute type must have multiple values, then the instances cannot be merged.
@@ -78,9 +78,9 @@ class DisclosureCredentialTemplate extends AbstractDisclosureCredential {
     }
     final creds = [...presentMatching, ...presentNonMatching];
     final otherCreds = [...other.presentMatching, ...other.presentNonMatching];
-    return DisclosureCredentialTemplate._(attributes: mergedAttributes)._refreshPresentCredentials(creds.map((cred) {
+    return TemplateDisclosureCredential._(attributes: mergedAttributes)._refreshPresentCredentials(creds.map((cred) {
       final otherCred = otherCreds.firstWhere((cred2) => cred.credentialHash == cred2.credentialHash);
-      return DisclosureCredential(
+      return ChoosableDisclosureCredential(
         // DisclosureCredentials don't contain all attributes, but only the attributes involved in the template.
         // Therefore, we have to check the present credentials from both this and the other template to find a
         // particular attribute.

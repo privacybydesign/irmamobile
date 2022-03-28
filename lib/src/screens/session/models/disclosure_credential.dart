@@ -1,14 +1,30 @@
-import 'package:irmamobile/src/models/attributes.dart';
-import 'package:irmamobile/src/screens/session/models/abstract_disclosure_credential.dart';
+import 'package:collection/collection.dart';
 
-/// Credential instance that only contains the attributes that are going to be disclosed in the session.
-class DisclosureCredential extends AbstractDisclosureCredential {
+import '../../../models/attributes.dart';
+import '../../../models/credentials.dart';
+import '../../../models/irma_configuration.dart';
+
+/// Abstract class that contains the overlapping behaviour of ChoosableDisclosureCredential and TemplateDisclosureCredential.
+abstract class DisclosureCredential implements CredentialInfo {
+  final UnmodifiableListView<Attribute> attributes;
+
   DisclosureCredential({required List<Attribute> attributes})
-      : assert(attributes.every((attr) => attr.credentialHash.isNotEmpty)),
-        super(attributes: attributes);
+      : assert(attributes.isNotEmpty),
+        assert(attributes.every((attr) => attr.credentialInfo.fullId == attributes.first.credentialInfo.fullId)),
+        attributes = UnmodifiableListView(attributes);
 
-  bool get expired => attributes.first.expired;
-  bool get revoked => attributes.first.revoked;
-  bool get notRevokable => attributes.first.notRevokable;
-  String get credentialHash => attributes.first.credentialHash;
+  @override
+  CredentialType get credentialType => attributes.first.credentialInfo.credentialType;
+
+  @override
+  String get fullId => attributes.first.credentialInfo.fullId;
+
+  @override
+  String get id => attributes.first.credentialInfo.id;
+
+  @override
+  Issuer get issuer => attributes.first.credentialInfo.issuer;
+
+  @override
+  SchemeManager get schemeManager => attributes.first.credentialInfo.schemeManager;
 }

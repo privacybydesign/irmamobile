@@ -1,64 +1,66 @@
 import 'package:collection/collection.dart';
 
 import '../../../models/attributes.dart';
-import '../models/abstract_disclosure_credential.dart';
+import '../models/choosable_disclosure_credential.dart';
 import '../models/disclosure_credential.dart';
-import '../models/disclosure_credential_template.dart';
+import '../models/template_disclosure_credential.dart';
 
 abstract class DisclosurePermissionBlocState {}
 
 /// Initial state to give us time to process the initial request from the IrmaBridge.
-class WaitingForSessionState implements DisclosurePermissionBlocState {}
+class WaitingForSessionBlocState implements DisclosurePermissionBlocState {}
 
-class DisclosurePermissionIssueWizardChoiceState implements DisclosurePermissionBlocState {
+class IssueWizardChoicesBlocState implements DisclosurePermissionBlocState {
   /// ConDisCon representing all choices between templates to fill the issueWizard.
-  final ConDisCon<DisclosureCredentialTemplate> issueWizardChoices;
+  final ConDisCon<TemplateDisclosureCredential> issueWizardChoices;
 
   /// List with indices of the currently selected disjunctions in issueWizardChoices.
   final UnmodifiableListView<int> issueWizardChoiceIndices;
 
-  DisclosurePermissionIssueWizardChoiceState({required this.issueWizardChoices, List<int>? issueWizardChoiceIndices})
+  IssueWizardChoicesBlocState({required this.issueWizardChoices, List<int>? issueWizardChoiceIndices})
       : issueWizardChoiceIndices = UnmodifiableListView(issueWizardChoiceIndices ?? issueWizardChoices.map((_) => 0));
 
   /// Templates of all DisclosureCredentials that needs to be obtained first.
-  Iterable<DisclosureCredentialTemplate> get issueWizard =>
+  Iterable<TemplateDisclosureCredential> get issueWizard =>
       issueWizardChoices.asMap().entries.expand((entry) => entry.value[issueWizardChoiceIndices[entry.key]]);
 }
 
-class DisclosurePermissionIssueWizardState implements DisclosurePermissionBlocState {
+class IssueWizardBlocState implements DisclosurePermissionBlocState {
   /// Templates of all DisclosureCredentials that needs to be obtained first.
-  final List<DisclosureCredentialTemplate> issueWizard;
+  final List<TemplateDisclosureCredential> issueWizard;
 
   bool get completed => issueWizard.every((template) => template.obtained);
 
-  DisclosurePermissionIssueWizardState({required this.issueWizard});
+  IssueWizardBlocState({required this.issueWizard});
 }
 
-class DisclosurePermissionChoiceState implements DisclosurePermissionBlocState {
+class ChoicesBlocState implements DisclosurePermissionBlocState {
   /// Index of the currently expanded step, to keep track which choice the user is currently making.
   /// If all choices are collapsed, the value is null.
   final int? selectedStepIndex;
 
   /// ConDisCon representing choices that need to be made when there are multiple options to disclose.
-  /// This includes all DisclosureCredentialTemplates, such that they can be presented as placeholders.
+  /// This includes all TemplateDisclosureCredentials, such that they can be presented as placeholders.
   /// These templates are not choosable.
-  final ConDisCon<AbstractDisclosureCredential> choices;
+  final ConDisCon<DisclosureCredential> choices;
 
   /// List with indices of the currently selected disjunctions in choices.
   final UnmodifiableListView<int> choiceIndices;
 
-  DisclosurePermissionChoiceState({required this.choices, this.selectedStepIndex, List<int>? choiceIndices})
+  ChoicesBlocState({required this.choices, this.selectedStepIndex, List<int>? choiceIndices})
       : assert(choiceIndices == null || choices.length == choiceIndices.length),
         choiceIndices = UnmodifiableListView(choiceIndices ?? choices.map((_) => 0));
 
-  /// ConCon with all DisclosureCredentials currently selected to be disclosed.
-  ConCon<DisclosureCredential> get currentSelection => ConCon(
-      choices.asMap().entries.map((entry) => Con(entry.value[choiceIndices[entry.key]].cast<DisclosureCredential>())));
+  /// ConCon with all ChoosableDisclosureCredentials currently selected to be disclosed.
+  ConCon<ChoosableDisclosureCredential> get currentSelection => ConCon(choices
+      .asMap()
+      .entries
+      .map((entry) => Con(entry.value[choiceIndices[entry.key]].cast<ChoosableDisclosureCredential>())));
 }
 
-class DisclosurePermissionConfirmState implements DisclosurePermissionBlocState {
-  /// List with all DisclosureCredentials currently selected to be disclosed.
-  final UnmodifiableListView<DisclosureCredential> currentSelection;
+class ConfirmChoicesBlocState implements DisclosurePermissionBlocState {
+  /// List with all ChoosableDisclosureCredentials currently selected to be disclosed.
+  final UnmodifiableListView<ChoosableDisclosureCredential> currentSelection;
 
   /// Message to be signed, in case of a signature session.
   final String? signedMessage;
@@ -66,12 +68,12 @@ class DisclosurePermissionConfirmState implements DisclosurePermissionBlocState 
   /// Returns whether the session is a signature session.
   bool get isSignatureSession => signedMessage != null;
 
-  DisclosurePermissionConfirmState({
-    required List<DisclosureCredential> currentSelection,
+  ConfirmChoicesBlocState({
+    required List<ChoosableDisclosureCredential> currentSelection,
     this.signedMessage,
   }) : currentSelection = UnmodifiableListView(currentSelection);
 }
 
 /// State to indicate that the requestDisclosurePermission phase has been completed.
 /// This does not necessarily have to mean the full session is completed.
-class DisclosurePermissionCompletedState implements DisclosurePermissionBlocState {}
+class RequestCompletedBlocState implements DisclosurePermissionBlocState {}
