@@ -9,7 +9,6 @@ import 'package:irmamobile/src/screens/session/bloc/disclosure_permission_event.
 import 'package:irmamobile/src/screens/session/bloc/disclosure_permission_state.dart';
 import 'package:irmamobile/src/screens/session/models/disclosure_credential.dart';
 import 'package:irmamobile/src/screens/session/models/disclosure_credential_template.dart';
-import 'package:quiver/iterables.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../../../models/attributes.dart';
@@ -58,10 +57,10 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
           .map((discon) => discon[0].whereType<DisclosureCredentialTemplate>())
           .flattened;
       yield DisclosurePermissionIssueWizardState(
-        issueWizard: [
+        issueWizard: _foldIssueWizardItems([
           ...state.issueWizardChoices.mapIndexed((i, discon) => discon[state.issueWizardChoiceIndices[i]]).flattened,
           ...otherWizardCandidates,
-        ],
+        ]),
       );
     } else if (state is DisclosurePermissionIssueWizardState && event is GoToNextStateEvent) {
       if (!state.completed) throw Exception('Issue wizard is not completed yet');
@@ -129,8 +128,9 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       // TODO: Shouldn't we indicate a permission has been finished?
       return;
     } else if (state is DisclosurePermissionIssueWizardState) {
+      final credentials = _repo.getCurrentCredentials().values;
       yield DisclosurePermissionIssueWizardState(
-        issueWizard: state.issueWizard.map((template) => _refreshCredentialTemplate(template)).toList(),
+        issueWizard: state.issueWizard.map((template) => template.refresh(credentials)).toList(),
       );
     } else {
       final parsedCandidates = _parseDisclosureCandidates(session.disclosuresCandidates!);
@@ -153,7 +153,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
               .map((discon) => DisCon(discon.map((con) => Con(con.whereType<DisclosureCredentialTemplate>())))));
           if (issueWizardCandidates.every((discon) => discon.length == 1)) {
             yield DisclosurePermissionIssueWizardState(
-              issueWizard: filteredIssueWizardCandidates.flattened.flattened.toList(),
+              issueWizard: _foldIssueWizardItems(filteredIssueWizardCandidates.flattened.flattened),
             );
           } else {
             // Only include the discons in which a choice must be made.
@@ -174,33 +174,29 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
               if (credentialAttributes.first.choosable) {
                 return DisclosureCredential(attributes: credentialAttributes);
               } else {
-                return _refreshCredentialTemplate(
-                  DisclosureCredentialTemplate(
-                    attributes: credentialAttributes,
-                  ),
+                return DisclosureCredentialTemplate(
+                  attributes: credentialAttributes,
+                  credentials: _repo.getCurrentCredentials().values,
                 );
               }
             }));
           }))));
 
-  // TODO: Why is this executed so often?
-  DisclosureCredentialTemplate _refreshCredentialTemplate(DisclosureCredentialTemplate template) {
-    final presentCreds = _repo.getCurrentCredentials().values.where((cred) => cred.info.fullId == template.fullId);
-    final Map<bool, List<DisclosureCredential>> mapped = groupBy(
-        // Only include the attributes that are included in the template.
-        presentCreds.map((cred) => DisclosureCredential(
-            attributes: cred.attributeList
-                .where((attr1) =>
-                    template.attributes.any((attr2) => attr1.attributeType.fullId == attr2.attributeType.fullId))
-                .toList())),
-        // Group based on whether the credentials match the template or not.
-        // The attribute lists have an equal length and order due to the filtering above and guarantees from irmago.
-        (cred) => zip([template.attributes, cred.attributes])
-            .every((entry) => entry[0].value.raw == null || entry[0].value.raw == entry[1].value.raw));
-    return DisclosureCredentialTemplate(
-      attributes: template.attributes,
-      presentMatching: mapped[true] ?? [],
-      presentNonMatching: mapped[false] ?? [],
-    );
+  /// Folds the issue wizard by merging non-contradicting credential templates.
+  List<DisclosureCredentialTemplate> _foldIssueWizardItems(Iterable<DisclosureCredentialTemplate> unfolded) {
+    final List<DisclosureCredentialTemplate> folded = [];
+    for (final template in unfolded) {
+      bool merged = false;
+      for (int i = 0; i < folded.length; i++) {
+        final mergedItem = folded[i].merge(template);
+        if (mergedItem != null) {
+          folded[i] = mergedItem;
+          merged = true;
+          break;
+        }
+      }
+      if (!merged) folded.add(template);
+    }
+    return folded;
   }
 }

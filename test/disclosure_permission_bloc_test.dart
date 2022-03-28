@@ -480,7 +480,65 @@ void main() {
     expect(choiceBlocState.choices[0][1][0], isA<DisclosureCredentialTemplate>());
   });
 
-  // TODO: test with credential type being used in different outer cons.
+  test('same-credential-type-in-multiple-outer-cons', () async {
+    // Disclose id and email address of surfnet-2, but they don't have to come from the same credential instance.
+    mockBridge.mockDisclosureSession(42, [
+      [
+        {'pbdf.pbdf.surfnet-2.id': null},
+      ],
+      [
+        {'pbdf.pbdf.surfnet-2.email': null},
+      ],
+    ]);
+
+    final bloc = DisclosurePermissionBloc(sessionID: 42, repo: repo);
+    repo.dispatch(
+      NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      isBridgedEvent: true,
+    );
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizardState>());
+    DisclosurePermissionIssueWizardState issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizardState;
+    expect(issueWizardBlocState.completed, false);
+    expect(issueWizardBlocState.issueWizard.length, 1);
+    expect(issueWizardBlocState.issueWizard[0].fullId, 'pbdf.pbdf.surfnet-2');
+    expect(issueWizardBlocState.issueWizard[0].attributes.length, 2);
+    expect(issueWizardBlocState.issueWizard[0].attributes[0].attributeType.fullId, 'pbdf.pbdf.surfnet-2.id');
+    expect(issueWizardBlocState.issueWizard[0].attributes[1].attributeType.fullId, 'pbdf.pbdf.surfnet-2.email');
+
+    await _issueCredential(repo, mockBridge, 43, [
+      {
+        'pbdf.pbdf.surfnet-2.id': TextValue.fromString('12345'),
+        'pbdf.pbdf.surfnet-2.email': TextValue.fromString('test@example.com'),
+      }
+    ]);
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizardState>());
+    issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizardState;
+    expect(issueWizardBlocState.completed, true);
+
+    bloc.add(GoToNextStateEvent());
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoiceState>());
+    final choiceBlocState = bloc.state as DisclosurePermissionChoiceState;
+    expect(choiceBlocState.choices.length, 2);
+    expect(choiceBlocState.choices[0].length, 2);
+    expect(choiceBlocState.choices[0][0].length, 1);
+    expect(choiceBlocState.choices[0][0][0], isA<DisclosureCredential>());
+    expect(choiceBlocState.choices[0][1].length, 1);
+    expect(choiceBlocState.choices[0][1][0], isA<DisclosureCredentialTemplate>());
+    expect(choiceBlocState.choices[1].length, 2);
+    expect(choiceBlocState.choices[1][0].length, 1);
+    expect(choiceBlocState.choices[1][0][0], isA<DisclosureCredential>());
+    expect(choiceBlocState.choices[1][1].length, 1);
+    expect(choiceBlocState.choices[1][1][0], isA<DisclosureCredentialTemplate>());
+
+    bloc.add(GoToNextStateEvent());
+    expect(await bloc.stream.first, isA<DisclosurePermissionConfirmState>());
+
+    bloc.add(GoToNextStateEvent());
+    await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.success);
+  });
 }
 
 Future<void> _issueCredential(

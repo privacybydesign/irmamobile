@@ -10,4 +10,5 @@ class DisclosureCredential extends AbstractDisclosureCredential {
   bool get expired => attributes.first.expired;
   bool get revoked => attributes.first.revoked;
   bool get notRevokable => attributes.first.notRevokable;
+  String get credentialHash => attributes.first.credentialHash;
 }
