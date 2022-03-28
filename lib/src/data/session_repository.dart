@@ -282,8 +282,4 @@ class SessionRepository {
           )),
         ));
   }
-
-  void dispatch(SessionEvent event) {
-    repo.dispatch(event, isBridgedEvent: true);
-  }
 }
