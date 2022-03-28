@@ -17,7 +17,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
 
   final IrmaRepository _repo; // Repository is hidden by design, because behaviour should be triggered via bloc events.
 
-  late StreamSubscription _sessionStateSubscription;
+  late final StreamSubscription _sessionStateSubscription;
 
   DisclosurePermissionBloc({
     required this.sessionID,
