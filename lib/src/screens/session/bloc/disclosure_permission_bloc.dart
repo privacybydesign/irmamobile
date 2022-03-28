@@ -77,14 +77,6 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       if (state.choices[event.stepIndex][event.choiceIndex].any((cred) => cred is DisclosureCredentialTemplate)) {
         throw Exception('Cannot choose a template option');
       }
-      // TODO: race condition in the state?
-      yield DisclosurePermissionChoiceState(
-        selectedStepIndex: state.selectedStepIndex,
-        choices: state.choices,
-        choiceIndices: state.choiceIndices
-            .mapIndexed((i, choiceIndex) => i == event.stepIndex ? event.choiceIndex : choiceIndex)
-            .toList(),
-      );
       _repo.dispatch(
         DisclosureChoiceUpdateSessionEvent(
           sessionID: sessionID,
@@ -137,7 +129,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       if (state is DisclosurePermissionChoiceState) {
         yield DisclosurePermissionChoiceState(
           choices: parsedCandidates,
-          choiceIndices: state.choiceIndices, // TODO: Check whether this works.
+          choiceIndices: session.disclosureIndices,
         );
       } else {
         // Check whether an issue wizard is needed to bootstrap the session.

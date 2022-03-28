@@ -130,10 +130,6 @@ void main() {
     choiceBlocState = bloc.state as DisclosurePermissionChoiceState;
     expect(choiceBlocState.choiceIndices, [1]);
 
-    // Wait for state renewal caused by the dispatched DisclosureChoiceUpdateSessionEvent.
-    // TODO: Check whether we can prevent this superfluous state change.
-    expect(await bloc.stream.first, isA<DisclosurePermissionChoiceState>());
-
     bloc.add(DisclosureSelectStepEvent(stepIndex: null));
     expect(await bloc.stream.first, isA<DisclosurePermissionChoiceState>());
     choiceBlocState = bloc.state as DisclosurePermissionChoiceState;
@@ -328,10 +324,6 @@ void main() {
     expect(choiceBlocState.choices[2][2][0], isA<DisclosureCredentialTemplate>());
 
     bloc.add(DisclosureUpdateChoiceEvent(stepIndex: 2, choiceIndex: 1));
-
-    // Wait for state renewal caused by the dispatched DisclosureChoiceUpdateSessionEvent.
-    // TODO: Check whether we can prevent this superfluous state change.
-    expect(await bloc.stream.first, isA<DisclosurePermissionChoiceState>());
 
     expect(await bloc.stream.first, isA<DisclosurePermissionChoiceState>());
     choiceBlocState = bloc.state as DisclosurePermissionChoiceState;
