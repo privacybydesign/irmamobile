@@ -112,8 +112,8 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
   Stream<DisclosurePermissionBlocState> _mapSessionStateToBlocState(SessionState session) async* {
     final state = this.state;
     if (session.status != SessionStatus.requestDisclosurePermission) {
-      if (state is! WaitingForSessionBlocState && state is! RequestCompletedBlocState) {
-        yield RequestCompletedBlocState();
+      if (state is! WaitingForSessionBlocState && state is! CompletedPermissionRequestBlocState) {
+        yield CompletedPermissionRequestBlocState();
       }
       return;
     } else if (state is IssueWizardBlocState) {

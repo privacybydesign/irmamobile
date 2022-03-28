@@ -155,7 +155,7 @@ void main() {
     expect(await bloc.stream.first, isA<ConfirmChoicesBlocState>());
 
     bloc.add(GoToNextStateBlocEvent());
-    expect(await bloc.stream.first, isA<RequestCompletedBlocState>());
+    expect(await bloc.stream.first, isA<CompletedPermissionRequestBlocState>());
     await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -349,7 +349,7 @@ void main() {
     expect(confirmBlocState.currentSelection[2].attributes[0].value.raw, '+31612345678');
 
     bloc.add(GoToNextStateBlocEvent());
-    expect(await bloc.stream.first, isA<RequestCompletedBlocState>());
+    expect(await bloc.stream.first, isA<CompletedPermissionRequestBlocState>());
     await repo.getSessionState(43).firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -408,7 +408,7 @@ void main() {
     expect(confirmBlocState.currentSelection[0].attributes[0].value.raw, 'test@example.com');
 
     bloc.add(GoToNextStateBlocEvent());
-    expect(await bloc.stream.first, isA<RequestCompletedBlocState>());
+    expect(await bloc.stream.first, isA<CompletedPermissionRequestBlocState>());
     await repo.getSessionState(43).firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -487,7 +487,7 @@ void main() {
     expect(await bloc.stream.first, isA<ConfirmChoicesBlocState>());
 
     bloc.add(GoToNextStateBlocEvent());
-    expect(await bloc.stream.first, isA<RequestCompletedBlocState>());
+    expect(await bloc.stream.first, isA<CompletedPermissionRequestBlocState>());
     await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -552,7 +552,7 @@ void main() {
     expect(await bloc.stream.first, isA<ConfirmChoicesBlocState>());
 
     bloc.add(GoToNextStateBlocEvent());
-    expect(await bloc.stream.first, isA<RequestCompletedBlocState>());
+    expect(await bloc.stream.first, isA<CompletedPermissionRequestBlocState>());
     await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -592,7 +592,7 @@ void main() {
     expect(await bloc.stream.first, isA<ConfirmChoicesBlocState>());
 
     bloc.add(GoToNextStateBlocEvent());
-    expect(await bloc.stream.first, isA<RequestCompletedBlocState>());
+    expect(await bloc.stream.first, isA<CompletedPermissionRequestBlocState>());
     await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.success);
   });
 }

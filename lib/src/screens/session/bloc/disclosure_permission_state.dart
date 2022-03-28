@@ -75,5 +75,5 @@ class ConfirmChoicesBlocState implements DisclosurePermissionBlocState {
 }
 
 /// State to indicate that the requestDisclosurePermission phase has been completed.
-/// This does not necessarily have to mean the full session is completed.
-class RequestCompletedBlocState implements DisclosurePermissionBlocState {}
+/// This does not necessarily have to mean the total session is completed.
+class CompletedPermissionRequestBlocState implements DisclosurePermissionBlocState {}
