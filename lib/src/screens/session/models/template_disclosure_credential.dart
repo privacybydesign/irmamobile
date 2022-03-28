@@ -17,8 +17,17 @@ class TemplateDisclosureCredential extends DisclosureCredential {
   factory TemplateDisclosureCredential({
     required List<Attribute> attributes,
     required Iterable<Credential> credentials,
-  }) =>
-      TemplateDisclosureCredential._(attributes: attributes).refresh(credentials);
+  }) {
+    final presentCreds = credentials.where((cred) => cred.info.fullId == attributes.first.credentialInfo.fullId);
+    return TemplateDisclosureCredential._fromChoosableDisclosureCredentials(
+      attributes: attributes,
+      // Only include the attributes that are included in the template.
+      choosableDisclosureCredentials: presentCreds.map((cred) => ChoosableDisclosureCredential(
+          attributes: cred.attributeList
+              .where((attr1) => attributes.any((attr2) => attr1.attributeType.fullId == attr2.attributeType.fullId))
+              .toList())),
+    );
+  }
 
   TemplateDisclosureCredential._({
     required List<Attribute> attributes,
@@ -28,35 +37,32 @@ class TemplateDisclosureCredential extends DisclosureCredential {
         presentNonMatching = UnmodifiableListView(presentNonMatching),
         super(attributes: attributes);
 
-  /// Indicates whether a credential is present that matches the template.
-  bool get obtained => presentMatching.isNotEmpty;
+  factory TemplateDisclosureCredential._fromChoosableDisclosureCredentials({
+    required List<Attribute> attributes,
+    required Iterable<ChoosableDisclosureCredential> choosableDisclosureCredentials,
+  }) {
+    assert(choosableDisclosureCredentials.every((cred) => cred.fullId == choosableDisclosureCredentials.first.fullId));
 
-  // TODO: Why is this executed so often?
-  /// Returns a new credential template with presentMatching and presentNonMatching being refreshed using the given credentials.
-  TemplateDisclosureCredential refresh(Iterable<Credential> credentials) {
-    final presentCreds = credentials.where((cred) => cred.info.fullId == fullId);
-    return _refreshPresentCredentials(
-      // Only include the attributes that are included in the template.
-      presentCreds.map((cred) => ChoosableDisclosureCredential(
-          attributes: cred.attributeList
-              .where((attr1) => attributes.any((attr2) => attr1.attributeType.fullId == attr2.attributeType.fullId))
-              .toList())),
-    );
-  }
-
-  TemplateDisclosureCredential _refreshPresentCredentials(Iterable<ChoosableDisclosureCredential> presentCredentials) {
     final Map<bool, List<ChoosableDisclosureCredential>> mapped = groupBy(
-        presentCredentials,
+        choosableDisclosureCredentials,
         // Group based on whether the credentials match the template or not.
         // The attribute lists have an equal length and order due to the filtering above and guarantees from irmago.
         (cred) => zip([attributes, cred.attributes])
             .every((entry) => entry[0].value.raw == null || entry[0].value.raw == entry[1].value.raw));
+
     return TemplateDisclosureCredential._(
       attributes: attributes,
       presentMatching: mapped[true] ?? [],
       presentNonMatching: mapped[false] ?? [],
     );
   }
+
+  /// Indicates whether a credential is present that matches the template.
+  bool get obtained => presentMatching.isNotEmpty;
+
+  /// Returns a new credential template with presentMatching and presentNonMatching being refreshed using the given credentials.
+  TemplateDisclosureCredential refresh(Iterable<Credential> credentials) =>
+      TemplateDisclosureCredential(attributes: attributes, credentials: credentials);
 
   /// Merges this template with the given other template if they don't contradict, and returns null otherwise.
   TemplateDisclosureCredential? merge(TemplateDisclosureCredential other) {
@@ -78,17 +84,20 @@ class TemplateDisclosureCredential extends DisclosureCredential {
     }
     final creds = [...presentMatching, ...presentNonMatching];
     final otherCreds = [...other.presentMatching, ...other.presentNonMatching];
-    return TemplateDisclosureCredential._(attributes: mergedAttributes)._refreshPresentCredentials(creds.map((cred) {
-      final otherCred = otherCreds.firstWhere((cred2) => cred.credentialHash == cred2.credentialHash);
-      return ChoosableDisclosureCredential(
-        // DisclosureCredentials don't contain all attributes, but only the attributes involved in the template.
-        // Therefore, we have to check the present credentials from both this and the other template to find a
-        // particular attribute.
-        attributes: mergedAttributes
-            .map((attr1) => [...cred.attributes, ...otherCred.attributes]
-                .firstWhere((attr2) => attr1.attributeType.fullId == attr2.attributeType.fullId))
-            .toList(),
-      );
-    }));
+    return TemplateDisclosureCredential._fromChoosableDisclosureCredentials(
+      attributes: mergedAttributes,
+      choosableDisclosureCredentials: creds.map((cred) {
+        final otherCred = otherCreds.firstWhere((cred2) => cred.credentialHash == cred2.credentialHash);
+        return ChoosableDisclosureCredential(
+          // DisclosureCredentials don't contain all attributes, but only the attributes involved in the template.
+          // Therefore, we have to check the present credentials from both this and the other template to find a
+          // particular attribute.
+          attributes: mergedAttributes
+              .map((attr1) => [...cred.attributes, ...otherCred.attributes]
+                  .firstWhere((attr2) => attr1.attributeType.fullId == attr2.attributeType.fullId))
+              .toList(),
+        );
+      }),
+    );
   }
 }
