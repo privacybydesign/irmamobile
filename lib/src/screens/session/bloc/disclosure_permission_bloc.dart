@@ -117,7 +117,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       }
       return;
     } else if (state is IssueWizardBlocState) {
-      final credentials = _repo.getCurrentCredentials().values;
+      final credentials = _repo.credentials.values;
       yield IssueWizardBlocState(
         issueWizard: state.issueWizard.map((template) => template.refresh(credentials)).toList(),
       );
@@ -165,7 +165,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
               } else {
                 return TemplateDisclosureCredential(
                   attributes: credentialAttributes,
-                  credentials: _repo.getCurrentCredentials().values,
+                  credentials: _repo.credentials.values,
                 );
               }
             }));
