@@ -153,6 +153,7 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionConfirmState>());
 
     bloc.add(GoToNextStateEvent());
+    expect(await bloc.stream.first, isA<DisclosurePermissionCompletedState>());
     await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -343,6 +344,7 @@ void main() {
     expect(confirmBlocState.currentSelection[2].attributes[0].value.raw, '+31612345678');
 
     bloc.add(GoToNextStateEvent());
+    expect(await bloc.stream.first, isA<DisclosurePermissionCompletedState>());
     await repo.getSessionState(43).firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -397,6 +399,7 @@ void main() {
     expect(confirmBlocState.currentSelection[0].attributes[0].value.raw, 'test@example.com');
 
     bloc.add(GoToNextStateEvent());
+    expect(await bloc.stream.first, isA<DisclosurePermissionCompletedState>());
     await repo.getSessionState(43).firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -473,7 +476,8 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionConfirmState>());
 
     bloc.add(GoToNextStateEvent());
-    await repo.getSessionState(43).firstWhere((session) => session.status == SessionStatus.success);
+    expect(await bloc.stream.first, isA<DisclosurePermissionCompletedState>());
+    await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.success);
   });
 
   test('same-credential-type-in-multiple-outer-cons', () async {
@@ -533,6 +537,7 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionConfirmState>());
 
     bloc.add(GoToNextStateEvent());
+    expect(await bloc.stream.first, isA<DisclosurePermissionCompletedState>());
     await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.success);
   });
 }

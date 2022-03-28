@@ -112,7 +112,9 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
   Stream<DisclosurePermissionBlocState> _mapSessionStateToBlocState(SessionState session) async* {
     final state = this.state;
     if (session.status != SessionStatus.requestDisclosurePermission) {
-      // TODO: Shouldn't we indicate a permission has been finished?
+      if (state is! WaitingForSessionState && state is! DisclosurePermissionCompletedState) {
+        yield DisclosurePermissionCompletedState();
+      }
       return;
     } else if (state is DisclosurePermissionIssueWizardState) {
       final credentials = _repo.getCurrentCredentials().values;

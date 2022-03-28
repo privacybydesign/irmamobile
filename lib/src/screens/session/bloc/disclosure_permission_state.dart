@@ -57,9 +57,15 @@ class DisclosurePermissionChoiceState implements DisclosurePermissionBlocState {
 }
 
 class DisclosurePermissionConfirmState implements DisclosurePermissionBlocState {
+  // TODO: signatures.
+
   /// List with all DisclosureCredentials currently selected to be disclosed.
   final UnmodifiableListView<DisclosureCredential> currentSelection;
 
   DisclosurePermissionConfirmState({required List<DisclosureCredential> currentSelection})
       : currentSelection = UnmodifiableListView(currentSelection);
 }
+
+/// State to indicate that the requestDisclosurePermission phase has been completed.
+/// This does not necessarily have to mean the full session is completed.
+class DisclosurePermissionCompletedState implements DisclosurePermissionBlocState {}
