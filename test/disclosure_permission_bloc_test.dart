@@ -468,6 +468,12 @@ void main() {
     expect(choiceBlocState.choices[0][0][0], isA<DisclosureCredential>());
     expect(choiceBlocState.choices[0][1].length, 1);
     expect(choiceBlocState.choices[0][1][0], isA<DisclosureCredentialTemplate>());
+
+    bloc.add(GoToNextStateEvent());
+    expect(await bloc.stream.first, isA<DisclosurePermissionConfirmState>());
+
+    bloc.add(GoToNextStateEvent());
+    await repo.getSessionState(43).firstWhere((session) => session.status == SessionStatus.success);
   });
 
   test('same-credential-type-in-multiple-outer-cons', () async {
