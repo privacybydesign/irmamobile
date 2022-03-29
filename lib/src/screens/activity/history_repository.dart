@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/log_entry.dart';
+import 'package:irmamobile/src/models/session_events.dart';
 import 'package:rxdart/rxdart.dart';
 
 class LogEntries extends UnmodifiableListView<LogEntry> {
@@ -53,7 +54,7 @@ class HistoryRepository {
           loading: true,
           logEntries: event.before == null ? [] : prevState.logEntries,
         );
-      } else if (event is LogsEvent) {
+      } else if (event is LogsEvent ) {
         // Some legacy log formats don't specify a serverName. For disclosing and signing logs this is an issue,
         // because the serverName has a prominent place in the UX there. For now we skip those as temporary solution.
         // TODO: Remove filtering when legacy logs are converted to the right format in irmago

@@ -87,6 +87,14 @@ class RemovedCredential {
     required this.attributes,
   });
 
+  List<Attribute> get attributeList => attributes.entries
+      .map((entry) => Attribute(
+            credentialInfo: info,
+            attributeType: entry.key,
+            value: entry.value,
+          ))
+      .toList();
+
   RemovedCredential.fromRaw({
     required IrmaConfiguration irmaConfiguration,
     required String credentialIdentifier,
