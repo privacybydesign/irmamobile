@@ -110,8 +110,8 @@ class IrmaThemeData {
       headline2:
           TextStyle(fontSize: 24.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.bold, color: darkPurple),
       // headline3 is used for very large text
-      headline3: TextStyle(
-          fontSize: 18.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.bold, color: darkPurple),
+      headline3:
+          TextStyle(fontSize: 18.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.bold, color: darkPurple),
       // headline4 is used for large text
       headline4:
           TextStyle(fontSize: 16.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.bold, color: grayscale40),

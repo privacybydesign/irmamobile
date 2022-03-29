@@ -74,8 +74,8 @@ class _CollapsibleState extends State<Collapsible> {
         expandedBackgroundColor: theme.lightBlue,
         children: <Widget>[
           Padding(
-            padding: EdgeInsets.symmetric(
-                vertical: IrmaTheme.of(context).smallSpacing, horizontal: theme.defaultSpacing),
+            padding:
+                EdgeInsets.symmetric(vertical: IrmaTheme.of(context).smallSpacing, horizontal: theme.defaultSpacing),
             child: widget.content,
           ),
         ],

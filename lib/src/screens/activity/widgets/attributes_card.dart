@@ -67,7 +67,7 @@ class AttributesCard extends StatelessWidget {
               padding: EdgeInsets.symmetric(
                   vertical: IrmaTheme.of(context).smallSpacing, horizontal: IrmaTheme.of(context).defaultSpacing),
               child: Column(
-              mainAxisSize: MainAxisSize.min,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).smallSpacing),
@@ -87,10 +87,7 @@ class AttributesCard extends StatelessWidget {
                                         child: Image.file(File(credentialLogo), excludeFromSemantics: true));
                                   }
                                   return Container();
-                                })
-
-                              
-                                )),
+                                }))),
                         SizedBox(
                           width: IrmaTheme.of(context).smallSpacing,
                         ),
@@ -99,8 +96,8 @@ class AttributesCard extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                getTranslation(
-                                    context, attributesGroupdByCredential[key]!.first.credentialInfo.credentialType.name),
+                                getTranslation(context,
+                                    attributesGroupdByCredential[key]!.first.credentialInfo.credentialType.name),
                                 style: theme.themeData.textTheme.bodyText1,
                               ),
                               Text(
