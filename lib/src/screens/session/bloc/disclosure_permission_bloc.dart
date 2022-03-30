@@ -119,7 +119,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     } else if (state is DisclosurePermissionIssueWizard) {
       final credentials = _repo.credentials.values;
       yield DisclosurePermissionIssueWizard(
-        issueWizard: state.issueWizard.map((template) => template.refresh(credentials)).toList(),
+        issueWizard: state.issueWizard.map((template) => template.copyWith(credentials: credentials)).toList(),
       );
     } else {
       final parsedCandidates = _parseDisclosureCandidates(session.disclosuresCandidates!);
@@ -177,7 +177,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     for (final template in unfolded) {
       bool merged = false;
       for (int i = 0; i < folded.length; i++) {
-        final mergedItem = folded[i].merge(template);
+        final mergedItem = folded[i].copyAndMerge(template);
         if (mergedItem != null) {
           folded[i] = mergedItem;
           merged = true;

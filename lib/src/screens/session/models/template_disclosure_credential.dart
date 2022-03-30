@@ -60,12 +60,13 @@ class TemplateDisclosureCredential extends DisclosureCredential {
   /// Indicates whether a credential is present that matches the template.
   bool get obtained => presentMatching.isNotEmpty;
 
-  /// Returns a new credential template with presentMatching and presentNonMatching being refreshed using the given credentials.
-  TemplateDisclosureCredential refresh(Iterable<Credential> credentials) =>
+  /// Returns a copy with presentMatching and presentNonMatching being refreshed using the given credentials.
+  TemplateDisclosureCredential copyWith({required Iterable<Credential> credentials}) =>
       TemplateDisclosureCredential(attributes: attributes, credentials: credentials);
 
-  /// Merges this template with the given other template if they don't contradict, and returns null otherwise.
-  TemplateDisclosureCredential? merge(TemplateDisclosureCredential other) {
+  /// Returns a new template with the merged contents of this and the given other template, if they don't contradict.
+  /// Returns null otherwise.
+  TemplateDisclosureCredential? copyAndMerge(TemplateDisclosureCredential other) {
     if (fullId != other.fullId) return null;
 
     // If a attribute type must have multiple values, then the instances cannot be merged.
