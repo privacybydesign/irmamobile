@@ -51,11 +51,13 @@ class DisclosurePermissionChoices implements DisclosurePermissionBlocState {
       : assert(choiceIndices == null || choices.length == choiceIndices.length),
         choiceIndices = UnmodifiableListView(choiceIndices ?? choices.map((_) => 0));
 
-  /// ConCon with all ChoosableDisclosureCredentials currently selected to be disclosed.
-  ConCon<ChoosableDisclosureCredential> get currentSelection => ConCon(choices
+  /// List with all ChoosableDisclosureCredentials currently selected to be disclosed.
+  List<ChoosableDisclosureCredential> get currentSelection => choices
       .asMap()
       .entries
-      .map((entry) => Con(entry.value[choiceIndices[entry.key]].cast<ChoosableDisclosureCredential>())));
+      .map((entry) => Con(entry.value[choiceIndices[entry.key]].cast<ChoosableDisclosureCredential>()))
+      .flattened
+      .toList();
 }
 
 class DisclosurePermissionConfirmChoices implements DisclosurePermissionBlocState {

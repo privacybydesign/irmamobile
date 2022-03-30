@@ -85,7 +85,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       );
     } else if (state is DisclosurePermissionChoices && event is DisclosurePermissionNextPressed) {
       yield DisclosurePermissionConfirmChoices(
-        currentSelection: state.currentSelection.flattened.toList(),
+        currentSelection: state.currentSelection,
         signedMessage: session.signedMessage,
       );
     } else if (state is DisclosurePermissionConfirmChoices && event is DisclosurePermissionNextPressed) {
