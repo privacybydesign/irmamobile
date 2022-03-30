@@ -21,8 +21,8 @@ class NewSessionEvent extends SessionEvent {
   // We start at some arbitrary point above zero
   static int sessionIDCounter = 42;
 
-  NewSessionEvent({@visibleForTesting int? sessionId, required this.request, this.inAppCredential = ''})
-      : super(sessionId ?? sessionIDCounter++);
+  NewSessionEvent({@visibleForTesting int? sessionID, required this.request, this.inAppCredential = ''})
+      : super(sessionID ?? sessionIDCounter++);
 
   @JsonKey(name: 'Request')
   final SessionPointer request;

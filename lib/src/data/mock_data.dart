@@ -74,7 +74,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "Een demoDUO adres",
-        "ContactEMail": "demoduo@example.com",
+        "ContactEmail": "demoduo@example.com",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -87,7 +87,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "Radboud Universiteit Nijmegen\nComeniuslaan 4\n6525 HP Nijmegen",
-        "ContactEMail": "info@irmatube.nl",
+        "ContactEmail": "info@irmatube.nl",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -100,7 +100,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "Een demo-overheid",
-        "ContactEMail": "demoverheid@example.com",
+        "ContactEmail": "demoverheid@example.com",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -113,7 +113,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "",
-        "ContactEMail": "",
+        "ContactEmail": "",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -126,7 +126,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://minszw.nl/",
-        "ContactEMail": "christoph@ovrhd.nl",
+        "ContactEmail": "christoph@ovrhd.nl",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -139,7 +139,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://www.alliander.com",
-        "ContactEMail": "info@alliander.com",
+        "ContactEmail": "info@alliander.com",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -152,7 +152,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://amsterdam.nl",
-        "ContactEMail": "info@amsterdam.nl",
+        "ContactEmail": "info@amsterdam.nl",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -165,7 +165,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://asito.nl",
-        "ContactEMail": "",
+        "ContactEmail": "",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -178,7 +178,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://example.org",
-        "ContactEMail": "example@example.org",
+        "ContactEmail": "example@example.org",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -191,7 +191,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://example.org",
-        "ContactEMail": "example@example.org",
+        "ContactEmail": "example@example.org",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -204,7 +204,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://enschede.nl/",
-        "ContactEMail": "k.masselink@enschede.nl",
+        "ContactEmail": "k.masselink@enschede.nl",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -217,7 +217,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "Stichting Forus\nhttps://www.forus.io/",
-        "ContactEMail": "info@forus.nl",
+        "ContactEmail": "info@forus.nl",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -230,7 +230,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://gebiedonline.nl/",
-        "ContactEMail": "info@gebiedonline.nl",
+        "ContactEmail": "info@gebiedonline.nl",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -243,7 +243,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://example.org",
-        "ContactEMail": "example@example.org",
+        "ContactEmail": "example@example.org",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -256,7 +256,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://example.org",
-        "ContactEMail": "example@example.org",
+        "ContactEmail": "example@example.org",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -269,7 +269,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://haarlem.nl/",
-        "ContactEMail": "info@haarlem.nl",
+        "ContactEmail": "info@haarlem.nl",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -282,7 +282,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "",
-        "ContactEMail": "",
+        "ContactEmail": "",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -295,7 +295,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "",
-        "ContactEMail": "",
+        "ContactEmail": "",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -308,7 +308,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "Test",
-        "ContactEMail": "test@test.nl",
+        "ContactEmail": "test@test.nl",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -321,7 +321,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://ivido.nl",
-        "ContactEMail": "info@ivido.nl",
+        "ContactEmail": "info@ivido.nl",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -334,7 +334,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://www.kvk.nl",
-        "ContactEMail": "info@example.com",
+        "ContactEmail": "info@example.com",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -347,7 +347,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "http://www.acceptinstitute.eu/",
-        "ContactEMail": "",
+        "ContactEmail": "",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -360,7 +360,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://example.org",
-        "ContactEMail": "example@example.org",
+        "ContactEmail": "example@example.org",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -373,7 +373,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://nuts.nl",
-        "ContactEMail": "info@nuts.nl",
+        "ContactEmail": "info@nuts.nl",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -386,7 +386,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "",
-        "ContactEMail": "",
+        "ContactEmail": "",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -399,7 +399,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://surfnet.nl",
-        "ContactEMail": "info@surfnet.nl",
+        "ContactEmail": "info@surfnet.nl",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -412,7 +412,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://example.org",
-        "ContactEMail": "example@example.org",
+        "ContactEmail": "example@example.org",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -425,7 +425,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://www.vgz.nl",
-        "ContactEMail": "digitalcooperation@vgz.nl",
+        "ContactEmail": "digitalcooperation@vgz.nl",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -438,7 +438,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://commonground.pleio.nl/",
-        "ContactEMail": "realisatie@vng.nl",
+        "ContactEmail": "realisatie@vng.nl",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -451,7 +451,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://www.vzvz.nl",
-        "ContactEMail": "support@vzvz.nl",
+        "ContactEmail": "support@vzvz.nl",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -464,7 +464,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "irma-demo",
         "ContactAddress": "https://wigo4it.nl/",
-        "ContactEMail": "sjef.van.leeuwen@wigo4it.nl",
+        "ContactEmail": "sjef.van.leeuwen@wigo4it.nl",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -477,7 +477,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "pbdf",
         "ContactAddress": "https://www.chipsoft.nl",
-        "ContactEMail": "eerstelijn@chipsoft.nl",
+        "ContactEmail": "eerstelijn@chipsoft.nl",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -490,7 +490,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "pbdf",
         "ContactAddress": "https://gebiedonline.nl/",
-        "ContactEMail": "info@gebiedonline.nl",
+        "ContactEmail": "info@gebiedonline.nl",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -503,7 +503,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "pbdf",
         "ContactAddress": "https://www.nijmegen.nl",
-        "ContactEMail": "b.withaar@nijmegen.nl",
+        "ContactEmail": "b.withaar@nijmegen.nl",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -516,7 +516,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "pbdf",
         "ContactAddress": "https://www.nijmegen.nl",
-        "ContactEMail": "gemeente@nijmegen.nl",
+        "ContactEmail": "gemeente@nijmegen.nl",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -529,7 +529,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "pbdf",
         "ContactAddress": "https://nuts.nl",
-        "ContactEMail": "info@nuts.nl",
+        "ContactEmail": "info@nuts.nl",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -542,7 +542,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "pbdf",
         "ContactAddress": "",
-        "ContactEMail": "info@privacybydesign.foundation",
+        "ContactEmail": "info@privacybydesign.foundation",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -555,7 +555,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "pbdf",
         "ContactAddress": "https://www.sidn.nl",
-        "ContactEMail": "support@sidn.nl",
+        "ContactEmail": "support@sidn.nl",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -568,7 +568,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "pbdf",
         "ContactAddress": "https://surfnet.nl",
-        "ContactEMail": "info@surfnet.nl",
+        "ContactEmail": "info@surfnet.nl",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false
@@ -581,7 +581,7 @@ String irmaConfigurationEventJson = r"""
         },
         "SchemeManagerID": "pbdf",
         "ContactAddress": "https://www.vgz.nl",
-        "ContactEMail": "digitalcooperation@vgz.nl",
+        "ContactEmail": "digitalcooperation@vgz.nl",
         "DeprecatedSince": -62135596800,
         "XMLVersion": 4,
         "Valid": false

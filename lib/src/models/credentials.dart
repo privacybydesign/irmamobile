@@ -47,11 +47,8 @@ class Credential {
       attributes.keys.any((attributeType) => info.schemeManager.keyshareAttributes.contains(attributeType.fullId));
 
   List<Attribute> get attributeList => attributes.entries
-      .map((entry) => Attribute(
-            credentialInfo: info,
-            attributeType: entry.key,
-            value: entry.value,
-          ))
+      .map((entry) =>
+          CredentialAttribute(credential: this, attributeType: entry.key, value: entry.value, notRevokable: false))
       .toList();
 
   Credential({

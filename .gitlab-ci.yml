@@ -23,7 +23,7 @@ lint:dart:
 
 test:flutter:
   script:
-    - flutter test --no-sound-null-safety
+    - flutter test
   stage: test
 
 build_bridge:

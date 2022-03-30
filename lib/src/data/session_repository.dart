@@ -264,6 +264,8 @@ class SessionRepository {
     return i;
   }
 
+  SessionState? getCurrentSessionState(int sessionID) => _sessionStatesSubject.value[sessionID];
+
   Stream<SessionState> getSessionState(int sessionID) => _sessionStatesSubject
       .where((sessionStates) => sessionStates.containsKey(sessionID))
       .map((sessionStates) => sessionStates[sessionID]!);

@@ -45,44 +45,58 @@ class IrmaMockBridge extends IrmaBridge {
 
   Event _constructRequestVerificationPermissionEvent(
     int sessionId,
-    List<Map<String, String?>> concon,
+    List<List<Map<String, String?>>> condiscon,
     List<RawCredential> credentials,
   ) {
     // Expand candidates with concrete options, based on the given credentials.
-    final disclosureCandidates = concon.map((con) {
-      // For mocking simplicity we assume all attributes in an inner con are from the same credential.
-      assert(con.isNotEmpty);
-      final credentialId = con.keys.first.split('.').take(3).join('.');
-      assert(con.keys.every((attrType) => attrType.startsWith('$credentialId.')));
+    final disclosureCandidates = condiscon
+        .map((discon) => discon.expand((con) {
+              final List<List<DisclosureCandidate>> disconCandidates = [];
 
-      final List<List<DisclosureCandidate>> disconCandidates = [];
-      // Look through all credentials for attributes that match the request.
-      for (final RawCredential c in credentials) {
-        if (c.fullId == credentialId &&
-            con.entries
-                .every((attr) => attr.value == null || attr.value == TextValue.fromRaw(c.attributes[attr.key]!).raw)) {
-          disconCandidates.add(con.entries
-              .map((attr) => DisclosureCandidate(
-                    type: attr.key,
-                    value: c.attributes[attr.key] ?? const TranslatedValue.empty(),
-                    credentialHash: c.hash,
-                  ))
-              .toList());
-        }
-      }
+              // Check whether it concerns an optional disjunction.
+              if (con.isEmpty) {
+                disconCandidates.add([]);
+                return disconCandidates;
+              }
 
-      // Add placeholder candidate if (additional) options can be added using issuance-in-disclosure.
-      if (disconCandidates.isEmpty || !_irmaConfiguration.credentialTypes[credentialId]!.isSingleton) {
-        disconCandidates.add(con.entries
-            .map((attr) => DisclosureCandidate(
-                  type: attr.key,
-                  value: attr.value == null
-                      ? const TranslatedValue.empty()
-                      : TextValue(translated: TranslatedValue.fromString(attr.value!), raw: attr.value!).toRaw(),
-                ))
-            .toList());
-      }
-      return disconCandidates;
+              // For mocking simplicity we assume all attributes in an inner con are from the same credential.
+              final credentialId = con.keys.first.split('.').take(3).join('.');
+              assert(con.keys.every((attrType) => attrType.startsWith('$credentialId.')));
+
+              // Look through all credentials for attributes that match the request.
+              for (final RawCredential c in credentials) {
+                if (c.fullId == credentialId &&
+                    con.entries.every(
+                        (attr) => attr.value == null || attr.value == TextValue.fromRaw(c.attributes[attr.key]!).raw)) {
+                  disconCandidates.add(con.entries
+                      .map((attr) => DisclosureCandidate(
+                            type: attr.key,
+                            value: c.attributes[attr.key] ?? const TranslatedValue.empty(),
+                            credentialHash: c.hash,
+                          ))
+                      .toList());
+                }
+              }
+
+              // Add placeholder candidate if (additional) options can be added using issuance-in-disclosure.
+              if (disconCandidates.isEmpty || !_irmaConfiguration.credentialTypes[credentialId]!.isSingleton) {
+                disconCandidates.add(con.entries
+                    .map((attr) => DisclosureCandidate(
+                          type: attr.key,
+                          value: attr.value == null
+                              ? const TranslatedValue.empty()
+                              : TextValue(translated: TranslatedValue.fromString(attr.value!), raw: attr.value!)
+                                  .toRaw(),
+                        ))
+                    .toList());
+              }
+              return disconCandidates;
+            }))
+        .map((discon) {
+      // All choosable candidates should come first in the list.
+      final choosableCandidates = discon.where((con) => con.isEmpty || con[0].credentialHash != null);
+      final templateCandidates = discon.where((con) => con.isNotEmpty && con[0].credentialHash == null);
+      return [...choosableCandidates, ...templateCandidates];
     }).toList();
 
     return RequestVerificationPermissionSessionEvent(
@@ -96,11 +110,11 @@ class IrmaMockBridge extends IrmaBridge {
     );
   }
 
-  /// Mock a disclosure session with the given concon. For now, this function does not support full
-  /// condiscon requests. Inner cons should be given as a map, i.e. {"irma-demo.some.attribute.type": "value"}.
+  /// Mock a disclosure session with the given condiscon.
+  /// Inner cons should be given as a map, i.e. {"irma-demo.some.attribute.type": "value"}.
   /// When requesting null, any attribute value is accepted.
   @visibleForTesting
-  Future<void> mockDisclosureSession(int sessionId, List<Map<String, String?>> concon) => () async* {
+  Future<void> mockDisclosureSession(int sessionId, List<List<Map<String, String?>>> condiscon) => () async* {
         await _sessionEventsSubject.firstWhere((event) => event is NewSessionEvent && event.sessionID == sessionId);
         yield StatusUpdateSessionEvent(
           sessionID: sessionId,
@@ -113,14 +127,14 @@ class IrmaMockBridge extends IrmaBridge {
           status: 'connected',
         );
 
-        yield _constructRequestVerificationPermissionEvent(sessionId, concon, _storedCredentials);
+        yield _constructRequestVerificationPermissionEvent(sessionId, condiscon, _storedCredentials);
 
         // Keep updating verification permission when new credentials have been added, until user has responded.
         yield* events
             .takeUntil(_sessionEventsSubject.where((e) => e is RespondPermissionEvent && e.sessionID == sessionId))
             .where((e) => e is CredentialsEvent)
             .cast<CredentialsEvent>()
-            .map((e) => _constructRequestVerificationPermissionEvent(sessionId, concon, e.credentials));
+            .map((e) => _constructRequestVerificationPermissionEvent(sessionId, condiscon, e.credentials));
 
         if ((_sessionEventsSubject.value as RespondPermissionEvent).proceed) {
           yield SuccessSessionEvent(sessionID: sessionId);
