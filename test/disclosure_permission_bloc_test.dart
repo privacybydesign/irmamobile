@@ -40,15 +40,15 @@ void main() {
     ]);
 
     final bloc = DisclosurePermissionBloc(sessionID: 42, repo: repo);
-    expect(bloc.state, isA<WaitingForSessionBlocState>());
+    expect(bloc.state, isA<DisclosurePermissionInitial>());
 
     repo.dispatch(
       NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
       isBridgedEvent: true,
     );
 
-    expect(await bloc.stream.first, isA<IssueWizardBlocState>());
-    IssueWizardBlocState issueWizardBlocState = bloc.state as IssueWizardBlocState;
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
+    DisclosurePermissionIssueWizard issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
     expect(issueWizardBlocState.issueWizard.length, 1);
     expect(issueWizardBlocState.issueWizard[0].obtained, false);
     expect(issueWizardBlocState.issueWizard[0].presentMatching, []);
@@ -66,8 +66,8 @@ void main() {
       }
     ]);
 
-    expect(await bloc.stream.first, isA<IssueWizardBlocState>());
-    issueWizardBlocState = bloc.state as IssueWizardBlocState;
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
+    issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
     expect(issueWizardBlocState.issueWizard.length, 1);
     expect(issueWizardBlocState.issueWizard[0].obtained, true);
     expect(issueWizardBlocState.issueWizard[0].presentMatching.length, 1);
@@ -77,10 +77,10 @@ void main() {
     expect(issueWizardBlocState.issueWizard[0].presentNonMatching, []);
     expect(issueWizardBlocState.issueWizard[0].fullId, 'irma-demo.IRMATube.member');
 
-    bloc.add(GoToNextStateBlocEvent());
+    bloc.add(DisclosurePermissionNextPressed());
 
-    expect(await bloc.stream.first, isA<ChoicesBlocState>());
-    ChoicesBlocState choiceBlocState = bloc.state as ChoicesBlocState;
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoices>());
+    DisclosurePermissionChoices choiceBlocState = bloc.state as DisclosurePermissionChoices;
     expect(choiceBlocState.selectedStepIndex, null);
     expect(choiceBlocState.choices.length, 1);
     expect(choiceBlocState.choices[0].length, 2);
@@ -100,9 +100,9 @@ void main() {
     expect(choiceBlocState.choices[0][1][0].attributes[0].value.raw, null);
     expect(choiceBlocState.choiceIndices, [0]);
 
-    bloc.add(SelectStepBlocEvent(stepIndex: 0));
-    expect(await bloc.stream.first, isA<ChoicesBlocState>());
-    choiceBlocState = bloc.state as ChoicesBlocState;
+    bloc.add(DisclosurePermissionStepSelected(stepIndex: 0));
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoices>());
+    choiceBlocState = bloc.state as DisclosurePermissionChoices;
     expect(choiceBlocState.selectedStepIndex, 0);
 
     // Test feature to add extra credential instance while choosing.
@@ -113,8 +113,8 @@ void main() {
       }
     ]);
 
-    expect(await bloc.stream.first, isA<ChoicesBlocState>());
-    choiceBlocState = bloc.state as ChoicesBlocState;
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoices>());
+    choiceBlocState = bloc.state as DisclosurePermissionChoices;
     expect(choiceBlocState.selectedStepIndex, null);
     expect(choiceBlocState.choices.length, 1);
     expect(choiceBlocState.choices[0].length, 3);
@@ -125,19 +125,19 @@ void main() {
     expect(choiceBlocState.choices[0][0][0].attributes[0].value.raw, '67890');
     expect(choiceBlocState.choices[0][1][0].attributes[0].value.raw, '12345');
 
-    bloc.add(UpdateChoiceBlocEvent(stepIndex: 0, choiceIndex: 1));
-    expect(await bloc.stream.first, isA<ChoicesBlocState>());
-    choiceBlocState = bloc.state as ChoicesBlocState;
+    bloc.add(DisclosurePermissionChoiceUpdated(stepIndex: 0, choiceIndex: 1));
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoices>());
+    choiceBlocState = bloc.state as DisclosurePermissionChoices;
     expect(choiceBlocState.choiceIndices, [1]);
 
-    bloc.add(SelectStepBlocEvent(stepIndex: null));
-    expect(await bloc.stream.first, isA<ChoicesBlocState>());
-    choiceBlocState = bloc.state as ChoicesBlocState;
+    bloc.add(DisclosurePermissionStepSelected(stepIndex: null));
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoices>());
+    choiceBlocState = bloc.state as DisclosurePermissionChoices;
     expect(choiceBlocState.selectedStepIndex, null);
 
-    bloc.add(GoToNextStateBlocEvent());
-    expect(await bloc.stream.first, isA<ConfirmChoicesBlocState>());
-    final confirmBlocState = bloc.state as ConfirmChoicesBlocState;
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionConfirmChoices>());
+    final confirmBlocState = bloc.state as DisclosurePermissionConfirmChoices;
     expect(confirmBlocState.currentSelection.length, 1);
     expect(confirmBlocState.currentSelection[0].fullId, 'irma-demo.IRMATube.member');
     expect(confirmBlocState.currentSelection[0].attributes.length, 1);
@@ -145,17 +145,17 @@ void main() {
     expect(confirmBlocState.currentSelection[0].attributes[0].value.raw, '12345');
 
     // Check whether we can go back to the choice phase again.
-    bloc.add(ChangeChoicesBlocEvent());
-    expect(await bloc.stream.first, isA<ChoicesBlocState>());
-    choiceBlocState = bloc.state as ChoicesBlocState;
+    bloc.add(DisclosurePermissionEditCurrentSelectionPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoices>());
+    choiceBlocState = bloc.state as DisclosurePermissionChoices;
     expect(choiceBlocState.selectedStepIndex, null);
     expect(choiceBlocState.choiceIndices, [1]);
 
-    bloc.add(GoToNextStateBlocEvent());
-    expect(await bloc.stream.first, isA<ConfirmChoicesBlocState>());
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionConfirmChoices>());
 
-    bloc.add(GoToNextStateBlocEvent());
-    expect(await bloc.stream.first, isA<CompletedPermissionRequestBlocState>());
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -201,8 +201,9 @@ void main() {
       isBridgedEvent: true,
     );
 
-    expect(await bloc.stream.first, isA<IssueWizardChoicesBlocState>());
-    IssueWizardChoicesBlocState issueWizardChoiceBlocState = bloc.state as IssueWizardChoicesBlocState;
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizardChoices>());
+    DisclosurePermissionIssueWizardChoices issueWizardChoiceBlocState =
+        bloc.state as DisclosurePermissionIssueWizardChoices;
     // Only for address a choice needs to be made before the issue wizard can be generated.
     expect(issueWizardChoiceBlocState.issueWizardChoices.length, 1);
     expect(issueWizardChoiceBlocState.issueWizardChoices[0].length, 2);
@@ -215,16 +216,16 @@ void main() {
     expect(issueWizardChoiceBlocState.issueWizardChoices[0][1][0].presentNonMatching, []);
     expect(issueWizardChoiceBlocState.issueWizardChoiceIndices, [0]);
 
-    bloc.add(IssueWizardUpdateChoiceBlocEvent(stepIndex: 0, choiceIndex: 1));
+    bloc.add(DisclosurePermissionIssueWizardChoiceUpdated(stepIndex: 0, choiceIndex: 1));
 
-    expect(await bloc.stream.first, isA<IssueWizardChoicesBlocState>());
-    issueWizardChoiceBlocState = bloc.state as IssueWizardChoicesBlocState;
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizardChoices>());
+    issueWizardChoiceBlocState = bloc.state as DisclosurePermissionIssueWizardChoices;
     expect(issueWizardChoiceBlocState.issueWizardChoiceIndices, [1]);
 
-    bloc.add(GoToNextStateBlocEvent());
+    bloc.add(DisclosurePermissionNextPressed());
 
-    expect(await bloc.stream.first, isA<IssueWizardBlocState>());
-    IssueWizardBlocState issueWizardBlocState = bloc.state as IssueWizardBlocState;
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
+    DisclosurePermissionIssueWizard issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
     expect(issueWizardBlocState.completed, false);
     expect(issueWizardBlocState.issueWizard.length, 2);
     expect(issueWizardBlocState.issueWizard[0].fullId, 'pbdf.gemeente.address');
@@ -242,8 +243,8 @@ void main() {
       }
     ]);
 
-    expect(await bloc.stream.first, isA<IssueWizardBlocState>());
-    issueWizardBlocState = bloc.state as IssueWizardBlocState;
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
+    issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
     expect(issueWizardBlocState.completed, false);
     expect(issueWizardBlocState.issueWizard.length, 2);
     expect(issueWizardBlocState.issueWizard[0].fullId, 'pbdf.gemeente.address');
@@ -262,8 +263,8 @@ void main() {
       }
     ]);
 
-    expect(await bloc.stream.first, isA<IssueWizardBlocState>());
-    issueWizardBlocState = bloc.state as IssueWizardBlocState;
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
+    issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
     expect(issueWizardBlocState.completed, true);
     expect(issueWizardBlocState.issueWizard[0].fullId, 'pbdf.gemeente.address');
     expect(issueWizardBlocState.issueWizard[0].obtained, true);
@@ -274,10 +275,10 @@ void main() {
     expect(issueWizardBlocState.issueWizard[1].presentMatching[0].attributes.length, 1);
     expect(issueWizardBlocState.issueWizard[1].presentMatching[0].attributes[0].value.raw, '+31612345678');
 
-    bloc.add(GoToNextStateBlocEvent());
+    bloc.add(DisclosurePermissionNextPressed());
 
-    expect(await bloc.stream.first, isA<ChoicesBlocState>());
-    ChoicesBlocState choiceBlocState = bloc.state as ChoicesBlocState;
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoices>());
+    DisclosurePermissionChoices choiceBlocState = bloc.state as DisclosurePermissionChoices;
     expect(choiceBlocState.choices.length, 3);
     expect(choiceBlocState.choices[0].length, 2);
     expect(choiceBlocState.choices[0][0].length, 1);
@@ -312,8 +313,8 @@ void main() {
       }
     ]);
 
-    expect(await bloc.stream.first, isA<ChoicesBlocState>());
-    choiceBlocState = bloc.state as ChoicesBlocState;
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoices>());
+    choiceBlocState = bloc.state as DisclosurePermissionChoices;
     expect(choiceBlocState.choices.length, 3);
     expect(choiceBlocState.choices[2].length, 3);
     expect(choiceBlocState.choices[2][0].length, 1);
@@ -327,16 +328,16 @@ void main() {
     expect(choiceBlocState.choices[2][2].length, 1);
     expect(choiceBlocState.choices[2][2][0], isA<TemplateDisclosureCredential>());
 
-    bloc.add(UpdateChoiceBlocEvent(stepIndex: 2, choiceIndex: 1));
+    bloc.add(DisclosurePermissionChoiceUpdated(stepIndex: 2, choiceIndex: 1));
 
-    expect(await bloc.stream.first, isA<ChoicesBlocState>());
-    choiceBlocState = bloc.state as ChoicesBlocState;
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoices>());
+    choiceBlocState = bloc.state as DisclosurePermissionChoices;
     expect(choiceBlocState.choiceIndices, [0, 0, 1]);
 
-    bloc.add(GoToNextStateBlocEvent());
+    bloc.add(DisclosurePermissionNextPressed());
 
-    expect(await bloc.stream.first, isA<ConfirmChoicesBlocState>());
-    final confirmBlocState = bloc.state as ConfirmChoicesBlocState;
+    expect(await bloc.stream.first, isA<DisclosurePermissionConfirmChoices>());
+    final confirmBlocState = bloc.state as DisclosurePermissionConfirmChoices;
     expect(confirmBlocState.currentSelection.length, 3);
     expect(confirmBlocState.currentSelection[0].fullId, 'pbdf.gemeente.address');
     expect(confirmBlocState.currentSelection[0].attributes.length, 2);
@@ -348,8 +349,8 @@ void main() {
     expect(confirmBlocState.currentSelection[2].attributes.length, 1);
     expect(confirmBlocState.currentSelection[2].attributes[0].value.raw, '+31612345678');
 
-    bloc.add(GoToNextStateBlocEvent());
-    expect(await bloc.stream.first, isA<CompletedPermissionRequestBlocState>());
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo.getSessionState(43).firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -378,8 +379,8 @@ void main() {
       isBridgedEvent: true,
     );
 
-    expect(await bloc.stream.first, isA<ChoicesBlocState>());
-    final choiceBlocState = bloc.state as ChoicesBlocState;
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoices>());
+    final choiceBlocState = bloc.state as DisclosurePermissionChoices;
     expect(choiceBlocState.choices.length, 1);
     expect(choiceBlocState.choices[0].length, 3);
     expect(choiceBlocState.choices[0][0].length, 1);
@@ -398,17 +399,17 @@ void main() {
     expect(choiceBlocState.choices[0][2][0].attributes[0].attributeType.fullId, 'pbdf.pbdf.mobilenumber.mobilenumber');
     expect(choiceBlocState.choices[0][2][0].attributes[0].value.raw, null);
 
-    bloc.add(GoToNextStateBlocEvent());
+    bloc.add(DisclosurePermissionNextPressed());
 
-    expect(await bloc.stream.first, isA<ConfirmChoicesBlocState>());
-    final confirmBlocState = bloc.state as ConfirmChoicesBlocState;
+    expect(await bloc.stream.first, isA<DisclosurePermissionConfirmChoices>());
+    final confirmBlocState = bloc.state as DisclosurePermissionConfirmChoices;
     expect(confirmBlocState.currentSelection.length, 1);
     expect(confirmBlocState.currentSelection[0].fullId, 'pbdf.pbdf.email');
     expect(confirmBlocState.currentSelection[0].attributes.length, 1);
     expect(confirmBlocState.currentSelection[0].attributes[0].value.raw, 'test@example.com');
 
-    bloc.add(GoToNextStateBlocEvent());
-    expect(await bloc.stream.first, isA<CompletedPermissionRequestBlocState>());
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo.getSessionState(43).firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -427,8 +428,8 @@ void main() {
       isBridgedEvent: true,
     );
 
-    expect(await bloc.stream.first, isA<IssueWizardBlocState>());
-    IssueWizardBlocState issueWizardBlocState = bloc.state as IssueWizardBlocState;
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
+    DisclosurePermissionIssueWizard issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
     expect(issueWizardBlocState.completed, false);
     expect(issueWizardBlocState.issueWizard.length, 1);
     expect(issueWizardBlocState.issueWizard[0].fullId, 'pbdf.pbdf.email');
@@ -443,8 +444,8 @@ void main() {
       }
     ]);
 
-    expect(await bloc.stream.first, isA<IssueWizardBlocState>());
-    issueWizardBlocState = bloc.state as IssueWizardBlocState;
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
+    issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
     expect(issueWizardBlocState.completed, false);
     expect(issueWizardBlocState.issueWizard.length, 1);
     expect(issueWizardBlocState.issueWizard[0].fullId, 'pbdf.pbdf.email');
@@ -461,8 +462,8 @@ void main() {
       }
     ]);
 
-    expect(await bloc.stream.first, isA<IssueWizardBlocState>());
-    issueWizardBlocState = bloc.state as IssueWizardBlocState;
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
+    issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
     expect(issueWizardBlocState.completed, true);
     expect(issueWizardBlocState.issueWizard.length, 1);
     expect(issueWizardBlocState.issueWizard[0].fullId, 'pbdf.pbdf.email');
@@ -472,10 +473,10 @@ void main() {
     expect(issueWizardBlocState.issueWizard[0].presentMatching[0].attributes.length, 1);
     expect(issueWizardBlocState.issueWizard[0].presentMatching[0].attributes[0].value.raw, 'test@example.com');
 
-    bloc.add(GoToNextStateBlocEvent());
+    bloc.add(DisclosurePermissionNextPressed());
 
-    expect(await bloc.stream.first, isA<ChoicesBlocState>());
-    final choiceBlocState = bloc.state as ChoicesBlocState;
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoices>());
+    final choiceBlocState = bloc.state as DisclosurePermissionChoices;
     expect(choiceBlocState.choices.length, 1);
     expect(choiceBlocState.choices[0].length, 2);
     expect(choiceBlocState.choices[0][0].length, 1);
@@ -483,11 +484,11 @@ void main() {
     expect(choiceBlocState.choices[0][1].length, 1);
     expect(choiceBlocState.choices[0][1][0], isA<TemplateDisclosureCredential>());
 
-    bloc.add(GoToNextStateBlocEvent());
-    expect(await bloc.stream.first, isA<ConfirmChoicesBlocState>());
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionConfirmChoices>());
 
-    bloc.add(GoToNextStateBlocEvent());
-    expect(await bloc.stream.first, isA<CompletedPermissionRequestBlocState>());
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -512,8 +513,8 @@ void main() {
       isBridgedEvent: true,
     );
 
-    expect(await bloc.stream.first, isA<IssueWizardBlocState>());
-    IssueWizardBlocState issueWizardBlocState = bloc.state as IssueWizardBlocState;
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
+    DisclosurePermissionIssueWizard issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
     expect(issueWizardBlocState.completed, false);
     expect(issueWizardBlocState.issueWizard.length, 1);
     expect(issueWizardBlocState.issueWizard[0].fullId, 'pbdf.pbdf.surfnet-2');
@@ -528,14 +529,14 @@ void main() {
       }
     ]);
 
-    expect(await bloc.stream.first, isA<IssueWizardBlocState>());
-    issueWizardBlocState = bloc.state as IssueWizardBlocState;
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
+    issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
     expect(issueWizardBlocState.completed, true);
 
-    bloc.add(GoToNextStateBlocEvent());
+    bloc.add(DisclosurePermissionNextPressed());
 
-    expect(await bloc.stream.first, isA<ChoicesBlocState>());
-    final choiceBlocState = bloc.state as ChoicesBlocState;
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoices>());
+    final choiceBlocState = bloc.state as DisclosurePermissionChoices;
     expect(choiceBlocState.choices.length, 2);
     expect(choiceBlocState.choices[0].length, 2);
     expect(choiceBlocState.choices[0][0].length, 1);
@@ -548,11 +549,11 @@ void main() {
     expect(choiceBlocState.choices[1][1].length, 1);
     expect(choiceBlocState.choices[1][1][0], isA<TemplateDisclosureCredential>());
 
-    bloc.add(GoToNextStateBlocEvent());
-    expect(await bloc.stream.first, isA<ConfirmChoicesBlocState>());
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionConfirmChoices>());
 
-    bloc.add(GoToNextStateBlocEvent());
-    expect(await bloc.stream.first, isA<CompletedPermissionRequestBlocState>());
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.success);
   });
 
@@ -576,8 +577,8 @@ void main() {
       isBridgedEvent: true,
     );
 
-    expect(await bloc.stream.first, isA<ChoicesBlocState>());
-    final choiceBlocState = bloc.state as ChoicesBlocState;
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoices>());
+    final choiceBlocState = bloc.state as DisclosurePermissionChoices;
     expect(choiceBlocState.choices.length, 1);
     expect(choiceBlocState.choices[0].length, 3);
     expect(choiceBlocState.choices[0][0].length, 0);
@@ -588,11 +589,11 @@ void main() {
     expect(choiceBlocState.choices[0][2][0], isA<TemplateDisclosureCredential>());
     expect(choiceBlocState.choices[0][2][0].fullId, 'pbdf.pbdf.mobilenumber');
 
-    bloc.add(GoToNextStateBlocEvent());
-    expect(await bloc.stream.first, isA<ConfirmChoicesBlocState>());
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionConfirmChoices>());
 
-    bloc.add(GoToNextStateBlocEvent());
-    expect(await bloc.stream.first, isA<CompletedPermissionRequestBlocState>());
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.success);
   });
 }

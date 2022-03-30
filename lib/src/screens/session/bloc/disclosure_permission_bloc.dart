@@ -23,7 +23,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     required this.sessionID,
     required IrmaRepository repo,
   })  : _repo = repo,
-        super(WaitingForSessionBlocState()) {
+        super(DisclosurePermissionInitial()) {
     _sessionStateSubscription = repo.getSessionState(sessionID).asyncExpand(_mapSessionStateToBlocState).listen(emit);
   }
 
@@ -37,41 +37,41 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
   Stream<DisclosurePermissionBlocState> mapEventToState(DisclosurePermissionBlocEvent event) async* {
     final state = this.state; // To prevent the need for type casting.
     final session = _repo.getCurrentSessionState(sessionID)!;
-    if (state is IssueWizardChoicesBlocState && event is IssueWizardUpdateChoiceBlocEvent) {
-      yield IssueWizardChoicesBlocState(
+    if (state is DisclosurePermissionIssueWizardChoices && event is DisclosurePermissionIssueWizardChoiceUpdated) {
+      yield DisclosurePermissionIssueWizardChoices(
         issueWizardChoices: state.issueWizardChoices,
         issueWizardChoiceIndices: state.issueWizardChoiceIndices
             .mapIndexed((i, choiceIndex) => i == event.stepIndex ? event.choiceIndex : choiceIndex)
             .toList(),
       );
-    } else if (state is IssueWizardChoicesBlocState && event is GoToNextStateBlocEvent) {
+    } else if (state is DisclosurePermissionIssueWizardChoices && event is DisclosurePermissionNextPressed) {
       // We have to insert again the credential templates that contain no choice.
       final otherWizardCandidates = _parseDisclosureCandidates(session.disclosuresCandidates!)
           .where((discon) => discon.length == 1)
           .map((discon) => discon[0].whereType<TemplateDisclosureCredential>())
           .flattened;
-      yield IssueWizardBlocState(
+      yield DisclosurePermissionIssueWizard(
         issueWizard: _foldIssueWizardItems([
           ...state.issueWizardChoices.mapIndexed((i, discon) => discon[state.issueWizardChoiceIndices[i]]).flattened,
           ...otherWizardCandidates,
         ]),
       );
-    } else if (state is IssueWizardBlocState && event is GoToNextStateBlocEvent ||
-        state is ConfirmChoicesBlocState && event is ChangeChoicesBlocEvent) {
-      if (state is IssueWizardBlocState && !state.completed) {
+    } else if (state is DisclosurePermissionIssueWizard && event is DisclosurePermissionNextPressed ||
+        state is DisclosurePermissionConfirmChoices && event is DisclosurePermissionEditCurrentSelectionPressed) {
+      if (state is DisclosurePermissionIssueWizard && !state.completed) {
         throw Exception('Issue wizard is not completed yet');
       }
-      yield ChoicesBlocState(
+      yield DisclosurePermissionChoices(
         choices: _parseDisclosureCandidates(session.disclosuresCandidates!),
         choiceIndices: session.disclosureIndices,
       );
-    } else if (state is ChoicesBlocState && event is SelectStepBlocEvent) {
-      yield ChoicesBlocState(
+    } else if (state is DisclosurePermissionChoices && event is DisclosurePermissionStepSelected) {
+      yield DisclosurePermissionChoices(
         choices: state.choices,
         choiceIndices: state.choiceIndices,
         selectedStepIndex: event.stepIndex,
       );
-    } else if (state is ChoicesBlocState && event is UpdateChoiceBlocEvent) {
+    } else if (state is DisclosurePermissionChoices && event is DisclosurePermissionChoiceUpdated) {
       if (state.choices[event.stepIndex][event.choiceIndex].any((cred) => cred is TemplateDisclosureCredential)) {
         throw Exception('Cannot choose a template option');
       }
@@ -83,12 +83,12 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         ),
         isBridgedEvent: true,
       );
-    } else if (state is ChoicesBlocState && event is GoToNextStateBlocEvent) {
-      yield ConfirmChoicesBlocState(
+    } else if (state is DisclosurePermissionChoices && event is DisclosurePermissionNextPressed) {
+      yield DisclosurePermissionConfirmChoices(
         currentSelection: state.currentSelection.flattened.toList(),
         signedMessage: session.signedMessage,
       );
-    } else if (state is ConfirmChoicesBlocState && event is GoToNextStateBlocEvent) {
+    } else if (state is DisclosurePermissionConfirmChoices && event is DisclosurePermissionNextPressed) {
       if (session.isIssuanceSession) {
         _repo.dispatch(
           ContinueToIssuanceEvent(sessionID: sessionID),
@@ -112,19 +112,19 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
   Stream<DisclosurePermissionBlocState> _mapSessionStateToBlocState(SessionState session) async* {
     final state = this.state;
     if (session.status != SessionStatus.requestDisclosurePermission) {
-      if (state is! WaitingForSessionBlocState && state is! CompletedPermissionRequestBlocState) {
-        yield CompletedPermissionRequestBlocState();
+      if (state is! DisclosurePermissionInitial && state is! DisclosurePermissionFinished) {
+        yield DisclosurePermissionFinished();
       }
       return;
-    } else if (state is IssueWizardBlocState) {
+    } else if (state is DisclosurePermissionIssueWizard) {
       final credentials = _repo.credentials.values;
-      yield IssueWizardBlocState(
+      yield DisclosurePermissionIssueWizard(
         issueWizard: state.issueWizard.map((template) => template.refresh(credentials)).toList(),
       );
     } else {
       final parsedCandidates = _parseDisclosureCandidates(session.disclosuresCandidates!);
-      if (state is ChoicesBlocState) {
-        yield ChoicesBlocState(
+      if (state is DisclosurePermissionChoices) {
+        yield DisclosurePermissionChoices(
           choices: parsedCandidates,
           choiceIndices: session.disclosureIndices,
         );
@@ -133,7 +133,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         final issueWizardCandidates = parsedCandidates
             .where((discon) => discon.every((con) => con.any((cred) => cred is TemplateDisclosureCredential)));
         if (issueWizardCandidates.isEmpty) {
-          yield ChoicesBlocState(
+          yield DisclosurePermissionChoices(
             choices: parsedCandidates,
           );
         } else {
@@ -141,12 +141,12 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
           final filteredIssueWizardCandidates = ConDisCon(issueWizardCandidates
               .map((discon) => DisCon(discon.map((con) => Con(con.whereType<TemplateDisclosureCredential>())))));
           if (issueWizardCandidates.every((discon) => discon.length == 1)) {
-            yield IssueWizardBlocState(
+            yield DisclosurePermissionIssueWizard(
               issueWizard: _foldIssueWizardItems(filteredIssueWizardCandidates.flattened.flattened),
             );
           } else {
             // Only include the discons in which a choice must be made.
-            yield IssueWizardChoicesBlocState(
+            yield DisclosurePermissionIssueWizardChoices(
               issueWizardChoices: ConDisCon(filteredIssueWizardCandidates.where((discon) => discon.length > 1)),
             );
           }
