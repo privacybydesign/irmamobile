@@ -463,7 +463,7 @@
       "data": "Data",
       "activity": "Activity",
       "more": "More",
-      "open_scanner": "Open QR Scanner"
+      "scan_qr": "Scan QR"
     }
   },
   "more_tab": {

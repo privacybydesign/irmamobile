@@ -463,7 +463,7 @@
       "data" : "Gegevens",
       "activity" : "Activiteit",
       "more": "Meer",
-      "open_scanner": "Open QR-Scanner"
+      "scan_qr": "Scan QR"
     }
   },
   "more_tab": {
