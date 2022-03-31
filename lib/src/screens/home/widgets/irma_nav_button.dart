@@ -34,14 +34,14 @@ class IrmaNavButton extends StatelessWidget {
             Icon(
               iconData,
               size: 28,
-              color: isSelected ? theme.themeData.colorScheme.primary : Colors.grey.shade600,
+              color: isSelected ? theme.themeData.colorScheme.secondary : Colors.grey.shade600,
             ),
             SizedBox(
               height: theme.tinySpacing,
             ),
             TranslatedText(_navBarTabTranslationKeys[tab],
                 style: theme.themeData.textTheme.caption!.copyWith(
-                    fontSize: 12, color: isSelected ? theme.themeData.colorScheme.primary : Colors.grey.shade600))
+                    fontSize: 12, color: isSelected ? theme.themeData.colorScheme.secondary : Colors.grey.shade600))
           ],
         ),
       ),
