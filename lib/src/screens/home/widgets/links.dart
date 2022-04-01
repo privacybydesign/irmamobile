@@ -72,7 +72,13 @@ class InternalLink extends StatelessWidget {
   final TextAlign? textAlign;
 
   const InternalLink(
-      {required this.iconData, required this.translationKey, required this.routeName, this.style, this.textAlign});
+      {Key? key,
+      required this.iconData,
+      required this.translationKey,
+      required this.routeName,
+      this.style,
+      this.textAlign})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
