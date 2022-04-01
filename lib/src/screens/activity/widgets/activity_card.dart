@@ -19,6 +19,7 @@ class ActivityCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String lang = FlutterI18n.currentLocale(context)!.languageCode;
+    final theme = IrmaTheme.of(context);
 
     String title = '';
     String subtitleTranslationKey = '';
@@ -44,25 +45,39 @@ class ActivityCard extends StatelessWidget {
         subtitleTranslationKey =
             logEntry.type == LogEntryType.issuing ? 'activity.data_received' : 'activity.data_deleted';
         logoFile = File(
-            Credential.fromRaw(irmaConfiguration: irmaConfiguration, rawCredential: logEntry.issuedCredentials.first)
-                .info
-                .credentialType
-                .logo!);
+          Credential.fromRaw(irmaConfiguration: irmaConfiguration, rawCredential: logEntry.issuedCredentials.first)
+              .info
+              .credentialType
+              .logo!,
+        );
     }
 
     return GestureDetector(
       onTap: () => Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ActivityDetailScreen(logEntry: logEntry, irmaConfiguration: irmaConfiguration),
+            builder: (context) => ActivityDetailScreen(
+              logEntry: logEntry,
+              irmaConfiguration: irmaConfiguration,
+            ),
           )),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 480),
         decoration: BoxDecoration(
-            borderRadius: const BorderRadius.all(Radius.circular(20)),
-            color: Colors.white,
-            boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.3), spreadRadius: 2, blurRadius: 4)]),
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          borderRadius: const BorderRadius.all(Radius.circular(20)),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3),
+              spreadRadius: 2,
+              blurRadius: 4,
+            )
+          ],
+        ),
+        padding: EdgeInsets.symmetric(
+          vertical: theme.smallSpacing,
+          horizontal: theme.smallSpacing + theme.tinySpacing,
+        ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -70,34 +85,42 @@ class ActivityCard extends StatelessWidget {
               child: Row(
                 children: [
                   Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFF4F4F4),
-                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                    margin: EdgeInsets.symmetric(horizontal: theme.tinySpacing),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(8),
+                      ),
                     ),
                     child: Container(
-                        padding: const EdgeInsets.all(8.0),
-                        height: 48,
-                        width: 48,
-                        child: logoFile.existsSync()
-                            ? SizedBox(height: 24, child: Image.file(logoFile, excludeFromSemantics: true))
-                            : null),
+                      padding: EdgeInsets.all(theme.smallSpacing),
+                      height: 48,
+                      width: 48,
+                      child: logoFile.existsSync()
+                          ? SizedBox(height: 24, child: Image.file(logoFile, excludeFromSemantics: true))
+                          : null,
+                    ),
                   ),
                   Flexible(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(title,
-                            overflow: TextOverflow.ellipsis,
-                            style: IrmaTheme.of(context)
-                                .themeData
-                                .textTheme
-                                .caption!
-                                .copyWith(fontWeight: FontWeight.bold)),
-                        Text(formatDate(logEntry.time, lang),
-                            style: IrmaTheme.of(context).themeData.textTheme.bodyText2!.copyWith(fontSize: 12)),
-                        TranslatedText(subtitleTranslationKey, style: IrmaTheme.of(context).themeData.textTheme.caption)
+                        Text(
+                          title,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.themeData.textTheme.caption!.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          formatDate(logEntry.time, lang),
+                          style: theme.themeData.textTheme.bodyText2!.copyWith(fontSize: 12),
+                        ),
+                        TranslatedText(
+                          subtitleTranslationKey,
+                          style: theme.themeData.textTheme.caption,
+                        )
                       ],
                     ),
                   )
