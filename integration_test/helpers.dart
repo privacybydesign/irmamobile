@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:irmamobile/src/screens/home/home_screen.dart';
 
 import 'irma_binding.dart';
 import 'util.dart';
@@ -7,7 +8,7 @@ import 'util.dart';
 /// Unlocks the IRMA app and waits until the wallet is displayed.
 Future<void> unlock(WidgetTester tester) async {
   await tester.enterTextAtFocusedAndSettle('12345');
-  await tester.waitFor(find.byKey(const Key('wallet_present')));
+  await tester.waitFor(find.byType(HomeScreen));
 }
 
 /// Adds the municipality's personal data and address cards to the IRMA app.

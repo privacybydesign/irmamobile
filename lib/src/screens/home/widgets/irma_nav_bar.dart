@@ -9,7 +9,7 @@ class IrmaNavBar extends StatelessWidget {
   final Function(IrmaNavBarTab tab) onChangeTab;
   final IrmaNavBarTab selectedTab;
 
-  IrmaNavBar({Key? key, required this.onChangeTab, this.selectedTab = IrmaNavBarTab.home}) : super(key: key);
+  const IrmaNavBar({Key? key, required this.onChangeTab, this.selectedTab = IrmaNavBarTab.home}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -37,12 +37,14 @@ class IrmaNavBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           IrmaNavButton(
+            key: const Key('nav_button_home'),
             iconData: Icons.home_filled,
             tab: IrmaNavBarTab.home,
             changeTab: onChangeTab,
             isSelected: IrmaNavBarTab.home == selectedTab,
           ),
           IrmaNavButton(
+              key: const Key('nav_button_data'),
               iconData: Icons.folder_shared,
               tab: IrmaNavBarTab.data,
               changeTab: onChangeTab,
@@ -52,11 +54,13 @@ class IrmaNavBar extends StatelessWidget {
             width: 90,
           ),
           IrmaNavButton(
+              key: const Key('nav_button_activity'),
               iconData: Icons.history,
               tab: IrmaNavBarTab.activity,
               changeTab: onChangeTab,
               isSelected: IrmaNavBarTab.activity == selectedTab),
           IrmaNavButton(
+              key: const Key('nav_button_more'),
               iconData: Icons.more_horiz,
               tab: IrmaNavBarTab.more,
               changeTab: onChangeTab,

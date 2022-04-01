@@ -1,16 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/screens/activity/activity_tab.dart';
 import 'package:irmamobile/src/screens/home/home_tab.dart';
 import 'package:irmamobile/src/screens/home/widgets/irma_nav_bar.dart';
 import 'package:irmamobile/src/screens/home/widgets/irma_qr_scan_button.dart';
 import 'package:irmamobile/src/screens/more/more_tab.dart';
-import 'package:irmamobile/src/theme/irma_icons.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/translated_text.dart';
-
-import '../scanner/scanner_screen.dart';
-
 class HomeScreen extends StatefulWidget {
   static const routeName = '/home';
 
@@ -38,11 +31,10 @@ class _HomeScreenState extends State<HomeScreen> {
           }
         }),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        floatingActionButton: IrmaQrScanButton(),
+        floatingActionButton: const IrmaQrScanButton(key: Key('nav_button_scanner')),
         bottomNavigationBar: IrmaNavBar(
             selectedTab: selectedTab,
             onChangeTab: (IrmaNavBarTab tab) {
-              print("de goeie");
               setState(() {
                 selectedTab = tab;
               });
