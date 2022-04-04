@@ -45,8 +45,8 @@ class TemplateDisclosureCredential extends DisclosureCredential {
   }) {
     assert(choosableDisclosureCredentials.every((cred) =>
         cred.fullId == choosableDisclosureCredentials.first.fullId &&
-        cred.attributes
-            .every((attr1) => attributes.any((attr2) => attr1.attributeType.fullId == attr2.attributeType.fullId))));
+        cred.attributes.every((credAttr) =>
+            attributes.any((templateAttr) => credAttr.attributeType.fullId == templateAttr.attributeType.fullId))));
 
     final Map<bool, List<ChoosableDisclosureCredential>> mapped = groupBy(
         choosableDisclosureCredentials,
