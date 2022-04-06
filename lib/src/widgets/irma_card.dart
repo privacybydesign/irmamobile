@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../theme/theme.dart';
+import '../theme/theme.dart';
 
+/// Variant of Material's Card that uses IRMA styling.
 class IrmaCard extends StatelessWidget {
   final Function()? onTap;
   final Widget? child;

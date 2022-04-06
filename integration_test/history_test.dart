@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/main.dart';
-// import 'package:irmamobile/src/widgets/card/card.dart';
-// import 'package:irmamobile/src/widgets/card/card_attributes.dart';
+
+// import 'package:irmamobile/src/widgets/credential_card/card.dart';
+// import 'package:irmamobile/src/widgets/credential_card/card_attributes.dart';
 
 import 'helpers.dart';
 import 'irma_binding.dart';

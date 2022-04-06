@@ -2,8 +2,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import '../../models/attributes.dart';
+import '../irma_card.dart';
 import 'attributes_card_item.dart';
-import 'irma_card.dart';
 
 class AttributesCard extends StatelessWidget {
   final List<Attribute> attributes;

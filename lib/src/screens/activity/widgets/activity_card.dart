@@ -8,9 +8,9 @@ import '../../../models/irma_configuration.dart';
 import '../../../models/log_entry.dart';
 import '../../../theme/theme.dart';
 import '../../../util/date_formatter.dart';
+import '../../../widgets/irma_card.dart';
 import '../../../widgets/translated_text.dart';
 import '../activity_detail_screen.dart';
-import '../../../widgets/card/irma_card.dart';
 
 class ActivityCard extends StatelessWidget {
   final LogEntry logEntry;

@@ -5,7 +5,7 @@ import 'package:irmamobile/src/models/log_entry.dart';
 import '../../../models/attributes.dart';
 import '../../../models/irma_configuration.dart';
 import '../../../theme/theme.dart';
-import '../../../widgets/card/attributes_card.dart';
+import '../../../widgets/credential_card/attributes_card.dart';
 import '../../../widgets/irma_quote.dart';
 import '../../../widgets/translated_text.dart';
 import 'issuer_verifier_header.dart';

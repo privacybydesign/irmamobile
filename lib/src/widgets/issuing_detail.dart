@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/credentials.dart';
 import '../theme/theme.dart';
-import 'card/irma_credential_card.dart';
+import 'credential_card/irma_credential_card.dart';
 
 class IssuingDetail extends StatelessWidget {
   final List<Credential> credentials;

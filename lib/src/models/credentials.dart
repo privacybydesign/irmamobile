@@ -46,6 +46,7 @@ class Credential {
   bool get isKeyshareCredential =>
       attributes.keys.any((attributeType) => info.schemeManager.keyshareAttributes.contains(attributeType.fullId));
 
+  // TODO: List is not properly sorted.
   List<Attribute> get attributeList => attributes.entries
       .map((entry) => Attribute(
             credentialInfo: info,
@@ -87,6 +88,7 @@ class RemovedCredential {
     required this.attributes,
   });
 
+  // TODO: List is not properly sorted.
   List<Attribute> get attributeList => attributes.entries
       .map((entry) => Attribute(
             credentialInfo: info,

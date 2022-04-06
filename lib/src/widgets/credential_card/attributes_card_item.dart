@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/widgets/card/card_attribute_list.dart';
+import 'package:irmamobile/src/widgets/credential_card/card_attribute_list.dart';
 
 import '../../models/attributes.dart';
 import '../../theme/theme.dart';

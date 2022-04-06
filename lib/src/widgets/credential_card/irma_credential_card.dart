@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/models/attributes.dart';
-import 'package:irmamobile/src/models/credentials.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/util/language.dart';
-import 'package:irmamobile/src/widgets/card/models/card_expiry_date.dart';
-import 'package:irmamobile/src/widgets/irma_button.dart';
-import 'package:irmamobile/src/widgets/irma_dialog.dart';
-import 'package:irmamobile/src/widgets/irma_text_button.dart';
-import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 
+import '../../models/attributes.dart';
+import '../../models/credentials.dart';
+import '../../theme/theme.dart';
+import '../../util/language.dart';
+import '../irma_button.dart';
+import '../irma_card.dart';
+import '../irma_dialog.dart';
+import '../irma_text_button.dart';
+import '../irma_themed_button.dart';
 import 'card_attribute_list.dart';
 import 'card_credential_header.dart';
-import 'irma_card.dart';
+import 'models/card_expiry_date.dart';
 
 class IrmaCredentialCard extends StatelessWidget {
   final CredentialInfo credentialInfo;
-  final Attributes attributes;
+  final List<Attribute> attributes;
   final bool revoked;
   final CardExpiryDate? expiryDate;
 
@@ -35,7 +35,7 @@ class IrmaCredentialCard extends StatelessWidget {
     this.expanded = false,
     this.showWarnings = true,
   })  : credentialInfo = credential.info,
-        attributes = credential.attributes,
+        attributes = credential.attributeList,
         revoked = credential.revoked,
         expiryDate = CardExpiryDate(credential.expires),
         super(key: key);
@@ -43,7 +43,7 @@ class IrmaCredentialCard extends StatelessWidget {
   IrmaCredentialCard.fromRemovedCredential({
     required RemovedCredential credential,
   })  : credentialInfo = credential.info,
-        attributes = credential.attributes,
+        attributes = credential.attributeList,
         revoked = false,
         expanded = true,
         expiryDate = null,
@@ -76,7 +76,7 @@ class IrmaCredentialCard extends StatelessWidget {
                 onPressed: () {
                   Navigator.of(context).pop();
                   if (onDeleteCredential != null) {
-                    onDeleteCredential!();
+                    _onDeleteCredentialHandler(context);
                   }
                 },
                 label: 'card.delete_confirm',
@@ -107,8 +107,7 @@ class IrmaCredentialCard extends StatelessWidget {
         const Divider(),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).largeSpacing),
-          //TODO: Make attribute types compatible with this widget;
-          child: CardAttributeList([]),
+          child: CardAttributeList(attributes),
         )
       ],
     ));
