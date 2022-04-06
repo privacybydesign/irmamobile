@@ -1,16 +1,20 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'package:irmamobile/src/models/log_entry.dart';
-import 'package:irmamobile/src/models/session_events.dart';
-import 'package:irmamobile/src/screens/activity/history_repository.dart';
-import 'package:irmamobile/src/screens/activity/widgets/activity_card.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/util/combine.dart';
-import 'package:irmamobile/src/widgets/irma_repository_provider.dart';
+
+import '../../../models/irma_configuration.dart';
+import '../../../models/log_entry.dart';
+import '../../../models/session_events.dart';
+import '../../../util/combine.dart';
+import '../../../widgets/irma_repository_provider.dart';
+import '../history_repository.dart';
+import 'activity_card.dart';
 
 class RecentActivity extends StatefulWidget {
+  final int amountOfLogs;
+
+  const RecentActivity({this.amountOfLogs = 5});
+
   @override
   State<RecentActivity> createState() => _RecentActivityState();
 }
@@ -41,18 +45,9 @@ class _RecentActivityState extends State<RecentActivity> {
   }
 
   void _loadLogs() {
-    IrmaRepositoryProvider.of(context).bridgedDispatch(LoadLogsEvent(max: 5));
-  }
-
-  List<Widget> _buildLogEntries(BuildContext context, IrmaConfiguration irmaConfiguration, HistoryState historyState) {
-    final List<Widget> widgets = [];
-    for (final logEntry in historyState.logEntries) {
-      widgets.add(Padding(
-        padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).tinySpacing),
-        child: ActivityCard(logEntry: logEntry, irmaConfiguration: irmaConfiguration),
-      ));
-    }
-    return widgets;
+    IrmaRepositoryProvider.of(context).bridgedDispatch(LoadLogsEvent(
+      max: widget.amountOfLogs,
+    ));
   }
 
   @override
@@ -67,7 +62,14 @@ class _RecentActivityState extends State<RecentActivity> {
         final historyState = snapshot.data!.b;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: _buildLogEntries(context, irmaConfiguration, historyState),
+          children: historyState.logEntries
+              .map(
+                (logEntry) => ActivityCard(
+                  logEntry: logEntry,
+                  irmaConfiguration: irmaConfiguration,
+                ),
+              )
+              .toList(),
         );
       },
     );

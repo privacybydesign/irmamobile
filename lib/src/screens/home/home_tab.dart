@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/irma_app_bar.dart';
-import 'package:irmamobile/src/widgets/translated_text.dart';
 
+import '../../theme/theme.dart';
+import '../../widgets/irma_app_bar.dart';
+import '../../widgets/translated_text.dart';
 import '../activity/widgets/recent_activity.dart';
 
 class HomeTab extends StatelessWidget {
@@ -29,7 +29,9 @@ class HomeTab extends StatelessWidget {
                 style: IrmaTheme.of(context).textTheme.headline3,
               ),
             ),
-            RecentActivity(),
+            const RecentActivity(
+              amountOfLogs: 2,
+            )
           ],
         ),
       ),

@@ -3,19 +3,20 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:intl/intl.dart';
-import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'package:irmamobile/src/models/log_entry.dart';
-import 'package:irmamobile/src/models/session_events.dart';
-import 'package:irmamobile/src/screens/activity/history_repository.dart';
-import 'package:irmamobile/src/screens/activity/widgets/activity_card.dart';
-import 'package:irmamobile/src/theme/irma_icons.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/util/capitalize.dart';
-import 'package:irmamobile/src/util/combine.dart';
-import 'package:irmamobile/src/widgets/irma_app_bar.dart';
-import 'package:irmamobile/src/widgets/irma_repository_provider.dart';
-import 'package:irmamobile/src/widgets/loading_indicator.dart';
-import 'package:irmamobile/src/widgets/translated_text.dart';
+
+import '../../models/irma_configuration.dart';
+import '../../models/log_entry.dart';
+import '../../models/session_events.dart';
+import '../../theme/irma_icons.dart';
+import '../../theme/theme.dart';
+import '../../util/capitalize.dart';
+import '../../util/combine.dart';
+import '../../widgets/irma_app_bar.dart';
+import '../../widgets/irma_repository_provider.dart';
+import '../../widgets/loading_indicator.dart';
+import '../../widgets/translated_text.dart';
+import 'history_repository.dart';
+import 'widgets/activity_card.dart';
 
 class ActivityTab extends StatefulWidget {
   @override
@@ -54,8 +55,7 @@ class _ActivityTabState extends State<ActivityTab> {
 
   Future<void> _loadMoreLogs() async {
     final historyState = await _historyRepo.getHistoryState().first;
-    if (historyState.moreLogsAvailable && !historyState.loading) {
-      if (!mounted) return;
+    if (historyState.moreLogsAvailable && !historyState.loading && mounted) {
       IrmaRepositoryProvider.of(context)
           .bridgedDispatch(LoadLogsEvent(before: historyState.logEntries.last.id, max: 10));
     }
@@ -96,12 +96,9 @@ class _ActivityTabState extends State<ActivityTab> {
                       padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).tinySpacing),
                       child: Text(DateFormat('MMMM', local).format(logEntry.time).toCapitalized(),
                           style: IrmaTheme.of(context).themeData.textTheme.headline3)),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).tinySpacing),
-                  child: ActivityCard(
-                    logEntry: logEntry,
-                    irmaConfiguration: irmaConfiguration,
-                  ),
+                ActivityCard(
+                  logEntry: logEntry,
+                  irmaConfiguration: irmaConfiguration,
                 ),
 
                 // Put loading indicator or loading finished icon at end of ListView

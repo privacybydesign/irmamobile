@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/models/credentials.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/card/card.dart';
+
+import '../models/credentials.dart';
+import '../theme/theme.dart';
+import 'card/irma_credential_card.dart';
 
 class IssuingDetail extends StatelessWidget {
   final List<Credential> credentials;
@@ -19,9 +20,8 @@ class IssuingDetail extends StatelessWidget {
         padding: EdgeInsets.only(
           bottom: IrmaTheme.of(context).defaultSpacing,
         ),
-        child: IrmaCard.fromCredential(
+        child: IrmaCredentialCard.fromCredential(
           credential: credential,
-          scrollBeyondBoundsCallback: (value) {},
           expanded: true,
           showWarnings: false,
         ),
