@@ -5,6 +5,7 @@ import '../../../models/irma_configuration.dart';
 import '../../../models/log_entry.dart';
 import '../../../theme/theme.dart';
 import '../../../widgets/credential_card/attributes_card.dart';
+import '../../../widgets/credential_card/irma_credential_card.dart';
 import '../../../widgets/translated_text.dart';
 
 class ActivityDetailIssuance extends StatelessWidget {
@@ -24,14 +25,11 @@ class ActivityDetailIssuance extends StatelessWidget {
         SizedBox(height: IrmaTheme.of(context).smallSpacing),
         for (var rawCredential in logEntry.issuedCredentials)
           Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: AttributesCard(
-              Credential.fromRaw(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: IrmaCredentialCard.fromAttributes(Credential.fromRaw(
                 irmaConfiguration: irmaConfiguration,
                 rawCredential: rawCredential,
-              ).attributeList,
-            ),
-          ),
+              ).attributeList)),
       ],
     );
   }

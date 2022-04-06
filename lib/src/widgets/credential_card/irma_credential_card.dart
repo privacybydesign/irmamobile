@@ -3,6 +3,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../models/attributes.dart';
 import '../../models/credentials.dart';
+import '../../models/irma_configuration.dart';
 import '../../theme/theme.dart';
 import '../../util/language.dart';
 import '../irma_button.dart';
@@ -26,6 +27,25 @@ class IrmaCredentialCard extends StatelessWidget {
   final bool showWarnings;
   // If true the card expands to the size it needs and lets the parent handle the scrolling.
   final bool expanded;
+
+  const IrmaCredentialCard(
+      {required this.credentialInfo,
+      required this.attributes,
+      this.revoked = false,
+      this.expiryDate,
+      this.onRefreshCredential,
+      this.onDeleteCredential,
+      required this.showWarnings,
+      this.expanded = false});
+
+  factory IrmaCredentialCard.fromAttributes(List<Attribute> attributesByCredential) {
+    final CredentialInfo credInfo = attributesByCredential.first.credentialInfo;
+    return IrmaCredentialCard(
+      credentialInfo: credInfo,
+      attributes: attributesByCredential,
+      showWarnings: false,
+    );
+  }
 
   IrmaCredentialCard.fromCredential({
     Key? key,

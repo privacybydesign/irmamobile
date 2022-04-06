@@ -5,6 +5,7 @@ import '../../../models/irma_configuration.dart';
 import '../../../models/log_entry.dart';
 import '../../../theme/theme.dart';
 import '../../../widgets/credential_card/attributes_card.dart';
+import '../../../widgets/credential_card/irma_credential_card.dart';
 import '../../../widgets/translated_text.dart';
 
 class ActivityDetailRemoval extends StatelessWidget {
@@ -31,9 +32,8 @@ class ActivityDetailRemoval extends StatelessWidget {
         SizedBox(height: IrmaTheme.of(context).smallSpacing),
         for (var removedCredential in removedCredentials)
           Padding(
-            padding: EdgeInsets.only(top: IrmaTheme.of(context).smallSpacing),
-            child: AttributesCard(removedCredential.attributeList),
-          )
+              padding: EdgeInsets.only(top: IrmaTheme.of(context).smallSpacing),
+              child: IrmaCredentialCard.fromAttributes(removedCredential.attributeList))
       ],
     );
   }
