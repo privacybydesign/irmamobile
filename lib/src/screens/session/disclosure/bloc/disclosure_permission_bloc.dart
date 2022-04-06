@@ -2,12 +2,13 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
-import 'package:irmamobile/src/screens/session/bloc/disclosure_permission_event.dart';
-import 'package:irmamobile/src/screens/session/bloc/disclosure_permission_state.dart';
+import 'package:irmamobile/src/screens/session/disclosure/bloc/disclosure_permission_event.dart';
+import 'package:irmamobile/src/screens/session/disclosure/bloc/disclosure_permission_state.dart';
 import 'package:irmamobile/src/screens/session/models/choosable_disclosure_credential.dart';
 import 'package:irmamobile/src/screens/session/models/disclosure_credential.dart';
 import 'package:irmamobile/src/screens/session/models/template_disclosure_credential.dart';

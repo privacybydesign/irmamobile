@@ -400,7 +400,7 @@
     }
   },
   "disclosure": {
-    "title": "Make yourself known",
+    "title": "Data request",
     "disclosure_header": "Do you wish to disclose the following data to {otherParty}?",
     "disclosure_call_header": "Do you wish to diclose the following data to {otherParty} and call to {phoneNumber}?",
     "signing_header": "{otherParty} asks you to sign a message",
