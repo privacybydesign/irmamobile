@@ -9,11 +9,11 @@ import '../../../widgets/credential_card/attributes_card.dart';
 import '../../../widgets/translated_text.dart';
 import 'issuer_verifier_header.dart';
 
-class ActivityDetailDisclose extends StatelessWidget {
+class ActivityDetailDisclosure extends StatelessWidget {
   final LogEntry logEntry;
   final IrmaConfiguration irmaConfiguration;
 
-  const ActivityDetailDisclose({required this.logEntry, required this.irmaConfiguration});
+  const ActivityDetailDisclosure({required this.logEntry, required this.irmaConfiguration});
   @override
   Widget build(BuildContext context) {
     return Column(

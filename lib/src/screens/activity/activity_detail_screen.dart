@@ -8,7 +8,7 @@ import '../../util/date_formatter.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_bottom_bar.dart';
 import '../../widgets/translated_text.dart';
-import 'widgets/activity_detail_disclose.dart';
+import 'widgets/activity_detail_disclosure.dart';
 import 'widgets/activity_detail_issuance.dart';
 import 'widgets/activity_detail_removal.dart';
 import 'widgets/activity_detail_signing.dart';
@@ -39,7 +39,7 @@ class ActivityDetailScreen extends StatelessWidget {
             Builder(builder: (context) {
               switch (logEntry.type) {
                 case LogEntryType.disclosing:
-                  return ActivityDetailDisclose(
+                  return ActivityDetailDisclosure(
                     logEntry: logEntry,
                     irmaConfiguration: irmaConfiguration,
                   );
