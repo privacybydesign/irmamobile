@@ -17,17 +17,14 @@ class AttributesCard extends StatelessWidget {
     return IrmaCard(
       child: Column(children: [
         //Add an item for each credential
-        for (var credentialId in attributesGroupdByCredential.keys)
-          Column(
-            children: [
-              AttributesCardItem(attributesGroupdByCredential[credentialId]!),
-              //Add divider when this is not the last item
-              if (credentialId != attributesGroupdByCredential.keys.last)
-                Divider(
-                  color: Colors.grey.shade500,
-                )
-            ],
-          )
+        for (var credentialId in attributesGroupdByCredential.keys) ...[
+          AttributesCardItem(attributesGroupdByCredential[credentialId]!),
+          //Add divider when this is not the last item
+          if (credentialId != attributesGroupdByCredential.keys.last)
+            Divider(
+              color: Colors.grey.shade500,
+            )
+        ]
       ]),
     );
   }
