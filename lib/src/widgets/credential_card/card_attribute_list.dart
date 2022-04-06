@@ -50,7 +50,6 @@ class CardAttributeList extends StatelessWidget {
                             ),
                           )
                         : Text(attribute.value is NullValue ? '' : attribute.value.raw.toString(),
-                            overflow: TextOverflow.clip,
                             textAlign: TextAlign.end,
                             style: theme.themeData.textTheme.caption!.copyWith(
                               fontWeight: FontWeight.bold,
