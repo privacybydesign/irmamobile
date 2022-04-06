@@ -6,6 +6,7 @@ import '../../../models/irma_configuration.dart';
 import '../../../models/log_entry.dart';
 import '../../../theme/theme.dart';
 import '../../../widgets/credential_card/attributes_card.dart';
+import '../../../widgets/irma_quote.dart';
 import '../../../widgets/translated_text.dart';
 import 'issuer_verifier_header.dart';
 
@@ -16,16 +17,17 @@ class ActivityDetailDisclosure extends StatelessWidget {
   const ActivityDetailDisclosure({required this.logEntry, required this.irmaConfiguration});
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TranslatedText(
           'activity.shared_with',
-          style: IrmaTheme.of(context).themeData.textTheme.headline3,
+          style: theme.themeData.textTheme.headline3,
         ),
         SizedBox(height: IrmaTheme.of(context).smallSpacing),
         Padding(
-          padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).smallSpacing),
+          padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
           child: IssuerVerifierHeader(
             title: logEntry.serverName!.name.translate(
               FlutterI18n.currentLocale(context)!.languageCode,
@@ -35,12 +37,22 @@ class ActivityDetailDisclosure extends StatelessWidget {
         ),
         TranslatedText(
           'activity.data_shared',
-          style: IrmaTheme.of(context).themeData.textTheme.headline3,
+          style: theme.themeData.textTheme.headline3,
         ),
-        SizedBox(height: IrmaTheme.of(context).smallSpacing),
+        SizedBox(height: theme.smallSpacing),
         for (var disclosedAttributes in logEntry.disclosedAttributes)
           AttributesCard(
-              disclosedAttributes.map((e) => Attribute.fromDisclosedAttribute(irmaConfiguration, e)).toList())
+              disclosedAttributes.map((e) => Attribute.fromDisclosedAttribute(irmaConfiguration, e)).toList()),
+        if (logEntry.type == LogEntryType.signing) ...[
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
+            child: TranslatedText(
+              'activity.signed_message',
+              style: theme.themeData.textTheme.headline3,
+            ),
+          ),
+          IrmaQuote(quote: logEntry.signedMessage?.message),
+        ]
       ],
     );
   }

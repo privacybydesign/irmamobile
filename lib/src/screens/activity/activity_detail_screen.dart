@@ -11,7 +11,6 @@ import '../../widgets/translated_text.dart';
 import 'widgets/activity_detail_disclosure.dart';
 import 'widgets/activity_detail_issuance.dart';
 import 'widgets/activity_detail_removal.dart';
-import 'widgets/activity_detail_signing.dart';
 
 class ActivityDetailScreen extends StatelessWidget {
   final LogEntry logEntry;
@@ -22,7 +21,6 @@ class ActivityDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-
     return Scaffold(
       appBar: IrmaAppBar(
           title: TranslatedText(
@@ -38,13 +36,9 @@ class ActivityDetailScreen extends StatelessWidget {
           children: [
             Builder(builder: (context) {
               switch (logEntry.type) {
+                case LogEntryType.signing:
                 case LogEntryType.disclosing:
                   return ActivityDetailDisclosure(
-                    logEntry: logEntry,
-                    irmaConfiguration: irmaConfiguration,
-                  );
-                case LogEntryType.signing:
-                  return ActivityDetailSigning(
                     logEntry: logEntry,
                     irmaConfiguration: irmaConfiguration,
                   );
