@@ -6,6 +6,7 @@ import '../../../models/log_entry.dart';
 import '../../../theme/theme.dart';
 import '../../../widgets/credential_card/irma_credential_card.dart';
 import '../../../widgets/translated_text.dart';
+import 'activity_detail_disclosure.dart';
 
 class ActivityDetailIssuance extends StatelessWidget {
   final LogEntry logEntry;
@@ -14,17 +15,23 @@ class ActivityDetailIssuance extends StatelessWidget {
   const ActivityDetailIssuance({required this.logEntry, required this.irmaConfiguration});
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        //If is this issuance also has disclosed attributes
+        if (logEntry.disclosedAttributes.isNotEmpty) ...[
+          ActivityDetailDisclosure(logEntry: logEntry, irmaConfiguration: irmaConfiguration),
+          SizedBox(height: theme.smallSpacing),
+        ],
         TranslatedText(
           'activity.received_data',
           style: IrmaTheme.of(context).themeData.textTheme.headline3,
         ),
-        SizedBox(height: IrmaTheme.of(context).smallSpacing),
+        SizedBox(height: theme.smallSpacing),
         for (var rawCredential in logEntry.issuedCredentials)
           Padding(
-              padding: const EdgeInsets.only(top: 8.0),
+              padding: EdgeInsets.only(top: theme.smallSpacing),
               child: IrmaCredentialCard.fromAttributes(Credential.fromRaw(
                 irmaConfiguration: irmaConfiguration,
                 rawCredential: rawCredential,
