@@ -49,7 +49,10 @@ class CardAttributeList extends StatelessWidget {
                               style: theme.textTheme.bodyText2!.copyWith(decoration: TextDecoration.underline),
                             ),
                           )
-                        : Text(attribute.value is NullValue ? '' : attribute.value.raw.toString(),
+                        : Text(
+                            attribute.value is NullValue
+                                ? ''
+                                : (attribute.value as TextValue).translated.translate(lang),
                             textAlign: TextAlign.end,
                             style: theme.themeData.textTheme.caption!.copyWith(
                               fontWeight: FontWeight.bold,
