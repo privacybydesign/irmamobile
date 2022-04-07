@@ -19,48 +19,51 @@ class CardAttributeList extends StatelessWidget {
     return Column(
       children: [
         for (final attribute in attributes)
-          Padding(
-            padding: EdgeInsets.only(bottom: theme.tinySpacing),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Flexible(
-                  child: Text(
-                    attribute.attributeType.name.translate(lang),
-                    textAlign: TextAlign.start,
-                    overflow: TextOverflow.clip,
-                    style: theme.themeData.textTheme.caption,
+          if (attribute.value.runtimeType != NullValue)
+            Padding(
+              padding: EdgeInsets.only(bottom: theme.tinySpacing),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: Text(
+                      attribute.attributeType.name.translate(lang),
+                      textAlign: TextAlign.start,
+                      overflow: TextOverflow.clip,
+                      style: theme.themeData.textTheme.caption,
+                    ),
                   ),
-                ),
-                SizedBox(
-                  width: theme.smallSpacing,
-                ),
-                Flexible(
-                    //If attribute is photo show link
-                    child: attribute.value is PhotoValue
-                        ? GestureDetector(
-                            onTap: () {
-                              //TODO Implement open Photo.
-                            },
-                            child: TranslatedText(
-                              //TODO: Add translation
-                              'Image',
-                              textAlign: TextAlign.start,
-                              style: theme.textTheme.bodyText2!.copyWith(decoration: TextDecoration.underline),
-                            ),
-                          )
-                        : Text(
-                            attribute.value is NullValue
-                                ? ''
-                                : (attribute.value as TextValue).translated.translate(lang),
-                            textAlign: TextAlign.end,
-                            style: theme.themeData.textTheme.caption!.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey.shade700,
-                            ))),
-              ],
-            ),
-          )
+                  SizedBox(
+                    width: theme.smallSpacing,
+                  ),
+                  Flexible(
+                      //If attribute is photo show link
+                      child: attribute.value is PhotoValue
+                          ? GestureDetector(
+                              onTap: () {
+                                //TODO Implement open Photo.
+                              },
+                              child: TranslatedText(
+                                //TODO: Add translation
+                                'Image',
+                                textAlign: TextAlign.start,
+                                style: theme.textTheme.bodyText2!.copyWith(decoration: TextDecoration.underline),
+                              ),
+                            )
+                          : Text(
+                              (attribute.value is YesNoValue
+                                      ? attribute.value as YesNoValue
+                                      : attribute.value as TextValue)
+                                  .translated
+                                  .translate(lang),
+                              textAlign: TextAlign.end,
+                              style: theme.themeData.textTheme.caption!.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey.shade700,
+                              ))),
+                ],
+              ),
+            )
       ],
     );
   }
