@@ -4,7 +4,6 @@ import '../../../models/credentials.dart';
 import '../../../models/irma_configuration.dart';
 import '../../../models/log_entry.dart';
 import '../../../theme/theme.dart';
-import '../../../widgets/credential_card/attributes_card.dart';
 import '../../../widgets/credential_card/irma_credential_card.dart';
 import '../../../widgets/translated_text.dart';
 
