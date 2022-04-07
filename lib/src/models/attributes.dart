@@ -10,10 +10,12 @@ import 'package:json_annotation/json_annotation.dart';
 part 'attributes.g.dart';
 
 // Attributes of a credential.
+@Deprecated('Use Credential.attributeList or RemovedCredential.attributeList instead.')
 class Attributes extends UnmodifiableMapView<AttributeType, AttributeValue> {
   late final List<AttributeType> sortedAttributeTypes;
   late final Image? portraitPhoto;
 
+  @Deprecated('Use Credential.attributeList or RemovedCredential.attributeList instead.')
   Attributes(Map<AttributeType, AttributeValue> map) : super(map) {
     // Pre-calculate an ordered list of attributeTypes, initially on index, finally on displayIndex
     sortedAttributeTypes = keys.toList();
@@ -31,6 +33,7 @@ class Attributes extends UnmodifiableMapView<AttributeType, AttributeValue> {
     portraitPhoto = photoIndex >= 0 ? (this[sortedAttributeTypes[photoIndex]]! as PhotoValue).image : null;
   }
 
+  @Deprecated('Use Credential.attributeList or RemovedCredential.attributeList instead.')
   factory Attributes.fromRaw({
     required IrmaConfiguration irmaConfiguration,
     required Map<String, TranslatedValue> rawAttributes,

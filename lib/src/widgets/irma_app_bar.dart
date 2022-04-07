@@ -25,7 +25,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: Colors.white,
       key: const Key('irma_app_bar'),
-      centerTitle: true,
+      centerTitle: !noLeading,
       leading: noLeading
           ? null
           : Padding(

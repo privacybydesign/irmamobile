@@ -12,7 +12,6 @@ import 'package:irmamobile/src/screens/debug/debug_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/email_sent_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/help/help_screen.dart';
-import 'package:irmamobile/src/screens/history/history_screen.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/screens/issue_wizard/issue_wizard.dart';
 import 'package:irmamobile/src/screens/loading/loading_screen.dart';
@@ -30,7 +29,6 @@ class Routing {
     ChangePinScreen.routeName: (context) => ChangePinScreen(),
     SettingsScreen.routeName: (context) => SettingsScreen(),
     CardStoreScreen.routeName: (context) => CardStoreScreen(),
-    HistoryScreen.routeName: (context) => HistoryScreen(),
     HelpScreen.routeName: (context) => HelpScreen(),
     ResetPinScreen.routeName: (context) => ResetPinScreen(),
     DebugScreen.routeName: (context) => DebugScreen(),

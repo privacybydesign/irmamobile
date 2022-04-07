@@ -18,6 +18,7 @@ class IrmaThemeData {
   final Color error = const Color(0xFFC8192C);
   final Color primaryDark = const Color(0xFF15222E);
 
+  final Color lightBlue = const Color(0xFFE9F4FF);
   Color get primaryLight => grayscale95;
   final Color darkPurple = const Color(0xFF362C78);
   Color get disabled => grayscale90;
@@ -109,8 +110,8 @@ class IrmaThemeData {
       headline2:
           TextStyle(fontSize: 24.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.bold, color: darkPurple),
       // headline3 is used for very large text
-      headline3: TextStyle(
-          fontSize: 18.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.bold, color: Colors.grey.shade900),
+      headline3:
+          TextStyle(fontSize: 18.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.bold, color: darkPurple),
       // headline4 is used for large text
       headline4:
           TextStyle(fontSize: 16.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.bold, color: grayscale40),

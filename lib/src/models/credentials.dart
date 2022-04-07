@@ -46,6 +46,7 @@ class Credential {
   bool get isKeyshareCredential =>
       attributes.keys.any((attributeType) => info.schemeManager.keyshareAttributes.contains(attributeType.fullId));
 
+  // TODO: List is not properly sorted.
   List<Attribute> get attributeList => attributes.entries
       .map((entry) =>
           CredentialAttribute(credential: this, attributeType: entry.key, value: entry.value, notRevokable: false))
@@ -83,6 +84,15 @@ class RemovedCredential {
     required this.info,
     required this.attributes,
   });
+
+  // TODO: List is not properly sorted.
+  List<Attribute> get attributeList => attributes.entries
+      .map((entry) => Attribute(
+            credentialInfo: info,
+            attributeType: entry.key,
+            value: entry.value,
+          ))
+      .toList();
 
   RemovedCredential.fromRaw({
     required IrmaConfiguration irmaConfiguration,
