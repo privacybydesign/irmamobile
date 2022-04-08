@@ -6,10 +6,10 @@ import '../../models/attributes.dart';
 import '../../theme/theme.dart';
 import '../translated_text.dart';
 
-class CardAttributeList extends StatelessWidget {
+class IrmaCredentialCardAttributeList extends StatelessWidget {
   final List<Attribute> attributes;
 
-  const CardAttributeList(this.attributes);
+  const IrmaCredentialCardAttributeList(this.attributes);
 
   @override
   Widget build(BuildContext context) {

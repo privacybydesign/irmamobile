@@ -3,7 +3,6 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../models/attributes.dart';
 import '../../models/credentials.dart';
-import '../../models/irma_configuration.dart';
 import '../../theme/theme.dart';
 import '../../util/language.dart';
 import '../irma_button.dart';
@@ -11,7 +10,7 @@ import '../irma_card.dart';
 import '../irma_dialog.dart';
 import '../irma_text_button.dart';
 import '../irma_themed_button.dart';
-import 'card_attribute_list.dart';
+import 'irma_credential_card_attribute_list.dart';
 import 'irma_credential_card_header.dart';
 import 'models/card_expiry_date.dart';
 
@@ -127,7 +126,7 @@ class IrmaCredentialCard extends StatelessWidget {
           const Divider(),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).largeSpacing),
-            child: CardAttributeList(attributes),
+            child: IrmaCredentialCardAttributeList(attributes),
           )
         ],
       ),
