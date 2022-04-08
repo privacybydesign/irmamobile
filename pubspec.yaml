@@ -26,7 +26,8 @@ dependencies:
   rxdart: ^0.27.2
   package_info: ^2.0.2
   collection: ^1.15.0
-  qr_code_scanner: ^0.7.0
+  mobile_scanner: ^1.0.0
+  native_device_orientation: ^1.0.0 # TODO: Remove this package once mobile_scanner supports landscape
   share: ^2.0.4
   intl: ^0.17.0
   flutter_markdown: ^0.6.6
@@ -37,10 +38,7 @@ dependencies:
   flutter_jailbreak_detection: ^1.8.0
   visibility_detector: ^0.2.2
   quiver: ^3.0.1
-  flutter_privacy_screen:
-    # Remove link to fork when change is merged and released.
-    # https://github.com/jeroentrappers/flutter_privacy_screen/pull/2
-    git: https://github.com/ivard/flutter_privacy_screen.git
+  flutter_privacy_screen: ^1.2.0
 
 flutter_native_splash:
   image: assets/splash/startup.png
