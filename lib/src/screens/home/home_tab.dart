@@ -8,33 +8,41 @@ import '../activity/widgets/recent_activity.dart';
 class HomeTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      IrmaAppBar(
-        title: TranslatedText(
-          'home.nav_bar.home',
-          style: IrmaTheme.of(context).themeData.textTheme.headline1,
+    final theme = IrmaTheme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        IrmaAppBar(
+          noLeading: true,
+          title: TranslatedText(
+            'home.nav_bar.home',
+            style: theme.themeData.textTheme.headline1,
+          ),
         ),
-        noLeading: true,
-      ),
-      Expanded(
-        child: ListView(
-          padding: EdgeInsets.symmetric(
-              vertical: IrmaTheme.of(context).smallSpacing, horizontal: IrmaTheme.of(context).defaultSpacing),
-          shrinkWrap: true,
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).tinySpacing),
-              child: TranslatedText(
-                'activity.recent_activity',
-                style: IrmaTheme.of(context).textTheme.headline3,
-              ),
+        Expanded(
+          child: ListView(
+            padding: EdgeInsets.symmetric(
+              vertical: theme.smallSpacing,
+              horizontal: theme.defaultSpacing,
             ),
-            const RecentActivity(
-              amountOfLogs: 2,
-            )
-          ],
+            shrinkWrap: true,
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  vertical: theme.tinySpacing,
+                ),
+                child: TranslatedText(
+                  'activity.recent_activity',
+                  style: theme.textTheme.headline3,
+                ),
+              ),
+              const RecentActivity(
+                amountOfLogs: 2,
+              )
+            ],
+          ),
         ),
-      ),
-    ]);
+      ],
+    );
   }
 }
