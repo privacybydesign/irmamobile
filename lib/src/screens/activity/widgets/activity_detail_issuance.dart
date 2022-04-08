@@ -21,19 +21,24 @@ class ActivityDetailIssuance extends StatelessWidget {
       children: [
         //If is this issuance also has disclosed attributes
         if (logEntry.disclosedAttributes.isNotEmpty) ...[
-          ActivityDetailDisclosure(logEntry: logEntry, irmaConfiguration: irmaConfiguration),
+          ActivityDetailDisclosure(
+            logEntry: logEntry,
+            irmaConfiguration: irmaConfiguration,
+          ),
           SizedBox(height: theme.smallSpacing),
         ],
         TranslatedText(
           'activity.received_data',
-          style: IrmaTheme.of(context).themeData.textTheme.headline3,
+          style: theme.themeData.textTheme.headline3,
         ),
         SizedBox(height: theme.smallSpacing),
         for (var rawCredential in logEntry.issuedCredentials)
-          IrmaCredentialCard.fromAttributes(Credential.fromRaw(
-            irmaConfiguration: irmaConfiguration,
-            rawCredential: rawCredential,
-          ).attributeList)
+          IrmaCredentialCard.fromCredential(
+            credential: Credential.fromRaw(
+              irmaConfiguration: irmaConfiguration,
+              rawCredential: rawCredential,
+            ),
+          )
       ],
     );
   }
