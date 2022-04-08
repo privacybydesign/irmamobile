@@ -36,9 +36,12 @@ class IrmaCredentialCardAttributeList extends StatelessWidget {
                     width: theme.smallSpacing,
                   ),
                   Flexible(
-                      //If attribute is photo show link
-                      child: attribute.value is PhotoValue
-                          ? GestureDetector(
+                    child: Builder(
+                      builder: (context) {
+                        switch (attribute.value.runtimeType) {
+                          //If attribute is photo show link
+                          case PhotoValue:
+                            return GestureDetector(
                               onTap: () {
                                 //TODO Implement open Photo.
                               },
@@ -48,18 +51,24 @@ class IrmaCredentialCardAttributeList extends StatelessWidget {
                                 textAlign: TextAlign.start,
                                 style: theme.textTheme.bodyText2!.copyWith(decoration: TextDecoration.underline),
                               ),
-                            )
-                          : Text(
-                              (attribute.value is YesNoValue
-                                      ? attribute.value as YesNoValue
-                                      : attribute.value as TextValue)
-                                  .translated
-                                  .translate(lang),
+                            );
+                          case TextValue:
+                          case YesNoValue:
+                            return TranslatedText(
+                              (attribute.value as TextValue).translated.translate(lang),
                               textAlign: TextAlign.end,
                               style: theme.themeData.textTheme.caption!.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.grey.shade700,
-                              ))),
+                              ),
+                            );
+                          case NullValue:
+                          default:
+                            return Container();
+                        }
+                      },
+                    ),
+                  ),
                 ],
               ),
             )
