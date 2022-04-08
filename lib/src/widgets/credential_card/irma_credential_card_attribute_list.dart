@@ -19,7 +19,7 @@ class IrmaCredentialCardAttributeList extends StatelessWidget {
     return Column(
       children: [
         for (final attribute in attributes)
-          if (attribute.value.runtimeType != NullValue)
+          if (attribute.value is! NullValue)
             Padding(
               padding: EdgeInsets.only(bottom: theme.tinySpacing),
               child: Row(
