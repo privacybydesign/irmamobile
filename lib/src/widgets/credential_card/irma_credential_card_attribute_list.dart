@@ -29,7 +29,6 @@ class IrmaCredentialCardAttributeList extends StatelessWidget {
                     child: Text(
                       attribute.attributeType.name.translate(lang),
                       textAlign: TextAlign.start,
-                      overflow: TextOverflow.clip,
                       style: theme.themeData.textTheme.caption,
                     ),
                   ),
