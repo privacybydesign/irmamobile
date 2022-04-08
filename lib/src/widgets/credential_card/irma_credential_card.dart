@@ -28,15 +28,16 @@ class IrmaCredentialCard extends StatelessWidget {
   // If true the card expands to the size it needs and lets the parent handle the scrolling.
   final bool expanded;
 
-  const IrmaCredentialCard(
-      {required this.credentialInfo,
-      required this.attributes,
-      this.revoked = false,
-      this.expiryDate,
-      this.onRefreshCredential,
-      this.onDeleteCredential,
-      required this.showWarnings,
-      this.expanded = false});
+  const IrmaCredentialCard({
+    required this.credentialInfo,
+    required this.attributes,
+    this.revoked = false,
+    this.expiryDate,
+    this.onRefreshCredential,
+    this.onDeleteCredential,
+    required this.showWarnings,
+    this.expanded = false,
+  });
 
   factory IrmaCredentialCard.fromAttributes(List<Attribute> attributesByCredential) {
     final CredentialInfo credInfo = attributesByCredential.first.credentialInfo;
@@ -79,7 +80,6 @@ class IrmaCredentialCard extends StatelessWidget {
           title: FlutterI18n.translate(context, 'card.delete_title'),
           content: FlutterI18n.translate(context, 'card.delete_content'),
           child: Wrap(
-            direction: Axis.horizontal,
             verticalDirection: VerticalDirection.up,
             alignment: WrapAlignment.spaceEvenly,
             children: <Widget>[
@@ -116,20 +116,21 @@ class IrmaCredentialCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IrmaCard(
-        child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        CardCredentialHeader(
-          title: getTranslation(context, credentialInfo.credentialType.name),
-          subtitle: getTranslation(context, credentialInfo.issuer.name),
-          logo: credentialInfo.credentialType.logo,
-        ),
-        const Divider(),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).largeSpacing),
-          child: CardAttributeList(attributes),
-        )
-      ],
-    ));
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CardCredentialHeader(
+            title: getTranslation(context, credentialInfo.credentialType.name),
+            subtitle: getTranslation(context, credentialInfo.issuer.name),
+            logo: credentialInfo.credentialType.logo,
+          ),
+          const Divider(),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).largeSpacing),
+            child: CardAttributeList(attributes),
+          )
+        ],
+      ),
+    );
   }
 }

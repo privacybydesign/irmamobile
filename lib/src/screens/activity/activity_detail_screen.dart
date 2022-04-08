@@ -23,18 +23,18 @@ class ActivityDetailScreen extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     return Scaffold(
       appBar: IrmaAppBar(
-          title: TranslatedText(
-        'home.nav_bar.activity',
-        style: theme.themeData.textTheme.headline2,
-      )),
+        title: TranslatedText(
+          'home.nav_bar.activity',
+          style: theme.themeData.textTheme.headline2,
+        ),
+      ),
       bottomNavigationBar:
           IrmaBottomBar(primaryButtonLabel: 'home.button_back', onPrimaryPressed: () => Navigator.of(context).pop()),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Builder(builder: (context) {
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Builder(
+            builder: (context) {
               switch (logEntry.type) {
                 case LogEntryType.signing:
                 case LogEntryType.disclosing:
@@ -53,19 +53,20 @@ class ActivityDetailScreen extends StatelessWidget {
                     irmaConfiguration: irmaConfiguration,
                   );
               }
-            }),
-            //Always add the timestamp on the bottom
-            SizedBox(height: IrmaTheme.of(context).smallSpacing),
-            Center(
-                child: Text(
+            },
+          ),
+          //Always add the timestamp on the bottom
+          SizedBox(height: theme.smallSpacing),
+          Center(
+            child: Text(
               formatDate(
                 logEntry.time,
                 FlutterI18n.currentLocale(context)!.languageCode,
               ),
-              style: IrmaTheme.of(context).themeData.textTheme.caption,
-            ))
-          ],
-        ),
+              style: theme.themeData.textTheme.caption,
+            ),
+          )
+        ]),
       ),
     );
   }

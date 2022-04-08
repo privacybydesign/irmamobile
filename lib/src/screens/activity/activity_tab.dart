@@ -81,37 +81,44 @@ class _ActivityTabState extends State<ActivityTab> {
   Widget _buildLogEntries(BuildContext context, IrmaConfiguration irmaConfiguration, HistoryState historyState) {
     _addPostFrameCallback();
     final local = FlutterI18n.currentLocale(context).toString();
+    final theme = IrmaTheme.of(context);
     return Expanded(
-        child: ListView.builder(
-            controller: _scrollController,
-            padding: EdgeInsets.symmetric(
-                vertical: IrmaTheme.of(context).smallSpacing, horizontal: IrmaTheme.of(context).defaultSpacing),
-            itemCount: historyState.logEntries.length,
-            itemBuilder: (context, index) {
-              final logEntry = historyState.logEntries[index];
-              return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                //If the months differ, or its the first item, add month header
-                if (index == 0 || (index > 0 && historyState.logEntries[index - 1].time.month != logEntry.time.month))
-                  Padding(
-                      padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).tinySpacing),
-                      child: Text(DateFormat('MMMM', local).format(logEntry.time).toCapitalized(),
-                          style: IrmaTheme.of(context).themeData.textTheme.headline3)),
-                ActivityCard(
-                  logEntry: logEntry,
-                  irmaConfiguration: irmaConfiguration,
-                ),
+      child: ListView.builder(
+          controller: _scrollController,
+          padding: EdgeInsets.symmetric(
+            vertical: theme.smallSpacing,
+            horizontal: theme.defaultSpacing,
+          ),
+          itemCount: historyState.logEntries.length,
+          itemBuilder: (context, index) {
+            final logEntry = historyState.logEntries[index];
+            return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              //If the months differ, or its the first item, add month header
+              if (index == 0 || (index > 0 && historyState.logEntries[index - 1].time.month != logEntry.time.month))
+                Padding(
+                    padding: EdgeInsets.symmetric(vertical: theme.tinySpacing),
+                    child: Text(DateFormat('MMMM', local).format(logEntry.time).toCapitalized(),
+                        style: theme.themeData.textTheme.headline3)),
+              ActivityCard(
+                logEntry: logEntry,
+                irmaConfiguration: irmaConfiguration,
+              ),
 
-                // Put loading indicator or loading finished icon at end of ListView
-                if (index == historyState.logEntries.length - 1)
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).tinySpacing),
-                    child: Center(
-                        child: historyState.moreLogsAvailable
-                            ? SizedBox(height: 36, child: LoadingIndicator())
-                            : Icon(IrmaIcons.valid, color: IrmaTheme.of(context).interactionValid)),
-                  )
-              ]);
-            }));
+              // Put loading indicator or loading finished icon at end of ListView
+              if (index == historyState.logEntries.length - 1)
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: theme.tinySpacing),
+                  child: Center(
+                      child: historyState.moreLogsAvailable
+                          ? SizedBox(
+                              height: 36,
+                              child: LoadingIndicator(),
+                            )
+                          : Icon(IrmaIcons.valid, color: theme.interactionValid)),
+                )
+            ]);
+          }),
+    );
   }
 
   @override
