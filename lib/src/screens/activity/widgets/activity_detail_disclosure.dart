@@ -42,7 +42,8 @@ class ActivityDetailDisclosure extends StatelessWidget {
         SizedBox(height: theme.smallSpacing),
         for (var disclosedAttributes in logEntry.disclosedAttributes)
           IrmaCredentialCard.fromAttributes(
-              disclosedAttributes.map((e) => Attribute.fromDisclosedAttribute(irmaConfiguration, e)).toList()),
+            disclosedAttributes.map((e) => Attribute.fromDisclosedAttribute(irmaConfiguration, e)).toList(),
+          ),
         if (logEntry.type == LogEntryType.signing) ...[
           Padding(
             padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),

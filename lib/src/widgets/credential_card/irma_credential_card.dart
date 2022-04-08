@@ -39,7 +39,9 @@ class IrmaCredentialCard extends StatelessWidget {
   });
 
   factory IrmaCredentialCard.fromAttributes(List<Attribute> attributesByCredential) {
+    assert(attributesByCredential.isNotEmpty);
     final CredentialInfo credInfo = attributesByCredential.first.credentialInfo;
+    assert(attributesByCredential.every((att) => credInfo.fullId == att.credentialInfo.fullId));
     return IrmaCredentialCard(
       credentialInfo: credInfo,
       attributes: attributesByCredential,
