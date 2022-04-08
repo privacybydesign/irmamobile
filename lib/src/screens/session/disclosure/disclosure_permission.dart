@@ -36,6 +36,7 @@ class ProvidedDisclosurePermission extends StatelessWidget {
       appBarTitle: 'disclosure.title',
       appBarTitleStyle: IrmaTheme.of(context).textTheme.headline3,
       body: SingleChildScrollView(
+        padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
         child: BlocBuilder<DisclosurePermissionBloc, DisclosurePermissionBlocState>(
           builder: (context, state) {
             switch (state.runtimeType) {

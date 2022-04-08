@@ -120,8 +120,8 @@ class IrmaCredentialCard extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         CardCredentialHeader(
-          title: getTranslation(context, credentialInfo.credentialType.name),
-          subtitle: getTranslation(context, credentialInfo.issuer.name),
+          credentialName: getTranslation(context, credentialInfo.credentialType.name),
+          issuerName: getTranslation(context, credentialInfo.issuer.name),
           logo: credentialInfo.credentialType.logo,
         ),
         const Divider(),
