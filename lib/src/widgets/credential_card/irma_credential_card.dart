@@ -12,7 +12,7 @@ import '../irma_dialog.dart';
 import '../irma_text_button.dart';
 import '../irma_themed_button.dart';
 import 'card_attribute_list.dart';
-import 'card_credential_header.dart';
+import 'irma_credential_card_header.dart';
 import 'models/card_expiry_date.dart';
 
 class IrmaCredentialCard extends StatelessWidget {
@@ -119,7 +119,7 @@ class IrmaCredentialCard extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          CardCredentialHeader(
+          IrmaCredentialCardHeader(
             title: getTranslation(context, credentialInfo.credentialType.name),
             subtitle: getTranslation(context, credentialInfo.issuer.name),
             logo: credentialInfo.credentialType.logo,

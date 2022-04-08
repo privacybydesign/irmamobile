@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 
 import '../../theme/theme.dart';
 
-class CardCredentialHeader extends StatelessWidget {
+class IrmaCredentialCardHeader extends StatelessWidget {
   final String? logo;
   final String? title;
   final String? subtitle;
 
-  const CardCredentialHeader({this.logo, this.title, this.subtitle});
+  const IrmaCredentialCardHeader({this.logo, this.title, this.subtitle});
 
   @override
   Widget build(BuildContext context) {
