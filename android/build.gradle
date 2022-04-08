@@ -1,5 +1,9 @@
 buildscript {
-    ext.kotlin_version = '1.6.10' 
+    /*
+    Because we depend on the packages flutter_privacy_screen and mobile_scanner 
+    that do not specify the correct Kotlin versions themselves we have to include it here.
+    */
+    ext.kotlin_version = '1.6.20' 
     repositories {
         google()
         jcenter()
