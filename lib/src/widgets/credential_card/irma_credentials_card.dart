@@ -14,8 +14,8 @@ import 'irma_credential_card_attribute_list.dart';
 import 'irma_credential_card_header.dart';
 import 'models/card_expiry_date.dart';
 
-class IrmaCredentialCard extends StatelessWidget {
-  final CredentialInfo credentialInfo;
+class IrmaCredentialsCard extends StatelessWidget {
+  final Set<CredentialInfo> credentials;
   final List<Attribute> attributes;
   final bool revoked;
   final CardExpiryDate? expiryDate;
@@ -27,9 +27,9 @@ class IrmaCredentialCard extends StatelessWidget {
   // If true the card expands to the size it needs and lets the parent handle the scrolling.
   final bool expanded;
 
-  const IrmaCredentialCard({
-    required this.credentialInfo,
+  const IrmaCredentialsCard({
     required this.attributes,
+    required this.credentials,
     this.revoked = false,
     this.expiryDate,
     this.onRefreshCredential,
@@ -38,33 +38,32 @@ class IrmaCredentialCard extends StatelessWidget {
     this.expanded = false,
   });
 
-  factory IrmaCredentialCard.fromAttributes(List<Attribute> attributesByCredential) {
-    assert(attributesByCredential.isNotEmpty);
-    final CredentialInfo credInfo = attributesByCredential.first.credentialInfo;
-    assert(attributesByCredential.every((att) => credInfo.fullId == att.credentialInfo.fullId));
-    return IrmaCredentialCard(
-      credentialInfo: credInfo,
-      attributes: attributesByCredential,
+  factory IrmaCredentialsCard.fromAttributes(List<Attribute> attributes) {
+    return IrmaCredentialsCard(
+      credentials: {
+        ...{...attributes.map((e) => e.credentialInfo)}
+      },
+      attributes: attributes,
       showWarnings: false,
     );
   }
 
-  IrmaCredentialCard.fromCredential({
+  IrmaCredentialsCard.fromCredential({
     Key? key,
     required Credential credential,
     this.onRefreshCredential,
     this.onDeleteCredential,
     this.expanded = false,
     this.showWarnings = true,
-  })  : credentialInfo = credential.info,
+  })  : credentials = {credential.info},
         attributes = credential.attributeList,
         revoked = credential.revoked,
         expiryDate = CardExpiryDate(credential.expires),
         super(key: key);
 
-  IrmaCredentialCard.fromRemovedCredential({
+  IrmaCredentialsCard.fromRemovedCredential({
     required RemovedCredential credential,
-  })  : credentialInfo = credential.info,
+  })  : credentials = {credential.info},
         attributes = credential.attributeList,
         revoked = false,
         expanded = true,
@@ -120,16 +119,28 @@ class IrmaCredentialCard extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          IrmaCredentialCardHeader(
-            title: getTranslation(context, credentialInfo.credentialType.name),
-            subtitle: getTranslation(context, credentialInfo.issuer.name),
-            logo: credentialInfo.credentialType.logo,
-          ),
-          const Divider(),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).largeSpacing),
-            child: IrmaCredentialCardAttributeList(attributes),
-          )
+          for (var i = 0; i < credentials.length; i++) ...[
+            IrmaCredentialCardHeader(
+              title: getTranslation(context, credentials.elementAt(i).credentialType.name),
+              subtitle: getTranslation(context, credentials.elementAt(i).issuer.name),
+              logo: credentials.elementAt(i).credentialType.logo,
+            ),
+            const Divider(),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).largeSpacing),
+              child: IrmaCredentialCardAttributeList(
+                  attributes.where((att) => att.credentialInfo.fullId == credentials.elementAt(i).fullId).toList()),
+            ),
+            //If this is not the last item add a divider
+            if (i != credentials.length - 1)
+              Padding(
+                padding: EdgeInsets.only(bottom: IrmaTheme.of(context).smallSpacing),
+                child: Divider(
+                  color: Colors.grey.shade600,
+                  thickness: 0.5,
+                ),
+              ),
+          ]
         ],
       ),
     );
