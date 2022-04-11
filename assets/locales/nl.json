@@ -367,6 +367,9 @@
       "next": "Volgende",
       "issue_wizard": {
         "add_data": "Voeg de volgende gegevens toe:"
+      },
+      "issue_wizard_choice": {
+        "choose_data": "Kies de gegevens die je wilt gaan delen"
       }
     },
     "title": "Dataverzoek",

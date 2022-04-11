@@ -367,6 +367,9 @@
       "next": "Next",
       "issue_wizard": {
         "add_data": "Add the following data:"
+      },
+      "issue_wizard_choice": {
+        "choose_data": "Choose the data you want to share "
       }
     },
     "title": "Data request",
