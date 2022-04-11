@@ -44,7 +44,7 @@ class _BottomBarState extends State<BottomBar> {
                 "Message with `valid` style",
                 IrmaMessage(
                   "help.about_irma",
-                  "app_tab.slogan",
+                  "more_tab.slogan",
                   type: IrmaMessageType.valid,
                 ),
               ),
@@ -53,7 +53,7 @@ class _BottomBarState extends State<BottomBar> {
                 "Message with `invalid` style",
                 IrmaMessage(
                   "help.about_irma",
-                  "app_tab.slogan",
+                  "more_tab.slogan",
                   type: IrmaMessageType.invalid,
                 ),
               ),
@@ -62,7 +62,7 @@ class _BottomBarState extends State<BottomBar> {
                 "Message with `alert` style",
                 IrmaMessage(
                   "help.about_irma",
-                  "app_tab.slogan",
+                  "more_tab.slogan",
                   type: IrmaMessageType.alert,
                 ),
               ),
@@ -71,7 +71,7 @@ class _BottomBarState extends State<BottomBar> {
                 "Message with `info` style",
                 IrmaMessage(
                   "help.about_irma",
-                  "app_tab.slogan",
+                  "more_tab.slogan",
                   type: IrmaMessageType.info,
                 ),
               ),

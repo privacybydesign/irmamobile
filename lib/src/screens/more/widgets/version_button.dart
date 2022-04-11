@@ -37,7 +37,7 @@ class _VersionButtonState extends State<VersionButton> {
                   if (tappedCount == 7) {
                     tappedCount = 0;
                     ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(FlutterI18n.translate(context, 'app_tab.developer_mode_enabled'))));
+                        SnackBar(content: Text(FlutterI18n.translate(context, 'more_tab.developer_mode_enabled'))));
                     IrmaPreferences.get().setDeveloperModeVisible(true);
                     IrmaRepository.get().setDeveloperMode(true);
                   }
@@ -56,7 +56,7 @@ class _VersionButtonState extends State<VersionButton> {
                         appId = keyShareCred?.attributes.values.first.raw;
                       }
                       return Text(
-                        FlutterI18n.translate(context, 'app_tab.app_id', translationParams: {
+                        FlutterI18n.translate(context, 'more_tab.app_id', translationParams: {
                           'id': appId ?? '',
                         }),
                         style: Theme.of(context).textTheme.bodyText2,
@@ -66,7 +66,7 @@ class _VersionButtonState extends State<VersionButton> {
                   FutureBuilder<PackageInfo>(
                     future: PackageInfo.fromPlatform(),
                     builder: (BuildContext context, AsyncSnapshot<PackageInfo> info) => Text(
-                      FlutterI18n.translate(context, 'app_tab.version', translationParams: {
+                      FlutterI18n.translate(context, 'more_tab.version', translationParams: {
                         'version': buildVersionString(info),
                       }),
                       style: Theme.of(context).textTheme.bodyText2,

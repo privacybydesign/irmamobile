@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/screens/activity/activity_tab.dart';
-import 'package:irmamobile/src/screens/app/app_tab.dart';
 import 'package:irmamobile/src/screens/home/home_tab.dart';
 import 'package:irmamobile/src/screens/home/widgets/irma_home_nav_bar.dart';
+import 'package:irmamobile/src/screens/more/more_tab.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = '/home';
@@ -24,8 +24,8 @@ class _HomeScreenState extends State<HomeScreen> {
               return const Text('data');
             case IrmaNavBarTab.activity:
               return ActivityTab();
-            case IrmaNavBarTab.app:
-              return AppTab();
+            case IrmaNavBarTab.more:
+              return MoreTab();
             case IrmaNavBarTab.home:
               return HomeTab();
           }

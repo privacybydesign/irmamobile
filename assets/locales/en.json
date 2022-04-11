@@ -462,11 +462,11 @@
       "home": "Home",
       "data": "Data",
       "activity": "Activity",
-      "app": "App",
+      "more": "More",
       "open_scanner": "Open QR Scanner"
     }
   },
-  "app_tab": {
+  "more_tab": {
     "app_management": "App management",
     "settings": "Settings",
     "help": "Help",

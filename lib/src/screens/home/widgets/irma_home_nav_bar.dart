@@ -5,14 +5,14 @@ import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/translated_text.dart';
 
-enum IrmaNavBarTab { home, data, activity, app }
+enum IrmaNavBarTab { home, data, activity, more }
 
 class IrmaNavBar extends StatelessWidget {
   final _navBarTabTranslationKeys = {
     IrmaNavBarTab.home: 'home.nav_bar.home',
     IrmaNavBarTab.data: 'home.nav_bar.data',
     IrmaNavBarTab.activity: 'home.nav_bar.activity',
-    IrmaNavBarTab.app: 'home.nav_bar.app'
+    IrmaNavBarTab.more: 'home.nav_bar.more'
   };
 
   final Function(IrmaNavBarTab tab) onChangeTab;
@@ -101,7 +101,7 @@ class IrmaNavBar extends StatelessWidget {
           _buildNavButton(context, Icons.folder_shared, IrmaNavBarTab.data),
           _buildQrButton(),
           _buildNavButton(context, Icons.history, IrmaNavBarTab.activity),
-          _buildNavButton(context, Icons.smartphone, IrmaNavBarTab.app),
+          _buildNavButton(context, Icons.more_horiz, IrmaNavBarTab.more),
         ],
       ),
     );
