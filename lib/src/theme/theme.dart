@@ -14,7 +14,8 @@ class IrmaThemeData {
 
   // Colors used in colorscheme
   final Color primaryBlue = const Color(0xFF4B73FF);
-  final Color secondaryPurple = const Color(0xFF8278FB);
+  final Color secondaryPurple = const Color(0xFF362C78);
+
   final Color error = const Color(0xFFC8192C);
   final Color primaryDark = const Color(0xFF15222E);
 

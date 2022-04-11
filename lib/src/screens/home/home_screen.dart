@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/screens/activity/activity_tab.dart';
-import 'package:irmamobile/src/screens/home/home_tab.dart';
-import 'package:irmamobile/src/screens/home/widgets/irma_home_nav_bar.dart';
-import 'package:irmamobile/src/screens/more/more_tab.dart';
+
+import '../activity/activity_tab.dart';
+import '../more/more_tab.dart';
+import 'home_tab.dart';
+import 'widgets/irma_nav_bar.dart';
+import 'widgets/irma_qr_scan_button.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = '/home';
@@ -30,6 +32,8 @@ class _HomeScreenState extends State<HomeScreen> {
               return HomeTab();
           }
         }),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButton: IrmaQrScanButton(),
         bottomNavigationBar: IrmaNavBar(
             selectedTab: selectedTab,
             onChangeTab: (IrmaNavBarTab tab) {
