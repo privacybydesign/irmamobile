@@ -65,14 +65,9 @@ fastlane build_irmagobridge_android
 fastlane build_irmagobridge_ios
 ```
 
-### update_schemes_alpha
+### update_schemes
 ```
-fastlane update_schemes_alpha
-```
-
-### update_schemes_beta
-```
-fastlane update_schemes_beta
+fastlane update_schemes
 ```
 
 ### write_sentrydata
