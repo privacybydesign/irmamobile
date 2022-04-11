@@ -361,6 +361,7 @@ class _SessionScreenState extends State<SessionScreen> {
           case SessionStatus.requestDisclosurePermission:
             return DisclosurePermission(
               sessionId: session.sessionID,
+              requestor: session.serverName,
               repo: _repo,
             );
           case SessionStatus.requestIssuancePermission:

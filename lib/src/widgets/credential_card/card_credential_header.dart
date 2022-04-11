@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../theme/theme.dart';
 import 'credential_card_icon.dart';
 
-enum CredentialHeaderType { normal, template, sucess, error }
+enum CredentialHeaderType { normal, template, success, error }
 
 class CardCredentialHeader extends StatelessWidget {
   final String? logo;

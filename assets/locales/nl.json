@@ -363,6 +363,12 @@
     }
   },
   "disclosure": {
+    "disclosure_permission": {
+      "next": "Volgende",
+      "issue_wizard": {
+        "add_data": "Voeg de volgende gegevens toe:"
+      }
+    },
     "title": "Dataverzoek",
     "disclosure_header": "Wil je de volgende gegevens aan {otherParty} doorgeven?",
     "disclosure_call_header": "Wil je de volgende gegevens aan {otherParty} doorgeven en bellen naar {phoneNumber}?",
@@ -456,13 +462,13 @@
     "add_cards": "Kaartjes ophalen",
     "add_credential": "Haal {credential} op"
   },
-  "home" : {
-    "button_back" : "Terug",
-    "nav_bar" : {
-      "home" : "Overzicht",
-      "data" : "Gegevens",
-      "activity" : "Activiteit",
-      "app" : "App",
+  "home": {
+    "button_back": "Terug",
+    "nav_bar": {
+      "home": "Overzicht",
+      "data": "Gegevens",
+      "activity": "Activiteit",
+      "app": "App",
       "open_scanner": "Open QR-Scanner"
     }
   },

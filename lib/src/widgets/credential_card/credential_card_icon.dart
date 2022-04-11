@@ -43,14 +43,14 @@ class CredentialCardIcon extends StatelessWidget {
                   ),
                 ),
               );
-            case CredentialHeaderType.sucess:
+            case CredentialHeaderType.success:
               return const CircleAvatar(
                 backgroundColor: Colors.green,
                 radius: avatarRadius,
                 child: SizedBox(
                   height: avatarSize,
                   child: Icon(
-                    Icons.close,
+                    Icons.check,
                     color: Colors.white,
                   ),
                 ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../data/irma_repository.dart';
+import '../../../models/session.dart';
 import '../../../theme/theme.dart';
 import '../../../widgets/loading_indicator.dart';
 import '../widgets/session_scaffold.dart';
@@ -13,21 +14,27 @@ import 'widgets/issue_wizard_choices.dart';
 class DisclosurePermission extends StatelessWidget {
   final int sessionId;
   final IrmaRepository repo;
+  final RequestorInfo requestor;
 
-  const DisclosurePermission({required this.sessionId, required this.repo});
+  const DisclosurePermission({required this.sessionId, required this.repo, required this.requestor});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-        create: (_) => DisclosurePermissionBloc(
-              sessionID: sessionId,
-              repo: repo,
-            ),
-        child: ProvidedDisclosurePermission());
+      create: (_) => DisclosurePermissionBloc(
+        sessionID: sessionId,
+        repo: repo,
+      ),
+      child: ProvidedDisclosurePermission(requestor),
+    );
   }
 }
 
 class ProvidedDisclosurePermission extends StatelessWidget {
+  final RequestorInfo requestor;
+
+  const ProvidedDisclosurePermission(this.requestor);
+
   @override
   Widget build(BuildContext context) {
     final bloc = context.read<DisclosurePermissionBloc>();
@@ -35,29 +42,29 @@ class ProvidedDisclosurePermission extends StatelessWidget {
     return SessionScaffold(
       appBarTitle: 'disclosure.title',
       appBarTitleStyle: IrmaTheme.of(context).textTheme.headline3,
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
-        child: BlocBuilder<DisclosurePermissionBloc, DisclosurePermissionBlocState>(
-          builder: (context, state) {
-            switch (state.runtimeType) {
-              case DisclosurePermissionIssueWizardChoices:
-                return IssueWizardChoices(bloc);
-              case DisclosurePermissionIssueWizard:
-                return IssueWizard(bloc);
-              case DisclosurePermissionChoices:
-                throw UnimplementedError;
-              case DisclosurePermissionConfirmChoices:
-                throw UnimplementedError;
-              case DisclosurePermissionFinished:
-                throw UnimplementedError;
-              case DisclosurePermissionInitial:
-              default:
-                return Center(
-                  child: LoadingIndicator(),
-                );
-            }
-          },
-        ),
+      body: BlocBuilder<DisclosurePermissionBloc, DisclosurePermissionBlocState>(
+        builder: (context, state) {
+          switch (state.runtimeType) {
+            case DisclosurePermissionIssueWizardChoices:
+              return IssueWizardChoices(bloc);
+            case DisclosurePermissionIssueWizard:
+              return IssueWizard(
+                bloc: bloc,
+                requestor: requestor,
+              );
+            case DisclosurePermissionChoices:
+              throw UnimplementedError;
+            case DisclosurePermissionConfirmChoices:
+              throw UnimplementedError;
+            case DisclosurePermissionFinished:
+              throw UnimplementedError;
+            case DisclosurePermissionInitial:
+            default:
+              return Center(
+                child: LoadingIndicator(),
+              );
+          }
+        },
       ),
     );
   }

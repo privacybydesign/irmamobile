@@ -363,6 +363,12 @@
     }
   },
   "disclosure": {
+    "disclosure_permission": {
+      "next": "Next",
+      "issue_wizard": {
+        "add_data": "Add the following data:"
+      }
+    },
     "title": "Data request",
     "disclosure_header": "Do you wish to disclose the following data to {otherParty}?",
     "disclosure_call_header": "Do you wish to diclose the following data to {otherParty} and call to {phoneNumber}?",
