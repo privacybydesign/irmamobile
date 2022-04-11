@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
@@ -15,8 +16,7 @@ import 'irma_credential_card_header.dart';
 import 'models/card_expiry_date.dart';
 
 class IrmaCredentialsCard extends StatelessWidget {
-  final Set<CredentialInfo> credentials;
-  final List<Attribute> attributes;
+  final Map<CredentialInfo, List<Attribute>> attributesByCredential;
   final bool revoked;
   final CardExpiryDate? expiryDate;
 
@@ -28,8 +28,7 @@ class IrmaCredentialsCard extends StatelessWidget {
   final bool expanded;
 
   const IrmaCredentialsCard({
-    required this.attributes,
-    required this.credentials,
+    required this.attributesByCredential,
     this.revoked = false,
     this.expiryDate,
     this.onRefreshCredential,
@@ -40,10 +39,7 @@ class IrmaCredentialsCard extends StatelessWidget {
 
   factory IrmaCredentialsCard.fromAttributes(List<Attribute> attributes) {
     return IrmaCredentialsCard(
-      credentials: {
-        ...{...attributes.map((e) => e.credentialInfo)}
-      },
-      attributes: attributes,
+      attributesByCredential: groupBy(attributes, (attr) => attr.credentialInfo),
       showWarnings: false,
     );
   }
@@ -55,16 +51,14 @@ class IrmaCredentialsCard extends StatelessWidget {
     this.onDeleteCredential,
     this.expanded = false,
     this.showWarnings = true,
-  })  : credentials = {credential.info},
-        attributes = credential.attributeList,
+  })  : attributesByCredential = {credential.info: credential.attributeList},
         revoked = credential.revoked,
         expiryDate = CardExpiryDate(credential.expires),
         super(key: key);
 
   IrmaCredentialsCard.fromRemovedCredential({
     required RemovedCredential credential,
-  })  : credentials = {credential.info},
-        attributes = credential.attributeList,
+  })  : attributesByCredential = {credential.info: credential.attributeList},
         revoked = false,
         expanded = true,
         expiryDate = null,
@@ -118,30 +112,30 @@ class IrmaCredentialsCard extends StatelessWidget {
     return IrmaCard(
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: [
-          for (var i = 0; i < credentials.length; i++) ...[
-            IrmaCredentialCardHeader(
-              title: getTranslation(context, credentials.elementAt(i).credentialType.name),
-              subtitle: getTranslation(context, credentials.elementAt(i).issuer.name),
-              logo: credentials.elementAt(i).credentialType.logo,
-            ),
-            const Divider(),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).largeSpacing),
-              child: IrmaCredentialCardAttributeList(
-                  attributes.where((att) => att.credentialInfo.fullId == credentials.elementAt(i).fullId).toList()),
-            ),
-            //If this is not the last item add a divider
-            if (i != credentials.length - 1)
-              Padding(
-                padding: EdgeInsets.only(bottom: IrmaTheme.of(context).smallSpacing),
-                child: Divider(
-                  color: Colors.grey.shade600,
-                  thickness: 0.5,
+        children: attributesByCredential.keys
+            .expandIndexed(
+              (i, credInfo) => [
+                IrmaCredentialCardHeader(
+                  title: getTranslation(context, credInfo.credentialType.name),
+                  subtitle: getTranslation(context, credInfo.issuer.name),
+                  logo: credInfo.credentialType.logo,
                 ),
-              ),
-          ]
-        ],
+                const Divider(),
+                Padding(
+                    padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).largeSpacing),
+                    child: IrmaCredentialCardAttributeList(attributesByCredential[credInfo]!)),
+                //If this is not the last item add a divider
+                if (i != attributesByCredential.keys.length - 1)
+                  Padding(
+                    padding: EdgeInsets.only(bottom: IrmaTheme.of(context).smallSpacing),
+                    child: Divider(
+                      color: Colors.grey.shade600,
+                      thickness: 0.5,
+                    ),
+                  ),
+              ],
+            )
+            .toList(),
       ),
     );
   }

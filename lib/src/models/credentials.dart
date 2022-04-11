@@ -141,7 +141,7 @@ class CredentialInfo extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, credentialType];
+  List<Object?> get props => [fullId];
 }
 
 @JsonSerializable()
