@@ -337,43 +337,6 @@
     "add_data": "Voeg meer gegevens toe",
     "lock": "Uitloggen"
   },
-  "history": {
-    "title": "Geschiedenis",
-    "button_back": "Terug",
-    "type": {
-      "removal": {
-        "header": "Kaartjes verwijderd op",
-        "subtitle": "Verwijderde kaartjes",
-        "data-0": "{data} kaartje verwijderd",
-        "data-1": "{data} kaartje verwijderd",
-        "data-2": "{data} kaartjes verwijderd"
-      },
-      "issuing": {
-        "header": "Kaartjes ontvangen van",
-        "subtitle": "Ontvangen kaartjes",
-        "data-0": "{data} kaartje ontvangen van",
-        "data-1": "{data} kaartje ontvangen van",
-        "data-2": "{data} kaartjes ontvangen van"
-      },
-      "disclosing_header": "Gegevens doorgegeven aan",
-      "disclosing": {
-        "header": "Gegevens doorgegeven aan",
-        "subtitle": "Doorgegeven gegevens",
-        "data-0": "{data} gegeven doorgegeven aan",
-        "data-1": "{data} gegeven doorgegeven aan",
-        "data-2": "{data} gegevens doorgegeven aan"
-      },
-      "siging_header": "Getekend met gegevens voor",
-      "signing": {
-        "header": "Gegevens ondertekend op verzoek van",
-        "subtitle": "Ondertekende bericht",
-        "subtitle_used_data": "Ondertekend met de persoonsgegevens",
-        "data-0": "Getekend met {data} gegeven op verzoek van",
-        "data-1": "Getekend met {data} gegeven op verzoek van",
-        "data-2": "Getekend met {data} gegevens op verzoek van"
-      }
-    }
-  },
   "issuance": {
     "title": "Kaartjes toevoegen",
     "header-0": "Wil je dit kaartje in je IRMA-app zetten?",
@@ -494,6 +457,7 @@
     "add_credential": "Haal {credential} op"
   },
   "home" : {
+    "button_back" : "Terug",
     "nav_bar" : {
       "home" : "Overzicht",
       "data" : "Gegevens",
@@ -526,5 +490,16 @@
     "irma_website_link": "https://irma.app/?lang=nl",
     "privacy_policy": "IRMA's privacyregels",
     "app_id": "App-ID {id}"
+  },
+  "activity": {
+    "data_deleted": "Gegevens verwijderd",
+    "data_received": "Gegevens ontvangen",
+    "data_shared": "Gegevens gedeeld",
+    "signed_message": "Getekend bericht",
+    "message_signed": "Bericht getekend",
+    "shared_with": "Gedeeld met",
+    "shared_data": "Gedeelde gegevens",
+    "received_data": "Ontvangen gegevens",
+    "recent_activity": "Recente activiteit"
   }
 }

@@ -40,6 +40,7 @@ class _CollapsibleState extends State<Collapsible> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
     return ClipRRect(
       borderRadius: BorderRadius.circular(8),
       child: ConfigurableExpansionTile(
@@ -69,12 +70,12 @@ class _CollapsibleState extends State<Collapsible> {
             ),
           ),
         ),
-        headerBackgroundColorStart: Color(0xFFE9F4FF),
-        expandedBackgroundColor: Color(0xFFE9F4FF),
+        headerBackgroundColorStart: theme.lightBlue,
+        expandedBackgroundColor: theme.lightBlue,
         children: <Widget>[
           Padding(
-            padding: EdgeInsets.symmetric(
-                vertical: IrmaTheme.of(context).smallSpacing, horizontal: IrmaTheme.of(context).defaultSpacing),
+            padding:
+                EdgeInsets.symmetric(vertical: IrmaTheme.of(context).smallSpacing, horizontal: theme.defaultSpacing),
             child: widget.content,
           ),
         ],

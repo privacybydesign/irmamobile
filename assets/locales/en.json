@@ -337,43 +337,6 @@
     "add_data": "Add more data",
     "lock": "Log out"
   },
-  "history": {
-    "title": "History",
-    "button_back": "Back",
-    "type": {
-      "removal": {
-        "header": "Cards deleted on",
-        "subtitle": "Deleted cards",
-        "data-0": "{data} card deleted",
-        "data-1": "{data} card deleted",
-        "data-2": "{data} cards deleted"
-      },
-      "issuing": {
-        "header": "Cards issued by",
-        "subtitle": "Issued cards",
-        "data-0": "{data} card issued by",
-        "data-1": "{data} card issued by",
-        "data-2": "{data} cards issued by"
-      },
-      "disclosing_header": "Data disclosed to",
-      "disclosing": {
-        "header": "Data disclosed to",
-        "subtitle": "Disclosed data",
-        "data-0": "{data} disclosed to",
-        "data-1": "{data} disclosed to",
-        "data-2": "{data} disclosed to"
-      },
-      "siging_header": "Signed messages",
-      "signing": {
-        "header": "Message signed upon request of",
-        "subtitle": "Signed message",
-        "subtitle_used_data": "Message signed with personal data",
-        "data-0": "Signed with {data} upon request of",
-        "data-1": "Signed with {data} upon request of",
-        "data-2": "Signed with {data} upon request of"
-      }
-    }
-  },
   "issuance": {
     "title": "Add cards",
     "header-0": "Do you wish to add this card to your IRMA app?",
@@ -494,6 +457,7 @@
     "add_credential": "Add {credential}"
   },
   "home": {
+    "button_back": "Back",
     "nav_bar": {
       "home": "Home",
       "data": "Data",
@@ -526,5 +490,16 @@
     "irma_website_link": "https://irma.app/?lang=en",
     "privacy_policy": "IRMA's privacy policy",
     "app_id": "App ID {id}"
+  },
+  "activity": {
+    "data_deleted": "Data deleted",
+    "data_received": "Data received",
+    "data_shared": "Data shared",
+    "signed_message": "Signed message",
+    "message_signed": "Message signed",
+    "shared_with": "Shared with",
+    "shared_data": "Shared data",
+    "received_data": "Received data",
+    "recent_activity": "Recent activity"
   }
 }

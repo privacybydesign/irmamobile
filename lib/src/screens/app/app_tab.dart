@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/screens/home/widgets/links.dart';
-import 'package:irmamobile/src/screens/home/widgets/version_button.dart';
+import 'package:irmamobile/src/screens/app/widgets/version_button.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
@@ -18,13 +18,16 @@ class AppTab extends StatelessWidget {
         );
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const IrmaAppBar(
-        title: TranslatedText('home.nav_bar.app'),
+      IrmaAppBar(
+        title: TranslatedText(
+          'home.nav_bar.app',
+          style: IrmaTheme.of(context).themeData.textTheme.headline1,
+        ),
         noLeading: true,
       ),
       Expanded(
         child: ListView(
-          padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).defaultSpacing),
+          padding: EdgeInsets.zero,
           shrinkWrap: true,
           children: [
             _buildHeaderText('app_tab.app_management'),

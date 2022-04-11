@@ -6,6 +6,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/log_entry.dart';
+import 'package:irmamobile/src/models/session_events.dart';
 import 'package:rxdart/rxdart.dart';
 
 class LogEntries extends UnmodifiableListView<LogEntry> {

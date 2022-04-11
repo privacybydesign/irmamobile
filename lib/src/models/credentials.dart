@@ -1,5 +1,6 @@
 import 'dart:collection';
 
+import 'package:equatable/equatable.dart';
 import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
@@ -46,6 +47,7 @@ class Credential {
   bool get isKeyshareCredential =>
       attributes.keys.any((attributeType) => info.schemeManager.keyshareAttributes.contains(attributeType.fullId));
 
+  // TODO: List is not properly sorted.
   List<Attribute> get attributeList => attributes.entries
       .map((entry) =>
           CredentialAttribute(credential: this, attributeType: entry.key, value: entry.value, notRevokable: false))
@@ -84,6 +86,15 @@ class RemovedCredential {
     required this.attributes,
   });
 
+  // TODO: List is not properly sorted.
+  List<Attribute> get attributeList => attributes.entries
+      .map((entry) => Attribute(
+            credentialInfo: info,
+            attributeType: entry.key,
+            value: entry.value,
+          ))
+      .toList();
+
   RemovedCredential.fromRaw({
     required IrmaConfiguration irmaConfiguration,
     required String credentialIdentifier,
@@ -93,7 +104,7 @@ class RemovedCredential {
         attributes = Attributes.fromRaw(irmaConfiguration: irmaConfiguration, rawAttributes: rawAttributes);
 }
 
-class CredentialInfo {
+class CredentialInfo extends Equatable {
   final String id;
   final SchemeManager schemeManager;
   final Issuer issuer;
@@ -125,6 +136,9 @@ class CredentialInfo {
       credentialType: irmaConfiguration.credentialTypes[credentialId]!,
     );
   }
+
+  @override
+  List<Object?> get props => [fullId];
 }
 
 @JsonSerializable()
