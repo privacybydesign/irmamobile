@@ -7,7 +7,7 @@ import '../../../../widgets/translated_text.dart';
 import '../bloc/disclosure_permission_bloc.dart';
 import '../bloc/disclosure_permission_event.dart';
 import '../bloc/disclosure_permission_state.dart';
-import 'issue_wizard_choice.dart';
+import 'issue_wizard_step.dart';
 
 class IssueWizardChoices extends StatelessWidget {
   final DisclosurePermissionBloc bloc;
@@ -18,7 +18,6 @@ class IssueWizardChoices extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final state = bloc.state as DisclosurePermissionIssueWizardChoices;
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     return Stack(
       children: [
@@ -32,22 +31,27 @@ class IssueWizardChoices extends StatelessWidget {
                 style: theme.themeData.textTheme.headline3,
               ),
               SizedBox(height: theme.defaultSpacing),
-              for (var disCon in state.issueWizardChoices)
-                IssueWizardChoice(
+              for (var i = 0; i < state.issueWizardChoices.length; i++) ...[
+                IssueWizardStep(
                   bloc: bloc,
-                  disCon: disCon,
-                )
+                  stepIndex: i,
+                ),
+                //If this is not the last item add a divider
+                if (i != state.issueWizardChoices.length - 1)
+                  const Center(
+                      child: TranslatedText(
+                    'disclosure.disclosure_permission.and',
+                    textAlign: TextAlign.center,
+                  ))
+              ]
             ],
           ),
         ),
-        // Align(
-        //     alignment: Alignment.bottomCenter,
-        //     child: IrmaBottomBar(
-        //         primaryButtonLabel: 'disclosure.disclosure_permission.next',
-        //         onPrimaryPressed: () =>
-        //         bloc.add(  DisclosurePermissionIssueWizardChoiceUpdated({required this.stepIndex, required this.choiceIndex});)
-        //         //bloc.add(DisclosurePermissionNextPressed())
-        //         ))
+        Align(
+            alignment: Alignment.bottomCenter,
+            child: IrmaBottomBar(
+                primaryButtonLabel: 'disclosure.disclosure_permission.next',
+                onPrimaryPressed: () => bloc.add(DisclosurePermissionNextPressed())))
       ],
     );
   }

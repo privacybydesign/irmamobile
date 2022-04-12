@@ -17,7 +17,7 @@ class IrmaCredentialTemplateCard extends StatelessWidget {
       onTap: () => credential.obtained
           ? null
           : IrmaRepositoryProvider.of(context).openIssueURL(context, credential.credentialType.fullId),
-      dottedBorder: !credential.obtained,
+      style: credential.obtained ? IrmaCardStyle.normal : IrmaCardStyle.template,
       child: Column(
         children: [
           IrmaCredentialCardHeader(
