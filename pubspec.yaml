@@ -1,6 +1,6 @@
 name: irmamobile
 description: IRMA Authentication
-version: 6.2.3+136
+version: 6.2.4+137
 
 environment:
   sdk: ">=2.13.0 <3.0.0"
