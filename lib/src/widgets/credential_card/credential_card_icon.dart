@@ -2,8 +2,9 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_header.dart';
 
-import 'card_credential_header.dart';
+
 
 class CredentialCardIcon extends StatelessWidget {
   final CredentialHeaderType type;

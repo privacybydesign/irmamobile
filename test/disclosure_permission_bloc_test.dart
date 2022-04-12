@@ -414,7 +414,13 @@ void main() {
   });
 
   test('issuance-in-disclosure-specific-attributes', () async {
+    // Spread request over multiple outer cons to test whether TemplateDisclosureCredential's copyAndMerge works.
     mockBridge.mockDisclosureSession(42, [
+      [
+        {
+          'pbdf.pbdf.email.domain': 'example.com',
+        },
+      ],
       [
         {
           'pbdf.pbdf.email.email': 'test@example.com',
@@ -439,8 +445,8 @@ void main() {
 
     await _issueCredential(repo, mockBridge, 43, [
       {
-        'pbdf.pbdf.email.email': TextValue.fromString('wrong@example.com'),
-        'pbdf.pbdf.email.domain': TextValue.fromString('example.com'),
+        'pbdf.pbdf.email.email': TextValue.fromString('test@wrong.example.com'),
+        'pbdf.pbdf.email.domain': TextValue.fromString('wrong.example.com'),
       }
     ]);
 
@@ -452,8 +458,9 @@ void main() {
     expect(issueWizardBlocState.issueWizard[0].obtained, false);
     expect(issueWizardBlocState.issueWizard[0].presentMatching.length, 0);
     expect(issueWizardBlocState.issueWizard[0].presentNonMatching.length, 1);
-    expect(issueWizardBlocState.issueWizard[0].presentNonMatching[0].attributes.length, 1);
-    expect(issueWizardBlocState.issueWizard[0].presentNonMatching[0].attributes[0].value.raw, 'wrong@example.com');
+    expect(issueWizardBlocState.issueWizard[0].presentNonMatching[0].attributes.length, 2);
+    expect(issueWizardBlocState.issueWizard[0].presentNonMatching[0].attributes[0].value.raw, 'test@wrong.example.com');
+    expect(issueWizardBlocState.issueWizard[0].presentNonMatching[0].attributes[1].value.raw, 'wrong.example.com');
 
     await _issueCredential(repo, mockBridge, 44, [
       {
@@ -470,19 +477,25 @@ void main() {
     expect(issueWizardBlocState.issueWizard[0].obtained, true);
     expect(issueWizardBlocState.issueWizard[0].presentMatching.length, 1);
     expect(issueWizardBlocState.issueWizard[0].presentNonMatching.length, 1);
-    expect(issueWizardBlocState.issueWizard[0].presentMatching[0].attributes.length, 1);
+    expect(issueWizardBlocState.issueWizard[0].presentMatching[0].attributes.length, 2);
     expect(issueWizardBlocState.issueWizard[0].presentMatching[0].attributes[0].value.raw, 'test@example.com');
+    expect(issueWizardBlocState.issueWizard[0].presentMatching[0].attributes[1].value.raw, 'example.com');
 
     bloc.add(DisclosurePermissionNextPressed());
 
     expect(await bloc.stream.first, isA<DisclosurePermissionChoices>());
     final choiceBlocState = bloc.state as DisclosurePermissionChoices;
-    expect(choiceBlocState.choices.length, 1);
+    expect(choiceBlocState.choices.length, 2);
     expect(choiceBlocState.choices[0].length, 2);
     expect(choiceBlocState.choices[0][0].length, 1);
     expect(choiceBlocState.choices[0][0][0], isA<ChoosableDisclosureCredential>());
     expect(choiceBlocState.choices[0][1].length, 1);
     expect(choiceBlocState.choices[0][1][0], isA<TemplateDisclosureCredential>());
+    expect(choiceBlocState.choices[1].length, 2);
+    expect(choiceBlocState.choices[1][0].length, 1);
+    expect(choiceBlocState.choices[1][0][0], isA<ChoosableDisclosureCredential>());
+    expect(choiceBlocState.choices[1][1].length, 1);
+    expect(choiceBlocState.choices[1][1][0], isA<TemplateDisclosureCredential>());
 
     bloc.add(DisclosurePermissionNextPressed());
     expect(await bloc.stream.first, isA<DisclosurePermissionConfirmChoices>());

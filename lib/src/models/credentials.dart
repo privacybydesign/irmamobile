@@ -111,7 +111,7 @@ class CredentialInfo {
 
   String get fullId => '${issuer.fullId}.$id';
 
-  CredentialInfo({
+  const CredentialInfo({
     required this.id,
     required this.issuer,
     required this.schemeManager,

@@ -465,17 +465,17 @@
     "add_cards": "Kaartjes ophalen",
     "add_credential": "Haal {credential} op"
   },
-  "home": {
-    "button_back": "Terug",
-    "nav_bar": {
-      "home": "Overzicht",
-      "data": "Gegevens",
-      "activity": "Activiteit",
-      "app": "App",
-      "open_scanner": "Open QR-Scanner"
+  "home" : {
+    "button_back" : "Terug",
+    "nav_bar" : {
+      "home" : "Overzicht",
+      "data" : "Gegevens",
+      "activity" : "Activiteit",
+      "more": "Meer",
+      "scan_qr": "Scan QR"
     }
   },
-  "app_tab": {
+  "more_tab": {
     "app_management": "App-beheer",
     "settings": "Instellingen",
     "help": "Help",

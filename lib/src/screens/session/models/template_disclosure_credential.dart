@@ -1,5 +1,4 @@
 import 'package:collection/collection.dart';
-import 'package:quiver/iterables.dart';
 
 import '../../../models/attributes.dart';
 import '../../../models/credentials.dart';
@@ -22,10 +21,13 @@ class TemplateDisclosureCredential extends DisclosureCredential {
     return TemplateDisclosureCredential._fromChoosableDisclosureCredentials(
       attributes: attributes,
       // Only include the attributes that are included in the template.
-      choosableDisclosureCredentials: presentCreds.map((cred) => ChoosableDisclosureCredential(
+      choosableDisclosureCredentials: presentCreds.map(
+        (cred) => ChoosableDisclosureCredential(
           attributes: cred.attributeList
               .where((attr1) => attributes.any((attr2) => attr1.attributeType.fullId == attr2.attributeType.fullId))
-              .toList())),
+              .toList(),
+        ),
+      ),
     );
   }
 
@@ -41,14 +43,19 @@ class TemplateDisclosureCredential extends DisclosureCredential {
     required List<Attribute> attributes,
     required Iterable<ChoosableDisclosureCredential> choosableDisclosureCredentials,
   }) {
-    assert(choosableDisclosureCredentials.every((cred) => cred.fullId == choosableDisclosureCredentials.first.fullId));
+    assert(choosableDisclosureCredentials.every((cred) =>
+        cred.fullId == choosableDisclosureCredentials.first.fullId &&
+        cred.attributes.every((credAttr) =>
+            attributes.any((templateAttr) => credAttr.attributeType.fullId == templateAttr.attributeType.fullId))));
 
     final Map<bool, List<ChoosableDisclosureCredential>> mapped = groupBy(
         choosableDisclosureCredentials,
         // Group based on whether the credentials match the template or not.
-        // The attribute lists have an equal length and order due to the filtering above and guarantees from irmago.
-        (cred) => zip([attributes, cred.attributes])
-            .every((entry) => entry[0].value.raw == null || entry[0].value.raw == entry[1].value.raw));
+        (cred) => attributes.every((templateAttr) =>
+            templateAttr.value.raw == null ||
+            cred.attributes.any((credAttr) =>
+                credAttr.attributeType.fullId == templateAttr.attributeType.fullId &&
+                credAttr.value.raw == templateAttr.value.raw)));
 
     return TemplateDisclosureCredential._(
       attributes: attributes,
@@ -69,10 +76,10 @@ class TemplateDisclosureCredential extends DisclosureCredential {
   TemplateDisclosureCredential? copyAndMerge(TemplateDisclosureCredential other) {
     if (fullId != other.fullId) return null;
 
-    // If a attribute type must have multiple values, then the instances cannot be merged.
     final attributesMap = [...attributes, ...other.attributes].groupSetsBy((attr) => attr.attributeType.fullId);
     final List<Attribute> mergedAttributes = [];
     for (final attrSet in attributesMap.values) {
+      // If the expected attribute values of a specific attribute type differ, then the instances cannot be merged.
       final attr = attrSet.where((attr) => attr.value.raw != null);
       if (attr.length > 1) {
         return null;

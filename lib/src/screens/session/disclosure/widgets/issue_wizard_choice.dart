@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/models/credentials.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 
 import '../../../../models/attributes.dart';
 import '../../models/template_disclosure_credential.dart';

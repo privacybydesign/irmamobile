@@ -6,10 +6,10 @@ import '../../models/attributes.dart';
 import '../../theme/theme.dart';
 import '../translated_text.dart';
 
-class CardAttributeList extends StatelessWidget {
+class IrmaCredentialCardAttributeList extends StatelessWidget {
   final List<Attribute> attributes;
 
-  const CardAttributeList(this.attributes);
+  const IrmaCredentialCardAttributeList(this.attributes);
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,7 @@ class CardAttributeList extends StatelessWidget {
     return Column(
       children: [
         for (final attribute in attributes)
-          if (attribute.value.runtimeType != NullValue)
+          if (attribute.value is! NullValue)
             Padding(
               padding: EdgeInsets.only(bottom: theme.tinySpacing),
               child: Row(
@@ -29,7 +29,6 @@ class CardAttributeList extends StatelessWidget {
                     child: Text(
                       attribute.attributeType.name.translate(lang),
                       textAlign: TextAlign.start,
-                      overflow: TextOverflow.clip,
                       style: theme.themeData.textTheme.caption,
                     ),
                   ),
@@ -37,9 +36,12 @@ class CardAttributeList extends StatelessWidget {
                     width: theme.smallSpacing,
                   ),
                   Flexible(
-                      //If attribute is photo show link
-                      child: attribute.value is PhotoValue
-                          ? GestureDetector(
+                    child: Builder(
+                      builder: (context) {
+                        switch (attribute.value.runtimeType) {
+                          //If attribute is photo show link
+                          case PhotoValue:
+                            return GestureDetector(
                               onTap: () {
                                 //TODO Implement open Photo.
                               },
@@ -49,18 +51,24 @@ class CardAttributeList extends StatelessWidget {
                                 textAlign: TextAlign.start,
                                 style: theme.textTheme.bodyText2!.copyWith(decoration: TextDecoration.underline),
                               ),
-                            )
-                          : Text(
-                              (attribute.value is YesNoValue
-                                      ? attribute.value as YesNoValue
-                                      : attribute.value as TextValue)
-                                  .translated
-                                  .translate(lang),
+                            );
+                          case TextValue:
+                          case YesNoValue:
+                            return TranslatedText(
+                              (attribute.value as TextValue).translated.translate(lang),
                               textAlign: TextAlign.end,
                               style: theme.themeData.textTheme.caption!.copyWith(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.grey.shade700,
-                              ))),
+                              ),
+                            );
+                          case NullValue:
+                          default:
+                            return Container();
+                        }
+                      },
+                    ),
+                  ),
                 ],
               ),
             )

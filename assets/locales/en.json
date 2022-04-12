@@ -471,11 +471,11 @@
       "home": "Home",
       "data": "Data",
       "activity": "Activity",
-      "app": "App",
-      "open_scanner": "Open QR Scanner"
+      "more": "More",
+      "scan_qr": "Scan QR"
     }
   },
-  "app_tab": {
+  "more_tab": {
     "app_management": "App management",
     "settings": "Settings",
     "help": "Help",

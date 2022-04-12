@@ -5,7 +5,7 @@ import '../../../models/attributes.dart';
 import '../../../models/irma_configuration.dart';
 import '../../../models/log_entry.dart';
 import '../../../theme/theme.dart';
-import '../../../widgets/credential_card/irma_credential_card.dart';
+import '../../../widgets/credential_card/irma_credentials_card.dart';
 import '../../../widgets/irma_quote.dart';
 import '../../../widgets/translated_text.dart';
 import 'issuer_verifier_header.dart';
@@ -41,8 +41,9 @@ class ActivityDetailDisclosure extends StatelessWidget {
         ),
         SizedBox(height: theme.smallSpacing),
         for (var disclosedAttributes in logEntry.disclosedAttributes)
-          IrmaCredentialCard.fromAttributes(
-              disclosedAttributes.map((e) => Attribute.fromDisclosedAttribute(irmaConfiguration, e)).toList()),
+          IrmaCredentialsCard.fromAttributes(
+            disclosedAttributes.map((e) => Attribute.fromDisclosedAttribute(irmaConfiguration, e)).toList(),
+          ),
         if (logEntry.type == LogEntryType.signing) ...[
           Padding(
             padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),

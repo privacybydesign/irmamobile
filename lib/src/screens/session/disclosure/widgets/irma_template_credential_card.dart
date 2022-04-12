@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../util/language.dart';
-import '../../../../widgets/credential_card/card_credential_header.dart';
+import '../../../../widgets/credential_card/irma_credential_card_header.dart';
 import '../../../../widgets/irma_card.dart';
 import '../../../../widgets/irma_repository_provider.dart';
 import '../../models/template_disclosure_credential.dart';
@@ -20,7 +20,7 @@ class IrmaCredentialTemplateCard extends StatelessWidget {
       dottedBorder: !credential.obtained,
       child: Column(
         children: [
-          CardCredentialHeader(
+          IrmaCredentialCardHeader(
             type: credential.obtained ? CredentialHeaderType.success : CredentialHeaderType.template,
             credentialName: getTranslation(context, credential.credentialType.name),
             issuerName: getTranslation(context, credential.issuer.name),

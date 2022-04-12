@@ -5,15 +5,18 @@ import 'credential_card_icon.dart';
 
 enum CredentialHeaderType { normal, template, success, error }
 
-class CardCredentialHeader extends StatelessWidget {
+class IrmaCredentialCardHeader extends StatelessWidget {
   final String? logo;
-
   final String credentialName;
   final String? issuerName;
   final CredentialHeaderType type;
 
-  const CardCredentialHeader(
-      {this.logo, required this.credentialName, this.issuerName, this.type = CredentialHeaderType.normal});
+  const IrmaCredentialCardHeader({
+    this.logo,
+    required this.credentialName,
+    this.issuerName,
+    this.type = CredentialHeaderType.normal,
+  });
 
   @override
   Widget build(BuildContext context) {

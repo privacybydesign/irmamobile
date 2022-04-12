@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/screens/home/widgets/links.dart';
-import 'package:irmamobile/src/screens/app/widgets/version_button.dart';
+import 'package:irmamobile/src/screens/more/widgets/version_button.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/translated_text.dart';
 
-class AppTab extends StatelessWidget {
+class MoreTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget _buildHeaderText(String translationKey) => Padding(
@@ -20,7 +20,7 @@ class AppTab extends StatelessWidget {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       IrmaAppBar(
         title: TranslatedText(
-          'home.nav_bar.app',
+          'home.nav_bar.more',
           style: IrmaTheme.of(context).themeData.textTheme.headline1,
         ),
         noLeading: true,
@@ -30,32 +30,34 @@ class AppTab extends StatelessWidget {
           padding: EdgeInsets.zero,
           shrinkWrap: true,
           children: [
-            _buildHeaderText('app_tab.app_management'),
+            _buildHeaderText('more_tab.app_management'),
             const InternalLink(
-                iconData: Icons.settings_outlined, translationKey: 'app_tab.settings', routeName: '/settings'),
+                iconData: Icons.settings_outlined, translationKey: 'more_tab.settings', routeName: '/settings'),
             const InternalLink(
                 iconData: Icons.contact_support_outlined, translationKey: 'help.faq', routeName: '/help'),
             _buildHeaderText('help.about_irma'),
             const ExternalLink(
-                iconData: Icons.info_outline, translationKey: 'app_tab.website', linkKey: 'app_tab.irma_website_link'),
-            const ContactLink(iconData: Icons.mail_outline, translationKey: 'app_tab.contact'),
-            _buildHeaderText('app_tab.slogan'),
+                iconData: Icons.info_outline,
+                translationKey: 'more_tab.website',
+                linkKey: 'more_tab.irma_website_link'),
+            const ContactLink(iconData: Icons.mail_outline, translationKey: 'more_tab.contact'),
+            _buildHeaderText('more_tab.slogan'),
             const ShareLink(
               iconData: Icons.share_outlined,
-              translationKey: 'app_tab.share',
-              shareTextKey: 'app_tab.share_text',
+              translationKey: 'more_tab.share',
+              shareTextKey: 'more_tab.share_text',
             ),
             const ExternalLink(
                 iconData: Icons.description_outlined,
-                translationKey: 'app_tab.privacy_policy',
+                translationKey: 'more_tab.privacy_policy',
                 linkKey: 'enrollment.introduction.screen3.privacy.url'),
-            _buildHeaderText('app_tab.stay_informed'),
+            _buildHeaderText('more_tab.stay_informed'),
             const ExternalLink(
-                iconData: Icons.groups_outlined, translationKey: 'app_tab.meetups', linkKey: 'app_tab.meetups_link'),
+                iconData: Icons.groups_outlined, translationKey: 'more_tab.meetups', linkKey: 'more_tab.meetups_link'),
             const ExternalLink(
-                iconData: IrmaIcons.twitter, translationKey: 'app_tab.twitter', linkKey: 'app_tab.twitter_link'),
+                iconData: IrmaIcons.twitter, translationKey: 'more_tab.twitter', linkKey: 'more_tab.twitter_link'),
             const ExternalLink(
-                iconData: IrmaIcons.github, translationKey: 'app_tab.github', linkKey: 'app_tab.github_link'),
+                iconData: IrmaIcons.github, translationKey: 'more_tab.github', linkKey: 'more_tab.github_link'),
             Padding(
               padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
               child: VersionButton(),
