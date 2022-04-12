@@ -39,7 +39,8 @@ class IrmaCredentialsCard extends StatelessWidget {
 
   factory IrmaCredentialsCard.fromAttributes(List<Attribute> attributes) {
     return IrmaCredentialsCard(
-      attributesByCredential: groupBy(attributes, (attr) => attr.credentialInfo),
+      attributesByCredential: groupBy(attributes, (Attribute attr) => attr.credentialInfo.fullId)
+          .map((_, attrs) => MapEntry(attrs.first.credentialInfo, attrs)),
       showWarnings: false,
     );
   }
