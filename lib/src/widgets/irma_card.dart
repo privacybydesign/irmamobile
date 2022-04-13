@@ -41,13 +41,13 @@ class IrmaCard extends StatelessWidget {
             ? DottedDecoration(
                 shape: Shape.box,
                 borderRadius: borderRadius,
-                color: Colors.grey.shade400,
+                color: Colors.grey.shade300,
               )
             : style == IrmaCardStyle.selected
                 //Selected styling
                 ? BoxDecoration(
                     borderRadius: borderRadius,
-                    border: Border.all(color: theme.themeData.primaryColor),
+                    border: Border.all(color: theme.themeData.primaryColor.withOpacity(0.8)),
                     color: theme.lightBlue,
                     boxShadow: shadow)
                 //Normal styling

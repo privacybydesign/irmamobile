@@ -91,7 +91,7 @@ class IrmaCredentialsCard extends StatelessWidget {
               //If this is not the last item add a divider
               if (i != attributesByCredential.keys.length - 1)
                 Divider(
-                  color: selected == true ? theme.themeData.colorScheme.primary : Colors.grey.shade500,
+                  color: selected == true ? theme.themeData.colorScheme.primary.withOpacity(0.8) : Colors.grey.shade300,
                   thickness: 0.5,
                 ),
             ];
