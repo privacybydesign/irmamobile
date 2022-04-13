@@ -25,7 +25,7 @@ class CredentialCardIcon extends StatelessWidget {
           switch (type) {
             case CredentialHeaderType.normal:
               return CircleAvatar(
-                  backgroundColor: Colors.grey.shade300,
+                  backgroundColor: Colors.grey.shade100,
                   radius: avatarRadius,
                   child: logo != null && logo != ''
                       ? SizedBox(height: avatarSize, child: Image.file(File(logo!), excludeFromSemantics: true))
