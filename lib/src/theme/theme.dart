@@ -22,7 +22,7 @@ class IrmaThemeData {
   final Color lightBlue = const Color(0xFFE9F4FF);
   Color get primaryLight => grayscale95;
   final Color darkPurple = const Color(0xFF362C78);
-  Color get disabled => grayscale90;
+  Color get disabled => grayscale60;
 
   // Supplementary colors (for card backgrounds)
   final Color cardRed = const Color(0xFFD44454);
