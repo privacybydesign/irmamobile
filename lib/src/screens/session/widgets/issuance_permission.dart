@@ -36,16 +36,19 @@ class IssuancePermission extends StatelessWidget {
   }
 
   Widget _buildPermissionWidget(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
     return ListView(
+      padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
       children: <Widget>[
         Padding(
           padding: EdgeInsets.symmetric(
-            vertical: IrmaTheme.of(context).mediumSpacing,
-            horizontal: IrmaTheme.of(context).defaultSpacing,
+            vertical: theme.mediumSpacing,
+            horizontal: theme.defaultSpacing,
           ),
           child: Text(
             FlutterI18n.plural(context, 'issuance.header', issuedCredentials.length),
-            style: IrmaTheme.of(context).textTheme.bodyText2,
+            style: theme.textTheme.bodyText2,
           ),
         ),
         IssuingDetail(issuedCredentials),
