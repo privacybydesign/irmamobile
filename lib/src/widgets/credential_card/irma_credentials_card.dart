@@ -48,6 +48,8 @@ class IrmaCredentialsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
     return IrmaCard(
       style: selected ? IrmaCardStyle.selected : IrmaCardStyle.normal,
       onTap: onTap,
@@ -65,17 +67,14 @@ class IrmaCredentialsCard extends StatelessWidget {
                 if (attributesByCredential[credInfo]!.isNotEmpty) ...[
                   const Divider(),
                   Padding(
-                      padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).largeSpacing),
+                      padding: EdgeInsets.symmetric(horizontal: theme.largeSpacing),
                       child: IrmaCredentialCardAttributeList(attributesByCredential[credInfo]!)),
                 ],
                 //If this is not the last item add a divider
                 if (i != attributesByCredential.keys.length - 1)
-                  Padding(
-                    padding: EdgeInsets.only(bottom: IrmaTheme.of(context).smallSpacing),
-                    child: Divider(
-                      color: Colors.grey.shade500,
-                      thickness: 0.5,
-                    ),
+                  Divider(
+                    color: selected == true ? theme.themeData.colorScheme.primary : Colors.grey.shade500,
+                    thickness: 0.5,
                   ),
               ],
             )
