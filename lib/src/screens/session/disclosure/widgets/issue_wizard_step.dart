@@ -26,6 +26,7 @@ class IssueWizardStep extends StatelessWidget {
           Padding(
             padding: EdgeInsets.only(bottom: IrmaTheme.of(context).tinySpacing),
             child: IrmaCredentialsCard(
+              mode: IrmaCredentialsCardMode.issuanceChoice,
               selected: state.issueWizardChoiceIndices[stepIndex] == i,
               attributesByCredential: {
                 for (var cred in step[i]) cred: [],

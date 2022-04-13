@@ -7,14 +7,14 @@ enum CredentialHeaderType { normal, template, success, error }
 
 class IrmaCredentialCardHeader extends StatelessWidget {
   final String? logo;
-  final String credentialName;
-  final String? issuerName;
+  final String title;
+  final String? subtitle;
   final CredentialHeaderType type;
 
   const IrmaCredentialCardHeader({
     this.logo,
-    required this.credentialName,
-    this.issuerName,
+    required this.title,
+    this.subtitle,
     this.type = CredentialHeaderType.normal,
   });
 
@@ -35,11 +35,11 @@ class IrmaCredentialCardHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                credentialName,
+                title,
                 style: theme.themeData.textTheme.bodyText1,
               ),
               Text(
-                issuerName ?? '',
+                subtitle ?? '',
                 overflow: TextOverflow.ellipsis,
                 style: theme.themeData.textTheme.caption,
               )

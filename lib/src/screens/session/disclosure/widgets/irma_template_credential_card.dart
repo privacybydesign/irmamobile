@@ -22,8 +22,8 @@ class IrmaCredentialTemplateCard extends StatelessWidget {
         children: [
           IrmaCredentialCardHeader(
             type: credential.obtained ? CredentialHeaderType.success : CredentialHeaderType.template,
-            credentialName: getTranslation(context, credential.credentialType.name),
-            issuerName: getTranslation(context, credential.issuer.name),
+            title: getTranslation(context, credential.credentialType.name),
+            subtitle: getTranslation(context, credential.issuer.name),
           )
         ],
       ),

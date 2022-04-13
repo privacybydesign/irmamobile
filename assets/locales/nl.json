@@ -369,6 +369,7 @@
         "add_data": "Voeg de volgende gegevens toe:"
       },
       "issue_wizard_choice": {
+        "add_credential": "{credentialName} toevoegen",
         "choose_data": "Kies de gegevens die je wilt gaan delen",
         "and": "En"
       }
@@ -466,12 +467,12 @@
     "add_cards": "Kaartjes ophalen",
     "add_credential": "Haal {credential} op"
   },
-  "home" : {
-    "button_back" : "Terug",
-    "nav_bar" : {
-      "home" : "Overzicht",
-      "data" : "Gegevens",
-      "activity" : "Activiteit",
+  "home": {
+    "button_back": "Terug",
+    "nav_bar": {
+      "home": "Overzicht",
+      "data": "Gegevens",
+      "activity": "Activiteit",
       "more": "Meer",
       "scan_qr": "Scan QR"
     }

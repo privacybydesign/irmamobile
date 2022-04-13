@@ -369,6 +369,7 @@
         "add_data": "Add the following data:"
       },
       "issue_wizard_choice": {
+        "add_credential": "Add {credentialName}",
         "choose_data": "Choose the data you want to share ",
         "and": "And"
       }
