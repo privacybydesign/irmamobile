@@ -56,7 +56,7 @@ class CredentialCardIcon extends StatelessWidget {
               );
             case CredentialHeaderType.template:
               return CircleAvatar(
-                backgroundColor: IrmaTheme.of(context).themeData.colorScheme.primary,
+                backgroundColor: IrmaTheme.of(context).themeData.colorScheme.secondary,
                 radius: avatarRadius,
                 child: const SizedBox(
                   height: avatarSize,
