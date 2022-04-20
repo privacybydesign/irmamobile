@@ -1,6 +1,3 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -11,27 +8,26 @@ import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 import 'package:irmamobile/src/widgets/irma_tooltip.dart';
 
 class IrmaBottomBar extends StatelessWidget {
-  const IrmaBottomBar({
-    Key key,
-    this.primaryButtonLabel,
-    this.primaryButtonColor,
-    this.onPrimaryPressed,
-    this.onPrimaryDisabledPressed,
-    this.showTooltipOnPrimary = false,
-    this.secondaryButtonLabel,
-    this.onSecondaryPressed,
-    this.toolTipLabel,
-  })  : assert((showTooltipOnPrimary == false) || (toolTipLabel != null)),
-        super(key: key);
-
-  final String primaryButtonLabel;
-  final Color primaryButtonColor;
-  final VoidCallback onPrimaryPressed;
-  final VoidCallback onPrimaryDisabledPressed;
+  final String? primaryButtonLabel;
+  final VoidCallback? onPrimaryPressed;
+  final VoidCallback? onPrimaryDisabledPressed;
   final bool showTooltipOnPrimary;
-  final String secondaryButtonLabel;
-  final VoidCallback onSecondaryPressed;
-  final String toolTipLabel;
+  final String? secondaryButtonLabel;
+  final VoidCallback? onSecondaryPressed;
+  final String? toolTipLabel;
+  final Axis direction;
+
+  const IrmaBottomBar(
+      {Key? key,
+      required this.primaryButtonLabel,
+      this.onPrimaryPressed,
+      this.onPrimaryDisabledPressed,
+      this.showTooltipOnPrimary = false,
+      this.secondaryButtonLabel,
+      this.onSecondaryPressed,
+      this.toolTipLabel,
+      this.direction = Axis.horizontal})
+      : super(key: key);
 
   List<Widget> buildButtons(BuildContext context, BoxConstraints constraints) {
     final List<Widget> btns = [];
@@ -57,12 +53,12 @@ class IrmaBottomBar extends StatelessWidget {
         onPressed: onPrimaryPressed,
         onPressedDisabled: onPrimaryDisabledPressed,
         label: primaryButtonLabel,
-        color: primaryButtonColor,
+        color: IrmaTheme.of(context).primaryBlue,
       );
 
       if (toolTipLabel != null) {
         primaryButton = IrmaTooltip(
-            label: FlutterI18n.translate(context, toolTipLabel), show: showTooltipOnPrimary, child: primaryButton);
+            label: FlutterI18n.translate(context, toolTipLabel!), show: showTooltipOnPrimary, child: primaryButton);
       }
 
       btns.add(primaryButton);
@@ -87,9 +83,10 @@ class IrmaBottomBar extends StatelessWidget {
         ),
         child: Padding(
           padding: EdgeInsets.symmetric(
-              vertical: IrmaTheme.of(context).mediumSpacing, horizontal: IrmaTheme.of(context).defaultSpacing),
+            vertical: IrmaTheme.of(context).mediumSpacing,
+            horizontal: IrmaTheme.of(context).defaultSpacing,
+          ),
           child: Wrap(
-            direction: Axis.horizontal,
             verticalDirection: VerticalDirection.up,
             alignment: WrapAlignment.center,
             children: buildButtons(context, constraints),
