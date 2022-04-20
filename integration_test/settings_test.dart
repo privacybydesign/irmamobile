@@ -14,6 +14,7 @@ import 'helpers.dart';
 import 'irma_binding.dart';
 import 'util.dart';
 
+// TODO: These tests need to be updated for ux-2.0
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
