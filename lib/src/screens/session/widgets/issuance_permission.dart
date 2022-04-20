@@ -1,6 +1,3 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -11,27 +8,32 @@ import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 import 'package:irmamobile/src/widgets/issuing_detail.dart';
 
 class IssuancePermission extends StatelessWidget {
-  final Function() onDismiss;
-  final Function() onGivePermission;
+  final Function()? onDismiss;
+  final Function()? onGivePermission;
 
   final bool satisfiable;
   final List<Credential> issuedCredentials;
 
-  const IssuancePermission({Key key, this.onDismiss, this.onGivePermission, this.satisfiable, this.issuedCredentials})
-      : super(key: key);
+  const IssuancePermission({
+    Key? key,
+    this.onDismiss,
+    this.onGivePermission,
+    this.satisfiable = false,
+    required this.issuedCredentials,
+  }) : super(key: key);
 
   Widget _buildNavigationBar(BuildContext context) {
     return satisfiable
         ? IrmaBottomBar(
             key: const Key("issuance_accept"),
             primaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.yes"),
-            onPrimaryPressed: () => onGivePermission(),
+            onPrimaryPressed: () => onGivePermission?.call(),
             secondaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.no"),
-            onSecondaryPressed: () => onDismiss(),
+            onSecondaryPressed: () => onDismiss?.call(),
           )
         : IrmaBottomBar(
             primaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.back"),
-            onPrimaryPressed: () => onDismiss(),
+            onPrimaryPressed: () => onDismiss?.call(),
           );
   }
 
