@@ -4,7 +4,7 @@ import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 
 class IrmaTextButton extends StatelessWidget {
-  final String label;
+  final String? label;
   final double minWidth;
   final VoidCallback? onPressed;
   final TextStyle? textStyle;
@@ -12,7 +12,7 @@ class IrmaTextButton extends StatelessWidget {
 
   const IrmaTextButton({
     Key? key,
-    required this.label,
+    this.label,
     this.onPressed,
     this.textStyle,
     this.size,
@@ -34,7 +34,7 @@ class IrmaTextButton extends StatelessWidget {
         ),
       ),
       child: Text(
-        FlutterI18n.translate(context, label),
+        label != null ? FlutterI18n.translate(context, label!) : '',
         style: textStyle ?? IrmaTheme.of(context).textTheme.button,
         textAlign: TextAlign.center,
       ),
