@@ -110,7 +110,7 @@ void main() {
               matching: find.byType(IrmaCredentialCardAttributeList),
             ))
             .toList();
-            
+
         // Assert if the values are present
         expect(
             personalCardAttributes,
