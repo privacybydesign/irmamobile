@@ -311,8 +311,6 @@
 //   }
 // }
 
-
-
 // This code is not null safe yet.
 // @dart=2.11
 // Based on flutter source of their tooltip.
