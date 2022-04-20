@@ -54,12 +54,14 @@ Future<void> issueCardsMunicipality(WidgetTester tester, IntegrationTestIrmaBind
           ]
         }
       ''');
-  // Accept issued credential
+
+// Accept issued credential
   await tester.waitFor(find.byKey(const Key('issuance_accept')));
+  //Accept issued credential
   await tester
       .tap(find.descendant(of: find.byKey(const Key('issuance_accept')), matching: find.byKey(const Key('primary'))));
   // Wait until done
-  await tester.waitFor(find.byKey(const Key('wallet_present')));
-  // Wait 5 seconds
-  await tester.pumpAndSettle(const Duration(seconds: 5));
+  await tester.waitFor(find.byType(HomeScreen));
+  // Wait 3 seconds
+  await tester.pumpAndSettle(const Duration(seconds: 3));
 }
