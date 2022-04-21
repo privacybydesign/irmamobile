@@ -338,10 +338,10 @@
     "lock": "Log out"
   },
   "issuance": {
-    "title": "Add cards",
-    "header-0": "Do you wish to add this card to your IRMA app?",
-    "header-1": "Do you wish to add this card to your IRMA app?",
-    "header-2": "Do you wish to add these cards to your IRMA app?"
+    "title": "Add data",
+    "description": "Do you want to add this data to your IRMA app?",
+    "add" : "Add data",
+    "cancel" : "Cancel"
   },
   "session": {
     "navigation_bar": {
