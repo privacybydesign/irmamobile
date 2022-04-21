@@ -11,6 +11,7 @@ class IrmaButton extends StatelessWidget {
   final double minWidth;
   final IconData? icon;
   final Color? color;
+  final bool isSecondary;
 
   const IrmaButton({
     Key? key,
@@ -22,6 +23,7 @@ class IrmaButton extends StatelessWidget {
     this.minWidth = 232,
     this.icon,
     this.color,
+    this.isSecondary = false,
   }) : super(key: key);
 
   @override
@@ -38,10 +40,10 @@ class IrmaButton extends StatelessWidget {
       icon: icon,
       color: color ?? theme.primaryBlue,
       disabledColor: theme.disabled,
-      textColor: theme.grayscaleWhite,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(30.0),
       ),
+      isSecondary: isSecondary,
     );
   }
 }

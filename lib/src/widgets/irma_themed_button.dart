@@ -8,32 +8,33 @@ class IrmaThemedButton extends StatelessWidget {
   final VoidCallback? onPressedDisabled;
   final Color color;
   final Color? disabledColor;
-  final Color textColor;
+  final Color? textColor;
   final OutlinedBorder shape;
   final IrmaButtonSize? size;
   final double minWidth;
   final TextStyle? textStyle;
   final IconData? icon;
+  final bool isSecondary;
 
-  const IrmaThemedButton({
-    this.label,
-    required this.onPressed,
-    this.onPressedDisabled,
-    required this.color,
-    this.disabledColor,
-    required this.textColor,
-    required this.shape,
-    this.size,
-    this.minWidth = 232,
-    this.textStyle,
-    this.icon,
-  });
+  const IrmaThemedButton(
+      {this.label,
+      required this.onPressed,
+      this.onPressedDisabled,
+      required this.color,
+      this.disabledColor,
+      this.textColor,
+      required this.shape,
+      this.size,
+      this.minWidth = 232,
+      this.textStyle,
+      this.icon,
+      this.isSecondary = false});
 
   @override
   Widget build(BuildContext context) {
     final text = Text(
       FlutterI18n.translate(context, label ?? ''),
-      style: textStyle,
+      style: textStyle ?? IrmaTheme.of(context).textTheme.button,
     );
 
     final fixedHeight = size != null ? size!.value : IrmaButtonSize.medium.value;
@@ -44,9 +45,10 @@ class IrmaThemedButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
+          side: isSecondary ? BorderSide(color: color) : null,
           elevation: 0.0,
-          primary: color,
-          onPrimary: textColor,
+          primary: isSecondary ? Colors.white : color,
+          onPrimary: textColor ?? (isSecondary ? color : Colors.white),
           onSurface: disabledColor ?? IrmaTheme.of(context).disabled,
           shape: shape,
           padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
