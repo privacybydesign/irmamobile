@@ -73,10 +73,12 @@ class IrmaCredentialsCard extends StatelessWidget {
               IrmaCredentialCardHeader(
                 title: mode == IrmaCredentialsCardMode.issuanceChoice
                     ? FlutterI18n.translate(
-                        context, 'disclosure.disclosure_permission.issue_wizard_choice.add_credential',
+                        context,
+                        'disclosure.disclosure_permission.issue_wizard_choice.add_credential',
                         translationParams: {
-                            'credentialName': translatedCredentialName,
-                          })
+                          'credentialName': translatedCredentialName,
+                        },
+                      )
                     : translatedCredentialName,
                 subtitle: translatedIssuerName,
                 logo: credInfo.credentialType.logo,

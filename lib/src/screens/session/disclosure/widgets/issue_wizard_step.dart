@@ -38,7 +38,7 @@ class IssueWizardStep extends StatelessWidget {
                 ),
               ),
             ),
-          )
+          ),
       ],
     );
   }
