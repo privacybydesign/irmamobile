@@ -362,18 +362,19 @@
       "explanation": "De IRMA-sessie die je probeerde te starten wordt niet ondersteund door de app."
     }
   },
-  "disclosure": {
-    "disclosure_permission": {
-      "next": "Volgende",
-      "issue_wizard": {
-        "add_data": "Voeg de volgende gegevens toe:"
-      },
-      "issue_wizard_choice": {
-        "add_credential": "{credentialName} toevoegen",
-        "choose_data": "Kies de gegevens die je wilt gaan delen",
-        "and": "En"
-      }
+  "disclosure_permission": {
+    "title": "Dataverzoek",
+    "next": "Volgende",
+    "issue_wizard": {
+      "add_data": "Voeg de volgende gegevens toe:"
     },
+    "issue_wizard_choice": {
+      "add_credential": "{credentialName} toevoegen",
+      "choose_data": "Kies de gegevens die je wilt gaan delen",
+      "and": "En"
+    }
+  },
+  "disclosure": {
     "title": "Dataverzoek",
     "disclosure_header": "Wil je de volgende gegevens aan {otherParty} doorgeven?",
     "disclosure_call_header": "Wil je de volgende gegevens aan {otherParty} doorgeven en bellen naar {phoneNumber}?",

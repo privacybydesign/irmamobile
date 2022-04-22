@@ -362,18 +362,19 @@
       "explanation": "The IRMA session that you started is not supported by the app."
     }
   },
-  "disclosure": {
-    "disclosure_permission": {
-      "next": "Next",
-      "issue_wizard": {
-        "add_data": "Add the following data:"
-      },
-      "issue_wizard_choice": {
-        "add_credential": "Add {credentialName}",
-        "choose_data": "Choose the data you want to share ",
-        "and": "And"
-      }
+  "disclosure_permission": {
+    "title": "Data request",
+    "next": "Next",
+    "issue_wizard": {
+      "add_data": "Add the following data:"
     },
+    "issue_wizard_choice": {
+      "add_credential": "Add {credentialName}",
+      "choose_data": "Choose the data you want to share ",
+      "and": "And"
+    }
+  },
+  "disclosure": {
     "title": "Data request",
     "disclosure_header": "Do you wish to disclose the following data to {otherParty}?",
     "disclosure_call_header": "Do you wish to diclose the following data to {otherParty} and call to {phoneNumber}?",

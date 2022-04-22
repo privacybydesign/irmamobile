@@ -27,7 +27,7 @@ class DisclosureIssueWizardChoices extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TranslatedText(
-                'disclosure.disclosure_permission.issue_wizard_choice.choose_data',
+                'disclosure_permission.issue_wizard_choice.choose_data',
                 style: theme.themeData.textTheme.headline3,
               ),
               SizedBox(height: theme.defaultSpacing),
@@ -40,7 +40,7 @@ class DisclosureIssueWizardChoices extends StatelessWidget {
                 if (i != state.issueWizardChoices.length - 1)
                   const Center(
                       child: TranslatedText(
-                    'disclosure.disclosure_permission.and',
+                    'disclosure_permission.issue_wizard_choice.and',
                     textAlign: TextAlign.center,
                   ))
               ]
@@ -50,7 +50,7 @@ class DisclosureIssueWizardChoices extends StatelessWidget {
         Align(
             alignment: Alignment.bottomCenter,
             child: IrmaBottomBar(
-                primaryButtonLabel: 'disclosure.disclosure_permission.next',
+                primaryButtonLabel: 'disclosure_permission.next',
                 onPrimaryPressed: () => bloc.add(DisclosurePermissionNextPressed())))
       ],
     );

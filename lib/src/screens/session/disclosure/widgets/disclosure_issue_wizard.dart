@@ -36,7 +36,7 @@ class DisclosureIssueWizard extends StatelessWidget {
               IssuerVerifierHeader(title: requestor.name.translate(lang)),
               SizedBox(height: theme.defaultSpacing),
               TranslatedText(
-                'disclosure.disclosure_permission.issue_wizard.add_data',
+                'disclosure_permission.issue_wizard.add_data',
                 style: theme.themeData.textTheme.headline3,
               ),
               SizedBox(height: theme.defaultSpacing),
@@ -47,7 +47,7 @@ class DisclosureIssueWizard extends StatelessWidget {
         Align(
             alignment: Alignment.bottomCenter,
             child: IrmaBottomBar(
-              primaryButtonLabel: 'disclosure.disclosure_permission.next',
+              primaryButtonLabel: 'disclosure_permission.next',
               onPrimaryPressed: state.completed ? () => bloc.add(DisclosurePermissionNextPressed()) : null,
             ))
       ],

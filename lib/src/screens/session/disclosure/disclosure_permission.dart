@@ -40,7 +40,7 @@ class ProvidedDisclosurePermission extends StatelessWidget {
     final bloc = context.read<DisclosurePermissionBloc>();
 
     return SessionScaffold(
-      appBarTitle: 'disclosure.title',
+      appBarTitle: 'disclosure_permission.title',
       appBarTitleStyle: IrmaTheme.of(context).textTheme.headline3,
       body: BlocBuilder<DisclosurePermissionBloc, DisclosurePermissionBlocState>(
         builder: (context, state) {
