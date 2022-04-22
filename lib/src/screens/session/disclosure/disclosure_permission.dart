@@ -8,8 +8,8 @@ import '../../../widgets/loading_indicator.dart';
 import '../widgets/session_scaffold.dart';
 import 'bloc/disclosure_permission_bloc.dart';
 import 'bloc/disclosure_permission_state.dart';
-import 'widgets/issue_wizard.dart';
-import 'widgets/issue_wizard_choices.dart';
+import 'widgets/disclosure_issue_wizard.dart';
+import 'widgets/disclosure_issue_wizard_choices.dart';
 
 class DisclosurePermission extends StatelessWidget {
   final int sessionId;
@@ -46,9 +46,9 @@ class ProvidedDisclosurePermission extends StatelessWidget {
         builder: (context, state) {
           switch (state.runtimeType) {
             case DisclosurePermissionIssueWizardChoices:
-              return IssueWizardChoices(bloc);
+              return DisclosureIssueWizardChoices(bloc);
             case DisclosurePermissionIssueWizard:
-              return IssueWizard(
+              return DisclosureIssueWizard(
                 bloc: bloc,
                 requestor: requestor,
               );

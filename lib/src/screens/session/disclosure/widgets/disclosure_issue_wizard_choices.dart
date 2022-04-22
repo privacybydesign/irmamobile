@@ -7,12 +7,12 @@ import '../../../../widgets/translated_text.dart';
 import '../bloc/disclosure_permission_bloc.dart';
 import '../bloc/disclosure_permission_event.dart';
 import '../bloc/disclosure_permission_state.dart';
-import 'issue_wizard_step.dart';
+import 'disclosure_issue_wizard_step.dart';
 
-class IssueWizardChoices extends StatelessWidget {
+class DisclosureIssueWizardChoices extends StatelessWidget {
   final DisclosurePermissionBloc bloc;
 
-  const IssueWizardChoices(this.bloc);
+  const DisclosureIssueWizardChoices(this.bloc);
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +32,7 @@ class IssueWizardChoices extends StatelessWidget {
               ),
               SizedBox(height: theme.defaultSpacing),
               for (var i = 0; i < state.issueWizardChoices.length; i++) ...[
-                IssueWizardStep(
+                DisclosureIssueWizardStep(
                   bloc: bloc,
                   stepIndex: i,
                 ),

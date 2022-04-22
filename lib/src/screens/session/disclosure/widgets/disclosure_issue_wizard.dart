@@ -11,11 +11,11 @@ import '../bloc/disclosure_permission_event.dart';
 import '../bloc/disclosure_permission_state.dart';
 import 'irma_template_credential_card.dart';
 
-class IssueWizard extends StatelessWidget {
+class DisclosureIssueWizard extends StatelessWidget {
   final RequestorInfo requestor;
   final DisclosurePermissionBloc bloc;
 
-  const IssueWizard({
+  const DisclosureIssueWizard({
     required this.requestor,
     required this.bloc,
   });
