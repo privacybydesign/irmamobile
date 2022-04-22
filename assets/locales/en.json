@@ -370,8 +370,15 @@
       },
       "issue_wizard_choice": {
         "add_credential": "Add {credentialName}",
-        "choose_data": "Choose the data you want to share ",
+        "choose_data": "Choose the data you want to share",
         "and": "And"
+      },
+      "choices" : {
+        "choose_data" : "Choose the data you want to share",
+        "explanation" : "The data you select will be shared with the {requestorName}",
+        "step" : "Step {stepIndex}",
+        "done" : "Done",
+        "change_choice" : "Change choice"
       }
     },
     "title": "Data request",

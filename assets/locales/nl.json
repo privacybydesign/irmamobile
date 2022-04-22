@@ -372,6 +372,13 @@
         "add_credential": "{credentialName} toevoegen",
         "choose_data": "Kies de gegevens die je wilt gaan delen",
         "and": "En"
+      },
+      "choices" : {
+        "choose_data" : "Kies de gegevens die jij wilt delen",
+        "explanation" : "De gegevens die jij selecteert worden gedeeld met {requestorName}",
+        "step" : "Stap {stepIndex}",
+        "done" : "Gereed",
+        "change_choice" : "Keuze wijzigen"
       }
     },
     "title": "Dataverzoek",

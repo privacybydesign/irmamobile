@@ -8,20 +8,23 @@ import '../../models/template_disclosure_credential.dart';
 
 class IrmaCredentialTemplateCard extends StatelessWidget {
   final TemplateDisclosureCredential credential;
+  final bool forceObtainable;
 
-  const IrmaCredentialTemplateCard(this.credential);
+  const IrmaCredentialTemplateCard(this.credential, {this.forceObtainable = false});
 
   @override
   Widget build(BuildContext context) {
+    final obtainable = forceObtainable || !credential.obtained;
+
     return IrmaCard(
-      onTap: () => credential.obtained
+      onTap: () => !obtainable
           ? null
           : IrmaRepositoryProvider.of(context).openIssueURL(context, credential.credentialType.fullId),
-      style: credential.obtained ? IrmaCardStyle.normal : IrmaCardStyle.template,
+      style: obtainable ? IrmaCardStyle.template : IrmaCardStyle.normal,
       child: Column(
         children: [
           IrmaCredentialCardHeader(
-            type: credential.obtained ? CredentialHeaderType.success : CredentialHeaderType.template,
+            type: obtainable ? CredentialHeaderType.template : CredentialHeaderType.success,
             title: getTranslation(context, credential.credentialType.name),
             subtitle: getTranslation(context, credential.issuer.name),
           )
