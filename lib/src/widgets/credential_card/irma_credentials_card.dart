@@ -74,7 +74,7 @@ class IrmaCredentialsCard extends StatelessWidget {
                 title: mode == IrmaCredentialsCardMode.issuanceChoice
                     ? FlutterI18n.translate(
                         context,
-                        'disclosure.disclosure_permission.issue_wizard_choice.add_credential',
+                        'disclosure_permission.issue_wizard_choice.add_credential',
                         translationParams: {
                           'credentialName': translatedCredentialName,
                         },
