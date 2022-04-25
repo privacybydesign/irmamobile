@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../../theme/theme.dart';
 import '../../../../widgets/irma_bottom_bar.dart';
 import '../../../../widgets/translated_text.dart';
-import '../bloc/disclosure_permission_bloc.dart';
 import '../bloc/disclosure_permission_event.dart';
 import '../bloc/disclosure_permission_state.dart';
 import 'disclosure_issue_wizard_step.dart';
 
 class DisclosureIssueWizardChoices extends StatelessWidget {
-  final DisclosurePermissionBloc bloc;
+  final DisclosurePermissionIssueWizardChoices state;
+  final Function(DisclosurePermissionBlocEvent) onEvent;
 
-  const DisclosureIssueWizardChoices(this.bloc);
+  const DisclosureIssueWizardChoices({
+    required this.state,
+    required this.onEvent,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final state = bloc.state as DisclosurePermissionIssueWizardChoices;
 
     return Stack(
       children: [
@@ -33,7 +34,8 @@ class DisclosureIssueWizardChoices extends StatelessWidget {
               SizedBox(height: theme.defaultSpacing),
               for (var i = 0; i < state.issueWizardChoices.length; i++) ...[
                 DisclosureIssueWizardStep(
-                  bloc: bloc,
+                  state: state,
+                  onEvent: onEvent,
                   stepIndex: i,
                 ),
                 //If this is not the last item add a divider
@@ -51,7 +53,7 @@ class DisclosureIssueWizardChoices extends StatelessWidget {
             alignment: Alignment.bottomCenter,
             child: IrmaBottomBar(
                 primaryButtonLabel: 'disclosure_permission.next',
-                onPrimaryPressed: () => bloc.add(DisclosurePermissionNextPressed())))
+                onPrimaryPressed: () => onEvent(DisclosurePermissionNextPressed())))
       ],
     );
   }
