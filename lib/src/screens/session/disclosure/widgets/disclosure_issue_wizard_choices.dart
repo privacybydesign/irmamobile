@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../../theme/theme.dart';
-import '../../../../widgets/irma_bottom_bar.dart';
 import '../../../../widgets/translated_text.dart';
 import '../bloc/disclosure_permission_event.dart';
 import '../bloc/disclosure_permission_state.dart';
@@ -20,40 +19,28 @@ class DisclosureIssueWizardChoices extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    return Stack(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SingleChildScrollView(
-          padding: EdgeInsets.all(theme.defaultSpacing),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TranslatedText(
-                'disclosure_permission.issue_wizard_choice.choose_data',
-                style: theme.themeData.textTheme.headline3,
-              ),
-              SizedBox(height: theme.defaultSpacing),
-              for (var i = 0; i < state.issueWizardChoices.length; i++) ...[
-                DisclosureIssueWizardStep(
-                  state: state,
-                  onEvent: onEvent,
-                  stepIndex: i,
-                ),
-                //If this is not the last item add a divider
-                if (i != state.issueWizardChoices.length - 1)
-                  const Center(
-                      child: TranslatedText(
-                    'disclosure_permission.issue_wizard_choice.and',
-                    textAlign: TextAlign.center,
-                  ))
-              ]
-            ],
-          ),
+        TranslatedText(
+          'disclosure_permission.issue_wizard_choice.choose_data',
+          style: theme.themeData.textTheme.headline3,
         ),
-        Align(
-            alignment: Alignment.bottomCenter,
-            child: IrmaBottomBar(
-                primaryButtonLabel: 'disclosure_permission.next',
-                onPrimaryPressed: () => onEvent(DisclosurePermissionNextPressed())))
+        SizedBox(height: theme.defaultSpacing),
+        for (var i = 0; i < state.issueWizardChoices.length; i++) ...[
+          DisclosureIssueWizardStep(
+            state: state,
+            onEvent: onEvent,
+            stepIndex: i,
+          ),
+          //If this is not the last item add a divider
+          if (i != state.issueWizardChoices.length - 1)
+            const Center(
+                child: TranslatedText(
+              'disclosure_permission.issue_wizard_choice.and',
+              textAlign: TextAlign.center,
+            ))
+        ]
       ],
     );
   }
