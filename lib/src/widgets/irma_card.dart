@@ -5,7 +5,13 @@ import '../theme/theme.dart';
 
 /// Variant of Material's Card that uses IRMA styling.
 
-enum IrmaCardStyle { normal, template, selected }
+enum IrmaCardStyle {
+  normal,
+  template,
+  selected,
+  success,
+  error,
+}
 
 class IrmaCard extends StatelessWidget {
   final Function()? onTap;

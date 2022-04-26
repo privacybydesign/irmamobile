@@ -366,7 +366,8 @@
     "title": "Data request",
     "next": "Next",
     "issue_wizard": {
-      "add_data": "Add the following data:"
+      "add_data": "Add the following data:",
+      "not_valid": "The data you added is not valid here:"
     },
     "issue_wizard_choice": {
       "add_credential": "Add {credentialName}",

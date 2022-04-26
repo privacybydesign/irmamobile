@@ -7,29 +7,30 @@ import '../../../../widgets/credential_card/irma_credential_card_header.dart';
 import '../../../../widgets/dotted_divider.dart';
 import '../../../../widgets/irma_card.dart';
 import '../../../../widgets/irma_repository_provider.dart';
-import '../../models/template_disclosure_credential.dart';
+import '../../models/disclosure_credential.dart';
 
-class IrmaCredentialTemplateCard extends StatelessWidget {
-  final TemplateDisclosureCredential credential;
+class IrmaDisclosureCredentialCard extends StatelessWidget {
+  final DisclosureCredential credential;
+  final IrmaCardStyle style;
 
-  const IrmaCredentialTemplateCard(this.credential);
+  const IrmaDisclosureCredentialCard(this.credential, {this.style = IrmaCardStyle.normal});
 
   @override
   Widget build(BuildContext context) {
     return IrmaCard(
-      onTap: () => credential.obtained
-          ? null
-          : IrmaRepositoryProvider.of(context).openIssueURL(context, credential.credentialType.fullId),
-      style: credential.obtained ? IrmaCardStyle.normal : IrmaCardStyle.template,
+      onTap: style == IrmaCardStyle.template
+          ? () => IrmaRepositoryProvider.of(context).openIssueURL(context, credential.credentialType.fullId)
+          : null,
+      style: style == IrmaCardStyle.template ? IrmaCardStyle.template : IrmaCardStyle.normal,
       child: Column(
         children: [
           IrmaCredentialCardHeader(
-            type: credential.obtained ? CredentialHeaderType.success : CredentialHeaderType.template,
+            style: style,
             title: getTranslation(context, credential.credentialType.name),
             subtitle: getTranslation(context, credential.issuer.name),
           ),
           if (credential.attributesWithValue.isNotEmpty) ...[
-            const DottedDivider(),
+            if (style == IrmaCardStyle.template) const DottedDivider() else const Divider(),
             Padding(
                 padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).largeSpacing),
                 child: IrmaCredentialCardAttributeList(credential.attributes))

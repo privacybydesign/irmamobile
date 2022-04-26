@@ -366,7 +366,8 @@
     "title": "Dataverzoek",
     "next": "Volgende",
     "issue_wizard": {
-      "add_data": "Voeg de volgende gegevens toe:"
+      "add_data": "Voeg de volgende gegevens toe:",
+      "not_valid": "De gegevens die je hebt toegevoegd zijn hier niet geldig:"
     },
     "issue_wizard_choice": {
       "add_credential": "{credentialName} toevoegen",

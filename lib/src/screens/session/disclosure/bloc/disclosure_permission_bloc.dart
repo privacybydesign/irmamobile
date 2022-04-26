@@ -119,8 +119,12 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       return;
     } else if (state is DisclosurePermissionIssueWizard) {
       final credentials = _repo.credentials.values;
+      final issueWizard = state.issueWizard.map((template) => template.copyWith(credentials: credentials)).toList();
+      final nonMatchingCredentials = issueWizard.expand((cred) => cred.presentNonMatching).toList();
+      
       yield DisclosurePermissionIssueWizard(
-        issueWizard: state.issueWizard.map((template) => template.copyWith(credentials: credentials)).toList(),
+        issueWizard: issueWizard,
+        lastNonMatchingCredential: nonMatchingCredentials.isNotEmpty ? nonMatchingCredentials.last : null,
       );
     } else {
       final parsedCandidates = _parseDisclosureCandidates(session.disclosuresCandidates!);
