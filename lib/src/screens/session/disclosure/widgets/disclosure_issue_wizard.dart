@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/widgets/irma_card.dart';
 
 import '../../../../models/session.dart';
 import '../../../../theme/theme.dart';
+import '../../../../widgets/irma_card.dart';
 import '../../../../widgets/translated_text.dart';
 import '../../../activity/widgets/issuer_verifier_header.dart';
 import '../bloc/disclosure_permission_state.dart';
@@ -37,6 +37,10 @@ class DisclosureIssueWizard extends StatelessWidget {
           IrmaDisclosureCredentialCard(
             state.lastNonMatchingCredential!,
             style: IrmaCardStyle.error,
+            compareTo:
+                // Because the added credential does not match the requested template credential
+                // compare the two to show which attributes match and which do not.
+                state.issueWizard.firstWhere((cred) => cred.fullId == state.lastNonMatchingCredential!.fullId),
           )
         ],
         SizedBox(height: theme.defaultSpacing),

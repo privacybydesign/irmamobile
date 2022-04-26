@@ -8,12 +8,15 @@ import '../../../../widgets/dotted_divider.dart';
 import '../../../../widgets/irma_card.dart';
 import '../../../../widgets/irma_repository_provider.dart';
 import '../../models/disclosure_credential.dart';
+import '../../models/template_disclosure_credential.dart';
 
 class IrmaDisclosureCredentialCard extends StatelessWidget {
   final DisclosureCredential credential;
+  final TemplateDisclosureCredential? compareTo;
+
   final IrmaCardStyle style;
 
-  const IrmaDisclosureCredentialCard(this.credential, {this.style = IrmaCardStyle.normal});
+  const IrmaDisclosureCredentialCard(this.credential, {this.style = IrmaCardStyle.normal, this.compareTo});
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +36,18 @@ class IrmaDisclosureCredentialCard extends StatelessWidget {
             if (style == IrmaCardStyle.template) const DottedDivider() else const Divider(),
             Padding(
                 padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).largeSpacing),
-                child: IrmaCredentialCardAttributeList(credential.attributes))
+                child: IrmaCredentialCardAttributeList(
+                  credential.attributes,
+                  compareTo: style == IrmaCardStyle.template || style == IrmaCardStyle.success
+                      ?
+                      //If is template or success compare to self
+                      credential.attributes
+                      :
+                      //If compare is not null compare to the template
+                      compareTo != null
+                          ? compareTo!.attributes
+                          : null,
+                ))
           ]
         ],
       ),
