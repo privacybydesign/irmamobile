@@ -34,7 +34,11 @@ class DisclosurePermissionIssueWizard implements DisclosurePermissionBlocState {
   /// Last added credential that does not match the request
   ChoosableDisclosureCredential? lastNonMatchingCredential;
 
-  DisclosurePermissionIssueWizard({required this.issueWizard, this.lastNonMatchingCredential});
+  /// Last added credential that matches the request
+  ChoosableDisclosureCredential? lastMatchingCredential;
+
+  DisclosurePermissionIssueWizard(
+      {required this.issueWizard, this.lastNonMatchingCredential, this.lastMatchingCredential});
 }
 
 class DisclosurePermissionChoices implements DisclosurePermissionBlocState {

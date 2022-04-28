@@ -121,9 +121,15 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       final credentials = _repo.credentials.values;
       final issueWizard = state.issueWizard.map((template) => template.copyWith(credentials: credentials)).toList();
       final nonMatchingCredentials = issueWizard.expand((cred) => cred.presentNonMatching).toList();
-
+      final matchingCredentials = issueWizard.expand((cred) => cred.presentMatching).toList();
       yield DisclosurePermissionIssueWizard(
-          issueWizard: issueWizard, lastNonMatchingCredential: nonMatchingCredentials.last);
+          issueWizard: issueWizard,
+          lastNonMatchingCredential:
+              //If the last matching credential changed, set non matching credential to null;
+              state.lastMatchingCredential?.attributes == matchingCredentials.lastOrNull?.attributes
+                  ? nonMatchingCredentials.lastOrNull
+                  : null,
+          lastMatchingCredential: matchingCredentials.lastOrNull);
     } else {
       final parsedCandidates = _parseDisclosureCandidates(session.disclosuresCandidates!);
       if (state is DisclosurePermissionChoices) {
