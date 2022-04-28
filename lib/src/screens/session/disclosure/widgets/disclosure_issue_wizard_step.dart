@@ -25,7 +25,7 @@ class DisclosureIssueWizardStep extends StatelessWidget {
               mode: IrmaCredentialsCardMode.issuanceChoice,
               selected: state.issueWizardChoiceIndices[stepIndex] == i,
               attributesByCredential: {
-                for (var cred in step[i]) cred: [],
+                for (var cred in step[i]) cred: cred.attributes,
               },
               onTap: () => onEvent(
                 DisclosurePermissionIssueWizardChoiceUpdated(

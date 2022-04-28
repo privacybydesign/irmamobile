@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
+import '../../models/attribute_value.dart';
 import '../../models/attributes.dart';
 import '../../models/credentials.dart';
 import '../../theme/theme.dart';
@@ -83,12 +84,20 @@ class IrmaCredentialsCard extends StatelessWidget {
                 subtitle: translatedIssuerName,
                 logo: credInfo.credentialType.logo,
               ),
-              //If there are no attributes for this credential hide the attirubte list.
-              if (attributesByCredential[credInfo]!.isNotEmpty) ...[
+              //If there are no attributes for this credential hide the attribute list.
+              if (attributesByCredential[credInfo]!.isNotEmpty &&
+                  //And when in issuance choice mode, some attributes also need to have an actual value
+                  (mode != IrmaCredentialsCardMode.issuanceChoice ||
+                      attributesByCredential[credInfo]!.where((att) => att.value is! NullValue).isNotEmpty)) ...[
                 const Divider(),
                 Padding(
                     padding: EdgeInsets.symmetric(horizontal: theme.largeSpacing),
-                    child: IrmaCredentialCardAttributeList(attributesByCredential[credInfo]!)),
+                    child: IrmaCredentialCardAttributeList(
+                      attributesByCredential[credInfo]!,
+                      compareTo:
+                          //If in issuance choice mode, compare to self to show the required attribute values
+                          mode == IrmaCredentialsCardMode.issuanceChoice ? attributesByCredential[credInfo] : null,
+                    )),
               ],
               //If this is not the last item add a divider
               if (i != attributesByCredential.keys.length - 1)
