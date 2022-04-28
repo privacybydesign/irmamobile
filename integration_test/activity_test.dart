@@ -37,7 +37,7 @@ void main() {
         // Start issuance session
         await issueCardsMunicipality(tester, irmaBinding);
 
-        // Navigate to activty tab
+        // Navigate to activity tab
         await tester.tapAndSettle(find.byKey(const Key('nav_button_activity')));
         expect(find.byType(ActivityTab), findsOneWidget);
 

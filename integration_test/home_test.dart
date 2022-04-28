@@ -38,7 +38,7 @@ void main() {
 
         //TODO: Implement data tab
 
-        //Navigate to activty
+        //Navigate to activity
         await tester.tapAndSettle(find.byKey(const Key('nav_button_activity')));
         expect(find.byType(HomeTab), findsNothing);
         expect(find.byType(ActivityTab), findsOneWidget);
