@@ -63,49 +63,47 @@ void main() {
             ))
             .toList();
 
-        // Assert if the values are present
+        // Assert if the values are present and sorted correctly
         expect(
           cardAttributes,
-          containsAll(
-            [
-              'Full name',
-              'W.L. de Bruijn',
-              'Initials',
-              'W.L.',
-              'First names',
-              'Willeke Liselotte',
-              'Prefix',
-              'de',
-              'Surname',
-              'de Bruijn',
-              'Family name',
-              'Bruijn',
-              'Gender',
-              'V',
-              'Date of birth',
-              '10-04-1965',
-              'Over 12',
-              'Yes',
-              'Over 16',
-              'Yes',
-              'Over 18',
-              'Yes',
-              'Over 21',
-              'Yes',
-              'Over 65',
-              'No',
-              'Dutch nationality',
-              'Yes',
-              'City of birth',
-              'Amsterdam',
-              'Country of birth',
-              'Nederland',
-              'BSN',
-              '999999990',
-              'Assurance level',
-              'Substantieel',
-            ],
-          ),
+          [
+            'Full name',
+            'W.L. de Bruijn',
+            'Initials',
+            'W.L.',
+            'First names',
+            'Willeke Liselotte',
+            'Prefix',
+            'de',
+            'Surname',
+            'de Bruijn',
+            'Family name',
+            'Bruijn',
+            'Gender',
+            'V',
+            'Date of birth',
+            '10-04-1965',
+            'Over 12',
+            'Yes',
+            'Over 16',
+            'Yes',
+            'Over 18',
+            'Yes',
+            'Over 21',
+            'Yes',
+            'Over 65',
+            'No',
+            'Dutch nationality',
+            'Yes',
+            'City of birth',
+            'Amsterdam',
+            'Country of birth',
+            'Nederland',
+            'BSN',
+            '999999990',
+            'Assurance level',
+            'Substantieel',
+          ],
         );
 
         // Check the address card.
@@ -117,23 +115,21 @@ void main() {
             ))
             .toList();
 
-        // Assert if the values are present
+        // Assert if the values are present and sorted correctly
         expect(
           personalCardAttributes,
-          containsAll(
-            [
-              'Street',
-              'Meander',
-              'House number',
-              '501',
-              'Postal code',
-              '1234AB',
-              'City',
-              'Arnhem',
-              'Municipality',
-              'Arnhem',
-            ],
-          ),
+          [
+            'Street',
+            'Meander',
+            'House number',
+            '501',
+            'Postal code',
+            '1234AB',
+            'City',
+            'Arnhem',
+            'Municipality',
+            'Arnhem',
+          ],
         );
 
         // Return to the home
