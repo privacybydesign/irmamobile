@@ -66,7 +66,7 @@ void main() {
         // Assert if the values are present
         expect(
           cardAttributes,
-          containsAll(
+          contains(
             [
               'Full name',
               'W.L. de Bruijn',
@@ -120,7 +120,7 @@ void main() {
         // Assert if the values are present
         expect(
           personalCardAttributes,
-          containsAll(
+          contains(
             [
               'Street',
               'Meander',
