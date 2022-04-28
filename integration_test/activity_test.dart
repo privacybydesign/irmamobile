@@ -55,15 +55,19 @@ void main() {
         // Get all the text in the attribute list
         final cardAttributes = tester
             .getAllText(find.descendant(
-              of: tester.findByTypeWithContent(type: IrmaCredentialsCard, content: find.text('Demo Personal data')),
+              of: tester.findByTypeWithContent(
+                type: IrmaCredentialsCard,
+                content: find.text('Demo Personal data'),
+              ),
               matching: find.byType(IrmaCredentialCardAttributeList),
             ))
             .toList();
 
         // Assert if the values are present
         expect(
-            cardAttributes,
-            containsAll([
+          cardAttributes,
+          containsAll(
+            [
               'Full name',
               'W.L. de Bruijn',
               'Initials',
@@ -100,7 +104,9 @@ void main() {
               '999999990',
               'Assurance level',
               'Substantieel',
-            ]));
+            ],
+          ),
+        );
 
         // Check the address card.
         // Get all the text in the attribute list
@@ -113,8 +119,9 @@ void main() {
 
         // Assert if the values are present
         expect(
-            personalCardAttributes,
-            containsAll([
+          personalCardAttributes,
+          containsAll(
+            [
               'Street',
               'Meander',
               'House number',
@@ -125,7 +132,9 @@ void main() {
               'Arnhem',
               'Municipality',
               'Arnhem',
-            ]));
+            ],
+          ),
+        );
 
         // Return to the home
         await tester.tapAndSettle(find.text('Back'));
