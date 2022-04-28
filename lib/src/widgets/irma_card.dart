@@ -36,7 +36,7 @@ class IrmaCard extends StatelessWidget {
         blurRadius: 6.0,
       )
     ];
-    
+
     return Padding(
       padding: EdgeInsets.all(theme.tinySpacing),
       child: InkWell(
