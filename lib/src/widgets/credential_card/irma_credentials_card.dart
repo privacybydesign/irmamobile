@@ -124,7 +124,9 @@ class IrmaCredentialsCard extends StatelessWidget {
                 const Divider(),
                 Padding(
                     padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).largeSpacing),
-                    child: IrmaCredentialCardAttributeList(attributesByCredential[credInfo]!)),
+                    child: IrmaCredentialCardAttributeList(sortAttributes(
+                      attributesByCredential[credInfo]!,
+                    ))),
                 //If this is not the last item add a divider
                 if (i != attributesByCredential.keys.length - 1)
                   Padding(
@@ -139,5 +141,14 @@ class IrmaCredentialsCard extends StatelessWidget {
             .toList(),
       ),
     );
+  }
+
+  List<Attribute> sortAttributes(List<Attribute> attributes) {
+    final sortedAttributes = attributes;
+    sortedAttributes.sort((a1, a2) => a1.attributeType.index.compareTo(a2.attributeType.index));
+    if (sortedAttributes.every((a) => a.attributeType.displayIndex != null)) {
+      sortedAttributes.sort((a1, a2) => a1.attributeType.displayIndex!.compareTo(a2.attributeType.displayIndex!));
+    }
+    return sortedAttributes;
   }
 }

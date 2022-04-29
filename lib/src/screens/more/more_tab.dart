@@ -32,7 +32,10 @@ class MoreTab extends StatelessWidget {
           children: [
             _buildHeaderText('more_tab.app_management'),
             const InternalLink(
-                iconData: Icons.settings_outlined, translationKey: 'more_tab.settings', routeName: '/settings'),
+                key: Key('open_settings_screen_button'),
+                iconData: Icons.settings_outlined,
+                translationKey: 'more_tab.settings',
+                routeName: '/settings'),
             const InternalLink(
                 iconData: Icons.contact_support_outlined, translationKey: 'help.faq', routeName: '/help'),
             _buildHeaderText('help.about_irma'),
