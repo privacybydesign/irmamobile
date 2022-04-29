@@ -43,17 +43,18 @@ class IssuancePermission extends StatelessWidget {
 
     return ListView(
       padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
-      children: <Widget>[
+      children: [
         Padding(
-            padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
-            child: Container(
-              color: theme.lightBlue,
-              padding: EdgeInsets.all(theme.defaultSpacing),
-              child: TranslatedText(
-                'issuance.description',
-                style: theme.textTheme.caption,
-              ),
-            )),
+          padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
+          child: Container(
+            color: theme.lightBlue,
+            padding: EdgeInsets.all(theme.defaultSpacing),
+            child: TranslatedText(
+              'issuance.description',
+              style: theme.textTheme.caption,
+            ),
+          ),
+        ),
         IssuingDetail(issuedCredentials),
       ],
     );

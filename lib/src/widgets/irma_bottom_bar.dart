@@ -42,13 +42,14 @@ class IrmaBottomBar extends StatelessWidget {
 
   Widget _buildSecondaryButton(BuildContext context) {
     return Expanded(
-        child: IrmaButton(
-      key: const Key('bottom_bar_secondary'),
-      size: IrmaButtonSize.large,
-      onPressed: onSecondaryPressed,
-      label: secondaryButtonLabel,
-      isSecondary: true,
-    ));
+      child: IrmaButton(
+        key: const Key('bottom_bar_secondary'),
+        size: IrmaButtonSize.large,
+        onPressed: onSecondaryPressed,
+        label: secondaryButtonLabel,
+        isSecondary: true,
+      ),
+    );
   }
 
   @override
@@ -68,42 +69,43 @@ class IrmaBottomBar extends StatelessWidget {
         ),
       ),
       child: Padding(
-          padding: EdgeInsets.symmetric(
-            vertical: mediaQuery.size.height > 450 ? theme.defaultSpacing : theme.smallSpacing,
-            horizontal: theme.defaultSpacing,
-          ),
-          child:
-              // Change layout according to limited height (i.e. landscape mode)
-              mediaQuery.size.height > 450
-                  ? Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (primaryButtonLabel != null)
-                          Row(
-                            children: [_buildPrimaryButton(context)],
-                          ),
-                        if (secondaryButtonLabel != null) ...[
-                          SizedBox(
-                            height: theme.tinySpacing,
-                          ),
-                          Row(
-                            children: [_buildSecondaryButton(context)],
-                          )
-                        ]
+        padding: EdgeInsets.symmetric(
+          vertical: mediaQuery.size.height > 450 ? theme.defaultSpacing : theme.smallSpacing,
+          horizontal: theme.defaultSpacing,
+        ),
+        child:
+            // Change layout according to limited height (i.e. landscape mode)
+            mediaQuery.size.height > 450
+                ? Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (primaryButtonLabel != null)
+                        Row(
+                          children: [_buildPrimaryButton(context)],
+                        ),
+                      if (secondaryButtonLabel != null) ...[
+                        SizedBox(
+                          height: theme.tinySpacing,
+                        ),
+                        Row(
+                          children: [_buildSecondaryButton(context)],
+                        )
+                      ]
+                    ],
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (secondaryButtonLabel != null) ...[
+                        _buildSecondaryButton(context),
+                        SizedBox(
+                          width: theme.tinySpacing,
+                        )
                       ],
-                    )
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (secondaryButtonLabel != null) ...[
-                          _buildSecondaryButton(context),
-                          SizedBox(
-                            width: theme.tinySpacing,
-                          )
-                        ],
-                        if (primaryButtonLabel != null) _buildPrimaryButton(context),
-                      ],
-                    )),
+                      if (primaryButtonLabel != null) _buildPrimaryButton(context),
+                    ],
+                  ),
+      ),
     );
   }
 }

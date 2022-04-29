@@ -16,19 +16,20 @@ class IrmaThemedButton extends StatelessWidget {
   final IconData? icon;
   final bool isSecondary;
 
-  const IrmaThemedButton(
-      {this.label,
-      required this.onPressed,
-      this.onPressedDisabled,
-      required this.color,
-      this.disabledColor,
-      this.textColor,
-      required this.shape,
-      this.size,
-      this.minWidth = 232,
-      this.textStyle,
-      this.icon,
-      this.isSecondary = false});
+  const IrmaThemedButton({
+    this.label,
+    required this.onPressed,
+    this.onPressedDisabled,
+    required this.color,
+    this.disabledColor,
+    this.textColor,
+    required this.shape,
+    this.size,
+    this.minWidth = 232,
+    this.textStyle,
+    this.icon,
+    this.isSecondary = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +52,10 @@ class IrmaThemedButton extends StatelessWidget {
           onPrimary: textColor ?? (isSecondary ? color : Colors.white),
           onSurface: disabledColor ?? IrmaTheme.of(context).disabled,
           shape: shape,
-          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+          padding: const EdgeInsets.symmetric(
+            vertical: 10.0,
+            horizontal: 20.0,
+          ),
           minimumSize: Size(minWidth, fixedHeight),
           maximumSize: Size.fromHeight(fixedHeight),
         ),
@@ -59,7 +63,7 @@ class IrmaThemedButton extends StatelessWidget {
             ? text
             : Row(
                 mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
+                children: [
                   Icon(icon),
                   const SizedBox(
                     width: 10.0,
