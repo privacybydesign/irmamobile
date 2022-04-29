@@ -5,7 +5,7 @@ import 'irma_button.dart';
 import 'irma_themed_button.dart';
 
 class IrmaBottomBar extends StatelessWidget {
-  final String? primaryButtonLabel;
+  final String primaryButtonLabel;
   final VoidCallback? onPrimaryPressed;
   final VoidCallback? onPrimaryDisabledPressed;
   final bool showTooltipOnPrimary;
@@ -46,7 +46,7 @@ class IrmaBottomBar extends StatelessWidget {
         key: const Key('bottom_bar_secondary'),
         size: IrmaButtonSize.large,
         onPressed: onSecondaryPressed,
-        label: secondaryButtonLabel,
+        label: secondaryButtonLabel!,
         isSecondary: true,
       ),
     );
@@ -79,10 +79,9 @@ class IrmaBottomBar extends StatelessWidget {
                 ? Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (primaryButtonLabel != null)
-                        Row(
-                          children: [_buildPrimaryButton(context)],
-                        ),
+                      Row(
+                        children: [_buildPrimaryButton(context)],
+                      ),
                       if (secondaryButtonLabel != null) ...[
                         SizedBox(
                           height: theme.tinySpacing,
@@ -102,7 +101,7 @@ class IrmaBottomBar extends StatelessWidget {
                           width: theme.tinySpacing,
                         )
                       ],
-                      if (primaryButtonLabel != null) _buildPrimaryButton(context),
+                      _buildPrimaryButton(context),
                     ],
                   ),
       ),

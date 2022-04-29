@@ -3,7 +3,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class IrmaThemedButton extends StatelessWidget {
-  final String? label;
+  final String label;
   final VoidCallback? onPressed;
   final VoidCallback? onPressedDisabled;
   final Color color;
@@ -17,7 +17,7 @@ class IrmaThemedButton extends StatelessWidget {
   final bool isSecondary;
 
   const IrmaThemedButton({
-    this.label,
+    required this.label,
     required this.onPressed,
     this.onPressedDisabled,
     required this.color,
@@ -34,7 +34,7 @@ class IrmaThemedButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = Text(
-      FlutterI18n.translate(context, label ?? ''),
+      FlutterI18n.translate(context, label),
       style: textStyle ?? IrmaTheme.of(context).textTheme.button,
     );
 
