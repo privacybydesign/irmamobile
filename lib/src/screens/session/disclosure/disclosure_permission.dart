@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_choices_confirm.dart';
 
 import '../../../data/irma_repository.dart';
 import '../../../models/session.dart';
@@ -84,7 +85,12 @@ class ProvidedDisclosurePermission extends StatelessWidget {
             );
             bottomBar = _buildContinueBottomBar(addEvent);
           } else if (state is DisclosurePermissionConfirmChoices) {
-            throw UnimplementedError;
+            body = DisclosureChoicesConfirm(
+              state: state,
+              requestor: requestor,
+              onEvent: addEvent,
+            );
+            // TODO: Add bottom bar with two options: share, change choice
           } else if (state is DisclosurePermissionFinished) {
             throw UnimplementedError;
           }
