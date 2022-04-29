@@ -10,24 +10,16 @@ enum TEEError: Error {
 // Trusted Execution Environment (TEE) class
 public class TEE {
     final let encryptionAlgorithm: SecKeyAlgorithm = .eciesEncryptionCofactorVariableIVX963SHA256AESGCM
-    let tag: Data
-    var key: SecKey?
     
-    init(_ name: String) throws {
-        tag = name.data(using: .utf8)!
-
-        if (!keyExists()) {
-            try generateKey()
+    func encrypt(_ tag: String, _ plaintext: Data) throws -> Data {
+        var key = tryLoadKey(tag)
+        if key == nil {
+            key = try generateKey(tag)
         }
         
-        key = try getKey()
-    }
-
-    func encrypt(_ plaintext: Data) throws -> Data {
         var error: Unmanaged<CFError>?
-        let key: SecKey = try getKey()
         
-        guard let pk = SecKeyCopyPublicKey(key) else {
+        guard let pk = SecKeyCopyPublicKey(key!) else {
             throw TEEError.unavailablePublicKey
         }
 
@@ -45,10 +37,10 @@ public class TEE {
         return ciphertext
     }
     
-    func decrypt(_ ciphertext: Data) throws -> Data {
+    func decrypt(_ tag: String, _ ciphertext: Data) throws -> Data {
         var error: Unmanaged<CFError>?
 
-        let key: SecKey = try getKey()
+        let key: SecKey = try getKey(tag)
 
         guard SecKeyIsAlgorithmSupported(key, .decrypt, encryptionAlgorithm) else {
             throw TEEError.unsupportedAlgorithm
@@ -64,14 +56,14 @@ public class TEE {
         return plaintext
     }
     
-    private func keyExists() -> Bool {
-        return tryLoadKey() != nil
+    private func keyExists(_ tag: String) -> Bool {
+        return tryLoadKey(tag) != nil
     }
     
-    private func tryLoadKey() -> SecKey? {
+    private func tryLoadKey(_ tag: String) -> SecKey? {
         let query: [String: Any] = [
             kSecClass as String                 : kSecClassKey,
-            kSecAttrApplicationTag as String    : tag,
+            kSecAttrApplicationTag as String    : tag.data(using: .utf8)!,
             kSecAttrKeyType as String           : kSecAttrKeyTypeEC,
             kSecReturnRef as String             : true
         ]
@@ -83,7 +75,7 @@ public class TEE {
         return (item as! SecKey)
     }
     
-    private func generateKey() throws {
+    private func generateKey(_ tag: String) throws -> SecKey {
         var error: Unmanaged<CFError>?
         
         guard let access = SecAccessControlCreateWithFlags(
@@ -101,18 +93,19 @@ public class TEE {
                     kSecAttrKeySizeInBits as String     : 256,
                     kSecPrivateKeyAttrs as String : [
                         kSecAttrIsPermanent as String       : true,
-                        kSecAttrApplicationTag as String    : tag,
+                        kSecAttrApplicationTag as String    : tag.data(using: .utf8)!,
                         kSecAttrAccessControl as String     : access
                     ]
                 ]
 
-        guard SecKeyCreateRandomKey(attributes as CFDictionary, &error) != nil else {
+        guard let key = SecKeyCreateRandomKey(attributes as CFDictionary, &error) else {
             throw error!.takeRetainedValue() as Error
         }
+        return key
     }
     
-    private func getKey() throws -> SecKey {
-        guard let key = tryLoadKey() else {
+    private func getKey(_ tag: String) throws -> SecKey {
+        guard let key = tryLoadKey(tag) else {
             throw TEEError.keyNotFound
         }
         return key

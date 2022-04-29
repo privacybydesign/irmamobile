@@ -7,9 +7,10 @@ enum AESKeyError: Error {
 @objc public class AESKey: NSObject {
     let path = FileManager.default.urls(for: .libraryDirectory,
                                            in: .userDomainMask)[0].appendingPathComponent("storageKey")
+    let tag = "storageKey"
     
     @objc func getKey() throws -> Data {
-        let tee: TEE = try TEE.init("storageKey")
+        let tee: TEE = TEE.init()
         var ciphertext: Data
         
         if FileManager.default.fileExists(atPath: path.path) {
@@ -18,7 +19,7 @@ enum AESKeyError: Error {
             return try generateAESkey(tee)
         }
         
-        return try tee.decrypt(ciphertext)
+        return try tee.decrypt(tag, ciphertext)
     }
     
     private func generateAESkey(_ tee: TEE) throws -> Data {
@@ -30,7 +31,7 @@ enum AESKeyError: Error {
         }
         
         let key = Data(bytes)
-        let ciphertext = try tee.encrypt(key)
+        let ciphertext = try tee.encrypt(tag, key)
         try ciphertext.write(to: path, options: .completeFileProtection)
         
         return key
