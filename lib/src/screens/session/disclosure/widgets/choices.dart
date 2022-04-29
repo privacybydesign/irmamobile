@@ -47,55 +47,61 @@ class Choices extends StatelessWidget {
                     translationParams: {'requestorName': requestor.name.translate(lang)}),
                 style: theme.themeData.textTheme.caption!.copyWith(color: Colors.grey.shade500),
               ),
-              SizedBox(height: theme.defaultSpacing),
-              for (var stepIndex = 0; stepIndex < state.currentSelection.length; stepIndex++) ...[
-                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                  Text(
-                    FlutterI18n.translate(context, 'disclosure.disclosure_permission.choices.step',
-                        translationParams: {'stepIndex': (stepIndex + 1).toString()}),
-                    style: theme.textTheme.bodyText1,
-                  ),
-                  GestureDetector(
-                      onTap: () => bloc.add(DisclosurePermissionStepSelected(
-                            stepIndex:
-                                // If is selected set to null to deselect
-                                state.selectedStepIndex == stepIndex ? null : stepIndex,
-                          )),
-                      child: TranslatedText(
-                        state.selectedStepIndex == stepIndex
-                            ? 'disclosure.disclosure_permission.choices.done'
-                            : 'disclosure.disclosure_permission.choices.change_choice',
-                        style: theme.textTheme.caption!.copyWith(
-                          color: theme.themeData.colorScheme.primary,
+              //SizedBox(height: theme.defaultSpacing),
+              for (var stepIndex = 0; stepIndex < state.currentSelection.length; stepIndex++)
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
+                  child: Column(
+                    children: [
+                      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                        Text(
+                          FlutterI18n.translate(context, 'disclosure.disclosure_permission.choices.step',
+                              translationParams: {'stepIndex': (stepIndex + 1).toString()}),
+                          style: theme.textTheme.bodyText1,
                         ),
-                      ))
-                ]),
-                SizedBox(height: theme.smallSpacing),
-                if (state.selectedStepIndex == stepIndex)
-                  for (var choiceIndex = 0; choiceIndex < state.choices[stepIndex].length; choiceIndex++)
-                    for (var cred in state.choices[stepIndex][choiceIndex])
-                      cred is TemplateDisclosureCredential
-                          ? IrmaCredentialTemplateCard(
-                              cred,
-                              forceObtainable: true,
-                            )
-                          : IrmaCredentialsCard(
-                              selected: state.choiceIndices[stepIndex] == choiceIndex,
-                              attributesByCredential: {
-                                cred: cred.attributes,
-                              },
-                              onTap: () => bloc.add(DisclosurePermissionChoiceUpdated(
-                                stepIndex: stepIndex,
-                                choiceIndex: choiceIndex,
-                              )),
-                            )
-                else
-                  IrmaCredentialsCard(
-                    attributesByCredential: {
-                      state.currentSelection[stepIndex]: state.currentSelection[stepIndex].attributes
-                    },
-                  )
-              ]
+                        GestureDetector(
+                            onTap: () => bloc.add(DisclosurePermissionStepSelected(
+                                  stepIndex:
+                                      // If is selected set to null to deselect
+                                      state.selectedStepIndex == stepIndex ? null : stepIndex,
+                                )),
+                            child: TranslatedText(
+                              state.selectedStepIndex == stepIndex
+                                  ? 'disclosure.disclosure_permission.choices.done'
+                                  : 'disclosure.disclosure_permission.choices.change_choice',
+                              style: theme.textTheme.caption!.copyWith(
+                                color: theme.themeData.colorScheme.primary,
+                              ),
+                            ))
+                      ]),
+                      SizedBox(height: theme.smallSpacing),
+                      if (state.selectedStepIndex == stepIndex)
+                        for (var choiceIndex = 0; choiceIndex < state.choices[stepIndex].length; choiceIndex++)
+                          for (var cred in state.choices[stepIndex][choiceIndex])
+                            cred is TemplateDisclosureCredential
+                                ? IrmaCredentialTemplateCard(
+                                    cred,
+                                    forceObtainable: true,
+                                  )
+                                : IrmaCredentialsCard(
+                                    selected: state.choiceIndices[stepIndex] == choiceIndex,
+                                    attributesByCredential: {
+                                      cred: cred.attributes,
+                                    },
+                                    onTap: () => bloc.add(DisclosurePermissionChoiceUpdated(
+                                      stepIndex: stepIndex,
+                                      choiceIndex: choiceIndex,
+                                    )),
+                                  )
+                      else
+                        IrmaCredentialsCard(
+                          attributesByCredential: {
+                            state.currentSelection[stepIndex]: state.currentSelection[stepIndex].attributes
+                          },
+                        ),
+                    ],
+                  ),
+                )
             ],
           ),
         ),
