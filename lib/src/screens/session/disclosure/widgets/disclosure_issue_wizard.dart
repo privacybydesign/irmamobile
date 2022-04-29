@@ -29,7 +29,7 @@ class DisclosureIssueWizard extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         IssuerVerifierHeader(title: requestor.name.translate(lang)),
-        if (firstMismatchIndex >= 0) ...[
+        if (firstMismatchIndex >= 0 && state.obtainedCredentials[firstMismatchIndex] != null) ...[
           SizedBox(height: theme.defaultSpacing),
           TranslatedText(
             'disclosure_permission.issue_wizard.not_valid',

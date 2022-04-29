@@ -12,6 +12,7 @@ import 'package:irmamobile/src/screens/session/disclosure/bloc/disclosure_permis
 import 'package:irmamobile/src/screens/session/models/choosable_disclosure_credential.dart';
 import 'package:irmamobile/src/screens/session/models/disclosure_credential.dart';
 import 'package:irmamobile/src/screens/session/models/template_disclosure_credential.dart';
+import 'package:rxdart/rxdart.dart';
 
 class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, DisclosurePermissionBlocState> {
   final int sessionID;
@@ -19,21 +20,28 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
   final IrmaRepository _repo; // Repository is hidden by design, because behaviour should be triggered via bloc events.
 
   late final StreamSubscription _sessionStateSubscription;
+  late final StreamSubscription _sessionEventSubscription;
 
-  Credentials _prevCredentials;
+  final List<String> _newlyAddedCredentialHashes;
 
   DisclosurePermissionBloc({
     required this.sessionID,
     required IrmaRepository repo,
   })  : _repo = repo,
-        _prevCredentials = repo.credentials,
+        _newlyAddedCredentialHashes = [],
         super(DisclosurePermissionInitial()) {
     _sessionStateSubscription = repo.getSessionState(sessionID).asyncExpand(_mapSessionStateToBlocState).listen(emit);
+    _sessionEventSubscription = repo
+        .getEvents()
+        .whereType<RequestIssuancePermissionSessionEvent>()
+        .expand((event) => event.issuedCredentials.map((cred) => cred.hash))
+        .listen(_newlyAddedCredentialHashes.add);
   }
 
   @override
   Future<void> close() async {
     await _sessionStateSubscription.cancel();
+    await _sessionEventSubscription.cancel();
     super.close();
   }
 
@@ -121,7 +129,9 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       }
       return;
     } else if (state is DisclosurePermissionIssueWizard) {
-      final newlyAddedCredentials = _repo.credentials.values.where((cred) => !_prevCredentials.containsKey(cred.hash));
+      // Reverse list to make sure newest credentials are considered first.
+      final newlyAddedCredentials = _newlyAddedCredentialHashes.reversed
+          .expand((hash) => _repo.credentials.containsKey(hash) ? [_repo.credentials[hash]!] : <Credential>[]);
       yield DisclosurePermissionIssueWizard(
         issueWizard: state.issueWizard,
         obtainedCredentials: state.issueWizard.mapIndexed((i, template) {
@@ -149,7 +159,6 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
           return state.obtainedCredentials[i];
         }).toList(),
       );
-      _prevCredentials = _repo.credentials;
     } else {
       final parsedCandidates = _parseDisclosureCandidates(session.disclosuresCandidates!);
       if (state is DisclosurePermissionChoices) {
