@@ -164,7 +164,8 @@ class IrmaThemeData {
         color: primaryDark,
       ),
       // button is used for text on ElevatedButton and TextButton
-      button: const TextStyle(
+      button: TextStyle(
+        fontFamily: fontFamilyHeadings,
         fontSize: 16.0,
         height: 19.0 / 16.0,
         fontWeight: FontWeight.w600,

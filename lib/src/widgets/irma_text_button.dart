@@ -1,22 +1,18 @@
-// This code is not null safe yet.
-// @dart=2.11
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 
 class IrmaTextButton extends StatelessWidget {
-  final String label;
+  final String? label;
   final double minWidth;
-  final VoidCallback onPressed;
-  final TextStyle textStyle;
-  final IrmaButtonSize size;
+  final VoidCallback? onPressed;
+  final TextStyle? textStyle;
+  final IrmaButtonSize? size;
 
   const IrmaTextButton({
-    Key key,
-    @required this.label,
+    Key? key,
+    this.label,
     this.onPressed,
     this.textStyle,
     this.size,
@@ -38,8 +34,8 @@ class IrmaTextButton extends StatelessWidget {
         ),
       ),
       child: Text(
-        FlutterI18n.translate(context, label),
-        style: textStyle,
+        label != null ? FlutterI18n.translate(context, label!) : '',
+        style: textStyle ?? IrmaTheme.of(context).textTheme.button,
         textAlign: TextAlign.center,
       ),
     );
