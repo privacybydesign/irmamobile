@@ -8,7 +8,7 @@ import '../../../widgets/loading_indicator.dart';
 import '../widgets/session_scaffold.dart';
 import 'bloc/disclosure_permission_bloc.dart';
 import 'bloc/disclosure_permission_state.dart';
-import 'widgets/choices.dart';
+import 'widgets/disclosure_choices.dart';
 import 'widgets/issue_wizard.dart';
 import 'widgets/issue_wizard_choices.dart';
 
@@ -54,7 +54,7 @@ class ProvidedDisclosurePermission extends StatelessWidget {
                 requestor: requestor,
               );
             case DisclosurePermissionChoices:
-              return Choices(
+              return DisclosureChoices(
                 bloc: bloc,
                 requestor: requestor,
               );
