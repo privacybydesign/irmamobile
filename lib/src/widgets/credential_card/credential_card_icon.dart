@@ -2,15 +2,15 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_header.dart';
+import 'package:irmamobile/src/widgets/irma_card.dart';
 
 class CredentialCardIcon extends StatelessWidget {
-  final CredentialHeaderType type;
+  final IrmaCardStyle style;
   final String? logo;
 
   const CredentialCardIcon({
     this.logo,
-    this.type = CredentialHeaderType.normal,
+    this.style = IrmaCardStyle.normal,
   });
 
   @override
@@ -22,15 +22,8 @@ class CredentialCardIcon extends StatelessWidget {
       width: 40,
       child: Builder(
         builder: (context) {
-          switch (type) {
-            case CredentialHeaderType.normal:
-              return CircleAvatar(
-                  backgroundColor: Colors.grey.shade100,
-                  radius: avatarRadius,
-                  child: logo != null && logo != ''
-                      ? SizedBox(height: avatarSize, child: Image.file(File(logo!), excludeFromSemantics: true))
-                      : Container());
-            case CredentialHeaderType.error:
+          switch (style) {
+            case IrmaCardStyle.error:
               return const CircleAvatar(
                 backgroundColor: Colors.red,
                 radius: avatarRadius,
@@ -42,7 +35,7 @@ class CredentialCardIcon extends StatelessWidget {
                   ),
                 ),
               );
-            case CredentialHeaderType.success:
+            case IrmaCardStyle.success:
               return const CircleAvatar(
                 backgroundColor: Colors.green,
                 radius: avatarRadius,
@@ -54,7 +47,7 @@ class CredentialCardIcon extends StatelessWidget {
                   ),
                 ),
               );
-            case CredentialHeaderType.template:
+            case IrmaCardStyle.template:
               return CircleAvatar(
                 backgroundColor: IrmaTheme.of(context).themeData.colorScheme.secondary,
                 radius: avatarRadius,
@@ -66,6 +59,14 @@ class CredentialCardIcon extends StatelessWidget {
                   ),
                 ),
               );
+            case IrmaCardStyle.normal:
+            default:
+              return CircleAvatar(
+                  backgroundColor: Colors.grey.shade100,
+                  radius: avatarRadius,
+                  child: logo != null && logo != ''
+                      ? SizedBox(height: avatarSize, child: Image.file(File(logo!), excludeFromSemantics: true))
+                      : Container());
           }
         },
       ),

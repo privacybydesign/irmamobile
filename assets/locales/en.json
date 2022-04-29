@@ -340,8 +340,8 @@
   "issuance": {
     "title": "Add data",
     "description": "Do you want to add this data to your IRMA app?",
-    "add" : "Add data",
-    "cancel" : "Cancel"
+    "add": "Add data",
+    "cancel": "Cancel"
   },
   "session": {
     "navigation_bar": {
@@ -362,25 +362,27 @@
       "explanation": "The IRMA session that you started is not supported by the app."
     }
   },
-  "disclosure": {
-    "disclosure_permission": {
-      "next": "Next",
-      "issue_wizard": {
-        "add_data": "Add the following data:"
-      },
-      "issue_wizard_choice": {
-        "add_credential": "Add {credentialName}",
-        "choose_data": "Choose the data you want to share",
-        "and": "And"
-      },
-      "choices" : {
-        "choose_data" : "Choose the data you want to share",
-        "explanation" : "The data you select will be shared with the {requestorName}",
-        "step" : "Step {stepIndex}",
-        "done" : "Done",
-        "change_choice" : "Change choice"
-      }
+  "disclosure_permission": {
+    "title": "Data request",
+    "next": "Next",
+    "issue_wizard": {
+      "add_data": "Add the following data:",
+      "not_valid": "The data you added is not valid here:"
     },
+    "issue_wizard_choice": {
+      "add_credential": "Add {credentialName}",
+      "choose_data": "Choose the data you want to share",
+      "and": "And"
+    },
+    "choices": {
+      "choose_data": "Choose the data you want to share",
+      "explanation": "The data you select will be shared with the {requestorName}",
+      "step": "Step {stepIndex}",
+      "done": "Done",
+      "change_choice": "Change choice"
+    }
+  },
+  "disclosure": {
     "title": "Data request",
     "disclosure_header": "Do you wish to disclose the following data to {otherParty}?",
     "disclosure_call_header": "Do you wish to diclose the following data to {otherParty} and call to {phoneNumber}?",

@@ -31,7 +31,14 @@ class DisclosurePermissionIssueWizard implements DisclosurePermissionBlocState {
 
   bool get completed => issueWizard.every((template) => template.obtained);
 
-  DisclosurePermissionIssueWizard({required this.issueWizard});
+  /// Last added credential that does not match the request
+  ChoosableDisclosureCredential? lastNonMatchingCredential;
+
+  /// Last added credential that matches the request
+  ChoosableDisclosureCredential? lastMatchingCredential;
+
+  DisclosurePermissionIssueWizard(
+      {required this.issueWizard, this.lastNonMatchingCredential, this.lastMatchingCredential});
 }
 
 class DisclosurePermissionChoices implements DisclosurePermissionBlocState {

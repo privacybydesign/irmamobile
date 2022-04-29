@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
 
 import '../../theme/theme.dart';
+import '../irma_card.dart';
 import 'credential_card_icon.dart';
-
-enum CredentialHeaderType { normal, template, success, error }
 
 class IrmaCredentialCardHeader extends StatelessWidget {
   final String? logo;
   final String title;
   final String? subtitle;
-  final CredentialHeaderType type;
+  final IrmaCardStyle style;
 
   const IrmaCredentialCardHeader({
     this.logo,
     required this.title,
     this.subtitle,
-    this.type = CredentialHeaderType.normal,
+    this.style = IrmaCardStyle.normal,
   });
 
   @override
@@ -24,7 +23,7 @@ class IrmaCredentialCardHeader extends StatelessWidget {
     return Row(
       children: [
         CredentialCardIcon(
-          type: type,
+          style: style,
           logo: logo,
         ),
         SizedBox(

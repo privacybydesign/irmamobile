@@ -340,8 +340,8 @@
   "issuance": {
     "title": "Gegevens toevoegen",
     "description": "Wil je deze gegevens aan je IRMA-app toevoegen?",
-    "add" : "Gegevens toevoegen",
-    "cancel" : "Annuleren"
+    "add": "Gegevens toevoegen",
+    "cancel": "Annuleren"
   },
   "session": {
     "navigation_bar": {
@@ -362,25 +362,27 @@
       "explanation": "De IRMA-sessie die je probeerde te starten wordt niet ondersteund door de app."
     }
   },
-  "disclosure": {
-    "disclosure_permission": {
-      "next": "Volgende",
-      "issue_wizard": {
-        "add_data": "Voeg de volgende gegevens toe:"
-      },
-      "issue_wizard_choice": {
-        "add_credential": "{credentialName} toevoegen",
-        "choose_data": "Kies de gegevens die je wilt gaan delen",
-        "and": "En"
-      },
-      "choices" : {
-        "choose_data" : "Kies de gegevens die jij wilt delen",
-        "explanation" : "De gegevens die jij selecteert worden gedeeld met {requestorName}",
-        "step" : "Stap {stepIndex}",
-        "done" : "Gereed",
-        "change_choice" : "Keuze wijzigen"
-      }
+  "disclosure_permission": {
+    "title": "Dataverzoek",
+    "next": "Volgende",
+    "issue_wizard": {
+      "add_data": "Voeg de volgende gegevens toe:",
+      "not_valid": "De gegevens die je hebt toegevoegd zijn hier niet geldig:"
     },
+    "issue_wizard_choice": {
+      "add_credential": "{credentialName} toevoegen",
+      "choose_data": "Kies de gegevens die je wilt gaan delen",
+      "and": "En"
+    },
+    "choices": {
+      "choose_data": "Kies de gegevens die jij wilt delen",
+      "explanation": "De gegevens die jij selecteert worden gedeeld met {requestorName}",
+      "step": "Stap {stepIndex}",
+      "done": "Gereed",
+      "change_choice": "Keuze wijzigen"
+    }
+  },
+  "disclosure": {
     "title": "Dataverzoek",
     "disclosure_header": "Wil je de volgende gegevens aan {otherParty} doorgeven?",
     "disclosure_call_header": "Wil je de volgende gegevens aan {otherParty} doorgeven en bellen naar {phoneNumber}?",

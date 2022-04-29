@@ -2,22 +2,18 @@ import 'package:flutter/material.dart';
 
 import '../../../../theme/theme.dart';
 import '../../../../widgets/credential_card/irma_credentials_card.dart';
-import '../bloc/disclosure_permission_bloc.dart';
 import '../bloc/disclosure_permission_event.dart';
 import '../bloc/disclosure_permission_state.dart';
 
-class IssueWizardStep extends StatelessWidget {
-  final DisclosurePermissionBloc bloc;
+class DisclosureIssueWizardStep extends StatelessWidget {
+  final DisclosurePermissionIssueWizardChoices state;
+  final Function(DisclosurePermissionBlocEvent) onEvent;
   final int stepIndex;
 
-  const IssueWizardStep({
-    required this.bloc,
-    required this.stepIndex,
-  });
+  const DisclosureIssueWizardStep({required this.state, required this.stepIndex, required this.onEvent});
 
   @override
   Widget build(BuildContext context) {
-    final state = bloc.state as DisclosurePermissionIssueWizardChoices;
     final step = state.issueWizardChoices[stepIndex];
 
     return Column(
@@ -29,16 +25,16 @@ class IssueWizardStep extends StatelessWidget {
               mode: IrmaCredentialsCardMode.issuanceChoice,
               selected: state.issueWizardChoiceIndices[stepIndex] == i,
               attributesByCredential: {
-                for (var cred in step[i]) cred: [],
+                for (var cred in step[i]) cred: cred.attributes,
               },
-              onTap: () => bloc.add(
+              onTap: () => onEvent(
                 DisclosurePermissionIssueWizardChoiceUpdated(
                   stepIndex: stepIndex,
                   choiceIndex: i,
                 ),
               ),
             ),
-          )
+          ),
       ],
     );
   }
