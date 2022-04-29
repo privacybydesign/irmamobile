@@ -72,7 +72,7 @@ class ProvidedDisclosurePermission extends StatelessWidget {
           );
           bottomBar = _buildContinueBottomBar(
             addEvent,
-            isDisabled: !state.completed,
+            isDisabled: !state.allObtainedCredentialsMatch,
           );
         } else if (state is DisclosurePermissionChoices) {
           throw UnimplementedError;

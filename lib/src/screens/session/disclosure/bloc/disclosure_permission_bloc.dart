@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attributes.dart';
+import 'package:irmamobile/src/models/credentials.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
 import 'package:irmamobile/src/screens/session/disclosure/bloc/disclosure_permission_event.dart';
@@ -20,10 +20,13 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
 
   late final StreamSubscription _sessionStateSubscription;
 
+  Credentials _prevCredentials;
+
   DisclosurePermissionBloc({
     required this.sessionID,
     required IrmaRepository repo,
   })  : _repo = repo,
+        _prevCredentials = repo.credentials,
         super(DisclosurePermissionInitial()) {
     _sessionStateSubscription = repo.getSessionState(sessionID).asyncExpand(_mapSessionStateToBlocState).listen(emit);
   }
@@ -59,7 +62,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       );
     } else if (state is DisclosurePermissionIssueWizard && event is DisclosurePermissionNextPressed ||
         state is DisclosurePermissionConfirmChoices && event is DisclosurePermissionEditCurrentSelectionPressed) {
-      if (state is DisclosurePermissionIssueWizard && !state.completed) {
+      if (state is DisclosurePermissionIssueWizard && !state.allObtainedCredentialsMatch) {
         throw Exception('Issue wizard is not completed yet');
       }
       yield DisclosurePermissionChoices(
@@ -118,18 +121,35 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       }
       return;
     } else if (state is DisclosurePermissionIssueWizard) {
-      final credentials = _repo.credentials.values;
-      final issueWizard = state.issueWizard.map((template) => template.copyWith(credentials: credentials)).toList();
-      final nonMatchingCredentials = issueWizard.expand((cred) => cred.presentNonMatching).toList();
-      final matchingCredentials = issueWizard.expand((cred) => cred.presentMatching).toList();
+      final newlyAddedCredentials = _repo.credentials.values.where((cred) => !_prevCredentials.containsKey(cred.hash));
       yield DisclosurePermissionIssueWizard(
-          issueWizard: issueWizard,
-          lastNonMatchingCredential:
-              //If the last matching credential changed, set non matching credential to null;
-              state.lastMatchingCredential?.attributes == matchingCredentials.lastOrNull?.attributes
-                  ? nonMatchingCredentials.lastOrNull
-                  : null,
-          lastMatchingCredential: matchingCredentials.lastOrNull);
+        issueWizard: state.issueWizard,
+        obtainedCredentials: state.issueWizard.mapIndexed((i, template) {
+          // First we check whether we have an exact match.
+          final matchingCred = newlyAddedCredentials.firstWhereOrNull((cred) => template.matchesCredential(cred));
+          if (matchingCred != null) {
+            return ChoosableDisclosureCredential.fromTemplate(
+              template: template,
+              credential: matchingCred,
+            );
+          }
+
+          // If there is no exact match, then we look for credentials that were added in attempt to make a match.
+          final templateWithoutValueConstraints = template.copyWithoutValueConstraints();
+          final nonMatchingCred =
+              newlyAddedCredentials.firstWhereOrNull((cred) => templateWithoutValueConstraints.matchesCredential(cred));
+          if (nonMatchingCred != null) {
+            return ChoosableDisclosureCredential.fromTemplate(
+              template: templateWithoutValueConstraints,
+              credential: nonMatchingCred,
+            );
+          }
+
+          // If there is still no match, then we assume no attempt has been made to obtain this template yet.
+          return state.obtainedCredentials[i];
+        }).toList(),
+      );
+      _prevCredentials = _repo.credentials;
     } else {
       final parsedCandidates = _parseDisclosureCandidates(session.disclosuresCandidates!);
       if (state is DisclosurePermissionChoices) {
@@ -172,10 +192,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
               if (credentialAttributes.first.choosable) {
                 return ChoosableDisclosureCredential(attributes: credentialAttributes);
               } else {
-                return TemplateDisclosureCredential(
-                  attributes: credentialAttributes,
-                  credentials: _repo.credentials.values,
-                );
+                return TemplateDisclosureCredential(attributes: credentialAttributes);
               }
             }));
           }))));

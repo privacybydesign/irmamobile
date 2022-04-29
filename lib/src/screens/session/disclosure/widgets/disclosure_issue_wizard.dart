@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
@@ -22,12 +23,13 @@ class DisclosureIssueWizard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
+    final firstMismatchIndex = state.obtainedCredentialsMatch.indexWhere((obt) => !obt);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         IssuerVerifierHeader(title: requestor.name.translate(lang)),
-        if (state.lastNonMatchingCredential != null) ...[
+        if (firstMismatchIndex >= 0) ...[
           SizedBox(height: theme.defaultSpacing),
           TranslatedText(
             'disclosure_permission.issue_wizard.not_valid',
@@ -35,13 +37,12 @@ class DisclosureIssueWizard extends StatelessWidget {
           ),
           SizedBox(height: theme.defaultSpacing),
           IrmaDisclosureCredentialCard(
-            state.lastNonMatchingCredential!,
+            state.obtainedCredentials[firstMismatchIndex]!,
             style: IrmaCardStyle.error,
-            compareTo:
-                // Because the added credential does not match the requested template credential
-                // compare the two to show which attributes match and which do not.
-                state.issueWizard.firstWhere((cred) => cred.fullId == state.lastNonMatchingCredential!.fullId),
-          )
+            // Because the added credential does not match the requested template credential
+            // compare the two to show which attributes match and which do not.
+            compareTo: state.issueWizard[firstMismatchIndex],
+          ),
         ],
         SizedBox(height: theme.defaultSpacing),
         TranslatedText(
@@ -49,12 +50,12 @@ class DisclosureIssueWizard extends StatelessWidget {
           style: theme.themeData.textTheme.headline3,
         ),
         SizedBox(height: theme.defaultSpacing),
-        for (final credential in state.issueWizard) ...[
-          IrmaDisclosureCredentialCard(
-            credential,
-            style: credential.obtained ? IrmaCardStyle.success : IrmaCardStyle.template,
+        ...state.issueWizard.mapIndexed(
+          (i, cred) => IrmaDisclosureCredentialCard(
+            cred,
+            style: state.obtainedCredentialsMatch[i] ? IrmaCardStyle.success : IrmaCardStyle.template,
           ),
-        ]
+        ),
       ],
     );
   }
