@@ -6,6 +6,8 @@ import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/translated_text.dart';
 
 class IrmaQrScanButton extends StatelessWidget {
+  const IrmaQrScanButton({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);

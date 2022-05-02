@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:irmamobile/src/screens/home/home_screen.dart';
 
 import 'irma_binding.dart';
 import 'util.dart';
@@ -7,7 +8,7 @@ import 'util.dart';
 /// Unlocks the IRMA app and waits until the wallet is displayed.
 Future<void> unlock(WidgetTester tester) async {
   await tester.enterTextAtFocusedAndSettle('12345');
-  await tester.waitFor(find.byKey(const Key('wallet_present')));
+  await tester.waitFor(find.byType(HomeScreen));
 }
 
 /// Adds the municipality's personal data and address cards to the IRMA app.
@@ -53,12 +54,16 @@ Future<void> issueCardsMunicipality(WidgetTester tester, IntegrationTestIrmaBind
           ]
         }
       ''');
-  // Accept issued credential
+
+  // Wait for accept button to appear
   await tester.waitFor(find.byKey(const Key('issuance_accept')));
-  await tester
-      .tap(find.descendant(of: find.byKey(const Key('issuance_accept')), matching: find.byKey(const Key('primary'))));
+  // Accept issued credential
+  await tester.tap(find.descendant(
+    of: find.byKey(const Key('issuance_accept')),
+    matching: find.byKey(const Key('primary')),
+  ));
   // Wait until done
-  await tester.waitFor(find.byKey(const Key('wallet_present')));
-  // Wait 5 seconds
-  await tester.pumpAndSettle(const Duration(seconds: 5));
+  await tester.waitFor(find.byType(HomeScreen));
+  // Wait 3 seconds
+  await tester.pumpAndSettle(const Duration(seconds: 3));
 }

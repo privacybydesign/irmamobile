@@ -33,7 +33,9 @@ class _HomeScreenState extends State<HomeScreen> {
           }
         }),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        floatingActionButton: IrmaQrScanButton(),
+        floatingActionButton: const IrmaQrScanButton(
+          key: Key('nav_button_scanner'),
+        ),
         bottomNavigationBar: IrmaNavBar(
             selectedTab: selectedTab,
             onChangeTab: (IrmaNavBarTab tab) {
