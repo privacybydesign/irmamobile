@@ -8,9 +8,30 @@ enum TEEError: Error {
     case keyNotFound
 }
 // Trusted Execution Environment (TEE) class
-public class TEE {
+public class TEE : NSObject, IrmagobridgeSignerProtocol {
     final let encryptionAlgorithm: SecKeyAlgorithm = .eciesEncryptionCofactorVariableIVX963SHA256AESGCM
     
+    public func sign(_ keyAlias: String?, msg msg: Data?) throws -> Data {
+        guard let key = tryLoadKey(keyAlias!) else {
+            throw TEEError.keyNotFound
+        }
+
+        var error: Unmanaged<CFError>?
+        let signature = SecKeyCreateSignature(key, .ecdsaSignatureMessageX962SHA256, msg! as CFData, &error) as Data?
+        guard signature != nil else {
+            throw error!.takeRetainedValue() as Error
+        }
+        return signature!
+    }
+
+    public func publicKey(_ keyAlias: String?) throws -> Data {
+        var privateKey = tryLoadKey(keyAlias!)
+        if privateKey == nil {
+            privateKey = try generateKey(keyAlias!)
+        }
+        return try keyToData(SecKeyCopyPublicKey(privateKey!)!)
+    }
+
     func encrypt(_ tag: String, _ plaintext: Data) throws -> Data {
         var key = tryLoadKey(tag)
         if key == nil {
@@ -54,6 +75,23 @@ public class TEE {
         }
         
         return plaintext
+    }
+
+    private func keyToData(_ pk: SecKey) throws -> Data {
+        var error: Unmanaged<CFError>?
+        guard let pkdata = SecKeyCopyExternalRepresentation(pk, &error) as Data? else {
+            throw error!.takeRetainedValue() as Error
+        }
+
+        // We want to return a key in PKIX, ASN.1 DER form, but SecKeyCopyExternalRepresentation
+        // returns the coordinates X and Y of the public key as follows: 04 || X || Y. We convert
+        // that to a valid PKIX key by prepending the SPKI of secp256r1 in DER format.
+        // Based on https://stackoverflow.com/a/45188232.
+        let secp256r1Header = Data([
+            0x30, 0x59, 0x30, 0x13, 0x06, 0x07, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02, 0x01,
+            0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07, 0x03, 0x42, 0x00
+        ])
+        return secp256r1Header + pkdata
     }
     
     private func keyExists(_ tag: String) -> Bool {
