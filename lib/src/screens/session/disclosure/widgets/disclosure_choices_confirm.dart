@@ -3,6 +3,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../../models/session.dart';
 import '../../../../theme/theme.dart';
+import '../../../../widgets/credential_card/irma_credentials_card.dart';
 import '../../../../widgets/translated_text.dart';
 import '../../../activity/widgets/issuer_verifier_header.dart';
 import '../bloc/disclosure_permission_event.dart';
@@ -30,10 +31,15 @@ class DisclosureChoicesConfirm extends StatelessWidget {
         IssuerVerifierHeader(title: requestor.name.translate(lang)),
         SizedBox(height: theme.defaultSpacing),
         TranslatedText(
-          'Deze gegevens ga je delen',
+          'disclosure_permission.choices.share',
           style: theme.themeData.textTheme.headline3,
         ),
-        SizedBox(height: theme.smallSpacing),
+        SizedBox(height: theme.defaultSpacing),
+        IrmaCredentialsCard(
+          attributesByCredential: {
+            for (var cred in state.currentSelection) cred: cred.attributes,
+          },
+        )
       ],
     );
   }

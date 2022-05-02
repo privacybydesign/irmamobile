@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_choices_confirm.dart';
 
 import '../../../data/irma_repository.dart';
 import '../../../models/session.dart';
@@ -12,6 +11,7 @@ import 'bloc/disclosure_permission_bloc.dart';
 import 'bloc/disclosure_permission_event.dart';
 import 'bloc/disclosure_permission_state.dart';
 import 'widgets/disclosure_choices.dart';
+import 'widgets/disclosure_choices_confirm.dart';
 import 'widgets/disclosure_issue_wizard.dart';
 import 'widgets/disclosure_issue_wizard_choices.dart';
 
@@ -67,15 +67,15 @@ class ProvidedDisclosurePermission extends StatelessWidget {
               state: state,
               onEvent: addEvent,
             );
-            bottomBar = _buildContinueBottomBar(addEvent);
+            bottomBar = _buildBottomBar(addEvent);
           } else if (state is DisclosurePermissionIssueWizard) {
             body = DisclosureIssueWizard(
               state: state,
               requestor: requestor,
             );
-            bottomBar = _buildContinueBottomBar(
+            bottomBar = _buildBottomBar(
               addEvent,
-              isDisabled: !state.completed,
+              primaryIsDisabled: !state.completed,
             );
           } else if (state is DisclosurePermissionChoices) {
             body = DisclosureChoices(
@@ -83,14 +83,14 @@ class ProvidedDisclosurePermission extends StatelessWidget {
               onEvent: addEvent,
               requestor: requestor,
             );
-            bottomBar = _buildContinueBottomBar(addEvent);
+            bottomBar = _buildBottomBar(addEvent);
           } else if (state is DisclosurePermissionConfirmChoices) {
             body = DisclosureChoicesConfirm(
               state: state,
               requestor: requestor,
               onEvent: addEvent,
             );
-            // TODO: Add bottom bar with two options: share, change choice
+            bottomBar = _buildBottomBar(addEvent, showChangeChoice: true);
           } else if (state is DisclosurePermissionFinished) {
             throw UnimplementedError;
           }
@@ -113,11 +113,22 @@ class ProvidedDisclosurePermission extends StatelessWidget {
   }
 }
 
-IrmaBottomBar _buildContinueBottomBar(addEvent, {isDisabled = false}) => IrmaBottomBar(
+IrmaBottomBar _buildBottomBar(
+  addEvent, {
+  primaryIsDisabled = false,
+  showChangeChoice = false,
+}) =>
+    IrmaBottomBar(
       primaryButtonLabel: 'disclosure_permission.next',
-      onPrimaryPressed: isDisabled == true
+      onPrimaryPressed: primaryIsDisabled == true
           ? null
           : () => addEvent(
                 DisclosurePermissionNextPressed(),
               ),
+      secondaryButtonLabel: showChangeChoice == true ? 'disclosure_permission.choices.change_choice' : null,
+      onSecondaryPressed: showChangeChoice == true
+          ? () => addEvent(
+                DisclosurePermissionEditCurrentSelectionPressed(),
+              )
+          : null,
     );

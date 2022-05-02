@@ -379,7 +379,8 @@
       "explanation": "De gegevens die jij selecteert worden gedeeld met {requestorName}",
       "step": "Stap {stepIndex}",
       "done": "Gereed",
-      "change_choice": "Keuze wijzigen"
+      "change_choice": "Keuze wijzigen",
+      "share" : "Deze gegevens ga je delen:"
     }
   },
   "disclosure": {
