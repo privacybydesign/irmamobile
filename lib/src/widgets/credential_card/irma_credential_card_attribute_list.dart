@@ -20,7 +20,7 @@ class IrmaCredentialCardAttributeList extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    
+
     return Column(
       children: [
         for (final attribute in attributes)
