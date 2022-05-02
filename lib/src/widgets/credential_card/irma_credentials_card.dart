@@ -57,6 +57,13 @@ class IrmaCredentialsCard extends StatelessWidget {
         onTap = null,
         selected = false;
 
+  Widget _buildDivider({bool isSelected = false, required ThemeData theme}) {
+    return Divider(
+      color: isSelected == true ? theme.colorScheme.primary.withOpacity(0.8) : Colors.grey.shade300,
+      thickness: 0.5,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
@@ -89,42 +96,30 @@ class IrmaCredentialsCard extends StatelessWidget {
                   //And when in issuance choice mode, some attributes also need to have an actual value
                   (mode != IrmaCredentialsCardMode.issuanceChoice ||
                       attributesByCredential[credInfo]!.where((att) => att.value is! NullValue).isNotEmpty)) ...[
-                const Divider(),
+                _buildDivider(
+                  isSelected: selected,
+                  theme: theme.themeData,
+                ),
                 Padding(
-                    padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).largeSpacing),
-                    child: IrmaCredentialCardAttributeList(sortAttributes(
-                      attributesByCredential[credInfo]!,
-                    ))),
-                //If this is not the last item add a divider
-                if (i != attributesByCredential.keys.length - 1)
-                  Padding(
-                    padding: EdgeInsets.only(bottom: IrmaTheme.of(context).smallSpacing),
-                    child: Divider(
-                      color: Colors.grey.shade600,
-                      thickness: 0.5,
-                    ),
+                  padding: EdgeInsets.symmetric(horizontal: theme.largeSpacing),
+                  child: IrmaCredentialCardAttributeList(
+                    attributesByCredential[credInfo]!,
+                    compareTo:
+                        //If in issuance choice mode, compare to self to show the required attribute values
+                        mode == IrmaCredentialsCardMode.issuanceChoice ? attributesByCredential[credInfo] : null,
                   ),
                 ),
               ],
               //If this is not the last item add a divider
               if (i != attributesByCredential.keys.length - 1)
-                Divider(
-                  color: selected == true ? theme.themeData.colorScheme.primary.withOpacity(0.8) : Colors.grey.shade300,
-                  thickness: 0.5,
+                _buildDivider(
+                  isSelected: selected,
+                  theme: theme.themeData,
                 ),
             ];
           },
         ).toList(),
       ),
     );
-  }
-
-  List<Attribute> sortAttributes(List<Attribute> attributes) {
-    final sortedAttributes = attributes;
-    sortedAttributes.sort((a1, a2) => a1.attributeType.index.compareTo(a2.attributeType.index));
-    if (sortedAttributes.every((a) => a.attributeType.displayIndex != null)) {
-      sortedAttributes.sort((a1, a2) => a1.attributeType.displayIndex!.compareTo(a2.attributeType.displayIndex!));
-    }
-    return sortedAttributes;
   }
 }
