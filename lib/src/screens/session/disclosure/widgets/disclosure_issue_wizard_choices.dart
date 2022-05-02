@@ -36,10 +36,11 @@ class DisclosureIssueWizardChoices extends StatelessWidget {
           //If this is not the last item add a divider
           if (i != state.issueWizardChoices.length - 1)
             const Center(
-                child: TranslatedText(
-              'disclosure_permission.issue_wizard_choice.and',
-              textAlign: TextAlign.center,
-            ))
+              child: TranslatedText(
+                'disclosure_permission.issue_wizard_choice.and',
+                textAlign: TextAlign.center,
+              ),
+            ),
         ]
       ],
     );
