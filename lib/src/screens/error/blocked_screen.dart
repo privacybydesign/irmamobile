@@ -30,7 +30,6 @@ class BlockedScreen extends StatelessWidget {
         ),
         body: Blocked(),
         bottomNavigationBar: IrmaBottomBar(
-          primaryButtonColor: IrmaTheme.of(context).notificationError,
           primaryButtonLabel: FlutterI18n.translate(context, 'error.button_reset'),
           onPrimaryPressed: () {
             IrmaRepository.get().bridgedDispatch(

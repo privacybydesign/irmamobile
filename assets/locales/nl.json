@@ -338,10 +338,10 @@
     "lock": "Uitloggen"
   },
   "issuance": {
-    "title": "Kaartjes toevoegen",
-    "header-0": "Wil je dit kaartje in je IRMA-app zetten?",
-    "header-1": "Wil je dit kaartje in je IRMA-app zetten?",
-    "header-2": "Wil je deze kaartjes in je IRMA-app zetten?"
+    "title": "Gegevens toevoegen",
+    "description": "Wil je deze gegevens aan je IRMA-app toevoegen?",
+    "add" : "Gegevens toevoegen",
+    "cancel" : "Annuleren"
   },
   "session": {
     "navigation_bar": {
