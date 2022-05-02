@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
@@ -8,8 +9,12 @@ import '../translated_text.dart';
 
 class IrmaCredentialCardAttributeList extends StatelessWidget {
   final List<Attribute> attributes;
+  final List<Attribute>? compareTo;
 
-  const IrmaCredentialCardAttributeList(this.attributes);
+  const IrmaCredentialCardAttributeList(
+    this.attributes, {
+    this.compareTo,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -38,34 +43,37 @@ class IrmaCredentialCardAttributeList extends StatelessWidget {
                   Flexible(
                     child: Builder(
                       builder: (context) {
-                        switch (attribute.value.runtimeType) {
+                        if (attribute.value is PhotoValue) {
                           //If attribute is photo show link
-                          case PhotoValue:
-                            return GestureDetector(
-                              onTap: () {
-                                //TODO Implement open Photo.
-                              },
-                              child: TranslatedText(
-                                //TODO: Add translation
-                                'Image',
-                                textAlign: TextAlign.start,
-                                style: theme.textTheme.bodyText2!.copyWith(decoration: TextDecoration.underline),
-                              ),
-                            );
-                          case TextValue:
-                          case YesNoValue:
-                            return TranslatedText(
-                              (attribute.value as TextValue).translated.translate(lang),
-                              textAlign: TextAlign.end,
-                              style: theme.themeData.textTheme.caption!.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey.shade700,
-                              ),
-                            );
-                          case NullValue:
-                          default:
-                            return Container();
+                          return GestureDetector(
+                            onTap: () {
+                              //TODO Implement open Photo.
+                            },
+                            child: TranslatedText(
+                              //TODO: Add translation
+                              'Image',
+                              textAlign: TextAlign.start,
+                              style: theme.textTheme.bodyText2!.copyWith(decoration: TextDecoration.underline),
+                            ),
+                          );
+                        } else if (attribute.value is TextValue || attribute.value is YesNoValue) {
+                          final Attribute? compareValue =
+                              compareTo?.firstWhereOrNull((e) => e.attributeType.id == attribute.attributeType.id);
+                          return TranslatedText(
+                            (attribute.value as TextValue).translated.translate(lang),
+                            textAlign: TextAlign.end,
+                            style: theme.themeData.textTheme.caption!.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: compareValue == null || compareValue.value is NullValue
+                                  ? Colors.grey.shade700
+                                  : attribute.value.raw == compareValue.value.raw
+                                      ? Colors.green
+                                      : Colors.red,
+                            ),
+                          );
                         }
+                        //If value is null or default return empty container
+                        return Container();
                       },
                     ),
                   ),

@@ -18,8 +18,8 @@ import 'package:irmamobile/src/screens/pin/session_pin_screen.dart';
 import 'package:irmamobile/src/screens/session/call_info_screen.dart';
 import 'package:irmamobile/src/screens/session/session.dart';
 import 'package:irmamobile/src/screens/session/widgets/arrow_back_screen.dart';
+import 'package:irmamobile/src/screens/session/disclosure/disclosure_permission.dart';
 import 'package:irmamobile/src/screens/session/widgets/disclosure_feedback_screen.dart';
-import 'package:irmamobile/src/screens/session/widgets/disclosure_permission.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_permission.dart';
 import 'package:irmamobile/src/screens/session/widgets/pairing_required.dart';
 import 'package:irmamobile/src/screens/session/widgets/session_scaffold.dart';
@@ -360,17 +360,9 @@ class _SessionScreenState extends State<SessionScreen> {
             );
           case SessionStatus.requestDisclosurePermission:
             return DisclosurePermission(
-              session: session,
-              onDismiss: () => _dismissSession(),
-              onGivePermission: () => _givePermission(session),
-              onUpdateChoice: ({int disconIndex, int conIndex}) => _dispatchSessionEvent(
-                DisclosureChoiceUpdateSessionEvent(
-                  sessionID: widget.arguments.sessionID,
-                  disconIndex: disconIndex,
-                  conIndex: conIndex,
-                ),
-                isBridgedEvent: false,
-              ),
+              sessionId: session.sessionID,
+              requestor: session.serverName,
+              repo: _repo,
             );
           case SessionStatus.requestIssuancePermission:
             return IssuancePermission(

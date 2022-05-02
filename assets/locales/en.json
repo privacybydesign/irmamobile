@@ -338,10 +338,10 @@
     "lock": "Log out"
   },
   "issuance": {
-    "title": "Add cards",
-    "header-0": "Do you wish to add this card to your IRMA app?",
-    "header-1": "Do you wish to add this card to your IRMA app?",
-    "header-2": "Do you wish to add these cards to your IRMA app?"
+    "title": "Add data",
+    "description": "Do you want to add this data to your IRMA app?",
+    "add" : "Add data",
+    "cancel" : "Cancel"
   },
   "session": {
     "navigation_bar": {
@@ -362,8 +362,21 @@
       "explanation": "The IRMA session that you started is not supported by the app."
     }
   },
+  "disclosure_permission": {
+    "title": "Data request",
+    "next": "Next",
+    "issue_wizard": {
+      "add_data": "Add the following data:",
+      "not_valid": "The data you added is not valid here:"
+    },
+    "issue_wizard_choice": {
+      "add_credential": "Add {credentialName}",
+      "choose_data": "Choose the data you want to share",
+      "and": "And"
+    }
+  },
   "disclosure": {
-    "title": "Make yourself known",
+    "title": "Data request",
     "disclosure_header": "Do you wish to disclose the following data to {otherParty}?",
     "disclosure_call_header": "Do you wish to diclose the following data to {otherParty} and call to {phoneNumber}?",
     "signing_header": "{otherParty} asks you to sign a message",

@@ -1,101 +1,111 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/irma_button.dart';
-import 'package:irmamobile/src/widgets/irma_text_button.dart';
-import 'package:irmamobile/src/widgets/irma_themed_button.dart';
-import 'package:irmamobile/src/widgets/irma_tooltip.dart';
+
+import '../theme/theme.dart';
+import 'irma_button.dart';
+import 'irma_themed_button.dart';
 
 class IrmaBottomBar extends StatelessWidget {
+  final String? primaryButtonLabel;
+  final VoidCallback? onPrimaryPressed;
+  final VoidCallback? onPrimaryDisabledPressed;
+  final bool showTooltipOnPrimary;
+  final String? secondaryButtonLabel;
+  final VoidCallback? onSecondaryPressed;
+
   const IrmaBottomBar({
-    Key key,
+    Key? key,
     this.primaryButtonLabel,
-    this.primaryButtonColor,
     this.onPrimaryPressed,
     this.onPrimaryDisabledPressed,
     this.showTooltipOnPrimary = false,
     this.secondaryButtonLabel,
     this.onSecondaryPressed,
-    this.toolTipLabel,
-  })  : assert((showTooltipOnPrimary == false) || (toolTipLabel != null)),
-        super(key: key);
+  }) : super(key: key);
 
-  final String primaryButtonLabel;
-  final Color primaryButtonColor;
-  final VoidCallback onPrimaryPressed;
-  final VoidCallback onPrimaryDisabledPressed;
-  final bool showTooltipOnPrimary;
-  final String secondaryButtonLabel;
-  final VoidCallback onSecondaryPressed;
-  final String toolTipLabel;
+  Widget _buildPrimaryButton(BuildContext context) {
+    return Expanded(
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          vertical: IrmaTheme.of(context).tinySpacing,
+        ),
+        child: IrmaButton(
+          key: const Key('bottom_bar_primary'),
+          size: IrmaButtonSize.large,
+          onPressed: onPrimaryPressed,
+          onPressedDisabled: onPrimaryDisabledPressed,
+          label: primaryButtonLabel!,
+          color: IrmaTheme.of(context).primaryBlue,
+        ),
+      ),
+    );
+  }
 
-  List<Widget> buildButtons(BuildContext context, BoxConstraints constraints) {
-    final List<Widget> btns = [];
-
-    double buttonWidth = constraints.maxWidth - 2 * IrmaTheme.of(context).defaultSpacing;
-    if (secondaryButtonLabel != null) {
-      buttonWidth = constraints.maxWidth / 2 - 2 * IrmaTheme.of(context).defaultSpacing;
-
-      btns.add(IrmaTextButton(
-        key: const Key('secondary'),
+  Widget _buildSecondaryButton(BuildContext context) {
+    return Expanded(
+      child: IrmaButton(
+        key: const Key('bottom_bar_secondary'),
         size: IrmaButtonSize.large,
-        minWidth: buttonWidth,
         onPressed: onSecondaryPressed,
-        label: secondaryButtonLabel,
-      ));
-    }
-
-    if (primaryButtonLabel != null) {
-      Widget primaryButton = IrmaButton(
-        key: const Key('primary'),
-        size: IrmaButtonSize.large,
-        minWidth: buttonWidth,
-        onPressed: onPrimaryPressed,
-        onPressedDisabled: onPrimaryDisabledPressed,
-        label: primaryButtonLabel,
-        color: primaryButtonColor,
-      );
-
-      if (toolTipLabel != null) {
-        primaryButton = IrmaTooltip(
-            label: FlutterI18n.translate(context, toolTipLabel), show: showTooltipOnPrimary, child: primaryButton);
-      }
-
-      btns.add(primaryButton);
-    }
-
-    return btns;
+        label: secondaryButtonLabel!,
+        isSecondary: true,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
-      return Container(
-        width: MediaQuery.of(context).size.width,
-        decoration: BoxDecoration(
-          color: IrmaTheme.of(context).backgroundBlue,
-          border: Border(
-            top: BorderSide(
-              color: IrmaTheme.of(context).primaryLight,
-              width: 2.0,
-            ),
+    final theme = IrmaTheme.of(context);
+    final mediaQuery = MediaQuery.of(context);
+
+    return Container(
+      width: mediaQuery.size.width,
+      decoration: BoxDecoration(
+        color: theme.backgroundBlue,
+        border: Border(
+          top: BorderSide(
+            color: theme.primaryLight,
+            width: 2.0,
           ),
         ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-              vertical: IrmaTheme.of(context).mediumSpacing, horizontal: IrmaTheme.of(context).defaultSpacing),
-          child: Wrap(
-            direction: Axis.horizontal,
-            verticalDirection: VerticalDirection.up,
-            alignment: WrapAlignment.center,
-            children: buildButtons(context, constraints),
-          ),
+      ),
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          vertical: mediaQuery.size.height > 450 ? theme.defaultSpacing : theme.smallSpacing,
+          horizontal: theme.defaultSpacing,
         ),
-      );
-    });
+        child:
+            // Change layout according to limited height (i.e. landscape mode)
+            mediaQuery.size.height > 450
+                ? Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (primaryButtonLabel != null)
+                        Row(
+                          children: [_buildPrimaryButton(context)],
+                        ),
+                      if (secondaryButtonLabel != null) ...[
+                        SizedBox(
+                          height: theme.tinySpacing,
+                        ),
+                        Row(
+                          children: [_buildSecondaryButton(context)],
+                        )
+                      ]
+                    ],
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (secondaryButtonLabel != null) ...[
+                        _buildSecondaryButton(context),
+                        SizedBox(
+                          width: theme.tinySpacing,
+                        )
+                      ],
+                      if (primaryButtonLabel != null) _buildPrimaryButton(context),
+                    ],
+                  ),
+      ),
+    );
   }
 }

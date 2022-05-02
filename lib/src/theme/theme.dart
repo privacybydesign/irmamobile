@@ -22,7 +22,7 @@ class IrmaThemeData {
   final Color lightBlue = const Color(0xFFE9F4FF);
   Color get primaryLight => grayscale95;
   final Color darkPurple = const Color(0xFF362C78);
-  Color get disabled => grayscale90;
+  Color get disabled => grayscale60;
 
   // Supplementary colors (for card backgrounds)
   final Color cardRed = const Color(0xFFD44454);
@@ -164,7 +164,8 @@ class IrmaThemeData {
         color: primaryDark,
       ),
       // button is used for text on ElevatedButton and TextButton
-      button: const TextStyle(
+      button: TextStyle(
+        fontFamily: fontFamilyHeadings,
         fontSize: 16.0,
         height: 19.0 / 16.0,
         fontWeight: FontWeight.w600,

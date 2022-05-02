@@ -1,32 +1,31 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 import '../../theme/theme.dart';
+import '../irma_card.dart';
+import 'credential_card_icon.dart';
 
 class IrmaCredentialCardHeader extends StatelessWidget {
   final String? logo;
-  final String? title;
+  final String title;
   final String? subtitle;
+  final IrmaCardStyle style;
 
-  const IrmaCredentialCardHeader({this.logo, this.title, this.subtitle});
+  const IrmaCredentialCardHeader({
+    this.logo,
+    required this.title,
+    this.subtitle,
+    this.style = IrmaCardStyle.normal,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     return Row(
       children: [
-        SizedBox(
-            width: 40,
-            child: CircleAvatar(
-                backgroundColor: Colors.grey.shade300,
-                radius: 18,
-                child: Builder(builder: (context) {
-                  if (logo != null && logo != '') {
-                    return SizedBox(height: 24, child: Image.file(File(logo!), excludeFromSemantics: true));
-                  }
-                  return Container();
-                }))),
+        CredentialCardIcon(
+          style: style,
+          logo: logo,
+        ),
         SizedBox(
           width: IrmaTheme.of(context).smallSpacing,
         ),
@@ -35,7 +34,7 @@ class IrmaCredentialCardHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                title ?? '',
+                title,
                 style: theme.themeData.textTheme.bodyText1,
               ),
               Text(

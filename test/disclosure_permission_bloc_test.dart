@@ -6,9 +6,9 @@ import 'package:irmamobile/src/models/attribute_value.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
-import 'package:irmamobile/src/screens/session/bloc/disclosure_permission_bloc.dart';
-import 'package:irmamobile/src/screens/session/bloc/disclosure_permission_event.dart';
-import 'package:irmamobile/src/screens/session/bloc/disclosure_permission_state.dart';
+import 'package:irmamobile/src/screens/session/disclosure/bloc/disclosure_permission_bloc.dart';
+import 'package:irmamobile/src/screens/session/disclosure/bloc/disclosure_permission_event.dart';
+import 'package:irmamobile/src/screens/session/disclosure/bloc/disclosure_permission_state.dart';
 import 'package:irmamobile/src/screens/session/models/choosable_disclosure_credential.dart';
 import 'package:irmamobile/src/screens/session/models/template_disclosure_credential.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,6 +24,7 @@ void main() {
       client: mockBridge,
       preferences: await IrmaPreferences.fromInstance(),
     );
+    await repo.getCredentials().first; // Wait until AppReadyEvent has been processed.
   });
   tearDown(() async {
     await mockBridge.close();
@@ -50,9 +51,8 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
     DisclosurePermissionIssueWizard issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
     expect(issueWizardBlocState.issueWizard.length, 1);
-    expect(issueWizardBlocState.issueWizard[0].obtained, false);
-    expect(issueWizardBlocState.issueWizard[0].presentMatching, []);
-    expect(issueWizardBlocState.issueWizard[0].presentNonMatching, []);
+    expect(issueWizardBlocState.obtainedCredentialsMatch[0], false);
+    expect(issueWizardBlocState.obtainedCredentials[0], null);
     expect(issueWizardBlocState.issueWizard[0].fullId, 'irma-demo.IRMATube.member');
     expect(issueWizardBlocState.issueWizard[0].attributes.length, 1);
     expect(issueWizardBlocState.issueWizard[0].attributes[0].attributeType.fullId, 'irma-demo.IRMATube.member.id');
@@ -69,12 +69,10 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
     issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
     expect(issueWizardBlocState.issueWizard.length, 1);
-    expect(issueWizardBlocState.issueWizard[0].obtained, true);
-    expect(issueWizardBlocState.issueWizard[0].presentMatching.length, 1);
-    expect(issueWizardBlocState.issueWizard[0].presentMatching[0].fullId, 'irma-demo.IRMATube.member');
-    expect(issueWizardBlocState.issueWizard[0].presentMatching[0].attributes.length, 1);
-    expect(issueWizardBlocState.issueWizard[0].presentMatching[0].attributes[0].value.raw, '12345');
-    expect(issueWizardBlocState.issueWizard[0].presentNonMatching, []);
+    expect(issueWizardBlocState.obtainedCredentialsMatch[0], true);
+    expect(issueWizardBlocState.obtainedCredentials[0]?.fullId, 'irma-demo.IRMATube.member');
+    expect(issueWizardBlocState.obtainedCredentials[0]?.attributes.length, 1);
+    expect(issueWizardBlocState.obtainedCredentials[0]?.attributes[0].value.raw, '12345');
     expect(issueWizardBlocState.issueWizard[0].fullId, 'irma-demo.IRMATube.member');
 
     bloc.add(DisclosurePermissionNextPressed());
@@ -209,11 +207,7 @@ void main() {
     expect(issueWizardChoiceBlocState.issueWizardChoices[0].length, 2);
     expect(issueWizardChoiceBlocState.issueWizardChoices[0][0].length, 1);
     expect(issueWizardChoiceBlocState.issueWizardChoices[0][0][0].fullId, 'pbdf.pbdf.idin');
-    expect(issueWizardChoiceBlocState.issueWizardChoices[0][0][0].presentMatching, []);
-    expect(issueWizardChoiceBlocState.issueWizardChoices[0][0][0].presentNonMatching, []);
     expect(issueWizardChoiceBlocState.issueWizardChoices[0][1][0].fullId, 'pbdf.gemeente.address');
-    expect(issueWizardChoiceBlocState.issueWizardChoices[0][1][0].presentMatching, []);
-    expect(issueWizardChoiceBlocState.issueWizardChoices[0][1][0].presentNonMatching, []);
     expect(issueWizardChoiceBlocState.issueWizardChoiceIndices, [0]);
 
     bloc.add(DisclosurePermissionIssueWizardChoiceUpdated(stepIndex: 0, choiceIndex: 1));
@@ -226,12 +220,13 @@ void main() {
 
     expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
     DisclosurePermissionIssueWizard issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
-    expect(issueWizardBlocState.completed, false);
+    expect(issueWizardBlocState.allObtainedCredentialsMatch, false);
     expect(issueWizardBlocState.issueWizard.length, 2);
     expect(issueWizardBlocState.issueWizard[0].fullId, 'pbdf.gemeente.address');
-    expect(issueWizardBlocState.issueWizard[0].obtained, false);
+    expect(issueWizardBlocState.obtainedCredentialsMatch[0], false);
+    expect(issueWizardBlocState.obtainedCredentials[0], null);
     expect(issueWizardBlocState.issueWizard[1].fullId, 'pbdf.pbdf.mobilenumber');
-    expect(issueWizardBlocState.issueWizard[1].obtained, false);
+    expect(issueWizardBlocState.obtainedCredentials[1], null);
 
     await _issueCredential(repo, mockBridge, 44, [
       {
@@ -245,17 +240,17 @@ void main() {
 
     expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
     issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
-    expect(issueWizardBlocState.completed, false);
+    expect(issueWizardBlocState.allObtainedCredentialsMatch, false);
     expect(issueWizardBlocState.issueWizard.length, 2);
     expect(issueWizardBlocState.issueWizard[0].fullId, 'pbdf.gemeente.address');
-    expect(issueWizardBlocState.issueWizard[0].obtained, true);
-    expect(issueWizardBlocState.issueWizard[0].presentMatching.length, 1);
-    expect(issueWizardBlocState.issueWizard[0].presentMatching[0].fullId, 'pbdf.gemeente.address');
-    expect(issueWizardBlocState.issueWizard[0].presentMatching[0].attributes.length, 2);
-    expect(issueWizardBlocState.issueWizard[0].presentMatching[0].attributes[0].value.raw, 'Beukenlaan');
-    expect(issueWizardBlocState.issueWizard[0].presentMatching[0].attributes[1].value.raw, '1');
+    expect(issueWizardBlocState.obtainedCredentialsMatch[0], true);
+    expect(issueWizardBlocState.obtainedCredentials[0]?.fullId, 'pbdf.gemeente.address');
+    expect(issueWizardBlocState.obtainedCredentials[0]?.attributes.length, 2);
+    expect(issueWizardBlocState.obtainedCredentials[0]?.attributes[0].value.raw, 'Beukenlaan');
+    expect(issueWizardBlocState.obtainedCredentials[0]?.attributes[1].value.raw, '1');
     expect(issueWizardBlocState.issueWizard[1].fullId, 'pbdf.pbdf.mobilenumber');
-    expect(issueWizardBlocState.issueWizard[1].obtained, false);
+    expect(issueWizardBlocState.obtainedCredentialsMatch[1], false);
+    expect(issueWizardBlocState.obtainedCredentials[1], null);
 
     await _issueCredential(repo, mockBridge, 45, [
       {
@@ -265,15 +260,14 @@ void main() {
 
     expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
     issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
-    expect(issueWizardBlocState.completed, true);
+    expect(issueWizardBlocState.allObtainedCredentialsMatch, true);
     expect(issueWizardBlocState.issueWizard[0].fullId, 'pbdf.gemeente.address');
-    expect(issueWizardBlocState.issueWizard[0].obtained, true);
+    expect(issueWizardBlocState.obtainedCredentialsMatch[0], true);
     expect(issueWizardBlocState.issueWizard[1].fullId, 'pbdf.pbdf.mobilenumber');
-    expect(issueWizardBlocState.issueWizard[1].obtained, true);
-    expect(issueWizardBlocState.issueWizard[1].presentMatching.length, 1);
-    expect(issueWizardBlocState.issueWizard[1].presentMatching[0].fullId, 'pbdf.pbdf.mobilenumber');
-    expect(issueWizardBlocState.issueWizard[1].presentMatching[0].attributes.length, 1);
-    expect(issueWizardBlocState.issueWizard[1].presentMatching[0].attributes[0].value.raw, '+31612345678');
+    expect(issueWizardBlocState.obtainedCredentialsMatch[1], true);
+    expect(issueWizardBlocState.obtainedCredentials[1]?.fullId, 'pbdf.pbdf.mobilenumber');
+    expect(issueWizardBlocState.obtainedCredentials[1]?.attributes.length, 1);
+    expect(issueWizardBlocState.obtainedCredentials[1]?.attributes[0].value.raw, '+31612345678');
 
     bloc.add(DisclosurePermissionNextPressed());
 
@@ -436,12 +430,11 @@ void main() {
 
     expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
     DisclosurePermissionIssueWizard issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
-    expect(issueWizardBlocState.completed, false);
+    expect(issueWizardBlocState.allObtainedCredentialsMatch, false);
     expect(issueWizardBlocState.issueWizard.length, 1);
     expect(issueWizardBlocState.issueWizard[0].fullId, 'pbdf.pbdf.email');
-    expect(issueWizardBlocState.issueWizard[0].obtained, false);
-    expect(issueWizardBlocState.issueWizard[0].presentMatching.length, 0);
-    expect(issueWizardBlocState.issueWizard[0].presentNonMatching.length, 0);
+    expect(issueWizardBlocState.obtainedCredentialsMatch[0], false);
+    expect(issueWizardBlocState.obtainedCredentials[0], null);
 
     await _issueCredential(repo, mockBridge, 43, [
       {
@@ -452,15 +445,13 @@ void main() {
 
     expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
     issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
-    expect(issueWizardBlocState.completed, false);
+    expect(issueWizardBlocState.allObtainedCredentialsMatch, false);
     expect(issueWizardBlocState.issueWizard.length, 1);
     expect(issueWizardBlocState.issueWizard[0].fullId, 'pbdf.pbdf.email');
-    expect(issueWizardBlocState.issueWizard[0].obtained, false);
-    expect(issueWizardBlocState.issueWizard[0].presentMatching.length, 0);
-    expect(issueWizardBlocState.issueWizard[0].presentNonMatching.length, 1);
-    expect(issueWizardBlocState.issueWizard[0].presentNonMatching[0].attributes.length, 2);
-    expect(issueWizardBlocState.issueWizard[0].presentNonMatching[0].attributes[0].value.raw, 'test@wrong.example.com');
-    expect(issueWizardBlocState.issueWizard[0].presentNonMatching[0].attributes[1].value.raw, 'wrong.example.com');
+    expect(issueWizardBlocState.obtainedCredentialsMatch[0], false);
+    expect(issueWizardBlocState.obtainedCredentials[0]?.attributes.length, 2);
+    expect(issueWizardBlocState.obtainedCredentials[0]?.attributes[0].value.raw, 'test@wrong.example.com');
+    expect(issueWizardBlocState.obtainedCredentials[0]?.attributes[1].value.raw, 'wrong.example.com');
 
     await _issueCredential(repo, mockBridge, 44, [
       {
@@ -471,15 +462,13 @@ void main() {
 
     expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
     issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
-    expect(issueWizardBlocState.completed, true);
+    expect(issueWizardBlocState.allObtainedCredentialsMatch, true);
     expect(issueWizardBlocState.issueWizard.length, 1);
     expect(issueWizardBlocState.issueWizard[0].fullId, 'pbdf.pbdf.email');
-    expect(issueWizardBlocState.issueWizard[0].obtained, true);
-    expect(issueWizardBlocState.issueWizard[0].presentMatching.length, 1);
-    expect(issueWizardBlocState.issueWizard[0].presentNonMatching.length, 1);
-    expect(issueWizardBlocState.issueWizard[0].presentMatching[0].attributes.length, 2);
-    expect(issueWizardBlocState.issueWizard[0].presentMatching[0].attributes[0].value.raw, 'test@example.com');
-    expect(issueWizardBlocState.issueWizard[0].presentMatching[0].attributes[1].value.raw, 'example.com');
+    expect(issueWizardBlocState.obtainedCredentialsMatch[0], true);
+    expect(issueWizardBlocState.obtainedCredentials[0]?.attributes.length, 2);
+    expect(issueWizardBlocState.obtainedCredentials[0]?.attributes[0].value.raw, 'test@example.com');
+    expect(issueWizardBlocState.obtainedCredentials[0]?.attributes[1].value.raw, 'example.com');
 
     bloc.add(DisclosurePermissionNextPressed());
 
@@ -528,12 +517,13 @@ void main() {
 
     expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
     DisclosurePermissionIssueWizard issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
-    expect(issueWizardBlocState.completed, false);
+    expect(issueWizardBlocState.allObtainedCredentialsMatch, false);
     expect(issueWizardBlocState.issueWizard.length, 1);
     expect(issueWizardBlocState.issueWizard[0].fullId, 'pbdf.pbdf.surfnet-2');
     expect(issueWizardBlocState.issueWizard[0].attributes.length, 2);
     expect(issueWizardBlocState.issueWizard[0].attributes[0].attributeType.fullId, 'pbdf.pbdf.surfnet-2.id');
     expect(issueWizardBlocState.issueWizard[0].attributes[1].attributeType.fullId, 'pbdf.pbdf.surfnet-2.email');
+    expect(issueWizardBlocState.obtainedCredentials[0], null);
 
     await _issueCredential(repo, mockBridge, 43, [
       {
@@ -544,7 +534,7 @@ void main() {
 
     expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
     issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
-    expect(issueWizardBlocState.completed, true);
+    expect(issueWizardBlocState.allObtainedCredentialsMatch, true);
 
     bloc.add(DisclosurePermissionNextPressed());
 

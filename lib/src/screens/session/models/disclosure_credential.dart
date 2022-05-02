@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 
+import '../../../models/attribute_value.dart';
 import '../../../models/attributes.dart';
 import '../../../models/credentials.dart';
 import '../../../models/irma_configuration.dart';
@@ -12,6 +13,8 @@ abstract class DisclosureCredential implements CredentialInfo {
       : assert(attributes.isNotEmpty),
         assert(attributes.every((attr) => attr.credentialInfo.fullId == attributes.first.credentialInfo.fullId)),
         attributes = UnmodifiableListView(attributes);
+
+  Iterable<Attribute> get attributesWithValue => attributes.where((att) => att.value is! NullValue);
 
   @override
   CredentialType get credentialType => attributes.first.credentialInfo.credentialType;

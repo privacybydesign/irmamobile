@@ -338,10 +338,10 @@
     "lock": "Uitloggen"
   },
   "issuance": {
-    "title": "Kaartjes toevoegen",
-    "header-0": "Wil je dit kaartje in je IRMA-app zetten?",
-    "header-1": "Wil je dit kaartje in je IRMA-app zetten?",
-    "header-2": "Wil je deze kaartjes in je IRMA-app zetten?"
+    "title": "Gegevens toevoegen",
+    "description": "Wil je deze gegevens aan je IRMA-app toevoegen?",
+    "add" : "Gegevens toevoegen",
+    "cancel" : "Annuleren"
   },
   "session": {
     "navigation_bar": {
@@ -362,8 +362,21 @@
       "explanation": "De IRMA-sessie die je probeerde te starten wordt niet ondersteund door de app."
     }
   },
+  "disclosure_permission": {
+    "title": "Dataverzoek",
+    "next": "Volgende",
+    "issue_wizard": {
+      "add_data": "Voeg de volgende gegevens toe:",
+      "not_valid": "De gegevens die je hebt toegevoegd zijn hier niet geldig:"
+    },
+    "issue_wizard_choice": {
+      "add_credential": "{credentialName} toevoegen",
+      "choose_data": "Kies de gegevens die je wilt gaan delen",
+      "and": "En"
+    }
+  },
   "disclosure": {
-    "title": "Jezelf bekend maken",
+    "title": "Dataverzoek",
     "disclosure_header": "Wil je de volgende gegevens aan {otherParty} doorgeven?",
     "disclosure_call_header": "Wil je de volgende gegevens aan {otherParty} doorgeven en bellen naar {phoneNumber}?",
     "signing_header": "{otherParty} verzoekt jou om een bericht te ondertekenen",
@@ -456,12 +469,12 @@
     "add_cards": "Kaartjes ophalen",
     "add_credential": "Haal {credential} op"
   },
-  "home" : {
-    "button_back" : "Terug",
-    "nav_bar" : {
-      "home" : "Overzicht",
-      "data" : "Gegevens",
-      "activity" : "Activiteit",
+  "home": {
+    "button_back": "Terug",
+    "nav_bar": {
+      "home": "Overzicht",
+      "data": "Gegevens",
+      "activity": "Activiteit",
       "more": "Meer",
       "scan_qr": "Scan QR"
     }

@@ -2,153 +2,124 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
+import '../../models/attribute_value.dart';
 import '../../models/attributes.dart';
 import '../../models/credentials.dart';
 import '../../theme/theme.dart';
 import '../../util/language.dart';
-import '../irma_button.dart';
 import '../irma_card.dart';
-import '../irma_dialog.dart';
-import '../irma_text_button.dart';
-import '../irma_themed_button.dart';
 import 'irma_credential_card_attribute_list.dart';
 import 'irma_credential_card_header.dart';
 import 'models/card_expiry_date.dart';
+
+enum IrmaCredentialsCardMode {
+  normal,
+  issuanceChoice,
+}
 
 class IrmaCredentialsCard extends StatelessWidget {
   final Map<CredentialInfo, List<Attribute>> attributesByCredential;
   final bool revoked;
   final CardExpiryDate? expiryDate;
-
-  final Function()? onRefreshCredential;
-  final Function()? onDeleteCredential;
-
-  final bool showWarnings;
-  // If true the card expands to the size it needs and lets the parent handle the scrolling.
-  final bool expanded;
+  final bool selected;
+  final Function()? onTap;
+  final IrmaCredentialsCardMode mode;
 
   const IrmaCredentialsCard({
     required this.attributesByCredential,
     this.revoked = false,
     this.expiryDate,
-    this.onRefreshCredential,
-    this.onDeleteCredential,
-    required this.showWarnings,
-    this.expanded = false,
+    this.onTap,
+    this.selected = false,
+    this.mode = IrmaCredentialsCardMode.normal,
   });
 
   factory IrmaCredentialsCard.fromAttributes(List<Attribute> attributes) {
     return IrmaCredentialsCard(
       attributesByCredential: groupBy(attributes, (Attribute attr) => attr.credentialInfo.fullId)
           .map((_, attrs) => MapEntry(attrs.first.credentialInfo, attrs)),
-      showWarnings: false,
     );
   }
 
-  IrmaCredentialsCard.fromCredential({
-    Key? key,
-    required Credential credential,
-    this.onRefreshCredential,
-    this.onDeleteCredential,
-    this.expanded = false,
-    this.showWarnings = true,
-  })  : attributesByCredential = {credential.info: credential.attributeList},
+  IrmaCredentialsCard.fromCredential({Key? key, required Credential credential, this.onTap, this.selected = false})
+      : attributesByCredential = {credential.info: credential.attributeList},
         revoked = credential.revoked,
         expiryDate = CardExpiryDate(credential.expires),
+        mode = IrmaCredentialsCardMode.normal,
         super(key: key);
 
   IrmaCredentialsCard.fromRemovedCredential({
     required RemovedCredential credential,
   })  : attributesByCredential = {credential.info: credential.attributeList},
+        mode = IrmaCredentialsCardMode.normal,
         revoked = false,
-        expanded = true,
         expiryDate = null,
-        showWarnings = false,
-        onRefreshCredential = null,
-        onDeleteCredential = null;
+        onTap = null,
+        selected = false;
 
-  void _showDeleteDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return IrmaDialog(
-          title: FlutterI18n.translate(context, 'card.delete_title'),
-          content: FlutterI18n.translate(context, 'card.delete_content'),
-          child: Wrap(
-            verticalDirection: VerticalDirection.up,
-            alignment: WrapAlignment.spaceEvenly,
-            children: <Widget>[
-              IrmaTextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                minWidth: 0.0,
-                label: 'card.delete_deny',
-              ),
-              IrmaButton(
-                size: IrmaButtonSize.small,
-                minWidth: 0.0,
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  if (onDeleteCredential != null) {
-                    _onDeleteCredentialHandler(context);
-                  }
-                },
-                label: 'card.delete_confirm',
-              ),
-            ],
-          ),
-        );
-      },
+  Widget _buildDivider({bool isSelected = false, required ThemeData theme}) {
+    return Divider(
+      color: isSelected == true ? theme.colorScheme.primary.withOpacity(0.8) : Colors.grey.shade300,
+      thickness: 0.5,
     );
-  }
-
-  void _onDeleteCredentialHandler(BuildContext context) {
-    if (onDeleteCredential == null) return;
-    _showDeleteDialog(context);
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
     return IrmaCard(
+      style: selected ? IrmaCardStyle.selected : IrmaCardStyle.normal,
+      onTap: onTap,
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: attributesByCredential.keys
-            .expandIndexed(
-              (i, credInfo) => [
-                IrmaCredentialCardHeader(
-                  title: getTranslation(context, credInfo.credentialType.name),
-                  subtitle: getTranslation(context, credInfo.issuer.name),
-                  logo: credInfo.credentialType.logo,
+        children: attributesByCredential.keys.expandIndexed(
+          (i, credInfo) {
+            final translatedCredentialName = getTranslation(context, credInfo.credentialType.name);
+            final translatedIssuerName = getTranslation(context, credInfo.credentialType.name);
+            return [
+              IrmaCredentialCardHeader(
+                title: mode == IrmaCredentialsCardMode.issuanceChoice
+                    ? FlutterI18n.translate(
+                        context,
+                        'disclosure_permission.issue_wizard_choice.add_credential',
+                        translationParams: {
+                          'credentialName': translatedCredentialName,
+                        },
+                      )
+                    : translatedCredentialName,
+                subtitle: translatedIssuerName,
+                logo: credInfo.credentialType.logo,
+              ),
+              //If there are no attributes for this credential hide the attribute list.
+              if (attributesByCredential[credInfo]!.isNotEmpty &&
+                  //And when in issuance choice mode, some attributes also need to have an actual value
+                  (mode != IrmaCredentialsCardMode.issuanceChoice ||
+                      attributesByCredential[credInfo]!.where((att) => att.value is! NullValue).isNotEmpty)) ...[
+                _buildDivider(
+                  isSelected: selected,
+                  theme: theme.themeData,
                 ),
-                const Divider(),
                 Padding(
-                    padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).largeSpacing),
-                    child: IrmaCredentialCardAttributeList(sortAttributes(
-                      attributesByCredential[credInfo]!,
-                    ))),
-                //If this is not the last item add a divider
-                if (i != attributesByCredential.keys.length - 1)
-                  Padding(
-                    padding: EdgeInsets.only(bottom: IrmaTheme.of(context).smallSpacing),
-                    child: Divider(
-                      color: Colors.grey.shade600,
-                      thickness: 0.5,
-                    ),
+                  padding: EdgeInsets.symmetric(horizontal: theme.largeSpacing),
+                  child: IrmaCredentialCardAttributeList(
+                    attributesByCredential[credInfo]!,
+                    compareTo:
+                        //If in issuance choice mode, compare to self to show the required attribute values
+                        mode == IrmaCredentialsCardMode.issuanceChoice ? attributesByCredential[credInfo] : null,
                   ),
+                ),
               ],
-            )
-            .toList(),
+              //If this is not the last item add a divider
+              if (i != attributesByCredential.keys.length - 1)
+                _buildDivider(
+                  isSelected: selected,
+                  theme: theme.themeData,
+                ),
+            ];
+          },
+        ).toList(),
       ),
     );
-  }
-
-  List<Attribute> sortAttributes(List<Attribute> attributes) {
-    final sortedAttributes = attributes;
-    sortedAttributes.sort((a1, a2) => a1.attributeType.index.compareTo(a2.attributeType.index));
-    if (sortedAttributes.every((a) => a.attributeType.displayIndex != null)) {
-      sortedAttributes.sort((a1, a2) => a1.attributeType.displayIndex!.compareTo(a2.attributeType.displayIndex!));
-    }
-    return sortedAttributes;
   }
 }

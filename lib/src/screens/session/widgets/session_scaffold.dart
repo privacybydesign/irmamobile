@@ -1,21 +1,23 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/widgets/irma_app_bar.dart';
-import 'package:irmamobile/src/widgets/translated_text.dart';
+
+import '../../../widgets/irma_app_bar.dart';
+import '../../../widgets/translated_text.dart';
 
 class SessionScaffold extends Scaffold {
   SessionScaffold({
-    Key key,
-    @required Function() onDismiss,
-    Widget bottomNavigationBar,
-    Widget body,
-    @required String appBarTitle,
+    Key? key,
+    Function()? onDismiss,
+    Widget? bottomNavigationBar,
+    Widget? body,
+    String? appBarTitle,
+    TextStyle? appBarTitleStyle,
   }) : super(
           key: key,
           appBar: IrmaAppBar(
-            title: TranslatedText(appBarTitle),
+            title: TranslatedText(
+              appBarTitle,
+              style: appBarTitleStyle,
+            ),
             leadingAction: onDismiss,
           ),
           bottomNavigationBar: bottomNavigationBar,
