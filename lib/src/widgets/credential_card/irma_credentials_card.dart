@@ -91,13 +91,14 @@ class IrmaCredentialsCard extends StatelessWidget {
                       attributesByCredential[credInfo]!.where((att) => att.value is! NullValue).isNotEmpty)) ...[
                 const Divider(),
                 Padding(
-                    padding: EdgeInsets.symmetric(horizontal: theme.largeSpacing),
-                    child: IrmaCredentialCardAttributeList(
-                      attributesByCredential[credInfo]!,
-                      compareTo:
-                          //If in issuance choice mode, compare to self to show the required attribute values
-                          mode == IrmaCredentialsCardMode.issuanceChoice ? attributesByCredential[credInfo] : null,
-                    )),
+                  padding: EdgeInsets.symmetric(horizontal: theme.largeSpacing),
+                  child: IrmaCredentialCardAttributeList(
+                    attributesByCredential[credInfo]!,
+                    compareTo:
+                        //If in issuance choice mode, compare to self to show the required attribute values
+                        mode == IrmaCredentialsCardMode.issuanceChoice ? attributesByCredential[credInfo] : null,
+                  ),
+                ),
               ],
               //If this is not the last item add a divider
               if (i != attributesByCredential.keys.length - 1)
