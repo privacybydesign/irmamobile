@@ -4,7 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [6.2.3] - in beta 2022-01-06
+## [6.2.4] - in beta 2022-04-12
+### Added
+- New preference in Settings screen on Android to enable screenshots
+
+### Changed
+- When the full session request is not entirely visible, the disabled "Yes" button has changed to a "More" button that scrolls down
+
+### Fixed
+- Switched to external browser for iDIN issuance on Android to avoid issues with toggling to bank app
+
+### Security
+- Disallow TLS cipher suites that are no longer considered secure
+
+## [6.2.3] - 2022-01-10 (in beta 2022-01-06)
 ### Fixed
 - Fixed crash on Android 6 when scanning QR codes
 - Fixed session screen not updating when issuing a non-singleton during disclosure
@@ -154,6 +167,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Various bug fixes
 
 
+[6.2.4]: https://github.com/privacybydesign/irmamobile/compare/v6.2.3...v6.2.4
 [6.2.3]: https://github.com/privacybydesign/irmamobile/compare/v6.2.2...v6.2.3
 [6.2.2]: https://github.com/privacybydesign/irmamobile/compare/v6.2.1...v6.2.2
 [6.2.1]: https://github.com/privacybydesign/irmamobile/compare/v6.2.0...v6.2.1

@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ApplicationInfo;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
@@ -21,6 +23,7 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
   private Uri initialURL;
   private boolean debug;
   private boolean appReady;
+  private String nativeError;
 
   public IrmaMobileBridge(Context context, Activity activity, MethodChannel channel, Uri initialURL) {
     this.channel = channel;
@@ -29,19 +32,24 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
     this.initialURL = initialURL;
     appReady = false;
 
-    IrmaConfigurationCopier copier = new IrmaConfigurationCopier(context);
-
     try {
+      IrmaConfigurationCopier copier = new IrmaConfigurationCopier(context);
+      byte[] aesKey = AESKey.getKey(context);
       PackageInfo pi = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-      Irmagobridge.start(this, pi.applicationInfo.dataDir, copier.destAssetsPath.toString());
+      Irmagobridge.start(this, pi.applicationInfo.dataDir, copier.destAssetsPath.toString(), aesKey);
       this.debug = (pi.applicationInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
-    } catch (PackageManager.NameNotFoundException e) {
-      throw new RuntimeException(e);
+    } catch (GeneralSecurityException | IOException | PackageManager.NameNotFoundException e) {
+      this.nativeError = String.format("{\"Exception\":\"%s\",\"Stack\":\"%s\",\"Fatal\":true}", e.toString(), e.getStackTrace());
     }
   }
 
   @Override
   public void onMethodCall(MethodCall call, Result result) {
+    if (this.nativeError != null) {
+      channel.invokeMethod("ErrorEvent", this.nativeError);
+      return;
+    }
+
     switch (call.method) {
       // Send a previously recorded initial URL back to the UI once the app is ready
       case "AppReadyEvent":

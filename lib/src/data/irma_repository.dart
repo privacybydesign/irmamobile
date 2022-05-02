@@ -459,6 +459,7 @@ class IrmaRepository {
   final List<_ExternalBrowserCredtype> externalBrowserCredtypes = const [
     _ExternalBrowserCredtype(cred: 'pbdf.gemeente.address', os: 'ios'),
     _ExternalBrowserCredtype(cred: 'pbdf.gemeente.personalData', os: 'ios'),
+    _ExternalBrowserCredtype(cred: 'pbdf.pbdf.idin', os: 'android'),
   ];
 
   final List<String> externalBrowserUrls = const [

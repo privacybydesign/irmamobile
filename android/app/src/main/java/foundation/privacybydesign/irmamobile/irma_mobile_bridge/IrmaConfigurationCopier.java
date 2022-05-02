@@ -33,19 +33,15 @@ public class IrmaConfigurationCopier {
 
     private ArrayList<Path> configurationFilePaths;
 
-    public IrmaConfigurationCopier(Context context) {
+    public IrmaConfigurationCopier(Context context) throws IOException {
         this.context = context;
         this.assetManager = context.getAssets();
 
         this.sourceConfigurationPath = Paths.get("irma_configuration");
         this.destAssetsPath = Paths.get(context.getFilesDir().getPath()).resolve("assets");
 
-        try {
-            this.ensureDirExists(Paths.get(context.getFilesDir().getPath()).resolve("tmp"));
-            this.ensureConfigurationAssets();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        this.ensureDirExists(Paths.get(context.getFilesDir().getPath()).resolve("tmp"));
+        this.ensureConfigurationAssets();
     }
 
     private void ensureConfigurationAssets() throws IOException {

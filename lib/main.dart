@@ -18,10 +18,11 @@ Future<void> main() async {
 
   runZonedGuarded<Future<void>>(() async {
     WidgetsFlutterBinding.ensureInitialized();
-    await initSentry();
+    final preferences = await IrmaPreferences.fromInstance();
+    await initSentry(preferences: preferences);
     final repository = IrmaRepository(
       client: IrmaClientBridge(),
-      preferences: await IrmaPreferences.fromInstance(),
+      preferences: preferences,
     );
 
     runApp(IrmaApp(repository: repository));
