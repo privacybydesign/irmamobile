@@ -91,8 +91,6 @@ class ProvidedDisclosurePermission extends StatelessWidget {
               onEvent: addEvent,
             );
             bottomBar = _buildBottomBar(addEvent, showChangeChoice: true);
-          } else if (state is DisclosurePermissionFinished) {
-            throw UnimplementedError;
           }
           // Wrap body with scrollview to make body scrollable
           body = SingleChildScrollView(
