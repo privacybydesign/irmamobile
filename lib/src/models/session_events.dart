@@ -73,7 +73,7 @@ class RespondPinEvent extends SessionEvent {
 class DisclosureChoiceUpdateSessionEvent extends SessionEvent {
   @JsonKey(name: 'Discon Index')
   final int disconIndex;
-  
+
   @JsonKey(name: 'Con Index')
   final int conIndex;
 
