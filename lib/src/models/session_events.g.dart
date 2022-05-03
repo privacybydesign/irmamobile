@@ -42,6 +42,21 @@ Map<String, dynamic> _$RespondPinEventToJson(RespondPinEvent instance) => <Strin
       'Pin': instance.pin,
     };
 
+DisclosureChoiceUpdateSessionEvent _$DisclosureChoiceUpdateSessionEventFromJson(Map<String, dynamic> json) {
+  return DisclosureChoiceUpdateSessionEvent(
+    sessionID: json['SessionID'] as int,
+    disconIndex: json['Discon Index'] as int,
+    conIndex: json['Con Index'] as int,
+  );
+}
+
+Map<String, dynamic> _$DisclosureChoiceUpdateSessionEventToJson(DisclosureChoiceUpdateSessionEvent instance) =>
+    <String, dynamic>{
+      'SessionID': instance.sessionID,
+      'Discon Index': instance.disconIndex,
+      'Con Index': instance.conIndex,
+    };
+
 DismissSessionEvent _$DismissSessionEventFromJson(Map<String, dynamic> json) {
   return DismissSessionEvent(
     sessionID: json['SessionID'] as int,
