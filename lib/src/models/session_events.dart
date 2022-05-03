@@ -69,12 +69,8 @@ class RespondPinEvent extends SessionEvent {
   Map<String, dynamic> toJson() => _$RespondPinEventToJson(this);
 }
 
-@JsonSerializable()
 class DisclosureChoiceUpdateSessionEvent extends SessionEvent {
-  @JsonKey(name: 'Discon Index')
   final int disconIndex;
-
-  @JsonKey(name: 'Con Index')
   final int conIndex;
 
   DisclosureChoiceUpdateSessionEvent({
@@ -82,10 +78,6 @@ class DisclosureChoiceUpdateSessionEvent extends SessionEvent {
     required this.disconIndex,
     required this.conIndex,
   }) : super(sessionID);
-
-  factory DisclosureChoiceUpdateSessionEvent.fromJson(Map<String, dynamic> json) =>
-      _$DisclosureChoiceUpdateSessionEventFromJson(json);
-  Map<String, dynamic> toJson() => _$DisclosureChoiceUpdateSessionEventToJson(this);
 }
 
 @JsonSerializable()

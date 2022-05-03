@@ -93,7 +93,6 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
           disconIndex: event.stepIndex,
           conIndex: event.choiceIndex,
         ),
-        isBridgedEvent: true,
       );
     } else if (state is DisclosurePermissionChoices && event is DisclosurePermissionNextPressed) {
       yield DisclosurePermissionConfirmChoices(
