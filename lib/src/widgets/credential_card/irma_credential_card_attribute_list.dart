@@ -11,12 +11,16 @@ class IrmaCredentialCardAttributeList extends StatelessWidget {
   final List<Attribute> attributes;
   final List<Attribute>? compareTo;
 
-  const IrmaCredentialCardAttributeList(this.attributes, {this.compareTo});
+  const IrmaCredentialCardAttributeList(
+    this.attributes, {
+    this.compareTo,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
+
     return Column(
       children: [
         for (final attribute in attributes)
@@ -55,16 +59,18 @@ class IrmaCredentialCardAttributeList extends StatelessWidget {
                         } else if (attribute.value is TextValue || attribute.value is YesNoValue) {
                           final Attribute? compareValue =
                               compareTo?.firstWhereOrNull((e) => e.attributeType.id == attribute.attributeType.id);
-                          return TranslatedText((attribute.value as TextValue).translated.translate(lang),
-                              textAlign: TextAlign.end,
-                              style: theme.themeData.textTheme.caption!.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: compareValue == null || compareValue.value is NullValue
-                                    ? Colors.grey.shade700
-                                    : attribute.value.raw == compareValue.value.raw
-                                        ? Colors.green
-                                        : Colors.red,
-                              ));
+                          return TranslatedText(
+                            (attribute.value as TextValue).translated.translate(lang),
+                            textAlign: TextAlign.end,
+                            style: theme.themeData.textTheme.caption!.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: compareValue == null || compareValue.value is NullValue
+                                  ? Colors.grey.shade700
+                                  : attribute.value.raw == compareValue.value.raw
+                                      ? Colors.green
+                                      : Colors.red,
+                            ),
+                          );
                         }
                         //If value is null or default return empty container
                         return Container();

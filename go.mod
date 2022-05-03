@@ -10,9 +10,8 @@ require (
 	github.com/jasonlvhit/gocron v0.0.0-20191111122648-5c21418a78e8 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/privacybydesign/gabi v0.0.0-20210714094051-ba80a6a8c5d8
-	github.com/privacybydesign/irmago v0.7.1-0.20211124144809-c575348ea609
+	github.com/privacybydesign/irmago v0.10.1-0.20220314075132-f5d9e2e4db98
 	github.com/sirupsen/logrus v1.4.2
 	github.com/timshannon/bolthold v0.0.0-20191212204344-59576e1e7b0b // indirect
 	go.etcd.io/bbolt v1.3.3 // indirect
-	golang.org/x/xerrors v0.0.0-20191011141410-1b5146add898 // indirect
 )

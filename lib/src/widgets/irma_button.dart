@@ -3,7 +3,7 @@ import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 
 class IrmaButton extends StatelessWidget {
-  final String? label;
+  final String label;
   final VoidCallback? onPressed;
   final VoidCallback? onPressedDisabled;
   final TextStyle? textStyle;
@@ -15,7 +15,7 @@ class IrmaButton extends StatelessWidget {
 
   const IrmaButton({
     Key? key,
-    this.label,
+    required this.label,
     required this.onPressed,
     this.onPressedDisabled,
     this.textStyle,

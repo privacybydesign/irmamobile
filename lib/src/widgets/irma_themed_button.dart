@@ -3,7 +3,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class IrmaThemedButton extends StatelessWidget {
-  final String? label;
+  final String label;
   final VoidCallback? onPressed;
   final VoidCallback? onPressedDisabled;
   final Color color;
@@ -16,24 +16,25 @@ class IrmaThemedButton extends StatelessWidget {
   final IconData? icon;
   final bool isSecondary;
 
-  const IrmaThemedButton(
-      {this.label,
-      required this.onPressed,
-      this.onPressedDisabled,
-      required this.color,
-      this.disabledColor,
-      this.textColor,
-      required this.shape,
-      this.size,
-      this.minWidth = 232,
-      this.textStyle,
-      this.icon,
-      this.isSecondary = false});
+  const IrmaThemedButton({
+    required this.label,
+    required this.onPressed,
+    this.onPressedDisabled,
+    required this.color,
+    this.disabledColor,
+    this.textColor,
+    required this.shape,
+    this.size,
+    this.minWidth = 232,
+    this.textStyle,
+    this.icon,
+    this.isSecondary = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     final text = Text(
-      FlutterI18n.translate(context, label ?? ''),
+      FlutterI18n.translate(context, label),
       style: textStyle ?? IrmaTheme.of(context).textTheme.button,
     );
 
@@ -51,7 +52,10 @@ class IrmaThemedButton extends StatelessWidget {
           onPrimary: textColor ?? (isSecondary ? color : Colors.white),
           onSurface: disabledColor ?? IrmaTheme.of(context).disabled,
           shape: shape,
-          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+          padding: const EdgeInsets.symmetric(
+            vertical: 10.0,
+            horizontal: 20.0,
+          ),
           minimumSize: Size(minWidth, fixedHeight),
           maximumSize: Size.fromHeight(fixedHeight),
         ),
@@ -59,7 +63,7 @@ class IrmaThemedButton extends StatelessWidget {
             ? text
             : Row(
                 mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
+                children: [
                   Icon(icon),
                   const SizedBox(
                     width: 10.0,

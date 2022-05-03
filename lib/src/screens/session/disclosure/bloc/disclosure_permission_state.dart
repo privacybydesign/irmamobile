@@ -27,18 +27,25 @@ class DisclosurePermissionIssueWizardChoices implements DisclosurePermissionBloc
 
 class DisclosurePermissionIssueWizard implements DisclosurePermissionBlocState {
   /// Templates of all DisclosureCredentials that needs to be obtained first.
-  final List<TemplateDisclosureCredential> issueWizard;
+  final UnmodifiableListView<TemplateDisclosureCredential> issueWizard;
 
-  bool get completed => issueWizard.every((template) => template.obtained);
+  /// List with the latest obtained credential for each issue wizard item (matching and non-matching).
+  final UnmodifiableListView<ChoosableDisclosureCredential?> obtainedCredentials;
 
-  /// Last added credential that does not match the request
-  ChoosableDisclosureCredential? lastNonMatchingCredential;
+  /// Returns for each issue wizard item whether a matching credential has been successfully obtained.
+  List<bool> get obtainedCredentialsMatch => obtainedCredentials
+      .mapIndexed((i, cred) => cred != null && issueWizard[i].matchesDisclosureCredential(cred))
+      .toList();
 
-  /// Last added credential that matches the request
-  ChoosableDisclosureCredential? lastMatchingCredential;
+  /// Returns whether all issue wizard items have a matching credential.
+  bool get allObtainedCredentialsMatch => obtainedCredentialsMatch.every((match) => match);
 
-  DisclosurePermissionIssueWizard(
-      {required this.issueWizard, this.lastNonMatchingCredential, this.lastMatchingCredential});
+  DisclosurePermissionIssueWizard({
+    required List<TemplateDisclosureCredential> issueWizard,
+    List<ChoosableDisclosureCredential?>? obtainedCredentials,
+  })  : assert(obtainedCredentials == null || obtainedCredentials.length == issueWizard.length),
+        issueWizard = UnmodifiableListView(issueWizard),
+        obtainedCredentials = UnmodifiableListView(obtainedCredentials ?? List.filled(issueWizard.length, null));
 }
 
 class DisclosurePermissionChoices implements DisclosurePermissionBlocState {

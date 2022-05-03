@@ -33,7 +33,7 @@ lane :beta_build do
 end
 
 lane :alpha_android_build do
-  update_schemes_alpha()
+  update_schemes()
   build_irmagobridge_android()
   commit = last_git_commit()
   write_sentrydata(
@@ -46,7 +46,7 @@ lane :alpha_android_build do
 end
 
 lane :beta_android_build do
-  update_schemes_beta()
+  update_schemes()
   build_irmagobridge_android()
   commit = last_git_commit()
   write_sentrydata(
@@ -59,7 +59,7 @@ lane :beta_android_build do
 end
 
 lane :alpha_ios_build do
-  update_schemes_alpha()
+  update_schemes()
   build_irmagobridge_ios()
   update_app_identifier(
     xcodeproj: "ios/Runner.xcodeproj",
@@ -82,7 +82,7 @@ lane :alpha_ios_build do
 end
 
 lane :beta_ios_build do 
-  update_schemes_alpha()
+  update_schemes()
   build_irmagobridge_ios()
   update_app_identifier(
     xcodeproj: "ios/Runner.xcodeproj",
@@ -119,7 +119,7 @@ lane :build_irmagobridge_ios do
   end
 end
 
-lane :update_schemes_alpha do
+lane :update_schemes do
   Dir.chdir("../irma_configuration/pbdf") do
     sh("git", "checkout", "master")
     sh("git", "pull", "-f")
@@ -131,25 +131,7 @@ lane :update_schemes_alpha do
   Dir.chdir("../irma_configuration/irma-demo") do
     sh("git", "checkout", "master")
     sh("git", "pull", "-f")
-  end
-  Dir.chdir("../irma_configuration/irma-demo-requestors") do
-    sh("git", "checkout", "master")
-    sh("git", "pull", "-f")
-  end
-end
-
-lane :update_schemes_beta do
-  Dir.chdir("../irma_configuration/pbdf") do
-    sh("git", "checkout", "master")
-    sh("git", "pull", "-f")
-  end
-  Dir.chdir("../irma_configuration/pbdf-requestors") do
-    sh("git", "checkout", "master")
-    sh("git", "pull", "-f")
-  end
-  Dir.chdir("../irma_configuration/irma-demo") do
-    sh("git", "checkout", "master")
-    sh("git", "pull", "-f")
+    sh("rm", "-f", "sk.pem")
   end
   Dir.chdir("../irma_configuration/irma-demo-requestors") do
     sh("git", "checkout", "master")

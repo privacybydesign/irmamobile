@@ -26,14 +26,14 @@ class IssuancePermission extends StatelessWidget {
   Widget _buildNavigationBar(BuildContext context) {
     return satisfiable
         ? IrmaBottomBar(
-            key: const Key("issuance_accept"),
-            primaryButtonLabel: FlutterI18n.translate(context, "issuance.add"),
+            key: const Key('issuance_accept'),
+            primaryButtonLabel: FlutterI18n.translate(context, 'issuance.add'),
             onPrimaryPressed: () => onGivePermission?.call(),
-            secondaryButtonLabel: FlutterI18n.translate(context, "issuance.cancel"),
+            secondaryButtonLabel: FlutterI18n.translate(context, 'issuance.cancel'),
             onSecondaryPressed: () => onDismiss?.call(),
           )
         : IrmaBottomBar(
-            primaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.back"),
+            primaryButtonLabel: FlutterI18n.translate(context, 'session.navigation_bar.back'),
             onPrimaryPressed: () => onDismiss?.call(),
           );
   }
@@ -43,17 +43,18 @@ class IssuancePermission extends StatelessWidget {
 
     return ListView(
       padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
-      children: <Widget>[
+      children: [
         Padding(
-            padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
-            child: Container(
-              color: theme.lightBlue,
-              padding: EdgeInsets.all(theme.defaultSpacing),
-              child: TranslatedText(
-                'issuance.description',
-                style: theme.textTheme.caption,
-              ),
-            )),
+          padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
+          child: Container(
+            color: theme.lightBlue,
+            padding: EdgeInsets.all(theme.defaultSpacing),
+            child: TranslatedText(
+              'issuance.description',
+              style: theme.textTheme.caption,
+            ),
+          ),
+        ),
         IssuingDetail(issuedCredentials),
       ],
     );

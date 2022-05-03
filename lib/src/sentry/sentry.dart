@@ -6,11 +6,11 @@ import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:package_info/package_info.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
-Future<void> initSentry() async {
+Future<void> initSentry({required IrmaPreferences preferences}) async {
   if (dsn != '') {
     final completer = Completer();
     // Keep listening to make sure preference changes are immediately processed.
-    IrmaPreferences.get().getReportErrors().listen((reportErrors) async {
+    preferences.getReportErrors().listen((reportErrors) async {
       if (Sentry.isEnabled) await Sentry.close();
       await SentryFlutter.init(
         (options) async {

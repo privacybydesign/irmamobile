@@ -16,7 +16,8 @@ class IrmaNavButton extends StatelessWidget {
   final bool isSelected;
   final Function(IrmaNavBarTab tab)? changeTab;
 
-  const IrmaNavButton({required this.iconData, required this.tab, this.isSelected = false, this.changeTab});
+  const IrmaNavButton({Key? key, required this.iconData, required this.tab, this.isSelected = false, this.changeTab})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
