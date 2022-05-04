@@ -76,7 +76,7 @@ class IrmaCredentialsCard extends StatelessWidget {
         children: attributesByCredential.keys.expandIndexed(
           (i, credInfo) {
             final translatedCredentialName = getTranslation(context, credInfo.credentialType.name);
-            final translatedIssuerName = getTranslation(context, credInfo.credentialType.name);
+            final translatedIssuerName = getTranslation(context, credInfo.issuer.name);
             return [
               IrmaCredentialCardHeader(
                 title: mode == IrmaCredentialsCardMode.issuanceChoice
