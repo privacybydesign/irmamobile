@@ -1,12 +1,11 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/data/irma_preferences.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/credentials.dart';
 import 'package:package_info/package_info.dart';
 
 import '../../../../sentry_dsn.dart';
+import '../../../models/credentials.dart';
+import '../../../widgets/irma_repository_provider.dart';
 
 class VersionButton extends StatefulWidget {
   @override
@@ -27,53 +26,58 @@ class _VersionButtonState extends State<VersionButton> {
 
   @override
   Widget build(BuildContext context) {
+    final repo = IrmaRepositoryProvider.of(context);
+
     return Row(
-      children: <Widget>[
+      children: [
         Expanded(
           child: InkWell(
-              onTap: () {
-                setState(() {
-                  tappedCount++;
-                  if (tappedCount == 7) {
-                    tappedCount = 0;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(FlutterI18n.translate(context, 'more_tab.developer_mode_enabled'))));
-                    IrmaPreferences.get().setDeveloperModeVisible(true);
-                    IrmaRepository.get().setDeveloperMode(true);
-                  }
-                });
-              },
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  StreamBuilder<Credentials>(
-                    stream: IrmaRepository.get().getCredentials(),
-                    builder: (context, credentials) {
-                      String? appId;
-                      if (credentials.hasData) {
-                        final keyShareCred =
-                            credentials.data?.values.firstWhereOrNull((cred) => cred.isKeyshareCredential);
-                        appId = keyShareCred?.attributes.values.first.raw;
-                      }
-                      return Text(
-                        FlutterI18n.translate(context, 'more_tab.app_id', translationParams: {
-                          'id': appId ?? '',
-                        }),
-                        style: Theme.of(context).textTheme.bodyText2,
-                      );
-                    },
-                  ),
-                  FutureBuilder<PackageInfo>(
-                    future: PackageInfo.fromPlatform(),
-                    builder: (BuildContext context, AsyncSnapshot<PackageInfo> info) => Text(
-                      FlutterI18n.translate(context, 'more_tab.version', translationParams: {
-                        'version': buildVersionString(info),
+            onTap: () {
+              setState(() {
+                tappedCount++;
+                if (tappedCount == 7) {
+                  tappedCount = 0;
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(FlutterI18n.translate(context, 'more_tab.developer_mode_enabled')),
+                    behavior: SnackBarBehavior.floating,
+                  ));
+                  repo.preferences.setDeveloperModeVisible(true);
+                  repo.setDeveloperMode(true);
+                }
+              });
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                StreamBuilder<Credentials>(
+                  stream: repo.getCredentials(),
+                  builder: (context, credentials) {
+                    String? appId;
+                    if (credentials.hasData) {
+                      final keyShareCred =
+                          credentials.data?.values.firstWhereOrNull((cred) => cred.isKeyshareCredential);
+                      appId = keyShareCred?.attributes.values.first.raw;
+                    }
+                    return Text(
+                      FlutterI18n.translate(context, 'more_tab.app_id', translationParams: {
+                        'id': appId ?? '',
                       }),
                       style: Theme.of(context).textTheme.bodyText2,
-                    ),
+                    );
+                  },
+                ),
+                FutureBuilder<PackageInfo>(
+                  future: PackageInfo.fromPlatform(),
+                  builder: (BuildContext context, AsyncSnapshot<PackageInfo> info) => Text(
+                    FlutterI18n.translate(context, 'more_tab.version', translationParams: {
+                      'version': buildVersionString(info),
+                    }),
+                    style: Theme.of(context).textTheme.bodyText2,
                   ),
-                ],
-              )),
+                ),
+              ],
+            ),
+          ),
         ),
       ],
     );
