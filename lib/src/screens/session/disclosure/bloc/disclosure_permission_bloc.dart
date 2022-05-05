@@ -164,6 +164,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         yield DisclosurePermissionChoices(
           choices: parsedCandidates,
           choiceIndices: session.disclosureIndices,
+          selectedStepIndex: state.selectedStepIndex,
         );
       } else {
         // Check whether an issue wizard is needed to bootstrap the session.
