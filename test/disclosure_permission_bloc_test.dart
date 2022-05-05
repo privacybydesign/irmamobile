@@ -113,7 +113,7 @@ void main() {
 
     expect(await bloc.stream.first, isA<DisclosurePermissionChoices>());
     choiceBlocState = bloc.state as DisclosurePermissionChoices;
-    expect(choiceBlocState.selectedStepIndex, null);
+    expect(choiceBlocState.selectedStepIndex, 0);
     expect(choiceBlocState.choices.length, 1);
     expect(choiceBlocState.choices[0].length, 3);
     expect(choiceBlocState.choices[0][0].length, 1);
