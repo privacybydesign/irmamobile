@@ -365,6 +365,7 @@
   "disclosure_permission": {
     "title": "Data request",
     "next": "Next",
+    "change_choice": "Change choice",
     "issue_wizard": {
       "add_data": "Add the following data:",
       "not_valid": "The data you added is not valid here:"
@@ -381,8 +382,8 @@
       "done": "Done"
     },
     "confirm": {
-      "change_choice": "Change choice",
-      "share": "This is the data you are going to share:"
+      "share": "This is the data you are going to share:",
+      "submit": "Share data"
     }
   },
   "disclosure": {
