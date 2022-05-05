@@ -37,11 +37,16 @@ class DisclosureChoices extends StatelessWidget {
           'disclosure_permission.choices.choose_data',
           style: theme.themeData.textTheme.headline3,
         ),
-        SizedBox(height: theme.smallSpacing),
-        Text(
-          FlutterI18n.translate(context, 'disclosure_permission.choices.explanation',
-              translationParams: {'requestorName': requestor.name.translate(lang)}),
-          style: theme.themeData.textTheme.caption!.copyWith(color: Colors.grey.shade500),
+        Padding(
+          padding: EdgeInsets.only(
+            top: theme.smallSpacing,
+            bottom: theme.defaultSpacing,
+          ),
+          child: Text(
+            FlutterI18n.translate(context, 'disclosure_permission.choices.explanation',
+                translationParams: {'requestorName': requestor.name.translate(lang)}),
+            style: theme.themeData.textTheme.caption!.copyWith(color: Colors.grey.shade500),
+          ),
         ),
         for (var stepIndex = 0; stepIndex < state.currentSelection.length; stepIndex++)
           Padding(
