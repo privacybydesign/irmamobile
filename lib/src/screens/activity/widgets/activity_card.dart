@@ -44,17 +44,20 @@ class ActivityCard extends StatelessWidget {
         break;
       case LogEntryType.issuing:
       case LogEntryType.removal:
-        if (irmaConfiguration.issuers[logEntry.issuedCredentials.first.fullIssuerId] != null) {
-          title = irmaConfiguration.issuers[logEntry.issuedCredentials.first.fullIssuerId]!.name.translate(lang);
+        final cred = Credential.fromRaw(
+          irmaConfiguration: irmaConfiguration,
+          rawCredential: logEntry.issuedCredentials.first,
+        );
+        if (irmaConfiguration.issuers[cred.info.issuer.fullId] != null) {
+          title = irmaConfiguration.issuers[cred.info.issuer.fullId]!.name.translate(lang);
         }
         subtitleTranslationKey =
             logEntry.type == LogEntryType.issuing ? 'activity.data_received' : 'activity.data_deleted';
-        logoFile = File(
-          Credential.fromRaw(
-            irmaConfiguration: irmaConfiguration,
-            rawCredential: logEntry.issuedCredentials.first,
-          ).info.credentialType.logo!,
-        );
+        if (cred.info.credentialType.logo != null) {
+          logoFile = File(
+            cred.info.credentialType.logo!,
+          );
+        }
     }
 
     return IrmaCard(
