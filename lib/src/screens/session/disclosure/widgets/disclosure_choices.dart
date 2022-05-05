@@ -48,7 +48,7 @@ class DisclosureChoices extends StatelessWidget {
             style: theme.themeData.textTheme.caption!.copyWith(color: Colors.grey.shade500),
           ),
         ),
-        for (var stepIndex = 0; stepIndex < state.currentSelection.length; stepIndex++)
+        for (var stepIndex = 0; stepIndex < state.choices.length; stepIndex++)
           Padding(
             padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
             child: Column(
