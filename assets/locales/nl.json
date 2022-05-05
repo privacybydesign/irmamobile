@@ -383,7 +383,8 @@
     },
     "confirm": {
       "share": "Deze gegevens ga je delen:",
-      "submit": "Gegevens delen"
+      "submit": "Gegevens delen",
+      "sign" : "En je ondertekent dit bericht:"
     }
   },
   "disclosure": {
