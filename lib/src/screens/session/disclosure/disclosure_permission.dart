@@ -90,7 +90,8 @@ class ProvidedDisclosurePermission extends StatelessWidget {
               requestor: requestor,
               onEvent: addEvent,
             );
-            bottomBar = _buildBottomBar(addEvent, showChangeChoice: true);
+            bottomBar = _buildBottomBar(addEvent,
+                primaryButtonLabel: 'disclosure_permission.confirm.submit', showChangeChoice: true);
           }
           // Wrap body with scrollview to make body scrollable
           body = SingleChildScrollView(
@@ -111,19 +112,16 @@ class ProvidedDisclosurePermission extends StatelessWidget {
   }
 }
 
-IrmaBottomBar _buildBottomBar(
-  addEvent, {
-  primaryIsDisabled = false,
-  showChangeChoice = false,
-}) =>
+IrmaBottomBar _buildBottomBar(addEvent,
+        {primaryIsDisabled = false, showChangeChoice = false, String? primaryButtonLabel}) =>
     IrmaBottomBar(
-      primaryButtonLabel: 'disclosure_permission.next',
+      primaryButtonLabel: primaryButtonLabel ?? 'disclosure_permission.next',
       onPrimaryPressed: primaryIsDisabled == true
           ? null
           : () => addEvent(
                 DisclosurePermissionNextPressed(),
               ),
-      secondaryButtonLabel: showChangeChoice == true ? 'disclosure_permission.choices.change_choice' : null,
+      secondaryButtonLabel: showChangeChoice == true ? 'disclosure_permission.change_choice' : null,
       onSecondaryPressed: showChangeChoice == true
           ? () => addEvent(
                 DisclosurePermissionEditCurrentSelectionPressed(),

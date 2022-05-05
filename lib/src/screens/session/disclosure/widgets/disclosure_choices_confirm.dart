@@ -31,7 +31,7 @@ class DisclosureChoicesConfirm extends StatelessWidget {
         IssuerVerifierHeader(title: requestor.name.translate(lang)),
         SizedBox(height: theme.defaultSpacing),
         TranslatedText(
-          'disclosure_permission.choices.share',
+          'disclosure_permission.confirm.share',
           style: theme.themeData.textTheme.headline3,
         ),
         SizedBox(height: theme.defaultSpacing),

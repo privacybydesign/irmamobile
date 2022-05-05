@@ -365,6 +365,7 @@
   "disclosure_permission": {
     "title": "Dataverzoek",
     "next": "Volgende",
+    "change_choice": "Keuze wijzigen",
     "issue_wizard": {
       "add_data": "Voeg de volgende gegevens toe:",
       "not_valid": "De gegevens die je hebt toegevoegd zijn hier niet geldig:"
@@ -378,9 +379,11 @@
       "choose_data": "Kies de gegevens die jij wilt delen",
       "explanation": "De gegevens die jij selecteert worden gedeeld met {requestorName}",
       "step": "Stap {stepIndex}",
-      "done": "Gereed",
-      "change_choice": "Keuze wijzigen",
-      "share" : "Deze gegevens ga je delen:"
+      "done": "Gereed"
+    },
+    "confirm": {
+      "share": "Deze gegevens ga je delen:",
+      "submit": "Gegevens delen"
     }
   },
   "disclosure": {

@@ -67,7 +67,7 @@ class DisclosureChoices extends StatelessWidget {
                       child: TranslatedText(
                         state.selectedStepIndex == stepIndex
                             ? 'disclosure_permission.choices.done'
-                            : 'disclosure_permission.choices.change_choice',
+                            : 'disclosure_permission.change_choice',
                         style: theme.textTheme.caption!.copyWith(
                           color: theme.themeData.colorScheme.primary,
                         ),

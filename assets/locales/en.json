@@ -378,9 +378,11 @@
       "choose_data": "Choose the data you want to share",
       "explanation": "The data you select will be shared with the {requestorName}",
       "step": "Step {stepIndex}",
-      "done": "Done",
+      "done": "Done"
+    },
+    "confirm": {
       "change_choice": "Change choice",
-      "share" : "This is the data you will be sharing:"
+      "share": "This is the data you are going to share:"
     }
   },
   "disclosure": {
