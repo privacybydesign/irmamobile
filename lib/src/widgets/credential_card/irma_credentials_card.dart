@@ -8,6 +8,7 @@ import '../../models/credentials.dart';
 import '../../theme/theme.dart';
 import '../../util/language.dart';
 import '../irma_card.dart';
+import '../translated_text.dart';
 import 'irma_credential_card_attribute_list.dart';
 import 'irma_credential_card_header.dart';
 import 'models/card_expiry_date.dart';
@@ -71,55 +72,65 @@ class IrmaCredentialsCard extends StatelessWidget {
     return IrmaCard(
       style: selected ? IrmaCardStyle.selected : IrmaCardStyle.normal,
       onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: attributesByCredential.keys.expandIndexed(
-          (i, credInfo) {
-            final translatedCredentialName = getTranslation(context, credInfo.credentialType.name);
-            final translatedIssuerName = getTranslation(context, credInfo.credentialType.name);
-            return [
-              IrmaCredentialCardHeader(
-                title: mode == IrmaCredentialsCardMode.issuanceChoice
-                    ? FlutterI18n.translate(
-                        context,
-                        'disclosure_permission.issue_wizard_choice.add_credential',
-                        translationParams: {
-                          'credentialName': translatedCredentialName,
-                        },
-                      )
-                    : translatedCredentialName,
-                subtitle: translatedIssuerName,
-                logo: credInfo.credentialType.logo,
-              ),
-              //If there are no attributes for this credential hide the attribute list.
-              if (attributesByCredential[credInfo]!.isNotEmpty &&
-                  //And when in issuance choice mode, some attributes also need to have an actual value
-                  (mode != IrmaCredentialsCardMode.issuanceChoice ||
-                      attributesByCredential[credInfo]!.where((att) => att.value is! NullValue).isNotEmpty)) ...[
-                _buildDivider(
-                  isSelected: selected,
-                  theme: theme.themeData,
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: theme.largeSpacing),
-                  child: IrmaCredentialCardAttributeList(
-                    attributesByCredential[credInfo]!,
-                    compareTo:
-                        //If in issuance choice mode, compare to self to show the required attribute values
-                        mode == IrmaCredentialsCardMode.issuanceChoice ? attributesByCredential[credInfo] : null,
-                  ),
+      child: attributesByCredential.keys.isNotEmpty
+          ? Column(
+              mainAxisSize: MainAxisSize.min,
+              children: attributesByCredential.keys.expandIndexed(
+                (i, credInfo) {
+                  final translatedCredentialName = getTranslation(context, credInfo.credentialType.name);
+                  final translatedIssuerName = getTranslation(context, credInfo.credentialType.name);
+                  return [
+                    IrmaCredentialCardHeader(
+                      title: mode == IrmaCredentialsCardMode.issuanceChoice
+                          ? FlutterI18n.translate(
+                              context,
+                              'disclosure_permission.issue_wizard_choice.add_credential',
+                              translationParams: {
+                                'credentialName': translatedCredentialName,
+                              },
+                            )
+                          : translatedCredentialName,
+                      subtitle: translatedIssuerName,
+                      logo: credInfo.credentialType.logo,
+                    ),
+                    //If there are no attributes for this credential hide the attribute list.
+                    if (attributesByCredential[credInfo]!.isNotEmpty &&
+                        //And when in issuance choice mode, some attributes also need to have an actual value
+                        (mode != IrmaCredentialsCardMode.issuanceChoice ||
+                            attributesByCredential[credInfo]!.where((att) => att.value is! NullValue).isNotEmpty)) ...[
+                      _buildDivider(
+                        isSelected: selected,
+                        theme: theme.themeData,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: theme.largeSpacing),
+                        child: IrmaCredentialCardAttributeList(
+                          attributesByCredential[credInfo]!,
+                          compareTo:
+                              //If in issuance choice mode, compare to self to show the required attribute values
+                              mode == IrmaCredentialsCardMode.issuanceChoice ? attributesByCredential[credInfo] : null,
+                        ),
+                      ),
+                    ],
+                    //If this is not the last item add a divider
+                    if (i != attributesByCredential.keys.length - 1)
+                      _buildDivider(
+                        isSelected: selected,
+                        theme: theme.themeData,
+                      ),
+                  ];
+                },
+              ).toList(),
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TranslatedText(
+                  "credential.no_data",
+                  style: theme.themeData.textTheme.bodyText1,
                 ),
               ],
-              //If this is not the last item add a divider
-              if (i != attributesByCredential.keys.length - 1)
-                _buildDivider(
-                  isSelected: selected,
-                  theme: theme.themeData,
-                ),
-            ];
-          },
-        ).toList(),
-      ),
+            ),
     );
   }
 }

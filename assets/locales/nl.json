@@ -525,5 +525,8 @@
     "shared_data": "Gedeelde gegevens",
     "received_data": "Ontvangen gegevens",
     "recent_activity": "Recente activiteit"
+  },
+  "credential": {
+    "no_data" : "Geen gegevens"
   }
 }

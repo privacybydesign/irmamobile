@@ -81,32 +81,27 @@ class DisclosureChoices extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: theme.smallSpacing),
-                if (state.selectedStepIndex == stepIndex)
-                  for (var choiceIndex = 0; choiceIndex < state.choices[stepIndex].length; choiceIndex++)
-                    for (var cred in state.choices[stepIndex][choiceIndex])
-                      cred is TemplateDisclosureCredential
-                          ? IrmaDisclosureCredentialCard(
-                              cred,
-                              style: IrmaCardStyle.template,
-                            )
-                          : IrmaCredentialsCard(
-                              selected: state.choiceIndices[stepIndex] == choiceIndex,
-                              attributesByCredential: {
-                                cred: cred.attributes,
-                              },
-                              onTap: () => onEvent(
-                                DisclosurePermissionChoiceUpdated(
-                                  stepIndex: stepIndex,
-                                  choiceIndex: choiceIndex,
-                                ),
-                              ),
-                            )
-                else
-                  IrmaCredentialsCard(
-                    attributesByCredential: {
-                      state.currentSelection[stepIndex]: state.currentSelection[stepIndex].attributes
-                    },
-                  ),
+                for (var choiceIndex = 0; choiceIndex < state.choices[stepIndex].length; choiceIndex++)
+                  if (state.selectedStepIndex == stepIndex || state.choiceIndices[stepIndex] == choiceIndex)
+                    if (state.choices[stepIndex][choiceIndex].any((cred) => cred is TemplateDisclosureCredential))
+                      IrmaDisclosureCredentialCard(
+                        state.choices[stepIndex][choiceIndex]
+                            .firstWhere((cred) => cred is TemplateDisclosureCredential),
+                        style: IrmaCardStyle.template,
+                      )
+                    else
+                      IrmaCredentialsCard(
+                        selected: state.selectedStepIndex == stepIndex && state.choiceIndices[stepIndex] == choiceIndex,
+                        attributesByCredential: state.choices[stepIndex][choiceIndex]
+                            .asMap()
+                            .map((_, cred) => MapEntry(cred, cred.attributes)),
+                        onTap: () => onEvent(
+                          DisclosurePermissionChoiceUpdated(
+                            stepIndex: stepIndex,
+                            choiceIndex: choiceIndex,
+                          ),
+                        ),
+                      )
               ],
             ),
           )
