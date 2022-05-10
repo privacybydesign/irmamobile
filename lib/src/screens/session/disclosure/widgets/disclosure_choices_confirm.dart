@@ -46,7 +46,7 @@ class DisclosureChoicesConfirm extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
             child: TranslatedText(
-              'disclosure_permission.confirm.sign',
+              'disclosure_permission.confirm.sign_message',
               style: theme.themeData.textTheme.headline3,
             ),
           ),
