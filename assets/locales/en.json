@@ -340,8 +340,8 @@
   "issuance": {
     "title": "Add data",
     "description": "Do you want to add this data to your IRMA app?",
-    "add" : "Add data",
-    "cancel" : "Cancel"
+    "add": "Add data",
+    "cancel": "Cancel"
   },
   "session": {
     "navigation_bar": {
@@ -365,6 +365,7 @@
   "disclosure_permission": {
     "title": "Data request",
     "next": "Next",
+    "change_choice": "Change choice",
     "issue_wizard": {
       "add_data": "Add the following data:",
       "not_valid": "The data you added is not valid here:"
@@ -373,6 +374,17 @@
       "add_credential": "Add {credentialName}",
       "choose_data": "Choose the data you want to share",
       "and": "And"
+    },
+    "choices": {
+      "choose_data": "Choose the data you want to share",
+      "explanation": "The data you select will be shared with the {requestorName}",
+      "step": "Step {stepIndex}",
+      "done": "Done"
+    },
+    "confirm": {
+      "share": "This is the data you are going to share:",
+      "submit": "Share data",
+      "sign_message" : "And you sign this message:"
     }
   },
   "disclosure": {

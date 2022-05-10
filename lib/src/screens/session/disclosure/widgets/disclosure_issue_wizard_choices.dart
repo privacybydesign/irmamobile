@@ -41,7 +41,7 @@ class DisclosureIssueWizardChoices extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
             ),
-        ]
+        ],
       ],
     );
   }

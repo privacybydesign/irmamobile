@@ -13,21 +13,24 @@ import '../../models/template_disclosure_credential.dart';
 class IrmaDisclosureCredentialCard extends StatelessWidget {
   final DisclosureCredential credential;
   final TemplateDisclosureCredential? compareTo;
-
   final IrmaCardStyle style;
+  final Function()? onTap;
 
   const IrmaDisclosureCredentialCard(
     this.credential, {
     this.style = IrmaCardStyle.normal,
     this.compareTo,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return IrmaCard(
-      onTap: style == IrmaCardStyle.template
-          ? () => IrmaRepositoryProvider.of(context).openIssueURL(context, credential.credentialType.fullId)
-          : null,
+      onTap: onTap != null
+          ? () => onTap
+          : style == IrmaCardStyle.template
+              ? () => IrmaRepositoryProvider.of(context).openIssueURL(context, credential.credentialType.fullId)
+              : null,
       style: style == IrmaCardStyle.template ? IrmaCardStyle.template : IrmaCardStyle.normal,
       child: Column(
         children: [

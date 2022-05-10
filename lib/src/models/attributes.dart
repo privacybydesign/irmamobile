@@ -1,6 +1,5 @@
 import 'dart:collection';
 
-import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:irmamobile/src/models/attribute_value.dart';
 import 'package:irmamobile/src/models/credentials.dart';
@@ -135,7 +134,7 @@ class CredentialAttribute extends Attribute {
   String get credentialHash => credential.hash;
 }
 
-class Attribute extends Equatable {
+class Attribute {
   final CredentialInfo credentialInfo;
   final AttributeType attributeType;
   final AttributeValue value;
@@ -191,9 +190,6 @@ class Attribute extends Equatable {
       value: AttributeValue.fromRaw(attributeType, disclosedAttribute.value),
     );
   }
-
-  @override
-  List<Object?> get props => [credentialInfo.id, value];
 }
 
 @JsonSerializable()

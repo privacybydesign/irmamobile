@@ -340,8 +340,8 @@
   "issuance": {
     "title": "Gegevens toevoegen",
     "description": "Wil je deze gegevens aan je IRMA-app toevoegen?",
-    "add" : "Gegevens toevoegen",
-    "cancel" : "Annuleren"
+    "add": "Gegevens toevoegen",
+    "cancel": "Annuleren"
   },
   "session": {
     "navigation_bar": {
@@ -365,6 +365,7 @@
   "disclosure_permission": {
     "title": "Dataverzoek",
     "next": "Volgende",
+    "change_choice": "Keuze wijzigen",
     "issue_wizard": {
       "add_data": "Voeg de volgende gegevens toe:",
       "not_valid": "De gegevens die je hebt toegevoegd zijn hier niet geldig:"
@@ -373,6 +374,17 @@
       "add_credential": "{credentialName} toevoegen",
       "choose_data": "Kies de gegevens die je wilt gaan delen",
       "and": "En"
+    },
+    "choices": {
+      "choose_data": "Kies de gegevens die jij wilt delen",
+      "explanation": "De gegevens die jij selecteert worden gedeeld met {requestorName}",
+      "step": "Stap {stepIndex}",
+      "done": "Gereed"
+    },
+    "confirm": {
+      "share": "Deze gegevens ga je delen:",
+      "submit": "Gegevens delen",
+      "sign_message" : "En je ondertekent dit bericht:"
     }
   },
   "disclosure": {
