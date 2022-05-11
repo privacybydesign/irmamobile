@@ -55,7 +55,7 @@ class IrmaCredentialCardAttributeList extends StatelessWidget {
                             style: theme.textTheme.bodyText2!.copyWith(decoration: TextDecoration.underline),
                           ),
                         );
-                      } else if (attribute.value is TextValue || attribute.value is YesNoValue) {
+                      } else if (attribute.value is TextValue) {
                         final Attribute? compareValue = compareToAttributes
                             ?.firstWhereOrNull((e) => e.attributeType.id == attribute.attributeType.id);
                         return TranslatedText(
