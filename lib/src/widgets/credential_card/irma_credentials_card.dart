@@ -94,7 +94,7 @@ class IrmaCredentialsCard extends StatelessWidget {
                       style: style,
                     ),
                     //If there are no attributes for this credential hide the attribute list.
-                    if (attributesByCredential[credInfo]!.where((att) => att.value is! NullValue).isNotEmpty) ...[
+                    if (attributesByCredential[credInfo]!.any((att) => att.value is! NullValue)) ...[
                       IrmaDivider(style: style),
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: theme.largeSpacing),
