@@ -23,7 +23,7 @@ class DisclosureChoices extends StatelessWidget {
     required this.onEvent,
   });
 
-  Widget _buildDisclosureCredential({
+  Widget _buildDisclosureCandidate({
     required BuildContext context,
     required int stepIndex,
     required int choiceIndex,
@@ -114,7 +114,7 @@ class DisclosureChoices extends StatelessWidget {
                 SizedBox(height: theme.smallSpacing),
                 for (var choiceIndex = 0; choiceIndex < state.choices[stepIndex].length; choiceIndex++)
                   if (state.selectedStepIndex == stepIndex || state.choiceIndices[stepIndex] == choiceIndex)
-                    _buildDisclosureCredential(
+                    _buildDisclosureCandidate(
                       context: context,
                       stepIndex: stepIndex,
                       choiceIndex: choiceIndex,
