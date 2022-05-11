@@ -115,7 +115,7 @@ class IrmaCredentialsCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 TranslatedText(
-                  "credential.no_data",
+                  'credential.no_data',
                   style: theme.themeData.textTheme.bodyText1,
                 ),
               ],
