@@ -11,6 +11,7 @@ class IrmaQrScanButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+
     return Container(
       margin: EdgeInsets.only(top: MediaQuery.of(context).size.height > 450 ? 52 : 42),
       constraints: const BoxConstraints(maxWidth: 90),
@@ -31,9 +32,11 @@ class IrmaQrScanButton extends StatelessWidget {
           SizedBox(
             height: theme.tinySpacing,
           ),
-          TranslatedText('home.nav_bar.scan_qr',
-              textAlign: TextAlign.center,
-              style: theme.themeData.textTheme.caption!.copyWith(fontSize: 12, color: Colors.grey.shade600))
+          ExcludeSemantics(
+            child: TranslatedText('home.nav_bar.scan_qr',
+                textAlign: TextAlign.center,
+                style: theme.themeData.textTheme.caption!.copyWith(fontSize: 12, color: Colors.grey.shade600)),
+          ),
         ],
       ),
     );
