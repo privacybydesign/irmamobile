@@ -82,7 +82,7 @@ class DisclosurePermissionConfirmChoices implements DisclosurePermissionBlocStat
   final String? signedMessage;
 
   /// Returns whether the session is a signature session.
-  bool get isSignatureSession => signedMessage != null;
+  bool get isSignatureSession => signedMessage != null && signedMessage != '';
 
   DisclosurePermissionConfirmChoices({
     required List<ChoosableDisclosureCredential> currentSelection,
