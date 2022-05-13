@@ -16,7 +16,10 @@ class ActivityCard extends StatelessWidget {
   final LogEntry logEntry;
   final IrmaConfiguration irmaConfiguration;
 
-  const ActivityCard({required this.logEntry, required this.irmaConfiguration});
+  const ActivityCard({
+    required this.logEntry,
+    required this.irmaConfiguration,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -41,79 +44,84 @@ class ActivityCard extends StatelessWidget {
         break;
       case LogEntryType.issuing:
       case LogEntryType.removal:
-        if (irmaConfiguration.issuers[logEntry.issuedCredentials.first.fullIssuerId] != null) {
-          title = irmaConfiguration.issuers[logEntry.issuedCredentials.first.fullIssuerId]!.name.translate(lang);
+        final cred = Credential.fromRaw(
+          irmaConfiguration: irmaConfiguration,
+          rawCredential: logEntry.issuedCredentials.first,
+        );
+        if (irmaConfiguration.issuers[cred.info.issuer.fullId] != null) {
+          title = irmaConfiguration.issuers[cred.info.issuer.fullId]!.name.translate(lang);
         }
         subtitleTranslationKey =
             logEntry.type == LogEntryType.issuing ? 'activity.data_received' : 'activity.data_deleted';
-        logoFile = File(
-          Credential.fromRaw(irmaConfiguration: irmaConfiguration, rawCredential: logEntry.issuedCredentials.first)
-              .info
-              .credentialType
-              .logo!,
-        );
+        if (cred.info.credentialType.logo != null) {
+          logoFile = File(
+            cred.info.credentialType.logo!,
+          );
+        }
     }
 
     return IrmaCard(
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute(
-            builder: (context) => ActivityDetailScreen(
-                  logEntry: logEntry,
-                  irmaConfiguration: irmaConfiguration,
-                )),
-      ),
-      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Flexible(
-          child: Row(
-            children: [
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: theme.tinySpacing),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(8),
-                  ),
-                ),
-                child: Container(
-                  padding: EdgeInsets.all(theme.smallSpacing),
-                  height: 48,
-                  width: 48,
-                  child: logoFile.existsSync()
-                      ? SizedBox(height: 24, child: Image.file(logoFile, excludeFromSemantics: true))
-                      : null,
-                ),
-              ),
-              Flexible(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.themeData.textTheme.caption!.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      formatDate(logEntry.time, lang),
-                      style: theme.themeData.textTheme.bodyText2!.copyWith(fontSize: 12),
-                    ),
-                    TranslatedText(
-                      subtitleTranslationKey,
-                      style: theme.themeData.textTheme.caption,
-                    )
-                  ],
-                ),
-              )
-            ],
+          builder: (context) => ActivityDetailScreen(
+            logEntry: logEntry,
+            irmaConfiguration: irmaConfiguration,
           ),
         ),
-        Icon(
-          Icons.chevron_right,
-          color: Colors.grey.shade700,
-        ),
-      ]),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Flexible(
+            child: Row(
+              children: [
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: theme.tinySpacing),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Container(
+                    padding: EdgeInsets.all(theme.smallSpacing),
+                    height: 48,
+                    width: 48,
+                    child: logoFile.existsSync()
+                        ? SizedBox(height: 24, child: Image.file(logoFile, excludeFromSemantics: true))
+                        : null,
+                  ),
+                ),
+                Flexible(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.themeData.textTheme.caption!.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        formatDate(logEntry.time, lang),
+                        style: theme.themeData.textTheme.bodyText2!.copyWith(fontSize: 12),
+                      ),
+                      TranslatedText(
+                        subtitleTranslationKey,
+                        style: theme.themeData.textTheme.caption,
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
+          Icon(
+            Icons.chevron_right,
+            color: Colors.grey.shade700,
+          ),
+        ],
+      ),
     );
   }
 }

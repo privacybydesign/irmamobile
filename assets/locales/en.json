@@ -383,7 +383,8 @@
     },
     "confirm": {
       "share": "This is the data you are going to share:",
-      "submit": "Share data"
+      "submit": "Share data",
+      "sign_message" : "And you sign this message:"
     }
   },
   "disclosure": {
