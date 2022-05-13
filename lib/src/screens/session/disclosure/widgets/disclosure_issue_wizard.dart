@@ -4,11 +4,12 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../../models/session.dart';
 import '../../../../theme/theme.dart';
+import '../../../../widgets/credential_card/irma_credentials_card.dart';
 import '../../../../widgets/irma_card.dart';
+import '../../../../widgets/irma_repository_provider.dart';
 import '../../../../widgets/translated_text.dart';
 import '../../../activity/widgets/issuer_verifier_header.dart';
 import '../bloc/disclosure_permission_state.dart';
-import 'irma_disclosure_credential_card.dart';
 
 class DisclosureIssueWizard extends StatelessWidget {
   final RequestorInfo requestor;
@@ -36,13 +37,14 @@ class DisclosureIssueWizard extends StatelessWidget {
             style: theme.themeData.textTheme.headline3,
           ),
           SizedBox(height: theme.defaultSpacing),
-          IrmaDisclosureCredentialCard(
-            state.obtainedCredentials[firstMismatchIndex]!,
+          IrmaCredentialsCard.fromCredentialInfo(
+            credentialInfo: state.obtainedCredentials[firstMismatchIndex]!,
             style: IrmaCardStyle.error,
+            attributes: state.obtainedCredentials[firstMismatchIndex]!.attributes,
             // Because the added credential does not match the requested template credential
             // compare the two to show which attributes match and which do not.
             compareTo: state.issueWizard[firstMismatchIndex],
-          ),
+          )
         ],
         SizedBox(height: theme.defaultSpacing),
         TranslatedText(
@@ -51,9 +53,12 @@ class DisclosureIssueWizard extends StatelessWidget {
         ),
         SizedBox(height: theme.defaultSpacing),
         ...state.issueWizard.mapIndexed(
-          (i, cred) => IrmaDisclosureCredentialCard(
-            cred,
+          (i, cred) => IrmaCredentialsCard.fromCredentialInfo(
+            credentialInfo: cred,
+            attributes: cred.attributes,
+            compareTo: cred,
             style: state.obtainedCredentialsMatch[i] ? IrmaCardStyle.success : IrmaCardStyle.template,
+            onTap: () => IrmaRepositoryProvider.of(context).openIssueURL(context, cred.credentialType.fullId),
           ),
         ),
       ],

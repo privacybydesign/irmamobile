@@ -5,12 +5,12 @@ import '../../../../models/session.dart';
 import '../../../../theme/theme.dart';
 import '../../../../widgets/credential_card/irma_credentials_card.dart';
 import '../../../../widgets/irma_card.dart';
+import '../../../../widgets/irma_repository_provider.dart';
 import '../../../../widgets/translated_text.dart';
 import '../../../activity/widgets/issuer_verifier_header.dart';
 import '../../models/template_disclosure_credential.dart';
 import '../bloc/disclosure_permission_event.dart';
 import '../bloc/disclosure_permission_state.dart';
-import 'irma_disclosure_credential_card.dart';
 
 class DisclosureChoices extends StatelessWidget {
   final DisclosurePermissionChoices state;
@@ -22,6 +22,37 @@ class DisclosureChoices extends StatelessWidget {
     required this.requestor,
     required this.onEvent,
   });
+
+  Widget _buildDisclosureCandidate({
+    required BuildContext context,
+    required int stepIndex,
+    required int choiceIndex,
+  }) {
+    final disclosureCredentials = state.choices[stepIndex][choiceIndex];
+    final isTemplate = disclosureCredentials.any((cred) => cred is TemplateDisclosureCredential);
+
+    return IrmaCredentialsCard(
+      style: isTemplate
+          ? IrmaCardStyle.template
+          : state.selectedStepIndex == stepIndex && state.choiceIndices[stepIndex] == choiceIndex
+              ? IrmaCardStyle.selected
+              : IrmaCardStyle.normal,
+      attributesByCredential: disclosureCredentials.asMap().map((_, cred) => MapEntry(cred, cred.attributes)),
+      compareToCredentials: isTemplate ? disclosureCredentials : null,
+      onTap: () => isTemplate
+          ? disclosureCredentials.length > 1
+              //TODO: Implement start sub issue wizard event.
+              ? throw UnimplementedError()
+              : IrmaRepositoryProvider.of(context)
+                  .openIssueURL(context, disclosureCredentials.first.credentialType.fullId)
+          : onEvent(
+              DisclosurePermissionChoiceUpdated(
+                stepIndex: stepIndex,
+                choiceIndex: choiceIndex,
+              ),
+            ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,32 +112,13 @@ class DisclosureChoices extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: theme.smallSpacing),
-                if (state.selectedStepIndex == stepIndex)
-                  for (var choiceIndex = 0; choiceIndex < state.choices[stepIndex].length; choiceIndex++)
-                    for (var cred in state.choices[stepIndex][choiceIndex])
-                      cred is TemplateDisclosureCredential
-                          ? IrmaDisclosureCredentialCard(
-                              cred,
-                              style: IrmaCardStyle.template,
-                            )
-                          : IrmaCredentialsCard(
-                              selected: state.choiceIndices[stepIndex] == choiceIndex,
-                              attributesByCredential: {
-                                cred: cred.attributes,
-                              },
-                              onTap: () => onEvent(
-                                DisclosurePermissionChoiceUpdated(
-                                  stepIndex: stepIndex,
-                                  choiceIndex: choiceIndex,
-                                ),
-                              ),
-                            )
-                else
-                  IrmaCredentialsCard(
-                    attributesByCredential: {
-                      state.currentSelection[stepIndex]: state.currentSelection[stepIndex].attributes
-                    },
-                  ),
+                for (var choiceIndex = 0; choiceIndex < state.choices[stepIndex].length; choiceIndex++)
+                  if (state.selectedStepIndex == stepIndex || state.choiceIndices[stepIndex] == choiceIndex)
+                    _buildDisclosureCandidate(
+                      context: context,
+                      stepIndex: stepIndex,
+                      choiceIndex: choiceIndex,
+                    )
               ],
             ),
           )

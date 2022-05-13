@@ -526,5 +526,8 @@
     "shared_data": "Shared data",
     "received_data": "Received data",
     "recent_activity": "Recent activity"
+  },
+  "credential": {
+    "no_data" : "No data"
   }
 }
