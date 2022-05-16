@@ -1,8 +1,5 @@
-// This code is not null safe yet.
-// @dart=2.11
-
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:path_drawing/path_drawing.dart';
@@ -13,63 +10,94 @@ class ArrowBack extends StatefulWidget {
 
   const ArrowBack({
     this.success = false,
-    this.amountIssued,
+    required this.amountIssued,
   }) : assert(!success || amountIssued != null);
 
   @override
-  State<StatefulWidget> createState() {
-    return _ArrowBackState();
-  }
+  State<StatefulWidget> createState() => _ArrowBackState();
 }
 
 class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
+  Orientation? initialOrientation;
+
   @override
   void initState() {
-    WidgetsBinding.instance.addObserver(this);
     super.initState();
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    WidgetsBinding.instance?.removeObserver(this);
+    _allowAllOrientations(); //Allow all orientations again on dispose.
     super.dispose();
   }
 
+  final portraitOrientations = [
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ];
+  final landscapeOrientations = [
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ];
+
+  void _allowAllOrientations() =>
+      SystemChrome.setPreferredOrientations([...portraitOrientations, ...landscapeOrientations]);
+
+  void _forcePortraitOrientation() => SystemChrome.setPreferredOrientations([...portraitOrientations]);
+
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
+    //Save the initial device orientation
+    initialOrientation ??= MediaQuery.of(context).orientation;
+
+    //Force portrait
+    if (MediaQuery.of(context).orientation == Orientation.landscape) _forcePortraitOrientation();
+
     return Scaffold(
-      body: SafeArea(
-        child: CustomPaint(
-          painter: Arrow(context),
-          child: Center(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).defaultSpacing),
-              child: Container(
-                color: IrmaTheme.of(context).primaryLight,
-                child: RichText(
-                  textAlign: TextAlign.center,
-                  text: TextSpan(
-                    style: IrmaTheme.of(context).textTheme.bodyText1,
-                    children: <TextSpan>[
-                      TextSpan(
-                        text: widget.success
-                            ? FlutterI18n.plural(context, 'arrow_back.info_success', widget.amountIssued)
-                            : FlutterI18n.translate(context, 'arrow_back.info_no_success'),
+      body: OrientationBuilder(
+        builder: (context, orientation) {
+          return Scaffold(
+            body: SafeArea(
+              child: CustomPaint(
+                painter: Arrow(context),
+                child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
+                    child: RotatedBox(
+                      quarterTurns: 1,
+                      child: Container(
+                        color: Colors.white,
+                        child: RichText(
+                          textAlign: TextAlign.center,
+                          text: TextSpan(
+                            style: theme.textTheme.bodyText1,
+                            children: [
+                              TextSpan(
+                                text: widget.success
+                                    ? FlutterI18n.plural(context, 'arrow_back.info_success', widget.amountIssued)
+                                    : FlutterI18n.translate(context, 'arrow_back.info_no_success'),
+                              ),
+                              const TextSpan(
+                                text: '\n\n',
+                              ),
+                              TextSpan(
+                                text: FlutterI18n.translate(context, 'arrow_back.safari'),
+                                style: theme.textTheme.bodyText2,
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                      const TextSpan(
-                        text: '\n\n',
-                      ),
-                      TextSpan(
-                        text: FlutterI18n.translate(context, 'arrow_back.safari'),
-                        style: IrmaTheme.of(context).textTheme.bodyText2,
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
@@ -78,7 +106,7 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     // If the app is resumed remove the route with this screen from the stack.
     if (state == AppLifecycleState.resumed) {
-      Navigator.of(context).removeRoute(ModalRoute.of(context));
+      //Navigator.of(context).removeRoute(ModalRoute.of(context));
     }
   }
 }
