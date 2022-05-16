@@ -97,7 +97,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     } else if (state is DisclosurePermissionChoices && event is DisclosurePermissionNextPressed) {
       yield DisclosurePermissionConfirmChoices(
         currentSelection: state.currentSelection,
-        signedMessage: session.signedMessage,
+        signedMessage: session.isSignatureSession ?? false ? session.signedMessage : null,
       );
     } else if (state is DisclosurePermissionConfirmChoices && event is DisclosurePermissionNextPressed) {
       if (session.isIssuanceSession) {
