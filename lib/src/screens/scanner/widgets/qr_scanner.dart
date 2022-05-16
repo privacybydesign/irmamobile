@@ -3,12 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/session.dart';
-import 'package:irmamobile/src/screens/scanner/widgets/qr_instruction.dart';
-import 'package:irmamobile/src/screens/scanner/widgets/qr_overlay.dart';
-import 'package:irmamobile/src/screens/scanner/widgets/qr_view_container.dart';
-import 'package:irmamobile/src/theme/theme.dart';
+
+import '../../../models/session.dart';
+import '../../../theme/theme.dart';
+import '../../../widgets/irma_repository_provider.dart';
+import 'qr_instruction.dart';
+import 'qr_overlay.dart';
+import 'qr_view_container.dart';
 
 class QRScanner extends StatefulWidget {
   final void Function() onClose;
@@ -50,7 +51,7 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
             // https://github.com/juliuscanute/qr_code_scanner/issues/87
             // This is still an issue in qr_code_scanner 0.7.0
             StreamBuilder<bool>(
-              stream: IrmaRepository.get().getLocked(),
+              stream: IrmaRepositoryProvider.of(context).getLocked(),
               builder: (context, isLocked) {
                 if (!isLocked.hasData || isLocked.data!) {
                   return Container(color: Colors.black);
@@ -75,7 +76,6 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
               heightFactor: _qrInstructionHeightFactor,
               child: QRInstruction(found: found, error: error),
             ),
-
             Align(
               alignment: Alignment.topLeft,
               child: Padding(
@@ -84,6 +84,7 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
                   backgroundColor: Colors.grey.shade300,
                   radius: 24,
                   child: IconButton(
+                      tooltip: FlutterI18n.translate(context, 'accessibility.back'),
                       padding: EdgeInsets.zero,
                       onPressed: () => Navigator.pop(context),
                       icon: Icon(Icons.chevron_left, size: 24, color: Colors.grey.shade800)),

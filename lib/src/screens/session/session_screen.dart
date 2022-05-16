@@ -1,41 +1,39 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/native_events.dart';
-import 'package:irmamobile/src/models/return_url.dart';
-import 'package:irmamobile/src/models/session.dart';
-import 'package:irmamobile/src/models/session_events.dart';
-import 'package:irmamobile/src/models/session_state.dart';
-import 'package:irmamobile/src/screens/error/session_error_screen.dart';
-import 'package:irmamobile/src/screens/pin/session_pin_screen.dart';
-import 'package:irmamobile/src/screens/session/call_info_screen.dart';
-import 'package:irmamobile/src/screens/session/session.dart';
-import 'package:irmamobile/src/screens/session/widgets/arrow_back_screen.dart';
-import 'package:irmamobile/src/screens/session/disclosure/disclosure_permission.dart';
-import 'package:irmamobile/src/screens/session/widgets/disclosure_feedback_screen.dart';
-import 'package:irmamobile/src/screens/session/widgets/issuance_permission.dart';
-import 'package:irmamobile/src/screens/session/widgets/pairing_required.dart';
-import 'package:irmamobile/src/screens/session/widgets/session_scaffold.dart';
-import 'package:irmamobile/src/sentry/sentry.dart';
-import 'package:irmamobile/src/util/combine.dart';
-import 'package:irmamobile/src/util/navigation.dart';
-import 'package:irmamobile/src/widgets/action_feedback.dart';
-import 'package:irmamobile/src/widgets/loading_indicator.dart';
-import 'package:irmamobile/src/widgets/translated_text.dart';
+
+import '../../data/irma_repository.dart';
+import '../../models/native_events.dart';
+import '../../models/return_url.dart';
+import '../../models/session.dart';
+import '../../models/session_events.dart';
+import '../../models/session_state.dart';
+import '../../sentry/sentry.dart';
+import '../../util/combine.dart';
+import '../../util/navigation.dart';
+import '../../widgets/action_feedback.dart';
+import '../../widgets/loading_indicator.dart';
+import '../../widgets/translated_text.dart';
+import '../error/session_error_screen.dart';
+import '../pin/session_pin_screen.dart';
+import 'call_info_screen.dart';
+import 'disclosure/disclosure_permission.dart';
+import 'session.dart';
+import 'widgets/arrow_back_screen.dart';
+import 'widgets/disclosure_feedback_screen.dart';
+import 'widgets/issuance_permission.dart';
+import 'widgets/pairing_required.dart';
+import 'widgets/session_scaffold.dart';
 
 class SessionScreen extends StatefulWidget {
   static const String routeName = "/session";
 
   final SessionScreenArguments arguments;
 
-  const SessionScreen({this.arguments}) : super();
+  const SessionScreen({required this.arguments}) : super();
 
   @override
   State<SessionScreen> createState() {
@@ -70,7 +68,7 @@ class _UnknownSessionScreenState extends State<SessionScreen> {
 class _SessionScreenState extends State<SessionScreen> {
   final IrmaRepository _repo = IrmaRepository.get();
   final ValueNotifier<bool> _displayArrowBack = ValueNotifier<bool>(false);
-  Stream<SessionState> _sessionStateStream;
+  late Stream<SessionState> _sessionStateStream;
 
   @override
   void initState() {
@@ -106,7 +104,7 @@ class _SessionScreenState extends State<SessionScreen> {
       _dispatchSessionEvent(RespondPermissionEvent(
         sessionID: widget.arguments.sessionID,
         proceed: true,
-        disclosureChoices: session.disclosureChoices,
+        disclosureChoices: session.disclosureChoices!,
       ));
     }
   }
@@ -127,7 +125,7 @@ class _SessionScreenState extends State<SessionScreen> {
       "pbdf.pbdf.ideal",
       "pbdf.pbdf.idin",
     ];
-    return session.issuedCredentials.where((credential) => creds.contains(credential.info.fullId)).isNotEmpty;
+    return session.issuedCredentials!.any((credential) => creds.contains(credential.info.fullId));
   }
 
   /// Opens the given clientReturnUrl in the in-app browser, if the url is suitable for the in-app browser, otherwise
@@ -168,12 +166,12 @@ class _SessionScreenState extends State<SessionScreen> {
   Widget _buildFinishedContinueSecondDevice(SessionState session) {
     // In case of issuance, always return to the wallet screen.
     if (session.isIssuanceSession) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => popToHome(context));
+      WidgetsBinding.instance?.addPostFrameCallback((_) => popToHome(context));
       return _buildLoadingScreen(true);
     }
 
     // In case of a disclosure session, return to the wallet after showing a feedback screen.
-    final serverName = session.serverName?.name?.translate(FlutterI18n.currentLocale(context).languageCode) ?? "";
+    final serverName = session.serverName.name.translate(FlutterI18n.currentLocale(context)!.languageCode);
     final feedbackType =
         session.status == SessionStatus.success ? DisclosureFeedbackType.success : DisclosureFeedbackType.canceled;
     return DisclosureFeedbackScreen(
@@ -184,7 +182,7 @@ class _SessionScreenState extends State<SessionScreen> {
   }
 
   Widget _buildFinishedReturnPhoneNumber(SessionState session) {
-    final serverName = session.serverName?.name?.translate(FlutterI18n.currentLocale(context).languageCode) ?? "";
+    final serverName = session.serverName.name.translate(FlutterI18n.currentLocale(context)!.languageCode);
 
     // Navigate to call info screen when session succeeded.
     // Otherwise cancel the regular way for the particular session type.
@@ -212,7 +210,7 @@ class _SessionScreenState extends State<SessionScreen> {
         onCancel: () => popToHome(context),
       );
     } else if (session.isIssuanceSession) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => popToHome(context));
+      WidgetsBinding.instance?.addPostFrameCallback((_) => popToHome(context));
       return _buildLoadingScreen(true);
     } else {
       return DisclosureFeedbackScreen(
@@ -227,7 +225,7 @@ class _SessionScreenState extends State<SessionScreen> {
     // In case of issuance during disclosure, another session is open in a screen lower in the stack.
     // Ignore clientReturnUrl in this case (issuance) and pop immediately.
     if (session.isIssuanceSession && widget.arguments.hasUnderlyingSession) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => Navigator.of(context).pop());
+      WidgetsBinding.instance?.addPostFrameCallback((_) => Navigator.of(context).pop());
       return _buildLoadingScreen(true);
     }
 
@@ -242,33 +240,33 @@ class _SessionScreenState extends State<SessionScreen> {
     final popToMainScreen = widget.arguments.wizardActive ? popToWizard : popToHome;
     final issuedWizardCred = widget.arguments.wizardActive &&
         widget.arguments.wizardCred != null &&
-        (session.issuedCredentials?.map((c) => c.info.fullId)?.contains(widget.arguments.wizardCred) ?? false);
+        (session.issuedCredentials?.map((c) => c.info.fullId).contains(widget.arguments.wizardCred) ?? false);
 
     // It concerns a mobile session.
     if (session.clientReturnURL != null && !issuedWizardCred) {
       // If there is a return URL, navigate to it when we're done.
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
+      WidgetsBinding.instance?.addPostFrameCallback((_) async {
         // When being in a disclosure, we can continue to underlying sessions in this case;
         // hasUnderlyingSession during issuance is handled at the beginning of _buildFinished, so
         // we don't have to explicitly exclude issuance here.
-        if (session.clientReturnURL.isInApp) {
+        if (session.clientReturnURL!.isInApp) {
           widget.arguments.hasUnderlyingSession ? Navigator.of(context).pop() : popToMainScreen(context);
-          if (session.inAppCredential != null && session.inAppCredential != "") {
+          if (session.inAppCredential != "") {
             _repo.expectInactivationForCredentialType(session.inAppCredential);
           }
-          await _openClientReturnUrl(session.clientReturnURL);
+          await _openClientReturnUrl(session.clientReturnURL!);
         } else {
-          final hasOpened = await _openClientReturnUrl(session.clientReturnURL);
+          final hasOpened = await _openClientReturnUrl(session.clientReturnURL!);
           if (!hasOpened || !mounted) return;
           widget.arguments.hasUnderlyingSession ? Navigator.of(context).pop() : popToMainScreen(context);
         }
       });
     } else if (widget.arguments.wizardActive || _isSpecialIssuanceSession(session)) {
-      WidgetsBinding.instance.addPostFrameCallback((_) => popToMainScreen(context));
+      WidgetsBinding.instance?.addPostFrameCallback((_) => popToMainScreen(context));
     } else if (widget.arguments.hasUnderlyingSession) {
       // In case of a disclosure having an underlying session we only continue to underlying session
       // if it is a mobile session and there was no clientReturnUrl.
-      WidgetsBinding.instance.addPostFrameCallback((_) => Navigator.of(context).pop());
+      WidgetsBinding.instance?.addPostFrameCallback((_) => Navigator.of(context).pop());
     } else if (Platform.isIOS) {
       // On iOS, show a screen to press the return arrow in the top-left corner.
       return ArrowBack(
@@ -277,8 +275,8 @@ class _SessionScreenState extends State<SessionScreen> {
       );
     } else {
       // On Android just background the app to let the user return to the previous activity
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        IrmaRepository.get().bridgedDispatch(AndroidSendToBackgroundEvent());
+      WidgetsBinding.instance?.addPostFrameCallback((_) {
+        _repo.bridgedDispatch(AndroidSendToBackgroundEvent());
         popToHome(context);
       });
     }
@@ -287,11 +285,11 @@ class _SessionScreenState extends State<SessionScreen> {
 
   Widget _buildErrorScreen(SessionState session) => ValueListenableBuilder(
         valueListenable: _displayArrowBack,
-        builder: (BuildContext context, bool displayArrowBack, Widget child) {
+        builder: (BuildContext context, bool displayArrowBack, Widget? child) {
           if (displayArrowBack) {
             return const ArrowBack();
           }
-          return child;
+          return child ?? Container();
         },
         child: SessionErrorScreen(
           error: session.error,
@@ -300,18 +298,18 @@ class _SessionScreenState extends State<SessionScreen> {
               popToWizard(context);
             } else if (session.continueOnSecondDevice) {
               popToHome(context);
-            } else if (session.clientReturnURL != null && !session.clientReturnURL.isPhoneNumber) {
+            } else if (session.clientReturnURL != null && !session.clientReturnURL!.isPhoneNumber) {
               // If the error was caused by the client return url itself, we should not open it again.
-              if (session.error.errorType != 'clientReturnUrl') {
+              if (session.error?.errorType != 'clientReturnUrl') {
                 // For now we do a silentFailure if an error occurs, to prevent two subsequent error screens.
-                await _openClientReturnUrl(session.clientReturnURL, alwaysOpenExternally: true, silentFailure: true);
+                await _openClientReturnUrl(session.clientReturnURL!, alwaysOpenExternally: true, silentFailure: true);
               }
               popToHome(context);
             } else {
               if (Platform.isIOS) {
                 _displayArrowBack.value = true;
               } else {
-                IrmaRepository.get().bridgedDispatch(AndroidSendToBackgroundEvent());
+                _repo.bridgedDispatch(AndroidSendToBackgroundEvent());
                 popToHome(context);
               }
             }
@@ -347,10 +345,10 @@ class _SessionScreenState extends State<SessionScreen> {
         }
 
         // Prevent stealing focus from pin screen in case app is locked
-        final locked = snapshot.data.a;
+        final locked = snapshot.data!.a;
         Navigator.of(context).focusScopeNode.canRequestFocus = !locked;
 
-        final session = snapshot.data.b;
+        final session = snapshot.data!.b;
 
         switch (session.status) {
           case SessionStatus.pairing:
@@ -366,8 +364,8 @@ class _SessionScreenState extends State<SessionScreen> {
             );
           case SessionStatus.requestIssuancePermission:
             return IssuancePermission(
-              satisfiable: session.satisfiable,
-              issuedCredentials: session.issuedCredentials,
+              satisfiable: session.satisfiable!,
+              issuedCredentials: session.issuedCredentials!,
               onDismiss: () => _dismissSession(),
               onGivePermission: () => _givePermission(session),
             );

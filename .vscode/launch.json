@@ -2,28 +2,20 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "Real app",
+			"name": "Android app",
 			"program": "lib/main.dart",
 			"request": "launch",
-			"type": "dart"
+			"type": "dart",
+			"args": [
+				"--flavor",
+				"alpha"
+			]
 		},
 		{
-			"name": "Gemeente app",
-			"program": "lib/main_gemeente.dart",
+			"name": "IOS app",
+			"program": "lib/main.dart",
 			"request": "launch",
-			"type": "dart"
-		},
-		{
-			"name": "Prototypes",
-			"program": "lib/main_prototypes.dart",
-			"request": "launch",
-			"type": "dart"
-		},
-		{
-			"name": "Update required",
-			"program": "lib/main_update_required.dart",
-			"request": "launch",
-			"type": "dart"
+			"type": "dart",
 		}
 	]
 }

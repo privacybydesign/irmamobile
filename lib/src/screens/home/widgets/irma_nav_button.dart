@@ -16,19 +16,20 @@ class IrmaNavButton extends StatelessWidget {
   final bool isSelected;
   final Function(IrmaNavBarTab tab)? changeTab;
 
-  const IrmaNavButton({Key? key, required this.iconData, required this.tab, this.isSelected = false, this.changeTab})
-      : super(key: key);
+  const IrmaNavButton({
+    Key? key,
+    required this.iconData,
+    required this.tab,
+    this.isSelected = false,
+    this.changeTab,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     return Expanded(
       child: InkWell(
-        onTap: () {
-          if (changeTab != null) {
-            changeTab!(tab);
-          }
-        },
+        onTap: () => changeTab?.call(tab),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -40,9 +41,13 @@ class IrmaNavButton extends StatelessWidget {
             SizedBox(
               height: theme.tinySpacing,
             ),
-            TranslatedText(_navBarTabTranslationKeys[tab],
-                style: theme.themeData.textTheme.caption!.copyWith(
-                    fontSize: 12, color: isSelected ? theme.themeData.colorScheme.secondary : Colors.grey.shade600))
+            TranslatedText(
+              _navBarTabTranslationKeys[tab]!,
+              style: theme.themeData.textTheme.caption!.copyWith(
+                fontSize: 12,
+                color: isSelected ? theme.themeData.colorScheme.secondary : Colors.grey.shade600,
+              ),
+            )
           ],
         ),
       ),

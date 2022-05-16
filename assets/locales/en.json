@@ -109,7 +109,7 @@
     "question_10": "Why do the data in the IRMA app have limited validity?",
     "answer_10": "Every card in IRMA shows its validity. The validity period depends on the kind of data on the card and how stable these data are. Your name and date of birth data are valid for five years, but your address data only one year. The source (issuer) of the data determines this validity period. The cards in your IRMA app may thus expire. The IRMA app then gives you a warning.\n\nYou can always, also without such a warning, refresh your cards by reloading them from the source. For instance, after your 18th birthday you can reload your data from your municipality so that you can prove that you are older than 18 now.",
     "question_11": "What makes IRMA privacy-friendly and secure?",
-    "answer_11": "Your personal data are protected via your personal PIN. Your data are stored exclusively in the IRMA app and not in the cloud.\n\nThe data in your IRMA app are digitally signed by the source (issuer) where the data come from (such as the local authorities).\n\nIn this way a website or shop, where you make yourself known, can cryptographically verify that your data are genuine.\nThis exchange of personal data happens directly between your mobile and the website. No one else can see that you make yourself known there, not even the organisation behind IRMA.",
+    "answer_11": "The IRMA app has been developed in such a way that you and only you can see and use your personal data. Your personal data are stored on your phone only.\n\nThe IRMA app design enables a website or shop to (cryptographically) verify that the data you disclosed are genuine.\n\nThe IRMA app discloses your data directly from your phone to the website. No-one else can see that you identify yourself there. Even the organisation behind IRMA cannot observe such disclosures. \n\nWhen using IRMA, you agree with the [privacy policy](https://privacybydesign.foundation/privacy-policy-en/).",
     "send": "Do you have other/more questions? Send an email. It may take a couple of days before you get a reply.",
     "storage_and_privacy": "Storage en privacy",
     "title": "Help"
@@ -384,7 +384,7 @@
     "confirm": {
       "share": "This is the data you are going to share:",
       "submit": "Share data",
-      "sign_message" : "And you sign this message:"
+      "sign_message": "And you sign this message:"
     }
   },
   "disclosure": {
