@@ -7,7 +7,7 @@ import 'irma_markdown.dart';
 
 class TranslatedText extends StatelessWidget {
   // Shared between Text and IrmaMarkdown
-  final String? _key;
+  final String _key;
   final String? fallbackKey;
   final Map<String, String>? translationParams;
   final TextStyle? style;
@@ -55,8 +55,8 @@ class TranslatedText extends StatelessWidget {
 
     // Check if there's a translation with the same key suffixed with _markdown
     final probeTranslator = SimpleTranslator(flutterI18n?.decodedMap, 'dummy', '.');
-    final submap = probeTranslator.calculateSubmap(_key!);
-    final lastSubkey = _key?.split(probeTranslator.keySeparator!).last;
+    final submap = probeTranslator.calculateSubmap(_key);
+    final lastSubkey = _key.split(probeTranslator.keySeparator!).last;
 
     if (submap != null && submap.containsKey('${lastSubkey}_markdown')) {
       return _buildMarkdown(
@@ -66,7 +66,7 @@ class TranslatedText extends StatelessWidget {
     }
 
     return _buildText(
-      _translate(context, _key!),
+      _translate(context, _key),
     );
   }
 }
