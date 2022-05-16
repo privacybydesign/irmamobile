@@ -125,7 +125,6 @@ class _SessionScreenState extends State<SessionScreen> {
       "pbdf.pbdf.ideal",
       "pbdf.pbdf.idin",
     ];
-    //return session.issuedCredentials.where((credential) => creds.contains(credential.info.fullId)).isNotEmpty; //Any van maken
     return session.issuedCredentials!.any((credential) => creds.contains(credential.info.fullId));
   }
 
