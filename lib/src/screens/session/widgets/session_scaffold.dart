@@ -9,7 +9,7 @@ class SessionScaffold extends Scaffold {
     Function()? onDismiss,
     Widget? bottomNavigationBar,
     Widget? body,
-    String? appBarTitle,
+    required String appBarTitle,
     TextStyle? appBarTitleStyle,
   }) : super(
           key: key,
