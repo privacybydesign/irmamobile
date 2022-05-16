@@ -8,7 +8,7 @@
 			"type": "dart",
 			"args": [
 				"--flavor",
-				"beta"
+				"alpha"
 			]
 		},
 		{
