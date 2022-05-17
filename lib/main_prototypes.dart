@@ -11,7 +11,7 @@ import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_repository_provider.dart';
 
 Future<void> main() async {
-      WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
   final repository = IrmaRepository(
     client: IrmaMockBridge(),
     preferences: await IrmaPreferences.fromInstance(),
