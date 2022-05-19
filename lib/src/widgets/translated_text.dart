@@ -11,6 +11,7 @@ class TranslatedText extends StatelessWidget {
   final String? fallbackKey;
   final Map<String, String>? translationParams;
   final TextStyle? style;
+  final int? maxLines;
 
   // Text only
   final TextAlign? textAlign;
@@ -21,6 +22,7 @@ class TranslatedText extends StatelessWidget {
     this.translationParams,
     this.style,
     this.textAlign,
+    this.maxLines,
   });
 
   Widget _buildMarkdown(String translation, BuildContext context) {
@@ -37,6 +39,7 @@ class TranslatedText extends StatelessWidget {
       translation,
       style: style,
       textAlign: textAlign,
+      maxLines: maxLines,
     );
   }
 
