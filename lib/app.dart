@@ -3,10 +3,10 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_i18n/flutter_i18n_delegate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_privacy_screen/flutter_privacy_screen.dart';
 import 'package:irmamobile/routing.dart';
@@ -33,6 +33,7 @@ import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/util/combine.dart';
 import 'package:irmamobile/src/util/handle_pointer.dart';
 import 'package:irmamobile/src/util/hero_controller.dart';
+import 'package:irmamobile/src/util/preview.dart';
 import 'package:rxdart/rxdart.dart';
 
 const schemeUpdateIntervalHours = 3;
@@ -58,7 +59,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
 
   // We keep track of the last two life cycle states
   // to be able to determine the flow
-  List<AppLifecycleState> prevLifeCycleStates = List<AppLifecycleState>(2);
+  List<AppLifecycleState> prevLifeCycleStates = List.filled(2, AppLifecycleState.detached);
 
   AppState();
 
@@ -335,6 +336,14 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
 
         final isLocked = snapshot.data.c;
         if (isLocked) {
+          // Build specific screens, without going through multiple hoops, and still enjoy hot reload
+          // anything wrapped with kDebugMode will be tree shaken off production builds
+          if (kDebugMode) {
+            const name = String.fromEnvironment("preview");
+            print('preview: $name');
+            return previewFlow(name) ?? _buildPinScreen();
+          }
+
           return _buildPinScreen();
         }
 
