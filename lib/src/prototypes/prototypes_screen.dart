@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../screens/required_update/required_update_screen.dart';
+import '../screens/rooted_warning/rooted_warning_screen.dart';
 import '../screens/session/widgets/arrow_back_screen.dart';
 
 class PrototypesScreen extends StatelessWidget {
@@ -28,6 +29,15 @@ class PrototypesScreen extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (context) => RequiredUpdateScreen(),
+              ),
+            ),
+          ),
+          ListTile(
+            title: const Text('Rooted warning screen'),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const RootedWarningScreen(),
               ),
             ),
           )

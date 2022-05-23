@@ -470,10 +470,10 @@
   "action_feedback": {
     "ok": "OK"
   },
-  "device_rooted_warning": {
+  "rooted_warning": {
     "title": "Device unsafe",
-    "body": "The operating system on your device seems to be modified. Because of this, the safety of your data cannot be guaranteed.",
-    "button_accept_risk": "I accept the risk"
+    "explanation": "The operating system on your device seems to be modified. Because of this, the safety of your data cannot be guaranteed.",
+    "accept_risk": "I accept the risk"
   },
   "issue_wizard": {
     "back": "Cancel",

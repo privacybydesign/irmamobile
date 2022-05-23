@@ -470,10 +470,10 @@
   "action_feedback": {
     "ok": "OK"
   },
-  "device_rooted_warning": {
-    "title": "Toestel onveilig",
-    "body": "Het lijkt erop dat het besturingssysteem op jouw toestel is aangepast, hierdoor kan de veiligheid van jouw gegevens niet gegarandeerd worden.",
-    "button_accept_risk": "Ik aanvaard het risico"
+  "rooted_warning": {
+    "title": "Apparaat niet veilig",
+    "explanation": "Het besturingssysteem van uw apparaat lijkt gewijzigd te zijn. Hierdoor kan de veiligheid van uw gegevens niet worden gegarandeerd.",
+    "accept_risk": "Ik accepteer het risico"
   },
   "issue_wizard": {
     "back": "Annuleer",
