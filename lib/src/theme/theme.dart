@@ -263,6 +263,8 @@ class IrmaTheme extends InheritedWidget {
           child: Builder(builder: builder),
         );
 
+  IrmaTheme.test({Key? key, required Widget widget}) : super(key: key, child: widget);
+
   @override
   bool updateShouldNotify(InheritedWidget oldWidget) {
     return (oldWidget as IrmaTheme).data != data;

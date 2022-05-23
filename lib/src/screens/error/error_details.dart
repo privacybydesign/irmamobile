@@ -1,6 +1,3 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -20,15 +17,14 @@ class ErrorDetails extends StatelessWidget {
   };
 
   final ErrorType type;
-  final String details;
+  final String? details;
   final bool reportable;
 
-  const ErrorDetails({@required this.type, this.details, @required this.reportable});
+  const ErrorDetails({required this.type, this.details, required this.reportable});
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         SizedBox(
@@ -47,7 +43,7 @@ class ErrorDetails extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  TranslatedText(_translationKeys[type], style: IrmaTheme.of(context).textTheme.bodyText2),
+                  TranslatedText(_translationKeys[type] ?? '', style: IrmaTheme.of(context).textTheme.bodyText2),
                   SizedBox(height: IrmaTheme.of(context).defaultSpacing),
                   if (reportable) ...[
                     TranslatedText('error.report', style: IrmaTheme.of(context).textTheme.bodyText2),
@@ -57,7 +53,7 @@ class ErrorDetails extends StatelessWidget {
                     Text.rich(
                       TextSpan(
                         text: FlutterI18n.translate(context, 'error.button_show_error'),
-                        style: IrmaTheme.of(context).textTheme.bodyText2.copyWith(
+                        style: IrmaTheme.of(context).textTheme.bodyText2?.copyWith(
                               decoration: TextDecoration.underline,
                               color: IrmaTheme.of(context).linkColor,
                             ),
@@ -68,7 +64,7 @@ class ErrorDetails extends StatelessWidget {
                               builder: (context) {
                                 return IrmaDialog(
                                   title: FlutterI18n.translate(context, 'error.details_title'),
-                                  content: details,
+                                  content: details ?? '',
                                   child: IrmaButton(
                                     size: IrmaButtonSize.small,
                                     onPressed: () => Navigator.of(context).pop(),

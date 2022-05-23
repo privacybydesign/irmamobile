@@ -1,6 +1,3 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/screens/error/no_internet.dart';
@@ -9,9 +6,9 @@ import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 
 class NoInternetScreen extends StatelessWidget {
   final VoidCallback onTapClose;
-  final VoidCallback onTapRetry;
+  final VoidCallback? onTapRetry;
 
-  const NoInternetScreen({@required this.onTapClose, this.onTapRetry});
+  const NoInternetScreen({required this.onTapClose, this.onTapRetry});
 
   @override
   Widget build(BuildContext context) {
