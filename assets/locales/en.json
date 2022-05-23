@@ -384,7 +384,7 @@
     "confirm": {
       "share": "This is the data you are going to share:",
       "submit": "Share data",
-      "sign_message" : "And you sign this message:"
+      "sign_message": "And you sign this message:"
     }
   },
   "disclosure": {
@@ -463,8 +463,9 @@
     "safari": "Tap on the name of the application (such as Safari, Chrome, Firefox) in the top left corner to return to the application you came from."
   },
   "update": {
-    "required": "In order to continue using IRMA, you will need to update the app",
-    "doupdate": "Update"
+    "title": "Update available",
+    "explanation": "To continue using the IRMA app you must download the latest version",
+    "update_app": "Update app"
   },
   "action_feedback": {
     "ok": "OK"
@@ -528,6 +529,6 @@
     "recent_activity": "Recent activity"
   },
   "credential": {
-    "no_data" : "No data"
+    "no_data": "No data"
   }
 }
