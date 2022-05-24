@@ -15,7 +15,7 @@ class RootedWarningScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body:  const IrmaInfoScaffoldBody(
+      body: const IrmaInfoScaffoldBody(
         icon: Icons.gpp_bad_outlined,
         iconColor: Colors.red,
         titleKey: 'rooted_warning.title',
