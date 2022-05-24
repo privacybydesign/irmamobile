@@ -2,46 +2,19 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/widgets/irma_info_scaffold_body.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../theme/theme.dart';
 import '../../widgets/irma_bottom_bar.dart';
-import '../../widgets/translated_text.dart';
 
 class RequiredUpdateScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return Scaffold(
-      body: Padding(
-        padding: EdgeInsets.all(theme.largeSpacing),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.cached,
-              color: theme.themeData.colorScheme.primary,
-              size: 125,
-            ),
-            SizedBox(
-              height: theme.mediumSpacing,
-            ),
-            TranslatedText(
-              'update.title',
-              style: theme.textTheme.headline1,
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(
-              height: theme.mediumSpacing,
-            ),
-            TranslatedText(
-              'update.explanation',
-              style: theme.textTheme.bodyText2,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
+      body: const IrmaInfoScaffoldBody(
+        icon: Icons.cached,
+        titleKey: 'update.title',
+        bodyKey: 'update.explanation',
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: FlutterI18n.translate(context, 'update.update_app'),

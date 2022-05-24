@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
-import '../../theme/theme.dart';
 import '../../widgets/irma_bottom_bar.dart';
+import '../../widgets/irma_info_scaffold_body.dart';
 import '../../widgets/translated_text.dart';
 
 class RootedWarningScreen extends StatelessWidget {
@@ -14,37 +14,12 @@ class RootedWarningScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return Scaffold(
-      body: Padding(
-        padding: EdgeInsets.all(theme.largeSpacing),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.gpp_bad_outlined,
-              color: Colors.red,
-              size: 125,
-            ),
-            SizedBox(
-              height: theme.mediumSpacing,
-            ),
-            TranslatedText(
-              'rooted_warning.title',
-              style: theme.textTheme.headline1,
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(
-              height: theme.mediumSpacing,
-            ),
-            TranslatedText(
-              'rooted_warning.explanation',
-              style: theme.textTheme.bodyText2,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
+      body:  const IrmaInfoScaffoldBody(
+        icon: Icons.gpp_bad_outlined,
+        iconColor: Colors.red,
+        titleKey: 'rooted_warning.title',
+        bodyKey: 'rooted_warning.explanation',
       ),
       bottomNavigationBar: IrmaBottomBar(
         key: const Key('warning_screen_accept_button'),
