@@ -463,16 +463,17 @@
     "safari": "Tap on the name of the application (such as Safari, Chrome, Firefox) in the top left corner to return to the application you came from."
   },
   "update": {
-    "required": "In order to continue using IRMA, you will need to update the app",
-    "doupdate": "Update"
+    "title": "Update available",
+    "explanation": "To continue using the IRMA app you must download the latest version",
+    "update_app": "Update app"
   },
   "action_feedback": {
     "ok": "OK"
   },
-  "device_rooted_warning": {
+  "rooted_warning": {
     "title": "Device unsafe",
-    "body": "The operating system on your device seems to be modified. Because of this, the safety of your data cannot be guaranteed.",
-    "button_accept_risk": "I accept the risk"
+    "explanation": "The operating system on your device seems to be modified. Because of this, the safety of your data cannot be guaranteed.",
+    "accept_risk": "I accept the risk"
   },
   "issue_wizard": {
     "back": "Cancel",
@@ -528,6 +529,6 @@
     "recent_activity": "Recent activity"
   },
   "credential": {
-    "no_data" : "No data"
+    "no_data": "No data"
   }
 }

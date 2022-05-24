@@ -463,16 +463,17 @@
     "safari": "Tik bovenin op de naam van het programma (bijvoorbeeld Safari, Chrome, Firefox) om terug te gaan naar het programma waar je mee bezig was."
   },
   "update": {
-    "required": "Om IRMA te blijven gebruiken, zul je de app moeten updaten.",
-    "doupdate": "Update"
+    "title": "Update beschikbaar",
+    "explanation": "Om de IRMA app te blijven gebruiken moet je de laatste versie downloaden",
+    "update_app": "Update app"
   },
   "action_feedback": {
     "ok": "OK"
   },
-  "device_rooted_warning": {
-    "title": "Toestel onveilig",
-    "body": "Het lijkt erop dat het besturingssysteem op jouw toestel is aangepast, hierdoor kan de veiligheid van jouw gegevens niet gegarandeerd worden.",
-    "button_accept_risk": "Ik aanvaard het risico"
+  "rooted_warning": {
+    "title": "Apparaat niet veilig",
+    "explanation": "Het besturingssysteem van uw apparaat lijkt gewijzigd te zijn. Hierdoor kan de veiligheid van uw gegevens niet worden gegarandeerd.",
+    "accept_risk": "Ik accepteer het risico"
   },
   "issue_wizard": {
     "back": "Annuleer",
@@ -528,6 +529,6 @@
     "recent_activity": "Recente activiteit"
   },
   "credential": {
-    "no_data" : "Geen gegevens"
+    "no_data": "Geen gegevens"
   }
 }
