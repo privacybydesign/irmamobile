@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -31,9 +30,9 @@ import '../models/template_disclosure_credential.dart';
  *    | (a)  -------------------------------------                   NextPressed (i)
  *    |--> |            IssueWizard              |  <---------------------------
  *    |     -------------------------------------                               |
- *    |      | NextPressed       |__^ ChoiceUpdated                (c)  ----------------         NextPressed (h)
- *    |      |------------------------------------------------------>  | SubIssueWizard | <---------------
- *    |      |                                                          ----------------                  |
+ *    |      | NextPressed       |__^ ChoiceUpdated                (c)  -------------------           NextPressed (h)
+ *    |      |------------------------------------------------------>  | ObtainCredentials | <------------
+ *    |      |                                                          -------------------               |
  *    |      |                                          NextPressed (f)           |                       |
  *    |      | (d) ------------------------------------   <-------------          | NextPressed (j)       |
  *    |      |--> | PreviouslyAddedCredentialsOverview |---------       |         v                       |
@@ -52,7 +51,7 @@ import '../models/template_disclosure_credential.dart';
  * Notes:
  * a). if the candidates contain discons without any choosable option.
  * b). if all discons contain a choosable option (the empty option in optional disjunctions is also choosable).
- * c). if the issue wizard is not completed yet. A sub issue wizard is started for the first incompleted discon.
+ * c). if the issue wizard is not completed yet. Credentials are obtained for the first incomplete discon.
  * d). if the candidates contain more credential instances than the onces that we added during the issue wizard.
  * e). if all choosable options are populated using credential instances that were added during the issue wizard.
  * f). if the previous state was PreviouslyAddedCredentialsOverview.
@@ -68,7 +67,7 @@ import '../models/template_disclosure_credential.dart';
 /// Bloc that specifies the flow during DisclosurePermission. Check the bloc source code for a state machine drawing.
 class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, DisclosurePermissionBlocState> {
   final int sessionID;
-  final Locale? locale;
+  final Function(CredentialType) onObtainCredential;
 
   final IrmaRepository _repo; // Repository is hidden by design, because behaviour should be triggered via bloc events.
 
@@ -79,7 +78,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
 
   DisclosurePermissionBloc({
     required this.sessionID,
-    required this.locale,
+    required this.onObtainCredential,
     required IrmaRepository repo,
   })  : _repo = repo,
         _newlyAddedCredentialHashes = [],
@@ -164,14 +163,14 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       } else {
         // If only one credential is involved, we can open the issue url immediately.
         if (state.currentDiscon!.selectedCon.length == 1) {
-          _repo.openIssueURL(locale, state.currentDiscon!.selectedCon.first.credentialType.fullId);
+          onObtainCredential(state.currentDiscon!.selectedCon.first.credentialType);
         }
-        yield DisclosurePermissionSubIssueWizard(
+        yield DisclosurePermissionObtainCredentials(
           parentState: state,
-          issueWizard: state.currentDiscon!.selectedCon.whereType<TemplateDisclosureCredential>().toList(),
+          templates: state.currentDiscon!.selectedCon.templates.toList(),
         );
       }
-    } else if (state is DisclosurePermissionSubIssueWizard && event is DisclosurePermissionNextPressed) {
+    } else if (state is DisclosurePermissionObtainCredentials && event is DisclosurePermissionNextPressed) {
       if (state.allObtainedCredentialsMatch) {
         final parentState = state.parentState; // To prevent the need for type casting.
         if (parentState is DisclosurePermissionPreviouslyAddedCredentialsOverview) {
@@ -188,10 +187,12 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
             condiscon: _parseDisclosureCandidates(session.disclosuresCandidates!),
           );
         } else {
-          throw Exception('DisclosurePermissionSubIssueWizard has unexpected parent: ${state.parentState.runtimeType}');
+          throw Exception(
+            'DisclosurePermissionObtainCredentials has unexpected parent: ${state.parentState.runtimeType}',
+          );
         }
       } else {
-        _repo.openIssueURL(locale, state.currentIssueWizardItem!.fullId);
+        onObtainCredential(state.currentIssueWizardItem!.credentialType);
       }
     } else if (state is DisclosurePermissionPreviouslyAddedCredentialsOverview &&
         event is DisclosurePermissionNextPressed) {
@@ -245,11 +246,11 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       if (state.discon.selectedCon.needsToBeObtained) {
         // If only one credential is involved, we can open the issue url immediately.
         if (state.discon.selectedCon.length == 1) {
-          _repo.openIssueURL(locale, state.discon.selectedCon.first.credentialType.fullId);
+          onObtainCredential(state.discon.selectedCon.first.credentialType);
         }
-        yield DisclosurePermissionSubIssueWizard(
+        yield DisclosurePermissionObtainCredentials(
           parentState: state,
-          issueWizard: state.discon.selectedCon.whereType<TemplateDisclosureCredential>().toList(),
+          templates: state.discon.selectedCon.templates.toList(),
         );
       } else {
         yield state.parentState;
@@ -297,10 +298,10 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       return;
     } else if (state is DisclosurePermissionStep) {
       yield _refreshDisclosurePermissionStep(session, state);
-    } else if (state is DisclosurePermissionSubIssueWizard) {
-      final refreshedWizard = _refreshSubIssueWizard(session, state);
+    } else if (state is DisclosurePermissionObtainCredentials) {
+      final refreshedWizard = _refreshObtainedCredentials(session, state);
       // In case the sub wizard only contains one item, we immediately go back to the parent step.
-      if (refreshedWizard.issueWizard.length == 1 && refreshedWizard.allObtainedCredentialsMatch) {
+      if (refreshedWizard.templates.length == 1 && refreshedWizard.allObtainedCredentialsMatch) {
         yield refreshedWizard.parentState;
       } else {
         yield refreshedWizard;
@@ -370,9 +371,9 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     }
   }
 
-  DisclosurePermissionSubIssueWizard _refreshSubIssueWizard(
+  DisclosurePermissionObtainCredentials _refreshObtainedCredentials(
     SessionState session,
-    DisclosurePermissionSubIssueWizard state,
+    DisclosurePermissionObtainCredentials state,
   ) {
     // Reverse list to make sure newest credentials are considered first.
     final newlyAddedCredentials = _newlyAddedCredentialHashes.reversed
@@ -385,13 +386,13 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     } else if (parentState is DisclosurePermissionChangeChoice) {
       condiscon = parentState.parentState;
     } else {
-      throw Exception('DisclosurePermissionSubIssueWizard has unexpected parent: ${parentState.runtimeType}');
+      throw Exception('DisclosurePermissionObtainCredentials has unexpected parent: ${parentState.runtimeType}');
     }
 
-    return DisclosurePermissionSubIssueWizard(
+    return DisclosurePermissionObtainCredentials(
       parentState: _refreshDisclosurePermissionStep(session, condiscon),
-      issueWizard: state.issueWizard,
-      obtainedCredentials: state.issueWizard.map((template) {
+      templates: state.templates,
+      obtainedCredentials: state.templates.map((template) {
         // First we check whether we have an exact match.
         final matchingCred = newlyAddedCredentials.firstWhereOrNull((cred) => template.matchesCredential(cred));
         if (matchingCred != null) {

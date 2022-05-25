@@ -57,39 +57,6 @@ class DisclosurePermissionIssueWizard extends DisclosurePermissionStep {
   DisclosurePermissionStepName get currentStepName => DisclosurePermissionStepName.issueWizard;
 }
 
-class DisclosurePermissionSubIssueWizard implements DisclosurePermissionBlocState {
-  /// Link to the state that initiated this SubIssueWizard.
-  final DisclosurePermissionBlocState parentState;
-
-  /// Templates of all DisclosureCredentials that needs to be obtained first.
-  final UnmodifiableListView<TemplateDisclosureCredential> issueWizard;
-
-  /// List with the latest obtained credential for each issue wizard item (matching and non-matching).
-  final UnmodifiableListView<ChoosableDisclosureCredential?> obtainedCredentials;
-
-  /// Returns for each issue wizard item whether a matching credential has been successfully obtained.
-  List<bool> get obtainedCredentialsMatch => obtainedCredentials
-      .mapIndexed((i, cred) => cred != null && issueWizard[i].matchesDisclosureCredential(cred))
-      .toList();
-
-  /// Returns whether all issue wizard items have a matching credential.
-  bool get allObtainedCredentialsMatch => obtainedCredentialsMatch.every((match) => match);
-
-  bool get hasObtainedCredentials => obtainedCredentials.any((cred) => cred != null);
-
-  /// Returns the current issue wizard item.
-  TemplateDisclosureCredential? get currentIssueWizardItem =>
-      issueWizard.firstWhereIndexedOrNull((i, item) => !obtainedCredentialsMatch[i]);
-
-  DisclosurePermissionSubIssueWizard({
-    required this.parentState,
-    required List<TemplateDisclosureCredential> issueWizard,
-    List<ChoosableDisclosureCredential?>? obtainedCredentials,
-  })  : assert(obtainedCredentials == null || obtainedCredentials.length == issueWizard.length),
-        issueWizard = UnmodifiableListView(issueWizard),
-        obtainedCredentials = UnmodifiableListView(obtainedCredentials ?? List.filled(issueWizard.length, null));
-}
-
 class DisclosurePermissionPreviouslyAddedCredentialsOverview extends DisclosurePermissionStep {
   DisclosurePermissionPreviouslyAddedCredentialsOverview({
     required List<DisclosurePermissionStepName> plannedSteps,
@@ -119,6 +86,39 @@ class DisclosurePermissionChoicesOverview extends DisclosurePermissionStep {
 
   @override
   DisclosurePermissionStepName get currentStepName => DisclosurePermissionStepName.choicesOverview;
+}
+
+class DisclosurePermissionObtainCredentials implements DisclosurePermissionBlocState {
+  /// Link to the state that initiated this SubIssueWizard.
+  final DisclosurePermissionBlocState parentState;
+
+  /// Templates of all DisclosureCredentials that needs to be obtained first.
+  final UnmodifiableListView<TemplateDisclosureCredential> templates;
+
+  /// List with the latest obtained credential for each issue wizard item (matching and non-matching).
+  final UnmodifiableListView<ChoosableDisclosureCredential?> obtainedCredentials;
+
+  /// Returns for each issue wizard item whether a matching credential has been successfully obtained.
+  List<bool> get obtainedCredentialsMatch => obtainedCredentials
+      .mapIndexed((i, cred) => cred != null && templates[i].matchesDisclosureCredential(cred))
+      .toList();
+
+  /// Returns whether all issue wizard items have a matching credential.
+  bool get allObtainedCredentialsMatch => obtainedCredentialsMatch.every((match) => match);
+
+  bool get hasObtainedCredentials => obtainedCredentials.any((cred) => cred != null);
+
+  /// Returns the current issue wizard item.
+  TemplateDisclosureCredential? get currentIssueWizardItem =>
+      templates.firstWhereIndexedOrNull((i, item) => !obtainedCredentialsMatch[i]);
+
+  DisclosurePermissionObtainCredentials({
+    required this.parentState,
+    required List<TemplateDisclosureCredential> templates,
+    List<ChoosableDisclosureCredential?>? obtainedCredentials,
+  })  : assert(obtainedCredentials == null || obtainedCredentials.length == templates.length),
+        templates = UnmodifiableListView(templates),
+        obtainedCredentials = UnmodifiableListView(obtainedCredentials ?? List.filled(templates.length, null));
 }
 
 class DisclosurePermissionChangeChoice implements DisclosurePermissionBlocState {

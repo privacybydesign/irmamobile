@@ -18,6 +18,9 @@ class DisclosureCon<T extends DisclosureCredential> extends Iterable<T> {
   /// Returns whether the Con contains template credentials that need to be obtained first.
   bool get needsToBeObtained => any((cred) => cred is TemplateDisclosureCredential);
 
+  /// Only returns the TemplateDisclosureCredentials in this con.
+  Iterable<TemplateDisclosureCredential> get templates => whereType<TemplateDisclosureCredential>();
+
   DisclosureCon({
     required Con<T> con,
     required Set<int> conIndices,
@@ -56,6 +59,9 @@ class DisclosureCon<T extends DisclosureCredential> extends Iterable<T> {
           conIndices: conIndices,
           selected: selected,
         );
+
+  /// Returns the DisclosureCredential with the given index (if present).
+  T operator [](int i) => _wrapped[i];
 
   @override
   Iterator<T> get iterator => _wrapped.iterator;
