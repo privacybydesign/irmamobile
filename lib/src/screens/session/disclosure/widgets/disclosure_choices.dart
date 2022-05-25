@@ -40,17 +40,8 @@ class DisclosureChoices extends StatelessWidget {
       attributesByCredential: disclosureCredentials.asMap().map((_, cred) => MapEntry(cred, cred.attributes)),
       compareToCredentials: isTemplate ? disclosureCredentials : null,
       onTap: () => isTemplate
-          ? disclosureCredentials.length > 1
-              //TODO: Implement start sub issue wizard event.
-              ? throw UnimplementedError()
-              : IrmaRepositoryProvider.of(context)
-                  .openIssueURL(context, disclosureCredentials.first.credentialType.fullId)
-          : onEvent(
-              DisclosurePermissionChoiceUpdated(
-                stepIndex: stepIndex,
-                choiceIndex: choiceIndex,
-              ),
-            ),
+          ? throw UnimplementedError() //TODO: Implement start issuing.
+          : onEvent(DisclosurePermissionChoiceUpdated(conIndex: choiceIndex)),
     );
   }
 

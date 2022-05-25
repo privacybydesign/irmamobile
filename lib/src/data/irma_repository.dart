@@ -5,7 +5,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_bridge.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/session_repository.dart';
@@ -513,13 +512,12 @@ class IrmaRepository {
     _inAppCredentialSubject.add(_InAppCredentialState(pendingInactivations: 1, credentialType: type));
   }
 
-  Future<void> openIssueURL(BuildContext context, String type) async {
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
+  Future<void> openIssueURL(Locale? locale, String type) async {
     final translated = await _irmaConfigurationSubject.first
         .then((irmaConfiguration) => irmaConfiguration.credentialTypes[type]?.issueUrl);
-    final url = translated?.translate(lang, fallback: '') ?? '';
+    final url = translated?.translate(locale?.languageCode ?? '', fallback: '') ?? '';
     if (url.isEmpty) {
-      throw UnsupportedError('Credential type $type does not have a suitable issue url for $lang');
+      throw UnsupportedError('Credential type $type does not have a suitable issue url for $locale');
     }
     expectInactivationForCredentialType(type);
     return openURL(url);

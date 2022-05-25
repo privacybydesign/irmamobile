@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:irmamobile/src/models/event.dart';
 import 'package:irmamobile/src/models/issue_wizard.dart';
@@ -174,8 +175,8 @@ class Issuer {
 }
 
 @JsonSerializable(createToJson: false)
-class CredentialType {
-  CredentialType({
+class CredentialType extends Equatable {
+  const CredentialType({
     required this.id,
     required this.name,
     required this.issuerId,
@@ -262,6 +263,9 @@ class CredentialType {
 
   String get fullId => '$schemeManagerId.$issuerId.$id';
   String get fullIssuerId => '$schemeManagerId.$issuerId';
+
+  @override
+  List<Object?> get props => [fullId];
 }
 
 @JsonSerializable(createToJson: false)

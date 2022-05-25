@@ -1,9 +1,9 @@
 import 'package:collection/collection.dart';
 
-import '../../../models/attribute_value.dart';
-import '../../../models/attributes.dart';
-import '../../../models/credentials.dart';
-import '../../../models/irma_configuration.dart';
+import '../../../../models/attribute_value.dart';
+import '../../../../models/attributes.dart';
+import '../../../../models/credentials.dart';
+import '../../../../models/irma_configuration.dart';
 
 /// Abstract class that contains the overlapping behaviour of ChoosableDisclosureCredential and TemplateDisclosureCredential.
 abstract class DisclosureCredential implements CredentialInfo {
@@ -30,4 +30,8 @@ abstract class DisclosureCredential implements CredentialInfo {
 
   @override
   SchemeManager get schemeManager => attributes.first.credentialInfo.schemeManager;
+
+  /// Returns a new DisclosureCredential with the merged contents of this and the given other DisclosureCredential,
+  /// if they don't contradict. Returns null otherwise.
+  DisclosureCredential? copyAndMerge(DisclosureCredential other);
 }

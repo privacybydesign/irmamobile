@@ -1,31 +1,66 @@
 import 'package:collection/collection.dart';
+import 'package:irmamobile/src/screens/session/disclosure/models/disclosure_con_dis_con.dart';
 
-import '../../../../models/attributes.dart';
-import '../../models/choosable_disclosure_credential.dart';
-import '../../models/disclosure_credential.dart';
-import '../../models/template_disclosure_credential.dart';
+import '../models/choosable_disclosure_credential.dart';
+import '../models/disclosure_dis_con.dart';
+import '../models/template_disclosure_credential.dart';
 
 abstract class DisclosurePermissionBlocState {}
 
 /// Initial state to give us time to process the initial request from the IrmaBridge.
 class DisclosurePermissionInitial implements DisclosurePermissionBlocState {}
 
-class DisclosurePermissionIssueWizardChoices implements DisclosurePermissionBlocState {
-  /// ConDisCon representing all choices between templates to fill the issueWizard.
-  final ConDisCon<TemplateDisclosureCredential> issueWizardChoices;
-
-  /// List with indices of the currently selected disjunctions in issueWizardChoices.
-  final UnmodifiableListView<int> issueWizardChoiceIndices;
-
-  DisclosurePermissionIssueWizardChoices({required this.issueWizardChoices, List<int>? issueWizardChoiceIndices})
-      : issueWizardChoiceIndices = UnmodifiableListView(issueWizardChoiceIndices ?? issueWizardChoices.map((_) => 0));
-
-  /// Templates of all DisclosureCredentials that needs to be obtained first.
-  Iterable<TemplateDisclosureCredential> get issueWizard =>
-      issueWizardChoices.asMap().entries.expand((entry) => entry.value[issueWizardChoiceIndices[entry.key]]);
+/// Enum with all possible DisclosurePermissionSteps.
+enum DisclosurePermissionStepName {
+  issueWizard,
+  previouslyAddedCredentialsOverview,
+  choicesOverview,
 }
 
-class DisclosurePermissionIssueWizard implements DisclosurePermissionBlocState {
+/// Abstract class containing all behaviour every named step in the DisclosurePermission flow has.
+abstract class DisclosurePermissionStep implements DisclosurePermissionBlocState {
+  /// List with all the planned steps.
+  final UnmodifiableListView<DisclosurePermissionStepName> plannedSteps;
+
+  /// DisclosureConDisCon with all disclosure candidates (required and optional).
+  final DisclosureConDisCon condiscon;
+
+  DisclosurePermissionStep({required List<DisclosurePermissionStepName> plannedSteps, required this.condiscon})
+      : plannedSteps = UnmodifiableListView(plannedSteps);
+
+  /// Index of the current step in the list of planned steps.
+  DisclosurePermissionStepName get currentStepName;
+
+  /// Index of the current step in the list of planned steps.
+  int get currentStepIndex => plannedSteps.indexWhere((stepName) => stepName == currentStepName);
+}
+
+class DisclosurePermissionIssueWizard extends DisclosurePermissionStep {
+  /// Returns the index of the discon that should currently be handled.
+  /// Returns -1 if the issue wizard is completed.
+  int get currentDisconIndex =>
+      condiscon.required.toList().indexWhere((choice) => choice.selectedCon.needsToBeObtained);
+
+  /// Returns the discon that should currently be handled.
+  DisclosureDisCon? get currentDiscon =>
+      condiscon.required.firstWhereOrNull((choice) => choice.selectedCon.needsToBeObtained);
+
+  /// Returns whether the issue wizard is completed.
+  bool get isCompleted => condiscon.required.every((choice) => !choice.selectedCon.needsToBeObtained);
+
+  DisclosurePermissionIssueWizard({
+    required List<DisclosurePermissionStepName> plannedSteps,
+    required DisclosureConDisCon condiscon,
+  }) : super(plannedSteps: plannedSteps, condiscon: condiscon);
+
+  @override
+  DisclosurePermissionStepName get currentStepName => DisclosurePermissionStepName.issueWizard;
+}
+
+class DisclosurePermissionSubIssueWizard implements DisclosurePermissionBlocState {
+  /// Link to the state that initiated this SubIssueWizard.
+  final DisclosurePermissionBlocState parentState;
+
   /// Templates of all DisclosureCredentials that needs to be obtained first.
   final UnmodifiableListView<TemplateDisclosureCredential> issueWizard;
 
@@ -40,7 +75,14 @@ class DisclosurePermissionIssueWizard implements DisclosurePermissionBlocState {
   /// Returns whether all issue wizard items have a matching credential.
   bool get allObtainedCredentialsMatch => obtainedCredentialsMatch.every((match) => match);
 
-  DisclosurePermissionIssueWizard({
+  bool get hasObtainedCredentials => obtainedCredentials.any((cred) => cred != null);
+
+  /// Returns the current issue wizard item.
+  TemplateDisclosureCredential? get currentIssueWizardItem =>
+      issueWizard.firstWhereIndexedOrNull((i, item) => !obtainedCredentialsMatch[i]);
+
+  DisclosurePermissionSubIssueWizard({
+    required this.parentState,
     required List<TemplateDisclosureCredential> issueWizard,
     List<ChoosableDisclosureCredential?>? obtainedCredentials,
   })  : assert(obtainedCredentials == null || obtainedCredentials.length == issueWizard.length),
@@ -48,46 +90,48 @@ class DisclosurePermissionIssueWizard implements DisclosurePermissionBlocState {
         obtainedCredentials = UnmodifiableListView(obtainedCredentials ?? List.filled(issueWizard.length, null));
 }
 
-class DisclosurePermissionChoices implements DisclosurePermissionBlocState {
-  /// Index of the currently expanded step, to keep track which choice the user is currently making.
-  /// If all choices are collapsed, the value is null.
-  final int? selectedStepIndex;
+class DisclosurePermissionPreviouslyAddedCredentialsOverview extends DisclosurePermissionStep {
+  DisclosurePermissionPreviouslyAddedCredentialsOverview({
+    required List<DisclosurePermissionStepName> plannedSteps,
+    required DisclosureConDisCon condiscon,
+  }) : super(plannedSteps: plannedSteps, condiscon: condiscon);
 
-  /// ConDisCon representing choices that need to be made when there are multiple options to disclose.
-  /// This includes all TemplateDisclosureCredentials, such that they can be presented as placeholders.
-  /// These templates are not choosable.
-  final ConDisCon<DisclosureCredential> choices;
-
-  /// List with indices of the currently selected disjunctions in choices.
-  final UnmodifiableListView<int> choiceIndices;
-
-  DisclosurePermissionChoices({required this.choices, this.selectedStepIndex, List<int>? choiceIndices})
-      : assert(choiceIndices == null || choices.length == choiceIndices.length),
-        choiceIndices = UnmodifiableListView(choiceIndices ?? choices.map((_) => 0));
-
-  /// List with all ChoosableDisclosureCredentials currently selected to be disclosed.
-  List<ChoosableDisclosureCredential> get currentSelection => choices
-      .asMap()
-      .entries
-      .map((entry) => Con(entry.value[choiceIndices[entry.key]].cast<ChoosableDisclosureCredential>()))
-      .flattened
-      .toList();
+  @override
+  DisclosurePermissionStepName get currentStepName => DisclosurePermissionStepName.previouslyAddedCredentialsOverview;
 }
 
-class DisclosurePermissionConfirmChoices implements DisclosurePermissionBlocState {
-  /// List with all ChoosableDisclosureCredentials currently selected to be disclosed.
-  final UnmodifiableListView<ChoosableDisclosureCredential> currentSelection;
-
+class DisclosurePermissionChoicesOverview extends DisclosurePermissionStep {
   /// Message to be signed, in case of a signature session.
   final String? signedMessage;
 
   /// Returns whether the session is a signature session.
   bool get isSignatureSession => signedMessage != null;
 
-  DisclosurePermissionConfirmChoices({
-    required List<ChoosableDisclosureCredential> currentSelection,
+  /// Returns whether the popup should be shown that asks for confirmation to share data.
+  final bool showConfirmationPopup;
+
+  DisclosurePermissionChoicesOverview({
+    required List<DisclosurePermissionStepName> plannedSteps,
+    required DisclosureConDisCon condiscon,
     this.signedMessage,
-  }) : currentSelection = UnmodifiableListView(currentSelection);
+    this.showConfirmationPopup = false,
+  }) : super(plannedSteps: plannedSteps, condiscon: condiscon);
+
+  @override
+  DisclosurePermissionStepName get currentStepName => DisclosurePermissionStepName.choicesOverview;
+}
+
+class DisclosurePermissionChangeChoice implements DisclosurePermissionBlocState {
+  /// Link to the state that initiated this state.
+  final DisclosurePermissionStep parentState;
+
+  /// DisCon that should be changed.
+  final DisclosureDisCon discon;
+
+  DisclosurePermissionChangeChoice({
+    required this.parentState,
+    required this.discon,
+  });
 }
 
 /// State to indicate that the requestDisclosurePermission phase has been finished.

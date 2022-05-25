@@ -1,31 +1,21 @@
 abstract class DisclosurePermissionBlocEvent {}
 
-/// Event to indicate that the user changed a choice for the upcoming issue wizard.
-class DisclosurePermissionIssueWizardChoiceUpdated implements DisclosurePermissionBlocEvent {
-  final int stepIndex;
-  final int choiceIndex;
-
-  DisclosurePermissionIssueWizardChoiceUpdated({required this.stepIndex, required this.choiceIndex});
-}
-
 /// Event to indicate that the user wants to continue to the next state.
 class DisclosurePermissionNextPressed implements DisclosurePermissionBlocEvent {}
 
-/// Event to indicate for which step all available choices should be displayed.
-/// If stepIndex is null, then all steps should be collapsed.
-class DisclosurePermissionStepSelected implements DisclosurePermissionBlocEvent {
-  final int? stepIndex;
+/// Event to indicate for which discon in the condiscon all available choices should be displayed.
+class DisclosurePermissionChangeChoicePressed implements DisclosurePermissionBlocEvent {
+  final int disconIndex;
 
-  DisclosurePermissionStepSelected({required this.stepIndex});
+  DisclosurePermissionChangeChoicePressed({required this.disconIndex});
 }
 
-/// Event to indicate that the user changed a choice in one of the choice steps to select which data will be disclosed.
+/// Event to indicate that the user changed a choice in the discon that is currently displayed.
 class DisclosurePermissionChoiceUpdated implements DisclosurePermissionBlocEvent {
-  final int stepIndex;
-  final int choiceIndex;
+  final int conIndex;
 
-  DisclosurePermissionChoiceUpdated({required this.stepIndex, required this.choiceIndex});
+  DisclosurePermissionChoiceUpdated({required this.conIndex});
 }
 
-/// Event to indicate that the user wants to change the current selection in the confirmation phase.
-class DisclosurePermissionEditCurrentSelectionPressed implements DisclosurePermissionBlocEvent {}
+/// Event to indicate that the user dismisses the confirmation popup.
+class DisclosurePermissionConfirmationDismissed implements DisclosurePermissionBlocEvent {}

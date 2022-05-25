@@ -1,8 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:irmamobile/src/models/attribute_value.dart';
 
-import '../../../models/attributes.dart';
-import '../../../models/credentials.dart';
+import '../../../../models/attributes.dart';
+import '../../../../models/credentials.dart';
 import 'disclosure_credential.dart';
 
 /// Template of a DisclosureCredential that needs to be obtained first.
@@ -21,10 +21,9 @@ class TemplateDisclosureCredential extends DisclosureCredential {
           templAttr.attributeType.fullId == credAttr.attributeType.fullId &&
           (templAttr.value is NullValue || templAttr.value.raw == credAttr.value.raw)));
 
-  /// Returns a new template with the merged contents of this and the given other template, if they don't contradict.
-  /// Returns null otherwise.
-  TemplateDisclosureCredential? copyAndMerge(TemplateDisclosureCredential other) {
-    if (fullId != other.fullId) return null;
+  @override
+  DisclosureCredential? copyAndMerge(DisclosureCredential other) {
+    if (other is! TemplateDisclosureCredential || fullId != other.fullId) return null;
 
     final attributesMap = [...attributes, ...other.attributes].groupSetsBy((attr) => attr.attributeType.fullId);
     final List<Attribute> mergedAttributes = [];

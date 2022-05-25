@@ -1,5 +1,5 @@
-import '../../../models/attributes.dart';
-import '../../../models/credentials.dart';
+import '../../../../models/attributes.dart';
+import '../../../../models/credentials.dart';
 import 'disclosure_credential.dart';
 import 'template_disclosure_credential.dart';
 
@@ -26,4 +26,18 @@ class ChoosableDisclosureCredential extends DisclosureCredential {
   bool get revoked => attributes.first.revoked;
   bool get notRevokable => attributes.first.notRevokable;
   String get credentialHash => attributes.first.credentialHash;
+
+  @override
+  DisclosureCredential? copyAndMerge(DisclosureCredential other) {
+    // ChoosableDisclosureCredentials can only be merged when they match exactly.
+    if (other is! ChoosableDisclosureCredential ||
+        credentialHash != other.credentialHash ||
+        attributes.length != other.attributes.length) return null;
+
+    for (int i = 0; i < attributes.length; i++) {
+      if (attributes[i].attributeType.fullId != other.attributes[i].attributeType.fullId ||
+          attributes[i].value.raw != other.attributes[i].value.raw) return null;
+    }
+    return this;
+  }
 }

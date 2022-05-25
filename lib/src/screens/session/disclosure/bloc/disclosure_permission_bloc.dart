@@ -1,21 +1,74 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/attributes.dart';
-import 'package:irmamobile/src/models/credentials.dart';
-import 'package:irmamobile/src/models/session_events.dart';
-import 'package:irmamobile/src/models/session_state.dart';
-import 'package:irmamobile/src/screens/session/disclosure/bloc/disclosure_permission_event.dart';
-import 'package:irmamobile/src/screens/session/disclosure/bloc/disclosure_permission_state.dart';
-import 'package:irmamobile/src/screens/session/models/choosable_disclosure_credential.dart';
-import 'package:irmamobile/src/screens/session/models/disclosure_credential.dart';
-import 'package:irmamobile/src/screens/session/models/template_disclosure_credential.dart';
+import 'package:irmamobile/src/screens/session/disclosure/models/disclosure_credential.dart';
 import 'package:rxdart/rxdart.dart';
 
+import '../../../../data/irma_repository.dart';
+import '../../../../models/attributes.dart';
+import '../../../../models/credentials.dart';
+import '../../../../models/irma_configuration.dart';
+import '../../../../models/session_events.dart';
+import '../../../../models/session_state.dart';
+import '../bloc/disclosure_permission_event.dart';
+import '../bloc/disclosure_permission_state.dart';
+import '../models/choosable_disclosure_credential.dart';
+import '../models/disclosure_con.dart';
+import '../models/disclosure_con_dis_con.dart';
+import '../models/disclosure_dis_con.dart';
+import '../models/template_disclosure_credential.dart';
+
+/**
+ * This bloc enforces the following state machine:
+ *
+ *    --------
+ *  | Initial |
+ *   ---------
+ *    | on requestDisclosurePermission status
+ *    |
+ *    | (a)  -------------------------------------                   NextPressed (i)
+ *    |--> |            IssueWizard              |  <---------------------------
+ *    |     -------------------------------------                               |
+ *    |      | NextPressed       |__^ ChoiceUpdated                (c)  ----------------         NextPressed (h)
+ *    |      |------------------------------------------------------>  | SubIssueWizard | <---------------
+ *    |      |                                                          ----------------                  |
+ *    |      |                                          NextPressed (f)           |                       |
+ *    |      | (d) ------------------------------------   <-------------          | NextPressed (j)       |
+ *    |      |--> | PreviouslyAddedCredentialsOverview |---------       |         v                       |
+ *    |      |     ------------------------------------         |       ----------------                  |
+ *    |      |             | NextPressed                        |----> |  ChangeChoice  | ----------------
+ *    |      v (e)         v                ChangeChoicePressed |       ----------------
+ *    | (b) -------------------------------------               |         |      |__^ ChoiceUpdated
+ *     --> |           ChoicesOverview           |--------------          |
+ *          -------------------------------------  <----------------------  NextPressed (g)
+ *           |__^ NextPressed (k)      |
+ *                                     v  NextPressed (l)
+ *                                ----------
+ *                               | Finished |
+ *                                ----------
+ *
+ * Notes:
+ * a). if the candidates contain discons without any choosable option.
+ * b). if all discons contain a choosable option (the empty option in optional disjunctions is also choosable).
+ * c). if the issue wizard is not completed yet. A sub issue wizard is started for the first incompleted discon.
+ * d). if the candidates contain more credential instances than the onces that we added during the issue wizard.
+ * e). if all choosable options are populated using credential instances that were added during the issue wizard.
+ * f). if the previous state was PreviouslyAddedCredentialsOverview.
+ * g). if the previous state was ChoicesOverview.
+ * h). if the chosen option still contains template credentials that must be obtained first.
+ * i). if the previous state was IssueWizard. This action is triggered automatically if the sub issue wizard only
+ *     contains one credential and the attempt to obtain it succeeds at once.
+ * j). if the previous state was ChangeChoice.
+ * k). if showConfirmationPopup is false.
+ * l). if showConfirmationPopup is true.
+ */
+
+/// Bloc that specifies the flow during DisclosurePermission. Check the bloc source code for a state machine drawing.
 class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, DisclosurePermissionBlocState> {
   final int sessionID;
+  final Locale? locale;
 
   final IrmaRepository _repo; // Repository is hidden by design, because behaviour should be triggered via bloc events.
 
@@ -26,6 +79,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
 
   DisclosurePermissionBloc({
     required this.sessionID,
+    required this.locale,
     required IrmaRepository repo,
   })  : _repo = repo,
         _newlyAddedCredentialHashes = [],
@@ -49,58 +103,165 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
   Stream<DisclosurePermissionBlocState> mapEventToState(DisclosurePermissionBlocEvent event) async* {
     final state = this.state; // To prevent the need for type casting.
     final session = _repo.getCurrentSessionState(sessionID)!;
-    if (state is DisclosurePermissionIssueWizardChoices && event is DisclosurePermissionIssueWizardChoiceUpdated) {
-      yield DisclosurePermissionIssueWizardChoices(
-        issueWizardChoices: state.issueWizardChoices,
-        issueWizardChoiceIndices: state.issueWizardChoiceIndices
-            .mapIndexed((i, choiceIndex) => i == event.stepIndex ? event.choiceIndex : choiceIndex)
+    if (state is DisclosurePermissionIssueWizard && event is DisclosurePermissionChoiceUpdated) {
+      final updatedCondiscon = DisclosureConDisCon(
+        state.condiscon
+            .map(
+              (discon) => discon.disconIndex == state.currentDisconIndex
+                  ? discon.copyWith(selectedConIndex: event.conIndex)
+                  : discon,
+            )
             .toList(),
       );
-    } else if (state is DisclosurePermissionIssueWizardChoices && event is DisclosurePermissionNextPressed) {
-      // We have to insert again the credential templates that contain no choice.
-      final otherWizardCandidates = _parseDisclosureCandidates(session.disclosuresCandidates!)
-          .where((discon) => discon.length == 1)
-          .map((discon) => discon[0].whereType<TemplateDisclosureCredential>())
-          .flattened;
+      // When an option is changed, the list of previous added credentials that are involved in this session
+      // may have changed too. Therefore, we have to recalculate the planned steps.
       yield DisclosurePermissionIssueWizard(
-        issueWizard: _foldIssueWizardItems([
-          ...state.issueWizardChoices.mapIndexed((i, discon) => discon[state.issueWizardChoiceIndices[i]]).flattened,
-          ...otherWizardCandidates,
-        ]),
+        plannedSteps: _calculatePlannedSteps(updatedCondiscon),
+        condiscon: updatedCondiscon,
       );
-    } else if (state is DisclosurePermissionIssueWizard && event is DisclosurePermissionNextPressed ||
-        state is DisclosurePermissionConfirmChoices && event is DisclosurePermissionEditCurrentSelectionPressed) {
-      if (state is DisclosurePermissionIssueWizard && !state.allObtainedCredentialsMatch) {
-        throw Exception('Issue wizard is not completed yet');
+    } else if (state is DisclosurePermissionIssueWizard && event is DisclosurePermissionNextPressed) {
+      if (state.isCompleted) {
+        // Wizard is completed, so now we show the previously added credentials that are involved in this session.
+        final condiscon = _parseDisclosureCandidates(session.disclosuresCandidates!);
+        final prevAddedDiscons = condiscon.map((discon) {
+          for (final wizardDiscon in state.condiscon) {
+            // In case we already handled this discon in the issue wizard, then we only show previously present data
+            // for the condiscon that also contain the newly obtained credentials from the issue wizard.
+            if (wizardDiscon.disconIndex == discon.disconIndex) {
+              final prevAddedDiscons = DisclosureDisCon(
+                discon: wizardDiscon
+                    .expand((wizardCon) => wizardCon.conIndices.map((i) {
+                          final con = discon[i];
+                          if (con == null) return null;
+                          // Filter out all credentials that were obtained during the issue wizard.
+                          final filteredCon =
+                              con.where((cred) => wizardCon.any((wizardCred) => wizardCred.fullId == cred.fullId));
+                          return filteredCon.isNotEmpty
+                              ? DisclosureCon(con: Con(filteredCon), conIndices: con.conIndices)
+                              : null;
+                        }).whereNotNull())
+                    .toList(),
+                disconIndex: discon.disconIndex,
+              );
+              return prevAddedDiscons.isNotEmpty ? prevAddedDiscons : null;
+            }
+          }
+          return discon;
+        }).whereNotNull();
+        if (prevAddedDiscons.isEmpty) {
+          // No previously added credentials are involved in this session, so we immediately continue to the overview.
+          yield DisclosurePermissionChoicesOverview(
+            plannedSteps: state.plannedSteps,
+            condiscon: condiscon,
+            signedMessage: session.isSignatureSession ?? false ? session.signedMessage : null,
+          );
+        } else {
+          yield DisclosurePermissionPreviouslyAddedCredentialsOverview(
+            plannedSteps: state.plannedSteps,
+            condiscon: DisclosureConDisCon(prevAddedDiscons.toList()),
+          );
+        }
+      } else {
+        // If only one credential is involved, we can open the issue url immediately.
+        if (state.currentDiscon!.selectedCon.length == 1) {
+          _repo.openIssueURL(locale, state.currentDiscon!.selectedCon.first.credentialType.fullId);
+        }
+        yield DisclosurePermissionSubIssueWizard(
+          parentState: state,
+          issueWizard: state.currentDiscon!.selectedCon.whereType<TemplateDisclosureCredential>().toList(),
+        );
       }
-      yield DisclosurePermissionChoices(
-        choices: _parseDisclosureCandidates(session.disclosuresCandidates!),
-        choiceIndices: session.disclosureIndices,
-      );
-    } else if (state is DisclosurePermissionChoices && event is DisclosurePermissionStepSelected) {
-      yield DisclosurePermissionChoices(
-        choices: state.choices,
-        choiceIndices: state.choiceIndices,
-        selectedStepIndex: event.stepIndex,
-      );
-    } else if (state is DisclosurePermissionChoices && event is DisclosurePermissionChoiceUpdated) {
-      if (state.choices[event.stepIndex][event.choiceIndex].any((cred) => cred is TemplateDisclosureCredential)) {
-        throw Exception('Cannot choose a template option');
+    } else if (state is DisclosurePermissionSubIssueWizard && event is DisclosurePermissionNextPressed) {
+      if (state.allObtainedCredentialsMatch) {
+        final parentState = state.parentState; // To prevent the need for type casting.
+        if (parentState is DisclosurePermissionPreviouslyAddedCredentialsOverview) {
+          yield DisclosurePermissionPreviouslyAddedCredentialsOverview(
+            plannedSteps: parentState.plannedSteps,
+            condiscon: _parseDisclosureCandidates(
+              session.disclosuresCandidates!,
+              onlyInclude: parentState.condiscon.includedCredentialTypes,
+            ),
+          );
+        } else if (parentState is DisclosurePermissionChoicesOverview) {
+          yield DisclosurePermissionChoicesOverview(
+            plannedSteps: parentState.plannedSteps,
+            condiscon: _parseDisclosureCandidates(session.disclosuresCandidates!),
+          );
+        } else {
+          throw Exception('DisclosurePermissionSubIssueWizard has unexpected parent: ${state.parentState.runtimeType}');
+        }
+      } else {
+        _repo.openIssueURL(locale, state.currentIssueWizardItem!.fullId);
       }
-      _repo.dispatch(
-        DisclosureChoiceUpdateSessionEvent(
-          sessionID: sessionID,
-          disconIndex: event.stepIndex,
-          conIndex: event.choiceIndex,
-        ),
+    } else if (state is DisclosurePermissionPreviouslyAddedCredentialsOverview &&
+        event is DisclosurePermissionNextPressed) {
+      yield DisclosurePermissionChoicesOverview(
+        plannedSteps: state.plannedSteps,
+        condiscon: _parseDisclosureCandidates(session.disclosuresCandidates!),
       );
-    } else if (state is DisclosurePermissionChoices && event is DisclosurePermissionNextPressed) {
-      yield DisclosurePermissionConfirmChoices(
-        currentSelection: state.currentSelection,
-        signedMessage: session.isSignatureSession ?? false ? session.signedMessage : null,
+    } else if (state is DisclosurePermissionStep && event is DisclosurePermissionChangeChoicePressed) {
+      if (state is DisclosurePermissionIssueWizard) {
+        throw UnsupportedError('No separate state exists for changing choices during issue wizards');
+      }
+      final discon = state.condiscon[event.disconIndex];
+      if (discon == null) {
+        throw Exception('DisclosureDisCon with index ${event.disconIndex} does not exist');
+      }
+      yield DisclosurePermissionChangeChoice(parentState: state, discon: discon);
+    } else if (state is DisclosurePermissionChangeChoice && event is DisclosurePermissionChoiceUpdated) {
+      final con = state.discon[(event.conIndex)];
+      if (con == null) throw Exception('Con with index ${event.conIndex} does not exist');
+      if (con.needsToBeObtained) throw Exception('Cannot choose a template con');
+
+      final parentState = state.parentState; // To prevent the need for type casting.
+      late final DisclosurePermissionStep updatedParentState;
+      if (parentState is DisclosurePermissionPreviouslyAddedCredentialsOverview) {
+        updatedParentState = DisclosurePermissionPreviouslyAddedCredentialsOverview(
+          plannedSteps: parentState.plannedSteps,
+          condiscon: DisclosureConDisCon(
+            parentState.condiscon
+                .map((discon) => discon.disconIndex == state.discon.disconIndex ? state.discon : discon)
+                .toList(),
+          ),
+        );
+      } else if (parentState is DisclosurePermissionChoicesOverview) {
+        updatedParentState = DisclosurePermissionChoicesOverview(
+          plannedSteps: parentState.plannedSteps,
+          condiscon: DisclosureConDisCon(
+            parentState.condiscon
+                .map((discon) => discon.disconIndex == state.discon.disconIndex ? state.discon : discon)
+                .toList(),
+          ),
+        );
+      } else {
+        throw UnsupportedError('Transition from DisclosurePermissionChangeChoice to ${state.parentState.runtimeType}');
+      }
+
+      yield DisclosurePermissionChangeChoice(
+        parentState: updatedParentState,
+        discon: updatedParentState.condiscon[state.discon.disconIndex]!,
       );
-    } else if (state is DisclosurePermissionConfirmChoices && event is DisclosurePermissionNextPressed) {
-      if (session.isIssuanceSession) {
+    } else if (state is DisclosurePermissionChangeChoice && event is DisclosurePermissionNextPressed) {
+      if (state.discon.selectedCon.needsToBeObtained) {
+        // If only one credential is involved, we can open the issue url immediately.
+        if (state.discon.selectedCon.length == 1) {
+          _repo.openIssueURL(locale, state.discon.selectedCon.first.credentialType.fullId);
+        }
+        yield DisclosurePermissionSubIssueWizard(
+          parentState: state,
+          issueWizard: state.discon.selectedCon.whereType<TemplateDisclosureCredential>().toList(),
+        );
+      } else {
+        yield state.parentState;
+      }
+    } else if (state is DisclosurePermissionChoicesOverview && event is DisclosurePermissionNextPressed) {
+      if (!state.showConfirmationPopup) {
+        yield DisclosurePermissionChoicesOverview(
+          plannedSteps: state.plannedSteps,
+          condiscon: state.condiscon,
+          showConfirmationPopup: true,
+        );
+      } else if (session.isIssuanceSession) {
         _repo.dispatch(
           ContinueToIssuanceEvent(sessionID: sessionID),
           isBridgedEvent: true,
@@ -110,13 +271,20 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
           RespondPermissionEvent(
             sessionID: sessionID,
             proceed: true,
-            disclosureChoices: session.disclosureChoices!,
+            disclosureChoices: Con(state.condiscon.map((discon) => Con(discon.selectedCon
+                .expand((cred) => cred.attributes.map((attr) => AttributeIdentifier.fromAttribute(attr)))))),
           ),
           isBridgedEvent: true,
         );
       }
+    } else if (state is DisclosurePermissionChoicesOverview && event is DisclosurePermissionConfirmationDismissed) {
+      yield DisclosurePermissionChoicesOverview(
+        plannedSteps: state.plannedSteps,
+        condiscon: state.condiscon,
+      );
     } else {
-      throw Exception('Event ${event.runtimeType.toString()} not supported in state ${state.runtimeType.toString()}');
+      throw UnsupportedError(
+          'Event ${event.runtimeType.toString()} not supported in state ${state.runtimeType.toString()}');
     }
   }
 
@@ -127,100 +295,178 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         yield DisclosurePermissionFinished();
       }
       return;
-    } else if (state is DisclosurePermissionIssueWizard) {
-      // Reverse list to make sure newest credentials are considered first.
-      final newlyAddedCredentials = _newlyAddedCredentialHashes.reversed
-          .expand((hash) => _repo.credentials.containsKey(hash) ? [_repo.credentials[hash]!] : <Credential>[]);
-      yield DisclosurePermissionIssueWizard(
-        issueWizard: state.issueWizard,
-        obtainedCredentials: state.issueWizard.mapIndexed((i, template) {
-          // First we check whether we have an exact match.
-          final matchingCred = newlyAddedCredentials.firstWhereOrNull((cred) => template.matchesCredential(cred));
-          if (matchingCred != null) {
-            return ChoosableDisclosureCredential.fromTemplate(
-              template: template,
-              credential: matchingCred,
-            );
-          }
-
-          // If there is no exact match, then we look for credentials that were added in attempt to make a match.
-          final templateWithoutValueConstraints = template.copyWithoutValueConstraints();
-          final nonMatchingCred =
-              newlyAddedCredentials.firstWhereOrNull((cred) => templateWithoutValueConstraints.matchesCredential(cred));
-          if (nonMatchingCred != null) {
-            return ChoosableDisclosureCredential.fromTemplate(
-              template: templateWithoutValueConstraints,
-              credential: nonMatchingCred,
-            );
-          }
-
-          // If there is still no match, then we assume no attempt has been made to obtain this template yet.
-          return state.obtainedCredentials[i];
-        }).toList(),
+    } else if (state is DisclosurePermissionStep) {
+      yield _refreshDisclosurePermissionStep(session, state);
+    } else if (state is DisclosurePermissionSubIssueWizard) {
+      final refreshedWizard = _refreshSubIssueWizard(session, state);
+      // In case the sub wizard only contains one item, we immediately go back to the parent step.
+      if (refreshedWizard.issueWizard.length == 1 && refreshedWizard.allObtainedCredentialsMatch) {
+        yield refreshedWizard.parentState;
+      } else {
+        yield refreshedWizard;
+      }
+    } else if (state is DisclosurePermissionChangeChoice) {
+      final refreshedStep = _refreshDisclosurePermissionStep(session, state.parentState);
+      yield DisclosurePermissionChangeChoice(
+        parentState: refreshedStep,
+        discon: refreshedStep.condiscon[state.discon.disconIndex]!,
       );
     } else {
-      final parsedCandidates = _parseDisclosureCandidates(session.disclosuresCandidates!);
-      if (state is DisclosurePermissionChoices) {
-        yield DisclosurePermissionChoices(
-          choices: parsedCandidates,
-          choiceIndices: session.disclosureIndices,
-          selectedStepIndex: state.selectedStepIndex,
+      // Check whether an issue wizard is needed to bootstrap the session.
+      final condiscon = _parseDisclosureCandidates(session.disclosuresCandidates!);
+      if (condiscon.every((discon) => discon.choosableCons.isNotEmpty)) {
+        yield DisclosurePermissionChoicesOverview(
+          plannedSteps: [DisclosurePermissionStepName.choicesOverview],
+          condiscon: condiscon,
+          signedMessage: session.isSignatureSession ?? false ? session.signedMessage : null,
         );
       } else {
-        // Check whether an issue wizard is needed to bootstrap the session.
-        final issueWizardCandidates = parsedCandidates
-            .where((discon) => discon.every((con) => con.any((cred) => cred is TemplateDisclosureCredential)));
-        if (issueWizardCandidates.isEmpty) {
-          yield DisclosurePermissionChoices(
-            choices: parsedCandidates,
-          );
-        } else {
-          // In an issue wizard, only the credential templates are relevant.
-          final filteredIssueWizardCandidates = ConDisCon(issueWizardCandidates
-              .map((discon) => DisCon(discon.map((con) => Con(con.whereType<TemplateDisclosureCredential>())))));
-          if (issueWizardCandidates.every((discon) => discon.length == 1)) {
-            yield DisclosurePermissionIssueWizard(
-              issueWizard: _foldIssueWizardItems(filteredIssueWizardCandidates.flattened.flattened),
-            );
-          } else {
-            // Only include the discons in which a choice must be made.
-            yield DisclosurePermissionIssueWizardChoices(
-              issueWizardChoices: ConDisCon(filteredIssueWizardCandidates.where((discon) => discon.length > 1)),
-            );
-          }
-        }
+        // In an issue wizard, only the credential templates are relevant. If an issue wizard is needed,
+        // we also include the optional discons where no non-empty con is fully obtained yet. If no issue wizard
+        // is needed, then the optional discons are presented in DisclosurePermissionChoicesOverview.
+        yield DisclosurePermissionIssueWizard(
+          plannedSteps: _calculatePlannedSteps(condiscon),
+          condiscon: _parseDisclosureCandidates(
+            session.disclosuresCandidates!,
+            onlyInclude: condiscon
+                .where((discon) => discon.choosableCons.where((con) => con.isNotEmpty).isEmpty)
+                .expand((discon) => discon
+                    .expand((con) => con.whereType<TemplateDisclosureCredential>().map((cred) => cred.credentialType)))
+                .toSet(),
+          ),
+        );
       }
     }
   }
 
-  ConDisCon<DisclosureCredential> _parseDisclosureCandidates(ConDisCon<Attribute> candidates) =>
-      ConDisCon(candidates.map((discon) => DisCon(discon.map((con) {
-            final groupedCon = groupBy(con, (Attribute attr) => attr.credentialInfo.fullId);
-            return Con(groupedCon.entries.map((entry) {
-              final credentialAttributes = entry.value;
-              if (credentialAttributes.first.choosable) {
-                return ChoosableDisclosureCredential(attributes: credentialAttributes);
-              } else {
-                return TemplateDisclosureCredential(attributes: credentialAttributes);
-              }
-            }));
-          }))));
-
-  /// Folds the issue wizard by merging non-contradicting template credentials.
-  List<TemplateDisclosureCredential> _foldIssueWizardItems(Iterable<TemplateDisclosureCredential> unfolded) {
-    final List<TemplateDisclosureCredential> folded = [];
-    for (final template in unfolded) {
-      bool merged = false;
-      for (int i = 0; i < folded.length; i++) {
-        final mergedItem = folded[i].copyAndMerge(template);
-        if (mergedItem != null) {
-          folded[i] = mergedItem;
-          merged = true;
-          break;
-        }
-      }
-      if (!merged) folded.add(template);
+  DisclosurePermissionStep _refreshDisclosurePermissionStep(SessionState session, DisclosurePermissionStep state) {
+    if (state is DisclosurePermissionIssueWizard) {
+      // We assume that in the initial disclosure candidates all credential types involved in this session are
+      // being mentioned. This allows us to build upon the previously generated issue wizard.
+      return DisclosurePermissionIssueWizard(
+        plannedSteps: state.plannedSteps,
+        condiscon: _parseDisclosureCandidates(
+          session.disclosuresCandidates!,
+          onlyInclude: state.condiscon.includedCredentialTypes,
+        ),
+      );
+    } else if (state is DisclosurePermissionPreviouslyAddedCredentialsOverview) {
+      return DisclosurePermissionPreviouslyAddedCredentialsOverview(
+        plannedSteps: state.plannedSteps,
+        condiscon: _parseDisclosureCandidates(
+          session.disclosuresCandidates!,
+          onlyInclude: state.condiscon.includedCredentialTypes,
+        ),
+      );
+    } else if (state is DisclosurePermissionChoicesOverview) {
+      return DisclosurePermissionChoicesOverview(
+        plannedSteps: state.plannedSteps,
+        condiscon: _parseDisclosureCandidates(session.disclosuresCandidates!),
+        signedMessage: state.signedMessage,
+        showConfirmationPopup: state.showConfirmationPopup,
+      );
+    } else {
+      throw UnsupportedError('unknown step ${state.runtimeType}');
     }
-    return folded;
+  }
+
+  DisclosurePermissionSubIssueWizard _refreshSubIssueWizard(
+    SessionState session,
+    DisclosurePermissionSubIssueWizard state,
+  ) {
+    // Reverse list to make sure newest credentials are considered first.
+    final newlyAddedCredentials = _newlyAddedCredentialHashes.reversed
+        .expand((hash) => _repo.credentials.containsKey(hash) ? [_repo.credentials[hash]!] : <Credential>[]);
+
+    final parentState = state.parentState; // To prevent the need for type casting.
+    late final DisclosurePermissionStep condiscon;
+    if (parentState is DisclosurePermissionStep) {
+      condiscon = parentState;
+    } else if (parentState is DisclosurePermissionChangeChoice) {
+      condiscon = parentState.parentState;
+    } else {
+      throw Exception('DisclosurePermissionSubIssueWizard has unexpected parent: ${parentState.runtimeType}');
+    }
+
+    return DisclosurePermissionSubIssueWizard(
+      parentState: _refreshDisclosurePermissionStep(session, condiscon),
+      issueWizard: state.issueWizard,
+      obtainedCredentials: state.issueWizard.map((template) {
+        // First we check whether we have an exact match.
+        final matchingCred = newlyAddedCredentials.firstWhereOrNull((cred) => template.matchesCredential(cred));
+        if (matchingCred != null) {
+          return ChoosableDisclosureCredential.fromTemplate(
+            template: template,
+            credential: matchingCred,
+          );
+        }
+
+        // If there is no exact match, then we look for credentials that were added in attempt to make a match.
+        final templateWithoutValueConstraints = template.copyWithoutValueConstraints();
+        final nonMatchingCred =
+            newlyAddedCredentials.firstWhereOrNull((cred) => templateWithoutValueConstraints.matchesCredential(cred));
+        if (nonMatchingCred != null) {
+          return ChoosableDisclosureCredential.fromTemplate(
+            template: templateWithoutValueConstraints,
+            credential: nonMatchingCred,
+          );
+        }
+
+        // If there is still no match, then we assume no attempt has been made to obtain this template yet.
+        return null;
+      }).toList(),
+    );
+  }
+
+  DisclosureConDisCon _parseDisclosureCandidates(
+    ConDisCon<Attribute> candidates, {
+    Set<CredentialType> onlyInclude = const {},
+  }) {
+    final onlyIncludeIds = onlyInclude.map((ct) => ct.fullId).toSet();
+    final rawCondiscon = candidates.map((discon) => DisCon(discon.map((con) {
+          final groupedCon = groupBy(con, (Attribute attr) => attr.credentialInfo.fullId);
+          return Con(groupedCon.entries.map((entry) {
+            final credentialAttributes = entry.value;
+            if (credentialAttributes.first.choosable) {
+              return ChoosableDisclosureCredential(attributes: credentialAttributes);
+            } else {
+              return TemplateDisclosureCredential(attributes: credentialAttributes);
+            }
+          }));
+        })));
+    return DisclosureConDisCon(rawCondiscon.mapIndexed((i, discon) {
+      final cons = discon.mapIndexed((j, con) {
+        final filteredCon = Con(con.where((cred) => onlyIncludeIds.contains(cred.fullId)));
+        return filteredCon.isNotEmpty ? DisclosureCon<DisclosureCredential>(con: filteredCon, conIndices: {j}) : null;
+      }).whereNotNull();
+
+      // Filter duplicate cons.
+      final List<DisclosureCon> filteredCons = cons.fold([], (prev, con) {
+        for (int i = 0; i < prev.length; i++) {
+          final merged = prev[i].copyAndMerge(con);
+          if (merged != null) {
+            prev[i] = merged;
+            return prev;
+          }
+        }
+        return [...prev, con];
+      });
+
+      return DisclosureDisCon(discon: filteredCons, disconIndex: i);
+    }).toList());
+  }
+
+  List<DisclosurePermissionStepName> _calculatePlannedSteps(DisclosureConDisCon condiscon) {
+    final hasPrevAddedCreds =
+        condiscon.any((discon) => discon.selectedCon.any((cred) => cred is ChoosableDisclosureCredential));
+    final stepNames = [
+      DisclosurePermissionStepName.issueWizard,
+      DisclosurePermissionStepName.previouslyAddedCredentialsOverview,
+      DisclosurePermissionStepName.choicesOverview,
+    ];
+    // In an issue wizard, only the credential templates are relevant.
+    return hasPrevAddedCreds
+        ? stepNames
+        : stepNames.where((name) => name != DisclosurePermissionStepName.previouslyAddedCredentialsOverview).toList();
   }
 }

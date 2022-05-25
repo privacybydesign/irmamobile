@@ -14,6 +14,7 @@ import 'package:irmamobile/src/widgets/card_suggestion.dart';
 import 'package:irmamobile/src/widgets/card_suggestion_group.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
+import '../../widgets/irma_repository_provider.dart';
 import 'card_info_screen.dart';
 
 class CardStoreScreen extends StatelessWidget {
@@ -80,8 +81,10 @@ class CardStoreScreen extends StatelessWidget {
                                         builder: (context) => CardInfoScreen(
                                           irmaConfiguration: irmaConfiguration,
                                           credentialType: credentialType,
-                                          onStartIssuance: () =>
-                                              IrmaRepository.get().openIssueURL(context, credentialType.fullId),
+                                          onStartIssuance: () => IrmaRepositoryProvider.of(context).openIssueURL(
+                                            FlutterI18n.currentLocale(context),
+                                            credentialType.fullId,
+                                          ),
                                         ),
                                       ),
                                     );

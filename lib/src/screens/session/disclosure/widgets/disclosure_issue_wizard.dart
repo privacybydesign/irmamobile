@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
@@ -6,7 +5,6 @@ import '../../../../models/session.dart';
 import '../../../../theme/theme.dart';
 import '../../../../widgets/credential_card/irma_credentials_card.dart';
 import '../../../../widgets/irma_card.dart';
-import '../../../../widgets/irma_repository_provider.dart';
 import '../../../../widgets/translated_text.dart';
 import '../../../activity/widgets/issuer_verifier_header.dart';
 import '../bloc/disclosure_permission_state.dart';
@@ -58,7 +56,7 @@ class DisclosureIssueWizard extends StatelessWidget {
             attributes: cred.attributes,
             compareTo: cred,
             style: state.obtainedCredentialsMatch[i] ? IrmaCardStyle.success : IrmaCardStyle.template,
-            onTap: () => IrmaRepositoryProvider.of(context).openIssueURL(context, cred.credentialType.fullId),
+            onTap: () => throw UnimplementedError(),
           ),
         ),
       ],
