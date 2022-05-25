@@ -1,6 +1,7 @@
 {
   "ui": {
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "step_of_steps" : "Step {index} of {n}: {count}"
   },
   "enrollment": {
     "welcome": {
