@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:equatable/equatable.dart';
 
 import '../../../../models/attribute_value.dart';
 import '../../../../models/attributes.dart';
@@ -6,7 +7,7 @@ import '../../../../models/credentials.dart';
 import '../../../../models/irma_configuration.dart';
 
 /// Abstract class that contains the overlapping behaviour of ChoosableDisclosureCredential and TemplateDisclosureCredential.
-abstract class DisclosureCredential implements CredentialInfo {
+abstract class DisclosureCredential extends Equatable implements CredentialInfo {
   final UnmodifiableListView<Attribute> attributes;
 
   DisclosureCredential({required List<Attribute> attributes})
@@ -30,6 +31,11 @@ abstract class DisclosureCredential implements CredentialInfo {
 
   @override
   SchemeManager get schemeManager => attributes.first.credentialInfo.schemeManager;
+
+  @override
+  List<Object?> get props => [
+        {for (final attr in attributes) attr.attributeType.fullId: attr.value.raw}
+      ];
 
   /// Returns a new DisclosureCredential with the merged contents of this and the given other DisclosureCredential,
   /// if they don't contradict. Returns null otherwise.

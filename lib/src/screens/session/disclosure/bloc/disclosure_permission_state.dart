@@ -1,5 +1,4 @@
 import 'package:collection/collection.dart';
-import 'package:irmamobile/src/screens/session/disclosure/models/disclosure_con_dis_con.dart';
 
 import '../models/choosable_disclosure_credential.dart';
 import '../models/disclosure_dis_con.dart';
@@ -22,10 +21,11 @@ abstract class DisclosurePermissionStep implements DisclosurePermissionBlocState
   /// List with all the planned steps.
   final UnmodifiableListView<DisclosurePermissionStepName> plannedSteps;
 
-  /// DisclosureConDisCon with all disclosure candidates (required and optional).
-  final DisclosureConDisCon condiscon;
+  /// ConDisCon with all disclosure candidates being relevant in this step (required and optional).
+  /// They are stored in a map with the disconIndex being used as map key.
+  final Map<int, DisclosureDisCon> candidates;
 
-  DisclosurePermissionStep({required List<DisclosurePermissionStepName> plannedSteps, required this.condiscon})
+  DisclosurePermissionStep({required List<DisclosurePermissionStepName> plannedSteps, required this.candidates})
       : plannedSteps = UnmodifiableListView(plannedSteps);
 
   /// Index of the current step in the list of planned steps.
@@ -33,25 +33,28 @@ abstract class DisclosurePermissionStep implements DisclosurePermissionBlocState
 
   /// Index of the current step in the list of planned steps.
   int get currentStepIndex => plannedSteps.indexWhere((stepName) => stepName == currentStepName);
+
+  /// List with all required DisCons. In required DisCons a choice between one of the options must be made.
+  Map<int, DisclosureDisCon> get requiredCandidates =>
+      Map.fromEntries(candidates.entries.where((entry) => !entry.value.isOptional));
+
+  /// List with all optional DisCons. In optional DisCons there is an option to select none of the choices.
+  Map<int, DisclosureDisCon> get optionalCandidates =>
+      Map.fromEntries(candidates.entries.where((entry) => entry.value.isOptional));
 }
 
 class DisclosurePermissionIssueWizard extends DisclosurePermissionStep {
-  /// Returns the index of the discon that should currently be handled.
-  /// Returns -1 if the issue wizard is completed.
-  int get currentDisconIndex =>
-      condiscon.required.toList().indexWhere((choice) => choice.selectedCon.needsToBeObtained);
-
   /// Returns the discon that should currently be handled.
   DisclosureDisCon? get currentDiscon =>
-      condiscon.required.firstWhereOrNull((choice) => choice.selectedCon.needsToBeObtained);
+      requiredCandidates.values.firstWhereOrNull((discon) => discon.choosableCons.isEmpty);
 
   /// Returns whether the issue wizard is completed.
-  bool get isCompleted => condiscon.required.every((choice) => !choice.selectedCon.needsToBeObtained);
+  bool get isCompleted => requiredCandidates.values.every((discon) => discon.isSelectedChoosable);
 
   DisclosurePermissionIssueWizard({
     required List<DisclosurePermissionStepName> plannedSteps,
-    required DisclosureConDisCon condiscon,
-  }) : super(plannedSteps: plannedSteps, condiscon: condiscon);
+    required Map<int, DisclosureDisCon> candidates,
+  }) : super(plannedSteps: plannedSteps, candidates: candidates);
 
   @override
   DisclosurePermissionStepName get currentStepName => DisclosurePermissionStepName.issueWizard;
@@ -60,8 +63,8 @@ class DisclosurePermissionIssueWizard extends DisclosurePermissionStep {
 class DisclosurePermissionPreviouslyAddedCredentialsOverview extends DisclosurePermissionStep {
   DisclosurePermissionPreviouslyAddedCredentialsOverview({
     required List<DisclosurePermissionStepName> plannedSteps,
-    required DisclosureConDisCon condiscon,
-  }) : super(plannedSteps: plannedSteps, condiscon: condiscon);
+    required Map<int, DisclosureDisCon> candidates,
+  }) : super(plannedSteps: plannedSteps, candidates: candidates);
 
   @override
   DisclosurePermissionStepName get currentStepName => DisclosurePermissionStepName.previouslyAddedCredentialsOverview;
@@ -79,10 +82,10 @@ class DisclosurePermissionChoicesOverview extends DisclosurePermissionStep {
 
   DisclosurePermissionChoicesOverview({
     required List<DisclosurePermissionStepName> plannedSteps,
-    required DisclosureConDisCon condiscon,
+    required Map<int, DisclosureDisCon> candidates,
     this.signedMessage,
     this.showConfirmationPopup = false,
-  }) : super(plannedSteps: plannedSteps, condiscon: condiscon);
+  }) : super(plannedSteps: plannedSteps, candidates: candidates);
 
   @override
   DisclosurePermissionStepName get currentStepName => DisclosurePermissionStepName.choicesOverview;
