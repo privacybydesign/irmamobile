@@ -13,7 +13,9 @@ import 'activity_card.dart';
 class RecentActivity extends StatefulWidget {
   final int amountOfLogs;
 
-  const RecentActivity({this.amountOfLogs = 5});
+  const RecentActivity({
+    this.amountOfLogs = 2,
+  });
 
   @override
   State<RecentActivity> createState() => _RecentActivityState();

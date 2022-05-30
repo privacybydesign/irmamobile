@@ -15,15 +15,24 @@ enum IrmaCardStyle {
 class IrmaCard extends StatelessWidget {
   final Function()? onTap;
   final Widget? child;
-
+  final EdgeInsetsGeometry? padding;
   final IrmaCardStyle style;
+  final Color? color;
+  final EdgeInsetsGeometry? margin;
 
   const IrmaCard({
     Key? key,
     this.onTap,
     this.child,
+    this.padding,
     this.style = IrmaCardStyle.normal,
-  }) : super(key: key);
+    this.color,
+    this.margin,
+  })  : assert(
+          color == null || style == IrmaCardStyle.normal,
+          'Color can only be overwritten if IrmaCardStyle is normal',
+        ),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -38,12 +47,13 @@ class IrmaCard extends StatelessWidget {
     ];
 
     return Padding(
-      padding: EdgeInsets.all(theme.tinySpacing),
+      padding: padding ?? EdgeInsets.all(theme.tinySpacing),
       child: InkWell(
         borderRadius: borderRadius,
         onTap: onTap,
         child: Container(
-          padding: EdgeInsets.all(theme.smallSpacing),
+          //In this context the "margin" is set on the container padding.
+          padding: margin ?? EdgeInsets.all(theme.smallSpacing),
           decoration: style == IrmaCardStyle.template
               //Template styling
               ? DottedDecoration(
@@ -62,7 +72,7 @@ class IrmaCard extends StatelessWidget {
                   : BoxDecoration(
                       borderRadius: borderRadius,
                       border: Border.all(color: Colors.transparent),
-                      color: Colors.white,
+                      color: color ?? Colors.white,
                       boxShadow: shadow,
                     ),
           child: child,

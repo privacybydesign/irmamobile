@@ -491,6 +491,35 @@
       "scan_qr": "Scan QR"
     }
   },
+  "home_tab": {
+    "title": "Jouw gegevens, op jouw telefoon",
+    "get_going": "Ga aan de slag",
+    "more_information": "Meer informatie",
+    "recent_activity": "Recente activiteit",
+    "view_more" : "Bekijk meer",
+    "action_card": {
+      "share": {
+        "title": "Deel direct je gegevens",
+        "subtitle": "met de organisatie die daar om vraagt"
+      },
+      "fetch": {
+        "title": "Haal jouw gegevens op",
+        "subtitle": "om ze zo in de toekomst direct te delen"
+      }
+    },
+    "info_card": {
+      "safety": {
+        "title": "Hoe veilig is IRMA?",
+        "body": "Informatie over de veiligheid van IRMA en hoe om te gaan met digitale identiteiten.",
+        "link": "https://irma.app/?lang=nl"
+      },
+      "about": {
+        "title": "Over de organisatie IRMA",
+        "body": "Lees hier alles over IRMA. Van algemene informatie tot techniek.",
+        "link": "https://privacybydesign.foundation/irma/"
+      }
+    }
+  },
   "more_tab": {
     "app_management": "App-beheer",
     "settings": "Instellingen",
@@ -524,10 +553,9 @@
     "message_signed": "Bericht getekend",
     "shared_with": "Gedeeld met",
     "shared_data": "Gedeelde gegevens",
-    "received_data": "Ontvangen gegevens",
-    "recent_activity": "Recente activiteit"
+    "received_data": "Ontvangen gegevens"
   },
   "credential": {
-    "no_data" : "Geen gegevens"
+    "no_data": "Geen gegevens"
   }
 }

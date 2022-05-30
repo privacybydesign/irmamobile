@@ -16,33 +16,38 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   IrmaNavBarTab selectedTab = IrmaNavBarTab.home;
 
+  void _changeTab(IrmaNavBarTab tab) => setState(
+        () => selectedTab = tab,
+      );
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Builder(builder: (context) {
-        //TODO: Replace placeholder values
-        switch (selectedTab) {
-          case IrmaNavBarTab.data:
-            return const Text('data');
-          case IrmaNavBarTab.activity:
-            return ActivityTab();
-          case IrmaNavBarTab.more:
-            return MoreTab();
-          case IrmaNavBarTab.home:
-            return HomeTab();
-        }
-      }),
+      body: SafeArea(
+        child: Builder(builder: (context) {
+          //TODO: Replace placeholder values
+          switch (selectedTab) {
+            case IrmaNavBarTab.data:
+              return const Text('data');
+            case IrmaNavBarTab.activity:
+              return ActivityTab();
+            case IrmaNavBarTab.more:
+              return MoreTab();
+            case IrmaNavBarTab.home:
+              return HomeTab(
+                onChangeTab: _changeTab,
+              );
+          }
+        }),
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: const IrmaQrScanButton(
         key: Key('nav_button_scanner'),
       ),
       bottomNavigationBar: IrmaNavBar(
-          selectedTab: selectedTab,
-          onChangeTab: (IrmaNavBarTab tab) {
-            setState(() {
-              selectedTab = tab;
-            });
-          }),
+        selectedTab: selectedTab,
+        onChangeTab: _changeTab,
+      ),
     );
   }
 }
