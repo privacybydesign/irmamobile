@@ -38,53 +38,49 @@ class IrmaInfoCard extends StatelessWidget {
 
     return IrmaCard(
       onTap: () => _tryLaunchLink(context),
-      child: SizedBox(
-        height: 100,
-        child: Row(
-          children: [
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: theme.tinySpacing),
-              decoration: BoxDecoration(
-                color: Colors.grey.shade100,
-                shape: BoxShape.circle,
-              ),
-              child: Container(
-                padding: EdgeInsets.all(theme.smallSpacing),
-                height: 62,
-                width: 62,
-                child: avatar,
-              ),
+      child: Row(
+        children: [
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: theme.tinySpacing),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              shape: BoxShape.circle,
             ),
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.all(theme.smallSpacing),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TranslatedText(
-                      titleKey,
-                      style: theme.themeData.textTheme.caption!
-                          .copyWith(fontWeight: FontWeight.bold, overflow: TextOverflow.ellipsis),
+            child: Container(
+              padding: EdgeInsets.all(theme.smallSpacing),
+              height: 62,
+              width: 62,
+              child: avatar,
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.all(theme.smallSpacing),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TranslatedText(
+                    titleKey,
+                    style: theme.themeData.textTheme.caption!.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: theme.smallSpacing),
+                  Flexible(
+                    child: TranslatedText(
+                      bodyKey,
+                      style: theme.themeData.textTheme.caption,
                     ),
-                    SizedBox(height: theme.smallSpacing),
-                    Flexible(
-                      child: TranslatedText(
-                        bodyKey,
-                        style: theme.themeData.textTheme.caption!.copyWith(overflow: TextOverflow.ellipsis),
-                        maxLines: 3,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-            Icon(
-              Icons.chevron_right,
-              color: Colors.grey.shade700,
-            ),
-          ],
-        ),
+          ),
+          Icon(
+            Icons.chevron_right,
+            color: Colors.grey.shade700,
+          ),
+        ],
       ),
     );
   }
