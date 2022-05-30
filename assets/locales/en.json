@@ -510,12 +510,12 @@
     "info_card": {
       "safety": {
         "title": "How safe is IRMA?",
-        "body": "Information about the security of IRMA and the usage of digital identities",
+        "body": "Information about the security of IRMA and the usage of digital identities.",
         "link": "https://irma.app/?lang=en"
       },
       "about": {
         "title": "About IRMA",
-        "body": "Read up on IRMA. Both general and technical information",
+        "body": "Read up on IRMA. Both general and technical information.",
         "link": "https://privacybydesign.foundation/irma-en/"
       }
     }
