@@ -287,7 +287,9 @@ class _SessionScreenState extends State<SessionScreen> {
         valueListenable: _displayArrowBack,
         builder: (BuildContext context, bool displayArrowBack, Widget? child) {
           if (displayArrowBack) {
-            return const ArrowBack();
+            return const ArrowBack(
+              amountIssued: 0,
+            );
           }
           return child ?? Container();
         },

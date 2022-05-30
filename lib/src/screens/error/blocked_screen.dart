@@ -1,9 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/clear_all_data_event.dart';
 import 'package:irmamobile/src/screens/error/blocked.dart';
-import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 
@@ -26,7 +26,13 @@ class BlockedScreen extends StatelessWidget {
               'error.blocked_title',
             ),
           ),
-          noLeading: true,
+          // ignore: avoid_redundant_argument_values
+          noLeading: kReleaseMode,
+          leadingAction: () {
+            if (kDebugMode) {
+              Navigator.pop(context);
+            }
+          },
         ),
         body: Blocked(),
         bottomNavigationBar: IrmaBottomBar(

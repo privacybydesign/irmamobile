@@ -1,35 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 class NoInternet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return SingleChildScrollView(
+        child: Center(
+            child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        SizedBox(
-          height: IrmaTheme.of(context).defaultSpacing,
-        ),
-        Center(
-          child: SvgPicture.asset(
-            'assets/error/no_internet.svg',
-            fit: BoxFit.scaleDown,
-          ),
-        ),
-        Expanded(
-          child: Padding(
+        Icon(Icons.wifi_off_rounded, color: IrmaTheme.of(context).blue1, size: 100),
+        Padding(
             padding: EdgeInsets.all(IrmaTheme.of(context).mediumSpacing),
-            child: SingleChildScrollView(
-                child: Text(
-              FlutterI18n.translate(context, "error.types.no_internet"),
-              style: IrmaTheme.of(context).textTheme.bodyText2,
-            )),
-          ),
-        ),
+            child: Column(children: <Widget>[
+              Padding(
+                  padding: const EdgeInsets.only(bottom: 24.0),
+                  child: Text(
+                    FlutterI18n.translate(context, "error.title"),
+                    style: IrmaTheme.of(context).textTheme.headline1,
+                    textAlign: TextAlign.center,
+                  )),
+              Text(
+                FlutterI18n.translate(context, "error.types.no_internet"),
+                style: IrmaTheme.of(context).textTheme.bodyText2,
+                textAlign: TextAlign.center,
+              ),
+            ])),
       ],
-    );
+    )));
   }
 }

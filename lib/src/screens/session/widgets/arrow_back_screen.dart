@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:native_device_orientation/native_device_orientation.dart';
 import 'package:path_drawing/path_drawing.dart';
 
@@ -73,6 +75,20 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
         }
 
         return Scaffold(
+          appBar: kDebugMode
+              ? IrmaAppBar(
+                  title: const Text(
+                    "This won't appear on the release build",
+                  ),
+                  // ignore: avoid_redundant_argument_values
+                  noLeading: kReleaseMode,
+                  leadingAction: () {
+                    if (kDebugMode) {
+                      Navigator.pop(context);
+                    }
+                  },
+                )
+              : null,
           body: SafeArea(
             child: CustomPaint(
               painter: Arrow(context),

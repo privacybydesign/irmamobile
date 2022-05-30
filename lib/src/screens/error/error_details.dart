@@ -1,7 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:irmamobile/src/screens/error/error_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
@@ -24,64 +23,59 @@ class ErrorDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Center(
+        child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        SizedBox(
-          height: IrmaTheme.of(context).defaultSpacing,
-        ),
-        Center(
-          child: SvgPicture.asset(
-            'assets/error/general.svg',
-            fit: BoxFit.scaleDown,
-          ),
-        ),
-        Expanded(
-          child: Padding(
+        Icon(Icons.warning_amber_rounded, color: IrmaTheme.of(context).warningRed, size: 100),
+        Padding(
             padding: EdgeInsets.all(IrmaTheme.of(context).mediumSpacing),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  TranslatedText(_translationKeys[type] ?? '', style: IrmaTheme.of(context).textTheme.bodyText2),
-                  SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-                  if (reportable) ...[
-                    TranslatedText('error.report', style: IrmaTheme.of(context).textTheme.bodyText2),
-                    SizedBox(height: IrmaTheme.of(context).defaultSpacing),
-                  ],
-                  if (details != null)
-                    Text.rich(
-                      TextSpan(
-                        text: FlutterI18n.translate(context, 'error.button_show_error'),
-                        style: IrmaTheme.of(context).textTheme.bodyText2?.copyWith(
-                              decoration: TextDecoration.underline,
-                              color: IrmaTheme.of(context).linkColor,
-                            ),
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () {
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return IrmaDialog(
-                                  title: FlutterI18n.translate(context, 'error.details_title'),
-                                  content: details ?? '',
-                                  child: IrmaButton(
-                                    size: IrmaButtonSize.small,
-                                    onPressed: () => Navigator.of(context).pop(),
-                                    label: 'error.button_ok',
-                                  ),
-                                );
-                              },
+            child: Column(children: <Widget>[
+              Padding(
+                  padding: const EdgeInsets.only(bottom: 24.0),
+                  child: Text(
+                    FlutterI18n.translate(context, _translationKeys[type] ?? ''),
+                    style: IrmaTheme.of(context).textTheme.headline1,
+                    textAlign: TextAlign.center,
+                  )),
+              if (reportable) ...[
+                TranslatedText(
+                  'error.report',
+                  style: IrmaTheme.of(context).textTheme.bodyText2,
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+              ],
+              if (details != null)
+                Text.rich(
+                  TextSpan(
+                    text: FlutterI18n.translate(context, 'error.button_show_error'),
+                    style: IrmaTheme.of(context).textTheme.bodyText2?.copyWith(
+                          decoration: TextDecoration.underline,
+                          color: IrmaTheme.of(context).linkColor,
+                        ),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return IrmaDialog(
+                              title: FlutterI18n.translate(context, 'error.details_title'),
+                              content: details ?? '',
+                              child: IrmaButton(
+                                size: IrmaButtonSize.small,
+                                onPressed: () => Navigator.of(context).pop(),
+                                label: 'error.button_ok',
+                              ),
                             );
                           },
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-        ),
+                        );
+                      },
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+            ])),
       ],
-    );
+    ));
   }
 }

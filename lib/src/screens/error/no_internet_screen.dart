@@ -22,7 +22,7 @@ class NoInternetScreen extends StatelessWidget {
           title: Text(
             FlutterI18n.translate(
               context,
-              'error.title',
+              'error.details_title',
             ),
           ),
           leadingAction: onTapClose,

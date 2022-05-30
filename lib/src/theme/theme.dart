@@ -17,6 +17,9 @@ class IrmaThemeData {
   final Color secondaryPurple = const Color(0xFF362C78);
 
   final Color error = const Color(0xFFC8192C);
+  final Color warningRed = const Color(0xFFBD1919);
+  final Color blue1 = const Color(0xFF2F80ED);
+
   final Color primaryDark = const Color(0xFF15222E);
 
   final Color lightBlue = const Color(0xFFE9F4FF);

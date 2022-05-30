@@ -295,7 +295,7 @@
     "title": "Something went wrong",
     "blocked_title": "App blocked",
     "button_ok": "OK",
-    "button_send_to_irma": "Send to IRMA's technical team",
+    "button_send_to_irma": "Send to the IRMA team",
     "button_show_error": "Show technical details",
     "button_retry": "Please try again",
     "button_back": "Back",
@@ -307,7 +307,7 @@
       "blocked": "Your IRMA app has been remotely blocked.\n\nThis has either been done via MyIRMA for your app, or because you did not use IRMA on this device for more than a year. If you want to continue using IRMA on this device, you will need to start over.",
       "expired": "The session has expired. Please start over.",
       "pairing_rejected": "The session was rejected. Please start over.",
-      "no_internet": "Something went wrong. IRMA needs internet.\n\nPlease check your internet connection."
+      "no_internet": "Please make sure your device has an internet connection."
     }
   },
   "wallet": {

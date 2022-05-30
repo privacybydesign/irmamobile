@@ -73,7 +73,7 @@ class _ErrorScreenState extends State<ErrorScreen> {
             title: Text(
               FlutterI18n.translate(
                 context,
-                'error.title',
+                'error.details_title',
               ),
             ),
             noLeading: widget.onTapClose == null,
