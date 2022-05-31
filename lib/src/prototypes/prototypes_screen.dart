@@ -24,10 +24,11 @@ class PrototypesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(centerTitle: true, title: const Text('Screens')),
       body: ListView(
         children: [
           ListTile(
-            title: const Text('Arrow back screen'),
+            title: const Text('Arrow back'),
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
@@ -38,7 +39,7 @@ class PrototypesScreen extends StatelessWidget {
             ),
           ),
           ListTile(
-            title: const Text('Required update screen'),
+            title: const Text('Required update'),
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
@@ -47,7 +48,7 @@ class PrototypesScreen extends StatelessWidget {
             ),
           ),
           ListTile(
-            title: const Text('Rooted warning screen'),
+            title: const Text('Rooted warning'),
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
@@ -57,35 +58,35 @@ class PrototypesScreen extends StatelessWidget {
           ),
           _buildTile(
               context,
-              'No internet screen',
+              'No internet',
               NoInternetScreen(
                 onTapClose: () => Navigator.pop(context),
                 onTapRetry: () {},
               )),
-          _buildTile(context, 'Blocked screen', BlockedScreen()),
+          _buildTile(context, 'Blocked', BlockedScreen()),
           _buildTile(
               context,
-              'General error screen',
+              'General error',
               ErrorScreen(
                 onTapClose: () => Navigator.pop(context),
               )),
           _buildTile(
               context,
-              'Error screen: pairing rejected',
+              'Error: pairing rejected',
               ErrorScreen(
                 onTapClose: () => Navigator.pop(context),
                 type: ErrorType.pairingRejected,
               )),
           _buildTile(
               context,
-              'Error screen: session unknown / unexpected request',
+              'Error: session unknown / unexpected request',
               ErrorScreen(
                 onTapClose: () => Navigator.pop(context),
                 type: ErrorType.expired,
               )),
           _buildTile(
               context,
-              'Disclosure feedback screen - success',
+              'Disclosure feedback - success',
               DisclosureFeedbackScreen(
                 feedbackType: DisclosureFeedbackType.success,
                 otherParty: 'party time!',
@@ -93,7 +94,7 @@ class PrototypesScreen extends StatelessWidget {
               )),
           _buildTile(
               context,
-              'Disclosure feedback screen - canceled',
+              'Disclosure feedback - canceled',
               DisclosureFeedbackScreen(
                 feedbackType: DisclosureFeedbackType.canceled,
                 otherParty: 'no party time :(',
@@ -101,7 +102,7 @@ class PrototypesScreen extends StatelessWidget {
               )),
           _buildTile(
               context,
-              'Disclosure feedback screen - not satisfiable',
+              'Disclosure feedback - not satisfiable',
               DisclosureFeedbackScreen(
                 feedbackType: DisclosureFeedbackType.notSatisfiable,
                 otherParty: "I can't get no satisfaction :(",
