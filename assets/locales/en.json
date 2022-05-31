@@ -69,10 +69,10 @@
     "about_irma": "About IRMA",
     "ask": "Ask a question",
     "contact": "app@privacybydesign.foundation",
-    "device": "Apparaat",
+    "device": "Device",
     "email": "Send an email",
     "faq": "Frequently asked questions",
-    "login": "Inloggen",
+    "login": "Login",
     "mail_error": "Mail app cannot be opened",
     "mail_error_button": "OK",
     "mail_error_title": "Sorry",
@@ -492,6 +492,35 @@
       "scan_qr": "Scan QR"
     }
   },
+  "home_tab": {
+    "title": "Your data, on your phone",
+    "get_going": "Get going",
+    "more_information": "More information",
+    "recent_activity": "Recent activity",
+    "view_more": "View more",
+    "action_card": {
+      "share": {
+        "title": "Share your data straight away",
+        "subtitle": "with the requesting organization"
+      },
+      "fetch": {
+        "title": "Fetch your data",
+        "subtitle": "to share it in the future with ease"
+      }
+    },
+    "info_card": {
+      "safety": {
+        "title": "How safe is IRMA?",
+        "body": "Information about the security of IRMA and the usage of digital identities.",
+        "link": "https://irma.app/?lang=en"
+      },
+      "about": {
+        "title": "About IRMA",
+        "body": "Read up on IRMA. Both general and technical information.",
+        "link": "https://privacybydesign.foundation/irma-en/"
+      }
+    }
+  },
   "more_tab": {
     "app_management": "App management",
     "settings": "Settings",
@@ -525,8 +554,7 @@
     "message_signed": "Message signed",
     "shared_with": "Shared with",
     "shared_data": "Shared data",
-    "received_data": "Received data",
-    "recent_activity": "Recent activity"
+    "received_data": "Received data"
   },
   "credential": {
     "no_data": "No data"
