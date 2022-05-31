@@ -25,8 +25,8 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    return SingleChildScrollView(
-        child: Center(
+    return Center(
+        child: SingleChildScrollView(
       child: Padding(
         padding: EdgeInsets.all(theme.largeSpacing),
         child: Column(
