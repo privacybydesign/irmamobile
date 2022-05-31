@@ -1,7 +1,3 @@
-// This code is not null safe yet.
-// @dart=2.11
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
@@ -18,8 +14,8 @@ class PinBox extends StatelessWidget {
   bool get filled => char != '';
 
   const PinBox({
-    @required this.margin,
-    @required this.char,
+    required this.margin,
+    required this.char,
     this.height = 40.0,
     this.disabled = false,
     this.completed = false,
@@ -56,7 +52,7 @@ class PinBox extends StatelessWidget {
           color: disabled ? theme.disabled : theme.grayscaleWhite),
       child: Text(
         char,
-        style: Theme.of(context).textTheme.headline3.copyWith(
+        style: Theme.of(context).textTheme.headline3?.copyWith(
               fontSize: height / 2 + 4,
               height: 22.0 / 18.0,
               color: completed ? theme.primaryBlue : theme.grayscale40,

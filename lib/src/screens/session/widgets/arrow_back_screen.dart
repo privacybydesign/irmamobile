@@ -41,7 +41,7 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
 
   @override
   void dispose() {
-    WidgetsBinding.instance?.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     _allowAllOrientations();
     super.dispose();
   }

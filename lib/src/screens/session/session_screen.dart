@@ -355,7 +355,7 @@ class _SessionScreenState extends State<SessionScreen> {
         switch (session.status) {
           case SessionStatus.pairing:
             return PairingRequired(
-              pairingCode: session.pairingCode,
+              pairingCode: session.pairingCode ?? '',
               onDismiss: () => _dismissSession(),
             );
           case SessionStatus.requestDisclosurePermission:

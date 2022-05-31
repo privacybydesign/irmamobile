@@ -1,8 +1,4 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/translated_text.dart';
@@ -87,14 +83,14 @@ class IrmaMessage extends StatelessWidget {
                   children: <Widget>[
                     TranslatedText(
                       titleKey,
-                      style: IrmaTheme.of(context).textTheme.bodyText1.copyWith(color: foregroundColor),
+                      style: IrmaTheme.of(context).textTheme.bodyText1?.copyWith(color: foregroundColor),
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 5, bottom: 11),
                       child: TranslatedText(
                         descriptionKey,
                         translationParams: descriptionParams,
-                        style: IrmaTheme.of(context).textTheme.bodyText2.copyWith(color: foregroundColor),
+                        style: IrmaTheme.of(context).textTheme.bodyText2?.copyWith(color: foregroundColor),
                       ),
                     ),
                   ],
