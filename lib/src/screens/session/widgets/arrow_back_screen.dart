@@ -5,15 +5,6 @@ import 'package:irmamobile/src/theme/theme.dart';
 import 'package:native_device_orientation/native_device_orientation.dart';
 import 'package:path_drawing/path_drawing.dart';
 
-const portraitOrientations = [
-  DeviceOrientation.portraitUp,
-  DeviceOrientation.portraitDown,
-];
-const landscapeOrientations = [
-  DeviceOrientation.landscapeLeft,
-  DeviceOrientation.landscapeRight,
-];
-
 class ArrowBack extends StatefulWidget {
   final bool success;
   final int amountIssued;
@@ -28,10 +19,23 @@ class ArrowBack extends StatefulWidget {
 }
 
 class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
-  void _allowAllOrientations() =>
-      SystemChrome.setPreferredOrientations([...portraitOrientations, ...landscapeOrientations]);
+  static const portraitOrientations = [
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ];
+  static const landscapeOrientations = [
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
+  ];
 
-  void _forcePortraitOrientation() => SystemChrome.setPreferredOrientations([...portraitOrientations]);
+  void _allowAllOrientations() => SystemChrome.setPreferredOrientations([
+        ...portraitOrientations,
+        ...landscapeOrientations,
+      ]);
+
+  void _forcePortraitOrientation() => SystemChrome.setPreferredOrientations([
+        ...portraitOrientations,
+      ]);
 
   @override
   void initState() {
@@ -56,8 +60,8 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
       useSensor: true,
       builder: (context) {
         final orientation = NativeDeviceOrientationReader.orientation(context);
-
         late int quarterTurns;
+
         switch (orientation) {
           case NativeDeviceOrientation.landscapeLeft:
             quarterTurns = 1;
