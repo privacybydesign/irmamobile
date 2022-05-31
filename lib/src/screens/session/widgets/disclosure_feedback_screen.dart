@@ -1,7 +1,3 @@
-// This code is not null safe yet.
-// @dart=2.11
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/widgets/action_feedback.dart';
 import 'package:irmamobile/src/widgets/translated_text.dart';
@@ -23,11 +19,11 @@ class DisclosureFeedbackScreen extends StatefulWidget {
   final String otherParty;
   final Function(BuildContext) popToWallet;
 
-  final String _translationKey;
+  final String? _translationKey;
 
-  DisclosureFeedbackScreen({this.feedbackType, this.otherParty, this.popToWallet, Key key})
+  DisclosureFeedbackScreen({required this.feedbackType, required this.otherParty, required this.popToWallet})
       : _translationKey = _translationKeys[feedbackType],
-        super(key: key);
+        super();
 
   @override
   State<StatefulWidget> createState() {

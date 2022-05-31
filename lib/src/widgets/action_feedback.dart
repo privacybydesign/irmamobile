@@ -1,7 +1,3 @@
-// This code is not null safe yet.
-// @dart=2.11
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
@@ -17,10 +13,10 @@ class ActionFeedback extends StatelessWidget {
   final TranslatedText explanation;
 
   const ActionFeedback({
-    @required this.success,
-    @required this.title,
-    @required this.explanation,
-    @required this.onDismiss,
+    required this.success,
+    required this.title,
+    required this.explanation,
+    required this.onDismiss,
   });
 
   void dismiss(BuildContext context) {
@@ -40,11 +36,9 @@ class ActionFeedback extends StatelessWidget {
         // to get the app back. Otherwise, strange routes such as the settings or side menu
         // could be pushed on top of this screen, where it doesn't make sense
         body: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
             Expanded(
-              flex: 1,
               child: Container(),
             ),
             Icon(
@@ -68,7 +62,6 @@ class ActionFeedback extends StatelessWidget {
               onPressed: () => dismiss(context),
             ),
             Expanded(
-              flex: 1,
               child: Container(),
             ),
           ],

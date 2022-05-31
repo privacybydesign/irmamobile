@@ -1,22 +1,18 @@
-// This code is not null safe yet.
-// @dart=2.11
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 
 class IrmaOutlinedButton extends StatelessWidget {
   final String label;
-  final VoidCallback onPressed;
-  final VoidCallback onPressedDisabled;
-  final TextStyle textStyle;
-  final IrmaButtonSize size;
-  final IconData icon;
+  final VoidCallback? onPressed;
+  final VoidCallback? onPressedDisabled;
+  final TextStyle? textStyle;
+  final IrmaButtonSize? size;
+  final IconData? icon;
   final double minWidth;
 
   const IrmaOutlinedButton({
-    @required this.label,
+    required this.label,
     this.onPressed,
     this.onPressedDisabled,
     this.textStyle,
