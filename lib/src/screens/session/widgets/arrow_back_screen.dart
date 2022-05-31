@@ -50,7 +50,7 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    // The NativeDeviceOrientationReader is configured to rebruild according to the gyroscope.
+    // The NativeDeviceOrientationReader is configured to rebuild according to the gyroscope.
     // On the IOS emulator it is not possible to reproduce this, so this has to be tested on a real device.
     return NativeDeviceOrientationReader(
       useSensor: true,
