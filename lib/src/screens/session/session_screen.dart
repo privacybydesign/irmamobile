@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
@@ -28,6 +27,17 @@ import 'widgets/issuance_permission.dart';
 import 'widgets/pairing_required.dart';
 import 'widgets/session_scaffold.dart';
 
+class UnknownSessionScreen extends StatefulWidget {
+  static const String routeName = "/session/unknown";
+
+  final SessionScreenArguments arguments;
+
+  const UnknownSessionScreen({required this.arguments}) : super();
+
+  @override
+  State<UnknownSessionScreen> createState() => _UnknownSessionScreenState();
+}
+
 class SessionScreen extends StatefulWidget {
   static const String routeName = "/session";
 
@@ -36,20 +46,10 @@ class SessionScreen extends StatefulWidget {
   const SessionScreen({required this.arguments}) : super();
 
   @override
-  State<SessionScreen> createState() {
-    switch (arguments.sessionType) {
-      case "issuing":
-      case "disclosing":
-      case "signing":
-      case "redirect":
-        return _SessionScreenState();
-      default:
-        return _UnknownSessionScreenState();
-    }
-  }
+  State<SessionScreen> createState() => _SessionScreenState();
 }
 
-class _UnknownSessionScreenState extends State<SessionScreen> {
+class _UnknownSessionScreenState extends State<UnknownSessionScreen> {
   @override
   Widget build(BuildContext context) => ActionFeedback(
         success: false,

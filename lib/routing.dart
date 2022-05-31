@@ -3,7 +3,6 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/native_events.dart';
 import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
@@ -42,6 +41,8 @@ class Routing {
     switch (routeName) {
       case SessionScreen.routeName:
         return (context) => SessionScreen(arguments: arguments as SessionScreenArguments);
+      case UnknownSessionScreen.routeName:
+        return (context) => UnknownSessionScreen(arguments: arguments as SessionScreenArguments);
       case EmailSentScreen.routeName:
         return (context) => EmailSentScreen(email: arguments as String);
       case IssueWizardScreen.routeName:
