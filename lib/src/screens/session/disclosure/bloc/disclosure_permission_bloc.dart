@@ -347,17 +347,21 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         .expand((hash) => _repo.credentials.containsKey(hash) ? [_repo.credentials[hash]!] : <Credential>[]);
 
     final parentState = state.parentState; // To prevent the need for type casting.
-    late final DisclosurePermissionStep step;
+    late final DisclosurePermissionBlocState refreshedParentState;
     if (parentState is DisclosurePermissionStep) {
-      step = parentState;
+      refreshedParentState = _refreshDisclosurePermissionStep(session, parentState);
     } else if (parentState is DisclosurePermissionChangeChoice) {
-      step = parentState.parentState;
+      final refreshedStep = _refreshDisclosurePermissionStep(session, parentState.parentState);
+      refreshedParentState = DisclosurePermissionChangeChoice(
+        parentState: refreshedStep,
+        discon: refreshedStep.candidates[parentState.discon.disconIndex]!,
+      );
     } else {
       throw Exception('DisclosurePermissionObtainCredentials has unexpected parent: ${parentState.runtimeType}');
     }
 
     return DisclosurePermissionObtainCredentials(
-      parentState: _refreshDisclosurePermissionStep(session, step),
+      parentState: refreshedParentState,
       templates: state.templates,
       obtainedCredentials: state.templates.map((template) {
         // First we check whether we have an exact match.
