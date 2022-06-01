@@ -86,14 +86,14 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance?.addObserver(this);
     _listenForDataClear();
     _listenScreenshotPref();
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    WidgetsBinding.instance?.removeObserver(this);
     _pointerSubscription?.cancel();
     _dataClearSubscription?.cancel();
     _screenshotPrefSubscription?.cancel();
