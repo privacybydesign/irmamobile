@@ -46,7 +46,7 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen> with
 
   @override
   Widget build(BuildContext context) {
-    return ActionFeedback(
+    final actionFeedback = ActionFeedback(
       success: widget.feedbackType == DisclosureFeedbackType.success,
       title: TranslatedText(
         "disclosure.feedback.header.${widget._translationKey}",
@@ -60,6 +60,8 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen> with
       ),
       onDismiss: () => widget.popToWallet(context),
     );
+
+    return actionFeedback; // Place holder
   }
 
   @override

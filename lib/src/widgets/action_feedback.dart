@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/irma_outlined_button.dart';
+import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 import 'package:irmamobile/src/widgets/translated_text.dart';
 
 class ActionFeedback extends StatelessWidget {
@@ -26,45 +26,57 @@ class ActionFeedback extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
     return WillPopScope(
       onWillPop: () async {
         dismiss(context);
         return false;
       },
       child: Scaffold(
-        // This screen intentionally doesn't container an AppBar, as this screen can be closed
-        // to get the app back. Otherwise, strange routes such as the settings or side menu
-        // could be pushed on top of this screen, where it doesn't make sense
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
-            Expanded(
-              child: Container(),
+        body: Center(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.all(theme.largeSpacing),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Icon(
+                    success ? IrmaIcons.valid : IrmaIcons.invalid,
+                    size: 120,
+                    color: success ? IrmaTheme.of(context).interactionValid : IrmaTheme.of(context).interactionAlert,
+                  ),
+                  SizedBox(height: theme.mediumSpacing),
+                  title,
+                  SizedBox(height: theme.mediumSpacing),
+                  explanation,
+                ],
+              ),
             ),
-            Icon(
-              success ? IrmaIcons.valid : IrmaIcons.invalid,
-              size: 120,
-              color: success ? IrmaTheme.of(context).interactionValid : IrmaTheme.of(context).interactionAlert,
-            ),
-            const SizedBox(height: 43),
+          ),
+        ),
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          actions: [
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).mediumSpacing),
-              child: title,
-            ),
-            const SizedBox(height: 10),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).mediumSpacing),
-              child: explanation,
-            ),
-            const SizedBox(height: 38),
-            IrmaOutlinedButton(
-              label: FlutterI18n.translate(context, "action_feedback.ok"),
-              onPressed: () => dismiss(context),
-            ),
-            Expanded(
-              child: Container(),
+              padding: const EdgeInsets.all(12),
+              child: CircleAvatar(
+                backgroundColor: Colors.grey.shade300,
+                child: IconButton(
+                  onPressed: () => dismiss(context),
+                  icon: Icon(
+                    Icons.close_outlined,
+                    semanticLabel: FlutterI18n.translate(context, 'accessibility.close'),
+                    size: 16.0,
+                    color: Colors.grey.shade800,
+                  ),
+                ),
+              ),
             ),
           ],
+        ),
+        bottomNavigationBar: IrmaBottomBar(
+          primaryButtonLabel: FlutterI18n.translate(context, "action_feedback.ok"),
+          onPrimaryPressed: () => dismiss(context),
         ),
       ),
     );

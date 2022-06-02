@@ -98,7 +98,7 @@ class PrototypesScreen extends StatelessWidget {
               DisclosureFeedbackScreen(
                 feedbackType: DisclosureFeedbackType.canceled,
                 otherParty: 'no party time :(',
-                popToWallet: (c) => c, //Navigator.pop(context),
+                popToWallet: (c) => Navigator.pop(context),
               )),
           _buildTile(
               context,
@@ -106,7 +106,7 @@ class PrototypesScreen extends StatelessWidget {
               DisclosureFeedbackScreen(
                 feedbackType: DisclosureFeedbackType.notSatisfiable,
                 otherParty: "I can't get no satisfaction :(",
-                popToWallet: (c) => c, //Navigator.pop(context),
+                popToWallet: (c) => Navigator.pop(context),
               )),
         ],
       ),

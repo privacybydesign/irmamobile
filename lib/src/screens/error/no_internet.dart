@@ -5,8 +5,8 @@ import 'package:irmamobile/src/theme/theme.dart';
 class NoInternet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-        child: Center(
+    return Center(
+        child: SingleChildScrollView(
             child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
