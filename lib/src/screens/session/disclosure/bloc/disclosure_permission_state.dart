@@ -43,6 +43,7 @@ abstract class DisclosurePermissionStep implements DisclosurePermissionBlocState
       Map.fromEntries(candidates.entries.where((entry) => entry.value.isOptional));
 }
 
+// TODO: does this need the full candidates condiscon?
 class DisclosurePermissionIssueWizard extends DisclosurePermissionStep {
   /// Returns the discon that should currently be handled.
   DisclosureDisCon? get currentDiscon =>
@@ -70,6 +71,7 @@ class DisclosurePermissionPreviouslyAddedCredentialsOverview extends DisclosureP
   DisclosurePermissionStepName get currentStepName => DisclosurePermissionStepName.previouslyAddedCredentialsOverview;
 }
 
+// TODO: does this need the full candidates condiscon?
 class DisclosurePermissionChoicesOverview extends DisclosurePermissionStep {
   /// Message to be signed, in case of a signature session.
   final String? signedMessage;

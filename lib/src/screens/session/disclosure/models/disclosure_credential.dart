@@ -36,8 +36,4 @@ abstract class DisclosureCredential extends Equatable implements CredentialInfo 
   List<Object?> get props => [
         {for (final attr in attributes) attr.attributeType.fullId: attr.value.raw}
       ];
-
-  /// Returns a new DisclosureCredential with the merged contents of this and the given other DisclosureCredential,
-  /// if they don't contradict. Returns null otherwise.
-  DisclosureCredential? copyAndMerge(DisclosureCredential other);
 }

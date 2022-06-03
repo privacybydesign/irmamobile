@@ -34,18 +34,4 @@ class ChoosableDisclosureCredential extends DisclosureCredential {
 
   @override
   List<Object?> get props => [...super.props, credentialHash];
-
-  @override
-  DisclosureCredential? copyAndMerge(DisclosureCredential other) {
-    // ChoosableDisclosureCredentials can only be merged when they match exactly.
-    if (other is! ChoosableDisclosureCredential ||
-        credentialHash != other.credentialHash ||
-        attributes.length != other.attributes.length) return null;
-
-    for (int i = 0; i < attributes.length; i++) {
-      if (attributes[i].attributeType.fullId != other.attributes[i].attributeType.fullId ||
-          attributes[i].value.raw != other.attributes[i].value.raw) return null;
-    }
-    return this;
-  }
 }
