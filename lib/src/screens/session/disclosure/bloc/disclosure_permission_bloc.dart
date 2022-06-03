@@ -310,7 +310,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
   }
 
   DisclosurePermissionStep _refreshDisclosurePermissionStep(SessionState session, DisclosurePermissionStep state) {
-    final updatedCandidates = _parseDisclosureCandidates(
+    final parsedCandidates = _parseDisclosureCandidates(
       session.disclosuresCandidates!,
       prevCandidates: state.candidates,
     );
@@ -319,17 +319,17 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       // being mentioned. This allows us to build upon the previously generated issue wizard.
       return DisclosurePermissionIssueWizard(
         plannedSteps: state.plannedSteps,
-        candidates: updatedCandidates,
+        candidates: parsedCandidates..removeWhere((i, _) => !state.candidates.containsKey(i)),
       );
     } else if (state is DisclosurePermissionPreviouslyAddedCredentialsOverview) {
       return DisclosurePermissionPreviouslyAddedCredentialsOverview(
         plannedSteps: state.plannedSteps,
-        candidates: updatedCandidates,
+        candidates: parsedCandidates..removeWhere((i, _) => !state.candidates.containsKey(i)),
       );
     } else if (state is DisclosurePermissionChoicesOverview) {
       return DisclosurePermissionChoicesOverview(
         plannedSteps: state.plannedSteps,
-        candidates: updatedCandidates,
+        candidates: parsedCandidates,
         signedMessage: state.signedMessage,
         showConfirmationPopup: state.showConfirmationPopup,
       );
