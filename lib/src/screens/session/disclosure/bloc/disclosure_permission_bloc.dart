@@ -300,7 +300,11 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         yield refreshedState;
       }
     } else if (state is DisclosurePermissionChangeChoice) {
-      final refreshedStep = _refreshDisclosurePermissionStep(session, state.parentState);
+      final refreshedStep = _refreshDisclosurePermissionStep(
+        session,
+        state.parentState,
+        selectedDisconIndex: state.discon.disconIndex,
+      );
       yield DisclosurePermissionChangeChoice(
         parentState: refreshedStep,
         discon: refreshedStep.candidates[state.discon.disconIndex]!,
@@ -334,10 +338,15 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     }
   }
 
-  DisclosurePermissionStep _refreshDisclosurePermissionStep(SessionState session, DisclosurePermissionStep state) {
+  DisclosurePermissionStep _refreshDisclosurePermissionStep(
+    SessionState session,
+    DisclosurePermissionStep state, {
+    int? selectedDisconIndex,
+  }) {
     final parsedCandidates = _parseDisclosureCandidates(
       session.disclosuresCandidates!,
       prevCandidates: state.candidates,
+      selectedDisconIndex: selectedDisconIndex,
     );
     if (state is DisclosurePermissionIssueWizard) {
       // We assume that in the initial disclosure candidates all credential types involved in this session are
@@ -376,7 +385,11 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     if (parentState is DisclosurePermissionStep) {
       refreshedParentState = _refreshDisclosurePermissionStep(session, parentState);
     } else if (parentState is DisclosurePermissionChangeChoice) {
-      final refreshedStep = _refreshDisclosurePermissionStep(session, parentState.parentState);
+      final refreshedStep = _refreshDisclosurePermissionStep(
+        session,
+        parentState.parentState,
+        selectedDisconIndex: parentState.discon.disconIndex,
+      );
       refreshedParentState = DisclosurePermissionChangeChoice(
         parentState: refreshedStep,
         discon: refreshedStep.candidates[parentState.discon.disconIndex]!,
@@ -418,6 +431,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
   Map<int, DisclosureDisCon> _parseDisclosureCandidates(
     ConDisCon<Attribute> rawCandidates, {
     Map<int, DisclosureDisCon>? prevCandidates,
+    int? selectedDisconIndex,
   }) {
     return rawCandidates.asMap().map((i, rawDiscon) {
       final discon = DisCon(rawDiscon.map((con) {
@@ -434,24 +448,26 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
           }
         }));
       }));
-      int selectedConIndex = 0;
+      int selectedConIndex = -1;
       if (prevCandidates != null && prevCandidates.containsKey(i)) {
         // If a new choosable option has been added, then we select the new option.
-        final prevCredHashes =
-            prevCandidates[i]!.choosableCons.values.expand((con) => con.map((cred) => cred.credentialHash)).toSet();
-        selectedConIndex = discon.indexWhere((con) =>
-            con.any((cred) => cred is ChoosableDisclosureCredential && !prevCredHashes.contains(cred.credentialHash)));
+        // If one discon is selected in particular, we only change it there.
+        if (selectedDisconIndex == null || selectedDisconIndex == i) {
+          final prevCredHashes =
+              prevCandidates[i]!.choosableCons.values.expand((con) => con.map((cred) => cred.credentialHash)).toSet();
+          selectedConIndex = discon.indexWhere((con) => con
+              .any((cred) => cred is ChoosableDisclosureCredential && !prevCredHashes.contains(cred.credentialHash)));
+        }
 
-        // If no new option could be found, then we try to find the option that was previously selected.
+        // If no new option could be found, then we try to find the option that was selected previously.
         if (selectedConIndex < 0) {
           selectedConIndex = discon.indexWhere(
               (con) => prevCandidates[i]!.selectedCon.every((prevCred) => con.any((cred) => cred == prevCred)));
         }
-
-        // Otherwise, we simply select the first option.
-        if (selectedConIndex < 0) {
-          selectedConIndex = 0;
-        }
+      }
+      // Otherwise, we simply select the first option.
+      if (selectedConIndex < 0) {
+        selectedConIndex = 0;
       }
       return MapEntry(
           i,
