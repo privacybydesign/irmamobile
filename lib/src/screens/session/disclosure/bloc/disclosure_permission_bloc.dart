@@ -410,7 +410,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         }));
       }));
       int selectedConIndex = 0;
-      if (prevCandidates != null) {
+      if (prevCandidates != null && prevCandidates.containsKey(i)) {
         // If a new choosable option has been added, then we select the new option.
         final prevCredHashes =
             prevCandidates[i]!.choosableCons.values.expand((con) => con.map((cred) => cred.credentialHash)).toSet();
