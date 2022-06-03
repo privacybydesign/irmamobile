@@ -101,23 +101,42 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     final session = _repo.getCurrentSessionState(sessionID)!;
     if (state is DisclosurePermissionIssueWizard && event is DisclosurePermissionChoiceUpdated) {
       if (state.currentDiscon == null) throw Exception('No DisCon found that expects an update');
+      if (!state.currentDiscon!.templateCons.containsKey(event.conIndex)) {
+        throw Exception('Unknown conIndex ${event.conIndex} in discon with index ${state.currentDiscon!.disconIndex}');
+      }
       final updatedCandidates = state.candidates.map(
         (i, discon) => MapEntry(
-            i,
-            discon.disconIndex == state.currentDiscon!.disconIndex
-                ? discon.copyWith(selectedConIndex: event.conIndex)
-                : discon),
+          i,
+          discon.disconIndex == state.currentDiscon!.disconIndex
+              ? discon.copyWith(selectedConIndex: event.conIndex)
+              : discon,
+        ),
       );
       // When an option is changed, the list of previous added credentials that are involved in this session
       // may have changed too. Therefore, we have to recalculate the planned steps.
+      final stepNames = [
+        DisclosurePermissionStepName.issueWizard,
+        DisclosurePermissionStepName.previouslyAddedCredentialsOverview,
+        DisclosurePermissionStepName.choicesOverview,
+      ];
       yield DisclosurePermissionIssueWizard(
-        plannedSteps: _calculatePlannedSteps(updatedCandidates),
+        plannedSteps: session.disclosuresCandidates!.length > updatedCandidates.length ||
+                updatedCandidates.entries.any((disconEntry) => session.disclosuresCandidates![disconEntry.key]
+                        [disconEntry.value.selectedConIndex]
+                    .any((attr) => attr.credentialHash.isNotEmpty))
+            ? stepNames
+            : (stepNames..remove(DisclosurePermissionStepName.previouslyAddedCredentialsOverview)),
         candidates: updatedCandidates,
       );
     } else if (state is DisclosurePermissionIssueWizard && event is DisclosurePermissionNextPressed) {
       if (state.isCompleted) {
         // Wizard is completed, so now we show the previously added credentials that are involved in this session.
+        // We also add the templates to obtain new instances of the previously added credential types.
         final candidates = _parseDisclosureCandidates(session.disclosuresCandidates!, prevCandidates: state.candidates);
+        final previouslyAddedCredTypes = candidates.values
+            .expand((discon) => discon.choosableCons.values
+                .expand((con) => con.where((cred) => cred.previouslyAdded).map((cred) => cred.fullId)))
+            .toSet();
         final prevAddedDiscons = {
           for (final entry in candidates.entries)
             if (entry.value.choosableCons.values.any((con) => con.any((cred) => cred.previouslyAdded)))
@@ -125,8 +144,14 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
                 disconIndex: entry.key,
                 selectedConIndex: entry.value.selectedConIndex,
                 discon: DisCon(
-                    entry.value.choosableCons.values.map((con) => Con(con.where((cred) => cred.previouslyAdded)))),
-              )
+                  [
+                    ...entry.value.choosableCons.values.map((con) => Con(con.where((cred) => cred.previouslyAdded))),
+                    ...entry.value.templateCons.values.map((con) => Con(con
+                        .whereType<TemplateDisclosureCredential>()
+                        .where((cred) => previouslyAddedCredTypes.contains(cred.fullId))))
+                  ].fold([], (prev, con) => prev.contains(con) ? prev : [...prev, con]), // Filter out duplicates.
+                ),
+              ),
         };
         if (prevAddedDiscons.isEmpty) {
           // No previously added credentials are involved in this session, so we immediately continue to the overview.
@@ -449,6 +474,6 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     // In an issue wizard, only the credential templates are relevant.
     return hasPrevAddedCreds
         ? stepNames
-        : stepNames.where((name) => name != DisclosurePermissionStepName.previouslyAddedCredentialsOverview).toList();
+        : (stepNames..remove(DisclosurePermissionStepName.previouslyAddedCredentialsOverview));
   }
 }
