@@ -33,8 +33,6 @@ void main() {
     await repo.close();
   });
 
-  // TODO: do we have a test to test prev added creds?
-
   test('issuance-in-disclosure-single-attribute', () async {
     mockBridge.mockDisclosureSession(42, [
       [
@@ -273,6 +271,7 @@ void main() {
     expect(issueWizardBlocState.candidates[2]?.templateCons[0]?[0].fullId, 'pbdf.pbdf.mobilenumber');
     expect(issueWizardBlocState.candidates[2]?.selectedConIndex, 0);
 
+    // Choose for pbdf.gemeente.address.
     bloc.add(DisclosurePermissionChoiceUpdated(conIndex: 1));
 
     expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
@@ -280,6 +279,7 @@ void main() {
     expect(issueWizardBlocState.requiredCandidates.keys, [0, 2]);
     expect(issueWizardBlocState.candidates[0]?.selectedConIndex, 1);
 
+    // Obtain pbdf.gemeente.address.
     bloc.add(DisclosurePermissionNextPressed());
 
     // Because the templates length is only 1, the credential should be obtained immediately.
@@ -320,6 +320,7 @@ void main() {
     expect(issueWizardBlocState.currentDiscon?.templateCons[0]?[0].fullId, 'pbdf.pbdf.mobilenumber');
     expect(issueWizardBlocState.currentDiscon?.isSelectedChoosable, false);
 
+    // Obtain pbdf.pbdf.mobilenumber.
     bloc.add(DisclosurePermissionNextPressed());
 
     // Because the templates length is only 1, the credential should be obtained immediately.
@@ -345,9 +346,9 @@ void main() {
     // Finish issue wizard and continue to next step.
     bloc.add(DisclosurePermissionNextPressed());
 
-    // TODO: test whether we can change option from PrevAddedCredentialsOverview
     expect(await bloc.stream.first, isA<DisclosurePermissionPreviouslyAddedCredentialsOverview>());
-    final prevAddedCredsBlocState = bloc.state as DisclosurePermissionPreviouslyAddedCredentialsOverview;
+    DisclosurePermissionPreviouslyAddedCredentialsOverview prevAddedCredsBlocState =
+        bloc.state as DisclosurePermissionPreviouslyAddedCredentialsOverview;
     expect(prevAddedCredsBlocState.currentStepName, DisclosurePermissionStepName.previouslyAddedCredentialsOverview);
     expect(
       prevAddedCredsBlocState.plannedSteps,
@@ -364,6 +365,65 @@ void main() {
     expect(prevAddedCredsBlocState.candidates[1]?.templateCons.keys, [1]);
     expect(prevAddedCredsBlocState.candidates[1]?.templateCons[1]?.length, 1);
     expect(prevAddedCredsBlocState.candidates[1]?.templateCons[1]?[0].fullId, 'pbdf.pbdf.email');
+
+    // Choose for another email address.
+    bloc.add(DisclosurePermissionChangeChoicePressed(disconIndex: 1));
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionChangeChoice>());
+    DisclosurePermissionChangeChoice changeChoiceBlocState = bloc.state as DisclosurePermissionChangeChoice;
+    expect(changeChoiceBlocState.discon.disconIndex, 1);
+    expect(changeChoiceBlocState.discon.choosableCons.keys, [0]);
+    expect(changeChoiceBlocState.discon.selectedCon.length, 1);
+    expect(changeChoiceBlocState.discon.selectedConIndex, 0);
+    expect(changeChoiceBlocState.discon.selectedCon[0].fullId, 'pbdf.pbdf.email');
+    expect(changeChoiceBlocState.discon.templateCons.keys, [1]);
+    expect(changeChoiceBlocState.discon.templateCons[1]?.length, 1);
+    expect(changeChoiceBlocState.discon.templateCons[1]?[0].fullId, 'pbdf.pbdf.email');
+
+    // Choose to add a new email address.
+    bloc.add(DisclosurePermissionChoiceUpdated(conIndex: 1));
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionChangeChoice>());
+    changeChoiceBlocState = bloc.state as DisclosurePermissionChangeChoice;
+    expect(changeChoiceBlocState.discon.disconIndex, 1);
+    expect(changeChoiceBlocState.discon.templateCons.keys, [1]);
+    expect(changeChoiceBlocState.discon.selectedConIndex, 1);
+
+    // Press next to obtain a new email address.
+    bloc.add(DisclosurePermissionNextPressed());
+
+    expect(await obtainCredentialsController.stream.first, 'pbdf.pbdf.email');
+    await _issueCredential(repo, mockBridge, 46, [
+      {
+        'pbdf.pbdf.email.email': TextValue.fromString('test2@example.com'),
+        'pbdf.pbdf.email.domain': TextValue.fromString('example.com'),
+      }
+    ]);
+
+    // Check whether the newly added credential is selected.
+    expect(await bloc.stream.first, isA<DisclosurePermissionChangeChoice>());
+    changeChoiceBlocState = bloc.state as DisclosurePermissionChangeChoice;
+    expect(changeChoiceBlocState.discon.disconIndex, 1);
+    expect(changeChoiceBlocState.discon.choosableCons.keys, [0, 1]);
+    expect(changeChoiceBlocState.discon.templateCons.keys, [2]);
+    // TODO: The obtained credentials are wrongly ordered. New options should be added at the end of choosableCons.
+    expect(changeChoiceBlocState.discon.selectedConIndex, 0);
+    expect(changeChoiceBlocState.discon.selectedCon.length, 1);
+    expect(changeChoiceBlocState.discon.selectedCon[0].fullId, 'pbdf.pbdf.email');
+    expect(changeChoiceBlocState.discon.selectedCon[0].attributes.length, 1);
+    expect(changeChoiceBlocState.discon.selectedCon[0].attributes[0].value.raw, 'test2@example.com');
+
+    // Confirm choice.
+    bloc.add(DisclosurePermissionNextPressed());
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionPreviouslyAddedCredentialsOverview>());
+    prevAddedCredsBlocState = bloc.state as DisclosurePermissionPreviouslyAddedCredentialsOverview;
+    expect(prevAddedCredsBlocState.candidates.keys, [1]);
+    expect(prevAddedCredsBlocState.candidates[1]?.selectedConIndex, 0);
+    expect(prevAddedCredsBlocState.candidates[1]?.selectedCon.length, 1);
+    expect(prevAddedCredsBlocState.candidates[1]?.selectedCon[0].fullId, 'pbdf.pbdf.email');
+    expect(prevAddedCredsBlocState.candidates[1]?.selectedCon[0].attributes.length, 1);
+    expect(prevAddedCredsBlocState.candidates[1]?.selectedCon[0].attributes[0].value.raw, 'test2@example.com');
 
     // Confirm previously added credential choices.
     bloc.add(DisclosurePermissionNextPressed());
@@ -387,7 +447,7 @@ void main() {
     expect(choicesOverviewBlocState.candidates[1]?.selectedCon[0].fullId, 'pbdf.pbdf.email');
     expect(choicesOverviewBlocState.candidates[1]?.selectedCon[0].attributes[0].attributeType.fullId,
         'pbdf.pbdf.email.email');
-    expect(choicesOverviewBlocState.candidates[1]?.selectedCon[0].attributes[0].value.raw, 'test@example.com');
+    expect(choicesOverviewBlocState.candidates[1]?.selectedCon[0].attributes[0].value.raw, 'test2@example.com');
     expect(choicesOverviewBlocState.candidates[2]?.selectedConIndex, 0);
     expect(choicesOverviewBlocState.candidates[2]?.selectedCon.length, 1);
     expect(choicesOverviewBlocState.candidates[2]?.selectedCon[0].fullId, 'pbdf.pbdf.mobilenumber');
@@ -395,11 +455,11 @@ void main() {
         'pbdf.pbdf.mobilenumber.mobilenumber');
     expect(choicesOverviewBlocState.candidates[2]?.selectedCon[0].attributes[0].value.raw, '+31612345678');
 
-    // Check whether we can choose for another email address.
+    // Check whether we can choose for another mobile number.
     bloc.add(DisclosurePermissionChangeChoicePressed(disconIndex: 2));
 
     expect(await bloc.stream.first, isA<DisclosurePermissionChangeChoice>());
-    DisclosurePermissionChangeChoice changeChoiceBlocState = bloc.state as DisclosurePermissionChangeChoice;
+    changeChoiceBlocState = bloc.state as DisclosurePermissionChangeChoice;
     expect(changeChoiceBlocState.discon.disconIndex, 2);
     expect(changeChoiceBlocState.discon.choosableCons.keys, [0]);
     expect(changeChoiceBlocState.discon.selectedCon.length, 1);
@@ -409,21 +469,21 @@ void main() {
     expect(changeChoiceBlocState.discon.templateCons[1]?.length, 1);
     expect(changeChoiceBlocState.discon.templateCons[1]?[0].fullId, 'pbdf.pbdf.mobilenumber');
 
-    // Choose to add a new email address.
+    // Choose to add a new mobile number.
     bloc.add(DisclosurePermissionChoiceUpdated(conIndex: 1));
 
+    expect(await bloc.stream.first, isA<DisclosurePermissionChangeChoice>());
     changeChoiceBlocState = bloc.state as DisclosurePermissionChangeChoice;
     expect(changeChoiceBlocState.discon.disconIndex, 2);
     expect(changeChoiceBlocState.discon.templateCons.keys, [1]);
-    // TODO: The obtained credentials are wrongly ordered. New options should be added at the end of choosableCons.
-    expect(changeChoiceBlocState.discon.selectedConIndex, 0);
+    expect(changeChoiceBlocState.discon.selectedConIndex, 1);
 
-    // Press next to obtain a new email address.
+    // Press next to obtain a new mobile number.
     bloc.add(DisclosurePermissionNextPressed());
 
     // Because the templates length is only 1, the credential should be obtained immediately.
     expect(await obtainCredentialsController.stream.first, 'pbdf.pbdf.mobilenumber');
-    await _issueCredential(repo, mockBridge, 46, [
+    await _issueCredential(repo, mockBridge, 47, [
       {
         'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31687654321'),
       }
