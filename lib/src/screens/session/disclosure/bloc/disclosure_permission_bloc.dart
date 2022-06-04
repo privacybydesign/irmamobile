@@ -123,7 +123,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         plannedSteps: session.disclosuresCandidates!.length > updatedCandidates.length ||
                 updatedCandidates.entries.any((disconEntry) => session.disclosuresCandidates![disconEntry.key]
                         [disconEntry.value.selectedConIndex]
-                    .any((attr) => attr.credentialHash.isNotEmpty))
+                    .any((attr) => attr.credentialHash?.isNotEmpty ?? false))
             ? stepNames
             : (stepNames..remove(DisclosurePermissionStepName.previouslyAddedCredentialsOverview)),
         candidates: updatedCandidates,
@@ -250,26 +250,29 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
           candidates: state.candidates,
           showConfirmationPopup: true,
         );
-      } else if (session.isIssuanceSession) {
-        // TODO: We have to store the RespondPermissionEvent with disclosure choices somewhere.
-        _repo.dispatch(
-          ContinueToIssuanceEvent(sessionID: sessionID),
-          isBridgedEvent: true,
-        );
       } else {
-        _repo.dispatch(
-          RespondPermissionEvent(
+        // Disclosure permission is finished. We have to dispatch the choices to the IrmaRepository.
+        final choices = [
+          for (int i = 0; i < state.candidates.length; i++)
+            state.candidates[i]!.selectedCon
+                .expand((cred) => cred.attributes.map((attr) => AttributeIdentifier.fromAttribute(attr)))
+                .toList()
+        ];
+        if (session.isIssuanceSession) {
+          _repo.dispatch(ContinueToIssuanceEvent(
             sessionID: sessionID,
-            proceed: true,
-            disclosureChoices: [
-              for (int i = 0; i < state.candidates.length; i++)
-                state.candidates[i]!.selectedCon
-                    .expand((cred) => cred.attributes.map((attr) => AttributeIdentifier.fromAttribute(attr)))
-                    .toList()
-            ],
-          ),
-          isBridgedEvent: true,
-        );
+            disclosureChoices: choices,
+          ));
+        } else {
+          _repo.dispatch(
+            RespondPermissionEvent(
+              sessionID: sessionID,
+              proceed: true,
+              disclosureChoices: choices,
+            ),
+            isBridgedEvent: true,
+          );
+        }
       }
     } else if (state is DisclosurePermissionChoicesOverview && event is DisclosurePermissionConfirmationDismissed) {
       yield DisclosurePermissionChoicesOverview(
@@ -429,12 +432,22 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
   }
 
   Map<int, DisclosureDisCon> _parseDisclosureCandidates(
-    ConDisCon<Attribute> rawCandidates, {
+    ConDisCon<DisclosureCandidate> rawCandidates, {
     Map<int, DisclosureDisCon>? prevCandidates,
     int? selectedDisconIndex,
   }) {
-    return rawCandidates.asMap().map((i, rawDiscon) {
-      final discon = DisCon(rawDiscon.map((con) {
+    final parsedCandidates = ConDisCon.fromRaw<DisclosureCandidate, Attribute>(
+      rawCandidates,
+      (disclosureCandidate) => Attribute.fromCandidate(
+        _repo.irmaConfiguration,
+        _repo.credentials,
+        disclosureCandidate,
+      ),
+    );
+
+    return parsedCandidates.asMap().map((i, rawDiscon) {
+      // We only include discons for which all attributes are either choosable or obtainable.
+      final discon = DisCon(rawDiscon.where((con) => con.every((attr) => attr.choosable || attr.obtainable)).map((con) {
         final groupedCon = groupBy(con, (Attribute attr) => attr.credentialInfo.fullId);
         return Con(groupedCon.entries.map((entry) {
           final credentialAttributes = entry.value;
@@ -448,6 +461,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
           }
         }));
       }));
+
       int selectedConIndex = -1;
       if (prevCandidates != null && prevCandidates.containsKey(i)) {
         // If a new choosable option has been added, then we select the new option.
@@ -465,7 +479,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
               (con) => prevCandidates[i]!.selectedCon.every((prevCred) => con.any((cred) => cred == prevCred)));
         }
       }
-      // Otherwise, we simply select the first option.
+      // If no con is selected yet, we simply select the first option.
       if (selectedConIndex < 0) {
         selectedConIndex = 0;
       }

@@ -97,16 +97,12 @@ class _SessionScreenState extends State<SessionScreen> {
     _dispatchSessionEvent(DismissSessionEvent(sessionID: widget.arguments.sessionID));
   }
 
-  void _givePermission(SessionState session) {
-    if (session.status == SessionStatus.requestDisclosurePermission && session.isIssuanceSession) {
-      _dispatchSessionEvent(ContinueToIssuanceEvent(sessionID: widget.arguments.sessionID), isBridgedEvent: false);
-    } else {
-      _dispatchSessionEvent(RespondPermissionEvent(
-        sessionID: widget.arguments.sessionID,
-        proceed: true,
-        disclosureChoices: session.disclosureChoices!,
-      ));
-    }
+  void _giveIssuancePermission(SessionState session) {
+    _dispatchSessionEvent(RespondPermissionEvent(
+      sessionID: widget.arguments.sessionID,
+      proceed: true,
+      disclosureChoices: session.disclosureChoices ?? [],
+    ));
   }
 
   bool _isSpecialIssuanceSession(SessionState session) {
@@ -367,7 +363,7 @@ class _SessionScreenState extends State<SessionScreen> {
               satisfiable: session.satisfiable!,
               issuedCredentials: session.issuedCredentials!,
               onDismiss: () => _dismissSession(),
-              onGivePermission: () => _givePermission(session),
+              onGivePermission: () => _giveIssuancePermission(session),
             );
           case SessionStatus.requestPin:
             return SessionPinScreen(

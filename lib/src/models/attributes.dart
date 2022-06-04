@@ -149,6 +149,7 @@ class Attribute {
   bool get revoked => false;
   bool get notRevokable => false;
   bool get choosable => false;
+  bool get obtainable => credentialInfo.credentialType.issueUrl.isNotEmpty;
   String get credentialHash => '';
 
   factory Attribute.fromCandidate(

@@ -52,7 +52,9 @@ class RespondPermissionEvent extends SessionEvent {
 }
 
 class ContinueToIssuanceEvent extends SessionEvent {
-  ContinueToIssuanceEvent({required int sessionID}) : super(sessionID);
+  final List<List<AttributeIdentifier>> disclosureChoices;
+
+  ContinueToIssuanceEvent({required int sessionID, required this.disclosureChoices}) : super(sessionID);
 }
 
 @JsonSerializable()
@@ -67,17 +69,6 @@ class RespondPinEvent extends SessionEvent {
 
   factory RespondPinEvent.fromJson(Map<String, dynamic> json) => _$RespondPinEventFromJson(json);
   Map<String, dynamic> toJson() => _$RespondPinEventToJson(this);
-}
-
-class DisclosureChoiceUpdateSessionEvent extends SessionEvent {
-  final int disconIndex;
-  final int conIndex;
-
-  DisclosureChoiceUpdateSessionEvent({
-    required int sessionID,
-    required this.disconIndex,
-    required this.conIndex,
-  }) : super(sessionID);
 }
 
 @JsonSerializable()

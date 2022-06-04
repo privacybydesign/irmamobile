@@ -151,20 +151,20 @@ void main() {
 
     expect(await bloc.stream.first, isA<DisclosurePermissionChangeChoice>());
     changeChoiceBlocState = bloc.state as DisclosurePermissionChangeChoice;
-    // TODO: The obtained credentials are wrongly ordered. New options should be added at the end of choosableCons.
-    expect(changeChoiceBlocState.discon.selectedConIndex, 0);
+    expect(changeChoiceBlocState.discon.selectedConIndex, 1);
     expect(changeChoiceBlocState.discon.choosableCons.keys, [0, 1]);
     expect(changeChoiceBlocState.discon.templateCons.keys, [2]);
     expect(changeChoiceBlocState.discon.choosableCons[0]?[0], isA<ChoosableDisclosureCredential>());
     expect(changeChoiceBlocState.discon.choosableCons[1]?[0], isA<ChoosableDisclosureCredential>());
-    expect(changeChoiceBlocState.discon.choosableCons[0]?[0].attributes[0].value.raw, '67890');
-    expect(changeChoiceBlocState.discon.choosableCons[1]?[0].attributes[0].value.raw, '12345');
+    expect(changeChoiceBlocState.discon.choosableCons[0]?[0].attributes[0].value.raw, '12345');
+    expect(changeChoiceBlocState.discon.choosableCons[1]?[0].attributes[0].value.raw, '67890');
     expect(changeChoiceBlocState.discon.templateCons[2]?[0], isA<TemplateDisclosureCredential>());
 
-    bloc.add(DisclosurePermissionChoiceUpdated(conIndex: 1));
+    // Switch back to the old member attribute with value '12345'.
+    bloc.add(DisclosurePermissionChoiceUpdated(conIndex: 0));
     expect(await bloc.stream.first, isA<DisclosurePermissionChangeChoice>());
     changeChoiceBlocState = bloc.state as DisclosurePermissionChangeChoice;
-    expect(changeChoiceBlocState.discon.selectedConIndex, 1);
+    expect(changeChoiceBlocState.discon.selectedConIndex, 0);
 
     bloc.add(DisclosurePermissionNextPressed());
     expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
@@ -406,8 +406,7 @@ void main() {
     expect(changeChoiceBlocState.discon.disconIndex, 1);
     expect(changeChoiceBlocState.discon.choosableCons.keys, [0, 1]);
     expect(changeChoiceBlocState.discon.templateCons.keys, [2]);
-    // TODO: The obtained credentials are wrongly ordered. New options should be added at the end of choosableCons.
-    expect(changeChoiceBlocState.discon.selectedConIndex, 0);
+    expect(changeChoiceBlocState.discon.selectedConIndex, 1);
     expect(changeChoiceBlocState.discon.selectedCon.length, 1);
     expect(changeChoiceBlocState.discon.selectedCon[0].fullId, 'pbdf.pbdf.email');
     expect(changeChoiceBlocState.discon.selectedCon[0].attributes.length, 1);
@@ -419,7 +418,7 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionPreviouslyAddedCredentialsOverview>());
     prevAddedCredsBlocState = bloc.state as DisclosurePermissionPreviouslyAddedCredentialsOverview;
     expect(prevAddedCredsBlocState.candidates.keys, [1]);
-    expect(prevAddedCredsBlocState.candidates[1]?.selectedConIndex, 0);
+    expect(prevAddedCredsBlocState.candidates[1]?.selectedConIndex, 1);
     expect(prevAddedCredsBlocState.candidates[1]?.selectedCon.length, 1);
     expect(prevAddedCredsBlocState.candidates[1]?.selectedCon[0].fullId, 'pbdf.pbdf.email');
     expect(prevAddedCredsBlocState.candidates[1]?.selectedCon[0].attributes.length, 1);
@@ -434,7 +433,6 @@ void main() {
     expect(choicesOverviewBlocState.plannedSteps, contains(DisclosurePermissionStepName.choicesOverview));
     expect(choicesOverviewBlocState.showConfirmationPopup, false);
     expect(choicesOverviewBlocState.candidates.keys, [0, 1, 2]);
-    // TODO: The obtained credentials are wrongly ordered. New options should be added at the end of choosableCons.
     expect(choicesOverviewBlocState.candidates[0]?.selectedConIndex, 0);
     expect(choicesOverviewBlocState.candidates[0]?.selectedCon.length, 1);
     expect(choicesOverviewBlocState.candidates[0]?.selectedCon[0].fullId, 'pbdf.gemeente.address');
@@ -442,7 +440,7 @@ void main() {
     expect(choicesOverviewBlocState.candidates[0]?.selectedCon[0].attributes[0].attributeType.fullId,
         'pbdf.gemeente.address.street');
     expect(choicesOverviewBlocState.candidates[0]?.selectedCon[0].attributes[0].value.raw, 'Beukenlaan');
-    expect(choicesOverviewBlocState.candidates[1]?.selectedConIndex, 0);
+    expect(choicesOverviewBlocState.candidates[1]?.selectedConIndex, 1);
     expect(choicesOverviewBlocState.candidates[1]?.selectedCon.length, 1);
     expect(choicesOverviewBlocState.candidates[1]?.selectedCon[0].fullId, 'pbdf.pbdf.email');
     expect(choicesOverviewBlocState.candidates[1]?.selectedCon[0].attributes[0].attributeType.fullId,
@@ -495,20 +493,19 @@ void main() {
     expect(changeChoiceBlocState.discon.disconIndex, 2);
     expect(changeChoiceBlocState.discon.choosableCons.keys, [0, 1]);
     expect(changeChoiceBlocState.discon.templateCons.keys, [2]);
-    // TODO: The obtained credentials are wrongly ordered. New options should be added at the end of choosableCons.
-    expect(changeChoiceBlocState.discon.selectedConIndex, 0);
+    expect(changeChoiceBlocState.discon.selectedConIndex, 1);
     expect(changeChoiceBlocState.discon.selectedCon.length, 1);
     expect(changeChoiceBlocState.discon.selectedCon[0].fullId, 'pbdf.pbdf.mobilenumber');
     expect(changeChoiceBlocState.discon.selectedCon[0].attributes.length, 1);
     expect(changeChoiceBlocState.discon.selectedCon[0].attributes[0].value.raw, '+31687654321');
 
     // Switch back choice to the old email address.
-    bloc.add(DisclosurePermissionChoiceUpdated(conIndex: 1));
+    bloc.add(DisclosurePermissionChoiceUpdated(conIndex: 0));
 
     expect(await bloc.stream.first, isA<DisclosurePermissionChangeChoice>());
     changeChoiceBlocState = bloc.state as DisclosurePermissionChangeChoice;
     expect(changeChoiceBlocState.discon.disconIndex, 2);
-    expect(changeChoiceBlocState.discon.selectedConIndex, 1);
+    expect(changeChoiceBlocState.discon.selectedConIndex, 0);
 
     // Confirm choice.
     bloc.add(DisclosurePermissionNextPressed());
@@ -517,7 +514,7 @@ void main() {
     choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
     expect(choicesOverviewBlocState.candidates.length, 3);
     expect(choicesOverviewBlocState.candidates.keys, [0, 1, 2]);
-    expect(choicesOverviewBlocState.candidates[2]?.selectedConIndex, 1);
+    expect(choicesOverviewBlocState.candidates[2]?.selectedConIndex, 0);
     expect(choicesOverviewBlocState.candidates[2]?.selectedCon.length, 1);
     expect(choicesOverviewBlocState.candidates[2]?.selectedCon[0].fullId, 'pbdf.pbdf.mobilenumber');
     expect(choicesOverviewBlocState.candidates[2]?.selectedCon[0].attributes.length, 1);
@@ -814,8 +811,7 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionChangeChoice>());
     changeChoiceBlocState = bloc.state as DisclosurePermissionChangeChoice;
     expect(changeChoiceBlocState.discon.disconIndex, 0);
-    // TODO: The obtained credentials are wrongly ordered. New options should be added at the end of choosableCons.
-    expect(changeChoiceBlocState.discon.selectedConIndex, 0);
+    expect(changeChoiceBlocState.discon.selectedConIndex, 1);
     expect(changeChoiceBlocState.discon.selectedCon.length, 1);
     expect(changeChoiceBlocState.discon.selectedCon[0].fullId, 'pbdf.pbdf.surfnet-2');
     expect(changeChoiceBlocState.discon.selectedCon[0].attributes.length, 1);

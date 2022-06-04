@@ -3,6 +3,7 @@ import 'package:irmamobile/src/data/irma_mock_bridge.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/attribute_value.dart';
+import 'package:irmamobile/src/models/attributes.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/models/session_state.dart';
@@ -41,15 +42,14 @@ void main() {
         .firstWhere((session) => session.status == SessionStatus.requestDisclosurePermission);
     expect(disclosureSession.canBeFinished, true);
     expect(disclosureSession.satisfiable, false);
-    expect(disclosureSession.canDisclose, false);
     expect(disclosureSession.isSignatureSession, false);
     expect(disclosureSession.signedMessage, null);
     expect(disclosureSession.clientReturnURL, null);
-    expect(disclosureSession.disclosureChoices!.length, 1);
-    expect(disclosureSession.disclosureChoices![0].length, 1);
-    expect(disclosureSession.disclosureChoices![0][0].type, 'irma-demo.IRMATube.member.id');
-    expect(disclosureSession.disclosureChoices![0][0].credentialHash, '');
-    expect(disclosureSession.disclosureIndices, [0]);
+    expect(disclosureSession.disclosuresCandidates!.length, 1);
+    expect(disclosureSession.disclosuresCandidates![0].length, 1);
+    expect(disclosureSession.disclosuresCandidates![0][0].length, 1);
+    expect(disclosureSession.disclosuresCandidates![0][0][0].type, 'irma-demo.IRMATube.member.id');
+    expect(disclosureSession.disclosuresCandidates![0][0][0].credentialHash, null);
 
     mockBridge.mockIssuanceSession(43, [
       {
@@ -75,27 +75,43 @@ void main() {
     expect(issuanceSession.isSignatureSession, false);
     expect(issuanceSession.signedMessage, null);
     expect(issuanceSession.clientReturnURL, null);
-    expect(issuanceSession.disclosureChoices, []);
-    expect(issuanceSession.disclosureIndices, []);
-    repo.dispatch(RespondPermissionEvent(sessionID: 43, proceed: true, disclosureChoices: [[]]), isBridgedEvent: true);
+    expect(issuanceSession.disclosureChoices, null);
+    repo.dispatch(RespondPermissionEvent(sessionID: 43, proceed: true, disclosureChoices: []), isBridgedEvent: true);
 
     await issuanceSessionStream.firstWhere((session) => session.status == SessionStatus.success);
 
     disclosureSession = await disclosureSessionStream.firstWhere((session) => session.satisfiable ?? false);
     expect(disclosureSession.satisfiable, true);
     expect(disclosureSession.status, SessionStatus.requestDisclosurePermission);
-    expect(disclosureSession.canDisclose, true);
-    expect(disclosureSession.disclosureChoices!.length, 1);
-    expect(disclosureSession.disclosureChoices![0].length, 1);
-    expect(disclosureSession.disclosureChoices![0][0].type, 'irma-demo.IRMATube.member.id');
-    expect(disclosureSession.disclosureChoices![0][0].credentialHash, 'session-43');
-    expect(disclosureSession.disclosureIndices, [0]);
+    expect(disclosureSession.disclosuresCandidates!.length, 1);
+    expect(disclosureSession.disclosuresCandidates![0].length, 2);
+    expect(disclosureSession.disclosuresCandidates![0][0].length, 1);
+    expect(disclosureSession.disclosuresCandidates![0][0][0].type, 'irma-demo.IRMATube.member.id');
+    expect(disclosureSession.disclosuresCandidates![0][0][0].credentialHash, 'session-43');
+    expect(disclosureSession.disclosuresCandidates![0][1].length, 1);
+    expect(disclosureSession.disclosuresCandidates![0][1][0].type, 'irma-demo.IRMATube.member.id');
+    expect(disclosureSession.disclosuresCandidates![0][1][0].credentialHash, null);
     repo.dispatch(
-      RespondPermissionEvent(sessionID: 42, proceed: true, disclosureChoices: disclosureSession.disclosureChoices!),
+      RespondPermissionEvent(
+        sessionID: 42,
+        proceed: true,
+        disclosureChoices: [
+          [
+            AttributeIdentifier(
+              type: disclosureSession.disclosuresCandidates![0][0][0].type,
+              credentialHash: disclosureSession.disclosuresCandidates![0][0][0].credentialHash!,
+            )
+          ]
+        ],
+      ),
       isBridgedEvent: true,
     );
 
-    await disclosureSessionStream.firstWhere((session) => session.status == SessionStatus.success);
+    disclosureSession = await disclosureSessionStream.firstWhere((session) => session.status == SessionStatus.success);
+    expect(disclosureSession.disclosureChoices?.length, 1);
+    expect(disclosureSession.disclosureChoices?[0].length, 1);
+    expect(disclosureSession.disclosureChoices?[0][0].type, 'irma-demo.IRMATube.member.id');
+    expect(disclosureSession.disclosureChoices?[0][0].credentialHash, 'session-43');
   });
 
   test('issuance-in-disclosure-using-specific-attributes', () async {
@@ -117,11 +133,11 @@ void main() {
         .firstWhere((session) => session.status == SessionStatus.requestDisclosurePermission);
     expect(disclosureSession.canBeFinished, true);
     expect(disclosureSession.satisfiable, false);
-    expect(disclosureSession.canDisclose, false);
-    expect(disclosureSession.disclosureChoices!.length, 1);
-    expect(disclosureSession.disclosureChoices![0].length, 1);
-    expect(disclosureSession.disclosureChoices![0][0].type, 'irma-demo.IRMATube.member.id');
-    expect(disclosureSession.disclosureChoices![0][0].credentialHash, '');
+    expect(disclosureSession.disclosuresCandidates!.length, 1);
+    expect(disclosureSession.disclosuresCandidates![0].length, 1);
+    expect(disclosureSession.disclosuresCandidates![0][0].length, 1);
+    expect(disclosureSession.disclosuresCandidates![0][0][0].type, 'irma-demo.IRMATube.member.id');
+    expect(disclosureSession.disclosuresCandidates![0][0][0].credentialHash, null);
 
     // Start an issuance session to get a non-matching credential.
     mockBridge.mockIssuanceSession(43, [
@@ -138,7 +154,7 @@ void main() {
     // Give permission to accept the non-matching credential.
     final firstIssuanceSessionStream = repo.getSessionState(43).asBroadcastStream();
     await firstIssuanceSessionStream.firstWhere((session) => session.status == SessionStatus.requestIssuancePermission);
-    repo.dispatch(RespondPermissionEvent(sessionID: 43, proceed: true, disclosureChoices: [[]]), isBridgedEvent: true);
+    repo.dispatch(RespondPermissionEvent(sessionID: 43, proceed: true, disclosureChoices: []), isBridgedEvent: true);
     await firstIssuanceSessionStream.firstWhere((session) => session.status == SessionStatus.success);
 
     // The disclosure session should still not be satisfiable.
@@ -146,11 +162,11 @@ void main() {
         .firstWhere((session) => session.status == SessionStatus.requestDisclosurePermission);
     expect(disclosureSession.canBeFinished, true);
     expect(disclosureSession.satisfiable, false);
-    expect(disclosureSession.canDisclose, false);
-    expect(disclosureSession.disclosureChoices!.length, 1);
-    expect(disclosureSession.disclosureChoices![0].length, 1);
-    expect(disclosureSession.disclosureChoices![0][0].type, 'irma-demo.IRMATube.member.id');
-    expect(disclosureSession.disclosureChoices![0][0].credentialHash, '');
+    expect(disclosureSession.disclosuresCandidates!.length, 1);
+    expect(disclosureSession.disclosuresCandidates![0].length, 1);
+    expect(disclosureSession.disclosuresCandidates![0][0].length, 1);
+    expect(disclosureSession.disclosuresCandidates![0][0][0].type, 'irma-demo.IRMATube.member.id');
+    expect(disclosureSession.disclosuresCandidates![0][0][0].credentialHash, null);
 
     // Start a second issuance session to get the right credential.
     mockBridge.mockIssuanceSession(44, [
@@ -168,24 +184,35 @@ void main() {
     // Give permission to accept second credential.
     await secondIssuanceSessionStream
         .firstWhere((session) => session.status == SessionStatus.requestIssuancePermission);
-    repo.dispatch(RespondPermissionEvent(sessionID: 44, proceed: true, disclosureChoices: [[]]), isBridgedEvent: true);
+    repo.dispatch(RespondPermissionEvent(sessionID: 44, proceed: true, disclosureChoices: []), isBridgedEvent: true);
     await secondIssuanceSessionStream.firstWhere((session) => session.status == SessionStatus.success);
 
     // Check whether the disclosure session can be finished now.
     disclosureSession = await disclosureSessionStream
         .firstWhere((session) => session.status == SessionStatus.requestDisclosurePermission);
     expect(disclosureSession.satisfiable, true);
-    expect(disclosureSession.canDisclose, true);
-    expect(disclosureSession.disclosureChoices!.length, 1);
-    expect(disclosureSession.disclosureChoices![0].length, 1);
-    expect(disclosureSession.disclosureChoices![0][0].type, 'irma-demo.IRMATube.member.id');
-    expect(disclosureSession.disclosureChoices![0][0].credentialHash, 'session-44');
-    expect(disclosureSession.disclosureIndices, [0]);
+    expect(disclosureSession.disclosuresCandidates!.length, 1);
+    expect(disclosureSession.disclosuresCandidates![0].length, 2);
+    expect(disclosureSession.disclosuresCandidates![0][0].length, 1);
+    expect(disclosureSession.disclosuresCandidates![0][0][0].type, 'irma-demo.IRMATube.member.id');
+    expect(disclosureSession.disclosuresCandidates![0][0][0].credentialHash, 'session-44');
+
     repo.dispatch(
-      RespondPermissionEvent(sessionID: 42, proceed: true, disclosureChoices: disclosureSession.disclosureChoices!),
+      RespondPermissionEvent(sessionID: 42, proceed: true, disclosureChoices: [
+        [
+          AttributeIdentifier(
+            type: disclosureSession.disclosuresCandidates![0][0][0].type,
+            credentialHash: disclosureSession.disclosuresCandidates![0][0][0].credentialHash!,
+          )
+        ]
+      ]),
       isBridgedEvent: true,
     );
 
-    await disclosureSessionStream.firstWhere((session) => session.status == SessionStatus.success);
+    disclosureSession = await disclosureSessionStream.firstWhere((session) => session.status == SessionStatus.success);
+    expect(disclosureSession.disclosureChoices?.length, 1);
+    expect(disclosureSession.disclosureChoices?[0].length, 1);
+    expect(disclosureSession.disclosureChoices?[0][0].type, 'irma-demo.IRMATube.member.id');
+    expect(disclosureSession.disclosureChoices?[0][0].credentialHash, 'session-44');
   });
 }
