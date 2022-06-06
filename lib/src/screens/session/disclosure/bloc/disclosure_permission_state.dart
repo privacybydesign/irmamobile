@@ -17,7 +17,7 @@ enum DisclosurePermissionStepName {
   choicesOverview,
 }
 
-/// Abstract class containing all behaviour every named step in the DisclosurePermission flow has.
+/// Abstract class containing all behaviour every state that is a planned.
 abstract class DisclosurePermissionStep implements DisclosurePermissionBlocState {
   /// List with all the planned steps.
   final UnmodifiableListView<DisclosurePermissionStepName> plannedSteps;
@@ -32,6 +32,7 @@ abstract class DisclosurePermissionStep implements DisclosurePermissionBlocState
   int get currentStepIndex => plannedSteps.indexWhere((stepName) => stepName == currentStepName);
 }
 
+/// Abstract class containing all behaviour for states that contain disclosure choices.
 abstract class DisclosurePermissionChoices extends DisclosurePermissionStep {
   final UnmodifiableMapView<int, Con<ChoosableDisclosureCredential>> choices;
 
