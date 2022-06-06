@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/screens/error/no_internet.dart';
+import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
+import 'package:irmamobile/src/widgets/irma_info_scaffold_body.dart';
 
 class NoInternetScreen extends StatelessWidget {
   final VoidCallback onTapClose;
   final VoidCallback? onTapRetry;
 
-  const NoInternetScreen({required this.onTapClose, this.onTapRetry});
+  const NoInternetScreen({required this.onTapClose, this.onTapRetry})
+      : super(key: const ValueKey('no_internet_screen'));
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +29,11 @@ class NoInternetScreen extends StatelessWidget {
           ),
           leadingAction: onTapClose,
         ),
-        body: NoInternet(),
+        body: IrmaInfoScaffoldBody(
+            icon: Icons.wifi_off_rounded,
+            iconColor: IrmaTheme.of(context).primaryBlue,
+            titleKey: "error.title",
+            bodyKey: "error.types.no_internet"),
         bottomNavigationBar: IrmaBottomBar(
           primaryButtonLabel: FlutterI18n.translate(context, 'error.button_back'),
           onPrimaryPressed: onTapClose,

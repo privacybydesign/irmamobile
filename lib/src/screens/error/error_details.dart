@@ -1,12 +1,13 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/screens/error/error_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 import 'package:irmamobile/src/widgets/translated_text.dart';
+
+import 'error_screen.dart';
 
 class ErrorDetails extends StatelessWidget {
   static const _translationKeys = {
@@ -26,15 +27,15 @@ class ErrorDetails extends StatelessWidget {
     return Center(
         child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Icon(Icons.warning_amber_rounded, color: IrmaTheme.of(context).warningRed, size: 100),
+      children: [
+        Icon(Icons.warning_amber_rounded, color: IrmaTheme.of(context).error, size: 100),
         Padding(
             padding: EdgeInsets.all(IrmaTheme.of(context).mediumSpacing),
             child: Column(children: <Widget>[
               Padding(
                   padding: const EdgeInsets.only(bottom: 24.0),
                   child: Text(
-                    FlutterI18n.translate(context, _translationKeys[type] ?? ''),
+                    FlutterI18n.translate(context, _translationKeys[type]!),
                     style: IrmaTheme.of(context).textTheme.headline1,
                     textAlign: TextAlign.center,
                   )),

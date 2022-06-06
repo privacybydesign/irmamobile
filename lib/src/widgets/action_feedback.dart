@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/theme/irma_icons.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
-import 'package:irmamobile/src/widgets/translated_text.dart';
+
+import '../theme/irma_icons.dart';
+import '../theme/theme.dart';
+import '../widgets/irma_bottom_bar.dart';
+import 'irma_info_scaffold_body.dart';
+import 'translated_text.dart';
 
 class ActionFeedback extends StatelessWidget {
   final Function() onDismiss;
@@ -26,33 +28,17 @@ class ActionFeedback extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     return WillPopScope(
       onWillPop: () async {
         dismiss(context);
         return false;
       },
       child: Scaffold(
-        body: Center(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.all(theme.largeSpacing),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Icon(
-                    success ? IrmaIcons.valid : IrmaIcons.invalid,
-                    size: 120,
-                    color: success ? IrmaTheme.of(context).interactionValid : IrmaTheme.of(context).interactionAlert,
-                  ),
-                  SizedBox(height: theme.mediumSpacing),
-                  title,
-                  SizedBox(height: theme.mediumSpacing),
-                  explanation,
-                ],
-              ),
-            ),
-          ),
+        body: IrmaInfoScaffoldBody(
+          icon: success ? IrmaIcons.valid : IrmaIcons.invalid,
+          iconColor: success ? IrmaTheme.of(context).interactionValid : IrmaTheme.of(context).interactionAlert,
+          title: title,
+          body: explanation,
         ),
         appBar: AppBar(
           automaticallyImplyLeading: false,

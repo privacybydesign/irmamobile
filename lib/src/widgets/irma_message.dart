@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/theme/irma_icons.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/translated_text.dart';
+
+import '../theme/irma_icons.dart';
+import '../theme/theme.dart';
+import '../widgets/translated_text.dart';
 
 enum IrmaMessageType {
   valid,

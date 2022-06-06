@@ -16,9 +16,7 @@ class IrmaThemeData {
   final Color primaryBlue = const Color(0xFF4B73FF);
   final Color secondaryPurple = const Color(0xFF362C78);
 
-  final Color error = const Color(0xFFC8192C);
-  final Color warningRed = const Color(0xFFBD1919);
-  final Color blue1 = const Color(0xFF2F80ED);
+  final Color error = const Color(0xFFBD1919);
 
   final Color primaryDark = const Color(0xFF15222E);
 
@@ -265,8 +263,6 @@ class IrmaTheme extends InheritedWidget {
           key: key,
           child: Builder(builder: builder),
         );
-
-  IrmaTheme.test({Key? key, required Widget widget}) : super(key: key, child: widget);
 
   @override
   bool updateShouldNotify(InheritedWidget oldWidget) {

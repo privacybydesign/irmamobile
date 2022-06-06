@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/widgets/action_feedback.dart';
-import 'package:irmamobile/src/widgets/translated_text.dart';
+
+import '../../../widgets/action_feedback.dart';
+import '../../../widgets/translated_text.dart';
 
 enum DisclosureFeedbackType {
   success,
@@ -61,7 +62,7 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen> with
       onDismiss: () => widget.popToWallet(context),
     );
 
-    return actionFeedback; // Place holder
+    return actionFeedback;
   }
 
   @override

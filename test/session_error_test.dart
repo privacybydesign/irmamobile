@@ -5,8 +5,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/screens/error/blocked_screen.dart';
-import 'package:irmamobile/src/screens/error/error_screen.dart';
-import 'package:irmamobile/src/screens/error/no_internet_screen.dart';
 import 'package:irmamobile/src/screens/error/session_error_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
@@ -16,19 +14,19 @@ class TestWidget extends StatelessWidget {
   const TestWidget(this.error);
 
   @override
-  Widget build(BuildContext context) => IrmaTheme.test(
-          widget: MaterialApp(
+  Widget build(BuildContext context) => IrmaTheme(
+      builder: (_) => MaterialApp(
               localizationsDelegates: [
-            FlutterI18nDelegate(
-              translationLoader: FileTranslationLoader(
-                basePath: 'assets/locales',
-                forcedLocale: const Locale('nl', 'NL'),
-              ),
-            ),
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate
-          ],
+                FlutterI18nDelegate(
+                  translationLoader: FileTranslationLoader(
+                    basePath: 'assets/locales',
+                    forcedLocale: const Locale('nl', 'NL'),
+                  ),
+                ),
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate
+              ],
               home: SessionErrorScreen(
                 error: error,
                 onTapClose: () {},
@@ -36,6 +34,7 @@ class TestWidget extends StatelessWidget {
 }
 
 void main() {
+  const errorScreenKey = ValueKey('error_screen');
   testWidgets(
     "errorType = transport",
     (WidgetTester tester) async {
@@ -44,7 +43,7 @@ void main() {
       await tester.pumpWidget(TestWidget(error));
       await tester.pumpAndSettle();
 
-      expect(find.byType(NoInternetScreen), findsOneWidget);
+      expect(find.byKey(const ValueKey('no_internet_screen')), findsOneWidget);
     },
   );
 
@@ -55,7 +54,7 @@ void main() {
 
       await tester.pumpWidget(TestWidget(error));
       await tester.pumpAndSettle();
-      expect(find.byType(ErrorScreen), findsOneWidget);
+      expect(find.byKey(errorScreenKey), findsOneWidget);
     },
   );
 
@@ -77,7 +76,7 @@ void main() {
 
       await tester.pumpWidget(TestWidget(error));
       await tester.pumpAndSettle();
-      expect(find.byType(ErrorScreen), findsOneWidget);
+      expect(find.byKey(errorScreenKey), findsOneWidget);
     },
   );
 
@@ -88,7 +87,7 @@ void main() {
 
       await tester.pumpWidget(TestWidget(error));
       await tester.pumpAndSettle();
-      expect(find.byType(ErrorScreen), findsOneWidget);
+      expect(find.byKey(errorScreenKey), findsOneWidget);
     },
   );
 
@@ -99,7 +98,7 @@ void main() {
 
       await tester.pumpWidget(TestWidget(error));
       await tester.pumpAndSettle();
-      expect(find.byType(ErrorScreen), findsOneWidget);
+      expect(find.byKey(errorScreenKey), findsOneWidget);
     },
   );
 }

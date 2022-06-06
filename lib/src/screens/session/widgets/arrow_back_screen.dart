@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/theme/theme.dart';
 import 'package:native_device_orientation/native_device_orientation.dart';
 import 'package:path_drawing/path_drawing.dart';
+
+import '../../../theme/theme.dart';
 
 const portraitOrientations = [
   DeviceOrientation.portraitUp,

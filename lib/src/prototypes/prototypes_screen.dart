@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/screens/error/blocked_screen.dart';
-import 'package:irmamobile/src/screens/error/error_screen.dart';
-import 'package:irmamobile/src/screens/error/no_internet_screen.dart';
-import 'package:irmamobile/src/screens/session/widgets/disclosure_feedback_screen.dart';
 
+import '../screens/error/blocked_screen.dart';
+import '../screens/error/error_screen.dart';
+import '../screens/error/no_internet_screen.dart';
 import '../screens/required_update/required_update_screen.dart';
 import '../screens/rooted_warning/rooted_warning_screen.dart';
 import '../screens/session/widgets/arrow_back_screen.dart';
+import '../screens/session/widgets/disclosure_feedback_screen.dart';
 
 class PrototypesScreen extends StatelessWidget {
   static const routeName = "/";
@@ -89,24 +89,24 @@ class PrototypesScreen extends StatelessWidget {
               'Disclosure feedback - success',
               DisclosureFeedbackScreen(
                 feedbackType: DisclosureFeedbackType.success,
-                otherParty: 'party time!',
-                popToWallet: (c) => Navigator.pop(context),
+                otherParty: 'successful party',
+                popToWallet: (context) => Navigator.pop(context),
               )),
           _buildTile(
               context,
               'Disclosure feedback - canceled',
               DisclosureFeedbackScreen(
                 feedbackType: DisclosureFeedbackType.canceled,
-                otherParty: 'no party time :(',
-                popToWallet: (c) => Navigator.pop(context),
+                otherParty: 'canceled party',
+                popToWallet: (context) => Navigator.pop(context),
               )),
           _buildTile(
               context,
               'Disclosure feedback - not satisfiable',
               DisclosureFeedbackScreen(
                 feedbackType: DisclosureFeedbackType.notSatisfiable,
-                otherParty: "I can't get no satisfaction :(",
-                popToWallet: (c) => Navigator.pop(context),
+                otherParty: "unsatisfied party",
+                popToWallet: (context) => Navigator.pop(context),
               )),
         ],
       ),

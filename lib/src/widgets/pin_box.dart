@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/theme/theme.dart';
+
+import '../theme/theme.dart';
 
 class PinBox extends StatelessWidget {
   final double height;

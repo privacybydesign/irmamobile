@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-
-import '../theme/theme.dart';
-import 'irma_button.dart';
-import 'irma_themed_button.dart';
+import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/irma_button.dart';
+import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 
 class IrmaBottomBar extends StatelessWidget {
   final String? primaryButtonLabel;
