@@ -82,7 +82,7 @@ class CardStoreScreen extends StatelessWidget {
                                           irmaConfiguration: irmaConfiguration,
                                           credentialType: credentialType,
                                           onStartIssuance: () => IrmaRepositoryProvider.of(context).openIssueURL(
-                                            FlutterI18n.currentLocale(context),
+                                            context,
                                             credentialType.fullId,
                                           ),
                                         ),

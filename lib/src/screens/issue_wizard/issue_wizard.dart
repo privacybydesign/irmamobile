@@ -5,7 +5,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/issue_wizard.dart';
 import 'package:irmamobile/src/models/session.dart';
@@ -126,7 +125,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
     // Handle the different wizard item types
     switch (item.type) {
       case "credential":
-        _repo.openIssueURL(FlutterI18n.currentLocale(context), item.credential);
+        _repo.openIssueURL(context, item.credential);
         break;
       case "session":
         handlePointer(
