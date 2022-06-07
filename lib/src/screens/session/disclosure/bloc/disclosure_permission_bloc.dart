@@ -115,18 +115,8 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       );
       // When an option is changed, the list of previous added credentials that are involved in this session
       // may have changed too. Therefore, we have to recalculate the planned steps.
-      final stepNames = [
-        DisclosurePermissionStepName.issueWizard,
-        DisclosurePermissionStepName.previouslyAddedCredentialsOverview,
-        DisclosurePermissionStepName.choicesOverview,
-      ];
       yield DisclosurePermissionIssueWizard(
-        plannedSteps: session.disclosuresCandidates!.length > updatedCandidates.length ||
-                updatedCandidates.entries.any((disconEntry) => session.disclosuresCandidates![disconEntry.key]
-                        [disconEntry.value.selectedConIndex]
-                    .any((attr) => attr.credentialHash?.isNotEmpty ?? false))
-            ? stepNames
-            : (stepNames..remove(DisclosurePermissionStepName.previouslyAddedCredentialsOverview)),
+        plannedSteps: _calculatePlannedSteps(updatedCandidates, session),
         candidates: updatedCandidates,
       );
     } else if (state is DisclosurePermissionIssueWizard && event is DisclosurePermissionNextPressed) {
@@ -344,18 +334,19 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         // In an issue wizard, only the credential templates are relevant. If an issue wizard is needed,
         // we also include the optional discons where no non-empty con is fully obtained yet. If no issue wizard
         // is needed, then the optional discons are presented in DisclosurePermissionChoicesOverview.
+        final issueWizardCandidates = {
+          for (final entry in candidates.entries)
+            if (entry.value.choosableCons.isEmpty)
+              entry.key: DisclosureDisCon(
+                discon: DisCon(
+                  entry.value.templateCons.values.map((con) => Con(con.whereType<TemplateDisclosureCredential>())),
+                ),
+                disconIndex: entry.key,
+              )
+        };
         yield DisclosurePermissionIssueWizard(
-          plannedSteps: _calculatePlannedSteps(candidates),
-          candidates: {
-            for (final entry in candidates.entries)
-              if (entry.value.choosableCons.isEmpty)
-                entry.key: DisclosureDisCon(
-                  discon: DisCon(
-                    entry.value.templateCons.values.map((con) => Con(con.whereType<TemplateDisclosureCredential>())),
-                  ),
-                  disconIndex: entry.key,
-                )
-          },
+          plannedSteps: _calculatePlannedSteps(issueWizardCandidates, session),
+          candidates: issueWizardCandidates,
         );
       }
     }
@@ -365,7 +356,10 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     final candidates = prevState.candidates.map(
       (i, prevDiscon) => MapEntry(i, _refreshDisclosureDisCon(prevDiscon, session)),
     );
-    return DisclosurePermissionIssueWizard(plannedSteps: _calculatePlannedSteps(candidates), candidates: candidates);
+    return DisclosurePermissionIssueWizard(
+      plannedSteps: _calculatePlannedSteps(candidates, session),
+      candidates: candidates,
+    );
   }
 
   DisclosurePermissionObtainCredentials _refreshObtainedCredentials(
@@ -525,9 +519,14 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     return choice >= 0 ? choice : 0;
   }
 
-  List<DisclosurePermissionStepName> _calculatePlannedSteps(Map<int, DisclosureDisCon> candidates) {
-    final hasPrevAddedCreds =
-        candidates.values.any((discon) => discon.selectedCon.any((cred) => cred is ChoosableDisclosureCredential));
+  List<DisclosurePermissionStepName> _calculatePlannedSteps(
+    Map<int, DisclosureDisCon> candidates,
+    SessionState session,
+  ) {
+    final hasPrevAddedCreds = session.disclosuresCandidates!.length > candidates.length ||
+        candidates.entries.any((disconEntry) =>
+            session.disclosuresCandidates![disconEntry.key][disconEntry.value.selectedConIndex].any((candidate) =>
+                candidate.credentialHash != null && !_newlyAddedCredentialHashes.contains(candidate.credentialHash)));
     final stepNames = [
       DisclosurePermissionStepName.issueWizard,
       DisclosurePermissionStepName.previouslyAddedCredentialsOverview,
