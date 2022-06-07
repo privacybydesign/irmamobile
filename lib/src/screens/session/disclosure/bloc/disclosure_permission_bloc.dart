@@ -192,9 +192,34 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
           ),
         )),
       );
-    } else if (state is DisclosurePermissionChoices && event is DisclosurePermissionChangeChoicePressed) {
-      // DisclosurePermissionChoices is implemented by the DisclosurePermissionPreviouslyAddedCredentialsOverview
-      // and DisclosurePermissionChoicesOverview states.
+    } else if (state is DisclosurePermissionPreviouslyAddedCredentialsOverview &&
+        event is DisclosurePermissionChangeChoicePressed) {
+      if (!state.choices.containsKey(event.disconIndex)) {
+        throw Exception('DisCon with index ${event.disconIndex} does not exist');
+      }
+
+      // Parse discon and filter it to make sure it only includes candidates with previously added credentials.
+      // A con might contain a mix of previously and newly added credentials, so we have to take that into account.
+      final discon = _parseCandidatesDisCon(session.disclosuresCandidates![event.disconIndex]);
+      final prevAddedCredTypeIds = discon
+          .expand((con) => con
+              .where((cred) => cred is ChoosableDisclosureCredential && cred.previouslyAdded)
+              .map((cred) => cred.fullId))
+          .toSet();
+      final prevAddedDiscon = [
+        for (final con in discon)
+          if (con.isEmpty || con.any((cred) => prevAddedCredTypeIds.contains(cred.fullId)))
+            Con(con.where((cred) => prevAddedCredTypeIds.contains(cred.fullId)))
+      ];
+
+      yield DisclosurePermissionChangeChoice(
+        parentState: state,
+        discon: DisclosureDisCon(
+          discon: DisCon(prevAddedDiscon),
+          disconIndex: event.disconIndex,
+        ),
+      );
+    } else if (state is DisclosurePermissionChoicesOverview && event is DisclosurePermissionChangeChoicePressed) {
       if (!state.choices.containsKey(event.disconIndex)) {
         throw Exception('DisCon with index ${event.disconIndex} does not exist');
       }
