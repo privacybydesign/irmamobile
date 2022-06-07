@@ -100,6 +100,7 @@ void main() {
     DisclosurePermissionChoicesOverview choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
     expect(choicesOverviewBlocState.isSignatureSession, false);
     expect(choicesOverviewBlocState.showConfirmationPopup, false);
+    expect(choicesOverviewBlocState.isOptional, {0: false});
     expect(choicesOverviewBlocState.choices.keys, [0]);
     expect(choicesOverviewBlocState.choices[0]?.length, 1);
     expect(choicesOverviewBlocState.choices[0]?[0], isA<ChoosableDisclosureCredential>());
@@ -344,6 +345,7 @@ void main() {
       prevAddedCredsBlocState.plannedSteps,
       contains(DisclosurePermissionStepName.previouslyAddedCredentialsOverview),
     );
+    expect(prevAddedCredsBlocState.isOptional, {1: false});
     expect(prevAddedCredsBlocState.choices.keys, [1]);
     expect(prevAddedCredsBlocState.choices[1]?.length, 1);
     expect(prevAddedCredsBlocState.choices[1]?[0].fullId, 'pbdf.pbdf.email');
@@ -416,6 +418,7 @@ void main() {
     expect(choicesOverviewBlocState.currentStepName, DisclosurePermissionStepName.choicesOverview);
     expect(choicesOverviewBlocState.plannedSteps, contains(DisclosurePermissionStepName.choicesOverview));
     expect(choicesOverviewBlocState.showConfirmationPopup, false);
+    expect(choicesOverviewBlocState.isOptional, {0: false, 1: false, 2: false});
     expect(choicesOverviewBlocState.choices.keys, [0, 1, 2]);
     expect(choicesOverviewBlocState.choices[0]?.length, 1);
     expect(choicesOverviewBlocState.choices[0]?[0].fullId, 'pbdf.gemeente.address');
@@ -649,6 +652,7 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
     DisclosurePermissionChoicesOverview choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
     expect(choicesOverviewBlocState.showConfirmationPopup, false);
+    expect(choicesOverviewBlocState.isOptional, {0: false, 1: false});
     expect(choicesOverviewBlocState.choices.keys, [0, 1]);
     expect(choicesOverviewBlocState.choices[0]?.length, 1);
     expect(choicesOverviewBlocState.choices[0]?[0], isA<ChoosableDisclosureCredential>());
@@ -776,6 +780,7 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
     choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
     expect(choicesOverviewBlocState.showConfirmationPopup, false);
+    expect(choicesOverviewBlocState.isOptional, {0: false, 1: false});
     expect(choicesOverviewBlocState.choices.keys, [0, 1]);
     expect(choicesOverviewBlocState.choices[0]?.length, 1);
     expect(choicesOverviewBlocState.choices[0]?[0].attributes.length, 1);
@@ -823,6 +828,7 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
     DisclosurePermissionChoicesOverview choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
     expect(choicesOverviewBlocState.showConfirmationPopup, false);
+    expect(choicesOverviewBlocState.isOptional, {0: true});
     expect(choicesOverviewBlocState.choices.keys, [0]);
     expect(choicesOverviewBlocState.choices[0]?.length, 0);
 

@@ -131,12 +131,12 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       );
     } else if (state is DisclosurePermissionIssueWizard && event is DisclosurePermissionNextPressed) {
       if (state.isCompleted) {
-        // Issue wizard is completed, so all credentials in the selected cons should be choosable now.
-        final choices = session.disclosuresCandidates!
+        final candidates = session.disclosuresCandidates!
             .asMap()
-            .map((i, rawDiscon) => MapEntry(i, _parseCandidatesDisCon(rawDiscon)))
-            .map((i, discon) =>
-                MapEntry(i, Con(discon[_findSelectedConIndex(discon)].cast<ChoosableDisclosureCredential>())));
+            .map((i, rawDiscon) => MapEntry(i, _parseCandidatesDisCon(rawDiscon)));
+        // Issue wizard is completed, so all credentials in the selected cons should be choosable now.
+        final choices = candidates.map((i, discon) =>
+            MapEntry(i, Con(discon[_findSelectedConIndex(discon)].cast<ChoosableDisclosureCredential>())));
 
         // Wizard is completed, so now we show the previously added credentials that are involved in this session.
         final prevAddedChoices = {
@@ -150,12 +150,14 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
           yield DisclosurePermissionChoicesOverview(
             plannedSteps: state.plannedSteps,
             choices: choices,
+            isOptional: choices.map((i, _) => MapEntry(i, candidates[i]!.any((con) => con.isEmpty))),
             signedMessage: session.isSignatureSession ?? false ? session.signedMessage : null,
           );
         } else {
           yield DisclosurePermissionPreviouslyAddedCredentialsOverview(
             plannedSteps: state.plannedSteps,
             choices: prevAddedChoices,
+            isOptional: prevAddedChoices.map((i, _) => MapEntry(i, candidates[i]!.any((con) => con.isEmpty))),
           );
         }
       } else {
@@ -183,6 +185,12 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
           final choice = _findSelectedConIndex(discon, prevChoice: state.choices[i]);
           return MapEntry(i, Con(discon[choice].whereType<ChoosableDisclosureCredential>()));
         })),
+        isOptional: Map.fromEntries(session.disclosuresCandidates!.mapIndexed(
+          (i, discon) => MapEntry(
+            i,
+            discon.any((con) => con.isEmpty),
+          ),
+        )),
       );
     } else if (state is DisclosurePermissionChoices && event is DisclosurePermissionChangeChoicePressed) {
       // DisclosurePermissionChoices is implemented by the DisclosurePermissionPreviouslyAddedCredentialsOverview
@@ -225,6 +233,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         yield DisclosurePermissionChoicesOverview(
           plannedSteps: state.plannedSteps,
           choices: state.choices,
+          isOptional: state.isOptional,
           showConfirmationPopup: true,
         );
       } else {
@@ -255,6 +264,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       yield DisclosurePermissionChoicesOverview(
         plannedSteps: state.plannedSteps,
         choices: state.choices,
+        isOptional: state.isOptional,
       );
     } else {
       throw UnsupportedError(
@@ -297,6 +307,12 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         yield DisclosurePermissionChoicesOverview(
           plannedSteps: [DisclosurePermissionStepName.choicesOverview],
           choices: candidates.map((i, discon) => MapEntry(i, discon.choosableCons.values.first)),
+          isOptional: Map.fromEntries(session.disclosuresCandidates!.mapIndexed(
+            (i, discon) => MapEntry(
+              i,
+              discon.any((con) => con.isEmpty),
+            ),
+          )),
           signedMessage: session.isSignatureSession ?? false ? session.signedMessage : null,
         );
       } else {
@@ -425,11 +441,13 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       return DisclosurePermissionPreviouslyAddedCredentialsOverview(
         plannedSteps: prevState.plannedSteps,
         choices: choices,
+        isOptional: prevState.isOptional,
       );
     } else if (prevState is DisclosurePermissionChoicesOverview) {
       return DisclosurePermissionChoicesOverview(
         plannedSteps: prevState.plannedSteps,
         choices: choices,
+        isOptional: prevState.isOptional,
       );
     } else {
       throw UnsupportedError('Unknown DisclosurePermissionChoices implementation: ${prevState.runtimeType}');

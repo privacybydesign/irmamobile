@@ -36,11 +36,25 @@ abstract class DisclosurePermissionStep implements DisclosurePermissionBlocState
 abstract class DisclosurePermissionChoices extends DisclosurePermissionStep {
   final UnmodifiableMapView<int, Con<ChoosableDisclosureCredential>> choices;
 
+  /// Map that for each choice specifies whether it is optional or not.
+  final UnmodifiableMapView<int, bool> isOptional;
+
   DisclosurePermissionChoices({
     required List<DisclosurePermissionStepName> plannedSteps,
     required Map<int, Con<ChoosableDisclosureCredential>> choices,
-  })  : choices = UnmodifiableMapView(choices),
+    required Map<int, bool> isOptional,
+  })  : assert(isOptional.length == choices.length),
+        choices = UnmodifiableMapView(choices),
+        isOptional = UnmodifiableMapView(isOptional),
         super(plannedSteps: plannedSteps);
+
+  /// List with all required choices. In required choices a choice between one of the options must be made.
+  Map<int, Con<ChoosableDisclosureCredential>> get requiredChoices =>
+      Map.fromEntries(choices.entries.where((entry) => !isOptional[entry.key]!));
+
+  /// List with all optional choices. In optional choices there is an option to select none of the choices.
+  Map<int, Con<ChoosableDisclosureCredential>> get optionalChoices =>
+      Map.fromEntries(choices.entries.where((entry) => isOptional[entry.key]!));
 }
 
 class DisclosurePermissionIssueWizard extends DisclosurePermissionStep {
@@ -77,13 +91,13 @@ class DisclosurePermissionPreviouslyAddedCredentialsOverview extends DisclosureP
   DisclosurePermissionPreviouslyAddedCredentialsOverview({
     required List<DisclosurePermissionStepName> plannedSteps,
     required Map<int, Con<ChoosableDisclosureCredential>> choices,
-  }) : super(plannedSteps: plannedSteps, choices: choices);
+    required Map<int, bool> isOptional,
+  }) : super(plannedSteps: plannedSteps, choices: choices, isOptional: isOptional);
 
   @override
   DisclosurePermissionStepName get currentStepName => DisclosurePermissionStepName.previouslyAddedCredentialsOverview;
 }
 
-// TODO: does this need the full candidates condiscon?
 class DisclosurePermissionChoicesOverview extends DisclosurePermissionChoices {
   /// Message to be signed, in case of a signature session.
   final String? signedMessage;
@@ -97,9 +111,10 @@ class DisclosurePermissionChoicesOverview extends DisclosurePermissionChoices {
   DisclosurePermissionChoicesOverview({
     required List<DisclosurePermissionStepName> plannedSteps,
     required Map<int, Con<ChoosableDisclosureCredential>> choices,
+    required Map<int, bool> isOptional,
     this.signedMessage,
     this.showConfirmationPopup = false,
-  }) : super(plannedSteps: plannedSteps, choices: choices);
+  }) : super(plannedSteps: plannedSteps, choices: choices, isOptional: isOptional);
 
   @override
   DisclosurePermissionStepName get currentStepName => DisclosurePermissionStepName.choicesOverview;
