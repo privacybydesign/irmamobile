@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../widgets/action_feedback.dart';
-import '../../../widgets/translated_text.dart';
 
 enum DisclosureFeedbackType {
   success,
@@ -11,9 +10,9 @@ enum DisclosureFeedbackType {
 
 class DisclosureFeedbackScreen extends StatefulWidget {
   static const _translationKeys = {
-    DisclosureFeedbackType.success: "success",
-    DisclosureFeedbackType.canceled: "canceled",
-    DisclosureFeedbackType.notSatisfiable: "notSatisfiable",
+    DisclosureFeedbackType.success: 'success',
+    DisclosureFeedbackType.canceled: 'canceled',
+    DisclosureFeedbackType.notSatisfiable: 'notSatisfiable',
   };
 
   final DisclosureFeedbackType feedbackType;
@@ -22,9 +21,11 @@ class DisclosureFeedbackScreen extends StatefulWidget {
 
   final String? _translationKey;
 
-  DisclosureFeedbackScreen({required this.feedbackType, required this.otherParty, required this.popToWallet})
-      : _translationKey = _translationKeys[feedbackType],
-        super();
+  DisclosureFeedbackScreen({
+    required this.feedbackType,
+    required this.otherParty,
+    required this.popToWallet,
+  }) : _translationKey = _translationKeys[feedbackType];
 
   @override
   State<StatefulWidget> createState() {
@@ -47,22 +48,16 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen> with
 
   @override
   Widget build(BuildContext context) {
-    final actionFeedback = ActionFeedback(
+    final otherPartyParam = {'otherParty': widget.otherParty};
+
+    return ActionFeedback(
       success: widget.feedbackType == DisclosureFeedbackType.success,
-      title: TranslatedText(
-        "disclosure.feedback.header.${widget._translationKey}",
-        translationParams: {"otherParty": widget.otherParty},
-        style: Theme.of(context).textTheme.headline2,
-      ),
-      explanation: TranslatedText(
-        "disclosure.feedback.text.${widget._translationKey}",
-        translationParams: {"otherParty": widget.otherParty},
-        textAlign: TextAlign.center,
-      ),
+      titleKey: 'disclosure.feedback.header.${widget._translationKey}',
+      titleParams: otherPartyParam,
+      explanationKey: 'disclosure.feedback.text.${widget._translationKey}',
+      explanationParams: otherPartyParam,
       onDismiss: () => widget.popToWallet(context),
     );
-
-    return actionFeedback;
   }
 
   @override

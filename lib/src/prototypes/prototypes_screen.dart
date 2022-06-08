@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../screens/error/blocked_screen.dart';
 import '../screens/error/error_screen.dart';
+import '../screens/error/error_type.dart';
 import '../screens/error/no_internet_screen.dart';
 import '../screens/required_update/required_update_screen.dart';
 import '../screens/rooted_warning/rooted_warning_screen.dart';
@@ -9,14 +10,14 @@ import '../screens/session/widgets/arrow_back_screen.dart';
 import '../screens/session/widgets/disclosure_feedback_screen.dart';
 
 class PrototypesScreen extends StatelessWidget {
-  static const routeName = "/";
+  static const routeName = '/';
 
-  Widget _buildTile(BuildContext context, String title, Widget w) => ListTile(
+  Widget _buildTile(BuildContext context, String title, Widget widget) => ListTile(
         title: Text(title),
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => w,
+            builder: (context) => widget,
           ),
         ),
       );
@@ -105,7 +106,7 @@ class PrototypesScreen extends StatelessWidget {
               'Disclosure feedback - not satisfiable',
               DisclosureFeedbackScreen(
                 feedbackType: DisclosureFeedbackType.notSatisfiable,
-                otherParty: "unsatisfied party",
+                otherParty: 'unsatisfied party',
                 popToWallet: (context) => Navigator.pop(context),
               )),
         ],

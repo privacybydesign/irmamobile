@@ -24,16 +24,18 @@ class BlockedScreen extends StatelessWidget {
           title: Text(
             FlutterI18n.translate(
               context,
-              'error.blocked_title',
+              'error.details_title',
             ),
+            textAlign: TextAlign.center,
           ),
           noLeading: true,
         ),
         body: IrmaInfoScaffoldBody(
-            icon: Icons.block,
-            iconColor: IrmaTheme.of(context).primaryBlue,
-            titleKey: "error.title",
-            bodyKey: "error.types.blocked"),
+          icon: Icons.block,
+          iconColor: IrmaTheme.of(context).primaryBlue,
+          titleKey: 'error.title',
+          bodyKey: 'error.types.blocked',
+        ),
         bottomNavigationBar: IrmaBottomBar(
           primaryButtonLabel: FlutterI18n.translate(context, 'error.button_reset'),
           onPrimaryPressed: () => IrmaRepositoryProvider.of(context).bridgedDispatch(ClearAllDataEvent()),

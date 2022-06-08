@@ -15,7 +15,6 @@ import '../../util/combine.dart';
 import '../../util/navigation.dart';
 import '../../widgets/action_feedback.dart';
 import '../../widgets/loading_indicator.dart';
-import '../../widgets/translated_text.dart';
 import '../error/session_error_screen.dart';
 import '../pin/session_pin_screen.dart';
 import 'call_info_screen.dart';
@@ -53,14 +52,8 @@ class _UnknownSessionScreenState extends State<UnknownSessionScreen> {
   @override
   Widget build(BuildContext context) => ActionFeedback(
         success: false,
-        title: TranslatedText(
-          "session.unknown_session_type.title",
-          style: Theme.of(context).textTheme.headline2,
-        ),
-        explanation: const TranslatedText(
-          "session.unknown_session_type.explanation",
-          textAlign: TextAlign.center,
-        ),
+        titleKey: "session.unknown_session_type.title",
+        explanationKey: "session.unknown_session_type.explanation",
         onDismiss: () => (widget.arguments.wizardActive ? popToWizard : popToHome)(context),
       );
 }

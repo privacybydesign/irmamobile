@@ -5,19 +5,21 @@ import '../theme/irma_icons.dart';
 import '../theme/theme.dart';
 import '../widgets/irma_bottom_bar.dart';
 import 'irma_info_scaffold_body.dart';
-import 'translated_text.dart';
 
 class ActionFeedback extends StatelessWidget {
   final Function() onDismiss;
-
   final bool success;
-  final TranslatedText title;
-  final TranslatedText explanation;
+  final String titleKey;
+  final Map<String, String>? titleParams;
+  final String explanationKey;
+  final Map<String, String>? explanationParams;
 
   const ActionFeedback({
     required this.success,
-    required this.title,
-    required this.explanation,
+    required this.titleKey,
+    this.titleParams,
+    required this.explanationKey,
+    this.explanationParams,
     required this.onDismiss,
   });
 
@@ -37,8 +39,10 @@ class ActionFeedback extends StatelessWidget {
         body: IrmaInfoScaffoldBody(
           icon: success ? IrmaIcons.valid : IrmaIcons.invalid,
           iconColor: success ? IrmaTheme.of(context).interactionValid : IrmaTheme.of(context).interactionAlert,
-          title: title,
-          body: explanation,
+          titleKey: titleKey,
+          titleParams: titleParams,
+          bodyKey: explanationKey,
+          bodyParams: explanationParams,
         ),
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -61,7 +65,7 @@ class ActionFeedback extends StatelessWidget {
           ],
         ),
         bottomNavigationBar: IrmaBottomBar(
-          primaryButtonLabel: FlutterI18n.translate(context, "action_feedback.ok"),
+          primaryButtonLabel: FlutterI18n.translate(context, 'action_feedback.ok'),
           onPrimaryPressed: () => dismiss(context),
         ),
       ),
