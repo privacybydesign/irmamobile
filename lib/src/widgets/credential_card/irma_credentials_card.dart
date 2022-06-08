@@ -22,6 +22,7 @@ class IrmaCredentialsCard extends StatelessWidget {
   final CardExpiryDate? expiryDate;
   final Function()? onTap;
   final IrmaCardStyle style;
+  final Widget? headerTrailing;
 
   const IrmaCredentialsCard({
     required this.attributesByCredential,
@@ -29,6 +30,7 @@ class IrmaCredentialsCard extends StatelessWidget {
     this.revoked = false,
     this.expiryDate,
     this.onTap,
+    this.headerTrailing,
     this.style = IrmaCardStyle.normal,
   });
 
@@ -48,6 +50,7 @@ class IrmaCredentialsCard extends StatelessWidget {
     this.expiryDate,
     this.style = IrmaCardStyle.normal,
     this.revoked = false,
+    this.headerTrailing,
   })  : attributesByCredential = {credentialInfo: attributes},
         compareToCredentials = compareTo != null ? [compareTo] : [],
         super(key: key);
@@ -56,6 +59,7 @@ class IrmaCredentialsCard extends StatelessWidget {
     Key? key,
     required Credential credential,
     this.onTap,
+    this.headerTrailing,
   })  : attributesByCredential = {credential.info: credential.attributeList},
         revoked = credential.revoked,
         compareToCredentials = null,
@@ -65,6 +69,7 @@ class IrmaCredentialsCard extends StatelessWidget {
 
   IrmaCredentialsCard.fromRemovedCredential({
     required RemovedCredential credential,
+    this.headerTrailing,
   })  : attributesByCredential = {credential.info: credential.attributeList},
         style = IrmaCardStyle.normal,
         revoked = false,
@@ -85,13 +90,13 @@ class IrmaCredentialsCard extends StatelessWidget {
               children: attributesByCredential.keys.expandIndexed(
                 (i, credInfo) {
                   final translatedCredentialName = getTranslation(context, credInfo.credentialType.name);
-                  final translatedIssuerName = getTranslation(context, credInfo.credentialType.name);
+                  final translatedIssuerName = getTranslation(context, credInfo.issuer.name);
                   return [
                     IrmaCredentialCardHeader(
                       title: translatedCredentialName,
                       subtitle: translatedIssuerName,
                       logo: credInfo.credentialType.logo,
-                      style: style,
+                      trailing: i == 0 ? headerTrailing : null,
                     ),
                     //If there are no attributes for this credential hide the attribute list.
                     if (attributesByCredential[credInfo]!.any((att) => att.value is! NullValue)) ...[
