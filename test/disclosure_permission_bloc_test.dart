@@ -896,6 +896,64 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.success);
   });
+
+  test('single-discon-complex-con', () async {
+    // Ensure email credential is already present to make sure we have both a con with and without
+    // previously added credentials.
+    await _issueCredential(repo, mockBridge, 42, [
+      {
+        'pbdf.sidn-pbdf.irma.pseudonym': TextValue.fromString('12345'),
+      }
+    ]);
+
+    // Disclosure either (irma pseudonym, city and email) or (mobile number).
+    mockBridge.mockDisclosureSession(43, [
+      [
+        {
+          'pbdf.sidn-pbdf.irma.pseudonym': null,
+          'pbdf.gemeente.address.city': null,
+          'pbdf.pbdf.email.email': null,
+        },
+        {
+          'pbdf.pbdf.mobilenumber.mobilenumber': null,
+        },
+      ],
+    ]);
+
+    final obtainCredentialsController = StreamController<String>.broadcast();
+    final bloc = DisclosurePermissionBloc(
+      sessionID: 43,
+      repo: repo,
+      onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
+    );
+    repo.dispatch(
+      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      isBridgedEvent: true,
+    );
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
+    DisclosurePermissionIssueWizard issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
+    expect(issueWizardBlocState.isCompleted, false);
+    expect(issueWizardBlocState.plannedSteps, [
+      DisclosurePermissionStepName.issueWizard,
+      DisclosurePermissionStepName.previouslyAddedCredentialsOverview,
+      DisclosurePermissionStepName.choicesOverview,
+    ]);
+    expect(issueWizardBlocState.candidates.keys, [0]);
+    expect(issueWizardBlocState.candidates[0]?.length, 2);
+
+    // Change choice to test whether the planned steps are correctly being recalculated.
+    bloc.add(DisclosurePermissionChoiceUpdated(conIndex: 1));
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
+    issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
+    expect(issueWizardBlocState.isCompleted, false);
+    expect(issueWizardBlocState.plannedSteps, [
+      DisclosurePermissionStepName.issueWizard,
+      DisclosurePermissionStepName.choicesOverview,
+    ]);
+    // TODO: do the rest of the session.
+  });
 }
 
 Future<void> _issueCredential(
