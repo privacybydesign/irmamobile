@@ -1,18 +1,20 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/screens/session/widgets/session_scaffold.dart';
 
 import '../../../../theme/theme.dart';
 import '../../../../widgets/irma_progress_indicator.dart';
 import '../../../../widgets/irma_quote.dart';
 import '../../../../widgets/translated_text.dart';
 import '../../../activity/widgets/issuer_verifier_header.dart';
+import '../../widgets/session_scaffold.dart';
 import '../bloc/disclosure_permission_state.dart';
+import 'disclosure_issue_wizard_stepper.dart';
 
-class DisclosurePermissionIssueWizardScaffold extends StatelessWidget {
+class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
   final DisclosurePermissionIssueWizardChoices state;
 
-  const DisclosurePermissionIssueWizardScaffold({
+  const DisclosurePermissionIssueWizardScreen({
     required this.state,
   });
 
@@ -21,10 +23,13 @@ class DisclosurePermissionIssueWizardScaffold extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return SessionScaffold(
-        appBarTitle: 'Verzamel gegevens',
-        body: Column(
+      appBarTitle: 'disclosure_permission.issue_wizard.title',
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(theme.defaultSpacing),
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            //TODO: Add dynamic header title
             const IssuerVerifierHeader(title: 'Gemeente Amsterdam'),
             const IrmaProgressIndicator(
               step: 1,
@@ -36,7 +41,7 @@ class DisclosurePermissionIssueWizardScaffold extends StatelessWidget {
                 text: TextSpan(
                   children: [
                     TextSpan(
-                      text: "${FlutterI18n.translate(context, 'ui.step')} 1: ",
+                      text: '${FlutterI18n.translate(context, 'ui.step')} 1: ',
                       style: theme.themeData.textTheme.caption!.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -60,9 +65,11 @@ class DisclosurePermissionIssueWizardScaffold extends StatelessWidget {
             ),
             SizedBox(height: theme.defaultSpacing),
             DisclosureIssueWizardStepper(
-              issueWizard: state.issueWizard,
+              issueWizardChoices: state.issueWizardChoices,
             ),
           ],
-        ));
+        ),
+      ),
+    );
   }
 }

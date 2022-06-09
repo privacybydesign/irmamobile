@@ -1,7 +1,8 @@
 {
   "ui": {
     "loading": "Loading…",
-    "step_of_steps" : "Step {index} of {n}: {count}"
+    "step_of_steps": "Step {index} of {n}: {count}",
+    "step": "Step"
   },
   "enrollment": {
     "welcome": {
@@ -368,8 +369,11 @@
     "next": "Next",
     "change_choice": "Change choice",
     "issue_wizard": {
-      "add_data": "Add the following data:",
-      "not_valid": "The data you added is not valid here:"
+      "title": "Collect data",
+      "add_data": "We still need the following data from you:",
+      "not_valid": "The data you added is not valid here:",
+      "explanation": "Fetch your data step by step. We will be sharing this later.",
+      "choose": "Make a choice"
     },
     "issue_wizard_choice": {
       "add_credential": "Add {credentialName}",
@@ -529,6 +533,6 @@
     "recent_activity": "Recent activity"
   },
   "credential": {
-    "no_data" : "No data"
+    "no_data": "No data"
   }
 }
