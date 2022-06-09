@@ -20,6 +20,7 @@ class IrmaThemeData {
   final Color primaryDark = const Color(0xFF15222E);
 
   final Color lightBlue = const Color(0xFFE9F4FF);
+  final Color lightBeige = const Color(0xFFFDE6DB);
   Color get primaryLight => grayscale95;
   final Color darkPurple = const Color(0xFF362C78);
   Color get disabled => grayscale60;

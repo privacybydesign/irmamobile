@@ -1,6 +1,8 @@
 {
   "ui": {
-    "loading": "Laden…"
+    "loading": "Laden…",
+    "step_of_steps": "Stap {index} van {count}",
+    "step": "Step"
   },
   "enrollment": {
     "welcome": {
@@ -367,8 +369,11 @@
     "next": "Volgende",
     "change_choice": "Keuze wijzigen",
     "issue_wizard": {
-      "add_data": "Voeg de volgende gegevens toe:",
-      "not_valid": "De gegevens die je hebt toegevoegd zijn hier niet geldig:"
+      "title": "Verzamel gegevens",
+      "add_data": "Deze gegevens hebben we nog van je nodig:",
+      "not_valid": "De gegevens die je hebt toegevoegd zijn hier niet geldig:",
+      "explanation": "Haal stap voor stap jouw nieuwe gegevens op. Deze gaan we straks opsturen.",
+      "choose": "Maak een keuze"
     },
     "issue_wizard_choice": {
       "add_credential": "{credentialName} toevoegen",
@@ -528,6 +533,6 @@
     "recent_activity": "Recente activiteit"
   },
   "credential": {
-    "no_data" : "Geen gegevens"
+    "no_data": "Geen gegevens"
   }
 }
