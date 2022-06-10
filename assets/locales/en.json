@@ -464,7 +464,7 @@
   },
   "update": {
     "title": "Update available",
-    "explanation": "To continue using the IRMA app you must download the latest version",
+    "explanation": "To continue using the IRMA app, you must download the latest version.",
     "update_app": "Update app"
   },
   "action_feedback": {

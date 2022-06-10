@@ -295,7 +295,7 @@
     "title": "Er gaat iets fout",
     "blocked_title": "App geblokkeerd",
     "button_ok": "OK",
-    "button_send_to_irma": "Stuur naar het IRMA team",
+    "button_send_to_irma": "Stuur naar het IRMA-team",
     "button_show_error": "Technische details tonen",
     "button_retry": "Opnieuw proberen",
     "button_back": "Terug",
@@ -497,7 +497,7 @@
     "get_going": "Ga aan de slag",
     "more_information": "Meer informatie",
     "recent_activity": "Recente activiteit",
-    "view_more" : "Bekijk meer",
+    "view_more": "Bekijk meer",
     "action_card": {
       "share": {
         "title": "Deel direct je gegevens",
