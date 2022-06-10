@@ -15,8 +15,8 @@ class Success extends StatelessWidget {
   Widget build(BuildContext context) {
     return ActionFeedback(
       success: true,
-      titleKey: 'change_pin.success.title',
-      explanationKey: 'change_pin.success.message',
+      titleTranslationKey: 'change_pin.success.title',
+      explanationTranslationKey: 'change_pin.success.message',
       onDismiss: () => Navigator.of(context, rootNavigator: true).pop(),
     );
   }

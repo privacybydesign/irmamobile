@@ -8,31 +8,31 @@ import 'irma_themed_button.dart';
 import 'translated_text.dart';
 
 class IrmaInfoScaffoldBody extends StatelessWidget {
-  final String titleKey;
-  final Map<String, String>? titleParams;
-  final String? bodyKey;
-  final Map<String, String>? bodyParams;
+  final String titleTranslationKey;
+  final Map<String, String>? titleTranslationParams;
+  final String? bodyTranslationKey;
+  final Map<String, String>? bodyTranslationParams;
   final IconData? icon;
   final Color? iconColor;
-  final String? linkKey;
+  final String? linkTranslationKey;
   final String? linkDialogText;
 
   const IrmaInfoScaffoldBody({
     Key? key,
-    required this.titleKey,
-    this.titleParams,
-    this.bodyParams,
-    required this.bodyKey,
+    required this.titleTranslationKey,
+    this.titleTranslationParams,
+    this.bodyTranslationParams,
+    required this.bodyTranslationKey,
     this.icon,
     this.iconColor,
     this.linkDialogText,
-    this.linkKey,
+    this.linkTranslationKey,
   })  : assert(
           iconColor == null || icon != null,
           'Icon color can only be used when an icon is provided',
         ),
         assert(
-          linkKey != null || linkDialogText == null,
+          linkTranslationKey != null || linkDialogText == null,
           'If you specify a linkKey, also set a linkDialogKey',
         ),
         super(key: key);
@@ -70,26 +70,26 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
               SizedBox(height: theme.mediumSpacing),
             ],
             TranslatedText(
-              titleKey,
-              translationParams: titleParams,
+              titleTranslationKey,
+              translationParams: titleTranslationParams,
               style: theme.textTheme.headline1,
               textAlign: TextAlign.center,
             ),
-            if (bodyKey != null) ...[
+            if (bodyTranslationKey != null) ...[
               SizedBox(height: theme.mediumSpacing),
               TranslatedText(
-                bodyKey!,
-                translationParams: bodyParams,
+                bodyTranslationKey!,
+                translationParams: bodyTranslationParams,
                 style: theme.textTheme.bodyText2,
                 textAlign: TextAlign.center,
               ),
             ],
-            if (linkKey != null) ...[
+            if (linkTranslationKey != null) ...[
               SizedBox(height: theme.mediumSpacing),
               GestureDetector(
                 onTap: _showIrmaDialog,
                 child: TranslatedText(
-                  linkKey!,
+                  linkTranslationKey!,
                   style: theme.textTheme.bodyText2?.copyWith(
                     decoration: TextDecoration.underline,
                     color: theme.linkColor,

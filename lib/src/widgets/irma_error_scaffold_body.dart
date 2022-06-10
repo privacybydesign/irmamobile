@@ -26,9 +26,9 @@ class IrmaErrorScaffoldBody extends StatelessWidget {
     return IrmaInfoScaffoldBody(
       icon: Icons.warning_amber_rounded,
       iconColor: IrmaTheme.of(context).error,
-      titleKey: _translationKeys[type]!,
-      bodyKey: reportable == true ? 'error.report' : null,
-      linkKey: details != null ? 'error.button_show_error' : null,
+      titleTranslationKey: _translationKeys[type]!,
+      bodyTranslationKey: reportable == true ? 'error.report' : null,
+      linkTranslationKey: details != null ? 'error.button_show_error' : null,
       linkDialogText: details,
     );
   }

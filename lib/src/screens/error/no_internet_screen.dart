@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/irma_app_bar.dart';
-import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
-import 'package:irmamobile/src/widgets/irma_info_scaffold_body.dart';
+
+import '../../theme/theme.dart';
+import '../../widgets/irma_app_bar.dart';
+import '../../widgets/irma_bottom_bar.dart';
+import '../../widgets/irma_info_scaffold_body.dart';
 
 class NoInternetScreen extends StatelessWidget {
   final VoidCallback onTapClose;
@@ -30,10 +31,11 @@ class NoInternetScreen extends StatelessWidget {
           leadingAction: onTapClose,
         ),
         body: IrmaInfoScaffoldBody(
-            icon: Icons.wifi_off_rounded,
-            iconColor: IrmaTheme.of(context).primaryBlue,
-            titleKey: "error.title",
-            bodyKey: "error.types.no_internet"),
+          icon: Icons.wifi_off_rounded,
+          iconColor: IrmaTheme.of(context).primaryBlue,
+          titleTranslationKey: 'error.title',
+          bodyTranslationKey: 'error.types.no_internet',
+        ),
         bottomNavigationBar: IrmaBottomBar(
           primaryButtonLabel: FlutterI18n.translate(context, 'error.button_back'),
           onPrimaryPressed: onTapClose,

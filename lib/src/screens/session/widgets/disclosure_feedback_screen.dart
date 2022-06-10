@@ -48,14 +48,14 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen> with
 
   @override
   Widget build(BuildContext context) {
-    final otherPartyParam = {'otherParty': widget.otherParty};
+    final otherPartyTranslationParam = {'otherParty': widget.otherParty};
 
     return ActionFeedback(
       success: widget.feedbackType == DisclosureFeedbackType.success,
-      titleKey: 'disclosure.feedback.header.${widget._translationKey}',
-      titleParams: otherPartyParam,
-      explanationKey: 'disclosure.feedback.text.${widget._translationKey}',
-      explanationParams: otherPartyParam,
+      titleTranslationKey: 'disclosure.feedback.header.${widget._translationKey}',
+      titleTranslationParams: otherPartyTranslationParam,
+      explanationTranslationKey: 'disclosure.feedback.text.${widget._translationKey}',
+      explanationTranslationParams: otherPartyTranslationParam,
       onDismiss: () => widget.popToWallet(context),
     );
   }

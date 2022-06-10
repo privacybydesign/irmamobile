@@ -9,17 +9,17 @@ import 'irma_info_scaffold_body.dart';
 class ActionFeedback extends StatelessWidget {
   final Function() onDismiss;
   final bool success;
-  final String titleKey;
-  final Map<String, String>? titleParams;
-  final String explanationKey;
-  final Map<String, String>? explanationParams;
+  final String titleTranslationKey;
+  final Map<String, String>? titleTranslationParams;
+  final String explanationTranslationKey;
+  final Map<String, String>? explanationTranslationParams;
 
   const ActionFeedback({
     required this.success,
-    required this.titleKey,
-    this.titleParams,
-    required this.explanationKey,
-    this.explanationParams,
+    required this.titleTranslationKey,
+    this.titleTranslationParams,
+    required this.explanationTranslationKey,
+    this.explanationTranslationParams,
     required this.onDismiss,
   });
 
@@ -39,10 +39,10 @@ class ActionFeedback extends StatelessWidget {
         body: IrmaInfoScaffoldBody(
           icon: success ? IrmaIcons.valid : IrmaIcons.invalid,
           iconColor: success ? IrmaTheme.of(context).interactionValid : IrmaTheme.of(context).interactionAlert,
-          titleKey: titleKey,
-          titleParams: titleParams,
-          bodyKey: explanationKey,
-          bodyParams: explanationParams,
+          titleTranslationKey: titleTranslationKey,
+          titleTranslationParams: titleTranslationParams,
+          bodyTranslationKey: explanationTranslationKey,
+          bodyTranslationParams: explanationTranslationParams,
         ),
         appBar: AppBar(
           automaticallyImplyLeading: false,

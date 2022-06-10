@@ -18,8 +18,8 @@ class RootedWarningScreen extends StatelessWidget {
       body: const IrmaInfoScaffoldBody(
         icon: Icons.gpp_bad_outlined,
         iconColor: Colors.red,
-        titleKey: 'rooted_warning.title',
-        bodyKey: 'rooted_warning.explanation',
+        titleTranslationKey: 'rooted_warning.title',
+        bodyTranslationKey: 'rooted_warning.explanation',
       ),
       bottomNavigationBar: IrmaBottomBar(
         key: const Key('warning_screen_accept_button'),
