@@ -4,6 +4,8 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:native_device_orientation/native_device_orientation.dart';
 import 'package:path_drawing/path_drawing.dart';
 
+import '../../../theme/theme.dart';
+
 class ArrowBack extends StatefulWidget {
   final bool success;
   final int amountIssued;
