@@ -3,23 +3,24 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/native_events.dart';
-import 'package:irmamobile/src/screens/add_cards/card_store_screen.dart';
-import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
-import 'package:irmamobile/src/screens/debug/debug_screen.dart';
-import 'package:irmamobile/src/screens/enrollment/email_sent_screen.dart';
-import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
-import 'package:irmamobile/src/screens/help/help_screen.dart';
-import 'package:irmamobile/src/screens/home/home_screen.dart';
-import 'package:irmamobile/src/screens/issue_wizard/issue_wizard.dart';
-import 'package:irmamobile/src/screens/loading/loading_screen.dart';
-import 'package:irmamobile/src/screens/reset_pin/reset_pin_screen.dart';
-import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
-import 'package:irmamobile/src/screens/session/session.dart';
-import 'package:irmamobile/src/screens/session/session_screen.dart';
-import 'package:irmamobile/src/screens/settings/settings_screen.dart';
+
+import 'src/data/irma_repository.dart';
+import 'src/models/native_events.dart';
+import 'src/screens/add_cards/card_store_screen.dart';
+import 'src/screens/change_pin/change_pin_screen.dart';
+import 'src/screens/debug/debug_screen.dart';
+import 'src/screens/enrollment/email_sent_screen.dart';
+import 'src/screens/enrollment/enrollment_screen.dart';
+import 'src/screens/help/help_screen.dart';
+import 'src/screens/home/home_screen.dart';
+import 'src/screens/issue_wizard/issue_wizard.dart';
+import 'src/screens/loading/loading_screen.dart';
+import 'src/screens/reset_pin/reset_pin_screen.dart';
+import 'src/screens/scanner/scanner_screen.dart';
+import 'src/screens/session/session.dart';
+import 'src/screens/session/session_screen.dart';
+import 'src/screens/session/unknown_session_screen.dart';
+import 'src/screens/settings/settings_screen.dart';
 
 class Routing {
   static Map<String, WidgetBuilder> simpleRoutes = {
@@ -42,6 +43,8 @@ class Routing {
     switch (routeName) {
       case SessionScreen.routeName:
         return (context) => SessionScreen(arguments: arguments as SessionScreenArguments);
+      case UnknownSessionScreen.routeName:
+        return (context) => UnknownSessionScreen(arguments: arguments as SessionScreenArguments);
       case EmailSentScreen.routeName:
         return (context) => EmailSentScreen(email: arguments as String);
       case IssueWizardScreen.routeName:

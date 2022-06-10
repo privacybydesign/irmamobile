@@ -1,33 +1,25 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/models/error_event.dart';
-import 'package:irmamobile/src/screens/error/error_details.dart';
-import 'package:irmamobile/src/sentry/sentry.dart';
-import 'package:irmamobile/src/widgets/irma_app_bar.dart';
-import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 
-enum ErrorType {
-  general,
-  expired,
-  pairingRejected,
-}
+import '../../models/error_event.dart';
+import '../../sentry/sentry.dart';
+import '../../widgets/irma_app_bar.dart';
+import '../../widgets/irma_bottom_bar.dart';
+import '../../widgets/irma_error_scaffold_body.dart';
 
 class ErrorScreen extends StatefulWidget {
-  final VoidCallback onTapClose;
-  final VoidCallback onReportError;
+  final VoidCallback? onTapClose;
+  final VoidCallback? onReportError;
 
   final ErrorType type;
-  final String details;
+  final String? details;
   final bool reportable;
 
   /// Display an error screen. The user can optionally choose to report those error details to Sentry.
   factory ErrorScreen({
-    @required VoidCallback onTapClose,
+    required VoidCallback onTapClose,
     ErrorType type = ErrorType.general,
-    String details,
+    String? details,
     bool reportable = true,
   }) =>
       ErrorScreen._(
@@ -39,7 +31,7 @@ class ErrorScreen extends StatefulWidget {
       );
 
   /// Display an error screen for an ErrorEvent. The user can choose to report the error to Sentry.
-  factory ErrorScreen.fromEvent({@required VoidCallback onTapClose, ErrorEvent error}) => ErrorScreen._(
+  factory ErrorScreen.fromEvent({VoidCallback? onTapClose, required ErrorEvent error}) => ErrorScreen._(
         // Fatal events are unrecoverable, so closing the error is not possible.
         onTapClose: error.fatal ? null : onTapClose,
         type: ErrorType.general,
@@ -48,7 +40,13 @@ class ErrorScreen extends StatefulWidget {
         onReportError: () => reportError(error.exception, error.stack, userInitiated: true),
       );
 
-  const ErrorScreen._({this.onTapClose, this.onReportError, this.type, this.details, this.reportable});
+  const ErrorScreen._({
+    this.onTapClose,
+    this.onReportError,
+    required this.type,
+    this.details,
+    required this.reportable,
+  }) : super(key: const ValueKey('error_screen'));
 
   @override
   State<StatefulWidget> createState() => _ErrorScreenState();
@@ -58,7 +56,7 @@ class _ErrorScreenState extends State<ErrorScreen> {
   bool _hasReported = false;
 
   void _onTapReport() {
-    widget.onReportError();
+    widget.onReportError?.call();
     setState(() {
       _hasReported = true;
     });
@@ -67,7 +65,7 @@ class _ErrorScreenState extends State<ErrorScreen> {
   @override
   Widget build(BuildContext context) => WillPopScope(
         onWillPop: () async {
-          if (widget.onTapClose != null) widget.onTapClose();
+          widget.onTapClose?.call();
           return false;
         },
         child: Scaffold(
@@ -75,13 +73,13 @@ class _ErrorScreenState extends State<ErrorScreen> {
             title: Text(
               FlutterI18n.translate(
                 context,
-                'error.title',
+                'error.details_title',
               ),
             ),
             noLeading: widget.onTapClose == null,
             leadingAction: widget.onTapClose,
           ),
-          body: ErrorDetails(
+          body: IrmaErrorScaffoldBody(
             type: widget.type,
             details: widget.details,
             reportable: widget.reportable,

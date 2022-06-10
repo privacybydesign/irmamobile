@@ -1,10 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:irmamobile/sentry_dsn.dart';
-import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:package_info/package_info.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+
+import '../../sentry_dsn.dart';
+import '../data/irma_preferences.dart';
 
 Future<void> initSentry({required IrmaPreferences preferences}) async {
   if (dsn != '') {

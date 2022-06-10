@@ -295,7 +295,7 @@
     "title": "Something went wrong",
     "blocked_title": "App blocked",
     "button_ok": "OK",
-    "button_send_to_irma": "Send to IRMA's technical team",
+    "button_send_to_irma": "Send to the IRMA team",
     "button_show_error": "Show technical details",
     "button_retry": "Please try again",
     "button_back": "Back",
@@ -307,7 +307,7 @@
       "blocked": "Your IRMA app has been remotely blocked.\n\nThis has either been done via MyIRMA for your app, or because you did not use IRMA on this device for more than a year. If you want to continue using IRMA on this device, you will need to start over.",
       "expired": "The session has expired. Please start over.",
       "pairing_rejected": "The session was rejected. Please start over.",
-      "no_internet": "Something went wrong. IRMA needs internet.\n\nPlease check your internet connection."
+      "no_internet": "Please make sure your device has an internet connection."
     }
   },
   "wallet": {
@@ -463,16 +463,17 @@
     "safari": "Tap on the name of the application (such as Safari, Chrome, Firefox) in the top left corner to return to the application you came from."
   },
   "update": {
-    "required": "In order to continue using IRMA, you will need to update the app",
-    "doupdate": "Update"
+    "title": "Update available",
+    "explanation": "To continue using the IRMA app, you must download the latest version.",
+    "update_app": "Update app"
   },
   "action_feedback": {
     "ok": "OK"
   },
-  "device_rooted_warning": {
+  "rooted_warning": {
     "title": "Device unsafe",
-    "body": "The operating system on your device seems to be modified. Because of this, the safety of your data cannot be guaranteed.",
-    "button_accept_risk": "I accept the risk"
+    "explanation": "The operating system on your device seems to be modified. Because of this, the safety of your data cannot be guaranteed.",
+    "accept_risk": "I accept the risk"
   },
   "issue_wizard": {
     "back": "Cancel",

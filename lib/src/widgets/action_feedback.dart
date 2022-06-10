@@ -1,26 +1,26 @@
-// This code is not null safe yet.
-// @dart=2.11
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/theme/irma_icons.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/irma_outlined_button.dart';
-import 'package:irmamobile/src/widgets/translated_text.dart';
+
+import '../theme/irma_icons.dart';
+import '../theme/theme.dart';
+import '../widgets/irma_bottom_bar.dart';
+import 'irma_info_scaffold_body.dart';
 
 class ActionFeedback extends StatelessWidget {
   final Function() onDismiss;
-
   final bool success;
-  final TranslatedText title;
-  final TranslatedText explanation;
+  final String titleTranslationKey;
+  final Map<String, String>? titleTranslationParams;
+  final String explanationTranslationKey;
+  final Map<String, String>? explanationTranslationParams;
 
   const ActionFeedback({
-    @required this.success,
-    @required this.title,
-    @required this.explanation,
-    @required this.onDismiss,
+    required this.success,
+    required this.titleTranslationKey,
+    this.titleTranslationParams,
+    required this.explanationTranslationKey,
+    this.explanationTranslationParams,
+    required this.onDismiss,
   });
 
   void dismiss(BuildContext context) {
@@ -36,42 +36,37 @@ class ActionFeedback extends StatelessWidget {
         return false;
       },
       child: Scaffold(
-        // This screen intentionally doesn't container an AppBar, as this screen can be closed
-        // to get the app back. Otherwise, strange routes such as the settings or side menu
-        // could be pushed on top of this screen, where it doesn't make sense
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
-            Expanded(
-              flex: 1,
-              child: Container(),
-            ),
-            Icon(
-              success ? IrmaIcons.valid : IrmaIcons.invalid,
-              size: 120,
-              color: success ? IrmaTheme.of(context).interactionValid : IrmaTheme.of(context).interactionAlert,
-            ),
-            const SizedBox(height: 43),
+        body: IrmaInfoScaffoldBody(
+          icon: success ? IrmaIcons.valid : IrmaIcons.invalid,
+          iconColor: success ? IrmaTheme.of(context).interactionValid : IrmaTheme.of(context).interactionAlert,
+          titleTranslationKey: titleTranslationKey,
+          titleTranslationParams: titleTranslationParams,
+          bodyTranslationKey: explanationTranslationKey,
+          bodyTranslationParams: explanationTranslationParams,
+        ),
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          actions: [
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).mediumSpacing),
-              child: title,
-            ),
-            const SizedBox(height: 10),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).mediumSpacing),
-              child: explanation,
-            ),
-            const SizedBox(height: 38),
-            IrmaOutlinedButton(
-              label: FlutterI18n.translate(context, "action_feedback.ok"),
-              onPressed: () => dismiss(context),
-            ),
-            Expanded(
-              flex: 1,
-              child: Container(),
+              padding: const EdgeInsets.all(12),
+              child: CircleAvatar(
+                backgroundColor: Colors.grey.shade300,
+                child: IconButton(
+                  onPressed: () => dismiss(context),
+                  icon: Icon(
+                    Icons.close_outlined,
+                    semanticLabel: FlutterI18n.translate(context, 'accessibility.close'),
+                    size: 16.0,
+                    color: Colors.grey.shade800,
+                  ),
+                ),
+              ),
             ),
           ],
+        ),
+        bottomNavigationBar: IrmaBottomBar(
+          primaryButtonLabel: FlutterI18n.translate(context, 'action_feedback.ok'),
+          onPrimaryPressed: () => dismiss(context),
         ),
       ),
     );

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/clear_all_data_event.dart';
-import 'package:irmamobile/src/screens/error/blocked.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/irma_app_bar.dart';
-import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
+
+import '../../models/clear_all_data_event.dart';
+import '../../theme/theme.dart';
+import '../../widgets/irma_app_bar.dart';
+import '../../widgets/irma_bottom_bar.dart';
+import '../../widgets/irma_info_scaffold_body.dart';
+import '../../widgets/irma_repository_provider.dart';
 
 class BlockedScreen extends StatelessWidget {
   @override
@@ -23,19 +24,21 @@ class BlockedScreen extends StatelessWidget {
           title: Text(
             FlutterI18n.translate(
               context,
-              'error.blocked_title',
+              'error.details_title',
             ),
+            textAlign: TextAlign.center,
           ),
           noLeading: true,
         ),
-        body: Blocked(),
+        body: IrmaInfoScaffoldBody(
+          icon: Icons.block,
+          iconColor: IrmaTheme.of(context).primaryBlue,
+          titleTranslationKey: 'error.title',
+          bodyTranslationKey: 'error.types.blocked',
+        ),
         bottomNavigationBar: IrmaBottomBar(
           primaryButtonLabel: FlutterI18n.translate(context, 'error.button_reset'),
-          onPrimaryPressed: () {
-            IrmaRepository.get().bridgedDispatch(
-              ClearAllDataEvent(),
-            );
-          },
+          onPrimaryPressed: () => IrmaRepositoryProvider.of(context).bridgedDispatch(ClearAllDataEvent()),
         ),
       ),
     );

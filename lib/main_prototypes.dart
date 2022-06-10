@@ -2,13 +2,14 @@
 // @dart=2.11
 
 import 'package:flutter/material.dart';
-import 'package:irmamobile/app.dart';
-import 'package:irmamobile/src/data/irma_mock_bridge.dart';
-import 'package:irmamobile/src/data/irma_preferences.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/prototypes/prototypes_screen.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/irma_repository_provider.dart';
+
+import '../app.dart';
+import 'src/data/irma_mock_bridge.dart';
+import 'src/data/irma_preferences.dart';
+import 'src/data/irma_repository.dart';
+import 'src/prototypes/prototypes_screen.dart';
+import 'src/theme/theme.dart';
+import 'src/widgets/irma_repository_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

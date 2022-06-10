@@ -48,7 +48,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance?.addObserver(this);
     _focusNode = FocusNode();
 
     IrmaRepository.get().getBlockTime().first.then((blockedUntil) {
@@ -106,7 +106,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
   void dispose() {
     _focusNode.dispose();
     _pinBloc.close();
-    WidgetsBinding.instance.removeObserver(this);
+    WidgetsBinding.instance?.removeObserver(this);
     super.dispose();
   }
 

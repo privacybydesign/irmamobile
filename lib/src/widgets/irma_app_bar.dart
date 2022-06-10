@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/theme/irma_icons.dart';
 
 class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget title;
@@ -11,21 +10,22 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   final List<Widget> actions;
   final bool noLeading;
 
-  const IrmaAppBar(
-      {required this.title,
-      this.leadingIcon,
-      this.leadingAction,
-      this.leadingTooltip,
-      this.leadingCancel,
-      this.noLeading = false,
-      this.actions = const []});
+  const IrmaAppBar({
+    required this.title,
+    this.leadingIcon,
+    this.leadingAction,
+    this.leadingTooltip,
+    this.leadingCancel,
+    this.noLeading = false,
+    this.actions = const [],
+  });
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: Colors.white,
       key: const Key('irma_app_bar'),
-      centerTitle: !noLeading,
+      centerTitle: true,
       leading: noLeading
           ? null
           : Padding(
@@ -61,5 +61,5 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
