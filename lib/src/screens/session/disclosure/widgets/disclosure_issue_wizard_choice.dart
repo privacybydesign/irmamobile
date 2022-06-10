@@ -5,10 +5,10 @@ import '../../../../theme/theme.dart';
 import '../../../../widgets/credential_card/irma_credentials_card.dart';
 import '../../../../widgets/irma_card.dart';
 import '../../../../widgets/translated_text.dart';
-import '../models/template_disclosure_credential.dart';
+import '../models/disclosure_credential.dart';
 
 class DisclosureIssueWizardChoice extends StatefulWidget {
-  final DisCon<TemplateDisclosureCredential> choice;
+  final DisCon<DisclosureCredential> choice;
   final bool isActive;
 
   const DisclosureIssueWizardChoice({

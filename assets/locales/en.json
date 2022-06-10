@@ -373,7 +373,9 @@
       "add_data": "We still need the following data from you:",
       "not_valid": "The data you added is not valid here:",
       "explanation": "Fetch your data step by step. We will be sharing this later.",
-      "choose": "Make a choice"
+      "choose": "Make a choice",
+      "next": "Next step",
+      "fetch": "Fetch data"
     },
     "issue_wizard_choice": {
       "add_credential": "Add {credentialName}",

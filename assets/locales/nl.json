@@ -373,7 +373,9 @@
       "add_data": "Deze gegevens hebben we nog van je nodig:",
       "not_valid": "De gegevens die je hebt toegevoegd zijn hier niet geldig:",
       "explanation": "Haal stap voor stap jouw nieuwe gegevens op. Deze gaan we straks opsturen.",
-      "choose": "Maak een keuze"
+      "choose": "Maak een keuze",
+      "next": "Volgende stap",
+      "fetch": "Gegevens ophalen"
     },
     "issue_wizard_choice": {
       "add_credential": "{credentialName} toevoegen",

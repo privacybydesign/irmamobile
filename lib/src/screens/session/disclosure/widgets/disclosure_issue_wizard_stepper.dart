@@ -9,53 +9,51 @@ import '../../../../theme/theme.dart';
 import '../../../../widgets/credential_card/irma_credentials_card.dart';
 import '../../../../widgets/irma_card.dart';
 import '../../../../widgets/irma_step_indicator.dart';
-import '../models/template_disclosure_credential.dart';
+import '../models/disclosure_credential.dart';
 import 'disclosure_issue_wizard_choice.dart';
 
-class DisclosureIssueWizardStepper extends StatefulWidget {
-  final UnmodifiableListView<TemplateDisclosureCredential>? issueWizard;
-  final ConDisCon<TemplateDisclosureCredential>? issueWizardChoices;
+class DisclosureIssueWizardStepper extends StatelessWidget {
+  final UnmodifiableMapView<int, DisCon<DisclosureCredential>> candidates;
+  final MapEntry<int, DisCon<DisclosureCredential>> currentCandidate;
 
   const DisclosureIssueWizardStepper({
-    this.issueWizard,
-    this.issueWizardChoices,
+    required this.candidates,
+    required this.currentCandidate,
   });
 
-  @override
-  State<DisclosureIssueWizardStepper> createState() => _DisclosureIssueWizardStepperState();
-}
-
-class _DisclosureIssueWizardStepperState extends State<DisclosureIssueWizardStepper> {
-  final scrollController = ItemScrollController();
-  int selectedIndex = 0;
-
-  Widget _buildStepperItem(int index, bool isChoiceWizard) {
+  Widget _buildStepperItem(IrmaThemeData theme, int index) {
     // Build the indicator widget
     final Widget indicator = IrmaStepIndicator(
       step: index + 1,
-      style: selectedIndex == index
+      //If item is current show filled indicator
+      style: currentCandidate.key == index
           ? IrmaStepIndicatorStyle.filled
-          : selectedIndex > index
+          //If item has already been completed show success indicator
+          : currentCandidate.key > index
               ? IrmaStepIndicatorStyle.success
+              //Else show outlined indicator
               : IrmaStepIndicatorStyle.outlined,
     );
 
-    // Build child widget
-    Widget child = isChoiceWizard
-        //If this item is a choice render choice widgets.
+    Widget child = candidates[index]!.length > 1 && currentCandidate.key < index
+        // If this item is a choice render choice widget.
         ? DisclosureIssueWizardChoice(
-            choice: widget.issueWizardChoices![index],
-            isActive: selectedIndex == index,
+            choice: candidates[index]!,
+            isActive: currentCandidate.key == index,
           )
         // If not render regular card
-        : IrmaCredentialsCard.fromCredentialInfo(
-            credentialInfo: widget.issueWizard![index],
-            attributes: widget.issueWizard![index].attributes,
-            style: selectedIndex == index ? IrmaCardStyle.highlighted : IrmaCardStyle.normal,
+        : IrmaCredentialsCard(
+            style: currentCandidate.key == index ? IrmaCardStyle.highlighted : IrmaCardStyle.normal,
+            attributesByCredential: {
+              for (var cred in candidates[index]!.first) cred: cred.attributes,
+            },
+            // Compare to self to highlight the required attribute values
+            compareToCredentials: candidates[index]!.first,
           );
 
-    // Wrap the child widget in a color filter to make it look greyed out.
-    if (index > selectedIndex) {
+    // If this candidate comes after current candidate,
+    // wrap the child widget in a color filter to make it look greyed out.
+    if (currentCandidate.key < index) {
       child = ColorFiltered(
         colorFilter: ColorFilter.mode(
           Colors.white.withOpacity(0.5),
@@ -66,7 +64,6 @@ class _DisclosureIssueWizardStepperState extends State<DisclosureIssueWizardStep
     }
 
     // Compose a TimelineTile with the indicator and child
-    final theme = IrmaTheme.of(context);
 
     return TimelineTile(
       indicatorStyle: IndicatorStyle(
@@ -83,14 +80,12 @@ class _DisclosureIssueWizardStepperState extends State<DisclosureIssueWizardStep
 
   @override
   Widget build(BuildContext context) {
-    final bool isChoiceWizard = widget.issueWizard == null;
+    final theme = IrmaTheme.of(context);
 
     return ScrollablePositionedList.builder(
       shrinkWrap: true,
-      //physics: const NeverScrollableScrollPhysics(),
-      itemCount: isChoiceWizard ? widget.issueWizardChoices!.length : widget.issueWizard!.length,
-      itemScrollController: scrollController,
-      itemBuilder: (context, index) => _buildStepperItem(index, isChoiceWizard),
+      itemCount: candidates.length,
+      itemBuilder: (_, index) => _buildStepperItem(theme, index),
     );
   }
 }
