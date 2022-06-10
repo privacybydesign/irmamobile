@@ -12,12 +12,12 @@ import '../screens/session/widgets/disclosure_feedback_screen.dart';
 class PrototypesScreen extends StatelessWidget {
   static const routeName = '/';
 
-  Widget _buildTile(BuildContext context, String title, Widget widget) => ListTile(
+  Widget _buildTile(BuildContext context, String title, Widget screen) => ListTile(
         title: Text(title),
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => widget,
+            builder: (context) => screen,
           ),
         ),
       );
@@ -28,87 +28,86 @@ class PrototypesScreen extends StatelessWidget {
       appBar: AppBar(centerTitle: true, title: const Text('Screens')),
       body: ListView(
         children: [
-          ListTile(
-            title: const Text('Arrow back'),
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const ArrowBack(
-                  amountIssued: 0,
-                ),
-              ),
-            ),
-          ),
-          ListTile(
-            title: const Text('Required update'),
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => RequiredUpdateScreen(),
-              ),
-            ),
-          ),
-          ListTile(
-            title: const Text('Rooted warning'),
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const RootedWarningScreen(),
-              ),
+          _buildTile(
+            context,
+            'Arrow back',
+            const ArrowBack(
+              amountIssued: 0,
             ),
           ),
           _buildTile(
-              context,
-              'No internet',
-              NoInternetScreen(
-                onTapClose: () => Navigator.pop(context),
-                onTapRetry: () {},
-              )),
-          _buildTile(context, 'Blocked', BlockedScreen()),
+            context,
+            'Update required',
+            RequiredUpdateScreen(),
+          ),
           _buildTile(
-              context,
-              'General error',
-              ErrorScreen(
-                onTapClose: () => Navigator.pop(context),
-              )),
+            context,
+            'Root warning',
+            const RootedWarningScreen(),
+          ),
           _buildTile(
-              context,
-              'Error: pairing rejected',
-              ErrorScreen(
-                onTapClose: () => Navigator.pop(context),
-                type: ErrorType.pairingRejected,
-              )),
+            context,
+            'No internet',
+            NoInternetScreen(
+              onTapClose: () => Navigator.pop(context),
+              onTapRetry: () {},
+            ),
+          ),
           _buildTile(
-              context,
-              'Error: session unknown / unexpected request',
-              ErrorScreen(
-                onTapClose: () => Navigator.pop(context),
-                type: ErrorType.expired,
-              )),
+            context,
+            'Blocked',
+            BlockedScreen(),
+          ),
           _buildTile(
-              context,
-              'Disclosure feedback - success',
-              DisclosureFeedbackScreen(
-                feedbackType: DisclosureFeedbackType.success,
-                otherParty: 'successful party',
-                popToWallet: (context) => Navigator.pop(context),
-              )),
+            context,
+            'General error',
+            ErrorScreen(
+              onTapClose: () => Navigator.pop(context),
+            ),
+          ),
           _buildTile(
-              context,
-              'Disclosure feedback - canceled',
-              DisclosureFeedbackScreen(
-                feedbackType: DisclosureFeedbackType.canceled,
-                otherParty: 'canceled party',
-                popToWallet: (context) => Navigator.pop(context),
-              )),
+            context,
+            'Error: pairing rejected',
+            ErrorScreen(
+              onTapClose: () => Navigator.pop(context),
+              type: ErrorType.pairingRejected,
+            ),
+          ),
           _buildTile(
-              context,
-              'Disclosure feedback - not satisfiable',
-              DisclosureFeedbackScreen(
-                feedbackType: DisclosureFeedbackType.notSatisfiable,
-                otherParty: 'unsatisfied party',
-                popToWallet: (context) => Navigator.pop(context),
-              )),
+            context,
+            'Error: session unknown / unexpected request',
+            ErrorScreen(
+              onTapClose: () => Navigator.pop(context),
+              type: ErrorType.expired,
+            ),
+          ),
+          _buildTile(
+            context,
+            'Disclosure feedback - success',
+            DisclosureFeedbackScreen(
+              feedbackType: DisclosureFeedbackType.success,
+              otherParty: 'successful party',
+              popToWallet: (context) => Navigator.pop(context),
+            ),
+          ),
+          _buildTile(
+            context,
+            'Disclosure feedback - canceled',
+            DisclosureFeedbackScreen(
+              feedbackType: DisclosureFeedbackType.canceled,
+              otherParty: 'canceled party',
+              popToWallet: (context) => Navigator.pop(context),
+            ),
+          ),
+          _buildTile(
+            context,
+            'Disclosure feedback - not satisfiable',
+            DisclosureFeedbackScreen(
+              feedbackType: DisclosureFeedbackType.notSatisfiable,
+              otherParty: 'unsatisfied party',
+              popToWallet: (context) => Navigator.pop(context),
+            ),
+          ),
         ],
       ),
     );
