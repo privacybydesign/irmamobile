@@ -19,6 +19,7 @@ import 'src/screens/reset_pin/reset_pin_screen.dart';
 import 'src/screens/scanner/scanner_screen.dart';
 import 'src/screens/session/session.dart';
 import 'src/screens/session/session_screen.dart';
+import 'src/screens/session/unknown_session_screen.dart';
 import 'src/screens/settings/settings_screen.dart';
 
 class Routing {

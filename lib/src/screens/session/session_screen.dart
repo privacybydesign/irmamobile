@@ -13,7 +13,6 @@ import '../../models/session_state.dart';
 import '../../sentry/sentry.dart';
 import '../../util/combine.dart';
 import '../../util/navigation.dart';
-import '../../widgets/action_feedback.dart';
 import '../../widgets/loading_indicator.dart';
 import '../error/session_error_screen.dart';
 import '../pin/session_pin_screen.dart';
@@ -26,17 +25,6 @@ import 'widgets/issuance_permission.dart';
 import 'widgets/pairing_required.dart';
 import 'widgets/session_scaffold.dart';
 
-class UnknownSessionScreen extends StatefulWidget {
-  static const String routeName = '/session/unknown';
-
-  final SessionScreenArguments arguments;
-
-  const UnknownSessionScreen({required this.arguments}) : super();
-
-  @override
-  State<UnknownSessionScreen> createState() => _UnknownSessionScreenState();
-}
-
 class SessionScreen extends StatefulWidget {
   static const String routeName = '/session';
 
@@ -46,16 +34,6 @@ class SessionScreen extends StatefulWidget {
 
   @override
   State<SessionScreen> createState() => _SessionScreenState();
-}
-
-class _UnknownSessionScreenState extends State<UnknownSessionScreen> {
-  @override
-  Widget build(BuildContext context) => ActionFeedback(
-        success: false,
-        titleTranslationKey: 'session.unknown_session_type.title',
-        explanationTranslationKey: 'session.unknown_session_type.explanation',
-        onDismiss: () => (widget.arguments.wizardActive ? popToWizard : popToHome)(context),
-      );
 }
 
 class _SessionScreenState extends State<SessionScreen> {
