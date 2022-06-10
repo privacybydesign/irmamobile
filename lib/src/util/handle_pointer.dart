@@ -74,10 +74,10 @@ Future<int> _startSessionAndNavigate(NavigatorState navigator, SessionPointer se
   );
   if (hasActiveSessions || wizardActive) {
     switch (args.sessionType) {
-      case "issuing":
-      case "disclosing":
-      case "signing":
-      case "redirect":
+      case 'issuing':
+      case 'disclosing':
+      case 'signing':
+      case 'redirect':
         navigator.pushNamed(SessionScreen.routeName, arguments: args);
         break;
       default:

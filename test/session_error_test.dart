@@ -15,28 +15,30 @@ class TestWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => IrmaTheme(
-      builder: (_) => MaterialApp(
-              localizationsDelegates: [
-                FlutterI18nDelegate(
-                  translationLoader: FileTranslationLoader(
-                    basePath: 'assets/locales',
-                    forcedLocale: const Locale('nl', 'NL'),
-                  ),
-                ),
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate
-              ],
-              home: SessionErrorScreen(
-                error: error,
-                onTapClose: () {},
-              )));
+        builder: (_) => MaterialApp(
+          localizationsDelegates: [
+            FlutterI18nDelegate(
+              translationLoader: FileTranslationLoader(
+                basePath: 'assets/locales',
+                forcedLocale: const Locale('nl', 'NL'),
+              ),
+            ),
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate
+          ],
+          home: SessionErrorScreen(
+            error: error,
+            onTapClose: () {},
+          ),
+        ),
+      );
 }
 
 void main() {
   const errorScreenKey = ValueKey('error_screen');
   testWidgets(
-    "errorType = transport",
+    'errorType = transport',
     (WidgetTester tester) async {
       final error = SessionError(errorType: 'transport', info: 'info');
 
@@ -48,7 +50,7 @@ void main() {
   );
 
   testWidgets(
-    "errorType = pairingRejected",
+    'errorType = pairingRejected',
     (WidgetTester tester) async {
       final error = SessionError(errorType: 'pairingRejected', info: 'info');
 
@@ -59,7 +61,7 @@ void main() {
   );
 
   testWidgets(
-    "remoteError = USER_NOT_FOUND",
+    'remoteError = USER_NOT_FOUND',
     (WidgetTester tester) async {
       final error = SessionError(errorType: '', info: '', remoteError: RemoteError(errorName: 'USER_NOT_FOUND'));
 
@@ -70,7 +72,7 @@ void main() {
   );
 
   testWidgets(
-    "remoteError = SESSION_UNKNOWN",
+    'remoteError = SESSION_UNKNOWN',
     (WidgetTester tester) async {
       final error = SessionError(errorType: '', info: '', remoteError: RemoteError(errorName: 'SESSION_UNKNOWN'));
 
@@ -81,7 +83,7 @@ void main() {
   );
 
   testWidgets(
-    "remoteError = UNEXPECTED_REQUEST",
+    'remoteError = UNEXPECTED_REQUEST',
     (WidgetTester tester) async {
       final error = SessionError(errorType: '', info: '', remoteError: RemoteError(errorName: 'UNEXPECTED_REQUEST'));
 
@@ -92,7 +94,7 @@ void main() {
   );
 
   testWidgets(
-    "unknown error",
+    'unknown error',
     (WidgetTester tester) async {
       final error = SessionError(errorType: '', info: '', remoteError: RemoteError(errorName: ''));
 
