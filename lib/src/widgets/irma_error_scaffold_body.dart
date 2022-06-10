@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../screens/error/error_type.dart';
 import '../theme/theme.dart';
 import 'irma_info_scaffold_body.dart';
+
+enum ErrorType {
+  general,
+  expired,
+  pairingRejected,
+}
 
 class IrmaErrorScaffoldBody extends StatelessWidget {
   static const _translationKeys = {

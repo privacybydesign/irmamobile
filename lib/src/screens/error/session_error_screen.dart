@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../models/session.dart';
+import '../../widgets/irma_error_scaffold_body.dart';
 import '../error/blocked_screen.dart';
 import '../error/error_screen.dart';
 import '../error/no_internet_screen.dart';
-import 'error_type.dart';
 
 class SessionErrorScreen extends StatelessWidget {
   final SessionError? error;

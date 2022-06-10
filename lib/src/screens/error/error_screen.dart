@@ -6,7 +6,6 @@ import '../../sentry/sentry.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_bottom_bar.dart';
 import '../../widgets/irma_error_scaffold_body.dart';
-import 'error_type.dart';
 
 class ErrorScreen extends StatefulWidget {
   final VoidCallback? onTapClose;
