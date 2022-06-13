@@ -103,7 +103,13 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
             DisclosureIssueWizardStepper(
               candidates: state.candidates,
               currentCandidate: state.currentDiscon!,
-            ),
+              selectedConIndices: state.selectedConIndices,
+              onChoiceUpdatedEvent: (int conIndex) => onEvent(
+                DisclosurePermissionChoiceUpdated(
+                  conIndex: conIndex,
+                ),
+              ),
+            )
           ],
         ),
       ),

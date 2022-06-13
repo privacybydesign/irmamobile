@@ -7,21 +7,18 @@ import '../../../../widgets/irma_card.dart';
 import '../../../../widgets/translated_text.dart';
 import '../models/disclosure_credential.dart';
 
-class DisclosureIssueWizardChoice extends StatefulWidget {
+class DisclosureIssueWizardChoice extends StatelessWidget {
   final DisCon<DisclosureCredential> choice;
   final bool isActive;
+  final int selectedConIndex;
+  final Function(int conIndex) onChoiceUpdatedEvent;
 
   const DisclosureIssueWizardChoice({
     required this.choice,
+    required this.onChoiceUpdatedEvent,
+    required this.selectedConIndex,
     this.isActive = true,
   });
-
-  @override
-  State<DisclosureIssueWizardChoice> createState() => _DisclosureIssueWizardChoiceState();
-}
-
-class _DisclosureIssueWizardChoiceState extends State<DisclosureIssueWizardChoice> {
-  int selectedOptionIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -38,26 +35,26 @@ class _DisclosureIssueWizardChoiceState extends State<DisclosureIssueWizardChoic
             textAlign: TextAlign.start,
           ),
         ),
-        for (var i = 0; i < widget.choice.length; i++) ...[
+        for (var i = 0; i < choice.length; i++) ...[
           Padding(
             padding: EdgeInsets.only(bottom: theme.tinySpacing),
             child: IrmaCredentialsCard(
               headerTrailing: Radio(
                 value: i,
-                groupValue: selectedOptionIndex,
+                groupValue: selectedConIndex,
                 onChanged: null, //We use the onTap on the card
                 fillColor: MaterialStateColor.resolveWith((states) => theme.themeData.primaryColor),
               ),
-              style: widget.isActive
-                  ? i == selectedOptionIndex
+              style: isActive
+                  ? i == selectedConIndex
                       ? IrmaCardStyle.highlighted
                       : IrmaCardStyle.outlined
                   : IrmaCardStyle.normal,
               attributesByCredential: {
-                for (var cred in widget.choice[i]) cred: cred.attributes,
+                for (var cred in choice[i]) cred: cred.attributes,
               },
-              compareToCredentials: widget.choice[i], //Compare to self to highlight the required attribute values
-              onTap: widget.isActive ? () => setState(() => selectedOptionIndex = i) : null,
+              compareToCredentials: choice[i], //Compare to self to highlight the required attribute values
+              onTap: () => isActive ? onChoiceUpdatedEvent(i) : null,
             ),
           ),
         ]

@@ -15,10 +15,14 @@ import 'disclosure_issue_wizard_choice.dart';
 class DisclosureIssueWizardStepper extends StatelessWidget {
   final UnmodifiableMapView<int, DisCon<DisclosureCredential>> candidates;
   final MapEntry<int, DisCon<DisclosureCredential>> currentCandidate;
+  final UnmodifiableMapView<int, int> selectedConIndices;
+  final Function(int conIndex) onChoiceUpdatedEvent;
 
   const DisclosureIssueWizardStepper({
     required this.candidates,
     required this.currentCandidate,
+    required this.selectedConIndices,
+    required this.onChoiceUpdatedEvent,
   });
 
   Widget _buildStepperItem(IrmaThemeData theme, int index) {
@@ -35,11 +39,13 @@ class DisclosureIssueWizardStepper extends StatelessWidget {
               : IrmaStepIndicatorStyle.outlined,
     );
 
-    Widget child = candidates[index]!.length > 1 && currentCandidate.key < index
+    Widget child = candidates[index]!.length > 1 && currentCandidate.key <= index
         // If this item is a choice render choice widget.
         ? DisclosureIssueWizardChoice(
             choice: candidates[index]!,
+            selectedConIndex: selectedConIndices[index]!,
             isActive: currentCandidate.key == index,
+            onChoiceUpdatedEvent: onChoiceUpdatedEvent,
           )
         // If not render regular card
         : IrmaCredentialsCard(
@@ -64,7 +70,6 @@ class DisclosureIssueWizardStepper extends StatelessWidget {
     }
 
     // Compose a TimelineTile with the indicator and child
-
     return TimelineTile(
       indicatorStyle: IndicatorStyle(
         indicator: indicator,
