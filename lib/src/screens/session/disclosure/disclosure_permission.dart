@@ -9,6 +9,7 @@ import 'bloc/disclosure_permission_bloc.dart';
 import 'bloc/disclosure_permission_event.dart';
 import 'bloc/disclosure_permission_state.dart';
 import 'widgets/disclosure_permission_issue_wizard_screen.dart';
+import 'widgets/disclosure_permission_obtain_credentials_screen.dart';
 
 class DisclosurePermission extends StatelessWidget {
   final int sessionId;
@@ -51,6 +52,11 @@ class ProvidedDisclosurePermission extends StatelessWidget {
         if (state is DisclosurePermissionIssueWizard) {
           return DisclosurePermissionIssueWizardScreen(
             requestor: requestor,
+            state: state,
+            onEvent: addEvent,
+          );
+        } else if (state is DisclosurePermissionObtainCredentials) {
+          return DisclosurePermissionObtainCredentialsScreen(
             state: state,
             onEvent: addEvent,
           );

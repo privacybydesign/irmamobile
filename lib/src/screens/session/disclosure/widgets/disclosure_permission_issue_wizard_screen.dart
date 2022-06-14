@@ -14,7 +14,7 @@ import '../../widgets/session_scaffold.dart';
 import '../bloc/disclosure_permission_event.dart';
 import '../bloc/disclosure_permission_state.dart';
 import '../models/disclosure_credential.dart';
-import 'disclosure_issue_wizard_stepper.dart';
+import 'disclosure_discon_stepper.dart';
 
 class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
   final RequestorInfo requestor;
@@ -28,29 +28,24 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
   });
 
   void _onButtonPressed(BuildContext context) {
-    if (!state.isCompleted) {
-      // Get the con that needs to be fetched
-      Con<DisclosureCredential> con;
-      // If this is a choice get the selected con
-      if (state.currentDiscon!.value.length > 1) {
-        con = state.getSelectedCon(state.currentDiscon!.key)!;
-      } else {
-        // Else get the first con.
-        con = state.currentDiscon!.value.first;
-      }
-      //TODO Check credentials length, not con length.
-      //If multiple credentials need to be fetched, start sub issue wizard
-      if (con.length > 1) {
-        //TODO Start sub issue wizard.
-      } else {
-        IrmaRepositoryProvider.of(context).openIssueURL(
-          context,
-          con.first.credentialType.fullId,
-        );
-      }
+    // Get the con that needs to be fetched
+    Con<DisclosureCredential> con;
+    // If this is a choice get the selected con
+    if (state.currentDiscon!.value.length > 1) {
+      con = state.getSelectedCon(state.currentDiscon!.key)!;
     } else {
-      // Go to next step in disclosure permission flow.
+      // Else get the first con.
+      con = state.currentDiscon!.value.first;
+    }
+    //TODO Check credentials length, not con length.
+    //If multiple credentials need to be fetched, start sub issue wizard
+    if (state.isCompleted || con.length > 1) {
       onEvent(DisclosurePermissionNextPressed());
+    } else {
+      IrmaRepositoryProvider.of(context).openIssueURL(
+        context,
+        con.first.credentialType.fullId,
+      );
     }
   }
 
@@ -100,7 +95,7 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
               style: theme.themeData.textTheme.headline3,
             ),
             SizedBox(height: theme.defaultSpacing),
-            DisclosureIssueWizardStepper(
+            DisclosureDisconStepper(
               candidates: state.candidates,
               currentCandidate: state.currentDiscon!,
               selectedConIndices: state.selectedConIndices,
@@ -114,10 +109,10 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel:
-            state.isCompleted ? 'disclosure_permission.issue_wizard.next' : 'disclosure_permission.issue_wizard.fetch',
-        onPrimaryPressed: () => _onButtonPressed(context),
-      ),
+          primaryButtonLabel: state.isCompleted
+              ? 'disclosure_permission.issue_wizard.next'
+              : 'disclosure_permission.issue_wizard.fetch',
+          onPrimaryPressed: () => _onButtonPressed(context)),
     );
   }
 }
