@@ -1,56 +1,38 @@
-import 'package:flutter/widgets.dart';
+import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
-import '../../../../models/attributes.dart';
 import '../../../../models/session.dart';
 import '../../../../theme/theme.dart';
+import '../../../../widgets/credential_card/irma_credentials_card.dart';
 import '../../../../widgets/irma_bottom_bar.dart';
 import '../../../../widgets/irma_progress_indicator.dart';
 import '../../../../widgets/irma_quote.dart';
-import '../../../../widgets/irma_repository_provider.dart';
 import '../../../../widgets/translated_text.dart';
 import '../../../activity/widgets/issuer_verifier_header.dart';
 import '../../widgets/session_scaffold.dart';
 import '../bloc/disclosure_permission_event.dart';
 import '../bloc/disclosure_permission_state.dart';
-import '../models/disclosure_credential.dart';
-import 'disclosure_discon_stepper.dart';
+import 'disclosure_share_dialog.dart';
 
-class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
+class DisclosurePermissionChoicesScreen extends StatelessWidget {
   final RequestorInfo requestor;
-  final DisclosurePermissionIssueWizard state;
+  final DisclosurePermissionChoices state;
   final Function(DisclosurePermissionBlocEvent) onEvent;
 
-  const DisclosurePermissionIssueWizardScreen({
+  const DisclosurePermissionChoicesScreen({
     required this.requestor,
     required this.state,
     required this.onEvent,
   });
 
-  void _onButtonPressed(BuildContext context) {
-    // Get the con that needs to be fetched
-    // If state is completed this stays null
-    Con<DisclosureCredential>? con;
-    if (!state.isCompleted) {
-      // If this is a choice get the selected con
-      if (state.currentDiscon!.value.length > 1) {
-        con = state.getSelectedCon(state.currentDiscon!.key)!;
-      } else {
-        // Else get the first con.
-        con = state.currentDiscon!.value.first;
-      }
-    }
-    //TODO Check credentials length, not con length.
-    //If multiple credentials need to be fetched, start sub issue wizard
-    if (con == null || con.length > 1) {
-      onEvent(DisclosurePermissionNextPressed());
-    } else {
-      IrmaRepositoryProvider.of(context).openIssueURL(
-        context,
-        con.first.credentialType.fullId,
+  void _openConfirmDialog(BuildContext context) => showDialog(
+        context: context,
+        builder: (BuildContext context) => DisclosureShareDialog(
+          requestor: requestor,
+          onConfirm: () => onEvent(DisclosurePermissionNextPressed()),
+        ),
       );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +67,10 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
                     TextSpan(
                       text: FlutterI18n.translate(
                         context,
-                        'disclosure_permission.issue_wizard.explanation',
+                        'disclosure_permission.confirm.explanation',
+                        translationParams: {
+                          'requestorName': requestor.name.translate(lang),
+                        },
                       ),
                       style: theme.themeData.textTheme.caption,
                     ),
@@ -96,28 +81,42 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
             ),
             SizedBox(height: theme.defaultSpacing),
             TranslatedText(
-              'disclosure_permission.issue_wizard.add_data',
+              'disclosure_permission.confirm.share',
               style: theme.themeData.textTheme.headline3,
             ),
-            SizedBox(height: theme.defaultSpacing),
-            DisclosureDisconStepper(
-              candidates: state.candidates,
-              currentCandidate: state.currentDiscon,
-              selectedConIndices: state.selectedConIndices,
-              onChoiceUpdatedEvent: (int conIndex) => onEvent(
-                DisclosurePermissionChoiceUpdated(
-                  conIndex: conIndex,
-                ),
-              ),
-            )
+            SizedBox(height: theme.smallSpacing),
+            ...state.choices.values
+                .mapIndexed(
+                  (index, con) => Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          GestureDetector(
+                            onTap: () => onEvent(DisclosurePermissionChangeChoicePressed(disconIndex: index)),
+                            child: TranslatedText(
+                              'disclosure_permission.confirm.change_choice',
+                              style: theme.textTheme.caption!.copyWith(fontWeight: FontWeight.bold, color: Colors.blue),
+                            ),
+                          )
+                        ],
+                      ),
+                      SizedBox(height: theme.smallSpacing),
+                      IrmaCredentialsCard(
+                        attributesByCredential: {
+                          for (var cred in con) cred: cred.attributes,
+                        },
+                      )
+                    ],
+                  ),
+                )
+                .toList()
           ],
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel:
-            state.isCompleted ? 'disclosure_permission.issue_wizard.next' : 'disclosure_permission.issue_wizard.fetch',
-        onPrimaryPressed: () => _onButtonPressed(context),
-      ),
+          primaryButtonLabel: 'disclosure_permission.confirm.submit',
+          onPrimaryPressed: () => _openConfirmDialog(context)),
     );
   }
 }

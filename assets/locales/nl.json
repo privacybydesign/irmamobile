@@ -2,7 +2,8 @@
   "ui": {
     "loading": "Laden…",
     "step_of_steps": "Stap {index} van {count}",
-    "step": "Step"
+    "step": "Step",
+    "done": "Gereed"
   },
   "enrollment": {
     "welcome": {
@@ -385,13 +386,21 @@
     "choices": {
       "choose_data": "Kies de gegevens die jij wilt delen",
       "explanation": "De gegevens die jij selecteert worden gedeeld met {requestorName}",
-      "step": "Stap {stepIndex}",
-      "done": "Gereed"
+      "step": "Stap {stepIndex}"
     },
     "confirm": {
+      "title": "Deel jouw gevevens",
       "share": "Deze gegevens ga je delen:",
       "submit": "Gegevens delen",
-      "sign_message": "En je ondertekent dit bericht:"
+      "sign_message": "En je ondertekent dit bericht:",
+      "explanation": "Deel jouw gegevens met {requestorName}",
+      "change_choice": "Keuze wijzigen",
+      "dialog": {
+        "title": "Gegevens delen",
+        "explanation": "Je staat op het punt om gegevens te delen met {requestorName}. Klik op 'Gegvens delen' om verder te gaan.",
+        "confirm": "Delen",
+        "decline": "Niet delen"
+      }
     }
   },
   "disclosure": {

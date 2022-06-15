@@ -7,11 +7,11 @@ import 'irma_step_indicator.dart';
 
 class IrmaStepper extends StatelessWidget {
   final List<Widget> children;
-  final int currentIndex;
+  final int? currentIndex;
 
   const IrmaStepper({
     required this.children,
-    required this.currentIndex,
+    this.currentIndex,
   });
 
   Widget _buildItem(IrmaThemeData theme, int index) {
@@ -19,7 +19,7 @@ class IrmaStepper extends StatelessWidget {
 
     // If this child has yet to be completed
     // wrap it in a color filter to make it look greyed out.
-    if (index > currentIndex) {
+    if (currentIndex != null && index > currentIndex!) {
       child = ColorFiltered(
         colorFilter: ColorFilter.mode(
           Colors.white.withOpacity(0.5),
@@ -36,11 +36,12 @@ class IrmaStepper extends StatelessWidget {
           //If item is current show filled indicator
           style: currentIndex == index
               ? IrmaStepIndicatorStyle.filled
-              //If item has already been completed show success indicator
-              : currentIndex > index
-                  ? IrmaStepIndicatorStyle.success
-                  //Else show outlined indicator
-                  : IrmaStepIndicatorStyle.outlined,
+              // If this item is not active or currentIndex is null
+              // show default outline indicator
+              : currentIndex != null && currentIndex! < index
+                  ? IrmaStepIndicatorStyle.outlined
+                  //If item has already been completed show success indicator
+                  : IrmaStepIndicatorStyle.success,
         ),
         padding: EdgeInsets.all(theme.smallSpacing),
       ),

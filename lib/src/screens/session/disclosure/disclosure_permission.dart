@@ -8,8 +8,11 @@ import '../../../widgets/loading_indicator.dart';
 import 'bloc/disclosure_permission_bloc.dart';
 import 'bloc/disclosure_permission_event.dart';
 import 'bloc/disclosure_permission_state.dart';
+import 'widgets/disclosure_permission_change_choice_screen.dart';
+import 'widgets/disclosure_permission_choices_screen.dart';
 import 'widgets/disclosure_permission_issue_wizard_screen.dart';
 import 'widgets/disclosure_permission_obtain_credentials_screen.dart';
+import 'widgets/disclosure_previously_added_screen.dart';
 
 class DisclosurePermission extends StatelessWidget {
   final int sessionId;
@@ -60,10 +63,22 @@ class ProvidedDisclosurePermission extends StatelessWidget {
             state: state,
             onEvent: addEvent,
           );
-        } else if (state is DisclosurePermissionChangeChoice) {
-          throw UnimplementedError();
+        } else if (state is DisclosurePermissionPreviouslyAddedCredentialsOverview) {
+          return DisclosurePreviouslyAddedScreen(
+            requestor: requestor,
+            state: state,
+          );
         } else if (state is DisclosurePermissionChoices) {
-          throw UnimplementedError();
+          return DisclosurePermissionChoicesScreen(
+            requestor: requestor,
+            state: state,
+            onEvent: addEvent,
+          );
+        } else if (state is DisclosurePermissionChangeChoice) {
+          return DisclosurePermissionChangeChoiceScreen(
+            state: state,
+            onEvent: addEvent,
+          );
         }
 
         // If state is loading/initial show centered loading indicator

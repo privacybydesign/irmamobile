@@ -18,7 +18,7 @@ class IrmaProgressIndicator extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return Padding(
-      padding: EdgeInsets.all(theme.defaultSpacing),
+      padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [

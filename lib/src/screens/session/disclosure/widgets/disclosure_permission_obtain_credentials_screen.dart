@@ -41,7 +41,7 @@ class DisclosurePermissionObtainCredentialsScreen extends StatelessWidget {
           children: [
             DisclosureTemplateStepper(
               templates: state.templates,
-              currentItem: state.currentIssueWizardItem!,
+              currentItem: state.currentIssueWizardItem,
             )
           ],
         ),

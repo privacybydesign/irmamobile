@@ -2,7 +2,8 @@
   "ui": {
     "loading": "Loading…",
     "step_of_steps": "Step {index} of {n}: {count}",
-    "step": "Step"
+    "step": "Step",
+    "done": "Done"
   },
   "enrollment": {
     "welcome": {
@@ -391,7 +392,14 @@
     "confirm": {
       "share": "This is the data you are going to share:",
       "submit": "Share data",
-      "sign_message": "And you sign this message:"
+      "sign_message": "And you sign this message:",
+      "explanation": "Share your date with {requestorName}",
+      "dialog": {
+        "title": "Share data",
+        "explanation": "You are about to share data with {requestorName}. Press 'Share data' to continue",
+        "confirm": "Share",
+        "decline": "Don't share"
+      }
     }
   },
   "disclosure": {

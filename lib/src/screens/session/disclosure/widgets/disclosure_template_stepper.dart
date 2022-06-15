@@ -9,7 +9,7 @@ import 'disclosure_issue_wizard_credential_card.dart';
 class DisclosureTemplateStepper extends StatelessWidget {
   final UnmodifiableListView<TemplateDisclosureCredential> templates;
 
-  final TemplateDisclosureCredential currentItem;
+  final TemplateDisclosureCredential? currentItem;
 
   const DisclosureTemplateStepper({
     required this.templates,
@@ -18,8 +18,10 @@ class DisclosureTemplateStepper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final int currentItemIndex = templates.indexWhere((cred) => cred == currentItem);
+
     return IrmaStepper(
-      currentIndex: templates.indexWhere((cred) => cred == currentItem),
+      currentIndex: currentItemIndex == -1 ? null : currentItemIndex,
       children: templates
           .map(
             (cred) => DisclosureIssueWizardCredentialCard(
