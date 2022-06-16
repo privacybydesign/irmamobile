@@ -81,50 +81,59 @@ class IrmaCredentialsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    return IrmaCard(
-      style: style,
-      onTap: onTap,
-      child: attributesByCredential.keys.isNotEmpty
-          ? Column(
-              mainAxisSize: MainAxisSize.min,
-              children: attributesByCredential.keys.expandIndexed(
-                (i, credInfo) {
-                  final translatedCredentialName = getTranslation(context, credInfo.credentialType.name);
-                  final translatedIssuerName = getTranslation(context, credInfo.issuer.name);
-                  return [
-                    IrmaCredentialCardHeader(
-                      title: translatedCredentialName,
-                      subtitle: translatedIssuerName,
-                      logo: credInfo.credentialType.logo,
-                      trailing: i == 0 ? headerTrailing : null,
-                    ),
-                    //If there are no attributes for this credential hide the attribute list.
-                    if (attributesByCredential[credInfo]!.any((att) => att.value is! NullValue)) ...[
-                      IrmaDivider(style: style),
-                      Padding(
-                        padding: EdgeInsets.symmetric(horizontal: theme.largeSpacing),
-                        child: IrmaCredentialCardAttributeList(
-                          attributesByCredential[credInfo]!,
-                          compareToAttributes:
-                              compareToCredentials?[i] != null ? compareToCredentials![i].attributes : null,
-                        ),
+    return attributesByCredential.keys.isNotEmpty
+        ? Column(
+            mainAxisSize: MainAxisSize.min,
+            children: attributesByCredential.keys.expandIndexed((i, credInfo) {
+              final translatedCredentialName = getTranslation(context, credInfo.credentialType.name);
+              final translatedIssuerName = getTranslation(context, credInfo.issuer.name);
+              return [
+                IrmaCard(
+                  padding: EdgeInsets.only(
+                    left: theme.tinySpacing,
+                    right: theme.tinySpacing,
+                    // Only add top padding if this is the first item.
+                    top: i == 0 ? theme.tinySpacing : 0,
+                    // Only add bottom padding if this is the last card.
+                    bottom: i != attributesByCredential.keys.length - 1 ? 0 : theme.tinySpacing,
+                  ),
+                  style: style,
+                  onTap: onTap,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IrmaCredentialCardHeader(
+                        title: translatedCredentialName,
+                        subtitle: translatedIssuerName,
+                        logo: credInfo.credentialType.logo,
+                        trailing: i == 0 ? headerTrailing : null,
                       ),
+                      // If there are no attributes for this credential hide the attribute list.
+                      if (attributesByCredential[credInfo]!.any((att) => att.value is! NullValue)) ...[
+                        IrmaDivider(style: style),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: theme.largeSpacing),
+                          child: IrmaCredentialCardAttributeList(
+                            attributesByCredential[credInfo]!,
+                            compareToAttributes:
+                                compareToCredentials?[i] != null ? compareToCredentials![i].attributes : null,
+                          ),
+                        ),
+                      ],
                     ],
-                    //If this is not the last item add a divider
-                    if (i != attributesByCredential.keys.length - 1) IrmaDivider(style: style)
-                  ];
-                },
-              ).toList(),
-            )
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TranslatedText(
-                  'credential.no_data',
-                  style: theme.themeData.textTheme.bodyText1,
-                ),
-              ],
-            ),
-    );
+                  ),
+                )
+              ];
+            }).toList(),
+          )
+        : Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TranslatedText(
+                'credential.no_data',
+                style: theme.themeData.textTheme.bodyText1,
+              ),
+            ],
+          );
   }
 }

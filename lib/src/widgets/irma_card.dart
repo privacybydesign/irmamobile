@@ -14,13 +14,14 @@ enum IrmaCardStyle {
 class IrmaCard extends StatelessWidget {
   final Function()? onTap;
   final Widget? child;
-
+  final EdgeInsetsGeometry? padding;
   final IrmaCardStyle style;
 
   const IrmaCard({
     Key? key,
     this.onTap,
     this.child,
+    this.padding,
     this.style = IrmaCardStyle.normal,
   }) : super(key: key);
 
@@ -37,7 +38,7 @@ class IrmaCard extends StatelessWidget {
     ];
 
     return Padding(
-      padding: EdgeInsets.all(theme.tinySpacing),
+      padding: padding ?? EdgeInsets.all(theme.tinySpacing),
       child: InkWell(
         borderRadius: borderRadius,
         onTap: onTap,
