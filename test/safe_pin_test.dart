@@ -34,46 +34,52 @@ void main() {
     }
   });
 
-  test("PIN, n=6 that have short, translation symmetric and/or mirror symmetric patterns", () {
-    final pins6 = <List<int>>[
-      [0, 1, 3, 0, 1, 3],
-      [1, 2, 3, 1, 2, 3],
-      [3, 2, 1, 1, 2, 3],
-      [3, 0, 1, 1, 0, 3],
-    ];
-    expect(pinMustNotContainPatternAbcabc(pins6[0]), false);
-    expect(pinMustNotContainPatternAbcabc(pins6[1]), false);
-    expect(pinMustNotContainPatternAbccba(pins6[2]), false);
-    expect(pinMustNotContainPatternAbccba(pins6[3]), false);
-  });
-
   test("PIN, n=5 that have short, translation symmetric and/or mirror symmetric patterns", () {
     expect(pinMustNotContainPatternAbcba([0, 1, 3, 1, 0]), false);
+    expect(pinMustNotContainPatternAbcba([1, 3, 5, 3, 1]), false);
+    expect(pinMustNotContainPatternAbcab([0, 1, 3, 0, 1]), false);
+    expect(pinMustNotContainPatternAbcab([1, 3, 5, 1, 3]), false);
   });
 
-  test("Forbidden sequences", () {
-    final pins6 = <List<int>>[
-      [0, 1, 2, 3, 4, 5],
-      [6, 5, 4, 3, 2, 1],
-      [4, 3, 2, 2, 1, 0],
-      [6, 7, 8, 7, 6, 5],
-      [5, 6, 7, 8, 9, 0],
-      [0, 9, 8, 7, 6, 5],
-    ];
-    for (final pin in pins6) {
-      expect(pinMustNotBeMemberOfSeries(pin), false, reason: pin.join());
-    }
-
+  test("Forbidden sequences: asc, desc, asc desc, desc asc", () {
     final pins5 = <List<int>>[
       [1, 2, 3, 4, 5],
       [4, 3, 2, 1, 0],
       [4, 3, 2, 1, 0],
-      [6, 7, 8, 9, 0],
-      [0, 9, 8, 7, 6],
     ];
 
     for (final pin in pins5) {
-      expect(pinMustNotBeMemberOfSeries(pin), false, reason: pin.join());
+      expect(pinMustNotBeMemberOfSeriesAscDesc(pin), false, reason: pin.join());
+    }
+  });
+
+  test("Test combined rules on allowed PINs", () {
+    final allowed = <List<int>>[
+      [1, 2, 3, 4, 5, 7, 8],
+      [4, 3, 2, 1, 0, 1, 1],
+      [4, 3, 2, 1, 0, 1, 2],
+      [2, 6, 3, 5, 2, 5, 5],
+      [6, 3, 5, 2, 5, 5],
+      [6, 3, 5, 2, 5],
+    ];
+
+    for (final pin in allowed) {
+      expect(pinMustContainASublistOfSize5ThatCompliesToAllRules(pin), true, reason: pin.join());
+    }
+  });
+
+  test("Test combined rules on disallowed PINs", () {
+    final disallowed = <List<int>>[
+      [1, 2, 3, 4, 5],
+      [4, 3, 2, 1, 0],
+      [1, 3, 5, 3, 1],
+      [4, 3, 2, 3, 4],
+      [1, 2, 3, 1, 2, 3],
+      [5, 0, 0, 0, 0, 5],
+    ];
+
+    for (final pin in disallowed) {
+      expect(pinMustContainASublistOfSize5ThatCompliesToAllRules(pin), false, reason: pin.join());
     }
   });
 }
