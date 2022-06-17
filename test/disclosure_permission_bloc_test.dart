@@ -1166,7 +1166,7 @@ void main() {
 
     bloc.add(DisclosurePermissionNextPressed());
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
-    await repo.getSessionState(43).firstWhere((session) => session.status == SessionStatus.success);
+    await repo.getSessionState(44).firstWhere((session) => session.status == SessionStatus.success);
   });
 }
 
