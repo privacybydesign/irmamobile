@@ -60,8 +60,7 @@ class IrmaDialog extends StatelessWidget {
                           Padding(
                             padding: EdgeInsets.only(bottom: theme.defaultSpacing),
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
+                              children: [
                                 Semantics(
                                   namesRoute: !Platform.isIOS, // Set to false on iOS to prevent double read
                                   label: FlutterI18n.translate(context, "accessibility.alert"),
@@ -69,13 +68,15 @@ class IrmaDialog extends StatelessWidget {
                                     title,
                                     key: const Key('irma_dialog_title'),
                                     style: theme.textTheme.headline3,
+                                    textAlign: TextAlign.center,
                                   ),
                                 ),
-                                SizedBox(height: theme.tinySpacing),
+                                SizedBox(height: theme.smallSpacing),
                                 Text(
                                   content,
                                   key: const Key('irma_dialog_content'),
                                   style: theme.textTheme.bodyText2,
+                                  textAlign: TextAlign.center,
                                 ),
                                 if (image != null) ...[
                                   SizedBox(height: theme.defaultSpacing),
