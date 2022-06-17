@@ -336,14 +336,17 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
           signedMessage: session.isSignatureSession ?? false ? session.signedMessage : null,
         );
       } else {
-        // In an issue wizard, only the credential templates are relevant. If an issue wizard is needed,
-        // we also include the optional discons where no non-empty con is fully obtained yet. If no issue wizard
-        // is needed, then the optional discons are presented in DisclosurePermissionChoicesOverview.
+        // In an issue wizard, only the credential templates are relevant for which there is no choosable variant
+        // in any other con within that discon. If an issue wizard is needed, we also include the optional discons
+        // where no non-empty con is fully obtained yet. If no issue wizard is needed, then the optional discons
+        // are presented in DisclosurePermissionChoicesOverview.
         final issueWizardCandidates = {
           for (final entry in candidates.entries)
             if (choices[entry.key] == null)
               entry.key: DisCon(
-                entry.value.map((con) => Con(con.whereType<TemplateDisclosureCredential>())),
+                entry.value.map((con) => Con(con.whereType<TemplateDisclosureCredential>())).where((con) => con.every(
+                    (cred) => entry.value.flattened
+                        .none((cred2) => cred2 is ChoosableDisclosureCredential && cred2.fullId == cred.fullId))),
               ),
         };
         final selectedConIndices = issueWizardCandidates.map((i, _) => MapEntry(i, 0));
