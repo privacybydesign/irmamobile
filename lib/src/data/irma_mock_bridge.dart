@@ -85,7 +85,7 @@ class IrmaMockBridge extends IrmaBridge {
                 // Add all candidates for the current credential to the disconCandidates.
                 if (disconCandidates.isEmpty) {
                   disconCandidates.addAll(credCandidates);
-                } else {
+                } else if (credCandidates.isNotEmpty) {
                   disconCandidates = disconCandidates
                       .expand((conCandidate) => credCandidates.map((cc) => [...conCandidate, ...cc]))
                       .toList();
@@ -114,13 +114,21 @@ class IrmaMockBridge extends IrmaBridge {
 
               if (disconCandidates.isEmpty) {
                 return [placeholderCandidates.values.flattened.toList()];
-              } else {
+              }
+
+              // Add placeholder to add an extra instance of the non singleton credential type if the placeholder
+              // is not there yet already.
+              final nonSingletonCandidate = disconCandidates.first
+                  .firstWhere((candidate) => candidate.type.startsWith('${nonSingletonCredIds.first}.'));
+              if (nonSingletonCandidate.credentialHash != null) {
                 final placeholderCandidate = disconCandidates.first
                     .map((attr) => placeholderCandidates[nonSingletonCredIds.first]!
                         .firstWhere((phAttr) => phAttr.type == attr.type, orElse: () => attr))
                     .toList();
                 return [...disconCandidates, placeholderCandidate];
               }
+
+              return disconCandidates;
             }))
         .map((discon) {
       // All choosable candidates should come first in the list.
