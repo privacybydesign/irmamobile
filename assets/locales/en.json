@@ -391,10 +391,12 @@
       "prev_added": "This data has already been added to :"
     },
     "confirm": {
+      "title": "Share your data",
       "share": "This is the data you are going to share:",
       "submit": "Share data",
       "sign_message": "And you sign this message:",
       "explanation": "Share your date with {requestorName}",
+      "change_choice": "Change choice",
       "dialog": {
         "title": "Share data",
         "explanation": "You are about to share data with {requestorName}. Press 'Share data' to continue",
