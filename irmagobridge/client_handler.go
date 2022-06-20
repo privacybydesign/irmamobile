@@ -17,7 +17,7 @@ func (i *clientHandler) ReportError(err error) {
 	if !ok {
 	 wrappedErr = errors.Wrap(err, 0)
 	}
-	reportError(wrappedErr, true)
+	reportError(wrappedErr, false)
 }
 
 func (ch *clientHandler) Revoked(cred *irma.CredentialIdentifier) {
