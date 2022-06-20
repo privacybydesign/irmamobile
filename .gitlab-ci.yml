@@ -50,3 +50,14 @@ build_app:
   script:
     - flutter build apk --target-platform android-arm,android-arm64 --split-per-abi --flavor alpha
 
+build_prototypes:
+  stage: build_app
+  interruptible: true
+  only:
+    - master
+    - merge_requests
+  artifacts:
+    paths:
+      - build/app/outputs/apk/alpha/release/*.apk
+  script:
+    - flutter build apk --target-platform android-arm,android-arm64 --split-per-abi --flavor alpha -t lib/main_prototypes.dart
