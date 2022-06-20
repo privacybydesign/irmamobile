@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:irmamobile/src/data/irma_bridge.dart';
 import 'package:irmamobile/src/data/mock_data.dart';
@@ -51,7 +52,7 @@ class IrmaMockBridge extends IrmaBridge {
     // Expand candidates with concrete options, based on the given credentials.
     final disclosureCandidates = condiscon
         .map((discon) => discon.expand((con) {
-              final List<List<DisclosureCandidate>> disconCandidates = [];
+              List<List<DisclosureCandidate>> disconCandidates = [];
 
               // Check whether it concerns an optional disjunction.
               if (con.isEmpty) {
@@ -59,37 +60,74 @@ class IrmaMockBridge extends IrmaBridge {
                 return disconCandidates;
               }
 
-              // For mocking simplicity we assume all attributes in an inner con are from the same credential.
-              final credentialId = con.keys.first.split('.').take(3).join('.');
-              assert(con.keys.every((attrType) => attrType.startsWith('$credentialId.')));
+              final groupedAttrs = groupBy<String, String>(con.keys, (attrId) => attrId.split('.').take(3).join('.'));
+              // A con should contain at most one non-singleton credential.
+              final nonSingletonCredIds =
+                  groupedAttrs.keys.where((credId) => !_irmaConfiguration.credentialTypes[credId]!.isSingleton);
+              assert(nonSingletonCredIds.length <= 1);
 
               // Look through all credentials for attributes that match the request.
-              for (final RawCredential c in credentials) {
-                if (c.fullId == credentialId &&
-                    con.entries.every(
-                        (attr) => attr.value == null || attr.value == TextValue.fromRaw(c.attributes[attr.key]!).raw)) {
-                  disconCandidates.add(con.entries
-                      .map((attr) => DisclosureCandidate(
-                            type: attr.key,
-                            value: c.attributes[attr.key] ?? const TranslatedValue.empty(),
-                            credentialHash: c.hash,
-                          ))
-                      .toList());
+              for (final entry in groupedAttrs.entries) {
+                final List<List<DisclosureCandidate>> credCandidates = [];
+                for (final RawCredential c in credentials) {
+                  if (c.fullId == entry.key &&
+                      entry.value.every((attrId) =>
+                          con[attrId] == null || con[attrId] == TextValue.fromRaw(c.attributes[attrId]!).raw)) {
+                    credCandidates.add(entry.value
+                        .map((attrId) => DisclosureCandidate(
+                              type: attrId,
+                              value: c.attributes[attrId] ?? const TranslatedValue.empty(),
+                              credentialHash: c.hash,
+                            ))
+                        .toList());
+                  }
+                }
+                // Add all candidates for the current credential to the disconCandidates.
+                if (disconCandidates.isEmpty) {
+                  disconCandidates.addAll(credCandidates);
+                } else if (credCandidates.isNotEmpty) {
+                  disconCandidates = disconCandidates
+                      .expand((conCandidate) => credCandidates.map((cc) => [...conCandidate, ...cc]))
+                      .toList();
                 }
               }
 
-              // Add placeholder candidate if (additional) options can be added using issuance-in-disclosure.
-              if (disconCandidates.isEmpty || !_irmaConfiguration.credentialTypes[credentialId]!.isSingleton) {
-                disconCandidates.add(con.entries
-                    .map((attr) => DisclosureCandidate(
-                          type: attr.key,
-                          value: attr.value == null
-                              ? const TranslatedValue.empty()
-                              : TextValue(translated: TranslatedValue.fromString(attr.value!), raw: attr.value!)
-                                  .toRaw(),
-                        ))
-                    .toList());
+              // Fill all missing disclosure candidates with placeholders.
+              disconCandidates = disconCandidates
+                  .map((conCandidates) => con.entries
+                      .map((entry) => conCandidates.firstWhere((candidate) => candidate.type == entry.key,
+                          orElse: () => _generatePlaceholderCandidate(entry.key, entry.value)))
+                      .toList())
+                  .toList();
+
+              // If we already found candidates and all credentials are singletons, then we
+              // don't have to add placeholder candidates.
+              if (disconCandidates.isNotEmpty && nonSingletonCredIds.isEmpty) {
+                return disconCandidates;
               }
+
+              // Pre-generate placeholder candidates.
+              final placeholderCandidates = groupedAttrs.map(
+                (credId, attrIds) => MapEntry(
+                    credId, attrIds.map((attrId) => _generatePlaceholderCandidate(attrId, con[attrId])).toList()),
+              );
+
+              if (disconCandidates.isEmpty) {
+                return [placeholderCandidates.values.flattened.toList()];
+              }
+
+              // Add placeholder to add an extra instance of the non singleton credential type if the placeholder
+              // is not there yet already.
+              final nonSingletonCandidate = disconCandidates.first
+                  .firstWhere((candidate) => candidate.type.startsWith('${nonSingletonCredIds.first}.'));
+              if (nonSingletonCandidate.credentialHash != null) {
+                final placeholderCandidate = disconCandidates.first
+                    .map((attr) => placeholderCandidates[nonSingletonCredIds.first]!
+                        .firstWhere((phAttr) => phAttr.type == attr.type, orElse: () => attr))
+                    .toList();
+                return [...disconCandidates, placeholderCandidate];
+              }
+
               return disconCandidates;
             }))
         .map((discon) {
@@ -109,6 +147,13 @@ class IrmaMockBridge extends IrmaBridge {
       isSignatureSession: false,
     );
   }
+
+  DisclosureCandidate _generatePlaceholderCandidate(String type, String? value) => DisclosureCandidate(
+        type: type,
+        value: value == null
+            ? const TranslatedValue.empty()
+            : TextValue(translated: TranslatedValue.fromString(value), raw: value).toRaw(),
+      );
 
   /// Mock a disclosure session with the given condiscon.
   /// Inner cons should be given as a map, i.e. {"irma-demo.some.attribute.type": "value"}.
