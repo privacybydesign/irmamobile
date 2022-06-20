@@ -8,7 +8,6 @@ import 'disclosure_issue_wizard_credential_card.dart';
 
 class DisclosureTemplateStepper extends StatelessWidget {
   final UnmodifiableListView<TemplateDisclosureCredential> templates;
-
   final TemplateDisclosureCredential? currentItem;
 
   const DisclosureTemplateStepper({
@@ -27,6 +26,7 @@ class DisclosureTemplateStepper extends StatelessWidget {
             (cred) => DisclosureIssueWizardCredentialCard(
               credential: cred,
               isActive: cred == currentItem,
+              highlightAttributes: true,
             ),
           )
           .toList(),

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../data/irma_repository.dart';
 import '../../../models/irma_configuration.dart';
 import '../../../models/session.dart';
+import '../../../widgets/irma_repository_provider.dart';
 import '../../../widgets/loading_indicator.dart';
 import 'bloc/disclosure_permission_bloc.dart';
 import 'bloc/disclosure_permission_event.dart';
@@ -12,7 +13,6 @@ import 'widgets/disclosure_permission_change_choice_screen.dart';
 import 'widgets/disclosure_permission_choices_screen.dart';
 import 'widgets/disclosure_permission_issue_wizard_screen.dart';
 import 'widgets/disclosure_permission_obtain_credentials_screen.dart';
-import 'widgets/disclosure_previously_added_screen.dart';
 
 class DisclosurePermission extends StatelessWidget {
   final int sessionId;
@@ -31,9 +31,8 @@ class DisclosurePermission extends StatelessWidget {
       create: (_) => DisclosurePermissionBloc(
         sessionID: sessionId,
         repo: repo,
-        onObtainCredential: (CredentialType credType) {
-          //TODO Implement
-        },
+        onObtainCredential: (CredentialType credType) =>
+            IrmaRepositoryProvider.of(context).openIssueURL(context, credType.fullId),
       ),
       child: ProvidedDisclosurePermission(requestor),
     );
@@ -52,10 +51,25 @@ class ProvidedDisclosurePermission extends StatelessWidget {
 
     return BlocBuilder<DisclosurePermissionBloc, DisclosurePermissionBlocState>(
       builder: (context, state) {
-        if (state is DisclosurePermissionIssueWizard) {
+        if (state is DisclosurePermissionIssueWizard ||
+            (state is DisclosurePermissionObtainCredentials &&
+                state.templates.length == 1 &&
+                state.parentState is DisclosurePermissionIssueWizard)) {
           return DisclosurePermissionIssueWizardScreen(
             requestor: requestor,
-            state: state,
+            state: state is DisclosurePermissionIssueWizard
+                ? state
+                : (state as DisclosurePermissionObtainCredentials).parentState as DisclosurePermissionIssueWizard,
+            onEvent: addEvent,
+          );
+        } else if (state is DisclosurePermissionChangeChoice ||
+            (state is DisclosurePermissionObtainCredentials &&
+                state.templates.length == 1 &&
+                state.parentState is DisclosurePermissionChangeChoice)) {
+          return DisclosurePermissionChangeChoiceScreen(
+            state: state is DisclosurePermissionChangeChoice
+                ? state
+                : (state as DisclosurePermissionObtainCredentials).parentState as DisclosurePermissionChangeChoice,
             onEvent: addEvent,
           );
         } else if (state is DisclosurePermissionObtainCredentials) {
@@ -63,24 +77,13 @@ class ProvidedDisclosurePermission extends StatelessWidget {
             state: state,
             onEvent: addEvent,
           );
-        } else if (state is DisclosurePermissionPreviouslyAddedCredentialsOverview) {
-          return DisclosurePreviouslyAddedScreen(
-            requestor: requestor,
-            state: state,
-          );
         } else if (state is DisclosurePermissionChoices) {
           return DisclosurePermissionChoicesScreen(
             requestor: requestor,
             state: state,
             onEvent: addEvent,
           );
-        } else if (state is DisclosurePermissionChangeChoice) {
-          return DisclosurePermissionChangeChoiceScreen(
-            state: state,
-            onEvent: addEvent,
-          );
         }
-
         // If state is loading/initial show centered loading indicator
         return Scaffold(
           body: Center(

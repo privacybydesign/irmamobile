@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../../theme/theme.dart';
 import '../../../../widgets/irma_bottom_bar.dart';
 import '../../widgets/session_scaffold.dart';
 import '../bloc/disclosure_permission_event.dart';
 import '../bloc/disclosure_permission_state.dart';
+import '../models/template_disclosure_credential.dart';
 import 'disclosure_issue_wizard_choice.dart';
 
 class DisclosurePermissionChangeChoiceScreen extends StatelessWidget {
@@ -32,7 +32,9 @@ class DisclosurePermissionChangeChoiceScreen extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: 'ui.done', //TODO Add if fetch data
+        primaryButtonLabel: state.selectedCon.whereType<TemplateDisclosureCredential>().isNotEmpty
+            ? 'disclosure_permission.issue_wizard.fetch'
+            : 'ui.done',
         onPrimaryPressed: () => onEvent(DisclosurePermissionNextPressed()),
       ),
     );

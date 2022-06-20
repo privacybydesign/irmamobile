@@ -8,14 +8,14 @@ import 'disclosure_issue_wizard_choice.dart';
 import 'disclosure_issue_wizard_credential_card.dart';
 
 class DisclosureDisconStepper extends StatelessWidget {
-  final UnmodifiableMapView<int, DisCon<DisclosureCredential>> candidates;
   final MapEntry<int, DisCon<DisclosureCredential>>? currentCandidate;
+  final UnmodifiableMapView<int, DisCon<DisclosureCredential>> candidates;
   final UnmodifiableMapView<int, int> selectedConIndices;
   final Function(int conIndex) onChoiceUpdatedEvent;
 
   const DisclosureDisconStepper({
-    required this.candidates,
     this.currentCandidate,
+    required this.candidates,
     required this.selectedConIndices,
     required this.onChoiceUpdatedEvent,
   });
@@ -39,6 +39,7 @@ class DisclosureDisconStepper extends StatelessWidget {
                     : DisclosureIssueWizardCredentialCard(
                         credential: candidate.first.first,
                         isActive: currentCandidate?.key == i,
+                        highlightAttributes: true,
                       ),
           )
           .toList(),

@@ -385,8 +385,10 @@
     },
     "choices": {
       "choose_data": "Kies de gegevens die jij wilt delen",
+      "check": "Controleer of de volgende gegevens kloppen",
       "explanation": "De gegevens die jij selecteert worden gedeeld met {requestorName}",
-      "step": "Stap {stepIndex}"
+      "step": "Stap {stepIndex}",
+      "prev_added": "Deze gegevens zijn al eerder door jou toegevoegd aan de app:"
     },
     "confirm": {
       "title": "Deel jouw gevevens",

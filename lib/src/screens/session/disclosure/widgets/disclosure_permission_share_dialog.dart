@@ -6,14 +6,11 @@ import '../../../../widgets/irma_button.dart';
 import '../../../../widgets/irma_dialog.dart';
 import '../../../../widgets/irma_themed_button.dart';
 
-class DisclosureShareDialog extends StatelessWidget {
+class DisclosurePermissionConfirmDialog extends StatelessWidget {
   final RequestorInfo requestor;
 
-  final VoidCallback onConfirm;
-
-  const DisclosureShareDialog({
+  const DisclosurePermissionConfirmDialog({
     required this.requestor,
-    required this.onConfirm,
   });
 
   @override
@@ -33,12 +30,12 @@ class DisclosureShareDialog extends StatelessWidget {
         children: [
           IrmaButton(
             size: IrmaButtonSize.small,
-            onPressed: onConfirm,
+            onPressed: () => Navigator.of(context).pop(true),
             label: 'disclosure_permission.confirm.dialog.confirm',
           ),
           IrmaButton(
             size: IrmaButtonSize.small,
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(context).pop(false),
             label: 'disclosure_permission.confirm.dialog.decline',
             isSecondary: true,
           ),

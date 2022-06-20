@@ -99,20 +99,26 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
   Stream<DisclosurePermissionBlocState> mapEventToState(DisclosurePermissionBlocEvent event) async* {
     final state = this.state; // To prevent the need for type casting.
     final session = _repo.getCurrentSessionState(sessionID)!;
-    if (state is DisclosurePermissionIssueWizard && event is DisclosurePermissionChoiceUpdated) {
-      if (state.currentDiscon == null) throw Exception('No DisCon found that expects an update');
-      if (event.conIndex < 0 || event.conIndex >= state.currentDiscon!.value.length) {
+    if ((state is DisclosurePermissionIssueWizard || state is DisclosurePermissionObtainCredentials) &&
+        event is DisclosurePermissionChoiceUpdated) {
+      // If state is type DisclosurePermissionIssueWizard otherwise use parent state.
+      final issueWizardState = state is DisclosurePermissionIssueWizard
+          ? state
+          : (state as DisclosurePermissionObtainCredentials).parentState as DisclosurePermissionIssueWizard;
+
+      if (issueWizardState.currentDiscon == null) throw Exception('No DisCon found that expects an update');
+      if (event.conIndex < 0 || event.conIndex >= issueWizardState.currentDiscon!.value.length) {
         throw Exception('Unknown conIndex ${event.conIndex} in current discon');
       }
 
-      final selectedConIndices = state.selectedConIndices
-          .map((i, selected) => MapEntry(i, i == state.currentDiscon!.key ? event.conIndex : selected));
+      final selectedConIndices = issueWizardState.selectedConIndices
+          .map((i, selected) => MapEntry(i, i == issueWizardState.currentDiscon!.key ? event.conIndex : selected));
 
       // When an option is changed, the list of previous added credentials that are involved in this session
       // may have changed too. Therefore, we have to recalculate the planned steps.
       yield DisclosurePermissionIssueWizard(
-        plannedSteps: _calculatePlannedSteps(state.candidates, selectedConIndices, session),
-        candidates: state.candidates,
+        plannedSteps: _calculatePlannedSteps(issueWizardState.candidates, selectedConIndices, session),
+        candidates: issueWizardState.candidates,
         selectedConIndices: selectedConIndices,
       );
     } else if (state is DisclosurePermissionIssueWizard && event is DisclosurePermissionNextPressed) {

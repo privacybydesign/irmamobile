@@ -385,9 +385,10 @@
     },
     "choices": {
       "choose_data": "Choose the data you want to share",
+      "check": "Check if the following data is correct",
       "explanation": "The data you select will be shared with the {requestorName}",
       "step": "Step {stepIndex}",
-      "done": "Done"
+      "prev_added": "This data has already been added to :"
     },
     "confirm": {
       "share": "This is the data you are going to share:",

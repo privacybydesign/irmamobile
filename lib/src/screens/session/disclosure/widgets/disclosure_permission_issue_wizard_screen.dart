@@ -1,19 +1,16 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
-import '../../../../models/attributes.dart';
 import '../../../../models/session.dart';
 import '../../../../theme/theme.dart';
 import '../../../../widgets/irma_bottom_bar.dart';
 import '../../../../widgets/irma_progress_indicator.dart';
 import '../../../../widgets/irma_quote.dart';
-import '../../../../widgets/irma_repository_provider.dart';
 import '../../../../widgets/translated_text.dart';
 import '../../../activity/widgets/issuer_verifier_header.dart';
 import '../../widgets/session_scaffold.dart';
 import '../bloc/disclosure_permission_event.dart';
 import '../bloc/disclosure_permission_state.dart';
-import '../models/disclosure_credential.dart';
 import 'disclosure_discon_stepper.dart';
 
 class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
@@ -26,31 +23,6 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
     required this.state,
     required this.onEvent,
   });
-
-  void _onButtonPressed(BuildContext context) {
-    // Get the con that needs to be fetched
-    // If state is completed this stays null
-    Con<DisclosureCredential>? con;
-    if (!state.isCompleted) {
-      // If this is a choice get the selected con
-      if (state.currentDiscon!.value.length > 1) {
-        con = state.getSelectedCon(state.currentDiscon!.key)!;
-      } else {
-        // Else get the first con.
-        con = state.currentDiscon!.value.first;
-      }
-    }
-    //TODO Check credentials length, not con length.
-    //If multiple credentials need to be fetched, start sub issue wizard
-    if (con == null || con.length > 1) {
-      onEvent(DisclosurePermissionNextPressed());
-    } else {
-      IrmaRepositoryProvider.of(context).openIssueURL(
-        context,
-        con.first.credentialType.fullId,
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +88,7 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel:
             state.isCompleted ? 'disclosure_permission.issue_wizard.next' : 'disclosure_permission.issue_wizard.fetch',
-        onPrimaryPressed: () => _onButtonPressed(context),
+        onPrimaryPressed: () => onEvent(DisclosurePermissionNextPressed()),
       ),
     );
   }
