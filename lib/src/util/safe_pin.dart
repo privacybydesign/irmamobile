@@ -16,12 +16,6 @@ bool pinMustContainAtLeastThreeUniqueNumbers(List<int> pin) {
 bool pinMustNotContainPatternAbcba(List<int> pin) => !(pin[0] == pin[4] && pin[1] == pin[3]);
 bool pinMustNotContainPatternAbcab(List<int> pin) => !(pin[0] == pin[3] && pin[1] == pin[4]);
 
-/* forbidden series can be generalized as:
- * 1. asc
- * 2. desc
- * 3. asc  desc
- * 4. desc asc
- */
 bool Function(List<int>) sequenceChecker(int delta) => (List<int> pin) {
       bool tracker = true;
       for (var i = 0; i < pin.length - 1 && tracker; i++) {
@@ -31,21 +25,10 @@ bool Function(List<int>) sequenceChecker(int delta) => (List<int> pin) {
     };
 
 bool pinMustNotBeMemberOfSeriesAscDesc(List<int> pin) {
-  if (sequenceChecker(1)(pin) || sequenceChecker(-1)(pin)) {
-    return false;
-  }
+  final isAsc = sequenceChecker(1);
+  final isDesc = sequenceChecker(-1);
 
-  if (pin.length == 5) {
-    final isAsc = sequenceChecker(1);
-    final isDesc = sequenceChecker(-1);
-    final firstSlice = pin.sublist(0, 3);
-    final secondSlice = pin.sublist(2);
-
-    if ((isAsc(firstSlice) && isDesc(secondSlice)) || (isDesc(firstSlice) && isAsc(secondSlice))) {
-      return false;
-    }
-  }
-  return true;
+  return !(isAsc(pin) || isDesc(pin));
 }
 
 bool pinMustContainASublistOfSize5ThatCompliesToAllRules(List<int> pin) {

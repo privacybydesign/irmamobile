@@ -17,7 +17,7 @@ void main() {
     }
   });
 
-  test("aaaaaa aaaaa ababa ababab, every permutation of abbbbb and abbbb", () {
+  test("aaaaa ababa ababa, every permutation of abbbb", () {
     final pins = <List<int>>{
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       [1, 2, 1, 1],
@@ -39,6 +39,8 @@ void main() {
     expect(pinMustNotContainPatternAbcba([1, 3, 5, 3, 1]), false);
     expect(pinMustNotContainPatternAbcab([0, 1, 3, 0, 1]), false);
     expect(pinMustNotContainPatternAbcab([1, 3, 5, 1, 3]), false);
+    expect(pinMustNotContainPatternAbcba([3, 2, 1, 2, 3]), false);
+    expect(pinMustNotContainPatternAbcba([1, 2, 3, 2, 1]), false);
   });
 
   test("Forbidden sequences: asc, desc, asc desc, desc asc", () {
