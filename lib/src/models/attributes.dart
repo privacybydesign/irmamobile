@@ -228,14 +228,14 @@ class DisclosureCandidate {
     required this.type,
     this.notRevokable = false,
     this.value = const TranslatedValue.empty(),
-    this.credentialHash,
+    this.credentialHash = '',
   });
 
   @JsonKey(name: 'Type')
   final String type;
 
   @JsonKey(name: 'CredentialHash')
-  final String? credentialHash;
+  final String credentialHash;
 
   @JsonKey(name: 'Value') // Default value is set by fromJson of TranslatedValue
   final TranslatedValue value;

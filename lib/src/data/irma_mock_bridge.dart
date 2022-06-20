@@ -120,7 +120,7 @@ class IrmaMockBridge extends IrmaBridge {
               // is not there yet already.
               final nonSingletonCandidate = disconCandidates.first
                   .firstWhere((candidate) => candidate.type.startsWith('${nonSingletonCredIds.first}.'));
-              if (nonSingletonCandidate.credentialHash != null) {
+              if (nonSingletonCandidate.credentialHash.isNotEmpty) {
                 final placeholderCandidate = disconCandidates.first
                     .map((attr) => placeholderCandidates[nonSingletonCredIds.first]!
                         .firstWhere((phAttr) => phAttr.type == attr.type, orElse: () => attr))
@@ -132,8 +132,8 @@ class IrmaMockBridge extends IrmaBridge {
             }))
         .map((discon) {
       // All choosable candidates should come first in the list.
-      final choosableCandidates = discon.where((con) => con.isEmpty || con[0].credentialHash != null);
-      final templateCandidates = discon.where((con) => con.isNotEmpty && con[0].credentialHash == null);
+      final choosableCandidates = discon.where((con) => con.isEmpty || con[0].credentialHash.isNotEmpty);
+      final templateCandidates = discon.where((con) => con.isNotEmpty && con[0].credentialHash.isEmpty);
       return [...choosableCandidates, ...templateCandidates];
     }).toList();
 
@@ -141,8 +141,8 @@ class IrmaMockBridge extends IrmaBridge {
       sessionID: sessionId,
       serverName: RequestorInfo(name: TranslatedValue.fromString('test')),
       // Check whether all credentials have been issued to test issuance-in-disclosure.
-      satisfiable: disclosureCandidates.every(
-          (discon) => discon.any((con) => con.every((candidate) => candidate.credentialHash?.isNotEmpty ?? false))),
+      satisfiable: disclosureCandidates
+          .every((discon) => discon.any((con) => con.every((candidate) => candidate.credentialHash.isNotEmpty))),
       disclosuresCandidates: disclosureCandidates,
       isSignatureSession: false,
     );

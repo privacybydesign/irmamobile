@@ -554,7 +554,8 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     final hasPrevAddedCreds = session.disclosuresCandidates!.length > candidates.length ||
         candidates.entries.any((disconEntry) =>
             session.disclosuresCandidates![disconEntry.key][selectedConIndices[disconEntry.key]!].any((candidate) =>
-                candidate.credentialHash != null && !_newlyAddedCredentialHashes.contains(candidate.credentialHash)));
+                candidate.credentialHash.isNotEmpty &&
+                !_newlyAddedCredentialHashes.contains(candidate.credentialHash)));
     final stepNames = [
       DisclosurePermissionStepName.issueWizard,
       DisclosurePermissionStepName.previouslyAddedCredentialsOverview,
