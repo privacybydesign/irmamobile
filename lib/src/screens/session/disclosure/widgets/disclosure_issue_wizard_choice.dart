@@ -11,11 +11,11 @@ class DisclosureIssueWizardChoice extends StatelessWidget {
   final DisCon<DisclosureCredential> choice;
   final bool isActive;
   final int selectedConIndex;
-  final Function(int conIndex) onChoiceUpdatedEvent;
+  final Function(int conIndex) onChoiceUpdated;
 
   const DisclosureIssueWizardChoice({
     required this.choice,
-    required this.onChoiceUpdatedEvent,
+    required this.onChoiceUpdated,
     required this.selectedConIndex,
     this.isActive = true,
   });
@@ -54,7 +54,7 @@ class DisclosureIssueWizardChoice extends StatelessWidget {
                 for (var cred in choice[i]) cred: cred.attributes,
               },
               compareToCredentials: choice[i], //Compare to self to highlight the required attribute values
-              onTap: () => isActive ? onChoiceUpdatedEvent(i) : null,
+              onTap: () => isActive ? onChoiceUpdated(i) : null,
             ),
           ),
         ]

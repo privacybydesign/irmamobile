@@ -5,12 +5,12 @@ import '../../../../widgets/irma_card.dart';
 import '../models/disclosure_credential.dart';
 
 class DisclosureIssueWizardCredentialCard extends StatelessWidget {
-  final DisclosureCredential credential;
+  final List<DisclosureCredential> credentials;
   final bool isActive;
   final bool highlightAttributes;
 
   const DisclosureIssueWizardCredentialCard({
-    required this.credential,
+    required this.credentials,
     this.isActive = false,
     this.highlightAttributes = false,
   });
@@ -20,10 +20,8 @@ class DisclosureIssueWizardCredentialCard extends StatelessWidget {
     return IrmaCredentialsCard(
       style: isActive ? IrmaCardStyle.highlighted : IrmaCardStyle.normal,
       attributesByCredential: {
-        credential: highlightAttributes == true ? credential.attributes : [],
+        for (var cred in credentials) cred: highlightAttributes == true ? cred.attributes : [],
       },
-      // Compare to self to highlight the required attribute values
-      compareToCredentials: highlightAttributes == true ? [credential] : null,
     );
   }
 }

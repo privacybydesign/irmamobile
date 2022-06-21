@@ -24,7 +24,7 @@ class DisclosureTemplateStepper extends StatelessWidget {
       children: templates
           .map(
             (cred) => DisclosureIssueWizardCredentialCard(
-              credential: cred,
+              credentials: [cred],
               isActive: cred == currentItem,
               highlightAttributes: true,
             ),

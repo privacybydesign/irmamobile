@@ -28,7 +28,7 @@ class DisclosurePermissionChangeChoiceScreen extends StatelessWidget {
         child: DisclosureIssueWizardChoice(
           choice: state.discon,
           selectedConIndex: state.selectedConIndex,
-          onChoiceUpdatedEvent: (int conIndex) => onEvent(DisclosurePermissionChoiceUpdated(conIndex: conIndex)),
+          onChoiceUpdated: (int conIndex) => onEvent(DisclosurePermissionChoiceUpdated(conIndex: conIndex)),
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(

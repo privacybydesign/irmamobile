@@ -8,38 +8,37 @@ import 'disclosure_issue_wizard_choice.dart';
 import 'disclosure_issue_wizard_credential_card.dart';
 
 class DisclosureDisconStepper extends StatelessWidget {
-  final MapEntry<int, DisCon<DisclosureCredential>>? currentCandidate;
+  final int? currentCandidateIndex;
   final UnmodifiableMapView<int, DisCon<DisclosureCredential>> candidates;
   final UnmodifiableMapView<int, int> selectedConIndices;
-  final Function(int conIndex) onChoiceUpdatedEvent;
+  final Function(int conIndex) onChoiceUpdated;
 
   const DisclosureDisconStepper({
-    this.currentCandidate,
+    this.currentCandidateIndex,
     required this.candidates,
     required this.selectedConIndices,
-    required this.onChoiceUpdatedEvent,
+    required this.onChoiceUpdated,
   });
 
   @override
   Widget build(BuildContext context) {
     return IrmaStepper(
-      currentIndex: currentCandidate?.key,
+      currentIndex: currentCandidateIndex,
       children: candidates.values
           .mapIndexed(
-            (i, candidate) =>
-                // If this item is a choice render choice widget.
-                currentCandidate != null && currentCandidate!.key <= i && candidate.length > 1
+            (i, disCon) =>
+                // If this item is a choice, render choice widget.
+                currentCandidateIndex != null && currentCandidateIndex! <= i && candidates[i]!.length > 1
                     ? DisclosureIssueWizardChoice(
-                        choice: candidate,
-                        selectedConIndex: selectedConIndices[currentCandidate!.key]!,
-                        isActive: currentCandidate!.key == i,
-                        onChoiceUpdatedEvent: onChoiceUpdatedEvent,
+                        isActive: i == currentCandidateIndex,
+                        choice: candidates[i]!,
+                        selectedConIndex: selectedConIndices[i]!,
+                        onChoiceUpdated: onChoiceUpdated,
                       )
-                    // If not render Template credential card
+                    // If not, render credential card.
                     : DisclosureIssueWizardCredentialCard(
-                        credential: candidate.first.first,
-                        isActive: currentCandidate?.key == i,
-                        highlightAttributes: true,
+                        isActive: i == currentCandidateIndex,
+                        credentials: candidates[i]![selectedConIndices[i]!],
                       ),
           )
           .toList(),
