@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:timeline_tile/timeline_tile.dart';
 
 import '../theme/theme.dart';
@@ -57,7 +56,7 @@ class IrmaStepper extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    return ScrollablePositionedList.builder(
+    return ListView.builder(
       shrinkWrap: true,
       itemCount: children.length,
       itemBuilder: (_, index) => _buildItem(theme, index),
