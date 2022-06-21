@@ -25,8 +25,8 @@ class IrmaProgressIndicator extends StatelessWidget {
           TranslatedText(
             'ui.step_of_steps',
             translationParams: {
-              "index": step.toString(),
-              "count": stepCount.toString(),
+              "i": step.toString(),
+              "n": stepCount.toString(),
             },
             style: TextStyle(
               fontFamily: theme.fontFamilyHeadings,

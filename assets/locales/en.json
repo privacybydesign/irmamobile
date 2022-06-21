@@ -1,7 +1,7 @@
 {
   "ui": {
     "loading": "Loading…",
-    "step_of_steps": "Step {index} of {n}: {count}",
+    "step_of_steps": "Step {i} of {n}",
     "step": "Step",
     "done": "Done"
   },
