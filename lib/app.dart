@@ -124,8 +124,11 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     // authentication request or a phone call that interrupts
     // the app but doesn't pause it. In those cases we don't open
     // the QR scanner.
-    if (prevLifeCycleStates[0] == AppLifecycleState.paused &&
-        prevLifeCycleStates[1] == AppLifecycleState.inactive &&
+    // Note: on some phones, the events arrive in the other order
+    // (inactive -> paused), so we just check that both of them are
+    // present in prevLifeCycleStates (which is of size 2).
+    if (prevLifeCycleStates.contains(AppLifecycleState.paused) &&
+        prevLifeCycleStates.contains(AppLifecycleState.inactive) &&
         state == AppLifecycleState.resumed) {
       // First check whether we should redo pin verification
       final lastActive = await repo.getLastActiveTime().first;
