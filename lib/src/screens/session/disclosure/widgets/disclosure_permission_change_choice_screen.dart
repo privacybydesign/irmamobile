@@ -22,7 +22,7 @@ class DisclosurePermissionChangeChoiceScreen extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return SessionScaffold(
-      appBarTitle: 'disclosure_permission.issue_wizard.title',
+      appBarTitle: 'disclosure_permission.overview.title',
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
         child: DisclosureIssueWizardChoice(
@@ -33,7 +33,7 @@ class DisclosurePermissionChangeChoiceScreen extends StatelessWidget {
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: state.selectedCon.whereType<TemplateDisclosureCredential>().isNotEmpty
-            ? 'disclosure_permission.issue_wizard.fetch'
+            ? 'disclosure_permission.obtain_data'
             : 'ui.done',
         onPrimaryPressed: () => onEvent(DisclosurePermissionNextPressed()),
       ),

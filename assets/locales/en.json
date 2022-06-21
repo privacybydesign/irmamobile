@@ -369,40 +369,31 @@
     "title": "Data request",
     "next": "Next",
     "change_choice": "Change choice",
+    "choose": "Make a choice",
+    "next_step": "Next step",
+    "obtain_data": "Fetch data",
     "issue_wizard": {
       "title": "Collect data",
-      "add_data": "We still need the following data from you:",
-      "not_valid": "The data you added is not valid here:",
-      "explanation": "Fetch your data step by step. We will be sharing this later.",
-      "choose": "Make a choice",
-      "next": "Next step",
-      "fetch": "Fetch data"
+      "explanation": "Obtain your data step by step. You will be sharing these later.",
+      "header_incomplete": "We still need the following data from you:",
+      "header_complete": "All required data has been added."
     },
-    "issue_wizard_choice": {
-      "add_credential": "Add {credentialName}",
-      "choose_data": "Choose the data you want to share",
-      "and": "And"
+    "previously_added": {
+      "title": "Validate data",
+      "explanation": "Check if the following information is correct.",
+      "header": "We still need the following data from you:"
     },
-    "choices": {
-      "choose_data": "Choose the data you want to share",
-      "check": "Check if the following data is correct",
-      "explanation": "The data you select will be shared with the {requestorName}",
-      "step": "Step {stepIndex}",
-      "prev_added": "This data has already been added to :"
-    },
-    "confirm": {
-      "title": "Share your data",
-      "share": "This is the data you are going to share:",
-      "submit": "Share data",
-      "sign_message": "And you sign this message:",
+    "overview": {
+      "title": "Collect data",
       "explanation": "Share your date with {requestorName}",
-      "change_choice": "Change choice",
-      "dialog": {
-        "title": "Share data",
-        "explanation": "You are about to share data with {requestorName}. Press 'Share data' to continue",
-        "confirm": "Share",
-        "decline": "Don't share"
-      }
+      "header": "This is the data you are going to share:",
+      "confirm": "Share data"
+    },
+    "confirm_dialog": {
+      "title": "Share data",
+      "explanation": "You are about to share data with {requestorName}. Tap 'Share' to continue",
+      "confirm": "Share",
+      "decline": "Don't share"
     }
   },
   "disclosure": {

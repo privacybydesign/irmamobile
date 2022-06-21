@@ -47,7 +47,7 @@ class DisclosurePermissionObtainCredentialsScreen extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: 'disclosure_permission.issue_wizard.fetch',
+        primaryButtonLabel: state.hasObtainedCredentials ? 'ui.done' : 'disclosure_permission.obtain_data',
         onPrimaryPressed: () => _onButtonPressed(context),
       ),
     );

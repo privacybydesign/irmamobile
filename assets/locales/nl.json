@@ -369,40 +369,31 @@
     "title": "Dataverzoek",
     "next": "Volgende",
     "change_choice": "Keuze wijzigen",
+    "choose": "Maak een keuze",
+    "next_step": "Volgende stap",
+    "obtain_data": "Gegevens ophalen",
     "issue_wizard": {
       "title": "Verzamel gegevens",
-      "add_data": "Deze gegevens hebben we nog van je nodig:",
-      "not_valid": "De gegevens die je hebt toegevoegd zijn hier niet geldig:",
       "explanation": "Haal stap voor stap jouw nieuwe gegevens op. Deze gaan we straks opsturen.",
-      "choose": "Maak een keuze",
-      "next": "Volgende stap",
-      "fetch": "Gegevens ophalen"
+      "header_incomplete": "Deze gegevens hebben we nog van je nodig:",
+      "header_complete": "Alle nieuwe vereiste gegevens zijn toegevoegd."
     },
-    "issue_wizard_choice": {
-      "add_credential": "{credentialName} toevoegen",
-      "choose_data": "Kies de gegevens die je wilt gaan delen",
-      "and": "En"
+    "previously_added": {
+      "title": "Controleer gegevens",
+      "explanation": "Controleer of de volgende gegevens kloppen",
+      "header": "Deze gegevens zijn al eerder door jou toegevoegd aan de app:"
     },
-    "choices": {
-      "choose_data": "Kies de gegevens die jij wilt delen",
-      "check": "Controleer of de volgende gegevens kloppen",
-      "explanation": "De gegevens die jij selecteert worden gedeeld met {requestorName}",
-      "step": "Stap {stepIndex}",
-      "prev_added": "Deze gegevens zijn al eerder door jou toegevoegd aan de app:"
-    },
-    "confirm": {
-      "title": "Deel jouw gevevens",
-      "share": "Deze gegevens ga je delen:",
-      "submit": "Gegevens delen",
-      "sign_message": "En je ondertekent dit bericht:",
+    "overview": {
+      "title": "Verzamel gegevens",
       "explanation": "Deel jouw gegevens met {requestorName}",
-      "change_choice": "Keuze wijzigen",
-      "dialog": {
-        "title": "Gegevens delen",
-        "explanation": "Je staat op het punt om gegevens te delen met {requestorName}. Klik op 'Gegvens delen' om verder te gaan.",
-        "confirm": "Delen",
-        "decline": "Niet delen"
-      }
+      "header": "Deze gegevens ga je delen:",
+      "confirm": "Gegevens delen"
+    },
+    "confirm_dialog": {
+      "title": "Gegevens delen",
+      "explanation": "Je staat op het punt om gegevens te delen met {requestorName}. Klik op 'Delen' om verder te gaan.",
+      "confirm": "Delen",
+      "decline": "Niet delen"
     }
   },
   "disclosure": {

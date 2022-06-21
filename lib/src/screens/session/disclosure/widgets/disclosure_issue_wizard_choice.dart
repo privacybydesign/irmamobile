@@ -30,7 +30,7 @@ class DisclosureIssueWizardChoice extends StatelessWidget {
         Padding(
           padding: EdgeInsets.all(theme.smallSpacing),
           child: TranslatedText(
-            'disclosure_permission.issue_wizard.choose',
+            'disclosure_permission.choose',
             style: theme.themeData.textTheme.headline5,
             textAlign: TextAlign.start,
           ),

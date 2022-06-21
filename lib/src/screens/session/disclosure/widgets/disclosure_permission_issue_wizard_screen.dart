@@ -68,7 +68,7 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
             ),
             SizedBox(height: theme.defaultSpacing),
             TranslatedText(
-              'disclosure_permission.issue_wizard.add_data',
+              'disclosure_permission.issue_wizard.header_${state.isCompleted ? "complete" : "incomplete"}',
               style: theme.themeData.textTheme.headline3,
             ),
             SizedBox(height: theme.defaultSpacing),
@@ -86,8 +86,7 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel:
-            state.isCompleted ? 'disclosure_permission.issue_wizard.next' : 'disclosure_permission.issue_wizard.fetch',
+        primaryButtonLabel: state.isCompleted ? 'disclosure_permission.next_step' : 'disclosure_permission.obtain_data',
         onPrimaryPressed: () => onEvent(DisclosurePermissionNextPressed()),
       ),
     );

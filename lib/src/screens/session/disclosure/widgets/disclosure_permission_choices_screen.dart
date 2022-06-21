@@ -47,92 +47,92 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
     }
 
     return SessionScaffold(
-        appBarTitle: 'disclosure_permission.issue_wizard.title',
-        body: SingleChildScrollView(
-          padding: EdgeInsets.all(theme.defaultSpacing),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              IssuerVerifierHeader(title: requestor.name.translate(lang)),
-              if (state.plannedSteps.length > 1)
-                IrmaProgressIndicator(
-                  step: state.currentStepIndex + 1,
-                  stepCount: state.plannedSteps.length,
-                ),
-              SizedBox(height: theme.defaultSpacing),
-              IrmaQuote(
-                richQuote: RichText(
-                  text: TextSpan(
-                    children: [
-                      if (state.plannedSteps.length > 1)
-                        TextSpan(
-                          text: '${FlutterI18n.translate(context, 'ui.step')} ${state.currentStepIndex + 1}: ',
-                          style: theme.themeData.textTheme.caption!.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+      appBarTitle: 'disclosure_permission.issue_wizard.title',
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(theme.defaultSpacing),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            IssuerVerifierHeader(title: requestor.name.translate(lang)),
+            if (state.plannedSteps.length > 1)
+              IrmaProgressIndicator(
+                step: state.currentStepIndex + 1,
+                stepCount: state.plannedSteps.length,
+              ),
+            SizedBox(height: theme.defaultSpacing),
+            IrmaQuote(
+              richQuote: RichText(
+                text: TextSpan(
+                  children: [
+                    if (state.plannedSteps.length > 1)
                       TextSpan(
-                        text: state is DisclosurePermissionPreviouslyAddedCredentialsOverview
-                            ? FlutterI18n.translate(context, 'disclosure_permission.choices.check')
-                            : FlutterI18n.translate(
-                                context,
-                                'disclosure_permission.confirm.explanation',
-                                translationParams: {
-                                  'requestorName': requestor.name.translate(lang),
-                                },
-                              ),
-                        style: theme.themeData.textTheme.caption,
+                        text: '${FlutterI18n.translate(context, 'ui.step')} ${state.currentStepIndex + 1}: ',
+                        style: theme.themeData.textTheme.caption!.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
+                    TextSpan(
+                      text: state is DisclosurePermissionPreviouslyAddedCredentialsOverview
+                          ? FlutterI18n.translate(context, 'disclosure_permission.previously_added.explanation')
+                          : FlutterI18n.translate(
+                              context,
+                              'disclosure_permission.overview.explanation',
+                              translationParams: {
+                                'requestorName': requestor.name.translate(lang),
+                              },
+                            ),
+                      style: theme.themeData.textTheme.caption,
+                    ),
+                  ],
+                ),
+              ),
+              color: theme.lightBeige,
+            ),
+            SizedBox(height: theme.defaultSpacing),
+            TranslatedText(
+              state is DisclosurePermissionPreviouslyAddedCredentialsOverview
+                  ? 'disclosure_permission.previously_added.header'
+                  : 'disclosure_permission.overview.header',
+              style: theme.themeData.textTheme.headline3,
+            ),
+            SizedBox(height: theme.smallSpacing),
+            ...state.choices.values
+                .mapIndexed(
+                  (index, con) => Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          GestureDetector(
+                            onTap: () => onEvent(DisclosurePermissionChangeChoicePressed(disconIndex: index)),
+                            child: TranslatedText(
+                              'disclosure_permission.change_choice',
+                              style: theme.textTheme.caption!.copyWith(fontWeight: FontWeight.bold, color: Colors.blue),
+                            ),
+                          )
+                        ],
+                      ),
+                      SizedBox(height: theme.smallSpacing),
+                      IrmaCredentialsCard(
+                        attributesByCredential: {
+                          for (var cred in con) cred: cred.attributes,
+                        },
+                      )
                     ],
                   ),
-                ),
-                color: theme.lightBeige,
-              ),
-              SizedBox(height: theme.defaultSpacing),
-              TranslatedText(
-                state is DisclosurePermissionPreviouslyAddedCredentialsOverview
-                    ? 'disclosure_permission.choices.prev_added'
-                    : 'disclosure_permission.confirm.share',
-                style: theme.themeData.textTheme.headline3,
-              ),
-              SizedBox(height: theme.smallSpacing),
-              ...state.choices.values
-                  .mapIndexed(
-                    (index, con) => Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            GestureDetector(
-                              onTap: () => onEvent(DisclosurePermissionChangeChoicePressed(disconIndex: index)),
-                              child: TranslatedText(
-                                'disclosure_permission.confirm.change_choice',
-                                style:
-                                    theme.textTheme.caption!.copyWith(fontWeight: FontWeight.bold, color: Colors.blue),
-                              ),
-                            )
-                          ],
-                        ),
-                        SizedBox(height: theme.smallSpacing),
-                        IrmaCredentialsCard(
-                          attributesByCredential: {
-                            for (var cred in con) cred: cred.attributes,
-                          },
-                        )
-                      ],
-                    ),
-                  )
-                  .toList()
-            ],
-          ),
+                )
+                .toList()
+          ],
         ),
-        bottomNavigationBar: IrmaBottomBar(
-          primaryButtonLabel: state is DisclosurePermissionPreviouslyAddedCredentialsOverview
-              ? 'disclosure_permission.issue_wizard.next'
-              : 'disclosure_permission.confirm.submit',
-          onPrimaryPressed: () => onEvent(
-            DisclosurePermissionNextPressed(),
-          ),
-        ));
+      ),
+      bottomNavigationBar: IrmaBottomBar(
+        primaryButtonLabel: state is DisclosurePermissionPreviouslyAddedCredentialsOverview
+            ? 'disclosure_permission.next_step'
+            : 'disclosure_permission.overview.confirm',
+        onPrimaryPressed: () => onEvent(
+          DisclosurePermissionNextPressed(),
+        ),
+      ),
+    );
   }
 }
