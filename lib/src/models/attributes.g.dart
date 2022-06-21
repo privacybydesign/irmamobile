@@ -41,7 +41,7 @@ DisclosureCandidate _$DisclosureCandidateFromJson(Map<String, dynamic> json) {
     type: json['Type'] as String,
     notRevokable: json['NotRevokable'] as bool,
     value: TranslatedValue.fromJson(json['Value'] as Map<String, dynamic>?),
-    credentialHash: json['CredentialHash'] as String?,
+    credentialHash: json['CredentialHash'] as String,
   );
 }
 

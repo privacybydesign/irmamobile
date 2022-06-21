@@ -49,7 +49,7 @@ void main() {
     expect(disclosureSession.disclosuresCandidates![0].length, 1);
     expect(disclosureSession.disclosuresCandidates![0][0].length, 1);
     expect(disclosureSession.disclosuresCandidates![0][0][0].type, 'irma-demo.IRMATube.member.id');
-    expect(disclosureSession.disclosuresCandidates![0][0][0].credentialHash, null);
+    expect(disclosureSession.disclosuresCandidates![0][0][0].credentialHash, '');
 
     mockBridge.mockIssuanceSession(43, [
       {
@@ -90,7 +90,7 @@ void main() {
     expect(disclosureSession.disclosuresCandidates![0][0][0].credentialHash, 'session-43');
     expect(disclosureSession.disclosuresCandidates![0][1].length, 1);
     expect(disclosureSession.disclosuresCandidates![0][1][0].type, 'irma-demo.IRMATube.member.id');
-    expect(disclosureSession.disclosuresCandidates![0][1][0].credentialHash, null);
+    expect(disclosureSession.disclosuresCandidates![0][1][0].credentialHash, '');
     repo.dispatch(
       RespondPermissionEvent(
         sessionID: 42,
@@ -99,7 +99,7 @@ void main() {
           [
             AttributeIdentifier(
               type: disclosureSession.disclosuresCandidates![0][0][0].type,
-              credentialHash: disclosureSession.disclosuresCandidates![0][0][0].credentialHash!,
+              credentialHash: disclosureSession.disclosuresCandidates![0][0][0].credentialHash,
             )
           ]
         ],
@@ -137,7 +137,7 @@ void main() {
     expect(disclosureSession.disclosuresCandidates![0].length, 1);
     expect(disclosureSession.disclosuresCandidates![0][0].length, 1);
     expect(disclosureSession.disclosuresCandidates![0][0][0].type, 'irma-demo.IRMATube.member.id');
-    expect(disclosureSession.disclosuresCandidates![0][0][0].credentialHash, null);
+    expect(disclosureSession.disclosuresCandidates![0][0][0].credentialHash, '');
 
     // Start an issuance session to get a non-matching credential.
     mockBridge.mockIssuanceSession(43, [
@@ -166,7 +166,7 @@ void main() {
     expect(disclosureSession.disclosuresCandidates![0].length, 1);
     expect(disclosureSession.disclosuresCandidates![0][0].length, 1);
     expect(disclosureSession.disclosuresCandidates![0][0][0].type, 'irma-demo.IRMATube.member.id');
-    expect(disclosureSession.disclosuresCandidates![0][0][0].credentialHash, null);
+    expect(disclosureSession.disclosuresCandidates![0][0][0].credentialHash, '');
 
     // Start a second issuance session to get the right credential.
     mockBridge.mockIssuanceSession(44, [
@@ -202,7 +202,7 @@ void main() {
         [
           AttributeIdentifier(
             type: disclosureSession.disclosuresCandidates![0][0][0].type,
-            credentialHash: disclosureSession.disclosuresCandidates![0][0][0].credentialHash!,
+            credentialHash: disclosureSession.disclosuresCandidates![0][0][0].credentialHash,
           )
         ]
       ]),

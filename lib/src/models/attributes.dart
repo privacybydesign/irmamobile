@@ -156,7 +156,7 @@ class Attribute {
       IrmaConfiguration irmaConfiguration, Credentials credentials, DisclosureCandidate candidate) {
     // irmago enforces that the type of the given attributes is known in the configuration.
     final attributeType = irmaConfiguration.attributeTypes[candidate.type]!;
-    if (candidate.credentialHash != null && candidate.credentialHash != '') {
+    if (candidate.credentialHash.isNotEmpty) {
       // irmago enforces that the a credential instance exists for the given candidate.
       final credential = credentials[candidate.credentialHash]!;
       final value = credential.attributes[attributeType]!;
@@ -228,14 +228,14 @@ class DisclosureCandidate {
     required this.type,
     this.notRevokable = false,
     this.value = const TranslatedValue.empty(),
-    this.credentialHash,
+    this.credentialHash = '',
   });
 
   @JsonKey(name: 'Type')
   final String type;
 
   @JsonKey(name: 'CredentialHash')
-  final String? credentialHash;
+  final String credentialHash;
 
   @JsonKey(name: 'Value') // Default value is set by fromJson of TranslatedValue
   final TranslatedValue value;
