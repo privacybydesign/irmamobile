@@ -108,7 +108,7 @@ class IrmaCredentialsCard extends StatelessWidget {
                         logo: credInfo.credentialType.logo,
                         trailing: i == 0 ? headerTrailing : null,
                       ),
-                      // If there are no attributes for this credential hide the attribute list.
+                      // If there are attributes in this credential, then we show the attribute list
                       if (attributesByCredential[credInfo]!.any((att) => att.value is! NullValue)) ...[
                         IrmaDivider(style: style),
                         Padding(
