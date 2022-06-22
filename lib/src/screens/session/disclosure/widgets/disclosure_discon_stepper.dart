@@ -24,22 +24,23 @@ class DisclosureDisconStepper extends StatelessWidget {
   Widget build(BuildContext context) {
     return IrmaStepper(
       currentIndex: currentCandidateIndex,
-      children: candidates.values
-          .mapIndexed(
-            (i, disCon) =>
+      children: candidates.entries
+          .map(
+            (candidateEntry) =>
                 // If this item is a choice, render choice widget.
-                currentCandidateIndex != null && currentCandidateIndex! <= i && candidates[i]!.length > 1
+                currentCandidateIndex != null &&
+                        currentCandidateIndex! <= candidateEntry.key &&
+                        candidateEntry.value.length > 1
                     ? DisclosureIssueWizardChoice(
-                        isActive: i == currentCandidateIndex,
-                        choice: candidates[i]!,
-                        selectedConIndex: selectedConIndices[i]!,
+                        isActive: candidateEntry.key == currentCandidateIndex,
+                        choice: candidateEntry.value,
+                        selectedConIndex: selectedConIndices[candidateEntry.key]!,
                         onChoiceUpdated: onChoiceUpdated,
                       )
                     // If not, render credential card.
                     : DisclosureIssueWizardCredentialCard(
-                        isActive: i == currentCandidateIndex,
-                        credentials: candidates[i]![selectedConIndices[i]!],
-                      ),
+                        isActive: candidateEntry.key == currentCandidateIndex,
+                        credentials: candidateEntry.value[selectedConIndices[candidateEntry.key]!]),
           )
           .toList(),
     );
