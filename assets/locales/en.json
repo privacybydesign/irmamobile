@@ -381,7 +381,7 @@
     "previously_added": {
       "title": "Validate data",
       "explanation": "Check if the following information is correct.",
-      "header": "We still need the following data from you:"
+      "header": "This data has already been added to the app:"
     },
     "overview": {
       "title": "Collect data",
