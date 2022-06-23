@@ -4,6 +4,8 @@ import '../../../../widgets/credential_card/irma_credentials_card.dart';
 import '../../../../widgets/irma_card.dart';
 import '../models/disclosure_credential.dart';
 
+// TODO This class should be refactored,
+// so that it  only takes in one credential
 class DisclosureIssueWizardCredentialCard extends StatelessWidget {
   final List<DisclosureCredential> credentials;
   final bool isActive;
