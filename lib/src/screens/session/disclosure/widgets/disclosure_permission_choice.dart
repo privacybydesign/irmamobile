@@ -7,15 +7,13 @@ import '../../../../widgets/irma_card.dart';
 import '../../../../widgets/translated_text.dart';
 import '../models/disclosure_credential.dart';
 
-class DisclosurePermissionChoice
- extends StatelessWidget {
+class DisclosurePermissionChoice extends StatelessWidget {
   final DisCon<DisclosureCredential> choice;
   final bool isActive;
   final int selectedConIndex;
   final Function(int conIndex) onChoiceUpdated;
 
-  const DisclosurePermissionChoice
-  ({
+  const DisclosurePermissionChoice({
     required this.choice,
     required this.onChoiceUpdated,
     required this.selectedConIndex,
