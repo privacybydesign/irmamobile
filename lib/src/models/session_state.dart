@@ -9,12 +9,11 @@ class SessionState {
   final bool continueOnSecondDevice;
   final SessionStatus status;
   final RequestorInfo serverName;
-  final ConDisCon<Attribute>? disclosuresCandidates;
+  final ConDisCon<DisclosureCandidate>? disclosuresCandidates;
   final ReturnURL? clientReturnURL;
   final bool? isSignatureSession;
   final String? signedMessage;
   final List<Credential>? issuedCredentials;
-  final List<int>? disclosureIndices;
   final ConCon<AttributeIdentifier>? disclosureChoices;
   final bool? satisfiable;
   final bool? canBeFinished;
@@ -35,22 +34,12 @@ class SessionState {
     this.isSignatureSession,
     this.signedMessage,
     this.issuedCredentials,
-    this.disclosureIndices,
     this.disclosureChoices,
     this.satisfiable,
     this.canBeFinished,
     this.error,
     this.pairingCode,
   });
-
-  bool get canDisclose =>
-      disclosuresCandidates == null ||
-      disclosuresCandidates!
-          .asMap()
-          // The SessionRepository enforces that the disclosuresCandidates and the disclosureIndices are in sync.
-          .map((i, discon) => MapEntry(i, discon[disclosureIndices![i]]))
-          .values
-          .every((con) => con.every((attr) => attr.choosable));
 
   // We cannot fully rely on the sessionType value to determine whether it is issuance, because a
   // 'redirect' session can also be issuance. Therefore we overrule the sessionType when
@@ -70,12 +59,11 @@ class SessionState {
   SessionState copyWith({
     SessionStatus? status,
     RequestorInfo? serverName,
-    ConDisCon<Attribute>? disclosuresCandidates,
+    ConDisCon<DisclosureCandidate>? disclosuresCandidates,
     ReturnURL? clientReturnURL,
     bool? isSignatureSession,
     String? signedMessage,
     List<Credential>? issuedCredentials,
-    List<int>? disclosureIndices,
     ConCon<AttributeIdentifier>? disclosureChoices,
     bool? satisfiable,
     bool? canBeFinished,
@@ -92,7 +80,6 @@ class SessionState {
       isSignatureSession: isSignatureSession ?? this.isSignatureSession,
       signedMessage: signedMessage ?? this.signedMessage,
       issuedCredentials: issuedCredentials ?? this.issuedCredentials,
-      disclosureIndices: disclosureIndices ?? this.disclosureIndices,
       disclosureChoices: disclosureChoices ?? this.disclosureChoices,
       satisfiable: satisfiable ?? this.satisfiable,
       canBeFinished: canBeFinished ?? this.canBeFinished,

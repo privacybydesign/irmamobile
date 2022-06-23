@@ -2,18 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../data/irma_repository.dart';
+import '../../../models/irma_configuration.dart';
 import '../../../models/session.dart';
-import '../../../theme/theme.dart';
-import '../../../widgets/irma_bottom_bar.dart';
+import '../../../widgets/irma_repository_provider.dart';
 import '../../../widgets/loading_indicator.dart';
-import '../widgets/session_scaffold.dart';
 import 'bloc/disclosure_permission_bloc.dart';
 import 'bloc/disclosure_permission_event.dart';
 import 'bloc/disclosure_permission_state.dart';
-import 'widgets/disclosure_choices.dart';
-import 'widgets/disclosure_choices_confirm.dart';
-import 'widgets/disclosure_issue_wizard.dart';
-import 'widgets/disclosure_issue_wizard_choices.dart';
+import 'widgets/disclosure_permission_change_choice_screen.dart';
+import 'widgets/disclosure_permission_choices_screen.dart';
+import 'widgets/disclosure_permission_issue_wizard_screen.dart';
+import 'widgets/disclosure_permission_obtain_credentials_screen.dart';
 
 class DisclosurePermission extends StatelessWidget {
   final int sessionId;
@@ -32,6 +31,8 @@ class DisclosurePermission extends StatelessWidget {
       create: (_) => DisclosurePermissionBloc(
         sessionID: sessionId,
         repo: repo,
+        onObtainCredential: (CredentialType credType) =>
+            IrmaRepositoryProvider.of(context).openIssueURL(context, credType.fullId),
       ),
       child: ProvidedDisclosurePermission(requestor),
     );
@@ -45,86 +46,51 @@ class ProvidedDisclosurePermission extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
     final bloc = context.read<DisclosurePermissionBloc>();
     void addEvent(DisclosurePermissionBlocEvent event) => bloc.add(event);
 
     return BlocBuilder<DisclosurePermissionBloc, DisclosurePermissionBlocState>(
       builder: (context, state) {
-        //Build scaffold components according to state
-        late Widget body;
-        IrmaBottomBar? bottomBar;
-
-        // If state is loading/initial show centered loading indicator
-        if (state is DisclosurePermissionInitial) {
-          body = Center(
-            child: LoadingIndicator(),
+        if (state is DisclosurePermissionIssueWizard ||
+            (state is DisclosurePermissionObtainCredentials &&
+                state.templates.length == 1 &&
+                state.parentState is DisclosurePermissionIssueWizard)) {
+          return DisclosurePermissionIssueWizardScreen(
+            requestor: requestor,
+            state: state is DisclosurePermissionIssueWizard
+                ? state
+                : (state as DisclosurePermissionObtainCredentials).parentState as DisclosurePermissionIssueWizard,
+            onEvent: addEvent,
           );
-        } else {
-          //Else build body with actual state
-          if (state is DisclosurePermissionIssueWizardChoices) {
-            body = DisclosureIssueWizardChoices(
-              state: state,
-              onEvent: addEvent,
-            );
-            bottomBar = _buildBottomBar(addEvent);
-          } else if (state is DisclosurePermissionIssueWizard) {
-            body = DisclosureIssueWizard(
-              state: state,
-              requestor: requestor,
-            );
-            bottomBar = _buildBottomBar(
-              addEvent,
-              primaryIsDisabled: !state.allObtainedCredentialsMatch,
-            );
-          } else if (state is DisclosurePermissionChoices) {
-            body = DisclosureChoices(
-              state: state,
-              onEvent: addEvent,
-              requestor: requestor,
-            );
-            bottomBar = _buildBottomBar(addEvent);
-          } else if (state is DisclosurePermissionConfirmChoices) {
-            body = DisclosureChoicesConfirm(
-              state: state,
-              requestor: requestor,
-              onEvent: addEvent,
-            );
-            bottomBar = _buildBottomBar(addEvent,
-                primaryButtonLabel: 'disclosure_permission.confirm.submit', showChangeChoice: true);
-          }
-          // Wrap body with scrollview to make body scrollable
-          body = SingleChildScrollView(
-            padding: EdgeInsets.all(theme.defaultSpacing),
-            child: body,
+        } else if (state is DisclosurePermissionChangeChoice ||
+            (state is DisclosurePermissionObtainCredentials &&
+                state.templates.length == 1 &&
+                state.parentState is DisclosurePermissionChangeChoice)) {
+          return DisclosurePermissionChangeChoiceScreen(
+            state: state is DisclosurePermissionChangeChoice
+                ? state
+                : (state as DisclosurePermissionObtainCredentials).parentState as DisclosurePermissionChangeChoice,
+            onEvent: addEvent,
+          );
+        } else if (state is DisclosurePermissionObtainCredentials) {
+          return DisclosurePermissionObtainCredentialsScreen(
+            state: state,
+            onEvent: addEvent,
+          );
+        } else if (state is DisclosurePermissionChoices) {
+          return DisclosurePermissionChoicesScreen(
+            requestor: requestor,
+            state: state,
+            onEvent: addEvent,
           );
         }
-
-        //Return composed scaffold
-        return SessionScaffold(
-          appBarTitle: 'disclosure_permission.title',
-          appBarTitleStyle: theme.textTheme.headline3,
-          bottomNavigationBar: bottomBar,
-          body: body,
+        // If state is loading/initial show centered loading indicator
+        return Scaffold(
+          body: Center(
+            child: LoadingIndicator(),
+          ),
         );
       },
     );
   }
 }
-
-IrmaBottomBar _buildBottomBar(addEvent,
-        {primaryIsDisabled = false, showChangeChoice = false, String? primaryButtonLabel}) =>
-    IrmaBottomBar(
-      primaryButtonLabel: primaryButtonLabel ?? 'disclosure_permission.next',
-      onPrimaryPressed: primaryIsDisabled == true
-          ? null
-          : () => addEvent(
-                DisclosurePermissionNextPressed(),
-              ),
-      secondaryButtonLabel: showChangeChoice == true ? 'disclosure_permission.change_choice' : null,
-      onSecondaryPressed: showChangeChoice == true
-          ? () => addEvent(
-                DisclosurePermissionEditCurrentSelectionPressed(),
-              )
-          : null,
-    );

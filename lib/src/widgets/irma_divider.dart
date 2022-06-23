@@ -13,19 +13,20 @@ class IrmaDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: IrmaTheme.of(context).smallSpacing),
+      padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
       child: Container(
         height: 1,
         decoration: DottedDecoration(
-          strokeWidth: 0.5,
           dash: style == IrmaCardStyle.template
               //Dotted line
               ? [5, 5]
               //Solid line
               : [1, 0],
-          color: style == IrmaCardStyle.selected
-              ? IrmaTheme.of(context).themeData.colorScheme.primary.withOpacity(0.8)
+          color: style == IrmaCardStyle.highlighted || style == IrmaCardStyle.outlined
+              ? theme.themeData.colorScheme.primary
               : Colors.grey.shade300,
         ),
       ),

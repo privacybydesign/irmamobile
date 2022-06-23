@@ -235,6 +235,8 @@ class IrmaRepository {
   }
 
   // -- Scheme manager, issuer, credential and attribute definitions
+  IrmaConfiguration get irmaConfiguration => _irmaConfigurationSubject.value;
+
   Stream<IrmaConfiguration> getIrmaConfiguration() {
     return _irmaConfigurationSubject.stream;
   }

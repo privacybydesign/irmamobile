@@ -5,10 +5,9 @@ import '../theme/theme.dart';
 
 enum IrmaCardStyle {
   normal,
+  outlined,
+  highlighted,
   template,
-  selected,
-  success,
-  error,
 }
 
 /// Variant of Material's Card that uses IRMA styling.
@@ -61,12 +60,15 @@ class IrmaCard extends StatelessWidget {
                   borderRadius: borderRadius,
                   color: Colors.grey.shade300,
                 )
-              : style == IrmaCardStyle.selected
+              : style == IrmaCardStyle.highlighted || style == IrmaCardStyle.outlined
                   //Selected styling
                   ? BoxDecoration(
                       borderRadius: borderRadius,
-                      border: Border.all(color: theme.themeData.primaryColor.withOpacity(0.8)),
-                      color: theme.lightBlue,
+                      border: Border.all(
+                        color: theme.themeData.primaryColor,
+                        width: 2,
+                      ),
+                      color: style == IrmaCardStyle.highlighted ? theme.lightBlue : Colors.white,
                       boxShadow: shadow)
                   //Normal styling
                   : BoxDecoration(

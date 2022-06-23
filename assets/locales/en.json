@@ -1,6 +1,9 @@
 {
   "ui": {
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "step_of_steps": "Step {i} of {n}",
+    "step": "Step",
+    "done": "Done"
   },
   "enrollment": {
     "welcome": {
@@ -366,25 +369,31 @@
     "title": "Data request",
     "next": "Next",
     "change_choice": "Change choice",
+    "choose": "Make a choice",
+    "next_step": "Next step",
+    "obtain_data": "Obtain data",
     "issue_wizard": {
-      "add_data": "Add the following data:",
-      "not_valid": "The data you added is not valid here:"
+      "title": "Collect data",
+      "explanation": "Obtain your data step by step. You will be sharing these later.",
+      "header_incomplete": "We still need the following data from you:",
+      "header_complete": "All required data has been added."
     },
-    "issue_wizard_choice": {
-      "add_credential": "Add {credentialName}",
-      "choose_data": "Choose the data you want to share",
-      "and": "And"
+    "previously_added": {
+      "title": "Validate data",
+      "explanation": "Check if the following information is correct.",
+      "header": "This data has already been added to the app:"
     },
-    "choices": {
-      "choose_data": "Choose the data you want to share",
-      "explanation": "The data you select will be shared with the {requestorName}",
-      "step": "Step {stepIndex}",
-      "done": "Done"
+    "overview": {
+      "title": "Share your data",
+      "explanation": "Share your date with {requestorName}",
+      "header": "This is the data you are going to share:",
+      "confirm": "Share data"
     },
-    "confirm": {
-      "share": "This is the data you are going to share:",
-      "submit": "Share data",
-      "sign_message": "And you sign this message:"
+    "confirm_dialog": {
+      "title": "Share data",
+      "explanation": "You are about to share data with {requestorName}. Tap 'Share' to continue",
+      "confirm": "Share",
+      "decline": "Don't share"
     }
   },
   "disclosure": {
