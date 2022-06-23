@@ -10,8 +10,8 @@ import 'package:irmamobile/src/screens/activity/activity_tab.dart';
 import 'package:irmamobile/src/screens/activity/widgets/activity_card.dart';
 import 'package:irmamobile/src/screens/activity/widgets/activity_detail_issuance.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
+import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_attribute_list.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credentials_card.dart';
 
 import 'helpers.dart';
 import 'irma_binding.dart';
@@ -56,7 +56,7 @@ void main() {
         final cardAttributes = tester
             .getAllText(find.descendant(
               of: tester.findByTypeWithContent(
-                type: IrmaCredentialsCard,
+                type: IrmaCredentialCard,
                 content: find.text('Demo Personal data'),
               ),
               matching: find.byType(IrmaCredentialCardAttributeList),
@@ -110,7 +110,7 @@ void main() {
         // Get all the text in the attribute list
         final personalCardAttributes = tester
             .getAllText(find.descendant(
-              of: tester.findByTypeWithContent(type: IrmaCredentialsCard, content: find.text('Demo Address')),
+              of: tester.findByTypeWithContent(type: IrmaCredentialCard, content: find.text('Demo Address')),
               matching: find.byType(IrmaCredentialCardAttributeList),
             ))
             .toList();
