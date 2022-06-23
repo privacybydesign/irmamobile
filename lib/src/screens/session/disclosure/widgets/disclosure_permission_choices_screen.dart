@@ -119,7 +119,8 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                         attributesByCredential: {
                           for (var cred in con) cred: cred.attributes,
                         },
-                      )
+                      ),
+                      SizedBox(height: theme.defaultSpacing),
                     ],
                   ),
                 )
