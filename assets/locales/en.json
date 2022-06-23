@@ -371,7 +371,7 @@
     "change_choice": "Change choice",
     "choose": "Make a choice",
     "next_step": "Next step",
-    "obtain_data": "Fetch data",
+    "obtain_data": "Obtain data",
     "issue_wizard": {
       "title": "Collect data",
       "explanation": "Obtain your data step by step. You will be sharing these later.",
@@ -384,7 +384,7 @@
       "header": "This data has already been added to the app:"
     },
     "overview": {
-      "title": "Collect data",
+      "title": "Share your data",
       "explanation": "Share your date with {requestorName}",
       "header": "This is the data you are going to share:",
       "confirm": "Share data"

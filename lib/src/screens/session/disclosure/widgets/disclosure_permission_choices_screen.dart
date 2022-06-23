@@ -47,7 +47,9 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
     }
 
     return SessionScaffold(
-      appBarTitle: 'disclosure_permission.issue_wizard.title',
+      appBarTitle: state is DisclosurePermissionPreviouslyAddedCredentialsOverview
+          ? 'disclosure_permission.previously_added.title'
+          : 'disclosure_permission.overview.title',
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
         child: Column(
