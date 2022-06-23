@@ -1,6 +1,6 @@
 import 'package:collection/collection.dart';
-import 'package:irmamobile/src/models/attributes.dart';
 
+import '../../../../models/attributes.dart';
 import '../models/choosable_disclosure_credential.dart';
 import '../models/disclosure_credential.dart';
 import '../models/template_disclosure_credential.dart';
@@ -181,7 +181,7 @@ class DisclosurePermissionChangeChoice implements DisclosurePermissionBlocState 
     required this.discon,
     required this.disconIndex,
     required this.selectedConIndex,
-  });
+  }) : assert(selectedConIndex < discon.length);
 
   /// Returns a map with all con indices that are choosable and the corresponding Cons as map value.
   Map<int, Con<ChoosableDisclosureCredential>> get choosableCons => {
