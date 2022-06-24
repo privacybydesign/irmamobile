@@ -16,7 +16,7 @@ class ActivityDetailIssuance extends StatelessWidget {
     required this.logEntry,
     required this.irmaConfiguration,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
