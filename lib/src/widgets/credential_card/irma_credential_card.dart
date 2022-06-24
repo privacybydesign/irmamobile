@@ -33,7 +33,7 @@ class IrmaCredentialCard extends StatelessWidget {
     this.style = IrmaCardStyle.normal,
     this.padding,
   }) : assert(attributes.isEmpty || attributes.every((att) => att.credentialInfo.fullId == credentialInfo.fullId),
-            "Make sure that all attributes belong to the same credential");
+            'Make sure that all attributes belong to the same credential');
 
   IrmaCredentialCard.fromAttributes(
     this.attributes, {
