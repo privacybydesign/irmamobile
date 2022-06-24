@@ -15,7 +15,7 @@ class IrmaCredentialCard extends StatelessWidget {
   final CredentialInfo credentialInfo;
   final List<Attribute> attributes;
   final List<Attribute>? compareTo;
-  final bool? revoked;
+  final bool revoked;
   final CardExpiryDate? expiryDate;
   final Function()? onTap;
   final IrmaCardStyle style;
@@ -42,7 +42,7 @@ class IrmaCredentialCard extends StatelessWidget {
     this.onTap,
     this.style = IrmaCardStyle.normal,
     this.headerTrailing,
-    this.revoked,
+    this.revoked = false,
     this.expiryDate,
     this.padding,
   })  : credentialInfo = attributes.first.credentialInfo,
