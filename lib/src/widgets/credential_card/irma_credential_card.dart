@@ -23,7 +23,8 @@ class IrmaCredentialCard extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
 
   IrmaCredentialCard({
-    required this.credentialInfo,
+    Key? key,
+    CredentialInfo? credentialInfo,
     this.attributes = const [],
     this.compareTo,
     this.revoked = false,
@@ -32,20 +33,15 @@ class IrmaCredentialCard extends StatelessWidget {
     this.headerTrailing,
     this.style = IrmaCardStyle.normal,
     this.padding,
-  }) : assert(attributes.isEmpty || attributes.every((att) => att.credentialInfo.fullId == credentialInfo.fullId),
-            'Make sure that all attributes belong to the same credential');
-
-  IrmaCredentialCard.fromAttributes(
-    this.attributes, {
-    Key? key,
-    this.compareTo,
-    this.onTap,
-    this.style = IrmaCardStyle.normal,
-    this.headerTrailing,
-    this.revoked = false,
-    this.expiryDate,
-    this.padding,
-  })  : credentialInfo = attributes.first.credentialInfo,
+  })  : assert(
+          credentialInfo != null || attributes.isNotEmpty,
+          'Make sure you either provide attributes or credentialInfo',
+        ),
+        assert(
+            attributes.isEmpty ||
+                attributes.every((att) => att.credentialInfo.fullId == attributes.first.credentialInfo.fullId),
+            'Make sure that all attributes belong to the same credential'),
+        credentialInfo = credentialInfo ?? attributes.first.credentialInfo,
         super(key: key);
 
   IrmaCredentialCard.fromCredential(

@@ -19,6 +19,16 @@ class ActivityDetailDisclosure extends StatelessWidget {
     required this.irmaConfiguration,
   });
 
+  Widget _buildCredentialCard(List<DisclosedAttribute> disclosedAttributes) {
+    final mappedAttributes =
+        disclosedAttributes.map((e) => Attribute.fromDisclosedAttribute(irmaConfiguration, e)).toList();
+
+    return IrmaCredentialCard(
+      credentialInfo: mappedAttributes.first.credentialInfo,
+      attributes: mappedAttributes,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
@@ -45,10 +55,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
           style: theme.themeData.textTheme.headline3,
         ),
         SizedBox(height: theme.smallSpacing),
-        for (var disclosedAttributes in logEntry.disclosedAttributes)
-          IrmaCredentialCard.fromAttributes(
-            disclosedAttributes.map((e) => Attribute.fromDisclosedAttribute(irmaConfiguration, e)).toList(),
-          ),
+        for (var disclosedAttributes in logEntry.disclosedAttributes) _buildCredentialCard(disclosedAttributes),
         if (logEntry.type == LogEntryType.signing) ...[
           Padding(
             padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
