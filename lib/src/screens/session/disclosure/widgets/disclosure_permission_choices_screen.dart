@@ -114,7 +114,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                         ],
                       ),
                       SizedBox(height: theme.smallSpacing),
-                      for (var credential in con)
+                      for (var credential in choiceEntry.value)
                         IrmaCredentialCard(
                           credentialInfo: credential,
                           attributes: credential.attributes,
