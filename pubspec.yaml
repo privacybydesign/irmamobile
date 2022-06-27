@@ -55,7 +55,7 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   json_serializable: ^4.1.4
-  lint: ^1.6.0
+  flutter_lints: ^1.0.4
   flutter_native_splash: ^1.2.1
   build_runner: ^2.1.2
 

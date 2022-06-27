@@ -298,7 +298,7 @@
     "title": "Er gaat iets fout",
     "blocked_title": "App geblokkeerd",
     "button_ok": "OK",
-    "button_send_to_irma": "Stuur naar het technische team van IRMA",
+    "button_send_to_irma": "Stuur naar het IRMA-team",
     "button_show_error": "Technische details tonen",
     "button_retry": "Opnieuw proberen",
     "button_back": "Terug",
@@ -310,7 +310,7 @@
       "blocked": "Je IRMA-app is op afstand geblokeerd.\n\nDit is omdat dit via MijnIRMA voor jouw app is gedaan, of omdat je langer dan een jaar geen gebruik hebt gemaakt van IRMA op dit apparaat. Als je op dit apparaat IRMA wilt blijven gebruiken moet je opnieuw beginnen.",
       "expired": "De sessie is verlopen. Start alstublieft opnieuw.",
       "pairing_rejected": "De sessie is geweigerd. Start alstublieft opnieuw.",
-      "no_internet": "Er is iets misgegaan. Er kan geen verbinding gemaakt worden met de IRMA-server.\n\nControleer je internetverbinding. IRMA werkt niet zonder internet."
+      "no_internet": "Controleer je internetverbinding. Deze app werkt niet zonder internet."
     }
   },
   "wallet": {
@@ -384,7 +384,7 @@
       "header": "Deze gegevens zijn al eerder door jou toegevoegd aan de app:"
     },
     "overview": {
-      "title": "Verzamel gegevens",
+      "title": "Deel jouw gegevens",
       "explanation": "Deel jouw gegevens met {requestorName}",
       "header": "Deze gegevens ga je delen:",
       "confirm": "Gegevens delen"
@@ -472,16 +472,17 @@
     "safari": "Tik bovenin op de naam van het programma (bijvoorbeeld Safari, Chrome, Firefox) om terug te gaan naar het programma waar je mee bezig was."
   },
   "update": {
-    "required": "Om IRMA te blijven gebruiken, zul je de app moeten updaten.",
-    "doupdate": "Update"
+    "title": "Update beschikbaar",
+    "explanation": "Om de IRMA app te blijven gebruiken moet je de laatste versie downloaden",
+    "update_app": "Update app"
   },
   "action_feedback": {
     "ok": "OK"
   },
-  "device_rooted_warning": {
-    "title": "Toestel onveilig",
-    "body": "Het lijkt erop dat het besturingssysteem op jouw toestel is aangepast, hierdoor kan de veiligheid van jouw gegevens niet gegarandeerd worden.",
-    "button_accept_risk": "Ik aanvaard het risico"
+  "rooted_warning": {
+    "title": "Apparaat niet veilig",
+    "explanation": "Het besturingssysteem van uw apparaat lijkt gewijzigd te zijn. Hierdoor kan de veiligheid van uw gegevens niet worden gegarandeerd.",
+    "accept_risk": "Ik accepteer het risico"
   },
   "issue_wizard": {
     "back": "Annuleer",
@@ -500,10 +501,40 @@
       "scan_qr": "Scan QR"
     }
   },
+  "home_tab": {
+    "title": "Jouw gegevens, op jouw telefoon",
+    "get_going": "Ga aan de slag",
+    "more_information": "Meer informatie",
+    "recent_activity": "Recente activiteit",
+    "view_more": "Bekijk meer",
+    "action_card": {
+      "share": {
+        "title": "Deel direct je gegevens",
+        "subtitle": "met de organisatie die daar om vraagt"
+      },
+      "fetch": {
+        "title": "Haal jouw gegevens op",
+        "subtitle": "om ze zo in de toekomst direct te delen"
+      }
+    },
+    "info_card": {
+      "safety": {
+        "title": "Hoe veilig is IRMA?",
+        "body": "Informatie over de veiligheid van IRMA en hoe om te gaan met digitale identiteiten.",
+        "link": "https://irma.app/?lang=nl"
+      },
+      "about": {
+        "title": "Over de organisatie IRMA",
+        "body": "Lees hier alles over IRMA. Van algemene informatie tot techniek.",
+        "link": "https://privacybydesign.foundation/irma/"
+      }
+    }
+  },
   "more_tab": {
     "app_management": "App-beheer",
     "settings": "Instellingen",
     "help": "Help",
+    "debugging": "Debugging",
     "contact": "Contact opnemen",
     "share": "Deel IRMA",
     "website": "IRMA-website",
@@ -533,8 +564,7 @@
     "message_signed": "Bericht getekend",
     "shared_with": "Gedeeld met",
     "shared_data": "Gedeelde gegevens",
-    "received_data": "Ontvangen gegevens",
-    "recent_activity": "Recente activiteit"
+    "received_data": "Ontvangen gegevens"
   },
   "credential": {
     "no_data": "Geen gegevens"

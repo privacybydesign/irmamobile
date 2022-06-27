@@ -6,7 +6,7 @@ import '../../widgets/session_scaffold.dart';
 import '../bloc/disclosure_permission_event.dart';
 import '../bloc/disclosure_permission_state.dart';
 import '../models/template_disclosure_credential.dart';
-import 'disclosure_issue_wizard_choice.dart';
+import 'disclosure_permission_choice.dart';
 
 class DisclosurePermissionChangeChoiceScreen extends StatelessWidget {
   final DisclosurePermissionChangeChoice state;
@@ -25,7 +25,7 @@ class DisclosurePermissionChangeChoiceScreen extends StatelessWidget {
       appBarTitle: 'disclosure_permission.overview.title',
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
-        child: DisclosureIssueWizardChoice(
+        child: DisclosurePermissionChoice(
           choice: state.discon,
           selectedConIndex: state.selectedConIndex,
           onChoiceUpdated: (int conIndex) => onEvent(DisclosurePermissionChoiceUpdated(conIndex: conIndex)),

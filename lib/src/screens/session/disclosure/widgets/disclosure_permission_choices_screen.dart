@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
@@ -47,7 +46,9 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
     }
 
     return SessionScaffold(
-      appBarTitle: 'disclosure_permission.issue_wizard.title',
+      appBarTitle: state is DisclosurePermissionPreviouslyAddedCredentialsOverview
+          ? 'disclosure_permission.previously_added.title'
+          : 'disclosure_permission.overview.title',
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
         child: Column(
@@ -96,15 +97,15 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
               style: theme.themeData.textTheme.headline3,
             ),
             SizedBox(height: theme.smallSpacing),
-            ...state.choices.values
-                .mapIndexed(
-                  (index, con) => Column(
+            ...state.choices.entries
+                .map(
+                  (choiceEntry) => Column(
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           GestureDetector(
-                            onTap: () => onEvent(DisclosurePermissionChangeChoicePressed(disconIndex: index)),
+                            onTap: () => onEvent(DisclosurePermissionChangeChoicePressed(disconIndex: choiceEntry.key)),
                             child: TranslatedText(
                               'disclosure_permission.change_choice',
                               style: theme.textTheme.caption!.copyWith(fontWeight: FontWeight.bold, color: Colors.blue),

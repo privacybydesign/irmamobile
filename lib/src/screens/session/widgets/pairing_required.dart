@@ -1,6 +1,3 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -15,7 +12,7 @@ class PairingRequired extends StatelessWidget {
   final String pairingCode;
   final Function() onDismiss;
 
-  const PairingRequired({this.pairingCode, this.onDismiss});
+  const PairingRequired({required this.pairingCode, required this.onDismiss});
 
   Widget _buildPinBoxes(BuildContext context) {
     final theme = IrmaTheme.of(context);
@@ -30,7 +27,6 @@ class PairingRequired extends StatelessWidget {
     );
 
     return Row(
-      mainAxisSize: MainAxisSize.max,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
@@ -60,7 +56,6 @@ class PairingRequired extends StatelessWidget {
               const IrmaMessage(
                 'session.pairing.message_title',
                 'session.pairing.message_body',
-                type: IrmaMessageType.info,
               ),
               SizedBox(
                 height: IrmaTheme.of(context).defaultSpacing,

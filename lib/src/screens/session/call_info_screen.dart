@@ -1,6 +1,3 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -14,15 +11,15 @@ import 'package:irmamobile/src/widgets/translated_text.dart';
 
 class CallInfoScreen extends StatelessWidget {
   final String otherParty;
-  final Function() onContinue;
-  final Function() onCancel;
-  const CallInfoScreen({@required this.otherParty, this.onContinue, this.onCancel});
+  final Function()? onContinue;
+  final Function()? onCancel;
+  const CallInfoScreen({required this.otherParty, this.onContinue, this.onCancel});
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        onCancel();
+        onCancel?.call();
         return false;
       },
       child: Scaffold(
@@ -30,15 +27,14 @@ class CallInfoScreen extends StatelessWidget {
           title: Text(
             FlutterI18n.translate(context, 'disclosure.call_info.title'),
           ),
-          leadingAction: () => onCancel(),
+          leadingAction: () => onCancel?.call(),
         ),
         bottomNavigationBar: IrmaBottomBar(
           primaryButtonLabel: FlutterI18n.translate(context, 'disclosure.call_info.continue_button'),
-          onPrimaryPressed: () => onContinue(),
+          onPrimaryPressed: () => onContinue?.call(),
         ),
         body: SingleChildScrollView(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               Padding(
@@ -60,7 +56,6 @@ class CallInfoScreen extends StatelessWidget {
         IrmaMessage(
           'disclosure.call_info.success',
           'disclosure.call_info.success_message',
-          type: IrmaMessageType.info,
           descriptionParams: {"otherParty": otherParty},
         ),
         SizedBox(height: IrmaTheme.of(context).defaultSpacing),
@@ -117,7 +112,6 @@ class CallInfoScreen extends StatelessWidget {
           IrmaMessage(
             'disclosure.call_info.success',
             'disclosure.call_info.success_message_ios',
-            type: IrmaMessageType.info,
             descriptionParams: {"otherParty": otherParty},
           ),
           SizedBox(height: IrmaTheme.of(context).largeSpacing),

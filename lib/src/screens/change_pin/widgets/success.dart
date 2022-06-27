@@ -1,29 +1,22 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/widgets/action_feedback.dart';
-import 'package:irmamobile/src/widgets/translated_text.dart';
+
+import '../../../widgets/action_feedback.dart';
 
 class Success extends StatelessWidget {
   static const String routeName = 'change_pin/success';
 
   final void Function() cancel;
 
-  const Success({@required this.cancel});
+  const Success({
+    required this.cancel,
+  });
 
   @override
   Widget build(BuildContext context) {
     return ActionFeedback(
       success: true,
-      title: TranslatedText(
-        "change_pin.success.title",
-        style: Theme.of(context).textTheme.headline2,
-      ),
-      explanation: const TranslatedText(
-        "change_pin.success.message",
-        textAlign: TextAlign.center,
-      ),
+      titleTranslationKey: 'change_pin.success.title',
+      explanationTranslationKey: 'change_pin.success.message',
       onDismiss: () => Navigator.of(context, rootNavigator: true).pop(),
     );
   }

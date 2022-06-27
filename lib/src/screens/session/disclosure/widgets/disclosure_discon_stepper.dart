@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import '../../../../models/attributes.dart';
 import '../../../../widgets/irma_stepper.dart';
 import '../models/disclosure_credential.dart';
-import 'disclosure_issue_wizard_choice.dart';
 import 'disclosure_issue_wizard_credential_card.dart';
+import 'disclosure_permission_choice.dart';
 
 class DisclosureDisconStepper extends StatelessWidget {
   final int? currentCandidateIndex;
@@ -31,7 +31,7 @@ class DisclosureDisconStepper extends StatelessWidget {
                 currentCandidateIndex != null &&
                         currentCandidateIndex! <= candidateEntry.key &&
                         candidateEntry.value.length > 1
-                    ? DisclosureIssueWizardChoice(
+                    ? DisclosurePermissionChoice(
                         isActive: candidateEntry.key == currentCandidateIndex,
                         choice: candidateEntry.value,
                         selectedConIndex: selectedConIndices[candidateEntry.key]!,
