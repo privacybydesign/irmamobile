@@ -98,38 +98,20 @@ _The integration tests are in development, so not all use cases are covered yet.
 
 As preliminary to run the integration tests, you need a fully configured [irmamobile development setup](#development-setup).
 
-### Setting up a keyshare server for testing
-The integration tests need a running `irma keyshare server` to test enrollment. You cannot use the production keyshare server for this.
-
-If you don't have access to a remote test environment, you can set up your own keyshare server locally using Docker.
-For an explanation on how to do this, you can check the [running instructions of `irmago`](https://github.com/privacybydesign/irmago#running).
-
 ### Run locally using an iOS/Android simulator
-First, you have to specify which keyshare server the integration tests should use. This can be done by setting the `SCHEME_URL` or the `SCHEME_PATH` environment variable.
-
-In case you are using a remote test environment, you should specify the issuer scheme URL of its custom scheme using the `SCHEME_URL` environment variable.
-To use this option, you need the [`irma` CLI tool](https://github.com/privacybydesign/irmago#installing) to be installed and available in your PATH.
-
-    SCHEME_URL=https://example.com/schememanager/test
-
-If you have a local set-up, you should specify the path to the test configuration of your local keyshare server. For instance, when you are using the Docker set-up from `irmago`:
-
-    SCHEME_PATH=/path/to/irmago/testdata/irma_configuration/test
-
-By default, the script runs all integration tests. The tests can be started in the following way:
+The full set of integration tests can be started in the following way:
 
       # For an iOS testing device/simulator
-      dart test_driver/main.dart
+      flutter test integration_test/test_all.dart
       # For an Android testing device/simulator
-      adb reverse tcp:8080 tcp:8080
-      dart test_driver/main.dart --flavor=alpha
+      flutter test integration_test/test_all.dart --flavor=alpha
 
-To run a specific set of integration tests, you can override the test target using the `--target` command line argument.
+You can also run the integration tests in a specific test file only. For example:
 
-      dart test_driver/main.dart --target=integration_test/issuance_test.dart
+      flutter test integration_test/issuance_test.dart
 
-Note: we currently use `flutter drive` to run the integration tests, because `flutter test` does not allow us to specify a `--flavor` on Android.
-Due to this, the tests sometimes hang when "attempting to resume isolate" on Android. For now, the easiest work-around is to run the tests a second time then.
+Note: `flutter test` also supports directory paths as argument. When doing this, all tests in that particular directory are run.
+However, a new build is made for every test file. Running multiple tests in this way takes much more time for that reason.
 
 ### Run on Android natively
 

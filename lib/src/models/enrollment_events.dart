@@ -1,4 +1,3 @@
-import 'package:irmamobile/src/models/enrollment_status.dart';
 import 'package:irmamobile/src/models/event.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -17,14 +16,16 @@ class EnrollmentStatusEvent extends Event {
 
   factory EnrollmentStatusEvent.fromJson(Map<String, dynamic> json) => _$EnrollmentStatusEventFromJson(json);
   Map<String, dynamic> toJson() => _$EnrollmentStatusEventToJson(this);
-
-  EnrollmentStatus get enrollmentStatus =>
-      enrolledSchemeManagerIds.isNotEmpty ? EnrollmentStatus.enrolled : EnrollmentStatus.unenrolled;
 }
 
 @JsonSerializable()
 class EnrollEvent extends Event {
-  EnrollEvent({required this.email, required this.pin, required this.language});
+  EnrollEvent({
+    required this.email,
+    required this.pin,
+    required this.language,
+    required this.schemeId,
+  });
 
   @JsonKey(name: 'Email')
   final String email;
@@ -34,6 +35,9 @@ class EnrollEvent extends Event {
 
   @JsonKey(name: 'Language')
   final String language;
+
+  @JsonKey(name: 'SchemeID')
+  final String schemeId;
 
   factory EnrollEvent.fromJson(Map<String, dynamic> json) => _$EnrollEventFromJson(json);
   Map<String, dynamic> toJson() => _$EnrollEventToJson(this);

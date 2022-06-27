@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/go-errors/errors v1.4.2
 	github.com/privacybydesign/gabi v0.0.0-20220412064428-d1eff7721dca
-	github.com/privacybydesign/irmago v0.10.1-0.20220706115028-43e41df9a73a
+	github.com/privacybydesign/irmago v0.10.1-0.20220803120053-d7fef1c1b59f
 	github.com/sirupsen/logrus v1.8.1
 )
 
