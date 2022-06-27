@@ -4,7 +4,7 @@ import '../../../models/credentials.dart';
 import '../../../models/irma_configuration.dart';
 import '../../../models/log_entry.dart';
 import '../../../theme/theme.dart';
-import '../../../widgets/credential_card/irma_credentials_card.dart';
+import '../../../widgets/credential_card/irma_credential_card.dart';
 import '../../../widgets/translated_text.dart';
 import 'activity_detail_disclosure.dart';
 
@@ -12,7 +12,11 @@ class ActivityDetailIssuance extends StatelessWidget {
   final LogEntry logEntry;
   final IrmaConfiguration irmaConfiguration;
 
-  const ActivityDetailIssuance({required this.logEntry, required this.irmaConfiguration});
+  const ActivityDetailIssuance({
+    required this.logEntry,
+    required this.irmaConfiguration,
+  });
+
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
@@ -33,8 +37,8 @@ class ActivityDetailIssuance extends StatelessWidget {
         ),
         SizedBox(height: theme.smallSpacing),
         for (var rawCredential in logEntry.issuedCredentials)
-          IrmaCredentialsCard.fromCredential(
-            credential: Credential.fromRaw(
+          IrmaCredentialCard.fromCredential(
+            Credential.fromRaw(
               irmaConfiguration: irmaConfiguration,
               rawCredential: rawCredential,
             ),

@@ -38,7 +38,7 @@ class DisclosureDisconStepper extends StatelessWidget {
                         onChoiceUpdated: onChoiceUpdated,
                       )
                     // If not, render credential card.
-                    : DisclosureIssueWizardCredentialCard(
+                    : DisclosureIssueWizardCredentialCards(
                         isActive: candidateEntry.key == currentCandidateIndex,
                         credentials: candidateEntry.value[selectedConIndices[candidateEntry.key]!]),
           )

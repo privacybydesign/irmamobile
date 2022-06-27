@@ -3,7 +3,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../../models/session.dart';
 import '../../../../theme/theme.dart';
-import '../../../../widgets/credential_card/irma_credentials_card.dart';
+import '../../../../widgets/credential_card/irma_credential_card.dart';
 import '../../../../widgets/irma_bottom_bar.dart';
 import '../../../../widgets/irma_progress_indicator.dart';
 import '../../../../widgets/irma_quote.dart';
@@ -114,12 +114,11 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                         ],
                       ),
                       SizedBox(height: theme.smallSpacing),
-                      IrmaCredentialsCard(
-                        attributesByCredential: {
-                          for (var cred in choiceEntry.value) cred: cred.attributes,
-                        },
-                      ),
-                      SizedBox(height: theme.defaultSpacing),
+                      for (var credential in choiceEntry.value)
+                        IrmaCredentialCard(
+                          credentialInfo: credential,
+                          attributes: credential.attributes,
+                        )
                     ],
                   ),
                 )

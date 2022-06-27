@@ -9,11 +9,11 @@ import '../translated_text.dart';
 
 class IrmaCredentialCardAttributeList extends StatelessWidget {
   final List<Attribute> attributes;
-  final List<Attribute>? compareToAttributes;
+  final List<Attribute>? compareTo;
 
   const IrmaCredentialCardAttributeList(
     this.attributes, {
-    this.compareToAttributes,
+    this.compareTo,
   });
 
   @override
@@ -51,7 +51,7 @@ class IrmaCredentialCardAttributeList extends StatelessWidget {
                     );
                   } else if (attribute.value is TextValue) {
                     final Attribute? compareValue =
-                        compareToAttributes?.firstWhereOrNull((e) => e.attributeType.id == attribute.attributeType.id);
+                        compareTo?.firstWhereOrNull((e) => e.attributeType.id == attribute.attributeType.id);
                     return TranslatedText(
                       (attribute.value as TextValue).translated.translate(lang),
                       style: theme.themeData.textTheme.bodyText1!.copyWith(

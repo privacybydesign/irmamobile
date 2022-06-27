@@ -5,7 +5,7 @@ import '../../../models/attributes.dart';
 import '../../../models/irma_configuration.dart';
 import '../../../models/log_entry.dart';
 import '../../../theme/theme.dart';
-import '../../../widgets/credential_card/irma_credentials_card.dart';
+import '../../../widgets/credential_card/irma_credential_card.dart';
 import '../../../widgets/irma_quote.dart';
 import '../../../widgets/translated_text.dart';
 import 'issuer_verifier_header.dart';
@@ -14,10 +14,25 @@ class ActivityDetailDisclosure extends StatelessWidget {
   final LogEntry logEntry;
   final IrmaConfiguration irmaConfiguration;
 
-  const ActivityDetailDisclosure({required this.logEntry, required this.irmaConfiguration});
+  const ActivityDetailDisclosure({
+    required this.logEntry,
+    required this.irmaConfiguration,
+  });
+
+  Widget _buildCredentialCard(List<DisclosedAttribute> disclosedAttributes) {
+    final mappedAttributes =
+        disclosedAttributes.map((e) => Attribute.fromDisclosedAttribute(irmaConfiguration, e)).toList();
+
+    return IrmaCredentialCard(
+      credentialInfo: mappedAttributes.first.credentialInfo,
+      attributes: mappedAttributes,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -40,10 +55,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
           style: theme.themeData.textTheme.headline3,
         ),
         SizedBox(height: theme.smallSpacing),
-        for (var disclosedAttributes in logEntry.disclosedAttributes)
-          IrmaCredentialsCard.fromAttributes(
-            disclosedAttributes.map((e) => Attribute.fromDisclosedAttribute(irmaConfiguration, e)).toList(),
-          ),
+        for (var disclosedAttributes in logEntry.disclosedAttributes) _buildCredentialCard(disclosedAttributes),
         if (logEntry.type == LogEntryType.signing) ...[
           Padding(
             padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
