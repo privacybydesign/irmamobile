@@ -1,6 +1,8 @@
 // This code is not null safe yet.
 // @dart=2.11
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -10,13 +12,17 @@ import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/pin_field.dart';
 
+import '../../pin/secure_pin_bottom_sheet.dart';
+
 class ConfirmPin extends StatelessWidget {
   static const String routeName = 'change_pin/confirm_pin';
 
   final void Function(String) confirmNewPin;
   final void Function() cancel;
 
-  const ConfirmPin({@required this.confirmNewPin, @required this.cancel});
+  final pinController = StreamController<List<int>>();
+
+  ConfirmPin({@required this.confirmNewPin, @required this.cancel});
 
   @override
   Widget build(BuildContext context) {
@@ -49,8 +55,10 @@ class ConfirmPin extends StatelessWidget {
               SizedBox(height: IrmaTheme.of(context).mediumSpacing),
               PinField(
                 longPin: state.longPin,
+                onChange: (String pin) => pinController.add(pin.split('').map((e) => int.parse(e)).toList()),
                 onSubmit: (String pin) => confirmNewPin(pin),
-              )
+              ),
+              infoButton(context, pinController.stream),
             ],
           ),
         );

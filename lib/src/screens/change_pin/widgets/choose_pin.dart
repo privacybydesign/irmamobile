@@ -1,11 +1,14 @@
 // This code is not null safe yet.
 // @dart=2.11
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/screens/change_pin/models/change_pin_bloc.dart';
 import 'package:irmamobile/src/screens/change_pin/models/change_pin_state.dart';
+import 'package:irmamobile/src/screens/pin/secure_pin_bottom_sheet.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_text_button.dart';
@@ -18,8 +21,9 @@ class ChoosePin extends StatelessWidget {
   final void Function() toggleLongPin;
   final void Function() cancel;
   final FocusNode pinFocusNode;
+  final pinController = StreamController<List<int>>();
 
-  const ChoosePin(
+  ChoosePin(
       {@required this.pinFocusNode, @required this.chooseNewPin, @required this.toggleLongPin, @required this.cancel});
 
   @override
@@ -57,8 +61,10 @@ class ChoosePin extends StatelessWidget {
                 PinField(
                   focusNode: pinFocusNode,
                   longPin: state.longPin,
+                  onChange: (String pin) => pinController.add(pin.split('').map((e) => int.parse(e)).toList()),
                   onSubmit: (String pin) => chooseNewPin(context, pin),
                 ),
+                infoButton(context, pinController.stream),
                 SizedBox(height: IrmaTheme.of(context).smallSpacing),
                 IrmaTextButton(
                   onPressed: () {

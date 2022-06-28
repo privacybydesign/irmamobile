@@ -558,5 +558,17 @@
   },
   "credential": {
     "no_data": "Geen gegevens"
+  },
+  "secure_pin": {
+    "info_button": "Pincode mogelijk niet veilig",
+    "title": "Pincode aanmaken",
+    "subtitle": "Een veilige Pin voldoet aan:",
+    "rules": {
+      "atleast5atmost13": "Bevat in totaal 5 a 16 cijfers",
+      "contains3unique": "Bevat minimaal 3 unieke cijfers",
+      "mustNotAscDesc": "Bevat geen op- en aflopende reeksen, bijv. 12345",
+      "notAbcabNorAbcba": "Mag de volgende patronen niet bevatten: abcab, abcba",
+      "pinSizeGt5MustContainValidSubset": "Moet een reeks van 5 bevatten, die aan de bovenstaande regels voldoen"
+    }
   }
 }

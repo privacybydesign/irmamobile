@@ -31,17 +31,21 @@ bool pinMustNotBeMemberOfSeriesAscDesc(List<int> pin) {
   return !(isAsc(pin) || isDesc(pin));
 }
 
+typedef PinRule = bool Function(List<int>);
+
+final pinRules = <PinRule>{
+  pinMustContainAtLeastThreeUniqueNumbers,
+  pinMustNotContainPatternAbcba,
+  pinMustNotContainPatternAbcab,
+  pinMustNotBeMemberOfSeriesAscDesc,
+};
+
 bool pinMustContainASublistOfSize5ThatCompliesToAllRules(List<int> pin) {
   if (!pinSizeMustBeAtLeast5AtMost13(pin)) {
     return false;
   }
 
-  final rules = <bool Function(List<int>)>{
-    pinMustContainAtLeastThreeUniqueNumbers,
-    pinMustNotContainPatternAbcba,
-    pinMustNotContainPatternAbcab,
-    pinMustNotBeMemberOfSeriesAscDesc,
-  };
+  final rules = pinRules;
 
   if (pin.length == 5) {
     return rules.every((r) => r(pin));

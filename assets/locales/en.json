@@ -558,5 +558,17 @@
   },
   "credential": {
     "no_data": "No data"
+  },
+  "secure_pin": {
+    "info_button": "PIN possibly not secure",
+    "title": "Secure PIN",
+    "subtitle": "A secure PIN has the following properties:",
+    "rules": {
+      "atleast5atmost13": "Contains at least 5, at most 16 characters",
+      "contains3unique": "Contains at least 3 unique numbers",
+      "mustNotAscDesc": "Must not contain ascending nor descending patterns, e.g. 12345",
+      "notAbcabNorAbcba": "Must not contain the following patterns: abcab, abcba",
+      "pinSizeGt5MustContainValidSubset": "Must contain 5 adjacent numbers, that comply with the rules mentioned above"
+    }
   }
 }
