@@ -40,7 +40,10 @@ class DisclosureDisconStepper extends StatelessWidget {
                     // If not, render credential card.
                     : DisclosureIssueWizardCredentialCards(
                         isActive: candidateEntry.key == currentCandidateIndex,
-                        credentials: candidateEntry.value[selectedConIndices[candidateEntry.key]!]),
+                        // Only show the attribute values when the candidate has yet to be completed
+                        showAttributes: currentCandidateIndex != null && currentCandidateIndex! <= candidateEntry.key,
+                        credentials: candidateEntry.value[selectedConIndices[candidateEntry.key]!],
+                      ),
           )
           .toList(),
     );
