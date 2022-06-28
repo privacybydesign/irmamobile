@@ -74,8 +74,9 @@ attaching data to signed statements. These data can be relevant properties, such
 * Install Go from the [Go download page](https://golang.org/dl/) or by using your OS package
   manager.
 
-* Run (somewhere outside of your `irmamobile` checkout) `go get golang.org/x/mobile/cmd/gomobile` to install gomobile and then run `gomobile init`
-  to initialize gomobile.
+* Run `go install golang.org/x/mobile/cmd/gomobile@latest` to install gomobile.
+
+* Run `gomobile init` to initialize gomobile.
 
 * Create the irmagobridge: `./bind_go.sh`.
 
