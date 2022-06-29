@@ -23,8 +23,8 @@ class IrmaActionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final backgroundColor = invertColors ? Colors.white : theme.themeData.colorScheme.secondary;
-    final textColor = invertColors ? theme.themeData.colorScheme.secondary : Colors.white;
+    final backgroundColor = invertColors ? Colors.white : theme.themeData.colorScheme.primary;
+    final textColor = invertColors ? theme.themeData.colorScheme.primary : Colors.white;
 
     return IrmaCard(
       color: backgroundColor,
