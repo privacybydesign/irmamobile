@@ -125,8 +125,10 @@ void _showSecurePinBottomSheet(BuildContext context, List<int> pin) {
   ];
 
   if (pin.length > 5) {
-    rules.add(_pinRule(context, pinMustContainASublistOfSize5ThatCompliesToAllRules(pin),
-        'secure_pin.rules.pinSizeGt5MustContainValidSubset'));
+    rules
+      ..add(const Divider())
+      ..add(_pinRule(context, pinMustContainASublistOfSize5ThatCompliesToAllRules(pin),
+          'secure_pin.rules.pinSizeGt5MustContainValidSubset'));
   }
 
   showModalBottomSheet(
