@@ -42,7 +42,7 @@ class IrmaProgressIndicator extends StatelessWidget {
                 Expanded(
                   child: LinearProgressIndicator(
                     value: step / stepCount,
-                    color: theme.themeData.colorScheme.secondary,
+                    color: theme.success,
                     backgroundColor: Colors.grey.shade300,
                   ),
                 )

@@ -27,14 +27,14 @@ class IrmaStepIndicator extends StatelessWidget {
         shape: BoxShape.circle,
         // If style is success background is green.
         color: style == IrmaStepIndicatorStyle.success
-            ? Colors.green
-            // If style is outlined background is primary.
+            ? theme.success
+            // If style is outlined background is secondary.
             : style == IrmaStepIndicatorStyle.filled
-                ? theme.themeData.colorScheme.primary
+                ? theme.themeData.colorScheme.secondary
                 // Else background is white.
                 : Colors.white,
         border: Border.all(
-          color: style == IrmaStepIndicatorStyle.success ? Colors.green : theme.themeData.colorScheme.primary,
+          color: style == IrmaStepIndicatorStyle.success ? theme.success : theme.themeData.colorScheme.secondary,
           width: 2,
         ),
       ),
@@ -50,7 +50,7 @@ class IrmaStepIndicator extends StatelessWidget {
               style: theme.textTheme.caption!.copyWith(
                 height: 1.2,
                 fontWeight: FontWeight.bold,
-                color: style == IrmaStepIndicatorStyle.outlined ? theme.themeData.colorScheme.primary : Colors.white,
+                color: style == IrmaStepIndicatorStyle.outlined ? theme.themeData.colorScheme.secondary : Colors.white,
               ),
             ),
     );

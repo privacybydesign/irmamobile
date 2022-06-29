@@ -47,7 +47,7 @@ class IrmaStepper extends StatelessWidget {
       endChild: child,
       beforeLineStyle: LineStyle(
         thickness: 1,
-        color: theme.themeData.colorScheme.primary,
+        color: theme.themeData.colorScheme.secondary,
       ),
     );
   }

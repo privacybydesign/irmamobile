@@ -65,10 +65,10 @@ class IrmaCard extends StatelessWidget {
                   ? BoxDecoration(
                       borderRadius: borderRadius,
                       border: Border.all(
-                        color: theme.themeData.primaryColor,
+                        color: theme.themeData.colorScheme.secondary,
                         width: 2,
                       ),
-                      color: style == IrmaCardStyle.highlighted ? theme.lightBlue : Colors.white,
+                      color: style == IrmaCardStyle.highlighted ? theme.surfaceSecondary : Colors.white,
                       boxShadow: shadow)
                   //Normal styling
                   : BoxDecoration(

@@ -64,7 +64,6 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              color: theme.lightBeige,
             ),
             SizedBox(height: theme.defaultSpacing),
             TranslatedText(
