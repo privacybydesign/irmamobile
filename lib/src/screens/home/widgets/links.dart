@@ -28,7 +28,7 @@ class Link extends StatelessWidget {
         style: style ?? IrmaTheme.of(context).textTheme.bodyText2!.copyWith(decoration: TextDecoration.underline),
       ),
       leading: iconData != null
-          ? Icon(iconData, size: 30, color: IrmaTheme.of(context).themeData.colorScheme.primary)
+          ? Icon(iconData, size: 30, color: IrmaTheme.of(context).themeData.colorScheme.secondary)
           : null,
     );
   }

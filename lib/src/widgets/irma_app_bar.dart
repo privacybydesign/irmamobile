@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/theme/theme.dart';
 
 class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget title;
@@ -23,7 +24,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: IrmaTheme.of(context).themeData.colorScheme.background,
       key: const Key('irma_app_bar'),
       centerTitle: true,
       leading: noLeading

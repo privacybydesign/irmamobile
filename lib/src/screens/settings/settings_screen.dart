@@ -40,10 +40,10 @@ class SettingsScreen extends StatelessWidget {
                     FlutterI18n.translate(context, 'settings.start_qr'),
                     style: theme.textTheme.bodyText2,
                   ),
-                  activeColor: theme.themeData.colorScheme.primary,
+                  activeColor: theme.themeData.colorScheme.secondary,
                   value: snapshot.hasData && snapshot.data!,
                   onChanged: repo.preferences.setStartQRScan,
-                  secondary: Icon(IrmaIcons.scanQrcode, size: 30, color: theme.themeData.colorScheme.primary),
+                  secondary: Icon(IrmaIcons.scanQrcode, size: 30, color: theme.themeData.colorScheme.secondary),
                 );
               },
             ),
@@ -55,10 +55,10 @@ class SettingsScreen extends StatelessWidget {
                     FlutterI18n.translate(context, 'settings.advanced.report_errors'),
                     style: theme.textTheme.bodyText2,
                   ),
-                  activeColor: theme.themeData.colorScheme.primary,
+                  activeColor: theme.themeData.colorScheme.secondary,
                   value: snapshot.data != null && snapshot.data!,
                   onChanged: repo.preferences.setReportErrors,
-                  secondary: Icon(IrmaIcons.invalid, size: 30, color: theme.themeData.colorScheme.primary),
+                  secondary: Icon(IrmaIcons.invalid, size: 30, color: theme.themeData.colorScheme.secondary),
                 );
               },
             ),
@@ -75,10 +75,10 @@ class SettingsScreen extends StatelessWidget {
                               FlutterI18n.translate(context, 'settings.advanced.developer_mode'),
                               style: theme.textTheme.bodyText2,
                             ),
-                            activeColor: theme.themeData.colorScheme.primary,
+                            activeColor: theme.themeData.colorScheme.secondary,
                             value: snapshot.data != null && snapshot.data!,
                             onChanged: (enabled) => repo.setDeveloperMode(enabled),
-                            secondary: Icon(IrmaIcons.settings, size: 30, color: theme.themeData.colorScheme.primary),
+                            secondary: Icon(IrmaIcons.settings, size: 30, color: theme.themeData.colorScheme.secondary),
                           );
                         },
                       );
@@ -97,10 +97,10 @@ class SettingsScreen extends StatelessWidget {
                       FlutterI18n.translate(context, 'settings.advanced.enable_screenshots_note'),
                       style: theme.textTheme.caption!.copyWith(color: theme.grayscale40),
                     ),
-                    activeColor: theme.themeData.colorScheme.primary,
+                    activeColor: theme.themeData.colorScheme.secondary,
                     value: snapshot.data != null && snapshot.data!,
                     onChanged: repo.preferences.setScreenshotsEnabled,
-                    secondary: Icon(IrmaIcons.phone, size: 30, color: theme.themeData.colorScheme.primary),
+                    secondary: Icon(IrmaIcons.phone, size: 30, color: theme.themeData.colorScheme.secondary),
                   );
                 },
               ),
@@ -113,7 +113,7 @@ class SettingsScreen extends StatelessWidget {
                 FlutterI18n.translate(context, 'settings.change_pin'),
                 style: theme.textTheme.bodyText2,
               ),
-              leading: Icon(IrmaIcons.edit, size: 30, color: theme.themeData.colorScheme.primary),
+              leading: Icon(IrmaIcons.edit, size: 30, color: theme.themeData.colorScheme.secondary),
             ),
             ListTile(
               title: Text(
@@ -123,7 +123,7 @@ class SettingsScreen extends StatelessWidget {
               onTap: () {
                 openWalletResetDialog(context);
               },
-              leading: Icon(IrmaIcons.delete, color: theme.themeData.colorScheme.primary),
+              leading: Icon(IrmaIcons.delete, color: theme.themeData.colorScheme.secondary),
             ),
           ]),
       //),

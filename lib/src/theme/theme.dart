@@ -105,7 +105,7 @@ class IrmaThemeData {
       onSecondary: Colors.white,
       error: error,
       onError: Colors.white,
-      background: Colors.white,
+      background: background,
       surface: Colors.grey.shade300,
       onBackground: primary,
       onSurface: primary,
@@ -117,12 +117,8 @@ class IrmaThemeData {
     //Init Text theme
     textTheme = TextTheme(
       // headline1 is used for extremely large text
-      headline1: TextStyle(
-        fontSize: 26.0,
-        fontFamily: fontFamilyHeadings,
-        fontWeight: FontWeight.bold,
-        color: secondary
-      ),
+      headline1:
+          TextStyle(fontSize: 26.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.bold, color: secondary),
       // headline2 is used for very, very large text
       headline2: TextStyle(
         fontSize: 24.0,
