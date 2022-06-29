@@ -12,26 +12,35 @@ class IrmaThemeData {
   final double largeSpacing = _spaceBase * 2; // 32
   final double hugeSpacing = _spaceBase * 4; // 64
 
-  // Colors used in colorscheme
+  // Main colors
+  final Color primary = const Color(0xFFBA3354); // Used sparingly, but identifies with our brand
+  final Color secondary = const Color(0xFF363E6A); // Used for buttons and headlines
+
+  // Background / contrast colors
+  final Color background = const Color(0xFFF7F7F7); //Used on scaffolds and scrollable backgrounds
+  final Color surfacePrimary = Colors.white; // Used on cards etc, to contrast with the background
+  final Color surfaceSecondary = const Color(0xFFE9F4FF); // Used on cards that are active etc.
+  final Color dark = Colors.black; // Used as default, non headline, text color
+
+  // Communicating colors
+  final Color error = const Color(0xFFBD1919);
+  final Color success = const Color(0xFF33AD38);
+  final Color link = const Color(0xFF0000EE);
+
+  // TODO The colors below are deprecated!
   final Color primaryBlue = const Color(0xFF4B73FF);
   final Color secondaryPurple = const Color(0xFF362C78);
-
-  final Color error = const Color(0xFFBD1919);
-
   final Color primaryDark = const Color(0xFF15222E);
-
   final Color lightBlue = const Color(0xFFE9F4FF);
   final Color lightBeige = const Color(0xFFFDE6DB);
   Color get primaryLight => grayscale95;
   final Color darkPurple = const Color(0xFF362C78);
   Color get disabled => grayscale60;
-
   // Supplementary colors (for card backgrounds)
   final Color cardRed = const Color(0xFFD44454);
   final Color cardBlue = const Color(0xFF00B1E6);
   final Color cardOrange = const Color(0xFFFFBB58);
   final Color cardGreen = const Color(0xFF2BC194);
-
   // Support colors (for alerts and feedback on form elements)
   final Color interactionValid = const Color(0xFF079268);
   Color get interactionInvalid => error;
@@ -39,7 +48,6 @@ class IrmaThemeData {
   Color get interactionInformation => primaryBlue;
   final Color interactionInvalidTransparant = const Color(0x22D44454);
   final Color interactionCompleted = const Color(0xFF8BBEAF);
-
   final Color notificationSuccess = const Color(0xFF029B17);
   final Color notificationSuccessBg = const Color(0xFFAADACE);
   Color get notificationError => error;
@@ -48,21 +56,16 @@ class IrmaThemeData {
   final Color notificationWarningBg = const Color(0xFFFAD8B6);
   Color get notificationInfo => primaryBlue;
   final Color notificationInfoBg = const Color(0xFFB1CDE5);
-
   // Support colors (qr scanner)
   final Color overlayValid = const Color(0xFF007E4C);
   Color get overlayInvalid => error;
-
   // Link colors
   Color get linkColor => primaryBlue;
   Color get linkVisitedColor => grayscale60;
-
   // Overlay color
   Color get overlay50 => grayscale40;
-
   // Background color
   final Color backgroundBlue = Colors.white;
-
   // Grayscale colors (used for text, background colors, lines and icons)
   final Color grayscaleWhite = const Color(0xFFFFFFFF);
   final Color grayscale95 = const Color(0xFFF2F5F8);
@@ -79,7 +82,10 @@ class IrmaThemeData {
   //TODO: The values below are marked late and have to be initialized in the constructor body.
   //In the future these values should be phased out and be move into ThemeData.colorScheme.
 
-  //Main theme components
+  // Spacing etc.
+  late final double screenPadding;
+
+  // Main theme components
   late final TextTheme textTheme;
   late final ThemeData themeData;
 
@@ -92,53 +98,77 @@ class IrmaThemeData {
   IrmaThemeData() {
     //Init color scheme
     final colorScheme = ColorScheme(
-        brightness: Brightness.light,
-        primary: primaryBlue,
-        onPrimary: Colors.white,
-        secondary: secondaryPurple,
-        onSecondary: Colors.white,
-        error: error,
-        onError: Colors.white,
-        background: Colors.white,
-        onBackground: primaryDark,
-        surface: Colors.grey.shade300,
-        onSurface: primaryDark);
+      brightness: Brightness.light,
+      primary: primary,
+      onPrimary: Colors.white,
+      secondary: secondary,
+      onSecondary: Colors.white,
+      error: error,
+      onError: Colors.white,
+      background: Colors.white,
+      surface: Colors.grey.shade300,
+      onBackground: primary,
+      onSurface: primary,
+    );
+
+    //Init spacing
+    screenPadding = defaultSpacing;
 
     //Init Text theme
     textTheme = TextTheme(
       // headline1 is used for extremely large text
-      headline1:
-          TextStyle(fontSize: 26.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.bold, color: primaryDark),
+      headline1: TextStyle(
+        fontSize: 26.0,
+        fontFamily: fontFamilyHeadings,
+        fontWeight: FontWeight.bold,
+        color: secondary
+      ),
       // headline2 is used for very, very large text
-      headline2:
-          TextStyle(fontSize: 24.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.bold, color: primaryDark),
+      headline2: TextStyle(
+        fontSize: 24.0,
+        fontFamily: fontFamilyHeadings,
+        fontWeight: FontWeight.bold,
+        color: secondary,
+      ),
       // headline3 is used for very large text
-      headline3:
-          TextStyle(fontSize: 18.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.bold, color: primaryDark),
+      headline3: TextStyle(
+        fontSize: 18.0,
+        fontFamily: fontFamilyHeadings,
+        fontWeight: FontWeight.bold,
+        color: secondary,
+      ),
       // headline4 is used for large text
-      headline4:
-          TextStyle(fontSize: 16.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.bold, color: primaryDark),
+      headline4: TextStyle(
+        fontSize: 16.0,
+        fontFamily: fontFamilyHeadings,
+        fontWeight: FontWeight.bold,
+        color: secondary,
+      ),
       // headline5 is used for large text in dialogs
-      headline5:
-          TextStyle(fontSize: 14.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.w500, color: primaryDark),
+      headline5: TextStyle(
+        fontSize: 14.0,
+        fontFamily: fontFamilyHeadings,
+        fontWeight: FontWeight.w500,
+        color: secondary,
+      ),
       // headline6 is used for the primary text in app bars and dialogs
       headline6: TextStyle(
         fontSize: 18.0,
         height: 28.0 / 18.0,
         fontWeight: FontWeight.bold,
-        color: Colors.grey.shade900,
+        color: secondary,
       ),
       // bodyText1 is used for emphasizing text
-      bodyText1: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500, color: primaryDark),
+      bodyText1: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500, color: dark),
       // bodyText2 is the default text style
-      bodyText2: TextStyle(fontSize: 16.0, fontWeight: FontWeight.normal, color: primaryDark),
+      bodyText2: TextStyle(fontSize: 16.0, fontWeight: FontWeight.normal, color: dark),
       // overline is used for the smallest text
       overline: TextStyle(
         fontFamily: fontFamilyHeadings,
         fontSize: 12.0,
         height: 16.0 / 12.0,
         fontWeight: FontWeight.w600,
-        color: grayscale40,
+        color: dark,
       ),
 
       // subtitle1 is used for the primary text in lists
@@ -147,7 +177,7 @@ class IrmaThemeData {
         fontSize: 16.0,
         height: 22.0 / 18.0,
         fontWeight: FontWeight.normal,
-        color: primaryDark,
+        color: dark,
       ),
 
       // subtitle2 is used for medium emphasis text that's a little smaller than subhead.
@@ -163,15 +193,15 @@ class IrmaThemeData {
         fontSize: 14.0,
         height: 20.0 / 14.0,
         fontWeight: FontWeight.normal,
-        color: primaryDark,
+        color: dark,
       ),
       // button is used for text on ElevatedButton and TextButton
       button: TextStyle(
-        fontFamily: fontFamilyHeadings,
-        fontSize: 16.0,
-        height: 19.0 / 16.0,
-        fontWeight: FontWeight.w600,
-      ),
+          fontFamily: fontFamilyHeadings,
+          fontSize: 16.0,
+          height: 19.0 / 16.0,
+          fontWeight: FontWeight.w600,
+          color: Colors.white),
     );
 
     //Init Input Decoration Theme
@@ -245,7 +275,7 @@ class IrmaThemeData {
     // Init final ThemeData composed of all theme components.
     themeData = ThemeData(
       fontFamily: fontFamilyBody,
-      scaffoldBackgroundColor: Colors.white,
+      scaffoldBackgroundColor: background,
       bottomSheetTheme: const BottomSheetThemeData(backgroundColor: Colors.transparent),
       colorScheme: colorScheme,
       textTheme: textTheme,
