@@ -133,16 +133,19 @@ void _showSecurePinBottomSheet(BuildContext context, List<int> pin) {
     context: context,
     builder: (context) => Padding(
       padding: const EdgeInsets.only(top: 16),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(30),
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
+      child: Container(
+        decoration: const BoxDecoration(
           color: backgroundGrey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: rules,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(30.0),
+            topRight: Radius.circular(30.0),
           ),
+        ),
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: rules,
         ),
       ),
     ),
