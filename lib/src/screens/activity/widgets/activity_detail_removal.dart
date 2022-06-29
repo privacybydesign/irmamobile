@@ -28,6 +28,7 @@ class ActivityDetailRemoval extends StatelessWidget {
         .toList();
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TranslatedText(
           'activity.deleted_data',
