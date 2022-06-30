@@ -180,7 +180,7 @@ class IrmaThemeData {
       // caption is used for auxiliary text associated with images
       caption: TextStyle(
         fontSize: 14.0,
-        height: 20.0 / 14.0,
+        height: 24.0 / 14.0,
         fontWeight: FontWeight.normal,
         color: dark,
       ),

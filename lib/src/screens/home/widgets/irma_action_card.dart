@@ -49,7 +49,10 @@ class IrmaActionCard extends StatelessWidget {
                     children: [
                       TextSpan(
                         text: '${FlutterI18n.translate(context, subtitleKey)} ',
-                        style: theme.textTheme.caption!.copyWith(color: textColor),
+                        style: theme.textTheme.caption!.copyWith(
+                          color: textColor,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       WidgetSpan(
                         child: Icon(
