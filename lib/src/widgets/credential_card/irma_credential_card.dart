@@ -75,7 +75,10 @@ class IrmaCredentialCard extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return IrmaCard(
-      padding: padding ?? EdgeInsets.all(theme.tinySpacing),
+      margin: EdgeInsets.symmetric(
+        vertical: theme.smallSpacing,
+        horizontal: theme.defaultSpacing,
+      ),
       style: style,
       onTap: onTap,
       child: Column(
@@ -91,7 +94,8 @@ class IrmaCredentialCard extends StatelessWidget {
           if (attributes.any((att) => att.value is! NullValue)) ...[
             const IrmaDivider(),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: theme.largeSpacing),
+              //padding: EdgeInsets.symmetric(horizontal: theme.largeSpacing),
+              padding: EdgeInsets.zero,
               child: IrmaCredentialCardAttributeList(
                 attributes,
                 compareTo: compareTo,
