@@ -56,10 +56,10 @@ class IrmaCredentialCardAttributeList extends StatelessWidget {
                       (attribute.value as TextValue).translated.translate(lang),
                       style: theme.themeData.textTheme.bodyText1!.copyWith(
                         color: compareValue == null || compareValue.value is NullValue
-                            ? Colors.black
+                            ? theme.dark
                             : attribute.value.raw == compareValue.value.raw
-                                ? Colors.green
-                                : Colors.red,
+                                ? theme.success
+                                : theme.error,
                       ),
                     );
                   }
