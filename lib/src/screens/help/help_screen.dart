@@ -163,7 +163,7 @@ class _HelpScreenState extends State<HelpScreen> {
             translationKey: 'help.email',
             textAlign: TextAlign.center,
             style: theme.textTheme.bodyText2!
-                .copyWith(color: theme.themeData.primaryColor, decoration: TextDecoration.underline),
+                .copyWith(color: theme.themeData.colorScheme.secondary, decoration: TextDecoration.underline),
           ),
         ],
       ),

@@ -39,7 +39,7 @@ class IrmaOutlinedButton extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(4),
         side: BorderSide(
-          color: onPressed != null ? theme.themeData.colorScheme.primary : theme.themeData.disabledColor,
+          color: onPressed != null ? theme.themeData.colorScheme.secondary : theme.themeData.disabledColor,
           width: 2,
         ),
       ),

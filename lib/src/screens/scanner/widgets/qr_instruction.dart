@@ -18,10 +18,10 @@ class QRInstruction extends StatelessWidget {
 
     if (error) {
       screen = 'error';
-      color = IrmaTheme.of(context).overlayInvalid;
+      color = IrmaTheme.of(context).error;
     } else if (found) {
       screen = 'success';
-      color = IrmaTheme.of(context).overlayValid;
+      color = IrmaTheme.of(context).success;
     }
 
     return Center(

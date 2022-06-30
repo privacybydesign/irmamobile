@@ -26,9 +26,9 @@ class ProgressingList extends StatelessWidget {
   const ProgressingList({Key key, this.data, this.completed = false}) : super(key: key);
 
   Color _color(BuildContext context, {bool active, bool completed}) {
-    if (active) return IrmaTheme.of(context).primaryBlue;
-    if (completed) return IrmaTheme.of(context).interactionCompleted;
-    return IrmaTheme.of(context).grayscale60;
+    if (active) return IrmaTheme.of(context).secondary;
+    if (completed) return IrmaTheme.of(context).success;
+    return Colors.grey;
   }
 
   List<Widget> _buildItem(
@@ -74,7 +74,7 @@ class ProgressingList extends StatelessWidget {
           decoration: last
               ? null
               : BoxDecoration(
-                  border: Border(left: BorderSide(width: 4.0, color: IrmaTheme.of(context).grayscale85)),
+                  border: Border(left: BorderSide(width: 4.0, color: Colors.grey)),
                 ),
           child: Padding(
             padding: EdgeInsets.only(left: last ? 52 : 48, bottom: IrmaTheme.of(context).defaultSpacing),

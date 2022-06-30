@@ -187,7 +187,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
                         ),
                         Icon(
                           IrmaIcons.duration,
-                          color: IrmaTheme.of(context).primaryDark,
+                          color: IrmaTheme.of(context).dark,
                           size: 32,
                         ),
                         SizedBox(

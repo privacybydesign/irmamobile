@@ -114,7 +114,7 @@ class _ActivityTabState extends State<ActivityTab> {
                               height: 36,
                               child: LoadingIndicator(),
                             )
-                          : Icon(IrmaIcons.valid, color: theme.interactionValid)),
+                          : Icon(IrmaIcons.valid, color: theme.success)),
                 )
             ]);
           }),

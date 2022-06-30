@@ -16,9 +16,8 @@ class LogoBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = backgroundColor ?? IrmaTheme.of(context).grayscale60;
-    final textColor = this.textColor ??
-        (color.computeLuminance() > 0.5 ? IrmaTheme.of(context).primaryDark : IrmaTheme.of(context).grayscaleWhite);
+    final color = backgroundColor ?? Colors.grey;
+    final textColor = this.textColor ?? (color.computeLuminance() > 0.5 ? IrmaTheme.of(context).dark : Colors.white);
     return Stack(
       children: <Widget>[
         Container(
@@ -33,9 +32,9 @@ class LogoBanner extends StatelessWidget {
                   padding: const EdgeInsets.only(left: 22),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: IrmaTheme.of(context).grayscaleWhite,
+                      color: Colors.white,
                       border: Border.all(
-                        color: IrmaTheme.of(context).grayscale90,
+                        color: Colors.grey,
                         width: 3,
                       ),
                     ),

@@ -38,7 +38,7 @@ class ActionFeedback extends StatelessWidget {
       child: Scaffold(
         body: IrmaInfoScaffoldBody(
           icon: success ? IrmaIcons.valid : IrmaIcons.invalid,
-          iconColor: success ? IrmaTheme.of(context).interactionValid : IrmaTheme.of(context).interactionAlert,
+          iconColor: success ? IrmaTheme.of(context).success : IrmaTheme.of(context).warning,
           titleTranslationKey: titleTranslationKey,
           titleTranslationParams: titleTranslationParams,
           bodyTranslationKey: explanationTranslationKey,

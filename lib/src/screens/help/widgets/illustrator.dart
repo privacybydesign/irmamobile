@@ -46,7 +46,7 @@ class _IllustratorState extends State<Illustrator> with SingleTickerProviderStat
               child: IconButton(
                 icon: Icon(IrmaIcons.chevronLeft,
                     semanticLabel: FlutterI18n.translate(context, "disclosure.previous"),
-                    color: IrmaTheme.of(context).interactionInformation),
+                    color: IrmaTheme.of(context).success),
                 iconSize: 20.0,
                 onPressed: () {
                   currentPage--;
@@ -66,7 +66,7 @@ class _IllustratorState extends State<Illustrator> with SingleTickerProviderStat
               child: IconButton(
                 icon: Icon(IrmaIcons.chevronRight,
                     semanticLabel: FlutterI18n.translate(context, "disclosure.next"),
-                    color: IrmaTheme.of(context).interactionInformation),
+                    color: IrmaTheme.of(context).success),
                 iconSize: 20.0,
                 onPressed: () {
                   currentPage++;
@@ -92,7 +92,7 @@ class _IllustratorState extends State<Illustrator> with SingleTickerProviderStat
       height: 11,
       width: 11,
       decoration: BoxDecoration(
-          color: isActive ? IrmaTheme.of(context).primaryBlue : IrmaTheme.of(context).grayscale80,
+          color: isActive ? IrmaTheme.of(context).secondary : Colors.grey,
           borderRadius: const BorderRadius.all(Radius.circular(11))),
     );
   }

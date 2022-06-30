@@ -15,7 +15,7 @@ class SuccessAlert extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: IrmaTheme.of(context).notificationSuccessBg,
+        color: IrmaTheme.of(context).success,
         border: Border.all(color: const Color(0xffbbbbbb)),
       ),
       child: Padding(
@@ -44,7 +44,7 @@ class SuccessAlert extends StatelessWidget {
                   Text(
                     body,
                     style: Theme.of(context).textTheme.bodyText2.copyWith(
-                          color: IrmaTheme.of(context).grayscale40,
+                          color: Colors.grey,
                         ),
                   ),
                 ],

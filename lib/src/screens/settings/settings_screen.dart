@@ -95,7 +95,7 @@ class SettingsScreen extends StatelessWidget {
                     ),
                     subtitle: Text(
                       FlutterI18n.translate(context, 'settings.advanced.enable_screenshots_note'),
-                      style: theme.textTheme.caption!.copyWith(color: theme.grayscale40),
+                      style: theme.textTheme.caption!.copyWith(color: Colors.grey.shade500),
                     ),
                     activeColor: theme.themeData.colorScheme.secondary,
                     value: snapshot.data != null && snapshot.data!,

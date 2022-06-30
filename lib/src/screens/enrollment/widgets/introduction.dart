@@ -170,7 +170,7 @@ class Walkthrough extends StatelessWidget {
             width: MediaQuery.of(context).size.width,
             padding: EdgeInsets.symmetric(
                 vertical: IrmaTheme.of(context).mediumSpacing, horizontal: IrmaTheme.of(context).defaultSpacing),
-            color: finalScreen ? IrmaTheme.of(context).backgroundBlue : null,
+            color: finalScreen ? IrmaTheme.of(context).background : null,
             child: finalScreen
                 ? IrmaButton(
                     key: const Key('next'),
@@ -181,8 +181,7 @@ class Walkthrough extends StatelessWidget {
                     key: const Key('next'),
                     onPressed: onNextScreen,
                     icon: Icon(IrmaIcons.chevronDown,
-                        semanticLabel: FlutterI18n.translate(context, "accessibility.next"),
-                        color: IrmaTheme.of(context).grayscale60),
+                        semanticLabel: FlutterI18n.translate(context, "accessibility.next"), color: Colors.grey),
                     iconSize: 32,
                     alignment: Alignment.center,
                   ),

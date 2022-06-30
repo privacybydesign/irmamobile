@@ -62,7 +62,7 @@ class IrmaBottomBar extends StatelessWidget {
         color: theme.surfacePrimary,
         border: Border(
           top: BorderSide(
-            color: theme.primaryLight,
+            color: Colors.white,
             width: 2.0,
           ),
         ),

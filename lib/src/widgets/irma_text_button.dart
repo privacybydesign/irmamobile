@@ -25,7 +25,7 @@ class IrmaTextButton extends StatelessWidget {
     return TextButton(
       onPressed: onPressed,
       style: TextButton.styleFrom(
-        primary: IrmaTheme.of(context).primaryBlue,
+        primary: IrmaTheme.of(context).secondary,
         minimumSize: Size(minWidth, fixedHeight),
         maximumSize: Size.fromHeight(fixedHeight),
         padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),

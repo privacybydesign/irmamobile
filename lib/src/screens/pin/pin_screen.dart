@@ -131,7 +131,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
         }
 
         return Scaffold(
-          backgroundColor: IrmaTheme.of(context).backgroundBlue,
+          backgroundColor: IrmaTheme.of(context).background,
           appBar: _buildAppBar(),
           body: StreamBuilder(
             stream: _pinBloc.getPinBlockedFor(),
@@ -210,7 +210,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       centerTitle: true,
-      backgroundColor: IrmaTheme.of(context).backgroundBlue,
+      backgroundColor: IrmaTheme.of(context).background,
       key: const Key('pinscreen_app_bar'),
       leading: Container(),
       title: Text(

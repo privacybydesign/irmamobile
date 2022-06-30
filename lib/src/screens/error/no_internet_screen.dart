@@ -32,7 +32,7 @@ class NoInternetScreen extends StatelessWidget {
         ),
         body: IrmaInfoScaffoldBody(
           icon: Icons.wifi_off_rounded,
-          iconColor: IrmaTheme.of(context).primaryBlue,
+          iconColor: IrmaTheme.of(context).secondary,
           titleTranslationKey: 'error.title',
           bodyTranslationKey: 'error.types.no_internet',
         ),

@@ -32,7 +32,7 @@ class BlockedScreen extends StatelessWidget {
         ),
         body: IrmaInfoScaffoldBody(
           icon: Icons.block,
-          iconColor: IrmaTheme.of(context).primaryBlue,
+          iconColor: IrmaTheme.of(context).secondary,
           titleTranslationKey: 'error.title',
           bodyTranslationKey: 'error.types.blocked',
         ),

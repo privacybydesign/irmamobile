@@ -70,8 +70,8 @@ class _CollapsibleState extends State<Collapsible> {
             ),
           ),
         ),
-        headerBackgroundColorStart: theme.lightBlue,
-        expandedBackgroundColor: theme.lightBlue,
+        headerBackgroundColorStart: theme.surfaceSecondary,
+        expandedBackgroundColor: theme.surfaceSecondary,
         children: <Widget>[
           Padding(
             padding:

@@ -18,62 +18,16 @@ class IrmaThemeData {
 
   // Background / contrast colors
   final Color background = const Color(0xFFF7F7F7); //Used on scaffolds and scrollable backgrounds
-  final Color surfacePrimary = Colors.white; // Used on cards etc, to contrast with the background
+  Color get surfacePrimary => light; // Used on cards etc, to contrast with the background
   final Color surfaceSecondary = const Color(0xFFE9F4FF); // Used on cards that are active etc.
   final Color dark = Colors.black; // Used as default, non headline, text color
+  final Color light = Colors.white; // Mainly used to represent white
 
   // Communicating colors
   final Color error = const Color(0xFFBD1919);
+  final Color warning = const Color(0xFFEBA73B);
   final Color success = const Color(0xFF33AD38);
   final Color link = const Color(0xFF0000EE);
-
-  // TODO The colors below are deprecated!
-  final Color primaryBlue = const Color(0xFF4B73FF);
-  final Color secondaryPurple = const Color(0xFF362C78);
-  final Color primaryDark = const Color(0xFF15222E);
-  final Color lightBlue = const Color(0xFFE9F4FF);
-  final Color lightBeige = const Color(0xFFFDE6DB);
-  Color get primaryLight => grayscale95;
-  final Color darkPurple = const Color(0xFF362C78);
-  Color get disabled => grayscale60;
-  // Supplementary colors (for card backgrounds)
-  final Color cardRed = const Color(0xFFD44454);
-  final Color cardBlue = const Color(0xFF00B1E6);
-  final Color cardOrange = const Color(0xFFFFBB58);
-  final Color cardGreen = const Color(0xFF2BC194);
-  // Support colors (for alerts and feedback on form elements)
-  final Color interactionValid = const Color(0xFF079268);
-  Color get interactionInvalid => error;
-  final Color interactionAlert = const Color(0xFFF97D08);
-  Color get interactionInformation => primaryBlue;
-  final Color interactionInvalidTransparant = const Color(0x22D44454);
-  final Color interactionCompleted = const Color(0xFF8BBEAF);
-  final Color notificationSuccess = const Color(0xFF029B17);
-  final Color notificationSuccessBg = const Color(0xFFAADACE);
-  Color get notificationError => error;
-  final Color notificationErrorBg = const Color(0xFFEDB6BF);
-  final Color notificationWarning = const Color(0xFFDB6E07);
-  final Color notificationWarningBg = const Color(0xFFFAD8B6);
-  Color get notificationInfo => primaryBlue;
-  final Color notificationInfoBg = const Color(0xFFB1CDE5);
-  // Support colors (qr scanner)
-  final Color overlayValid = const Color(0xFF007E4C);
-  Color get overlayInvalid => error;
-  // Link colors
-  Color get linkColor => primaryBlue;
-  Color get linkVisitedColor => grayscale60;
-  // Overlay color
-  Color get overlay50 => grayscale40;
-  // Background color
-  final Color backgroundBlue = Colors.white;
-  // Grayscale colors (used for text, background colors, lines and icons)
-  final Color grayscaleWhite = const Color(0xFFFFFFFF);
-  final Color grayscale95 = const Color(0xFFF2F5F8);
-  final Color grayscale90 = const Color(0xFFE8ECF0);
-  final Color grayscale85 = const Color(0xFFE3E9F0);
-  final Color grayscale80 = const Color(0xFFB7C2CC);
-  final Color grayscale60 = const Color(0xFF71808F);
-  final Color grayscale40 = const Color(0xFF3C4B5A);
 
   //Fonts
   final String fontFamily = 'Open Sans';
@@ -99,13 +53,13 @@ class IrmaThemeData {
     final colorScheme = ColorScheme(
       brightness: Brightness.light,
       primary: primary,
-      onPrimary: Colors.white,
+      onPrimary: light,
       secondary: secondary,
-      onSecondary: Colors.white,
+      onSecondary: light,
       error: error,
-      onError: Colors.white,
+      onError: light,
       background: background,
-      surface: Colors.grey.shade300,
+      surface: surfacePrimary,
       onBackground: primary,
       onSurface: primary,
     );
@@ -174,7 +128,7 @@ class IrmaThemeData {
         fontSize: 16.0,
         height: 22.0 / 16.0,
         fontWeight: FontWeight.w500,
-        color: grayscale40,
+        color: dark,
       ),
 
       // caption is used for auxiliary text associated with images
@@ -185,48 +139,48 @@ class IrmaThemeData {
         color: dark,
       ),
       // button is used for text on ElevatedButton and TextButton
-      button: const TextStyle(
+      button: TextStyle(
         fontSize: 16.0,
         height: 19.0 / 16.0,
         fontWeight: FontWeight.w600,
-        color: Colors.white,
+        color: light,
       ),
     );
 
     //Init Input Decoration Theme
     final inputDecorationTheme = InputDecorationTheme(
       labelStyle: textTheme.overline,
-      enabledBorder: UnderlineInputBorder(
+      enabledBorder: const UnderlineInputBorder(
         borderSide: BorderSide(
-          color: grayscale60,
+          color: Colors.grey,
         ),
       ),
       focusedBorder: UnderlineInputBorder(
         borderSide: BorderSide(
-          color: primaryBlue,
+          color: primary,
           width: 2.0,
         ),
       ),
       errorBorder: UnderlineInputBorder(
         borderSide: BorderSide(
-          color: interactionInvalid,
+          color: error,
           width: 2.0,
         ),
       ),
-      disabledBorder: UnderlineInputBorder(
+      disabledBorder: const UnderlineInputBorder(
         borderSide: BorderSide(
-          color: grayscale80,
+          color: Colors.grey,
         ),
       ),
-      errorStyle: textTheme.bodyText2?.copyWith(color: interactionInvalid),
+      errorStyle: textTheme.bodyText2?.copyWith(color: error),
     );
 
     //Init App Bar Theme
     final appBarTheme = AppBarTheme(
       elevation: 0,
-      color: Colors.white,
+      color: background,
       iconTheme: IconThemeData(
-        color: primaryDark,
+        color: dark,
       ),
       toolbarTextStyle: textTheme.bodyText2,
       titleTextStyle: textTheme.headline6,
@@ -237,7 +191,7 @@ class IrmaThemeData {
       fontSize: 16.0,
       height: 19.0 / 16.0,
       fontWeight: FontWeight.w600,
-      color: primaryBlue,
+      color: secondary,
     );
     hyperlinkTextStyle = TextStyle(
       fontSize: 16.0,
@@ -251,14 +205,14 @@ class IrmaThemeData {
       fontSize: 16.0,
       height: 24.0 / 16.0,
       fontWeight: FontWeight.w600,
-      color: primaryDark,
+      color: dark,
     );
 
     highlightedTextStyle = TextStyle(
       fontSize: 16.0,
       height: 19.0 / 16.0,
       fontWeight: FontWeight.w600,
-      color: primaryBlue,
+      color: primary,
     );
 
     // Init final ThemeData composed of all theme components.
