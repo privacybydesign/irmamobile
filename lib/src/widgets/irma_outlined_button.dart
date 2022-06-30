@@ -24,6 +24,7 @@ class IrmaOutlinedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
     return IrmaThemedButton(
       label: label,
       onPressed: onPressed,
@@ -34,11 +35,11 @@ class IrmaOutlinedButton extends StatelessWidget {
       icon: icon,
       color: Colors.transparent,
       disabledColor: Colors.white,
-      textColor: IrmaTheme.of(context).primaryBlue,
+      textColor: theme.themeData.colorScheme.secondary,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(30.0),
+        borderRadius: BorderRadius.circular(4),
         side: BorderSide(
-          color: onPressed != null ? IrmaTheme.of(context).primaryBlue : IrmaTheme.of(context).disabled,
+          color: onPressed != null ? theme.themeData.colorScheme.primary : theme.themeData.disabledColor,
           width: 2,
         ),
       ),
