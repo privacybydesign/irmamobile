@@ -68,12 +68,12 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
             ),
             SizedBox(height: theme.defaultSpacing),
             TranslatedText(
-              'disclosure_permission.issue_wizard.header_${state.isCompleted ? "complete" : "incomplete"}',
+              'disclosure_permission.issue_wizard.header_${state.isCompleted ? 'complete' : 'incomplete'}',
               style: theme.themeData.textTheme.headline3,
             ),
             SizedBox(height: theme.defaultSpacing),
             DisclosureDisconStepper(
-              currentCandidateIndex: state.currentDiscon?.key,
+              currentCandidateKey: state.currentDiscon?.key,
               candidates: state.candidates,
               selectedConIndices: state.selectedConIndices,
               onChoiceUpdated: (int conIndex) => onEvent(
