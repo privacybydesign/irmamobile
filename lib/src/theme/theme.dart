@@ -250,7 +250,7 @@ class IrmaThemeData {
       fontSize: 16.0,
       height: 24.0 / 16.0,
       fontWeight: FontWeight.normal,
-      color: primaryBlue,
+      color: link,
       decoration: TextDecoration.underline,
     );
 

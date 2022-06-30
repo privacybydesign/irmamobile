@@ -107,7 +107,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                             onTap: () => onEvent(DisclosurePermissionChangeChoicePressed(disconIndex: choiceEntry.key)),
                             child: TranslatedText(
                               'disclosure_permission.change_choice',
-                              style: theme.textTheme.caption!.copyWith(fontWeight: FontWeight.bold, color: Colors.blue),
+                              style: theme.hyperlinkTextStyle,
                             ),
                           )
                         ],

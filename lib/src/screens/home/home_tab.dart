@@ -68,10 +68,7 @@ class HomeTab extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: () => onChangeTab(IrmaNavBarTab.activity),
-                child: TranslatedText(
-                  'home_tab.view_more',
-                  style: theme.textTheme.caption!.copyWith(fontWeight: FontWeight.bold, color: Colors.blue),
-                ),
+                child: TranslatedText('home_tab.view_more', style: theme.hyperlinkTextStyle),
               )
             ],
           ),
