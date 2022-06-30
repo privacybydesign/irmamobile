@@ -89,7 +89,7 @@ class IrmaCredentialCard extends StatelessWidget {
           ),
           // If there are attributes in this credential, then we show the attribute list
           if (attributes.any((att) => att.value is! NullValue)) ...[
-            IrmaDivider(style: style),
+            const IrmaDivider(),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: theme.largeSpacing),
               child: IrmaCredentialCardAttributeList(
