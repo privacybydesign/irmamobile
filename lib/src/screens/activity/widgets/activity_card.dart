@@ -43,7 +43,6 @@ class ActivityCard extends StatelessWidget {
             logEntry.type == LogEntryType.disclosing ? 'activity.data_shared' : 'activity.message_signed';
         break;
       case LogEntryType.issuing:
-      case LogEntryType.removal:
         final cred = Credential.fromRaw(
           irmaConfiguration: irmaConfiguration,
           rawCredential: logEntry.issuedCredentials.first,
@@ -51,13 +50,23 @@ class ActivityCard extends StatelessWidget {
         if (irmaConfiguration.issuers[cred.info.issuer.fullId] != null) {
           title = irmaConfiguration.issuers[cred.info.issuer.fullId]!.name.translate(lang);
         }
-        subtitleTranslationKey =
-            logEntry.type == LogEntryType.issuing ? 'activity.data_received' : 'activity.data_deleted';
+        subtitleTranslationKey = 'activity.data_received';
         if (cred.info.credentialType.logo != null) {
           logoFile = File(
             cred.info.credentialType.logo!,
           );
         }
+        break;
+      case LogEntryType.removal:
+        final credType = irmaConfiguration.credentialTypes[logEntry.removedCredentials.keys.first]!;
+        title = irmaConfiguration.issuers[credType.fullIssuerId]!.name.translate(lang);
+        subtitleTranslationKey = 'activity.data_deleted';
+        if (credType.logo != null) {
+          logoFile = File(
+            credType.logo!,
+          );
+        }
+        break;
     }
 
     return IrmaCard(
