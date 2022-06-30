@@ -1,4 +1,4 @@
-bool pinSizeMustBeAtLeast5AtMost13(List<int> pin) {
+bool pinSizeMustBeAtLeast5AtMost16(List<int> pin) {
   return pin.length >= 5 && pin.length <= 16;
 }
 
@@ -41,7 +41,7 @@ final pinRules = <PinRule>{
 };
 
 bool pinMustContainASublistOfSize5ThatCompliesToAllRules(List<int> pin) {
-  if (!pinSizeMustBeAtLeast5AtMost13(pin)) {
+  if (!pinSizeMustBeAtLeast5AtMost16(pin)) {
     return false;
   }
 

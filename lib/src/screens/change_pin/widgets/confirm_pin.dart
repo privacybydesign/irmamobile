@@ -20,7 +20,7 @@ class ConfirmPin extends StatelessWidget {
   final void Function(String) confirmNewPin;
   final void Function() cancel;
 
-  final pinController = StreamController<List<int>>();
+  final _pinController = StreamController<List<int>>();
 
   ConfirmPin({@required this.confirmNewPin, @required this.cancel});
 
@@ -55,10 +55,10 @@ class ConfirmPin extends StatelessWidget {
               SizedBox(height: IrmaTheme.of(context).mediumSpacing),
               PinField(
                 longPin: state.longPin,
-                onChange: (String pin) => pinController.add(pin.split('').map((e) => int.parse(e)).toList()),
+                onChange: pinStringToListConverter(_pinController),
                 onSubmit: (String pin) => confirmNewPin(pin),
               ),
-              infoButton(context, pinController.stream),
+              UnsecurePinWarningTextButton(pinStream: _pinController.stream),
             ],
           ),
         );

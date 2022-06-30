@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/src/util/safe_pin.dart';
 
 void main() {
-  test("PIN contains between 5 and 16 characters", () {
+  test('PIN contains between 5 and 16 characters', () {
     final pins = <List<int>>{
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       [1, 2, 3, 4],
@@ -13,11 +13,11 @@ void main() {
     };
 
     for (final pin in pins) {
-      expect(pinSizeMustBeAtLeast5AtMost13(pin), false);
+      expect(pinSizeMustBeAtLeast5AtMost16(pin), false);
     }
   });
 
-  test("aaaaa ababa ababa, every permutation of abbbb", () {
+  test('Pin must contain at least 3 distinct numbers', () {
     final pins = <List<int>>{
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       [1, 2, 1, 1],
@@ -34,7 +34,7 @@ void main() {
     }
   });
 
-  test("PIN, n=5 that have short, translation symmetric and/or mirror symmetric patterns", () {
+  test('PIN, n=5 that have short, translation symmetric and/or mirror symmetric patterns', () {
     expect(pinMustNotContainPatternAbcba([0, 1, 3, 1, 0]), false);
     expect(pinMustNotContainPatternAbcba([1, 3, 5, 3, 1]), false);
     expect(pinMustNotContainPatternAbcab([0, 1, 3, 0, 1]), false);
@@ -43,10 +43,9 @@ void main() {
     expect(pinMustNotContainPatternAbcba([1, 2, 3, 2, 1]), false);
   });
 
-  test("Forbidden sequences: asc, desc, asc desc, desc asc", () {
+  test('PIN must not be ascending nor descending', () {
     final pins5 = <List<int>>[
       [1, 2, 3, 4, 5],
-      [4, 3, 2, 1, 0],
       [4, 3, 2, 1, 0],
     ];
 
@@ -55,7 +54,7 @@ void main() {
     }
   });
 
-  test("Test combined rules on allowed PINs", () {
+  test('PIN must contain a valid subset of 5 #1 true cases', () {
     final allowed = <List<int>>[
       [1, 2, 3, 4, 5, 7, 8],
       [4, 3, 2, 1, 0, 1, 1],
@@ -70,7 +69,7 @@ void main() {
     }
   });
 
-  test("Test combined rules on disallowed PINs", () {
+  test('PIN must contain a valid subset of 5 #2 false cases', () {
     final disallowed = <List<int>>[
       [1, 2, 3, 4, 5],
       [4, 3, 2, 1, 0],

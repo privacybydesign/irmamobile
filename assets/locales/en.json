@@ -564,11 +564,11 @@
     "title": "Secure PIN",
     "subtitle": "A secure PIN has the following properties:",
     "rules": {
-      "atleast5atmost13": "Contains at least 5, at most 16 characters",
-      "contains3unique": "Contains at least 3 unique numbers",
-      "mustNotAscDesc": "Must not contain ascending nor descending patterns, e.g. 12345",
-      "notAbcabNorAbcba": "Must not contain the following patterns: abcab, abcba",
-      "pinSizeGt5MustContainValidSubset": "Must contain 5 adjacent numbers, that comply with the rules mentioned above"
+      "at_least_5_at_most_16": "Contains at least 5, at most 16 characters",
+      "contains_3_unique": "Contains at least 3 unique numbers",
+      "must_not_asc_or_desc": "Must not contain ascending nor descending patterns, e.g. 12345",
+      "not_abcab_nor_abcba": "Must not contain the following patterns: abcba, abcab, e.g. 12312, 12321, 11311, 13331",
+      "must_contain_valid_subset": "Must contain 5 adjacent numbers, that comply with the rules mentioned above"
     }
   }
 }
