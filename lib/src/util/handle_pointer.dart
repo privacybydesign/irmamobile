@@ -8,6 +8,7 @@ import '../screens/home/home_screen.dart';
 import '../screens/issue_wizard/issue_wizard.dart';
 import '../screens/session/session.dart';
 import '../screens/session/session_screen.dart';
+import '../screens/session/unknown_session_screen.dart';
 import '../widgets/irma_repository_provider.dart';
 
 /// First handles the issue wizard if one is present, and subsequently the session is handled.
@@ -73,7 +74,16 @@ Future<int> _startSessionAndNavigate(NavigatorState navigator, SessionPointer se
     wizardCred: wizardActive ? (await repo.getIssueWizard().first)?.activeItem?.credential : null,
   );
   if (hasActiveSessions || wizardActive) {
-    navigator.pushNamed(SessionScreen.routeName, arguments: args);
+    switch (args.sessionType) {
+      case 'issuing':
+      case 'disclosing':
+      case 'signing':
+      case 'redirect':
+        navigator.pushNamed(SessionScreen.routeName, arguments: args);
+        break;
+      default:
+        navigator.pushNamed(UnknownSessionScreen.routeName, arguments: args);
+    }
   } else {
     navigator.pushNamedAndRemoveUntil(
       SessionScreen.routeName,

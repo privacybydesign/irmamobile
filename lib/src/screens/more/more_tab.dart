@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/screens/home/widgets/links.dart';
 import 'package:irmamobile/src/screens/more/widgets/version_button.dart';
@@ -38,6 +39,12 @@ class MoreTab extends StatelessWidget {
                 routeName: '/settings'),
             const InternalLink(
                 iconData: Icons.contact_support_outlined, translationKey: 'help.faq', routeName: '/help'),
+            if (kDebugMode)
+              const InternalLink(
+                iconData: Icons.videogame_asset,
+                translationKey: 'more_tab.debugging',
+                routeName: '/debug',
+              ),
             _buildHeaderText('help.about_irma'),
             const ExternalLink(
                 iconData: Icons.info_outline,

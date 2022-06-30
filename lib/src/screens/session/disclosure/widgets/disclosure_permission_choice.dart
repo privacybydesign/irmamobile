@@ -8,13 +8,13 @@ import '../../../../widgets/translated_text.dart';
 import '../models/disclosure_credential.dart';
 import '../models/template_disclosure_credential.dart';
 
-class DisclosureIssueWizardChoice extends StatelessWidget {
+class DisclosurePermissionChoice extends StatelessWidget {
   final DisCon<DisclosureCredential> choice;
   final bool isActive;
   final int selectedConIndex;
   final Function(int conIndex) onChoiceUpdated;
 
-  const DisclosureIssueWizardChoice({
+  const DisclosurePermissionChoice({
     required this.choice,
     required this.onChoiceUpdated,
     required this.selectedConIndex,

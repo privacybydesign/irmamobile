@@ -16,7 +16,8 @@ class IrmaThemeData {
   final Color primaryBlue = const Color(0xFF4B73FF);
   final Color secondaryPurple = const Color(0xFF362C78);
 
-  final Color error = const Color(0xFFC8192C);
+  final Color error = const Color(0xFFBD1919);
+
   final Color primaryDark = const Color(0xFF15222E);
 
   final Color lightBlue = const Color(0xFFE9F4FF);
@@ -107,19 +108,19 @@ class IrmaThemeData {
     textTheme = TextTheme(
       // headline1 is used for extremely large text
       headline1:
-          TextStyle(fontSize: 26.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.bold, color: darkPurple),
+          TextStyle(fontSize: 26.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.bold, color: primaryDark),
       // headline2 is used for very, very large text
       headline2:
-          TextStyle(fontSize: 24.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.bold, color: darkPurple),
+          TextStyle(fontSize: 24.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.bold, color: primaryDark),
       // headline3 is used for very large text
       headline3:
-          TextStyle(fontSize: 18.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.bold, color: darkPurple),
+          TextStyle(fontSize: 18.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.bold, color: primaryDark),
       // headline4 is used for large text
       headline4:
-          TextStyle(fontSize: 16.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.bold, color: grayscale40),
+          TextStyle(fontSize: 16.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.bold, color: primaryDark),
       // headline5 is used for large text in dialogs
-      headline5: TextStyle(
-          fontSize: 14.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.w500, color: Colors.grey.shade800),
+      headline5:
+          TextStyle(fontSize: 14.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.w500, color: primaryDark),
       // headline6 is used for the primary text in app bars and dialogs
       headline6: TextStyle(
         fontSize: 18.0,

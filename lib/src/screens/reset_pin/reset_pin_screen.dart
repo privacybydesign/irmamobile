@@ -24,7 +24,7 @@ class ResetPinScreen extends StatelessWidget {
   }
 
   void _closeKeyboard(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
+    WidgetsBinding.instance?.addPostFrameCallback((_) async {
       FocusScope.of(context).requestFocus(FocusNode());
     });
   }

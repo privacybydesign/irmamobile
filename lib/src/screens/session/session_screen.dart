@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
@@ -14,9 +13,7 @@ import '../../models/session_state.dart';
 import '../../sentry/sentry.dart';
 import '../../util/combine.dart';
 import '../../util/navigation.dart';
-import '../../widgets/action_feedback.dart';
 import '../../widgets/loading_indicator.dart';
-import '../../widgets/translated_text.dart';
 import '../error/session_error_screen.dart';
 import '../pin/session_pin_screen.dart';
 import 'call_info_screen.dart';
@@ -29,40 +26,14 @@ import 'widgets/pairing_required.dart';
 import 'widgets/session_scaffold.dart';
 
 class SessionScreen extends StatefulWidget {
-  static const String routeName = "/session";
+  static const String routeName = '/session';
 
   final SessionScreenArguments arguments;
 
   const SessionScreen({required this.arguments}) : super();
 
   @override
-  State<SessionScreen> createState() {
-    switch (arguments.sessionType) {
-      case "issuing":
-      case "disclosing":
-      case "signing":
-      case "redirect":
-        return _SessionScreenState();
-      default:
-        return _UnknownSessionScreenState();
-    }
-  }
-}
-
-class _UnknownSessionScreenState extends State<SessionScreen> {
-  @override
-  Widget build(BuildContext context) => ActionFeedback(
-        success: false,
-        title: TranslatedText(
-          "session.unknown_session_type.title",
-          style: Theme.of(context).textTheme.headline2,
-        ),
-        explanation: const TranslatedText(
-          "session.unknown_session_type.explanation",
-          textAlign: TextAlign.center,
-        ),
-        onDismiss: () => (widget.arguments.wizardActive ? popToWizard : popToHome)(context),
-      );
+  State<SessionScreen> createState() => _SessionScreenState();
 }
 
 class _SessionScreenState extends State<SessionScreen> {
@@ -87,7 +58,7 @@ class _SessionScreenState extends State<SessionScreen> {
   }
 
   String _getAppBarTitle(bool isIssuance) {
-    return isIssuance ? "issuance.title" : "disclosure.title";
+    return isIssuance ? 'issuance.title' : 'disclosure.title';
   }
 
   void _dispatchSessionEvent(SessionEvent event, {bool isBridgedEvent = true}) =>
@@ -114,12 +85,12 @@ class _SessionScreenState extends State<SessionScreen> {
     }
 
     final creds = [
-      "pbdf.gemeente.personalData",
-      "pbdf.sidn-pbdf.email",
-      "pbdf.pbdf.email",
-      "pbdf.pbdf.mobilenumber",
-      "pbdf.pbdf.ideal",
-      "pbdf.pbdf.idin",
+      'pbdf.gemeente.personalData',
+      'pbdf.sidn-pbdf.email',
+      'pbdf.pbdf.email',
+      'pbdf.pbdf.mobilenumber',
+      'pbdf.pbdf.ideal',
+      'pbdf.pbdf.idin',
     ];
     return session.issuedCredentials!.any((credential) => creds.contains(credential.info.fullId));
   }
@@ -247,7 +218,7 @@ class _SessionScreenState extends State<SessionScreen> {
         // we don't have to explicitly exclude issuance here.
         if (session.clientReturnURL!.isInApp) {
           widget.arguments.hasUnderlyingSession ? Navigator.of(context).pop() : popToMainScreen(context);
-          if (session.inAppCredential != "") {
+          if (session.inAppCredential != '') {
             _repo.expectInactivationForCredentialType(session.inAppCredential);
           }
           await _openClientReturnUrl(session.clientReturnURL!);
@@ -283,7 +254,9 @@ class _SessionScreenState extends State<SessionScreen> {
         valueListenable: _displayArrowBack,
         builder: (BuildContext context, bool displayArrowBack, Widget? child) {
           if (displayArrowBack) {
-            return const ArrowBack();
+            return const ArrowBack(
+              amountIssued: 0,
+            );
           }
           return child ?? Container();
         },
@@ -337,7 +310,7 @@ class _SessionScreenState extends State<SessionScreen> {
       ),
       builder: (BuildContext context, AsyncSnapshot<CombinedState2<bool, SessionState>> snapshot) {
         if (!snapshot.hasData) {
-          return _buildLoadingScreen(widget.arguments.sessionType == "issuing");
+          return _buildLoadingScreen(widget.arguments.sessionType == 'issuing');
         }
 
         // Prevent stealing focus from pin screen in case app is locked
@@ -349,7 +322,7 @@ class _SessionScreenState extends State<SessionScreen> {
         switch (session.status) {
           case SessionStatus.pairing:
             return PairingRequired(
-              pairingCode: session.pairingCode,
+              pairingCode: session.pairingCode ?? '',
               onDismiss: () => _dismissSession(),
             );
           case SessionStatus.requestDisclosurePermission:

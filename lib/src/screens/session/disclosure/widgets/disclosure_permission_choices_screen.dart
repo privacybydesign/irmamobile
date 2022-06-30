@@ -46,7 +46,9 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
     }
 
     return SessionScaffold(
-      appBarTitle: 'disclosure_permission.issue_wizard.title',
+      appBarTitle: state is DisclosurePermissionPreviouslyAddedCredentialsOverview
+          ? 'disclosure_permission.previously_added.title'
+          : 'disclosure_permission.overview.title',
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
         child: Column(
@@ -95,22 +97,28 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
               style: theme.themeData.textTheme.headline3,
             ),
             SizedBox(height: theme.smallSpacing),
-            ...state.choices.entries.map(
-              (conEntry) => Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+            ...state.choices.entries
+                .map(
+                  (choiceEntry) => Column(
                     children: [
-                      GestureDetector(
-                        onTap: () => onEvent(DisclosurePermissionChangeChoicePressed(disconIndex: conEntry.key)),
-                        child: TranslatedText(
-                          'disclosure_permission.change_choice',
-                          style: theme.textTheme.caption!.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: theme.themeData.colorScheme.primary,
-                          ),
-                        ),
-                      )
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          GestureDetector(
+                            onTap: () => onEvent(DisclosurePermissionChangeChoicePressed(disconIndex: choiceEntry.key)),
+                            child: TranslatedText(
+                              'disclosure_permission.change_choice',
+                              style: theme.textTheme.caption!.copyWith(fontWeight: FontWeight.bold, color: Colors.blue),
+                            ),
+                          )
+                        ],
+                      ),
+                      SizedBox(height: theme.smallSpacing),
+                      for (var credential in choiceEntry.value)
+                        IrmaCredentialCard(
+                          credentialInfo: credential,
+                          attributes: credential.attributes,
+                        )
                     ],
                   ),
                   SizedBox(height: theme.smallSpacing),

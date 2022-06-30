@@ -44,10 +44,10 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance?.addObserver(this);
 
     // Listener uses context from _navigatorKey, so we have to wait until the navigator is built.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
       _pinBlocSubscription = _pinBloc.stream.listen((pinState) async {
         if (pinState.pinInvalid) {
           _handleInvalidPin(pinState);
@@ -66,7 +66,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
     _pinBlocSubscription?.cancel();
     _focusNode.dispose();
     _pinBloc.close();
-    WidgetsBinding.instance.removeObserver(this);
+    WidgetsBinding.instance?.removeObserver(this);
     super.dispose();
   }
 

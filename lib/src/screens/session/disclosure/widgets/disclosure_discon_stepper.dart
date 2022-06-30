@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import '../../../../models/attributes.dart';
 import '../../../../widgets/irma_stepper.dart';
 import '../models/disclosure_credential.dart';
-import 'disclosure_issue_wizard_choice.dart';
 import 'disclosure_issue_wizard_credential_card.dart';
+import 'disclosure_permission_choice.dart';
 
 class DisclosureDisconStepper extends StatelessWidget {
   final int? currentCandidateKey;
@@ -37,7 +37,7 @@ class DisclosureDisconStepper extends StatelessWidget {
                 currentCandidateKey != null &&
                         currentCandidateKey! <= candidateEntry.key &&
                         candidateEntry.value.length > 1
-                    ? DisclosureIssueWizardChoice(
+                    ? DisclosurePermissionChoice(
                         isActive: candidateEntry.key == currentCandidateKey,
                         choice: candidateEntry.value,
                         selectedConIndex: selectedConIndices[candidateEntry.key]!,
@@ -46,6 +46,8 @@ class DisclosureDisconStepper extends StatelessWidget {
                     // If not, render credential card.
                     : DisclosureIssueWizardCredentialCards(
                         isActive: candidateEntry.key == currentCandidateKey,
+                        // Only show the attribute values when the candidate has yet to be completed
+                        showAttributes: currentCandidateIndex != null && currentCandidateIndex! <= candidateEntry.key, //TODO Fix false compare 
                         credentials: candidateEntry.value[selectedConIndices[candidateEntry.key]!],
                       ),
           )

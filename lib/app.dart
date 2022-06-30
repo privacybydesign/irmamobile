@@ -6,34 +6,34 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_i18n/flutter_i18n_delegate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_privacy_screen/flutter_privacy_screen.dart';
-import 'package:irmamobile/routing.dart';
-import 'package:irmamobile/src/data/irma_preferences.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/applifecycle_changed_event.dart';
-import 'package:irmamobile/src/models/clear_all_data_event.dart';
-import 'package:irmamobile/src/models/enrollment_status.dart';
-import 'package:irmamobile/src/models/event.dart';
-import 'package:irmamobile/src/models/native_events.dart';
-import 'package:irmamobile/src/models/session.dart';
-import 'package:irmamobile/src/models/update_schemes_event.dart';
-import 'package:irmamobile/src/models/version_information.dart';
-import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
-import 'package:irmamobile/src/screens/home/home_screen.dart';
-import 'package:irmamobile/src/screens/pin/pin_screen.dart';
-import 'package:irmamobile/src/screens/required_update/required_update_screen.dart';
-import 'package:irmamobile/src/screens/reset_pin/reset_pin_screen.dart';
-import 'package:irmamobile/src/screens/rooted_warning/repository.dart';
-import 'package:irmamobile/src/screens/rooted_warning/rooted_warning_screen.dart';
-import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
-import 'package:irmamobile/src/screens/splash_screen/splash_screen.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/util/combine.dart';
-import 'package:irmamobile/src/util/handle_pointer.dart';
-import 'package:irmamobile/src/util/hero_controller.dart';
 import 'package:rxdart/rxdart.dart';
+
+import '../../routing.dart';
+import '../../src/data/irma_preferences.dart';
+import '../../src/data/irma_repository.dart';
+import '../../src/models/applifecycle_changed_event.dart';
+import '../../src/models/clear_all_data_event.dart';
+import '../../src/models/enrollment_status.dart';
+import '../../src/models/event.dart';
+import '../../src/models/native_events.dart';
+import '../../src/models/session.dart';
+import '../../src/models/update_schemes_event.dart';
+import '../../src/models/version_information.dart';
+import '../../src/screens/enrollment/enrollment_screen.dart';
+import '../../src/screens/home/home_screen.dart';
+import '../../src/screens/pin/pin_screen.dart';
+import '../../src/screens/required_update/required_update_screen.dart';
+import '../../src/screens/reset_pin/reset_pin_screen.dart';
+import '../../src/screens/rooted_warning/repository.dart';
+import '../../src/screens/rooted_warning/rooted_warning_screen.dart';
+import '../../src/screens/scanner/scanner_screen.dart';
+import '../../src/screens/splash_screen/splash_screen.dart';
+import '../../src/theme/theme.dart';
+import '../../src/util/combine.dart';
+import '../../src/util/handle_pointer.dart';
+import '../../src/util/hero_controller.dart';
 
 const schemeUpdateIntervalHours = 3;
 
@@ -58,7 +58,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
 
   // We keep track of the last two life cycle states
   // to be able to determine the flow
-  List<AppLifecycleState> prevLifeCycleStates = List<AppLifecycleState>(2);
+  List<AppLifecycleState> prevLifeCycleStates = List.filled(2, AppLifecycleState.detached);
 
   AppState();
 
@@ -87,14 +87,14 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance?.addObserver(this);
     _listenForDataClear();
     _listenScreenshotPref();
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    WidgetsBinding.instance?.removeObserver(this);
     _pointerSubscription?.cancel();
     _dataClearSubscription?.cancel();
     _screenshotPrefSubscription?.cancel();
@@ -124,8 +124,11 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     // authentication request or a phone call that interrupts
     // the app but doesn't pause it. In those cases we don't open
     // the QR scanner.
-    if (prevLifeCycleStates[0] == AppLifecycleState.paused &&
-        prevLifeCycleStates[1] == AppLifecycleState.inactive &&
+    // Note: on some phones, the events arrive in the other order
+    // (inactive -> paused), so we just check that both of them are
+    // present in prevLifeCycleStates (which is of size 2).
+    if (prevLifeCycleStates.contains(AppLifecycleState.paused) &&
+        prevLifeCycleStates.contains(AppLifecycleState.inactive) &&
         state == AppLifecycleState.resumed) {
       // First check whether we should redo pin verification
       final lastActive = await repo.getLastActiveTime().first;

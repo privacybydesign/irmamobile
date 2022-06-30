@@ -72,10 +72,10 @@
     "about_irma": "About IRMA",
     "ask": "Ask a question",
     "contact": "app@privacybydesign.foundation",
-    "device": "Apparaat",
+    "device": "Device",
     "email": "Send an email",
     "faq": "Frequently asked questions",
-    "login": "Inloggen",
+    "login": "Login",
     "mail_error": "Mail app cannot be opened",
     "mail_error_button": "OK",
     "mail_error_title": "Sorry",
@@ -298,7 +298,7 @@
     "title": "Something went wrong",
     "blocked_title": "App blocked",
     "button_ok": "OK",
-    "button_send_to_irma": "Send to IRMA's technical team",
+    "button_send_to_irma": "Send to the IRMA team",
     "button_show_error": "Show technical details",
     "button_retry": "Please try again",
     "button_back": "Back",
@@ -310,7 +310,7 @@
       "blocked": "Your IRMA app has been remotely blocked.\n\nThis has either been done via MyIRMA for your app, or because you did not use IRMA on this device for more than a year. If you want to continue using IRMA on this device, you will need to start over.",
       "expired": "The session has expired. Please start over.",
       "pairing_rejected": "The session was rejected. Please start over.",
-      "no_internet": "Something went wrong. IRMA needs internet.\n\nPlease check your internet connection."
+      "no_internet": "Please make sure your device has an internet connection."
     }
   },
   "wallet": {
@@ -371,7 +371,7 @@
     "change_choice": "Change choice",
     "choose": "Make a choice",
     "next_step": "Next step",
-    "obtain_data": "Fetch data",
+    "obtain_data": "Obtain data",
     "issue_wizard": {
       "title": "Collect data",
       "explanation": "Obtain your data step by step. You will be sharing these later.",
@@ -384,7 +384,7 @@
       "header": "This data has already been added to the app:"
     },
     "overview": {
-      "title": "Collect data",
+      "title": "Share your data",
       "explanation": "Share your date with {requestorName}",
       "header": "This is the data you are going to share:",
       "confirm": "Share data"
@@ -472,16 +472,17 @@
     "safari": "Tap on the name of the application (such as Safari, Chrome, Firefox) in the top left corner to return to the application you came from."
   },
   "update": {
-    "required": "In order to continue using IRMA, you will need to update the app",
-    "doupdate": "Update"
+    "title": "Update available",
+    "explanation": "To continue using the IRMA app, you must download the latest version.",
+    "update_app": "Update app"
   },
   "action_feedback": {
     "ok": "OK"
   },
-  "device_rooted_warning": {
+  "rooted_warning": {
     "title": "Device unsafe",
-    "body": "The operating system on your device seems to be modified. Because of this, the safety of your data cannot be guaranteed.",
-    "button_accept_risk": "I accept the risk"
+    "explanation": "The operating system on your device seems to be modified. Because of this, the safety of your data cannot be guaranteed.",
+    "accept_risk": "I accept the risk"
   },
   "issue_wizard": {
     "back": "Cancel",
@@ -500,10 +501,40 @@
       "scan_qr": "Scan QR"
     }
   },
+  "home_tab": {
+    "title": "Your data, on your phone",
+    "get_going": "Get going",
+    "more_information": "More information",
+    "recent_activity": "Recent activity",
+    "view_more": "View more",
+    "action_card": {
+      "share": {
+        "title": "Share your data straight away",
+        "subtitle": "with the requesting organization"
+      },
+      "fetch": {
+        "title": "Fetch your data",
+        "subtitle": "to share it in the future with ease"
+      }
+    },
+    "info_card": {
+      "safety": {
+        "title": "How safe is IRMA?",
+        "body": "Information about the security of IRMA and the usage of digital identities.",
+        "link": "https://irma.app/?lang=en"
+      },
+      "about": {
+        "title": "About IRMA",
+        "body": "Read up on IRMA. Both general and technical information.",
+        "link": "https://privacybydesign.foundation/irma-en/"
+      }
+    }
+  },
   "more_tab": {
     "app_management": "App management",
     "settings": "Settings",
     "help": "Help",
+    "debugging": "Debugging",
     "contact": "Contact us",
     "share": "Share IRMA",
     "website": "IRMA-website",
@@ -533,8 +564,7 @@
     "message_signed": "Message signed",
     "shared_with": "Shared with",
     "shared_data": "Shared data",
-    "received_data": "Received data",
-    "recent_activity": "Recent activity"
+    "received_data": "Received data"
   },
   "credential": {
     "no_data": "No data"
