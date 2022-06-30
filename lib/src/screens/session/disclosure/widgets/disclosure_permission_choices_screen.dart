@@ -97,32 +97,26 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
               style: theme.themeData.textTheme.headline3,
             ),
             SizedBox(height: theme.smallSpacing),
-            ...state.choices.entries
-                .map(
-                  (choiceEntry) => Column(
+            ...state.choices.entries.map(
+              (choiceEntry) => Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          GestureDetector(
-                            onTap: () => onEvent(DisclosurePermissionChangeChoicePressed(disconIndex: choiceEntry.key)),
-                            child: TranslatedText(
-                              'disclosure_permission.change_choice',
-                              style: theme.textTheme.caption!.copyWith(fontWeight: FontWeight.bold, color: Colors.blue),
-                            ),
-                          )
-                        ],
-                      ),
-                      SizedBox(height: theme.smallSpacing),
-                      for (var credential in choiceEntry.value)
-                        IrmaCredentialCard(
-                          credentialInfo: credential,
-                          attributes: credential.attributes,
-                        )
+                      GestureDetector(
+                        onTap: () => onEvent(DisclosurePermissionChangeChoicePressed(disconIndex: choiceEntry.key)),
+                        child: TranslatedText(
+                          'disclosure_permission.change_choice',
+                          style: theme.textTheme.caption!.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue,
+                          ),
+                        ),
+                      )
                     ],
                   ),
                   SizedBox(height: theme.smallSpacing),
-                  for (var credential in conEntry.value)
+                  for (var credential in choiceEntry.value)
                     IrmaCredentialCard(
                       credentialInfo: credential,
                       attributes: credential.attributes,

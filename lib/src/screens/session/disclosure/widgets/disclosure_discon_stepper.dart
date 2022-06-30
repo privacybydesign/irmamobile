@@ -31,8 +31,8 @@ class DisclosureDisconStepper extends StatelessWidget {
     return IrmaStepper(
       currentIndex: currentCandidateIndex,
       children: candidates.entries
-          .map(
-            (candidateEntry) =>
+          .mapIndexed(
+            (candidateIndex, candidateEntry) =>
                 // If this item is a choice, render choice widget.
                 currentCandidateKey != null &&
                         currentCandidateKey! <= candidateEntry.key &&
@@ -47,7 +47,7 @@ class DisclosureDisconStepper extends StatelessWidget {
                     : DisclosureIssueWizardCredentialCards(
                         isActive: candidateEntry.key == currentCandidateKey,
                         // Only show the attribute values when the candidate has yet to be completed
-                        showAttributes: currentCandidateIndex != null && currentCandidateIndex! <= candidateEntry.key, //TODO Fix false compare 
+                        showAttributes: currentCandidateIndex != null && currentCandidateIndex <= candidateIndex,
                         credentials: candidateEntry.value[selectedConIndices[candidateEntry.key]!],
                       ),
           )
