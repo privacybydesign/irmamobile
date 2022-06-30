@@ -29,7 +29,6 @@ class IrmaProgressIndicator extends StatelessWidget {
               "n": stepCount.toString(),
             },
             style: TextStyle(
-              fontFamily: theme.fontFamilyHeadings,
               fontSize: 12,
               color: theme.themeData.colorScheme.secondary,
             ),

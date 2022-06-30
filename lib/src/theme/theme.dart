@@ -76,8 +76,7 @@ class IrmaThemeData {
   final Color grayscale40 = const Color(0xFF3C4B5A);
 
   //Fonts
-  final String fontFamilyHeadings = 'Ubuntu';
-  final String fontFamilyBody = 'Roboto';
+  final String fontFamily = 'Open Sans';
 
   //TODO: The values below are marked late and have to be initialized in the constructor body.
   //In the future these values should be phased out and be move into ThemeData.colorScheme.
@@ -117,33 +116,28 @@ class IrmaThemeData {
     //Init Text theme
     textTheme = TextTheme(
       // headline1 is used for extremely large text
-      headline1:
-          TextStyle(fontSize: 26.0, fontFamily: fontFamilyHeadings, fontWeight: FontWeight.bold, color: secondary),
+      headline1: TextStyle(fontSize: 26.0, fontWeight: FontWeight.bold, color: secondary),
       // headline2 is used for very, very large text
       headline2: TextStyle(
         fontSize: 24.0,
-        fontFamily: fontFamilyHeadings,
         fontWeight: FontWeight.bold,
         color: secondary,
       ),
       // headline3 is used for very large text
       headline3: TextStyle(
         fontSize: 18.0,
-        fontFamily: fontFamilyHeadings,
         fontWeight: FontWeight.bold,
         color: secondary,
       ),
       // headline4 is used for large text
       headline4: TextStyle(
         fontSize: 16.0,
-        fontFamily: fontFamilyHeadings,
         fontWeight: FontWeight.bold,
         color: secondary,
       ),
       // headline5 is used for large text in dialogs
       headline5: TextStyle(
         fontSize: 14.0,
-        fontFamily: fontFamilyHeadings,
         fontWeight: FontWeight.w500,
         color: secondary,
       ),
@@ -160,7 +154,6 @@ class IrmaThemeData {
       bodyText2: TextStyle(fontSize: 16.0, fontWeight: FontWeight.normal, color: dark),
       // overline is used for the smallest text
       overline: TextStyle(
-        fontFamily: fontFamilyHeadings,
         fontSize: 12.0,
         height: 16.0 / 12.0,
         fontWeight: FontWeight.w600,
@@ -192,12 +185,12 @@ class IrmaThemeData {
         color: dark,
       ),
       // button is used for text on ElevatedButton and TextButton
-      button: TextStyle(
-          fontFamily: fontFamilyHeadings,
-          fontSize: 16.0,
-          height: 19.0 / 16.0,
-          fontWeight: FontWeight.w600,
-          color: Colors.white),
+      button: const TextStyle(
+        fontSize: 16.0,
+        height: 19.0 / 16.0,
+        fontWeight: FontWeight.w600,
+        color: Colors.white,
+      ),
     );
 
     //Init Input Decoration Theme
@@ -270,7 +263,7 @@ class IrmaThemeData {
 
     // Init final ThemeData composed of all theme components.
     themeData = ThemeData(
-      fontFamily: fontFamilyBody,
+      fontFamily: fontFamily,
       scaffoldBackgroundColor: background,
       bottomSheetTheme: const BottomSheetThemeData(backgroundColor: Colors.transparent),
       colorScheme: colorScheme,
