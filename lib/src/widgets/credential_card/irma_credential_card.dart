@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_footer.dart';
 
 import '../../models/attribute_value.dart';
 import '../../models/attributes.dart';
@@ -82,6 +83,7 @@ class IrmaCredentialCard extends StatelessWidget {
       style: style,
       onTap: onTap,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           IrmaCredentialCardHeader(
@@ -102,6 +104,12 @@ class IrmaCredentialCard extends StatelessWidget {
               ),
             ),
           ],
+          if (expiryDate != null) ...[
+            const IrmaDivider(),
+            IrmaCredentialCardFooter(
+              expiryDate: expiryDate!,
+            ),
+          ]
         ],
       ),
     );

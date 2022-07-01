@@ -567,6 +567,7 @@
     "received_data": "Ontvangen gegevens"
   },
   "credential": {
-    "no_data": "Geen gegevens"
+    "no_data": "Geen gegevens",
+    "valid_until": "Geldig tot: {date}"
   }
 }

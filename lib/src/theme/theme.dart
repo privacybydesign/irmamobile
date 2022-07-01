@@ -21,6 +21,9 @@ class IrmaThemeData {
   Color get surfacePrimary => light; // Used on cards etc, to contrast with the background
   final Color surfaceSecondary = const Color(0xFFE9F4FF); // Used on cards that are active etc.
   final Color dark = Colors.black; // Used as default, non headline, text color
+  final Color neutralDark = const Color(0xFF454545); //Represent a greyish color, between neutral and light
+  final Color neutral = const Color(0xFF646464); //Represent a greyish color, between light and dark
+  final Color neutralLight = const Color(0xFFE8E8E8); //Represent a greyish color, between neutral and light
   final Color light = Colors.white; // Mainly used to represent white
 
   // Communicating colors
@@ -132,12 +135,7 @@ class IrmaThemeData {
       ),
 
       // caption is used for auxiliary text associated with images
-      caption: TextStyle(
-        fontSize: 14.0,
-        height: 24.0 / 14.0,
-        fontWeight: FontWeight.normal,
-        color: dark,
-      ),
+      caption: TextStyle(fontSize: 14.0, height: 24.0 / 14.0, fontWeight: FontWeight.normal, color: dark),
       // button is used for text on ElevatedButton and TextButton
       button: TextStyle(
         fontSize: 16.0,

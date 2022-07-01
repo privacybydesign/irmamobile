@@ -14,7 +14,7 @@ class IrmaDivider extends StatelessWidget {
       child: Container(
         height: 1,
         decoration: BoxDecoration(
-          color: Colors.grey.shade300,
+          color: theme.neutralLight,
         ),
       ),
     );

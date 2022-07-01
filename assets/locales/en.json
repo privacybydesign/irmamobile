@@ -567,6 +567,7 @@
     "received_data": "Received data"
   },
   "credential": {
-    "no_data": "No data"
+    "no_data": "No data",
+    "valid_until": "Valid until: {date}"
   }
 }

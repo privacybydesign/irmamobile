@@ -50,7 +50,9 @@ class IrmaCredentialCardHeader extends StatelessWidget {
               Text(
                 subtitle ?? '',
                 overflow: TextOverflow.ellipsis,
-                style: theme.themeData.textTheme.caption,
+                style: theme.themeData.textTheme.caption!.copyWith(
+                  color: theme.neutralDark,
+                ),
               )
             ],
           ),

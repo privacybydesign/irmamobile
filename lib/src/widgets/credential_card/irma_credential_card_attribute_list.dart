@@ -31,7 +31,9 @@ class IrmaCredentialCardAttributeList extends StatelessWidget {
             for (final attribute in attributesWithValue) ...[
               Text(
                 attribute.attributeType.name.translate(lang),
-                style: theme.themeData.textTheme.caption,
+                style: theme.themeData.textTheme.caption!.copyWith(
+                  color: theme.neutralDark,
+                ),
               ),
               SizedBox(width: theme.smallSpacing),
               Builder(
