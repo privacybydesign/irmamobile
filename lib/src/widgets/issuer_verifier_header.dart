@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
-import '../../../theme/theme.dart';
+import '../theme/theme.dart';
 
 class IssuerVerifierHeader extends StatelessWidget {
   final String title;
+  final TextStyle? titleTextStyle;
   final String? logo;
 
   const IssuerVerifierHeader({
     required this.title,
+    this.titleTextStyle,
     this.logo,
   });
 
@@ -27,7 +29,7 @@ class IssuerVerifierHeader extends StatelessWidget {
         Flexible(
           child: Text(
             title,
-            style: theme.textTheme.bodyText1,
+            style: titleTextStyle ?? theme.textTheme.bodyText1,
             overflow: TextOverflow.ellipsis,
           ),
         ),

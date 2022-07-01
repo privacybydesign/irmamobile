@@ -7,7 +7,7 @@ import '../../../../widgets/irma_bottom_bar.dart';
 import '../../../../widgets/irma_progress_indicator.dart';
 import '../../../../widgets/irma_quote.dart';
 import '../../../../widgets/translated_text.dart';
-import '../../../activity/widgets/issuer_verifier_header.dart';
+import '../../../../widgets/issuer_verifier_header.dart';
 import '../../widgets/session_scaffold.dart';
 import '../bloc/disclosure_permission_event.dart';
 import '../bloc/disclosure_permission_state.dart';

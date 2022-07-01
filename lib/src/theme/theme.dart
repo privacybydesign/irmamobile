@@ -92,15 +92,15 @@ class IrmaThemeData {
       // headline5 is used for large text in dialogs
       headline5: TextStyle(
         fontSize: 14.0,
-        fontWeight: FontWeight.w500,
-        color: secondary,
+        fontWeight: FontWeight.bold,
+        color: dark,
       ),
       // headline6 is used for the primary text in app bars and dialogs
       headline6: TextStyle(
         fontSize: 18.0,
         height: 28.0 / 18.0,
         fontWeight: FontWeight.bold,
-        color: secondary,
+        color: dark,
       ),
       // bodyText1 is used for emphasizing text
       bodyText1: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: dark),
