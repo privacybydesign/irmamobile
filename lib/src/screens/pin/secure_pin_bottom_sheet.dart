@@ -1,50 +1,107 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:rxdart/subjects.dart';
 
 import '../../util/safe_pin.dart';
 
 const backgroundGrey = Color(0xFFE5E5E5);
 const orange = Color(0xFFEBA73B);
 
-void Function(String) pinStringToListConverter(StreamController<List<int>> controller) {
-  return (String pin) => controller.add(pin.split('').map((e) => int.parse(e)).toList());
+typedef Pin = List<int>;
+typedef PinStream = BehaviorSubject<Pin>;
+typedef PinQuality = Set<UnsecurePinAttribute>;
+typedef PinQualityStream = BehaviorSubject<PinQuality>;
+
+void Function(String) pinStringToListConverter(PinStream pinStream) {
+  return (String pin) => pinStream.add(pin.split('').map((e) => int.parse(e)).toList());
+}
+
+enum UnsecurePinAttribute {
+  atLeast5AtMost16,
+  containsThreeUnique,
+  mustNotAscNorDesc,
+  notAbcabNorAbcba,
+  mustContainValidSubset,
+}
+
+class PinQualityBloc extends Bloc<Pin, PinQuality> {
+  final PinStream pinStream;
+  late final StreamSubscription sub;
+
+  PinQualityBloc(
+    this.pinStream,
+  ) : super({}) {
+    sub = pinStream.listen((value) {
+      add(value);
+    });
+  }
+
+  @override
+  Future<void> close() {
+    sub.cancel();
+    return super.close();
+  }
+
+  @override
+  Stream<PinQuality> mapEventToState(Pin pin) async* {
+    final set = <UnsecurePinAttribute>{};
+    if (pinSizeMustBeAtLeast5AtMost16(pin)) {
+      set.add(UnsecurePinAttribute.atLeast5AtMost16);
+    } else if (pinMustContainAtLeastThreeUniqueNumbers(pin)) {
+      set.add(UnsecurePinAttribute.containsThreeUnique);
+    } else if (pinMustNotBeMemberOfSeriesAscDesc(pin)) {
+      set.add(UnsecurePinAttribute.mustNotAscNorDesc);
+    } else if (pinMustNotContainPatternAbcab(pin) && pinMustNotContainPatternAbcba(pin)) {
+      set.add(UnsecurePinAttribute.notAbcabNorAbcba);
+    }
+
+    if (pin.length > 5) {
+      if (pinMustContainASublistOfSize5ThatCompliesToAllRules(pin)) {
+        set.add(UnsecurePinAttribute.mustContainValidSubset);
+      }
+    }
+
+    yield set;
+  }
 }
 
 class UnsecurePinWarningTextButton extends StatelessWidget {
-  final Stream<List<int>> pinStream;
-  const UnsecurePinWarningTextButton({Key? key, required this.pinStream}) : super(key: key);
+  final PinQualityBloc bloc;
+  final PinStream pinStream;
+  const UnsecurePinWarningTextButton({Key? key, required this.pinStream, required this.bloc}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<List<int>>(
-        initialData: const [],
-        stream: pinStream,
-        builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.data!.length >= 5 && !pinRules.every((r) => r(snapshot.data!))) {
-            return Center(
-              child: TextButton(
-                onPressed: () => _showSecurePinBottomSheet(context, snapshot.data!),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      FlutterI18n.translate(context, 'secure_pin.info_button'),
-                      style: const TextStyle(color: orange),
-                    ),
-                    const SizedBox(width: 2.0),
-                    const Icon(
-                      Icons.info_outlined,
-                      color: orange,
-                    ),
-                  ],
-                ),
+    return BlocBuilder<PinQualityBloc, PinQuality>(
+      bloc: bloc,
+      builder: (context, rulesViolated) {
+        if (rulesViolated.isNotEmpty) {
+          return Center(
+            child: TextButton(
+              onPressed: () => _showSecurePinBottomSheet(context, rulesViolated),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    FlutterI18n.translate(context, 'secure_pin.info_button'),
+                    style: const TextStyle(color: orange),
+                  ),
+                  const SizedBox(width: 2.0),
+                  const Icon(
+                    Icons.info_outlined,
+                    color: orange,
+                  ),
+                ],
               ),
-            );
-          }
-          return const SizedBox(height: 16.0);
-        });
+            ),
+          );
+        }
+        return const SizedBox(height: 16.0);
+      },
+    );
   }
 
   ListTile _ruleWidget(BuildContext context, Icon icon, String localeKey) => ListTile(
@@ -80,7 +137,7 @@ class UnsecurePinWarningTextButton extends StatelessWidget {
     }
   }
 
-  void _showSecurePinBottomSheet(BuildContext context, List<int> pin) {
+  void _showSecurePinBottomSheet(BuildContext context, PinQuality unsecurePinAttrs) {
     final rules = <Widget>[
       Stack(
         alignment: Alignment.center,
@@ -127,22 +184,24 @@ class UnsecurePinWarningTextButton extends StatelessWidget {
         ),
       ),
       const Divider(),
-      _pinRule(context, pinMustContainAtLeastThreeUniqueNumbers(pin), 'secure_pin.rules.contains_3_unique'),
+      _pinRule(context, unsecurePinAttrs.contains(UnsecurePinAttribute.containsThreeUnique),
+          'secure_pin.rules.contains_3_unique'),
       const Divider(),
-      _pinRule(context, pinMustNotBeMemberOfSeriesAscDesc(pin), 'secure_pin.rules.must_not_asc_or_desc'),
+      _pinRule(context, unsecurePinAttrs.contains(UnsecurePinAttribute.mustNotAscNorDesc),
+          'secure_pin.rules.must_not_asc_or_desc'),
       const Divider(),
-      _pinRule(context, pinMustNotContainPatternAbcab(pin) && pinMustNotContainPatternAbcba(pin),
-          'secure_pin.rules.not_abcab_nor_abcba')
+      _pinRule(context, unsecurePinAttrs.contains(UnsecurePinAttribute.notAbcabNorAbcba),
+          'secure_pin.rules.not_abcab_nor_abcba'),
     ];
 
-    if (pin.length > 5) {
+    if (pinStream.value.length > 5) {
       rules
         ..add(const Divider())
-        ..add(_pinRule(context, pinMustContainASublistOfSize5ThatCompliesToAllRules(pin),
+        ..add(_pinRule(context, unsecurePinAttrs.contains(UnsecurePinAttribute.mustContainValidSubset),
             'secure_pin.rules.must_contain_valid_subset'));
     }
 
-    // TODO YiviBottomSheet
+    // TODO yiviBottomSheetBuilder
     showModalBottomSheet(
       context: context,
       builder: (context) => Padding(

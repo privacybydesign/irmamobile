@@ -1,8 +1,6 @@
 // This code is not null safe yet.
 // @dart=2.11
 
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -22,7 +20,7 @@ class ChoosePin extends StatelessWidget {
   final void Function() toggleLongPin;
   final void Function() cancel;
   final FocusNode pinFocusNode;
-  final _pinController = StreamController<List<int>>();
+  final _pinStream = PinStream.seeded([]);
 
   ChoosePin(
       {@required this.pinFocusNode, @required this.chooseNewPin, @required this.toggleLongPin, @required this.cancel});
@@ -62,10 +60,14 @@ class ChoosePin extends StatelessWidget {
                 PinField(
                   focusNode: pinFocusNode,
                   longPin: state.longPin,
-                  onChange: pinStringToListConverter(_pinController),
+                  onChange: pinStringToListConverter(_pinStream),
                   onSubmit: (String pin) => chooseNewPin(context, pin),
                 ),
-                UnsecurePinWarningTextButton(pinStream: _pinController.stream),
+                UnsecurePinWarningTextButton(
+                    pinStream: _pinStream,
+                    bloc: PinQualityBloc(
+                      _pinStream,
+                    )),
                 SizedBox(height: IrmaTheme.of(context).smallSpacing),
                 IrmaTextButton(
                   onPressed: () {

@@ -1,8 +1,6 @@
 // This code is not null safe yet.
 // @dart=2.11
 
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -20,7 +18,7 @@ class ConfirmPin extends StatelessWidget {
   final void Function(String) confirmNewPin;
   final void Function() cancel;
 
-  final _pinController = StreamController<List<int>>();
+  final _pinStream = PinStream.seeded([]);
 
   ConfirmPin({@required this.confirmNewPin, @required this.cancel});
 
@@ -55,10 +53,14 @@ class ConfirmPin extends StatelessWidget {
               SizedBox(height: IrmaTheme.of(context).mediumSpacing),
               PinField(
                 longPin: state.longPin,
-                onChange: pinStringToListConverter(_pinController),
+                onChange: pinStringToListConverter(_pinStream),
                 onSubmit: (String pin) => confirmNewPin(pin),
               ),
-              UnsecurePinWarningTextButton(pinStream: _pinController.stream),
+              UnsecurePinWarningTextButton(
+                  pinStream: _pinStream,
+                  bloc: PinQualityBloc(
+                    _pinStream,
+                  )),
             ],
           ),
         );
