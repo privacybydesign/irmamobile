@@ -215,9 +215,8 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
 
   PreferredSizeWidget _buildAppBar() {
     return IrmaAppBar(
-      title: Text(
-        widget.title,
-      ),
+      titleTranslationKey: widget.title,
+
       // Parent widget is responsible for popping this widget, so do a leadingAction instead of a leadingCancel.
       leadingAction: () {
         _cancel();

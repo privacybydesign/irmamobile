@@ -27,7 +27,9 @@ class _HelpScreenState extends State<HelpScreen> {
 
     return Scaffold(
       key: _scaffoldKey,
-      appBar: const IrmaAppBar(title: TranslatedText('help.title')),
+      appBar: const IrmaAppBar(
+        titleTranslationKey: 'help.title',
+      ),
       body: ListView(
         key: _scrollViewKey,
         controller: _controller,

@@ -23,10 +23,8 @@ class CardStoreScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: IrmaAppBar(
-        title: Text(
-          FlutterI18n.translate(context, 'card_store.app_bar'),
-        ),
+      appBar: const IrmaAppBar(
+        titleTranslationKey: 'card_store.app_bar',
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,

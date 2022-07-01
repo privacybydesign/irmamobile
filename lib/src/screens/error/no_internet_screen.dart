@@ -22,12 +22,7 @@ class NoInternetScreen extends StatelessWidget {
       },
       child: Scaffold(
         appBar: IrmaAppBar(
-          title: Text(
-            FlutterI18n.translate(
-              context,
-              'error.details_title',
-            ),
-          ),
+          titleTranslationKey: 'error.details_title',
           leadingAction: onTapClose,
         ),
         body: IrmaInfoScaffoldBody(

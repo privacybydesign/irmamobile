@@ -24,9 +24,7 @@ class CallInfoScreen extends StatelessWidget {
       },
       child: Scaffold(
         appBar: IrmaAppBar(
-          title: Text(
-            FlutterI18n.translate(context, 'disclosure.call_info.title'),
-          ),
+          titleTranslationKey: 'disclosure.call_info.title',
           leadingAction: () => onCancel?.call(),
         ),
         bottomNavigationBar: IrmaBottomBar(

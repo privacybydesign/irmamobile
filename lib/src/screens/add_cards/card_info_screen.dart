@@ -33,13 +33,8 @@ class _CardInfoScreenState extends State<CardInfoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      appBar: IrmaAppBar(
-        title: Text(
-          FlutterI18n.translate(
-            context,
-            'card_store.card_info.app_bar',
-          ),
-        ),
+      appBar: const IrmaAppBar(
+        titleTranslationKey: 'card_store.card_info.app_bar',
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,

@@ -21,10 +21,8 @@ class EmailSentScreen extends StatelessWidget {
     return WillPopScope(
       onWillPop: () => Navigator.of(context, rootNavigator: true).pushReplacementNamed(HomeScreen.routeName),
       child: Scaffold(
-        appBar: IrmaAppBar(
-          title: Text(
-            FlutterI18n.translate(context, 'enrollment.email_sent.title'),
-          ),
+        appBar: const IrmaAppBar(
+          titleTranslationKey: 'enrollment.email_sent.title',
           noLeading: true,
         ),
         bottomNavigationBar: IrmaBottomBar(

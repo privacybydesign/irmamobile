@@ -14,7 +14,6 @@ import '../../util/combine.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/loading_indicator.dart';
-import '../../widgets/translated_text.dart';
 import 'history_repository.dart';
 import 'widgets/activity_card.dart';
 
@@ -125,8 +124,8 @@ class _ActivityTabState extends State<ActivityTab> {
   Widget build(BuildContext context) {
     _scrollController.addListener(_listenToScroll);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      IrmaAppBar(
-        title: TranslatedText('home.nav_bar.activity', style: IrmaTheme.of(context).themeData.textTheme.headline2),
+      const IrmaAppBar(
+        titleTranslationKey: 'home.nav_bar.activity',
         noLeading: true,
       ),
       StreamBuilder<CombinedState2<IrmaConfiguration, HistoryState>>(

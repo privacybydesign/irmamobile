@@ -23,8 +23,8 @@ class SettingsScreen extends StatelessWidget {
     final repo = IrmaRepositoryProvider.of(context);
 
     return Scaffold(
-      appBar: IrmaAppBar(
-        title: Text(FlutterI18n.translate(context, 'settings.title')),
+      appBar: const IrmaAppBar(
+        titleTranslationKey: 'settings.title',
       ),
       body: ListView(
           padding: EdgeInsets.symmetric(

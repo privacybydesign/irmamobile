@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/theme.dart';
+import 'package:irmamobile/src/widgets/translated_text.dart';
 
 class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final Widget title;
+  final String titleTranslationKey;
   final Icon? leadingIcon;
   final void Function()? leadingAction;
   final void Function()? leadingCancel;
@@ -12,7 +13,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool noLeading;
 
   const IrmaAppBar({
-    required this.title,
+    required this.titleTranslationKey,
     this.leadingIcon,
     this.leadingAction,
     this.leadingTooltip,
@@ -55,7 +56,10 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
                     }),
               ),
             ),
-      title: title,
+      title: TranslatedText(
+        titleTranslationKey,
+        style: IrmaTheme.of(context).textTheme.headline3,
+      ),
       actions: actions,
       automaticallyImplyLeading: false,
     );

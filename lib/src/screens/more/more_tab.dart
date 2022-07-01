@@ -19,11 +19,8 @@ class MoreTab extends StatelessWidget {
         );
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      IrmaAppBar(
-        title: TranslatedText(
-          'home.nav_bar.more',
-          style: IrmaTheme.of(context).themeData.textTheme.headline1,
-        ),
+      const IrmaAppBar(
+        titleTranslationKey: 'home.nav_bar.more',
         noLeading: true,
       ),
       Expanded(

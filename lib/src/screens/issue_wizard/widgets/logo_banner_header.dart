@@ -34,7 +34,7 @@ class LogoBannerHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: IrmaAppBar(
-        title: Text(FlutterI18n.translate(context, "issue_wizard.add_cards")),
+        titleTranslationKey: "issue_wizard.add_cards",
         leadingAction: onBack,
         leadingIcon: Icon(Icons.arrow_back, semanticLabel: FlutterI18n.translate(context, "accessibility.back")),
       ),

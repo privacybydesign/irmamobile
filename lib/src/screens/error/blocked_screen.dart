@@ -20,14 +20,8 @@ class BlockedScreen extends StatelessWidget {
         return false;
       },
       child: Scaffold(
-        appBar: IrmaAppBar(
-          title: Text(
-            FlutterI18n.translate(
-              context,
-              'error.details_title',
-            ),
-            textAlign: TextAlign.center,
-          ),
+        appBar: const IrmaAppBar(
+          titleTranslationKey: 'error.details_title',
           noLeading: true,
         ),
         body: IrmaInfoScaffoldBody(

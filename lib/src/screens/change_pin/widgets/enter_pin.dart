@@ -21,9 +21,7 @@ class EnterPin extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: IrmaAppBar(
-        title: Text(
-          FlutterI18n.translate(context, 'change_pin.enter_pin.title'),
-        ),
+        titleTranslationKey: 'change_pin.enter_pin.title',
         leadingTooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
         leadingAction: () async {
           if (cancel != null) {

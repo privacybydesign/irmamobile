@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../widgets/irma_app_bar.dart';
-import '../../../widgets/translated_text.dart';
 
 class SessionScaffold extends Scaffold {
   SessionScaffold({
@@ -10,14 +9,10 @@ class SessionScaffold extends Scaffold {
     Widget? bottomNavigationBar,
     Widget? body,
     required String appBarTitle,
-    TextStyle? appBarTitleStyle,
   }) : super(
           key: key,
           appBar: IrmaAppBar(
-            title: TranslatedText(
-              appBarTitle,
-              style: appBarTitleStyle,
-            ),
+            titleTranslationKey: appBarTitle,
             leadingAction: onDismiss,
           ),
           bottomNavigationBar: bottomNavigationBar,

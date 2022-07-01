@@ -7,7 +7,6 @@ import '../../theme/theme.dart';
 import '../../util/date_formatter.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_bottom_bar.dart';
-import '../../widgets/translated_text.dart';
 import 'widgets/activity_detail_disclosure.dart';
 import 'widgets/activity_detail_issuance.dart';
 import 'widgets/activity_detail_removal.dart';
@@ -22,11 +21,8 @@ class ActivityDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     return Scaffold(
-      appBar: IrmaAppBar(
-        title: TranslatedText(
-          'home.nav_bar.activity',
-          style: theme.themeData.textTheme.headline2,
-        ),
+      appBar: const IrmaAppBar(
+        titleTranslationKey: 'home.nav_bar.activity',
       ),
       bottomNavigationBar:
           IrmaBottomBar(primaryButtonLabel: 'home.button_back', onPrimaryPressed: () => Navigator.of(context).pop()),
