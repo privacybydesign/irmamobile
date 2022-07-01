@@ -74,7 +74,7 @@ class _SubmitState extends State<Submit> {
             }
           },
           child: IrmaProgress(
-            FlutterI18n.translate(context, "enrollment.submit.progress_enrollment"),
+            description: FlutterI18n.translate(context, 'enrollment.submit.progress_enrollment'),
           )),
     );
   }

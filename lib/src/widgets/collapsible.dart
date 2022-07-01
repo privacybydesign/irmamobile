@@ -1,20 +1,22 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/configurable_expansion_tile.dart';
+
+import '../theme/theme.dart';
+import 'configurable_expansion_tile.dart';
 
 class Collapsible extends StatefulWidget {
   final String header;
   final Widget content;
 
-  const Collapsible({Key key, this.header, this.content, this.onExpansionChanged}) : super(key: key);
+  const Collapsible({
+    Key? key,
+    required this.header,
+    required this.content,
+    required this.onExpansionChanged,
+  }) : super(key: key);
   final ValueChanged<bool> onExpansionChanged;
 
   @override
@@ -41,44 +43,47 @@ class _CollapsibleState extends State<Collapsible> {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
-      child: ConfigurableExpansionTile(
-        onExpansionChanged: onExpansionChanged,
-        animatedWidgetFollowingHeader: const Padding(
-          padding: EdgeInsets.all(4.0),
-          child: Icon(
-            Icons.expand_more,
-            color: Colors.black,
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: theme.tinySpacing),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: ConfigurableExpansionTile(
+          onExpansionChanged: onExpansionChanged,
+          animatedWidgetFollowingHeader: const Padding(
+            padding: EdgeInsets.all(4.0),
+            child: Icon(
+              Icons.expand_more,
+              color: Colors.black,
+            ),
           ),
-        ),
-        header: Expanded(
-          child: Semantics(
-            label: _isExpanded
-                ? FlutterI18n.translate(context, 'accessibility.expanded')
-                : FlutterI18n.translate(context, 'accessibility.collapsed'),
-            child: Padding(
-              padding: EdgeInsets.only(
-                  top: IrmaTheme.of(context).tinySpacing * 3,
-                  bottom: IrmaTheme.of(context).tinySpacing * 3,
-                  left: IrmaTheme.of(context).defaultSpacing,
-                  right: IrmaTheme.of(context).defaultSpacing),
-              child: Text(
-                widget.header,
-                style: IrmaTheme.of(context).textTheme.bodyText1,
+          header: Expanded(
+            child: Semantics(
+              label: _isExpanded
+                  ? FlutterI18n.translate(context, 'accessibility.expanded')
+                  : FlutterI18n.translate(context, 'accessibility.collapsed'),
+              child: Padding(
+                padding: EdgeInsets.only(
+                    top: IrmaTheme.of(context).tinySpacing * 3,
+                    bottom: IrmaTheme.of(context).tinySpacing * 3,
+                    left: IrmaTheme.of(context).defaultSpacing,
+                    right: IrmaTheme.of(context).defaultSpacing),
+                child: Text(
+                  widget.header,
+                  style: IrmaTheme.of(context).textTheme.bodyText1,
+                ),
               ),
             ),
           ),
+          headerBackgroundColorStart: theme.lightBlue,
+          expandedBackgroundColor: theme.lightBlue,
+          children: <Widget>[
+            Padding(
+              padding:
+                  EdgeInsets.symmetric(vertical: IrmaTheme.of(context).smallSpacing, horizontal: theme.defaultSpacing),
+              child: widget.content,
+            ),
+          ],
         ),
-        headerBackgroundColorStart: theme.lightBlue,
-        expandedBackgroundColor: theme.lightBlue,
-        children: <Widget>[
-          Padding(
-            padding:
-                EdgeInsets.symmetric(vertical: IrmaTheme.of(context).smallSpacing, horizontal: theme.defaultSpacing),
-            child: widget.content,
-          ),
-        ],
       ),
     );
   }

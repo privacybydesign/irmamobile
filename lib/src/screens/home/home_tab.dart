@@ -46,6 +46,7 @@ class HomeTab extends StatelessWidget {
             subtitleKey: 'home_tab.action_card.share.subtitle',
             onTap: () => Navigator.of(context).pushNamed(ScannerScreen.routeName),
             icon: IrmaIcons.scanQrcode,
+            color: theme.themeData.colorScheme.secondary,
           ),
           SizedBox(height: theme.defaultSpacing),
           IrmaActionCard(
@@ -54,6 +55,7 @@ class HomeTab extends StatelessWidget {
             onTap: () =>
                 throw UnimplementedError('Credential store not implemented'), // TODO: Implement credential store
             icon: Icons.add_circle_outline,
+            color: theme.themeData.colorScheme.secondary,
             invertColors: true,
           ),
           SizedBox(height: theme.largeSpacing),

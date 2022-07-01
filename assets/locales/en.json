@@ -151,33 +151,21 @@
     "expand": "Expand",
     "refresh": "Refresh"
   },
-  "card": {
-    "personaldata": "Personal data",
-    "expiresAt": "Card valid until",
-    "delete": "Delete card",
-    "refresh": "Refresh card",
-    "delete_title": "Are you sure?",
-    "delete_content": "If you proceed, this card will be deleted from your IRMA app.",
-    "delete_confirm": "Delete card",
-    "delete_deny": "Cancel"
-  },
-  "card_store": {
-    "app_bar": "Adding cards",
+  "add_data": {
+    "title": "Adding data",
     "choose": "Choose the data you wish to add.",
-    "search": "Search...",
-    "personal_data": "Personal data",
-    "category_other": "Other",
-    "card_info": {
-      "app_bar": "Adding data",
-      "header_credential_type": "Adding {credential_type}",
-      "obtain": "Add",
-      "issuer": "Source",
-      "purpose_question": "What can you do with these data?",
-      "content_question": "Which data are added?",
-      "howto_question": "How does it work?",
-      "back_button": "Cancel",
-      "get_button": "Add"
-    }
+    "category_other": "Other"
+  },
+  "add_data_details": {
+    "app_bar": "Adding data",
+    "header_credential_type": "Adding {credential_type}",
+    "obtain": "Add",
+    "issuer": "Source",
+    "purpose_question": "What can you do with these data?",
+    "content_question": "Which data are added?",
+    "howto_question": "How does it work?",
+    "back_button": "Cancel",
+    "get_button": "Add"
   },
   "settings": {
     "title": "Settings",
@@ -529,6 +517,10 @@
         "link": "https://privacybydesign.foundation/irma-en/"
       }
     }
+  },
+  "data_tab": {
+    "title": "Your data",
+    "obtain_data": "Obtain personal data"
   },
   "more_tab": {
     "app_management": "App management",

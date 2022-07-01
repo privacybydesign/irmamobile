@@ -4,9 +4,9 @@ import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/loading_indicator.dart';
 
 class IrmaProgress extends StatelessWidget {
-  final String description;
+  final String? description;
 
-  const IrmaProgress(this.description);
+  const IrmaProgress({this.description});
 
   @override
   Widget build(BuildContext context) {
@@ -23,17 +23,19 @@ class IrmaProgress extends StatelessWidget {
           Text(
             FlutterI18n.translate(
               context,
-              "ui.loading",
+              'ui.loading',
             ),
             style: IrmaTheme.of(context).textTheme.headline3,
           ),
-          SizedBox(
-            height: IrmaTheme.of(context).smallSpacing,
-          ),
-          Text(
-            description,
-            style: IrmaTheme.of(context).textTheme.bodyText2,
-          )
+          if (description != null) ...[
+            SizedBox(
+              height: IrmaTheme.of(context).smallSpacing,
+            ),
+            Text(
+              description!,
+              style: IrmaTheme.of(context).textTheme.bodyText2,
+            ),
+          ],
         ],
       ),
     );

@@ -1,26 +1,26 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/util/collapsible_helper.dart';
-import 'package:irmamobile/src/util/language.dart';
-import 'package:irmamobile/src/widgets/collapsible.dart';
 
-class CardQuestions extends StatefulWidget {
-  const CardQuestions({this.credentialType, this.parentKey, this.parentScrollController});
+import '../../../models/irma_configuration.dart';
+import '../../../theme/theme.dart';
+import '../../../util/collapsible_helper.dart';
+import '../../../util/language.dart';
+import '../../../widgets/collapsible.dart';
+
+class AddDataQuestions extends StatefulWidget {
+  const AddDataQuestions({
+    required this.credentialType,
+    required this.parentScrollController,
+  });
 
   final CredentialType credentialType;
-  final GlobalKey parentKey;
   final ScrollController parentScrollController;
 
   @override
-  _CardQuestionsState createState() => _CardQuestionsState();
+  _AddDataQuestionsState createState() => _AddDataQuestionsState();
 }
 
-class _CardQuestionsState extends State<CardQuestions> with TickerProviderStateMixin {
+class _AddDataQuestionsState extends State<AddDataQuestions> with TickerProviderStateMixin {
   final List<GlobalKey> _collapsableKeys = List<GlobalKey>.generate(3, (int index) => GlobalKey());
 
   @override
@@ -31,9 +31,8 @@ class _CardQuestionsState extends State<CardQuestions> with TickerProviderStateM
       children: <Widget>[
         if (widget.credentialType.faqPurpose.isNotEmpty)
           Collapsible(
-              header: FlutterI18n.translate(context, 'card_store.card_info.purpose_question'),
-              onExpansionChanged: (v) =>
-                  {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[0])},
+              header: FlutterI18n.translate(context, 'add_data_details.purpose_question'),
+              onExpansionChanged: (v) => {if (v) jumpToCollapsable(widget.parentScrollController, _collapsableKeys[0])},
               content: SizedBox(
                 width: double.infinity,
                 child: Text(
@@ -45,9 +44,8 @@ class _CardQuestionsState extends State<CardQuestions> with TickerProviderStateM
               key: _collapsableKeys[0]),
         if (widget.credentialType.faqContent.isNotEmpty)
           Collapsible(
-              header: FlutterI18n.translate(context, 'card_store.card_info.content_question'),
-              onExpansionChanged: (v) =>
-                  {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[1])},
+              header: FlutterI18n.translate(context, 'add_data_details.content_question'),
+              onExpansionChanged: (v) => {if (v) jumpToCollapsable(widget.parentScrollController, _collapsableKeys[1])},
               content: SizedBox(
                 width: double.infinity,
                 child: Text(
@@ -59,9 +57,8 @@ class _CardQuestionsState extends State<CardQuestions> with TickerProviderStateM
               key: _collapsableKeys[1]),
         if (widget.credentialType.faqHowto.isNotEmpty)
           Collapsible(
-              header: FlutterI18n.translate(context, 'card_store.card_info.howto_question'),
-              onExpansionChanged: (v) =>
-                  {if (v) jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapsableKeys[2])},
+              header: FlutterI18n.translate(context, 'add_data_details.howto_question'),
+              onExpansionChanged: (v) => {if (v) jumpToCollapsable(widget.parentScrollController, _collapsableKeys[2])},
               content: SizedBox(
                 width: double.infinity,
                 child: Text(

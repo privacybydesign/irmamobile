@@ -34,7 +34,7 @@ class IssueWizardInfo extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
       child: Collapsible(
         header: header,
-        onExpansionChanged: (v) => {if (v) jumpToCollapsable(controller, scrollviewKey, key)},
+        onExpansionChanged: (v) => {if (v) jumpToCollapsable(controller, key)},
         content: SizedBox(width: double.infinity, child: IrmaMarkdown(body)),
         key: key,
       ),

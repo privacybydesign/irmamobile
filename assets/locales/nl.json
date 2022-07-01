@@ -127,23 +127,21 @@
     "expand": "Uitklappen",
     "refresh": "Verversen"
   },
-  "card_store": {
-    "app_bar": "Gegevens toevoegen",
+  "add_data": {
+    "title": "Gegevens toevoegen",
     "choose": "Kies de gegevens die je wilt toevoegen.",
-    "search": "Zoek...",
-    "personal_data": "Persoonsgegevens",
     "category_other": "Overig",
-    "card_info": {
-      "app_bar": "Gegevens toevoegen",
-      "header_credential_type": "{credential_type} toevoegen",
-      "obtain": "toevoegen",
-      "issuer": "Bron",
-      "purpose_question": "Wat kun je met deze gegevens?",
-      "content_question": "Welke gegevens haal je op?",
-      "howto_question": "Hoe werkt het?",
-      "back_button": "Annuleer",
-      "get_button": "Voeg toe"
-    }
+  },
+  "add_data_details": {
+    "app_bar": "Gegevens toevoegen",
+    "header_credential_type": "{credential_type} toevoegen",
+    "obtain": "toevoegen",
+    "issuer": "Bron",
+    "purpose_question": "Wat kun je met deze gegevens?",
+    "content_question": "Welke gegevens haal je op?",
+    "howto_question": "Hoe werkt het?",
+    "back_button": "Annuleer",
+    "get_button": "Voeg toe"
   },
   "settings": {
     "title": "Instellingen",
@@ -481,6 +479,10 @@
         "link": "https://privacybydesign.foundation/irma/"
       }
     }
+  },
+  "data_tab": {
+    "title": "Jouw gegevens",
+    "obtain_data": "Haal persoonlijke gegevens op"
   },
   "more_tab": {
     "app_management": "App-beheer",

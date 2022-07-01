@@ -1,19 +1,27 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
 
-Duration expandDuration = const Duration(milliseconds: 250); // expand duration of _Collapsible
+const _expandDuration = Duration(milliseconds: 250); // expand duration of _Collapsible
 
-jumpToCollapsable(
-  ScrollController scrollController,
-  GlobalKey parentKey,
-  GlobalKey collapsibleKey,
-) async {
-  await Future.delayed(expandDuration);
-  final RenderObject scrollview = parentKey.currentContext.findRenderObject();
-  final RenderBox collapsable = collapsibleKey.currentContext.findRenderObject() as RenderBox;
-  var desiredScrollPosition = collapsable.localToGlobal(Offset(0, scrollController.offset), ancestor: scrollview).dy;
+// TODO: move to class
+Future<void> jumpToCollapsable(ScrollController scrollController, GlobalKey key) async {
+  await Future.delayed(_expandDuration);
+
+  RenderObject? scrollableRenderObject;
+  key.currentContext?.visitAncestorElements((element) {
+    final widget = element.widget;
+    if (widget is Scrollable && widget.controller == scrollController) {
+      scrollableRenderObject = element.renderObject;
+      return false;
+    }
+    return true;
+  });
+  if (scrollableRenderObject == null) return;
+
+  final collapsable = key.currentContext?.findRenderObject();
+  if (collapsable == null || collapsable is! RenderBox) return;
+
+  var desiredScrollPosition =
+      collapsable.localToGlobal(Offset(0, scrollController.offset), ancestor: scrollableRenderObject).dy;
   if (desiredScrollPosition > scrollController.position.maxScrollExtent) {
     desiredScrollPosition = scrollController.position.maxScrollExtent;
   }

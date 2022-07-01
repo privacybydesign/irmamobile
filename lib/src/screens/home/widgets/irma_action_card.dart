@@ -7,15 +7,19 @@ import '../../../widgets/translated_text.dart';
 
 class IrmaActionCard extends StatelessWidget {
   final String titleKey;
-  final String subtitleKey;
+  final String? subtitleKey;
   final IconData icon;
+  final TextStyle? style;
+  final Color? color;
   final bool invertColors;
   final Function()? onTap;
 
   const IrmaActionCard({
     required this.titleKey,
-    required this.subtitleKey,
     required this.icon,
+    required this.color,
+    this.subtitleKey,
+    this.style,
     this.onTap,
     this.invertColors = false,
   });
@@ -23,8 +27,10 @@ class IrmaActionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final backgroundColor = invertColors ? Colors.white : theme.themeData.colorScheme.secondary;
-    final textColor = invertColors ? theme.themeData.colorScheme.secondary : Colors.white;
+    final backgroundColor = invertColors ? Colors.white : color;
+    final textColor = invertColors ? color : Colors.white;
+    final textStyle = style ?? theme.textTheme.headline2 ?? const TextStyle();
+    final captionStyle = theme.textTheme.caption ?? const TextStyle();
 
     return IrmaCard(
       color: backgroundColor,
@@ -41,26 +47,27 @@ class IrmaActionCard extends StatelessWidget {
               children: [
                 TranslatedText(
                   titleKey,
-                  style: theme.textTheme.headline2!.copyWith(color: textColor),
+                  style: textStyle.copyWith(color: textColor),
                 ),
                 SizedBox(height: theme.smallSpacing),
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: '${FlutterI18n.translate(context, subtitleKey)} ',
-                        style: theme.textTheme.caption!.copyWith(color: textColor),
-                      ),
-                      WidgetSpan(
-                        child: Icon(
-                          Icons.arrow_forward,
-                          size: 22,
-                          color: textColor,
+                if (subtitleKey != null)
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: '${FlutterI18n.translate(context, subtitleKey!)} ',
+                          style: captionStyle.copyWith(color: textColor),
                         ),
-                      ),
-                    ],
-                  ),
-                )
+                        WidgetSpan(
+                          child: Icon(
+                            Icons.arrow_forward,
+                            size: textStyle.fontSize,
+                            color: textColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
               ],
             ),
           ),
@@ -68,7 +75,7 @@ class IrmaActionCard extends StatelessWidget {
             padding: EdgeInsets.only(left: theme.largeSpacing),
             child: Icon(
               icon,
-              size: 62,
+              size: (textStyle.fontSize ?? 24) * 2.5,
               color: textColor,
             ),
           )

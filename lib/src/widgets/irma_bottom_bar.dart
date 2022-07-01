@@ -4,6 +4,12 @@ import '../theme/theme.dart';
 import 'irma_button.dart';
 import 'irma_themed_button.dart';
 
+enum IrmaBottomBarAlignment {
+  horizontal,
+  vertical,
+  automatic,
+}
+
 class IrmaBottomBar extends StatelessWidget {
   final String? primaryButtonLabel;
   final VoidCallback? onPrimaryPressed;
@@ -11,6 +17,7 @@ class IrmaBottomBar extends StatelessWidget {
   final bool showTooltipOnPrimary;
   final String? secondaryButtonLabel;
   final VoidCallback? onSecondaryPressed;
+  final IrmaBottomBarAlignment alignment;
 
   const IrmaBottomBar({
     Key? key,
@@ -20,6 +27,7 @@ class IrmaBottomBar extends StatelessWidget {
     this.showTooltipOnPrimary = false,
     this.secondaryButtonLabel,
     this.onSecondaryPressed,
+    this.alignment = IrmaBottomBarAlignment.automatic,
   }) : super(key: key);
 
   Widget _buildPrimaryButton(BuildContext context) {
@@ -73,38 +81,38 @@ class IrmaBottomBar extends StatelessWidget {
           vertical: mediaQuery.size.height > 450 ? theme.defaultSpacing : theme.smallSpacing,
           horizontal: theme.defaultSpacing,
         ),
-        child:
-            // Change layout according to limited height (i.e. landscape mode)
-            mediaQuery.size.height > 450
-                ? Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (primaryButtonLabel != null)
-                        Row(
-                          children: [_buildPrimaryButton(context)],
-                        ),
-                      if (secondaryButtonLabel != null) ...[
-                        SizedBox(
-                          height: theme.tinySpacing,
-                        ),
-                        Row(
-                          children: [_buildSecondaryButton(context)],
-                        )
-                      ]
-                    ],
-                  )
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (secondaryButtonLabel != null) ...[
-                        _buildSecondaryButton(context),
-                        SizedBox(
-                          width: theme.tinySpacing,
-                        )
-                      ],
-                      if (primaryButtonLabel != null) _buildPrimaryButton(context),
-                    ],
-                  ),
+        // Change layout according to limited height (i.e. landscape mode) and alignment setting.
+        child: alignment == IrmaBottomBarAlignment.vertical ||
+                alignment == IrmaBottomBarAlignment.automatic && mediaQuery.size.height > 450
+            ? Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (primaryButtonLabel != null)
+                    Row(
+                      children: [_buildPrimaryButton(context)],
+                    ),
+                  if (secondaryButtonLabel != null) ...[
+                    SizedBox(
+                      height: theme.tinySpacing,
+                    ),
+                    Row(
+                      children: [_buildSecondaryButton(context)],
+                    )
+                  ]
+                ],
+              )
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (secondaryButtonLabel != null) ...[
+                    _buildSecondaryButton(context),
+                    SizedBox(
+                      width: theme.tinySpacing,
+                    )
+                  ],
+                  if (primaryButtonLabel != null) _buildPrimaryButton(context),
+                ],
+              ),
       ),
     );
   }

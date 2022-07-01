@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/util/collapsible_helper.dart';
 import 'package:irmamobile/src/widgets/collapsible.dart';
-import 'package:irmamobile/src/widgets/translated_text.dart';
 
 class HelpItem extends StatefulWidget {
   final GlobalKey parentKey;
@@ -31,7 +30,7 @@ class _HelpItemState extends State<HelpItem> with TickerProviderStateMixin {
       header: FlutterI18n.translate(context, widget.headerTranslationKey),
       onExpansionChanged: (isExpanded) {
         if (isExpanded) {
-          jumpToCollapsable(widget.parentScrollController, widget.parentKey, _collapseKey);
+          jumpToCollapsable(widget.parentScrollController, _collapseKey);
         }
       },
       content: widget.body,
