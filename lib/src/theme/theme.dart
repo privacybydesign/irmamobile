@@ -142,7 +142,7 @@ class IrmaThemeData {
       button: TextStyle(
         fontSize: 16.0,
         height: 19.0 / 16.0,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.bold,
         color: light,
       ),
     );
