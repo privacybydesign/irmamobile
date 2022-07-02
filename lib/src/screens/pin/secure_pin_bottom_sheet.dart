@@ -13,7 +13,6 @@ const orange = Color(0xFFEBA73B);
 typedef Pin = List<int>;
 typedef PinStream = BehaviorSubject<Pin>;
 typedef PinQuality = Set<UnsecurePinAttribute>;
-typedef PinQualityStream = BehaviorSubject<PinQuality>;
 
 void Function(String) pinStringToListConverter(PinStream pinStream) {
   return (String pin) => pinStream.add(pin.split('').map((e) => int.parse(e)).toList());
@@ -48,6 +47,11 @@ class PinQualityBloc extends Bloc<Pin, PinQuality> {
   @override
   Stream<PinQuality> mapEventToState(Pin pin) async* {
     final set = <UnsecurePinAttribute>{};
+
+    if (pin.length < 5) {
+      yield set;
+    }
+
     if (pinSizeMustBeAtLeast5AtMost16(pin)) {
       set.add(UnsecurePinAttribute.atLeast5AtMost16);
     } else if (pinMustContainAtLeastThreeUniqueNumbers(pin)) {
