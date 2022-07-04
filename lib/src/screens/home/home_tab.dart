@@ -4,6 +4,7 @@ import '../../theme/irma_icons.dart';
 import '../../theme/theme.dart';
 import '../../widgets/translated_text.dart';
 import '../activity/widgets/recent_activity.dart';
+import '../add_data/add_data_screen.dart';
 import '../scanner/scanner_screen.dart';
 import 'widgets/irma_action_card.dart';
 import 'widgets/irma_info_card.dart';
@@ -52,8 +53,7 @@ class HomeTab extends StatelessWidget {
           IrmaActionCard(
             titleKey: 'home_tab.action_card.fetch.title',
             subtitleKey: 'home_tab.action_card.fetch.subtitle',
-            onTap: () =>
-                throw UnimplementedError('Credential store not implemented'), // TODO: Implement credential store
+            onTap: () => Navigator.of(context).pushNamed(AddDataScreen.routeName),
             icon: Icons.add_circle_outline,
             color: theme.themeData.colorScheme.secondary,
             invertColors: true,
