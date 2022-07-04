@@ -10,8 +10,6 @@ import '../../widgets/irma_repository_provider.dart';
 import 'widgets/add_data_questions.dart';
 
 class AddDataDetailsScreen extends StatefulWidget {
-  static const String routeName = '/add_data_details';
-
   const AddDataDetailsScreen({required this.credentialType});
 
   final CredentialType credentialType;
