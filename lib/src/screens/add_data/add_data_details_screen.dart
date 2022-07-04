@@ -21,8 +21,6 @@ class AddDataDetailsScreen extends StatefulWidget {
 }
 
 class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final GlobalKey _scrollviewKey = GlobalKey();
   final ScrollController _controller = ScrollController();
 
   @override
@@ -30,7 +28,7 @@ class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
     final theme = IrmaTheme.of(context);
     final paddingText = EdgeInsets.fromLTRB(
       theme.defaultSpacing,
-      theme.mediumSpacing,
+      theme.tinySpacing,
       theme.defaultSpacing,
       0,
     );
@@ -42,7 +40,6 @@ class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
     );
 
     return Scaffold(
-      key: _scaffoldKey,
       appBar: IrmaAppBar(
         title: Text(
           FlutterI18n.translate(
@@ -53,7 +50,7 @@ class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
       ),
       body: SingleChildScrollView(
         controller: _controller,
-        key: _scrollviewKey,
+        padding: EdgeInsets.all(theme.tinySpacing),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,

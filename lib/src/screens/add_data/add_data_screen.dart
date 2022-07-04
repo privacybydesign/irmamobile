@@ -103,10 +103,7 @@ class AddDataScreen extends StatelessWidget {
             if (categories.remove(otherTranslation)) categories.add(otherTranslation);
 
             return SingleChildScrollView(
-              padding: EdgeInsets.symmetric(
-                horizontal: theme.mediumSpacing,
-                vertical: theme.defaultSpacing,
-              ),
+              padding: EdgeInsets.all(theme.defaultSpacing),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
