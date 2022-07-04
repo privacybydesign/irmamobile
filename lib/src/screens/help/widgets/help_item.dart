@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/util/collapsible_helper.dart';
 import 'package:irmamobile/src/widgets/collapsible.dart';
 
 class HelpItem extends StatefulWidget {
@@ -25,14 +24,11 @@ class _HelpItemState extends State<HelpItem> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    // TODO: remove key
     return Collapsible(
       key: _collapseKey,
       header: FlutterI18n.translate(context, widget.headerTranslationKey),
-      onExpansionChanged: (isExpanded) {
-        if (isExpanded) {
-          jumpToCollapsable(widget.parentScrollController, _collapseKey);
-        }
-      },
+      parentScrollController: widget.parentScrollController,
       content: widget.body,
     );
   }
