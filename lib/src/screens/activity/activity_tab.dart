@@ -95,9 +95,17 @@ class _ActivityTabState extends State<ActivityTab> {
               //If the months differ, or its the first item, add month header
               if (index == 0 || (index > 0 && historyState.logEntries[index - 1].time.month != logEntry.time.month))
                 Padding(
-                    padding: EdgeInsets.symmetric(vertical: theme.tinySpacing),
-                    child: Text(DateFormat('MMMM', local).format(logEntry.time).toCapitalized(),
-                        style: theme.themeData.textTheme.headline3)),
+                  padding: EdgeInsets.only(
+                    top: index > 0 ? theme.defaultSpacing : 0, // If is not first add padding to top.
+                    left: theme.tinySpacing,
+                    right: theme.tinySpacing,
+                    bottom: theme.tinySpacing,
+                  ),
+                  //padding: EdgeInsets.symmetric(vertical: theme.tinySpacing),
+                  child: Text(DateFormat('MMMM', local).format(logEntry.time).toCapitalized(),
+                      style: theme.themeData.textTheme.headline3),
+                ),
+
               ActivityCard(
                 logEntry: logEntry,
                 irmaConfiguration: irmaConfiguration,
