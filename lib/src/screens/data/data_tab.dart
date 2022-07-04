@@ -1,9 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/screens/add_data/add_data_screen.dart';
 
 import '../../theme/theme.dart';
 import '../../widgets/translated_text.dart';
+import '../add_data/add_data_screen.dart';
 import '../home/widgets/irma_action_card.dart';
 
 class DataTab extends StatelessWidget {
