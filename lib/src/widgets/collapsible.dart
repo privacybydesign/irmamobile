@@ -78,47 +78,44 @@ class _CollapsibleState extends State<Collapsible> {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: theme.tinySpacing),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: ConfigurableExpansionTile(
-          onExpansionChanged: _onExpansionChanged,
-          animatedWidgetFollowingHeader: const Padding(
-            padding: EdgeInsets.all(4.0),
-            child: Icon(
-              Icons.expand_more,
-              color: Colors.black,
-            ),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: ConfigurableExpansionTile(
+        onExpansionChanged: _onExpansionChanged,
+        animatedWidgetFollowingHeader: const Padding(
+          padding: EdgeInsets.all(4.0),
+          child: Icon(
+            Icons.expand_more,
+            color: Colors.black,
           ),
-          header: Expanded(
-            child: Semantics(
-              label: _isExpanded
-                  ? FlutterI18n.translate(context, 'accessibility.expanded')
-                  : FlutterI18n.translate(context, 'accessibility.collapsed'),
-              child: Padding(
-                padding: EdgeInsets.only(
-                    top: IrmaTheme.of(context).tinySpacing * 3,
-                    bottom: IrmaTheme.of(context).tinySpacing * 3,
-                    left: IrmaTheme.of(context).defaultSpacing,
-                    right: IrmaTheme.of(context).defaultSpacing),
-                child: Text(
-                  widget.header,
-                  style: IrmaTheme.of(context).textTheme.bodyText1,
-                ),
+        ),
+        header: Expanded(
+          child: Semantics(
+            label: _isExpanded
+                ? FlutterI18n.translate(context, 'accessibility.expanded')
+                : FlutterI18n.translate(context, 'accessibility.collapsed'),
+            child: Padding(
+              padding: EdgeInsets.only(
+                  top: IrmaTheme.of(context).tinySpacing * 3,
+                  bottom: IrmaTheme.of(context).tinySpacing * 3,
+                  left: IrmaTheme.of(context).defaultSpacing,
+                  right: IrmaTheme.of(context).defaultSpacing),
+              child: Text(
+                widget.header,
+                style: IrmaTheme.of(context).textTheme.bodyText1,
               ),
             ),
           ),
-          headerBackgroundColorStart: theme.lightBlue,
-          expandedBackgroundColor: theme.lightBlue,
-          children: <Widget>[
-            Padding(
-              padding:
-                  EdgeInsets.symmetric(vertical: IrmaTheme.of(context).smallSpacing, horizontal: theme.defaultSpacing),
-              child: widget.content,
-            ),
-          ],
         ),
+        headerBackgroundColorStart: theme.lightBlue,
+        expandedBackgroundColor: theme.lightBlue,
+        children: <Widget>[
+          Padding(
+            padding:
+                EdgeInsets.symmetric(vertical: IrmaTheme.of(context).smallSpacing, horizontal: theme.defaultSpacing),
+            child: widget.content,
+          ),
+        ],
       ),
     );
   }

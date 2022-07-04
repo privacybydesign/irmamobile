@@ -17,8 +17,6 @@ class HelpScreen extends StatefulWidget {
 }
 
 class _HelpScreenState extends State<HelpScreen> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final GlobalKey _scrollViewKey = GlobalKey();
   final ScrollController _controller = ScrollController();
 
   @override
@@ -26,10 +24,8 @@ class _HelpScreenState extends State<HelpScreen> {
     final theme = IrmaTheme.of(context);
 
     return Scaffold(
-      key: _scaffoldKey,
       appBar: const IrmaAppBar(title: TranslatedText('help.title')),
       body: ListView(
-        key: _scrollViewKey,
         controller: _controller,
         padding: EdgeInsets.symmetric(
           vertical: theme.smallSpacing,
@@ -49,21 +45,18 @@ class _HelpScreenState extends State<HelpScreen> {
           HelpItem(
             headerTranslationKey: 'help.question_1',
             body: const TranslatedText('help.answer_1'),
-            parentKey: _scrollViewKey,
             parentScrollController: _controller,
           ),
           SizedBox(height: theme.smallSpacing),
           HelpItem(
             headerTranslationKey: 'help.question_2',
             body: IrmaMarkdown(FlutterI18n.translate(context, 'help.answer_2')),
-            parentKey: _scrollViewKey,
             parentScrollController: _controller,
           ),
           SizedBox(height: theme.smallSpacing),
           HelpItem(
             headerTranslationKey: 'help.question_3',
             body: const TranslatedText('help.answer_3'),
-            parentKey: _scrollViewKey,
             parentScrollController: _controller,
           ),
           SizedBox(height: theme.defaultSpacing),
@@ -80,7 +73,6 @@ class _HelpScreenState extends State<HelpScreen> {
               HelpCarouselItem('assets/help/q4_step_3.svg', 'help.answer_4.step_3'),
               HelpCarouselItem('assets/help/q4_step_4.svg', 'help.answer_4.step_4'),
             ]),
-            parentKey: _scrollViewKey,
             parentScrollController: _controller,
           ),
           SizedBox(height: theme.smallSpacing),
@@ -93,7 +85,6 @@ class _HelpScreenState extends State<HelpScreen> {
               HelpCarouselItem('assets/help/q5_step_4.svg', 'help.answer_5.step_4'),
               HelpCarouselItem('assets/help/q5_step_5.svg', 'help.answer_5.step_5'),
             ]),
-            parentKey: _scrollViewKey,
             parentScrollController: _controller,
           ),
           SizedBox(height: theme.defaultSpacing),
@@ -105,14 +96,12 @@ class _HelpScreenState extends State<HelpScreen> {
           HelpItem(
             headerTranslationKey: 'help.question_6',
             body: const TranslatedText('help.answer_6'),
-            parentKey: _scrollViewKey,
             parentScrollController: _controller,
           ),
           SizedBox(height: theme.smallSpacing),
           HelpItem(
             headerTranslationKey: 'help.question_7',
             body: const TranslatedText('help.answer_7'),
-            parentKey: _scrollViewKey,
             parentScrollController: _controller,
           ),
           SizedBox(height: theme.defaultSpacing),
@@ -124,28 +113,24 @@ class _HelpScreenState extends State<HelpScreen> {
           HelpItem(
             headerTranslationKey: 'help.question_8',
             body: const TranslatedText('help.answer_8'),
-            parentKey: _scrollViewKey,
             parentScrollController: _controller,
           ),
           SizedBox(height: theme.smallSpacing),
           HelpItem(
             headerTranslationKey: 'help.question_9',
             body: const TranslatedText('help.answer_9'),
-            parentKey: _scrollViewKey,
             parentScrollController: _controller,
           ),
           SizedBox(height: theme.smallSpacing),
           HelpItem(
             headerTranslationKey: 'help.question_10',
             body: const TranslatedText('help.answer_10'),
-            parentKey: _scrollViewKey,
             parentScrollController: _controller,
           ),
           SizedBox(height: theme.smallSpacing),
           HelpItem(
             headerTranslationKey: 'help.question_11',
             body: IrmaMarkdown(FlutterI18n.translate(context, 'help.answer_11')),
-            parentKey: _scrollViewKey,
             parentScrollController: _controller,
           ),
           SizedBox(height: theme.defaultSpacing),
