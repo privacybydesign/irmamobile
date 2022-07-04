@@ -157,10 +157,7 @@
     "category_other": "Other"
   },
   "add_data_details": {
-    "app_bar": "Adding data",
-    "header_credential_type": "Adding {credential_type}",
-    "obtain": "Add",
-    "issuer": "Source",
+    "title": "Adding data",
     "purpose_question": "What can you do with these data?",
     "content_question": "Which data are added?",
     "howto_question": "How does it work?",

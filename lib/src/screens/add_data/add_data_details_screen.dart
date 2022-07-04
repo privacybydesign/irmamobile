@@ -44,7 +44,7 @@ class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
         title: Text(
           FlutterI18n.translate(
             context,
-            'add_data_details.app_bar',
+            'add_data_details.title',
           ),
         ),
       ),

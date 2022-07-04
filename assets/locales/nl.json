@@ -133,10 +133,7 @@
     "category_other": "Overig",
   },
   "add_data_details": {
-    "app_bar": "Gegevens toevoegen",
-    "header_credential_type": "{credential_type} toevoegen",
-    "obtain": "toevoegen",
-    "issuer": "Bron",
+    "title": "Gegevens toevoegen",
     "purpose_question": "Wat kun je met deze gegevens?",
     "content_question": "Welke gegevens haal je op?",
     "howto_question": "Hoe werkt het?",
