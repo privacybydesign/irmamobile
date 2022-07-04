@@ -68,7 +68,7 @@ class AddDataScreen extends StatelessWidget {
           SizedBox(width: theme.smallSpacing),
           Icon(
             fullyObtained ? Icons.check_circle : Icons.add_circle_outline,
-            color: fullyObtained ? theme.notificationSuccess : null,
+            color: fullyObtained ? theme.notificationSuccess : theme.themeData.colorScheme.secondary,
             size: _logoContainerSize * 0.7,
           ),
         ],
