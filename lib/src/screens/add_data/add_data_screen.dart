@@ -41,9 +41,13 @@ class AddDataScreen extends StatelessWidget {
             height: _logoContainerSize,
             width: _logoContainerSize,
             child: logoFile.existsSync()
-                ? SizedBox(height: 24, child: Image.file(logoFile, excludeFromSemantics: true))
+                ? SizedBox(
+                    height: _logoContainerSize / 2,
+                    child: Image.file(logoFile, excludeFromSemantics: true),
+                  )
                 : null,
           ),
+          SizedBox(width: theme.smallSpacing),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,6 +65,7 @@ class AddDataScreen extends StatelessWidget {
               ],
             ),
           ),
+          SizedBox(width: theme.smallSpacing),
           Icon(
             fullyObtained ? Icons.check_circle : Icons.add_circle_outline,
             color: fullyObtained ? theme.notificationSuccess : null,
