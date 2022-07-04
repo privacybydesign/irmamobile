@@ -3,7 +3,6 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/screens/add_data/add_data_screen.dart';
 
 import 'src/data/irma_repository.dart';
 import 'src/models/native_events.dart';
