@@ -114,8 +114,7 @@
     "question_11": "What makes IRMA privacy-friendly and secure?",
     "answer_11": "The IRMA app has been developed in such a way that you and only you can see and use your personal data. Your personal data are stored on your phone only.\n\nThe IRMA app design enables a website or shop to (cryptographically) verify that the data you disclosed are genuine.\n\nThe IRMA app discloses your data directly from your phone to the website. No-one else can see that you identify yourself there. Even the organisation behind IRMA cannot observe such disclosures. \n\nWhen using IRMA, you agree with the [privacy policy](https://privacybydesign.foundation/privacy-policy-en/).",
     "send": "Do you have other/more questions? Send an email. It may take a couple of days before you get a reply.",
-    "storage_and_privacy": "Storage en privacy",
-    "title": "Help"
+    "storage_and_privacy": "Storage en privacy"
   },
   "drawer": {
     "lock_wallet": "Logout",

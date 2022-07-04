@@ -114,8 +114,7 @@
     "question_11": "IRMA, privacy en veiligheid",
     "answer_11": "De IRMA-app is zo gemaakt dat jij en jij alleen je persoonsgegevens in de app kunt zien en gebruiken. Je persoonsgegevens staan alleen op jouw mobiel en niet ergens in de cloud.\n\nDe IRMA-app is zo gemaakt dat een website of winkel waar je jezelf bekend maakt (cryptografisch) kan controleren dat de gegevens die je toont echt zijn.\n\nDe IRMA-app toont jouw gegevens vanuit je mobiel rechtstreeks aan een website. Niemand anders kan zien dat jij jezelf daar bekendmaakt. Ook de organisatie achter IRMA kan niet meekijken. \n\nMet het gebruik van IRMA ga je akkoord met de [privacy policy](https://privacybydesign.foundation/privacy-policy/).",
     "send": "Heb je een andere vraag? Stuur een e-mail. Houd er rekening mee dat het enkele dagen kan duren voor je antwoord krijgt.",
-    "storage_and_privacy": "Opslag en privacy",
-    "title": "Help"
+    "storage_and_privacy": "Opslag en privacy"
   },
   "drawer": {
     "lock_wallet": "Uitloggen",

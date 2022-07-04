@@ -21,6 +21,16 @@ class _HelpScreenState extends State<HelpScreen> {
   final GlobalKey _scrollViewKey = GlobalKey();
   final ScrollController _controller = ScrollController();
 
+  Widget _buildHeader(
+    IrmaThemeData theme,
+    String translationKey, {
+    TextStyle? style,
+  }) =>
+      TranslatedText(
+        translationKey,
+        style: style ?? theme.textTheme.bodyText1!.copyWith(color: theme.neutralDark),
+      );
+
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
@@ -28,7 +38,7 @@ class _HelpScreenState extends State<HelpScreen> {
     return Scaffold(
       key: _scaffoldKey,
       appBar: const IrmaAppBar(
-        titleTranslationKey: 'help.title',
+        titleTranslationKey: 'help.faq',
       ),
       body: ListView(
         key: _scrollViewKey,
@@ -38,15 +48,7 @@ class _HelpScreenState extends State<HelpScreen> {
           horizontal: theme.defaultSpacing,
         ),
         children: [
-          TranslatedText(
-            'help.faq',
-            style: theme.textTheme.headline3,
-          ),
-          SizedBox(height: theme.defaultSpacing),
-          TranslatedText(
-            'help.about_irma',
-            style: theme.textTheme.bodyText2,
-          ),
+          _buildHeader(theme, 'help.about_irma'),
           SizedBox(height: theme.smallSpacing),
           HelpItem(
             headerTranslationKey: 'help.question_1',
@@ -69,10 +71,7 @@ class _HelpScreenState extends State<HelpScreen> {
             parentScrollController: _controller,
           ),
           SizedBox(height: theme.defaultSpacing),
-          TranslatedText(
-            'help.login',
-            style: theme.textTheme.bodyText2,
-          ),
+          _buildHeader(theme, 'help.login'),
           SizedBox(height: theme.smallSpacing),
           HelpItem(
             headerTranslationKey: 'help.question_4',
@@ -99,10 +98,7 @@ class _HelpScreenState extends State<HelpScreen> {
             parentScrollController: _controller,
           ),
           SizedBox(height: theme.defaultSpacing),
-          TranslatedText(
-            'help.device',
-            style: theme.textTheme.bodyText2,
-          ),
+          _buildHeader(theme, 'help.device'),
           SizedBox(height: theme.smallSpacing),
           HelpItem(
             headerTranslationKey: 'help.question_6',
@@ -118,10 +114,7 @@ class _HelpScreenState extends State<HelpScreen> {
             parentScrollController: _controller,
           ),
           SizedBox(height: theme.defaultSpacing),
-          TranslatedText(
-            'help.storage_and_privacy',
-            style: theme.textTheme.bodyText2,
-          ),
+          _buildHeader(theme, 'help.storage_and_privacy'),
           SizedBox(height: theme.smallSpacing),
           HelpItem(
             headerTranslationKey: 'help.question_8',
@@ -146,12 +139,15 @@ class _HelpScreenState extends State<HelpScreen> {
           SizedBox(height: theme.smallSpacing),
           HelpItem(
             headerTranslationKey: 'help.question_11',
-            body: IrmaMarkdown(FlutterI18n.translate(context, 'help.answer_11')),
+            body: IrmaMarkdown(
+              FlutterI18n.translate(context, 'help.answer_11'),
+            ),
             parentKey: _scrollViewKey,
             parentScrollController: _controller,
           ),
           SizedBox(height: theme.defaultSpacing),
-          TranslatedText(
+          _buildHeader(
+            theme,
             'help.ask',
             style: theme.textTheme.headline3,
           ),
@@ -160,12 +156,14 @@ class _HelpScreenState extends State<HelpScreen> {
             'help.send',
             style: theme.textTheme.bodyText2,
           ),
-          SizedBox(height: theme.defaultSpacing),
           ContactLink(
             translationKey: 'help.email',
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyText2!
-                .copyWith(color: theme.themeData.colorScheme.secondary, decoration: TextDecoration.underline),
+            textAlign: TextAlign.start,
+            hasPadding: false,
+            style: theme.textTheme.bodyText2!.copyWith(
+              color: theme.themeData.colorScheme.secondary,
+              decoration: TextDecoration.underline,
+            ),
           ),
         ],
       ),
