@@ -12,6 +12,9 @@ class IrmaThemeData {
   final double largeSpacing = _spaceBase * 2; // 32
   final double hugeSpacing = _spaceBase * 4; // 64
 
+  final Color background = const Color(0xFFE5E5E5);
+  final Color securePinOrange = const Color(0xFFEBA73B);
+
   // Colors used in colorscheme
   final Color primaryBlue = const Color(0xFF4B73FF);
   final Color secondaryPurple = const Color(0xFF362C78);

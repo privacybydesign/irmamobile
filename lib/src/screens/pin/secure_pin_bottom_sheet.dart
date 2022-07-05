@@ -3,12 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/theme/theme.dart';
 import 'package:rxdart/subjects.dart';
 
 import '../../util/safe_pin.dart';
-
-const backgroundGrey = Color(0xFFE5E5E5);
-const orange = Color(0xFFEBA73B);
 
 typedef Pin = List<int>;
 typedef PinStream = BehaviorSubject<Pin>;
@@ -79,24 +77,26 @@ class UnsecurePinWarningTextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
     return BlocBuilder<PinQualityBloc, PinQuality>(
       bloc: bloc,
       builder: (context, rulesViolated) {
         if (rulesViolated.isNotEmpty) {
           return Center(
             child: TextButton(
-              onPressed: () => _showSecurePinBottomSheet(context, rulesViolated),
+              onPressed: () => _showSecurePinBottomSheet(context, theme, rulesViolated),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     FlutterI18n.translate(context, 'secure_pin.info_button'),
-                    style: const TextStyle(color: orange),
+                    style: theme.textTheme.caption?.copyWith(color: theme.securePinOrange, fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(width: 2.0),
-                  const Icon(
+                  Icon(
                     Icons.info_outlined,
-                    color: orange,
+                    color: theme.securePinOrange,
                   ),
                 ],
               ),
@@ -108,40 +108,42 @@ class UnsecurePinWarningTextButton extends StatelessWidget {
     );
   }
 
-  ListTile _ruleWidget(BuildContext context, Icon icon, String localeKey) => ListTile(
+  ListTile _ruleWidget(BuildContext context, IrmaThemeData theme, Icon icon, String localeKey) => ListTile(
         leading: icon,
         horizontalTitleGap: 8.0,
         title: Text(
           FlutterI18n.translate(context, localeKey),
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
+          style: theme.textTheme.bodyText1?.copyWith(fontWeight: FontWeight.w400),
         ),
         minVerticalPadding: 0.0,
         visualDensity: const VisualDensity(vertical: -4.0),
       );
 
-  ListTile _requirementViolated(BuildContext context, String localeKey) => _ruleWidget(
+  ListTile _requirementViolated(BuildContext context, IrmaThemeData theme, String localeKey) => _ruleWidget(
         context,
-        const Icon(Icons.check, color: Colors.green),
+        theme,
+        Icon(Icons.check, color: theme.cardGreen),
         localeKey,
       );
 
-  ListTile _requirementFulfilled(BuildContext context, String localeKey) => _ruleWidget(
+  ListTile _requirementFulfilled(BuildContext context, IrmaThemeData theme, String localeKey) => _ruleWidget(
       context,
-      const Icon(
+      theme,
+      Icon(
         Icons.close,
-        color: Colors.red,
+        color: theme.cardRed,
       ),
       localeKey);
 
-  ListTile _pinRule(BuildContext context, bool offendsRule, String localeKey) {
+  ListTile _pinRule(BuildContext context, IrmaThemeData theme, bool offendsRule, String localeKey) {
     if (offendsRule) {
-      return _requirementViolated(context, localeKey);
+      return _requirementViolated(context, theme, localeKey);
     } else {
-      return _requirementFulfilled(context, localeKey);
+      return _requirementFulfilled(context, theme, localeKey);
     }
   }
 
-  void _showSecurePinBottomSheet(BuildContext context, PinQuality unsecurePinAttrs) {
+  void _showSecurePinBottomSheet(BuildContext context, IrmaThemeData theme, PinQuality unsecurePinAttrs) {
     final rules = <Widget>[
       Stack(
         alignment: Alignment.center,
@@ -151,8 +153,7 @@ class UnsecurePinWarningTextButton extends StatelessWidget {
             children: [
               Text(
                 FlutterI18n.translate(context, 'secure_pin.title'),
-                style: const TextStyle(
-                  fontSize: 18.0,
+                style: theme.textTheme.headline3?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -182,26 +183,25 @@ class UnsecurePinWarningTextButton extends StatelessWidget {
       ),
       Text(
         FlutterI18n.translate(context, 'secure_pin.subtitle'),
-        style: const TextStyle(
-          fontSize: 14.0,
+        style: theme.textTheme.headline5?.copyWith(
           fontWeight: FontWeight.w700,
         ),
       ),
       const Divider(),
-      _pinRule(context, unsecurePinAttrs.contains(UnsecurePinAttribute.containsThreeUnique),
+      _pinRule(context, theme, unsecurePinAttrs.contains(UnsecurePinAttribute.containsThreeUnique),
           'secure_pin.rules.contains_3_unique'),
       const Divider(),
-      _pinRule(context, unsecurePinAttrs.contains(UnsecurePinAttribute.mustNotAscNorDesc),
+      _pinRule(context, theme, unsecurePinAttrs.contains(UnsecurePinAttribute.mustNotAscNorDesc),
           'secure_pin.rules.must_not_asc_or_desc'),
       const Divider(),
-      _pinRule(context, unsecurePinAttrs.contains(UnsecurePinAttribute.notAbcabNorAbcba),
+      _pinRule(context, theme, unsecurePinAttrs.contains(UnsecurePinAttribute.notAbcabNorAbcba),
           'secure_pin.rules.not_abcab_nor_abcba'),
     ];
 
     if (pinStream.value.length > 5) {
       rules
         ..add(const Divider())
-        ..add(_pinRule(context, unsecurePinAttrs.contains(UnsecurePinAttribute.mustContainValidSubset),
+        ..add(_pinRule(context, theme, unsecurePinAttrs.contains(UnsecurePinAttribute.mustContainValidSubset),
             'secure_pin.rules.must_contain_valid_subset'));
     }
 
@@ -211,9 +211,9 @@ class UnsecurePinWarningTextButton extends StatelessWidget {
       builder: (context) => Padding(
         padding: const EdgeInsets.only(top: 16),
         child: Container(
-          decoration: const BoxDecoration(
-            color: backgroundGrey,
-            borderRadius: BorderRadius.only(
+          decoration: BoxDecoration(
+            color: theme.background,
+            borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(30.0),
               topRight: Radius.circular(30.0),
             ),
