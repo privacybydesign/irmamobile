@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.3.0] - in beta 2022-07-06
+### Added
+- The internal storage of attributes and previous session data is now encrypted
+
+### Changed
+- Minimum iOS version increased to iOS 12
+
+### Fixed
+- Fixed the app not locking after 5 minutes on some devices
+
 ## [6.2.4] - in beta 2022-04-12
 ### Added
 - New preference in Settings screen on Android to enable screenshots
@@ -167,6 +177,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Various bug fixes
 
 
+[6.3.0]: https://github.com/privacybydesign/irmamobile/compare/v6.2.4...v6.3.0
 [6.2.4]: https://github.com/privacybydesign/irmamobile/compare/v6.2.3...v6.2.4
 [6.2.3]: https://github.com/privacybydesign/irmamobile/compare/v6.2.2...v6.2.3
 [6.2.2]: https://github.com/privacybydesign/irmamobile/compare/v6.2.1...v6.2.2
