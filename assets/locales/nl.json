@@ -16,16 +16,16 @@
     "introduction": {
       "button_text": "Kies je pincode",
       "screen1": {
-        "title": "IRMA is jouw identiteit op jouw mobiel",
-        "text": "Je officiële naam, geboortedatum, adres, BSN en meer. Alles bij elkaar in jouw IRMA-app."
+        "title": "Yivi is jouw identiteit op jouw mobiel",
+        "text": "Je officiële naam, geboortedatum, adres, BSN en meer. Alles bij elkaar in jouw Yivi-app."
       },
       "screen2": {
-        "title": "Met IRMA maak je jezelf bekend",
+        "title": "Met Yivi maak je jezelf bekend",
         "text": "Eenvoudig en snel. Je hebt dit zelf in de hand."
       },
       "screen3": {
-        "title": "IRMA geeft jou en anderen zekerheid",
-        "text": "Je gegevens staan alleen in jouw IRMA-app. Alleen jij kan erbij.",
+        "title": "Yivi geeft jou en anderen zekerheid",
+        "text": "Je gegevens staan alleen in jouw Yivi-app. Alleen jij kan erbij.",
         "privacy": {
           "text": "Lees de privacyregels",
           "url": "https://privacybydesign.foundation/privacy-policy/"
@@ -46,20 +46,20 @@
     },
     "provide_email": {
       "title": "Beveiliging instellen",
-      "instruction": "Met een e-mailadres kun je je IRMA-app blokkeren bij verlies of diefstal van je mobiel.",
+      "instruction": "Met een e-mailadres kun je je Yivi-app blokkeren bij verlies of diefstal van je mobiel.",
       "textfield": "E-mailadres",
       "skip": "Overslaan",
       "next": "Volgende",
       "error": "Dit is geen geldig e-mailadres",
       "skip_title": "Weet je het zeker?",
-      "skip_content": "Bescherm jezelf. Als je een e-mailadres invult, kun je jouw IRMA-app blokkeren na het verlies van je mobiel.",
+      "skip_content": "Bescherm jezelf. Als je een e-mailadres invult, kun je jouw Yivi-app blokkeren na het verlies van je mobiel.",
       "insert_email": "Voer e-mailadres in"
     },
     "email_sent": {
       "title": "Beveiliging instellen",
       "button": "Doorgaan",
       "message_title": "Bevestig je e-mailadres",
-      "message_markdown": "Je hebt een e-mail ontvangen van **noreply@sidn.nl**. Open de link in dit bericht om je e-mailadres aan je IRMA-app te koppelen.",
+      "message_markdown": "Je hebt een e-mail ontvangen van **noreply@sidn.nl**. Open de link in dit bericht om je e-mailadres aan je Yivi-app te koppelen.",
       "mail_sent_text_markdown": "De e-mail is gestuurd naar: **{emailaddress}**.",
       "check_spam": "Het kan even duren voordat de e-mail verschijnt. Controleer de spamfolder als je geen e-mail hebt ontvangen."
     },
@@ -69,7 +69,7 @@
     }
   },
   "help": {
-    "about_irma": "Over IRMA",
+    "about_irma": "Over Yivi",
     "ask": "Vraag stellen",
     "contact": "app@privacybydesign.foundation",
     "device": "Apparaat",
@@ -79,40 +79,40 @@
     "mail_error": "Mail-applicatie kan niet worden geopend",
     "mail_error_button": "OK",
     "mail_error_title": "Sorry",
-    "mail_subject": "Hulp met de IRMA-app",
-    "question_1": "Wat kan ik met IRMA?",
-    "answer_1_markdown": "Met IRMA kun je makkelijk inloggen en jezelf bekend maken. Je laat alleen die gegevens van jezelf zien die nodig zijn. Om bijvoorbeeld een bepaalde film te kijken, bewijs je dat je ouder dan 16 bent, en verder niets. Ook kun je met IRMA documenten digitaal ondertekenen. Je gebruikt alleen relevante kenmerken van jezelf, in een soort digitaal stempel. Zo kun je met IRMA ondertekenen als arts, als burger of vanuit een andere rol.\n\nEr komen steeds meer websites waarop je met IRMA in kan loggen. Artsen kunnen bijvoorbeeld met IRMA bij medische dossiers op de website [helder](https://www.helder.health/). Vooral bij gemeenten en in de zorg wordt nu aan verder gebruik van IRMA gewerkt zodat je daar met IRMA kunt inloggen. Om een indruk te krijgen van de mogelijkheden kun je zelf een aantal IRMA [demo's](https://privacybydesign.foundation/demo/) uitproberen.",
-    "question_2": "Waarom bestaat IRMA?",
-    "answer_2": "**IRMA bestaat omdat jij het recht hebt op een online identiteit die echt van jou is.** IRMA is geen commerciële app die gebruikt wordt om jou te volgen, te profileren en om jouw persoonsgegevens te verkopen aan derden.\n\nIRMA is ontworpen in de geest van de [Algemene Verordening Persoonsgegevens (AVG)](https://wetten.overheid.nl/BWBR0040940/2019-02-19). Je laat via de IRMA-app alleen die gegevens van jezelf zien die in een bepaalde situatie relevant en nodig zijn.\n\n**Met de IRMA-app heb je jouw identiteit zelf in de hand, in de beveiligde IRMA-app op je eigen mobiel.** De IRMA-app is een krachtig middel om jezelf (online) bekend te maken en om digitaal je handtekening te zetten. Met respect voor jouw privacy.",
-    "question_3": "Wie zit er achter de IRMA-app?",
-    "answer_3": "IRMA wordt gemaakt door de stichting **Privacy by Design**.  Deze stichting is in 2016 voortgekomen uit de Digital Security onderzoeksgroep van de Radboud Universiteit in Nijmegen. De stichting is onafhankelijk en maakt geen winst.\n\nDe IRMA-app wordt open source ontwikkeld in samenwerking met SIDN, de beheerder van het .nl-domein. Bij de ontwikkeling wordt ook samengewerkt met verschillende overheden en met de zorg. Zo zijn er zo'n 30 gemeenten betrokken, waaronder Nijmegen, Amsterdam en Leiden. IRMA is winnaar van de Nederlandse Privacy Awards 2018.",
-    "question_4": "Hoe kan ik met IRMA inloggen op een mobiele website?",
+    "mail_subject": "Hulp met de Yivi-app",
+    "question_1": "Wat kan ik met Yivi?",
+    "answer_1_markdown": "Met Yivi kun je makkelijk inloggen en jezelf bekend maken. Je laat alleen die gegevens van jezelf zien die nodig zijn. Om bijvoorbeeld een bepaalde film te kijken, bewijs je dat je ouder dan 16 bent, en verder niets. Ook kun je met Yivi documenten digitaal ondertekenen. Je gebruikt alleen relevante kenmerken van jezelf, in een soort digitaal stempel. Zo kun je met Yivi ondertekenen als arts, als burger of vanuit een andere rol.\n\nEr komen steeds meer websites waarop je met Yivi in kan loggen. Artsen kunnen bijvoorbeeld met Yivi bij medische dossiers op de website [helder](https://www.helder.health/). Vooral bij gemeenten en in de zorg wordt nu aan verder gebruik van Yivi gewerkt zodat je daar met Yivi kunt inloggen. Om een indruk te krijgen van de mogelijkheden kun je zelf een aantal Yivi [demo's](https://privacybydesign.foundation/demo/) uitproberen.",
+    "question_2": "Waarom bestaat Yivi?",
+    "answer_2": "**Yivi bestaat omdat jij het recht hebt op een online identiteit die echt van jou is.** Yivi is geen commerciële app die gebruikt wordt om jou te volgen, te profileren en om jouw persoonsgegevens te verkopen aan derden.\n\nYivi is ontworpen in de geest van de [Algemene Verordening Persoonsgegevens (AVG)](https://wetten.overheid.nl/BWBR0040940/2019-02-19). Je laat via de Yivi-app alleen die gegevens van jezelf zien die in een bepaalde situatie relevant en nodig zijn.\n\n**Met de Yivi-app heb je jouw identiteit zelf in de hand, in de beveiligde Yivi-app op je eigen mobiel.** De Yivi-app is een krachtig middel om jezelf (online) bekend te maken en om digitaal je handtekening te zetten. Met respect voor jouw privacy.",
+    "question_3": "Wie zit er achter de Yivi-app?",
+    "answer_3": "Yivi wordt gemaakt door de stichting **Privacy by Design**.  Deze stichting is in 2016 voortgekomen uit de Digital Security onderzoeksgroep van de Radboud Universiteit in Nijmegen. De stichting is onafhankelijk en maakt geen winst.\n\nDe Yivi-app wordt open source ontwikkeld in samenwerking met SIDN, de beheerder van het .nl-domein. Bij de ontwikkeling wordt ook samengewerkt met verschillende overheden en met de zorg. Zo zijn er zo'n 30 gemeenten betrokken, waaronder Nijmegen, Amsterdam en Leiden. Yivi is winnaar van de Nederlandse Privacy Awards 2018.",
+    "question_4": "Hoe kan ik met Yivi inloggen op een mobiele website?",
     "answer_4": {
-      "step_1": "Open de website op je mobiel en kies daar voor inloggen met IRMA.",
-      "step_2": "De IRMA-app start vanzelf op.\nVul je pincode in.",
+      "step_1": "Open de website op je mobiel en kies daar voor inloggen met Yivi.",
+      "step_2": "De Yivi-app start vanzelf op.\nVul je pincode in.",
       "step_3": "Geef toestemming (of niet) om je gegevens door te geven.",
       "step_4": "Na het doorgeven ben je ingelogd.\nJe kunt de website nu gebruiken."
     },
-    "question_5": "Hoe kan ik met IRMA inloggen op een website op mijn computer?",
+    "question_5": "Hoe kan ik met Yivi inloggen op een website op mijn computer?",
     "answer_5": {
-      "step_1": "Open de website op je computer en kies voor inloggen met IRMA.",
-      "step_2": "Open de IRMA-app op je mobiel en vul je pincode in.",
-      "step_3": "Start de QR-code scanner in de IRMA-app. Scan de QR-code op het scherm van je computer.",
+      "step_1": "Open de website op je computer en kies voor inloggen met Yivi.",
+      "step_2": "Open de Yivi-app op je mobiel en vul je pincode in.",
+      "step_3": "Start de QR-code scanner in de Yivi-app. Scan de QR-code op het scherm van je computer.",
       "step_4": "Geef toestemming (of niet) om je gegevens door te geven.",
       "step_5": "Na het doorgeven ben je ingelogd.\nVanaf nu kun je de website gebruiken."
     },
     "question_6": "Wat doe ik als ik mijn mobiel verlies?",
-    "answer_6_markdown": "Als je je mobiel verliest kan niemand in je IRMA-app als je tenminste een goede pincode hebt gekozen.\n\nJe kunt jezelf nog beter beschermen: bij het installeren van IRMA heb je de keuze gekregen om een e-mailadres op te geven. Als je dat gedaan hebt, kun je via [MijnIRMA](https://privacybydesign.foundation/mijnirma/) het gebruik van je IRMA-app blokkeren. Dan kan er echt helemaal niks meer met de IRMA-app op je oude, verloren mobiel gebeuren.\n\nAls je nog geen e-mailadres hebt toegevoegd in [MijnIRMA](https://privacybydesign.foundation/mijnirma/), kun je dat alsnog doen. Het is verstandig dat nu te doen.\n\nOp je nieuwe mobiel kun je de IRMA-app opnieuw installeren en opnieuw vullen met jouw gegevens. Daarna kun je gewoon weer verder.",
-    "question_7": "Kan ik IRMA op meerdere mobiele telefoons zetten?",
-    "answer_7": "Ja, je kunt op iedere mobiele telefoon (Android of iOS) een apart IRMA-account openen en vullen met kaartjes met jouw gegevens. Het is wel verstandig om dat te doen. Als je het ene apparaat kwijt bent, kun je altijd nog met het andere apparaat inloggen.",
-    "question_8": "Waar staan mijn IRMA-gegevens opgeslagen?",
-    "answer_8": "Jouw gegevens staan in de IRMA-app op je mobiel en níet in de cloud.\n\nJij geeft zelf steeds expliciet toestemming (of niet) om je persoonsgegevens vanuit de IRMA-app aan een website door te geven.\nAls je jouw gegevens uit de IRMA-app verwijdert, zijn ze ook echt weg uit IRMA.",
-    "question_9": "Wat maakt IRMA privacy-vriendelijk en veilig?",
-    "answer_9": "Jouw persoonsgegevens zijn beschermd met je pincode. Jouw gegevens staan in de IRMA-app op je mobiel en niet in de cloud.\n\nIn de IRMA-app zijn jouw persoonsgegevens digitaal ondertekend door de bron (uitgever) waar de gegevens vandaan komen (bijvoorbeeld de Rijksoverheid of de gemeente).\n\nDaardoor kan een website of winkel, als je jezelf bekend maakt, cryptografisch controleren dat de gegevens echt zijn. \nDeze uitwisseling van persoonsgegevens vindt rechtstreeks plaats tussen jouw mobiel en deze website. Niemand anders kan zien dat jij je daar bekendmaakt. Ook de organisatie achter IRMA kan niet meekijken.",
-    "question_10": "Waarom zijn gegevens in de IRMA-app beperkt geldig?",
-    "answer_10": "In IRMA kun je op elk kaartje zien hoe lang ze geldig zijn. Die geldigheidsduur hangt af van het soort gegevens en hoe veranderlijk ze zijn. Je naam en geboortedatum zijn vijf jaar geldig, maar je adres slechts één jaar. De bron (uitgever) van de gegevens bepaalt de geldigheidsduur. De geldigheid van gegevens kan dus verlopen. De IRMA-app geeft je daar een waarschuwing voor.\n\nJe kunt je gegevens altijd, ook zonder waarschuwing, verversen door ze opnieuw op te halen bij de bron. Bijvoorbeeld, na je 18e verjaardag kun je opnieuw je gegevens bij je gemeente ophalen en kun je met de IRMA-app bewijzen dat je ouder dan 18 jaar bent.",
-    "question_11": "IRMA, privacy en veiligheid",
-    "answer_11": "De IRMA-app is zo gemaakt dat jij en jij alleen je persoonsgegevens in de app kunt zien en gebruiken. Je persoonsgegevens staan alleen op jouw mobiel en niet ergens in de cloud.\n\nDe IRMA-app is zo gemaakt dat een website of winkel waar je jezelf bekend maakt (cryptografisch) kan controleren dat de gegevens die je toont echt zijn.\n\nDe IRMA-app toont jouw gegevens vanuit je mobiel rechtstreeks aan een website. Niemand anders kan zien dat jij jezelf daar bekendmaakt. Ook de organisatie achter IRMA kan niet meekijken. \n\nMet het gebruik van IRMA ga je akkoord met de [privacy policy](https://privacybydesign.foundation/privacy-policy/).",
+    "answer_6_markdown": "Als je je mobiel verliest kan niemand in je Yivi-app als je tenminste een goede pincode hebt gekozen.\n\nJe kunt jezelf nog beter beschermen: bij het installeren van Yivi heb je de keuze gekregen om een e-mailadres op te geven. Als je dat gedaan hebt, kun je via [MijnYivi](https://privacybydesign.foundation/mijnirma/) het gebruik van je Yivi-app blokkeren. Dan kan er echt helemaal niks meer met de Yivi-app op je oude, verloren mobiel gebeuren.\n\nAls je nog geen e-mailadres hebt toegevoegd in [MijnYivi](https://privacybydesign.foundation/mijnirma/), kun je dat alsnog doen. Het is verstandig dat nu te doen.\n\nOp je nieuwe mobiel kun je de Yivi-app opnieuw installeren en opnieuw vullen met jouw gegevens. Daarna kun je gewoon weer verder.",
+    "question_7": "Kan ik Yivi op meerdere mobiele telefoons zetten?",
+    "answer_7": "Ja, je kunt op iedere mobiele telefoon (Android of iOS) een apart Yivi-account openen en vullen met kaartjes met jouw gegevens. Het is wel verstandig om dat te doen. Als je het ene apparaat kwijt bent, kun je altijd nog met het andere apparaat inloggen.",
+    "question_8": "Waar staan mijn Yivi-gegevens opgeslagen?",
+    "answer_8": "Jouw gegevens staan in de Yivi-app op je mobiel en níet in de cloud.\n\nJij geeft zelf steeds expliciet toestemming (of niet) om je persoonsgegevens vanuit de Yivi-app aan een website door te geven.\nAls je jouw gegevens uit de Yivi-app verwijdert, zijn ze ook echt weg uit Yivi.",
+    "question_9": "Wat maakt Yivi privacy-vriendelijk en veilig?",
+    "answer_9": "Jouw persoonsgegevens zijn beschermd met je pincode. Jouw gegevens staan in de Yivi-app op je mobiel en niet in de cloud.\n\nIn de Yivi-app zijn jouw persoonsgegevens digitaal ondertekend door de bron (uitgever) waar de gegevens vandaan komen (bijvoorbeeld de Rijksoverheid of de gemeente).\n\nDaardoor kan een website of winkel, als je jezelf bekend maakt, cryptografisch controleren dat de gegevens echt zijn. \nDeze uitwisseling van persoonsgegevens vindt rechtstreeks plaats tussen jouw mobiel en deze website. Niemand anders kan zien dat jij je daar bekendmaakt. Ook de organisatie achter Yivi kan niet meekijken.",
+    "question_10": "Waarom zijn gegevens in de Yivi-app beperkt geldig?",
+    "answer_10": "In Yivi kun je op elk kaartje zien hoe lang ze geldig zijn. Die geldigheidsduur hangt af van het soort gegevens en hoe veranderlijk ze zijn. Je naam en geboortedatum zijn vijf jaar geldig, maar je adres slechts één jaar. De bron (uitgever) van de gegevens bepaalt de geldigheidsduur. De geldigheid van gegevens kan dus verlopen. De Yivi-app geeft je daar een waarschuwing voor.\n\nJe kunt je gegevens altijd, ook zonder waarschuwing, verversen door ze opnieuw op te halen bij de bron. Bijvoorbeeld, na je 18e verjaardag kun je opnieuw je gegevens bij je gemeente ophalen en kun je met de Yivi-app bewijzen dat je ouder dan 18 jaar bent.",
+    "question_11": "Yivi, privacy en veiligheid",
+    "answer_11": "De Yivi-app is zo gemaakt dat jij en jij alleen je persoonsgegevens in de app kunt zien en gebruiken. Je persoonsgegevens staan alleen op jouw mobiel en niet ergens in de cloud.\n\nDe Yivi-app is zo gemaakt dat een website of winkel waar je jezelf bekend maakt (cryptografisch) kan controleren dat de gegevens die je toont echt zijn.\n\nDe Yivi-app toont jouw gegevens vanuit je mobiel rechtstreeks aan een website. Niemand anders kan zien dat jij jezelf daar bekendmaakt. Ook de organisatie achter Yivi kan niet meekijken. \n\nMet het gebruik van Yivi ga je akkoord met de [privacy policy](https://privacybydesign.foundation/privacy-policy/).",
     "send": "Heb je een andere vraag? Stuur een e-mail. Houd er rekening mee dat het enkele dagen kan duren voor je antwoord krijgt.",
     "storage_and_privacy": "Opslag en privacy"
   },
@@ -122,7 +122,7 @@
     "settings": "Instellingen",
     "help": "Help",
     "history": "Geschiedenis",
-    "about": "Over IRMA"
+    "about": "Over Yivi"
   },
   "webview": {
     "open_iOS": "Open in Safari",
@@ -130,11 +130,11 @@
     "cancel": "Annuleren",
     "select": "Selecteer",
     "alert_title": "Website niet veilig",
-    "alert_message": "De website die je wilt bezoeken is niet veilig. Je kunt deze website niet binnen IRMA bekijken. Open een andere app als je de website toch wilt bezoeken.",
+    "alert_message": "De website die je wilt bezoeken is niet veilig. Je kunt deze website niet binnen Yivi bekijken. Open een andere app als je de website toch wilt bezoeken.",
     "alert_button": "Sluiten"
   },
   "accessibility": {
-    "irma_logo": "IRMA Logo",
+    "irma_logo": "Yivi Logo",
     "slideshow": "Slide {i} van {n}: {description}",
     "menu": "Menu",
     "back": "Terug",
@@ -156,7 +156,7 @@
     "delete": "Kaartje verwijderen",
     "refresh": "Kaartje verversen",
     "delete_title": "Weet je het zeker?",
-    "delete_content": "Als je doorgaat, verwijder je dit kaartje uit je IRMA-app.",
+    "delete_content": "Als je doorgaat, verwijder je dit kaartje uit je Yivi-app.",
     "delete_confirm": "Verwijder kaartje",
     "delete_deny": "Annuleer"
   },
@@ -185,10 +185,10 @@
     "advanced": {
       "header": "Geavanceerd",
       "experimental_data": "Maak het mogelijk experimentele gegevens toe te voegen.",
-      "report_errors": "Fouten naar IRMA sturen",
+      "report_errors": "Fouten naar Yivi sturen",
       "delete": "Verwijder alles en begin opnieuw",
       "delete_title": "Weet je het zeker?",
-      "delete_content": "Als je doorgaat, verwijder je al je kaartjes en je toegang tot de IRMA-app. Wil je de IRMA-app opnieuw gebruiken? Kies een nieuwe pincode en haal je kaartjes opnieuw op.",
+      "delete_content": "Als je doorgaat, verwijder je al je kaartjes en je toegang tot de Yivi-app. Wil je de Yivi-app opnieuw gebruiken? Kies een nieuwe pincode en haal je kaartjes opnieuw op.",
       "delete_confirm": "Verwijder alles",
       "delete_deny": "Annuleer",
       "developer_mode": "Developer modus",
@@ -233,8 +233,8 @@
   "qr_scanner": {
     "instruction": {
       "title": "Begin met scannen",
-      "message": "Richt je mobiel op een IRMA QR-code",
-      "semantic": "Begin met scannen! Richt je mobiel op een IRMA QR-code."
+      "message": "Richt je mobiel op een Yivi QR-code",
+      "semantic": "Begin met scannen! Richt je mobiel op een Yivi QR-code."
     },
     "success": {
       "title": "Gelukt",
@@ -243,8 +243,8 @@
     },
     "error": {
       "title": "Sorry",
-      "message": "Dit is geen IRMA QR-code",
-      "semantic": "Sorry! Dit is geen IRMA QR-code."
+      "message": "Dit is geen Yivi QR-code",
+      "semantic": "Sorry! Dit is geen Yivi QR-code."
     }
   },
   "pin_common": {
@@ -271,9 +271,9 @@
     },
     "invalid_title": "Pincode verkeerd",
     "invalid_pin": {
-      "attempts-0": "Deze pincode is niet juist. Je hebt nog {attemps} pogingen voordat je IRMA-app tijdelijk wordt geblokkeerd.",
-      "attempts-1": "Deze pincode is niet juist. Je hebt nog {attemps} poging voordat je IRMA-app tijdelijk wordt geblokkeerd.",
-      "attempts-2": "Deze pincode is niet juist. Je hebt nog {attemps} pogingen voordat je IRMA-app tijdelijk wordt geblokkeerd."
+      "attempts-0": "Deze pincode is niet juist. Je hebt nog {attemps} pogingen voordat je Yivi-app tijdelijk wordt geblokkeerd.",
+      "attempts-1": "Deze pincode is niet juist. Je hebt nog {attemps} poging voordat je Yivi-app tijdelijk wordt geblokkeerd.",
+      "attempts-2": "Deze pincode is niet juist. Je hebt nog {attemps} pogingen voordat je Yivi-app tijdelijk wordt geblokkeerd."
     },
     "invalid_close": "Opnieuw proberen",
     "blocked_title": "Account geblokkeerd",
@@ -287,33 +287,33 @@
     "title": "Inloggen",
     "subtitle": "Voer je pincode in",
     "button_forgot": "Pincode vergeten",
-    "button_block": "IRMA blokkeren"
+    "button_block": "Yivi blokkeren"
   },
   "session_pin": {
     "subtitle": "Voer je pincode opnieuw in om verder te gaan.",
-    "explanation": "Voor de zekerheid vraagt de IRMA-app regelmatig opnieuw je pincode."
+    "explanation": "Voor de zekerheid vraagt de Yivi-app regelmatig opnieuw je pincode."
   },
   "error": {
     "title": "Er gaat iets fout",
     "blocked_title": "App geblokkeerd",
     "button_ok": "OK",
-    "button_send_to_irma": "Stuur naar het IRMA-team",
+    "button_send_to_irma": "Stuur naar het Yivi-team",
     "button_show_error": "Technische details tonen",
     "button_retry": "Opnieuw proberen",
     "button_back": "Terug",
     "button_reset": "Begin opnieuw",
     "details_title": "Foutmelding",
-    "report": "Als het fout blijft gaan, laat het dan weten aan het technische team van IRMA.",
+    "report": "Als het fout blijft gaan, laat het dan weten aan het technische team van Yivi.",
     "types": {
       "general": "Er is iets misgegaan.",
-      "blocked": "Je IRMA-app is op afstand geblokeerd.\n\nDit is omdat dit via MijnIRMA voor jouw app is gedaan, of omdat je langer dan een jaar geen gebruik hebt gemaakt van IRMA op dit apparaat. Als je op dit apparaat IRMA wilt blijven gebruiken moet je opnieuw beginnen.",
+      "blocked": "Je Yivi-app is op afstand geblokeerd.\n\nDit is omdat dit via MijnYivi voor jouw app is gedaan, of omdat je langer dan een jaar geen gebruik hebt gemaakt van Yivi op dit apparaat. Als je op dit apparaat Yivi wilt blijven gebruiken moet je opnieuw beginnen.",
       "expired": "De sessie is verlopen. Start alstublieft opnieuw.",
       "pairing_rejected": "De sessie is geweigerd. Start alstublieft opnieuw.",
       "no_internet": "Controleer je internetverbinding. Deze app werkt niet zonder internet."
     }
   },
   "wallet": {
-    "title": "IRMA-kaartjes",
+    "title": "Yivi-kaartjes",
     "scan_qr_code": "Scan QR-code",
     "open_menu": "Menu openen",
     "close_menu": "Menu sluiten",
@@ -341,7 +341,7 @@
   },
   "issuance": {
     "title": "Gegevens toevoegen",
-    "description": "Wil je deze gegevens aan je IRMA-app toevoegen?",
+    "description": "Wil je deze gegevens aan je Yivi-app toevoegen?",
     "add": "Gegevens toevoegen",
     "cancel": "Annuleren"
   },
@@ -357,11 +357,11 @@
       "title": "Extra veiligheidscontrole",
       "explanation": "Vul onderstaande code in op de website.",
       "message_title": "Koppelcode",
-      "message_body_markdown": "Een koppelcode zorgt ervoor dat de volgende stappen alleen in *jouw* IRMA-app gedaan kunnen worden."
+      "message_body_markdown": "Een koppelcode zorgt ervoor dat de volgende stappen alleen in *jouw* Yivi-app gedaan kunnen worden."
     },
     "unknown_session_type": {
       "title": "Afgebroken",
-      "explanation": "De IRMA-sessie die je probeerde te starten wordt niet ondersteund door de app."
+      "explanation": "De Yivi-sessie die je probeerde te starten wordt niet ondersteund door de app."
     }
   },
   "disclosure_permission": {
@@ -401,14 +401,14 @@
     "disclosure_call_header": "Wil je de volgende gegevens aan {otherParty} doorgeven en bellen naar {phoneNumber}?",
     "signing_header": "{otherParty} verzoekt jou om een bericht te ondertekenen",
     "signing_call_header": "{otherParty} verzoekt jou om een bericht te ondertekenen en te bellen naar {phoneNumber}",
-    "unsatisfiable_header": "Je hebt nog niet alle gegevens waar {otherParty} om vraagt in je IRMA-app.",
+    "unsatisfiable_header": "Je hebt nog niet alle gegevens waar {otherParty} om vraagt in je Yivi-app.",
     "issuer": "Uitgever",
     "logo_semantic": "Logo van {otherParty}",
     "credential_name": "Kaartje",
     "choices": "{choices} keuzes",
     "next": "volgende kiezen",
     "previous": "vorige kiezen",
-    "not_present": "Deze gegevens zijn nog niet aan IRMA toegevoegd.",
+    "not_present": "Deze gegevens zijn nog niet aan Yivi toegevoegd.",
     "not_present_have_other": "De gevraagde gegevens komen niet overeen met de gegevens die je al hebt.",
     "you_have": "Je hebt:",
     "requested_for": "Er wordt gevraagd om:",
@@ -441,7 +441,7 @@
       }
     },
     "call_info": {
-      "title": "Via IRMA bellen",
+      "title": "Via Yivi bellen",
       "success": "Gegevens doorgegegeven",
       "success_message_markdown": "Je gegevens zijn doorgegeven aan **{otherParty}**.\nVoer de volgende stappen uit om te bellen.",
       "success_message_ios_markdown": "Je gegevens zijn doorgegeven aan **{otherParty}**.",
@@ -456,12 +456,12 @@
   },
   "reset_pin": {
     "title": "Pincode vergeten",
-    "message": "Pincode vergeten? Dat is vervelend voor je. De organisatie achter IRMA weet jouw pincode ook niet en kan je hiermee dus niet helpen. Als je IRMA wilt blijven gebruiken, moet je helaas opnieuw beginnen: een nieuwe pincode kiezen en nieuwe kaartjes ophalen.",
+    "message": "Pincode vergeten? Dat is vervelend voor je. De organisatie achter Yivi weet jouw pincode ook niet en kan je hiermee dus niet helpen. Als je Yivi wilt blijven gebruiken, moet je helaas opnieuw beginnen: een nieuwe pincode kiezen en nieuwe kaartjes ophalen.",
     "existing_data_title": "Wat gebeurt er met mijn oude kaartjes?",
-    "existing_data_message": "Je oude kaartjes worden uit je mobiel verwijderd. Je kunt nieuwe kaartjes ophalen en daarmee IRMA weer gebruiken.",
+    "existing_data_message": "Je oude kaartjes worden uit je mobiel verwijderd. Je kunt nieuwe kaartjes ophalen en daarmee Yivi weer gebruiken.",
     "back": "Annuleer",
     "reset": "Begin opnieuw",
-    "existing_data_removed": "Alle kaartjes in je IRMA-app worden verwijderd."
+    "existing_data_removed": "Alle kaartjes in je Yivi-app worden verwijderd."
   },
   "arrow_back": {
     "info_no_success": "Afgebroken.",
@@ -472,7 +472,7 @@
   },
   "update": {
     "title": "Update beschikbaar",
-    "explanation": "Om de IRMA app te blijven gebruiken moet je de laatste versie downloaden",
+    "explanation": "Om de Yivi app te blijven gebruiken moet je de laatste versie downloaden",
     "update_app": "Update app"
   },
   "action_feedback": {
@@ -518,13 +518,13 @@
     },
     "info_card": {
       "safety": {
-        "title": "Hoe veilig is IRMA?",
-        "body": "Informatie over de veiligheid van IRMA en hoe om te gaan met digitale identiteiten.",
+        "title": "Hoe veilig is Yivi?",
+        "body": "Informatie over de veiligheid van Yivi en hoe om te gaan met digitale identiteiten.",
         "link": "https://irma.app/?lang=nl"
       },
       "about": {
-        "title": "Over de organisatie IRMA",
-        "body": "Lees hier alles over IRMA. Van algemene informatie tot techniek.",
+        "title": "Over de organisatie Yivi",
+        "body": "Lees hier alles over Yivi. Van algemene informatie tot techniek.",
         "link": "https://privacybydesign.foundation/irma/"
       }
     }
@@ -535,14 +535,14 @@
     "help": "Help",
     "debugging": "Debugging",
     "contact": "Contact opnemen",
-    "share": "Deel IRMA",
-    "website": "IRMA-website",
-    "meet_up": "IRMA-meetups",
+    "share": "Deel Yivi",
+    "website": "Yivi-website",
+    "meet_up": "Yivi-meetups",
     "need_help": "Hulp nodig?",
     "know_more": "Meer weten",
     "stay_informed": "Blijf op de hoogte en praat mee",
     "slogan": "Gun iedereen privacy",
-    "meetups": "IRMA meetups",
+    "meetups": "Yivi meetups",
     "meetups_link": "https://privacybydesign.foundation/meetings/",
     "twitter": "@irma_privacy",
     "twitter_link": "https://twitter.com/irma_privacy",
@@ -550,9 +550,9 @@
     "github_link": "https://github.com/privacybydesign",
     "version": "Versie {version}",
     "developer_mode_enabled": "Developer modus ingeschakeld",
-    "irma_website": "IRMA-website",
+    "irma_website": "Yivi-website",
     "irma_website_link": "https://irma.app/?lang=nl",
-    "privacy_policy": "IRMA's privacyregels",
+    "privacy_policy": "Yivi's privacyregels",
     "app_id": "App-ID {id}"
   },
   "activity": {
