@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_footer.dart';
 
 import '../../models/attribute_value.dart';
 import '../../models/attributes.dart';
@@ -8,19 +7,19 @@ import '../../theme/theme.dart';
 import '../../util/language.dart';
 import '../irma_card.dart';
 import '../irma_divider.dart';
+import '../translated_text.dart';
 import 'irma_credential_card_attribute_list.dart';
 import 'irma_credential_card_header.dart';
-import 'models/card_expiry_date.dart';
 
 class IrmaCredentialCard extends StatelessWidget {
   final CredentialInfo credentialInfo;
   final List<Attribute> attributes;
   final List<Attribute>? compareTo;
   final bool revoked;
-  final CardExpiryDate? expiryDate;
   final Function()? onTap;
   final IrmaCardStyle style;
   final Widget? headerTrailing;
+  final TranslatedText? trailingText;
   final EdgeInsetsGeometry? padding;
 
   IrmaCredentialCard({
@@ -29,9 +28,9 @@ class IrmaCredentialCard extends StatelessWidget {
     this.attributes = const [],
     this.compareTo,
     this.revoked = false,
-    this.expiryDate,
     this.onTap,
     this.headerTrailing,
+    this.trailingText,
     this.style = IrmaCardStyle.normal,
     this.padding,
   })  : assert(
@@ -52,11 +51,11 @@ class IrmaCredentialCard extends StatelessWidget {
     this.onTap,
     this.style = IrmaCardStyle.normal,
     this.headerTrailing,
+    this.trailingText,
     this.padding,
   })  : credentialInfo = credential.info,
         attributes = credential.attributeList,
         revoked = credential.revoked,
-        expiryDate = CardExpiryDate(credential.expires),
         super(key: key);
 
   IrmaCredentialCard.fromRemovedCredential(
@@ -65,11 +64,11 @@ class IrmaCredentialCard extends StatelessWidget {
     this.onTap,
     this.style = IrmaCardStyle.normal,
     this.headerTrailing,
+    this.trailingText,
     this.padding,
   })  : credentialInfo = credential.info,
         attributes = credential.attributeList,
-        revoked = false,
-        expiryDate = null;
+        revoked = false;
 
   @override
   Widget build(BuildContext context) {
@@ -95,20 +94,14 @@ class IrmaCredentialCard extends StatelessWidget {
           // If there are attributes in this credential, then we show the attribute list
           if (attributes.any((att) => att.value is! NullValue)) ...[
             const IrmaDivider(),
-            Padding(
-              //padding: EdgeInsets.symmetric(horizontal: theme.largeSpacing),
-              padding: EdgeInsets.zero,
-              child: IrmaCredentialCardAttributeList(
-                attributes,
-                compareTo: compareTo,
-              ),
+            IrmaCredentialCardAttributeList(
+              attributes,
+              compareTo: compareTo,
             ),
           ],
-          if (expiryDate != null) ...[
+          if (trailingText != null) ...[
             const IrmaDivider(),
-            IrmaCredentialCardFooter(
-              expiryDate: expiryDate!,
-            ),
+            trailingText!,
           ]
         ],
       ),

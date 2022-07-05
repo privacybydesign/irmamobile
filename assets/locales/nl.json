@@ -567,6 +567,7 @@
   },
   "credential": {
     "no_data": "Geen gegevens",
-    "valid_until": "Geldig tot: {date}"
+    "valid_until": "Geldig tot: {date}",
+    "date_at_time": "{date} om {time}"
   }
 }

@@ -23,7 +23,8 @@ class IrmaThemeData {
   final Color dark = Colors.black; // Used as default, non headline, text color
   final Color neutralDark = const Color(0xFF454545); //Represent a greyish color, between neutral and light
   final Color neutral = const Color(0xFF646464); //Represent a greyish color, between light and dark
-  final Color neutralLight = const Color(0xFFE8E8E8); //Represent a greyish color, between neutral and light
+  final Color neutralLight = const Color(0xFF999999);
+  final Color neutralExtraLight = const Color(0xFFE8E8E8);
   final Color light = Colors.white; // Mainly used to represent white
 
   // Communicating colors

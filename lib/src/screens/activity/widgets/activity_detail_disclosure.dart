@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:intl/intl.dart';
 
 import '../../../models/attributes.dart';
 import '../../../models/irma_configuration.dart';
@@ -18,19 +20,33 @@ class ActivityDetailDisclosure extends StatelessWidget {
     required this.irmaConfiguration,
   });
 
-  Widget _buildCredentialCard(List<DisclosedAttribute> disclosedAttributes) {
+  Widget _buildCredentialCard(
+    List<DisclosedAttribute> disclosedAttributes,
+    IrmaThemeData theme,
+    String lang,
+  ) {
     final mappedAttributes =
         disclosedAttributes.map((e) => Attribute.fromDisclosedAttribute(irmaConfiguration, e)).toList();
 
     return IrmaCredentialCard(
-      credentialInfo: mappedAttributes.first.credentialInfo,
-      attributes: mappedAttributes,
-    );
+        credentialInfo: mappedAttributes.first.credentialInfo,
+        attributes: mappedAttributes,
+        trailingText: TranslatedText(
+          'credential.date_at_time',
+          translationParams: {
+            'date': DateFormat.yMMMMd(lang).format(logEntry.time),
+            'time': DateFormat.jm(lang).format(logEntry.time),
+          },
+          style: theme.textTheme.caption!.copyWith(
+            color: theme.neutral,
+          ),
+        ));
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,7 +56,12 @@ class ActivityDetailDisclosure extends StatelessWidget {
           style: theme.themeData.textTheme.headline3,
         ),
         SizedBox(height: theme.smallSpacing),
-        for (var disclosedAttributes in logEntry.disclosedAttributes) _buildCredentialCard(disclosedAttributes),
+        for (var disclosedAttributes in logEntry.disclosedAttributes)
+          _buildCredentialCard(
+            disclosedAttributes,
+            theme,
+            lang,
+          ),
         if (logEntry.type == LogEntryType.signing) ...[
           Padding(
             padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),

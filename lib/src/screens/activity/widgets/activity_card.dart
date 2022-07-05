@@ -96,15 +96,13 @@ class ActivityCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        title,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.themeData.textTheme.caption!.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                        formatDate(logEntry.time, lang),
+                        style: theme.themeData.textTheme.caption!.copyWith(color: theme.neutral),
                       ),
                       Text(
-                        formatDate(logEntry.time, lang),
-                        style: theme.themeData.textTheme.bodyText2!.copyWith(fontSize: 12),
+                        title,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.themeData.textTheme.caption!.copyWith(fontWeight: FontWeight.bold),
                       ),
                       TranslatedText(
                         subtitleTranslationKey,

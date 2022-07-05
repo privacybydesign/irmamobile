@@ -567,6 +567,7 @@
   },
   "credential": {
     "no_data": "No data",
-    "valid_until": "Valid until: {date}"
+    "valid_until": "Valid until: {date}",
+    "date_at_time": "{date} at {time}"
   }
 }
