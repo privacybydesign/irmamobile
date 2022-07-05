@@ -13,7 +13,11 @@ typedef PinStream = BehaviorSubject<Pin>;
 typedef PinQuality = Set<UnsecurePinAttribute>;
 
 void Function(String) pinStringToListConverter(PinStream pinStream) {
-  return (String pin) => pinStream.add(pin.split('').map((e) => int.parse(e)).toList());
+  return (String pin) {
+    if (pin.isNotEmpty) {
+      pinStream.add(pin.split('').map((e) => int.parse(e)).toList(growable: false));
+    }
+  };
 }
 
 enum UnsecurePinAttribute {

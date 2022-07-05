@@ -14,6 +14,7 @@ class IrmaThemeData {
 
   final Color background = const Color(0xFFE5E5E5);
   final Color securePinOrange = const Color(0xFFEBA73B);
+  final Color pinIndicatorDarkBlue = const Color(0xFF363E6A);
 
   // Colors used in colorscheme
   final Color primaryBlue = const Color(0xFF4B73FF);
