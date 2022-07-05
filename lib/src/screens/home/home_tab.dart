@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../theme/irma_icons.dart';
 import '../../theme/theme.dart';
@@ -92,7 +93,7 @@ class HomeTab extends StatelessWidget {
           IrmaInfoCard(
             titleKey: 'home_tab.info_card.about.title',
             bodyKey: 'home_tab.info_card.about.body',
-            avatar: Image.asset('assets/non-free/irmalogo.png'),
+            avatar: SvgPicture.asset('assets/non-free/logo.svg'),
             linkKey: 'home_tab.info_card.about.link',
           )
         ],
