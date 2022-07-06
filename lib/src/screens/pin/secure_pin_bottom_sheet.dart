@@ -17,27 +17,34 @@ class UnsecurePinWarningTextButton extends StatelessWidget {
 
     return BlocBuilder<PinQualityBloc, PinQuality>(
       bloc: bloc,
-      builder: (context, rulesViolated) {
-        if (rulesViolated.isNotEmpty) {
-          return Center(
-            child: TextButton(
-              onPressed: () => _showSecurePinBottomSheet(context, theme, rulesViolated),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    FlutterI18n.translate(context, 'secure_pin.info_button'),
-                    style: theme.textTheme.caption?.copyWith(color: theme.securePinOrange, fontWeight: FontWeight.w700),
-                  ),
-                  const SizedBox(width: 2.0),
-                  Icon(
-                    Icons.info_outlined,
-                    color: theme.securePinOrange,
-                  ),
-                ],
+      builder: (context, rulesFollowed) {
+        if (pinStream.value.length >= 5) {
+          if (!rulesFollowed.containsAll({
+            SecurePinAttribute.containsThreeUnique,
+            SecurePinAttribute.notAbcabNorAbcba,
+            SecurePinAttribute.mustNotAscNorDesc
+          })) {
+            return Center(
+              child: TextButton(
+                onPressed: () => _showSecurePinBottomSheet(context, theme, rulesFollowed),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      FlutterI18n.translate(context, 'secure_pin.info_button'),
+                      style:
+                          theme.textTheme.caption?.copyWith(color: theme.securePinOrange, fontWeight: FontWeight.w700),
+                    ),
+                    const SizedBox(width: 2.0),
+                    Icon(
+                      Icons.info_outlined,
+                      color: theme.securePinOrange,
+                    ),
+                  ],
+                ),
               ),
-            ),
-          );
+            );
+          }
         }
         return const SizedBox(height: 16.0);
       },
@@ -110,20 +117,20 @@ class UnsecurePinWarningTextButton extends StatelessWidget {
         ),
       ),
       const Divider(),
-      _pinRule(context, theme, unsecurePinAttrs.contains(UnsecurePinAttribute.containsThreeUnique),
+      _pinRule(context, theme, unsecurePinAttrs.contains(SecurePinAttribute.containsThreeUnique),
           'secure_pin.rules.contains_3_unique'),
       const Divider(),
-      _pinRule(context, theme, unsecurePinAttrs.contains(UnsecurePinAttribute.mustNotAscNorDesc),
+      _pinRule(context, theme, unsecurePinAttrs.contains(SecurePinAttribute.mustNotAscNorDesc),
           'secure_pin.rules.must_not_asc_or_desc'),
       const Divider(),
-      _pinRule(context, theme, unsecurePinAttrs.contains(UnsecurePinAttribute.notAbcabNorAbcba),
+      _pinRule(context, theme, unsecurePinAttrs.contains(SecurePinAttribute.notAbcabNorAbcba),
           'secure_pin.rules.not_abcab_nor_abcba'),
     ];
 
     if (pinStream.value.length > 5) {
       rules
         ..add(const Divider())
-        ..add(_pinRule(context, theme, unsecurePinAttrs.contains(UnsecurePinAttribute.mustContainValidSubset),
+        ..add(_pinRule(context, theme, unsecurePinAttrs.contains(SecurePinAttribute.mustContainValidSubset),
             'secure_pin.rules.must_contain_valid_subset'));
     }
 

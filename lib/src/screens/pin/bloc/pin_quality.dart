@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rxdart/subjects.dart';
 
@@ -7,13 +8,33 @@ import '../../../util/secure_pin.dart';
 
 typedef Pin = List<int>;
 typedef PinStream = BehaviorSubject<Pin>;
-typedef PinQuality = Set<UnsecurePinAttribute>;
+typedef PinQuality = Set<SecurePinAttribute>;
+
+extension on Set<SecurePinAttribute> {
+  void addSecurePinAttributeIfRuleFollowed(PinFn validator, SecurePinAttribute attr, Pin pin) {
+    if (validator(pin)) {
+      add(attr);
+    }
+  }
+
+  void applyRules(Pin pin) {
+    this
+      ..addSecurePinAttributeIfRuleFollowed(
+          pinMustContainAtLeastThreeUniqueNumbers, SecurePinAttribute.containsThreeUnique, pin)
+      ..addSecurePinAttributeIfRuleFollowed(
+          pinMustNotBeMemberOfSeriesAscDesc, SecurePinAttribute.mustNotAscNorDesc, pin);
+
+    if (pinMustNotContainPatternAbcab(pin) && pinMustNotContainPatternAbcba(pin)) {
+      add(SecurePinAttribute.notAbcabNorAbcba);
+    }
+  }
+}
 
 void Function(String) pinStringToListConverter(PinStream pinStream) {
   return (String pin) => pinStream.add(pin.split('').map((e) => int.parse(e)).toList());
 }
 
-enum UnsecurePinAttribute {
+enum SecurePinAttribute {
   atLeast5AtMost16,
   containsThreeUnique,
   mustNotAscNorDesc,
@@ -41,26 +62,40 @@ class PinQualityBloc extends Bloc<Pin, PinQuality> {
 
   @override
   Stream<PinQuality> mapEventToState(Pin pin) async* {
-    final set = <UnsecurePinAttribute>{};
+    final set = <SecurePinAttribute>{};
 
     if (pin.length < 5) {
       yield set;
     }
 
-    if (pinSizeMustBeAtLeast5AtMost16(pin)) {
-      set.add(UnsecurePinAttribute.atLeast5AtMost16);
-    } else if (pinMustContainAtLeastThreeUniqueNumbers(pin)) {
-      set.add(UnsecurePinAttribute.containsThreeUnique);
-    } else if (pinMustNotBeMemberOfSeriesAscDesc(pin)) {
-      set.add(UnsecurePinAttribute.mustNotAscNorDesc);
-    } else if (pinMustNotContainPatternAbcab(pin) && pinMustNotContainPatternAbcba(pin)) {
-      set.add(UnsecurePinAttribute.notAbcabNorAbcba);
+    if (pin.length == 5) {
+      set.applyRules(pin);
+    } else if (pin.length >= 5) {
+      for (int i = 0; i < pin.length - 4; i++) {
+        final sub = pin.sublist(i, i + 5);
+
+        /// report the last pin secure attributes
+        set
+          ..clear()
+          ..applyRules(sub);
+
+        if (kDebugMode) {
+          print('$i: ${sub.join()}');
+        }
+
+        /// break when one subset is valid
+        if (set.containsAll({
+          SecurePinAttribute.containsThreeUnique,
+          SecurePinAttribute.notAbcabNorAbcba,
+          SecurePinAttribute.mustNotAscNorDesc
+        })) {
+          break;
+        }
+      }
     }
 
-    if (pin.length > 5) {
-      if (pinMustContainASublistOfSize5ThatCompliesToAllRules(pin)) {
-        set.add(UnsecurePinAttribute.mustContainValidSubset);
-      }
+    if (kDebugMode) {
+      print('$set');
     }
 
     yield set;
