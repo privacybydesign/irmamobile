@@ -6,7 +6,6 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/models/issue_wizard.dart';
 import 'package:irmamobile/src/screens/issue_wizard/widgets/logo_banner_header.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/util/collapsible_helper.dart';
 import 'package:irmamobile/src/util/color_from_code.dart';
 import 'package:irmamobile/src/widgets/collapsible.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
@@ -34,7 +33,7 @@ class IssueWizardInfo extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
       child: Collapsible(
         header: header,
-        onExpansionChanged: (v) => {if (v) jumpToCollapsable(controller, scrollviewKey, key)},
+        parentScrollController: controller,
         content: SizedBox(width: double.infinity, child: IrmaMarkdown(body)),
         key: key,
       ),

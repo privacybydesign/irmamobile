@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 import 'src/data/irma_repository.dart';
 import 'src/models/native_events.dart';
-import 'src/screens/add_cards/card_store_screen.dart';
+import 'src/screens/add_data/add_data_screen.dart';
 import 'src/screens/change_pin/change_pin_screen.dart';
 import 'src/screens/debug/debug_screen.dart';
 import 'src/screens/enrollment/email_sent_screen.dart';
@@ -29,7 +29,7 @@ class Routing {
     ScannerScreen.routeName: (context) => ScannerScreen(),
     ChangePinScreen.routeName: (context) => ChangePinScreen(),
     SettingsScreen.routeName: (context) => SettingsScreen(),
-    CardStoreScreen.routeName: (context) => CardStoreScreen(),
+    AddDataScreen.routeName: (context) => AddDataScreen(),
     HelpScreen.routeName: (context) => HelpScreen(),
     ResetPinScreen.routeName: (context) => ResetPinScreen(),
     DebugScreen.routeName: (context) => DebugScreen(),

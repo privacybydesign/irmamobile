@@ -1,30 +1,67 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/configurable_expansion_tile.dart';
+
+import '../theme/theme.dart';
+import 'configurable_expansion_tile.dart';
 
 class Collapsible extends StatefulWidget {
   final String header;
   final Widget content;
+  final ScrollController? parentScrollController;
 
-  const Collapsible({Key key, this.header, this.content, this.onExpansionChanged}) : super(key: key);
-  final ValueChanged<bool> onExpansionChanged;
+  const Collapsible({
+    Key? key,
+    required this.header,
+    required this.content,
+    this.parentScrollController,
+  }) : super(key: key);
 
   @override
   _CollapsibleState createState() => _CollapsibleState();
 }
 
 class _CollapsibleState extends State<Collapsible> {
+  static const _expandDuration = Duration(milliseconds: 250); // expand duration of _Collapsible
+
   bool _isExpanded = false;
 
-  void onExpansionChanged(bool expansionState) {
+  Future<void> _jumpToCollapsable() async {
+    await Future.delayed(_expandDuration);
+    if (!mounted || widget.parentScrollController == null) return;
+
+    RenderObject? scrollableRenderObject;
+    context.visitAncestorElements((element) {
+      final scrollableWidget = element.widget;
+      if (scrollableWidget is Scrollable && scrollableWidget.controller == widget.parentScrollController) {
+        scrollableRenderObject = element.renderObject;
+        return false;
+      }
+      return true;
+    });
+    if (scrollableRenderObject == null) return;
+
+    final collapsable = context.findRenderObject();
+    if (collapsable == null || collapsable is! RenderBox) return;
+
+    var desiredScrollPosition = collapsable
+        .localToGlobal(Offset(0, widget.parentScrollController!.offset), ancestor: scrollableRenderObject)
+        .dy;
+    if (desiredScrollPosition > widget.parentScrollController!.position.maxScrollExtent) {
+      desiredScrollPosition = widget.parentScrollController!.position.maxScrollExtent;
+    }
+    widget.parentScrollController!.animateTo(
+      desiredScrollPosition,
+      duration: const Duration(
+        milliseconds: 500,
+      ),
+      curve: Curves.ease,
+    );
+  }
+
+  void _onExpansionChanged(bool expansionState) {
     setState(() {
       _isExpanded = expansionState;
     });
@@ -35,7 +72,7 @@ class _CollapsibleState extends State<Collapsible> {
               : FlutterI18n.translate(context, 'accessibility.collapsed'),
           Directionality.of(context));
     }
-    widget.onExpansionChanged(expansionState);
+    _jumpToCollapsable();
   }
 
   @override
@@ -44,7 +81,7 @@ class _CollapsibleState extends State<Collapsible> {
     return ClipRRect(
       borderRadius: BorderRadius.circular(8),
       child: ConfigurableExpansionTile(
-        onExpansionChanged: onExpansionChanged,
+        onExpansionChanged: _onExpansionChanged,
         animatedWidgetFollowingHeader: const Padding(
           padding: EdgeInsets.all(4.0),
           child: Icon(
