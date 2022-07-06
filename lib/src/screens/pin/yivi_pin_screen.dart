@@ -9,6 +9,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../theme/theme.dart';
 import '../../widgets/link.dart';
+import 'bloc/pin_quality.dart';
 import 'secure_pin_bottom_sheet.dart';
 
 part 'bloc/pin_size.dart';
