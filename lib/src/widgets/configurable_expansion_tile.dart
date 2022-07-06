@@ -48,7 +48,7 @@ class ConfigurableExpansionTile extends StatefulWidget {
       {Key? key,
       this.headerBackgroundColorStart = Colors.transparent,
       this.onExpansionChanged,
-      this.children = const <Widget>[],
+      this.children = const [],
       this.initiallyExpanded = false,
       required this.header,
       this.animatedWidgetFollowingHeader,
@@ -206,7 +206,7 @@ class _ConfigurableExpansionTileState extends State<ConfigurableExpansionTile> w
       )),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
+        children: [
           GestureDetector(
               onTap: _handleTap,
               child: Container(
@@ -214,7 +214,7 @@ class _ConfigurableExpansionTileState extends State<ConfigurableExpansionTile> w
                   child: Row(
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
+                    children: [
                       RotationTransition(
                         turns: _iconTurns!,
                         child: widget.animatedWidgetPrecedingHeader ?? Container(),

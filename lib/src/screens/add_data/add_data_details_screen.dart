@@ -52,7 +52,7 @@ class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
+          children: [
             if (widget.credentialType.faqIntro.isNotEmpty)
               Padding(
                 padding: paddingText,

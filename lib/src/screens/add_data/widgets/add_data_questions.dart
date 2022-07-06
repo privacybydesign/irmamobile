@@ -40,7 +40,7 @@ class AddDataQuestions extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
+      children: [
         if (credentialType.faqPurpose.isNotEmpty)
           _buildCollapsible(context, 'add_data_details.purpose_question', credentialType.faqPurpose),
         if (credentialType.faqContent.isNotEmpty)

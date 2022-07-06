@@ -111,7 +111,7 @@ class AddDataScreen extends StatelessWidget {
               padding: EdgeInsets.all(theme.defaultSpacing),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
+                children: [
                   TranslatedText(
                     'add_data.choose',
                     style: IrmaTheme.of(context).textTheme.bodyText2,
