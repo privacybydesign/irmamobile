@@ -30,25 +30,13 @@ class _VisiblePinIndicator extends StatelessWidget {
             color: theme.pinIndicatorDarkBlue,
           );
 
-    return Container(
-      decoration: BoxDecoration(
-        border: maxPinSize == _minPinSize
-            ? null
-            : Border(
-                bottom: BorderSide(color: theme.darkPurple),
-              ),
-      ),
-      child: SizedBox(
-        width: maxPinSize == _minPinSize ? 100 : 230,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: List.generate(
-            data.length,
-            (i) => Text(
-              '${data[i]}',
-              style: style,
-            ),
-          ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(
+        data.length,
+        (i) => Text(
+          '${data[i]}',
+          style: style,
         ),
       ),
     );

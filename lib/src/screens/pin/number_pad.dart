@@ -22,7 +22,7 @@ class _NumberPad extends StatelessWidget {
                   style: TextStyle(
                     color: theme.pinIndicatorDarkBlue,
                     fontWeight: FontWeight.w600,
-                    fontSize: 32.0,
+                    fontSize: 32.0.scale(context),
                   ),
                 ),
                 if (subtitle != null)
@@ -69,7 +69,7 @@ class _NumberPad extends StatelessWidget {
       _keyFactory(context, 7, 'PQRS'),
       _keyFactory(context, 8, 'TUV'),
       _keyFactory(context, 9, 'WXYZ'),
-      SizedBox.fromSize(size: const Size.square(40.0)),
+      SizedBox.fromSize(size: Size.square(40.scale(context))),
       _keyFactory(context, 0),
       backspace,
     ];
@@ -84,7 +84,7 @@ class _NumberPad extends StatelessWidget {
         children: keys
             .map((widget) => SizedBox(
                   width: keyEdgeSize,
-                  child: _resize(80, widget),
+                  child: _resize(80.scale(context), widget),
                 ))
             .toList(),
       ),

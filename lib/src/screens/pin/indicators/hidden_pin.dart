@@ -36,28 +36,16 @@ class _HiddenPinIndicator extends StatelessWidget {
     ));
 
     final double edgeSize = maxPinSize != _minPinSize ? 6 : 12;
+    final scaledEdgeSize = edgeSize.scale(context);
 
-    /// SizedBox.height = 24 So the eye won't get clipped in the Stack
-    return Container(
-      decoration: BoxDecoration(
-        border: maxPinSize == _minPinSize
-            ? null
-            : Border(
-                bottom: BorderSide(color: theme.darkPurple),
-              ),
-      ),
-      child: SizedBox(
-        height: 24,
-        width: maxPinSize == _minPinSize ? 100 : 230,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            ...List.generate(pinSize, (_) => _resize(edgeSize, circleFilled), growable: false),
-            if (maxPinSize == _minPinSize)
-              ...List<Widget>.generate(maxPinSize - pinSize, (_) => _resize(edgeSize, circleOutlined), growable: false),
-          ],
-        ),
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ...List.generate(pinSize, (_) => _resize(scaledEdgeSize, circleFilled), growable: false),
+        if (maxPinSize == _minPinSize)
+          ...List<Widget>.generate(maxPinSize - pinSize, (_) => _resize(scaledEdgeSize, circleOutlined),
+              growable: false),
+      ],
     );
   }
 }
