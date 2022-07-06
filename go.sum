@@ -517,6 +517,8 @@ github.com/privacybydesign/irmago v0.10.1-0.20220704084727-4754c19e9d40 h1:Ana3w
 github.com/privacybydesign/irmago v0.10.1-0.20220704084727-4754c19e9d40/go.mod h1:4e0P2jMWDJujq3Yle0AV+KMlndHxrT1UeihwHdEFN4A=
 github.com/privacybydesign/irmago v0.10.1-0.20220705120614-5334566918bd h1:OljfrZHSfEMocKxmK9ODCGt12aoJ4v476zl2mo2SafQ=
 github.com/privacybydesign/irmago v0.10.1-0.20220705120614-5334566918bd/go.mod h1:fGBtlURljai02sYeGubx+hLPgNkC8kcNCWzE/SX2I8A=
+github.com/privacybydesign/irmago v0.10.1-0.20220706115028-43e41df9a73a h1:lOJmIpncu7IR/8TnnQTsw2OPHQVHU0ZOVb7PEIyYW5U=
+github.com/privacybydesign/irmago v0.10.1-0.20220706115028-43e41df9a73a/go.mod h1:fGBtlURljai02sYeGubx+hLPgNkC8kcNCWzE/SX2I8A=
 github.com/prometheus/client_golang v0.9.1/go.mod h1:7SWBe2y4D6OKWSNQJUaRYU/AaXPKyh/dDVn+NZz0KFw=
 github.com/prometheus/client_golang v1.0.0/go.mod h1:db9x61etRT2tGnBNRi70OPL5FsnadC4Ky3P0J6CfImo=
 github.com/prometheus/client_golang v1.4.0/go.mod h1:e9GMxYsXl05ICDXkRhurwBS4Q3OK1iX/F2sw+iXX5zU=
