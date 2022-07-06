@@ -27,7 +27,7 @@ class AddDataQuestions extends StatelessWidget {
           width: double.infinity,
           child: Text(
             getTranslation(context, bodyText).replaceAll('\\n', '\n'),
-            style: IrmaTheme.of(context).textTheme.bodyText2,
+            style: theme.textTheme.bodyText2,
             textAlign: TextAlign.left,
           ),
         ),
