@@ -58,7 +58,7 @@ class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
                 padding: paddingText,
                 child: Text(
                   getTranslation(context, widget.credentialType.faqIntro).replaceAll('\\n', '\n'),
-                  style: IrmaTheme.of(context).textTheme.bodyText2,
+                  style: theme.textTheme.bodyText2,
                 ),
               ),
             Padding(
