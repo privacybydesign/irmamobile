@@ -72,7 +72,7 @@ class UnsecurePinWarningTextButton extends StatelessWidget {
         localeKey,
       );
 
-  void _showSecurePinBottomSheet(BuildContext context, IrmaThemeData theme, PinQuality unsecurePinAttrs) {
+  void _showSecurePinBottomSheet(BuildContext context, IrmaThemeData theme, PinQuality securePinAttrs) {
     final rules = <Widget>[
       Stack(
         alignment: Alignment.center,
@@ -117,20 +117,20 @@ class UnsecurePinWarningTextButton extends StatelessWidget {
         ),
       ),
       const Divider(),
-      _pinRule(context, theme, unsecurePinAttrs.contains(SecurePinAttribute.containsThreeUnique),
+      _pinRule(context, theme, securePinAttrs.contains(SecurePinAttribute.containsThreeUnique),
           'secure_pin.rules.contains_3_unique'),
       const Divider(),
-      _pinRule(context, theme, unsecurePinAttrs.contains(SecurePinAttribute.mustNotAscNorDesc),
+      _pinRule(context, theme, securePinAttrs.contains(SecurePinAttribute.mustNotAscNorDesc),
           'secure_pin.rules.must_not_asc_or_desc'),
       const Divider(),
-      _pinRule(context, theme, unsecurePinAttrs.contains(SecurePinAttribute.notAbcabNorAbcba),
+      _pinRule(context, theme, securePinAttrs.contains(SecurePinAttribute.notAbcabNorAbcba),
           'secure_pin.rules.not_abcab_nor_abcba'),
     ];
 
     if (pinStream.value.length > 5) {
       rules
         ..add(const Divider())
-        ..add(_pinRule(context, theme, unsecurePinAttrs.contains(SecurePinAttribute.mustContainValidSubset),
+        ..add(_pinRule(context, theme, securePinAttrs.contains(SecurePinAttribute.mustContainValidSubset),
             'secure_pin.rules.must_contain_valid_subset'));
     }
 
