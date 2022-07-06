@@ -553,7 +553,8 @@
     "irma_website": "Yivi-website",
     "irma_website_link": "https://irma.app/?lang=en",
     "privacy_policy": "Yivi's privacy policy",
-    "app_id": "App ID {id}"
+    "app_id": "App ID {id}",
+    "log_out": "Log out"
   },
   "activity": {
     "data_deleted": "Data deleted",
