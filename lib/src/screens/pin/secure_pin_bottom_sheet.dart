@@ -1,74 +1,10 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:rxdart/subjects.dart';
 
-import '../../util/safe_pin.dart';
-
-typedef Pin = List<int>;
-typedef PinStream = BehaviorSubject<Pin>;
-typedef PinQuality = Set<UnsecurePinAttribute>;
-
-void Function(String) pinStringToListConverter(PinStream pinStream) {
-  return (String pin) => pinStream.add(pin.split('').map((e) => int.parse(e)).toList());
-}
-
-enum UnsecurePinAttribute {
-  atLeast5AtMost16,
-  containsThreeUnique,
-  mustNotAscNorDesc,
-  notAbcabNorAbcba,
-  mustContainValidSubset,
-}
-
-class PinQualityBloc extends Bloc<Pin, PinQuality> {
-  final PinStream pinStream;
-  late final StreamSubscription sub;
-
-  PinQualityBloc(
-    this.pinStream,
-  ) : super({}) {
-    sub = pinStream.listen((value) {
-      add(value);
-    });
-  }
-
-  @override
-  Future<void> close() {
-    sub.cancel();
-    return super.close();
-  }
-
-  @override
-  Stream<PinQuality> mapEventToState(Pin pin) async* {
-    final set = <UnsecurePinAttribute>{};
-
-    if (pin.length < 5) {
-      yield set;
-    }
-
-    if (pinSizeMustBeAtLeast5AtMost16(pin)) {
-      set.add(UnsecurePinAttribute.atLeast5AtMost16);
-    } else if (pinMustContainAtLeastThreeUniqueNumbers(pin)) {
-      set.add(UnsecurePinAttribute.containsThreeUnique);
-    } else if (pinMustNotBeMemberOfSeriesAscDesc(pin)) {
-      set.add(UnsecurePinAttribute.mustNotAscNorDesc);
-    } else if (pinMustNotContainPatternAbcab(pin) && pinMustNotContainPatternAbcba(pin)) {
-      set.add(UnsecurePinAttribute.notAbcabNorAbcba);
-    }
-
-    if (pin.length > 5) {
-      if (pinMustContainASublistOfSize5ThatCompliesToAllRules(pin)) {
-        set.add(UnsecurePinAttribute.mustContainValidSubset);
-      }
-    }
-
-    yield set;
-  }
-}
+import '../../widgets/yivi_bottom_sheet.dart';
+import 'bloc/pin_quality.dart';
 
 class UnsecurePinWarningTextButton extends StatelessWidget {
   final PinQualityBloc bloc;
@@ -119,29 +55,15 @@ class UnsecurePinWarningTextButton extends StatelessWidget {
         visualDensity: const VisualDensity(vertical: -4.0),
       );
 
-  ListTile _requirementViolated(BuildContext context, IrmaThemeData theme, String localeKey) => _ruleWidget(
+  ListTile _pinRule(BuildContext context, IrmaThemeData theme, bool followsRule, String localeKey) => _ruleWidget(
         context,
         theme,
-        Icon(Icons.check, color: theme.cardGreen),
+        Icon(
+          followsRule ? Icons.check : Icons.close,
+          color: followsRule ? Colors.green : Colors.red,
+        ),
         localeKey,
       );
-
-  ListTile _requirementFulfilled(BuildContext context, IrmaThemeData theme, String localeKey) => _ruleWidget(
-      context,
-      theme,
-      Icon(
-        Icons.close,
-        color: theme.cardRed,
-      ),
-      localeKey);
-
-  ListTile _pinRule(BuildContext context, IrmaThemeData theme, bool offendsRule, String localeKey) {
-    if (offendsRule) {
-      return _requirementViolated(context, theme, localeKey);
-    } else {
-      return _requirementFulfilled(context, theme, localeKey);
-    }
-  }
 
   void _showSecurePinBottomSheet(BuildContext context, IrmaThemeData theme, PinQuality unsecurePinAttrs) {
     final rules = <Widget>[
@@ -205,26 +127,12 @@ class UnsecurePinWarningTextButton extends StatelessWidget {
             'secure_pin.rules.must_contain_valid_subset'));
     }
 
-    // TODO yiviBottomSheetBuilder
-    showModalBottomSheet(
+    showYiviBottomSheet(
       context: context,
-      builder: (context) => Padding(
-        padding: const EdgeInsets.only(top: 16),
-        child: Container(
-          decoration: BoxDecoration(
-            color: theme.background,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(30.0),
-              topRight: Radius.circular(30.0),
-            ),
-          ),
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: rules,
-          ),
-        ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: rules,
       ),
     );
   }

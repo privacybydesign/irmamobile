@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:irmamobile/src/util/safe_pin.dart';
+import 'package:irmamobile/src/util/secure_pin.dart';
 
 void main() {
   test('PIN contains between 5 and 16 characters', () {

@@ -11,6 +11,7 @@ import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_text_button.dart';
 import 'package:irmamobile/src/widgets/pin_field.dart';
 
+import '../../pin/bloc/pin_quality.dart';
 import '../../pin/secure_pin_bottom_sheet.dart';
 
 class ChoosePin extends StatelessWidget {
