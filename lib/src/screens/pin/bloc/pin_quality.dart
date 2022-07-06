@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rxdart/subjects.dart';
 
@@ -79,10 +78,6 @@ class PinQualityBloc extends Bloc<Pin, PinQuality> {
           ..clear()
           ..applyRules(sub);
 
-        if (kDebugMode) {
-          print('$i: ${sub.join()}');
-        }
-
         /// break when one subset is valid
         if (set.containsAll({
           SecurePinAttribute.containsThreeUnique,
@@ -92,10 +87,6 @@ class PinQualityBloc extends Bloc<Pin, PinQuality> {
           break;
         }
       }
-    }
-
-    if (kDebugMode) {
-      print('$set');
     }
 
     yield set;
