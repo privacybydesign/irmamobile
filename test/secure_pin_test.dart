@@ -1,9 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:irmamobile/src/util/safe_pin.dart';
+import 'package:irmamobile/src/screens/pin/bloc/pin_quality.dart';
+import 'package:irmamobile/src/util/secure_pin.dart';
 
 void main() {
   test('PIN contains between 5 and 16 characters', () {
-    final pins = <List<int>>{
+    final pins = <Pin>{
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       [1, 2, 3, 4],
       [1, 2, 3],
@@ -18,7 +19,7 @@ void main() {
   });
 
   test('Pin must contain at least 3 distinct numbers', () {
-    final pins = <List<int>>{
+    final pins = <Pin>{
       [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
       [1, 2, 1, 1],
       [1, 2, 2, 2],
@@ -44,18 +45,27 @@ void main() {
   });
 
   test('PIN must not be ascending nor descending', () {
-    final pins5 = <List<int>>[
+    final pins5 = <Pin>[
       [1, 2, 3, 4, 5],
       [4, 3, 2, 1, 0],
+    ];
+
+    final pins6 = <Pin>[
+      [1, 2, 3, 4, 2],
+      [4, 3, 2, 1, 3],
     ];
 
     for (final pin in pins5) {
       expect(pinMustNotBeMemberOfSeriesAscDesc(pin), false, reason: pin.join());
     }
+
+    for (final pin in pins6) {
+      expect(pinMustNotBeMemberOfSeriesAscDesc(pin), true, reason: pin.join());
+    }
   });
 
   test('PIN must contain a valid subset of 5 #1 true cases', () {
-    final allowed = <List<int>>[
+    final allowed = <Pin>[
       [1, 2, 3, 4, 5, 7, 8],
       [4, 3, 2, 1, 0, 1, 1],
       [4, 3, 2, 1, 0, 1, 2],
@@ -70,7 +80,7 @@ void main() {
   });
 
   test('PIN must contain a valid subset of 5 #2 false cases', () {
-    final disallowed = <List<int>>[
+    final disallowed = <Pin>[
       [1, 2, 3, 4, 5],
       [4, 3, 2, 1, 0],
       [1, 3, 5, 3, 1],

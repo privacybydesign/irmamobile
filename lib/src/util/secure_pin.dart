@@ -13,8 +13,8 @@ bool pinMustContainAtLeastThreeUniqueNumbers(List<int> pin) {
 
 // abcba, abcab
 // n = 5
-bool pinMustNotContainPatternAbcba(List<int> pin) => pin.length < 5 || !(pin[0] == pin[4] && pin[1] == pin[3]);
-bool pinMustNotContainPatternAbcab(List<int> pin) => pin.length < 5 || !(pin[0] == pin[3] && pin[1] == pin[4]);
+bool pinMustNotContainPatternAbcba(List<int> pin) => !(pin[0] == pin[4] && pin[1] == pin[3]);
+bool pinMustNotContainPatternAbcab(List<int> pin) => !(pin[0] == pin[3] && pin[1] == pin[4]);
 
 bool Function(List<int>) sequenceChecker(int delta) => (List<int> pin) {
       bool tracker = true;
@@ -31,29 +31,27 @@ bool pinMustNotBeMemberOfSeriesAscDesc(List<int> pin) {
   return !(isAsc(pin) || isDesc(pin));
 }
 
-typedef PinRule = bool Function(List<int>);
-
-final pinRules = <PinRule>{
-  pinMustContainAtLeastThreeUniqueNumbers,
-  pinMustNotContainPatternAbcba,
-  pinMustNotContainPatternAbcab,
-  pinMustNotBeMemberOfSeriesAscDesc,
-};
+typedef PinFn = bool Function(List<int>);
 
 bool pinMustContainASublistOfSize5ThatCompliesToAllRules(List<int> pin) {
+  final basicPinRules = <PinFn>{
+    pinMustContainAtLeastThreeUniqueNumbers,
+    pinMustNotContainPatternAbcba,
+    pinMustNotContainPatternAbcab,
+    pinMustNotBeMemberOfSeriesAscDesc,
+  };
+
   if (!pinSizeMustBeAtLeast5AtMost16(pin)) {
     return false;
   }
 
-  final rules = pinRules;
-
   if (pin.length == 5) {
-    return rules.every((r) => r(pin));
+    return basicPinRules.every((r) => r(pin));
   } else {
     bool checker = false;
-    for (int i = 0; i < pin.length - 5; i++) {
+    for (int i = 0; i < pin.length - 4; i++) {
       final sub = pin.sublist(i, i + 5);
-      checker |= rules.every((r) => r(sub));
+      checker |= basicPinRules.every((r) => r(sub));
     }
     return checker;
   }
