@@ -83,15 +83,17 @@ class _ActivityTabState extends State<ActivityTab> {
     final theme = IrmaTheme.of(context);
     return Expanded(
       child: ListView.builder(
-          controller: _scrollController,
-          padding: EdgeInsets.symmetric(
-            vertical: theme.smallSpacing,
-            horizontal: theme.defaultSpacing,
-          ),
-          itemCount: historyState.logEntries.length,
-          itemBuilder: (context, index) {
-            final logEntry = historyState.logEntries[index];
-            return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        controller: _scrollController,
+        padding: EdgeInsets.symmetric(
+          vertical: theme.smallSpacing,
+          horizontal: theme.defaultSpacing,
+        ),
+        itemCount: historyState.logEntries.length,
+        itemBuilder: (context, index) {
+          final logEntry = historyState.logEntries[index];
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               //If the months differ, or its the first item, add month header
               if (index == 0 || (index > 0 && historyState.logEntries[index - 1].time.month != logEntry.time.month))
                 Padding(
@@ -114,17 +116,20 @@ class _ActivityTabState extends State<ActivityTab> {
               // Put loading indicator or loading finished icon at end of ListView
               if (index == historyState.logEntries.length - 1)
                 Padding(
-                  padding: EdgeInsets.symmetric(vertical: theme.tinySpacing),
+                  padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
                   child: Center(
-                      child: historyState.moreLogsAvailable
-                          ? SizedBox(
-                              height: 36,
-                              child: LoadingIndicator(),
-                            )
-                          : Icon(IrmaIcons.valid, color: theme.success)),
+                    child: historyState.moreLogsAvailable
+                        ? SizedBox(
+                            height: 36,
+                            child: LoadingIndicator(),
+                          )
+                        : Icon(IrmaIcons.valid, color: theme.success),
+                  ),
                 )
-            ]);
-          }),
+            ],
+          );
+        },
+      ),
     );
   }
 
