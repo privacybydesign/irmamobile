@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:irmamobile/src/screens/pin/bloc/pin_quality.dart';
+import 'package:irmamobile/src/screens/pin/bloc/yivi_pin_bloc.dart';
 import 'package:irmamobile/src/util/secure_pin.dart';
 
 void main() {
