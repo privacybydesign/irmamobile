@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/theme/theme.dart';
 
+import '../../theme/theme.dart';
 import '../../widgets/yivi_bottom_sheet.dart';
 import 'bloc/yivi_pin_bloc.dart';
 
