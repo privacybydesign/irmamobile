@@ -93,7 +93,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
               state is DisclosurePermissionPreviouslyAddedCredentialsOverview
                   ? 'disclosure_permission.previously_added.header'
                   : 'disclosure_permission.overview.header',
-              style: theme.themeData.textTheme.headline3,
+              style: theme.themeData.textTheme.headline4,
             ),
             SizedBox(height: theme.smallSpacing),
             ...state.choices.entries

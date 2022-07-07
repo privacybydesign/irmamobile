@@ -2,7 +2,7 @@
   "ui": {
     "loading": "Laden…",
     "step_of_steps": "Stap {i} van {n}",
-    "step": "Step",
+    "step": "Stap",
     "done": "Gereed"
   },
   "enrollment": {

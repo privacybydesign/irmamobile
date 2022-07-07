@@ -42,7 +42,7 @@ class IrmaStepper extends StatelessWidget {
                   //If item has already been completed show success indicator
                   : IrmaStepIndicatorStyle.success,
         ),
-        padding: EdgeInsets.all(theme.smallSpacing),
+        padding: EdgeInsets.only(right: theme.smallSpacing),
       ),
       endChild: child,
       beforeLineStyle: LineStyle(
