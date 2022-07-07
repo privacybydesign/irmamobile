@@ -5,7 +5,7 @@ import '../../../util/secure_pin.dart';
 typedef Pin = List<int>;
 typedef PinQuality = Set<SecurePinAttribute>;
 
-extension on Set<SecurePinAttribute> {
+extension on PinQuality {
   void addSecurePinAttributeIfRuleFollowed(PinFn validator, SecurePinAttribute attr, Pin pin) {
     if (validator(pin)) {
       add(attr);
@@ -21,6 +21,16 @@ extension on Set<SecurePinAttribute> {
 
     if (pinMustNotContainPatternAbcab(pin) && pinMustNotContainPatternAbcba(pin)) {
       add(SecurePinAttribute.notAbcabNorAbcba);
+    }
+
+    if (containsAll({
+      SecurePinAttribute.containsThreeUnique,
+      SecurePinAttribute.notAbcabNorAbcba,
+      SecurePinAttribute.mustNotAscNorDesc
+    })) {
+      this
+        ..clear()
+        ..add(SecurePinAttribute.goodEnough);
     }
   }
 }
@@ -90,14 +100,7 @@ class PinStateBloc extends Bloc<Pin, PinState> {
           ..applyRules(sub);
 
         /// break when one subset is valid
-        if (set.containsAll({
-          SecurePinAttribute.containsThreeUnique,
-          SecurePinAttribute.notAbcabNorAbcba,
-          SecurePinAttribute.mustNotAscNorDesc
-        })) {
-          set
-            ..clear()
-            ..add(SecurePinAttribute.goodEnough);
+        if (set.contains(SecurePinAttribute.goodEnough)) {
           break;
         }
       }
