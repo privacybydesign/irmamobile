@@ -103,16 +103,13 @@ class _ActivityTabState extends State<ActivityTab> {
                     right: theme.tinySpacing,
                     bottom: theme.tinySpacing,
                   ),
-                  //padding: EdgeInsets.symmetric(vertical: theme.tinySpacing),
                   child: Text(DateFormat('MMMM', local).format(logEntry.time).toCapitalized(),
                       style: theme.themeData.textTheme.headline3),
                 ),
-
               ActivityCard(
                 logEntry: logEntry,
                 irmaConfiguration: irmaConfiguration,
               ),
-
               // Put loading indicator or loading finished icon at end of ListView
               if (index == historyState.logEntries.length - 1)
                 Padding(

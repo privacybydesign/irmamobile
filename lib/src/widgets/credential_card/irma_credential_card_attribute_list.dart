@@ -35,7 +35,7 @@ class IrmaCredentialCardAttributeList extends StatelessWidget {
                   color: theme.neutralDark,
                 ),
               ),
-              SizedBox(width: theme.smallSpacing),
+              SizedBox(height: theme.tinySpacing),
               Builder(
                 builder: (context) {
                   if (attribute.value is PhotoValue) {
