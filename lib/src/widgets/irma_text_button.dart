@@ -21,11 +21,13 @@ class IrmaTextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
     final fixedHeight = size?.value ?? 45.0;
+
     return TextButton(
       onPressed: onPressed,
       style: TextButton.styleFrom(
-        primary: IrmaTheme.of(context).secondary,
+        primary: theme.secondary,
         minimumSize: Size(minWidth, fixedHeight),
         maximumSize: Size.fromHeight(fixedHeight),
         padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
@@ -35,7 +37,7 @@ class IrmaTextButton extends StatelessWidget {
       ),
       child: Text(
         label != null ? FlutterI18n.translate(context, label!) : '',
-        style: textStyle ?? IrmaTheme.of(context).textTheme.button,
+        style: textStyle ?? theme.textTheme.button!.copyWith(color: theme.secondary),
         textAlign: TextAlign.center,
       ),
     );
