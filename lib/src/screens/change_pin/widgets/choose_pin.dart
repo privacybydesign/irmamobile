@@ -11,7 +11,7 @@ import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_text_button.dart';
 import 'package:irmamobile/src/widgets/pin_field.dart';
 
-import '../../pin/bloc/pin_quality.dart';
+import '../../pin/bloc/yivi_pin_bloc.dart';
 import '../../pin/secure_pin_bottom_sheet.dart';
 
 class ChoosePin extends StatelessWidget {
@@ -21,9 +21,8 @@ class ChoosePin extends StatelessWidget {
   final void Function() toggleLongPin;
   final void Function() cancel;
   final FocusNode pinFocusNode;
-  final _pinStream = PinStream.seeded([]);
 
-  ChoosePin(
+  const ChoosePin(
       {@required this.pinFocusNode, @required this.chooseNewPin, @required this.toggleLongPin, @required this.cancel});
 
   @override
@@ -43,6 +42,7 @@ class ChoosePin extends StatelessWidget {
       ),
       body: BlocBuilder<ChangePinBloc, ChangePinState>(
         builder: (context, state) {
+          final pinBloc = PinStateBloc(state.longPin ? 16 : 5);
           return SingleChildScrollView(
             child: Column(
               children: [
@@ -61,14 +61,12 @@ class ChoosePin extends StatelessWidget {
                 PinField(
                   focusNode: pinFocusNode,
                   longPin: state.longPin,
-                  onChange: pinStringToListConverter(_pinStream),
+                  onChange: pinStringToListConverter(pinBloc),
                   onSubmit: (String pin) => chooseNewPin(context, pin),
                 ),
                 UnsecurePinWarningTextButton(
-                    pinStream: _pinStream,
-                    bloc: PinQualityBloc(
-                      _pinStream,
-                    )),
+                  bloc: pinBloc,
+                ),
                 SizedBox(height: IrmaTheme.of(context).smallSpacing),
                 IrmaTextButton(
                   onPressed: () {
