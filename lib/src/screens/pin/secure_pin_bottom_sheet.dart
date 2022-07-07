@@ -4,29 +4,24 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
 import '../../widgets/yivi_bottom_sheet.dart';
-import 'bloc/pin_quality.dart';
+import 'bloc/yivi_pin_bloc.dart';
 
 class UnsecurePinWarningTextButton extends StatelessWidget {
-  final PinQualityBloc bloc;
-  final PinStream pinStream;
-  const UnsecurePinWarningTextButton({Key? key, required this.pinStream, required this.bloc}) : super(key: key);
+  final PinStateBloc bloc;
+  const UnsecurePinWarningTextButton({Key? key, required this.bloc}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    return BlocBuilder<PinQualityBloc, PinQuality>(
+    return BlocBuilder<PinStateBloc, PinState>(
       bloc: bloc,
-      builder: (context, rulesFollowed) {
-        if (pinStream.value.length >= 5) {
-          if (!rulesFollowed.containsAll({
-            SecurePinAttribute.containsThreeUnique,
-            SecurePinAttribute.notAbcabNorAbcba,
-            SecurePinAttribute.mustNotAscNorDesc
-          })) {
+      builder: (context, state) {
+        if (state.pin.length >= 5) {
+          if (!state.attributes.contains(SecurePinAttribute.goodEnough)) {
             return Center(
               child: TextButton(
-                onPressed: () => _showSecurePinBottomSheet(context, theme, rulesFollowed),
+                onPressed: () => _showSecurePinBottomSheet(context, theme, state),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -72,7 +67,8 @@ class UnsecurePinWarningTextButton extends StatelessWidget {
         localeKey,
       );
 
-  void _showSecurePinBottomSheet(BuildContext context, IrmaThemeData theme, PinQuality securePinAttrs) {
+  void _showSecurePinBottomSheet(BuildContext context, IrmaThemeData theme, PinState state) {
+    final securePinAttrs = state.attributes;
     final rules = <Widget>[
       Stack(
         alignment: Alignment.center,
@@ -127,7 +123,7 @@ class UnsecurePinWarningTextButton extends StatelessWidget {
           'secure_pin.rules.not_abcab_nor_abcba'),
     ];
 
-    if (pinStream.value.length > 5) {
+    if (state.pin.length > 5) {
       rules
         ..add(const Divider())
         ..add(_pinRule(context, theme, securePinAttrs.contains(SecurePinAttribute.mustContainValidSubset),

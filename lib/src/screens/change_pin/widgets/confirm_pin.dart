@@ -10,7 +10,7 @@ import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/pin_field.dart';
 
-import '../../pin/bloc/pin_quality.dart';
+import '../../pin/bloc/yivi_pin_bloc.dart';
 import '../../pin/secure_pin_bottom_sheet.dart';
 
 class ConfirmPin extends StatelessWidget {
@@ -19,9 +19,7 @@ class ConfirmPin extends StatelessWidget {
   final void Function(String) confirmNewPin;
   final void Function() cancel;
 
-  final _pinStream = PinStream.seeded([]);
-
-  ConfirmPin({@required this.confirmNewPin, @required this.cancel});
+  const ConfirmPin({@required this.confirmNewPin, @required this.cancel});
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +40,7 @@ class ConfirmPin extends StatelessWidget {
         leadingTooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
       ),
       body: BlocBuilder<ChangePinBloc, ChangePinState>(builder: (context, state) {
+        final pinBloc = PinStateBloc(state.longPin ? 16 : 5);
         return SingleChildScrollView(
           child: Column(
             children: [
@@ -54,14 +53,12 @@ class ConfirmPin extends StatelessWidget {
               SizedBox(height: IrmaTheme.of(context).mediumSpacing),
               PinField(
                 longPin: state.longPin,
-                onChange: pinStringToListConverter(_pinStream),
+                onChange: pinStringToListConverter(pinBloc),
                 onSubmit: (String pin) => confirmNewPin(pin),
               ),
               UnsecurePinWarningTextButton(
-                  pinStream: _pinStream,
-                  bloc: PinQualityBloc(
-                    _pinStream,
-                  )),
+                bloc: pinBloc,
+              ),
             ],
           ),
         );

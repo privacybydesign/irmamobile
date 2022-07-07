@@ -1,12 +1,8 @@
-import 'dart:async';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:rxdart/subjects.dart';
 
 import '../../../util/secure_pin.dart';
 
 typedef Pin = List<int>;
-typedef PinStream = BehaviorSubject<Pin>;
 typedef PinQuality = Set<SecurePinAttribute>;
 
 extension on Set<SecurePinAttribute> {
@@ -29,8 +25,8 @@ extension on Set<SecurePinAttribute> {
   }
 }
 
-void Function(String) pinStringToListConverter(PinStream pinStream) {
-  return (String pin) => pinStream.add(pin.split('').map((e) => int.parse(e)).toList());
+void Function(String) pinStringToListConverter(PinStateBloc bloc) {
+  return (String pin) => bloc.add(pin.split('').map((e) => int.parse(e)).toList());
 }
 
 enum SecurePinAttribute {
@@ -39,32 +35,47 @@ enum SecurePinAttribute {
   mustNotAscNorDesc,
   notAbcabNorAbcba,
   mustContainValidSubset,
+  goodEnough,
 }
 
-class PinQualityBloc extends Bloc<Pin, PinQuality> {
-  final PinStream pinStream;
-  late final StreamSubscription sub;
+class PinState {
+  final Pin pin;
+  final PinQuality attributes;
 
-  PinQualityBloc(
-    this.pinStream,
-  ) : super({}) {
-    sub = pinStream.listen((value) {
-      add(value);
-    });
+  static final empty = PinState([], {});
+
+  PinState(this.pin, this.attributes);
+}
+
+class PinStateBloc extends Bloc<Pin, PinState> {
+  final int maxPinSize;
+  static Pin _lastPin = PinState.empty.pin;
+
+  PinStateBloc(this.maxPinSize) : super(PinState.empty);
+
+  void update(int i) {
+    if (_lastPin.isNotEmpty && i < 0) {
+      add(_lastPin..removeLast());
+    }
+
+    if (_lastPin.length < maxPinSize && i >= 0) {
+      add(_lastPin..add(i));
+    }
   }
 
   @override
   Future<void> close() {
-    sub.cancel();
+    _lastPin = PinState.empty.pin;
     return super.close();
   }
 
   @override
-  Stream<PinQuality> mapEventToState(Pin pin) async* {
+  Stream<PinState> mapEventToState(Pin pin) async* {
     final set = <SecurePinAttribute>{};
+    _lastPin = pin;
 
     if (pin.length < 5) {
-      yield set;
+      yield PinState(pin, set);
     }
 
     if (pin.length == 5) {
@@ -84,11 +95,14 @@ class PinQualityBloc extends Bloc<Pin, PinQuality> {
           SecurePinAttribute.notAbcabNorAbcba,
           SecurePinAttribute.mustNotAscNorDesc
         })) {
+          set
+            ..clear()
+            ..add(SecurePinAttribute.goodEnough);
           break;
         }
       }
     }
 
-    yield set;
+    yield PinState(pin, set);
   }
 }
