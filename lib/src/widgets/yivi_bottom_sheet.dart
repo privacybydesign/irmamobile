@@ -5,6 +5,7 @@ import '../theme/theme.dart';
 void showYiviBottomSheet({required BuildContext context, required Widget child}) {
   final theme = IrmaTheme.of(context);
   showModalBottomSheet(
+    isScrollControlled: true,
     context: context,
     builder: (context) => Padding(
       padding: const EdgeInsets.only(top: 16),
