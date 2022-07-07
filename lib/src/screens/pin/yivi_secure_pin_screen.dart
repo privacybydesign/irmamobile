@@ -1,10 +1,9 @@
 part of pin;
 
 class SecurePinScreenTest extends StatelessWidget {
-  final pinStream = PinStream.seeded([]);
   final int maxPinSize;
 
-  late final _PinSizeBloc pinSizeBloc;
+  late final PinStateBloc pinBloc;
   final pinVisibilityBloc = _PinVisibilityBloc();
   final String instructionKey;
 
@@ -16,7 +15,7 @@ class SecurePinScreenTest extends StatelessWidget {
     required this.onTogglePinSize,
     required this.instructionKey,
   }) : super(key: key) {
-    pinSizeBloc = _PinSizeBloc(pinStream);
+    pinBloc = PinStateBloc(maxPinSize);
   }
 
   @override
@@ -24,13 +23,9 @@ class SecurePinScreenTest extends StatelessWidget {
     return YiviPinScreen(
       instructionKey: instructionKey,
       maxPinSize: maxPinSize,
-      onPinEntered: (pin) {
-        pinStream.sink.add(pin);
-      },
       onCompletePin: () => Navigator.pop(context),
-      pinSizeBloc: pinSizeBloc,
+      pinBloc: pinBloc,
       pinVisibilityBloc: pinVisibilityBloc,
-      pinStream: pinStream,
       onTogglePinSize: onTogglePinSize,
       checkSecurePin: true,
     );

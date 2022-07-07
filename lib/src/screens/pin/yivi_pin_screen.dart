@@ -11,10 +11,9 @@ import 'package:irmamobile/src/util/scale.dart';
 
 import '../../theme/theme.dart';
 import '../../widgets/link.dart';
-import 'bloc/pin_quality.dart';
+import 'bloc/yivi_pin_bloc.dart';
 import 'secure_pin_bottom_sheet.dart';
 
-part 'bloc/pin_size.dart';
 part 'bloc/pin_visibility.dart';
 part 'circle_clip.dart';
 part 'indicators/hidden_pin.dart';
@@ -40,10 +39,8 @@ Widget _resize(double edgeSize, Widget widget) {
 
 class YiviPinScreen extends StatelessWidget {
   final int maxPinSize;
-  final PinFn onPinEntered;
   final VoidCallback onCompletePin;
-  final PinStream pinStream;
-  final _PinSizeBloc pinSizeBloc;
+  final PinStateBloc pinBloc;
   final _PinVisibilityBloc pinVisibilityBloc;
   final VoidCallback? onForgotPin;
   final VoidCallback? onTogglePinSize;
@@ -53,11 +50,9 @@ class YiviPinScreen extends StatelessWidget {
   const YiviPinScreen({
     Key? key,
     required this.instructionKey,
-    required this.pinStream,
     required this.pinVisibilityBloc,
-    required this.pinSizeBloc,
+    required this.pinBloc,
     required this.maxPinSize,
-    required this.onPinEntered,
     required this.onCompletePin,
     this.onForgotPin,
     this.onTogglePinSize,
@@ -105,8 +100,7 @@ class YiviPinScreen extends StatelessWidget {
       );
 
   Widget _securePinTextButton() => UnsecurePinWarningTextButton(
-        pinStream: pinStream,
-        bloc: PinQualityBloc(pinStream),
+        bloc: pinBloc,
       );
 
   @override
@@ -140,11 +134,11 @@ class YiviPinScreen extends StatelessWidget {
           child: visible
               ? _VisiblePinIndicator(
                   maxPinSize: maxPinSize,
-                  pinStream: pinStream,
+                  pinBloc: pinBloc,
                 )
               : _HiddenPinIndicator(
                   maxPinSize: maxPinSize,
-                  pinSizeBloc: pinSizeBloc,
+                  pinBloc: pinBloc,
                 ),
         ),
       ),
@@ -153,9 +147,10 @@ class YiviPinScreen extends StatelessWidget {
     final _togglePinSizeCopy =
         maxPinSize > _minPinSize ? 'change_pin.choose_pin.switch_short' : 'change_pin.choose_pin.switch_long';
 
-    final nextButton = BlocBuilder<_PinSizeBloc, int>(
-      bloc: pinSizeBloc,
-      builder: (context, size) => _activateNext(context, theme, size >= (_minPinSize == maxPinSize ? 5 : 6)),
+    final nextButton = BlocBuilder<PinStateBloc, PinState>(
+      bloc: pinBloc,
+      builder: (context, state) =>
+          _activateNext(context, theme, state.pin.length >= (_minPinSize == maxPinSize ? 5 : 6)),
     );
 
     final body = Column(
@@ -210,17 +205,7 @@ class YiviPinScreen extends StatelessWidget {
           ),
         ),
         _NumberPad(
-          onEnterNumber: (i) {
-            final newPin = pinStream.value;
-            if (i < 0) {
-              if (pinStream.value.isNotEmpty) {
-                newPin.removeLast();
-              }
-            } else if (pinStream.value.length < maxPinSize) {
-              newPin.add(i);
-            }
-            onPinEntered(newPin);
-          },
+          onEnterNumber: pinBloc.update,
         ),
         nextButton
       ],
@@ -240,16 +225,14 @@ class YiviPinScreen extends StatelessWidget {
 }
 
 class PinScreenTest extends StatelessWidget {
-  late final _PinSizeBloc pinSizeBloc;
+  late final PinStateBloc pinBloc;
   final pinVisibilityBloc = _PinVisibilityBloc();
-
-  final pinStream = PinStream.seeded([]);
 
   final int maxPinSize;
   final VoidCallback? onTogglePinSize;
 
   PinScreenTest({required this.maxPinSize, this.onTogglePinSize}) {
-    pinSizeBloc = _PinSizeBloc(pinStream);
+    pinBloc = PinStateBloc(maxPinSize);
   }
 
   @override
@@ -257,13 +240,9 @@ class PinScreenTest extends StatelessWidget {
     return YiviPinScreen(
       instructionKey: 'pin.title',
       maxPinSize: maxPinSize,
-      onPinEntered: (pin) {
-        pinStream.sink.add(pin);
-      },
       onCompletePin: () => Navigator.pop(context),
-      pinSizeBloc: pinSizeBloc,
+      pinBloc: pinBloc,
       pinVisibilityBloc: pinVisibilityBloc,
-      pinStream: pinStream,
       onForgotPin: () => Navigator.pop(context),
       onTogglePinSize: onTogglePinSize,
     );

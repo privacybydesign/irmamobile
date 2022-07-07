@@ -2,24 +2,23 @@ part of pin;
 
 class _VisiblePinIndicator extends StatelessWidget {
   final int maxPinSize;
-  final PinStream pinStream;
+  final PinStateBloc pinBloc;
 
   const _VisiblePinIndicator({
     Key? key,
     required this.maxPinSize,
-    required this.pinStream,
+    required this.pinBloc,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<Pin>(
-      initialData: const [],
-      stream: pinStream,
-      builder: (context, snapshot) => _visiblePin(context, maxPinSize, snapshot.hasData ? snapshot.data ?? [] : []),
+    return BlocBuilder<PinStateBloc, PinState>(
+      bloc: pinBloc,
+      builder: (context, state) => _visiblePin(context, maxPinSize, state.pin),
     );
   }
 
-  Widget _visiblePin(BuildContext context, int maxPinSize, Pin data) {
+  Widget _visiblePin(BuildContext context, int maxPinSize, Pin pin) {
     final theme = IrmaTheme.of(context);
 
     final style = maxPinSize != _minPinSize
@@ -33,9 +32,9 @@ class _VisiblePinIndicator extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(
-        data.length,
+        pin.length,
         (i) => Text(
-          '${data[i]}',
+          '${pin[i]}',
           style: style,
         ),
       ),

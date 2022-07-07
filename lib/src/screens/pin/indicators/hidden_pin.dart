@@ -2,19 +2,19 @@ part of pin;
 
 class _HiddenPinIndicator extends StatelessWidget {
   final int maxPinSize;
-  final _PinSizeBloc pinSizeBloc;
+  final PinStateBloc pinBloc;
 
   const _HiddenPinIndicator({
     Key? key,
     required this.maxPinSize,
-    required this.pinSizeBloc,
+    required this.pinBloc,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<_PinSizeBloc, int>(
-      bloc: pinSizeBloc,
-      builder: (context, size) => _hiddenPin(context, maxPinSize, size),
+    return BlocBuilder<PinStateBloc, PinState>(
+      bloc: pinBloc,
+      builder: (context, state) => _hiddenPin(context, maxPinSize, state.pin.length),
     );
   }
 
