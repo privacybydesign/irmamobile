@@ -63,21 +63,24 @@ class YiviPinScreen extends StatelessWidget {
     this.checkSecurePin = false,
   }) : super(key: key);
 
-  Widget _visibilityButton(BuildContext context, IrmaThemeData theme, IconData icon, VoidCallback fn) => Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(100.0),
-        child: Ink(
-          width: 60.0.scale(context),
-          height: 60.scale(context),
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-          ),
-          child: InkWell(
-            onTap: fn,
-            child: Icon(
-              icon,
-              size: 24,
-              color: theme.pinIndicatorDarkBlue,
+  Widget _visibilityButton(BuildContext context, IrmaThemeData theme, IconData icon, VoidCallback fn) => ClipPath(
+        clipper: _PerfectCircleClip(),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(100.0),
+          child: Ink(
+            width: 60.0.scale(context),
+            height: 60.scale(context),
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+            ),
+            child: InkWell(
+              onTap: fn,
+              child: Icon(
+                icon,
+                size: 24,
+                color: theme.pinIndicatorDarkBlue,
+              ),
             ),
           ),
         ),
