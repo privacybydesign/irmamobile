@@ -52,7 +52,7 @@ class IrmaCard extends StatelessWidget {
         onTap: onTap,
         child: Container(
           //In this context the "margin" is set on the container padding.
-          padding: margin ?? EdgeInsets.all(theme.smallSpacing),
+          padding: margin ?? EdgeInsets.all(theme.defaultSpacing),
           decoration: style == IrmaCardStyle.template
               //Template styling
               ? DottedDecoration(

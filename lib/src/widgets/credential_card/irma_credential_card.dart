@@ -72,13 +72,7 @@ class IrmaCredentialCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return IrmaCard(
-      margin: EdgeInsets.symmetric(
-        vertical: theme.smallSpacing,
-        horizontal: theme.defaultSpacing,
-      ),
       style: style,
       onTap: onTap,
       child: Column(
