@@ -1,9 +1,4 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../../../util/secure_pin.dart';
-
-typedef Pin = List<int>;
-typedef PinQuality = Set<SecurePinAttribute>;
+part of pin;
 
 extension on PinQuality {
   void addSecurePinAttributeIfRuleFollowed(PinFn validator, SecurePinAttribute attr, Pin pin) {

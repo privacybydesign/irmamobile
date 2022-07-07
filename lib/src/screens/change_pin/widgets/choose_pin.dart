@@ -11,8 +11,7 @@ import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_text_button.dart';
 import 'package:irmamobile/src/widgets/pin_field.dart';
 
-import '../../pin/bloc/yivi_pin_bloc.dart';
-import '../../pin/secure_pin_bottom_sheet.dart';
+import '../../pin/yivi_pin_screen.dart';
 
 class ChoosePin extends StatelessWidget {
   static const String routeName = 'change_pin/choose_pin';

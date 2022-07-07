@@ -10,19 +10,23 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/util/scale.dart';
 
 import '../../theme/theme.dart';
+import '../../util/secure_pin.dart';
 import '../../widgets/link.dart';
-import 'bloc/yivi_pin_bloc.dart';
-import 'secure_pin_bottom_sheet.dart';
+import '../../widgets/yivi_bottom_sheet.dart';
 
 part 'bloc/pin_visibility.dart';
+part 'bloc/yivi_pin_bloc.dart';
 part 'circle_clip.dart';
 part 'indicators/hidden_pin.dart';
 part 'indicators/visible_pin.dart';
 part 'number_pad.dart';
+part 'secure_pin_bottom_sheet.dart';
 part 'yivi_secure_pin_screen.dart';
 
+typedef Pin = List<int>;
+typedef PinFn = bool Function(Pin);
+typedef PinQuality = Set<SecurePinAttribute>;
 typedef NumberFn = void Function(int);
-typedef PinFn = void Function(Pin);
 
 // TODO change to branch ux-2.0-yivi-style YiviThemeData default
 const defaultHorizontalPadding = EdgeInsets.symmetric(horizontal: 16.0);
