@@ -564,7 +564,8 @@
     "message_signed": "Message signed",
     "shared_with": "Shared with",
     "shared_data": "Shared data",
-    "received_data": "Received data"
+    "received_data": "Received data",
+    "deleted_data": "Deleted data"
   },
   "credential": {
     "no_data": "No data",

@@ -564,7 +564,8 @@
     "message_signed": "Bericht getekend",
     "shared_with": "Gedeeld met",
     "shared_data": "Gedeelde gegevens",
-    "received_data": "Ontvangen gegevens"
+    "received_data": "Ontvangen gegevens",
+    "deleted_data": "Verwijderde gegevens"
   },
   "credential": {
     "no_data": "Geen gegevens",
