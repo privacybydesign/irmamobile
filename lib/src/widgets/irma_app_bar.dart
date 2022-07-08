@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/translated_text.dart';
+
+import '../theme/theme.dart';
+import 'translated_text.dart';
 
 class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String titleTranslationKey;
@@ -24,8 +25,10 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
     return AppBar(
-      backgroundColor: IrmaTheme.of(context).themeData.colorScheme.background,
+      backgroundColor: theme.themeData.colorScheme.background,
       key: const Key('irma_app_bar'),
       centerTitle: true,
       leading: noLeading
@@ -35,30 +38,31 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
               child: CircleAvatar(
                 backgroundColor: Colors.grey.shade300,
                 child: IconButton(
-                    key: const Key('irma_app_bar_leading'),
-                    icon: leadingIcon ??
-                        Icon(
-                          Icons.arrow_back_ios_new,
-                          semanticLabel: FlutterI18n.translate(context, 'accessibility.back'),
-                          size: 16.0,
-                          color: Colors.grey.shade800,
-                        ),
-                    tooltip: leadingTooltip,
-                    onPressed: () {
-                      if (leadingCancel != null) {
-                        leadingCancel!();
-                      }
-                      if (leadingAction == null) {
-                        Navigator.of(context).pop();
-                      } else {
-                        leadingAction!();
-                      }
-                    }),
+                  key: const Key('irma_app_bar_leading'),
+                  icon: leadingIcon ??
+                      Icon(
+                        Icons.arrow_back_ios_new,
+                        semanticLabel: FlutterI18n.translate(context, 'accessibility.back'),
+                        size: 16.0,
+                        color: Colors.grey.shade800,
+                      ),
+                  tooltip: leadingTooltip,
+                  onPressed: () {
+                    if (leadingCancel != null) {
+                      leadingCancel!();
+                    }
+                    if (leadingAction == null) {
+                      Navigator.of(context).pop();
+                    } else {
+                      leadingAction!();
+                    }
+                  },
+                ),
               ),
             ),
       title: TranslatedText(
         titleTranslationKey,
-        style: IrmaTheme.of(context).textTheme.headline3,
+        style: theme.textTheme.headline3,
       ),
       actions: actions,
       automaticallyImplyLeading: false,
