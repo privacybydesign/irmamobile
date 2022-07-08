@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../theme/theme.dart';
 import '../../../../widgets/irma_bottom_bar.dart';
+import '../../../../widgets/translated_text.dart';
 import '../../widgets/session_scaffold.dart';
 import '../bloc/disclosure_permission_event.dart';
 import '../bloc/disclosure_permission_state.dart';
@@ -22,13 +23,32 @@ class DisclosurePermissionChangeChoiceScreen extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return SessionScaffold(
-      appBarTitle: 'disclosure_permission.overview.title',
+      appBarTitle: 'disclosure_permission.change_choice',
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
-        child: DisclosurePermissionChoice(
-          choice: state.discon,
-          selectedConIndex: state.selectedConIndex,
-          onChoiceUpdated: (int conIndex) => onEvent(DisclosurePermissionChoiceUpdated(conIndex: conIndex)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            DisclosurePermissionChoice(
+              choice: state.choosableCons,
+              selectedConIndex: state.selectedConIndex,
+              onChoiceUpdated: (int conIndex) => onEvent(DisclosurePermissionChoiceUpdated(conIndex: conIndex)),
+            ),
+            if (state.templateCons.isNotEmpty) ...[
+              Padding(
+                padding: EdgeInsets.all(theme.smallSpacing),
+                child: TranslatedText(
+                  'disclosure_permission.obtain_new',
+                  style: theme.themeData.textTheme.headline5,
+                ),
+              ),
+              DisclosurePermissionChoice(
+                choice: state.templateCons,
+                selectedConIndex: state.selectedConIndex,
+                onChoiceUpdated: (int conIndex) => onEvent(DisclosurePermissionChoiceUpdated(conIndex: conIndex)),
+              ),
+            ],
+          ],
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
