@@ -56,10 +56,10 @@ class IrmaStepper extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    return ListView.builder(
-      shrinkWrap: true,
-      itemCount: children.length,
-      itemBuilder: (_, index) => _buildItem(theme, index),
+    return Column(
+      children: [
+        for (int i = 0; i < children.length; i++) _buildItem(theme, i),
+      ],
     );
   }
 }
