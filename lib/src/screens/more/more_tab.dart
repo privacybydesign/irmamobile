@@ -32,7 +32,7 @@ class MoreTab extends StatelessWidget {
         ),
         Expanded(
           child: ListView(
-            padding: EdgeInsets.zero,
+            padding: EdgeInsets.only(bottom: theme.defaultSpacing),
             shrinkWrap: true,
             children: [
               _buildHeaderText('more_tab.app_management'),
