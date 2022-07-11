@@ -97,9 +97,9 @@ class UnsecurePinWarningTextButton extends StatelessWidget {
           ),
         ],
       ),
-      const SizedBox(
-        height: 12,
-      ),
+      // const SizedBox(
+      //   height: 12,
+      // ),
       Text(
         FlutterI18n.translate(context, 'secure_pin.subtitle'),
         style: theme.textTheme.headline5?.copyWith(

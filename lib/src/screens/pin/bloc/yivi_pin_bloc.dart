@@ -54,9 +54,16 @@ class PinState {
 
 class PinStateBloc extends Bloc<Pin, PinState> {
   final int maxPinSize;
-  static Pin _lastPin = PinState.empty.pin;
+  Pin _lastPin = PinState.empty.pin;
 
   PinStateBloc(this.maxPinSize) : super(PinState.empty);
+
+  @override
+  void add(Pin p) {
+    /// For some reason the stream survives widget changes
+    /// even when you have separate bloc instances
+    super.add(p.length > maxPinSize ? p.sublist(0, maxPinSize) : p);
+  }
 
   void update(int i) {
     if (_lastPin.isNotEmpty && i < 0) {
@@ -68,9 +75,13 @@ class PinStateBloc extends Bloc<Pin, PinState> {
     }
   }
 
+  void clear() {
+    add(PinState.empty.pin);
+  }
+
   @override
   Future<void> close() {
-    _lastPin = PinState.empty.pin;
+    clear();
     return super.close();
   }
 
@@ -78,6 +89,10 @@ class PinStateBloc extends Bloc<Pin, PinState> {
   Stream<PinState> mapEventToState(Pin pin) async* {
     final set = <SecurePinAttribute>{};
     _lastPin = pin;
+
+    if (kDebugMode) {
+      print('max pin size: $maxPinSize, pin size: ${pin.length}}');
+    }
 
     if (pin.length < 5) {
       yield PinState(pin, set);

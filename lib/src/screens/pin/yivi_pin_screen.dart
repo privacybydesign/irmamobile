@@ -17,10 +17,9 @@ import '../../widgets/yivi_bottom_sheet.dart';
 part 'bloc/pin_visibility.dart';
 part 'bloc/yivi_pin_bloc.dart';
 part 'circle_clip.dart';
-part 'indicators/hidden_pin.dart';
-part 'indicators/visible_pin.dart';
 part 'number_pad.dart';
 part 'secure_pin_bottom_sheet.dart';
+part 'yivi_pin_indicator.dart';
 part 'yivi_secure_pin_screen.dart';
 
 typedef Pin = List<int>;
@@ -33,13 +32,11 @@ const defaultHorizontalPadding = EdgeInsets.symmetric(horizontal: 16.0);
 
 int _minPinSize = 5;
 
-Widget _resize(double edgeSize, Widget widget) {
-  return SizedBox(
-    width: edgeSize,
-    height: edgeSize,
-    child: widget,
-  );
-}
+Widget _resizeBox(Widget widget, double edge) => SizedBox(
+      width: edge,
+      height: edge,
+      child: widget,
+    );
 
 class YiviPinScreen extends StatelessWidget {
   final int maxPinSize;
@@ -106,9 +103,7 @@ class YiviPinScreen extends StatelessWidget {
             context, theme, visible ? Icons.visibility_off : Icons.visibility, () => pinVisibilityBloc.add(!visible)),
       );
 
-  Widget _securePinTextButton() => UnsecurePinWarningTextButton(
-        bloc: pinBloc,
-      );
+  Widget _securePinTextButton() => UnsecurePinWarningTextButton(bloc: pinBloc);
 
   @override
   Widget build(BuildContext context) {
@@ -124,34 +119,26 @@ class YiviPinScreen extends StatelessWidget {
       style: theme.textTheme.headline3?.copyWith(fontWeight: FontWeight.w700),
     );
 
-    final pinDots = BlocBuilder<_PinVisibilityBloc, bool>(
-      bloc: pinVisibilityBloc,
-      builder: (context, visible) => AnimatedSwitcher(
-        duration: const Duration(seconds: 1),
-        child: Container(
-          margin: EdgeInsets.symmetric(horizontal: 65.scale(context)),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            border: maxPinSize == _minPinSize
-                ? null
-                : Border(
-                    bottom: BorderSide(color: theme.darkPurple),
-                  ),
-          ),
-          child: visible
-              ? _VisiblePinIndicator(
-                  maxPinSize: maxPinSize,
-                  pinBloc: pinBloc,
-                )
-              : _HiddenPinIndicator(
-                  maxPinSize: maxPinSize,
-                  pinBloc: pinBloc,
-                ),
-        ),
-      ),
+    final pinDots = BlocBuilder<PinStateBloc, PinState>(
+      bloc: pinBloc,
+      builder: (context, state) =>
+          _PinIndicator(maxPinSize: maxPinSize, visibilityBloc: pinVisibilityBloc, pinState: state),
     );
 
-    final _togglePinSizeCopy =
+    final pinDotsUnderlined = Container(
+      margin: EdgeInsets.symmetric(horizontal: 65.scale(context)),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        border: maxPinSize == _minPinSize
+            ? null
+            : Border(
+                bottom: BorderSide(color: theme.darkPurple),
+              ),
+      ),
+      child: pinDots,
+    );
+
+    final togglePinSizeCopy =
         maxPinSize > _minPinSize ? 'change_pin.choose_pin.switch_short' : 'change_pin.choose_pin.switch_long';
 
     final nextButton = BlocBuilder<PinStateBloc, PinState>(
@@ -181,7 +168,7 @@ class YiviPinScreen extends StatelessWidget {
               Stack(
                 alignment: Alignment.center,
                 children: [
-                  pinDots,
+                  pinDotsUnderlined,
                   Align(
                     alignment: Alignment.centerRight,
                     child: _pinVisibility(context, theme, pinVisibilityBloc),
@@ -197,8 +184,8 @@ class YiviPinScreen extends StatelessWidget {
               if (onTogglePinSize != null)
                 Center(
                   child: Link(
-                    onTap: onTogglePinSize!,
-                    label: FlutterI18n.translate(context, _togglePinSizeCopy),
+                    onTap: onTogglePinSize,
+                    label: FlutterI18n.translate(context, togglePinSizeCopy),
                   ),
                 ),
               if (onForgotPin != null)
@@ -231,27 +218,36 @@ class YiviPinScreen extends StatelessWidget {
   }
 }
 
-class PinScreenTest extends StatelessWidget {
-  late final PinStateBloc pinBloc;
-  final pinVisibilityBloc = _PinVisibilityBloc();
-
+class PinScreenTest extends StatefulWidget {
   final int maxPinSize;
   final VoidCallback? onTogglePinSize;
+  final PinStateBloc pinBloc;
 
-  PinScreenTest({required this.maxPinSize, this.onTogglePinSize}) {
-    pinBloc = PinStateBloc(maxPinSize);
+  const PinScreenTest({required this.maxPinSize, this.onTogglePinSize, required this.pinBloc});
+
+  @override
+  State<StatefulWidget> createState() => _PinScreen();
+}
+
+class _PinScreen extends State<PinScreenTest> {
+  final pinVisibilityBloc = _PinVisibilityBloc();
+
+  @override
+  void dispose() {
+    widget.pinBloc.clear();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return YiviPinScreen(
       instructionKey: 'pin.title',
-      maxPinSize: maxPinSize,
+      maxPinSize: widget.maxPinSize,
       onCompletePin: () => Navigator.pop(context),
-      pinBloc: pinBloc,
+      pinBloc: widget.pinBloc,
       pinVisibilityBloc: pinVisibilityBloc,
       onForgotPin: () => Navigator.pop(context),
-      onTogglePinSize: onTogglePinSize,
+      onTogglePinSize: widget.onTogglePinSize,
     );
   }
 }

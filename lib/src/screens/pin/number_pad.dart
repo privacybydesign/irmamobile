@@ -84,7 +84,7 @@ class _NumberPad extends StatelessWidget {
         children: keys
             .map((widget) => SizedBox(
                   width: keyEdgeSize,
-                  child: _resize(80.scale(context), widget),
+                  child: _resizeBox(widget, 80.scale(context)),
                 ))
             .toList(),
       ),

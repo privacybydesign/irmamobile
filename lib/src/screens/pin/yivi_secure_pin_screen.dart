@@ -3,7 +3,7 @@ part of pin;
 class SecurePinScreenTest extends StatelessWidget {
   final int maxPinSize;
 
-  late final PinStateBloc pinBloc;
+  final PinStateBloc pinBloc;
   final pinVisibilityBloc = _PinVisibilityBloc();
   final String instructionKey;
 
@@ -14,9 +14,8 @@ class SecurePinScreenTest extends StatelessWidget {
     required this.maxPinSize,
     required this.onTogglePinSize,
     required this.instructionKey,
-  }) : super(key: key) {
-    pinBloc = PinStateBloc(maxPinSize);
-  }
+    required this.pinBloc,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
