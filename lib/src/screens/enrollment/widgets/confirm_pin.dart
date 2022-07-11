@@ -19,10 +19,7 @@ class ConfirmPin extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: IrmaAppBar(
-        title: Text(
-          FlutterI18n.translate(context, 'enrollment.choose_pin.title'),
-          key: const Key('enrollment_confirm_pin_title'),
-        ),
+        titleTranslationKey: 'enrollment.choose_pin.title',
         leadingAction: () => cancelAndNavigate(context),
         leadingTooltip: MaterialLocalizations.of(context).backButtonTooltip,
       ),

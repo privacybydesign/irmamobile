@@ -36,7 +36,7 @@ class IrmaCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final borderRadius = BorderRadius.circular(15.0);
+    final borderRadius = BorderRadius.circular(4);
     final shadow = [
       BoxShadow(
         color: Colors.grey.shade300,
@@ -52,7 +52,7 @@ class IrmaCard extends StatelessWidget {
         onTap: onTap,
         child: Container(
           //In this context the "margin" is set on the container padding.
-          padding: margin ?? EdgeInsets.all(theme.smallSpacing),
+          padding: margin ?? EdgeInsets.all(theme.defaultSpacing),
           decoration: style == IrmaCardStyle.template
               //Template styling
               ? DottedDecoration(
@@ -65,10 +65,10 @@ class IrmaCard extends StatelessWidget {
                   ? BoxDecoration(
                       borderRadius: borderRadius,
                       border: Border.all(
-                        color: theme.themeData.primaryColor,
+                        color: theme.themeData.colorScheme.secondary,
                         width: 2,
                       ),
-                      color: style == IrmaCardStyle.highlighted ? theme.lightBlue : Colors.white,
+                      color: style == IrmaCardStyle.highlighted ? theme.surfaceSecondary : Colors.white,
                       boxShadow: shadow)
                   //Normal styling
                   : BoxDecoration(

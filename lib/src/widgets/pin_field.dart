@@ -288,7 +288,7 @@ class _PinFieldState extends State<PinField> {
                   iconSize: theme.defaultSpacing,
                   icon: Icon(
                     obscureText ? IrmaIcons.view : IrmaIcons.hide,
-                    color: theme.grayscale40,
+                    color: Colors.grey.shade300,
                   ),
                   onPressed: () {
                     setState(() {

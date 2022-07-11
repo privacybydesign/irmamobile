@@ -22,13 +22,14 @@ class IrmaCredentialCardHeader extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CircleAvatar(
           backgroundColor: Colors.grey.shade100,
-          radius: 18,
+          radius: 20,
           child: logo != null && logo != ''
               ? SizedBox(
-                  height: 24,
+                  height: 26,
                   child: Image.file(
                     File(logo!),
                     excludeFromSemantics: true,
@@ -37,7 +38,7 @@ class IrmaCredentialCardHeader extends StatelessWidget {
               : Container(),
         ),
         SizedBox(
-          width: IrmaTheme.of(context).smallSpacing,
+          width: theme.smallSpacing,
         ),
         Expanded(
           child: Column(
@@ -50,7 +51,9 @@ class IrmaCredentialCardHeader extends StatelessWidget {
               Text(
                 subtitle ?? '',
                 overflow: TextOverflow.ellipsis,
-                style: theme.themeData.textTheme.caption,
+                style: theme.themeData.textTheme.caption!.copyWith(
+                  color: theme.neutralDark,
+                ),
               )
             ],
           ),

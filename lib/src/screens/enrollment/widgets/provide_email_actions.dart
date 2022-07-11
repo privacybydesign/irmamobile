@@ -28,7 +28,7 @@ class ProvideEmailActions extends StatelessWidget {
         child: Container(
           width: MediaQuery.of(context).size.width,
           padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
-          color: IrmaTheme.of(context).backgroundBlue,
+          color: IrmaTheme.of(context).background,
           child: Row(
             children: <Widget>[
               Expanded(

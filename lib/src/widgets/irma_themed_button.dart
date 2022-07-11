@@ -36,9 +36,11 @@ class IrmaThemedButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = Text(
       FlutterI18n.translate(context, label),
-      style: textStyle ?? IrmaTheme.of(context).textTheme.button,
+      style: textStyle ??
+          IrmaTheme.of(context).textTheme.button!.copyWith(
+                color: isSecondary ? color : Colors.white,
+              ),
     );
-
     final fixedHeight = size != null ? size!.value : IrmaButtonSize.medium.value;
 
     return GestureDetector(
@@ -51,7 +53,6 @@ class IrmaThemedButton extends StatelessWidget {
           elevation: 0.0,
           primary: isSecondary ? Colors.white : color,
           onPrimary: textColor ?? (isSecondary ? color : Colors.white),
-          onSurface: disabledColor ?? IrmaTheme.of(context).disabled,
           shape: shape,
           padding: const EdgeInsets.symmetric(
             vertical: 10.0,

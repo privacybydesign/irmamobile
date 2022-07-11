@@ -2,7 +2,6 @@
 // @dart=2.11
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
@@ -19,9 +18,7 @@ class ValidatingPin extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: IrmaAppBar(
-          title: Text(
-            FlutterI18n.translate(context, 'change_pin.confirm_pin.title'),
-          ),
+          titleTranslationKey: 'change_pin.confirm_pin.title',
           leadingAction: () async {
             if (cancel != null) {
               cancel();

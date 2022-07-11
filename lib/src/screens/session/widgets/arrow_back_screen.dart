@@ -137,7 +137,7 @@ class Arrow extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint();
 
-    paint.color = IrmaTheme.of(context).primaryBlue;
+    paint.color = IrmaTheme.of(context).secondary;
     paint.style = PaintingStyle.stroke;
     paint.strokeWidth = 3;
     paint.strokeCap = StrokeCap.round;

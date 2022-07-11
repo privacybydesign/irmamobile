@@ -49,10 +49,7 @@ class _ProvideEmailState extends State<ProvideEmail> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: IrmaAppBar(
-        title: Text(
-          FlutterI18n.translate(context, 'enrollment.provide_email.title'),
-          key: const Key('enrollment_provide_email_title'),
-        ),
+        titleTranslationKey: 'enrollment.provide_email.title',
         leadingAction: () => widget.cancelAndNavigate(context),
         leadingTooltip: MaterialLocalizations.of(context).backButtonTooltip,
       ),

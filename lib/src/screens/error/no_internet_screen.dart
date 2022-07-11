@@ -22,17 +22,12 @@ class NoInternetScreen extends StatelessWidget {
       },
       child: Scaffold(
         appBar: IrmaAppBar(
-          title: Text(
-            FlutterI18n.translate(
-              context,
-              'error.details_title',
-            ),
-          ),
+          titleTranslationKey: 'error.details_title',
           leadingAction: onTapClose,
         ),
         body: IrmaInfoScaffoldBody(
           icon: Icons.wifi_off_rounded,
-          iconColor: IrmaTheme.of(context).primaryBlue,
+          iconColor: IrmaTheme.of(context).secondary,
           titleTranslationKey: 'error.title',
           bodyTranslationKey: 'error.types.no_internet',
         ),

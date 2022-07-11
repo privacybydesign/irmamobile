@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/widgets/irma_button.dart';
-import 'package:irmamobile/src/widgets/irma_dialog.dart';
-import 'package:irmamobile/src/widgets/irma_themed_button.dart';
-import 'package:irmamobile/src/widgets/translated_text.dart';
 import 'package:share/share.dart';
+
 import '../../../data/irma_repository.dart';
 import '../../../sentry/sentry.dart';
 import '../../../theme/theme.dart';
+import '../../../widgets/irma_button.dart';
+import '../../../widgets/irma_dialog.dart';
+import '../../../widgets/irma_themed_button.dart';
+import '../../../widgets/translated_text.dart';
 
 class Link extends StatelessWidget {
   final IconData? iconData;
@@ -15,12 +16,21 @@ class Link extends StatelessWidget {
   final Function()? onTap;
   final TextStyle? style;
   final TextAlign? textAlign;
+  final EdgeInsetsGeometry? padding;
 
-  const Link({required this.translationKey, this.iconData, this.onTap, this.style, this.textAlign});
+  const Link({
+    required this.translationKey,
+    this.iconData,
+    this.onTap,
+    this.style,
+    this.textAlign,
+    this.padding,
+  });
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      contentPadding: padding,
       onTap: onTap,
       title: TranslatedText(
         translationKey,
@@ -28,7 +38,7 @@ class Link extends StatelessWidget {
         style: style ?? IrmaTheme.of(context).textTheme.bodyText2!.copyWith(decoration: TextDecoration.underline),
       ),
       leading: iconData != null
-          ? Icon(iconData, size: 30, color: IrmaTheme.of(context).themeData.colorScheme.primary)
+          ? Icon(iconData, size: 30, color: IrmaTheme.of(context).themeData.colorScheme.secondary)
           : null,
     );
   }
@@ -123,12 +133,20 @@ class ContactLink extends StatelessWidget {
   final String translationKey;
   final TextStyle? style;
   final TextAlign? textAlign;
+  final bool hasPadding;
 
-  const ContactLink({this.iconData, required this.translationKey, this.style, this.textAlign});
+  const ContactLink({
+    this.iconData,
+    required this.translationKey,
+    this.style,
+    this.textAlign,
+    this.hasPadding = true,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Link(
+      padding: hasPadding ? null : EdgeInsets.zero, //If has padding use default ListTile padding.
       translationKey: translationKey,
       iconData: iconData,
       style: style,

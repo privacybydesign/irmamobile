@@ -25,13 +25,13 @@ class PinBox extends StatelessWidget {
 
   Color getBorderColor(IrmaThemeData theme) {
     if (filled) {
-      return theme.grayscale40; // filled boxes
+      return Colors.grey.shade300; // filled boxes
     } else if (highlightBorder) {
       // the box that is currently highlighted
-      return theme.primaryBlue;
+      return theme.secondary;
     } else {
       // empty boxes that are not highlighted
-      return theme.grayscale60;
+      return Colors.grey;
     }
   }
 
@@ -50,13 +50,13 @@ class PinBox extends StatelessWidget {
             color: getBorderColor(theme),
             width: highlightBorder ? 2 : 1,
           ),
-          color: disabled ? theme.disabled : theme.grayscaleWhite),
+          color: disabled ? Colors.grey : Colors.white),
       child: Text(
         char,
         style: Theme.of(context).textTheme.headline3?.copyWith(
               fontSize: height / 2 + 4,
               height: 22.0 / 18.0,
-              color: completed ? theme.primaryBlue : theme.grayscale40,
+              color: completed ? theme.secondary : Colors.grey,
             ),
       ),
     );

@@ -7,7 +7,7 @@ import '../../../../widgets/irma_bottom_bar.dart';
 import '../../../../widgets/irma_progress_indicator.dart';
 import '../../../../widgets/irma_quote.dart';
 import '../../../../widgets/translated_text.dart';
-import '../../../activity/widgets/issuer_verifier_header.dart';
+import '../../../../widgets/issuer_verifier_header.dart';
 import '../../widgets/session_scaffold.dart';
 import '../bloc/disclosure_permission_event.dart';
 import '../bloc/disclosure_permission_state.dart';
@@ -64,14 +64,13 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              color: theme.lightBeige,
             ),
-            SizedBox(height: theme.defaultSpacing),
+            SizedBox(height: theme.largeSpacing),
             TranslatedText(
               'disclosure_permission.issue_wizard.header_${state.isCompleted ? 'complete' : 'incomplete'}',
-              style: theme.themeData.textTheme.headline3,
+              style: theme.themeData.textTheme.headline4,
             ),
-            SizedBox(height: theme.defaultSpacing),
+            SizedBox(height: theme.mediumSpacing),
             DisclosureDisconStepper(
               currentCandidateKey: state.currentDiscon?.key,
               candidates: state.candidates,

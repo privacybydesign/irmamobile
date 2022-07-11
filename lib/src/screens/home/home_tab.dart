@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../theme/irma_icons.dart';
 import '../../theme/theme.dart';
@@ -47,7 +48,7 @@ class HomeTab extends StatelessWidget {
             subtitleKey: 'home_tab.action_card.share.subtitle',
             onTap: () => Navigator.of(context).pushNamed(ScannerScreen.routeName),
             icon: IrmaIcons.scanQrcode,
-            color: theme.themeData.colorScheme.secondary,
+            color: theme.themeData.colorScheme.primary,
           ),
           SizedBox(height: theme.defaultSpacing),
           IrmaActionCard(
@@ -55,7 +56,7 @@ class HomeTab extends StatelessWidget {
             subtitleKey: 'home_tab.action_card.fetch.subtitle',
             onTap: () => Navigator.of(context).pushNamed(AddDataScreen.routeName),
             icon: Icons.add_circle_outline,
-            color: theme.themeData.colorScheme.secondary,
+            color: theme.themeData.colorScheme.primary,
             invertColors: true,
           ),
           SizedBox(height: theme.largeSpacing),
@@ -70,10 +71,7 @@ class HomeTab extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: () => onChangeTab(IrmaNavBarTab.activity),
-                child: TranslatedText(
-                  'home_tab.view_more',
-                  style: theme.textTheme.caption!.copyWith(fontWeight: FontWeight.bold, color: Colors.blue),
-                ),
+                child: TranslatedText('home_tab.view_more', style: theme.hyperlinkTextStyle),
               )
             ],
           ),
@@ -97,7 +95,7 @@ class HomeTab extends StatelessWidget {
           IrmaInfoCard(
             titleKey: 'home_tab.info_card.about.title',
             bodyKey: 'home_tab.info_card.about.body',
-            avatar: Image.asset('assets/non-free/irmalogo.png'),
+            avatar: SvgPicture.asset('assets/non-free/logo.svg'),
             linkKey: 'home_tab.info_card.about.link',
           )
         ],

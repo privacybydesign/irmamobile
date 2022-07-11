@@ -8,7 +8,7 @@ import '../../../../widgets/irma_bottom_bar.dart';
 import '../../../../widgets/irma_progress_indicator.dart';
 import '../../../../widgets/irma_quote.dart';
 import '../../../../widgets/translated_text.dart';
-import '../../../activity/widgets/issuer_verifier_header.dart';
+import '../../../../widgets/issuer_verifier_header.dart';
 import '../../widgets/session_scaffold.dart';
 import '../bloc/disclosure_permission_event.dart';
 import '../bloc/disclosure_permission_state.dart';
@@ -87,14 +87,13 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              color: theme.lightBeige,
             ),
             SizedBox(height: theme.defaultSpacing),
             TranslatedText(
               state is DisclosurePermissionPreviouslyAddedCredentialsOverview
                   ? 'disclosure_permission.previously_added.header'
                   : 'disclosure_permission.overview.header',
-              style: theme.themeData.textTheme.headline3,
+              style: theme.themeData.textTheme.headline4,
             ),
             SizedBox(height: theme.smallSpacing),
             ...state.choices.entries.map(
@@ -103,16 +102,24 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      GestureDetector(
-                        onTap: () => onEvent(DisclosurePermissionChangeChoicePressed(disconIndex: choiceEntry.key)),
-                        child: TranslatedText(
-                          'disclosure_permission.change_choice',
-                          style: theme.textTheme.caption!.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue,
-                          ),
-                        ),
-                      )
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          GestureDetector(
+                            onTap: () => onEvent(DisclosurePermissionChangeChoicePressed(disconIndex: choiceEntry.key)),
+                            child: TranslatedText(
+                              'disclosure_permission.change_choice',
+                              style: theme.hyperlinkTextStyle,
+                            ),
+                          )
+                        ],
+                      ),
+                      SizedBox(height: theme.smallSpacing),
+                      for (var credential in choiceEntry.value)
+                        IrmaCredentialCard(
+                          credentialInfo: credential,
+                          attributes: credential.attributes,
+                        )
                     ],
                   ),
                   SizedBox(height: theme.smallSpacing),

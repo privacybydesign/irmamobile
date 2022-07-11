@@ -14,14 +14,14 @@ class QRInstruction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var screen = 'instruction';
-    var color = IrmaTheme.of(context).themeData.colorScheme.primary;
+    var color = IrmaTheme.of(context).themeData.colorScheme.secondary;
 
     if (error) {
       screen = 'error';
-      color = IrmaTheme.of(context).overlayInvalid;
+      color = IrmaTheme.of(context).error;
     } else if (found) {
       screen = 'success';
-      color = IrmaTheme.of(context).overlayValid;
+      color = IrmaTheme.of(context).success;
     }
 
     return Center(

@@ -47,7 +47,7 @@ class IssuancePermission extends StatelessWidget {
         Padding(
           padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
           child: Container(
-            color: theme.lightBlue,
+            color: theme.surfaceSecondary,
             padding: EdgeInsets.all(theme.defaultSpacing),
             child: TranslatedText(
               'issuance.description',
