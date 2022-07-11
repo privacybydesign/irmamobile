@@ -41,10 +41,8 @@ class _SubmitState extends State<Submit> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: IrmaAppBar(
-        title: Text(
-          FlutterI18n.translate(context, 'enrollment.submit.title'),
-        ),
+      appBar: const IrmaAppBar(
+        titleTranslationKey: 'enrollment.submit.title',
         noLeading: true,
       ),
       body: BlocListener<EnrollmentBloc, EnrollmentState>(

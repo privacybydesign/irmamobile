@@ -2,12 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:intl/intl.dart';
 
 import '../../../models/credentials.dart';
 import '../../../models/irma_configuration.dart';
 import '../../../models/log_entry.dart';
 import '../../../theme/theme.dart';
-import '../../../util/date_formatter.dart';
 import '../../../widgets/irma_card.dart';
 import '../../../widgets/translated_text.dart';
 import '../activity_detail_screen.dart';
@@ -83,17 +83,21 @@ class ActivityCard extends StatelessWidget {
         children: [
           Flexible(
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  margin: EdgeInsets.symmetric(horizontal: theme.tinySpacing),
+                  margin: EdgeInsets.only(
+                    right: theme.smallSpacing,
+                    top: theme.smallSpacing,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.grey.shade100,
                     shape: BoxShape.circle,
                   ),
                   child: Container(
                     padding: EdgeInsets.all(theme.smallSpacing),
-                    height: 48,
-                    width: 48,
+                    height: 56,
+                    width: 56,
                     child: logoFile.existsSync()
                         ? SizedBox(height: 24, child: Image.file(logoFile, excludeFromSemantics: true))
                         : null,
@@ -101,19 +105,20 @@ class ActivityCard extends StatelessWidget {
                 ),
                 Flexible(
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      TranslatedText(
+                        'credential.date_at_time',
+                        translationParams: {
+                          'date': DateFormat.yMMMMd(lang).format(logEntry.time),
+                          'time': DateFormat.jm(lang).format(logEntry.time),
+                        },
+                        style: theme.themeData.textTheme.caption!.copyWith(color: theme.neutral),
+                      ),
                       Text(
                         title,
                         overflow: TextOverflow.ellipsis,
-                        style: theme.themeData.textTheme.caption!.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        formatDate(logEntry.time, lang),
-                        style: theme.themeData.textTheme.bodyText2!.copyWith(fontSize: 12),
+                        style: theme.themeData.textTheme.caption!.copyWith(fontWeight: FontWeight.bold),
                       ),
                       TranslatedText(
                         subtitleTranslationKey,

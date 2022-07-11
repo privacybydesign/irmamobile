@@ -39,41 +39,47 @@ class IrmaInfoCard extends StatelessWidget {
     return IrmaCard(
       onTap: () => _tryLaunchLink(context),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: theme.tinySpacing),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              shape: BoxShape.circle,
-            ),
-            child: Container(
-              padding: EdgeInsets.all(theme.smallSpacing),
-              height: 62,
-              width: 62,
-              child: avatar,
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.all(theme.smallSpacing),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TranslatedText(
-                    titleKey,
-                    style: theme.themeData.textTheme.caption!.copyWith(fontWeight: FontWeight.bold),
+          Flexible(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  margin: EdgeInsets.only(
+                    right: theme.smallSpacing,
+                    top: theme.smallSpacing,
                   ),
-                  SizedBox(height: theme.smallSpacing),
-                  Flexible(
-                    child: TranslatedText(
-                      bodyKey,
-                      style: theme.themeData.textTheme.caption,
-                    ),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    shape: BoxShape.circle,
                   ),
-                ],
-              ),
+                  child: Container(
+                    padding: EdgeInsets.all(theme.smallSpacing),
+                    height: 62,
+                    width: 62,
+                    child: avatar,
+                  ),
+                ),
+                Flexible(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TranslatedText(
+                        titleKey,
+                        style: theme.themeData.textTheme.caption!.copyWith(fontWeight: FontWeight.bold),
+                      ),
+                      Flexible(
+                        child: TranslatedText(
+                          bodyKey,
+                          style: theme.themeData.textTheme.caption,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
           Icon(

@@ -61,7 +61,7 @@ class DisclosurePermissionChoice extends StatelessWidget {
                                 value: i,
                                 groupValue: selectedConIndex,
                                 onChanged: null, //We use the onTap wrapping GestureDetector
-                                fillColor: MaterialStateColor.resolveWith((states) => theme.themeData.primaryColor),
+                                fillColor: MaterialStateColor.resolveWith((_) => theme.themeData.colorScheme.secondary),
                               )
                             : null,
                         style: isActive

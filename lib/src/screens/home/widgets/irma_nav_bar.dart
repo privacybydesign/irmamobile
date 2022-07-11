@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/screens/home/widgets/irma_nav_button.dart';
 import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/translated_text.dart';
 
-enum IrmaNavBarTab { home, data, activity, more }
+enum IrmaNavBarTab {
+  home,
+  data,
+  activity,
+  more,
+}
 
 class IrmaNavBar extends StatelessWidget {
   final Function(IrmaNavBarTab tab) onChangeTab;
   final IrmaNavBarTab selectedTab;
 
-  const IrmaNavBar({Key? key, required this.onChangeTab, this.selectedTab = IrmaNavBarTab.home}) : super(key: key);
+  const IrmaNavBar({
+    Key? key,
+    required this.onChangeTab,
+    this.selectedTab = IrmaNavBarTab.home,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -44,27 +52,30 @@ class IrmaNavBar extends StatelessWidget {
             isSelected: IrmaNavBarTab.home == selectedTab,
           ),
           IrmaNavButton(
-              key: const Key('nav_button_data'),
-              iconData: Icons.folder_shared,
-              tab: IrmaNavBarTab.data,
-              changeTab: onChangeTab,
-              isSelected: IrmaNavBarTab.data == selectedTab),
+            key: const Key('nav_button_data'),
+            iconData: Icons.folder_shared,
+            tab: IrmaNavBarTab.data,
+            changeTab: onChangeTab,
+            isSelected: IrmaNavBarTab.data == selectedTab,
+          ),
           // Spacing for the QR scan button
           const SizedBox(
             width: 90,
           ),
           IrmaNavButton(
-              key: const Key('nav_button_activity'),
-              iconData: Icons.history,
-              tab: IrmaNavBarTab.activity,
-              changeTab: onChangeTab,
-              isSelected: IrmaNavBarTab.activity == selectedTab),
+            key: const Key('nav_button_activity'),
+            iconData: Icons.history,
+            tab: IrmaNavBarTab.activity,
+            changeTab: onChangeTab,
+            isSelected: IrmaNavBarTab.activity == selectedTab,
+          ),
           IrmaNavButton(
-              key: const Key('nav_button_more'),
-              iconData: Icons.more_horiz,
-              tab: IrmaNavBarTab.more,
-              changeTab: onChangeTab,
-              isSelected: IrmaNavBarTab.more == selectedTab)
+            key: const Key('nav_button_more'),
+            iconData: Icons.more_horiz,
+            tab: IrmaNavBarTab.more,
+            changeTab: onChangeTab,
+            isSelected: IrmaNavBarTab.more == selectedTab,
+          )
         ],
       ),
     );

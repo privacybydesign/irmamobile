@@ -154,7 +154,7 @@ class _DebugScreenState extends State<DebugScreen> {
 
     return Scaffold(
       appBar: IrmaAppBar(
-        title: const Text('Debugger'),
+        titleTranslationKey: 'Debugger',
         leadingAction: () => _onClose(context),
         leadingIcon: Icon(Icons.arrow_back, semanticLabel: FlutterI18n.translate(context, 'accessibility.back')),
         actions: <Widget>[

@@ -78,6 +78,7 @@ class _CollapsibleState extends State<Collapsible> {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(8),
       child: ConfigurableExpansionTile(
@@ -96,23 +97,27 @@ class _CollapsibleState extends State<Collapsible> {
                 : FlutterI18n.translate(context, 'accessibility.collapsed'),
             child: Padding(
               padding: EdgeInsets.only(
-                  top: IrmaTheme.of(context).tinySpacing * 3,
-                  bottom: IrmaTheme.of(context).tinySpacing * 3,
-                  left: IrmaTheme.of(context).defaultSpacing,
-                  right: IrmaTheme.of(context).defaultSpacing),
+                  top: theme.tinySpacing * 3,
+                  bottom: theme.tinySpacing * 3,
+                  left: theme.defaultSpacing,
+                  right: theme.defaultSpacing),
               child: Text(
                 widget.header,
-                style: IrmaTheme.of(context).textTheme.bodyText1,
+                style: theme.textTheme.headline5!.copyWith(
+                  color: theme.neutralDark,
+                ),
               ),
             ),
           ),
         ),
-        headerBackgroundColorStart: theme.lightBlue,
-        expandedBackgroundColor: theme.lightBlue,
-        children: <Widget>[
+        headerBackgroundColorStart: theme.surfaceSecondary,
+        expandedBackgroundColor: theme.surfaceSecondary,
+        children: [
           Padding(
-            padding:
-                EdgeInsets.symmetric(vertical: IrmaTheme.of(context).smallSpacing, horizontal: theme.defaultSpacing),
+            padding: EdgeInsets.symmetric(
+              vertical: theme.smallSpacing,
+              horizontal: theme.defaultSpacing,
+            ),
             child: widget.content,
           ),
         ],

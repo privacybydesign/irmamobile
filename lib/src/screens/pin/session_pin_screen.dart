@@ -187,7 +187,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
                         ),
                         Icon(
                           IrmaIcons.duration,
-                          color: IrmaTheme.of(context).primaryDark,
+                          color: IrmaTheme.of(context).dark,
                           size: 32,
                         ),
                         SizedBox(
@@ -215,9 +215,8 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
 
   PreferredSizeWidget _buildAppBar() {
     return IrmaAppBar(
-      title: Text(
-        widget.title,
-      ),
+      titleTranslationKey: widget.title,
+
       // Parent widget is responsible for popping this widget, so do a leadingAction instead of a leadingCancel.
       leadingAction: () {
         _cancel();

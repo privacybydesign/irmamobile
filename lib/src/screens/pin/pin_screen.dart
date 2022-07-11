@@ -131,7 +131,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
         }
 
         return Scaffold(
-          backgroundColor: IrmaTheme.of(context).backgroundBlue,
+          backgroundColor: IrmaTheme.of(context).background,
           appBar: _buildAppBar(),
           body: StreamBuilder(
             stream: _pinBloc.getPinBlockedFor(),
@@ -148,20 +148,15 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                     key: const Key('pin_screen'),
                     children: <Widget>[
                       SizedBox(
-                        height: IrmaTheme.of(context).largeSpacing,
-                      ),
-                      SizedBox(
-                        width: 76.0,
+                        height: 150,
+                        width: 200.0,
                         child: SvgPicture.asset(
-                          'assets/non-free/irma_logo.svg',
+                          'assets/non-free/logo.svg',
                           semanticsLabel: FlutterI18n.translate(
                             context,
                             'accessibility.irma_logo',
                           ),
                         ),
-                      ),
-                      SizedBox(
-                        height: IrmaTheme.of(context).largeSpacing,
                       ),
                       subtitle,
                       SizedBox(
@@ -210,7 +205,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       centerTitle: true,
-      backgroundColor: IrmaTheme.of(context).backgroundBlue,
+      backgroundColor: IrmaTheme.of(context).background,
       key: const Key('pinscreen_app_bar'),
       leading: Container(),
       title: Text(

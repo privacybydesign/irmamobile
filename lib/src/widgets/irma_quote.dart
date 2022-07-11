@@ -24,7 +24,7 @@ class IrmaQuote extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return Container(
-      color: color ?? theme.lightBlue,
+      color: color ?? theme.surfaceSecondary,
       child: Padding(
         padding: EdgeInsets.all(theme.defaultSpacing),
         child: Row(

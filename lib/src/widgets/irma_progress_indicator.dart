@@ -18,7 +18,7 @@ class IrmaProgressIndicator extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
+      padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
@@ -29,7 +29,6 @@ class IrmaProgressIndicator extends StatelessWidget {
               "n": stepCount.toString(),
             },
             style: TextStyle(
-              fontFamily: theme.fontFamilyHeadings,
               fontSize: 12,
               color: theme.themeData.colorScheme.secondary,
             ),
@@ -42,7 +41,7 @@ class IrmaProgressIndicator extends StatelessWidget {
                 Expanded(
                   child: LinearProgressIndicator(
                     value: step / stepCount,
-                    color: theme.themeData.colorScheme.secondary,
+                    color: theme.success,
                     backgroundColor: Colors.grey.shade300,
                   ),
                 )

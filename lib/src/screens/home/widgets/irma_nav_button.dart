@@ -46,6 +46,7 @@ class IrmaNavButton extends StatelessWidget {
               style: theme.themeData.textTheme.caption!.copyWith(
                 fontSize: 12,
                 color: isSelected ? theme.themeData.colorScheme.secondary : Colors.grey.shade600,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
             )
           ],

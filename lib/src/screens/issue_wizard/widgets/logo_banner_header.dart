@@ -1,11 +1,9 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/irma_app_bar.dart';
-import 'package:irmamobile/src/widgets/logo_banner.dart';
+
+import '../../../theme/theme.dart';
+import '../../../widgets/irma_app_bar.dart';
+import '../../../widgets/logo_banner.dart';
 
 class LogoBannerHeader extends StatelessWidget {
   final Image logo;
@@ -19,31 +17,34 @@ class LogoBannerHeader extends StatelessWidget {
   final ScrollController controller;
 
   const LogoBannerHeader({
-    this.logo,
-    this.header,
-    this.backgroundColor,
-    this.textColor,
-    this.bottomBar,
-    this.child,
-    this.scrollviewKey,
-    this.controller,
-    this.onBack,
+    required this.logo,
+    required this.header,
+    required this.backgroundColor,
+    required this.textColor,
+    required this.bottomBar,
+    required this.child,
+    required this.scrollviewKey,
+    required this.controller,
+    required this.onBack,
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: IrmaAppBar(
-        title: Text(FlutterI18n.translate(context, "issue_wizard.add_cards")),
+        titleTranslationKey: 'issue_wizard.add_cards',
         leadingAction: onBack,
-        leadingIcon: Icon(Icons.arrow_back, semanticLabel: FlutterI18n.translate(context, "accessibility.back")),
+        leadingIcon: Icon(
+          Icons.arrow_back,
+          semanticLabel: FlutterI18n.translate(context, 'accessibility.back'),
+        ),
       ),
       bottomNavigationBar: bottomBar,
       body: SingleChildScrollView(
         controller: controller,
         key: scrollviewKey,
         child: Column(
-          children: <Widget>[
+          children: [
             LogoBanner(
               text: header,
               logo: logo,
@@ -51,7 +52,9 @@ class LogoBannerHeader extends StatelessWidget {
               textColor: textColor,
             ),
             Padding(
-              padding: EdgeInsets.only(top: IrmaTheme.of(context).mediumSpacing),
+              padding: EdgeInsets.only(
+                top: IrmaTheme.of(context).mediumSpacing,
+              ),
               child: child,
             ),
           ],

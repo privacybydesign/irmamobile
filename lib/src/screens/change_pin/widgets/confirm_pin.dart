@@ -22,10 +22,7 @@ class ConfirmPin extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: IrmaAppBar(
-        title: Text(
-          FlutterI18n.translate(context, 'change_pin.confirm_pin.title'),
-          style: IrmaTheme.of(context).textTheme.headline3,
-        ),
+        titleTranslationKey: 'change_pin.confirm_pin.title',
         leadingAction: () async {
           if (cancel != null) {
             cancel();

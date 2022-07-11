@@ -30,27 +30,27 @@ class IrmaMessage extends StatelessWidget {
 
     switch (type) {
       case IrmaMessageType.valid:
-        backgroundColor = IrmaTheme.of(context).notificationSuccessBg;
-        foregroundColor = IrmaTheme.of(context).primaryDark;
-        iconColor = IrmaTheme.of(context).interactionValid;
+        backgroundColor = IrmaTheme.of(context).success;
+        foregroundColor = IrmaTheme.of(context).dark;
+        iconColor = IrmaTheme.of(context).success;
         icon = IrmaIcons.valid;
         break;
       case IrmaMessageType.invalid:
-        backgroundColor = IrmaTheme.of(context).notificationErrorBg;
-        foregroundColor = IrmaTheme.of(context).primaryDark;
-        iconColor = IrmaTheme.of(context).interactionInvalid;
+        backgroundColor = IrmaTheme.of(context).error;
+        foregroundColor = IrmaTheme.of(context).dark;
+        iconColor = IrmaTheme.of(context).error;
         icon = IrmaIcons.invalid;
         break;
       case IrmaMessageType.alert:
-        backgroundColor = IrmaTheme.of(context).notificationWarningBg;
-        foregroundColor = IrmaTheme.of(context).primaryDark;
-        iconColor = IrmaTheme.of(context).interactionAlert;
+        backgroundColor = IrmaTheme.of(context).warning;
+        foregroundColor = IrmaTheme.of(context).dark;
+        iconColor = IrmaTheme.of(context).error;
         icon = IrmaIcons.alert;
         break;
       case IrmaMessageType.info:
-        backgroundColor = IrmaTheme.of(context).notificationInfoBg;
-        foregroundColor = IrmaTheme.of(context).primaryDark;
-        iconColor = IrmaTheme.of(context).interactionInformation;
+        backgroundColor = IrmaTheme.of(context).warning;
+        foregroundColor = IrmaTheme.of(context).dark;
+        iconColor = IrmaTheme.of(context).warning;
         icon = IrmaIcons.info;
         break;
     }

@@ -31,7 +31,7 @@ class CardSuggestion extends StatelessWidget {
         semanticContainer: true,
         shape: RoundedRectangleBorder(
           borderRadius: borderRadius,
-          side: BorderSide(color: IrmaTheme.of(context).grayscale85, width: 0.2),
+          side: BorderSide(color: Colors.grey.shade700, width: 0.2),
         ),
         child: Semantics(
           button: true,
@@ -79,7 +79,7 @@ class CardSuggestion extends StatelessWidget {
                                         Center(
                                           child: Icon(
                                             IrmaIcons.alert,
-                                            color: IrmaTheme.of(context).interactionInvalid,
+                                            color: IrmaTheme.of(context).error,
                                           ),
                                         ),
                                       ],
@@ -107,7 +107,7 @@ class CardSuggestion extends StatelessWidget {
                             child: Text(
                               subTitle,
                               style: IrmaTheme.of(context).textTheme.bodyText2.copyWith(
-                                    color: IrmaTheme.of(context).linkVisitedColor,
+                                    color: IrmaTheme.of(context).link,
                                   ),
                             ),
                           ),
@@ -129,7 +129,7 @@ class CardSuggestion extends StatelessWidget {
                           child: Icon(
                             obtained ? IrmaIcons.synchronize : IrmaIcons.add,
                             size: 20,
-                            color: IrmaTheme.of(context).primaryBlue,
+                            color: IrmaTheme.of(context).secondary,
                           ),
                         ),
                       ),

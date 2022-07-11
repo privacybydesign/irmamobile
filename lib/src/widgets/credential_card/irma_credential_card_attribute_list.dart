@@ -24,56 +24,60 @@ class IrmaCredentialCardAttributeList extends StatelessWidget {
 
     return Row(
       children: [
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            for (final attribute in attributesWithValue) ...[
-              Text(
-                attribute.attributeType.name.translate(lang),
-                style: theme.themeData.textTheme.caption,
-              ),
-              SizedBox(width: theme.smallSpacing),
-              Builder(
-                builder: (context) {
-                  if (attribute.value is PhotoValue) {
-                    //If attribute is photo show link
-                    return GestureDetector(
-                      onTap: () {
-                        //TODO Implement open Photo.
-                      },
-                      child: TranslatedText(
-                        //TODO: Add translation
-                        'Image',
-                        textAlign: TextAlign.start,
-                        style: theme.textTheme.bodyText2!.copyWith(decoration: TextDecoration.underline),
-                      ),
-                    );
-                  } else if (attribute.value is TextValue) {
-                    final Attribute? compareValue =
-                        compareTo?.firstWhereOrNull((e) => e.attributeType.id == attribute.attributeType.id);
-                    return TranslatedText(
-                      (attribute.value as TextValue).translated.translate(lang),
-                      style: theme.themeData.textTheme.bodyText1!.copyWith(
-                        color: compareValue == null || compareValue.value is NullValue
-                            ? Colors.black
-                            : attribute.value.raw == compareValue.value.raw
-                                ? Colors.green
-                                : Colors.red,
-                      ),
-                    );
-                  }
-                  //If value is null or default return empty container
-                  return Container();
-                },
-              ),
-              //If this is not the last item add some padding
-              if (attributesWithValue.last != attribute)
-                SizedBox(
-                  height: theme.smallSpacing,
-                )
-            ]
-          ],
+        Flexible(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final attribute in attributesWithValue) ...[
+                Text(
+                  attribute.attributeType.name.translate(lang),
+                  style: theme.themeData.textTheme.caption!.copyWith(
+                    color: theme.neutralDark,
+                  ),
+                ),
+                SizedBox(height: theme.tinySpacing),
+                Builder(
+                  builder: (context) {
+                    if (attribute.value is PhotoValue) {
+                      //If attribute is photo show link
+                      return GestureDetector(
+                        onTap: () {
+                          //TODO Implement open Photo.
+                        },
+                        child: TranslatedText(
+                          //TODO: Add translation
+                          'Image',
+                          textAlign: TextAlign.start,
+                          style: theme.textTheme.bodyText2!.copyWith(decoration: TextDecoration.underline),
+                        ),
+                      );
+                    } else if (attribute.value is TextValue) {
+                      final Attribute? compareValue =
+                          compareTo?.firstWhereOrNull((e) => e.attributeType.id == attribute.attributeType.id);
+                      return TranslatedText(
+                        (attribute.value as TextValue).translated.translate(lang),
+                        style: theme.themeData.textTheme.bodyText1!.copyWith(
+                          color: compareValue == null || compareValue.value is NullValue
+                              ? theme.dark
+                              : attribute.value.raw == compareValue.value.raw
+                                  ? theme.success
+                                  : theme.error,
+                        ),
+                      );
+                    }
+                    //If value is null or default return empty container
+                    return Container();
+                  },
+                ),
+                //If this is not the last item add some padding
+                if (attributesWithValue.last != attribute)
+                  SizedBox(
+                    height: theme.smallSpacing,
+                  )
+              ]
+            ],
+          ),
         )
       ],
     );

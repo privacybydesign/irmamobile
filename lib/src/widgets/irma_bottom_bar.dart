@@ -42,7 +42,6 @@ class IrmaBottomBar extends StatelessWidget {
           onPressed: onPrimaryPressed,
           onPressedDisabled: onPrimaryDisabledPressed,
           label: primaryButtonLabel!,
-          color: IrmaTheme.of(context).primaryBlue,
         ),
       ),
     );
@@ -68,10 +67,10 @@ class IrmaBottomBar extends StatelessWidget {
     return Container(
       width: mediaQuery.size.width,
       decoration: BoxDecoration(
-        color: theme.backgroundBlue,
+        color: theme.surfacePrimary,
         border: Border(
           top: BorderSide(
-            color: theme.primaryLight,
+            color: Colors.white,
             width: 2.0,
           ),
         ),

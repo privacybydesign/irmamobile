@@ -64,7 +64,7 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
             if (icon != null) ...[
               Icon(
                 icon,
-                color: iconColor ?? theme.themeData.colorScheme.primary,
+                color: iconColor ?? theme.themeData.colorScheme.secondary,
                 size: 125,
               ),
               SizedBox(height: theme.mediumSpacing),
@@ -92,7 +92,7 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
                   linkTranslationKey!,
                   style: theme.textTheme.bodyText2?.copyWith(
                     decoration: TextDecoration.underline,
-                    color: theme.linkColor,
+                    color: theme.link,
                   ),
                   textAlign: TextAlign.center,
                 ),

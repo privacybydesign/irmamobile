@@ -68,7 +68,7 @@ class AddDataScreen extends StatelessWidget {
           SizedBox(width: theme.smallSpacing),
           Icon(
             fullyObtained ? Icons.check_circle : Icons.add_circle_outline,
-            color: fullyObtained ? theme.notificationSuccess : theme.themeData.colorScheme.secondary,
+            color: fullyObtained ? theme.success : theme.themeData.colorScheme.secondary,
             size: _logoContainerSize * 0.7,
           ),
         ],
@@ -79,7 +79,7 @@ class AddDataScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: const IrmaAppBar(
-          title: TranslatedText('add_data.title'),
+          titleTranslationKey: 'add_data.title',
         ),
         body: StreamBuilder<CombinedState2<IrmaConfiguration, Credentials>>(
           stream: combine2(

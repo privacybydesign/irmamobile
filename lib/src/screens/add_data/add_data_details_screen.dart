@@ -38,13 +38,8 @@ class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
     );
 
     return Scaffold(
-      appBar: IrmaAppBar(
-        title: Text(
-          FlutterI18n.translate(
-            context,
-            'add_data_details.title',
-          ),
-        ),
+      appBar: const IrmaAppBar(
+        titleTranslationKey: 'add_data_details.title',
       ),
       body: SingleChildScrollView(
         controller: _controller,

@@ -39,8 +39,8 @@ class QROverlay extends CustomPainter {
     final cornerSize = windowSize * 0.15;
 
     // colors
-    final Color green = theme.overlayValid;
-    final Color red = theme.overlayInvalid;
+    final Color green = theme.success;
+    final Color red = theme.error;
 
     Color overlayColor = Colors.grey.shade800;
     Color cornerColor = Colors.white;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:intl/intl.dart';
 
 import '../../../models/attributes.dart';
 import '../../../models/irma_configuration.dart';
@@ -8,7 +9,7 @@ import '../../../theme/theme.dart';
 import '../../../widgets/credential_card/irma_credential_card.dart';
 import '../../../widgets/irma_quote.dart';
 import '../../../widgets/translated_text.dart';
-import 'issuer_verifier_header.dart';
+import 'activity_verifier_card.dart';
 
 class ActivityDetailDisclosure extends StatelessWidget {
   final LogEntry logEntry;
@@ -19,43 +20,48 @@ class ActivityDetailDisclosure extends StatelessWidget {
     required this.irmaConfiguration,
   });
 
-  Widget _buildCredentialCard(List<DisclosedAttribute> disclosedAttributes) {
+  Widget _buildCredentialCard(
+    List<DisclosedAttribute> disclosedAttributes,
+    IrmaThemeData theme,
+    String lang,
+  ) {
     final mappedAttributes =
         disclosedAttributes.map((e) => Attribute.fromDisclosedAttribute(irmaConfiguration, e)).toList();
 
     return IrmaCredentialCard(
-      credentialInfo: mappedAttributes.first.credentialInfo,
-      attributes: mappedAttributes,
-    );
+        credentialInfo: mappedAttributes.first.credentialInfo,
+        attributes: mappedAttributes,
+        trailingText: TranslatedText(
+          'credential.date_at_time',
+          translationParams: {
+            'date': DateFormat.yMMMMd(lang).format(logEntry.time),
+            'time': DateFormat.jm(lang).format(logEntry.time),
+          },
+          style: theme.textTheme.caption!.copyWith(
+            color: theme.neutral,
+          ),
+        ));
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TranslatedText(
-          'activity.shared_with',
-          style: theme.themeData.textTheme.headline3,
-        ),
-        SizedBox(height: IrmaTheme.of(context).smallSpacing),
-        Padding(
-          padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
-          child: IssuerVerifierHeader(
-            title: logEntry.serverName!.name.translate(
-              FlutterI18n.currentLocale(context)!.languageCode,
-            ),
-            logo: logEntry.serverName?.logo,
-          ),
-        ),
-        TranslatedText(
           'activity.data_shared',
           style: theme.themeData.textTheme.headline3,
         ),
         SizedBox(height: theme.smallSpacing),
-        for (var disclosedAttributes in logEntry.disclosedAttributes) _buildCredentialCard(disclosedAttributes),
+        for (var disclosedAttributes in logEntry.disclosedAttributes)
+          _buildCredentialCard(
+            disclosedAttributes,
+            theme,
+            lang,
+          ),
         if (logEntry.type == LogEntryType.signing) ...[
           Padding(
             padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
@@ -65,7 +71,14 @@ class ActivityDetailDisclosure extends StatelessWidget {
             ),
           ),
           IrmaQuote(quote: logEntry.signedMessage?.message),
-        ]
+        ],
+        SizedBox(height: theme.defaultSpacing),
+        TranslatedText(
+          'activity.shared_with',
+          style: theme.themeData.textTheme.headline3,
+        ),
+        SizedBox(height: IrmaTheme.of(context).smallSpacing),
+        ActivityVerifierHeader(requestorInfo: logEntry.serverName!),
       ],
     );
   }

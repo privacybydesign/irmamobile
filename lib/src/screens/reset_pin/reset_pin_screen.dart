@@ -2,7 +2,6 @@
 // @dart=2.11
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
@@ -33,13 +32,8 @@ class ResetPinScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     _closeKeyboard(context);
     return Scaffold(
-      appBar: IrmaAppBar(
-        title: Text(
-          FlutterI18n.translate(
-            context,
-            'reset_pin.title',
-          ),
-        ),
+      appBar: const IrmaAppBar(
+        titleTranslationKey: 'reset_pin.title',
       ),
       bottomSheet: IrmaBottomBar(
         key: const Key('reset_pin_buttons'),

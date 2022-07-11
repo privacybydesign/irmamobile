@@ -42,7 +42,7 @@ class IrmaDialog extends StatelessWidget {
               scopesRoute: true,
               explicitChildNodes: true,
               child: Material(
-                color: theme.grayscaleWhite,
+                color: theme.surfacePrimary,
                 elevation: 24.0,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(theme.smallSpacing),

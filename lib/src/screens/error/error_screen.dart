@@ -70,12 +70,7 @@ class _ErrorScreenState extends State<ErrorScreen> {
         },
         child: Scaffold(
           appBar: IrmaAppBar(
-            title: Text(
-              FlutterI18n.translate(
-                context,
-                'error.details_title',
-              ),
-            ),
+            titleTranslationKey: 'error.details_title',
             noLeading: widget.onTapClose == null,
             leadingAction: widget.onTapClose,
           ),
