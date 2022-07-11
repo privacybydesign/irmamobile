@@ -2,7 +2,9 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../models/attributes.dart';
+import '../../../../theme/theme.dart';
 import '../../../../widgets/irma_stepper.dart';
+import '../../../../widgets/translated_text.dart';
 import '../models/disclosure_credential.dart';
 import 'disclosure_issue_wizard_credential_card.dart';
 import 'disclosure_permission_choice.dart';
@@ -22,12 +24,12 @@ class DisclosureDisconStepper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
     final currentCandidateIndex = currentCandidateKey != null
         ? candidates.entries.toList().indexWhere(
               (candidateEntry) => candidateEntry.key == currentCandidateKey,
             )
         : null;
-
     return IrmaStepper(
       currentIndex: currentCandidateIndex,
       children: candidates.entries
@@ -37,11 +39,25 @@ class DisclosureDisconStepper extends StatelessWidget {
                 currentCandidateKey != null &&
                         currentCandidateKey! <= candidateEntry.key &&
                         candidateEntry.value.length > 1
-                    ? DisclosurePermissionChoice(
-                        isActive: candidateEntry.key == currentCandidateKey,
-                        choice: candidateEntry.value,
-                        selectedConIndex: selectedConIndices[candidateEntry.key]!,
-                        onChoiceUpdated: onChoiceUpdated,
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.all(theme.smallSpacing),
+                            child: TranslatedText(
+                              'disclosure_permission.choose',
+                              style: theme.themeData.textTheme.headline5,
+                            ),
+                          ),
+                          DisclosurePermissionChoice(
+                            isActive: candidateEntry.key == currentCandidateKey,
+                            choice: {
+                              for (int i = 0; i < candidateEntry.value.length; i++) i: candidateEntry.value[i],
+                            },
+                            selectedConIndex: selectedConIndices[candidateEntry.key]!,
+                            onChoiceUpdated: onChoiceUpdated,
+                          ),
+                        ],
                       )
                     // If not, render credential card.
                     : DisclosureIssueWizardCredentialCards(
