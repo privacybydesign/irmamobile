@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:irmamobile/src/screens/loading/loading_screen.dart';
+import 'package:irmamobile/src/screens/splash_screen/splash_screen.dart';
 
 import '../screens/error/blocked_screen.dart';
 import '../screens/error/error_screen.dart';
@@ -107,6 +109,16 @@ class PrototypesScreen extends StatelessWidget {
               otherParty: 'unsatisfied party',
               popToWallet: (context) => Navigator.pop(context),
             ),
+          ),
+          _buildTile(
+            context,
+            'Splash screen',
+            const SplashScreen(),
+          ),
+          _buildTile(
+            context,
+            'Loading screen',
+            LoadingScreen(),
           ),
         ],
       ),

@@ -43,7 +43,9 @@ class LoadingScreen extends StatelessWidget {
                 error: error!,
               );
             }
-            return const SplashScreen();
+            return const SplashScreen(
+              isLoading: true,
+            );
           },
         );
       },
