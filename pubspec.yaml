@@ -43,8 +43,8 @@ dependencies:
   timeline_tile: ^2.0.0
 
 flutter_native_splash:
-  image: assets/splash/startup.png
-  color: "F2F5F8"
+  image: assets/non-free/logo.png
+  color: "F7F7F7"
   android_disable_fullscreen: true
 
 dev_dependencies:
@@ -82,7 +82,6 @@ flutter:
     - assets/reset/
     - assets/non-free/
     - assets/disclosure/
-    - assets/splash/
     - assets/rooted_warning/
   fonts:
     - family: Open Sans
