@@ -28,9 +28,11 @@ typedef PinQuality = Set<SecurePinAttribute>;
 typedef NumberFn = void Function(int);
 
 // TODO change to branch ux-2.0-yivi-style YiviThemeData default
-const defaultHorizontalPadding = EdgeInsets.symmetric(horizontal: 16.0);
+const _paddingInPx = 16.0;
 
-int _minPinSize = 5;
+const _nextButtonHeight = 48.0;
+
+const _minPinSize = 5;
 
 Widget _resizeBox(Widget widget, double edge) => SizedBox(
       width: edge,
@@ -85,7 +87,7 @@ class YiviPinScreen extends StatelessWidget {
 
   Widget _activateNext(BuildContext context, IrmaThemeData theme, bool activate) => ElevatedButton(
         style: ElevatedButton.styleFrom(
-          minimumSize: Size.fromHeight(48.scale(context)),
+          minimumSize: const Size.fromHeight(_nextButtonHeight),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
           primary: theme.pinIndicatorDarkBlue,
         ),
@@ -108,8 +110,7 @@ class YiviPinScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (kDebugMode) {
-      print(
-          'min viewport width: ${min<double>(MediaQuery.of(context).size.height, MediaQuery.of(context).size.width)}');
+      print('screen width: ${MediaQuery.of(context).size.width}, screen height: ${MediaQuery.of(context).size.height}');
     }
 
     final theme = IrmaTheme.of(context);
@@ -147,71 +148,143 @@ class YiviPinScreen extends StatelessWidget {
           _activateNext(context, theme, state.pin.length >= (_minPinSize == maxPinSize ? 5 : 6)),
     );
 
-    final body = Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        Expanded(
-          child: Column(
-            children: [
-              SizedBox.square(dimension: 42.scale(context)),
-              SizedBox(
-                height: 71.scale(context),
-                width: 127.scale(context),
-                // TODO replace with Yivi logo on ux-2.0-yivi-style branch
-                child: Image.asset("assets/non-free/irmalogo.png", excludeFromSemantics: true),
-              ),
-              SizedBox(height: 32.scale(context)),
-              Center(
-                child: instruction,
-              ),
-              SizedBox(height: 32.scale(context)),
-              Stack(
-                alignment: Alignment.center,
-                children: [
-                  pinDotsUnderlined,
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: _pinVisibility(context, theme, pinVisibilityBloc),
-                  ),
-                ],
-              ),
-              // SizedBox(height: 10.scale(context)),
-              if (checkSecurePin)
-                Center(
-                  child: _securePinTextButton(),
+    List<Widget> bodyPortrait(BuildContext context) => [
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox.square(dimension: 42.scale(context)),
+                SizedBox(
+                  height: 71.scale(context),
+                  width: 127.scale(context),
+                  // TODO replace with Yivi logo on ux-2.0-yivi-style branch
+                  child: Image.asset("assets/non-free/irmalogo.png", excludeFromSemantics: true),
                 ),
-              // if (onTogglePinSize != null && checkSecurePin) SizedBox.square(dimension: 8.scale(context)),
-              if (onTogglePinSize != null)
+                SizedBox(height: 32.scale(context)),
                 Center(
-                  child: Link(
-                    onTap: onTogglePinSize,
-                    label: FlutterI18n.translate(context, togglePinSizeCopy),
-                  ),
+                  child: instruction,
                 ),
-              if (onForgotPin != null)
-                Center(
-                  child: Link(
-                    onTap: onForgotPin,
-                    label: FlutterI18n.translate(context, 'pin.button_forgot'),
-                  ),
+                SizedBox(height: 32.scale(context)),
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    pinDotsUnderlined,
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: _pinVisibility(context, theme, pinVisibilityBloc),
+                    ),
+                  ],
                 ),
-            ],
+                if (checkSecurePin)
+                  Center(
+                    child: _securePinTextButton(),
+                  ),
+                if (onTogglePinSize != null)
+                  Center(
+                    child: Link(
+                      onTap: onTogglePinSize,
+                      label: FlutterI18n.translate(context, togglePinSizeCopy),
+                    ),
+                  ),
+                if (onForgotPin != null)
+                  Center(
+                    child: Link(
+                      onTap: onForgotPin,
+                      label: FlutterI18n.translate(context, 'pin.button_forgot'),
+                    ),
+                  ),
+              ],
+            ),
           ),
-        ),
-        _NumberPad(
-          onEnterNumber: pinBloc.update,
-        ),
-        nextButton
-      ],
-    );
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(
+                  margin: const EdgeInsets.only(bottom: _paddingInPx),
+                  child: _NumberPad(
+                    onEnterNumber: pinBloc.update,
+                  ),
+                ),
+                nextButton,
+              ],
+            ),
+          ),
+        ];
+
+    List<Widget> bodyLandscape(BuildContext context) => [
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SizedBox(
+                  height: 71.scale(context),
+                  width: 127.scale(context),
+                  // TODO replace with Yivi logo on ux-2.0-yivi-style branch
+                  child: Image.asset("assets/non-free/irmalogo.png", excludeFromSemantics: true),
+                ),
+                Center(
+                  child: instruction,
+                ),
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    pinDotsUnderlined,
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: _pinVisibility(context, theme, pinVisibilityBloc),
+                    ),
+                  ],
+                ),
+                if (checkSecurePin)
+                  Center(
+                    child: _securePinTextButton(),
+                  ),
+                if (onTogglePinSize != null)
+                  Center(
+                    child: Link(
+                      onTap: onTogglePinSize,
+                      label: FlutterI18n.translate(context, togglePinSizeCopy),
+                    ),
+                  ),
+                if (onForgotPin != null)
+                  Center(
+                    child: Link(
+                      onTap: onForgotPin,
+                      label: FlutterI18n.translate(context, 'pin.button_forgot'),
+                    ),
+                  ),
+                nextButton
+              ],
+            ),
+          ),
+          Expanded(
+            child: _NumberPad(
+              onEnterNumber: pinBloc.update,
+            ),
+          ),
+        ];
 
     return Scaffold(
       backgroundColor: theme.background,
       body: Align(
         alignment: Alignment.bottomCenter,
         child: Container(
-          margin: const EdgeInsets.all(16),
-          child: body,
+          margin: const EdgeInsets.all(_paddingInPx),
+          child: OrientationBuilder(
+            builder: (context, orientation) {
+              if (Orientation.portrait == orientation) {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: bodyPortrait(context),
+                );
+              } else {
+                return Row(
+                  children: bodyLandscape(context),
+                );
+              }
+            },
+          ),
         ),
       ),
     );

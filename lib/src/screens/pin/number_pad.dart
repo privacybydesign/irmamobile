@@ -6,6 +6,7 @@ class _NumberPad extends StatelessWidget {
 
   Widget _keyFactory(BuildContext context, int number, [String? subtitle]) {
     final theme = IrmaTheme.of(context);
+    final fontSize = 32.scale(context);
 
     return ClipPath(
       clipper: _PerfectCircleClip(),
@@ -22,7 +23,7 @@ class _NumberPad extends StatelessWidget {
                   style: TextStyle(
                     color: theme.pinIndicatorDarkBlue,
                     fontWeight: FontWeight.w600,
-                    fontSize: 32.0.scale(context),
+                    fontSize: fontSize,
                   ),
                 ),
                 if (subtitle != null)
@@ -59,37 +60,46 @@ class _NumberPad extends StatelessWidget {
       ),
     );
 
-    final keys = <Widget>[
-      _keyFactory(context, 1, ''),
-      _keyFactory(context, 2, 'ABC'),
-      _keyFactory(context, 3, 'DEF'),
-      _keyFactory(context, 4, 'GHI'),
-      _keyFactory(context, 5, 'JKL'),
-      _keyFactory(context, 6, 'MNO'),
-      _keyFactory(context, 7, 'PQRS'),
-      _keyFactory(context, 8, 'TUV'),
-      _keyFactory(context, 9, 'WXYZ'),
-      SizedBox.fromSize(size: Size.square(40.scale(context))),
-      _keyFactory(context, 0),
-      backspace,
-    ];
+    return OrientationBuilder(
+      builder: (BuildContext context, Orientation orientation) {
+        return LayoutBuilder(builder: (context, constraints) {
+          final keys = <Widget>[
+            _keyFactory(context, 1, ''),
+            _keyFactory(context, 2, 'ABC'),
+            _keyFactory(context, 3, 'DEF'),
+            _keyFactory(context, 4, 'GHI'),
+            _keyFactory(context, 5, 'JKL'),
+            _keyFactory(context, 6, 'MNO'),
+            _keyFactory(context, 7, 'PQRS'),
+            _keyFactory(context, 8, 'TUV'),
+            _keyFactory(context, 9, 'WXYZ'),
+            SizedBox.fromSize(size: const Size.square(20)),
+            _keyFactory(context, 0),
+            backspace,
+          ];
 
-    final shortestEdge = min<double>(MediaQuery.of(context).size.height, MediaQuery.of(context).size.width);
-    final keyEdgeSize = (shortestEdge - 32) / 3.0;
+          final keyWidth = constraints.maxWidth / 3.0;
 
-    final grid = SizedBox(
-      width: double.infinity,
-      child: Wrap(
-        alignment: WrapAlignment.center,
-        children: keys
-            .map((widget) => SizedBox(
-                  width: keyEdgeSize,
-                  child: _resizeBox(widget, 80.scale(context)),
-                ))
-            .toList(),
-      ),
+          /// The padding gets lost along the parent widgets
+          final keyHeight = (constraints.maxHeight - _paddingInPx * 2) / 4.0;
+
+          if (kDebugMode) {
+            print(
+                'keypad constraint width: ${constraints.maxWidth}, keypad constraint height: ${constraints.maxHeight}');
+            print('keypad button width: $keyWidth, keypad button height: $keyHeight');
+          }
+
+          final grid = GridView.count(
+            childAspectRatio: Orientation.landscape == orientation ? keyWidth / keyHeight : keyHeight / keyWidth,
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            crossAxisCount: 3,
+            children: keys,
+          );
+
+          return grid;
+        });
+      },
     );
-
-    return grid;
   }
 }
