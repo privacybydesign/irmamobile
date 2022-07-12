@@ -59,29 +59,29 @@ class _PinIndicator extends StatelessWidget {
       );
     }
 
+    final isMaxPin5 = maxPinSize == _minPinSize;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         ...List.generate(
-          min(pinSize, maxPinSize),
+          isMaxPin5 ? 5 : pinSize,
           (i) => Stack(
             alignment: Alignment.center,
             children: [
               BlockSemantics(
                 blocking: !isPinVisible,
                 child: Text(
-                  '${pinState.pin[i]}',
-                  style: style,
+                  '${i < pinSize ? pinState.pin[i] : '_'}',
+                  style: i >= pinSize ? style?.copyWith(color: Colors.transparent) : style,
                 ),
               ),
-              _resizeBox(circleFilled, scaledEdgeSize),
+              if (i < pinSize) _resizeBox(circleFilled, scaledEdgeSize),
+              if (isMaxPin5 && i >= pinSize) _resizeBox(circleOutlined, scaledEdgeSize),
             ],
           ),
           growable: false,
         ),
-        if (maxPinSize == _minPinSize && pinSize <= maxPinSize)
-          ...List<Widget>.generate(maxPinSize - pinSize, (_) => _resizeBox(circleOutlined, scaledEdgeSize),
-              growable: false),
       ],
     );
   }
