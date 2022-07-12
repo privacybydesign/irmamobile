@@ -126,19 +126,6 @@
     "expand": "Expand",
     "refresh": "Refresh"
   },
-  "add_data": {
-    "title": "Adding data",
-    "choose": "Choose the data you wish to add.",
-    "category_other": "Other"
-  },
-  "add_data_details": {
-    "title": "Adding data",
-    "purpose_question": "What can you do with these data?",
-    "content_question": "Which data are added?",
-    "howto_question": "How does it work?",
-    "back_button": "Cancel",
-    "get_button": "Add"
-  },
   "settings": {
     "title": "Settings",
     "start_qr": "Open QR scanner automatically after start-up",
@@ -482,9 +469,27 @@
       }
     }
   },
-  "data_tab": {
-    "title": "Your data",
-    "obtain_data": "Obtain personal data"
+  "data": {
+    "tab": {
+      "title": "Your data",
+      "obtain_data": "Obtain personal data"
+    },
+    "detail": {
+      "title": "Contact information"
+    },
+    "add": {
+      "title": "Adding data",
+      "choose": "Choose the data you wish to add.",
+      "details": {
+        "title": "Adding data",
+        "purpose_question": "What can you do with these data?",
+        "content_question": "Which data are added?",
+        "howto_question": "How does it work?",
+        "back_button": "Cancel",
+        "get_button": "Add"
+      }
+    },
+    "category_other": "Other"
   },
   "more_tab": {
     "app_management": "App management",
