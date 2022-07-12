@@ -164,7 +164,7 @@ class YiviPinScreen extends StatelessWidget {
                 Center(
                   child: instruction,
                 ),
-                SizedBox(height: 32.scale(context)),
+                SizedBox(height: 16.scale(context)),
                 Stack(
                   alignment: Alignment.center,
                   children: [
@@ -197,19 +197,12 @@ class YiviPinScreen extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Container(
-                  margin: const EdgeInsets.only(bottom: _paddingInPx),
-                  child: _NumberPad(
-                    onEnterNumber: pinBloc.update,
-                  ),
-                ),
-                nextButton,
-              ],
+            child: _NumberPad(
+              onEnterNumber: pinBloc.update,
             ),
           ),
+          const SizedBox(height: _paddingInPx),
+          nextButton,
         ];
 
     List<Widget> bodyLandscape(BuildContext context) => [

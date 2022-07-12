@@ -81,7 +81,10 @@ class _NumberPad extends StatelessWidget {
           final keyWidth = constraints.maxWidth / 3.0;
 
           /// The padding gets lost along the parent widgets
-          final keyHeight = (constraints.maxHeight - _paddingInPx * 2) / 4.0;
+          final keyHeight = (Orientation.landscape == orientation
+                  ? (constraints.maxHeight - _paddingInPx * 2)
+                  : constraints.maxHeight) /
+              4.0;
 
           if (kDebugMode) {
             print(
@@ -89,10 +92,17 @@ class _NumberPad extends StatelessWidget {
             print('keypad button width: $keyWidth, keypad button height: $keyHeight');
           }
 
+          final childAspectRatioApprox =
+              Orientation.landscape == orientation ? keyWidth / keyHeight : keyHeight / keyWidth;
+          final childAspectRatio = max(1.5, childAspectRatioApprox);
+
+          if (kDebugMode) {
+            print('child aspect ratio: $childAspectRatio, approx: $childAspectRatioApprox');
+          }
+
           final grid = GridView.count(
-            childAspectRatio: Orientation.landscape == orientation ? keyWidth / keyHeight : keyHeight / keyWidth,
+            childAspectRatio: childAspectRatio,
             physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
             crossAxisCount: 3,
             children: keys,
           );
