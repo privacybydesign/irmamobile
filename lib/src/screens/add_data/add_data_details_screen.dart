@@ -39,7 +39,7 @@ class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
 
     return Scaffold(
       appBar: const IrmaAppBar(
-        titleTranslationKey: 'add_data_details.title',
+        titleTranslationKey: 'data.add.details.title',
       ),
       body: SingleChildScrollView(
         controller: _controller,
@@ -67,9 +67,9 @@ class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: 'add_data_details.get_button',
+        primaryButtonLabel: 'data.add.details.get_button',
         onPrimaryPressed: () => IrmaRepositoryProvider.of(context).openIssueURL(context, widget.credentialType.fullId),
-        secondaryButtonLabel: 'add_data_details.back_button',
+        secondaryButtonLabel: 'data.add.details.back_button',
         onSecondaryPressed: () => Navigator.of(context).pop(),
         alignment: IrmaBottomBarAlignment.horizontal,
       ),

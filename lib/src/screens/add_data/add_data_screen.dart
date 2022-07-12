@@ -79,7 +79,7 @@ class AddDataScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: const IrmaAppBar(
-          titleTranslationKey: 'add_data.title',
+          titleTranslationKey: 'data.add.title',
         ),
         body: StreamBuilder<CombinedState2<IrmaConfiguration, Credentials>>(
           stream: combine2(
@@ -98,7 +98,7 @@ class AddDataScreen extends StatelessWidget {
               (ct) => ct.isInCredentialStore,
             );
 
-            final otherTranslation = FlutterI18n.translate(context, 'add_data.category_other');
+            final otherTranslation = FlutterI18n.translate(context, 'data.add.category_other');
             final credentialTypesByCategory = groupBy<CredentialType, String>(
               credentialTypes,
               (ct) => ct.category.isNotEmpty ? getTranslation(context, ct.category) : otherTranslation,
@@ -113,7 +113,7 @@ class AddDataScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   TranslatedText(
-                    'add_data.choose',
+                    'data.add.choose',
                     style: IrmaTheme.of(context).textTheme.bodyText2,
                   ),
                   SizedBox(height: theme.mediumSpacing),
