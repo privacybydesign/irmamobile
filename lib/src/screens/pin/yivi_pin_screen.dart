@@ -20,7 +20,6 @@ part 'circle_clip.dart';
 part 'number_pad.dart';
 part 'secure_pin_bottom_sheet.dart';
 part 'yivi_pin_indicator.dart';
-part 'yivi_secure_pin_screen.dart';
 
 typedef Pin = List<int>;
 typedef PinFn = bool Function(Pin);
@@ -44,7 +43,7 @@ class YiviPinScreen extends StatelessWidget {
   final int maxPinSize;
   final VoidCallback onCompletePin;
   final PinStateBloc pinBloc;
-  final _PinVisibilityBloc pinVisibilityBloc;
+  final PinVisibilityBloc pinVisibilityBloc;
   final VoidCallback? onForgotPin;
   final VoidCallback? onTogglePinSize;
   final bool checkSecurePin;
@@ -98,8 +97,8 @@ class YiviPinScreen extends StatelessWidget {
         ),
       );
 
-  Widget _pinVisibility(BuildContext context, IrmaThemeData theme, _PinVisibilityBloc bloc) =>
-      BlocBuilder<_PinVisibilityBloc, bool>(
+  Widget _pinVisibility(BuildContext context, IrmaThemeData theme, PinVisibilityBloc bloc) =>
+      BlocBuilder<PinVisibilityBloc, bool>(
         bloc: pinVisibilityBloc,
         builder: (context, visible) => _visibilityButton(
             context, theme, visible ? Icons.visibility_off : Icons.visibility, () => pinVisibilityBloc.add(!visible)),
@@ -280,40 +279,6 @@ class YiviPinScreen extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class PinScreenTest extends StatefulWidget {
-  final int maxPinSize;
-  final VoidCallback? onTogglePinSize;
-  final PinStateBloc pinBloc;
-
-  const PinScreenTest({required this.maxPinSize, this.onTogglePinSize, required this.pinBloc});
-
-  @override
-  State<StatefulWidget> createState() => _PinScreen();
-}
-
-class _PinScreen extends State<PinScreenTest> {
-  final pinVisibilityBloc = _PinVisibilityBloc();
-
-  @override
-  void dispose() {
-    widget.pinBloc.clear();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return YiviPinScreen(
-      instructionKey: 'pin.title',
-      maxPinSize: widget.maxPinSize,
-      onCompletePin: () => Navigator.pop(context),
-      pinBloc: widget.pinBloc,
-      pinVisibilityBloc: pinVisibilityBloc,
-      onForgotPin: () => Navigator.pop(context),
-      onTogglePinSize: widget.onTogglePinSize,
     );
   }
 }

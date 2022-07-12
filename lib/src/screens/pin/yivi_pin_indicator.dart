@@ -2,7 +2,7 @@ part of pin;
 
 class _PinIndicator extends StatelessWidget {
   final int maxPinSize;
-  final _PinVisibilityBloc visibilityBloc;
+  final PinVisibilityBloc visibilityBloc;
   final PinState pinState;
 
   const _PinIndicator({Key? key, required this.maxPinSize, required this.visibilityBloc, required this.pinState})
@@ -10,7 +10,7 @@ class _PinIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<_PinVisibilityBloc, bool>(
+    return BlocBuilder<PinVisibilityBloc, bool>(
       bloc: visibilityBloc,
       builder: (context, isPinVisible) => _togglePinIndicators(context, isPinVisible),
     );
