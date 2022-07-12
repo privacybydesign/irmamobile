@@ -7,8 +7,8 @@ import '../../../../widgets/credential_card/irma_credential_card.dart';
 import '../../../../widgets/irma_bottom_bar.dart';
 import '../../../../widgets/irma_progress_indicator.dart';
 import '../../../../widgets/irma_quote.dart';
-import '../../../../widgets/translated_text.dart';
 import '../../../../widgets/issuer_verifier_header.dart';
+import '../../../../widgets/translated_text.dart';
 import '../../widgets/session_scaffold.dart';
 import '../bloc/disclosure_permission_event.dart';
 import '../bloc/disclosure_permission_state.dart';
@@ -102,24 +102,13 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          GestureDetector(
-                            onTap: () => onEvent(DisclosurePermissionChangeChoicePressed(disconIndex: choiceEntry.key)),
-                            child: TranslatedText(
-                              'disclosure_permission.change_choice',
-                              style: theme.hyperlinkTextStyle,
-                            ),
-                          )
-                        ],
+                      GestureDetector(
+                        onTap: () => onEvent(DisclosurePermissionChangeChoicePressed(disconIndex: choiceEntry.key)),
+                        child: TranslatedText(
+                          'disclosure_permission.change_choice',
+                          style: theme.hyperlinkTextStyle,
+                        ),
                       ),
-                      SizedBox(height: theme.smallSpacing),
-                      for (var credential in choiceEntry.value)
-                        IrmaCredentialCard(
-                          credentialInfo: credential,
-                          attributes: credential.attributes,
-                        )
                     ],
                   ),
                   SizedBox(height: theme.smallSpacing),
@@ -127,10 +116,10 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                     IrmaCredentialCard(
                       credentialInfo: credential,
                       attributes: credential.attributes,
-                    )
+                    ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
