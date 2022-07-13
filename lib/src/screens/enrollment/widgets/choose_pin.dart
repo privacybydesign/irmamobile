@@ -1,25 +1,22 @@
-// This code is not null safe yet.
-// @dart=2.11
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/screens/enrollment/models/enrollment_bloc.dart';
-import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
-import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
-import 'package:irmamobile/src/widgets/pin_field.dart';
+
+import '../../../data/irma_preferences.dart';
+import '../../pin/yivi_pin_screen.dart';
 
 class ChoosePin extends StatelessWidget {
   static const String routeName = 'choose_pin';
-  final FocusNode pinFocusNode;
   final void Function(BuildContext, String) submitPin;
   final void Function(BuildContext) cancelAndNavigate;
+  final pinSizeStreamController = StreamController<int>();
 
-  const ChoosePin({
-    @required this.submitPin,
-    @required this.cancelAndNavigate,
-    @required this.pinFocusNode,
+  ChoosePin({
+    required this.submitPin,
+    required this.cancelAndNavigate,
   });
 
   @override
@@ -30,27 +27,35 @@ class ChoosePin extends StatelessWidget {
         leadingAction: () => cancelAndNavigate(context),
         leadingTooltip: MaterialLocalizations.of(context).backButtonTooltip,
       ),
-      body: BlocBuilder<EnrollmentBloc, EnrollmentState>(
-        builder: (context, state) {
-          return SingleChildScrollView(
-            child: Column(
-              key: const Key('enrollment_choose_pin'),
-              children: [
-                SizedBox(height: IrmaTheme.of(context).hugeSpacing),
-                Text(
-                  FlutterI18n.translate(context, 'enrollment.choose_pin.insert_pin'),
-                  style: IrmaTheme.of(context).textTheme.bodyText2,
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: IrmaTheme.of(context).mediumSpacing),
-                PinField(
-                  focusNode: pinFocusNode,
-                  longPin: false,
-                  onSubmit: (pin) => submitPin(context, pin),
-                ),
-                SizedBox(height: IrmaTheme.of(context).smallSpacing),
-              ],
-            ),
+      body: StreamBuilder<int>(
+        stream: pinSizeStreamController.stream,
+        builder: (context, snapshot) {
+          final maxPinSize = snapshot.hasData ? snapshot.data! : shortPinSize;
+          final pinBloc = PinStateBloc(maxPinSize);
+          final pinVisibilityBloc = PinVisibilityBloc();
+
+          void onSubmit() {
+            IrmaPreferences.get().setLongPin(maxPinSize == longPinSize);
+            submitPin(context, pinBloc.state.pin.join());
+          }
+
+          BlocListener<PinStateBloc, PinState>(
+            bloc: pinBloc,
+            listener: (context, state) {
+              if (maxPinSize == shortPinSize) {
+                onSubmit();
+              }
+            },
+          );
+
+          return YiviPinScreen(
+            instructionKey: 'enrollment.choose_pin.insert_pin',
+            maxPinSize: maxPinSize,
+            onSubmit: onSubmit,
+            pinBloc: pinBloc,
+            pinVisibilityBloc: pinVisibilityBloc,
+            onTogglePinSize: () => pinSizeStreamController.add(maxPinSize == shortPinSize ? longPinSize : shortPinSize),
+            checkSecurePin: true,
           );
         },
       ),

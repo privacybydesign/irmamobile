@@ -1,6 +1,3 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -8,15 +5,16 @@ import 'package:irmamobile/src/screens/change_pin/models/change_pin_bloc.dart';
 import 'package:irmamobile/src/screens/change_pin/models/change_pin_state.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
-import 'package:irmamobile/src/widgets/pin_field.dart';
+
+import '../../pin/yivi_pin_screen.dart';
 
 class ConfirmPin extends StatelessWidget {
   static const String routeName = 'change_pin/confirm_pin';
 
   final void Function(String) confirmNewPin;
-  final void Function() cancel;
+  final VoidCallback? cancel;
 
-  const ConfirmPin({@required this.confirmNewPin, @required this.cancel});
+  const ConfirmPin({required this.confirmNewPin, this.cancel});
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +22,7 @@ class ConfirmPin extends StatelessWidget {
       appBar: IrmaAppBar(
         titleTranslationKey: 'change_pin.confirm_pin.title',
         leadingAction: () async {
-          if (cancel != null) {
-            cancel();
-          }
+          cancel?.call();
           if (!await Navigator.of(context).maybePop()) {
             Navigator.of(context, rootNavigator: true).pop();
           }
@@ -34,22 +30,16 @@ class ConfirmPin extends StatelessWidget {
         leadingTooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
       ),
       body: BlocBuilder<ChangePinBloc, ChangePinState>(builder: (context, state) {
-        return SingleChildScrollView(
-          child: Column(
-            children: [
-              SizedBox(height: IrmaTheme.of(context).hugeSpacing),
-              Text(
-                FlutterI18n.translate(context, 'change_pin.confirm_pin.instruction'),
-                style: IrmaTheme.of(context).textTheme.bodyText2,
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: IrmaTheme.of(context).mediumSpacing),
-              PinField(
-                longPin: state.longPin,
-                onSubmit: (String pin) => confirmNewPin(pin),
-              )
-            ],
-          ),
+        final maxPinSize = state.longPin ? longPinSize : shortPinSize;
+        final pinBloc = PinStateBloc(maxPinSize);
+        final pinVisibilityBloc = PinVisibilityBloc();
+        return YiviPinScreen(
+          instructionKey: 'change_pin.confirm_pin.instruction',
+          maxPinSize: maxPinSize,
+          onSubmit: () => confirmNewPin(pinBloc.state.pin.join()),
+          pinBloc: pinBloc,
+          pinVisibilityBloc: pinVisibilityBloc,
+          checkSecurePin: true,
         );
       }),
     );

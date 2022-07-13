@@ -54,11 +54,9 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
 
   Map<String, WidgetBuilder> _routeBuilders() {
     return {
-      EnterPin.routeName: (_) =>
-          EnterPin(pinFocusNode: currentPinFocusNode, submitOldPin: submitOldPin, cancel: cancel),
+      EnterPin.routeName: (_) => EnterPin(submitOldPin: submitOldPin, cancel: cancel),
       ValidatingPin.routeName: (_) => ValidatingPin(cancel: cancel),
-      ChoosePin.routeName: (_) => ChoosePin(
-          pinFocusNode: newPinFocusNode, chooseNewPin: chooseNewPin, toggleLongPin: toggleLongPin, cancel: cancel),
+      ChoosePin.routeName: (_) => ChoosePin(chooseNewPin: chooseNewPin, toggleLongPin: toggleLongPin, cancel: cancel),
       ConfirmPin.routeName: (_) => ConfirmPin(confirmNewPin: confirmNewPin, cancel: () => {}),
       UpdatingPin.routeName: (_) => UpdatingPin(cancel: cancel),
       Success.routeName: (_) => Success(cancel: cancel),
