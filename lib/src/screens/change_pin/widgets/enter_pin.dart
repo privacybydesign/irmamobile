@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
@@ -32,21 +30,18 @@ class EnterPin extends StatelessWidget {
         builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
           final maxPinSize = (snapshot.hasData && snapshot.data!) ? longPinSize : shortPinSize;
           final pinBloc = PinStateBloc(maxPinSize);
-          BlocListener<PinStateBloc, PinState>(
-            bloc: pinBloc,
-            listener: (context, state) {
-              if (maxPinSize == shortPinSize) {
-                submitOldPin(pinBloc.state.pin.join());
-              }
-            },
-          );
+
           return YiviPinScreen(
-            instructionKey: 'change_pin.enter_pin.instruction',
-            maxPinSize: maxPinSize,
-            onSubmit: () => submitOldPin(pinBloc.state.pin.join()),
-            pinBloc: pinBloc,
-            pinVisibilityBloc: PinVisibilityBloc(),
-          );
+              instructionKey: 'change_pin.enter_pin.instruction',
+              maxPinSize: maxPinSize,
+              onSubmit: () => submitOldPin(pinBloc.state.pin.join()),
+              pinBloc: pinBloc,
+              pinVisibilityBloc: PinVisibilityBloc(),
+              listener: (context, state) {
+                if (maxPinSize == shortPinSize && state.attributes.contains(SecurePinAttribute.goodEnough)) {
+                  submitOldPin(pinBloc.state.pin.join());
+                }
+              });
         },
       ),
     );

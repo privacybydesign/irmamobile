@@ -1,8 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 import '../../../data/irma_preferences.dart';
@@ -39,15 +37,6 @@ class ChoosePin extends StatelessWidget {
             submitPin(context, pinBloc.state.pin.join());
           }
 
-          BlocListener<PinStateBloc, PinState>(
-            bloc: pinBloc,
-            listener: (context, state) {
-              if (maxPinSize == shortPinSize) {
-                onSubmit();
-              }
-            },
-          );
-
           return YiviPinScreen(
             instructionKey: 'enrollment.choose_pin.insert_pin',
             maxPinSize: maxPinSize,
@@ -56,6 +45,11 @@ class ChoosePin extends StatelessWidget {
             pinVisibilityBloc: pinVisibilityBloc,
             onTogglePinSize: () => pinSizeStreamController.add(maxPinSize == shortPinSize ? longPinSize : shortPinSize),
             checkSecurePin: true,
+            listener: (context, state) {
+              if (maxPinSize == shortPinSize && state.attributes.contains(SecurePinAttribute.goodEnough)) {
+                onSubmit();
+              }
+            },
           );
         },
       ),

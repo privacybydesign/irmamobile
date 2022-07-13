@@ -27,10 +27,10 @@
     },
     "choose_pin": {
       "title": "Beveiliging instellen",
-      "insert_pin": "Kies een pincode van 5 cijfers",
+      "insert_pin": "Kies een pincode",
       "textfield": "Pincode",
       "confirm_title": "Herhaal je pincode",
-      "instruction": "Kies een pincode van 5 cijfers",
+      "instruction": "Kies een pincode",
       "confirm_instruction": "Vul je pincode nog een keer in",
       "next": "Volgende",
       "error_title": "Pincode verkeerd",
@@ -527,7 +527,7 @@
   "credential": {
     "no_data": "Geen gegevens",
     "valid_until": "Geldig tot: {date}",
-    "date_at_time": "{date} om {time}",
+    "date_at_time": "{date} om {time}"
   },
   "secure_pin": {
     "info_button": "Pincode mogelijk niet veilig",

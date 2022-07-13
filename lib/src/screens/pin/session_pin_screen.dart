@@ -1,33 +1,28 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/screens/error/session_error_screen.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
-import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_state.dart';
-import 'package:irmamobile/src/theme/irma_icons.dart';
-import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/loading_indicator.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_attempts.dart';
-import 'package:irmamobile/src/widgets/pin_field.dart';
 
 import '../../data/irma_preferences.dart';
+import '../../theme/theme.dart';
+import '../reset_pin/reset_pin_screen.dart';
+import 'bloc/pin_event.dart';
+import 'yivi_pin_screen.dart' as yivi;
 
 class SessionPinScreen extends StatefulWidget {
   final int sessionID;
   final String title;
 
-  const SessionPinScreen({Key key, @required this.sessionID, @required this.title}) : super(key: key);
+  const SessionPinScreen({Key? key, required this.sessionID, required this.title}) : super(key: key);
 
   @override
   _SessionPinScreenState createState() => _SessionPinScreenState();
@@ -39,7 +34,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
   final _focusNode = FocusNode();
   final _navigatorKey = GlobalKey();
 
-  StreamSubscription _pinBlocSubscription;
+  late final StreamSubscription _pinBlocSubscription;
 
   @override
   void initState() {
@@ -55,7 +50,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
           if (pinState.error != null) {
             _handleError(pinState);
           }
-          FocusScope.of(_navigatorKey.currentContext).requestFocus(_focusNode);
+          FocusScope.of(_navigatorKey.currentContext!).requestFocus(_focusNode);
         }
       });
     });
@@ -63,7 +58,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
 
   @override
   void dispose() {
-    _pinBlocSubscription?.cancel();
+    _pinBlocSubscription.cancel();
     _focusNode.dispose();
     _pinBloc.close();
     WidgetsBinding.instance?.removeObserver(this);
@@ -80,12 +75,12 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
   void _handleInvalidPin(PinState state) {
     if (state.remainingAttempts != 0) {
       showDialog(
-        context: _navigatorKey.currentContext,
+        context: _navigatorKey.currentContext!,
         useRootNavigator: false,
         builder: (BuildContext context) => PinWrongAttemptsDialog(
           attemptsRemaining: state.remainingAttempts,
           onClose: () {
-            Navigator.of(_navigatorKey.currentContext).pop();
+            Navigator.of(_navigatorKey.currentContext!).pop();
             _focusNode.requestFocus();
           },
         ),
@@ -97,11 +92,11 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
   }
 
   void _handleError(PinState state) {
-    Navigator.of(_navigatorKey.currentContext).push(MaterialPageRoute(
+    Navigator.of(_navigatorKey.currentContext!).push(MaterialPageRoute(
       builder: (context) => SessionErrorScreen(
         error: state.error,
         onTapClose: () {
-          Navigator.of(_navigatorKey.currentContext).pop();
+          Navigator.of(_navigatorKey.currentContext!).pop();
           _focusNode.requestFocus();
         },
       ),
@@ -111,14 +106,14 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused) {
-      FocusScope.of(_navigatorKey.currentContext).unfocus();
+      FocusScope.of(_navigatorKey.currentContext!).unfocus();
     } else if (state == AppLifecycleState.resumed) {
       final pinState = _pinBloc.state;
       if (pinState.pinInvalid || pinState.authenticateInProgress || pinState.error != null) return;
       Future.delayed(const Duration(milliseconds: 100), () {
         // Screen might have popped during the delay, so check whether currentContext exists first
         if (_navigatorKey.currentContext != null) {
-          FocusScope.of(_navigatorKey.currentContext).requestFocus(_focusNode);
+          FocusScope.of(_navigatorKey.currentContext!).requestFocus(_focusNode);
         }
       });
     }
@@ -129,8 +124,12 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
     return WillPopScope(
       onWillPop: () async {
         // Wait on irmago response before closing, calling widget expects a result
-        return _pinBloc.stream.firstWhere((state) => !state.authenticateInProgress, orElse: () => null).then((state) {
-          if (state != null && !state.authenticated) _cancel();
+        return _pinBloc.stream
+            .firstWhere(
+          (state) => !state.authenticateInProgress,
+        )
+            .then((state) {
+          if (!state.authenticated) _cancel();
           return false;
         });
       },
@@ -153,57 +152,52 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
 
               return Scaffold(
                 appBar: _buildAppBar(),
-                body: SafeArea(
-                  minimum: const EdgeInsets.all(8.0),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: <Widget>[
-                        SizedBox(
-                          height: IrmaTheme.of(context).largeSpacing,
-                        ),
-                        Text(
-                          FlutterI18n.translate(context, "session_pin.subtitle"),
-                          textAlign: TextAlign.center,
-                        ),
-                        SizedBox(
-                          height: IrmaTheme.of(context).defaultSpacing,
-                        ),
-                        StreamBuilder(
-                          stream: IrmaPreferences.get().getLongPin(),
-                          builder: (BuildContext context, AsyncSnapshot<bool> snapshot) => PinField(
-                            focusNode: _focusNode,
-                            longPin: snapshot.hasData && snapshot.data,
-                            enabled: !state.authenticateInProgress,
-                            onSubmit: (pin) {
-                              FocusScope.of(context).requestFocus();
-                              _pinBloc.add(
-                                SessionPin(widget.sessionID, pin),
-                              );
-                            },
-                          ),
-                        ),
-                        SizedBox(
-                          height: IrmaTheme.of(context).defaultSpacing,
-                        ),
-                        Icon(
-                          IrmaIcons.duration,
-                          color: IrmaTheme.of(context).dark,
-                          size: 32,
-                        ),
-                        SizedBox(
-                          height: IrmaTheme.of(context).defaultSpacing,
-                        ),
-                        Text(
-                          FlutterI18n.translate(context, "session_pin.explanation"),
-                          textAlign: TextAlign.center,
-                        ),
-                        if (state.authenticateInProgress)
-                          Padding(
-                              padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
-                              child: const CircularProgressIndicator()),
-                      ],
-                    ),
-                  ),
+                body: StreamBuilder(
+                  stream: _pinBloc.getPinBlockedFor(),
+                  builder: (BuildContext context, AsyncSnapshot<Duration> blockedFor) {
+                    return StreamBuilder(
+                      stream: IrmaPreferences.get().getLongPin(),
+                      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+                        final maxPinSize = (snapshot.hasData && snapshot.data!) ? yivi.longPinSize : yivi.shortPinSize;
+                        final pinBloc = yivi.PinStateBloc(maxPinSize);
+
+                        final enabled =
+                            (blockedFor.data ?? Duration.zero).inSeconds <= 0 && !state.authenticateInProgress;
+
+                        void onSubmit() {
+                          if (!enabled) return;
+                          _pinBloc.add(
+                            SessionPin(widget.sessionID, pinBloc.state.pin.join()),
+                          );
+                        }
+
+                        return Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            yivi.YiviPinScreen(
+                              instructionKey: 'session_pin.subtitle',
+                              maxPinSize: maxPinSize,
+                              onSubmit: onSubmit,
+                              pinBloc: pinBloc,
+                              pinVisibilityBloc: yivi.PinVisibilityBloc(),
+                              enabled: enabled,
+                              onForgotPin: () => Navigator.of(context).pushNamed(ResetPinScreen.routeName),
+                              listener: (context, state) {
+                                if (maxPinSize == yivi.shortPinSize &&
+                                    state.attributes.contains(yivi.SecurePinAttribute.goodEnough)) {
+                                  onSubmit();
+                                }
+                              },
+                            ),
+                            if (state.authenticateInProgress)
+                              Padding(
+                                  padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
+                                  child: const CircularProgressIndicator()),
+                          ],
+                        );
+                      },
+                    );
+                  },
                 ),
               );
             },

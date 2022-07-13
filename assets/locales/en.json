@@ -27,10 +27,10 @@
     },
     "choose_pin": {
       "title": "Secure your Yivi app",
-      "insert_pin": "Choose a 5-digit PIN",
+      "insert_pin": "Choose a PIN",
       "textfield": "PIN",
       "confirm_title": "Repeat your PIN",
-      "instruction": "Choose a 5-digit PIN",
+      "instruction": "Choose a PIN",
       "confirm_instruction": "Enter your PIN again",
       "next": "Next",
       "error_title": "PIN incorrect",

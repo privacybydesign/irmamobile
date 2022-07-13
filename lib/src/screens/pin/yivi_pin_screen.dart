@@ -52,6 +52,7 @@ class YiviPinScreen extends StatelessWidget {
   final String? instructionKey;
   final String? instruction;
   final bool enabled;
+  final void Function(BuildContext, PinState)? listener;
 
   const YiviPinScreen({
     Key? key,
@@ -65,6 +66,7 @@ class YiviPinScreen extends StatelessWidget {
     this.onTogglePinSize,
     this.checkSecurePin = false,
     this.enabled = true,
+    this.listener,
   })  : assert(instructionKey != null && instruction == null || instruction != null && instructionKey == null),
         super(key: key);
 
@@ -122,8 +124,9 @@ class YiviPinScreen extends StatelessWidget {
       style: theme.textTheme.headline3?.copyWith(fontWeight: FontWeight.w700),
     );
 
-    final pinDots = BlocBuilder<PinStateBloc, PinState>(
+    final pinDots = BlocConsumer<PinStateBloc, PinState>(
       bloc: pinBloc,
+      listener: listener ?? (c, p) {},
       builder: (context, state) =>
           _PinIndicator(maxPinSize: maxPinSize, visibilityBloc: pinVisibilityBloc, pinState: state),
     );
@@ -194,9 +197,9 @@ class YiviPinScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox.square(dimension: 42.scale(context)),
+                // SizedBox.square(dimension: 42.scale(context)),
                 logo,
-                SizedBox(height: 32.scale(context)),
+                SizedBox(height: 16.scale(context)),
                 Center(
                   child: instruction,
                 ),

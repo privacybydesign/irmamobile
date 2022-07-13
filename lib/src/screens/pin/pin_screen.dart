@@ -152,15 +152,6 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                     );
                   }
 
-                  BlocListener<yivi.PinStateBloc, yivi.PinState>(
-                    bloc: pinBloc,
-                    listener: (context, state) {
-                      if (maxPinSize == yivi.shortPinSize) {
-                        onSubmit();
-                      }
-                    },
-                  );
-
                   return Stack(
                     alignment: Alignment.center,
                     children: [
@@ -172,6 +163,12 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                         pinVisibilityBloc: yivi.PinVisibilityBloc(),
                         enabled: enabled,
                         onForgotPin: () => Navigator.of(context).pushNamed(ResetPinScreen.routeName),
+                        listener: (context, state) {
+                          if (maxPinSize == yivi.shortPinSize &&
+                              state.attributes.contains(yivi.SecurePinAttribute.goodEnough)) {
+                            onSubmit();
+                          }
+                        },
                       ),
                       if (state.authenticateInProgress)
                         Padding(
