@@ -2,7 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/theme/theme.dart';
+
+import '../theme/theme.dart';
 
 class IrmaDialog extends StatelessWidget {
   final String title;
@@ -71,7 +72,7 @@ class IrmaDialog extends StatelessWidget {
                                     textAlign: TextAlign.center,
                                   ),
                                 ),
-                                SizedBox(height: theme.smallSpacing),
+                                SizedBox(height: theme.mediumSpacing),
                                 Text(
                                   content,
                                   key: const Key('irma_dialog_content'),

@@ -3,7 +3,10 @@
     "loading": "Loading…",
     "step_of_steps": "Step {i} of {n}",
     "step": "Step",
-    "done": "Done"
+    "done": "Done",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete"
   },
   "enrollment": {
     "introduction": {
@@ -532,6 +535,12 @@
   "credential": {
     "no_data": "No data",
     "valid_until": "Valid until: {date}",
-    "date_at_time": "{date} at {time}"
+    "date_at_time": "{date} at {time}",
+    "options": {
+      "title": "Options",
+      "reobtain": "Reobtain",
+      "delete": "Delete data",
+      "confirm_delete": "Are you sure you want to delete this data?"
+    }
   }
 }
