@@ -21,7 +21,7 @@ class _PinIndicator extends StatelessWidget {
 
     final textColor = isPinVisible ? theme.pinIndicatorDarkBlue : Colors.transparent;
 
-    final style = maxPinSize != _minPinSize
+    final style = maxPinSize != shortPinSize
         ? theme.textTheme.headline5?.copyWith(
             color: textColor,
           )
@@ -48,24 +48,24 @@ class _PinIndicator extends StatelessWidget {
 
     final pinSize = pinState.pin.length;
 
-    final double edgeSize = maxPinSize != _minPinSize ? 6 : 12;
+    final double edgeSize = maxPinSize != shortPinSize ? 6 : 12;
     final scaledEdgeSize = edgeSize.scale(context);
 
     /// prevent the row from collapsing
-    if (pinSize == 0 && maxPinSize != _minPinSize) {
+    if (pinSize == 0 && maxPinSize != shortPinSize) {
       return SizedBox(
         width: 0,
         height: 19.scale(context),
       );
     }
 
-    final isMaxPin5 = maxPinSize == _minPinSize;
+    final isMaxPin5 = maxPinSize == shortPinSize;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         ...List.generate(
-          isMaxPin5 ? 5 : pinSize,
+          isMaxPin5 ? shortPinSize : pinSize,
           (i) => Stack(
             alignment: Alignment.center,
             children: [

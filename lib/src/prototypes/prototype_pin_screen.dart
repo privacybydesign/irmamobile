@@ -24,7 +24,7 @@ class SecurePinScreenTest extends StatelessWidget {
     return YiviPinScreen(
       instructionKey: instructionKey,
       maxPinSize: maxPinSize,
-      onCompletePin: () => Navigator.pop(context),
+      onSubmit: () => Navigator.pop(context),
       pinBloc: pinBloc,
       pinVisibilityBloc: pinVisibilityBloc,
       onTogglePinSize: onTogglePinSize,
@@ -58,7 +58,7 @@ class _PinScreen extends State<PinScreenTest> {
     return YiviPinScreen(
       instructionKey: 'pin.title',
       maxPinSize: widget.maxPinSize,
-      onCompletePin: () => Navigator.pop(context),
+      onSubmit: () => Navigator.pop(context),
       pinBloc: widget.pinBloc,
       pinVisibilityBloc: pinVisibilityBloc,
       onForgotPin: () => Navigator.pop(context),

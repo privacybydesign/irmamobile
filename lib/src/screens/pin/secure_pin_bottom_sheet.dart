@@ -11,7 +11,7 @@ class UnsecurePinWarningTextButton extends StatelessWidget {
     return BlocBuilder<PinStateBloc, PinState>(
       bloc: bloc,
       builder: (context, state) {
-        if (state.pin.length >= 5) {
+        if (state.pin.length >= shortPinSize) {
           if (!state.attributes.contains(SecurePinAttribute.goodEnough)) {
             return Center(
               child: TextButton(
@@ -117,7 +117,7 @@ class UnsecurePinWarningTextButton extends StatelessWidget {
           'secure_pin.rules.not_abcab_nor_abcba'),
     ];
 
-    if (state.pin.length > 5) {
+    if (state.pin.length > shortPinSize) {
       rules
         ..add(const Divider())
         ..add(_pinRule(context, theme, securePinAttrs.contains(SecurePinAttribute.mustContainValidSubset),

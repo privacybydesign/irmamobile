@@ -94,15 +94,15 @@ class PinStateBloc extends Bloc<Pin, PinState> {
       print('max pin size: $maxPinSize, pin size: ${pin.length}}');
     }
 
-    if (pin.length < 5) {
+    if (pin.length < shortPinSize) {
       yield PinState(pin, set);
     }
 
-    if (pin.length == 5) {
+    if (pin.length == shortPinSize) {
       set.applyRules(pin);
-    } else if (pin.length >= 5) {
+    } else if (pin.length >= shortPinSize) {
       for (int i = 0; i < pin.length - 4; i++) {
-        final sub = pin.sublist(i, i + 5);
+        final sub = pin.sublist(i, i + shortPinSize);
 
         /// report the last pin secure attributes
         set

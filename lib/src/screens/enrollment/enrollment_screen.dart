@@ -46,29 +46,15 @@ class ProvidedEnrollmentScreen extends StatefulWidget {
 }
 
 class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
-  FocusNode pinFocusNode;
   final EnrollmentBloc bloc;
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   ProvidedEnrollmentScreenState({this.bloc}) : super();
 
-  @override
-  void initState() {
-    super.initState();
-
-    pinFocusNode = FocusNode();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   Map<String, WidgetBuilder> _routeBuilders() {
     return {
       Introduction.routeName: (_) => Introduction(),
       ChoosePin.routeName: (_) => ChoosePin(
-            pinFocusNode: pinFocusNode,
             submitPin: _submitPin,
             cancelAndNavigate: _cancelAndNavigate,
           ),
@@ -153,7 +139,6 @@ class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
                   onClose: () async {
                     // close the overlay
                     Navigator.of(context).pop();
-                    pinFocusNode.requestFocus();
                   },
                 ),
               );

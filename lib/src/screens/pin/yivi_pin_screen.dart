@@ -31,7 +31,8 @@ const _paddingInPx = 16.0;
 
 const _nextButtonHeight = 48.0;
 
-const _minPinSize = 5;
+const shortPinSize = 5;
+const longPinSize = 16;
 
 Widget _resizeBox(Widget widget, double edge) => SizedBox(
       width: edge,
@@ -41,7 +42,7 @@ Widget _resizeBox(Widget widget, double edge) => SizedBox(
 
 class YiviPinScreen extends StatelessWidget {
   final int maxPinSize;
-  final VoidCallback onCompletePin;
+  final VoidCallback onSubmit;
   final PinStateBloc pinBloc;
   final PinVisibilityBloc pinVisibilityBloc;
   final VoidCallback? onForgotPin;
@@ -55,7 +56,7 @@ class YiviPinScreen extends StatelessWidget {
     required this.pinVisibilityBloc,
     required this.pinBloc,
     required this.maxPinSize,
-    required this.onCompletePin,
+    required this.onSubmit,
     this.onForgotPin,
     this.onTogglePinSize,
     this.checkSecurePin = false,
@@ -90,7 +91,7 @@ class YiviPinScreen extends StatelessWidget {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
           primary: theme.pinIndicatorDarkBlue,
         ),
-        onPressed: activate ? onCompletePin : null,
+        onPressed: activate ? onSubmit : null,
         child: Text(
           FlutterI18n.translate(context, 'enrollment.choose_pin.next'),
           style: theme.textTheme.button?.copyWith(fontWeight: FontWeight.w700),
@@ -108,10 +109,6 @@ class YiviPinScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (kDebugMode) {
-      print('screen width: ${MediaQuery.of(context).size.width}, screen height: ${MediaQuery.of(context).size.height}');
-    }
-
     final theme = IrmaTheme.of(context);
 
     final instruction = Text(
@@ -134,12 +131,12 @@ class YiviPinScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               pinDots,
-              if (maxPinSize != _minPinSize)
+              if (maxPinSize != shortPinSize)
                 Divider(
                   height: 1.0,
                   color: theme.darkPurple,
                 ),
-              if (maxPinSize != _minPinSize)
+              if (maxPinSize != shortPinSize)
                 Align(
                   alignment: Alignment.bottomRight,
                   child: BlocBuilder<PinStateBloc, PinState>(
@@ -156,7 +153,7 @@ class YiviPinScreen extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: EdgeInsets.only(bottom: maxPinSize == _minPinSize ? 0.0 : 16.0),
+          padding: EdgeInsets.only(bottom: maxPinSize == shortPinSize ? 0.0 : 16.0),
           child: Align(
             alignment: Alignment.centerRight,
             child: _pinVisibility(context, theme, pinVisibilityBloc),
@@ -166,12 +163,12 @@ class YiviPinScreen extends StatelessWidget {
     );
 
     final togglePinSizeCopy =
-        maxPinSize > _minPinSize ? 'change_pin.choose_pin.switch_short' : 'change_pin.choose_pin.switch_long';
+        maxPinSize > shortPinSize ? 'change_pin.choose_pin.switch_short' : 'change_pin.choose_pin.switch_long';
 
     final nextButton = BlocBuilder<PinStateBloc, PinState>(
       bloc: pinBloc,
       builder: (context, state) =>
-          _activateNext(context, theme, state.pin.length >= (_minPinSize == maxPinSize ? 5 : 6)),
+          _activateNext(context, theme, state.pin.length >= (shortPinSize == maxPinSize ? 5 : 6)),
     );
 
     List<Widget> bodyPortrait(BuildContext context) => [
