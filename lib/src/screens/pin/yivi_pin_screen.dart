@@ -125,17 +125,44 @@ class YiviPinScreen extends StatelessWidget {
           _PinIndicator(maxPinSize: maxPinSize, visibilityBloc: pinVisibilityBloc, pinState: state),
     );
 
-    final pinDotsUnderlined = Container(
-      margin: EdgeInsets.symmetric(horizontal: 65.scale(context)),
+    final pinDotsDecorated = Stack(
       alignment: Alignment.center,
-      decoration: BoxDecoration(
-        border: maxPinSize == _minPinSize
-            ? null
-            : Border(
-                bottom: BorderSide(color: theme.darkPurple),
-              ),
-      ),
-      child: pinDots,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 64.scale(context)),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              pinDots,
+              if (maxPinSize != _minPinSize)
+                Divider(
+                  height: 1.0,
+                  color: theme.darkPurple,
+                ),
+              if (maxPinSize != _minPinSize)
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: BlocBuilder<PinStateBloc, PinState>(
+                    bloc: pinBloc,
+                    builder: (context, state) => Text(
+                      '${state.pin.length}/$maxPinSize',
+                      style: theme.textTheme.caption?.copyWith(
+                          fontWeight: FontWeight.w300,
+                          color: state.pin.isNotEmpty ? theme.darkPurple : Colors.transparent),
+                    ),
+                  ),
+                )
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(bottom: maxPinSize == _minPinSize ? 0.0 : 16.0),
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: _pinVisibility(context, theme, pinVisibilityBloc),
+          ),
+        ),
+      ],
     );
 
     final togglePinSizeCopy =
@@ -164,16 +191,7 @@ class YiviPinScreen extends StatelessWidget {
                   child: instruction,
                 ),
                 SizedBox(height: 16.scale(context)),
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    pinDotsUnderlined,
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: _pinVisibility(context, theme, pinVisibilityBloc),
-                    ),
-                  ],
-                ),
+                pinDotsDecorated,
                 if (checkSecurePin)
                   Center(
                     child: _securePinTextButton(),
@@ -218,16 +236,7 @@ class YiviPinScreen extends StatelessWidget {
                 Center(
                   child: instruction,
                 ),
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    pinDotsUnderlined,
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: _pinVisibility(context, theme, pinVisibilityBloc),
-                    ),
-                  ],
-                ),
+                pinDotsDecorated,
                 if (checkSecurePin)
                   Center(
                     child: _securePinTextButton(),
