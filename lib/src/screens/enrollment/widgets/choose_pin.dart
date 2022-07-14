@@ -19,7 +19,7 @@ class ChoosePin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return YiviPinScaffold(
       appBar: IrmaAppBar(
         titleTranslationKey: 'enrollment.choose_pin.title',
         leadingAction: () => cancelAndNavigate(context),

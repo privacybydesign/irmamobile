@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/screens/change_pin/models/change_pin_bloc.dart';
 import 'package:irmamobile/src/screens/change_pin/models/change_pin_state.dart';
-import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 import '../../pin/yivi_pin_screen.dart';
@@ -18,7 +16,7 @@ class ConfirmPin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return YiviPinScaffold(
       appBar: IrmaAppBar(
         titleTranslationKey: 'change_pin.confirm_pin.title',
         leadingAction: () async {

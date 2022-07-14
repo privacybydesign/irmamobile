@@ -112,8 +112,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
           return Container();
         }
 
-        return Scaffold(
-          backgroundColor: IrmaTheme.of(context).background,
+        return yivi.YiviPinScaffold(
           appBar: IrmaAppBar(
             titleTranslationKey: "pin.title",
           ),

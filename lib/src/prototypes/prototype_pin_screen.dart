@@ -29,7 +29,7 @@ class SecurePinScreenTest extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return YiviPinScaffold(
       appBar: _buildAppBar(() => Navigator.pop(context), 'Secure Pin: Reset / Onboarding'),
       body: YiviPinScreen(
         instructionKey: instructionKey,
@@ -60,7 +60,7 @@ class _PinScreen extends State<PinScreenTest> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return YiviPinScaffold(
       appBar: _buildAppBar(() => Navigator.pop(context), 'Basic Pin'),
       body: YiviPinScreen(
         instructionKey: 'pin.title',

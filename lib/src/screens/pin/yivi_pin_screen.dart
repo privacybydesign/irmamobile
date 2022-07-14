@@ -2,7 +2,6 @@ library pin;
 
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -26,8 +25,6 @@ typedef Pin = List<int>;
 typedef PinFn = bool Function(Pin);
 typedef PinQuality = Set<SecurePinAttribute>;
 typedef NumberFn = void Function(int);
-
-const _paddingInPx = 16.0;
 
 const _nextButtonHeight = 48.0;
 
@@ -219,7 +216,7 @@ class YiviPinScreen extends StatelessWidget {
               onEnterNumber: pinBloc.update,
             ),
           ),
-          const SizedBox(height: _paddingInPx),
+          SizedBox(height: theme.screenPadding),
           nextButton,
         ];
 
@@ -254,23 +251,40 @@ class YiviPinScreen extends StatelessWidget {
           ),
         ];
 
-    // TODO apply SafeArea and background color to all parent scaffolds
-    /// Assume a parent has defined SafeArea and background
-    return Container(
-      alignment: Alignment.center,
-      margin: const EdgeInsets.all(_paddingInPx),
-      child: OrientationBuilder(
-        builder: (context, orientation) {
-          if (Orientation.portrait == orientation) {
-            return Column(
-              children: bodyPortrait(),
-            );
-          } else {
-            return Row(
-              children: bodyLandscape(),
-            );
-          }
-        },
+    return OrientationBuilder(
+      builder: (context, orientation) {
+        if (Orientation.portrait == orientation) {
+          return Column(
+            children: bodyPortrait(),
+          );
+        } else {
+          return Row(
+            children: bodyLandscape(),
+          );
+        }
+      },
+    );
+  }
+}
+
+class YiviPinScaffold extends StatelessWidget {
+  final PreferredSizeWidget? appBar;
+  final Widget body;
+
+  const YiviPinScaffold({Key? key, required this.body, this.appBar}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    return Scaffold(
+      appBar: appBar,
+      backgroundColor: theme.background,
+      body: SafeArea(
+        child: Container(
+          alignment: Alignment.center,
+          margin: EdgeInsets.all(theme.screenPadding),
+          child: body,
+        ),
       ),
     );
   }
