@@ -98,10 +98,19 @@ class YiviPinScreen extends StatelessWidget {
         );
 
     Widget activateNext(bool activate) => ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            minimumSize: const Size.fromHeight(_nextButtonHeight),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-            primary: theme.secondary,
+          style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.resolveWith<Color>(
+              (Set<MaterialState> states) {
+                if (states.contains(MaterialState.pressed))
+                  return theme.secondary.withOpacity(0.5);
+                else if (states.contains(MaterialState.disabled)) return theme.secondary.withOpacity(0.05);
+                return theme.secondary;
+              },
+            ),
+            minimumSize: MaterialStateProperty.resolveWith<Size>((s) => const Size.fromHeight(_nextButtonHeight)),
+            shape: MaterialStateProperty.resolveWith<OutlinedBorder>(
+              (s) => RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+            ),
           ),
           onPressed: activate && enabled ? onSubmit : null,
           child: Text(
