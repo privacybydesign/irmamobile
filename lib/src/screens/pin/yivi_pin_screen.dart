@@ -1,7 +1,6 @@
 library pin;
 
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +27,6 @@ typedef PinFn = bool Function(Pin);
 typedef PinQuality = Set<SecurePinAttribute>;
 typedef NumberFn = void Function(int);
 
-// TODO change to branch ux-2.0-yivi-style YiviThemeData default
 const _paddingInPx = 16.0;
 
 const _nextButtonHeight = 48.0;
@@ -71,54 +69,55 @@ class YiviPinScreen extends StatelessWidget {
   })  : assert(instructionKey != null && instruction == null || instruction != null && instructionKey == null),
         super(key: key);
 
-  Widget _visibilityButton(BuildContext context, IrmaThemeData theme, IconData icon, VoidCallback fn) => ClipPath(
-        clipper: _PerfectCircleClip(),
-        child: Material(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(100.0),
-          child: Ink(
-            width: 60.0.scale(context),
-            height: 60.scale(context),
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-            ),
-            child: InkWell(
-              onTap: fn,
-              child: Icon(
-                icon,
-                size: 24,
-                color: theme.secondary,
-              ),
-            ),
-          ),
-        ),
-      );
-
-  Widget _activateNext(BuildContext context, IrmaThemeData theme, bool activate) => ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          minimumSize: const Size.fromHeight(_nextButtonHeight),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-          primary: theme.secondary,
-        ),
-        onPressed: activate && enabled ? onSubmit : null,
-        child: Text(
-          FlutterI18n.translate(context, 'enrollment.choose_pin.next'),
-          style: theme.textTheme.button?.copyWith(fontWeight: FontWeight.w700),
-        ),
-      );
-
-  Widget _pinVisibility(BuildContext context, IrmaThemeData theme, PinVisibilityBloc bloc) =>
-      BlocBuilder<PinVisibilityBloc, bool>(
-        bloc: pinVisibilityBloc,
-        builder: (context, visible) => _visibilityButton(
-            context, theme, visible ? Icons.visibility_off : Icons.visibility, () => pinVisibilityBloc.add(!visible)),
-      );
-
   Widget _securePinTextButton() => UnsecurePinWarningTextButton(bloc: pinBloc);
 
+  /// Some functions are nested to save on ceremony for repeatedly passed parameters
+  /// Also nested functions are not exposed outside the parent function
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+
+    Widget visibilityButton(IconData icon, VoidCallback fn) => ClipPath(
+          clipper: _PerfectCircleClip(),
+          child: Material(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(100.0),
+            child: Ink(
+              width: 60.0.scale(context),
+              height: 60.scale(context),
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+              ),
+              child: InkWell(
+                onTap: fn,
+                child: Icon(
+                  icon,
+                  size: 24,
+                  color: theme.secondary,
+                ),
+              ),
+            ),
+          ),
+        );
+
+    Widget activateNext(bool activate) => ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            minimumSize: const Size.fromHeight(_nextButtonHeight),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+            primary: theme.secondary,
+          ),
+          onPressed: activate && enabled ? onSubmit : null,
+          child: Text(
+            FlutterI18n.translate(context, 'enrollment.choose_pin.next'),
+            style: theme.textTheme.button?.copyWith(fontWeight: FontWeight.w700),
+          ),
+        );
+
+    Widget pinVisibility(PinVisibilityBloc bloc) => BlocBuilder<PinVisibilityBloc, bool>(
+          bloc: pinVisibilityBloc,
+          builder: (context, visible) => visibilityButton(
+              visible ? Icons.visibility_off : Icons.visibility, () => pinVisibilityBloc.add(!visible)),
+        );
 
     final instruction = Text(
       instructionKey != null ? FlutterI18n.translate(context, instructionKey!) : this.instruction!,
@@ -166,7 +165,7 @@ class YiviPinScreen extends StatelessWidget {
           padding: EdgeInsets.only(bottom: maxPinSize == shortPinSize ? 0.0 : 16.0),
           child: Align(
             alignment: Alignment.centerRight,
-            child: _pinVisibility(context, theme, pinVisibilityBloc),
+            child: pinVisibility(pinVisibilityBloc),
           ),
         ),
       ],
@@ -177,52 +176,40 @@ class YiviPinScreen extends StatelessWidget {
 
     final nextButton = BlocBuilder<PinStateBloc, PinState>(
       bloc: pinBloc,
-      builder: (context, state) =>
-          _activateNext(context, theme, state.pin.length >= (shortPinSize == maxPinSize ? 5 : 6)),
+      builder: (context, state) => activateNext(state.pin.length >= (shortPinSize == maxPinSize ? 5 : 6)),
     );
 
-    final logo = SizedBox(
-      height: 71.scale(context),
+    final logo = SvgPicture.asset(
+      'assets/non-free/logo_no_margin.svg',
       width: 127.scale(context),
-      child: SvgPicture.asset(
-        'assets/non-free/logo.svg',
-        semanticsLabel: FlutterI18n.translate(
-          context,
-          'accessibility.irma_logo',
-        ),
+      height: 71.scale(context),
+      semanticsLabel: FlutterI18n.translate(
+        context,
+        'accessibility.irma_logo',
       ),
     );
 
-    List<Widget> bodyPortrait(BuildContext context) => [
+    /// Only call when required
+    List<Widget> bodyPortrait() => [
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // SizedBox.square(dimension: 42.scale(context)),
                 logo,
                 SizedBox(height: 16.scale(context)),
-                Center(
-                  child: instruction,
-                ),
+                instruction,
                 SizedBox(height: 16.scale(context)),
                 pinDotsDecorated,
-                if (checkSecurePin)
-                  Center(
-                    child: _securePinTextButton(),
-                  ),
+                if (checkSecurePin) _securePinTextButton(),
                 if (onTogglePinSize != null)
-                  Center(
-                    child: Link(
-                      onTap: onTogglePinSize,
-                      label: FlutterI18n.translate(context, togglePinSizeCopy),
-                    ),
+                  Link(
+                    onTap: onTogglePinSize,
+                    label: FlutterI18n.translate(context, togglePinSizeCopy),
                   ),
                 if (onForgotPin != null)
-                  Center(
-                    child: Link(
-                      onTap: onForgotPin,
-                      label: FlutterI18n.translate(context, 'pin.button_forgot'),
-                    ),
+                  Link(
+                    onTap: onForgotPin,
+                    label: FlutterI18n.translate(context, 'pin.button_forgot'),
                   ),
               ],
             ),
@@ -236,33 +223,25 @@ class YiviPinScreen extends StatelessWidget {
           nextButton,
         ];
 
-    List<Widget> bodyLandscape(BuildContext context) => [
+    List<Widget> bodyLandscape() => [
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                logo,
-                Center(
-                  child: instruction,
-                ),
+                // logo, // TODO discuss with designer
+                instruction,
                 pinDotsDecorated,
-                if (checkSecurePin)
-                  Center(
-                    child: _securePinTextButton(),
-                  ),
+                if (checkSecurePin) _securePinTextButton(),
                 if (onTogglePinSize != null)
-                  Center(
-                    child: Link(
-                      onTap: onTogglePinSize,
-                      label: FlutterI18n.translate(context, togglePinSizeCopy),
-                    ),
+                  Link(
+                    onTap: onTogglePinSize,
+                    label: FlutterI18n.translate(context, togglePinSizeCopy),
                   ),
                 if (onForgotPin != null)
-                  Center(
-                    child: Link(
-                      onTap: onForgotPin,
-                      label: FlutterI18n.translate(context, 'pin.button_forgot'),
-                    ),
+                  Link(
+                    onTap: onForgotPin,
+                    label: FlutterI18n.translate(context, 'pin.button_forgot'),
                   ),
                 nextButton
               ],
@@ -275,29 +254,23 @@ class YiviPinScreen extends StatelessWidget {
           ),
         ];
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: theme.background,
-        body: Align(
-          alignment: Alignment.bottomCenter,
-          child: Container(
-            margin: const EdgeInsets.all(_paddingInPx),
-            child: OrientationBuilder(
-              builder: (context, orientation) {
-                if (Orientation.portrait == orientation) {
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: bodyPortrait(context),
-                  );
-                } else {
-                  return Row(
-                    children: bodyLandscape(context),
-                  );
-                }
-              },
-            ),
-          ),
-        ),
+    // TODO apply SafeArea and background color to all parent scaffolds
+    /// Assume a parent has defined SafeArea and background
+    return Container(
+      alignment: Alignment.center,
+      margin: const EdgeInsets.all(_paddingInPx),
+      child: OrientationBuilder(
+        builder: (context, orientation) {
+          if (Orientation.portrait == orientation) {
+            return Column(
+              children: bodyPortrait(),
+            );
+          } else {
+            return Row(
+              children: bodyLandscape(),
+            );
+          }
+        },
       ),
     );
   }

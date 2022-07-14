@@ -11,7 +11,7 @@ class _NumberPad extends StatelessWidget {
     final backspace = ClipPath(
       clipper: _PerfectCircleClip(),
       child: Material(
-        color: Colors.transparent, // Button color
+        color: Colors.transparent,
         child: InkWell(
           onTap: () => onEnterNumber(-1),
           child: Icon(
