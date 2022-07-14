@@ -16,52 +16,9 @@ import '../models/choosable_disclosure_credential.dart';
 import '../models/disclosure_credential.dart';
 import '../models/template_disclosure_credential.dart';
 
-/**
- * This bloc enforces the following state machine:
- *
- *    --------
- *  | Initial |
- *   ---------
- *    | on requestDisclosurePermission status
- *    |
- *    | (a)  -------------------------------------                   NextPressed (i)
- *    |--> |            IssueWizard              |  <---------------------------
- *    |     -------------------------------------                               |
- *    |      | NextPressed       |__^ ChoiceUpdated                (c)  -------------------           NextPressed (h)
- *    |      |------------------------------------------------------>  | ObtainCredentials | <------------
- *    |      |                                                          -------------------               |
- *    |      |                                          NextPressed (f)           |                       |
- *    |      | (d) ------------------------------------   <-------------          | NextPressed (j)       |
- *    |      |--> | PreviouslyAddedCredentialsOverview |---------       |         v                       |
- *    |      |     ------------------------------------         |       ----------------                  |
- *    |      |             | NextPressed                        |----> |  ChangeChoice  | ----------------
- *    |      v (e)         v                ChangeChoicePressed |       ----------------
- *    | (b) -------------------------------------               |         |      |__^ ChoiceUpdated
- *     --> |           ChoicesOverview           |--------------          |
- *          -------------------------------------  <----------------------  NextPressed (g)
- *           |__^ NextPressed (k)      |
- *                                     v  NextPressed (l)
- *                                ----------
- *                               | Finished |
- *                                ----------
- *
- * Notes:
- * a). if the candidates contain discons without any choosable option.
- * b). if all discons contain a choosable option (the empty option in optional disjunctions is also choosable).
- * c). if the issue wizard is not completed yet. Credentials are obtained for the first incomplete discon.
- * d). if the candidates contain more credential instances than the onces that we added during the issue wizard.
- * e). if all choosable options are populated using credential instances that were added during the issue wizard.
- * f). if the previous state was PreviouslyAddedCredentialsOverview.
- * g). if the previous state was ChoicesOverview.
- * h). if the chosen option still contains template credentials that must be obtained first.
- * i). if the previous state was IssueWizard. This action is triggered automatically if the list of credentials that
- *     should be obtained only contains one credential and the attempt to obtain it succeeds at once.
- * j). if the previous state was ChangeChoice.
- * k). if showConfirmationPopup is false.
- * l). if showConfirmationPopup is true.
- */
-
-/// Bloc that specifies the flow during DisclosurePermission. Check the bloc source code for a state machine drawing.
+/// Bloc that specifies the flow during DisclosurePermission.
+/// New states are triggered either by an event being added to the bloc, or by changes in the SessionState.
+/// mapEventToState handles newly added events and _mapSessionStateToBlocState handles SessionState changes.
 class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, DisclosurePermissionBlocState> {
   final int sessionID;
   final Function(CredentialType) onObtainCredential;
@@ -80,7 +37,11 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
   })  : _repo = repo,
         _newlyAddedCredentialHashes = [],
         super(DisclosurePermissionInitial()) {
-    _sessionStateSubscription = repo.getSessionState(sessionID).asyncExpand(_mapSessionStateToBlocState).listen(emit);
+    _sessionStateSubscription = repo
+        .getSessionState(sessionID)
+        .map((session) => _mapSessionStateToBlocState(state, session))
+        .where((newState) => newState != state)
+        .listen(emit);
     _sessionEventSubscription = repo
         .getEvents()
         .whereType<RequestIssuancePermissionSessionEvent>()
@@ -99,27 +60,22 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
   Stream<DisclosurePermissionBlocState> mapEventToState(DisclosurePermissionBlocEvent event) async* {
     final state = this.state; // To prevent the need for type casting.
     final session = _repo.getCurrentSessionState(sessionID)!;
-    if ((state is DisclosurePermissionIssueWizard || state is DisclosurePermissionObtainCredentials) &&
-        event is DisclosurePermissionChoiceUpdated) {
-      // If state is type DisclosurePermissionIssueWizard otherwise use parent state.
-      final issueWizardState = state is DisclosurePermissionIssueWizard
-          ? state
-          : (state as DisclosurePermissionObtainCredentials).parentState as DisclosurePermissionIssueWizard;
-
-      if (issueWizardState.currentDiscon == null) throw Exception('No DisCon found that expects an update');
-      if (event.conIndex < 0 || event.conIndex >= issueWizardState.currentDiscon!.value.length) {
+    if (state is DisclosurePermissionIssueWizard && event is DisclosurePermissionChoiceUpdated) {
+      if (state.currentDiscon == null) throw Exception('No DisCon found that expects an update');
+      if (event.conIndex < 0 || event.conIndex >= state.currentDiscon!.value.length) {
         throw Exception('Unknown conIndex ${event.conIndex} in current discon');
       }
 
-      final selectedConIndices = issueWizardState.selectedConIndices
-          .map((i, selected) => MapEntry(i, i == issueWizardState.currentDiscon!.key ? event.conIndex : selected));
+      final selectedConIndices = state.selectedConIndices
+          .map((i, selected) => MapEntry(i, i == state.currentDiscon!.key ? event.conIndex : selected));
 
       // When an option is changed, the list of previous added credentials that are involved in this session
       // may have changed too. Therefore, we have to recalculate the planned steps.
       yield DisclosurePermissionIssueWizard(
-        plannedSteps: _calculatePlannedSteps(issueWizardState.candidates, selectedConIndices, session),
-        candidates: issueWizardState.candidates,
+        plannedSteps: _calculatePlannedSteps(state.candidates, selectedConIndices, session),
+        candidates: state.candidates,
         selectedConIndices: selectedConIndices,
+        obtained: state.obtained,
       );
     } else if (state is DisclosurePermissionIssueWizard && event is DisclosurePermissionNextPressed) {
       if (state.isCompleted) {
@@ -157,16 +113,18 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         final selectedCon = state.getSelectedCon(state.currentDiscon!.key)!;
         if (selectedCon.length == 1) {
           onObtainCredential(selectedCon.first.credentialType);
+        } else {
+          yield DisclosurePermissionObtainCredentials(
+            parentState: state,
+            templates: selectedCon.whereType<TemplateDisclosureCredential>().toList(),
+          );
         }
-        yield DisclosurePermissionObtainCredentials(
-          parentState: state,
-          templates: selectedCon.whereType<TemplateDisclosureCredential>().toList(),
-        );
       }
     } else if (state is DisclosurePermissionObtainCredentials && event is DisclosurePermissionNextPressed) {
-      if (state.allObtainedCredentialsMatch) {
+      if (state.allObtained) {
         yield state.parentState;
       } else {
+        // currentIssueWizardItem cannot be null when allObtained returned false.
         onObtainCredential(state.currentIssueWizardItem!.credentialType);
       }
     } else if (state is DisclosurePermissionPreviouslyAddedCredentialsOverview &&
@@ -237,14 +195,17 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         // If only one credential is involved, we can open the issue url immediately.
         if (state.selectedCon.length == 1) {
           onObtainCredential(state.selectedCon.first.credentialType);
+        } else {
+          yield DisclosurePermissionObtainCredentials(
+            parentState: state,
+            templates: state.selectedCon.whereType<TemplateDisclosureCredential>().toList(),
+          );
         }
-        yield DisclosurePermissionObtainCredentials(
-          parentState: state,
-          templates: state.selectedCon.whereType<TemplateDisclosureCredential>().toList(),
-        );
       } else {
         yield state.parentState;
       }
+    } else if (state is DisclosurePermissionWrongCredentialsObtained && event is DisclosurePermissionNextPressed) {
+      yield state.parentState;
     } else if (state is DisclosurePermissionChoicesOverview && event is DisclosurePermissionNextPressed) {
       if (!state.showConfirmationPopup) {
         yield DisclosurePermissionChoicesOverview(
@@ -289,35 +250,49 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     }
   }
 
-  Stream<DisclosurePermissionBlocState> _mapSessionStateToBlocState(SessionState session) async* {
-    final state = this.state;
+  DisclosurePermissionBlocState _mapSessionStateToBlocState(DisclosurePermissionBlocState state, SessionState session) {
     if (session.status != SessionStatus.requestDisclosurePermission) {
       if (state is! DisclosurePermissionInitial && state is! DisclosurePermissionFinished) {
-        yield DisclosurePermissionFinished();
+        return DisclosurePermissionFinished();
       }
+      return state;
     } else if (state is DisclosurePermissionIssueWizard) {
-      yield _refreshIssueWizard(state, session);
+      final refreshedState = _refreshIssueWizard(state, session);
+      // currentCon cannot be null when isCompleted is false.
+      return refreshedState.isCompleted
+          ? refreshedState
+          : _validateCredentialsObtained(refreshedState.currentCon!, refreshedState);
     } else if (state is DisclosurePermissionObtainCredentials) {
       final refreshedState = _refreshObtainedCredentials(state, session);
       // In case only one credential had to be obtained, we immediately go back to the parent step.
-      if (refreshedState.templates.length == 1 && refreshedState.allObtainedCredentialsMatch) {
-        yield refreshedState.parentState;
-      } else {
-        yield refreshedState;
-      }
+      return refreshedState.allObtained
+          ? refreshedState
+          : _validateCredentialsObtained([refreshedState.currentIssueWizardItem!], refreshedState);
     } else if (state is DisclosurePermissionChangeChoice) {
       final discon = _refreshDisCon(state.disconIndex, state.discon, session);
-      final selectedConIndex = _findSelectedConIndex(discon, prevChoice: state.selectedCon);
-      yield DisclosurePermissionChangeChoice(
+      final selectedConIndex = _findSelectedConIndex(
+        discon,
+        prevDiscon: state.discon,
+        prevChoice: state.selectedCon,
+      );
+      final refreshedState = DisclosurePermissionChangeChoice(
         parentState: _refreshChoices(state.parentState, discon, state.disconIndex, selectedConIndex),
         discon: discon,
         disconIndex: state.disconIndex,
         selectedConIndex: selectedConIndex,
       );
+      return _validateCredentialsObtained(
+        refreshedState.selectedCon.whereType<TemplateDisclosureCredential>(),
+        refreshedState,
+      );
     } else if (state is DisclosurePermissionChoices) {
       // Usually, this session state change should not introduce any bloc state changes.
       // Session requests cannot change within a session and credentials cannot be deleted during the session,
       // so the current selection should still be present.
+      return state;
+    } else if (state is DisclosurePermissionWrongCredentialsObtained) {
+      // We dismiss the error message automatically if a new obtaining attempt is done.
+      return _mapSessionStateToBlocState(state.parentState, session);
     } else {
       final candidates = Map.fromEntries(session.disclosuresCandidates!.mapIndexed(
         (i, rawDiscon) => MapEntry(i, _parseCandidatesDisCon(rawDiscon)),
@@ -330,7 +305,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
                 ?.cast<ChoosableDisclosureCredential>(),
           ));
       if (choices.values.every((choice) => choice != null)) {
-        yield DisclosurePermissionChoicesOverview(
+        return DisclosurePermissionChoicesOverview(
           plannedSteps: [DisclosurePermissionStepName.choicesOverview],
           choices: choices.map((i, choice) => MapEntry(i, Con(choice!))),
           isOptional: Map.fromEntries(session.disclosuresCandidates!.mapIndexed(
@@ -356,37 +331,89 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
               ),
         };
         final selectedConIndices = issueWizardCandidates.map((i, _) => MapEntry(i, 0));
-        yield DisclosurePermissionIssueWizard(
+        final obtained = issueWizardCandidates.map((i, _) => MapEntry(i, false));
+        return DisclosurePermissionIssueWizard(
           plannedSteps: _calculatePlannedSteps(issueWizardCandidates, selectedConIndices, session),
           candidates: issueWizardCandidates,
           selectedConIndices: selectedConIndices,
+          obtained: obtained,
         );
       }
     }
   }
 
-  DisclosurePermissionIssueWizard _refreshIssueWizard(
-    DisclosurePermissionIssueWizard prevState,
-    SessionState session, {
-    Iterable<ChoosableDisclosureCredential>? recentlyAddedCredentials,
-  }) {
+  DisclosurePermissionIssueWizard _refreshIssueWizard(DisclosurePermissionIssueWizard prevState, SessionState session) {
     final candidates = prevState.candidates.map(
       (i, prevDiscon) => MapEntry(i, _refreshDisCon(i, prevDiscon, session)),
     );
-    final selectedConIndices = candidates.map((i, discon) => MapEntry(
-          i,
-          _findSelectedConIndex(
-            discon,
-            prevChoice: prevState.getSelectedCon(i),
-            recentlyAddedCredentials: recentlyAddedCredentials,
-          ),
-        ));
+    final obtained = prevState.candidates.map(
+      (i, prevDiscon) => MapEntry(
+        i,
+        prevState.obtained[i]! ||
+            candidates[i]!.any((con) => con.every((cred) => cred is ChoosableDisclosureCredential)),
+      ),
+    );
+    final selectedConIndices = prevState.candidates.map(
+      (i, discon) => MapEntry(
+        i,
+        obtained[i]!
+            ? prevState.selectedConIndices[i]!
+            : _findSelectedConIndex(
+                discon,
+                prevDiscon: prevState.currentDiscon?.value,
+                prevChoice: prevState.getSelectedCon(i),
+              ),
+      ),
+    );
 
     return DisclosurePermissionIssueWizard(
       plannedSteps: _calculatePlannedSteps(candidates, selectedConIndices, session),
-      candidates: candidates,
+      candidates: prevState.candidates,
       selectedConIndices: selectedConIndices,
+      obtained: obtained,
     );
+  }
+
+  DisclosurePermissionBlocState _validateCredentialsObtained(
+    Iterable<TemplateDisclosureCredential> templates,
+    DisclosurePermissionBlocState parentState,
+  ) {
+    final credentials = _newlyAddedCredentialHashes
+        .expand((hash) => _repo.credentials.containsKey(hash) ? [_repo.credentials[hash]!] : <Credential>[]);
+
+    final List<TemplateDisclosureCredential> expectedTemplates = [];
+    final List<ChoosableDisclosureCredential> obtainedCredentials = [];
+
+    for (final template in templates) {
+      // First we check whether we have an exact match.
+      final matchingCred = credentials.firstWhereOrNull((cred) => template.matchesCredential(cred));
+      if (matchingCred != null) {
+        continue;
+      }
+
+      // If there is no exact match, then we look for credentials that were added in attempt to make a match.
+      final templateWithoutValueConstraints = template.copyWithoutValueConstraints();
+      final nonMatchingCred =
+          credentials.firstWhereOrNull((cred) => templateWithoutValueConstraints.matchesCredential(cred));
+      if (nonMatchingCred != null) {
+        expectedTemplates.add(template);
+        obtainedCredentials.add(ChoosableDisclosureCredential.fromTemplate(
+          template: templateWithoutValueConstraints,
+          credential: nonMatchingCred,
+        ));
+        // Remove credential hash from list to prevent this mismatch to be found later again.
+        _newlyAddedCredentialHashes.remove(nonMatchingCred.hash);
+      }
+    }
+
+    if (expectedTemplates.isNotEmpty) {
+      return DisclosurePermissionWrongCredentialsObtained(
+        parentState: parentState,
+        expectedTemplates: expectedTemplates,
+        obtainedCredentials: obtainedCredentials,
+      );
+    }
+    return parentState;
   }
 
   DisclosurePermissionObtainCredentials _refreshObtainedCredentials(
@@ -397,61 +424,14 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     final newlyAddedCredentials = _newlyAddedCredentialHashes.reversed
         .expand((hash) => _repo.credentials.containsKey(hash) ? [_repo.credentials[hash]!] : <Credential>[]);
 
-    final obtainedCredentials = prevState.templates.map((template) {
-      // First we check whether we have an exact match.
-      final matchingCred = newlyAddedCredentials.firstWhereOrNull((cred) => template.matchesCredential(cred));
-      if (matchingCred != null) {
-        return ChoosableDisclosureCredential.fromTemplate(
-          template: template,
-          credential: matchingCred,
-        );
-      }
-
-      // If there is no exact match, then we look for credentials that were added in attempt to make a match.
-      final templateWithoutValueConstraints = template.copyWithoutValueConstraints();
-      final nonMatchingCred =
-          newlyAddedCredentials.firstWhereOrNull((cred) => templateWithoutValueConstraints.matchesCredential(cred));
-      if (nonMatchingCred != null) {
-        return ChoosableDisclosureCredential.fromTemplate(
-          template: templateWithoutValueConstraints,
-          credential: nonMatchingCred,
-        );
-      }
-
-      // If there is still no match, then we assume no attempt has been made to obtain this template yet.
-      return null;
-    }).toList();
-
-    final parentState = prevState.parentState; // To prevent the need for type casting.
-
-    late final DisclosurePermissionBlocState refreshedParentState;
-    if (parentState is DisclosurePermissionIssueWizard) {
-      refreshedParentState = _refreshIssueWizard(
-        parentState,
-        session,
-        recentlyAddedCredentials: obtainedCredentials.whereNotNull(),
-      );
-    } else if (parentState is DisclosurePermissionChangeChoice) {
-      final discon = _refreshDisCon(parentState.disconIndex, parentState.discon, session);
-      final selectedChoiceIndex = _findSelectedConIndex(
-        discon,
-        prevChoice: parentState.selectedCon,
-        recentlyAddedCredentials: obtainedCredentials.whereNotNull(),
-      );
-      refreshedParentState = DisclosurePermissionChangeChoice(
-        parentState: _refreshChoices(parentState.parentState, discon, parentState.disconIndex, selectedChoiceIndex),
-        discon: discon,
-        disconIndex: parentState.disconIndex,
-        selectedConIndex: selectedChoiceIndex,
-      );
-    } else {
-      throw Exception('DisclosurePermissionObtainCredentials has unexpected parent: ${parentState.runtimeType}');
-    }
+    final obtained = prevState.templates
+        .map((template) => newlyAddedCredentials.any((cred) => template.matchesCredential(cred)))
+        .toList();
 
     return DisclosurePermissionObtainCredentials(
-      parentState: refreshedParentState,
+      parentState: _mapSessionStateToBlocState(prevState.parentState, session),
       templates: prevState.templates,
-      obtainedCredentials: obtainedCredentials,
+      obtained: obtained,
     );
   }
 
@@ -525,13 +505,16 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
 
   int _findSelectedConIndex(
     DisCon<DisclosureCredential> discon, {
+    DisCon<DisclosureCredential>? prevDiscon,
     Con<DisclosureCredential>? prevChoice,
-    Iterable<ChoosableDisclosureCredential>? recentlyAddedCredentials,
   }) {
     // If a new choosable option has been added, then we select the new option.
-    if (recentlyAddedCredentials != null) {
+    if (prevDiscon != null) {
+      final recentlyAddedCredentialHashes = _newlyAddedCredentialHashes.reversed.where((hash) =>
+          prevDiscon.flattened.whereType<ChoosableDisclosureCredential>().none((cred) => cred.credentialHash == hash));
       final choice = discon.indexWhere((con) => con.any((cred) =>
-          cred is ChoosableDisclosureCredential && recentlyAddedCredentials.any((addedCred) => addedCred == cred)));
+          cred is ChoosableDisclosureCredential &&
+          recentlyAddedCredentialHashes.any((hash) => cred.credentialHash == hash)));
       if (choice >= 0) return choice;
     }
 

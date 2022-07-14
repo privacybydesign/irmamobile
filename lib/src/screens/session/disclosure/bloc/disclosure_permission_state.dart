@@ -17,7 +17,7 @@ enum DisclosurePermissionStepName {
   choicesOverview,
 }
 
-/// Abstract class containing all behaviour every state that is a planned.
+/// Abstract class containing all behaviour of a state that is a planned step.
 abstract class DisclosurePermissionStep implements DisclosurePermissionBlocState {
   /// List with all the planned steps.
   final UnmodifiableListView<DisclosurePermissionStepName> plannedSteps;
@@ -55,39 +55,40 @@ abstract class DisclosurePermissionChoices extends DisclosurePermissionStep {
   /// List with all optional choices. In optional choices there is an option to select none of the choices.
   Map<int, Con<ChoosableDisclosureCredential>> get optionalChoices =>
       Map.fromEntries(choices.entries.where((entry) => isOptional[entry.key]!));
+
+  // TODO: add list for all cons that can be added.
 }
 
 class DisclosurePermissionIssueWizard extends DisclosurePermissionStep {
   /// ConDisCon with all disclosure candidates being relevant in this step (required and optional).
   /// They are stored in a map with the disconIndex being used as map key.
-  final UnmodifiableMapView<int, DisCon<DisclosureCredential>> candidates;
+  final UnmodifiableMapView<int, DisCon<TemplateDisclosureCredential>> candidates;
 
   /// Stores for every discon which con is currently selected.
   final UnmodifiableMapView<int, int> selectedConIndices;
 
+  final UnmodifiableMapView<int, bool> obtained;
+
   DisclosurePermissionIssueWizard({
     required List<DisclosurePermissionStepName> plannedSteps,
-    required Map<int, DisCon<DisclosureCredential>> candidates,
+    required Map<int, DisCon<TemplateDisclosureCredential>> candidates,
     required Map<int, int> selectedConIndices,
-  })  : assert(candidates.keys.every((i) => selectedConIndices.containsKey(i))),
+    required Map<int, bool> obtained,
+  })  : assert(candidates.keys.every((i) => selectedConIndices.containsKey(i) && obtained.containsKey(i))),
         candidates = UnmodifiableMapView(candidates),
         selectedConIndices = UnmodifiableMapView(selectedConIndices),
+        obtained = UnmodifiableMapView(obtained),
         super(plannedSteps: plannedSteps);
 
   /// Returns the discon that should currently be handled.
-  MapEntry<int, DisCon<DisclosureCredential>>? get currentDiscon => requiredCandidates.entries
-      .firstWhereOrNull((entry) => entry.value.every((con) => con.any((cred) => cred is TemplateDisclosureCredential)));
+  MapEntry<int, DisCon<TemplateDisclosureCredential>>? get currentDiscon =>
+      candidates.entries.firstWhereOrNull((entry) => !obtained[entry.key]!);
+
+  /// Returns the selected con in the discon that should currently be handled.
+  Con<TemplateDisclosureCredential>? get currentCon => currentDiscon?.value[selectedConIndices[currentDiscon!.key]!];
 
   /// Returns whether the issue wizard is completed.
-  bool get isCompleted => currentDiscon == null;
-
-  /// List with all required DisCons. In required DisCons a choice between one of the options must be made.
-  Map<int, DisCon<DisclosureCredential>> get requiredCandidates =>
-      Map.fromEntries(candidates.entries.where((entry) => !entry.value.any((discon) => discon.isEmpty)));
-
-  /// List with all optional DisCons. In optional DisCons there is an option to select none of the choices.
-  Map<int, DisCon<DisclosureCredential>> get optionalCandidates =>
-      Map.fromEntries(candidates.entries.where((entry) => entry.value.any((discon) => discon.isEmpty)));
+  bool get isCompleted => obtained.values.every((match) => match);
 
   @override
   DisclosurePermissionStepName get currentStepName => DisclosurePermissionStepName.issueWizard;
@@ -137,30 +138,23 @@ class DisclosurePermissionObtainCredentials implements DisclosurePermissionBlocS
   /// Templates of all DisclosureCredentials that needs to be obtained first.
   final UnmodifiableListView<TemplateDisclosureCredential> templates;
 
-  /// List with the latest obtained credential for each issue wizard item (matching and non-matching).
-  final UnmodifiableListView<ChoosableDisclosureCredential?> obtainedCredentials;
-
   /// Returns for each issue wizard item whether a matching credential has been successfully obtained.
-  List<bool> get obtainedCredentialsMatch => obtainedCredentials
-      .mapIndexed((i, cred) => cred != null && templates[i].matchesDisclosureCredential(cred))
-      .toList();
+  final UnmodifiableListView<bool> obtained;
 
   /// Returns whether all issue wizard items have a matching credential.
-  bool get allObtainedCredentialsMatch => obtainedCredentialsMatch.every((match) => match);
-
-  bool get hasObtainedCredentials => obtainedCredentials.any((cred) => cred != null);
+  bool get allObtained => obtained.every((match) => match);
 
   /// Returns the current issue wizard item.
   TemplateDisclosureCredential? get currentIssueWizardItem =>
-      templates.firstWhereIndexedOrNull((i, item) => !obtainedCredentialsMatch[i]);
+      templates.firstWhereIndexedOrNull((i, item) => !obtained[i]);
 
   DisclosurePermissionObtainCredentials({
     required this.parentState,
     required List<TemplateDisclosureCredential> templates,
-    List<ChoosableDisclosureCredential?>? obtainedCredentials,
-  })  : assert(obtainedCredentials == null || obtainedCredentials.length == templates.length),
+    List<bool>? obtained,
+  })  : assert(obtained == null || obtained.length == templates.length),
         templates = UnmodifiableListView(templates),
-        obtainedCredentials = UnmodifiableListView(obtainedCredentials ?? List.filled(templates.length, null));
+        obtained = UnmodifiableListView(obtained ?? List.filled(templates.length, false));
 }
 
 class DisclosurePermissionChangeChoice implements DisclosurePermissionBlocState {
@@ -209,6 +203,26 @@ class DisclosurePermissionChangeChoice implements DisclosurePermissionBlocState 
   /// Returns whether the given DisclosureCredential is involved in this choice.
   bool contains(DisclosureCredential credential) => discon.any((con) => con.any((cred) => cred == credential));
 }
+
+class DisclosurePermissionWrongCredentialsObtained implements DisclosurePermissionBlocState {
+  /// Link to the underlying state.
+  final DisclosurePermissionBlocState parentState;
+
+  /// List with templates of the DisclosureCredentials that were expected to be obtained.
+  final UnmodifiableListView<TemplateDisclosureCredential> templates;
+
+  /// List with the credentials that were obtained by the user, but do not match the expected template.
+  final UnmodifiableListView<ChoosableDisclosureCredential?> obtainedCredentials;
+
+  DisclosurePermissionWrongCredentialsObtained({
+    required this.parentState,
+    required List<TemplateDisclosureCredential> expectedTemplates,
+    required List<ChoosableDisclosureCredential> obtainedCredentials,
+  })  : templates = UnmodifiableListView(expectedTemplates),
+        obtainedCredentials = UnmodifiableListView(obtainedCredentials);
+}
+
+// TODO: state to add optional states
 
 /// State to indicate that the requestDisclosurePermission phase has been finished.
 /// This does not necessarily have to mean the total session is completed.
