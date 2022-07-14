@@ -47,7 +47,7 @@ class PinState {
   final Pin pin;
   final PinQuality attributes;
 
-  static final empty = PinState([], {});
+  static final empty = PinState(const [], const {});
 
   PinState(this.pin, this.attributes);
 }
@@ -60,39 +60,28 @@ class PinStateBloc extends Bloc<Pin, PinState> {
 
   @override
   void add(Pin p) {
-    /// For some reason the stream survives widget changes
-    /// even when you have separate bloc instances
     super.add(p.length > maxPinSize ? p.sublist(0, maxPinSize) : p);
   }
 
+  /// For some reason the stream survives widget changes
+  /// across instances of this Bloc
+  /// via an unconst PinState.empty, when yielding
+  /// so now we const PinState.empty and also
+  /// deep-copy clone the intermediate state
   void update(int i) {
     if (_lastPin.isNotEmpty && i < 0) {
-      add(_lastPin..removeLast());
+      add([..._lastPin]..removeLast());
     }
 
     if (_lastPin.length < maxPinSize && i >= 0) {
-      add(_lastPin..add(i));
+      add([..._lastPin]..add(i));
     }
-  }
-
-  void clear() {
-    add(PinState.empty.pin);
-  }
-
-  @override
-  Future<void> close() {
-    clear();
-    return super.close();
   }
 
   @override
   Stream<PinState> mapEventToState(Pin pin) async* {
     final set = <SecurePinAttribute>{};
     _lastPin = pin;
-
-    if (kDebugMode) {
-      print('max pin size: $maxPinSize, pin size: ${pin.length}}');
-    }
 
     if (pin.length < shortPinSize) {
       yield PinState(pin, set);

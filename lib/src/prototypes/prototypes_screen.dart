@@ -32,8 +32,6 @@ class PrototypesScreen extends StatelessWidget {
     final size = isShort ? 5 : 16;
     final pinBloc = isShort ? pinBloc5 : pinBloc16;
 
-    pinBloc.clear();
-
     return SecurePinScreenTest(
       maxPinSize: size,
       onTogglePinSize: () {
