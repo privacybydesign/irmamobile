@@ -129,6 +129,7 @@ class YiviPinScreen extends StatelessWidget {
     );
 
     final pinDotsDecorated = Stack(
+      fit: StackFit.passthrough,
       alignment: Alignment.center,
       children: [
         Padding(
@@ -190,12 +191,10 @@ class YiviPinScreen extends StatelessWidget {
     List<Widget> bodyPortrait() => [
           Expanded(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 logo,
-                SizedBox(height: 16.scale(context)),
                 instruction,
-                SizedBox(height: 16.scale(context)),
                 pinDotsDecorated,
                 if (checkSecurePin) _securePinTextButton(),
                 if (onTogglePinSize != null)
