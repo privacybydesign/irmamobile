@@ -541,6 +541,8 @@
       "reobtain": "Reobtain",
       "delete": "Delete data",
       "confirm_delete": "Are you sure you want to delete this data?"
-    }
+    },
+    "about_to_expire": "About to expire",
+    "expired": "Expired"
   }
 }

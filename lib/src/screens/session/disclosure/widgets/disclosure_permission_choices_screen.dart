@@ -117,6 +117,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                     IrmaCredentialCard(
                       credentialInfo: credential,
                       attributes: credential.attributes,
+                      hideFooter: true,
                     )
                 ],
               ),

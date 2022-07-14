@@ -40,6 +40,8 @@ class CredentialTypeTile extends StatelessWidget {
             credentialType.name.translate(FlutterI18n.currentLocale(context)!.languageCode),
             style: theme.textTheme.caption!.copyWith(fontWeight: FontWeight.bold),
             textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 2,
           )
         ],
       ),

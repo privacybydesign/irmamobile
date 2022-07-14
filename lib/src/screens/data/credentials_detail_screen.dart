@@ -35,6 +35,20 @@ class _DataDetailScreenState extends State<CredentialsDetailScreen> {
         if (credentials.isEmpty) Navigator.of(context).pop();
       });
 
+  _showCredentialOptionsBottomSheet(Credential cred) => showModalBottomSheet<void>(
+        context: context,
+        builder: (context) => IrmaCredentialCardOptionsBottomSheet(
+          onDelete: () {
+            Navigator.of(context).pop();
+            _showConfirmDeleteDialog(context, cred);
+          },
+          onReobtain: () {
+            Navigator.of(context).pop();
+            _reobtainCredential(cred);
+          },
+        ),
+      );
+
   Future<void> _showConfirmDeleteDialog(BuildContext context, Credential credential) async {
     final confirmed = await showDialog<bool>(
           context: context,
@@ -63,8 +77,7 @@ class _DataDetailScreenState extends State<CredentialsDetailScreen> {
     super.initState();
     SchedulerBinding.instance?.addPostFrameCallback((_) {
       repo = IrmaRepositoryProvider.of(context);
-      credentialStreamSubscription =
-          IrmaRepositoryProvider.of(context).getCredentials().listen(_credentialStreamListener);
+      credentialStreamSubscription = repo.getCredentials().listen(_credentialStreamListener);
     });
   }
 
@@ -82,7 +95,8 @@ class _DataDetailScreenState extends State<CredentialsDetailScreen> {
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(
-          horizontal: IrmaTheme.of(context).smallSpacing,
+          vertical: IrmaTheme.of(context).smallSpacing,
+          horizontal: IrmaTheme.of(context).defaultSpacing,
         ),
         child: Column(
           children: credentials
@@ -90,19 +104,7 @@ class _DataDetailScreenState extends State<CredentialsDetailScreen> {
                 (cred) => IrmaCredentialCard.fromCredential(
                   cred,
                   headerTrailing: IconButton(
-                    onPressed: () => showModalBottomSheet<void>(
-                      context: context,
-                      builder: (context) => IrmaCredentialCardOptionsBottomSheet(
-                        onDelete: () {
-                          Navigator.of(context).pop();
-                          _showConfirmDeleteDialog(context, cred);
-                        },
-                        onReobtain: () {
-                          Navigator.of(context).pop();
-                          _reobtainCredential(cred);
-                        },
-                      ),
-                    ),
+                    onPressed: () => _showCredentialOptionsBottomSheet(cred),
                     icon: const Icon(Icons.more_horiz),
                   ),
                 ),

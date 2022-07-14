@@ -25,6 +25,7 @@ class DisclosureIssueWizardCredentialCards extends StatelessWidget {
               attributes: showAttributes ? credentialInfo.attributes : [],
               style: isActive ? IrmaCardStyle.highlighted : IrmaCardStyle.normal,
               compareTo: credentialInfo.attributes,
+              hideFooter: true,
             ),
           )
           .toList(),

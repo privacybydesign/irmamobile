@@ -47,6 +47,7 @@ class DisclosurePermissionChoice extends StatelessWidget {
                         credentialInfo: credential,
                         attributes: credential.attributes,
                         compareTo: credential is TemplateDisclosureCredential ? credential.attributes : null,
+                        hideFooter: true,
                         headerTrailing: credential == choice[i]!.first
                             ? Radio(
                                 value: i,

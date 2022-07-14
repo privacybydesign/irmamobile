@@ -1,35 +1,42 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:intl/intl.dart';
 
 import '../../theme/theme.dart';
-import '../translated_text.dart';
-import 'models/card_expiry_date.dart';
+import '../irma_button.dart';
 
 class IrmaCredentialCardFooter extends StatelessWidget {
-  final CardExpiryDate expiryDate;
+  final String text;
+  final bool isObtainable;
 
   const IrmaCredentialCardFooter({
-    required this.expiryDate,
+    required this.text,
+    this.isObtainable = false,
   });
-
-  String _printableDate(DateTime date, String lang) {
-    return DateFormat.yMMMMd(lang).format(date);
-  }
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
-    return TranslatedText(
-      'credential.valid_until',
-      translationParams: {
-        'date': _printableDate(expiryDate.dateTime, lang),
-      },
-      style: theme.textTheme.caption!.copyWith(
-        color: theme.neutral,
-      ),
+    return Row(
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              text,
+              style: theme.textTheme.caption!.copyWith(
+                color: theme.neutral,
+              ),
+            ),
+            SizedBox(height: theme.smallSpacing),
+            if (isObtainable)
+              IrmaButton(
+                label: 'credential.options.reobtain',
+                onPressed: () {},
+                minWidth: double.infinity,
+              )
+          ],
+        )
+      ],
     );
   }
 }
