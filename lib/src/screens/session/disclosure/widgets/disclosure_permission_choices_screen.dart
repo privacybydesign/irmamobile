@@ -98,28 +98,18 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
             SizedBox(height: theme.smallSpacing),
             ...state.choices.entries.map(
               (choiceEntry) => Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          GestureDetector(
-                            onTap: () => onEvent(DisclosurePermissionChangeChoicePressed(disconIndex: choiceEntry.key)),
-                            child: TranslatedText(
-                              'disclosure_permission.change_choice',
-                              style: theme.hyperlinkTextStyle,
-                            ),
-                          )
-                        ],
-                      ),
-                      SizedBox(height: theme.smallSpacing),
-                      for (var credential in choiceEntry.value)
-                        IrmaCredentialCard(
-                          credentialInfo: credential,
-                          attributes: credential.attributes,
-                        )
+                      GestureDetector(
+                        onTap: () => onEvent(DisclosurePermissionChangeChoicePressed(disconIndex: choiceEntry.key)),
+                        child: TranslatedText(
+                          'disclosure_permission.change_choice',
+                          style: theme.hyperlinkTextStyle,
+                        ),
+                      )
                     ],
                   ),
                   SizedBox(height: theme.smallSpacing),
@@ -130,7 +120,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                     )
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
