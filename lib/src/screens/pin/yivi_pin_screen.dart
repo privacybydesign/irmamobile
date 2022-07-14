@@ -19,6 +19,7 @@ part 'bloc/pin_visibility.dart';
 part 'bloc/yivi_pin_bloc.dart';
 part 'circle_clip.dart';
 part 'number_pad.dart';
+part 'number_pad_key.dart';
 part 'secure_pin_bottom_sheet.dart';
 part 'yivi_pin_indicator.dart';
 
