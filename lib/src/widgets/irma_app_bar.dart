@@ -5,7 +5,8 @@ import '../theme/theme.dart';
 import 'translated_text.dart';
 
 class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final String titleTranslationKey;
+  final String? titleTranslationKey;
+  final String? title;
   final Icon? leadingIcon;
   final void Function()? leadingAction;
   final void Function()? leadingCancel;
@@ -14,14 +15,15 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool noLeading;
 
   const IrmaAppBar({
-    required this.titleTranslationKey,
+    this.titleTranslationKey,
+    this.title,
     this.leadingIcon,
     this.leadingAction,
     this.leadingTooltip,
     this.leadingCancel,
     this.noLeading = false,
     this.actions = const [],
-  });
+  }) : assert((titleTranslationKey == null && title != null) || title == null && titleTranslationKey != null);
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +63,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             ),
       title: TranslatedText(
-        titleTranslationKey,
+        titleTranslationKey ?? (title ?? ''),
         style: theme.textTheme.headline3,
       ),
       actions: actions,

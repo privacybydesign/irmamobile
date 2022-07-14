@@ -14,6 +14,7 @@ import 'package:irmamobile/src/widgets/pin_common/pin_wrong_attempts.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_blocked.dart';
 
 import '../../data/irma_preferences.dart';
+import '../../widgets/irma_app_bar.dart';
 import '../reset_pin/reset_pin_screen.dart';
 import 'yivi_pin_screen.dart' as yivi;
 
@@ -101,19 +102,6 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
     }
   }
 
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      centerTitle: true,
-      backgroundColor: IrmaTheme.of(context).background,
-      key: const Key('pinscreen_app_bar'),
-      leading: Container(),
-      title: Text(
-        FlutterI18n.translate(context, "pin.title"),
-        style: IrmaTheme.of(context).textTheme.headline4,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<PinBloc, PinState>(
@@ -126,7 +114,9 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
 
         return Scaffold(
           backgroundColor: IrmaTheme.of(context).background,
-          appBar: _buildAppBar(),
+          appBar: IrmaAppBar(
+            titleTranslationKey: "pin.title",
+          ),
           body: StreamBuilder(
             stream: _pinBloc.getPinBlockedFor(),
             builder: (BuildContext context, AsyncSnapshot<Duration> blockedFor) {

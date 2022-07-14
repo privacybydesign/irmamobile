@@ -119,6 +119,9 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
     }
   }
 
+  // Parent widget is responsible for popping this widget, so do a leadingAction instead of a leadingCancel.
+  PreferredSizeWidget scaffoldTitle() => IrmaAppBar(leadingAction: _cancel, title: widget.title);
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -145,13 +148,13 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
               if (state.authenticated) {
                 // Wait until parent screen pops this widget.
                 return Scaffold(
-                  appBar: _buildAppBar(),
+                  appBar: scaffoldTitle(),
                   body: LoadingIndicator(),
                 );
               }
 
               return Scaffold(
-                appBar: _buildAppBar(),
+                appBar: scaffoldTitle(),
                 body: StreamBuilder(
                   stream: _pinBloc.getPinBlockedFor(),
                   builder: (BuildContext context, AsyncSnapshot<Duration> blockedFor) {
@@ -204,17 +207,6 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
           ),
         ),
       ),
-    );
-  }
-
-  PreferredSizeWidget _buildAppBar() {
-    return IrmaAppBar(
-      titleTranslationKey: widget.title,
-
-      // Parent widget is responsible for popping this widget, so do a leadingAction instead of a leadingCancel.
-      leadingAction: () {
-        _cancel();
-      },
     );
   }
 }
