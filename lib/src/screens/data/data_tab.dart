@@ -8,7 +8,6 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import '../../data/irma_repository.dart';
 import '../../models/credentials.dart';
 import '../../models/irma_configuration.dart';
-import '../../models/translated_value.dart';
 import '../../theme/theme.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/translated_text.dart';
@@ -27,16 +26,14 @@ class _DataTabState extends State<DataTab> {
   late final StreamSubscription<Credentials> credentialStreamSubscription;
 
   List<Credential> credentials = [];
-  Map<TranslatedValue?, List<CredentialType>> credentialTypesByCategories = {};
+  Map<String?, List<CredentialType>> credentialTypesByCategoryNames = {};
 
-  void _credentialStreamListener(Credentials newCredentials) => setState(
-        () {
-          credentials = newCredentials.values.toList();
-          credentialTypesByCategories = groupBy(
-            credentials.map((cred) => cred.info.credentialType).toSet(),
-            (CredentialType credType) => credType.category.hasTranslation(lang) ? credType.category : null,
-          );
-        },
+  void _credentialStreamListener(Credentials credentials) => setState(
+        () => (credentialTypesByCategoryNames = groupBy(
+          credentials.values.map((e) => e.info.credentialType),
+          (CredentialType credType) =>
+              credType.category.hasTranslation(lang) ? credType.category.translate(lang) : null,
+        )),
       );
 
   @override
@@ -88,17 +85,18 @@ class _DataTabState extends State<DataTab> {
         ),
 
         //Render credential category list for each category that is not 'other'
-        for (var credentialTypesByCategory in credentialTypesByCategories.entries.where((entry) => entry.key != null))
+        for (var credentialTypesByCategory
+            in credentialTypesByCategoryNames.entries.where((entry) => entry.key != null))
           CredentialCategoryList(
-            categoryName: credentialTypesByCategory.key!.translate(lang),
+            categoryName: credentialTypesByCategory.key!,
             credentialTypes: credentialTypesByCategory.value,
           ),
 
         // If 'other' credentials are present, render them last
-        if (credentialTypesByCategories.containsKey(null))
+        if (credentialTypesByCategoryNames.containsKey(null))
           CredentialCategoryList(
             categoryName: FlutterI18n.translate(context, 'data.category_other'),
-            credentialTypes: credentialTypesByCategories[null]!,
+            credentialTypes: credentialTypesByCategoryNames[null]!,
           )
       ],
     );
