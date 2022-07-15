@@ -26,6 +26,7 @@ class _NumberPad extends StatelessWidget {
       builder: (BuildContext context, Orientation orientation) {
         return LayoutBuilder(builder: (context, constraints) {
           final keys = <Widget>[
+            /// The empty String keeps the number aligned with the rest
             _NumberPadKey(onEnterNumber, 1, ''),
             _NumberPadKey(onEnterNumber, 2, 'ABC'),
             _NumberPadKey(onEnterNumber, 3, 'DEF'),
@@ -43,8 +44,9 @@ class _NumberPad extends StatelessWidget {
           final keyWidth = constraints.maxWidth / 3.0;
           final keyHeight = constraints.maxHeight / 4.0;
 
-          final childAspectRatioApprox =
-              Orientation.landscape == orientation ? keyWidth / keyHeight : keyHeight / keyWidth;
+          final childAspectRatioApprox = Orientation.landscape == orientation && keyWidth > keyHeight
+              ? keyWidth / keyHeight
+              : keyHeight / keyWidth;
 
           final grid = GridView.count(
             childAspectRatio: childAspectRatioApprox,

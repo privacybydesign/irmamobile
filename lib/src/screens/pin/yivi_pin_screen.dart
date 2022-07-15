@@ -1,14 +1,16 @@
 library pin;
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:irmamobile/src/util/scale.dart';
 
+import '../..//util/tablet.dart';
 import '../../theme/theme.dart';
+import '../../util/scale.dart';
 import '../../util/secure_pin.dart';
 import '../../widgets/link.dart';
 import '../../widgets/yivi_bottom_sheet.dart';
@@ -20,6 +22,7 @@ part 'number_pad.dart';
 part 'number_pad_key.dart';
 part 'secure_pin_bottom_sheet.dart';
 part 'yivi_pin_indicator.dart';
+part 'yivi_pin_scaffold.dart';
 
 typedef Pin = List<int>;
 typedef PinFn = bool Function(Pin);
@@ -271,29 +274,6 @@ class YiviPinScreen extends StatelessWidget {
           );
         }
       },
-    );
-  }
-}
-
-class YiviPinScaffold extends StatelessWidget {
-  final PreferredSizeWidget? appBar;
-  final Widget body;
-
-  const YiviPinScaffold({Key? key, required this.body, this.appBar}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    return Scaffold(
-      appBar: appBar,
-      backgroundColor: theme.background,
-      body: SafeArea(
-        child: Container(
-          alignment: Alignment.center,
-          margin: EdgeInsets.all(theme.screenPadding),
-          child: body,
-        ),
-      ),
     );
   }
 }
