@@ -32,17 +32,18 @@ class EnterPin extends StatelessWidget {
         builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
           final maxPinSize = (snapshot.hasData && snapshot.data!) ? longPinSize : shortPinSize;
           final pinBloc = PinStateBloc(maxPinSize);
+          void submit() => submitOldPin(pinBloc.state.pin.join());
 
           return YiviPinScreen(
               scaffoldKey: _scaffoldKey,
               instructionKey: 'change_pin.enter_pin.instruction',
               maxPinSize: maxPinSize,
-              onSubmit: () => submitOldPin(pinBloc.state.pin.join()),
+              onSubmit: submit,
               pinBloc: pinBloc,
               pinVisibilityBloc: PinVisibilityBloc(),
               listener: (context, state) {
                 if (maxPinSize == shortPinSize) {
-                  submitOldPin(pinBloc.state.pin.join());
+                  submit();
                 }
               });
         },
