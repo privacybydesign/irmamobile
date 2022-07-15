@@ -6,11 +6,11 @@ class YiviPinScaffold extends StatelessWidget {
 
   const YiviPinScaffold({Key? key, required this.body, this.appBar}) : super(key: key);
 
-  Widget applyTabletSupport(context) {
+  Widget applyTabletSupport(bool isTabletDevice) {
     return LayoutBuilder(builder: (context, constraints) {
       final commonShortestPhoneEdge = 414.0;
       final commonLargestPhoneEdge = 736.0; // iPad mini shortest edge = 768 (1024 x 768)
-      if (context.isTabletDevice) {
+      if (isTabletDevice) {
         return SizedBox(
           width: commonShortestPhoneEdge,
           height: min(constraints.maxHeight, commonLargestPhoneEdge),
@@ -25,6 +25,11 @@ class YiviPinScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final scalePaddingForSmallDevices = shortestSide(context) < 350 ? 0.5 : 1;
+
+    if (kDebugMode) {
+      print('shortest side: ${shortestSide(context)} \nlongest side: ${MediaQuery.of(context).size.longestSide}');
+    }
 
     return Scaffold(
       appBar: appBar,
@@ -32,8 +37,8 @@ class YiviPinScaffold extends StatelessWidget {
       body: SafeArea(
         child: Container(
           alignment: Alignment.center,
-          margin: EdgeInsets.all(theme.screenPadding),
-          child: applyTabletSupport(context),
+          margin: EdgeInsets.all(scalePaddingForSmallDevices * theme.screenPadding),
+          child: applyTabletSupport(context.isTabletDevice),
         ),
       ),
     );

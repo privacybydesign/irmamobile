@@ -63,6 +63,7 @@ class _PinIndicator extends StatelessWidget {
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         ...List.generate(
           isMaxPin5 ? shortPinSize : pinSize,

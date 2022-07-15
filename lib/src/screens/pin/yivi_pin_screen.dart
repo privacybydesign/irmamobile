@@ -3,10 +3,12 @@ library pin;
 import 'dart:async';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 import '../..//util/tablet.dart';
 import '../../theme/theme.dart';
@@ -41,6 +43,7 @@ Widget _resizeBox(Widget widget, double edge) => SizedBox(
     );
 
 class YiviPinScreen extends StatelessWidget {
+  final GlobalKey<ScaffoldState> scaffoldKey;
   final int maxPinSize;
   final VoidCallback onSubmit;
   final PinStateBloc pinBloc;
@@ -55,6 +58,7 @@ class YiviPinScreen extends StatelessWidget {
 
   const YiviPinScreen({
     Key? key,
+    required this.scaffoldKey,
     this.instructionKey,
     this.instruction,
     required this.pinVisibilityBloc,
@@ -69,7 +73,7 @@ class YiviPinScreen extends StatelessWidget {
   })  : assert(instructionKey != null && instruction == null || instruction != null && instructionKey == null),
         super(key: key);
 
-  Widget _securePinTextButton() => UnsecurePinWarningTextButton(bloc: pinBloc);
+  Widget _securePinTextButton() => UnsecurePinWarningTextButton(scaffoldKey: scaffoldKey, bloc: pinBloc);
 
   /// Some functions are nested to save on ceremony for repeatedly passed parameters
   /// Also nested functions are not exposed outside the parent function
@@ -81,10 +85,10 @@ class YiviPinScreen extends StatelessWidget {
           clipper: _PerfectCircleClip(),
           child: Material(
             color: Colors.transparent,
-            borderRadius: BorderRadius.circular(100.0),
+            borderRadius: BorderRadius.circular(28),
             child: Ink(
-              width: 60.0.scale(context),
-              height: 60.scale(context),
+              width: 32,
+              height: 32,
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
               ),
@@ -140,22 +144,32 @@ class YiviPinScreen extends StatelessWidget {
           _PinIndicator(maxPinSize: maxPinSize, visibilityBloc: pinVisibilityBloc, pinState: state),
     );
 
-    final pinDotsDecorated = Stack(
-      fit: StackFit.passthrough,
-      alignment: Alignment.center,
+    final pinDotsDecorated = Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 64.scale(context)),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              pinDots,
-              if (maxPinSize != shortPinSize)
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            FractionallySizedBox(
+              widthFactor: .72,
+              child: pinDots,
+            ),
+            Align(
+              alignment: Alignment.topRight,
+              child: pinVisibility(pinVisibilityBloc),
+            ),
+          ],
+        ),
+        if (maxPinSize != shortPinSize)
+          FractionallySizedBox(
+            widthFactor: .72,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
                 Divider(
                   height: 1.0,
                   color: theme.darkPurple,
                 ),
-              if (maxPinSize != shortPinSize)
                 Align(
                   alignment: Alignment.bottomRight,
                   child: BlocBuilder<PinStateBloc, PinState>(
@@ -168,16 +182,9 @@ class YiviPinScreen extends StatelessWidget {
                     ),
                   ),
                 )
-            ],
+              ],
+            ),
           ),
-        ),
-        Padding(
-          padding: EdgeInsets.only(bottom: maxPinSize == shortPinSize ? 0.0 : 16.0),
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: pinVisibility(pinVisibilityBloc),
-          ),
-        ),
       ],
     );
 

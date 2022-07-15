@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/widgets.dart';
 
 /// current ux-2.0 designs at set at viewport width of 375px
@@ -11,19 +9,26 @@ const designScreenWidth = 375.0;
 const _smallestViewportWidth = 320.0 / designScreenWidth;
 const _largestViewportWidth = 414.0 / designScreenWidth;
 
-double _minimumDeviceViewportWidth(BuildContext context) =>
-    min<double>(MediaQuery.of(context).size.height, MediaQuery.of(context).size.width);
+double shortestSide(BuildContext context) => MediaQuery.of(context).size.shortestSide;
 
 extension YiviDesignDouble on double {
   double scale(BuildContext context) {
-    final factor = _minimumDeviceViewportWidth(context) / designScreenWidth;
+    final factor = MediaQuery.of(context).size.shortestSide / designScreenWidth;
     return this * factor.clamp(_smallestViewportWidth, _largestViewportWidth);
   }
 }
 
 extension YiviDesignInt on int {
   double scale(BuildContext context) {
-    final factor = _minimumDeviceViewportWidth(context) / designScreenWidth;
+    final factor = shortestSide(context) / designScreenWidth;
     return this * factor.clamp(_smallestViewportWidth, _largestViewportWidth);
+  }
+}
+
+extension YiviDesignTextStyle on TextStyle {
+  TextStyle scale(BuildContext context) {
+    final factor = shortestSide(context) / designScreenWidth;
+    this.copyWith(fontSize: factor.clamp(_smallestViewportWidth, _largestViewportWidth).toDouble() * (fontSize ?? 0));
+    return this;
   }
 }
