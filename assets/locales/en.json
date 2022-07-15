@@ -535,6 +535,8 @@
   "credential": {
     "no_data": "No data",
     "valid_until": "Valid until: {date}",
+    "expires_on": "Expires on {date}",
+    "expired_on": "Expired on {date}",
     "date_at_time": "{date} at {time}",
     "options": {
       "title": "Options",

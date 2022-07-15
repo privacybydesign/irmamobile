@@ -4,6 +4,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import '../../models/attribute_value.dart';
 import '../../models/attributes.dart';
 import '../../models/credentials.dart';
+import '../../theme/theme.dart';
 import '../../util/date_formatter.dart';
 import '../../util/language.dart';
 import '../irma_card.dart';
@@ -80,16 +81,11 @@ class IrmaCredentialCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
-
-    //final isExpired = expiryDate?.expired ?? false;
-    //final isExpiringSoon = expiryDate?.expiringSoon ?? false;
-    final isExpired = false;
-    final isExpiringSoon = false;
+    final isExpired = expiryDate?.expired ?? false;
+    final isExpiringSoon = expiryDate?.expiresSoon ?? false;
 
     return IrmaCard(
-      style:
-          // isExpired ? IrmaCardStyle.disabled :
-          style,
+      style: isExpired ? IrmaCardStyle.disabled : style,
       onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,13 +111,17 @@ class IrmaCredentialCard extends StatelessWidget {
             IrmaDivider(
               isDisabled: isExpired,
             ),
+            SizedBox(
+              height: IrmaTheme.of(context).tinySpacing,
+            ),
             IrmaCredentialCardFooter(
+              credentialType: credentialInfo.credentialType,
               text: FlutterI18n.translate(
                 context,
-                isExpiringSoon
-                    ? 'credential.expires_on'
-                    : isExpired
-                        ? 'credential.expired_on'
+                isExpired
+                    ? 'credential.expired_on'
+                    : isExpiringSoon
+                        ? 'credential.expires_on'
                         : 'credential.valid_until',
                 translationParams: {
                   'date': printableDate(
@@ -130,6 +130,7 @@ class IrmaCredentialCard extends StatelessWidget {
                   ),
                 },
               ),
+              isObtainable: (isExpired || isExpiringSoon) && credentialInfo.credentialType.issueUrl.isNotEmpty,
             )
           ]
         ],

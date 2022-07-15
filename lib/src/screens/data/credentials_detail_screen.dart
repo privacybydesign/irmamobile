@@ -10,6 +10,7 @@ import '../../theme/theme.dart';
 import '../../widgets/credential_card/delete_credential_confirmation_dialog.dart';
 import '../../widgets/credential_card/irma_credential_card.dart';
 import '../../widgets/credential_card/irma_credential_card_options_bottom_sheet.dart';
+import '../../widgets/credential_card/models/card_expiry_date.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
 
@@ -105,8 +106,11 @@ class _DataDetailScreenState extends State<CredentialsDetailScreen> {
                   cred,
                   headerTrailing: IconButton(
                     onPressed: () => _showCredentialOptionsBottomSheet(cred),
-                    icon: const Icon(Icons.more_horiz),
+                    icon: const Icon(
+                      Icons.more_horiz,
+                    ),
                   ),
+                  expiryDate: CardExpiryDate(cred.expires),
                 ),
               )
               .toList(),
