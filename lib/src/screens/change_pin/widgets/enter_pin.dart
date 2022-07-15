@@ -9,12 +9,14 @@ class EnterPin extends StatelessWidget {
 
   final void Function(String) submitOldPin;
   final VoidCallback? cancel;
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  const EnterPin({required this.submitOldPin, this.cancel});
+  EnterPin({required this.submitOldPin, this.cancel});
 
   @override
   Widget build(BuildContext context) {
     return YiviPinScaffold(
+      key: _scaffoldKey,
       appBar: IrmaAppBar(
         titleTranslationKey: 'change_pin.enter_pin.title',
         leadingTooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
@@ -32,13 +34,14 @@ class EnterPin extends StatelessWidget {
           final pinBloc = PinStateBloc(maxPinSize);
 
           return YiviPinScreen(
+              scaffoldKey: _scaffoldKey,
               instructionKey: 'change_pin.enter_pin.instruction',
               maxPinSize: maxPinSize,
               onSubmit: () => submitOldPin(pinBloc.state.pin.join()),
               pinBloc: pinBloc,
               pinVisibilityBloc: PinVisibilityBloc(),
               listener: (context, state) {
-                if (maxPinSize == shortPinSize && state.attributes.contains(SecurePinAttribute.goodEnough)) {
+                if (maxPinSize == shortPinSize) {
                   submitOldPin(pinBloc.state.pin.join());
                 }
               });

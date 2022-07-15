@@ -122,6 +122,8 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
   // Parent widget is responsible for popping this widget, so do a leadingAction instead of a leadingCancel.
   PreferredSizeWidget scaffoldTitle() => IrmaAppBar(leadingAction: _cancel, title: widget.title);
 
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -153,7 +155,8 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
                 );
               }
 
-              return Scaffold(
+              return yivi.YiviPinScaffold(
+                key: _scaffoldKey,
                 appBar: scaffoldTitle(),
                 body: StreamBuilder(
                   stream: _pinBloc.getPinBlockedFor(),
@@ -178,6 +181,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
                           alignment: Alignment.center,
                           children: [
                             yivi.YiviPinScreen(
+                              scaffoldKey: _scaffoldKey,
                               instructionKey: 'session_pin.subtitle',
                               maxPinSize: maxPinSize,
                               onSubmit: onSubmit,
@@ -186,8 +190,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
                               enabled: enabled,
                               onForgotPin: () => Navigator.of(context).pushNamed(ResetPinScreen.routeName),
                               listener: (context, state) {
-                                if (maxPinSize == yivi.shortPinSize &&
-                                    state.attributes.contains(yivi.SecurePinAttribute.goodEnough)) {
+                                if (maxPinSize == yivi.shortPinSize) {
                                   onSubmit();
                                 }
                               },

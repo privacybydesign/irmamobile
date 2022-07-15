@@ -11,6 +11,7 @@ class ChoosePin extends StatelessWidget {
   final void Function(BuildContext, String) submitPin;
   final void Function(BuildContext) cancelAndNavigate;
   final pinSizeStreamController = StreamController<int>();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   ChoosePin({
     required this.submitPin,
@@ -20,6 +21,7 @@ class ChoosePin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return YiviPinScaffold(
+      key: _scaffoldKey,
       appBar: IrmaAppBar(
         titleTranslationKey: 'enrollment.choose_pin.title',
         leadingAction: () => cancelAndNavigate(context),
@@ -38,6 +40,7 @@ class ChoosePin extends StatelessWidget {
           }
 
           return YiviPinScreen(
+            scaffoldKey: _scaffoldKey,
             instructionKey: 'enrollment.choose_pin.insert_pin',
             maxPinSize: maxPinSize,
             onSubmit: onSubmit,

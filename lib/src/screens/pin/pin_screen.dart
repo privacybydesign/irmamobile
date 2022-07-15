@@ -102,6 +102,8 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
     }
   }
 
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<PinBloc, PinState>(
@@ -113,6 +115,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
         }
 
         return yivi.YiviPinScaffold(
+          key: _scaffoldKey,
           appBar: IrmaAppBar(
             titleTranslationKey: "pin.title",
           ),
@@ -145,6 +148,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                     alignment: Alignment.center,
                     children: [
                       yivi.YiviPinScreen(
+                        scaffoldKey: _scaffoldKey,
                         instruction: subtitle,
                         maxPinSize: maxPinSize,
                         onSubmit: onSubmit,
@@ -153,8 +157,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                         enabled: enabled,
                         onForgotPin: () => Navigator.of(context).pushNamed(ResetPinScreen.routeName),
                         listener: (context, state) {
-                          if (maxPinSize == yivi.shortPinSize &&
-                              state.attributes.contains(yivi.SecurePinAttribute.goodEnough)) {
+                          if (maxPinSize == yivi.shortPinSize) {
                             onSubmit();
                           }
                         },

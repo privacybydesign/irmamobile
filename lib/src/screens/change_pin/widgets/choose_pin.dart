@@ -12,12 +12,14 @@ class ChoosePin extends StatelessWidget {
   final void Function(BuildContext, String) chooseNewPin;
   final VoidCallback toggleLongPin;
   final VoidCallback? cancel;
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  const ChoosePin({required this.chooseNewPin, required this.toggleLongPin, this.cancel});
+  ChoosePin({required this.chooseNewPin, required this.toggleLongPin, this.cancel});
 
   @override
   Widget build(BuildContext context) {
     return YiviPinScaffold(
+      key: _scaffoldKey,
       appBar: IrmaAppBar(
         titleTranslationKey: 'change_pin.choose_pin.title',
         leadingTooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
@@ -33,6 +35,7 @@ class ChoosePin extends StatelessWidget {
           final pinVisibilityBloc = PinVisibilityBloc();
 
           return YiviPinScreen(
+            scaffoldKey: _scaffoldKey,
             instructionKey: 'change_pin.choose_pin.instruction',
             maxPinSize: maxPinSize,
             onSubmit: () => chooseNewPin(context, pinBloc.state.pin.join()),

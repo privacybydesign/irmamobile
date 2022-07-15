@@ -9,11 +9,14 @@ class ConfirmPin extends StatelessWidget {
   final Function(String) submitConfirmationPin;
   final void Function(BuildContext) cancelAndNavigate;
 
-  const ConfirmPin({required this.submitConfirmationPin, required this.cancelAndNavigate});
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  ConfirmPin({required this.submitConfirmationPin, required this.cancelAndNavigate});
 
   @override
   Widget build(BuildContext context) {
     return YiviPinScaffold(
+      key: _scaffoldKey,
       appBar: IrmaAppBar(
         titleTranslationKey: 'enrollment.choose_pin.title',
         leadingAction: () => cancelAndNavigate(context),
@@ -27,6 +30,7 @@ class ConfirmPin extends StatelessWidget {
           final pinVisibilityBloc = PinVisibilityBloc();
 
           return YiviPinScreen(
+            scaffoldKey: _scaffoldKey,
             instructionKey: 'enrollment.choose_pin.confirm_instruction',
             maxPinSize: maxPinSize,
             onSubmit: () => submitConfirmationPin(pinBloc.state.pin.join()),

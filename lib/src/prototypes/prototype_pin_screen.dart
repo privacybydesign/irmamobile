@@ -19,6 +19,8 @@ class SecurePinScreenTest extends StatelessWidget {
 
   final VoidCallback? onTogglePinSize;
 
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
   SecurePinScreenTest({
     Key? key,
     required this.maxPinSize,
@@ -30,8 +32,10 @@ class SecurePinScreenTest extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return YiviPinScaffold(
+      key: _scaffoldKey,
       appBar: _buildAppBar(() => Navigator.pop(context), 'Secure Pin: Reset / Onboarding'),
       body: YiviPinScreen(
+        scaffoldKey: _scaffoldKey,
         instructionKey: instructionKey,
         maxPinSize: maxPinSize,
         onSubmit: () => Navigator.pop(context),
@@ -39,6 +43,12 @@ class SecurePinScreenTest extends StatelessWidget {
         pinVisibilityBloc: pinVisibilityBloc,
         onTogglePinSize: onTogglePinSize,
         checkSecurePin: true,
+        listener: (context, state) {
+          /// speed run regardless of pin quality
+          if (shortPinSize == state.pin.length) {
+            Navigator.pop(context);
+          }
+        },
       ),
     );
   }
@@ -56,18 +66,21 @@ class PinScreenTest extends StatefulWidget {
 }
 
 class _PinScreen extends State<PinScreenTest> {
-  final pinVisibilityBloc = PinVisibilityBloc();
+  final _pinVisibilityBloc = PinVisibilityBloc();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
     return YiviPinScaffold(
+      key: _scaffoldKey,
       appBar: _buildAppBar(() => Navigator.pop(context), 'Basic Pin'),
       body: YiviPinScreen(
+        scaffoldKey: _scaffoldKey,
         instructionKey: 'pin.title',
         maxPinSize: widget.maxPinSize,
         onSubmit: () => Navigator.pop(context),
         pinBloc: widget.pinBloc,
-        pinVisibilityBloc: pinVisibilityBloc,
+        pinVisibilityBloc: _pinVisibilityBloc,
         onForgotPin: () => Navigator.pop(context),
         onTogglePinSize: widget.onTogglePinSize,
         listener: (context, state) {
