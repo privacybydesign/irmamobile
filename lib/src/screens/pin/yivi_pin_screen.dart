@@ -137,9 +137,8 @@ class YiviPinScreen extends StatelessWidget {
       style: theme.textTheme.headline3?.copyWith(fontWeight: FontWeight.w700),
     );
 
-    final pinDots = BlocConsumer<PinStateBloc, PinState>(
+    final pinDots = BlocBuilder<PinStateBloc, PinState>(
       bloc: pinBloc,
-      listener: listener ?? (c, p) {},
       builder: (context, state) =>
           _PinIndicator(maxPinSize: maxPinSize, visibilityBloc: pinVisibilityBloc, pinState: state),
     );
@@ -206,8 +205,10 @@ class YiviPinScreen extends StatelessWidget {
       ),
     );
 
+    Widget securePinTextButton = _securePinTextButton();
+
     /// Only call when required
-    List<Widget> bodyPortrait() => [
+    List<Widget> bodyPortrait(bool showSecurePinText) => [
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -215,7 +216,7 @@ class YiviPinScreen extends StatelessWidget {
                 logo,
                 instruction,
                 pinDotsDecorated,
-                if (checkSecurePin) _securePinTextButton(),
+                if (checkSecurePin && showSecurePinText) securePinTextButton,
                 if (onTogglePinSize != null)
                   Link(
                     onTap: onTogglePinSize,
@@ -238,7 +239,7 @@ class YiviPinScreen extends StatelessWidget {
           nextButton,
         ];
 
-    List<Widget> bodyLandscape() => [
+    List<Widget> bodyLandscape(bool showSecurePinText) => [
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -247,7 +248,7 @@ class YiviPinScreen extends StatelessWidget {
                 // logo, // TODO discuss with designer
                 instruction,
                 pinDotsDecorated,
-                if (checkSecurePin) _securePinTextButton(),
+                if (checkSecurePin && showSecurePinText) _securePinTextButton(),
                 if (onTogglePinSize != null)
                   Link(
                     onTap: onTogglePinSize,
@@ -271,15 +272,23 @@ class YiviPinScreen extends StatelessWidget {
 
     return OrientationBuilder(
       builder: (context, orientation) {
-        if (Orientation.portrait == orientation) {
-          return Column(
-            children: bodyPortrait(),
-          );
-        } else {
-          return Row(
-            children: bodyLandscape(),
-          );
-        }
+        return BlocConsumer<PinStateBloc, PinState>(
+          bloc: pinBloc,
+          listener: listener ?? (c, p) {},
+          builder: (context, state) {
+            final showSecurePinText =
+                state.pin.length >= shortPinSize && !state.attributes.contains(SecurePinAttribute.goodEnough);
+            if (Orientation.portrait == orientation) {
+              return Column(
+                children: bodyPortrait(showSecurePinText),
+              );
+            } else {
+              return Row(
+                children: bodyLandscape(showSecurePinText),
+              );
+            }
+          },
+        );
       },
     );
   }

@@ -112,31 +112,26 @@ class UnsecurePinWarningTextButton extends StatelessWidget {
         return BlocBuilder<PinStateBloc, PinState>(
           bloc: bloc,
           builder: (context, state) {
-            if (state.pin.length >= shortPinSize) {
-              if (!state.attributes.contains(SecurePinAttribute.goodEnough)) {
-                return Center(
-                  child: TextButton(
-                    onPressed: () => showSecurePinRules(state, orientation),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text(
-                          FlutterI18n.translate(context, 'secure_pin.info_button'),
-                          style: theme.textTheme.caption?.copyWith(color: theme.warning, fontWeight: FontWeight.w700),
-                        ),
-                        const SizedBox(width: 2.0),
-                        Icon(
-                          Icons.info_outlined,
-                          color: theme.warning,
-                        ),
-                      ],
+            return Center(
+              child: TextButton(
+                onPressed: () => showSecurePinRules(state, orientation),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      FlutterI18n.translate(context, 'secure_pin.info_button'),
+                      style: theme.textTheme.caption?.copyWith(color: theme.warning, fontWeight: FontWeight.w700),
                     ),
-                  ),
-                );
-              }
-            }
-            return const SizedBox(height: 0.0); // placeholder
+                    const SizedBox(width: 2.0),
+                    Icon(
+                      Icons.info_outlined,
+                      color: theme.warning,
+                    ),
+                  ],
+                ),
+              ),
+            );
           },
         );
       },
