@@ -112,7 +112,7 @@ class YiviPinScreen extends StatelessWidget {
               (Set<MaterialState> states) {
                 if (states.contains(MaterialState.pressed))
                   return theme.secondary.withOpacity(0.5);
-                else if (states.contains(MaterialState.disabled)) return theme.secondary.withOpacity(0.05);
+                else if (states.contains(MaterialState.disabled)) return theme.secondary.withOpacity(0.5);
                 return theme.secondary;
               },
             ),
