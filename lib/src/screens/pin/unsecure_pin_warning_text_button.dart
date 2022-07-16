@@ -28,11 +28,11 @@ List<Widget> _listBuilder(BuildContext context, PinState state) {
   ).toList();
 }
 
-class UnsecurePinWarningTextButton extends StatelessWidget {
+class _UnsecurePinWarningTextButton extends StatelessWidget {
   final PinStateBloc bloc;
   final GlobalKey<ScaffoldState> scaffoldKey;
 
-  const UnsecurePinWarningTextButton({Key? key, required this.scaffoldKey, required this.bloc}) : super(key: key);
+  const _UnsecurePinWarningTextButton({Key? key, required this.scaffoldKey, required this.bloc}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

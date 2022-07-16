@@ -35,7 +35,6 @@ class EnterPin extends StatelessWidget {
           void submit() => submitOldPin(pinBloc.state.pin.join());
 
           return YiviPinScreen(
-              scaffoldKey: _scaffoldKey,
               instructionKey: 'change_pin.enter_pin.instruction',
               maxPinSize: maxPinSize,
               onSubmit: submit,

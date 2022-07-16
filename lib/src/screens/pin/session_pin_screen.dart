@@ -181,7 +181,6 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
                           alignment: Alignment.center,
                           children: [
                             yivi.YiviPinScreen(
-                              scaffoldKey: _scaffoldKey,
                               instructionKey: 'session_pin.subtitle',
                               maxPinSize: maxPinSize,
                               onSubmit: onSubmit,

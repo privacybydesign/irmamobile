@@ -148,7 +148,6 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                     alignment: Alignment.center,
                     children: [
                       yivi.YiviPinScreen(
-                        scaffoldKey: _scaffoldKey,
                         instruction: subtitle,
                         maxPinSize: maxPinSize,
                         onSubmit: onSubmit,

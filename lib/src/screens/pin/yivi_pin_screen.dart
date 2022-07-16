@@ -22,7 +22,7 @@ part 'bloc/yivi_pin_bloc.dart';
 part 'circle_clip.dart';
 part 'number_pad.dart';
 part 'number_pad_key.dart';
-part 'secure_pin_bottom_sheet.dart';
+part 'unsecure_pin_warning_text_button.dart';
 part 'yivi_pin_indicator.dart';
 part 'yivi_pin_scaffold.dart';
 
@@ -43,7 +43,7 @@ Widget _resizeBox(Widget widget, double edge) => SizedBox(
     );
 
 class YiviPinScreen extends StatelessWidget {
-  final GlobalKey<ScaffoldState> scaffoldKey;
+  final GlobalKey<ScaffoldState>? scaffoldKey;
   final int maxPinSize;
   final VoidCallback onSubmit;
   final PinStateBloc pinBloc;
@@ -58,7 +58,7 @@ class YiviPinScreen extends StatelessWidget {
 
   const YiviPinScreen({
     Key? key,
-    required this.scaffoldKey,
+    this.scaffoldKey,
     this.instructionKey,
     this.instruction,
     required this.pinVisibilityBloc,
@@ -71,9 +71,8 @@ class YiviPinScreen extends StatelessWidget {
     this.enabled = true,
     this.listener,
   })  : assert(instructionKey != null && instruction == null || instruction != null && instructionKey == null),
+        assert(checkSecurePin ? scaffoldKey != null : true),
         super(key: key);
-
-  Widget _securePinTextButton() => UnsecurePinWarningTextButton(scaffoldKey: scaffoldKey, bloc: pinBloc);
 
   /// Some functions are nested to save on ceremony for repeatedly passed parameters
   /// Also nested functions are not exposed outside the parent function
@@ -205,8 +204,6 @@ class YiviPinScreen extends StatelessWidget {
       ),
     );
 
-    Widget securePinTextButton = _securePinTextButton();
-
     /// Only call when required
     List<Widget> bodyPortrait(bool showSecurePinText) => [
           Expanded(
@@ -216,7 +213,8 @@ class YiviPinScreen extends StatelessWidget {
                 logo,
                 instruction,
                 pinDotsDecorated,
-                if (checkSecurePin && showSecurePinText) securePinTextButton,
+                if (checkSecurePin && showSecurePinText)
+                  _UnsecurePinWarningTextButton(scaffoldKey: scaffoldKey!, bloc: pinBloc),
                 if (onTogglePinSize != null)
                   Link(
                     onTap: onTogglePinSize,
@@ -248,7 +246,8 @@ class YiviPinScreen extends StatelessWidget {
                 // logo, // TODO discuss with designer
                 instruction,
                 pinDotsDecorated,
-                if (checkSecurePin && showSecurePinText) _securePinTextButton(),
+                if (checkSecurePin && showSecurePinText)
+                  _UnsecurePinWarningTextButton(scaffoldKey: scaffoldKey!, bloc: pinBloc),
                 if (onTogglePinSize != null)
                   Link(
                     onTap: onTogglePinSize,
