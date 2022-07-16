@@ -1,33 +1,5 @@
 part of pin;
 
-List<Widget> _listBuilder(BuildContext context, PinState state) {
-  final attributes = state.attributes;
-  final tiles = [
-    _UnsecurePinDescriptionTile(
-      followsRule: attributes.contains(SecurePinAttribute.containsThreeUnique),
-      descriptionKey: 'secure_pin.rules.contains_3_unique',
-    ),
-    _UnsecurePinDescriptionTile(
-      followsRule: attributes.contains(SecurePinAttribute.mustNotAscNorDesc),
-      descriptionKey: 'secure_pin.rules.must_not_asc_or_desc',
-    ),
-    _UnsecurePinDescriptionTile(
-      followsRule: attributes.contains(SecurePinAttribute.notAbcabNorAbcba),
-      descriptionKey: 'secure_pin.rules.not_abcab_nor_abcba',
-    ),
-    if (state.pin.length > shortPinSize)
-      _UnsecurePinDescriptionTile(
-        followsRule: attributes.contains(SecurePinAttribute.mustContainValidSubset),
-        descriptionKey: 'secure_pin.rules.must_contain_valid_subset',
-      )
-  ];
-
-  return ListTile.divideTiles(
-    context: context,
-    tiles: tiles,
-  ).toList();
-}
-
 class _UnsecurePinWarningTextButton extends StatelessWidget {
   final PinStateBloc bloc;
   final GlobalKey<ScaffoldState> scaffoldKey;
@@ -135,51 +107,6 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
           },
         );
       },
-    );
-  }
-}
-
-class _UnsecurePinDescriptionTile extends StatelessWidget {
-  final bool followsRule;
-  final String descriptionKey;
-  const _UnsecurePinDescriptionTile({Key? key, required this.followsRule, required this.descriptionKey})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
-    return ListTile(
-      leading: Icon(
-        followsRule ? Icons.check : Icons.close,
-        color: followsRule ? Colors.green : Colors.red,
-      ),
-      horizontalTitleGap: 8.0,
-      title: Text(
-        FlutterI18n.translate(context, descriptionKey),
-        style: theme.textTheme.bodyText1?.copyWith(fontWeight: FontWeight.w400),
-      ),
-      minVerticalPadding: 0.0,
-      visualDensity: const VisualDensity(vertical: -4.0),
-    );
-  }
-}
-
-class _UnsecurePinFullScreen extends StatelessWidget {
-  final PinState state;
-  const _UnsecurePinFullScreen({Key? key, required this.state}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return YiviPinScaffold(
-      appBar: IrmaAppBar(
-        titleTranslationKey: 'secure_pin.title',
-        leadingAction: () => Navigator.of(context).pop(),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(8),
-        children: _listBuilder(context, state),
-      ),
     );
   }
 }
