@@ -12,6 +12,7 @@ class ChoosePin extends StatelessWidget {
   final void Function(BuildContext) cancelAndNavigate;
   final pinSizeStreamController = StreamController<int>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _pinVisibilityBloc = PinVisibilityBloc();
 
   ChoosePin({
     required this.submitPin,
@@ -32,7 +33,6 @@ class ChoosePin extends StatelessWidget {
         builder: (context, snapshot) {
           final maxPinSize = snapshot.hasData ? snapshot.data! : shortPinSize;
           final pinBloc = PinStateBloc(maxPinSize);
-          final pinVisibilityBloc = PinVisibilityBloc();
 
           void onSubmit() {
             IrmaPreferences.get().setLongPin(maxPinSize == longPinSize);
@@ -45,7 +45,7 @@ class ChoosePin extends StatelessWidget {
             maxPinSize: maxPinSize,
             onSubmit: onSubmit,
             pinBloc: pinBloc,
-            pinVisibilityBloc: pinVisibilityBloc,
+            pinVisibilityBloc: _pinVisibilityBloc,
             onTogglePinSize: () => pinSizeStreamController.add(maxPinSize == shortPinSize ? longPinSize : shortPinSize),
             checkSecurePin: true,
             listener: (context, state) {

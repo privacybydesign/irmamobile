@@ -8,7 +8,6 @@ import 'package:irmamobile/src/screens/error/session_error_screen.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_state.dart';
-import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/pin_common/format_blocked_for.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_attempts.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_blocked.dart';
@@ -30,6 +29,7 @@ class PinScreen extends StatefulWidget {
 
 class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
   final _pinBloc = PinBloc();
+  final _pinVisibilityBloc = yivi.PinVisibilityBloc();
 
   late StreamSubscription _pinBlocSubscription;
 
@@ -102,8 +102,6 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
     }
   }
 
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<PinBloc, PinState>(
@@ -115,7 +113,6 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
         }
 
         return yivi.YiviPinScaffold(
-          key: _scaffoldKey,
           appBar: IrmaAppBar(
             titleTranslationKey: "pin.title",
           ),
@@ -138,7 +135,6 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                   final enabled = (blockedFor.data ?? Duration.zero).inSeconds <= 0 && !state.authenticateInProgress;
 
                   void onSubmit() {
-                    if (!enabled) return;
                     _pinBloc.add(
                       Unlock(pinBloc.state.pin.join()),
                     );
@@ -150,21 +146,18 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                       yivi.YiviPinScreen(
                         instruction: subtitle,
                         maxPinSize: maxPinSize,
-                        onSubmit: onSubmit,
+                        onSubmit: enabled ? onSubmit : () {},
                         pinBloc: pinBloc,
-                        pinVisibilityBloc: yivi.PinVisibilityBloc(),
+                        pinVisibilityBloc: _pinVisibilityBloc,
                         enabled: enabled,
                         onForgotPin: () => Navigator.of(context).pushNamed(ResetPinScreen.routeName),
                         listener: (context, state) {
-                          if (maxPinSize == yivi.shortPinSize) {
+                          if (maxPinSize == yivi.shortPinSize && enabled) {
                             onSubmit();
                           }
                         },
                       ),
-                      if (state.authenticateInProgress)
-                        Padding(
-                            padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
-                            child: const CircularProgressIndicator()),
+                      if (state.authenticateInProgress) const CircularProgressIndicator(),
                     ],
                   );
                 },

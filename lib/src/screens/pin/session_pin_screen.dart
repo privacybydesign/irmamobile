@@ -33,6 +33,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
   final _pinBloc = PinBloc();
   final _focusNode = FocusNode();
   final _navigatorKey = GlobalKey();
+  final _pinVisibilityBloc = yivi.PinVisibilityBloc();
 
   late final StreamSubscription _pinBlocSubscription;
 
@@ -122,8 +123,6 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
   // Parent widget is responsible for popping this widget, so do a leadingAction instead of a leadingCancel.
   PreferredSizeWidget scaffoldTitle() => IrmaAppBar(leadingAction: _cancel, title: widget.title);
 
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
-
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -156,7 +155,6 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
               }
 
               return yivi.YiviPinScaffold(
-                key: _scaffoldKey,
                 appBar: scaffoldTitle(),
                 body: StreamBuilder(
                   stream: _pinBloc.getPinBlockedFor(),
@@ -185,7 +183,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
                               maxPinSize: maxPinSize,
                               onSubmit: onSubmit,
                               pinBloc: pinBloc,
-                              pinVisibilityBloc: yivi.PinVisibilityBloc(),
+                              pinVisibilityBloc: _pinVisibilityBloc,
                               enabled: enabled,
                               onForgotPin: () => Navigator.of(context).pushNamed(ResetPinScreen.routeName),
                               listener: (context, state) {

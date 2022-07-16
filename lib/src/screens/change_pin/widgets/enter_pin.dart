@@ -10,6 +10,7 @@ class EnterPin extends StatelessWidget {
   final void Function(String) submitOldPin;
   final VoidCallback? cancel;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _pinVisibilityBloc = PinVisibilityBloc();
 
   EnterPin({required this.submitOldPin, this.cancel});
 
@@ -39,7 +40,7 @@ class EnterPin extends StatelessWidget {
               maxPinSize: maxPinSize,
               onSubmit: submit,
               pinBloc: pinBloc,
-              pinVisibilityBloc: PinVisibilityBloc(),
+              pinVisibilityBloc: _pinVisibilityBloc,
               listener: (context, state) {
                 if (maxPinSize == shortPinSize) {
                   submit();

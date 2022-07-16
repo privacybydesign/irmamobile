@@ -12,6 +12,7 @@ class ConfirmPin extends StatelessWidget {
   final void Function(String) confirmNewPin;
   final VoidCallback? cancel;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _pinVisibilityBloc = PinVisibilityBloc();
 
   ConfirmPin({required this.confirmNewPin, this.cancel});
 
@@ -32,7 +33,7 @@ class ConfirmPin extends StatelessWidget {
       body: BlocBuilder<ChangePinBloc, ChangePinState>(builder: (context, state) {
         final maxPinSize = state.longPin ? longPinSize : shortPinSize;
         final pinBloc = PinStateBloc(maxPinSize);
-        final pinVisibilityBloc = PinVisibilityBloc();
+
         void submit() => confirmNewPin(pinBloc.state.pin.join());
         return YiviPinScreen(
           scaffoldKey: _scaffoldKey,
@@ -40,7 +41,7 @@ class ConfirmPin extends StatelessWidget {
           maxPinSize: maxPinSize,
           onSubmit: submit,
           pinBloc: pinBloc,
-          pinVisibilityBloc: pinVisibilityBloc,
+          pinVisibilityBloc: _pinVisibilityBloc,
           checkSecurePin: true,
           listener: (context, state) {
             if (maxPinSize == shortPinSize && state.attributes.contains(SecurePinAttribute.goodEnough)) {

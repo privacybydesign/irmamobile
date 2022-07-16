@@ -13,6 +13,7 @@ class ChoosePin extends StatelessWidget {
   final VoidCallback toggleLongPin;
   final VoidCallback? cancel;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _pinVisibilityBloc = PinVisibilityBloc();
 
   ChoosePin({required this.chooseNewPin, required this.toggleLongPin, this.cancel});
 

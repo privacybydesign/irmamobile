@@ -19,7 +19,7 @@ class SecurePinScreenTest extends StatelessWidget {
 
   final VoidCallback? onTogglePinSize;
 
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _scaffoldKey = GlobalKey<ScaffoldState>(debugLabel: 'SecurePinScreenTest');
 
   SecurePinScreenTest({
     Key? key,
@@ -75,7 +75,6 @@ class _PinScreen extends State<PinScreenTest> {
       key: _scaffoldKey,
       appBar: _buildAppBar(() => Navigator.pop(context), 'Basic Pin'),
       body: YiviPinScreen(
-        scaffoldKey: _scaffoldKey,
         instructionKey: 'pin.title',
         maxPinSize: widget.maxPinSize,
         onSubmit: () => Navigator.pop(context),

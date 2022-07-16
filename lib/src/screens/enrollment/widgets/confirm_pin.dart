@@ -10,6 +10,7 @@ class ConfirmPin extends StatelessWidget {
   final void Function(BuildContext) cancelAndNavigate;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final pinVisibilityBloc = PinVisibilityBloc();
 
   ConfirmPin({required this.submitConfirmationPin, required this.cancelAndNavigate});
 
@@ -27,7 +28,6 @@ class ConfirmPin extends StatelessWidget {
         builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
           final maxPinSize = snapshot.hasData && snapshot.data! ? longPinSize : shortPinSize;
           final pinBloc = PinStateBloc(maxPinSize);
-          final pinVisibilityBloc = PinVisibilityBloc();
           void submit() => submitConfirmationPin(pinBloc.state.pin.join());
 
           return YiviPinScreen(
