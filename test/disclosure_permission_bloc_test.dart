@@ -1018,6 +1018,24 @@ void main() {
     expect(prevAddedCredsBlocState.optionalChoices[1]?[0].attributes.length, 1);
     expect(prevAddedCredsBlocState.optionalChoices[1]?[0].attributes[0].value.raw, 'test@example.com');
 
+    // Check whether we can remove the optional choice again.
+    bloc.add(DisclosurePermissionRemoveOptionalDataPressed(disconIndex: 1));
+    expect(await bloc.stream.first, isA<DisclosurePermissionPreviouslyAddedCredentialsOverview>());
+    prevAddedCredsBlocState = bloc.state as DisclosurePermissionPreviouslyAddedCredentialsOverview;
+    expect(prevAddedCredsBlocState.requiredChoices, {});
+    expect(prevAddedCredsBlocState.optionalChoices, {});
+
+    bloc.add(DisclosurePermissionAddOptionalDataPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionAddOptionalData>());
+    addOptionalDataBlocState = bloc.state as DisclosurePermissionAddOptionalData;
+    expect(addOptionalDataBlocState.selectedConIndex, 0);
+
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionPreviouslyAddedCredentialsOverview>());
+    prevAddedCredsBlocState = bloc.state as DisclosurePermissionPreviouslyAddedCredentialsOverview;
+    expect(prevAddedCredsBlocState.requiredChoices, {});
+    expect(prevAddedCredsBlocState.optionalChoices.keys, [1]);
+
     bloc.add(DisclosurePermissionNextPressed());
     expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
     DisclosurePermissionChoicesOverview choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;

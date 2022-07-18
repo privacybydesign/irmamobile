@@ -243,12 +243,16 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         }
       }
     } else if (state is DisclosurePermissionChoices && event is DisclosurePermissionAddOptionalDataPressed) {
-      // TODO: optional data should be deselectable too.
       yield _generateAddOptionalDataState(
         session: session,
         parentState: state,
         alreadyAddedOptionalDisconIndices: state.optionalChoices.keys,
       );
+    } else if (state is DisclosurePermissionChoices && event is DisclosurePermissionRemoveOptionalDataPressed) {
+      if (!state.optionalChoices.containsKey(event.disconIndex)) {
+        throw Exception('Optional choice with index ${event.disconIndex} does not exist');
+      }
+      yield _refreshChoices(state, [state.optionalChoices[event.disconIndex]!], event.disconIndex, null);
     } else if (state is DisclosurePermissionChoicesOverview && event is DisclosurePermissionNextPressed) {
       if (!state.showConfirmationPopup) {
         yield DisclosurePermissionChoicesOverview(
@@ -516,16 +520,22 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     DisclosurePermissionChoices prevState,
     List<Con<DisclosureCredential>> discon,
     int disconIndex,
-    int selectedConIndex,
+    int? selectedConIndex,
   ) {
     // The state machine should make sure the selected con only contains ChoosableDisclosureCredentials in this state.
-    final requiredChoices = prevState.requiredChoices.map((i, con) =>
-        MapEntry(i, i == disconIndex ? Con(discon[selectedConIndex].cast<ChoosableDisclosureCredential>()) : con));
-    final optionalChoices = prevState.optionalChoices.map((i, con) =>
-        MapEntry(i, i == disconIndex ? Con(discon[selectedConIndex].cast<ChoosableDisclosureCredential>()) : con));
+    final requiredChoices = selectedConIndex != null
+        ? prevState.requiredChoices.map((i, con) =>
+            MapEntry(i, i == disconIndex ? Con(discon[selectedConIndex].cast<ChoosableDisclosureCredential>()) : con))
+        : Map.of(prevState.requiredChoices);
+    final optionalChoices = selectedConIndex != null
+        ? prevState.optionalChoices.map((i, con) =>
+            MapEntry(i, i == disconIndex ? Con(discon[selectedConIndex].cast<ChoosableDisclosureCredential>()) : con))
+        : Map.of(prevState.optionalChoices);
 
-    // If it concerns a new discon, then we should add it.
-    if (!requiredChoices.containsKey(disconIndex) && !optionalChoices.containsKey(disconIndex)) {
+    // Add or remove optional choices if necessary.
+    if (selectedConIndex == null) {
+      optionalChoices.remove(disconIndex);
+    } else if (!requiredChoices.containsKey(disconIndex) && !optionalChoices.containsKey(disconIndex)) {
       optionalChoices.putIfAbsent(
         disconIndex,
         () => Con(discon[selectedConIndex].cast<ChoosableDisclosureCredential>()),
