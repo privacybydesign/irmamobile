@@ -6,8 +6,8 @@ import '../irma_divider.dart';
 import '../translated_text.dart';
 
 class IrmaCredentialCardOptionsBottomSheet extends StatelessWidget {
-  final VoidCallback onDelete;
-  final VoidCallback onReobtain;
+  final VoidCallback? onDelete;
+  final VoidCallback? onReobtain;
 
   const IrmaCredentialCardOptionsBottomSheet({
     required this.onDelete,
@@ -45,19 +45,21 @@ class IrmaCredentialCardOptionsBottomSheet extends StatelessWidget {
             style: theme.textTheme.headline3,
           ),
           SizedBox(height: theme.defaultSpacing),
-          _buildOptionTile(
-            theme: theme,
-            icon: Icons.cached,
-            translationKey: 'credential.options.reobtain',
-            onTap: onReobtain,
-          ),
-          const IrmaDivider(),
-          _buildOptionTile(
-            theme: theme,
-            icon: Icons.delete,
-            translationKey: 'credential.options.delete',
-            onTap: onDelete,
-          ),
+          if (onReobtain != null)
+            _buildOptionTile(
+              theme: theme,
+              icon: Icons.cached,
+              translationKey: 'credential.options.reobtain',
+              onTap: onReobtain,
+            ),
+          if (onReobtain != null && onDelete != null) const IrmaDivider(),
+          if (onDelete != null)
+            _buildOptionTile(
+              theme: theme,
+              icon: Icons.delete,
+              translationKey: 'credential.options.delete',
+              onTap: onDelete,
+            ),
         ],
       ),
     );

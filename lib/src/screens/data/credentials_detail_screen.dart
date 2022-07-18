@@ -45,14 +45,18 @@ class _DataDetailScreenState extends State<CredentialsDetailScreen> {
   _showCredentialOptionsBottomSheet(Credential cred) async => showModalBottomSheet<void>(
         context: context,
         builder: (context) => IrmaCredentialCardOptionsBottomSheet(
-          onDelete: () async {
-            Navigator.of(context).pop();
-            await _showConfirmDeleteDialog(context, cred);
-          },
-          onReobtain: () {
-            Navigator.of(context).pop();
-            _reobtainCredential(cred);
-          },
+          onDelete: cred.info.credentialType.issueUrl.isEmpty
+              ? null
+              : () async {
+                  Navigator.of(context).pop();
+                  await _showConfirmDeleteDialog(context, cred);
+                },
+          onReobtain: cred.info.credentialType.disallowDelete
+              ? null
+              : () {
+                  Navigator.of(context).pop();
+                  _reobtainCredential(cred);
+                },
         ),
       );
 
@@ -138,12 +142,17 @@ class _DataDetailScreenState extends State<CredentialsDetailScreen> {
                 .map(
                   (cred) => IrmaCredentialCard.fromCredential(
                     cred,
-                    headerTrailing: IconButton(
-                      onPressed: () => _showCredentialOptionsBottomSheet(cred),
-                      icon: const Icon(
-                        Icons.more_horiz,
-                      ),
-                    ),
+                    headerTrailing:
+                        // Credential must either be reobtainable or deletable
+                        // for the options bottom sheet to be accessible
+                        cred.info.credentialType.disallowDelete && cred.info.credentialType.issueUrl.isEmpty
+                            ? null
+                            : IconButton(
+                                onPressed: () => _showCredentialOptionsBottomSheet(cred),
+                                icon: const Icon(
+                                  Icons.more_horiz,
+                                ),
+                              ),
                     expiryDate: CardExpiryDate(cred.expires),
                   ),
                 )
