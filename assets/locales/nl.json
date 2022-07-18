@@ -542,7 +542,8 @@
       "title": "Opties",
       "reobtain": "Opnieuw ophalen",
       "delete": "Verwijder gegevens",
-      "confirm_delete": "Weet je zeker dat je deze gegevens wilt verwijderen?"
+      "confirm_delete": "Weet je zeker dat je deze gegevens wilt verwijderen?",
+      "delete_success": "Gelukt! De gegevens zijn verwijderd."
     },
     "about_to_expire": "Gaat verlopen",
     "expired": "Verlopen"

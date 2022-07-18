@@ -14,6 +14,7 @@ import '../../widgets/credential_card/irma_credential_card_options_bottom_sheet.
 import '../../widgets/credential_card/models/card_expiry_date.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
+import '../../widgets/translated_text.dart';
 
 class CredentialsDetailScreen extends StatefulWidget {
   final String categoryName;
@@ -29,6 +30,8 @@ class CredentialsDetailScreen extends StatefulWidget {
 }
 
 class _DataDetailScreenState extends State<CredentialsDetailScreen> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   late final IrmaRepository repo;
   late final StreamSubscription<Credentials> credentialStreamSubscription;
   List<Credential> credentials = [];
@@ -39,12 +42,12 @@ class _DataDetailScreenState extends State<CredentialsDetailScreen> {
         if (credentials.isEmpty) Navigator.of(context).pop();
       });
 
-  _showCredentialOptionsBottomSheet(Credential cred) => showModalBottomSheet<void>(
+  _showCredentialOptionsBottomSheet(Credential cred) async => showModalBottomSheet<void>(
         context: context,
         builder: (context) => IrmaCredentialCardOptionsBottomSheet(
-          onDelete: () {
+          onDelete: () async {
             Navigator.of(context).pop();
-            _showConfirmDeleteDialog(context, cred);
+            await _showConfirmDeleteDialog(context, cred);
           },
           onReobtain: () {
             Navigator.of(context).pop();
@@ -59,7 +62,10 @@ class _DataDetailScreenState extends State<CredentialsDetailScreen> {
           builder: (context) => DeleteCredentialConfirmationDialog(),
         ) ??
         false;
-    if (confirmed) _deleteCredential(credential);
+    if (confirmed) {
+      _deleteCredential(credential);
+      _showDeletedSnackbar();
+    }
   }
 
   void _deleteCredential(Credential credential) {
@@ -68,6 +74,20 @@ class _DataDetailScreenState extends State<CredentialsDetailScreen> {
         DeleteCredentialEvent(hash: credential.hash),
       );
     }
+  }
+
+  void _showDeletedSnackbar() {
+    final theme = IrmaTheme.of(context);
+    ScaffoldMessenger.of(_scaffoldKey.currentContext!).showSnackBar(
+      SnackBar(
+        content: TranslatedText(
+          'credential.options.delete_success',
+          style: theme.themeData.textTheme.caption!.copyWith(color: theme.light),
+        ),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: theme.themeData.colorScheme.secondary,
+      ),
+    );
   }
 
   void _reobtainCredential(Credential credential) {
@@ -96,6 +116,7 @@ class _DataDetailScreenState extends State<CredentialsDetailScreen> {
     final theme = IrmaTheme.of(context);
 
     return Scaffold(
+      key: _scaffoldKey,
       appBar: IrmaAppBar(
         titleTranslationKey: widget.categoryName,
       ),
@@ -109,7 +130,7 @@ class _DataDetailScreenState extends State<CredentialsDetailScreen> {
             Padding(
               padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
               child: Text(
-                getTranslation(context, credentials.first.info.credentialType.name),
+                credentials.isNotEmpty ? getTranslation(context, credentials.first.info.credentialType.name) : '',
                 style: theme.textTheme.headline4,
               ),
             ),
