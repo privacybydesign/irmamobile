@@ -34,7 +34,7 @@ class ChoosePin extends StatelessWidget {
           final maxPinSize = state.longPin ? longPinSize : shortPinSize;
           final pinBloc = EnterPinStateBloc(maxPinSize);
           final pinVisibilityBloc = _pinVisibilityBloc;
-          void submit() => chooseNewPin(context, pinBloc.state.pin.join());
+          void submit(String pin) => chooseNewPin(context, pin);
 
           return YiviPinScreen(
             scaffoldKey: _scaffoldKey,
@@ -45,11 +45,11 @@ class ChoosePin extends StatelessWidget {
             pinVisibilityBloc: pinVisibilityBloc,
             onTogglePinSize: toggleLongPin,
             checkSecurePin: true,
-            listener: (context, state) {
+            listener: (context, state, pinString) {
               if (maxPinSize == shortPinSize &&
                   state.pin.length == maxPinSize &&
                   state.attributes.contains(SecurePinAttribute.goodEnough)) {
-                submit();
+                submit(pinString);
               }
             },
           );

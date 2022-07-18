@@ -34,9 +34,9 @@ class ChoosePin extends StatelessWidget {
           final maxPinSize = snapshot.hasData ? snapshot.data! : shortPinSize;
           final pinBloc = EnterPinStateBloc(maxPinSize);
 
-          void onSubmit() {
+          void onSubmit(String pin) {
             IrmaPreferences.get().setLongPin(maxPinSize == longPinSize);
-            submitPin(context, pinBloc.state.pin.join());
+            submitPin(context, pin);
           }
 
           return YiviPinScreen(
@@ -48,11 +48,11 @@ class ChoosePin extends StatelessWidget {
             pinVisibilityBloc: _pinVisibilityBloc,
             onTogglePinSize: () => pinSizeStreamController.add(maxPinSize == shortPinSize ? longPinSize : shortPinSize),
             checkSecurePin: true,
-            listener: (context, state) {
+            listener: (context, state, pinString) {
               if (maxPinSize == shortPinSize &&
                   state.pin.length == maxPinSize &&
                   state.attributes.contains(SecurePinAttribute.goodEnough)) {
-                onSubmit();
+                onSubmit(pinString);
               }
             },
           );

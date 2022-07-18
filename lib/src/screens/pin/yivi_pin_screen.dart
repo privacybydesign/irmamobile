@@ -30,9 +30,10 @@ part 'yivi_pin_indicator.dart';
 part 'yivi_pin_scaffold.dart';
 
 typedef Pin = List<int>;
-typedef PinFn = bool Function(Pin);
+typedef PinCallback = bool Function(Pin);
 typedef PinQuality = Set<SecurePinAttribute>;
-typedef NumberFn = void Function(int);
+typedef NumberCallback = void Function(int);
+typedef StringCallback = void Function(String);
 
 const _nextButtonHeight = 48.0;
 
@@ -48,7 +49,7 @@ Widget _resizeBox(Widget widget, double edge) => SizedBox(
 class YiviPinScreen extends StatelessWidget {
   final GlobalKey<ScaffoldState>? scaffoldKey;
   final int maxPinSize;
-  final VoidCallback onSubmit;
+  final StringCallback onSubmit;
   final EnterPinStateBloc pinBloc;
   final PinVisibilityBloc pinVisibilityBloc;
   final VoidCallback? onForgotPin;
@@ -57,7 +58,7 @@ class YiviPinScreen extends StatelessWidget {
   final String? instructionKey;
   final String? instruction;
   final bool enabled;
-  final void Function(BuildContext, EnterPinState)? listener;
+  final void Function(BuildContext, EnterPinState, String)? listener;
 
   const YiviPinScreen({
     Key? key,
@@ -121,7 +122,7 @@ class YiviPinScreen extends StatelessWidget {
               (s) => RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
             ),
           ),
-          onPressed: activate && enabled ? onSubmit : null,
+          onPressed: activate && enabled ? () => onSubmit(pinBloc.state.pin.join()) : null,
           child: Text(
             FlutterI18n.translate(context, 'enrollment.choose_pin.next'),
             style: theme.textTheme.button?.copyWith(fontWeight: FontWeight.w700),
@@ -276,7 +277,7 @@ class YiviPinScreen extends StatelessWidget {
       builder: (context, orientation) {
         return BlocConsumer<EnterPinStateBloc, EnterPinState>(
           bloc: pinBloc,
-          listener: listener ?? (c, p) {},
+          listener: (context, state) => listener?.call(context, state, state.pin.join()),
           builder: (context, state) {
             final showSecurePinText =
                 state.pin.length >= shortPinSize && !state.attributes.contains(SecurePinAttribute.goodEnough);

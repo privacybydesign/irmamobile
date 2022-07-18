@@ -134,9 +134,9 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
 
                   final enabled = (blockedFor.data ?? Duration.zero).inSeconds <= 0 && !state.authenticateInProgress;
 
-                  void onSubmit() {
+                  void onSubmit(String pin) {
                     _pinBloc.add(
-                      Unlock(pinBloc.state.pin.join()),
+                      Unlock(pin),
                     );
                   }
 
@@ -146,14 +146,14 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                       yivi.YiviPinScreen(
                         instruction: subtitle,
                         maxPinSize: maxPinSize,
-                        onSubmit: enabled ? onSubmit : () {},
+                        onSubmit: enabled ? onSubmit : (_) {},
                         pinBloc: pinBloc,
                         pinVisibilityBloc: _pinVisibilityBloc,
                         enabled: enabled,
                         onForgotPin: () => Navigator.of(context).pushNamed(ResetPinScreen.routeName),
-                        listener: (context, state) {
+                        listener: (context, state, pinString) {
                           if (maxPinSize == yivi.shortPinSize && state.pin.length == maxPinSize && enabled) {
-                            onSubmit();
+                            onSubmit(pinString);
                           }
                         },
                       ),

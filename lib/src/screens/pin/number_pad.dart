@@ -1,7 +1,7 @@
 part of pin;
 
 class _NumberPad extends StatelessWidget {
-  final NumberFn onEnterNumber;
+  final NumberCallback onEnterNumber;
   const _NumberPad({Key? key, required this.onEnterNumber}) : super(key: key);
 
   @override

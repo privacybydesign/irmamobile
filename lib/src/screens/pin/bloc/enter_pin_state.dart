@@ -1,7 +1,7 @@
 part of pin;
 
 extension on PinQuality {
-  void _addSecurePinAttributeIfRuleFollowed(PinFn validator, SecurePinAttribute attr, Pin pin) {
+  void _addSecurePinAttributeIfRuleFollowed(PinCallback validator, SecurePinAttribute attr, Pin pin) {
     if (validator(pin)) {
       add(attr);
     }

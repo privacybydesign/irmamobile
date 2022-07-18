@@ -3,7 +3,7 @@ part of pin;
 class _NumberPadKey extends StatelessWidget {
   final int number;
   final String? subtitle;
-  final NumberFn onEnterNumber;
+  final NumberCallback onEnterNumber;
 
   const _NumberPadKey(this.onEnterNumber, this.number, [this.subtitle]);
 

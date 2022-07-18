@@ -38,12 +38,12 @@ class SecurePinScreenTest extends StatelessWidget {
         scaffoldKey: _scaffoldKey,
         instructionKey: instructionKey,
         maxPinSize: maxPinSize,
-        onSubmit: () => Navigator.pop(context),
+        onSubmit: (_) => Navigator.pop(context),
         pinBloc: pinBloc,
         pinVisibilityBloc: pinVisibilityBloc,
         onTogglePinSize: onTogglePinSize,
         checkSecurePin: true,
-        listener: (context, state) {
+        listener: (context, state, _) {
           /// speed run regardless of pin quality
           if (shortPinSize == state.pin.length) {
             Navigator.pop(context);
@@ -77,12 +77,12 @@ class _PinScreen extends State<PinScreenTest> {
       body: YiviPinScreen(
         instructionKey: 'pin.title',
         maxPinSize: widget.maxPinSize,
-        onSubmit: () => Navigator.pop(context),
+        onSubmit: (_) => Navigator.pop(context),
         pinBloc: widget.pinBloc,
         pinVisibilityBloc: _pinVisibilityBloc,
         onForgotPin: () => Navigator.pop(context),
         onTogglePinSize: widget.onTogglePinSize,
-        listener: (context, state) {
+        listener: (context, state, _) {
           if (state.attributes.contains(SecurePinAttribute.goodEnough) && shortPinSize == state.pin.length) {
             Navigator.pop(context);
           }

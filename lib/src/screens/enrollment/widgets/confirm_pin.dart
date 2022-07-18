@@ -28,21 +28,20 @@ class ConfirmPin extends StatelessWidget {
         builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
           final maxPinSize = snapshot.hasData && snapshot.data! ? longPinSize : shortPinSize;
           final pinBloc = EnterPinStateBloc(maxPinSize);
-          void submit() => submitConfirmationPin(pinBloc.state.pin.join());
 
           return YiviPinScreen(
             scaffoldKey: _scaffoldKey,
             instructionKey: 'enrollment.choose_pin.confirm_instruction',
             maxPinSize: maxPinSize,
-            onSubmit: submit,
+            onSubmit: submitConfirmationPin,
             pinBloc: pinBloc,
             pinVisibilityBloc: pinVisibilityBloc,
             checkSecurePin: true,
-            listener: (context, state) {
+            listener: (context, state, pinString) {
               if (maxPinSize == shortPinSize &&
                   state.pin.length == maxPinSize &&
                   state.attributes.contains(SecurePinAttribute.goodEnough)) {
-                submit();
+                submitConfirmationPin(pinString);
               }
             },
           );

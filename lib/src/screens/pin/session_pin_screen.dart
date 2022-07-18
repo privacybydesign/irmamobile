@@ -168,10 +168,10 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
                         final enabled =
                             (blockedFor.data ?? Duration.zero).inSeconds <= 0 && !state.authenticateInProgress;
 
-                        void onSubmit() {
+                        void onSubmit(String pin) {
                           if (!enabled) return;
                           _pinBloc.add(
-                            SessionPin(widget.sessionID, pinBloc.state.pin.join()),
+                            SessionPin(widget.sessionID, pin),
                           );
                         }
 
@@ -186,9 +186,9 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
                               pinVisibilityBloc: _pinVisibilityBloc,
                               enabled: enabled,
                               onForgotPin: () => Navigator.of(context).pushNamed(ResetPinScreen.routeName),
-                              listener: (context, state) {
+                              listener: (context, state, pinString) {
                                 if (maxPinSize == yivi.shortPinSize && state.pin.length == maxPinSize) {
-                                  onSubmit();
+                                  onSubmit(pinString);
                                 }
                               },
                             ),
