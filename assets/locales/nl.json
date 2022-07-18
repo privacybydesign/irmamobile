@@ -537,7 +537,7 @@
       "at_least_5_at_most_16": "Bevat in totaal 5 a 16 cijfers",
       "contains_3_unique": "Bevat minimaal 3 unieke cijfers",
       "must_not_asc_or_desc": "Bevat geen op- en aflopende reeksen, bijv. 12345",
-      "not_abcab_nor_abcba": "Mag de volgende patronen niet bevatten: abcab, abcba, bijv. 12312, 12321, 11311, 13331",
+      "not_abcab_nor_abcba": "Mag de volgende patronen niet bevatten: abcab, abcba, bijv. 12312, 12321, 13331",
       "must_contain_valid_subset": "Moet een reeks van 5 bevatten, die aan de bovenstaande regels voldoen"
     }
   }
