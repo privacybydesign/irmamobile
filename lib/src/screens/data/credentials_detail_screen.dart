@@ -7,6 +7,7 @@ import '../../data/irma_repository.dart';
 import '../../models/credential_events.dart';
 import '../../models/credentials.dart';
 import '../../theme/theme.dart';
+import '../../util/language.dart';
 import '../../widgets/credential_card/delete_credential_confirmation_dialog.dart';
 import '../../widgets/credential_card/irma_credential_card.dart';
 import '../../widgets/credential_card/irma_credential_card_options_bottom_sheet.dart';
@@ -15,9 +16,11 @@ import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
 
 class CredentialsDetailScreen extends StatefulWidget {
+  final String categoryName;
   final String credentialTypeId;
 
   const CredentialsDetailScreen({
+    required this.categoryName,
     required this.credentialTypeId,
   });
 
@@ -90,30 +93,41 @@ class _DataDetailScreenState extends State<CredentialsDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
     return Scaffold(
-      appBar: const IrmaAppBar(
-        titleTranslationKey: 'data.detail.title',
+      appBar: IrmaAppBar(
+        titleTranslationKey: widget.categoryName,
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(
-          vertical: IrmaTheme.of(context).smallSpacing,
-          horizontal: IrmaTheme.of(context).defaultSpacing,
+          horizontal: theme.defaultSpacing,
         ),
         child: Column(
-          children: credentials
-              .map(
-                (cred) => IrmaCredentialCard.fromCredential(
-                  cred,
-                  headerTrailing: IconButton(
-                    onPressed: () => _showCredentialOptionsBottomSheet(cred),
-                    icon: const Icon(
-                      Icons.more_horiz,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
+              child: Text(
+                getTranslation(context, credentials.first.info.credentialType.name),
+                style: theme.textTheme.headline4,
+              ),
+            ),
+            ...credentials
+                .map(
+                  (cred) => IrmaCredentialCard.fromCredential(
+                    cred,
+                    headerTrailing: IconButton(
+                      onPressed: () => _showCredentialOptionsBottomSheet(cred),
+                      icon: const Icon(
+                        Icons.more_horiz,
+                      ),
                     ),
+                    expiryDate: CardExpiryDate(cred.expires),
                   ),
-                  expiryDate: CardExpiryDate(cred.expires),
-                ),
-              )
-              .toList(),
+                )
+                .toList(),
+          ],
         ),
       ),
     );
