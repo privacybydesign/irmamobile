@@ -8,11 +8,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 import '../..//util/tablet.dart';
 import '../../theme/theme.dart';
 import '../../util/scale.dart';
+import '../../widgets/irma_app_bar.dart';
 import '../../widgets/link.dart';
 import '../../widgets/yivi_bottom_sheet.dart';
 
@@ -21,12 +21,12 @@ part 'bloc/pin_visibility.dart';
 part 'circle_clip.dart';
 part 'number_pad.dart';
 part 'number_pad_key.dart';
+part 'pin_indicator.dart';
 part 'secure_pin.dart';
 part 'unsecure_pin_description_tile.dart';
 part 'unsecure_pin_full_screen.dart';
 part 'unsecure_pin_list_builder.dart';
 part 'unsecure_pin_warning_text_button.dart';
-part 'yivi_pin_indicator.dart';
 part 'yivi_pin_scaffold.dart';
 
 typedef Pin = List<int>;
