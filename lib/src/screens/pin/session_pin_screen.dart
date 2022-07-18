@@ -163,7 +163,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
                       stream: IrmaPreferences.get().getLongPin(),
                       builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
                         final maxPinSize = (snapshot.hasData && snapshot.data!) ? yivi.longPinSize : yivi.shortPinSize;
-                        final pinBloc = yivi.PinStateBloc(maxPinSize);
+                        final pinBloc = yivi.EnterPinStateBloc(maxPinSize);
 
                         final enabled =
                             (blockedFor.data ?? Duration.zero).inSeconds <= 0 && !state.authenticateInProgress;

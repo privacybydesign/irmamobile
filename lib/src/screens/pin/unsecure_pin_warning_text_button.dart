@@ -1,7 +1,7 @@
 part of pin;
 
 class _UnsecurePinWarningTextButton extends StatelessWidget {
-  final PinStateBloc bloc;
+  final EnterPinStateBloc bloc;
   final GlobalKey<ScaffoldState> scaffoldKey;
 
   const _UnsecurePinWarningTextButton({Key? key, required this.scaffoldKey, required this.bloc}) : super(key: key);
@@ -11,7 +11,7 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     final shortSide = shortestSide(context);
 
-    void showSecurePinRules(PinState state, Orientation orientation) {
+    void showSecurePinRules(EnterPinState state, Orientation orientation) {
       final rules = <Widget>[
         Stack(
           alignment: Alignment.center,
@@ -81,7 +81,7 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
 
     return OrientationBuilder(
       builder: (BuildContext context, Orientation orientation) {
-        return BlocBuilder<PinStateBloc, PinState>(
+        return BlocBuilder<EnterPinStateBloc, EnterPinState>(
           bloc: bloc,
           builder: (context, state) {
             return Center(

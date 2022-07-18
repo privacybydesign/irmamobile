@@ -7,7 +7,7 @@ extension on PinQuality {
     }
   }
 
-  void applyRules(Pin pin) {
+  void _applyRules(Pin pin) {
     this
       .._addSecurePinAttributeIfRuleFollowed(
           pinMustContainAtLeastThreeUniqueNumbers, SecurePinAttribute.containsThreeUnique, pin)
@@ -39,20 +39,20 @@ enum SecurePinAttribute {
   goodEnough,
 }
 
-class PinState {
+class EnterPinState {
   final Pin pin;
   final PinQuality attributes;
 
-  static final empty = PinState(const [], const {});
+  static final empty = EnterPinState(const [], const {});
 
-  PinState(this.pin, this.attributes);
+  EnterPinState(this.pin, this.attributes);
 }
 
-class PinStateBloc extends Bloc<Pin, PinState> {
+class EnterPinStateBloc extends Bloc<Pin, EnterPinState> {
   final int maxPinSize;
-  Pin _lastPin = PinState.empty.pin;
+  Pin _lastPin = EnterPinState.empty.pin;
 
-  PinStateBloc(this.maxPinSize) : super(PinState.empty);
+  EnterPinStateBloc(this.maxPinSize) : super(EnterPinState.empty);
 
   @override
   void add(Pin p) {
@@ -75,16 +75,16 @@ class PinStateBloc extends Bloc<Pin, PinState> {
   }
 
   @override
-  Stream<PinState> mapEventToState(Pin pin) async* {
+  Stream<EnterPinState> mapEventToState(Pin pin) async* {
     final set = <SecurePinAttribute>{};
     _lastPin = pin;
 
     if (pin.length < shortPinSize) {
-      yield PinState(pin, set);
+      yield EnterPinState(pin, set);
     }
 
     if (pin.length == shortPinSize) {
-      set.applyRules(pin);
+      set._applyRules(pin);
     } else if (pin.length >= shortPinSize) {
       for (int i = 0; i < pin.length - 4; i++) {
         final sub = pin.sublist(i, i + shortPinSize);
@@ -92,7 +92,7 @@ class PinStateBloc extends Bloc<Pin, PinState> {
         /// report the last pin secure attributes
         set
           ..clear()
-          ..applyRules(sub);
+          .._applyRules(sub);
 
         /// break when one subset is valid
         if (set.contains(SecurePinAttribute.goodEnough)) {
@@ -101,6 +101,6 @@ class PinStateBloc extends Bloc<Pin, PinState> {
       }
     }
 
-    yield PinState(pin, set);
+    yield EnterPinState(pin, set);
   }
 }

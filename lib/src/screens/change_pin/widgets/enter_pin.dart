@@ -32,7 +32,7 @@ class EnterPin extends StatelessWidget {
         stream: IrmaPreferences.get().getLongPin(),
         builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
           final maxPinSize = (snapshot.hasData && snapshot.data!) ? longPinSize : shortPinSize;
-          final pinBloc = PinStateBloc(maxPinSize);
+          final pinBloc = EnterPinStateBloc(maxPinSize);
           void submit() => submitOldPin(pinBloc.state.pin.join());
 
           return YiviPinScreen(

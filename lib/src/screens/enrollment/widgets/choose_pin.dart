@@ -32,7 +32,7 @@ class ChoosePin extends StatelessWidget {
         stream: pinSizeStreamController.stream,
         builder: (context, snapshot) {
           final maxPinSize = snapshot.hasData ? snapshot.data! : shortPinSize;
-          final pinBloc = PinStateBloc(maxPinSize);
+          final pinBloc = EnterPinStateBloc(maxPinSize);
 
           void onSubmit() {
             IrmaPreferences.get().setLongPin(maxPinSize == longPinSize);

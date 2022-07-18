@@ -13,7 +13,7 @@ PreferredSizeWidget _buildAppBar(VoidCallback leadingAction, String title) {
 class SecurePinScreenTest extends StatelessWidget {
   final int maxPinSize;
 
-  final PinStateBloc pinBloc;
+  final EnterPinStateBloc pinBloc;
   final pinVisibilityBloc = PinVisibilityBloc();
   final String instructionKey;
 
@@ -57,7 +57,7 @@ class SecurePinScreenTest extends StatelessWidget {
 class PinScreenTest extends StatefulWidget {
   final int maxPinSize;
   final VoidCallback? onTogglePinSize;
-  final PinStateBloc pinBloc;
+  final EnterPinStateBloc pinBloc;
 
   const PinScreenTest({required this.maxPinSize, this.onTogglePinSize, required this.pinBloc});
 

@@ -1,7 +1,7 @@
 part of pin;
 
 class _UnsecurePinFullScreen extends StatelessWidget {
-  final PinState state;
+  final EnterPinState state;
   const _UnsecurePinFullScreen({Key? key, required this.state}) : super(key: key);
 
   @override

@@ -32,7 +32,7 @@ class ChoosePin extends StatelessWidget {
       body: BlocBuilder<ChangePinBloc, ChangePinState>(
         builder: (context, state) {
           final maxPinSize = state.longPin ? longPinSize : shortPinSize;
-          final pinBloc = PinStateBloc(maxPinSize);
+          final pinBloc = EnterPinStateBloc(maxPinSize);
           final pinVisibilityBloc = _pinVisibilityBloc;
           void submit() => chooseNewPin(context, pinBloc.state.pin.join());
 

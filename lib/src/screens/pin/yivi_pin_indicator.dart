@@ -3,7 +3,7 @@ part of pin;
 class _PinIndicator extends StatelessWidget {
   final int maxPinSize;
   final PinVisibilityBloc visibilityBloc;
-  final PinState pinState;
+  final EnterPinState pinState;
 
   const _PinIndicator({Key? key, required this.maxPinSize, required this.visibilityBloc, required this.pinState})
       : super(key: key);

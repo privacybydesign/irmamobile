@@ -32,7 +32,7 @@ class ConfirmPin extends StatelessWidget {
       ),
       body: BlocBuilder<ChangePinBloc, ChangePinState>(builder: (context, state) {
         final maxPinSize = state.longPin ? longPinSize : shortPinSize;
-        final pinBloc = PinStateBloc(maxPinSize);
+        final pinBloc = EnterPinStateBloc(maxPinSize);
 
         void submit() => confirmNewPin(pinBloc.state.pin.join());
         return YiviPinScreen(

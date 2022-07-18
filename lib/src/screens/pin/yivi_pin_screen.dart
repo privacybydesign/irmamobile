@@ -17,8 +17,8 @@ import '../../util/secure_pin.dart';
 import '../../widgets/link.dart';
 import '../../widgets/yivi_bottom_sheet.dart';
 
+part 'bloc/enter_pin_state.dart';
 part 'bloc/pin_visibility.dart';
-part 'bloc/yivi_pin_bloc.dart';
 part 'circle_clip.dart';
 part 'number_pad.dart';
 part 'number_pad_key.dart';
@@ -49,7 +49,7 @@ class YiviPinScreen extends StatelessWidget {
   final GlobalKey<ScaffoldState>? scaffoldKey;
   final int maxPinSize;
   final VoidCallback onSubmit;
-  final PinStateBloc pinBloc;
+  final EnterPinStateBloc pinBloc;
   final PinVisibilityBloc pinVisibilityBloc;
   final VoidCallback? onForgotPin;
   final VoidCallback? onTogglePinSize;
@@ -57,7 +57,7 @@ class YiviPinScreen extends StatelessWidget {
   final String? instructionKey;
   final String? instruction;
   final bool enabled;
-  final void Function(BuildContext, PinState)? listener;
+  final void Function(BuildContext, EnterPinState)? listener;
 
   const YiviPinScreen({
     Key? key,
@@ -139,7 +139,7 @@ class YiviPinScreen extends StatelessWidget {
       style: theme.textTheme.headline3?.copyWith(fontWeight: FontWeight.w700),
     );
 
-    final pinDots = BlocBuilder<PinStateBloc, PinState>(
+    final pinDots = BlocBuilder<EnterPinStateBloc, EnterPinState>(
       bloc: pinBloc,
       builder: (context, state) =>
           _PinIndicator(maxPinSize: maxPinSize, visibilityBloc: pinVisibilityBloc, pinState: state),
@@ -173,7 +173,7 @@ class YiviPinScreen extends StatelessWidget {
                 ),
                 Align(
                   alignment: Alignment.bottomRight,
-                  child: BlocBuilder<PinStateBloc, PinState>(
+                  child: BlocBuilder<EnterPinStateBloc, EnterPinState>(
                     bloc: pinBloc,
                     builder: (context, state) => Text(
                       '${state.pin.length}/$maxPinSize',
@@ -192,7 +192,7 @@ class YiviPinScreen extends StatelessWidget {
     final togglePinSizeCopy =
         maxPinSize > shortPinSize ? 'change_pin.choose_pin.switch_short' : 'change_pin.choose_pin.switch_long';
 
-    final nextButton = BlocBuilder<PinStateBloc, PinState>(
+    final nextButton = BlocBuilder<EnterPinStateBloc, EnterPinState>(
       bloc: pinBloc,
       builder: (context, state) => activateNext(state.pin.length >= (shortPinSize == maxPinSize ? 5 : 6)),
     );
@@ -274,7 +274,7 @@ class YiviPinScreen extends StatelessWidget {
 
     return OrientationBuilder(
       builder: (context, orientation) {
-        return BlocConsumer<PinStateBloc, PinState>(
+        return BlocConsumer<EnterPinStateBloc, EnterPinState>(
           bloc: pinBloc,
           listener: listener ?? (c, p) {},
           builder: (context, state) {

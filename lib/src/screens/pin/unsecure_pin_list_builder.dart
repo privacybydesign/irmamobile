@@ -1,6 +1,6 @@
 part of pin;
 
-List<Widget> _listBuilder(BuildContext context, PinState state) {
+List<Widget> _listBuilder(BuildContext context, EnterPinState state) {
   final attributes = state.attributes;
   final tiles = [
     _UnsecurePinDescriptionTile(
