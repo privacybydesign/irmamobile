@@ -10,11 +10,11 @@ extension on PinQuality {
   void _applyRules(Pin pin) {
     this
       .._addSecurePinAttributeIfRuleFollowed(
-          pinMustContainAtLeastThreeUniqueNumbers, SecurePinAttribute.containsThreeUnique, pin)
+          _pinMustContainAtLeastThreeUniqueNumbers, SecurePinAttribute.containsThreeUnique, pin)
       .._addSecurePinAttributeIfRuleFollowed(
-          pinMustNotBeMemberOfSeriesAscDesc, SecurePinAttribute.mustNotAscNorDesc, pin);
+          _pinMustNotBeMemberOfSeriesAscDesc, SecurePinAttribute.mustNotAscNorDesc, pin);
 
-    if (pinMustNotContainPatternAbcab(pin) && pinMustNotContainPatternAbcba(pin)) {
+    if (_pinMustNotContainPatternAbcab(pin) && _pinMustNotContainPatternAbcba(pin)) {
       add(SecurePinAttribute.notAbcabNorAbcba);
     }
 

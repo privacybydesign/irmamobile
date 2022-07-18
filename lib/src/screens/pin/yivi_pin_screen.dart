@@ -13,7 +13,6 @@ import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import '../..//util/tablet.dart';
 import '../../theme/theme.dart';
 import '../../util/scale.dart';
-import '../../util/secure_pin.dart';
 import '../../widgets/link.dart';
 import '../../widgets/yivi_bottom_sheet.dart';
 
@@ -22,6 +21,7 @@ part 'bloc/pin_visibility.dart';
 part 'circle_clip.dart';
 part 'number_pad.dart';
 part 'number_pad_key.dart';
+part 'secure_pin.dart';
 part 'unsecure_pin_description_tile.dart';
 part 'unsecure_pin_full_screen.dart';
 part 'unsecure_pin_list_builder.dart';
@@ -220,12 +220,12 @@ class YiviPinScreen extends StatelessWidget {
                   _UnsecurePinWarningTextButton(scaffoldKey: scaffoldKey!, bloc: pinBloc),
                 if (onTogglePinSize != null)
                   Link(
-                    onTap: onTogglePinSize,
+                    onTap: onTogglePinSize!,
                     label: FlutterI18n.translate(context, togglePinSizeCopy),
                   ),
                 if (onForgotPin != null)
                   Link(
-                    onTap: onForgotPin,
+                    onTap: onForgotPin!,
                     label: FlutterI18n.translate(context, 'pin.button_forgot'),
                   ),
               ],
@@ -253,12 +253,12 @@ class YiviPinScreen extends StatelessWidget {
                   _UnsecurePinWarningTextButton(scaffoldKey: scaffoldKey!, bloc: pinBloc),
                 if (onTogglePinSize != null)
                   Link(
-                    onTap: onTogglePinSize,
+                    onTap: onTogglePinSize!,
                     label: FlutterI18n.translate(context, togglePinSizeCopy),
                   ),
                 if (onForgotPin != null)
                   Link(
-                    onTap: onForgotPin,
+                    onTap: onForgotPin!,
                     label: FlutterI18n.translate(context, 'pin.button_forgot'),
                   ),
                 nextButton
