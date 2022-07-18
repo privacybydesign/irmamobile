@@ -49,7 +49,9 @@ class ChoosePin extends StatelessWidget {
             onTogglePinSize: () => pinSizeStreamController.add(maxPinSize == shortPinSize ? longPinSize : shortPinSize),
             checkSecurePin: true,
             listener: (context, state) {
-              if (maxPinSize == shortPinSize && state.attributes.contains(SecurePinAttribute.goodEnough)) {
+              if (maxPinSize == shortPinSize &&
+                  state.pin.length == maxPinSize &&
+                  state.attributes.contains(SecurePinAttribute.goodEnough)) {
                 onSubmit();
               }
             },

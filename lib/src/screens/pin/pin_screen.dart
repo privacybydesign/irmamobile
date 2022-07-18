@@ -152,7 +152,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                         enabled: enabled,
                         onForgotPin: () => Navigator.of(context).pushNamed(ResetPinScreen.routeName),
                         listener: (context, state) {
-                          if (maxPinSize == yivi.shortPinSize && enabled) {
+                          if (maxPinSize == yivi.shortPinSize && state.pin.length == maxPinSize && enabled) {
                             onSubmit();
                           }
                         },

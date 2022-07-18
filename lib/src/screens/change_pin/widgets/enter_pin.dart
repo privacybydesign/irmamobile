@@ -42,7 +42,7 @@ class EnterPin extends StatelessWidget {
               pinBloc: pinBloc,
               pinVisibilityBloc: _pinVisibilityBloc,
               listener: (context, state) {
-                if (maxPinSize == shortPinSize) {
+                if (maxPinSize == shortPinSize && state.pin.length == maxPinSize) {
                   submit();
                 }
               });
