@@ -87,25 +87,37 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
             MapEntry(i, Con(discon[_findSelectedConIndex(discon)].cast<ChoosableDisclosureCredential>())));
 
         // Wizard is completed, so now we show the previously added credentials that are involved in this session.
+        // TODO: check code duplication while constructing choices overview.
         final prevAddedChoices = {
           for (final choice in choices.entries)
-            if (choice.value.isEmpty || choice.value.any((cred) => cred.previouslyAdded))
+            if (choice.value.any((cred) => cred.previouslyAdded))
               choice.key: Con(choice.value.where((cred) => cred.previouslyAdded))
         };
+        final hasPrevAddedAdditionalChoices = choices.entries.any((entry) =>
+            entry.value.isEmpty &&
+            candidates[entry.key]!
+                .flattened
+                .any((cred) => cred is ChoosableDisclosureCredential && cred.previouslyAdded));
 
-        if (prevAddedChoices.isEmpty) {
+        if (prevAddedChoices.isEmpty && !hasPrevAddedAdditionalChoices) {
           // No previously added credentials are involved in this session, so we immediately continue to the overview.
           yield DisclosurePermissionChoicesOverview(
             plannedSteps: state.plannedSteps,
-            choices: choices,
-            isOptional: choices.map((i, _) => MapEntry(i, candidates[i]!.any((con) => con.isEmpty))),
+            requiredChoices: Map.fromEntries(
+                choices.entries.where((entry) => candidates[entry.key]!.every((con) => con.isNotEmpty))),
+            optionalChoices: Map.fromEntries(choices.entries
+                .where((entry) => entry.value.isNotEmpty && candidates[entry.key]!.any((con) => con.isEmpty))),
+            hasAdditionalOptionalChoices: choices.values.any((choice) => choice.isEmpty),
             signedMessage: session.isSignatureSession ?? false ? session.signedMessage : null,
           );
         } else {
           yield DisclosurePermissionPreviouslyAddedCredentialsOverview(
             plannedSteps: state.plannedSteps,
-            choices: prevAddedChoices,
-            isOptional: prevAddedChoices.map((i, _) => MapEntry(i, candidates[i]!.any((con) => con.isEmpty))),
+            requiredChoices: Map.fromEntries(
+                prevAddedChoices.entries.where((entry) => candidates[entry.key]!.every((con) => con.isNotEmpty))),
+            optionalChoices: Map.fromEntries(prevAddedChoices.entries
+                .where((entry) => entry.value.isNotEmpty && candidates[entry.key]!.any((con) => con.isEmpty))),
+            hasAdditionalOptionalChoices: hasPrevAddedAdditionalChoices,
           );
         }
       } else {
@@ -129,19 +141,18 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       }
     } else if (state is DisclosurePermissionPreviouslyAddedCredentialsOverview &&
         event is DisclosurePermissionNextPressed) {
+      final choices = Map.fromEntries(session.disclosuresCandidates!.mapIndexed((i, rawDiscon) {
+        final discon = _parseCandidatesDisCon(rawDiscon);
+        final choice = _findSelectedConIndex(discon, prevChoice: state.choices[i]);
+        return MapEntry(i, Con(discon[choice].whereType<ChoosableDisclosureCredential>()));
+      }));
       yield DisclosurePermissionChoicesOverview(
         plannedSteps: state.plannedSteps,
-        choices: Map.fromEntries(session.disclosuresCandidates!.mapIndexed((i, rawDiscon) {
-          final discon = _parseCandidatesDisCon(rawDiscon);
-          final choice = _findSelectedConIndex(discon, prevChoice: state.choices[i]);
-          return MapEntry(i, Con(discon[choice].whereType<ChoosableDisclosureCredential>()));
-        })),
-        isOptional: Map.fromEntries(session.disclosuresCandidates!.mapIndexed(
-          (i, discon) => MapEntry(
-            i,
-            discon.any((con) => con.isEmpty),
-          ),
-        )),
+        requiredChoices: Map.fromEntries(
+            choices.entries.where((entry) => session.disclosuresCandidates![entry.key].every((con) => con.isNotEmpty))),
+        optionalChoices: Map.fromEntries(choices.entries.where(
+            (entry) => entry.value.isNotEmpty && session.disclosuresCandidates![entry.key].any((con) => con.isEmpty))),
+        hasAdditionalOptionalChoices: choices.values.any((choice) => choice.isEmpty),
       );
     } else if (state is DisclosurePermissionPreviouslyAddedCredentialsOverview &&
         event is DisclosurePermissionChangeChoicePressed) {
@@ -206,21 +217,55 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       }
     } else if (state is DisclosurePermissionWrongCredentialsObtained && event is DisclosurePermissionNextPressed) {
       yield state.parentState;
+    } else if (state is DisclosurePermissionAddOptionalData && event is DisclosurePermissionChoiceUpdated) {
+      if (event.conIndex < 0 || event.conIndex >= state.discon.length) {
+        throw Exception('Con with index ${event.conIndex} does not exist');
+      }
+      yield DisclosurePermissionAddOptionalData(
+        parentState: state.parentState,
+        discon: state.discon,
+        disconIndices: state.disconIndices,
+        selectedConIndex: event.conIndex,
+      );
+    } else if (state is DisclosurePermissionAddOptionalData && event is DisclosurePermissionNextPressed) {
+      if (state.isSelectedChoosable) {
+        yield _refreshChoices(state.parentState, [state.selectedCon], state.disconIndexSelectedCon, 0);
+      } else {
+        // TODO: code duplication
+        // If only one credential is involved, we can open the issue url immediately.
+        if (state.selectedCon.length == 1) {
+          onObtainCredential(state.selectedCon.first.credentialType);
+        } else {
+          yield DisclosurePermissionObtainCredentials(
+            parentState: state,
+            templates: state.selectedCon.whereType<TemplateDisclosureCredential>().toList(),
+          );
+        }
+      }
+    } else if (state is DisclosurePermissionChoices && event is DisclosurePermissionAddOptionalDataPressed) {
+      // TODO: optional data should be deselectable too.
+      yield _generateAddOptionalDataState(
+        session: session,
+        parentState: state,
+        alreadyAddedOptionalDisconIndices: state.optionalChoices.keys,
+      );
     } else if (state is DisclosurePermissionChoicesOverview && event is DisclosurePermissionNextPressed) {
       if (!state.showConfirmationPopup) {
         yield DisclosurePermissionChoicesOverview(
           plannedSteps: state.plannedSteps,
-          choices: state.choices,
-          isOptional: state.isOptional,
+          requiredChoices: state.requiredChoices,
+          optionalChoices: state.optionalChoices,
+          hasAdditionalOptionalChoices: state.hasAdditionalOptionalChoices,
           showConfirmationPopup: true,
         );
       } else {
         // Disclosure permission is finished. We have to dispatch the choices to the IrmaRepository.
         final disclosureChoices = [
-          for (int i = 0; i < state.choices.length; i++)
-            state.choices[i]!
-                .expand((cred) => cred.attributes.map((attr) => AttributeIdentifier.fromAttribute(attr)))
-                .toList()
+          for (int i = 0; i < session.disclosuresCandidates!.length; i++)
+            state.choices[i]
+                    ?.expand((cred) => cred.attributes.map((attr) => AttributeIdentifier.fromAttribute(attr)))
+                    .toList() ??
+                []
         ];
         if (session.isIssuanceSession) {
           _repo.dispatch(ContinueToIssuanceEvent(
@@ -241,8 +286,9 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     } else if (state is DisclosurePermissionChoicesOverview && event is DisclosurePermissionConfirmationDismissed) {
       yield DisclosurePermissionChoicesOverview(
         plannedSteps: state.plannedSteps,
-        choices: state.choices,
-        isOptional: state.isOptional,
+        requiredChoices: state.requiredChoices,
+        optionalChoices: state.optionalChoices,
+        hasAdditionalOptionalChoices: state.hasAdditionalOptionalChoices,
       );
     } else {
       throw UnsupportedError(
@@ -285,6 +331,13 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         refreshedState.selectedCon.whereType<TemplateDisclosureCredential>(),
         refreshedState,
       );
+    } else if (state is DisclosurePermissionAddOptionalData) {
+      return _generateAddOptionalDataState(
+        session: session,
+        parentState: state.parentState,
+        alreadyAddedOptionalDisconIndices: state.parentState.optionalChoices.keys,
+        prevState: state,
+      );
     } else if (state is DisclosurePermissionChoices) {
       // Usually, this session state change should not introduce any bloc state changes.
       // Session requests cannot change within a session and credentials cannot be deleted during the session,
@@ -297,23 +350,28 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       final candidates = Map.fromEntries(session.disclosuresCandidates!.mapIndexed(
         (i, rawDiscon) => MapEntry(i, _parseCandidatesDisCon(rawDiscon)),
       ));
+
       // Check whether an issue wizard is needed to bootstrap the session.
-      final choices = candidates.map((i, discon) => MapEntry(
-            i,
-            discon
-                .firstWhereOrNull((con) => con.every((cred) => cred is ChoosableDisclosureCredential))
-                ?.cast<ChoosableDisclosureCredential>(),
-          ));
+      final choices = candidates.map(
+        (i, discon) => MapEntry(
+          i,
+          discon
+              .firstWhereOrNull((con) => con.every((cred) => cred is ChoosableDisclosureCredential))
+              ?.cast<ChoosableDisclosureCredential>(),
+        ),
+      );
+
       if (choices.values.every((choice) => choice != null)) {
+        final nonNullChoices = choices.map((i, choice) => MapEntry(i, Con(choice!)));
+        final requiredChoices = Map.fromEntries(
+            nonNullChoices.entries.where((entry) => candidates[entry.key]!.every((con) => con.isNotEmpty)));
+        final optionalChoices = Map.fromEntries(nonNullChoices.entries
+            .where((entry) => entry.value.isNotEmpty && candidates[entry.key]!.any((con) => con.isEmpty)));
         return DisclosurePermissionChoicesOverview(
           plannedSteps: [DisclosurePermissionStepName.choicesOverview],
-          choices: choices.map((i, choice) => MapEntry(i, Con(choice!))),
-          isOptional: Map.fromEntries(session.disclosuresCandidates!.mapIndexed(
-            (i, discon) => MapEntry(
-              i,
-              discon.any((con) => con.isEmpty),
-            ),
-          )),
+          requiredChoices: requiredChoices,
+          optionalChoices: optionalChoices,
+          hasAdditionalOptionalChoices: choices.keys.length > requiredChoices.length + optionalChoices.length,
           signedMessage: session.isSignatureSession ?? false ? session.signedMessage : null,
         );
       } else {
@@ -456,24 +514,37 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
 
   DisclosurePermissionChoices _refreshChoices(
     DisclosurePermissionChoices prevState,
-    DisCon<DisclosureCredential> discon,
+    List<Con<DisclosureCredential>> discon,
     int disconIndex,
     int selectedConIndex,
   ) {
     // The state machine should make sure the selected con only contains ChoosableDisclosureCredentials in this state.
-    final choices = prevState.choices.map((i, con) =>
+    final requiredChoices = prevState.requiredChoices.map((i, con) =>
         MapEntry(i, i == disconIndex ? Con(discon[selectedConIndex].cast<ChoosableDisclosureCredential>()) : con));
+    final optionalChoices = prevState.optionalChoices.map((i, con) =>
+        MapEntry(i, i == disconIndex ? Con(discon[selectedConIndex].cast<ChoosableDisclosureCredential>()) : con));
+
+    // If it concerns a new discon, then we should add it.
+    if (!requiredChoices.containsKey(disconIndex) && !optionalChoices.containsKey(disconIndex)) {
+      optionalChoices.putIfAbsent(
+        disconIndex,
+        () => Con(discon[selectedConIndex].cast<ChoosableDisclosureCredential>()),
+      );
+    }
+
     if (prevState is DisclosurePermissionPreviouslyAddedCredentialsOverview) {
       return DisclosurePermissionPreviouslyAddedCredentialsOverview(
         plannedSteps: prevState.plannedSteps,
-        choices: choices,
-        isOptional: prevState.isOptional,
+        requiredChoices: requiredChoices,
+        optionalChoices: optionalChoices,
+        hasAdditionalOptionalChoices: prevState.hasAdditionalOptionalChoices,
       );
     } else if (prevState is DisclosurePermissionChoicesOverview) {
       return DisclosurePermissionChoicesOverview(
         plannedSteps: prevState.plannedSteps,
-        choices: choices,
-        isOptional: prevState.isOptional,
+        requiredChoices: requiredChoices,
+        optionalChoices: optionalChoices,
+        hasAdditionalOptionalChoices: prevState.hasAdditionalOptionalChoices,
       );
     } else {
       throw UnsupportedError('Unknown DisclosurePermissionChoices implementation: ${prevState.runtimeType}');
@@ -548,5 +619,37 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     return hasPrevAddedCreds
         ? stepNames
         : (stepNames..remove(DisclosurePermissionStepName.previouslyAddedCredentialsOverview));
+  }
+
+  DisclosurePermissionAddOptionalData _generateAddOptionalDataState({
+    required SessionState session,
+    required DisclosurePermissionChoices parentState,
+    required Iterable<int> alreadyAddedOptionalDisconIndices,
+    DisclosurePermissionAddOptionalData? prevState,
+  }) {
+    final List<Con<DisclosureCredential>> addableCons = [];
+    final List<int> addableConsDisconIndices = [];
+
+    for (int i = 0; i < session.disclosuresCandidates!.length; i++) {
+      if (!session.disclosuresCandidates![i].any((con) => con.isEmpty)) continue;
+      if (alreadyAddedOptionalDisconIndices.contains(i)) continue;
+      final addable = _parseCandidatesDisCon(session.disclosuresCandidates![i]).where((con) => con.isNotEmpty);
+
+      addableCons.addAll(addable);
+      addableConsDisconIndices.addAll(List.filled(addable.length, i));
+    }
+
+    if (addableCons.isEmpty) throw Exception('No optional data left to add');
+
+    return DisclosurePermissionAddOptionalData(
+      parentState: parentState,
+      discon: DisCon(addableCons),
+      disconIndices: addableConsDisconIndices,
+      selectedConIndex: _findSelectedConIndex(
+        DisCon(addableCons),
+        prevDiscon: prevState?.discon,
+        prevChoice: prevState?.selectedCon,
+      ),
+    );
   }
 }

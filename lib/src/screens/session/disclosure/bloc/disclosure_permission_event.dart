@@ -10,6 +10,9 @@ class DisclosurePermissionChangeChoicePressed implements DisclosurePermissionBlo
   DisclosurePermissionChangeChoicePressed({required this.disconIndex});
 }
 
+/// Event to indicate that the user has pressed the button to add more optional data.
+class DisclosurePermissionAddOptionalDataPressed implements DisclosurePermissionBlocEvent {}
+
 /// Event to indicate that the user changed a choice in the discon that is currently displayed.
 class DisclosurePermissionChoiceUpdated implements DisclosurePermissionBlocEvent {
   final int conIndex;

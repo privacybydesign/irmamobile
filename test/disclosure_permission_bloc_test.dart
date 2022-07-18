@@ -96,15 +96,17 @@ void main() {
     DisclosurePermissionChoicesOverview choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
     expect(choicesOverviewBlocState.isSignatureSession, false);
     expect(choicesOverviewBlocState.showConfirmationPopup, false);
-    expect(choicesOverviewBlocState.isOptional, {0: false});
-    expect(choicesOverviewBlocState.choices.keys, [0]);
-    expect(choicesOverviewBlocState.choices[0]?.length, 1);
-    expect(choicesOverviewBlocState.choices[0]?[0], isA<ChoosableDisclosureCredential>());
-    expect(choicesOverviewBlocState.choices[0]?[0].fullId, 'irma-demo.IRMATube.member');
-    expect(choicesOverviewBlocState.choices[0]?[0].attributes.length, 1);
-    expect(choicesOverviewBlocState.choices[0]?[0].attributes[0].choosable, true);
-    expect(choicesOverviewBlocState.choices[0]?[0].attributes[0].attributeType.fullId, 'irma-demo.IRMATube.member.id');
-    expect(choicesOverviewBlocState.choices[0]?[0].attributes[0].value.raw, '12345');
+    expect(choicesOverviewBlocState.hasAdditionalOptionalChoices, false);
+    expect(choicesOverviewBlocState.optionalChoices, {});
+    expect(choicesOverviewBlocState.requiredChoices.keys, [0]);
+    expect(choicesOverviewBlocState.requiredChoices[0]?.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0], isA<ChoosableDisclosureCredential>());
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].fullId, 'irma-demo.IRMATube.member');
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].choosable, true);
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].attributeType.fullId,
+        'irma-demo.IRMATube.member.id');
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].value.raw, '12345');
 
     bloc.add(DisclosurePermissionChangeChoicePressed(disconIndex: 0));
     expect(await bloc.stream.first, isA<DisclosurePermissionChangeChoice>());
@@ -153,12 +155,13 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
     choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
     expect(choicesOverviewBlocState.showConfirmationPopup, false);
-    expect(choicesOverviewBlocState.choices.keys, [0]);
-    expect(choicesOverviewBlocState.choices[0]?.length, 1);
-    expect(choicesOverviewBlocState.choices[0]?[0].fullId, 'irma-demo.IRMATube.member');
-    expect(choicesOverviewBlocState.choices[0]?[0].attributes.length, 1);
-    expect(choicesOverviewBlocState.choices[0]?[0].attributes[0].attributeType.fullId, 'irma-demo.IRMATube.member.id');
-    expect(choicesOverviewBlocState.choices[0]?[0].attributes[0].value.raw, '12345');
+    expect(choicesOverviewBlocState.requiredChoices.keys, [0]);
+    expect(choicesOverviewBlocState.requiredChoices[0]?.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].fullId, 'irma-demo.IRMATube.member');
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].attributeType.fullId,
+        'irma-demo.IRMATube.member.id');
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].value.raw, '12345');
 
     bloc.add(DisclosurePermissionNextPressed());
     expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
@@ -314,13 +317,13 @@ void main() {
       prevAddedCredsBlocState.plannedSteps,
       contains(DisclosurePermissionStepName.previouslyAddedCredentialsOverview),
     );
-    expect(prevAddedCredsBlocState.isOptional, {1: false});
-    expect(prevAddedCredsBlocState.choices.keys, [1]);
-    expect(prevAddedCredsBlocState.choices[1]?.length, 1);
-    expect(prevAddedCredsBlocState.choices[1]?[0].fullId, 'pbdf.pbdf.email');
-    expect(prevAddedCredsBlocState.choices[1]?[0].attributes.length, 1);
-    expect(prevAddedCredsBlocState.choices[1]?[0].attributes[0].credentialHash, 'session-42-0');
-    expect(prevAddedCredsBlocState.choices[1]?[0].attributes[0].value.raw, 'test@example.com');
+    expect(prevAddedCredsBlocState.optionalChoices, {});
+    expect(prevAddedCredsBlocState.requiredChoices.keys, [1]);
+    expect(prevAddedCredsBlocState.requiredChoices[1]?.length, 1);
+    expect(prevAddedCredsBlocState.requiredChoices[1]?[0].fullId, 'pbdf.pbdf.email');
+    expect(prevAddedCredsBlocState.requiredChoices[1]?[0].attributes.length, 1);
+    expect(prevAddedCredsBlocState.requiredChoices[1]?[0].attributes[0].credentialHash, 'session-42-0');
+    expect(prevAddedCredsBlocState.requiredChoices[1]?[0].attributes[0].value.raw, 'test@example.com');
 
     // Choose for another email address.
     bloc.add(DisclosurePermissionChangeChoicePressed(disconIndex: 1));
@@ -373,11 +376,11 @@ void main() {
 
     expect(await bloc.stream.first, isA<DisclosurePermissionPreviouslyAddedCredentialsOverview>());
     prevAddedCredsBlocState = bloc.state as DisclosurePermissionPreviouslyAddedCredentialsOverview;
-    expect(prevAddedCredsBlocState.choices.keys, [1]);
-    expect(prevAddedCredsBlocState.choices[1]?.length, 1);
-    expect(prevAddedCredsBlocState.choices[1]?[0].fullId, 'pbdf.pbdf.email');
-    expect(prevAddedCredsBlocState.choices[1]?[0].attributes.length, 1);
-    expect(prevAddedCredsBlocState.choices[1]?[0].attributes[0].value.raw, 'test2@example.com');
+    expect(prevAddedCredsBlocState.requiredChoices.keys, [1]);
+    expect(prevAddedCredsBlocState.requiredChoices[1]?.length, 1);
+    expect(prevAddedCredsBlocState.requiredChoices[1]?[0].fullId, 'pbdf.pbdf.email');
+    expect(prevAddedCredsBlocState.requiredChoices[1]?[0].attributes.length, 1);
+    expect(prevAddedCredsBlocState.requiredChoices[1]?[0].attributes[0].value.raw, 'test2@example.com');
 
     // Confirm previously added credential choices.
     bloc.add(DisclosurePermissionNextPressed());
@@ -387,24 +390,25 @@ void main() {
     expect(choicesOverviewBlocState.currentStepName, DisclosurePermissionStepName.choicesOverview);
     expect(choicesOverviewBlocState.plannedSteps, contains(DisclosurePermissionStepName.choicesOverview));
     expect(choicesOverviewBlocState.showConfirmationPopup, false);
-    expect(choicesOverviewBlocState.isOptional, {0: false, 1: false, 2: false});
-    expect(choicesOverviewBlocState.choices.keys, [0, 1, 2]);
-    expect(choicesOverviewBlocState.choices[0]?.length, 1);
-    expect(choicesOverviewBlocState.choices[0]?[0].fullId, 'pbdf.gemeente.address');
-    expect(choicesOverviewBlocState.choices[0]?[0].attributes.length, 2);
-    expect(choicesOverviewBlocState.choices[0]?[0].attributes[0].attributeType.fullId, 'pbdf.gemeente.address.street');
-    expect(choicesOverviewBlocState.choices[0]?[0].attributes[0].value.raw, 'Beukenlaan');
-    expect(choicesOverviewBlocState.choices[1]?.length, 1);
-    expect(choicesOverviewBlocState.choices[1]?[0].fullId, 'pbdf.pbdf.email');
-    expect(choicesOverviewBlocState.choices[1]?[0].attributes[0].attributeType.fullId, 'pbdf.pbdf.email.email');
-    expect(choicesOverviewBlocState.choices[1]?[0].attributes[0].value.raw, 'test2@example.com');
-    expect(choicesOverviewBlocState.choices[2]?.length, 1);
-    expect(choicesOverviewBlocState.choices[2]?[0].fullId, 'pbdf.pbdf.mobilenumber');
+    expect(choicesOverviewBlocState.optionalChoices, {});
+    expect(choicesOverviewBlocState.requiredChoices.keys, [0, 1, 2]);
+    expect(choicesOverviewBlocState.requiredChoices[0]?.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].fullId, 'pbdf.gemeente.address');
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes.length, 2);
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].attributeType.fullId,
+        'pbdf.gemeente.address.street');
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].value.raw, 'Beukenlaan');
+    expect(choicesOverviewBlocState.requiredChoices[1]?.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[1]?[0].fullId, 'pbdf.pbdf.email');
+    expect(choicesOverviewBlocState.requiredChoices[1]?[0].attributes[0].attributeType.fullId, 'pbdf.pbdf.email.email');
+    expect(choicesOverviewBlocState.requiredChoices[1]?[0].attributes[0].value.raw, 'test2@example.com');
+    expect(choicesOverviewBlocState.requiredChoices[2]?.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[2]?[0].fullId, 'pbdf.pbdf.mobilenumber');
     expect(
-      choicesOverviewBlocState.choices[2]?[0].attributes[0].attributeType.fullId,
+      choicesOverviewBlocState.requiredChoices[2]?[0].attributes[0].attributeType.fullId,
       'pbdf.pbdf.mobilenumber.mobilenumber',
     );
-    expect(choicesOverviewBlocState.choices[2]?[0].attributes[0].value.raw, '+31612345678');
+    expect(choicesOverviewBlocState.requiredChoices[2]?[0].attributes[0].value.raw, '+31612345678');
 
     // Check whether we can choose for another mobile number.
     bloc.add(DisclosurePermissionChangeChoicePressed(disconIndex: 2));
@@ -465,12 +469,12 @@ void main() {
 
     expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
     choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
-    expect(choicesOverviewBlocState.choices.length, 3);
-    expect(choicesOverviewBlocState.choices.keys, [0, 1, 2]);
-    expect(choicesOverviewBlocState.choices[2]?.length, 1);
-    expect(choicesOverviewBlocState.choices[2]?[0].fullId, 'pbdf.pbdf.mobilenumber');
-    expect(choicesOverviewBlocState.choices[2]?[0].attributes.length, 1);
-    expect(choicesOverviewBlocState.choices[2]?[0].attributes[0].value.raw, '+31612345678');
+    expect(choicesOverviewBlocState.requiredChoices.length, 3);
+    expect(choicesOverviewBlocState.requiredChoices.keys, [0, 1, 2]);
+    expect(choicesOverviewBlocState.requiredChoices[2]?.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[2]?[0].fullId, 'pbdf.pbdf.mobilenumber');
+    expect(choicesOverviewBlocState.requiredChoices[2]?[0].attributes.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[2]?[0].attributes[0].value.raw, '+31612345678');
 
     // Press next to trigger confirmation popup.
     bloc.add(DisclosurePermissionNextPressed());
@@ -478,7 +482,7 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
     choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
     expect(choicesOverviewBlocState.showConfirmationPopup, true);
-    expect(choicesOverviewBlocState.choices.keys, [0, 1, 2]);
+    expect(choicesOverviewBlocState.requiredChoices.keys, [0, 1, 2]);
 
     // Confirm all choices.
     bloc.add(DisclosurePermissionNextPressed());
@@ -520,26 +524,26 @@ void main() {
     DisclosurePermissionChoicesOverview choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
     expect(choicesOverviewBlocState.plannedSteps, [DisclosurePermissionStepName.choicesOverview]);
     expect(choicesOverviewBlocState.showConfirmationPopup, false);
-    expect(choicesOverviewBlocState.choices.keys, [0]);
-    expect(choicesOverviewBlocState.choices[0]?.length, 1);
-    expect(choicesOverviewBlocState.choices[0]?[0].fullId, 'pbdf.pbdf.email');
-    expect(choicesOverviewBlocState.choices[0]?[0].attributes.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices.keys, [0]);
+    expect(choicesOverviewBlocState.requiredChoices[0]?.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].fullId, 'pbdf.pbdf.email');
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes.length, 1);
     expect(
-      choicesOverviewBlocState.choices[0]?[0].attributes[0].attributeType.fullId,
+      choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].attributeType.fullId,
       'pbdf.pbdf.email.email',
     );
-    expect(choicesOverviewBlocState.choices[0]?[0].attributes[0].value.raw, 'test@example.com');
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].value.raw, 'test@example.com');
 
     bloc.add(DisclosurePermissionNextPressed());
 
     expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
     choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
     expect(choicesOverviewBlocState.showConfirmationPopup, true);
-    expect(choicesOverviewBlocState.choices.keys, [0]);
-    expect(choicesOverviewBlocState.choices[0]?.length, 1);
-    expect(choicesOverviewBlocState.choices[0]?[0].fullId, 'pbdf.pbdf.email');
-    expect(choicesOverviewBlocState.choices[0]?[0].attributes.length, 1);
-    expect(choicesOverviewBlocState.choices[0]?[0].attributes[0].value.raw, 'test@example.com');
+    expect(choicesOverviewBlocState.requiredChoices.keys, [0]);
+    expect(choicesOverviewBlocState.requiredChoices[0]?.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].fullId, 'pbdf.pbdf.email');
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].value.raw, 'test@example.com');
 
     bloc.add(DisclosurePermissionNextPressed());
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
@@ -687,20 +691,20 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
     DisclosurePermissionChoicesOverview choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
     expect(choicesOverviewBlocState.showConfirmationPopup, false);
-    expect(choicesOverviewBlocState.isOptional, {0: false, 1: false, 2: false});
-    expect(choicesOverviewBlocState.choices.keys, [0, 1, 2]);
-    expect(choicesOverviewBlocState.choices[0]?.length, 1);
-    expect(choicesOverviewBlocState.choices[0]?[0], isA<ChoosableDisclosureCredential>());
-    expect(choicesOverviewBlocState.choices[0]?[0].attributes.length, 1);
-    expect(choicesOverviewBlocState.choices[0]?[0].attributes[0].value.raw, 'example.com');
-    expect(choicesOverviewBlocState.choices[1]?.length, 1);
-    expect(choicesOverviewBlocState.choices[1]?[0], isA<ChoosableDisclosureCredential>());
-    expect(choicesOverviewBlocState.choices[1]?[0].attributes.length, 1);
-    expect(choicesOverviewBlocState.choices[1]?[0].attributes[0].value.raw, 'test@example.com');
-    expect(choicesOverviewBlocState.choices[2]?.length, 1);
-    expect(choicesOverviewBlocState.choices[2]?[0], isA<ChoosableDisclosureCredential>());
-    expect(choicesOverviewBlocState.choices[2]?[0].attributes.length, 1);
-    expect(choicesOverviewBlocState.choices[2]?[0].attributes[0].value.raw, '+31612345678');
+    expect(choicesOverviewBlocState.optionalChoices, {});
+    expect(choicesOverviewBlocState.requiredChoices.keys, [0, 1, 2]);
+    expect(choicesOverviewBlocState.requiredChoices[0]?.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0], isA<ChoosableDisclosureCredential>());
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].value.raw, 'example.com');
+    expect(choicesOverviewBlocState.requiredChoices[1]?.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[1]?[0], isA<ChoosableDisclosureCredential>());
+    expect(choicesOverviewBlocState.requiredChoices[1]?[0].attributes.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[1]?[0].attributes[0].value.raw, 'test@example.com');
+    expect(choicesOverviewBlocState.requiredChoices[2]?.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[2]?[0], isA<ChoosableDisclosureCredential>());
+    expect(choicesOverviewBlocState.requiredChoices[2]?[0].attributes.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[2]?[0].attributes[0].value.raw, '+31612345678');
 
     bloc.add(DisclosurePermissionNextPressed());
     expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
@@ -770,7 +774,7 @@ void main() {
 
     expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
     DisclosurePermissionChoicesOverview choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
-    expect(choicesOverviewBlocState.choices.keys, [0, 1]);
+    expect(choicesOverviewBlocState.requiredChoices.keys, [0, 1]);
 
     // Try to change the choice for the first discon.
     bloc.add(DisclosurePermissionChangeChoicePressed(disconIndex: 0));
@@ -813,14 +817,14 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
     choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
     expect(choicesOverviewBlocState.showConfirmationPopup, false);
-    expect(choicesOverviewBlocState.isOptional, {0: false, 1: false});
-    expect(choicesOverviewBlocState.choices.keys, [0, 1]);
-    expect(choicesOverviewBlocState.choices[0]?.length, 1);
-    expect(choicesOverviewBlocState.choices[0]?[0].attributes.length, 1);
-    expect(choicesOverviewBlocState.choices[0]?[0].attributes[0].value.raw, '54321');
-    expect(choicesOverviewBlocState.choices[1]?.length, 1);
-    expect(choicesOverviewBlocState.choices[1]?[0].attributes.length, 1);
-    expect(choicesOverviewBlocState.choices[1]?[0].attributes[0].value.raw, 'test@example.com');
+    expect(choicesOverviewBlocState.optionalChoices, {});
+    expect(choicesOverviewBlocState.requiredChoices.keys, [0, 1]);
+    expect(choicesOverviewBlocState.requiredChoices[0]?.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].value.raw, '54321');
+    expect(choicesOverviewBlocState.requiredChoices[1]?.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[1]?[0].attributes.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[1]?[0].attributes[0].value.raw, 'test@example.com');
 
     bloc.add(DisclosurePermissionNextPressed());
 
@@ -833,37 +837,93 @@ void main() {
     await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.success);
   });
 
-  test('issuance-in-disclosure-optional-attributes', () async {
-    // Optionally, disclose your email address or mobile number.
-    mockBridge.mockDisclosureSession(42, [
+  test('optional-attributes', () async {
+    await _issueCredential(repo, mockBridge, 42, [
+      {
+        'pbdf.pbdf.surfnet-2.id': TextValue.fromString('12345'),
+        'pbdf.pbdf.surfnet-2.email': TextValue.fromString('test@example.com'),
+      }
+    ]);
+
+    // Optionally, disclose your mobile number and/or email address.
+    mockBridge.mockDisclosureSession(43, [
+      [
+        {},
+        {
+          'pbdf.pbdf.mobilenumber.mobilenumber': null,
+        },
+      ],
       [
         {},
         {
           'pbdf.pbdf.email.email': null,
         },
         {
-          'pbdf.pbdf.mobilenumber.mobilenumber': null,
+          'pbdf.pbdf.surfnet-2.email': null,
         },
       ],
     ]);
 
     final obtainCredentialsController = StreamController<String>.broadcast();
     final bloc = DisclosurePermissionBloc(
-      sessionID: 42,
+      sessionID: 43,
       repo: repo,
       onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
     );
     repo.dispatch(
-      NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
       isBridgedEvent: true,
     );
 
     expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
     DisclosurePermissionChoicesOverview choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
     expect(choicesOverviewBlocState.showConfirmationPopup, false);
-    expect(choicesOverviewBlocState.isOptional, {0: true});
-    expect(choicesOverviewBlocState.choices.keys, [0]);
-    expect(choicesOverviewBlocState.choices[0]?.length, 0);
+    expect(choicesOverviewBlocState.requiredChoices, {});
+    expect(choicesOverviewBlocState.optionalChoices, {});
+    expect(choicesOverviewBlocState.hasAdditionalOptionalChoices, true);
+
+    bloc.add(DisclosurePermissionAddOptionalDataPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionAddOptionalData>());
+    DisclosurePermissionAddOptionalData addOptionalDataBlocState = bloc.state as DisclosurePermissionAddOptionalData;
+    expect(addOptionalDataBlocState.choosableCons.keys, [1]);
+    expect(addOptionalDataBlocState.choosableCons[1]?.length, 1);
+    expect(addOptionalDataBlocState.choosableCons[1]?[0].credentialHash, 'session-42-0');
+    expect(addOptionalDataBlocState.templateCons.keys, [0, 2, 3]);
+    expect(addOptionalDataBlocState.selectedConIndex, 1);
+
+    bloc.add(DisclosurePermissionChoiceUpdated(conIndex: 0));
+    expect(await bloc.stream.first, isA<DisclosurePermissionAddOptionalData>());
+    addOptionalDataBlocState = bloc.state as DisclosurePermissionAddOptionalData;
+    expect(addOptionalDataBlocState.selectedConIndex, 0);
+
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await obtainCredentialsController.stream.first, 'pbdf.pbdf.mobilenumber');
+    await _issueCredential(repo, mockBridge, 44, [
+      {
+        'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678'),
+      }
+    ]);
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionAddOptionalData>());
+    addOptionalDataBlocState = bloc.state as DisclosurePermissionAddOptionalData;
+    expect(addOptionalDataBlocState.choosableCons.keys, [0, 2]);
+    expect(addOptionalDataBlocState.choosableCons[0]?.length, 1);
+    expect(addOptionalDataBlocState.choosableCons[0]?[0].credentialHash, 'session-44-0');
+    expect(addOptionalDataBlocState.choosableCons[2]?.length, 1);
+    expect(addOptionalDataBlocState.choosableCons[2]?[0].credentialHash, 'session-42-0');
+    expect(addOptionalDataBlocState.templateCons.keys, [1, 3, 4]);
+    expect(addOptionalDataBlocState.selectedConIndex, 0);
+
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
+    choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
+    expect(choicesOverviewBlocState.showConfirmationPopup, false);
+    expect(choicesOverviewBlocState.requiredChoices, {});
+    expect(choicesOverviewBlocState.optionalChoices.keys, [0]);
+    expect(choicesOverviewBlocState.optionalChoices[0]?.length, 1);
+    expect(choicesOverviewBlocState.optionalChoices[0]?[0].fullId, 'pbdf.pbdf.mobilenumber');
+    expect(choicesOverviewBlocState.optionalChoices[0]?[0].attributes.length, 1);
+    expect(choicesOverviewBlocState.optionalChoices[0]?[0].attributes[0].value.raw, '+31612345678');
 
     bloc.add(DisclosurePermissionNextPressed());
     expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
@@ -872,7 +932,111 @@ void main() {
 
     bloc.add(DisclosurePermissionNextPressed());
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
-    await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.success);
+    await repo.getSessionState(43).firstWhere((session) => session.status == SessionStatus.success);
+  });
+
+  test('optional-attributes-mix', () async {
+    await _issueCredential(repo, mockBridge, 42, [
+      {
+        'pbdf.pbdf.surfnet-2.id': TextValue.fromString('12345'),
+        'pbdf.pbdf.surfnet-2.email': TextValue.fromString('test@example.com'),
+      }
+    ]);
+
+    // Optionally, disclose your mobile number and/or email address.
+    mockBridge.mockDisclosureSession(43, [
+      [
+        {
+          'pbdf.pbdf.mobilenumber.mobilenumber': null,
+        },
+      ],
+      [
+        {},
+        {
+          'pbdf.pbdf.email.email': null,
+        },
+        {
+          'pbdf.pbdf.surfnet-2.email': null,
+        },
+      ],
+    ]);
+
+    final obtainCredentialsController = StreamController<String>.broadcast();
+    final bloc = DisclosurePermissionBloc(
+      sessionID: 43,
+      repo: repo,
+      onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
+    );
+    repo.dispatch(
+      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      isBridgedEvent: true,
+    );
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
+    DisclosurePermissionIssueWizard issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
+    expect(issueWizardBlocState.candidates.keys, [0]);
+    expect(issueWizardBlocState.candidates[0]!.length, 1);
+    expect(issueWizardBlocState.candidates[0]![0].length, 1);
+    expect(issueWizardBlocState.candidates[0]![0][0].fullId, 'pbdf.pbdf.mobilenumber');
+
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await obtainCredentialsController.stream.first, 'pbdf.pbdf.mobilenumber');
+    await _issueCredential(repo, mockBridge, 44, [
+      {
+        'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678'),
+      }
+    ]);
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
+    issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
+    expect(issueWizardBlocState.isCompleted, true);
+
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionPreviouslyAddedCredentialsOverview>());
+    DisclosurePermissionPreviouslyAddedCredentialsOverview prevAddedCredsBlocState =
+        bloc.state as DisclosurePermissionPreviouslyAddedCredentialsOverview;
+    expect(prevAddedCredsBlocState.requiredChoices, {});
+    expect(prevAddedCredsBlocState.optionalChoices, {});
+    expect(prevAddedCredsBlocState.hasAdditionalOptionalChoices, true);
+
+    bloc.add(DisclosurePermissionAddOptionalDataPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionAddOptionalData>());
+    DisclosurePermissionAddOptionalData addOptionalDataBlocState = bloc.state as DisclosurePermissionAddOptionalData;
+    expect(addOptionalDataBlocState.choosableCons.keys, [0]);
+    expect(addOptionalDataBlocState.choosableCons[0]?.length, 1);
+    expect(addOptionalDataBlocState.choosableCons[0]?[0].credentialHash, 'session-42-0');
+    expect(addOptionalDataBlocState.templateCons.keys, [1, 2]);
+    expect(addOptionalDataBlocState.selectedConIndex, 0);
+
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionPreviouslyAddedCredentialsOverview>());
+    prevAddedCredsBlocState = bloc.state as DisclosurePermissionPreviouslyAddedCredentialsOverview;
+    expect(prevAddedCredsBlocState.requiredChoices, {});
+    expect(prevAddedCredsBlocState.optionalChoices.keys, [1]);
+    expect(prevAddedCredsBlocState.optionalChoices[1]?.length, 1);
+    expect(prevAddedCredsBlocState.optionalChoices[1]?[0].fullId, 'pbdf.pbdf.surfnet-2');
+    expect(prevAddedCredsBlocState.optionalChoices[1]?[0].attributes.length, 1);
+    expect(prevAddedCredsBlocState.optionalChoices[1]?[0].attributes[0].value.raw, 'test@example.com');
+
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
+    DisclosurePermissionChoicesOverview choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
+    expect(choicesOverviewBlocState.showConfirmationPopup, false);
+    expect(choicesOverviewBlocState.requiredChoices.keys, [0]);
+    expect(choicesOverviewBlocState.requiredChoices[0]!.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[0]![0].credentialHash, 'session-44-0');
+    expect(choicesOverviewBlocState.optionalChoices.keys, [1]);
+    expect(choicesOverviewBlocState.optionalChoices[1]!.length, 1);
+    expect(choicesOverviewBlocState.optionalChoices[1]![0].credentialHash, 'session-42-0');
+
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
+    choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
+    expect(choicesOverviewBlocState.showConfirmationPopup, true);
+
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
+    await repo.getSessionState(43).firstWhere((session) => session.status == SessionStatus.success);
   });
 
   test('recalculate-planned-steps', () async {
@@ -976,9 +1140,9 @@ void main() {
       DisclosurePermissionStepName.issueWizard,
       DisclosurePermissionStepName.choicesOverview,
     ]);
-    expect(choicesOverviewBlocState.choices.keys, [0]);
-    expect(choicesOverviewBlocState.choices[0]?.length, 1);
-    expect(choicesOverviewBlocState.choices[0]?[0].credentialType.fullId, 'pbdf.pbdf.mobilenumber');
+    expect(choicesOverviewBlocState.requiredChoices.keys, [0]);
+    expect(choicesOverviewBlocState.requiredChoices[0]?.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].credentialType.fullId, 'pbdf.pbdf.mobilenumber');
     expect(choicesOverviewBlocState.showConfirmationPopup, false);
 
     bloc.add(DisclosurePermissionNextPressed());
@@ -1116,22 +1280,22 @@ void main() {
       prevAddedCredsBlocState.plannedSteps,
       contains(DisclosurePermissionStepName.previouslyAddedCredentialsOverview),
     );
-    expect(prevAddedCredsBlocState.choices.keys, [0]);
-    expect(prevAddedCredsBlocState.choices[0]?.length, 1);
-    expect(prevAddedCredsBlocState.choices[0]?[0].fullId, 'pbdf.sidn-pbdf.irma');
-    expect(prevAddedCredsBlocState.choices[0]?[0].attributes.length, 1);
-    expect(prevAddedCredsBlocState.choices[0]?[0].attributes[0].value.raw, '12345');
+    expect(prevAddedCredsBlocState.requiredChoices.keys, [0]);
+    expect(prevAddedCredsBlocState.requiredChoices[0]?.length, 1);
+    expect(prevAddedCredsBlocState.requiredChoices[0]?[0].fullId, 'pbdf.sidn-pbdf.irma');
+    expect(prevAddedCredsBlocState.requiredChoices[0]?[0].attributes.length, 1);
+    expect(prevAddedCredsBlocState.requiredChoices[0]?[0].attributes[0].value.raw, '12345');
 
     // Continue to choices overview.
     bloc.add(DisclosurePermissionNextPressed());
 
     expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
     DisclosurePermissionChoicesOverview choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
-    expect(choicesOverviewBlocState.choices.keys, [0]);
-    expect(choicesOverviewBlocState.choices[0]?.length, 3);
-    expect(choicesOverviewBlocState.choices[0]?[0].credentialType.fullId, 'pbdf.sidn-pbdf.irma');
-    expect(choicesOverviewBlocState.choices[0]?[1].credentialType.fullId, 'pbdf.gemeente.address');
-    expect(choicesOverviewBlocState.choices[0]?[2].credentialType.fullId, 'pbdf.pbdf.mobilenumber');
+    expect(choicesOverviewBlocState.requiredChoices.keys, [0]);
+    expect(choicesOverviewBlocState.requiredChoices[0]?.length, 3);
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].credentialType.fullId, 'pbdf.sidn-pbdf.irma');
+    expect(choicesOverviewBlocState.requiredChoices[0]?[1].credentialType.fullId, 'pbdf.gemeente.address');
+    expect(choicesOverviewBlocState.requiredChoices[0]?[2].credentialType.fullId, 'pbdf.pbdf.mobilenumber');
     expect(choicesOverviewBlocState.showConfirmationPopup, false);
 
     bloc.add(DisclosurePermissionNextPressed());
@@ -1194,13 +1358,13 @@ void main() {
     bloc.add(DisclosurePermissionNextPressed());
     expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
     final choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
-    expect(choicesOverviewBlocState.choices.length, 2);
-    expect(choicesOverviewBlocState.choices[0]?.length, 1);
-    expect(choicesOverviewBlocState.choices[0]?[0].attributes.length, 1);
-    expect(choicesOverviewBlocState.choices[0]?[0].attributes[0].value.raw, '+31612345678');
-    expect(choicesOverviewBlocState.choices[1]?.length, 1);
-    expect(choicesOverviewBlocState.choices[1]?[0].attributes.length, 1);
-    expect(choicesOverviewBlocState.choices[1]?[0].attributes[0].value.raw, 'test@example.com');
+    expect(choicesOverviewBlocState.requiredChoices.length, 2);
+    expect(choicesOverviewBlocState.requiredChoices[0]?.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].value.raw, '+31612345678');
+    expect(choicesOverviewBlocState.requiredChoices[1]?.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[1]?[0].attributes.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[1]?[0].attributes[0].value.raw, 'test@example.com');
 
     bloc.add(DisclosurePermissionNextPressed());
     expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());

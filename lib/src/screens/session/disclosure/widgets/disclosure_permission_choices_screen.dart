@@ -96,7 +96,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
               style: theme.themeData.textTheme.headline4,
             ),
             SizedBox(height: theme.smallSpacing),
-            ...state.choices.entries.map(
+            ...state.requiredChoices.entries.map(
               (choiceEntry) => Column(
                 children: [
                   Row(
