@@ -33,7 +33,7 @@ class ChoosePin extends StatelessWidget {
         builder: (context, state) {
           final maxPinSize = state.longPin ? longPinSize : shortPinSize;
           final pinBloc = PinStateBloc(maxPinSize);
-          final pinVisibilityBloc = PinVisibilityBloc();
+          final pinVisibilityBloc = _pinVisibilityBloc;
           void submit() => chooseNewPin(context, pinBloc.state.pin.join());
 
           return YiviPinScreen(
