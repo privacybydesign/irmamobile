@@ -1,7 +1,7 @@
 part of pin;
 
 extension on PinQuality {
-  void addSecurePinAttributeIfRuleFollowed(PinFn validator, SecurePinAttribute attr, Pin pin) {
+  void _addSecurePinAttributeIfRuleFollowed(PinFn validator, SecurePinAttribute attr, Pin pin) {
     if (validator(pin)) {
       add(attr);
     }
@@ -9,9 +9,9 @@ extension on PinQuality {
 
   void applyRules(Pin pin) {
     this
-      ..addSecurePinAttributeIfRuleFollowed(
+      .._addSecurePinAttributeIfRuleFollowed(
           pinMustContainAtLeastThreeUniqueNumbers, SecurePinAttribute.containsThreeUnique, pin)
-      ..addSecurePinAttributeIfRuleFollowed(
+      .._addSecurePinAttributeIfRuleFollowed(
           pinMustNotBeMemberOfSeriesAscDesc, SecurePinAttribute.mustNotAscNorDesc, pin);
 
     if (pinMustNotContainPatternAbcab(pin) && pinMustNotContainPatternAbcba(pin)) {
@@ -28,10 +28,6 @@ extension on PinQuality {
         ..add(SecurePinAttribute.goodEnough);
     }
   }
-}
-
-void Function(String) pinStringToListConverter(PinStateBloc bloc) {
-  return (String pin) => bloc.add(pin.split('').map((e) => int.parse(e)).toList());
 }
 
 enum SecurePinAttribute {
