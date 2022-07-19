@@ -90,7 +90,7 @@ class DisclosurePermissionIssueWizard extends DisclosurePermissionStep {
   DisclosurePermissionStepName get currentStepName => DisclosurePermissionStepName.issueWizard;
 
   /// Returns for the given disconIndex the selected con.
-  Con<DisclosureCredential>? getSelectedCon(int disconIndex) =>
+  Con<TemplateDisclosureCredential>? getSelectedCon(int disconIndex) =>
       candidates[disconIndex]?[selectedConIndices[disconIndex]!];
 }
 

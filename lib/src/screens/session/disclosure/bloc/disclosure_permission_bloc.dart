@@ -121,16 +121,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
           );
         }
       } else {
-        // If only one credential is involved, we can open the issue url immediately.
-        final selectedCon = state.getSelectedCon(state.currentDiscon!.key)!;
-        if (selectedCon.length == 1) {
-          onObtainCredential(selectedCon.first.credentialType);
-        } else {
-          yield DisclosurePermissionObtainCredentials(
-            parentState: state,
-            templates: selectedCon.whereType<TemplateDisclosureCredential>().toList(),
-          );
-        }
+        yield* _obtainCredentials(state, state.getSelectedCon(state.currentDiscon!.key)!);
       }
     } else if (state is DisclosurePermissionObtainCredentials && event is DisclosurePermissionNextPressed) {
       if (state.allObtained) {
@@ -203,15 +194,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       );
     } else if (state is DisclosurePermissionChangeChoice && event is DisclosurePermissionNextPressed) {
       if (state.selectedCon.any((cred) => cred is TemplateDisclosureCredential)) {
-        // If only one credential is involved, we can open the issue url immediately.
-        if (state.selectedCon.length == 1) {
-          onObtainCredential(state.selectedCon.first.credentialType);
-        } else {
-          yield DisclosurePermissionObtainCredentials(
-            parentState: state,
-            templates: state.selectedCon.whereType<TemplateDisclosureCredential>().toList(),
-          );
-        }
+        yield* _obtainCredentials(state, state.selectedCon);
       } else {
         yield state.parentState;
       }
@@ -231,16 +214,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       if (state.isSelectedChoosable) {
         yield _refreshChoices(state.parentState, [state.selectedCon], state.disconIndexSelectedCon, 0);
       } else {
-        // TODO: code duplication
-        // If only one credential is involved, we can open the issue url immediately.
-        if (state.selectedCon.length == 1) {
-          onObtainCredential(state.selectedCon.first.credentialType);
-        } else {
-          yield DisclosurePermissionObtainCredentials(
-            parentState: state,
-            templates: state.selectedCon.whereType<TemplateDisclosureCredential>().toList(),
-          );
-        }
+        yield* _obtainCredentials(state, state.selectedCon);
       }
     } else if (state is DisclosurePermissionChoices && event is DisclosurePermissionAddOptionalDataPressed) {
       yield _generateAddOptionalDataState(
@@ -664,5 +638,22 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         prevChoice: prevState?.selectedCon,
       ),
     );
+  }
+
+  Stream<DisclosurePermissionBlocState> _obtainCredentials(
+    DisclosurePermissionBlocState parentState,
+    Con<DisclosureCredential> selectedCon,
+  ) async* {
+    final selectedConTemplates = selectedCon.whereType<TemplateDisclosureCredential>().toList();
+    assert(selectedConTemplates.isNotEmpty);
+    // If only one credential is involved, we can open the issue url immediately.
+    if (selectedConTemplates.length == 1) {
+      onObtainCredential(selectedConTemplates.first.credentialType);
+    } else {
+      yield DisclosurePermissionObtainCredentials(
+        parentState: parentState,
+        templates: selectedConTemplates,
+      );
+    }
   }
 }
