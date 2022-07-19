@@ -20,8 +20,7 @@ class _UnsecurePinDescriptionTile extends StatelessWidget {
         FlutterI18n.translate(context, descriptionKey),
         style: theme.textTheme.bodyText1?.copyWith(fontWeight: FontWeight.w400),
       ),
-      minVerticalPadding: 0.0,
-      visualDensity: const VisualDensity(vertical: -4.0),
+      minVerticalPadding: 4.0,
     );
   }
 }
