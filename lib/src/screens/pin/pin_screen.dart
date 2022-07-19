@@ -122,7 +122,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
             builder: (BuildContext context, AsyncSnapshot<Duration> blockedFor) {
               var subtitle = FlutterI18n.translate(context, 'pin.subtitle');
               if (blockedFor.hasData && (blockedFor.data?.inSeconds ?? 0) > 0) {
-                final blockedText = '${FlutterI18n.translate(context, "pin_common.blocked_for")}';
+                final blockedText = FlutterI18n.translate(context, "pin_common.blocked_for");
                 final blockedForTime = formatBlockedFor(context, blockedFor.data);
                 subtitle = '$blockedText $blockedForTime';
               }

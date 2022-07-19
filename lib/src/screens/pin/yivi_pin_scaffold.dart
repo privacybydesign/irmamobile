@@ -8,8 +8,8 @@ class YiviPinScaffold extends StatelessWidget {
 
   Widget applyTabletSupport(bool isTabletDevice) {
     return LayoutBuilder(builder: (context, constraints) {
-      final commonShortestPhoneEdge = 414.0;
-      final commonLargestPhoneEdge = 736.0; // iPad mini shortest edge = 768 (1024 x 768)
+      const commonShortestPhoneEdge = 414.0;
+      const commonLargestPhoneEdge = 736.0; // iPad mini shortest edge = 768 (1024 x 768)
       if (isTabletDevice) {
         return SizedBox(
           width: commonShortestPhoneEdge,
