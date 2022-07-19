@@ -58,7 +58,7 @@ class YiviPinScreen extends StatelessWidget {
   final String? instructionKey;
   final String? instruction;
   final bool enabled;
-  final void Function(BuildContext, EnterPinState, String)? listener;
+  final void Function(BuildContext, EnterPinState)? listener;
 
   const YiviPinScreen({
     Key? key,
@@ -124,7 +124,7 @@ class YiviPinScreen extends StatelessWidget {
               (s) => RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
             ),
           ),
-          onPressed: activate && enabled ? () => onSubmit(pinBloc.state.pin.join()) : null,
+          onPressed: activate && enabled ? () => onSubmit(pinBloc.state.pin.toString()) : null,
           child: Text(
             FlutterI18n.translate(context, 'enrollment.choose_pin.next'),
             style: theme.textTheme.button?.copyWith(fontWeight: FontWeight.w700),
@@ -285,7 +285,7 @@ class YiviPinScreen extends StatelessWidget {
       builder: (context, orientation) {
         return BlocConsumer<EnterPinStateBloc, EnterPinState>(
           bloc: pinBloc,
-          listener: (context, state) => listener?.call(context, state, state.pin.join()),
+          listener: listener ?? (_, __) {},
           builder: (context, state) {
             final showSecurePinText =
                 state.pin.length >= shortPinSize && !state.attributes.contains(SecurePinAttribute.goodEnough);

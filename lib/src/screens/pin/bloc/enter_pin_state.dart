@@ -46,6 +46,11 @@ class EnterPinState {
   static final empty = EnterPinState(const [], const {});
 
   EnterPinState(this.pin, this.attributes);
+
+  @override
+  String toString() {
+    return pin.join();
+  }
 }
 
 class EnterPinStateBloc extends Bloc<Pin, EnterPinState> {
@@ -70,7 +75,7 @@ class EnterPinStateBloc extends Bloc<Pin, EnterPinState> {
     }
 
     if (_lastPin.length < maxPinSize && i >= 0) {
-      add([..._lastPin]..add(i));
+      add([..._lastPin, i]);
     }
   }
 

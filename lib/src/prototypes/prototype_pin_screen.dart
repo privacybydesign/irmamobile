@@ -43,7 +43,7 @@ class SecurePinScreenTest extends StatelessWidget {
         pinVisibilityBloc: pinVisibilityBloc,
         onTogglePinSize: onTogglePinSize,
         checkSecurePin: true,
-        listener: (context, state, _) {
+        listener: (context, state) {
           /// speed run regardless of pin quality
           if (shortPinSize == state.pin.length) {
             Navigator.pop(context);
@@ -82,7 +82,7 @@ class _PinScreen extends State<PinScreenTest> {
         pinVisibilityBloc: _pinVisibilityBloc,
         onForgotPin: () => Navigator.pop(context),
         onTogglePinSize: widget.onTogglePinSize,
-        listener: (context, state, _) {
+        listener: (context, state) {
           if (state.attributes.contains(SecurePinAttribute.goodEnough) && shortPinSize == state.pin.length) {
             Navigator.pop(context);
           }

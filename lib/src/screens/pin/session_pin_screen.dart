@@ -186,9 +186,9 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
                               pinVisibilityBloc: _pinVisibilityBloc,
                               enabled: enabled,
                               onForgotPin: () => Navigator.of(context).pushNamed(ResetPinScreen.routeName),
-                              listener: (context, state, pinString) {
+                              listener: (context, state) {
                                 if (maxPinSize == yivi.shortPinSize && state.pin.length == maxPinSize) {
-                                  onSubmit(pinString);
+                                  onSubmit(state.toString());
                                 }
                               },
                             ),

@@ -40,9 +40,9 @@ class EnterPin extends StatelessWidget {
               onSubmit: submitOldPin,
               pinBloc: pinBloc,
               pinVisibilityBloc: _pinVisibilityBloc,
-              listener: (context, state, pinString) {
+              listener: (context, state) {
                 if (maxPinSize == shortPinSize && state.pin.length == maxPinSize) {
-                  submitOldPin(pinString);
+                  submitOldPin(state.toString());
                 }
               });
         },

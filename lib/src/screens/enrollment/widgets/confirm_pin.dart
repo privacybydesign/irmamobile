@@ -37,11 +37,11 @@ class ConfirmPin extends StatelessWidget {
             pinBloc: pinBloc,
             pinVisibilityBloc: pinVisibilityBloc,
             checkSecurePin: true,
-            listener: (context, state, pinString) {
+            listener: (context, state) {
               if (maxPinSize == shortPinSize &&
                   state.pin.length == maxPinSize &&
                   state.attributes.contains(SecurePinAttribute.goodEnough)) {
-                submitConfirmationPin(pinString);
+                submitConfirmationPin(state.toString());
               }
             },
           );
