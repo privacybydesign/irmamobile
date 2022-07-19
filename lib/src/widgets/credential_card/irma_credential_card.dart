@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/screens/session/disclosure/models/disclosure_credential.dart';
 
 import '../../models/attribute_value.dart';
 import '../../models/attributes.dart';
 import '../../models/credentials.dart';
+import '../../screens/session/disclosure/models/disclosure_credential.dart';
 import '../../util/language.dart';
 import '../irma_card.dart';
 import '../irma_divider.dart';
