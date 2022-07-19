@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:irmamobile/src/screens/session/disclosure/models/disclosure_credential.dart';
 
 import '../../models/attribute_value.dart';
 import '../../models/attributes.dart';
 import '../../models/credentials.dart';
-import '../../theme/theme.dart';
 import '../../util/language.dart';
 import '../irma_card.dart';
 import '../irma_divider.dart';
@@ -68,6 +68,18 @@ class IrmaCredentialCard extends StatelessWidget {
     this.padding,
   })  : credentialInfo = credential.info,
         attributes = credential.attributeList,
+        revoked = false;
+
+  IrmaCredentialCard.fromDisclosureCredential(
+    DisclosureCredential credential, {
+    this.compareTo,
+    this.onTap,
+    this.style = IrmaCardStyle.normal,
+    this.headerTrailing,
+    this.trailingText,
+    this.padding,
+  })  : credentialInfo = credential,
+        attributes = credential.attributes,
         revoked = false;
 
   @override

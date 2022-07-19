@@ -169,7 +169,7 @@ void main() {
     expect(choicesOverviewBlocState.showConfirmationPopup, true);
 
     // Check whether we can dismiss confirmation.
-    bloc.add(DisclosurePermissionConfirmationDismissed());
+    bloc.add(DisclosurePermissionDialogDismissed());
     expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
     choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
     expect(choicesOverviewBlocState.showConfirmationPopup, false);
@@ -619,10 +619,10 @@ void main() {
     final wrongCredsObtainedBlocState = bloc.state as DisclosurePermissionWrongCredentialsObtained;
     expect(wrongCredsObtainedBlocState.templates.length, 1);
     expect(wrongCredsObtainedBlocState.templates[0].fullId, 'pbdf.pbdf.email');
-    expect(wrongCredsObtainedBlocState.obtainedCredentials[0]?.attributes.length, 1);
-    expect(wrongCredsObtainedBlocState.obtainedCredentials[0]?.attributes[0].value.raw, 'wrong.example.com');
+    expect(wrongCredsObtainedBlocState.obtainedCredentials[0].attributes.length, 1);
+    expect(wrongCredsObtainedBlocState.obtainedCredentials[0].attributes[0].value.raw, 'wrong.example.com');
 
-    bloc.add(DisclosurePermissionNextPressed());
+    bloc.add(DisclosurePermissionDialogDismissed());
     expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
 
     await _issueCredential(repo, mockBridge, 44, [

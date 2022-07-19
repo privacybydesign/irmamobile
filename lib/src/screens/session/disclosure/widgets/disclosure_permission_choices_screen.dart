@@ -32,7 +32,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
         ) ??
         false;
 
-    onEvent(confirmed ? DisclosurePermissionNextPressed() : DisclosurePermissionConfirmationDismissed());
+    onEvent(confirmed ? DisclosurePermissionNextPressed() : DisclosurePermissionDialogDismissed());
   }
 
   @override

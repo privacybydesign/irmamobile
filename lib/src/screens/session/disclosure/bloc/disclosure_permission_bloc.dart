@@ -40,7 +40,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     _sessionStateSubscription = repo
         .getSessionState(sessionID)
         .map((session) => _mapSessionStateToBlocState(state, session))
-        .where((newState) => newState != state)
+        .where((newState) => newState != state) // To prevent the DisclosurePermissionInitial state is added twice.
         .listen(emit);
     _sessionEventSubscription = repo
         .getEvents()
@@ -215,7 +215,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       } else {
         yield state.parentState;
       }
-    } else if (state is DisclosurePermissionWrongCredentialsObtained && event is DisclosurePermissionNextPressed) {
+    } else if (state is DisclosurePermissionWrongCredentialsObtained && event is DisclosurePermissionDialogDismissed) {
       yield state.parentState;
     } else if (state is DisclosurePermissionAddOptionalData && event is DisclosurePermissionChoiceUpdated) {
       if (event.conIndex < 0 || event.conIndex >= state.discon.length) {
@@ -287,7 +287,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
           );
         }
       }
-    } else if (state is DisclosurePermissionChoicesOverview && event is DisclosurePermissionConfirmationDismissed) {
+    } else if (state is DisclosurePermissionChoicesOverview && event is DisclosurePermissionDialogDismissed) {
       yield DisclosurePermissionChoicesOverview(
         plannedSteps: state.plannedSteps,
         requiredChoices: state.requiredChoices,
@@ -348,8 +348,11 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       // so the current selection should still be present.
       return state;
     } else if (state is DisclosurePermissionWrongCredentialsObtained) {
-      // We dismiss the error message automatically if a new obtaining attempt is done.
-      return _mapSessionStateToBlocState(state.parentState, session);
+      return DisclosurePermissionWrongCredentialsObtained(
+        parentState: _mapSessionStateToBlocState(state.parentState, session),
+        obtainedCredentials: state.obtainedCredentials,
+        templates: state.templates,
+      );
     } else {
       final candidates = Map.fromEntries(session.disclosuresCandidates!.mapIndexed(
         (i, rawDiscon) => MapEntry(i, _parseCandidatesDisCon(rawDiscon)),
@@ -443,7 +446,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     final credentials = _newlyAddedCredentialHashes
         .expand((hash) => _repo.credentials.containsKey(hash) ? [_repo.credentials[hash]!] : <Credential>[]);
 
-    final List<TemplateDisclosureCredential> expectedTemplates = [];
+    final List<TemplateDisclosureCredential> mismatchedTemplates = [];
     final List<ChoosableDisclosureCredential> obtainedCredentials = [];
 
     for (final template in templates) {
@@ -458,7 +461,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       final nonMatchingCred =
           credentials.firstWhereOrNull((cred) => templateWithoutValueConstraints.matchesCredential(cred));
       if (nonMatchingCred != null) {
-        expectedTemplates.add(template);
+        mismatchedTemplates.add(template);
         obtainedCredentials.add(ChoosableDisclosureCredential.fromTemplate(
           template: templateWithoutValueConstraints,
           credential: nonMatchingCred,
@@ -468,10 +471,10 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       }
     }
 
-    if (expectedTemplates.isNotEmpty) {
+    if (mismatchedTemplates.isNotEmpty) {
       return DisclosurePermissionWrongCredentialsObtained(
         parentState: parentState,
-        expectedTemplates: expectedTemplates,
+        templates: mismatchedTemplates,
         obtainedCredentials: obtainedCredentials,
       );
     }

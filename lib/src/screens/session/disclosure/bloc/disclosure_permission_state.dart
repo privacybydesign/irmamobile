@@ -265,13 +265,13 @@ class DisclosurePermissionWrongCredentialsObtained implements DisclosurePermissi
   final UnmodifiableListView<TemplateDisclosureCredential> templates;
 
   /// List with the credentials that were obtained by the user, but do not match the expected template.
-  final UnmodifiableListView<ChoosableDisclosureCredential?> obtainedCredentials;
+  final UnmodifiableListView<ChoosableDisclosureCredential> obtainedCredentials;
 
   DisclosurePermissionWrongCredentialsObtained({
     required this.parentState,
-    required List<TemplateDisclosureCredential> expectedTemplates,
+    required List<TemplateDisclosureCredential> templates,
     required List<ChoosableDisclosureCredential> obtainedCredentials,
-  })  : templates = UnmodifiableListView(expectedTemplates),
+  })  : templates = UnmodifiableListView(templates),
         obtainedCredentials = UnmodifiableListView(obtainedCredentials);
 }
 

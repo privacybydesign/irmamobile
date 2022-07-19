@@ -353,6 +353,11 @@
       "explanation": "Je staat op het punt om gegevens te delen met {requestorName}. Klik op 'Delen' om verder te gaan.",
       "confirm": "Delen",
       "decline": "Niet delen"
+    },
+    "wrong_credentials_added": {
+      "title": "Foutmelding",
+      "explanation": "Gegevens zijn toegevoegd in de app, maar voldoen niet aan de criteria om te delen. Haal de juiste gegevens op.",
+      "dismiss_action": "OK"
     }
   },
   "disclosure": {

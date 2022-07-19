@@ -353,6 +353,11 @@
       "explanation": "You are about to share data with {requestorName}. Tap 'Share' to continue",
       "confirm": "Share",
       "decline": "Don't share"
+    },
+    "wrong_credentials_added": {
+      "title": "Error",
+      "explanation": "Data has been added to the app, but they do not meet the criteria to share them. Please obtain the right data.",
+      "dismiss_action": "OK"
     }
   },
   "disclosure": {

@@ -27,5 +27,5 @@ class DisclosurePermissionChoiceUpdated implements DisclosurePermissionBlocEvent
   DisclosurePermissionChoiceUpdated({required this.conIndex});
 }
 
-/// Event to indicate that the user dismisses the confirmation popup.
-class DisclosurePermissionConfirmationDismissed implements DisclosurePermissionBlocEvent {}
+/// Event to indicate that the user dismisses a dialog.
+class DisclosurePermissionDialogDismissed implements DisclosurePermissionBlocEvent {}
