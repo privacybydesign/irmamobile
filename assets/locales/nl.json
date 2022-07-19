@@ -3,7 +3,8 @@
     "loading": "Laden…",
     "step_of_steps": "Stap {i} van {n}",
     "step": "Stap",
-    "done": "Gereed"
+    "done": "Gereed",
+    "next": "Volgende"
   },
   "enrollment": {
     "introduction": {
@@ -353,6 +354,17 @@
       "explanation": "Je staat op het punt om gegevens te delen met {requestorName}. Klik op 'Delen' om verder te gaan.",
       "confirm": "Delen",
       "decline": "Niet delen"
+    },
+    "call": {
+      "title": "Bel via Yivi",
+      "disclosure_explanation": "Wil je de volgende gegevens aan {otherParty} doorgeven en bellen naar {phoneNumber}?",
+      "disclosure_success": "Gegevens zijn doorgegeven aan {otherParty}",
+      "explanation_header_ios": "Kies doograan om te bellen",
+      "explanation_ios": "Er verschijnt een pop-up met de keuze om te bellen. Het telefoonnummer is al ingevuld, met een koppelcode. Als je bellen kiest, hoor je een paar piepjes en word je verbonden.",
+      "explanation_header_android": "1. Kies doorgaan",
+      "explanation_android": "Je belapplicatie opent nu vanzelf. Het telefoonnummer is al ingevuld, met een koppelcode.",
+      "extra_explanation_header_android": "2. Klik op de belknop in je belapplicatie",
+      "extra_explanation_android": "Je hoort een paar piepjes en wordt verbonden."
     }
   },
   "disclosure": {
@@ -392,19 +404,6 @@
         "canceled": "Je gegevens zijn niet doorgegeven aan {otherParty}",
         "notSatisfiable": "Je gegevens zijn niet doorgegeven, omdat {otherParty} om verouderde gegevens vraagt. Je kunt hier zelf niets aan doen. Je zou wel een bericht kunnen sturen naar deze partij."
       }
-    },
-    "call_info": {
-      "title": "Via Yivi bellen",
-      "success": "Gegevens doorgegegeven",
-      "success_message_markdown": "Je gegevens zijn doorgegeven aan **{otherParty}**.\nVoer de volgende stappen uit om te bellen.",
-      "success_message_ios_markdown": "Je gegevens zijn doorgegeven aan **{otherParty}**.",
-      "continue": "1. Kies doorgaan",
-      "continue_ios": "Kies doorgaan om te bellen",
-      "continue_message": "Je bel-app opent nu vanzelf. Het telefoonnummer is al ingevuld, met een koppelcode.",
-      "continue_message_ios": "Er verschijnt een pop-up met de keuze om te bellen. Het telefoonnummer is al ingevuld, met een koppelcode. Als je bellen kiest, hoor je een paar piepjes en word je verbonden.",
-      "call": "2. Klik op de bel-knop in je bel-app.",
-      "call_message": "Je hoort een paar piepjes en wordt verbonden.",
-      "continue_button": "Doorgaan"
     }
   },
   "reset_pin": {

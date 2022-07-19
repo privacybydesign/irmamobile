@@ -3,7 +3,8 @@
     "loading": "Loading…",
     "step_of_steps": "Step {i} of {n}",
     "step": "Step",
-    "done": "Done"
+    "done": "Done",
+    "next": "Next"
   },
   "enrollment": {
     "introduction": {
@@ -353,6 +354,17 @@
       "explanation": "You are about to share data with {requestorName}. Tap 'Share' to continue",
       "confirm": "Share",
       "decline": "Don't share"
+    },
+    "call": {
+      "title": "Call via Yivi",
+      "disclosure_explanation": "Do you wish to diclose the following data to {otherParty} and call to {phoneNumber}?",
+      "disclosure_success": "Data has been shared with {otherParty}",
+      "explanation_header_ios": "Choose continue to call",
+      "explanation_ios": "A pop-up will appear, with the option to place the call. The number is pre-filled, followed by a link-code. If you choose to call, you will hear a few beeps and you will be connected.",
+      "explanation_header_android": "1. Choose continue",
+      "explanation_android": "Your phone app now opens automatically. The number is pre-filled, followed by a link-code.",
+      "extra_explanation_header_android": "You will hear a few beeps and you will be connected.",
+      "extra_explanation_android": "Je hoort een paar piepjes en wordt verbonden."
     }
   },
   "disclosure": {
@@ -392,19 +404,6 @@
         "canceled": "Your data are not disclosed to {otherParty}",
         "notSatisfiable": "Your data are not disclosed because {otherParty} requests outdated cards. Please contact this party."
       }
-    },
-    "call_info": {
-      "title": "Call via Yivi",
-      "success": "Data disclosed",
-      "success_message_markdown": "Your data have now been disclosed to **{otherParty}**.\nComplete the steps below to start the call.",
-      "success_message_ios_markdown": "Your data have now been disclosed to **{otherParty}**.",
-      "continue": "1. Choose continue",
-      "continue_ios": "Choose continue to call",
-      "continue_message": "Your phone app now opens automatically. The number is pre-filled, followed by a link-code.",
-      "continue_message_ios": "A pop-up will appear, with the option to place the call. The number is pre-filled, followed by a link-code. If you choose to call, you will hear a few beeps and you will be connected.",
-      "call": "2. Tap the call button in your phone app",
-      "call_message": "You will hear a few beeps and you will be connected.",
-      "continue_button": "Continue"
     }
   },
   "reset_pin": {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
+import '../../../../models/return_url.dart';
 import '../../../../models/session.dart';
 import '../../../../theme/theme.dart';
 import '../../../../widgets/credential_card/irma_credential_card.dart';
@@ -18,11 +19,13 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
   final RequestorInfo requestor;
   final DisclosurePermissionChoices state;
   final Function(DisclosurePermissionBlocEvent) onEvent;
+  final ReturnURL? returnURL;
 
   const DisclosurePermissionChoicesScreen({
     required this.requestor,
     required this.state,
     required this.onEvent,
+    this.returnURL,
   });
 
   Future<void> _showConfirmationDialog(BuildContext context) async {
@@ -75,13 +78,19 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                     TextSpan(
                       text: state is DisclosurePermissionPreviouslyAddedCredentialsOverview
                           ? FlutterI18n.translate(context, 'disclosure_permission.previously_added.explanation')
-                          : FlutterI18n.translate(
-                              context,
-                              'disclosure_permission.overview.explanation',
-                              translationParams: {
-                                'requestorName': requestor.name.translate(lang),
-                              },
-                            ),
+                          : returnURL != null && returnURL!.isPhoneNumber
+                              ? FlutterI18n.translate(context, 'disclosure_permission.call.disclosure_explanation',
+                                  translationParams: {
+                                      'otherParty': requestor.name.translate(lang),
+                                      'phoneNumber': returnURL!.phoneNumber
+                                    })
+                              : FlutterI18n.translate(
+                                  context,
+                                  'disclosure_permission.overview.explanation',
+                                  translationParams: {
+                                    'requestorName': requestor.name.translate(lang),
+                                  },
+                                ),
                       style: theme.themeData.textTheme.caption,
                     ),
                   ],

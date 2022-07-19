@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../data/irma_repository.dart';
 import '../../../models/irma_configuration.dart';
+import '../../../models/return_url.dart';
 import '../../../models/session.dart';
 import '../../../widgets/irma_repository_provider.dart';
 import '../../../widgets/loading_indicator.dart';
@@ -18,11 +19,13 @@ class DisclosurePermission extends StatelessWidget {
   final int sessionId;
   final IrmaRepository repo;
   final RequestorInfo requestor;
+  final ReturnURL? returnURL;
 
   const DisclosurePermission({
     required this.sessionId,
     required this.repo,
     required this.requestor,
+    this.returnURL,
   });
 
   @override
@@ -34,15 +37,22 @@ class DisclosurePermission extends StatelessWidget {
         onObtainCredential: (CredentialType credType) =>
             IrmaRepositoryProvider.of(context).openIssueURL(context, credType.fullId),
       ),
-      child: ProvidedDisclosurePermission(requestor),
+      child: ProvidedDisclosurePermission(
+        requestor,
+        returnURL,
+      ),
     );
   }
 }
 
 class ProvidedDisclosurePermission extends StatelessWidget {
   final RequestorInfo requestor;
+  final ReturnURL? returnURL;
 
-  const ProvidedDisclosurePermission(this.requestor);
+  const ProvidedDisclosurePermission(
+    this.requestor,
+    this.returnURL,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -80,6 +90,7 @@ class ProvidedDisclosurePermission extends StatelessWidget {
         } else if (state is DisclosurePermissionChoices) {
           return DisclosurePermissionChoicesScreen(
             requestor: requestor,
+            returnURL: returnURL,
             state: state,
             onEvent: addEvent,
           );
