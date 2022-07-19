@@ -40,6 +40,10 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
+    if (state.optionalChoices.isNotEmpty || state.hasAdditionalOptionalChoices) {
+      throw UnimplementedError('Optional choices cannot be displayed yet');
+    }
+
     if (state is DisclosurePermissionChoicesOverview &&
         (state as DisclosurePermissionChoicesOverview).showConfirmationPopup) {
       Future.delayed(Duration.zero, () => _showConfirmationDialog(context));

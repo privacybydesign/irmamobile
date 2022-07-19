@@ -165,24 +165,21 @@ class DisclosurePermissionObtainCredentials implements DisclosurePermissionBlocS
         obtained = UnmodifiableListView(obtained ?? List.filled(templates.length, false));
 }
 
-// TODO: duplication with DisclosurePermissionAddOptionalData?
-class DisclosurePermissionChangeChoice implements DisclosurePermissionBlocState {
+/// Abstract state with the overlapping behaviour of DisclosurePermissionChangeChoice
+/// and DisclosurePermissionAddOptionalData.
+abstract class DisclosurePermissionMakeChoice implements DisclosurePermissionBlocState {
   /// Link to the state that initiated this state.
   final DisclosurePermissionChoices parentState;
 
   /// DisCon that should be changed.
   final DisCon<DisclosureCredential> discon;
 
-  /// Index of the DisCon within the disclosure candidates ConDisCon.
-  final int disconIndex;
-
   /// Index of the Con within this DisCon that is currently selected.
   final int selectedConIndex;
 
-  DisclosurePermissionChangeChoice({
+  DisclosurePermissionMakeChoice({
     required this.parentState,
     required this.discon,
-    required this.disconIndex,
     required this.selectedConIndex,
   }) : assert(selectedConIndex < discon.length);
 
@@ -205,56 +202,37 @@ class DisclosurePermissionChangeChoice implements DisclosurePermissionBlocState 
 
   /// Returns whether the current selected con is fully choosable.
   bool get isSelectedChoosable => choosableCons.containsKey(selectedConIndex);
+}
 
-  /// Returns whether this choice is optional.
-  bool get isOptional => choosableCons.values.any((con) => con.isEmpty);
+class DisclosurePermissionChangeChoice extends DisclosurePermissionMakeChoice {
+  /// Index of the DisCon within the disclosure candidates ConDisCon.
+  final int disconIndex;
+
+  DisclosurePermissionChangeChoice({
+    required DisclosurePermissionChoices parentState,
+    required DisCon<DisclosureCredential> discon,
+    required int selectedConIndex,
+    required this.disconIndex,
+  }) : super(parentState: parentState, discon: discon, selectedConIndex: selectedConIndex);
 
   /// Returns whether the given DisclosureCredential is involved in this choice.
   bool contains(DisclosureCredential credential) => discon.any((con) => con.any((cred) => cred == credential));
 }
 
-class DisclosurePermissionAddOptionalData implements DisclosurePermissionBlocState {
-  /// Link to the state that initiated this state.
-  final DisclosurePermissionChoices parentState;
-
-  /// List with all cons that can be added to the choices.
-  final DisCon<DisclosureCredential> discon;
-
+class DisclosurePermissionAddOptionalData extends DisclosurePermissionMakeChoice {
   /// List that specifies to which disconIndex every Con belongs.
   final UnmodifiableListView<int> disconIndices;
 
-  /// Index of the Con that is currently selected.
-  final int selectedConIndex;
-
   DisclosurePermissionAddOptionalData({
-    required this.parentState,
-    required this.discon,
+    required DisclosurePermissionChoices parentState,
+    required DisCon<DisclosureCredential> discon,
+    required int selectedConIndex,
     required List<int> disconIndices,
-    required this.selectedConIndex,
-  }) : disconIndices = UnmodifiableListView(disconIndices);
-
-  /// Returns a map with all con indices that are choosable and the corresponding Cons as map value.
-  Map<int, Con<ChoosableDisclosureCredential>> get choosableCons => {
-        for (int i = 0; i < discon.length; i++)
-          if (discon[i].every((cred) => cred is ChoosableDisclosureCredential))
-            i: Con(discon[i].whereType<ChoosableDisclosureCredential>())
-      };
-
-  /// All template cons within this choice. This also includes choices with combinations of
-  /// ChoosableDisclosureCredential and TemplateDisclosureCredentials.
-  Map<int, Con<DisclosureCredential>> get templateCons => {
-        for (int i = 0; i < discon.length; i++)
-          if (discon[i].any((cred) => cred is TemplateDisclosureCredential)) i: discon[i]
-      };
-
-  /// The con that is currently selected.
-  Con<DisclosureCredential> get selectedCon => discon[selectedConIndex];
+  })  : disconIndices = UnmodifiableListView(disconIndices),
+        super(parentState: parentState, discon: discon, selectedConIndex: selectedConIndex);
 
   /// Returns the disconIndex of the con that is currently selected.
   int get disconIndexSelectedCon => disconIndices[selectedConIndex];
-
-  /// Returns whether the current selected con is fully choosable.
-  bool get isSelectedChoosable => discon[selectedConIndex].every((cred) => cred is ChoosableDisclosureCredential);
 }
 
 class DisclosurePermissionWrongCredentialsObtained implements DisclosurePermissionBlocState {
