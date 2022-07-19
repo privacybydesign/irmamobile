@@ -17,7 +17,7 @@ bool _pinMustNotContainPatternAbcab(List<int> pin) => !(pin[0] == pin[3] && pin[
 bool Function(List<int>) sequenceChecker(int delta) => (List<int> pin) {
       bool tracker = true;
       for (var i = 0; i < pin.length - 1 && tracker; i++) {
-        tracker &= pin[i] + delta == pin[i + 1];
+        tracker &= (pin[i] + delta) % 10 == pin[i + 1];
       }
       return tracker;
     };
