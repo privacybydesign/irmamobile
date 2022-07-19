@@ -6,6 +6,7 @@ const designScreenWidth = 375.0;
 /// For non-tablet devices:
 /// afaik (2022), the smallest viewport width is iPhone 5 at 320,
 /// the largest viewport width is samsung z fold / iPhone xs max at 414 * 2
+/// Scaling stops beyond non-mobile phone devices.
 const _smallestViewportWidth = 320.0 / designScreenWidth;
 const _largestViewportWidth = 414.0 / designScreenWidth;
 
@@ -13,7 +14,7 @@ double shortestSide(BuildContext context) => MediaQuery.of(context).size.shortes
 
 extension YiviDesignDouble on double {
   double scale(BuildContext context) {
-    final factor = MediaQuery.of(context).size.shortestSide / designScreenWidth;
+    final factor = shortestSide(context) / designScreenWidth;
     return this * factor.clamp(_smallestViewportWidth, _largestViewportWidth);
   }
 }

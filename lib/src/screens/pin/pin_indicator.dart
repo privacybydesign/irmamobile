@@ -49,6 +49,10 @@ class _PinIndicator extends StatelessWidget {
     final pinSize = pinState.pin.length;
 
     final double edgeSize = maxPinSize != shortPinSize ? 6 : 12;
+
+    /// Applied scaling so, the circles / dots won't
+    /// get too small on devices bigger than the design
+    /// and too big on devices smaller than the design
     final scaledEdgeSize = edgeSize.scale(context);
 
     /// prevent the row from collapsing

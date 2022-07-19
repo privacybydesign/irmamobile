@@ -10,6 +10,10 @@ class _NumberPadKey extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+
+    /// On devices smaller than the screen width of the design, e.g. w320
+    /// if you pass a constant fontSize, then the text will take up
+    /// too much space
     final fontSize = 32.scale(context);
 
     return Stack(
