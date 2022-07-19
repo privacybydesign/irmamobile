@@ -111,9 +111,11 @@ class YiviPinScreen extends StatelessWidget {
           style: ButtonStyle(
             backgroundColor: MaterialStateProperty.resolveWith<Color>(
               (Set<MaterialState> states) {
-                if (states.contains(MaterialState.pressed))
+                if (states.contains(MaterialState.pressed)) {
+                  return theme.secondary.withOpacity(0.8);
+                } else if (states.contains(MaterialState.disabled)) {
                   return theme.secondary.withOpacity(0.5);
-                else if (states.contains(MaterialState.disabled)) return theme.secondary.withOpacity(0.5);
+                }
                 return theme.secondary;
               },
             ),
