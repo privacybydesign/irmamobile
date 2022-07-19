@@ -160,7 +160,10 @@ class YiviPinScreen extends StatelessWidget {
             ),
             Align(
               alignment: Alignment.topRight,
-              child: pinVisibility(pinVisibilityBloc),
+              child: Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: pinVisibility(pinVisibilityBloc),
+              ),
             ),
           ],
         ),
