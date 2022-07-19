@@ -165,7 +165,7 @@ class DisclosurePermissionObtainCredentials implements DisclosurePermissionBlocS
         obtained = UnmodifiableListView(obtained ?? List.filled(templates.length, false));
 }
 
-/// Abstract state with the overlapping behaviour of DisclosurePermissionChangeChoice
+/// Abstract state containing all overlapping behaviour between DisclosurePermissionChangeChoice
 /// and DisclosurePermissionAddOptionalData.
 abstract class DisclosurePermissionMakeChoice implements DisclosurePermissionBlocState {
   /// Link to the state that initiated this state.
