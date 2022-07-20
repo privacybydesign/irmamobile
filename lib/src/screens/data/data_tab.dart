@@ -96,6 +96,11 @@ class DataTab extends StatelessWidget {
             );
           },
         ),
+        SliverToBoxAdapter(
+          child: SizedBox(
+            height: theme.mediumSpacing,
+          ),
+        )
       ],
     );
   }

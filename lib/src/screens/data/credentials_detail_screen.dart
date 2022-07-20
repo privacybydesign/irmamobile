@@ -149,6 +149,9 @@ class _CredentialsDetailScreenState extends State<CredentialsDetailScreen> {
                       ),
                     )
                     .toList(),
+                SizedBox(
+                  height: theme.mediumSpacing,
+                )
               ],
             );
           },
