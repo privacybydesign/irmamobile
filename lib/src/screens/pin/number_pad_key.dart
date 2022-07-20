@@ -14,7 +14,8 @@ class _NumberPadKey extends StatelessWidget {
     /// On devices smaller than the screen width of the design, e.g. w320
     /// if you pass a constant fontSize, then the text will take up
     /// too much space
-    final fontSize = 28.scale(context);
+    final fontSize =
+        Orientation.landscape == MediaQuery.of(context).orientation ? 24.scale(context) : 28.scale(context);
 
     return Stack(
       alignment: Alignment.center,
