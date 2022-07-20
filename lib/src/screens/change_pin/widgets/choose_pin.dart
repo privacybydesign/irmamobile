@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:irmamobile/src/screens/change_pin/models/change_pin_bloc.dart';
-import 'package:irmamobile/src/screens/change_pin/models/change_pin_state.dart';
-import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
+import '../../../screens/change_pin/models/change_pin_bloc.dart';
+import '../../../screens/change_pin/models/change_pin_state.dart';
+import '../../../widgets/irma_app_bar.dart';
 import '../../pin/yivi_pin_screen.dart';
 
 class ChoosePin extends StatelessWidget {
@@ -34,7 +34,10 @@ class ChoosePin extends StatelessWidget {
           final maxPinSize = state.longPin ? longPinSize : shortPinSize;
           final pinBloc = EnterPinStateBloc(maxPinSize);
           final pinVisibilityBloc = _pinVisibilityBloc;
-          void submit(String pin) => chooseNewPin(context, pin);
+
+          void submit(String pin) {
+            chooseNewPin(context, pin);
+          }
 
           return YiviPinScreen(
             scaffoldKey: _scaffoldKey,

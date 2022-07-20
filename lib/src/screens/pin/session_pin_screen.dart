@@ -11,8 +11,8 @@ import 'package:irmamobile/src/screens/pin/bloc/pin_state.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/loading_indicator.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_attempts.dart';
+import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 
-import '../../data/irma_preferences.dart';
 import '../../theme/theme.dart';
 import '../reset_pin/reset_pin_screen.dart';
 import 'bloc/pin_event.dart';
@@ -123,6 +123,13 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
   // Parent widget is responsible for popping this widget, so do a leadingAction instead of a leadingCancel.
   PreferredSizeWidget scaffoldTitle() => IrmaAppBar(leadingAction: _cancel, title: widget.title);
 
+  void _submit(bool enabled, String pin) {
+    if (!enabled) return;
+    _pinBloc.add(
+      SessionPin(widget.sessionID, pin),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -159,21 +166,14 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
                 body: StreamBuilder(
                   stream: _pinBloc.getPinBlockedFor(),
                   builder: (BuildContext context, AsyncSnapshot<Duration> blockedFor) {
-                    return StreamBuilder(
-                      stream: IrmaPreferences.get().getLongPin(),
-                      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-                        final maxPinSize = (snapshot.hasData && snapshot.data!) ? yivi.longPinSize : yivi.shortPinSize;
+                    return PreferenceBuilder(
+                      preference: _repo.preferences.longPin,
+                      builder: (BuildContext context, bool longPin) {
+                        final maxPinSize = longPin ? yivi.longPinSize : yivi.shortPinSize;
                         final pinBloc = yivi.EnterPinStateBloc(maxPinSize);
 
                         final enabled =
                             (blockedFor.data ?? Duration.zero).inSeconds <= 0 && !state.authenticateInProgress;
-
-                        void onSubmit(String pin) {
-                          if (!enabled) return;
-                          _pinBloc.add(
-                            SessionPin(widget.sessionID, pin),
-                          );
-                        }
 
                         return Stack(
                           alignment: Alignment.center,
@@ -181,14 +181,14 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
                             yivi.YiviPinScreen(
                               instructionKey: 'session_pin.subtitle',
                               maxPinSize: maxPinSize,
-                              onSubmit: onSubmit,
+                              onSubmit: (p) => _submit(enabled, p),
                               pinBloc: pinBloc,
                               pinVisibilityBloc: _pinVisibilityBloc,
                               enabled: enabled,
                               onForgotPin: () => Navigator.of(context).pushNamed(ResetPinScreen.routeName),
                               listener: (context, state) {
                                 if (maxPinSize == yivi.shortPinSize && state.pin.length == maxPinSize) {
-                                  onSubmit(state.toString());
+                                  _submit(enabled, state.toString());
                                 }
                               },
                             ),

@@ -1,16 +1,14 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/widgets/irma_app_bar.dart';
+import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 
-import '../../../data/irma_preferences.dart';
+import '../../../widgets/irma_app_bar.dart';
+import '../../../widgets/irma_repository_provider.dart';
 import '../../pin/yivi_pin_screen.dart';
 
 class ChoosePin extends StatelessWidget {
   static const String routeName = 'choose_pin';
   final void Function(BuildContext, String) submitPin;
   final void Function(BuildContext) cancelAndNavigate;
-  final pinSizeStreamController = StreamController<int>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _pinVisibilityBloc = PinVisibilityBloc();
 
@@ -21,6 +19,7 @@ class ChoosePin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final preferences = IrmaRepositoryProvider.of(context).preferences;
     return YiviPinScaffold(
       key: _scaffoldKey,
       appBar: IrmaAppBar(
@@ -28,14 +27,13 @@ class ChoosePin extends StatelessWidget {
         leadingAction: () => cancelAndNavigate(context),
         leadingTooltip: MaterialLocalizations.of(context).backButtonTooltip,
       ),
-      body: StreamBuilder<int>(
-        stream: pinSizeStreamController.stream,
-        builder: (context, snapshot) {
-          final maxPinSize = snapshot.hasData ? snapshot.data! : shortPinSize;
+      body: PreferenceBuilder(
+        preference: IrmaRepositoryProvider.of(context).preferences.longPin,
+        builder: (BuildContext context, bool longPin) {
+          final maxPinSize = longPin ? longPinSize : shortPinSize;
           final pinBloc = EnterPinStateBloc(maxPinSize);
 
-          void onSubmit(String pin) {
-            IrmaPreferences.get().setLongPin(maxPinSize == longPinSize);
+          void submit(String pin) {
             submitPin(context, pin);
           }
 
@@ -43,16 +41,16 @@ class ChoosePin extends StatelessWidget {
             scaffoldKey: _scaffoldKey,
             instructionKey: 'enrollment.choose_pin.insert_pin',
             maxPinSize: maxPinSize,
-            onSubmit: onSubmit,
+            onSubmit: submit,
             pinBloc: pinBloc,
             pinVisibilityBloc: _pinVisibilityBloc,
-            onTogglePinSize: () => pinSizeStreamController.add(maxPinSize == shortPinSize ? longPinSize : shortPinSize),
+            onTogglePinSize: () => preferences.setLongPin(!longPin),
             checkSecurePin: true,
             listener: (context, state) {
               if (maxPinSize == shortPinSize &&
                   state.pin.length == maxPinSize &&
                   state.attributes.contains(SecurePinAttribute.goodEnough)) {
-                onSubmit(state.toString());
+                submit(state.toString());
               }
             },
           );

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/widgets/irma_app_bar.dart';
+import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 
-import '../../../data/irma_preferences.dart';
+import '../../../widgets/irma_app_bar.dart';
+import '../../../widgets/irma_repository_provider.dart';
 import '../../pin/yivi_pin_screen.dart';
 
 class ConfirmPin extends StatelessWidget {
@@ -16,6 +17,7 @@ class ConfirmPin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final preferences = IrmaRepositoryProvider.of(context).preferences;
     return YiviPinScaffold(
       key: _scaffoldKey,
       appBar: IrmaAppBar(
@@ -23,10 +25,10 @@ class ConfirmPin extends StatelessWidget {
         leadingAction: () => cancelAndNavigate(context),
         leadingTooltip: MaterialLocalizations.of(context).backButtonTooltip,
       ),
-      body: StreamBuilder(
-        stream: IrmaPreferences.get().getLongPin(),
-        builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-          final maxPinSize = snapshot.hasData && snapshot.data! ? longPinSize : shortPinSize;
+      body: PreferenceBuilder(
+        preference: preferences.longPin,
+        builder: (BuildContext context, bool longPin) {
+          final maxPinSize = longPin ? longPinSize : shortPinSize;
           final pinBloc = EnterPinStateBloc(maxPinSize);
 
           return YiviPinScreen(

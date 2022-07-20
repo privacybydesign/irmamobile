@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -11,20 +12,21 @@ import 'package:irmamobile/src/screens/pin/bloc/pin_state.dart';
 import 'package:irmamobile/src/widgets/pin_common/format_blocked_for.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_attempts.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_blocked.dart';
+import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 
-import '../../data/irma_preferences.dart';
 import '../../widgets/irma_app_bar.dart';
+import '../../widgets/irma_repository_provider.dart';
 import '../reset_pin/reset_pin_screen.dart';
 import 'yivi_pin_screen.dart' as yivi;
 
 class PinScreen extends StatefulWidget {
   static const String routeName = '/';
-  final PinEvent initialEvent;
+  final PinEvent? initialEvent;
 
-  const PinScreen({Key? key, required this.initialEvent}) : super(key: key);
+  const PinScreen({Key? key, this.initialEvent}) : super(key: key);
 
   @override
-  _PinScreenState createState() => _PinScreenState(initialEvent);
+  _PinScreenState createState() => _PinScreenState();
 }
 
 class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
@@ -33,16 +35,14 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
 
   late StreamSubscription _pinBlocSubscription;
 
-  _PinScreenState(PinEvent? initialEvent) {
-    if (initialEvent != null) {
-      _pinBloc.add(initialEvent);
-    }
-  }
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance?.addObserver(this);
+
+    if (widget.initialEvent != null) {
+      _pinBloc.add(widget.initialEvent);
+    }
 
     IrmaRepository.get().getBlockTime().first.then((blockedUntil) {
       if (blockedUntil != null) {
@@ -61,7 +61,6 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
               attemptsRemaining: pinState.remainingAttempts,
               onClose: () {
                 Navigator.of(context).pop();
-                // _focusNode.requestFocus(); // redo
               },
             ),
           );
@@ -127,15 +126,21 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                 subtitle = '$blockedText $blockedForTime';
               }
 
-              return StreamBuilder(
-                stream: IrmaPreferences.get().getLongPin(),
-                builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-                  final maxPinSize = (snapshot.hasData && snapshot.data!) ? yivi.longPinSize : yivi.shortPinSize;
+              // Recommended way according to the documentation
+              return PreferenceBuilder(
+                preference: IrmaRepositoryProvider.of(context).preferences.longPin,
+                builder: (BuildContext context, bool longPinKey) {
+                  final maxPinSize = longPinKey ? yivi.longPinSize : yivi.shortPinSize;
+
+                  if (kDebugMode) {
+                    print('maxPinSize: $maxPinSize');
+                  }
+
                   final pinBloc = yivi.EnterPinStateBloc(maxPinSize);
 
                   final enabled = (blockedFor.data ?? Duration.zero).inSeconds <= 0 && !state.authenticateInProgress;
 
-                  void onSubmit(String pin) {
+                  void submit(String pin) {
                     _pinBloc.add(
                       Unlock(pin),
                     );
@@ -147,14 +152,14 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                       yivi.YiviPinScreen(
                         instruction: subtitle,
                         maxPinSize: maxPinSize,
-                        onSubmit: enabled ? onSubmit : (_) {},
+                        onSubmit: enabled ? submit : (_) {},
                         pinBloc: pinBloc,
                         pinVisibilityBloc: _pinVisibilityBloc,
                         enabled: enabled,
                         onForgotPin: () => Navigator.of(context).pushNamed(ResetPinScreen.routeName),
                         listener: (context, state) {
                           if (maxPinSize == yivi.shortPinSize && state.pin.length == maxPinSize && enabled) {
-                            onSubmit(state.toString());
+                            submit(state.toString());
                           }
                         },
                       ),
