@@ -1,20 +1,18 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/irma_markdown.dart';
+
+import '../../../theme/theme.dart';
+import '../../../widgets/irma_markdown.dart';
 
 class ProgressingListItem {
   final String header;
-  final String subheader;
+  final String? subheader;
   final String text;
   final bool completed;
 
   ProgressingListItem({
-    @required this.header,
+    required this.header,
     this.subheader,
-    @required this.text,
+    required this.text,
     this.completed = false,
   });
 }
@@ -23,9 +21,9 @@ class ProgressingList extends StatelessWidget {
   final List<ProgressingListItem> data;
   final bool completed;
 
-  const ProgressingList({Key key, this.data, this.completed = false}) : super(key: key);
+  const ProgressingList({Key? key, required this.data, this.completed = false}) : super(key: key);
 
-  Color _color(BuildContext context, {bool active, bool completed}) {
+  Color _color(BuildContext context, {bool active = false, bool completed = false}) {
     if (active) return IrmaTheme.of(context).secondary;
     if (completed) return IrmaTheme.of(context).success;
     return Colors.grey;
@@ -34,9 +32,9 @@ class ProgressingList extends StatelessWidget {
   List<Widget> _buildItem(
     BuildContext context,
     ProgressingListItem item, {
-    bool last,
-    bool active,
-    bool completed,
+    bool last = false,
+    bool active = false,
+    bool completed = false,
   }) {
     return <Widget>[
       Row(
@@ -59,7 +57,7 @@ class ProgressingList extends StatelessWidget {
               children: [
                 Text(item.header,
                     style: active ? Theme.of(context).textTheme.headline3 : Theme.of(context).textTheme.bodyText2),
-                if (item.subheader != null) Text(item.subheader, style: Theme.of(context).textTheme.bodyText2),
+                if (item.subheader != null) Text(item.subheader!, style: Theme.of(context).textTheme.bodyText2),
               ],
             ),
           ),
@@ -73,7 +71,7 @@ class ProgressingList extends StatelessWidget {
         child: Container(
           decoration: last
               ? null
-              : BoxDecoration(
+              : const BoxDecoration(
                   border: Border(left: BorderSide(width: 4.0, color: Colors.grey)),
                 ),
           child: Padding(

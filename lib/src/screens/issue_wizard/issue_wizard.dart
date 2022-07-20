@@ -1,27 +1,26 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/issue_wizard.dart';
-import 'package:irmamobile/src/models/session.dart';
-import 'package:irmamobile/src/models/session_events.dart';
-import 'package:irmamobile/src/models/session_state.dart';
-import 'package:irmamobile/src/screens/issue_wizard/widgets/wizard_contents.dart';
-import 'package:irmamobile/src/screens/issue_wizard/widgets/wizard_info.dart';
-import 'package:irmamobile/src/util/handle_pointer.dart';
-import 'package:irmamobile/src/util/language.dart';
-import 'package:irmamobile/src/util/navigation.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+
+import '../../data/irma_repository.dart';
+import '../../models/issue_wizard.dart';
+import '../../models/session.dart';
+import '../../models/session_events.dart';
+import '../../models/session_state.dart';
+import '../../models/translated_value.dart';
+import '../../screens/issue_wizard/widgets/wizard_contents.dart';
+import '../../screens/issue_wizard/widgets/wizard_info.dart';
+import '../../util/handle_pointer.dart';
+import '../../util/language.dart';
+import '../../util/navigation.dart';
 
 class IssueWizardScreen extends StatefulWidget {
   static const routeName = "/issuewizard";
 
   final IssueWizardScreenArguments arguments;
-  const IssueWizardScreen({Key key, @required this.arguments}) : super(key: key);
+  const IssueWizardScreen({Key? key, required this.arguments}) : super(key: key);
 
   @override
   _IssueWizardScreenState createState() => _IssueWizardScreenState();
@@ -31,13 +30,13 @@ class IssueWizardScreenArguments {
   final String wizardID;
   final int sessionID;
 
-  IssueWizardScreenArguments({this.wizardID, this.sessionID});
+  IssueWizardScreenArguments({required this.wizardID, required this.sessionID});
 }
 
 class _IssueWizardScreenState extends State<IssueWizardScreen> {
   bool _showIntro = true;
-  int _sessionID;
-  StreamSubscription<SessionState> _sessionSubscription;
+  int? _sessionID;
+  late StreamSubscription<SessionState> _sessionSubscription;
 
   final GlobalKey _scrollviewKey = GlobalKey();
   final ScrollController _controller = ScrollController();
@@ -87,7 +86,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
 
     // If we became visible and the session that was started by the currently active wizard item
     // is done and has succeeded, we need to progress to the next item or close the wizard.
-    final state = await _repo.getSessionState(_sessionID).first;
+    final state = await _repo.getSessionState(_sessionID!).first;
     if (!(visibility.visibleFraction > 0.9 && state.status == SessionStatus.success)) {
       return;
     }
@@ -110,7 +109,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
     }
 
     final item = wizard.activeItem;
-    if (item.credential == null) {
+    if (item?.credential == null) {
       // If it is not known in advance which credential a wizard item will issue (if it issues anything at all),
       // then the only reasonable condition that we can use to consider the item to be completed is whenenver the
       // session that it starts has finished succesfully. So when the session starts, we save the session ID,
@@ -123,20 +122,20 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
     }
 
     // Handle the different wizard item types
-    switch (item.type) {
+    switch (item?.type) {
       case "credential":
-        _repo.openIssueURL(context, item.credential);
+        _repo.openIssueURL(context, item?.credential ?? '');
         break;
       case "session":
         handlePointer(
           Navigator.of(context),
-          SessionPointer(u: item.sessionURL, irmaqr: "redirect"),
+          SessionPointer(u: item?.sessionURL ?? '', irmaqr: "redirect"),
         );
         break;
       case "website":
-        item.inApp ?? true
-            ? _repo.openURL(getTranslation(context, item.url))
-            : _repo.openURLExternally(getTranslation(context, item.url));
+        item?.inApp ?? true
+            ? _repo.openURL(getTranslation(context, item?.url ?? const TranslatedValue.empty()))
+            : _repo.openURLExternally(getTranslation(context, item?.url ?? const TranslatedValue.empty()));
         break;
     }
   }
@@ -148,25 +147,25 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: _repo.getIssueWizard().where((event) => event.wizardData.id == widget.arguments.wizardID),
-      builder: (context, AsyncSnapshot<IssueWizardEvent> snapshot) {
+      stream: _repo.getIssueWizard().where((event) => event?.wizardData.id == widget.arguments.wizardID),
+      builder: (context, AsyncSnapshot<IssueWizardEvent?> snapshot) {
         if (!snapshot.hasData) {
           return Container();
         }
 
         final wizard = snapshot.data;
-        final wizardData = wizard.wizardData;
-        final logoFile = File(wizardData.logoPath ?? "");
+        final wizardData = wizard?.wizardData;
+        final logoFile = File(wizardData?.logoPath ?? '');
         final logo = logoFile.existsSync()
             ? Image.file(logoFile, excludeFromSemantics: true)
-            : Image.asset("assets/non-free/irmalogo.png", excludeFromSemantics: true);
+            : Image.asset('assets/non-free/irmalogo.png', excludeFromSemantics: true);
 
         if (_showIntro) {
           return IssueWizardInfo(
             scrollviewKey: _scrollviewKey,
             controller: _controller,
             logo: logo,
-            wizardData: wizardData,
+            wizardData: wizardData!,
             onBack: _onBackPress,
             onNext: () {
               _repo.getIssueWizardActive().add(true);
@@ -178,7 +177,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
             scrollviewKey: _scrollviewKey,
             controller: _controller,
             logo: logo,
-            wizard: wizard,
+            wizard: wizard!,
             onBack: _onBackPress,
             onNext: _onButtonPress,
             onVisibilityChanged: _onVisibilityChanged,

@@ -1,45 +1,42 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/models/issue_wizard.dart';
-import 'package:irmamobile/src/screens/issue_wizard/widgets/logo_banner_header.dart';
-import 'package:irmamobile/src/screens/issue_wizard/widgets/progressing_list.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/util/color_from_code.dart';
-import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
-import 'package:irmamobile/src/widgets/irma_markdown.dart';
 import 'package:visibility_detector/visibility_detector.dart';
+
+import '../../../models/issue_wizard.dart';
+import '../../../screens/issue_wizard/widgets/logo_banner_header.dart';
+import '../../../screens/issue_wizard/widgets/progressing_list.dart';
+import '../../../screens/issue_wizard/widgets/wizard_info.dart';
+import '../../../theme/theme.dart';
+import '../../../util/color_from_code.dart';
+import '../../../widgets/irma_bottom_bar.dart';
+import '../../../widgets/irma_markdown.dart';
 
 class IssueWizardContents extends StatelessWidget {
   final GlobalKey scrollviewKey;
   final ScrollController controller;
   final IssueWizardEvent wizard;
   final Image logo;
-  final Widget bottomBar;
   final void Function() onBack;
   final void Function(BuildContext context, IssueWizardEvent wizard) onNext;
   final void Function(VisibilityInfo visibility, IssueWizardEvent wizard) onVisibilityChanged;
 
   const IssueWizardContents({
-    this.scrollviewKey,
-    this.controller,
-    this.wizard,
-    this.logo,
-    this.bottomBar,
-    this.onBack,
-    this.onNext,
-    this.onVisibilityChanged,
+    required this.scrollviewKey,
+    required this.controller,
+    required this.wizard,
+    required this.logo,
+    required this.onBack,
+    required this.onNext,
+    required this.onVisibilityChanged,
   });
 
   Widget _buildWizard(BuildContext context, IssueWizardEvent wizard) {
-    final lang = FlutterI18n.currentLocale(context).languageCode;
+    final lang = FlutterI18n.currentLocale(context)?.languageCode ?? customWizardDefaultLanguage;
     final contents = wizard.wizardContents
         .map((item) => ProgressingListItem(
               header: item.header.translate(lang),
               text: item.text.translate(lang),
-              completed: item.completed ?? false,
+              completed: item.completed,
             ))
         .toList();
 
@@ -85,11 +82,11 @@ class IssueWizardContents extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final lang = FlutterI18n.currentLocale(context).languageCode;
+    final lang = FlutterI18n.currentLocale(context)?.languageCode ?? customWizardDefaultLanguage;
     final activeItem = wizard.activeItem;
     final buttonLabel = wizard.completed
         ? FlutterI18n.translate(context, "issue_wizard.done")
-        : activeItem.label.translate(lang,
+        : activeItem?.label.translate(lang,
             fallback: FlutterI18n.translate(
               context,
               "issue_wizard.add_credential",
@@ -102,7 +99,7 @@ class IssueWizardContents extends StatelessWidget {
       header: wizard.wizardData.title.translate(lang),
       logo: logo,
       backgroundColor: colorFromCode(wizard.wizardData.color),
-      textColor: wizard.wizardData.color == null ? null : colorFromCode(wizard.wizardData.textColor),
+      textColor: colorFromCode(wizard.wizardData.color ?? wizard.wizardData.textColor),
       onBack: onBack,
       bottomBar: IrmaBottomBar(
         primaryButtonLabel: buttonLabel,

@@ -1,15 +1,15 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/models/issue_wizard.dart';
-import 'package:irmamobile/src/screens/issue_wizard/widgets/logo_banner_header.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/util/color_from_code.dart';
-import 'package:irmamobile/src/widgets/collapsible.dart';
-import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
-import 'package:irmamobile/src/widgets/irma_markdown.dart';
+
+import '../../../models/issue_wizard.dart';
+import '../../../screens/issue_wizard/widgets/logo_banner_header.dart';
+import '../../../theme/theme.dart';
+import '../../../util/color_from_code.dart';
+import '../../../widgets/collapsible.dart';
+import '../../../widgets/irma_bottom_bar.dart';
+import '../../../widgets/irma_markdown.dart';
+
+const customWizardDefaultLanguage = 'en'; // TODO or NL?
 
 class IssueWizardInfo extends StatelessWidget {
   final GlobalKey scrollviewKey;
@@ -20,12 +20,12 @@ class IssueWizardInfo extends StatelessWidget {
   final void Function() onBack;
 
   const IssueWizardInfo({
-    this.scrollviewKey,
-    this.controller,
-    this.wizardData,
-    this.logo,
-    this.onNext,
-    this.onBack,
+    required this.scrollviewKey,
+    required this.controller,
+    required this.wizardData,
+    required this.logo,
+    required this.onNext,
+    required this.onBack,
   });
 
   Widget _buildCollapsible(BuildContext context, GlobalKey key, String header, String body) {
@@ -42,7 +42,7 @@ class IssueWizardInfo extends StatelessWidget {
 
   Widget _buildIntro(BuildContext context, IssueWizard wizardData) {
     final _collapsableKeys = List<GlobalKey>.generate(wizardData.faq.length, (int index) => GlobalKey());
-    final lang = FlutterI18n.currentLocale(context).languageCode;
+    final lang = FlutterI18n.currentLocale(context)?.languageCode ?? customWizardDefaultLanguage;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -72,10 +72,11 @@ class IssueWizardInfo extends StatelessWidget {
     return LogoBannerHeader(
       scrollviewKey: scrollviewKey,
       controller: controller,
-      header: wizardData.title.translate(FlutterI18n.currentLocale(context).languageCode),
+      header:
+          wizardData.title.translate(FlutterI18n.currentLocale(context)?.languageCode ?? customWizardDefaultLanguage),
       logo: logo,
       backgroundColor: colorFromCode(wizardData.color),
-      textColor: wizardData.color == null ? null : colorFromCode(wizardData.textColor),
+      textColor: colorFromCode(wizardData.color ?? wizardData.textColor),
       onBack: onBack,
       bottomBar: IrmaBottomBar(
         primaryButtonLabel: FlutterI18n.translate(context, "issue_wizard.add"),
