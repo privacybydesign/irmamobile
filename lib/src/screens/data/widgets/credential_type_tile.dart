@@ -27,10 +27,12 @@ class CredentialTypeTile extends StatelessWidget {
             radius: 24,
             child: SizedBox(
               height: 26,
-              child: Image.file(
-                File(credentialType.logo!),
-                excludeFromSemantics: true,
-              ),
+              child: credentialType.logo != null && credentialType.logo != ''
+                  ? Image.file(
+                      File(credentialType.logo!),
+                      excludeFromSemantics: true,
+                    )
+                  : Container(),
             ),
           ),
           SizedBox(
