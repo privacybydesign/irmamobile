@@ -10,17 +10,26 @@ class _UnsecurePinDescriptionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    return ListTile(
-      leading: Icon(
-        followsRule ? Icons.check : Icons.close,
-        color: followsRule ? Colors.green : Colors.red,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Icon(
+            followsRule ? Icons.check : Icons.close,
+            size: 16,
+            color: followsRule ? Colors.green : Colors.red,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              FlutterI18n.translate(context, descriptionKey),
+              style: theme.textTheme.bodyText2,
+            ),
+          ),
+        ],
       ),
-      horizontalTitleGap: 8.0,
-      title: Text(
-        FlutterI18n.translate(context, descriptionKey),
-        style: theme.textTheme.bodyText1?.copyWith(fontWeight: FontWeight.w400),
-      ),
-      minVerticalPadding: 4.0,
     );
   }
 }

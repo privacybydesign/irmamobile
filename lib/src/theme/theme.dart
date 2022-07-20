@@ -110,7 +110,7 @@ class IrmaThemeData {
       // bodyText1 is used for emphasizing text
       bodyText1: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: dark),
       // bodyText2 is the default text style
-      bodyText2: TextStyle(fontSize: 16.0, fontWeight: FontWeight.normal, color: dark),
+      bodyText2: TextStyle(fontSize: 16.0, height: 24.0 / 16.0, fontWeight: FontWeight.w400, color: dark),
       // overline is used for the smallest text
       overline: TextStyle(
         fontSize: 12.0,

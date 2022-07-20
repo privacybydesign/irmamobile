@@ -19,26 +19,32 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
                 FlutterI18n.translate(context, 'secure_pin.title'),
                 style: theme.textTheme.headline3?.copyWith(
                   fontWeight: FontWeight.w700,
+                  color: Colors.black,
                 ),
               ),
             ],
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              CircleAvatar(
-                backgroundColor: Colors.grey.shade300,
-                child: IconButton(
+          Align(
+            alignment: Alignment.centerRight,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                CircleAvatar(
+                  backgroundColor: Colors.grey.shade300,
+                  child: const SizedBox.square(dimension: 32),
+                ),
+                IconButton(
+                  alignment: Alignment.center,
                   onPressed: () => Navigator.pop(context),
                   icon: Icon(
                     Icons.close_outlined,
                     semanticLabel: FlutterI18n.translate(context, 'accessibility.close'),
-                    size: 16.0,
+                    size: 18,
                     color: Colors.grey.shade800,
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -47,14 +53,12 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
         alignment: Alignment.centerLeft,
         child: Text(
           FlutterI18n.translate(context, 'secure_pin.subtitle'),
-          style: theme.textTheme.headline5?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
+          style: theme.textTheme.bodyText2,
         ),
       ),
-      const Divider(),
+      SizedBox(height: theme.screenPadding),
       ..._listBuilder(context, state),
-      SizedBox(height: theme.screenPadding * 2),
+      const SizedBox(height: 32),
     ];
 
     /// OrientationBuilder builds a widget tree that can depend on
