@@ -129,8 +129,8 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
               // Recommended way according to the documentation
               return PreferenceBuilder(
                 preference: IrmaRepositoryProvider.of(context).preferences.longPin,
-                builder: (BuildContext context, bool longPinKey) {
-                  final maxPinSize = longPinKey ? yivi.longPinSize : yivi.shortPinSize;
+                builder: (BuildContext context, bool longPin) {
+                  final maxPinSize = longPin ? yivi.longPinSize : yivi.shortPinSize;
 
                   if (kDebugMode) {
                     print('maxPinSize: $maxPinSize');
