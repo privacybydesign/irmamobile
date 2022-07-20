@@ -1,11 +1,8 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import "package:collection/collection.dart";
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:sliver_tools/sliver_tools.dart';
 
-import '../../data/irma_repository.dart';
 import '../../models/credentials.dart';
 import '../../models/irma_configuration.dart';
 import '../../theme/theme.dart';
@@ -15,46 +12,23 @@ import '../add_data/add_data_screen.dart';
 import '../home/widgets/irma_action_card.dart';
 import 'widgets/credential_category_list.dart';
 
-class DataTab extends StatefulWidget {
-  @override
-  State<DataTab> createState() => _DataTabState();
+List<CredentialType> _distinctCredentialTypes(Iterable<CredentialType> credentialTypes) {
+  var idSet = <String>{};
+  var distinct = <CredentialType>[];
+  for (var credType in credentialTypes) {
+    if (idSet.add(credType.fullId)) {
+      distinct.add(credType);
+    }
+  }
+  return distinct;
 }
 
-class _DataTabState extends State<DataTab> {
-  late final String lang;
-  late final IrmaRepository repo;
-  late final StreamSubscription<Credentials> credentialStreamSubscription;
-
-  List<Credential> credentials = [];
-  Map<String?, List<CredentialType>> credentialTypesByCategoryNames = {};
-
-  void _credentialStreamListener(Credentials credentials) => setState(
-        () => (credentialTypesByCategoryNames = groupBy(
-          credentials.values.map((e) => e.info.credentialType),
-          (CredentialType credType) =>
-              credType.category.hasTranslation(lang) ? credType.category.translate(lang) : null,
-        )),
-      );
-
-  @override
-  void initState() {
-    super.initState();
-    SchedulerBinding.instance?.addPostFrameCallback((_) {
-      lang = FlutterI18n.currentLocale(context)!.languageCode;
-      repo = IrmaRepositoryProvider.of(context);
-      credentialStreamSubscription = repo.getCredentials().listen(_credentialStreamListener);
-    });
-  }
-
-  @override
-  void dispose() {
-    credentialStreamSubscription.cancel();
-    super.dispose();
-  }
-
+class DataTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final repo = IrmaRepositoryProvider.of(context);
     final theme = IrmaTheme.of(context);
+    final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     return CustomScrollView(
       slivers: [
@@ -83,21 +57,40 @@ class _DataTabState extends State<DataTab> {
             ),
           ),
         ),
-
-        //Render credential category list for each category that is not 'other'
-        for (var credentialTypesByCategory
-            in credentialTypesByCategoryNames.entries.where((entry) => entry.key != null))
-          CredentialCategoryList(
-            categoryName: credentialTypesByCategory.key!,
-            credentialTypes: credentialTypesByCategory.value,
-          ),
-
-        // If 'other' credentials are present, render them last
-        if (credentialTypesByCategoryNames.containsKey(null))
-          CredentialCategoryList(
-            categoryName: FlutterI18n.translate(context, 'data.category_other'),
-            credentialTypes: credentialTypesByCategoryNames[null]!,
-          )
+        StreamBuilder(
+          stream: repo.getCredentials(),
+          builder: (context, AsyncSnapshot<Credentials> snapshot) {
+            if (!snapshot.hasData) {
+              return SliverToBoxAdapter(
+                child: Container(),
+              );
+            }
+            final credentials = snapshot.data;
+            final credentialTypesByCategoryNames = groupBy(
+              _distinctCredentialTypes(credentials!.values.map((e) => e.info.credentialType)),
+              (CredentialType credType) =>
+                  credType.category.hasTranslation(lang) ? credType.category.translate(lang) : null,
+            );
+            return MultiSliver(
+              children: [
+                for (var credentialTypesByCategory
+                    in credentialTypesByCategoryNames.entries.where((entry) => entry.key != null))
+                  CredentialCategoryList(
+                    categoryName: credentialTypesByCategory.key!,
+                    credentialTypes: credentialTypesByCategory.value,
+                  ),
+                // If 'other' credentials are present, render them last
+                if (credentialTypesByCategoryNames.containsKey(null))
+                  CredentialCategoryList(
+                    categoryName: FlutterI18n.translate(context, 'data.category_other'),
+                    credentialTypes: _distinctCredentialTypes(
+                      credentialTypesByCategoryNames[null]!,
+                    ),
+                  )
+              ],
+            );
+          },
+        ),
       ],
     );
   }

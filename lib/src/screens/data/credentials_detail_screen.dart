@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 
 import '../../data/irma_repository.dart';
 import '../../models/credential_events.dart';
@@ -26,36 +25,27 @@ class CredentialsDetailScreen extends StatefulWidget {
   });
 
   @override
-  State<CredentialsDetailScreen> createState() => _DataDetailScreenState();
+  State<CredentialsDetailScreen> createState() => _CredentialsDetailScreenState();
 }
 
-class _DataDetailScreenState extends State<CredentialsDetailScreen> {
+class _CredentialsDetailScreenState extends State<CredentialsDetailScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
   late final IrmaRepository repo;
-  late final StreamSubscription<Credentials> credentialStreamSubscription;
-  List<Credential> credentials = [];
 
-  void _credentialStreamListener(Credentials newCredentials) => setState(() {
-        credentials =
-            newCredentials.values.where((cred) => cred.info.credentialType.fullId == widget.credentialTypeId).toList();
-        if (credentials.isEmpty) Navigator.of(context).pop();
-      });
-
-  _showCredentialOptionsBottomSheet(Credential cred) async => showModalBottomSheet<void>(
+  _showCredentialOptionsBottomSheet(BuildContext context, Credential cred) async => showModalBottomSheet<void>(
         context: context,
         builder: (context) => IrmaCredentialCardOptionsBottomSheet(
           onDelete: cred.info.credentialType.issueUrl.isEmpty
               ? null
               : () async {
                   Navigator.of(context).pop();
-                  await _showConfirmDeleteDialog(context, cred);
+                  await _showConfirmDeleteDialog(_scaffoldKey.currentContext!, cred);
                 },
           onReobtain: cred.info.credentialType.disallowDelete
               ? null
               : () {
                   Navigator.of(context).pop();
-                  _reobtainCredential(cred);
+                  _reobtainCredential(context, cred);
                 },
         ),
       );
@@ -67,12 +57,12 @@ class _DataDetailScreenState extends State<CredentialsDetailScreen> {
         ) ??
         false;
     if (confirmed) {
-      _deleteCredential(credential);
+      _deleteCredential(context, credential);
       _showDeletedSnackbar();
     }
   }
 
-  void _deleteCredential(Credential credential) {
+  void _deleteCredential(BuildContext context, Credential credential) {
     if (!credential.info.credentialType.disallowDelete) {
       repo.bridgedDispatch(
         DeleteCredentialEvent(hash: credential.hash),
@@ -82,7 +72,7 @@ class _DataDetailScreenState extends State<CredentialsDetailScreen> {
 
   void _showDeletedSnackbar() {
     final theme = IrmaTheme.of(context);
-    ScaffoldMessenger.of(_scaffoldKey.currentContext!).showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: TranslatedText(
           'credential.options.delete_success',
@@ -94,30 +84,16 @@ class _DataDetailScreenState extends State<CredentialsDetailScreen> {
     );
   }
 
-  void _reobtainCredential(Credential credential) {
+  void _reobtainCredential(BuildContext context, Credential credential) {
     if (credential.info.credentialType.issueUrl.isNotEmpty) {
       repo.openIssueURL(context, credential.info.fullId);
     }
   }
 
   @override
-  void initState() {
-    super.initState();
-    SchedulerBinding.instance?.addPostFrameCallback((_) {
-      repo = IrmaRepositoryProvider.of(context);
-      credentialStreamSubscription = repo.getCredentials().listen(_credentialStreamListener);
-    });
-  }
-
-  @override
-  void dispose() {
-    credentialStreamSubscription.cancel();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    repo = IrmaRepositoryProvider.of(context);
 
     return Scaffold(
       key: _scaffoldKey,
@@ -128,36 +104,54 @@ class _DataDetailScreenState extends State<CredentialsDetailScreen> {
         padding: EdgeInsets.symmetric(
           horizontal: theme.defaultSpacing,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
-              child: Text(
-                credentials.isNotEmpty ? getTranslation(context, credentials.first.info.credentialType.name) : '',
-                style: theme.textTheme.headline4,
-              ),
-            ),
-            ...credentials
-                .map(
-                  (cred) => IrmaCredentialCard.fromCredential(
-                    cred,
-                    headerTrailing:
-                        // Credential must either be reobtainable or deletable
-                        // for the options bottom sheet to be accessible
-                        cred.info.credentialType.disallowDelete && cred.info.credentialType.issueUrl.isEmpty
-                            ? null
-                            : IconButton(
-                                onPressed: () => _showCredentialOptionsBottomSheet(cred),
-                                icon: const Icon(
-                                  Icons.more_horiz,
-                                ),
-                              ),
-                    expiryDate: CardExpiryDate(cred.expires),
+        child: StreamBuilder(
+          stream: repo.getCredentials(),
+          builder: (context, AsyncSnapshot<Credentials> snapshot) {
+            if (!snapshot.hasData) return Container();
+
+            final filteredCredentials = snapshot.data!.values
+                .where((cred) => cred.info.credentialType.fullId == widget.credentialTypeId)
+                .toList();
+
+            if (filteredCredentials.isEmpty) {
+              WidgetsBinding.instance?.addPostFrameCallback((_) => Navigator.pop(context));
+              return Container();
+            }
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
+                  child: Text(
+                    filteredCredentials.isNotEmpty
+                        ? getTranslation(context, filteredCredentials.first.info.credentialType.name)
+                        : '',
+                    style: theme.textTheme.headline4,
                   ),
-                )
-                .toList(),
-          ],
+                ),
+                ...filteredCredentials
+                    .map(
+                      (cred) => IrmaCredentialCard.fromCredential(
+                        cred,
+                        headerTrailing:
+                            // Credential must either be reobtainable or deletable
+                            // for the options bottom sheet to be accessible
+                            cred.info.credentialType.disallowDelete && cred.info.credentialType.issueUrl.isEmpty
+                                ? null
+                                : IconButton(
+                                    onPressed: () => _showCredentialOptionsBottomSheet(context, cred),
+                                    icon: const Icon(
+                                      Icons.more_horiz,
+                                    ),
+                                  ),
+                        expiryDate: CardExpiryDate(cred.expires),
+                      ),
+                    )
+                    .toList(),
+              ],
+            );
+          },
         ),
       ),
     );
