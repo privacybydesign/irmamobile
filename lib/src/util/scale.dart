@@ -25,11 +25,3 @@ extension YiviDesignInt on int {
     return this * factor.clamp(_smallestViewportWidth, _largestViewportWidth);
   }
 }
-
-extension YiviDesignTextStyle on TextStyle {
-  TextStyle scale(BuildContext context) {
-    final factor = shortestSide(context) / designScreenWidth;
-    this.copyWith(fontSize: factor.clamp(_smallestViewportWidth, _largestViewportWidth).toDouble() * (fontSize ?? 0));
-    return this;
-  }
-}
