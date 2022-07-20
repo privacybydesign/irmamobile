@@ -104,7 +104,11 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       GestureDetector(
-                        onTap: () => onEvent(DisclosurePermissionChangeChoicePressed(disconIndex: choiceEntry.key)),
+                        onTap: () => onEvent(
+                          DisclosurePermissionChangeChoicePressed(
+                            disconIndex: choiceEntry.key,
+                          ),
+                        ),
                         child: TranslatedText(
                           'disclosure_permission.change_choice',
                           style: theme.hyperlinkTextStyle,
