@@ -59,7 +59,7 @@ class ProvidedDisclosurePermission extends StatelessWidget {
       },
       pages: [
         MaterialPage(
-          child: BlocListener<DisclosurePermissionBloc, DisclosurePermissionBlocState>(
+          child: BlocConsumer<DisclosurePermissionBloc, DisclosurePermissionBlocState>(
             listener: (context, state) async {
               final navigator = Navigator.of(context);
 
@@ -75,44 +75,42 @@ class ProvidedDisclosurePermission extends StatelessWidget {
                 addEvent(DisclosurePermissionDialogDismissed());
               }
             },
-            child: BlocBuilder<DisclosurePermissionBloc, DisclosurePermissionBlocState>(
-              builder: (context, blocState) {
-                var state = blocState;
-                if (state is DisclosurePermissionWrongCredentialsObtained) {
-                  state = state.parentState;
-                }
+            builder: (context, blocState) {
+              var state = blocState;
+              if (state is DisclosurePermissionWrongCredentialsObtained) {
+                state = state.parentState;
+              }
 
-                if (state is DisclosurePermissionIssueWizard) {
-                  return DisclosurePermissionIssueWizardScreen(
-                    requestor: requestor,
-                    state: state,
-                    onEvent: addEvent,
-                  );
-                } else if (state is DisclosurePermissionMakeChoice) {
-                  return DisclosurePermissionMakeChoiceScreen(
-                    state: state,
-                    onEvent: addEvent,
-                  );
-                } else if (state is DisclosurePermissionObtainCredentials) {
-                  return DisclosurePermissionObtainCredentialsScreen(
-                    state: state,
-                    onEvent: addEvent,
-                  );
-                } else if (state is DisclosurePermissionChoices) {
-                  return DisclosurePermissionChoicesScreen(
-                    requestor: requestor,
-                    state: state,
-                    onEvent: addEvent,
-                  );
-                }
-                // If state is loading/initial show centered loading indicator
-                return Scaffold(
-                  body: Center(
-                    child: LoadingIndicator(),
-                  ),
+              if (state is DisclosurePermissionIssueWizard) {
+                return DisclosurePermissionIssueWizardScreen(
+                  requestor: requestor,
+                  state: state,
+                  onEvent: addEvent,
                 );
-              },
-            ),
+              } else if (state is DisclosurePermissionMakeChoice) {
+                return DisclosurePermissionMakeChoiceScreen(
+                  state: state,
+                  onEvent: addEvent,
+                );
+              } else if (state is DisclosurePermissionObtainCredentials) {
+                return DisclosurePermissionObtainCredentialsScreen(
+                  state: state,
+                  onEvent: addEvent,
+                );
+              } else if (state is DisclosurePermissionChoices) {
+                return DisclosurePermissionChoicesScreen(
+                  requestor: requestor,
+                  state: state,
+                  onEvent: addEvent,
+                );
+              }
+              // If state is loading/initial show centered loading indicator
+              return Scaffold(
+                body: Center(
+                  child: LoadingIndicator(),
+                ),
+              );
+            },
           ),
         ),
       ],
