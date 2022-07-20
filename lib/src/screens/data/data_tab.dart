@@ -65,9 +65,14 @@ class DataTab extends StatelessWidget {
                 child: Container(),
               );
             }
-            final credentials = snapshot.data;
+            final filteredCredentials = snapshot.data!.values.where(
+              (element) => !element.isKeyshareCredential,
+            );
+
             final credentialTypesByCategoryNames = groupBy(
-              _distinctCredentialTypes(credentials!.values.map((e) => e.info.credentialType)),
+              _distinctCredentialTypes(
+                filteredCredentials.map((e) => e.info.credentialType),
+              ),
               (CredentialType credType) =>
                   credType.category.hasTranslation(lang) ? credType.category.translate(lang) : null,
             );
