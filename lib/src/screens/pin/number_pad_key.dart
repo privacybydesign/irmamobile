@@ -14,15 +14,13 @@ class _NumberPadKey extends StatelessWidget {
     /// On devices smaller than the screen width of the design, e.g. w320
     /// if you pass a constant fontSize, then the text will take up
     /// too much space
-    final fontSize = 32.scale(context);
+    final fontSize = 28.scale(context);
 
     return Stack(
       alignment: Alignment.center,
       children: [
-        Wrap(
-          direction: Axis.vertical,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          alignment: WrapAlignment.center,
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               '$number',
