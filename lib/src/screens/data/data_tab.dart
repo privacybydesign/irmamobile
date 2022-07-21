@@ -12,18 +12,18 @@ import '../add_data/add_data_screen.dart';
 import '../home/widgets/irma_action_card.dart';
 import 'widgets/credential_category_list.dart';
 
-List<CredentialType> _distinctCredentialTypes(Iterable<CredentialType> credentialTypes) {
-  var idSet = <String>{};
-  var distinct = <CredentialType>[];
-  for (var credType in credentialTypes) {
-    if (idSet.add(credType.fullId)) {
-      distinct.add(credType);
-    }
-  }
-  return distinct;
-}
-
 class DataTab extends StatelessWidget {
+  List<CredentialType> _distinctCredentialTypes(Iterable<CredentialType> credentialTypes) {
+    var idSet = <String>{};
+    var distinct = <CredentialType>[];
+    for (var credType in credentialTypes) {
+      if (idSet.add(credType.fullId)) {
+        distinct.add(credType);
+      }
+    }
+    return distinct;
+  }
+
   @override
   Widget build(BuildContext context) {
     final repo = IrmaRepositoryProvider.of(context);
