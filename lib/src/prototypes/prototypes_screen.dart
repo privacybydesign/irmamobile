@@ -15,8 +15,8 @@ import 'prototype_pin_screen.dart';
 
 class PrototypesScreen extends StatelessWidget {
   static const routeName = '/';
-  final EnterPinStateBloc pinBloc5 = EnterPinStateBloc(5);
-  final EnterPinStateBloc pinBloc16 = EnterPinStateBloc(16);
+  final pinBloc5 = EnterPinStateBloc(5);
+  final pinBloc16 = EnterPinStateBloc(16);
 
   Widget _buildTile(BuildContext context, String title, Widget screen) => ListTile(
         title: Text(title),
