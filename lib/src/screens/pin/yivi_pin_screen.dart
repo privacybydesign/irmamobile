@@ -287,8 +287,7 @@ class YiviPinScreen extends StatelessWidget {
           bloc: pinBloc,
           listener: listener ?? (_, __) {},
           builder: (context, state) {
-            final showSecurePinText =
-                state.pin.length >= shortPinSize && !state.attributes.contains(SecurePinAttribute.goodEnough);
+            final showSecurePinText = state.pin.length >= shortPinSize && !state.goodEnough;
             if (Orientation.portrait == orientation) {
               return Column(
                 children: bodyPortrait(showSecurePinText),

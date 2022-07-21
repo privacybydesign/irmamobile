@@ -22,19 +22,19 @@ void main() {
       bloc5.add(pin);
       final state = await bloc5.stream.first;
       expect(state.attributes.contains(SecurePinAttribute.containsThreeUnique), false);
-      expect(state.attributes.contains(SecurePinAttribute.goodEnough), false);
+      expect(state.goodEnough, false);
     }
     for (final pin in pins16) {
       bloc16.add(pin);
       final state = await bloc16.stream.first;
       expect(state.attributes.contains(SecurePinAttribute.containsThreeUnique), false);
-      expect(state.attributes.contains(SecurePinAttribute.goodEnough), false);
+      expect(state.goodEnough, false);
     }
     for (final pin in validPins5) {
       bloc5.add(pin);
       final state = await bloc5.stream.first;
       expect(state.attributes.contains(SecurePinAttribute.containsThreeUnique), true);
-      expect(state.attributes.contains(SecurePinAttribute.goodEnough), false);
+      expect(state.goodEnough, false);
     }
   });
 
@@ -54,7 +54,7 @@ void main() {
       bloc5.add(pin);
       final state = await bloc5.stream.first;
       expect(state.attributes.contains(SecurePinAttribute.notAbcabNorAbcba), false);
-      expect(state.attributes.contains(SecurePinAttribute.goodEnough), false);
+      expect(state.goodEnough, false);
     }
   });
 
@@ -77,13 +77,13 @@ void main() {
       bloc5.add(pin);
       final state = await bloc5.stream.first;
       expect(state.attributes.contains(SecurePinAttribute.mustNotAscNorDesc), false);
-      expect(state.attributes.contains(SecurePinAttribute.goodEnough), false);
+      expect(state.goodEnough, false);
     }
 
     for (final pin in validPins5) {
       bloc5.add(pin);
       final state = await bloc5.stream.first;
-      expect(state.attributes.contains(SecurePinAttribute.goodEnough), true);
+      expect(state.goodEnough, true);
     }
   });
 
@@ -100,7 +100,7 @@ void main() {
     for (final pin in allowed) {
       bloc16.add(pin);
       final state = await bloc16.stream.first;
-      expect(state.attributes.contains(SecurePinAttribute.goodEnough), true);
+      expect(state.goodEnough, true);
     }
   });
 
@@ -120,7 +120,7 @@ void main() {
       bloc16.add(pin);
       final state = await bloc16.stream.first;
       expect(state.attributes.contains(SecurePinAttribute.mustContainValidSubset), false);
-      expect(state.attributes.contains(SecurePinAttribute.goodEnough), false);
+      expect(state.goodEnough, false);
     }
   });
 }

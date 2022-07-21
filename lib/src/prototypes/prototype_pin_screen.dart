@@ -82,7 +82,7 @@ class _PinScreen extends State<PinScreenTest> {
         onForgotPin: () => Navigator.pop(context),
         onTogglePinSize: widget.onTogglePinSize,
         listener: (context, state) {
-          if (state.attributes.contains(SecurePinAttribute.goodEnough) && shortPinSize == state.pin.length) {
+          if (state.goodEnough && shortPinSize == state.pin.length) {
             Navigator.pop(context);
           }
         },

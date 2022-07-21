@@ -17,45 +17,40 @@ extension on PinQuality {
     if (_pinMustNotContainPatternAbcab(pin) && _pinMustNotContainPatternAbcba(pin)) {
       add(SecurePinAttribute.notAbcabNorAbcba);
     }
-
-    if (containsAll({
-      SecurePinAttribute.containsThreeUnique,
-      SecurePinAttribute.notAbcabNorAbcba,
-      SecurePinAttribute.mustNotAscNorDesc
-    })) {
-      this
-        ..clear()
-        ..add(SecurePinAttribute.goodEnough);
-    }
   }
+
+  bool _hasCompleteSecurePinAttributes() => containsAll({
+        SecurePinAttribute.containsThreeUnique,
+        SecurePinAttribute.notAbcabNorAbcba,
+        SecurePinAttribute.mustNotAscNorDesc
+      });
 }
 
 enum SecurePinAttribute {
-  atLeast5AtMost16,
   containsThreeUnique,
   mustNotAscNorDesc,
   notAbcabNorAbcba,
   mustContainValidSubset,
-  goodEnough,
 }
 
 class EnterPinState {
   final Pin pin;
   final PinQuality attributes;
+  final bool goodEnough;
+  final String _string;
 
-  static final empty = EnterPinState(const [], const {});
+  static final empty = EnterPinState(const [], const {}, false);
 
-  EnterPinState(this.pin, this.attributes);
+  EnterPinState(this.pin, this.attributes, this.goodEnough) : _string = pin.join();
 
   @override
   String toString() {
-    return pin.join();
+    return _string;
   }
 }
 
 class EnterPinStateBloc extends Bloc<Pin, EnterPinState> {
   final int maxPinSize;
-  Pin _lastPin = EnterPinState.empty.pin;
 
   EnterPinStateBloc(this.maxPinSize) : super(EnterPinState.empty);
 
@@ -64,48 +59,47 @@ class EnterPinStateBloc extends Bloc<Pin, EnterPinState> {
     super.add(p.length > maxPinSize ? p.sublist(0, maxPinSize) : p);
   }
 
-  /// For some reason the stream survives widget changes
-  /// across instances of this Bloc
-  /// via an unconst PinState.empty, when yielding
-  /// so now we const PinState.empty and also
-  /// deep-copy clone the intermediate state
   void update(int i) {
-    if (_lastPin.isNotEmpty && i < 0) {
-      add([..._lastPin]..removeLast());
+    Pin previousPin = state.pin;
+    if (previousPin.isNotEmpty && i < 0) {
+      add([...previousPin]..removeLast());
     }
 
-    if (_lastPin.length < maxPinSize && i >= 0) {
-      add([..._lastPin, i]);
+    if (previousPin.length < maxPinSize && i >= 0) {
+      add([...previousPin, i]);
     }
   }
 
   @override
   Stream<EnterPinState> mapEventToState(Pin pin) async* {
     final set = <SecurePinAttribute>{};
-    _lastPin = pin;
+    var goodEnough = false;
+    // _lastPin = pinn;
 
     if (pin.length < shortPinSize) {
-      yield EnterPinState(pin, set);
+      yield EnterPinState(pin, set, goodEnough);
     }
 
     if (pin.length == shortPinSize) {
       set._applyRules(pin);
+      goodEnough = set._hasCompleteSecurePinAttributes();
     } else if (pin.length >= shortPinSize) {
       for (int i = 0; i < pin.length - 4; i++) {
         final sub = pin.sublist(i, i + shortPinSize);
 
-        /// report the last pin secure attributes
+        // report the last pin secure attributes
         set
           ..clear()
           .._applyRules(sub);
 
-        /// break when one subset is valid
-        if (set.contains(SecurePinAttribute.goodEnough)) {
+        // break when one subset is valid
+        goodEnough = set._hasCompleteSecurePinAttributes();
+        if (goodEnough) {
           break;
         }
       }
     }
 
-    yield EnterPinState(pin, set);
+    yield EnterPinState(pin, set, goodEnough);
   }
 }
