@@ -1,6 +1,3 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
@@ -37,20 +34,19 @@ class ChangePinScreen extends StatelessWidget {
 class ProvidedChangePinScreen extends StatefulWidget {
   final ChangePinBloc bloc;
 
-  const ProvidedChangePinScreen({this.bloc}) : super();
+  const ProvidedChangePinScreen({required this.bloc}) : super();
 
   @override
-  State<StatefulWidget> createState() => ProvidedChangePinScreenState(bloc: bloc);
+  State<StatefulWidget> createState() => ProvidedChangePinScreenState();
 }
 
 class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
   final IrmaRepository _repo = IrmaRepository.get();
-  final ChangePinBloc bloc;
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   final FocusNode currentPinFocusNode = FocusNode();
   final FocusNode newPinFocusNode = FocusNode();
 
-  ProvidedChangePinScreenState({this.bloc}) : super();
+  ProvidedChangePinScreenState() : super();
 
   Map<String, WidgetBuilder> _routeBuilders() {
     return {
@@ -64,24 +60,24 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
   }
 
   void submitOldPin(String pin) {
-    bloc.add(OldPinEntered(pin: pin));
+    widget.bloc.add(OldPinEntered(pin: pin));
   }
 
   void toggleLongPin() {
-    bloc.add(ToggleLongPin());
+    widget.bloc.add(ToggleLongPin());
   }
 
   void chooseNewPin(BuildContext context, String pin) {
-    bloc.add(NewPinChosen(pin: pin));
-    navigatorKey.currentState.pushNamed(ConfirmPin.routeName);
+    widget.bloc.add(NewPinChosen(pin: pin));
+    navigatorKey.currentState?.pushNamed(ConfirmPin.routeName);
   }
 
   void confirmNewPin(String pin) {
-    bloc.add(NewPinConfirmed(pin: pin));
+    widget.bloc.add(NewPinConfirmed(pin: pin));
   }
 
   void cancel() {
-    bloc.add(ChangePinCanceled());
+    widget.bloc.add(ChangePinCanceled());
   }
 
   @override
@@ -97,9 +93,9 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
         },
         listener: (BuildContext context, ChangePinState state) {
           if (state.newPinConfirmed == ValidationState.valid) {
-            navigatorKey.currentState.pushNamedAndRemoveUntil(Success.routeName, (_) => false);
+            navigatorKey.currentState?.pushNamedAndRemoveUntil(Success.routeName, (_) => false);
           } else if (state.newPinConfirmed == ValidationState.invalid) {
-            navigatorKey.currentState.pop();
+            navigatorKey.currentState?.pop();
             // show error overlay
             showDialog(
               context: context,
@@ -111,25 +107,25 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
             );
           } else if (state.newPinConfirmed == ValidationState.error) {
             if (state.error != null) {
-              navigatorKey.currentState.pushReplacement(MaterialPageRoute(
+              navigatorKey.currentState?.pushReplacement(MaterialPageRoute(
                 builder: (context) => SessionErrorScreen(
                   error: state.error,
-                  onTapClose: () => navigatorKey.currentState.pop(),
+                  onTapClose: () => navigatorKey.currentState?.pop(),
                 ),
               ));
             } else {
-              navigatorKey.currentState.pushReplacement(MaterialPageRoute(
+              navigatorKey.currentState?.pushReplacement(MaterialPageRoute(
                 builder: (context) => ErrorScreen(
                   details: state.errorMessage,
-                  onTapClose: () => navigatorKey.currentState.pop(),
+                  onTapClose: () => navigatorKey.currentState?.pop(),
                 ),
               ));
             }
           } else if (state.oldPinVerified == ValidationState.valid) {
-            navigatorKey.currentState.pushReplacementNamed(ChoosePin.routeName);
+            navigatorKey.currentState?.pushReplacementNamed(ChoosePin.routeName);
           } else if (state.oldPinVerified == ValidationState.invalid) {
             // go back
-            navigatorKey.currentState.pop();
+            navigatorKey.currentState?.pop();
             // and indicate mistake to user
             if (state.attemptsRemaining != 0) {
               showDialog(
@@ -141,18 +137,18 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
               _repo.lock(unblockTime: state.blockedUntil);
             }
           } else if (state.oldPinVerified == ValidationState.error) {
-            navigatorKey.currentState.pushReplacement(MaterialPageRoute(
+            navigatorKey.currentState?.pushReplacement(MaterialPageRoute(
               builder: (context) => SessionErrorScreen(
                 error: state.error,
                 onTapClose: () {
-                  navigatorKey.currentState.pop();
+                  navigatorKey.currentState?.pop();
                 },
               ),
             ));
           } else if (state.updatingPin == true) {
-            navigatorKey.currentState.pushNamed(UpdatingPin.routeName);
+            navigatorKey.currentState?.pushNamed(UpdatingPin.routeName);
           } else if (state.validatingPin == true) {
-            navigatorKey.currentState.pushNamed(ValidatingPin.routeName);
+            navigatorKey.currentState?.pushNamed(ValidatingPin.routeName);
           }
         },
         child: HeroControllerScope(
@@ -166,7 +162,10 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
               }
               final child = routeBuilders[settings.name];
 
-              return MaterialPageRoute(builder: child, settings: settings);
+              // only assert in debug mode
+              assert(child != null);
+
+              return MaterialPageRoute(builder: child!, settings: settings);
             },
           ),
         ));
