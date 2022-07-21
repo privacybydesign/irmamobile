@@ -531,7 +531,7 @@
   },
   "secure_pin": {
     "info_button": "PIN possibly not secure",
-    "title": "Secure PIN",
+    "title": "Choose PIN",
     "subtitle": "A secure PIN has the following properties:",
     "rules": {
       "at_least_5_at_most_16": "Contains at least 5, at most 16 characters",
