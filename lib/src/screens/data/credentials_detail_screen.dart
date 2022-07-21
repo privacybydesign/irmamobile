@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../data/irma_repository.dart';
 import '../../models/credential_events.dart';
 import '../../models/credentials.dart';
 import '../../theme/theme.dart';
@@ -30,7 +29,6 @@ class CredentialsDetailScreen extends StatefulWidget {
 
 class _CredentialsDetailScreenState extends State<CredentialsDetailScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  late final IrmaRepository repo;
 
   _showCredentialOptionsBottomSheet(BuildContext context, Credential cred) async => showModalBottomSheet<void>(
         context: context,
@@ -64,7 +62,7 @@ class _CredentialsDetailScreenState extends State<CredentialsDetailScreen> {
 
   void _deleteCredential(BuildContext context, Credential credential) {
     if (!credential.info.credentialType.disallowDelete) {
-      repo.bridgedDispatch(
+      IrmaRepositoryProvider.of(context).bridgedDispatch(
         DeleteCredentialEvent(hash: credential.hash),
       );
     }
@@ -86,14 +84,14 @@ class _CredentialsDetailScreenState extends State<CredentialsDetailScreen> {
 
   void _reobtainCredential(BuildContext context, Credential credential) {
     if (credential.info.credentialType.issueUrl.isNotEmpty) {
-      repo.openIssueURL(context, credential.info.fullId);
+      IrmaRepositoryProvider.of(context).openIssueURL(context, credential.info.fullId);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    repo = IrmaRepositoryProvider.of(context);
+    final repo = IrmaRepositoryProvider.of(context);
 
     return Scaffold(
       key: _scaffoldKey,
@@ -140,6 +138,7 @@ class _CredentialsDetailScreenState extends State<CredentialsDetailScreen> {
                             cred.info.credentialType.disallowDelete && cred.info.credentialType.issueUrl.isEmpty
                                 ? null
                                 : IconButton(
+                                    padding: EdgeInsets.zero,
                                     onPressed: () => _showCredentialOptionsBottomSheet(context, cred),
                                     icon: const Icon(
                                       Icons.more_horiz,
