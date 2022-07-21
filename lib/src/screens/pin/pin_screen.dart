@@ -81,7 +81,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
             },
           ),
         ));
-      } else {}
+      }
     });
   }
 
