@@ -98,7 +98,7 @@ class AddDataScreen extends StatelessWidget {
               (ct) => ct.isInCredentialStore,
             );
 
-            final otherTranslation = FlutterI18n.translate(context, 'data.add.category_other');
+            final otherTranslation = FlutterI18n.translate(context, 'data.category_other');
             final credentialTypesByCategory = groupBy<CredentialType, String>(
               credentialTypes,
               (ct) => ct.category.isNotEmpty ? getTranslation(context, ct.category) : otherTranslation,
