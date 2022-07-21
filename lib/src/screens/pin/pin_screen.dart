@@ -17,7 +17,7 @@ import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../reset_pin/reset_pin_screen.dart';
-import 'yivi_pin_screen.dart' as yivi;
+import 'yivi_pin_screen.dart';
 
 class PinScreen extends StatefulWidget {
   static const String routeName = '/';
@@ -31,7 +31,7 @@ class PinScreen extends StatefulWidget {
 
 class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
   final _pinBloc = PinBloc();
-  final _pinVisibilityBloc = yivi.PinVisibilityBloc();
+  final _pinVisibilityBloc = PinVisibilityBloc();
 
   late StreamSubscription _pinBlocSubscription;
 
@@ -111,7 +111,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
           return Container();
         }
 
-        return yivi.YiviPinScaffold(
+        return YiviPinScaffold(
           appBar: const IrmaAppBar(
             noLeading: true,
             titleTranslationKey: "pin.title",
@@ -130,13 +130,13 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
               return PreferenceBuilder(
                 preference: IrmaRepositoryProvider.of(context).preferences.longPin,
                 builder: (BuildContext context, bool longPin) {
-                  final maxPinSize = longPin ? yivi.longPinSize : yivi.shortPinSize;
+                  final maxPinSize = longPin ? longPinSize : shortPinSize;
 
                   if (kDebugMode) {
                     print('maxPinSize: $maxPinSize');
                   }
 
-                  final pinBloc = yivi.EnterPinStateBloc(maxPinSize);
+                  final pinBloc = EnterPinStateBloc(maxPinSize);
 
                   final enabled = (blockedFor.data ?? Duration.zero).inSeconds <= 0 && !state.authenticateInProgress;
 
@@ -149,7 +149,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                   return Stack(
                     alignment: Alignment.center,
                     children: [
-                      yivi.YiviPinScreen(
+                      YiviPinScreen(
                         instruction: subtitle,
                         maxPinSize: maxPinSize,
                         onSubmit: enabled ? submit : (_) {},
@@ -158,7 +158,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                         enabled: enabled,
                         onForgotPin: () => Navigator.of(context).pushNamed(ResetPinScreen.routeName),
                         listener: (context, state) {
-                          if (maxPinSize == yivi.shortPinSize && state.pin.length == maxPinSize && enabled) {
+                          if (maxPinSize == shortPinSize && state.pin.length == maxPinSize && enabled) {
                             submit(state.toString());
                           }
                         },
