@@ -61,9 +61,9 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
       const SizedBox(height: 32),
     ];
 
-    /// OrientationBuilder builds a widget tree that can depend on
-    /// the parent widget's orientation (distinct from the device orientation).
-    /// In this case, OrientationBuilder gives false results. Hence MediaQuery.
+    // OrientationBuilder builds a widget tree that can depend on
+    // the parent widget's orientation (distinct from the device orientation).
+    // In this case, OrientationBuilder gives false results. Hence MediaQuery.
     if (MediaQuery.of(context).orientation == Orientation.landscape) {
       Navigator.of(context).push(
         PageRouteBuilder(
