@@ -3,13 +3,6 @@ import 'package:flutter/material.dart';
 import '../screens/pin/yivi_pin_screen.dart';
 import '../widgets/irma_app_bar.dart';
 
-PreferredSizeWidget _buildAppBar(VoidCallback leadingAction, String title) {
-  return IrmaAppBar(
-    title: title,
-    leadingAction: leadingAction,
-  );
-}
-
 class SecurePinScreenTest extends StatelessWidget {
   final int maxPinSize;
 
@@ -33,7 +26,10 @@ class SecurePinScreenTest extends StatelessWidget {
   Widget build(BuildContext context) {
     return YiviPinScaffold(
       key: _scaffoldKey,
-      appBar: _buildAppBar(() => Navigator.pop(context), 'Secure Pin: Reset / Onboarding'),
+      appBar: IrmaAppBar(
+        title: 'Secure Pin: Reset / Onboarding',
+        leadingAction: () => Navigator.pop(context),
+      ),
       body: YiviPinScreen(
         scaffoldKey: _scaffoldKey,
         instructionKey: instructionKey,
@@ -73,7 +69,10 @@ class _PinScreen extends State<PinScreenTest> {
   Widget build(BuildContext context) {
     return YiviPinScaffold(
       key: _scaffoldKey,
-      appBar: _buildAppBar(() => Navigator.pop(context), 'Basic Pin'),
+      appBar: IrmaAppBar(
+        title: 'Basic Pin',
+        leadingAction: () => Navigator.pop(context),
+      ),
       body: YiviPinScreen(
         instructionKey: 'pin.title',
         maxPinSize: widget.maxPinSize,
