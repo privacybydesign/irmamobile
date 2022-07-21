@@ -31,7 +31,6 @@ class SessionPinScreen extends StatefulWidget {
 class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBindingObserver {
   final _repo = IrmaRepository.get();
   final _pinBloc = PinBloc();
-  final _focusNode = FocusNode();
   final _navigatorKey = GlobalKey();
   final _pinVisibilityBloc = PinVisibilityBloc();
 
@@ -51,7 +50,6 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
           if (pinState.error != null) {
             _handleError(pinState);
           }
-          FocusScope.of(_navigatorKey.currentContext!).requestFocus(_focusNode);
         }
       });
     });
@@ -60,7 +58,6 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
   @override
   void dispose() {
     _pinBlocSubscription.cancel();
-    _focusNode.dispose();
     _pinBloc.close();
     WidgetsBinding.instance?.removeObserver(this);
     super.dispose();
@@ -82,7 +79,6 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
           attemptsRemaining: state.remainingAttempts,
           onClose: () {
             Navigator.of(_navigatorKey.currentContext!).pop();
-            _focusNode.requestFocus();
           },
         ),
       );
@@ -98,7 +94,6 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
         error: state.error,
         onTapClose: () {
           Navigator.of(_navigatorKey.currentContext!).pop();
-          _focusNode.requestFocus();
         },
       ),
     ));
@@ -111,12 +106,6 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
     } else if (state == AppLifecycleState.resumed) {
       final pinState = _pinBloc.state;
       if (pinState.pinInvalid || pinState.authenticateInProgress || pinState.error != null) return;
-      Future.delayed(const Duration(milliseconds: 100), () {
-        // Screen might have popped during the delay, so check whether currentContext exists first
-        if (_navigatorKey.currentContext != null) {
-          FocusScope.of(_navigatorKey.currentContext!).requestFocus(_focusNode);
-        }
-      });
     }
   }
 
