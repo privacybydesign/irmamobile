@@ -124,7 +124,7 @@ class YiviPinScreen extends StatelessWidget {
               (s) => RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
             ),
           ),
-          onPressed: activate && enabled ? () => onSubmit(pinBloc.state.pin.toString()) : null,
+          onPressed: activate && enabled ? () => onSubmit(pinBloc.state.toString()) : null,
           child: Text(
             FlutterI18n.translate(context, 'enrollment.choose_pin.next'),
             style: theme.textTheme.button?.copyWith(fontWeight: FontWeight.w700),
