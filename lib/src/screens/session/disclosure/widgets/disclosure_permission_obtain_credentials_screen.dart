@@ -18,13 +18,13 @@ class DisclosurePermissionObtainCredentialsScreen extends StatelessWidget {
   });
 
   void _onButtonPressed(BuildContext context) {
-    if (!state.allObtainedCredentialsMatch) {
+    if (state.allObtained) {
+      onEvent(DisclosurePermissionNextPressed());
+    } else {
       IrmaRepositoryProvider.of(context).openIssueURL(
         context,
         state.currentIssueWizardItem!.credentialType.fullId,
       );
-    } else {
-      onEvent(DisclosurePermissionNextPressed());
     }
   }
 
@@ -47,7 +47,7 @@ class DisclosurePermissionObtainCredentialsScreen extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: state.hasObtainedCredentials ? 'ui.done' : 'disclosure_permission.obtain_data',
+        primaryButtonLabel: state.allObtained ? 'ui.done' : 'disclosure_permission.obtain_data',
         onPrimaryPressed: () => _onButtonPressed(context),
       ),
     );
