@@ -357,14 +357,14 @@
     },
     "call": {
       "title": "Call via Yivi",
-      "disclosure_explanation": "Do you wish to diclose the following data to {otherParty} and call to {phoneNumber}?",
+      "disclosure_explanation": "Do you wish to disclose the following data to {otherParty} and call to {phoneNumber}?",
       "disclosure_success": "Data has been shared with {otherParty}",
-      "explanation_header_ios": "Choose continue to call",
+      "explanation_header_ios": "Choose next to call",
       "explanation_ios": "A pop-up will appear, with the option to place the call. The number is pre-filled, followed by a link-code. If you choose to call, you will hear a few beeps and you will be connected.",
-      "explanation_header_android": "1. Choose continue",
+      "explanation_header_android": "1. Choose next",
       "explanation_android": "Your phone app now opens automatically. The number is pre-filled, followed by a link-code.",
-      "extra_explanation_header_android": "You will hear a few beeps and you will be connected.",
-      "extra_explanation_android": "Je hoort een paar piepjes en wordt verbonden."
+      "extra_explanation_header_android": "2. Tap the call button in your phone app",
+      "extra_explanation_android": "You will hear a few beeps and you will be connected."
     }
   },
   "disclosure": {

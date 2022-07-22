@@ -359,9 +359,9 @@
       "title": "Bel via Yivi",
       "disclosure_explanation": "Wil je de volgende gegevens aan {otherParty} doorgeven en bellen naar {phoneNumber}?",
       "disclosure_success": "Gegevens zijn doorgegeven aan {otherParty}",
-      "explanation_header_ios": "Kies doograan om te bellen",
+      "explanation_header_ios": "Kies volgende om te bellen",
       "explanation_ios": "Er verschijnt een pop-up met de keuze om te bellen. Het telefoonnummer is al ingevuld, met een koppelcode. Als je bellen kiest, hoor je een paar piepjes en word je verbonden.",
-      "explanation_header_android": "1. Kies doorgaan",
+      "explanation_header_android": "1. Kies volgende",
       "explanation_android": "Je belapplicatie opent nu vanzelf. Het telefoonnummer is al ingevuld, met een koppelcode.",
       "extra_explanation_header_android": "2. Klik op de belknop in je belapplicatie",
       "extra_explanation_android": "Je hoort een paar piepjes en wordt verbonden."
