@@ -19,7 +19,7 @@ class IrmaPreferences {
 
   IrmaPreferences._(StreamingSharedPreferences preferences)
       : _screenshotsEnabled = preferences.getBool(_screenshotsEnabledKey, defaultValue: false),
-        longPin = preferences.getBool(_longPinKey, defaultValue: true),
+        longPin = preferences.getBool(_longPinKey, defaultValue: false),
         _reportErrors = preferences.getBool(_reportErrorsKey, defaultValue: false),
         _startQRScan = preferences.getBool(_startQRScanKey, defaultValue: false),
         _showDisclosureDialog = preferences.getBool(_showDisclosureDialogKey, defaultValue: true),
