@@ -38,7 +38,7 @@ class SecurePinScreenTest extends StatelessWidget {
         onTogglePinSize: onTogglePinSize,
         checkSecurePin: true,
         listener: (context, state) {
-          /// speed run regardless of pin quality
+          // speed run regardless of pin quality
           if (shortPinSize == state.pin.length) {
             Navigator.pop(context);
           }

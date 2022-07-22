@@ -75,7 +75,6 @@ class EnterPinStateBloc extends Bloc<Pin, EnterPinState> {
   Stream<EnterPinState> mapEventToState(Pin pin) async* {
     final set = <SecurePinAttribute>{};
     var goodEnough = false;
-    // _lastPin = pinn;
 
     if (pin.length < shortPinSize) {
       yield EnterPinState(pin, set, goodEnough);
