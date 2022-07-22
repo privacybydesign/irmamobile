@@ -201,9 +201,9 @@ class YiviPinScreen extends StatelessWidget {
       builder: (context, state) => activateNext(state.pin.length >= (shortPinSize == maxPinSize ? 5 : 6)),
     );
 
-    /// It's harder to define a fractional height in relation to the
-    /// screen size, due to variable nature of phone devices, hence
-    /// the scaling here
+    // It's harder to define a fractional height in relation to the
+    // screen size, due to variable nature of phone devices, hence
+    // the scaling here
     final logo = SvgPicture.asset(
       'assets/non-free/logo_no_margin.svg',
       width: 127.scale(context),
@@ -214,7 +214,7 @@ class YiviPinScreen extends StatelessWidget {
       ),
     );
 
-    /// Only call when required
+    // Only call when required
     List<Widget> bodyPortrait(bool showSecurePinText) => [
           Expanded(
             child: Column(

@@ -24,7 +24,7 @@ class _NumberPad extends StatelessWidget {
 
     return LayoutBuilder(builder: (context, constraints) {
       final keys = <Widget>[
-        /// The empty String keeps the number aligned with the rest
+        // The empty String keeps the number aligned with the rest
         _NumberPadKey(onEnterNumber, 1, ''),
         _NumberPadKey(onEnterNumber, 2, 'ABC'),
         _NumberPadKey(onEnterNumber, 3, 'DEF'),

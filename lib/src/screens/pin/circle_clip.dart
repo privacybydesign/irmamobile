@@ -1,7 +1,7 @@
 part of pin;
 
-/// Because ClipOval, becomes an oval when the item
-/// to clip is not in a square with equal edges
+// Because ClipOval, becomes an oval when the item
+// to clip is not in a square with equal edges
 class _PerfectCircleClip extends CustomClipper<Path> {
   double radiusDelta = 5;
 

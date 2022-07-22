@@ -11,9 +11,9 @@ class _NumberPadKey extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    /// On devices smaller than the screen width of the design, e.g. w320
-    /// if you pass a constant fontSize, then the text will take up
-    /// too much space
+    // On devices smaller than the screen width of the design, e.g. w320
+    // if you pass a constant fontSize, then the text will take up
+    // too much space
     final fontSize =
         Orientation.landscape == MediaQuery.of(context).orientation ? 24.scale(context) : 28.scale(context);
 
