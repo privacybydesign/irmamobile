@@ -11,8 +11,8 @@ bool _pinMustContainAtLeastThreeUniqueNumbers(Pin pin) {
 
 // abcba, abcab
 // n = 5
-bool _pinMustNotContainPatternAbcba(Pin pin) => !(pin[0] == pin[4] && pin[1] == pin[3]);
-bool _pinMustNotContainPatternAbcab(Pin pin) => !(pin[0] == pin[3] && pin[1] == pin[4]);
+bool _pinMustNotContainPatternAbcba(Pin pin) => !(pin[0] == pin[4] && pin[1] == pin[3] && pin[0] != pin[1]);
+bool _pinMustNotContainPatternAbcab(Pin pin) => !(pin[0] == pin[3] && pin[1] == pin[4] && pin[0] != pin[1]);
 
 bool Function(Pin) sequenceChecker(int delta) => (Pin pin) {
       bool tracker = true;
