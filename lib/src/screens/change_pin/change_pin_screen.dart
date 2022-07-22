@@ -14,6 +14,7 @@ import 'package:irmamobile/src/screens/change_pin/widgets/valdating_pin.dart';
 import 'package:irmamobile/src/screens/error/error_screen.dart';
 import 'package:irmamobile/src/screens/error/session_error_screen.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
+import 'package:irmamobile/src/screens/settings/settings_screen.dart';
 import 'package:irmamobile/src/util/hero_controller.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_attempts.dart';
 
@@ -43,8 +44,6 @@ class ProvidedChangePinScreen extends StatefulWidget {
 class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
   final IrmaRepository _repo = IrmaRepository.get();
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-  final FocusNode currentPinFocusNode = FocusNode();
-  final FocusNode newPinFocusNode = FocusNode();
 
   ProvidedChangePinScreenState() : super();
 
@@ -52,7 +51,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
     return {
       EnterPin.routeName: (_) => EnterPin(submitOldPin: submitOldPin, cancel: cancel),
       ValidatingPin.routeName: (_) => ValidatingPin(cancel: cancel),
-      ChoosePin.routeName: (_) => ChoosePin(chooseNewPin: chooseNewPin, toggleLongPin: toggleLongPin, cancel: cancel),
+      ChoosePin.routeName: (_) => ChoosePin(chooseNewPin: chooseNewPin, cancel: cancel),
       ConfirmPin.routeName: (_) => ConfirmPin(confirmNewPin: confirmNewPin, cancel: () => {}),
       UpdatingPin.routeName: (_) => UpdatingPin(cancel: cancel),
       Success.routeName: (_) => Success(cancel: cancel),
@@ -61,10 +60,6 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
 
   void submitOldPin(String pin) {
     widget.bloc.add(OldPinEntered(pin: pin));
-  }
-
-  void toggleLongPin() {
-    widget.bloc.add(ToggleLongPin());
   }
 
   void chooseNewPin(BuildContext context, String pin) {
@@ -78,6 +73,13 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
 
   void cancel() {
     widget.bloc.add(ChangePinCanceled());
+
+    // Always pop at least one route (unless at the root), return to SettingsScreen or ChoosePin
+    Navigator.maybePop(context).then(
+      (_) => Navigator.of(context).popUntil(
+        (route) => route.settings.name == ChoosePin.routeName || route.settings.name == SettingsScreen.routeName,
+      ),
+    );
   }
 
   @override
@@ -102,7 +104,6 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
               builder: (BuildContext context) => ConfirmErrorDialog(onClose: () async {
                 // close the overlay
                 Navigator.of(context).pop();
-                newPinFocusNode.requestFocus();
               }),
             );
           } else if (state.newPinConfirmed == ValidationState.error) {

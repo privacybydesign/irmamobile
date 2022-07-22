@@ -2,17 +2,17 @@ part of pin;
 
 class _PinIndicator extends StatelessWidget {
   final int maxPinSize;
-  final PinVisibilityBloc visibilityBloc;
+  final ValueNotifier<bool> pinVisibilityValue;
   final EnterPinState pinState;
 
-  const _PinIndicator({Key? key, required this.maxPinSize, required this.visibilityBloc, required this.pinState})
+  const _PinIndicator({Key? key, required this.maxPinSize, required this.pinVisibilityValue, required this.pinState})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<PinVisibilityBloc, bool>(
-      bloc: visibilityBloc,
-      builder: (context, isPinVisible) => _togglePinIndicators(context, isPinVisible),
+    return ValueListenableBuilder<bool>(
+      valueListenable: pinVisibilityValue,
+      builder: (context, visibility, _) => _togglePinIndicators(context, visibility),
     );
   }
 
@@ -34,7 +34,7 @@ class _PinIndicator extends StatelessWidget {
         color: isPinVisible ? Colors.transparent : theme.darkPurple,
         shape: BoxShape.circle,
 
-        /// prevent unnecessary resize
+        // prevent unnecessary resize
         border: Border.all(color: Colors.transparent, width: 2.0),
       ),
     );
@@ -50,12 +50,12 @@ class _PinIndicator extends StatelessWidget {
 
     final double edgeSize = maxPinSize != shortPinSize ? 6 : 12;
 
-    /// Applied scaling so, the circles / dots won't
-    /// get too small on devices bigger than the design
-    /// and too big on devices smaller than the design
+    // Applied scaling so, the circles / dots won't
+    // get too small on devices bigger than the design
+    // and too big on devices smaller than the design
     final scaledEdgeSize = edgeSize.scale(context);
 
-    /// prevent the row from collapsing
+    // prevent the row from collapsing
     if (pinSize == 0 && maxPinSize != shortPinSize) {
       return SizedBox(
         width: 0,

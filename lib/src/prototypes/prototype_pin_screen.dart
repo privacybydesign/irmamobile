@@ -7,7 +7,6 @@ class SecurePinScreenTest extends StatelessWidget {
   final int maxPinSize;
 
   final EnterPinStateBloc pinBloc;
-  final pinVisibilityBloc = PinVisibilityBloc();
   final String instructionKey;
 
   final VoidCallback? onTogglePinSize;
@@ -36,7 +35,6 @@ class SecurePinScreenTest extends StatelessWidget {
         maxPinSize: maxPinSize,
         onSubmit: (_) => Navigator.pop(context),
         pinBloc: pinBloc,
-        pinVisibilityBloc: pinVisibilityBloc,
         onTogglePinSize: onTogglePinSize,
         checkSecurePin: true,
         listener: (context, state) {
@@ -62,7 +60,6 @@ class PinScreenTest extends StatefulWidget {
 }
 
 class _PinScreen extends State<PinScreenTest> {
-  final _pinVisibilityBloc = PinVisibilityBloc();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -78,7 +75,6 @@ class _PinScreen extends State<PinScreenTest> {
         maxPinSize: widget.maxPinSize,
         onSubmit: (_) => Navigator.pop(context),
         pinBloc: widget.pinBloc,
-        pinVisibilityBloc: _pinVisibilityBloc,
         onForgotPin: () => Navigator.pop(context),
         onTogglePinSize: widget.onTogglePinSize,
         listener: (context, state) {

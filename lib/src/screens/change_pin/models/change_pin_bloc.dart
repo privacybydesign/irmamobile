@@ -44,12 +44,6 @@ class ChangePinBloc extends Bloc<Object, ChangePinState> {
       } else {
         throw Exception("Unexpected subtype of AuthenticationResult");
       }
-    } else if (event is ToggleLongPin) {
-      yield state.copyWith(
-        longPin: !state.longPin,
-        newPin: '',
-        newPinConfirmed: ValidationState.initial,
-      );
     } else if (event is NewPinChosen) {
       yield state.copyWith(
         newPin: event.pin,

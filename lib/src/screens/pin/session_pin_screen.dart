@@ -32,7 +32,6 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
   final _repo = IrmaRepository.get();
   final _pinBloc = PinBloc();
   final _navigatorKey = GlobalKey();
-  final _pinVisibilityBloc = PinVisibilityBloc();
 
   late final StreamSubscription _pinBlocSubscription;
 
@@ -172,7 +171,6 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
                               maxPinSize: maxPinSize,
                               onSubmit: (p) => _submit(enabled, p),
                               pinBloc: pinBloc,
-                              pinVisibilityBloc: _pinVisibilityBloc,
                               enabled: enabled,
                               onForgotPin: () => Navigator.of(context).pushNamed(ResetPinScreen.routeName),
                               listener: (context, state) {

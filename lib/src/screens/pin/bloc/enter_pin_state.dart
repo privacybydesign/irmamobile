@@ -33,6 +33,7 @@ enum SecurePinAttribute {
   mustContainValidSubset,
 }
 
+@immutable
 class EnterPinState {
   final Pin pin;
   final PinQuality attributes;

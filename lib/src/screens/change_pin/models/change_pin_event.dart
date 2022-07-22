@@ -24,14 +24,6 @@ class NewPinChosen extends Equatable {
   List<Object> get props => [pin];
 }
 
-class ToggleLongPin extends Equatable {
-  @override
-  String toString() => 'ToggleLongPin';
-
-  @override
-  List<Object> get props => [];
-}
-
 class NewPinConfirmed extends Equatable {
   final String pin;
 

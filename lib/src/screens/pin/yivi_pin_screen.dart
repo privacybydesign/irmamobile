@@ -17,7 +17,6 @@ import '../../widgets/link.dart';
 import '../../widgets/yivi_bottom_sheet.dart';
 
 part 'bloc/enter_pin_state.dart';
-part 'bloc/pin_visibility.dart';
 part 'circle_clip.dart';
 part 'number_pad.dart';
 part 'number_pad_key.dart';
@@ -51,7 +50,7 @@ class YiviPinScreen extends StatelessWidget {
   final int maxPinSize;
   final StringCallback onSubmit;
   final EnterPinStateBloc pinBloc;
-  final PinVisibilityBloc pinVisibilityBloc;
+  final pinVisibilityValue = ValueNotifier(false);
   final VoidCallback? onForgotPin;
   final VoidCallback? onTogglePinSize;
   final bool checkSecurePin;
@@ -60,12 +59,11 @@ class YiviPinScreen extends StatelessWidget {
   final bool enabled;
   final void Function(BuildContext, EnterPinState)? listener;
 
-  const YiviPinScreen({
+  YiviPinScreen({
     Key? key,
     this.scaffoldKey,
     this.instructionKey,
     this.instruction,
-    required this.pinVisibilityBloc,
     required this.pinBloc,
     required this.maxPinSize,
     required this.onSubmit,
@@ -78,8 +76,8 @@ class YiviPinScreen extends StatelessWidget {
         assert(checkSecurePin ? scaffoldKey != null : true),
         super(key: key);
 
-  /// Some functions are nested to save on ceremony for repeatedly passed parameters
-  /// Also nested functions are not exposed outside the parent function
+  // Some functions are nested to save on ceremony for repeatedly passed parameters
+  // Also nested functions are not exposed outside the parent function
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
@@ -131,11 +129,11 @@ class YiviPinScreen extends StatelessWidget {
           ),
         );
 
-    Widget pinVisibility(PinVisibilityBloc bloc) => BlocBuilder<PinVisibilityBloc, bool>(
-          bloc: pinVisibilityBloc,
-          builder: (context, visible) => visibilityButton(
-              visible ? Icons.visibility_off : Icons.visibility, () => pinVisibilityBloc.add(!visible)),
-        );
+    Widget pinVisibility = ValueListenableBuilder<bool>(
+      valueListenable: pinVisibilityValue,
+      builder: (context, visible, _) => visibilityButton(
+          visible ? Icons.visibility_off : Icons.visibility, () => pinVisibilityValue.value = !visible),
+    );
 
     final instruction = Text(
       instructionKey != null ? FlutterI18n.translate(context, instructionKey!) : this.instruction!,
@@ -145,7 +143,7 @@ class YiviPinScreen extends StatelessWidget {
     final pinDots = BlocBuilder<EnterPinStateBloc, EnterPinState>(
       bloc: pinBloc,
       builder: (context, state) =>
-          _PinIndicator(maxPinSize: maxPinSize, visibilityBloc: pinVisibilityBloc, pinState: state),
+          _PinIndicator(maxPinSize: maxPinSize, pinVisibilityValue: pinVisibilityValue, pinState: state),
     );
 
     final pinDotsDecorated = Column(
@@ -162,7 +160,7 @@ class YiviPinScreen extends StatelessWidget {
               alignment: Alignment.topRight,
               child: Padding(
                 padding: const EdgeInsets.only(right: 8),
-                child: pinVisibility(pinVisibilityBloc),
+                child: pinVisibility,
               ),
             ),
           ],

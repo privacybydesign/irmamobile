@@ -31,8 +31,6 @@ class PinScreen extends StatefulWidget {
 
 class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
   final _pinBloc = PinBloc();
-  final _pinVisibilityBloc = PinVisibilityBloc();
-
   late StreamSubscription _pinBlocSubscription;
 
   @override
@@ -103,6 +101,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final prefs = IrmaRepositoryProvider.of(context).preferences;
     return BlocBuilder<PinBloc, PinState>(
       bloc: _pinBloc,
       builder: (context, state) {
@@ -128,13 +127,9 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
 
               // Recommended way according to the documentation
               return PreferenceBuilder(
-                preference: IrmaRepositoryProvider.of(context).preferences.longPin,
+                preference: prefs.longPin,
                 builder: (BuildContext context, bool longPin) {
                   final maxPinSize = longPin ? longPinSize : shortPinSize;
-
-                  if (kDebugMode) {
-                    print('maxPinSize: $maxPinSize');
-                  }
 
                   final pinBloc = EnterPinStateBloc(maxPinSize);
 
@@ -154,7 +149,6 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                         maxPinSize: maxPinSize,
                         onSubmit: enabled ? submit : (_) {},
                         pinBloc: pinBloc,
-                        pinVisibilityBloc: _pinVisibilityBloc,
                         enabled: enabled,
                         onForgotPin: () => Navigator.of(context).pushNamed(ResetPinScreen.routeName),
                         listener: (context, state) {

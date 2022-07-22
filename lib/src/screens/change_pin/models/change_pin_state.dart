@@ -8,7 +8,6 @@ enum ValidationState { initial, valid, invalid, error }
 class ChangePinState with EquatableMixin {
   final String newPin;
   final String oldPin;
-  final bool longPin;
   final bool validatingPin;
   final bool updatingPin;
 
@@ -23,7 +22,6 @@ class ChangePinState with EquatableMixin {
   ChangePinState({
     this.oldPin = '',
     this.newPin = '',
-    this.longPin = false,
     this.validatingPin = false,
     this.updatingPin = false,
     this.oldPinVerified = ValidationState.initial,
@@ -37,7 +35,6 @@ class ChangePinState with EquatableMixin {
   ChangePinState copyWith({
     String? oldPin,
     String? newPin,
-    bool? longPin,
     bool? validatingPin,
     bool? updatingPin,
     ValidationState oldPinVerified = ValidationState.initial,
@@ -50,7 +47,6 @@ class ChangePinState with EquatableMixin {
     return ChangePinState(
         oldPin: oldPin ?? this.oldPin,
         newPin: newPin ?? this.newPin,
-        longPin: longPin ?? this.longPin,
         validatingPin: validatingPin ?? this.validatingPin,
         updatingPin: updatingPin ?? this.updatingPin,
         oldPinVerified: oldPinVerified,
@@ -63,7 +59,7 @@ class ChangePinState with EquatableMixin {
 
   @override
   String toString() {
-    return 'ChangePinState {old pin: ${'*' * oldPin.length}, new pin: ${'*' * newPin.length}, long pin: $longPin, validating pin: $validatingPin, udpating pin: $updatingPin, old verified: $oldPinVerified, new confirmed: $newPinConfirmed, attemptsRemaining: $attemptsRemaining, blockedUntil: $blockedUntil, error: $error, errorMessage: $errorMessage }';
+    return 'ChangePinState {old pin: ${'*' * oldPin.length}, new pin: ${'*' * newPin.length}, validating pin: $validatingPin, udpating pin: $updatingPin, old verified: $oldPinVerified, new confirmed: $newPinConfirmed, attemptsRemaining: $attemptsRemaining, blockedUntil: $blockedUntil, error: $error, errorMessage: $errorMessage }';
   }
 
   @override
@@ -71,7 +67,6 @@ class ChangePinState with EquatableMixin {
     return [
       oldPin,
       newPin,
-      longPin,
       validatingPin,
       updatingPin,
       oldPinVerified,
