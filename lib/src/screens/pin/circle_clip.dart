@@ -3,7 +3,9 @@ part of pin;
 // Because ClipOval, becomes an oval when the item
 // to clip is not in a square with equal edges
 class _PerfectCircleClip extends CustomClipper<Path> {
-  double radiusDelta = 5;
+  final double radiusDelta;
+
+  _PerfectCircleClip({this.radiusDelta = 0});
 
   @override
   Path getClip(Size size) {

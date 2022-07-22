@@ -19,6 +19,7 @@ import '../../widgets/yivi_bottom_sheet.dart';
 part 'bloc/enter_pin_state.dart';
 part 'circle_clip.dart';
 part 'number_pad.dart';
+part 'number_pad_icon.dart';
 part 'number_pad_key.dart';
 part 'pin_indicator.dart';
 part 'secure_pin.dart';
