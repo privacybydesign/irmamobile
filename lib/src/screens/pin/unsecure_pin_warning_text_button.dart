@@ -3,10 +3,13 @@ part of pin;
 class _UnsecurePinWarningTextButton extends StatelessWidget {
   final EnterPinStateBloc bloc;
   final GlobalKey<ScaffoldState> scaffoldKey;
+  final BuildContext context;
 
-  const _UnsecurePinWarningTextButton({Key? key, required this.scaffoldKey, required this.bloc}) : super(key: key);
+  _UnsecurePinWarningTextButton({Key? key, required this.scaffoldKey, required this.bloc})
+      : context = scaffoldKey.currentContext!,
+        super(key: key);
 
-  void _showSecurePinRules(BuildContext context, EnterPinState state) {
+  void _showSecurePinRules(EnterPinState state) {
     final theme = IrmaTheme.of(context);
     final rules = <Widget>[
       Stack(
@@ -73,7 +76,7 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
       );
     } else {
       showYiviBottomSheet(
-        context: scaffoldKey.currentContext!,
+        context: context,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -92,7 +95,7 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
       builder: (context, state) {
         return Center(
           child: TextButton(
-            onPressed: () => _showSecurePinRules(context, state),
+            onPressed: () => _showSecurePinRules(state),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,

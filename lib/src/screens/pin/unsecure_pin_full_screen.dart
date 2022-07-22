@@ -2,7 +2,10 @@ part of pin;
 
 class _UnsecurePinFullScreen extends StatelessWidget {
   final EnterPinState state;
-  const _UnsecurePinFullScreen({Key? key, required this.state}) : super(key: key);
+  const _UnsecurePinFullScreen({
+    Key? key,
+    required this.state,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
