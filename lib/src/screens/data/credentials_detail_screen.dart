@@ -138,6 +138,7 @@ class _CredentialsDetailScreenState extends State<CredentialsDetailScreen> {
                             cred.info.credentialType.disallowDelete && cred.info.credentialType.issueUrl.isEmpty
                                 ? null
                                 : IconButton(
+                                    alignment: Alignment.topRight,
                                     padding: EdgeInsets.zero,
                                     onPressed: () => _showCredentialOptionsBottomSheet(context, cred),
                                     icon: const Icon(
