@@ -360,196 +360,196 @@
             "explanation_android": "Your phone app now opens automatically. The number is pre-filled, followed by a link-code.",
             "extra_explanation_header_android": "2. Tap the call button in your phone app",
             "extra_explanation_android": "You will hear a few beeps and you will be connected."
-        },
-        "disclosure": {
-            "title": "Data request",
-            "disclosure_header": "Do you wish to disclose the following data to {otherParty}?",
-            "disclosure_call_header": "Do you wish to diclose the following data to {otherParty} and call to {phoneNumber}?",
-            "signing_header": "{otherParty} asks you to sign a message",
-            "signing_call_header": "{otherParty} asks you to sign a message and call to {phoneNumber}",
-            "unsatisfiable_header": "You don't yet have all data that {otherParty} is asking for in your Yivi app.",
-            "issuer": "Issuer",
-            "logo_semantic": "Logo of {otherParty}",
-            "choices": "{choices} choices",
-            "next": "next choices",
-            "previous": "previous choices",
-            "not_present": "These data have not yet been added to Yivi.",
-            "not_present_have_other": "The requested data do not match with the data you already have.",
-            "you_have": "You have:",
-            "requested_for": "This is requested:",
-            "card_count": "{i} of {total}",
-            "among_others": "Among others",
-            "add_additional": "Want to show different information? Add an additional '{credential}' card.",
-            "expired": "These data are expired.",
-            "revoked": "These data have been revoked.",
-            "not_revokable": "These data have to be refreshed first.",
-            "obtain": "Add",
-            "refresh": "Refresh",
-            "nothing_selected": "Nothing selected",
-            "redirect": "You are being redirected back to the webpage...",
-            "feedback": {
-                "header": {
-                    "success": "Success",
-                    "canceled": "Cancelled",
-                    "notSatisfiable": "Cancelled"
-                },
-                "text": {
-                    "success": "Your data are disclosed to {otherParty}",
-                    "canceled": "Your data are not disclosed to {otherParty}",
-                    "notSatisfiable": "Your data are not disclosed because {otherParty} requests outdated cards. Please contact this party."
-                }
-            }
-        },
-        "reset_pin": {
-            "title": "Lost PIN",
-            "message": "Lost your PIN? We're sorry but the Yivi organisation does not keep record of your PIN. If you wish to continue using Yivi, you will have to enter a new PIN and reload all data.",
-            "existing_data_title": "What happens with my old cards?",
-            "existing_data_message": "Your old cards will be deleted from your phone. If you like, you can collect new cards and start using Yivi again.",
-            "back": "Cancel",
-            "reset": "Start all over",
-            "existing_data_removed": "All cards in your Yivi app are deleted."
-        },
-        "arrow_back": {
-            "info_no_success": "Cancelled.",
-            "info_success-0": "Done, your data have been disclosed.",
-            "info_success-1": "Done, the card is added.",
-            "info_success-2": "Done, the cards are added.",
-            "safari": "Tap on the name of the application (such as Safari, Chrome, Firefox) in the top left corner to return to the application you came from."
-        },
-        "update": {
-            "title": "Update available",
-            "explanation": "To continue using the Yivi app, you must download the latest version.",
-            "update_app": "Update app"
-        },
-        "action_feedback": {
-            "ok": "OK"
-        },
-        "rooted_warning": {
-            "title": "Device unsafe",
-            "explanation": "The operating system on your device seems to be modified. Because of this, the safety of your data cannot be guaranteed.",
-            "accept_risk": "I accept the risk"
-        },
-        "issue_wizard": {
-            "back": "Cancel",
-            "done": "OK",
-            "add": "Add",
-            "add_cards": "Add cards",
-            "add_credential": "Add {credential}"
-        },
-        "home": {
-            "button_back": "Back",
-            "nav_bar": {
-                "home": "Home",
-                "data": "Data",
-                "activity": "Activity",
-                "more": "More",
-                "scan_qr": "Scan QR"
-            }
-        },
-        "home_tab": {
-            "title": "Your data,\non your phone.",
-            "get_going": "Get going",
-            "more_information": "More information",
-            "recent_activity": "Recent activity",
-            "view_more": "View more",
-            "action_card": {
-                "share": {
-                    "title": "Share your data straight away",
-                    "subtitle": "with the requesting organization"
-                },
-                "fetch": {
-                    "title": "Fetch your data",
-                    "subtitle": "to share it in the future with ease"
-                }
-            },
-            "info_card": {
-                "safety": {
-                    "title": "How safe is Yivi?",
-                    "body": "Information about the security of Yivi and the usage of digital identities.",
-                    "link": "https://irma.app/?lang=en"
-                },
-                "about": {
-                    "title": "About Yivi",
-                    "body": "Read up on Yivi. Both general and technical information.",
-                    "link": "https://privacybydesign.foundation/irma-en/"
-                }
-            }
-        },
-        "data": {
-            "tab": {
-                "title": "Your data",
-                "obtain_data": "Obtain personal data"
-            },
-            "detail": {
-                "title": "Contact information"
-            },
-            "add": {
-                "title": "Adding data",
-                "choose": "Choose the data you wish to add.",
-                "details": {
-                    "title": "Adding data",
-                    "purpose_question": "What can you do with these data?",
-                    "content_question": "Which data are added?",
-                    "howto_question": "How does it work?",
-                    "back_button": "Cancel",
-                    "get_button": "Add"
-                }
-            },
-            "category_other": "Other"
-        },
-        "more_tab": {
-            "app_management": "App management",
-            "settings": "Settings",
-            "help": "Help",
-            "debugging": "Debugging",
-            "contact": "Contact us",
-            "share": "Share Yivi",
-            "website": "Yivi-website",
-            "meet_up": "Yivi-meetups",
-            "need_help": "Need help?",
-            "know_more": "More information",
-            "stay_informed": "Stay informed and join the conversation",
-            "slogan": "Everyone deserves privacy",
-            "meetups": "Yivi meetups",
-            "meetups_link": "https://privacybydesign.foundation/meetings/",
-            "twitter": "@irma_privacy",
-            "twitter_link": "https://twitter.com/irma_privacy",
-            "github": "GitHub",
-            "github_link": "https://github.com/privacybydesign",
-            "version": "Version {version}",
-            "developer_mode_enabled": "Developer mode enabled",
-            "irma_website": "Yivi-website",
-            "irma_website_link": "https://irma.app/?lang=en",
-            "privacy_policy": "Yivi's privacy policy",
-            "app_id": "App ID {id}",
-            "log_out": "Log out"
-        },
-        "activity": {
-            "data_deleted": "Data deleted",
-            "data_received": "Data received",
-            "data_shared": "Data shared",
-            "signed_message": "Signed message",
-            "message_signed": "Message signed",
-            "shared_with": "Shared with",
-            "shared_data": "Shared data",
-            "received_data": "Received data",
-            "deleted_data": "Deleted data"
-        },
-        "credential": {
-            "no_data": "No data",
-            "valid_until": "Valid until: {date}",
-            "expires_on": "Expires on {date}",
-            "expired_on": "Expired on {date}",
-            "date_at_time": "{date} at {time}",
-            "options": {
-                "title": "Options",
-                "reobtain": "Reobtain",
-                "delete": "Delete data",
-                "confirm_delete": "Are you sure you want to delete this data?",
-                "delete_success": "Success! The data has been deleted."
-            },
-            "about_to_expire": "About to expire",
-            "expired": "Expired"
         }
+    },
+    "disclosure": {
+        "title": "Data request",
+        "disclosure_header": "Do you wish to disclose the following data to {otherParty}?",
+        "disclosure_call_header": "Do you wish to diclose the following data to {otherParty} and call to {phoneNumber}?",
+        "signing_header": "{otherParty} asks you to sign a message",
+        "signing_call_header": "{otherParty} asks you to sign a message and call to {phoneNumber}",
+        "unsatisfiable_header": "You don't yet have all data that {otherParty} is asking for in your Yivi app.",
+        "issuer": "Issuer",
+        "logo_semantic": "Logo of {otherParty}",
+        "choices": "{choices} choices",
+        "next": "next choices",
+        "previous": "previous choices",
+        "not_present": "These data have not yet been added to Yivi.",
+        "not_present_have_other": "The requested data do not match with the data you already have.",
+        "you_have": "You have:",
+        "requested_for": "This is requested:",
+        "card_count": "{i} of {total}",
+        "among_others": "Among others",
+        "add_additional": "Want to show different information? Add an additional '{credential}' card.",
+        "expired": "These data are expired.",
+        "revoked": "These data have been revoked.",
+        "not_revokable": "These data have to be refreshed first.",
+        "obtain": "Add",
+        "refresh": "Refresh",
+        "nothing_selected": "Nothing selected",
+        "redirect": "You are being redirected back to the webpage...",
+        "feedback": {
+            "header": {
+                "success": "Success",
+                "canceled": "Cancelled",
+                "notSatisfiable": "Cancelled"
+            },
+            "text": {
+                "success": "Your data are disclosed to {otherParty}",
+                "canceled": "Your data are not disclosed to {otherParty}",
+                "notSatisfiable": "Your data are not disclosed because {otherParty} requests outdated cards. Please contact this party."
+            }
+        }
+    },
+    "reset_pin": {
+        "title": "Lost PIN",
+        "message": "Lost your PIN? We're sorry but the Yivi organisation does not keep record of your PIN. If you wish to continue using Yivi, you will have to enter a new PIN and reload all data.",
+        "existing_data_title": "What happens with my old cards?",
+        "existing_data_message": "Your old cards will be deleted from your phone. If you like, you can collect new cards and start using Yivi again.",
+        "back": "Cancel",
+        "reset": "Start all over",
+        "existing_data_removed": "All cards in your Yivi app are deleted."
+    },
+    "arrow_back": {
+        "info_no_success": "Cancelled.",
+        "info_success-0": "Done, your data have been disclosed.",
+        "info_success-1": "Done, the card is added.",
+        "info_success-2": "Done, the cards are added.",
+        "safari": "Tap on the name of the application (such as Safari, Chrome, Firefox) in the top left corner to return to the application you came from."
+    },
+    "update": {
+        "title": "Update available",
+        "explanation": "To continue using the Yivi app, you must download the latest version.",
+        "update_app": "Update app"
+    },
+    "action_feedback": {
+        "ok": "OK"
+    },
+    "rooted_warning": {
+        "title": "Device unsafe",
+        "explanation": "The operating system on your device seems to be modified. Because of this, the safety of your data cannot be guaranteed.",
+        "accept_risk": "I accept the risk"
+    },
+    "issue_wizard": {
+        "back": "Cancel",
+        "done": "OK",
+        "add": "Add",
+        "add_cards": "Add cards",
+        "add_credential": "Add {credential}"
+    },
+    "home": {
+        "button_back": "Back",
+        "nav_bar": {
+            "home": "Home",
+            "data": "Data",
+            "activity": "Activity",
+            "more": "More",
+            "scan_qr": "Scan QR"
+        }
+    },
+    "home_tab": {
+        "title": "Your data,\non your phone.",
+        "get_going": "Get going",
+        "more_information": "More information",
+        "recent_activity": "Recent activity",
+        "view_more": "View more",
+        "action_card": {
+            "share": {
+                "title": "Share your data straight away",
+                "subtitle": "with the requesting organization"
+            },
+            "fetch": {
+                "title": "Fetch your data",
+                "subtitle": "to share it in the future with ease"
+            }
+        },
+        "info_card": {
+            "safety": {
+                "title": "How safe is Yivi?",
+                "body": "Information about the security of Yivi and the usage of digital identities.",
+                "link": "https://irma.app/?lang=en"
+            },
+            "about": {
+                "title": "About Yivi",
+                "body": "Read up on Yivi. Both general and technical information.",
+                "link": "https://privacybydesign.foundation/irma-en/"
+            }
+        }
+    },
+    "data": {
+        "tab": {
+            "title": "Your data",
+            "obtain_data": "Obtain personal data"
+        },
+        "detail": {
+            "title": "Contact information"
+        },
+        "add": {
+            "title": "Adding data",
+            "choose": "Choose the data you wish to add.",
+            "details": {
+                "title": "Adding data",
+                "purpose_question": "What can you do with these data?",
+                "content_question": "Which data are added?",
+                "howto_question": "How does it work?",
+                "back_button": "Cancel",
+                "get_button": "Add"
+            }
+        },
+        "category_other": "Other"
+    },
+    "more_tab": {
+        "app_management": "App management",
+        "settings": "Settings",
+        "help": "Help",
+        "debugging": "Debugging",
+        "contact": "Contact us",
+        "share": "Share Yivi",
+        "website": "Yivi-website",
+        "meet_up": "Yivi-meetups",
+        "need_help": "Need help?",
+        "know_more": "More information",
+        "stay_informed": "Stay informed and join the conversation",
+        "slogan": "Everyone deserves privacy",
+        "meetups": "Yivi meetups",
+        "meetups_link": "https://privacybydesign.foundation/meetings/",
+        "twitter": "@irma_privacy",
+        "twitter_link": "https://twitter.com/irma_privacy",
+        "github": "GitHub",
+        "github_link": "https://github.com/privacybydesign",
+        "version": "Version {version}",
+        "developer_mode_enabled": "Developer mode enabled",
+        "irma_website": "Yivi-website",
+        "irma_website_link": "https://irma.app/?lang=en",
+        "privacy_policy": "Yivi's privacy policy",
+        "app_id": "App ID {id}",
+        "log_out": "Log out"
+    },
+    "activity": {
+        "data_deleted": "Data deleted",
+        "data_received": "Data received",
+        "data_shared": "Data shared",
+        "signed_message": "Signed message",
+        "message_signed": "Message signed",
+        "shared_with": "Shared with",
+        "shared_data": "Shared data",
+        "received_data": "Received data",
+        "deleted_data": "Deleted data"
+    },
+    "credential": {
+        "no_data": "No data",
+        "valid_until": "Valid until: {date}",
+        "expires_on": "Expires on {date}",
+        "expired_on": "Expired on {date}",
+        "date_at_time": "{date} at {time}",
+        "options": {
+            "title": "Options",
+            "reobtain": "Reobtain",
+            "delete": "Delete data",
+            "confirm_delete": "Are you sure you want to delete this data?",
+            "delete_success": "Success! The data has been deleted."
+        },
+        "about_to_expire": "About to expire",
+        "expired": "Expired"
     }
 }
