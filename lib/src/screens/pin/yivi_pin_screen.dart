@@ -207,8 +207,8 @@ class YiviPinScreen extends StatelessWidget {
     // the scaling here
     final logo = SvgPicture.asset(
       'assets/non-free/logo_no_margin.svg',
-      width: 127.scale(context),
-      height: 71.scale(context),
+      width: 127.scaleToDesignSize(context),
+      height: 71.scaleToDesignSize(context),
       semanticsLabel: FlutterI18n.translate(
         context,
         'accessibility.irma_logo',

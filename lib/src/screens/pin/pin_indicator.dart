@@ -53,13 +53,13 @@ class _PinIndicator extends StatelessWidget {
     // Applied scaling so, the circles / dots won't
     // get too small on devices bigger than the design
     // and too big on devices smaller than the design
-    final scaledEdgeSize = edgeSize.scale(context);
+    final scaledEdgeSize = edgeSize.scaleToDesignSize(context);
 
     // prevent the row from collapsing
     if (pinSize == 0 && maxPinSize != shortPinSize) {
       return SizedBox(
         width: 0,
-        height: 19.scale(context),
+        height: 19.scaleToDesignSize(context),
       );
     }
 

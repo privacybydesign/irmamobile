@@ -13,14 +13,14 @@ const _largestViewportWidth = 414.0 / designScreenWidth;
 double shortestSide(BuildContext context) => MediaQuery.of(context).size.shortestSide;
 
 extension YiviDesignDouble on double {
-  double scale(BuildContext context) {
+  double scaleToDesignSize(BuildContext context) {
     final factor = shortestSide(context) / designScreenWidth;
     return this * factor.clamp(_smallestViewportWidth, _largestViewportWidth);
   }
 }
 
 extension YiviDesignInt on int {
-  double scale(BuildContext context) {
+  double scaleToDesignSize(BuildContext context) {
     final factor = shortestSide(context) / designScreenWidth;
     return this * factor.clamp(_smallestViewportWidth, _largestViewportWidth);
   }
