@@ -88,8 +88,9 @@ class IrmaCredentialCard extends StatelessWidget {
     this.onTap,
     this.style = IrmaCardStyle.normal,
     this.headerTrailing,
-    this.trailingText,
     this.padding,
+    this.expiryDate,
+    this.hideFooter = false,
   })  : credentialInfo = credential,
         attributes = credential.attributes,
         revoked = false;
@@ -123,7 +124,7 @@ class IrmaCredentialCard extends StatelessWidget {
               compareTo: compareTo,
             ),
           ],
-          if (!hideFooter) ...[
+          if (!hideFooter && expiryDate != null) ...[
             IrmaDivider(
               isDisabled: isExpired,
             ),
@@ -141,7 +142,7 @@ class IrmaCredentialCard extends StatelessWidget {
                         : 'credential.valid_until',
                 translationParams: {
                   'date': printableDate(
-                    DateTime.now(),
+                    expiryDate!.dateTime,
                     lang,
                   ),
                 },
