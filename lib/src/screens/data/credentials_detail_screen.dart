@@ -145,7 +145,6 @@ class _CredentialsDetailScreenState extends State<CredentialsDetailScreen> {
                                       Icons.more_horiz,
                                     ),
                                   ),
-                        expiryDate: CardExpiryDate(cred.expires),
                       ),
                     )
                     .toList(),

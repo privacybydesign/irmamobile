@@ -62,11 +62,11 @@ class IrmaCredentialCard extends StatelessWidget {
     this.style = IrmaCardStyle.normal,
     this.headerTrailing,
     this.padding,
-    this.expiryDate,
     this.hideFooter = false,
   })  : credentialInfo = credential.info,
         attributes = credential.attributeList,
         revoked = credential.revoked,
+        expiryDate = CardExpiryDate(credential.expires),
         super(key: key);
 
   IrmaCredentialCard.fromRemovedCredential(
@@ -90,7 +90,7 @@ class IrmaCredentialCard extends StatelessWidget {
     this.headerTrailing,
     this.padding,
     this.expiryDate,
-    this.hideFooter = false,
+    this.hideFooter = true,
   })  : credentialInfo = credential,
         attributes = credential.attributes,
         revoked = false;
