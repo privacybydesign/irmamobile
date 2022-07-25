@@ -34,6 +34,7 @@ class _NumberPadKey extends StatelessWidget {
                         child: Text(
                           '$number',
                           style: TextStyle(
+                            fontFamily: theme.fontFamily,
                             color: theme.secondary,
                             fontWeight: FontWeight.w600,
                           ),
@@ -45,6 +46,7 @@ class _NumberPadKey extends StatelessWidget {
                     subtitle!,
                     // style: theme.textTheme.headline5?.copyWith(
                     style: TextStyle(
+                      fontFamily: theme.fontFamily,
                       color: theme.secondary,
                       fontWeight: FontWeight.w400,
                       height: 14.0 / 24.0,
