@@ -17,7 +17,7 @@ class IrmaThemeData {
   final Color secondary = const Color(0xFF363E6A); // Used for buttons and headlines
 
   // Background / contrast colors
-  final Color background = const Color(0xFFE5E5E5); //Used on scaffolds and scrollable backgrounds
+  final Color background = const Color(0xFFFAFAFA); //Used on scaffolds and scrollable backgrounds
   Color get surfacePrimary => light; // Used on cards etc, to contrast with the background
   final Color surfaceSecondary = const Color(0xFFE9F4FF); // Used on cards that are active etc.
   final Color dark = Colors.black; // Used as default, non headline, text color
