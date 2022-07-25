@@ -52,7 +52,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
       EnterPin.routeName: (_) => EnterPin(submitOldPin: submitOldPin, cancel: cancel),
       ValidatingPin.routeName: (_) => ValidatingPin(cancel: cancel),
       ChoosePin.routeName: (_) => ChoosePin(chooseNewPin: chooseNewPin, cancel: cancel),
-      ConfirmPin.routeName: (_) => ConfirmPin(confirmNewPin: confirmNewPin, cancel: () => {}),
+      ConfirmPin.routeName: (_) => ConfirmPin(confirmNewPin: confirmNewPin, cancel: returnToChoosePin),
       UpdatingPin.routeName: (_) => UpdatingPin(cancel: cancel),
       Success.routeName: (_) => Success(cancel: cancel),
     };
@@ -67,6 +67,8 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
     navigatorKey.currentState?.pushNamed(ConfirmPin.routeName);
   }
 
+  void returnToChoosePin() => navigatorKey.currentState?.pushReplacementNamed(ChoosePin.routeName);
+
   void confirmNewPin(String pin) {
     widget.bloc.add(NewPinConfirmed(pin: pin));
   }
@@ -77,7 +79,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
     // Always pop at least one route (unless at the root), return to SettingsScreen or ChoosePin
     Navigator.maybePop(context).then(
       (_) => Navigator.of(context).popUntil(
-        (route) => route.settings.name == ChoosePin.routeName || route.settings.name == SettingsScreen.routeName,
+        (route) => route.settings.name == SettingsScreen.routeName,
       ),
     );
   }
