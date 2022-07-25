@@ -20,7 +20,11 @@ class IrmaCredentialCardAttributeList extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final attributesWithValue = attributes.where((att) => att.value is! NullValue);
+    final attributesWithValue = attributes.where((attr) =>
+        attr.value is! NullValue &&
+        (compareTo?.any((attrComp) =>
+                attrComp.value is! NullValue && attr.attributeType.fullId == attrComp.attributeType.fullId) ??
+            true));
 
     return Row(
       children: [
@@ -54,7 +58,7 @@ class IrmaCredentialCardAttributeList extends StatelessWidget {
                       );
                     } else if (attribute.value is TextValue) {
                       final Attribute? compareValue =
-                          compareTo?.firstWhereOrNull((e) => e.attributeType.id == attribute.attributeType.id);
+                          compareTo?.firstWhereOrNull((e) => e.attributeType.fullId == attribute.attributeType.fullId);
                       return TranslatedText(
                         (attribute.value as TextValue).translated.translate(lang),
                         style: theme.themeData.textTheme.bodyText1!.copyWith(

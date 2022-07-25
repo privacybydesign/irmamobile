@@ -9,11 +9,11 @@ import '../bloc/disclosure_permission_state.dart';
 import '../models/template_disclosure_credential.dart';
 import 'disclosure_permission_choice.dart';
 
-class DisclosurePermissionChangeChoiceScreen extends StatelessWidget {
-  final DisclosurePermissionChangeChoice state;
+class DisclosurePermissionMakeChoiceScreen extends StatelessWidget {
+  final DisclosurePermissionMakeChoice state;
   final Function(DisclosurePermissionBlocEvent) onEvent;
 
-  const DisclosurePermissionChangeChoiceScreen({
+  const DisclosurePermissionMakeChoiceScreen({
     required this.state,
     required this.onEvent,
   });
