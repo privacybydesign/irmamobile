@@ -3,7 +3,11 @@ import 'package:flutter/material.dart';
 import '../theme/theme.dart';
 
 class IrmaDivider extends StatelessWidget {
-  const IrmaDivider();
+  final bool isDisabled;
+
+  const IrmaDivider({
+    this.isDisabled = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +18,7 @@ class IrmaDivider extends StatelessWidget {
       child: Container(
         height: 1,
         decoration: BoxDecoration(
-          color: theme.neutralExtraLight,
+          color: isDisabled ? theme.light : theme.neutralExtraLight,
         ),
       ),
     );

@@ -3,7 +3,10 @@
     "loading": "Loading…",
     "step_of_steps": "Step {i} of {n}",
     "step": "Step",
-    "done": "Done"
+    "done": "Done",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete"
   },
   "enrollment": {
     "introduction": {
@@ -125,19 +128,6 @@
     "remove": "Remove",
     "expand": "Expand",
     "refresh": "Refresh"
-  },
-  "add_data": {
-    "title": "Adding data",
-    "choose": "Choose the data you wish to add.",
-    "category_other": "Other"
-  },
-  "add_data_details": {
-    "title": "Adding data",
-    "purpose_question": "What can you do with these data?",
-    "content_question": "Which data are added?",
-    "howto_question": "How does it work?",
-    "back_button": "Cancel",
-    "get_button": "Add"
   },
   "settings": {
     "title": "Settings",
@@ -487,9 +477,27 @@
       }
     }
   },
-  "data_tab": {
-    "title": "Your data",
-    "obtain_data": "Obtain personal data"
+  "data": {
+    "tab": {
+      "title": "Your data",
+      "obtain_data": "Obtain personal data"
+    },
+    "detail": {
+      "title": "Contact information"
+    },
+    "add": {
+      "title": "Adding data",
+      "choose": "Choose the data you wish to add.",
+      "details": {
+        "title": "Adding data",
+        "purpose_question": "What can you do with these data?",
+        "content_question": "Which data are added?",
+        "howto_question": "How does it work?",
+        "back_button": "Cancel",
+        "get_button": "Add"
+      }
+    },
+    "category_other": "Other"
   },
   "more_tab": {
     "app_management": "App management",
@@ -532,6 +540,17 @@
   "credential": {
     "no_data": "No data",
     "valid_until": "Valid until: {date}",
-    "date_at_time": "{date} at {time}"
+    "expires_on": "Expires on {date}",
+    "expired_on": "Expired on {date}",
+    "date_at_time": "{date} at {time}",
+    "options": {
+      "title": "Options",
+      "reobtain": "Reobtain",
+      "delete": "Delete data",
+      "confirm_delete": "Are you sure you want to delete this data?",
+      "delete_success": "Success! The data has been deleted."
+    },
+    "about_to_expire": "About to expire",
+    "expired": "Expired"
   }
 }

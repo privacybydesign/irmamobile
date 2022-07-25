@@ -3,7 +3,10 @@
     "loading": "Laden…",
     "step_of_steps": "Stap {i} van {n}",
     "step": "Stap",
-    "done": "Gereed"
+    "done": "Gereed",
+    "cancel": "Annuleren",
+    "confirm": "Bevestigen",
+    "delete": "Verwijderen"
   },
   "enrollment": {
     "introduction": {
@@ -125,19 +128,6 @@
     "remove": "Verwijderen",
     "expand": "Uitklappen",
     "refresh": "Verversen"
-  },
-  "add_data": {
-    "title": "Gegevens toevoegen",
-    "choose": "Kies de gegevens die je wilt toevoegen.",
-    "category_other": "Overig"
-  },
-  "add_data_details": {
-    "title": "Gegevens toevoegen",
-    "purpose_question": "Wat kun je met deze gegevens?",
-    "content_question": "Welke gegevens haal je op?",
-    "howto_question": "Hoe werkt het?",
-    "back_button": "Annuleer",
-    "get_button": "Voeg toe"
   },
   "settings": {
     "title": "Instellingen",
@@ -487,9 +477,27 @@
       }
     }
   },
-  "data_tab": {
-    "title": "Jouw gegevens",
-    "obtain_data": "Haal persoonlijke gegevens op"
+  "data": {
+    "tab": {
+      "title": "Jouw gegevens",
+      "obtain_data": "Haal persoonlijke gegevens op"
+    },
+    "detail": {
+      "title": "Contactgegevens"
+    },
+    "add": {
+      "title": "Gegevens toevoegen",
+      "choose": "Kies de gegevens die je wilt toevoegen.",
+      "details": {
+        "title": "Gegevens toevoegen",
+        "purpose_question": "Wat kun je met deze gegevens?",
+        "content_question": "Welke gegevens haal je op?",
+        "howto_question": "Hoe werkt het?",
+        "back_button": "Annuleer",
+        "get_button": "Voeg toe"
+      }
+    },
+    "category_other": "Overig"
   },
   "more_tab": {
     "app_management": "App-beheer",
@@ -532,6 +540,17 @@
   "credential": {
     "no_data": "Geen gegevens",
     "valid_until": "Geldig tot: {date}",
-    "date_at_time": "{date} om {time}"
+    "expires_on": "Verloopt op: {date}",
+    "expired_on": "Verlopen op {date}",
+    "date_at_time": "{date} om {time}",
+    "options": {
+      "title": "Opties",
+      "reobtain": "Opnieuw ophalen",
+      "delete": "Verwijder gegevens",
+      "confirm_delete": "Weet je zeker dat je deze gegevens wilt verwijderen?",
+      "delete_success": "Gelukt! De gegevens zijn verwijderd."
+    },
+    "about_to_expire": "Gaat verlopen",
+    "expired": "Verlopen"
   }
 }
