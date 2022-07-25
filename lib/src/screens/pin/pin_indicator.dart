@@ -66,7 +66,7 @@ class _PinIndicator extends StatelessWidget {
     final isMaxPin5 = maxPinSize == shortPinSize;
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: isMaxPin5 ? MainAxisAlignment.spaceEvenly : MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         ...List.generate(
