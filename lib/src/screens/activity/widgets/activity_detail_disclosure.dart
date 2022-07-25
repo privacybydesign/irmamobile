@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:intl/intl.dart';
 
 import '../../../models/attributes.dart';
 import '../../../models/irma_configuration.dart';
@@ -21,32 +19,22 @@ class ActivityDetailDisclosure extends StatelessWidget {
   });
 
   Widget _buildCredentialCard(
+    BuildContext context,
     List<DisclosedAttribute> disclosedAttributes,
-    IrmaThemeData theme,
-    String lang,
   ) {
     final mappedAttributes =
         disclosedAttributes.map((e) => Attribute.fromDisclosedAttribute(irmaConfiguration, e)).toList();
 
     return IrmaCredentialCard(
-        credentialInfo: mappedAttributes.first.credentialInfo,
-        attributes: mappedAttributes,
-        trailingText: TranslatedText(
-          'credential.date_at_time',
-          translationParams: {
-            'date': DateFormat.yMMMMd(lang).format(logEntry.time),
-            'time': DateFormat.jm(lang).format(logEntry.time),
-          },
-          style: theme.textTheme.caption!.copyWith(
-            color: theme.neutral,
-          ),
-        ));
+      credentialInfo: mappedAttributes.first.credentialInfo,
+      attributes: mappedAttributes,
+      hideFooter: true,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,9 +46,8 @@ class ActivityDetailDisclosure extends StatelessWidget {
         SizedBox(height: theme.smallSpacing),
         for (var disclosedAttributes in logEntry.disclosedAttributes)
           _buildCredentialCard(
+            context,
             disclosedAttributes,
-            theme,
-            lang,
           ),
         if (logEntry.type == LogEntryType.signing) ...[
           Padding(
@@ -77,7 +64,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
           'activity.shared_with',
           style: theme.themeData.textTheme.headline3,
         ),
-        SizedBox(height: IrmaTheme.of(context).smallSpacing),
+        SizedBox(height: theme.smallSpacing),
         ActivityVerifierHeader(requestorInfo: logEntry.serverName!),
       ],
     );

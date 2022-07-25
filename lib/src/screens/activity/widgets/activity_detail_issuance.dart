@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../models/credentials.dart';
 import '../../../models/irma_configuration.dart';
 import '../../../models/log_entry.dart';
 import '../../../theme/theme.dart';
-import '../../../util/date_formatter.dart';
 import '../../../widgets/credential_card/irma_credential_card.dart';
 import '../../../widgets/translated_text.dart';
 import 'activity_detail_disclosure.dart';
@@ -22,22 +20,6 @@ class ActivityDetailIssuance extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
-
-    IrmaCredentialCard _buildCredentialCard(Credential credential) {
-      return IrmaCredentialCard.fromCredential(
-        credential,
-        trailingText: TranslatedText(
-          'credential.valid_until',
-          translationParams: {
-            'date': printableDate(credential.expires, lang),
-          },
-          style: theme.textTheme.caption!.copyWith(
-            color: theme.neutral,
-          ),
-        ),
-      );
-    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,11 +38,12 @@ class ActivityDetailIssuance extends StatelessWidget {
         ),
         SizedBox(height: theme.smallSpacing),
         for (var rawCredential in logEntry.issuedCredentials)
-          _buildCredentialCard(
+          IrmaCredentialCard.fromCredential(
             Credential.fromRaw(
               irmaConfiguration: irmaConfiguration,
               rawCredential: rawCredential,
             ),
+            hideFooter: true,
           )
       ],
     );

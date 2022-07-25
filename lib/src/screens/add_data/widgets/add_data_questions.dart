@@ -42,11 +42,11 @@ class AddDataQuestions extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (credentialType.faqPurpose.isNotEmpty)
-          _buildCollapsible(context, 'add_data_details.purpose_question', credentialType.faqPurpose),
+          _buildCollapsible(context, 'data.add.details.purpose_question', credentialType.faqPurpose),
         if (credentialType.faqContent.isNotEmpty)
-          _buildCollapsible(context, 'add_data_details.content_question', credentialType.faqContent),
+          _buildCollapsible(context, 'data.add.details.content_question', credentialType.faqContent),
         if (credentialType.faqHowto.isNotEmpty)
-          _buildCollapsible(context, 'add_data_details.howto_question', credentialType.faqHowto),
+          _buildCollapsible(context, 'data.add.details.howto_question', credentialType.faqHowto),
       ],
     );
   }

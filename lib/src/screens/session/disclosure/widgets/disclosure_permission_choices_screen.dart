@@ -35,13 +35,17 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
         ) ??
         false;
 
-    onEvent(confirmed ? DisclosurePermissionNextPressed() : DisclosurePermissionConfirmationDismissed());
+    onEvent(confirmed ? DisclosurePermissionNextPressed() : DisclosurePermissionDialogDismissed());
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
+
+    if (state.optionalChoices.isNotEmpty || state.hasAdditionalOptionalChoices) {
+      throw UnimplementedError('Optional choices cannot be displayed yet');
+    }
 
     if (state is DisclosurePermissionChoicesOverview &&
         (state as DisclosurePermissionChoicesOverview).showConfirmationPopup) {
@@ -105,19 +109,24 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
               style: theme.themeData.textTheme.headline4,
             ),
             SizedBox(height: theme.smallSpacing),
-            ...state.choices.entries.map(
+            ...state.requiredChoices.entries.map(
               (choiceEntry) => Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       GestureDetector(
-                        onTap: () => onEvent(DisclosurePermissionChangeChoicePressed(disconIndex: choiceEntry.key)),
+                        onTap: () => onEvent(
+                          DisclosurePermissionChangeChoicePressed(
+                            disconIndex: choiceEntry.key,
+                          ),
+                        ),
                         child: TranslatedText(
                           'disclosure_permission.change_choice',
                           style: theme.hyperlinkTextStyle,
                         ),
-                      ),
+                      )
                     ],
                   ),
                   SizedBox(height: theme.smallSpacing),
@@ -125,7 +134,8 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                     IrmaCredentialCard(
                       credentialInfo: credential,
                       attributes: credential.attributes,
-                    ),
+                      hideFooter: true,
+                    )
                 ],
               ),
             ),
