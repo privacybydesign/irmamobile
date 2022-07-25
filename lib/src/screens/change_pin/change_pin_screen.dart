@@ -74,9 +74,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
   }
 
   void cancel() {
-    widget.bloc.add(ChangePinCanceled());
-
-    // Always pop at least one route (unless at the root), return to SettingsScreen or ChoosePin
+    // Return to SettingsScreen
     Navigator.maybePop(context).then(
       (_) => Navigator.of(context).popUntil(
         (route) => route.settings.name == SettingsScreen.routeName,

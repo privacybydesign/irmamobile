@@ -35,11 +35,3 @@ class NewPinConfirmed extends Equatable {
   @override
   List<Object> get props => [pin];
 }
-
-class ChangePinCanceled extends Equatable {
-  @override
-  String toString() => 'ChangePinCanceled';
-
-  @override
-  List<Object> get props => [];
-}

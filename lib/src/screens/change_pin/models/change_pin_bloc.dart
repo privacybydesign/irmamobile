@@ -14,9 +14,7 @@ class ChangePinBloc extends Bloc<Object, ChangePinState> {
 
   @override
   Stream<ChangePinState> mapEventToState(Object event) async* {
-    if (event is ChangePinCanceled) {
-      yield ChangePinState();
-    } else if (event is OldPinEntered) {
+    if (event is OldPinEntered) {
       yield state.copyWith(
         validatingPin: true,
       );
