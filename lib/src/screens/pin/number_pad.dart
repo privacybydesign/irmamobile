@@ -20,7 +20,7 @@ class _NumberPad extends StatelessWidget {
         _NumberPadKey(onEnterNumber, 9, 'WXYZ'),
         SizedBox.fromSize(size: const Size.square(20)),
         _NumberPadKey(onEnterNumber, 0),
-        _NumberPadIcon(icon: Icons.backspace, callback: () => onEnterNumber(-1)),
+        _NumberPadIcon(icon: Icons.backspace_outlined, callback: () => onEnterNumber(-1)),
       ];
 
       final keyWidth = constraints.maxWidth / 3.0;
