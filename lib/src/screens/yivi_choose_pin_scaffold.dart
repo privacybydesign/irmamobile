@@ -42,6 +42,7 @@ class YiviChoosePinScaffold extends StatelessWidget {
             onSubmit: submit,
             pinBloc: pinBloc,
             onTogglePinSize: () => prefs.setLongPin(!longPin),
+            displayPinLength: true,
             checkSecurePin: true,
             listener: (context, state) {
               if (maxPinSize == shortPinSize && state.goodEnough) {

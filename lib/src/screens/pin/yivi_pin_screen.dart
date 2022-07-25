@@ -54,6 +54,7 @@ class YiviPinScreen extends StatelessWidget {
   final pinVisibilityValue = ValueNotifier(false);
   final VoidCallback? onForgotPin;
   final VoidCallback? onTogglePinSize;
+  final bool displayPinLength;
   final bool checkSecurePin;
   final String? instructionKey;
   final String? instruction;
@@ -69,6 +70,7 @@ class YiviPinScreen extends StatelessWidget {
     required this.maxPinSize,
     required this.onSubmit,
     this.onForgotPin,
+    this.displayPinLength = false,
     this.onTogglePinSize,
     this.checkSecurePin = false,
     this.enabled = true,
@@ -176,18 +178,19 @@ class YiviPinScreen extends StatelessWidget {
                   height: 1.0,
                   color: theme.darkPurple,
                 ),
-                Align(
-                  alignment: Alignment.bottomRight,
-                  child: BlocBuilder<EnterPinStateBloc, EnterPinState>(
-                    bloc: pinBloc,
-                    builder: (context, state) => Text(
-                      '${state.pin.length}/$maxPinSize',
-                      style: theme.textTheme.caption?.copyWith(
-                          fontWeight: FontWeight.w300,
-                          color: state.pin.isNotEmpty ? theme.darkPurple : Colors.transparent),
+                if (displayPinLength)
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: BlocBuilder<EnterPinStateBloc, EnterPinState>(
+                      bloc: pinBloc,
+                      builder: (context, state) => Text(
+                        '${state.pin.length}/$maxPinSize',
+                        style: theme.textTheme.caption?.copyWith(
+                            fontWeight: FontWeight.w300,
+                            color: state.pin.isNotEmpty ? theme.darkPurple : Colors.transparent),
+                      ),
                     ),
-                  ),
-                )
+                  )
               ],
             ),
           ),
