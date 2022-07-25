@@ -11,7 +11,7 @@ class _UnsecurePinDescriptionTile extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 16),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.start,
