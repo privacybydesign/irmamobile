@@ -16,6 +16,7 @@ class ConfirmPin extends StatelessWidget {
       cancel: () => cancelAndNavigate(context),
       titleTranslationKey: 'enrollment.choose_pin.title',
       instructionKey: 'enrollment.choose_pin.confirm_instruction',
+      longPin: ModalRoute.of(context)!.settings.arguments as bool,
     );
   }
 }

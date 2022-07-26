@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:irmamobile/src/models/session.dart';
+import 'package:irmamobile/src/screens/pin/yivi_pin_screen.dart';
 import 'package:meta/meta.dart';
 
 enum ValidationState { initial, valid, invalid }
@@ -23,6 +24,7 @@ class EnrollmentState with EquatableMixin {
   final bool pinMismatch;
   final bool isSubmitting;
   final bool submittingFailed;
+  final bool longPin;
   final SessionError? error;
   final int retry;
 
@@ -40,7 +42,7 @@ class EnrollmentState with EquatableMixin {
     this.submittingFailed = false,
     this.error,
     this.retry = 0,
-  });
+  }) : longPin = pin.length > shortPinSize;
 
   EnrollmentState copyWith({
     String? pin,

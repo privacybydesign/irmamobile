@@ -12,7 +12,6 @@ import 'package:irmamobile/src/screens/pin/bloc/pin_state.dart';
 import 'package:irmamobile/src/widgets/pin_common/format_blocked_for.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_attempts.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_blocked.dart';
-import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
@@ -125,11 +124,10 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                 subtitle = '$blockedText $blockedForTime';
               }
 
-              // Recommended way according to the documentation
-              return PreferenceBuilder(
-                preference: prefs.longPin,
-                builder: (BuildContext context, bool longPin) {
-                  final maxPinSize = longPin ? longPinSize : shortPinSize;
+              return StreamBuilder<bool>(
+                stream: prefs.getLongPin(),
+                builder: (context, snapshot) {
+                  final maxPinSize = (snapshot.data ?? false) ? longPinSize : shortPinSize;
 
                   final pinBloc = EnterPinStateBloc(maxPinSize);
 

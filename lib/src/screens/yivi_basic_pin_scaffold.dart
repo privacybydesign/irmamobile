@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
-import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 
 import '../widgets/irma_repository_provider.dart';
 import 'pin/yivi_pin_screen.dart';
@@ -32,10 +31,10 @@ class YiviBasicPinScaffold extends StatelessWidget {
               }
             : null,
       ),
-      body: PreferenceBuilder(
-        preference: prefs.longPin,
-        builder: (BuildContext context, bool longPin) {
-          final maxPinSize = longPin ? longPinSize : shortPinSize;
+      body: StreamBuilder<bool>(
+        stream: prefs.getLongPin(),
+        builder: (context, snapshot) {
+          final maxPinSize = (snapshot.data ?? false) ? longPinSize : shortPinSize;
           final pinBloc = EnterPinStateBloc(maxPinSize);
 
           return YiviPinScreen(

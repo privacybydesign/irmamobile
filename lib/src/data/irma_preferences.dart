@@ -19,7 +19,7 @@ class IrmaPreferences {
 
   IrmaPreferences._(StreamingSharedPreferences preferences)
       : _screenshotsEnabled = preferences.getBool(_screenshotsEnabledKey, defaultValue: false),
-        longPin = preferences.getBool(_longPinKey, defaultValue: true),
+        _longPin = preferences.getBool(_longPinKey, defaultValue: true),
         _reportErrors = preferences.getBool(_reportErrorsKey, defaultValue: false),
         _startQRScan = preferences.getBool(_startQRScanKey, defaultValue: false),
         _showDisclosureDialog = preferences.getBool(_showDisclosureDialogKey, defaultValue: true),
@@ -41,10 +41,10 @@ class IrmaPreferences {
   Future<bool> setScreenshotsEnabled(bool value) => _screenshotsEnabled.setValue(value);
 
   static const String _longPinKey = "preference.long_pin";
-  final Preference<bool> longPin;
+  final Preference<bool> _longPin;
 
-  Stream<bool> getLongPin() => longPin;
-  Future<bool> setLongPin(bool value) => longPin.setValue(value);
+  Stream<bool> getLongPin() => _longPin;
+  Future<bool> setLongPin(bool value) => _longPin.setValue(value);
 
   static const String _reportErrorsKey = "preference.report_errors";
   final Preference<bool> _reportErrors;

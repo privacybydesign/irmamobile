@@ -11,7 +11,6 @@ import 'package:irmamobile/src/screens/pin/bloc/pin_state.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/loading_indicator.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_attempts.dart';
-import 'package:streaming_shared_preferences/streaming_shared_preferences.dart';
 
 import '../../theme/theme.dart';
 import '../reset_pin/reset_pin_screen.dart';
@@ -120,6 +119,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
 
   @override
   Widget build(BuildContext context) {
+    final prefs = _repo.preferences;
     return WillPopScope(
       onWillPop: () async {
         // Wait on irmago response before closing, calling widget expects a result
@@ -154,10 +154,10 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
                 body: StreamBuilder(
                   stream: _pinBloc.getPinBlockedFor(),
                   builder: (BuildContext context, AsyncSnapshot<Duration> blockedFor) {
-                    return PreferenceBuilder(
-                      preference: _repo.preferences.longPin,
-                      builder: (BuildContext context, bool longPin) {
-                        final maxPinSize = longPin ? longPinSize : shortPinSize;
+                    return StreamBuilder<bool>(
+                      stream: prefs.getLongPin(),
+                      builder: (context, snapshot) {
+                        final maxPinSize = (snapshot.data ?? false) ? longPinSize : shortPinSize;
                         final pinBloc = EnterPinStateBloc(maxPinSize);
 
                         final enabled =

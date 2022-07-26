@@ -2,6 +2,8 @@ import 'package:equatable/equatable.dart';
 import 'package:irmamobile/src/models/session.dart';
 import 'package:meta/meta.dart';
 
+import '../../pin/yivi_pin_screen.dart';
+
 enum ValidationState { initial, valid, invalid, error }
 
 @immutable
@@ -10,6 +12,7 @@ class ChangePinState with EquatableMixin {
   final String oldPin;
   final bool validatingPin;
   final bool updatingPin;
+  final bool longPin;
 
   final int attemptsRemaining;
   final DateTime? blockedUntil;
@@ -30,7 +33,7 @@ class ChangePinState with EquatableMixin {
     this.blockedUntil,
     this.error,
     this.errorMessage,
-  });
+  }) : longPin = newPin.length > shortPinSize;
 
   ChangePinState copyWith({
     String? oldPin,

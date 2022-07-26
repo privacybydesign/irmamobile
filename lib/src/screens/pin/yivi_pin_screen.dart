@@ -136,9 +136,12 @@ class YiviPinScreen extends StatelessWidget {
           visible ? Icons.visibility_off : Icons.visibility, () => pinVisibilityValue.value = !visible),
     );
 
-    final instruction = Text(
-      instructionKey != null ? FlutterI18n.translate(context, instructionKey!) : this.instruction!,
-      style: theme.textTheme.headline3?.copyWith(fontWeight: FontWeight.w700),
+    final instruction = Center(
+      child: Text(
+        instructionKey != null ? FlutterI18n.translate(context, instructionKey!) : this.instruction!,
+        textAlign: TextAlign.center,
+        style: theme.textTheme.headline3?.copyWith(fontWeight: FontWeight.w700),
+      ),
     );
 
     final pinDots = BlocBuilder<EnterPinStateBloc, EnterPinState>(

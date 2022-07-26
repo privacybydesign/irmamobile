@@ -18,6 +18,9 @@ import 'package:irmamobile/src/screens/settings/settings_screen.dart';
 import 'package:irmamobile/src/util/hero_controller.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_attempts.dart';
 
+import '../../widgets/irma_repository_provider.dart';
+import '../pin/yivi_pin_screen.dart';
+
 class ChangePinScreen extends StatelessWidget {
   static const routeName = "/change_pin";
 
@@ -62,7 +65,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
 
   void chooseNewPin(BuildContext context, String pin) {
     widget.bloc.add(NewPinChosen(pin: pin));
-    navigatorKey.currentState?.pushNamed(ConfirmPin.routeName);
+    navigatorKey.currentState?.pushNamed(ConfirmPin.routeName, arguments: pin.length > shortPinSize);
   }
 
   void returnToChoosePin() => navigatorKey.currentState?.pushReplacementNamed(ChoosePin.routeName);
@@ -94,6 +97,8 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
         listener: (BuildContext context, ChangePinState state) {
           if (state.newPinConfirmed == ValidationState.valid) {
             navigatorKey.currentState?.pushNamedAndRemoveUntil(Success.routeName, (_) => false);
+            final prefs = IrmaRepositoryProvider.of(context).preferences;
+            prefs.setLongPin(state.longPin);
           } else if (state.newPinConfirmed == ValidationState.invalid) {
             navigatorKey.currentState?.pop();
             // show error overlay

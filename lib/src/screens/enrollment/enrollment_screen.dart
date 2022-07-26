@@ -15,7 +15,10 @@ import 'package:irmamobile/src/screens/enrollment/widgets/confirm_pin.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/introduction.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/provide_email.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/submit.dart';
+import 'package:irmamobile/src/screens/pin/yivi_pin_screen.dart';
 import 'package:irmamobile/src/util/hero_controller.dart';
+
+import '../../widgets/irma_repository_provider.dart';
 
 class EnrollmentScreen extends StatefulWidget {
   static const routeName = "/enrollment";
@@ -76,7 +79,7 @@ class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
 
   void _submitPin(BuildContext context, String pin) {
     bloc.add(PinSubmitted(pin: pin));
-    navigatorKey.currentState.pushNamed(ConfirmPin.routeName);
+    navigatorKey.currentState.pushNamed(ConfirmPin.routeName, arguments: pin.length > shortPinSize);
   }
 
   void _submitConfirmationPin(String pin) {
@@ -130,6 +133,8 @@ class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
               navigatorKey.currentState.pushReplacementNamed(Submit.routeName);
             } else if (state.pinConfirmed) {
               navigatorKey.currentState.pushReplacementNamed(ProvideEmail.routeName);
+              final prefs = IrmaRepositoryProvider.of(context).preferences;
+              prefs.setLongPin(state.longPin);
             } else if (state.pinMismatch) {
               navigatorKey.currentState.popUntil((route) => route.settings.name == ChoosePin.routeName);
               // show error overlay
