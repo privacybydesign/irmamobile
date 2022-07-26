@@ -27,10 +27,6 @@ class YiviPinScaffold extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     final scalePaddingForSmallDevices = shortestSide(context) < 350 ? 0.5 : 1;
 
-    if (kDebugMode) {
-      print('shortest side: ${shortestSide(context)} \nlongest side: ${MediaQuery.of(context).size.longestSide}');
-    }
-
     return Scaffold(
       appBar: appBar,
       backgroundColor: theme.background,
