@@ -45,8 +45,6 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
   final IrmaRepository _repo = IrmaRepository.get();
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-  ProvidedChangePinScreenState() : super();
-
   Map<String, WidgetBuilder> _routeBuilders() {
     return {
       EnterPin.routeName: (_) => EnterPin(submitOldPin: submitOldPin, cancel: cancel),
