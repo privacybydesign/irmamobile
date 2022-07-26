@@ -8,6 +8,7 @@ enum IrmaCardStyle {
   outlined,
   highlighted,
   template,
+  disabled,
 }
 
 /// Variant of Material's Card that uses IRMA styling.
@@ -69,14 +70,24 @@ class IrmaCard extends StatelessWidget {
                         width: 2,
                       ),
                       color: style == IrmaCardStyle.highlighted ? theme.surfaceSecondary : Colors.white,
-                      boxShadow: shadow)
-                  //Normal styling
-                  : BoxDecoration(
-                      borderRadius: borderRadius,
-                      border: Border.all(color: Colors.transparent),
-                      color: color ?? Colors.white,
                       boxShadow: shadow,
-                    ),
+                    )
+                  : style == IrmaCardStyle.disabled
+                      //Disabled styling
+                      ? BoxDecoration(
+                          borderRadius: borderRadius,
+                          border: Border.all(color: Colors.transparent),
+                          color: theme.neutralExtraLight,
+                          boxShadow: shadow,
+                        )
+
+                      //Normal styling
+                      : BoxDecoration(
+                          borderRadius: borderRadius,
+                          border: Border.all(color: Colors.transparent),
+                          color: color ?? Colors.white,
+                          boxShadow: shadow,
+                        ),
           child: child,
         ),
       ),

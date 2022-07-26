@@ -3,7 +3,11 @@
     "loading": "Laden…",
     "step_of_steps": "Stap {i} van {n}",
     "step": "Stap",
-    "done": "Gereed"
+    "done": "Gereed",
+    "next": "Volgende",
+    "cancel": "Annuleren",
+    "confirm": "Bevestigen",
+    "delete": "Verwijderen"
   },
   "enrollment": {
     "introduction": {
@@ -27,10 +31,10 @@
     },
     "choose_pin": {
       "title": "Beveiliging instellen",
-      "insert_pin": "Kies een pincode",
+      "insert_pin": "Kies een pincode van 5 cijfers",
       "textfield": "Pincode",
       "confirm_title": "Herhaal je pincode",
-      "instruction": "Kies een pincode",
+      "instruction": "Kies een pincode van 5 cijfers",
       "confirm_instruction": "Vul je pincode nog een keer in",
       "next": "Volgende",
       "error_title": "Pincode verkeerd",
@@ -125,19 +129,6 @@
     "remove": "Verwijderen",
     "expand": "Uitklappen",
     "refresh": "Verversen"
-  },
-  "add_data": {
-    "title": "Gegevens toevoegen",
-    "choose": "Kies de gegevens die je wilt toevoegen.",
-    "category_other": "Overig"
-  },
-  "add_data_details": {
-    "title": "Gegevens toevoegen",
-    "purpose_question": "Wat kun je met deze gegevens?",
-    "content_question": "Welke gegevens haal je op?",
-    "howto_question": "Hoe werkt het?",
-    "back_button": "Annuleer",
-    "get_button": "Voeg toe"
   },
   "settings": {
     "title": "Instellingen",
@@ -353,6 +344,22 @@
       "explanation": "Je staat op het punt om gegevens te delen met {requestorName}. Klik op 'Delen' om verder te gaan.",
       "confirm": "Delen",
       "decline": "Niet delen"
+    },
+    "wrong_credentials_added": {
+      "title": "Foutmelding",
+      "explanation": "Gegevens zijn toegevoegd in de app, maar voldoen niet aan de criteria om te delen. Haal de juiste gegevens op.",
+      "dismiss_action": "OK"
+    },
+    "call": {
+      "title": "Bel via Yivi",
+      "disclosure_explanation": "Wil je de volgende gegevens aan {otherParty} doorgeven en bellen naar {phoneNumber}?",
+      "disclosure_success": "Gegevens zijn doorgegeven aan {otherParty}",
+      "explanation_header_ios": "Kies volgende om te bellen",
+      "explanation_ios": "Er verschijnt een pop-up met de keuze om te bellen. Het telefoonnummer is al ingevuld, met een koppelcode. Als je bellen kiest, hoor je een paar piepjes en word je verbonden.",
+      "explanation_header_android": "1. Kies volgende",
+      "explanation_android": "Je belapplicatie opent nu vanzelf. Het telefoonnummer is al ingevuld, met een koppelcode.",
+      "extra_explanation_header_android": "2. Klik op de belknop in je belapplicatie",
+      "extra_explanation_android": "Je hoort een paar piepjes en wordt verbonden."
     }
   },
   "disclosure": {
@@ -392,19 +399,6 @@
         "canceled": "Je gegevens zijn niet doorgegeven aan {otherParty}",
         "notSatisfiable": "Je gegevens zijn niet doorgegeven, omdat {otherParty} om verouderde gegevens vraagt. Je kunt hier zelf niets aan doen. Je zou wel een bericht kunnen sturen naar deze partij."
       }
-    },
-    "call_info": {
-      "title": "Via Yivi bellen",
-      "success": "Gegevens doorgegegeven",
-      "success_message_markdown": "Je gegevens zijn doorgegeven aan **{otherParty}**.\nVoer de volgende stappen uit om te bellen.",
-      "success_message_ios_markdown": "Je gegevens zijn doorgegeven aan **{otherParty}**.",
-      "continue": "1. Kies doorgaan",
-      "continue_ios": "Kies doorgaan om te bellen",
-      "continue_message": "Je bel-app opent nu vanzelf. Het telefoonnummer is al ingevuld, met een koppelcode.",
-      "continue_message_ios": "Er verschijnt een pop-up met de keuze om te bellen. Het telefoonnummer is al ingevuld, met een koppelcode. Als je bellen kiest, hoor je een paar piepjes en word je verbonden.",
-      "call": "2. Klik op de bel-knop in je bel-app.",
-      "call_message": "Je hoort een paar piepjes en wordt verbonden.",
-      "continue_button": "Doorgaan"
     }
   },
   "reset_pin": {
@@ -482,9 +476,27 @@
       }
     }
   },
-  "data_tab": {
-    "title": "Jouw gegevens",
-    "obtain_data": "Haal persoonlijke gegevens op"
+  "data": {
+    "tab": {
+      "title": "Jouw gegevens",
+      "obtain_data": "Haal persoonlijke gegevens op"
+    },
+    "detail": {
+      "title": "Contactgegevens"
+    },
+    "add": {
+      "title": "Gegevens toevoegen",
+      "choose": "Kies de gegevens die je wilt toevoegen.",
+      "details": {
+        "title": "Gegevens toevoegen",
+        "purpose_question": "Wat kun je met deze gegevens?",
+        "content_question": "Welke gegevens haal je op?",
+        "howto_question": "Hoe werkt het?",
+        "back_button": "Annuleer",
+        "get_button": "Voeg toe"
+      }
+    },
+    "category_other": "Overig"
   },
   "more_tab": {
     "app_management": "App-beheer",
@@ -527,7 +539,18 @@
   "credential": {
     "no_data": "Geen gegevens",
     "valid_until": "Geldig tot: {date}",
-    "date_at_time": "{date} om {time}"
+    "expires_on": "Verloopt op: {date}",
+    "expired_on": "Verlopen op {date}",
+    "date_at_time": "{date} om {time}",
+    "options": {
+      "title": "Opties",
+      "reobtain": "Opnieuw ophalen",
+      "delete": "Verwijder gegevens",
+      "confirm_delete": "Weet je zeker dat je deze gegevens wilt verwijderen?",
+      "delete_success": "Gelukt! De gegevens zijn verwijderd."
+    },
+    "about_to_expire": "Gaat verlopen",
+    "expired": "Verlopen"
   },
   "secure_pin": {
     "info_button": "Pincode mogelijk niet veilig",
@@ -541,4 +564,3 @@
       "must_contain_valid_subset": "Moet een reeks van 5 bevatten, die aan de bovenstaande regels voldoen"
     }
   }
-}

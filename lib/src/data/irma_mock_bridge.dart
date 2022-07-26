@@ -211,7 +211,7 @@ class IrmaMockBridge extends IrmaBridge {
 
         // Convert given credentials to RawCredentials.
         final now = DateTime.now();
-        final issuedCredentials = credentials.map((attrs) {
+        final issuedCredentials = credentials.mapIndexed((i, attrs) {
           // All attributes in a credential should be known in the configuration.
           assert(attrs.entries
                   .map((attr) => _irmaConfiguration.attributeTypes[attr.key]!.fullCredentialId)
@@ -226,7 +226,7 @@ class IrmaMockBridge extends IrmaBridge {
             signedOn: now.microsecondsSinceEpoch ~/ 1000,
             expires: now.add(const Duration(days: 365)).microsecondsSinceEpoch ~/ 1000,
             attributes: attrs.map((key, value) => MapEntry(key, value.toRaw())),
-            hash: 'session-$sessionId', // Use the session id as a dummy hash to make it unique and predicable.
+            hash: 'session-$sessionId-$i', // Use the session id as a dummy hash to make it unique and predicable.
             revoked: false,
             revocationSupported: false,
           );
