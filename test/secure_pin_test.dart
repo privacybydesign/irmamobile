@@ -2,8 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/src/screens/pin/yivi_pin_screen.dart';
 
 void main() {
-  final bloc5 = EnterPinStateBloc(5);
-  final bloc16 = EnterPinStateBloc(16);
+  final bloc5 = TestEnterPinStateBloc(5);
+  final bloc16 = TestEnterPinStateBloc(16);
 
   test('Pin must contain at least 3 distinct numbers', () async {
     final pins16 = <Pin>{
@@ -40,8 +40,6 @@ void main() {
 
   test('PIN, n=5 that have short, translation symmetric and/or mirror symmetric patterns', () async {
     final pins5 = <Pin>{
-      [0, 0, 3, 0, 0],
-      [0, 0, 7, 0, 0],
       [0, 1, 3, 1, 0],
       [1, 3, 5, 3, 1],
       [0, 1, 3, 0, 1],

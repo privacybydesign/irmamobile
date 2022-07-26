@@ -77,7 +77,7 @@ class _PinIndicator extends StatelessWidget {
               BlockSemantics(
                 blocking: !isPinVisible,
                 child: Text(
-                  '${i < pinSize ? pinState.pin[i] : '_'}',
+                  '${i < pinSize ? pinState.pin.elementAt(i) : '_'}',
                   style: i >= pinSize ? style?.copyWith(color: Colors.transparent) : style,
                 ),
               ),

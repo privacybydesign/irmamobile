@@ -29,8 +29,6 @@ part 'unsecure_pin_list_builder.dart';
 part 'unsecure_pin_warning_text_button.dart';
 part 'yivi_pin_scaffold.dart';
 
-typedef Pin = List<int>;
-typedef PinCallback = bool Function(Pin);
 typedef PinQuality = Set<SecurePinAttribute>;
 typedef NumberCallback = void Function(int);
 typedef StringCallback = void Function(String);
@@ -244,7 +242,7 @@ class YiviPinScreen extends StatelessWidget {
           ),
           Expanded(
             child: _NumberPad(
-              onEnterNumber: pinBloc.update,
+              onEnterNumber: pinBloc.add,
             ),
           ),
           SizedBox(height: theme.screenPadding),
@@ -278,7 +276,7 @@ class YiviPinScreen extends StatelessWidget {
           ),
           Expanded(
             child: _NumberPad(
-              onEnterNumber: pinBloc.update,
+              onEnterNumber: pinBloc.add,
             ),
           ),
         ];

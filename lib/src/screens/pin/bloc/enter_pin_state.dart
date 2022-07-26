@@ -1,7 +1,10 @@
 part of pin;
 
+typedef Pin = List<int>;
+typedef UnmodifiablePin = Iterable<int>;
+
 extension on PinQuality {
-  void _addSecurePinAttributeIfRuleFollowed(PinCallback validator, SecurePinAttribute attr, Pin pin) {
+  void _addSecurePinAttributeIfRuleFollowed(bool Function(Pin) validator, SecurePinAttribute attr, Pin pin) {
     if (validator(pin)) {
       add(attr);
     }
@@ -35,14 +38,21 @@ enum SecurePinAttribute {
 
 @immutable
 class EnterPinState {
-  final Pin pin;
+  final UnmodifiablePin pin;
   final PinQuality attributes;
   final bool goodEnough;
   final String _string;
 
-  static final empty = EnterPinState(const [], const {}, false);
+  EnterPinState(Pin p, PinQuality attrs, this.goodEnough)
+      : pin = List.unmodifiable(p),
+        attributes = PinQuality.unmodifiable(List<SecurePinAttribute>.unmodifiable(attrs.toList())),
+        _string = p.join();
 
-  EnterPinState(this.pin, this.attributes, this.goodEnough) : _string = pin.join();
+  EnterPinState.empty()
+      : pin = List.unmodifiable([]),
+        attributes = PinQuality.unmodifiable(List<SecurePinAttribute>.unmodifiable([])),
+        _string = '',
+        goodEnough = false;
 
   @override
   String toString() {
@@ -50,56 +60,67 @@ class EnterPinState {
   }
 }
 
-class EnterPinStateBloc extends Bloc<Pin, EnterPinState> {
-  final int maxPinSize;
+EnterPinState _pinStateFactory(Pin pin) {
+  final set = <SecurePinAttribute>{};
+  var goodEnough = false;
 
-  EnterPinStateBloc(this.maxPinSize) : super(EnterPinState.empty);
-
-  @override
-  void add(Pin p) {
-    super.add(p.length > maxPinSize ? p.sublist(0, maxPinSize) : p);
+  if (pin.length < shortPinSize) {
+    return EnterPinState(pin, set, goodEnough);
   }
 
-  void update(int i) {
-    Pin previousPin = state.pin;
-    if (previousPin.isNotEmpty && i < 0) {
-      add([...previousPin]..removeLast());
-    }
+  if (pin.length == shortPinSize) {
+    set._applyRules(pin);
+    goodEnough = set._hasCompleteSecurePinAttributes();
+  } else if (pin.length >= shortPinSize) {
+    for (int i = 0; i < pin.length - 4; i++) {
+      final sub = pin.sublist(i, i + shortPinSize);
 
-    if (previousPin.length < maxPinSize && i >= 0) {
-      add([...previousPin, i]);
-    }
-  }
+      // report the last pin secure attributes
+      set
+        ..clear()
+        .._applyRules(sub);
 
-  @override
-  Stream<EnterPinState> mapEventToState(Pin pin) async* {
-    final set = <SecurePinAttribute>{};
-    var goodEnough = false;
-
-    if (pin.length < shortPinSize) {
-      yield EnterPinState(pin, set, goodEnough);
-    }
-
-    if (pin.length == shortPinSize) {
-      set._applyRules(pin);
+      // break when one subset is valid
       goodEnough = set._hasCompleteSecurePinAttributes();
-    } else if (pin.length >= shortPinSize) {
-      for (int i = 0; i < pin.length - 4; i++) {
-        final sub = pin.sublist(i, i + shortPinSize);
-
-        // report the last pin secure attributes
-        set
-          ..clear()
-          .._applyRules(sub);
-
-        // break when one subset is valid
-        goodEnough = set._hasCompleteSecurePinAttributes();
-        if (goodEnough) {
-          break;
-        }
+      if (goodEnough) {
+        break;
       }
     }
+  }
 
-    yield EnterPinState(pin, set, goodEnough);
+  return EnterPinState(pin, set, goodEnough);
+}
+
+class EnterPinStateBloc extends Bloc<int, EnterPinState> {
+  final int maxPinSize;
+  EnterPinStateBloc(this.maxPinSize) : super(EnterPinState.empty());
+
+  @override
+  Stream<EnterPinState> mapEventToState(int event) async* {
+    Pin pin = Pin.from(state.pin);
+    if (event >= 0 && event < 10) {
+      pin.add(event);
+    } else {
+      pin.removeLast();
+    }
+
+    yield _pinStateFactory(pin);
+  }
+}
+
+@visibleForTesting
+class TestEnterPinStateBloc extends Bloc<Pin, EnterPinState> {
+  final int maxPinSize;
+
+  TestEnterPinStateBloc(this.maxPinSize) : super(EnterPinState.empty());
+
+  @override
+  void add(Pin event) {
+    super.add(event.length > maxPinSize ? event.sublist(0, maxPinSize) : event);
+  }
+
+  @override
+  Stream<EnterPinState> mapEventToState(Pin event) async* {
+    yield _pinStateFactory(event);
   }
 }
