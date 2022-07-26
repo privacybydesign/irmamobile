@@ -73,24 +73,15 @@ Future<int> _startSessionAndNavigate(NavigatorState navigator, SessionPointer se
     wizardActive: wizardActive,
     wizardCred: wizardActive ? (await repo.getIssueWizard().first)?.activeItem?.credential : null,
   );
-  if (hasActiveSessions || wizardActive) {
-    switch (args.sessionType) {
-      case 'issuing':
-      case 'disclosing':
-      case 'signing':
-      case 'redirect':
-        navigator.pushNamed(SessionScreen.routeName, arguments: args);
-        break;
-      default:
-        navigator.pushNamed(UnknownSessionScreen.routeName, arguments: args);
-    }
-  } else {
-    navigator.pushNamedAndRemoveUntil(
-      SessionScreen.routeName,
-      ModalRoute.withName(HomeScreen.routeName),
-      arguments: args,
-    );
+  switch (args.sessionType) {
+    case 'issuing':
+    case 'disclosing':
+    case 'signing':
+    case 'redirect':
+      navigator.pushNamed(SessionScreen.routeName, arguments: args);
+      break;
+    default:
+      navigator.pushNamed(UnknownSessionScreen.routeName, arguments: args);
   }
-
   return event.sessionID;
 }
