@@ -49,8 +49,8 @@ class EnterPinState {
         _string = p.join();
 
   EnterPinState.empty()
-      : pin = List.unmodifiable([]),
-        attributes = PinQuality.unmodifiable(List<SecurePinAttribute>.unmodifiable([])),
+      : pin = List.unmodifiable(const []),
+        attributes = PinQuality.unmodifiable(List<SecurePinAttribute>.unmodifiable(const [])),
         _string = '',
         goodEnough = false;
 
