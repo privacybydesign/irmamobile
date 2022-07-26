@@ -98,9 +98,10 @@ class EnterPinStateBloc extends Bloc<int, EnterPinState> {
   @override
   Stream<EnterPinState> mapEventToState(int event) async* {
     Pin pin = Pin.from(state.pin);
-    if (event >= 0 && event < 10) {
+
+    if (event >= 0 && event < 10 && state.pin.length < maxPinSize) {
       pin.add(event);
-    } else {
+    } else if (event < 1 && state.pin.isNotEmpty) {
       pin.removeLast();
     }
 
