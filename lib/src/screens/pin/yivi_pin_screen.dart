@@ -223,23 +223,32 @@ class YiviPinScreen extends StatelessWidget {
     List<Widget> bodyPortrait(bool showSecurePinText) => [
           Expanded(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 logo,
-                instruction,
-                pinDotsDecorated,
-                if (checkSecurePin && showSecurePinText)
-                  _UnsecurePinWarningTextButton(scaffoldKey: scaffoldKey!, bloc: pinBloc),
-                if (onTogglePinSize != null)
-                  Link(
-                    onTap: onTogglePinSize!,
-                    label: FlutterI18n.translate(context, togglePinSizeCopy),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      instruction,
+                      pinDotsDecorated,
+                      if (checkSecurePin && showSecurePinText)
+                        _UnsecurePinWarningTextButton(scaffoldKey: scaffoldKey!, bloc: pinBloc),
+                      if (onTogglePinSize != null)
+                        Link(
+                          onTap: onTogglePinSize!,
+                          label: FlutterI18n.translate(context, togglePinSizeCopy),
+                        ),
+                      if (onForgotPin != null)
+                        Link(
+                          onTap: onForgotPin!,
+                          label: FlutterI18n.translate(context, 'pin.button_forgot'),
+                        ),
+                    ],
                   ),
-                if (onForgotPin != null)
-                  Link(
-                    onTap: onForgotPin!,
-                    label: FlutterI18n.translate(context, 'pin.button_forgot'),
-                  ),
+                ),
               ],
             ),
           ),

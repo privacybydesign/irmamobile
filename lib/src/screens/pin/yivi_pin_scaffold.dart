@@ -26,6 +26,7 @@ class YiviPinScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final scalePaddingForSmallDevices = shortestSide(context) < 350 ? 0.5 : 1;
+    final paddingSize = scalePaddingForSmallDevices * theme.screenPadding;
 
     return Scaffold(
       appBar: appBar,
@@ -33,7 +34,7 @@ class YiviPinScaffold extends StatelessWidget {
       body: SafeArea(
         child: Container(
           alignment: Alignment.center,
-          margin: EdgeInsets.all(scalePaddingForSmallDevices * theme.screenPadding),
+          margin: EdgeInsets.only(left: paddingSize, right: paddingSize, bottom: paddingSize),
           child: applyTabletSupport(context.isTabletDevice),
         ),
       ),
