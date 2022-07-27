@@ -19,6 +19,7 @@ class _ScalableText extends StatelessWidget {
           fit: BoxFit.fitHeight,
           child: Text(
             string,
+            textAlign: TextAlign.center,
             style: textStyle,
           ),
         ),
@@ -43,99 +44,56 @@ class _NumberPadKey extends StatelessWidget {
     // too much space
 
     const heightFactor = 0.825;
+    final bigNumberTextStyle = TextStyle(
+      fontFamily: theme.fontFamily,
+      color: theme.secondary,
+      fontSize: 32,
+      height: 32 / 40,
+      fontWeight: FontWeight.w600,
+    );
 
-    if (subtitle != null) {
-      return LayoutBuilder(
-        builder: (context, constraints) => ConstrainedBox(
-          constraints: constraints,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Flexible(
-                    child: _ScalableText(
-                      '$number',
-                      heightFactor: heightFactor,
-                      textStyle: TextStyle(
-                        fontFamily: theme.fontFamily,
-                        color: theme.secondary,
-                        fontSize: 32,
-                        height: 32 / 40,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  Flexible(
-                    child: _ScalableText(
-                      subtitle!,
-                      heightFactor: 1 - heightFactor,
-                      textStyle: TextStyle(
-                        fontFamily: theme.fontFamily,
-                        color: theme.secondary,
-                        fontWeight: FontWeight.w400,
-                        height: 14.0 / 24.0,
-                      ),
-                    ),
-                  ),
-                ],
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Flexible(
+              child: _ScalableText(
+                '$number',
+                heightFactor: (subtitle != null) ? heightFactor : .5,
+                textStyle: bigNumberTextStyle,
               ),
-              ClipPath(
-                clipper: _PerfectCircleClip(),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () => onEnterNumber(number),
-                    child: IgnorePointer(
-                      child: Container(color: Colors.transparent),
-                    ),
+            ),
+            if (subtitle != null)
+              Flexible(
+                child: _ScalableText(
+                  subtitle!,
+                  heightFactor: 1 - heightFactor,
+                  textStyle: TextStyle(
+                    fontFamily: theme.fontFamily,
+                    color: theme.secondary,
+                    fontWeight: FontWeight.w400,
+                    height: 14.0 / 24.0,
                   ),
                 ),
               ),
-            ],
-          ),
+          ],
         ),
-      );
-    } else {
-      return LayoutBuilder(
-        builder: (context, constraints) => ConstrainedBox(
-          constraints: constraints,
-          child: ClipPath(
-            clipper: _PerfectCircleClip(),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () => onEnterNumber(number),
-                child: IgnorePointer(
-                  child: FractionallySizedBox(
-                    alignment: Alignment.topCenter,
-                    heightFactor: heightFactor,
-                    child: FittedBox(
-                      // fit: BoxFit.scaleDown,
-                      fit: BoxFit.fitHeight,
-                      child: Container(
-                        // color: Colors.transparent,
-                        alignment: Alignment.center,
-                        child: Text(
-                          '$number',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: theme.secondary,
-                            fontWeight: FontWeight.w600,
-                            // backgroundColor: Colors.blue,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+        ClipPath(
+          clipper: _PerfectCircleClip(),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => onEnterNumber(number),
+              child: IgnorePointer(
+                child: Container(color: Colors.transparent),
               ),
             ),
           ),
         ),
-      );
-    }
+      ],
+    );
   }
 }
