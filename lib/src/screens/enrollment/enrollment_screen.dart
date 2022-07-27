@@ -4,7 +4,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/native_events.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_bloc.dart';
 import 'package:irmamobile/src/screens/enrollment/models/enrollment_event.dart';
@@ -16,6 +15,7 @@ import 'package:irmamobile/src/screens/enrollment/widgets/introduction.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/provide_email.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/submit.dart';
 import 'package:irmamobile/src/util/hero_controller.dart';
+import 'package:irmamobile/src/widgets/irma_repository_provider.dart';
 
 class EnrollmentScreen extends StatefulWidget {
   static const routeName = "/enrollment";
@@ -125,56 +125,57 @@ class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
     final routeBuilders = _routeBuilders();
 
     return WillPopScope(
-        onWillPop: () async {
-          final willPop = await navigatorKey.currentState.maybePop();
-          if (!willPop) {
-            IrmaRepository.get().bridgedDispatch(AndroidSendToBackgroundEvent());
-          }
+      onWillPop: () async {
+        final willPop = await navigatorKey.currentState.maybePop();
+        if (!willPop) {
+          IrmaRepositoryProvider.of(context).bridgedDispatch(AndroidSendToBackgroundEvent());
+        }
 
-          return false;
+        return false;
+      },
+      child: BlocListener<EnrollmentBloc, EnrollmentState>(
+        listenWhen: (EnrollmentState previous, EnrollmentState current) {
+          return (current.pinConfirmed != previous.pinConfirmed ||
+                  current.showPinValidation != previous.showPinValidation) ||
+              (!previous.isSubmitting && current.isSubmitting);
         },
-        child: BlocListener<EnrollmentBloc, EnrollmentState>(
-          listenWhen: (EnrollmentState previous, EnrollmentState current) {
-            return (current.pinConfirmed != previous.pinConfirmed ||
-                    current.showPinValidation != previous.showPinValidation) ||
-                (!previous.isSubmitting && current.isSubmitting);
-          },
-          listener: (BuildContext context, EnrollmentState state) {
-            if (state.isSubmitting == true) {
-              navigatorKey.currentState.pushReplacementNamed(Submit.routeName);
-            } else if (state.pinConfirmed) {
-              navigatorKey.currentState.pushReplacementNamed(ProvideEmail.routeName);
-            } else if (state.pinMismatch) {
-              navigatorKey.currentState.popUntil((route) => route.settings.name == ChoosePin.routeName);
-              // show error overlay
-              showDialog(
-                context: context,
-                builder: (BuildContext context) => ConfirmErrorDialog(
-                  onClose: () async {
-                    // close the overlay
-                    Navigator.of(context).pop();
-                    pinFocusNode.requestFocus();
-                  },
-                ),
-              );
-            } else if (state.pinConfirmed == false && state.showPinValidation == true) {
-              navigatorKey.currentState.popUntil((route) => route.settings.name == ChoosePin.routeName);
-            }
-          },
-          child: HeroControllerScope(
-            controller: createHeroController(),
-            child: Navigator(
-              key: navigatorKey,
-              initialRoute: Introduction.routeName,
-              onGenerateRoute: (RouteSettings settings) {
-                if (!routeBuilders.containsKey(settings.name)) {
-                  throw Exception('Invalid route: ${settings.name}');
-                }
-                final child = routeBuilders[settings.name];
-                return MaterialPageRoute(builder: child, settings: settings);
-              },
-            ),
+        listener: (BuildContext context, EnrollmentState state) {
+          if (state.isSubmitting == true) {
+            navigatorKey.currentState.pushReplacementNamed(Submit.routeName);
+          } else if (state.pinConfirmed) {
+            navigatorKey.currentState.pushReplacementNamed(ProvideEmail.routeName);
+          } else if (state.pinMismatch) {
+            navigatorKey.currentState.popUntil((route) => route.settings.name == ChoosePin.routeName);
+            // show error overlay
+            showDialog(
+              context: context,
+              builder: (BuildContext context) => ConfirmErrorDialog(
+                onClose: () async {
+                  // close the overlay
+                  Navigator.of(context).pop();
+                  pinFocusNode.requestFocus();
+                },
+              ),
+            );
+          } else if (state.pinConfirmed == false && state.showPinValidation == true) {
+            navigatorKey.currentState.popUntil((route) => route.settings.name == ChoosePin.routeName);
+          }
+        },
+        child: HeroControllerScope(
+          controller: createHeroController(),
+          child: Navigator(
+            key: navigatorKey,
+            initialRoute: Introduction.routeName,
+            onGenerateRoute: (RouteSettings settings) {
+              if (!routeBuilders.containsKey(settings.name)) {
+                throw Exception('Invalid route: ${settings.name}');
+              }
+              final child = routeBuilders[settings.name];
+              return MaterialPageRoute(builder: child, settings: settings);
+            },
           ),
-        ));
+        ),
+      ),
+    );
   }
 }

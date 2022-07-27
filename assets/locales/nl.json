@@ -5,28 +5,24 @@
         "step": "Stap",
         "done": "Gereed",
         "next": "Volgende",
+        "previous": "Vorige",
         "cancel": "Annuleren",
         "confirm": "Bevestigen",
         "delete": "Verwijderen"
     },
     "enrollment": {
         "introduction": {
-            "button_text": "Kies je pincode",
-            "screen1": {
+            "step_1": {
                 "title": "Yivi is jouw identiteit op jouw mobiel",
-                "text": "Je officiële naam, geboortedatum, adres, BSN en meer. Alles bij elkaar in jouw Yivi-app."
+                "explanation": "Jouw officiele naam, geboortedatum, adres, BSN en meer. Allemaal veilig opgeslagen in jouw Yivi-app."
             },
-            "screen2": {
+            "step_2": {
                 "title": "Met Yivi maak je jezelf bekend",
-                "text": "Eenvoudig en snel. Je hebt dit zelf in de hand."
+                "explanation": "Makkelijk, veilig en snel. Allemaal binnen handbereik! "
             },
-            "screen3": {
-                "title": "Yivi geeft jou en anderen zekerheid",
-                "text": "Je gegevens staan alleen in jouw Yivi-app. Alleen jij kan erbij.",
-                "privacy": {
-                    "text": "Lees de privacyregels",
-                    "url": "https://privacybydesign.foundation/privacy-policy/"
-                }
+            "step_3": {
+                "title": "Yivi biedt zekerheid, voor jou en anderen",
+                "explanation": "Je gegevens worden alleen in de Yivi-app opgeslagen. Alleen jij hebt toegang hiertoe!"
             }
         },
         "choose_pin": {

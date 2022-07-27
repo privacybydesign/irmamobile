@@ -5,28 +5,24 @@
         "step": "Step",
         "done": "Done",
         "next": "Next",
+        "previous": "Vorige",
         "cancel": "Cancel",
         "confirm": "Confirm",
         "delete": "Delete"
     },
     "enrollment": {
         "introduction": {
-            "button_text": "Choose a PIN",
-            "screen1": {
-                "title": "Yivi is your identity on your mobile",
-                "text": "Your official name, date of birth, address, and more. All securely stored in your Yivi app."
+            "step_1": {
+                "title": "Yivi is your identity on your phone",
+                "explanation": "Your official name, date of birth, address, and more. All securely stored in your Yivi app."
             },
-            "screen2": {
+            "step_2": {
                 "title": "Make yourself known with Yivi",
-                "text": "Easy, secure, and fast. It's all in your hands."
+                "explanation": "Easy, secure, and fast. It's all in your hands"
             },
-            "screen3": {
+            "step_3": {
                 "title": "Yivi provides certainty, to you and to others",
-                "text": "Your data are stored solely within the Yivi app. Only you have access.",
-                "privacy": {
-                    "text": "Please read the privacy rules",
-                    "url": "https://privacybydesign.foundation/privacy-policy-en/"
-                }
+                "explanation": "Your data are stored solely within the Yivi app. Only you have access."
             }
         },
         "choose_pin": {
