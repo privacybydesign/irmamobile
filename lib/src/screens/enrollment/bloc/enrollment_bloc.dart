@@ -5,8 +5,8 @@ import 'package:email_validator/email_validator.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/enrollment_events.dart';
 import 'package:irmamobile/src/models/session.dart';
-import 'package:irmamobile/src/screens/enrollment/models/enrollment_event.dart';
-import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
+import 'package:irmamobile/src/screens/enrollment/bloc/enrollment_event.dart';
+import 'package:irmamobile/src/screens/enrollment/bloc/enrollment_state.dart';
 
 class EnrollmentBloc extends Bloc<Object, EnrollmentState> {
   EnrollmentBloc(String languageCode) : super(EnrollmentState(languageCode: languageCode));

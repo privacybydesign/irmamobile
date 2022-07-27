@@ -4,8 +4,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/screens/enrollment/models/enrollment_bloc.dart';
-import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
+import 'package:irmamobile/src/screens/enrollment/bloc/enrollment_bloc.dart';
+import 'package:irmamobile/src/screens/enrollment/bloc/enrollment_state.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/provide_email_actions.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
