@@ -110,12 +110,13 @@ class YiviPinScreen extends StatelessWidget {
           style: ButtonStyle(
             backgroundColor: MaterialStateProperty.resolveWith<Color>(
               (Set<MaterialState> states) {
+                final secondary = theme.secondary;
                 if (states.contains(MaterialState.pressed)) {
-                  return theme.secondary.withOpacity(0.8);
+                  return secondary.withOpacity(0.8);
                 } else if (states.contains(MaterialState.disabled)) {
-                  return theme.secondary.withOpacity(0.5);
+                  return secondary.withOpacity(0.5);
                 }
-                return theme.secondary;
+                return secondary;
               },
             ),
             minimumSize: MaterialStateProperty.resolveWith<Size>((s) => const Size.fromHeight(_nextButtonHeight)),
