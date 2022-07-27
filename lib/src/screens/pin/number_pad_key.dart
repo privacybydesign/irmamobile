@@ -1,5 +1,32 @@
 part of pin;
 
+class _ScalableText extends StatelessWidget {
+  final String string;
+  final TextStyle textStyle;
+  final double heightFactor;
+
+  const _ScalableText(this.string, {Key? key, required this.heightFactor, required this.textStyle})
+      : assert(heightFactor < 1.0),
+        super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) => SizedBox(
+        height: constraints.maxHeight * heightFactor,
+        width: constraints.maxWidth,
+        child: FittedBox(
+          fit: BoxFit.fitHeight,
+          child: Text(
+            string,
+            style: textStyle,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _NumberPadKey extends StatelessWidget {
   final int number;
   final String? subtitle;
@@ -15,6 +42,8 @@ class _NumberPadKey extends StatelessWidget {
     // if you pass a constant fontSize, then the text will take up
     // too much space
 
+    const heightFactor = 0.825;
+
     if (subtitle != null) {
       return LayoutBuilder(
         builder: (context, constraints) => ConstrainedBox(
@@ -23,33 +52,32 @@ class _NumberPadKey extends StatelessWidget {
             alignment: Alignment.center,
             children: [
               Column(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Flexible(
-                    child: FractionallySizedBox(
-                      heightFactor: 0.825,
-                      child: FittedBox(
-                        fit: BoxFit.fitHeight,
-                        child: Text(
-                          '$number',
-                          style: TextStyle(
-                            fontFamily: theme.fontFamily,
-                            color: theme.secondary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                    child: _ScalableText(
+                      '$number',
+                      heightFactor: heightFactor,
+                      textStyle: TextStyle(
+                        fontFamily: theme.fontFamily,
+                        color: theme.secondary,
+                        fontSize: 32,
+                        height: 32 / 40,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
-                  Text(
-                    subtitle!,
-                    // style: theme.textTheme.headline5?.copyWith(
-                    style: TextStyle(
-                      fontFamily: theme.fontFamily,
-                      color: theme.secondary,
-                      fontWeight: FontWeight.w400,
-                      height: 14.0 / 24.0,
+                  Flexible(
+                    child: _ScalableText(
+                      subtitle!,
+                      heightFactor: 1 - heightFactor,
+                      textStyle: TextStyle(
+                        fontFamily: theme.fontFamily,
+                        color: theme.secondary,
+                        fontWeight: FontWeight.w400,
+                        height: 14.0 / 24.0,
+                      ),
                     ),
                   ),
                 ],
@@ -83,7 +111,7 @@ class _NumberPadKey extends StatelessWidget {
                 child: IgnorePointer(
                   child: FractionallySizedBox(
                     alignment: Alignment.topCenter,
-                    heightFactor: .8,
+                    heightFactor: heightFactor,
                     child: FittedBox(
                       // fit: BoxFit.scaleDown,
                       fit: BoxFit.fitHeight,
