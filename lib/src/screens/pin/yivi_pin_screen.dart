@@ -22,6 +22,7 @@ part 'number_pad.dart';
 part 'number_pad_icon.dart';
 part 'number_pad_key.dart';
 part 'pin_indicator.dart';
+part 'scalable_text.dart';
 part 'secure_pin.dart';
 part 'unsecure_pin_description_tile.dart';
 part 'unsecure_pin_full_screen.dart';
