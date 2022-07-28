@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/screens/issue_wizard/issue_wizard.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../../models/issue_wizard.dart';
@@ -98,8 +99,8 @@ class IssueWizardContents extends StatelessWidget {
       controller: controller,
       header: wizard.wizardData.title.translate(lang),
       logo: logo,
-      backgroundColor: colorFromCode(wizard.wizardData.color),
-      textColor: colorFromCode(wizard.wizardData.color ?? wizard.wizardData.textColor),
+      backgroundColor: colorFromCode(wizard.wizardData.color) ?? IssueWizardScreen.defaultBackgroundColor,
+      textColor: colorFromCode(wizard.wizardData.textColor) ?? IssueWizardScreen.defaultTextColor,
       onBack: onBack,
       bottomBar: IrmaBottomBar(
         primaryButtonLabel: buttonLabel,

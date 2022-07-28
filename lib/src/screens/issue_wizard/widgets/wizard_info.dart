@@ -8,6 +8,7 @@ import '../../../util/color_from_code.dart';
 import '../../../widgets/collapsible.dart';
 import '../../../widgets/irma_bottom_bar.dart';
 import '../../../widgets/irma_markdown.dart';
+import '../issue_wizard.dart';
 
 const customWizardDefaultLanguage = 'en'; // TODO or NL?
 
@@ -86,8 +87,8 @@ class IssueWizardInfo extends StatelessWidget {
       header:
           wizardData.title.translate(FlutterI18n.currentLocale(context)?.languageCode ?? customWizardDefaultLanguage),
       logo: logo,
-      backgroundColor: colorFromCode(wizardData.color),
-      textColor: colorFromCode(wizardData.color ?? wizardData.textColor),
+      backgroundColor: colorFromCode(wizardData.color) ?? IssueWizardScreen.defaultBackgroundColor,
+      textColor: colorFromCode(wizardData.textColor) ?? IssueWizardScreen.defaultTextColor,
       onBack: onBack,
       bottomBar: IrmaBottomBar(
         primaryButtonLabel: FlutterI18n.translate(context, "issue_wizard.add"),

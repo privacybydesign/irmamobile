@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 
-Color colorFromCode(String? colorCode) {
-  // TODO How mandatory is this field?
-  // assert (colorCode == null || colorCode.length != 7 || colorCode[0] != '#');
-
+Color? colorFromCode(String? colorCode) {
   if (colorCode == null || colorCode.length != 7 || colorCode[0] != '#') {
-    return Colors.transparent;
+    return null;
   }
 
   final rgbInt = int.tryParse(colorCode.substring(1, 7), radix: 16);
   if (rgbInt == null) {
-    return Colors.transparent;
+    return null;
   }
 
-  const alphaInt = 0xFF000000;
-  return Color(alphaInt + rgbInt);
+  return Color(0xFF000000 + rgbInt);
 }

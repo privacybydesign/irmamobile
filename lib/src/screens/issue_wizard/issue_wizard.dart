@@ -19,6 +19,9 @@ import '../../util/navigation.dart';
 class IssueWizardScreen extends StatefulWidget {
   static const routeName = "/issuewizard";
 
+  static const defaultBackgroundColor = Colors.grey;
+  static const defaultTextColor = Colors.black;
+
   final IssueWizardScreenArguments arguments;
   const IssueWizardScreen({Key? key, required this.arguments}) : super(key: key);
 
