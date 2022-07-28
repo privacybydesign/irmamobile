@@ -10,16 +10,32 @@ class IrmaConfirmationDialog extends StatelessWidget {
   final String contentTranslationKey;
   final String? cancelTranslationKey;
   final String? confirmTranslationKey;
+  final bool nudgeCancel;
 
   const IrmaConfirmationDialog({
     required this.titleTranslationKey,
     required this.contentTranslationKey,
     this.cancelTranslationKey,
     this.confirmTranslationKey,
+    this.nudgeCancel = false,
   });
 
   @override
   Widget build(BuildContext context) {
+    final confirmButton = IrmaButton(
+      size: IrmaButtonSize.small,
+      onPressed: () => Navigator.of(context).pop(true),
+      label: confirmTranslationKey ?? 'ui.confirm',
+      isSecondary: nudgeCancel,
+    );
+
+    final cancelButton = IrmaButton(
+      size: IrmaButtonSize.small,
+      onPressed: () => Navigator.of(context).pop(false),
+      label: cancelTranslationKey ?? 'ui.cancel',
+      isSecondary: !nudgeCancel,
+    );
+
     return IrmaDialog(
       title: FlutterI18n.translate(context, titleTranslationKey),
       content: FlutterI18n.translate(
@@ -27,19 +43,7 @@ class IrmaConfirmationDialog extends StatelessWidget {
         contentTranslationKey,
       ),
       child: Column(
-        children: [
-          IrmaButton(
-            size: IrmaButtonSize.small,
-            onPressed: () => Navigator.of(context).pop(true),
-            label: confirmTranslationKey ?? 'ui.confirm',
-          ),
-          IrmaButton(
-            size: IrmaButtonSize.small,
-            onPressed: () => Navigator.of(context).pop(false),
-            label: cancelTranslationKey ?? 'ui.cancel',
-            isSecondary: true,
-          ),
-        ],
+        children: nudgeCancel ? [cancelButton, confirmButton] : [confirmButton, cancelButton],
       ),
     );
   }

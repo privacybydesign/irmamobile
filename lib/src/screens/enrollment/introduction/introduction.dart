@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 
-import '../../change_pin/widgets/choose_pin.dart';
+import '../widgets/choose_pin.dart';
+import '../widgets/enrollment_layout.dart';
 import 'models/introduction_step.dart';
 import 'widgets/introduction_graphic.dart';
 import 'widgets/introduction_instruction.dart';
 
-class Introduction extends StatefulWidget {
+class IntroductionScreen extends StatefulWidget {
   static const String routeName = 'introduction';
 
-  const Introduction();
+  const IntroductionScreen();
 
   @override
-  State<Introduction> createState() => _IntroductionState();
+  State<IntroductionScreen> createState() => _IntroductionScreenState();
 }
 
-class _IntroductionState extends State<Introduction> {
+class _IntroductionScreenState extends State<IntroductionScreen> {
   var currentStepIndex = 0;
 
   final List<IntroductionStep> _introductionSteps = const [
@@ -47,52 +48,22 @@ class _IntroductionState extends State<Introduction> {
     }
   }
 
-  Widget _buildGraphic() => IntroductionGraphic(
-        _introductionSteps[currentStepIndex].svgImagePath,
-      );
-
-  Widget _buildInstruction() => IntroductionInstruction(
-        stepIndex: currentStepIndex,
-        stepCount: _introductionSteps.length,
-        titleTranslationKey: _introductionSteps[currentStepIndex].titleTranslationKey,
-        explanationTranslationKey: _introductionSteps[currentStepIndex].explanationTranslationKey,
-        onContinue: _onContinue,
-        onPrevious: _onPrevious,
-      );
-
-  Row _buildLandscapeLayout() => Row(
-        children: [
-          Flexible(
-            flex: 4,
-            child: _buildGraphic(),
-          ),
-          Flexible(
-            flex: 5,
-            child: _buildInstruction(),
-          )
-        ],
-      );
-
-  Column _buildPortraitLayout() => Column(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          Flexible(
-            flex: 5,
-            child: _buildGraphic(),
-          ),
-          Flexible(
-            flex: 4,
-            child: _buildInstruction(),
-          ),
-        ],
-      );
-
   @override
   Widget build(BuildContext context) {
-    final isLandscape = MediaQuery.of(context).size.height < 450;
-
     return Scaffold(
-      body: isLandscape ? _buildLandscapeLayout() : _buildPortraitLayout(),
+      body: EnrollmentLayout(
+        graphic: IntroductionGraphic(
+          _introductionSteps[currentStepIndex].svgImagePath,
+        ),
+        instruction: IntroductionInstruction(
+          stepIndex: currentStepIndex,
+          stepCount: _introductionSteps.length,
+          titleTranslationKey: _introductionSteps[currentStepIndex].titleTranslationKey,
+          explanationTranslationKey: _introductionSteps[currentStepIndex].explanationTranslationKey,
+          onContinue: _onContinue,
+          onPrevious: _onPrevious,
+        ),
+      ),
     );
   }
 }

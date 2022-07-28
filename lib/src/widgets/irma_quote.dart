@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/theme/theme.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+
+import '../theme/theme.dart';
 
 class IrmaQuote extends StatelessWidget {
   final String? quote;
@@ -12,11 +15,11 @@ class IrmaQuote extends StatelessWidget {
     this.color,
   })  : assert(
           quote != null || richQuote != null,
-          "No quote given. Set quote or richQuote.",
+          'No quote given. Set quote or richQuote.',
         ),
         assert(
           quote == null || richQuote == null,
-          "Either set quote or richQuote, not both.",
+          'Either set quote or richQuote, not both.',
         );
 
   @override
@@ -31,10 +34,16 @@ class IrmaQuote extends StatelessWidget {
           children: [
             Flexible(
               child: quote != null
-                  ? Text(
-                      quote!,
-                      style: theme.themeData.textTheme.caption,
-                    )
+                  ? MarkdownBody(
+                      data: FlutterI18n.translate(context, quote!),
+                      styleSheet: MarkdownStyleSheet.fromTheme(
+                        ThemeData(
+                          textTheme: TextTheme(
+                            //Set the default markdown text to the caption style in our theme.
+                            bodyText2: theme.textTheme.caption,
+                          ),
+                        ),
+                      ))
                   : richQuote!,
             )
           ],

@@ -8,7 +8,7 @@ import 'bloc/enrollment_state.dart';
 import 'widgets/choose_pin.dart';
 import 'widgets/confirm_error_dialog.dart';
 import 'widgets/confirm_pin.dart';
-import 'widgets/provide_email.dart';
+import 'provide_email/provide_email_screen.dart';
 import 'widgets/submit.dart';
 import 'introduction/introduction.dart';
 import '../../models/native_events.dart';
@@ -49,7 +49,7 @@ class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
 
   Map<String, WidgetBuilder> _routeBuilders() {
     return {
-      Introduction.routeName: (_) => const Introduction(),
+      IntroductionScreen.routeName: (_) => const IntroductionScreen(),
       ChoosePin.routeName: (_) => ChoosePin(
             pinFocusNode: pinFocusNode,
             submitPin: (context, pin) {
@@ -64,7 +64,7 @@ class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
             ),
             cancelAndNavigate: _cancelAndNavigate,
           ),
-      ProvideEmail.routeName: (_) => ProvideEmail(
+      ProvideEmailScreen.routeName: (_) => ProvideEmailScreen(
             submitEmail: (email) => widget.bloc.add(
               EmailSubmitted(email: email),
             ),
@@ -84,7 +84,7 @@ class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
     // Always pop at least one route (unless at the root), but return to Introduction or ChoosePin
     Navigator.maybePop(context).then(
       (_) => Navigator.of(context).popUntil(
-        (route) => route.settings.name == ChoosePin.routeName || route.settings.name == Introduction.routeName,
+        (route) => route.settings.name == ChoosePin.routeName || route.settings.name == IntroductionScreen.routeName,
       ),
     );
   }
@@ -112,7 +112,7 @@ class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
           if (state.isSubmitting == true) {
             navigatorKey.currentState?.pushReplacementNamed(Submit.routeName);
           } else if (state.pinConfirmed) {
-            navigatorKey.currentState?.pushReplacementNamed(ProvideEmail.routeName);
+            navigatorKey.currentState?.pushReplacementNamed(ProvideEmailScreen.routeName);
           } else if (state.pinMismatch) {
             navigatorKey.currentState?.popUntil((route) => route.settings.name == ChoosePin.routeName);
             // show error overlay
@@ -134,7 +134,7 @@ class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
           controller: createHeroController(),
           child: Navigator(
             key: navigatorKey,
-            initialRoute: Introduction.routeName,
+            initialRoute: IntroductionScreen.routeName,
             onGenerateRoute: (RouteSettings settings) {
               if (!routeBuilders.containsKey(settings.name)) {
                 throw Exception('Invalid route: ${settings.name}');

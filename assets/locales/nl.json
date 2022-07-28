@@ -8,7 +8,9 @@
         "previous": "Vorige",
         "cancel": "Annuleren",
         "confirm": "Bevestigen",
-        "delete": "Verwijderen"
+        "delete": "Verwijderen",
+        "skip": "Overslaan",
+        "continue" : "Doorgaan"
     },
     "enrollment": {
         "introduction": {
@@ -37,24 +39,27 @@
             "error": "De pincodes zijn niet gelijk. Kies opnieuw een pincode.",
             "error_action": "OK"
         },
-        "provide_email": {
-            "title": "Beveiliging instellen",
-            "instruction": "Met een e-mailadres kun je je Yivi-app blokkeren bij verlies of diefstal van je mobiel.",
-            "textfield": "E-mailadres",
-            "skip": "Overslaan",
-            "next": "Volgende",
-            "error": "Dit is geen geldig e-mailadres",
-            "skip_title": "Weet je het zeker?",
-            "skip_content": "Bescherm jezelf. Als je een e-mailadres invult, kun je jouw Yivi-app blokkeren na het verlies van je mobiel.",
-            "insert_email": "Voer e-mailadres in"
-        },
-        "email_sent": {
-            "title": "Beveiliging instellen",
-            "button": "Doorgaan",
-            "message_title": "Bevestig je e-mailadres",
-            "message_markdown": "Je hebt een e-mail ontvangen van **noreply@sidn.nl**. Open de link in dit bericht om je e-mailadres aan je Yivi-app te koppelen.",
-            "mail_sent_text_markdown": "De e-mail is gestuurd naar: **{emailaddress}**.",
-            "check_spam": "Het kan even duren voordat de e-mail verschijnt. Controleer de spamfolder als je geen e-mail hebt ontvangen."
+        "email": {
+            "provide": {
+                "title": "E-mailadres toevoegen",
+                "header": "Koppel je e-mailadres aan je Yivi-app",
+                "explanation": "Met een e-mailadres kun je je Yivi-app blokkeren bij verlies of diefstal van je mobiel.",
+                "input": {
+                    "label": "E-mailadres",
+                    "invalid": "Dit is geen geldig e-mailadres"
+                },
+                "confirm_skip_dialog": {
+                    "title": "Weet je het zeker?",
+                    "explanation": "Bescherm jezelf. Als je een e-mailadres invult, kun je jouw Yivi-app blokkeren na het verlies van je mobiel.",
+                    "decline": "Voer e-mailadres in"
+                }
+            },
+            "confirm": {
+                "title": "E-mailadres bevestigen",
+                "header": "De e-mail is gestuurd naar:",
+                "explanation": "Het kan even duren voordat de e-mail verschijnt. Controleer de spamfolder als je geen e-mail hebt ontvangen.",
+                "explanation_extra_markdown": "Je hebt een e-mail ontvangen van **noreply@sidn.nl**. Open de link in dit bericht om je e-mailadres aan je Yivi-app te koppelen."
+            }
         },
         "submit": {
             "title": "Aanmelden",
