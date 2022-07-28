@@ -149,7 +149,10 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
       stream: _repo.getIssueWizard().where((event) => event?.wizardData.id == widget.arguments.wizardID),
       builder: (context, AsyncSnapshot<IssueWizardEvent?> snapshot) {
         if (!snapshot.hasData) {
-          return Container();
+          return Container(
+            alignment: Alignment.center,
+            child: const CircularProgressIndicator(),
+          );
         }
 
         final wizard = snapshot.data;
