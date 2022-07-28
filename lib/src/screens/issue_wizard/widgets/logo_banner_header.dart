@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../theme/theme.dart';
 import '../../../widgets/irma_app_bar.dart';
@@ -34,10 +33,6 @@ class LogoBannerHeader extends StatelessWidget {
       appBar: IrmaAppBar(
         titleTranslationKey: 'issue_wizard.add_cards',
         leadingAction: onBack,
-        leadingIcon: Icon(
-          Icons.arrow_back,
-          semanticLabel: FlutterI18n.translate(context, 'accessibility.back'),
-        ),
       ),
       bottomNavigationBar: bottomBar,
       body: SingleChildScrollView(
