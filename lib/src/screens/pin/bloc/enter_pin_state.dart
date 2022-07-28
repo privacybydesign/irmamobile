@@ -43,7 +43,7 @@ class EnterPinState {
   final bool goodEnough;
   final String _string;
 
-  EnterPinState(Pin p, PinQuality attrs, this.goodEnough)
+  EnterPinState._(Pin p, PinQuality attrs, this.goodEnough)
       : pin = List.unmodifiable(p),
         attributes = PinQuality.unmodifiable(List<SecurePinAttribute>.unmodifiable(attrs.toList())),
         _string = p.join();
@@ -58,37 +58,37 @@ class EnterPinState {
   String toString() {
     return _string;
   }
-}
 
-EnterPinState _pinStateFactory(Pin pin) {
-  final set = <SecurePinAttribute>{};
-  var goodEnough = false;
+  factory EnterPinState.createFrom({required Pin pin}) {
+    final set = <SecurePinAttribute>{};
+    var goodEnough = false;
 
-  if (pin.length < shortPinSize) {
-    return EnterPinState(pin, set, goodEnough);
-  }
+    if (pin.length < shortPinSize) {
+      return EnterPinState._(pin, set, goodEnough);
+    }
 
-  if (pin.length == shortPinSize) {
-    set._applyRules(pin);
-    goodEnough = set._hasCompleteSecurePinAttributes();
-  } else if (pin.length >= shortPinSize) {
-    for (int i = 0; i < pin.length - 4; i++) {
-      final sub = pin.sublist(i, i + shortPinSize);
-
-      // report the last pin secure attributes
-      set
-        ..clear()
-        .._applyRules(sub);
-
-      // break when one subset is valid
+    if (pin.length == shortPinSize) {
+      set._applyRules(pin);
       goodEnough = set._hasCompleteSecurePinAttributes();
-      if (goodEnough) {
-        break;
+    } else if (pin.length >= shortPinSize) {
+      for (int i = 0; i < pin.length - 4; i++) {
+        final sub = pin.sublist(i, i + shortPinSize);
+
+        // report the last pin secure attributes
+        set
+          ..clear()
+          .._applyRules(sub);
+
+        // break when one subset is valid
+        goodEnough = set._hasCompleteSecurePinAttributes();
+        if (goodEnough) {
+          break;
+        }
       }
     }
-  }
 
-  return EnterPinState(pin, set, goodEnough);
+    return EnterPinState._(pin, set, goodEnough);
+  }
 }
 
 class EnterPinStateBloc extends Bloc<int, EnterPinState> {
@@ -105,7 +105,7 @@ class EnterPinStateBloc extends Bloc<int, EnterPinState> {
       pin.removeLast();
     }
 
-    yield _pinStateFactory(pin);
+    yield EnterPinState.createFrom(pin: pin);
   }
 }
 
@@ -122,6 +122,6 @@ class TestEnterPinStateBloc extends Bloc<Pin, EnterPinState> {
 
   @override
   Stream<EnterPinState> mapEventToState(Pin event) async* {
-    yield _pinStateFactory(event);
+    yield EnterPinState.createFrom(pin: event);
   }
 }
