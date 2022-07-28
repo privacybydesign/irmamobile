@@ -33,7 +33,7 @@ class IssueWizardScreenArguments {
   IssueWizardScreenArguments({required this.wizardID, required this.sessionID});
 }
 
-class _IssueWizardScreenState extends State<IssueWizardScreen> {
+class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindingObserver {
   bool _showIntro = true;
   int? _sessionID;
   late StreamSubscription<SessionState>? _sessionSubscription;
@@ -43,9 +43,8 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
   final _repo = IrmaRepository.get();
 
   @override
-  void initState() {
-    super.initState();
-    if (widget.arguments.sessionID != null) {
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (widget.arguments.sessionID != null && AppLifecycleState.resumed == state) {
       _sessionSubscription = _repo
           .getSessionState(widget.arguments.sessionID!)
           .firstWhere((event) => event.isFinished)
@@ -58,12 +57,21 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
           ..pop();
       });
     }
+
+    super.didChangeAppLifecycleState(state);
+  }
+
+  @override
+  void initState() {
+    WidgetsBinding.instance?.addObserver(this);
+    super.initState();
   }
 
   @override
   void dispose() {
     _sessionSubscription?.cancel();
     _repo.getIssueWizardActive().add(false);
+    WidgetsBinding.instance?.removeObserver(this);
     super.dispose();
   }
 
