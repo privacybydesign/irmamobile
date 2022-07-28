@@ -70,7 +70,7 @@ class Routing {
     WidgetBuilder screenBuilder = (context) => const RouteNotFoundScreen();
     try {
       screenBuilder = _screenBuilder(settings.name, settings.arguments);
-    } catch (TypeError) {
+    } catch (_) {
       // pass
     }
 
