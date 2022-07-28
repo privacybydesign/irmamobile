@@ -36,7 +36,7 @@ class IssueWizardScreenArguments {
 class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindingObserver {
   bool _showIntro = true;
   int? _sessionID;
-  late StreamSubscription<SessionState>? _sessionSubscription;
+  StreamSubscription<SessionState>? _sessionSubscription;
 
   final GlobalKey _scrollviewKey = GlobalKey();
   final ScrollController _controller = ScrollController();
