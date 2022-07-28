@@ -6,7 +6,6 @@ import '../theme/theme.dart';
 class IrmaThemedButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
-  final VoidCallback? onPressedDisabled;
   final Color color;
   final Color? disabledColor;
   final Color? textColor;
@@ -20,7 +19,6 @@ class IrmaThemedButton extends StatelessWidget {
   const IrmaThemedButton({
     required this.label,
     required this.onPressed,
-    this.onPressedDisabled,
     required this.color,
     this.disabledColor,
     this.textColor,
@@ -43,37 +41,33 @@ class IrmaThemedButton extends StatelessWidget {
     );
     final fixedHeight = size != null ? size!.value : IrmaButtonSize.medium.value;
 
-    return GestureDetector(
-      excludeFromSemantics: true,
-      onTapUp: (_) => onPressed == null ? onPressedDisabled?.call() : onPressed!(),
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          side: isSecondary ? BorderSide(color: color) : null,
-          elevation: 0.0,
-          primary: isSecondary ? Colors.white : color,
-          onPrimary: textColor ?? (isSecondary ? color : Colors.white),
-          shape: shape,
-          padding: const EdgeInsets.symmetric(
-            vertical: 10.0,
-            horizontal: 20.0,
-          ),
-          minimumSize: Size(minWidth, fixedHeight),
-          maximumSize: Size.fromHeight(fixedHeight),
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        side: isSecondary ? BorderSide(color: color) : null,
+        elevation: 0.0,
+        primary: isSecondary ? Colors.white : color,
+        onPrimary: textColor ?? (isSecondary ? color : Colors.white),
+        shape: shape,
+        padding: const EdgeInsets.symmetric(
+          vertical: 10.0,
+          horizontal: 20.0,
         ),
-        child: icon == null
-            ? text
-            : Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(icon),
-                  const SizedBox(
-                    width: 10.0,
-                  ),
-                  text,
-                ],
-              ),
+        minimumSize: Size(minWidth, fixedHeight),
+        maximumSize: Size.fromHeight(fixedHeight),
       ),
+      child: icon == null
+          ? text
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon),
+                const SizedBox(
+                  width: 10.0,
+                ),
+                text,
+              ],
+            ),
     );
   }
 }

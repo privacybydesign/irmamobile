@@ -13,7 +13,6 @@ enum IrmaBottomBarAlignment {
 class IrmaBottomBar extends StatelessWidget {
   final String? primaryButtonLabel;
   final VoidCallback? onPrimaryPressed;
-  final VoidCallback? onPrimaryDisabledPressed;
   final bool showTooltipOnPrimary;
   final String? secondaryButtonLabel;
   final VoidCallback? onSecondaryPressed;
@@ -23,7 +22,6 @@ class IrmaBottomBar extends StatelessWidget {
     Key? key,
     this.primaryButtonLabel,
     this.onPrimaryPressed,
-    this.onPrimaryDisabledPressed,
     this.showTooltipOnPrimary = false,
     this.secondaryButtonLabel,
     this.onSecondaryPressed,
@@ -40,7 +38,6 @@ class IrmaBottomBar extends StatelessWidget {
           key: const Key('bottom_bar_primary'),
           size: IrmaButtonSize.large,
           onPressed: onPrimaryPressed,
-          onPressedDisabled: onPrimaryDisabledPressed,
           label: primaryButtonLabel!,
         ),
       ),
@@ -68,7 +65,7 @@ class IrmaBottomBar extends StatelessWidget {
       width: mediaQuery.size.width,
       decoration: BoxDecoration(
         color: theme.surfacePrimary,
-        border: Border(
+        border: const Border(
           top: BorderSide(
             color: Colors.white,
             width: 2.0,
