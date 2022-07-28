@@ -43,6 +43,18 @@ class IssueWizardInfo extends StatelessWidget {
   Widget _buildIntro(BuildContext context, IssueWizard wizardData) {
     final _collapsableKeys = List<GlobalKey>.generate(wizardData.faq.length, (int index) => GlobalKey());
     final lang = FlutterI18n.currentLocale(context)?.languageCode ?? customWizardDefaultLanguage;
+    final items = wizardData.faq
+        .asMap()
+        .entries
+        .map(
+          (q) => _buildCollapsible(
+            context,
+            _collapsableKeys[q.key],
+            q.value.question.translate(lang),
+            q.value.answer.translate(lang),
+          ),
+        )
+        .toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -55,14 +67,13 @@ class IssueWizardInfo extends StatelessWidget {
           ),
           child: IrmaMarkdown(wizardData.info.translate(lang)),
         ),
-        ...wizardData.faq.asMap().entries.map(
-              (q) => _buildCollapsible(
-                context,
-                _collapsableKeys[q.key],
-                q.value.question.translate(lang),
-                q.value.answer.translate(lang),
-              ),
-            )
+        ListView.separated(
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          itemBuilder: (context, i) => items.elementAt(i),
+          separatorBuilder: (_, i) => const SizedBox(height: 8),
+          itemCount: items.length,
+        ),
       ],
     );
   }
