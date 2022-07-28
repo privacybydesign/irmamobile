@@ -28,7 +28,7 @@ class IssueWizardScreen extends StatefulWidget {
 
 class IssueWizardScreenArguments {
   final String wizardID;
-  final int sessionID;
+  final int? sessionID;
 
   IssueWizardScreenArguments({required this.wizardID, required this.sessionID});
 }
@@ -45,31 +45,30 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
   @override
   void initState() {
     super.initState();
-    if (widget.arguments.sessionID == null) {
-      return;
+    if (widget.arguments.sessionID != null) {
+      _sessionSubscription = _repo
+          .getSessionState(widget.arguments.sessionID!)
+          .firstWhere((event) => event.isFinished)
+          .asStream()
+          .listen((event) {
+        // Pop to underlying session screen which is showing an error screen
+        // First pop all screens on top of this wizard and then pop the wizard screen itself
+        Navigator.of(context)
+          ..popUntil(ModalRoute.withName(IssueWizardScreen.routeName))
+          ..pop();
+      });
     }
-    _sessionSubscription = _repo
-        .getSessionState(widget.arguments.sessionID)
-        .firstWhere((event) => event.isFinished)
-        .asStream()
-        .listen((event) {
-      // Pop to underlying session screen which is showing an error screen
-      // First pop all screens on top of this wizard and then pop the wizard screen itself
-      Navigator.of(context)
-        ..popUntil(ModalRoute.withName(IssueWizardScreen.routeName))
-        ..pop();
-    });
   }
 
   @override
   void dispose() {
-    _sessionSubscription?.cancel();
+    _sessionSubscription.cancel();
     _repo.getIssueWizardActive().add(false);
     super.dispose();
   }
 
   Future<void> _finish() async {
-    final activeSessions = await IrmaRepository.get().hasActiveSessions();
+    final activeSessions = await _repo.hasActiveSessions();
     if (!mounted) {
       return; // can't do anything if our context vanished while awaiting
     }

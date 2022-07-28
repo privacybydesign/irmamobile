@@ -3,18 +3,23 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../../theme/theme.dart';
+import '../translated_text.dart';
 
 class IrmaCredentialCardHeader extends StatelessWidget {
   final String title;
   final String? logo;
   final String? subtitle;
   final Widget? trailing;
+  final bool isExpired;
+  final bool isExpiringSoon;
 
   const IrmaCredentialCardHeader({
     required this.title,
     this.logo,
     this.subtitle,
     this.trailing,
+    this.isExpiringSoon = false,
+    this.isExpired = false,
   });
 
   @override
@@ -44,13 +49,26 @@ class IrmaCredentialCardHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (isExpired)
+                TranslatedText(
+                  'credential.expired',
+                  style: theme.themeData.textTheme.headline4!.copyWith(
+                    color: theme.error,
+                  ),
+                )
+              else if (isExpiringSoon)
+                TranslatedText(
+                  'credential.about_to_expire',
+                  style: theme.themeData.textTheme.headline4!.copyWith(
+                    color: theme.warning,
+                  ),
+                ),
               Text(
                 title,
                 style: theme.themeData.textTheme.bodyText1,
               ),
               Text(
                 subtitle ?? '',
-                overflow: TextOverflow.ellipsis,
                 style: theme.themeData.textTheme.caption!.copyWith(
                   color: theme.neutralDark,
                 ),

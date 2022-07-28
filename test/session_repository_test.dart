@@ -87,7 +87,7 @@ void main() {
     expect(disclosureSession.disclosuresCandidates![0].length, 2);
     expect(disclosureSession.disclosuresCandidates![0][0].length, 1);
     expect(disclosureSession.disclosuresCandidates![0][0][0].type, 'irma-demo.IRMATube.member.id');
-    expect(disclosureSession.disclosuresCandidates![0][0][0].credentialHash, 'session-43');
+    expect(disclosureSession.disclosuresCandidates![0][0][0].credentialHash, 'session-43-0');
     expect(disclosureSession.disclosuresCandidates![0][1].length, 1);
     expect(disclosureSession.disclosuresCandidates![0][1][0].type, 'irma-demo.IRMATube.member.id');
     expect(disclosureSession.disclosuresCandidates![0][1][0].credentialHash, '');
@@ -111,7 +111,7 @@ void main() {
     expect(disclosureSession.disclosureChoices?.length, 1);
     expect(disclosureSession.disclosureChoices?[0].length, 1);
     expect(disclosureSession.disclosureChoices?[0][0].type, 'irma-demo.IRMATube.member.id');
-    expect(disclosureSession.disclosureChoices?[0][0].credentialHash, 'session-43');
+    expect(disclosureSession.disclosureChoices?[0][0].credentialHash, 'session-43-0');
   });
 
   test('issuance-in-disclosure-using-specific-attributes', () async {
@@ -195,7 +195,7 @@ void main() {
     expect(disclosureSession.disclosuresCandidates![0].length, 2);
     expect(disclosureSession.disclosuresCandidates![0][0].length, 1);
     expect(disclosureSession.disclosuresCandidates![0][0][0].type, 'irma-demo.IRMATube.member.id');
-    expect(disclosureSession.disclosuresCandidates![0][0][0].credentialHash, 'session-44');
+    expect(disclosureSession.disclosuresCandidates![0][0][0].credentialHash, 'session-44-0');
 
     repo.dispatch(
       RespondPermissionEvent(sessionID: 42, proceed: true, disclosureChoices: [
@@ -213,6 +213,6 @@ void main() {
     expect(disclosureSession.disclosureChoices?.length, 1);
     expect(disclosureSession.disclosureChoices?[0].length, 1);
     expect(disclosureSession.disclosureChoices?[0][0].type, 'irma-demo.IRMATube.member.id');
-    expect(disclosureSession.disclosureChoices?[0][0].credentialHash, 'session-44');
+    expect(disclosureSession.disclosureChoices?[0][0].credentialHash, 'session-44-0');
   });
 }

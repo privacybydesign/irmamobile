@@ -41,6 +41,7 @@ dependencies:
   flutter_privacy_screen: ^1.2.0
   dotted_decoration: ^2.0.0
   timeline_tile: ^2.0.0
+  sliver_tools: ^0.2.7
 
 flutter_native_splash:
   image: assets/non-free/logo.png
