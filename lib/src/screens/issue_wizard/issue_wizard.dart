@@ -36,7 +36,7 @@ class IssueWizardScreenArguments {
 class _IssueWizardScreenState extends State<IssueWizardScreen> {
   bool _showIntro = true;
   int? _sessionID;
-  late StreamSubscription<SessionState> _sessionSubscription;
+  late StreamSubscription<SessionState>? _sessionSubscription;
 
   final GlobalKey _scrollviewKey = GlobalKey();
   final ScrollController _controller = ScrollController();
@@ -62,7 +62,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> {
 
   @override
   void dispose() {
-    _sessionSubscription.cancel();
+    _sessionSubscription?.cancel();
     _repo.getIssueWizardActive().add(false);
     super.dispose();
   }
