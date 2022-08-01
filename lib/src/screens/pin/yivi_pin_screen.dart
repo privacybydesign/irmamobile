@@ -58,6 +58,7 @@ class YiviPinScreen extends StatelessWidget {
   final String? instructionKey;
   final String? instruction;
   final bool enabled;
+  final bool hideSubmit;
   final void Function(BuildContext, EnterPinState)? listener;
 
   YiviPinScreen({
@@ -74,6 +75,7 @@ class YiviPinScreen extends StatelessWidget {
     this.checkSecurePin = false,
     this.enabled = true,
     this.listener,
+    this.hideSubmit = false,
   })  : assert(instructionKey != null && instruction == null || instruction != null && instructionKey == null),
         assert(checkSecurePin ? scaffoldKey != null : true),
         super(key: key);
@@ -260,7 +262,7 @@ class YiviPinScreen extends StatelessWidget {
             ),
           ),
           SizedBox(height: theme.screenPadding),
-          nextButton,
+          if (!hideSubmit) nextButton,
         ];
 
     List<Widget> bodyLandscape(bool showSecurePinText) => [
@@ -269,7 +271,6 @@ class YiviPinScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // logo, // TODO discuss with designer
                 instruction,
                 pinDotsDecorated,
                 if (checkSecurePin && showSecurePinText)
@@ -284,7 +285,7 @@ class YiviPinScreen extends StatelessWidget {
                     onTap: onForgotPin!,
                     label: FlutterI18n.translate(context, 'pin.button_forgot'),
                   ),
-                nextButton
+                if (!hideSubmit) nextButton
               ],
             ),
           ),

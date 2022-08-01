@@ -154,6 +154,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
                             submit(state.toString());
                           }
                         },
+                        hideSubmit: shortPinSize == maxPinSize,
                       ),
                       if (state.authenticateInProgress) const CircularProgressIndicator(),
                     ],

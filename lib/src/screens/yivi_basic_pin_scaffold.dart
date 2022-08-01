@@ -38,15 +38,17 @@ class YiviBasicPinScaffold extends StatelessWidget {
           final pinBloc = EnterPinStateBloc(maxPinSize);
 
           return YiviPinScreen(
-              instructionKey: instructionKey,
-              maxPinSize: maxPinSize,
-              onSubmit: submit,
-              pinBloc: pinBloc,
-              listener: (context, state) {
-                if (maxPinSize == shortPinSize && state.pin.length == maxPinSize) {
-                  submit(state.toString());
-                }
-              });
+            instructionKey: instructionKey,
+            maxPinSize: maxPinSize,
+            onSubmit: submit,
+            pinBloc: pinBloc,
+            listener: (context, state) {
+              if (maxPinSize == shortPinSize && state.pin.length == maxPinSize) {
+                submit(state.toString());
+              }
+            },
+            hideSubmit: shortPinSize == maxPinSize,
+          );
         },
       ),
     );
