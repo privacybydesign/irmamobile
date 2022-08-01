@@ -1,61 +1,39 @@
-import 'package:equatable/equatable.dart';
+part of 'enrollment_bloc.dart';
 
-class PinSubmitted extends Equatable {
+abstract class EnrollmentBlocEvent {}
+
+class EnrollmentChosePin implements EnrollmentBlocEvent {
   final String pin;
 
-  const PinSubmitted({required this.pin});
-
-  @override
-  String toString() => 'PinSubmitted { pin: ${'*' * pin.length} }';
-
-  @override
-  List<Object> get props => [pin];
+  EnrollmentChosePin(this.pin);
 }
 
-class ConfirmationPinSubmitted extends Equatable {
+class EnrollmentConfirmedPin implements EnrollmentBlocEvent {
   final String pin;
 
-  const ConfirmationPinSubmitted({required this.pin});
-
-  @override
-  String toString() => 'ConfirmationPinSubmitted { pin: ${'*' * pin.length} }';
-
-  @override
-  List<Object> get props => [pin];
+  EnrollmentConfirmedPin(
+    this.pin,
+  );
 }
 
-class EmailSubmitted extends Equatable {
+class EnrollmentTermsUpdated implements EnrollmentBlocEvent {
+  final bool isAccepted;
+
+  EnrollmentTermsUpdated({
+    required this.isAccepted,
+  });
+}
+
+class EnrollmentEmailProvided implements EnrollmentBlocEvent {
   final String email;
 
-  const EmailSubmitted({required this.email});
-
-  @override
-  String toString() => 'EmailSubmitted';
-
-  @override
-  List<Object> get props => [email];
+  EnrollmentEmailProvided(
+    this.email,
+  );
 }
 
-class EmailSkipped extends Equatable {
-  @override
-  String toString() => 'EmailSkipped';
+class EnrollmentEmailSkipped implements EnrollmentBlocEvent {}
 
-  @override
-  List<Object> get props => [];
-}
+class EnrollmentNextPressed implements EnrollmentBlocEvent {}
 
-class Enroll extends Equatable {
-  @override
-  String toString() => 'Enroll';
-
-  @override
-  List<Object> get props => [];
-}
-
-class EnrollmentCanceled extends Equatable {
-  @override
-  String toString() => 'EnrollmentCanceled';
-
-  @override
-  List<Object> get props => [];
-}
+class EnrollmentPreviousPressed implements EnrollmentBlocEvent {}

@@ -61,6 +61,13 @@
                 "explanation_extra_markdown": "Je hebt een e-mail ontvangen van **noreply@sidn.nl**. Open de link in dit bericht om je e-mailadres aan je Yivi-app te koppelen."
             }
         },
+        "terms_and_conditions": {
+            "title": "Start met Yivi",
+            "explanation": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do ab tempor incididunt ut labore et dolore magna aliqua.",
+            "accept": "Ja, ik ga akkoord met de",
+            "terms": "algemene voorwaarden",
+            "link": "https://privacybydesign.foundation/privacy-policy/"
+        },
         "submit": {
             "title": "Aanmelden",
             "progress_enrollment": "Je wordt aangemeld"

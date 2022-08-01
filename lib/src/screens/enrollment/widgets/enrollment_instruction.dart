@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-import '../../../../theme/theme.dart';
-import '../../../../widgets/irma_button.dart';
-import '../../../../widgets/irma_text_button.dart';
-import '../../../../widgets/translated_text.dart';
+import '../../../theme/theme.dart';
+import '../../../widgets/irma_button.dart';
+import '../../../widgets/irma_text_button.dart';
+import '../../../widgets/translated_text.dart';
 
-class IntroductionInstruction extends StatelessWidget {
-  final int stepIndex;
-  final int stepCount;
+class EnrollmentInstruction extends StatelessWidget {
+  final int? stepIndex;
+  final int? stepCount;
   final String titleTranslationKey;
   final String explanationTranslationKey;
   final VoidCallback onContinue;
   final VoidCallback onPrevious;
 
-  const IntroductionInstruction({
-    required this.stepIndex,
-    required this.stepCount,
+  const EnrollmentInstruction({
+    this.stepIndex,
+    this.stepCount,
     required this.titleTranslationKey,
     required this.explanationTranslationKey,
     required this.onContinue,
@@ -43,10 +43,11 @@ class IntroductionInstruction extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  (stepIndex + 1).toString() + '/' + stepCount.toString(),
-                  style: theme.textTheme.caption,
-                ),
+                if (stepIndex != null && stepCount != null)
+                  Text(
+                    (stepIndex! + 1).toString() + '/' + stepCount.toString(),
+                    style: theme.textTheme.caption,
+                  ),
                 TranslatedText(
                   titleTranslationKey,
                   style: theme.textTheme.headline1,

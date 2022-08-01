@@ -1,24 +1,14 @@
 import 'package:flutter/material.dart';
 
-import '../widgets/choose_pin.dart';
+import '../widgets/enrollment_graphic.dart';
+import '../widgets/enrollment_instruction.dart';
 import '../widgets/enrollment_layout.dart';
 import 'models/introduction_step.dart';
-import 'widgets/introduction_graphic.dart';
-import 'widgets/introduction_instruction.dart';
 
-class IntroductionScreen extends StatefulWidget {
+class IntroductionScreen extends StatelessWidget {
   static const String routeName = 'introduction';
 
-  const IntroductionScreen();
-
-  @override
-  State<IntroductionScreen> createState() => _IntroductionScreenState();
-}
-
-class _IntroductionScreenState extends State<IntroductionScreen> {
-  var currentStepIndex = 0;
-
-  final List<IntroductionStep> _introductionSteps = const [
+  static const List<IntroductionStep> introductionSteps = [
     IntroductionStep(
       svgImagePath: 'assets/enrollment/introduction_screen1.svg',
       titleTranslationKey: 'enrollment.introduction.step_1.title',
@@ -36,32 +26,30 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
     )
   ];
 
-  void _onPrevious() {
-    if (currentStepIndex != 0) setState(() => currentStepIndex--);
-  }
+  final int currentStepIndex;
+  final VoidCallback onContinue;
+  final VoidCallback onPrevious;
 
-  void _onContinue() {
-    if (currentStepIndex == _introductionSteps.length - 1) {
-      Navigator.of(context).pushNamed(ChoosePin.routeName);
-    } else {
-      setState(() => currentStepIndex++);
-    }
-  }
+  const IntroductionScreen({
+    required this.currentStepIndex,
+    required this.onContinue,
+    required this.onPrevious,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: EnrollmentLayout(
-        graphic: IntroductionGraphic(
-          _introductionSteps[currentStepIndex].svgImagePath,
+        graphic: EnrollmentGraphic(
+          introductionSteps[currentStepIndex].svgImagePath,
         ),
-        instruction: IntroductionInstruction(
+        instruction: EnrollmentInstruction(
           stepIndex: currentStepIndex,
-          stepCount: _introductionSteps.length,
-          titleTranslationKey: _introductionSteps[currentStepIndex].titleTranslationKey,
-          explanationTranslationKey: _introductionSteps[currentStepIndex].explanationTranslationKey,
-          onContinue: _onContinue,
-          onPrevious: _onPrevious,
+          stepCount: introductionSteps.length,
+          titleTranslationKey: introductionSteps[currentStepIndex].titleTranslationKey,
+          explanationTranslationKey: introductionSteps[currentStepIndex].explanationTranslationKey,
+          onContinue: onContinue,
+          onPrevious: onPrevious,
         ),
       ),
     );
