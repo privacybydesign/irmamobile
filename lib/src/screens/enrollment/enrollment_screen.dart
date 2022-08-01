@@ -8,7 +8,7 @@ import 'accept_terms/accept_terms_screen.dart';
 import 'bloc/enrollment_bloc.dart';
 import 'choose_pin/choose_pin_screen.dart';
 import 'confirm_pin/widgets/pin_confirmation_failed_dialog.dart';
-import 'introduction/introduction.dart';
+import 'introduction/introduction_screen.dart';
 import 'provide_email/provide_email_screen.dart';
 import 'confirm_pin/confirm_pin_screen.dart';
 

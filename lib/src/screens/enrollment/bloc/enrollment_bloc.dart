@@ -2,7 +2,7 @@ import 'package:bloc/bloc.dart';
 
 import '../../../data/irma_repository.dart';
 import '../../../models/enrollment_events.dart';
-import '../introduction/introduction.dart';
+import '../introduction/introduction_screen.dart';
 
 part 'enrollment_event.dart';
 part 'enrollment_state.dart';

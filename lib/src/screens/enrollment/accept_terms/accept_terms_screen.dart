@@ -21,7 +21,7 @@ class AcceptTermsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: EnrollmentLayout(
-        graphic: const EnrollmentGraphic('assets/enrollment/introduction_screen3.svg'),
+        graphic: const EnrollmentGraphic('assets/enrollment/introduction_4.svg'),
         instruction: AcceptTermsInstruction(
           titleTranslationKey: 'enrollment.terms_and_conditions.title',
           explanationTranslationKey: 'enrollment.terms_and_conditions.explanation',

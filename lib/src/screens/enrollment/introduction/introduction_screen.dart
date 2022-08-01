@@ -10,17 +10,17 @@ class IntroductionScreen extends StatelessWidget {
 
   static const List<IntroductionStep> introductionSteps = [
     IntroductionStep(
-      svgImagePath: 'assets/enrollment/introduction_screen1.svg',
+      svgImagePath: 'assets/enrollment/introduction_1.svg',
       titleTranslationKey: 'enrollment.introduction.step_1.title',
       explanationTranslationKey: 'enrollment.introduction.step_1.explanation',
     ),
     IntroductionStep(
-      svgImagePath: 'assets/enrollment/introduction_screen2.svg',
+      svgImagePath: 'assets/enrollment/introduction_2.svg',
       titleTranslationKey: 'enrollment.introduction.step_2.title',
       explanationTranslationKey: 'enrollment.introduction.step_2.explanation',
     ),
     IntroductionStep(
-      svgImagePath: 'assets/enrollment/introduction_screen3.svg',
+      svgImagePath: 'assets/enrollment/introduction_3.svg',
       titleTranslationKey: 'enrollment.introduction.step_3.title',
       explanationTranslationKey: 'enrollment.introduction.step_3.explanation',
     )
