@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../models/issue_wizard.dart';
-import '../../../screens/issue_wizard/widgets/logo_banner_header.dart';
 import '../../../theme/theme.dart';
 import '../../../util/color_from_code.dart';
 import '../../../widgets/collapsible.dart';
 import '../../../widgets/irma_bottom_bar.dart';
 import '../../../widgets/irma_markdown.dart';
 import '../issue_wizard.dart';
+import 'wizard_scaffold.dart';
 
 const customWizardDefaultLanguage = 'en'; // TODO or NL?
 
@@ -81,7 +81,7 @@ class IssueWizardInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LogoBannerHeader(
+    return WizardScaffold(
       scrollviewKey: scrollviewKey,
       controller: controller,
       header:
@@ -96,7 +96,7 @@ class IssueWizardInfo extends StatelessWidget {
         secondaryButtonLabel: FlutterI18n.translate(context, "issue_wizard.back"),
         onSecondaryPressed: onBack,
       ),
-      child: _buildIntro(context, wizardData),
+      body: _buildIntro(context, wizardData),
     );
   }
 }

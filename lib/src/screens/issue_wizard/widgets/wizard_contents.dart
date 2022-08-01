@@ -4,13 +4,14 @@ import 'package:irmamobile/src/screens/issue_wizard/issue_wizard.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../../models/issue_wizard.dart';
-import '../../../screens/issue_wizard/widgets/logo_banner_header.dart';
-import '../../../screens/issue_wizard/widgets/progressing_list.dart';
 import '../../../screens/issue_wizard/widgets/wizard_info.dart';
 import '../../../theme/theme.dart';
 import '../../../util/color_from_code.dart';
 import '../../../widgets/irma_bottom_bar.dart';
 import '../../../widgets/irma_markdown.dart';
+import '../../../widgets/irma_progress_indicator.dart';
+import 'wizard_card_list.dart';
+import 'wizard_scaffold.dart';
 
 class IssueWizardContents extends StatelessWidget {
   final GlobalKey scrollviewKey;
@@ -34,7 +35,7 @@ class IssueWizardContents extends StatelessWidget {
   Widget _buildWizard(BuildContext context, IssueWizardEvent wizard) {
     final lang = FlutterI18n.currentLocale(context)?.languageCode ?? customWizardDefaultLanguage;
     final contents = wizard.wizardContents
-        .map((item) => ProgressingListItem(
+        .map((item) => WizardCardItem(
               header: item.header.translate(lang),
               text: item.text.translate(lang),
               completed: item.completed,
@@ -46,43 +47,26 @@ class IssueWizardContents extends StatelessWidget {
     return VisibilityDetector(
       key: const Key('wizard-key'),
       onVisibilityChanged: (v) => onVisibilityChanged(v, wizard),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          if (intro.isNotEmpty)
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
-              child: IrmaMarkdown(intro.translate(lang)),
-            ),
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              theme.defaultSpacing,
-              theme.mediumSpacing,
-              theme.defaultSpacing,
-              theme.smallSpacing,
-            ),
-            child: ProgressingList(data: contents, completed: wizard.completed),
-          ),
-          if (wizard.showSuccess && wizard.completed)
-            Padding(
-              padding: EdgeInsets.fromLTRB(theme.defaultSpacing, 0, theme.defaultSpacing, theme.smallSpacing),
-              child: Text(
-                wizard.wizardData.successHeader.translate(lang),
-                style: Theme.of(context).textTheme.headline3,
+      child: Container(
+        padding: EdgeInsets.only(left: theme.defaultSpacing, right: theme.defaultSpacing),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            if (intro.isNotEmpty)
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
+                child: IrmaMarkdown(intro.translate(lang)),
               ),
-            ),
-          if (wizard.showSuccess && wizard.completed)
-            Padding(
-              padding: EdgeInsets.fromLTRB(theme.defaultSpacing, 0, theme.defaultSpacing, theme.smallSpacing),
-              child: IrmaMarkdown(wizard.wizardData.successText.translate(lang)),
-            ),
-        ],
+            WizardCardList(data: contents, completed: wizard.completed),
+          ],
+        ),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)?.languageCode ?? customWizardDefaultLanguage;
     final activeItem = wizard.activeItem;
     final buttonLabel = wizard.completed
@@ -93,8 +77,23 @@ class IssueWizardContents extends StatelessWidget {
               "issue_wizard.add_credential",
               translationParams: {"credential": activeItem.header.translate(lang)},
             ));
-
-    return LogoBannerHeader(
+    final wizardContentSize = wizard.wizardContents.length;
+    final indicator = <Widget>[
+      const SizedBox(
+        height: 4,
+      ),
+      Padding(
+        padding: EdgeInsets.only(left: theme.defaultSpacing, right: theme.defaultSpacing),
+        child: IrmaProgressIndicator(
+          step: wizard.completed ? wizard.wizardContents.length : wizard.activeItemIndex,
+          stepCount: wizardContentSize,
+        ),
+      ),
+      const SizedBox(
+        height: 32,
+      )
+    ];
+    return WizardScaffold(
       scrollviewKey: scrollviewKey,
       controller: controller,
       header: wizard.wizardData.title.translate(lang),
@@ -106,7 +105,13 @@ class IssueWizardContents extends StatelessWidget {
         primaryButtonLabel: buttonLabel,
         onPrimaryPressed: () => onNext(context, wizard),
       ),
-      child: _buildWizard(context, wizard),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          if (wizardContentSize > 1) ...indicator,
+          _buildWizard(context, wizard),
+        ],
+      ),
     );
   }
 }

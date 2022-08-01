@@ -1,27 +1,26 @@
 import 'package:flutter/material.dart';
 
-import '../../../theme/theme.dart';
 import '../../../widgets/irma_app_bar.dart';
 import '../../../widgets/logo_banner.dart';
 
-class LogoBannerHeader extends StatelessWidget {
+class WizardScaffold extends StatelessWidget {
   final Image logo;
   final String header;
   final Color backgroundColor;
   final Color textColor;
   final Widget bottomBar;
-  final Widget child;
+  final Widget body;
   final void Function() onBack;
   final GlobalKey scrollviewKey;
   final ScrollController controller;
 
-  const LogoBannerHeader({
+  const WizardScaffold({
     required this.logo,
     required this.header,
     required this.backgroundColor,
     required this.textColor,
     required this.bottomBar,
-    required this.child,
+    required this.body,
     required this.scrollviewKey,
     required this.controller,
     required this.onBack,
@@ -46,12 +45,7 @@ class LogoBannerHeader extends StatelessWidget {
               backgroundColor: backgroundColor,
               textColor: textColor,
             ),
-            Padding(
-              padding: EdgeInsets.only(
-                top: IrmaTheme.of(context).mediumSpacing,
-              ),
-              child: child,
-            ),
+            body,
           ],
         ),
       ),
