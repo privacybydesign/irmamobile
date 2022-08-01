@@ -12,12 +12,13 @@ class YiviConfirmPinScaffold extends StatelessWidget {
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  YiviConfirmPinScaffold(
-      {required this.submit,
-      required this.cancel,
-      required this.titleTranslationKey,
-      required this.instructionKey,
-      required this.longPin});
+  YiviConfirmPinScaffold({
+    required this.submit,
+    required this.cancel,
+    required this.titleTranslationKey,
+    required this.instructionKey,
+    required this.longPin,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -25,23 +26,24 @@ class YiviConfirmPinScaffold extends StatelessWidget {
     final pinBloc = EnterPinStateBloc(maxPinSize);
 
     return YiviPinScaffold(
-        key: _scaffoldKey,
-        appBar: IrmaAppBar(
-          titleTranslationKey: titleTranslationKey,
-          leadingAction: cancel,
-          leadingTooltip: MaterialLocalizations.of(context).backButtonTooltip,
-        ),
-        body: YiviPinScreen(
-          scaffoldKey: _scaffoldKey,
-          instructionKey: instructionKey,
-          maxPinSize: maxPinSize,
-          onSubmit: submit,
-          pinBloc: pinBloc,
-          listener: (context, state) {
-            if (maxPinSize == shortPinSize && state.pin.length == maxPinSize) {
-              submit(state.toString());
-            }
-          },
-        ));
+      key: _scaffoldKey,
+      appBar: IrmaAppBar(
+        titleTranslationKey: titleTranslationKey,
+        leadingAction: cancel,
+        leadingTooltip: MaterialLocalizations.of(context).backButtonTooltip,
+      ),
+      body: YiviPinScreen(
+        scaffoldKey: _scaffoldKey,
+        instructionKey: instructionKey,
+        maxPinSize: maxPinSize,
+        onSubmit: submit,
+        pinBloc: pinBloc,
+        listener: (context, state) {
+          if (maxPinSize == shortPinSize && state.pin.length == maxPinSize) {
+            submit(state.toString());
+          }
+        },
+      ),
+    );
   }
 }
