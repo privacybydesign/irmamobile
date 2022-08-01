@@ -69,14 +69,15 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
   }
 
   void _handleInvalidPin(PinState state) {
-    if (state.remainingAttempts != 0) {
+    final navigatorContext = _navigatorKey.currentContext;
+    if (state.remainingAttempts != 0 && navigatorContext != null) {
       showDialog(
-        context: _navigatorKey.currentContext!,
+        context: navigatorContext,
         useRootNavigator: false,
         builder: (BuildContext context) => PinWrongAttemptsDialog(
           attemptsRemaining: state.remainingAttempts,
           onClose: () {
-            Navigator.of(_navigatorKey.currentContext!).pop();
+            Navigator.of(navigatorContext).pop();
           },
         ),
       );
@@ -87,28 +88,29 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
   }
 
   void _handleError(PinState state) {
-    Navigator.of(_navigatorKey.currentContext!).push(MaterialPageRoute(
-      builder: (context) => SessionErrorScreen(
-        error: state.error,
-        onTapClose: () {
-          Navigator.of(_navigatorKey.currentContext!).pop();
-        },
-      ),
-    ));
+    final navigatorContext = _navigatorKey.currentContext;
+    if (navigatorContext != null) {
+      Navigator.of(navigatorContext).push(MaterialPageRoute(
+        builder: (context) => SessionErrorScreen(
+          error: state.error,
+          onTapClose: () {
+            Navigator.of(navigatorContext).pop();
+          },
+        ),
+      ));
+    }
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused) {
-      FocusScope.of(_navigatorKey.currentContext!).unfocus();
-    } else if (state == AppLifecycleState.resumed) {
+    if (state == AppLifecycleState.resumed) {
       final pinState = _pinBloc.state;
       if (pinState.pinInvalid || pinState.authenticateInProgress || pinState.error != null) return;
     }
   }
 
   // Parent widget is responsible for popping this widget, so do a leadingAction instead of a leadingCancel.
-  PreferredSizeWidget scaffoldTitle() => IrmaAppBar(leadingAction: _cancel, title: widget.title);
+  PreferredSizeWidget _scaffoldTitle() => IrmaAppBar(leadingAction: _cancel, title: widget.title);
 
   void _submit(bool enabled, String pin) {
     if (!enabled) return;
@@ -144,13 +146,13 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
               if (state.authenticated) {
                 // Wait until parent screen pops this widget.
                 return Scaffold(
-                  appBar: scaffoldTitle(),
+                  appBar: _scaffoldTitle(),
                   body: LoadingIndicator(),
                 );
               }
 
               return YiviPinScaffold(
-                appBar: scaffoldTitle(),
+                appBar: _scaffoldTitle(),
                 body: StreamBuilder(
                   stream: _pinBloc.getPinBlockedFor(),
                   builder: (BuildContext context, AsyncSnapshot<Duration> blockedFor) {
