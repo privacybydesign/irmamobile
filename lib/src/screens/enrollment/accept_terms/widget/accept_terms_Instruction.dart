@@ -15,14 +15,15 @@ class AcceptTermsInstruction extends StatelessWidget {
   final bool isAccepted;
   final Function(bool) onToggleAccepted;
   final VoidCallback onContinue;
+  final VoidCallback onPrevious;
 
-  const AcceptTermsInstruction({
-    required this.titleTranslationKey,
-    required this.explanationTranslationKey,
-    required this.isAccepted,
-    required this.onToggleAccepted,
-    required this.onContinue,
-  });
+  const AcceptTermsInstruction(
+      {required this.titleTranslationKey,
+      required this.explanationTranslationKey,
+      required this.isAccepted,
+      required this.onToggleAccepted,
+      required this.onContinue,
+      required this.onPrevious});
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +92,7 @@ class AcceptTermsInstruction extends StatelessWidget {
                     child: IrmaTextButton(
                   label: 'ui.previous',
                   textStyle: theme.hyperlinkTextStyle,
-                  onPressed: () {},
+                  onPressed: onPrevious,
                 )),
                 Flexible(
                   child: IrmaButton(

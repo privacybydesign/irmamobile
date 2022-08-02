@@ -82,6 +82,7 @@ class ProvidedEnrollmentScreen extends StatelessWidget {
         if (state is EnrollmentAcceptTerms) {
           return AcceptTermsScreen(
             isAccepted: state.isAccepted,
+            onPrevious: addOnPreviousPressed,
             onContinue: () => addEvent(EnrollmentNextPressed()),
             onToggleAccepted: (isAccepted) => addEvent(
               EnrollmentTermsUpdated(

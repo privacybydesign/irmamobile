@@ -10,12 +10,10 @@ class AcceptTermsScreen extends StatelessWidget {
   final bool isAccepted;
   final Function(bool) onToggleAccepted;
   final VoidCallback onContinue;
+  final VoidCallback onPrevious;
 
-  const AcceptTermsScreen({
-    required this.isAccepted,
-    required this.onToggleAccepted,
-    required this.onContinue,
-  });
+  const AcceptTermsScreen(
+      {required this.isAccepted, required this.onToggleAccepted, required this.onContinue, required this.onPrevious});
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +25,7 @@ class AcceptTermsScreen extends StatelessWidget {
           explanationTranslationKey: 'enrollment.terms_and_conditions.explanation',
           isAccepted: isAccepted,
           onContinue: onContinue,
+          onPrevious: onPrevious,
           onToggleAccepted: onToggleAccepted,
         ),
       ),
