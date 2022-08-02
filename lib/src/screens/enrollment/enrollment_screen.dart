@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/screens/home/home_screen.dart';
 
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/loading_indicator.dart';
@@ -43,8 +44,10 @@ class ProvidedEnrollmentScreen extends StatelessWidget {
             builder: (context) => PinConfirmationFailedDialog(),
           );
         }
-        //Navigate on EnrollmentSuccess
-        if (state is EnrollmentSuccess) {}
+        //Navigate to home on EnrollmentSuccess
+        if (state is EnrollmentSuccess) {
+          Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
+        }
       },
       builder: (context, blocState) {
         var state = blocState;
