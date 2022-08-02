@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/screens/home/home_screen.dart';
 
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/loading_indicator.dart';
+import '../home/home_screen.dart';
 import 'accept_terms/accept_terms_screen.dart';
 import 'bloc/enrollment_bloc.dart';
 import 'choose_pin/choose_pin_screen.dart';
@@ -77,6 +77,7 @@ class ProvidedEnrollmentScreen extends StatelessWidget {
         if (state is EnrollmentProvideEmail) {
           return ProvideEmailScreen(
             onPrevious: addOnPreviousPressed,
+            onEmailSkipped: () => addEvent(EnrollmentEmailSkipped()),
             onEmailProvided: (email) => addEvent(
               EnrollmentEmailProvided(email),
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:irmamobile/src/screens/enrollment/provide_email/widgets/skip_email_confirmation_dialog.dart';
 
 import '../../../theme/theme.dart';
 import '../../../widgets/irma_app_bar.dart';
@@ -8,10 +9,12 @@ import 'widgets/email_input_field.dart';
 
 class ProvideEmailScreen extends StatefulWidget {
   final Function(String) onEmailProvided;
+  final VoidCallback onEmailSkipped;
   final VoidCallback onPrevious;
 
   const ProvideEmailScreen({
     required this.onEmailProvided,
+    required this.onEmailSkipped,
     required this.onPrevious,
   });
 
@@ -37,6 +40,15 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
     }
   }
 
+  void _onSkipPressed() async {
+    final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (context) => SkipEmailConfirmationDialog(),
+        ) ??
+        false;
+    if (confirmed) widget.onEmailSkipped();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
@@ -48,10 +60,11 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
         leadingTooltip: MaterialLocalizations.of(context).backButtonTooltip,
       ),
       bottomNavigationBar: IrmaBottomBar(
+        alignment: IrmaBottomBarAlignment.horizontal,
         primaryButtonLabel: 'ui.next',
         onPrimaryPressed: _onContinuePressed,
-        secondaryButtonLabel: 'ui.previous',
-        onSecondaryPressed: widget.onPrevious,
+        secondaryButtonLabel: 'ui.skip',
+        onSecondaryPressed: _onSkipPressed,
       ),
       body: Form(
         key: _emailFormKey,
