@@ -134,6 +134,7 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
       // Widget might have disposed during the timeout, so check for this first.
       if (mounted) {
         widget.onFound(pointer!);
+        widget.onClose();
       }
     });
   }
