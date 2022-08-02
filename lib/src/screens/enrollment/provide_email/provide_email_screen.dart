@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/screens/enrollment/provide_email/widgets/skip_email_confirmation_dialog.dart';
 
 import '../../../theme/theme.dart';
 import '../../../widgets/irma_app_bar.dart';
 import '../../../widgets/irma_bottom_bar.dart';
 import '../../../widgets/translated_text.dart';
 import 'widgets/email_input_field.dart';
+import 'widgets/skip_email_confirmation_dialog.dart';
 
 class ProvideEmailScreen extends StatefulWidget {
   final Function(String) onEmailProvided;
