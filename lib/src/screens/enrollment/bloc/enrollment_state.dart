@@ -20,7 +20,13 @@ class EnrollmentConfirmPin extends EnrollmentState {
   });
 }
 
-class EnrollmentProvideEmail extends EnrollmentState {}
+class EnrollmentProvideEmail extends EnrollmentState {
+  final String? email;
+
+  EnrollmentProvideEmail({
+    this.email,
+  });
+}
 
 class EnrollmentAcceptTerms extends EnrollmentState {
   final bool isAccepted;
@@ -30,8 +36,16 @@ class EnrollmentAcceptTerms extends EnrollmentState {
   });
 }
 
-class EnrollmentSubmitted extends EnrollmentState {}
+class Enrolling extends EnrollmentState {}
 
 class EnrollmentSuccess extends EnrollmentState {}
 
-class EnrollmentError extends EnrollmentState {}
+class EnrollmentFailed extends EnrollmentState {
+  final SessionError error;
+
+  EnrollmentFailed({
+    required this.error,
+  });
+}
+
+class EnrollmentRetry extends EnrollmentState {}

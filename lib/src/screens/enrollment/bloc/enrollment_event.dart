@@ -37,3 +37,5 @@ class EnrollmentEmailSkipped implements EnrollmentBlocEvent {}
 class EnrollmentNextPressed implements EnrollmentBlocEvent {}
 
 class EnrollmentPreviousPressed implements EnrollmentBlocEvent {}
+
+class EnrollmentRetried implements EnrollmentBlocEvent {}

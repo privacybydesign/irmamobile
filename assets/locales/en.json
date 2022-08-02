@@ -10,7 +10,9 @@
         "confirm": "Confirm",
         "delete": "Delete",
         "skip": "Skip",
-        "continue": "Continue"
+        "continue": "Continue",
+        "retry": "Try again",
+        "error": "Something went wrong"
     },
     "enrollment": {
         "introduction": {

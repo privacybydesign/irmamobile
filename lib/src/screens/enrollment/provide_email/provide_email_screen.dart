@@ -8,11 +8,13 @@ import 'widgets/email_input_field.dart';
 import 'widgets/skip_email_confirmation_dialog.dart';
 
 class ProvideEmailScreen extends StatefulWidget {
+  final String? email;
   final Function(String) onEmailProvided;
   final VoidCallback onEmailSkipped;
   final VoidCallback onPrevious;
 
   const ProvideEmailScreen({
+    this.email,
     required this.onEmailProvided,
     required this.onEmailSkipped,
     required this.onPrevious,
@@ -25,6 +27,12 @@ class ProvideEmailScreen extends StatefulWidget {
 class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
   final _emailFormKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
+
+  @override
+  void initState() {
+    _emailController.text = widget.email ?? '';
+    super.initState();
+  }
 
   @override
   void dispose() {

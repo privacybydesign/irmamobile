@@ -10,7 +10,9 @@
         "confirm": "Bevestigen",
         "delete": "Verwijderen",
         "skip": "Overslaan",
-        "continue" : "Doorgaan"
+        "continue": "Doorgaan",
+        "retry": "Opnieuw proberen",
+        "error": "Er is iets misgegaan"
     },
     "enrollment": {
         "introduction": {
