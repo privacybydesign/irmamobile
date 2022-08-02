@@ -15,7 +15,6 @@ class EnterPin extends StatelessWidget {
     return YiviBasicPinScaffold(
       submit: submitOldPin,
       cancel: cancel,
-      titleTranslationKey: 'change_pin.enter_pin.title',
       instructionKey: 'change_pin.enter_pin.instruction',
     );
   }

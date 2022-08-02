@@ -8,11 +8,9 @@ class YiviBasicPinScaffold extends StatelessWidget {
   final StringCallback submit;
   final VoidCallback? cancel;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  final String titleTranslationKey;
   final String instructionKey;
 
-  YiviBasicPinScaffold(
-      {required this.submit, this.cancel, required this.titleTranslationKey, required this.instructionKey});
+  YiviBasicPinScaffold({required this.submit, this.cancel, required this.instructionKey});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +18,7 @@ class YiviBasicPinScaffold extends StatelessWidget {
     return YiviPinScaffold(
       key: _scaffoldKey,
       appBar: IrmaAppBar(
-        titleTranslationKey: titleTranslationKey,
+        title: '',
         leadingTooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
         leadingAction: cancel != null
             ? () async {

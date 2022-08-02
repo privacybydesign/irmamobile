@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -112,7 +111,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
         return YiviPinScaffold(
           appBar: const IrmaAppBar(
             noLeading: true,
-            titleTranslationKey: 'pin.title',
+            title: '',
           ),
           body: StreamBuilder(
             stream: _pinBloc.getPinBlockedFor(),

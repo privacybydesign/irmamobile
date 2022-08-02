@@ -30,7 +30,6 @@
             }
         },
         "choose_pin": {
-            "title": "Secure your Yivi app",
             "insert_pin": "Choose a 5-digit PIN",
             "textfield": "PIN",
             "confirm_title": "Repeat your PIN",
@@ -148,7 +147,6 @@
     },
     "change_pin": {
         "enter_pin": {
-            "title": "Change PIN",
             "instruction": "Enter your current PIN",
             "error_title": "PIN incorrect",
             "error": "Enter your current PIN",
@@ -159,7 +157,6 @@
             "details": "Your PIN is being checked"
         },
         "choose_pin": {
-            "title": "Change PIN",
             "instruction": "Choose your new PIN",
             "switch_long": "Prefer a longer PIN?",
             "switch_short": "Prefer a shorter PIN?",
@@ -168,7 +165,6 @@
             "error_action": "OK"
         },
         "confirm_pin": {
-            "title": "Change PIN",
             "instruction": "Enter your PIN one more time."
         },
         "updating_pin": {
@@ -234,7 +230,6 @@
         "hide": "Hide PIN"
     },
     "pin": {
-        "title": "Login",
         "subtitle": "Enter your PIN",
         "button_forgot": "PIN forgotten",
         "button_block": "Block Yivi"

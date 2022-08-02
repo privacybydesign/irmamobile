@@ -15,7 +15,6 @@ class ConfirmPin extends StatelessWidget {
     return YiviConfirmPinScaffold(
       submit: confirmNewPin,
       cancel: cancel,
-      titleTranslationKey: 'change_pin.confirm_pin.title',
       instructionKey: 'change_pin.confirm_pin.instruction',
       longPin: ModalRoute.of(context)!.settings.arguments as bool,
     );

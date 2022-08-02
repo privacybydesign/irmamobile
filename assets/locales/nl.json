@@ -30,7 +30,6 @@
             }
         },
         "choose_pin": {
-            "title": "Beveiliging instellen",
             "insert_pin": "Kies een pincode van 5 cijfers",
             "textfield": "Pincode",
             "confirm_title": "Herhaal je pincode",
@@ -148,7 +147,6 @@
     },
     "change_pin": {
         "enter_pin": {
-            "title": "Pincode veranderen",
             "instruction": "Vul eerst je huidige pincode in",
             "error_title": "Verkeerde pincode",
             "error": "Vul je huidige pincode in",
@@ -159,7 +157,6 @@
             "details": "Je pincode wordt gecontroleerd"
         },
         "choose_pin": {
-            "title": "Pincode veranderen",
             "instruction": "Kies je nieuwe pincode",
             "switch_long": "Liever een langere pincode?",
             "switch_short": "Liever een kortere pincode?",
@@ -168,7 +165,6 @@
             "error_action": "OK"
         },
         "confirm_pin": {
-            "title": "Pincode veranderen",
             "instruction": "Vul je nieuwe pincode nog een keer in."
         },
         "updating_pin": {
@@ -234,7 +230,6 @@
         "hide": "Pincode verbergen"
     },
     "pin": {
-        "title": "Inloggen",
         "subtitle": "Voer je pincode in",
         "button_forgot": "Pincode vergeten",
         "button_block": "Yivi blokkeren"

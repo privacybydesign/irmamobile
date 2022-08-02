@@ -6,7 +6,6 @@ import 'pin/yivi_pin_screen.dart';
 class YiviConfirmPinScaffold extends StatelessWidget {
   final StringCallback submit;
   final VoidCallback cancel;
-  final String titleTranslationKey;
   final String instructionKey;
   final bool longPin;
 
@@ -15,7 +14,6 @@ class YiviConfirmPinScaffold extends StatelessWidget {
   YiviConfirmPinScaffold({
     required this.submit,
     required this.cancel,
-    required this.titleTranslationKey,
     required this.instructionKey,
     required this.longPin,
   });
@@ -28,7 +26,7 @@ class YiviConfirmPinScaffold extends StatelessWidget {
     return YiviPinScaffold(
       key: _scaffoldKey,
       appBar: IrmaAppBar(
-        titleTranslationKey: titleTranslationKey,
+        title: '',
         leadingAction: cancel,
         leadingTooltip: MaterialLocalizations.of(context).backButtonTooltip,
       ),

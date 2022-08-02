@@ -17,7 +17,6 @@ class ChoosePin extends StatelessWidget {
     return YiviChoosePinScaffold(
       submit: (pin) => submitPin(context, pin),
       cancel: () => cancelAndNavigate(context),
-      titleTranslationKey: 'enrollment.choose_pin.title',
       instructionKey: 'enrollment.choose_pin.insert_pin',
     );
   }

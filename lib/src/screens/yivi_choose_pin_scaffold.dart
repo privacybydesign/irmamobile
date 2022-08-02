@@ -8,13 +8,11 @@ class YiviChoosePinScaffold extends StatelessWidget {
   final StringCallback submit;
   final VoidCallback cancel;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  final String titleTranslationKey;
   final String instructionKey;
 
   YiviChoosePinScaffold({
     required this.submit,
     required this.cancel,
-    required this.titleTranslationKey,
     required this.instructionKey,
   });
 
@@ -25,7 +23,7 @@ class YiviChoosePinScaffold extends StatelessWidget {
     return YiviPinScaffold(
       key: _scaffoldKey,
       appBar: IrmaAppBar(
-        titleTranslationKey: titleTranslationKey,
+        title: '',
         leadingAction: cancel,
         leadingTooltip: MaterialLocalizations.of(context).backButtonTooltip,
       ),
