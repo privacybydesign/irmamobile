@@ -36,6 +36,7 @@ class YiviConfirmPinScaffold extends StatelessWidget {
         maxPinSize: maxPinSize,
         onSubmit: submit,
         pinBloc: pinBloc,
+        hideSubmit: shortPinSize == maxPinSize,
         listener: (context, state) {
           if (maxPinSize == shortPinSize && state.pin.length == maxPinSize) {
             submit(state.toString());
