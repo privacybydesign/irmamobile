@@ -71,6 +71,7 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
         child: SingleChildScrollView(
           padding: EdgeInsets.all(theme.defaultSpacing),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.max,
             children: [
               TranslatedText(
