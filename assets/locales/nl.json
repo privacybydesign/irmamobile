@@ -146,6 +146,13 @@
         }
     },
     "change_pin": {
+        "dialog": {
+            "title": "Weet je zeker?",
+            "body": "Weet je zeker dat je je huidige pin code wil aanpassen?",
+            "ok": "Aanpassen",
+            "cancel": "Annuleer"
+        },
+        "toast": "Gelukt! De nieuwe pin code is opgeslagen",
         "enter_pin": {
             "instruction": "Vul eerst je huidige pincode in",
             "error_title": "Verkeerde pincode",

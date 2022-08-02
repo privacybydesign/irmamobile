@@ -146,6 +146,13 @@
         }
     },
     "change_pin": {
+        "dialog": {
+            "title": "Are you sure?",
+            "body": "Are you sure you want to reset the current password?",
+            "ok": "Change",
+            "cancel": "Cancel"
+        },
+        "toast": "The new PIN is active",
         "enter_pin": {
             "instruction": "Enter your current PIN",
             "error_title": "PIN incorrect",

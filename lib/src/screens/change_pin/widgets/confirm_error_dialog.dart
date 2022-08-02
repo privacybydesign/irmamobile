@@ -1,6 +1,3 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
@@ -8,10 +5,10 @@ import 'package:irmamobile/src/widgets/irma_dialog.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 
 class ConfirmErrorDialog extends StatelessWidget {
-  final void Function() onClose;
+  final VoidCallback onClose;
 
   const ConfirmErrorDialog({
-    @required this.onClose,
+    required this.onClose,
   });
 
   @override
