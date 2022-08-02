@@ -557,7 +557,6 @@
         "title": "Choose PIN",
         "subtitle": "A secure PIN has the following properties:",
         "rules": {
-            "at_least_5_at_most_16": "Contains at least 5, at most 16 characters",
             "contains_3_unique": "Contains at least 3 unique numbers",
             "must_not_asc_or_desc": "Must not contain ascending nor descending patterns, like: 12345",
             "not_abcab_nor_abcba": "Must not contain the following patterns: abcba, abcab, like: 12312, 12321, 13331",
