@@ -104,6 +104,7 @@ class IssueWizardContents extends StatelessWidget {
       bottomBar: IrmaBottomBar(
         primaryButtonLabel: buttonLabel,
         onPrimaryPressed: () => onNext(context, wizard),
+        alignment: IrmaBottomBarAlignment.horizontal,
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,

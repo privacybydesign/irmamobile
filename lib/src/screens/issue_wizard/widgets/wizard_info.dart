@@ -95,6 +95,7 @@ class IssueWizardInfo extends StatelessWidget {
         onPrimaryPressed: onNext,
         secondaryButtonLabel: FlutterI18n.translate(context, "issue_wizard.back"),
         onSecondaryPressed: onBack,
+        alignment: IrmaBottomBarAlignment.horizontal,
       ),
       body: _buildIntro(context, wizardData),
     );
