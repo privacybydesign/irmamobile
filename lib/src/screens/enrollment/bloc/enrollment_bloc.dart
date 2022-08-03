@@ -68,7 +68,7 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
         );
       }
     }
-    //Confirm Pin
+    // Confirm Pin
     else if (state is EnrollmentConfirmPin) {
       if (event is EnrollmentConfirmedPin) {
         if (_pin == event.pin) {

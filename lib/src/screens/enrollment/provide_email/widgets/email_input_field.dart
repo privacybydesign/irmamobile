@@ -19,7 +19,6 @@ class EmailInputField extends StatelessWidget {
         autofillHints: const [AutofillHints.email],
         cursorColor: IrmaTheme.of(context).themeData.colorScheme.secondary,
         decoration: const InputDecoration(
-          //errorText: error,
           label: TranslatedText(
             'enrollment.email.provide.input.label',
           ),

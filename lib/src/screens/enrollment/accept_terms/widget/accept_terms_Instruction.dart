@@ -17,13 +17,14 @@ class AcceptTermsInstruction extends StatelessWidget {
   final VoidCallback onContinue;
   final VoidCallback onPrevious;
 
-  const AcceptTermsInstruction(
-      {required this.titleTranslationKey,
-      required this.explanationTranslationKey,
-      required this.isAccepted,
-      required this.onToggleAccepted,
-      required this.onContinue,
-      required this.onPrevious});
+  const AcceptTermsInstruction({
+    required this.titleTranslationKey,
+    required this.explanationTranslationKey,
+    required this.isAccepted,
+    required this.onToggleAccepted,
+    required this.onContinue,
+    required this.onPrevious,
+  });
 
   @override
   Widget build(BuildContext context) {
