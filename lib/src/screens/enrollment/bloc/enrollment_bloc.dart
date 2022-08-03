@@ -59,7 +59,7 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
     }
     // Choose Pin
     else if (state is EnrollmentChoosePin) {
-      if (event is EnrollmentChosePin) {
+      if (event is EnrollmentPinChosen) {
         _pin = event.pin;
         yield EnrollmentConfirmPin();
       } else if (event is EnrollmentPreviousPressed) {
@@ -70,7 +70,7 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
     }
     // Confirm Pin
     else if (state is EnrollmentConfirmPin) {
-      if (event is EnrollmentConfirmedPin) {
+      if (event is EnrollmentPinConfirmed) {
         if (_pin == event.pin) {
           yield EnrollmentAcceptTerms();
         } else {

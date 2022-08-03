@@ -2,16 +2,16 @@ part of 'enrollment_bloc.dart';
 
 abstract class EnrollmentBlocEvent {}
 
-class EnrollmentChosePin implements EnrollmentBlocEvent {
+class EnrollmentPinChosen implements EnrollmentBlocEvent {
   final String pin;
 
-  EnrollmentChosePin(this.pin);
+  EnrollmentPinChosen(this.pin);
 }
 
-class EnrollmentConfirmedPin implements EnrollmentBlocEvent {
+class EnrollmentPinConfirmed implements EnrollmentBlocEvent {
   final String pin;
 
-  EnrollmentConfirmedPin(
+  EnrollmentPinConfirmed(
     this.pin,
   );
 }

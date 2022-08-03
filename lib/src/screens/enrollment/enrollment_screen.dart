@@ -63,7 +63,7 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
           return ChoosePinScreen(
             onPrevious: addOnPreviousPressed,
             onChosePin: (pin) => addEvent(
-              EnrollmentChosePin(pin),
+              EnrollmentPinChosen(pin),
             ),
           );
         }
@@ -71,7 +71,7 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
           return ConfirmPinScreen(
             onPrevious: addOnPreviousPressed,
             submitConfirmationPin: (pin) => addEvent(
-              EnrollmentConfirmedPin(pin),
+              EnrollmentPinConfirmed(pin),
             ),
           );
         }
