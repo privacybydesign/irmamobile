@@ -4,12 +4,12 @@ import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/loading_indicator.dart';
 
-class UpdatingPin extends StatelessWidget {
-  static const String routeName = 'change_pin/updating_pin';
+class ValidatingPin extends StatelessWidget {
+  static const String routeName = 'change_pin/validating_pin';
 
   final void Function() cancel;
 
-  const UpdatingPin({required this.cancel});
+  const ValidatingPin({required this.cancel});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +17,7 @@ class UpdatingPin extends StatelessWidget {
       appBar: IrmaAppBar(
         titleTranslationKey: 'change_pin.confirm_pin.title',
         leadingAction: () async {
-          cancel.call();
+          cancel();
           if (!await Navigator.of(context).maybePop()) {
             Navigator.of(context, rootNavigator: true).pop();
           }
@@ -36,7 +36,7 @@ class UpdatingPin extends StatelessWidget {
               Container(
                 constraints: BoxConstraints(maxWidth: IrmaTheme.of(context).defaultSpacing * 16),
                 child: Text(
-                  FlutterI18n.translate(context, 'change_pin.updating_pin.header'),
+                  FlutterI18n.translate(context, 'change_pin.validating_pin.header'),
                   textAlign: TextAlign.center,
                   style: IrmaTheme.of(context).textTheme.headline4,
                 ),
@@ -45,7 +45,7 @@ class UpdatingPin extends StatelessWidget {
               Container(
                 constraints: BoxConstraints(maxWidth: IrmaTheme.of(context).defaultSpacing * 20),
                 child: Text(
-                  FlutterI18n.translate(context, 'change_pin.updating_pin.details'),
+                  FlutterI18n.translate(context, 'change_pin.validating_pin.details'),
                   textAlign: TextAlign.center,
                   style: IrmaTheme.of(context).textTheme.bodyText2,
                 ),
