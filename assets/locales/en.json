@@ -5,7 +5,7 @@
         "step": "Step",
         "done": "Done",
         "next": "Next",
-        "previous": "Vorige",
+        "previous": "Previous",
         "cancel": "Cancel",
         "confirm": "Confirm",
         "delete": "Delete",
@@ -66,7 +66,7 @@
         "terms_and_conditions": {
             "title": "Start with Yivi",
             "explanation": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do ab tempor incididunt ut labore et dolore magna aliqua.",
-            "accept": "Yes, i accept the terms and conditions",
+            "accept": "Yes, I accept the terms and conditions",
             "terms": "terms and conditions",
             "link": "https://privacybydesign.foundation/privacy-policy-en/"
         },
