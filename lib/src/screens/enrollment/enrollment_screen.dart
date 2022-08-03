@@ -24,12 +24,12 @@ class EnrollmentScreen extends StatelessWidget {
         language: FlutterI18n.currentLocale(context)!.languageCode,
         repo: IrmaRepositoryProvider.of(context),
       ),
-      child: ProvidedEnrollmentScreen(),
+      child: _ProvidedEnrollmentScreen(),
     );
   }
 }
 
-class ProvidedEnrollmentScreen extends StatelessWidget {
+class _ProvidedEnrollmentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bloc = context.read<EnrollmentBloc>();
