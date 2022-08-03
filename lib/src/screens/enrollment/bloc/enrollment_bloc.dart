@@ -30,8 +30,12 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
       return EnrollmentFailed(
         error: enrollment.error,
       );
+    } else if (_email != null) {
+      return EnrollmentEmailSent(
+        email: _email!,
+      );
     }
-    return EnrollmentSuccess();
+    return EnrollmentCompleted();
   }
 
   @override
@@ -102,11 +106,7 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
     // Provide email
     else if (state is EnrollmentProvideEmail) {
       if (event is EnrollmentEmailProvided || event is EnrollmentEmailSkipped) {
-        if (event is EnrollmentEmailProvided) {
-          _email = event.email;
-        } else {
-          _email = '';
-        }
+        _email = event is EnrollmentEmailProvided ? event.email : null;
         yield Enrolling();
         yield await _enroll();
       }
@@ -114,6 +114,10 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
         yield EnrollmentAcceptTerms(
           isAccepted: true,
         );
+      }
+    } else if (state is EnrollmentEmailSent) {
+      if (event is EnrollmentNextPressed) {
+        yield EnrollmentCompleted();
       }
     } else if (state is EnrollmentFailed && event is EnrollmentPreviousPressed) {
       yield EnrollmentProvideEmail(

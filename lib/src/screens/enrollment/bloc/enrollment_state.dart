@@ -28,6 +28,14 @@ class EnrollmentProvideEmail extends EnrollmentState {
   });
 }
 
+class EnrollmentEmailSent extends EnrollmentState {
+  final String email;
+
+  EnrollmentEmailSent({
+    required this.email,
+  });
+}
+
 class EnrollmentAcceptTerms extends EnrollmentState {
   final bool isAccepted;
 
@@ -49,3 +57,5 @@ class EnrollmentFailed extends EnrollmentState {
 }
 
 class EnrollmentRetry extends EnrollmentState {}
+
+class EnrollmentCompleted extends EnrollmentState {}

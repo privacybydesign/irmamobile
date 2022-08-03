@@ -11,6 +11,7 @@ import 'choose_pin/choose_pin_screen.dart';
 import 'confirm_pin/widgets/pin_confirmation_failed_dialog.dart';
 import 'enrollment_failed_screen.dart';
 import 'introduction/introduction_screen.dart';
+import 'provide_email/email_sent_screen.dart';
 import 'provide_email/provide_email_screen.dart';
 import 'confirm_pin/confirm_pin_screen.dart';
 
@@ -35,6 +36,7 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
     final bloc = context.read<EnrollmentBloc>();
     void addEvent(EnrollmentBlocEvent event) => bloc.add(event);
     void addOnPreviousPressed() => bloc.add(EnrollmentPreviousPressed());
+    void addOnNextPressed() => bloc.add(EnrollmentNextPressed());
 
     return BlocConsumer<EnrollmentBloc, EnrollmentState>(
       listener: (BuildContext context, EnrollmentState state) {
@@ -45,8 +47,8 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
             builder: (context) => PinConfirmationFailedDialog(),
           );
         }
-        //Navigate to home on EnrollmentSuccess
-        if (state is EnrollmentSuccess) {
+        //Navigate to home on EnrollmentCompleted
+        if (state is EnrollmentCompleted) {
           Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
         }
       },
@@ -55,7 +57,7 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
         if (state is EnrollmentIntroduction) {
           return IntroductionScreen(
             currentStepIndex: state.currentStepIndex,
-            onContinue: () => addEvent(EnrollmentNextPressed()),
+            onContinue: addOnNextPressed,
             onPrevious: addOnPreviousPressed,
           );
         }
@@ -85,11 +87,17 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
             ),
           );
         }
+        if (state is EnrollmentEmailSent) {
+          return EmailSentScreen(
+            email: state.email,
+            onContinue: addOnNextPressed,
+          );
+        }
         if (state is EnrollmentAcceptTerms) {
           return AcceptTermsScreen(
             isAccepted: state.isAccepted,
             onPrevious: addOnPreviousPressed,
-            onContinue: () => addEvent(EnrollmentNextPressed()),
+            onContinue: addOnNextPressed,
             onToggleAccepted: (isAccepted) => addEvent(
               EnrollmentTermsUpdated(
                 isAccepted: isAccepted,
@@ -97,7 +105,6 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
             ),
           );
         }
-
         if (state is EnrollmentFailed) {
           return EnrollmentFailedScreen(
             onPrevious: addOnPreviousPressed,
