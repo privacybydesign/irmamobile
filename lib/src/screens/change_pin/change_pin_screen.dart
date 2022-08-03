@@ -9,7 +9,7 @@ import 'package:irmamobile/src/screens/change_pin/widgets/confirm_error_dialog.d
 import 'package:irmamobile/src/screens/change_pin/widgets/confirm_pin.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/enter_pin.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/updating_pin.dart';
-import 'package:irmamobile/src/screens/change_pin/widgets/valdating_pin.dart';
+import 'package:irmamobile/src/screens/change_pin/widgets/validating_pin.dart';
 import 'package:irmamobile/src/screens/error/error_screen.dart';
 import 'package:irmamobile/src/screens/error/session_error_screen.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
@@ -53,11 +53,14 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
     return {
       EnterPin.routeName: (_) => EnterPin(submitOldPin: submitOldPin, cancel: cancel),
       ValidatingPin.routeName: (_) => ValidatingPin(cancel: cancel),
-      ChoosePin.routeName: (_) => ChoosePin(chooseNewPin: chooseNewPin, cancel: cancel),
-      ConfirmPin.routeName: (_) => ConfirmPin(confirmNewPin: confirmNewPin, cancel: returnToChoosePin),
+      ChoosePin.routeName: (_) =>
+          ChoosePin(chooseNewPin: chooseNewPin, cancel: cancel, returnToChoosePin: returnToChoosePin),
+      ConfirmPin.routeName: (_) => ConfirmPin(confirmNewPin: confirmNewPin, cancel: cancel),
       UpdatingPin.routeName: (_) => UpdatingPin(cancel: cancel),
     };
   }
+
+  void returnToChoosePin() => navigatorKey.currentState?.pushReplacementNamed(ChoosePin.routeName);
 
   void submitOldPin(String pin) {
     widget.bloc.add(OldPinEntered(pin: pin));
@@ -67,8 +70,6 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
     widget.bloc.add(NewPinChosen(pin: pin));
     navigatorKey.currentState?.pushNamed(ConfirmPin.routeName, arguments: pin.length > shortPinSize);
   }
-
-  void returnToChoosePin() => navigatorKey.currentState?.pushReplacementNamed(ChoosePin.routeName);
 
   void confirmNewPin(String pin) {
     widget.bloc.add(NewPinConfirmed(pin: pin));

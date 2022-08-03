@@ -13,7 +13,6 @@ import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/irma_text_button.dart';
 import '../../widgets/irma_themed_button.dart';
 import '../change_pin/change_pin_screen.dart';
-import '../change_pin/widgets/confirm_pin_reset_dialog.dart';
 
 class SettingsScreen extends StatelessWidget {
   static const routeName = '/settings';
@@ -107,16 +106,7 @@ class SettingsScreen extends StatelessWidget {
               ),
             const Divider(),
             ListTile(
-              onTap: () async {
-                final confirmed = await showDialog<bool>(
-                  context: context,
-                  builder: (BuildContext context) => const ConfirmPinResetDialog(),
-                );
-
-                if (confirmed ?? false) {
-                  Navigator.of(context).pushNamed(ChangePinScreen.routeName);
-                }
-              },
+              onTap: () => Navigator.of(context).pushNamed(ChangePinScreen.routeName),
               title: Text(
                 FlutterI18n.translate(context, 'settings.change_pin'),
                 style: theme.textTheme.bodyText2,
@@ -128,9 +118,7 @@ class SettingsScreen extends StatelessWidget {
                 FlutterI18n.translate(context, 'settings.advanced.delete'),
                 style: theme.textTheme.bodyText2,
               ),
-              onTap: () {
-                openWalletResetDialog(context);
-              },
+              onTap: () => openWalletResetDialog(context),
               leading: Icon(IrmaIcons.delete, color: theme.themeData.colorScheme.secondary),
             ),
           ]),
