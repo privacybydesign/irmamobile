@@ -1,10 +1,9 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../theme/theme.dart';
 import '../../../../widgets/irma_button.dart';
+import '../../../../widgets/irma_markdown.dart';
 import '../../../../widgets/irma_text_button.dart';
 import '../../../../widgets/translated_text.dart';
 
@@ -62,28 +61,13 @@ class AcceptTermsInstruction extends StatelessWidget {
                   width: theme.smallSpacing,
                 ),
                 Flexible(
-                  child: Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: '${FlutterI18n.translate(context, 'enrollment.terms_and_conditions.accept')} ',
-                          style: theme.textTheme.caption,
-                        ),
-                        TextSpan(
-                          text: '${FlutterI18n.translate(context, 'enrollment.terms_and_conditions.terms')} ',
-                          style: theme.hyperlinkTextStyle.copyWith(fontSize: theme.textTheme.caption!.fontSize),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () => launch(
-                                  FlutterI18n.translate(
-                                    context,
-                                    'enrollment.terms_and_conditions.link',
-                                  ),
-                                ),
-                        ),
-                      ],
+                  child: IrmaMarkdown(
+                    FlutterI18n.translate(
+                      context,
+                      'enrollment.terms_and_conditions.accept_markdown',
                     ),
                   ),
-                )
+                ),
               ],
             ),
             Row(

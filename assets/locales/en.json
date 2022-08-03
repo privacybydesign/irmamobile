@@ -66,9 +66,7 @@
         "terms_and_conditions": {
             "title": "Start with Yivi",
             "explanation": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do ab tempor incididunt ut labore et dolore magna aliqua.",
-            "accept": "Yes, I accept the terms and conditions",
-            "terms": "terms and conditions",
-            "link": "https://privacybydesign.foundation/privacy-policy-en/"
+            "accept_markdown": "Yes, I accept the [terms and conditions](https://privacybydesign.foundation/privacy-policy-en/)"
         },
         "submit": {
             "title": "Logging in",

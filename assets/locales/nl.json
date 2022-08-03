@@ -66,9 +66,7 @@
         "terms_and_conditions": {
             "title": "Start met Yivi",
             "explanation": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do ab tempor incididunt ut labore et dolore magna aliqua.",
-            "accept": "Ja, ik ga akkoord met de",
-            "terms": "algemene voorwaarden",
-            "link": "https://privacybydesign.foundation/privacy-policy/"
+            "accept_markdown": "Ja, ik ga akkoord met de [algemene voorwaarden](https://privacybydesign.foundation/privacy-policy/)"
         },
         "submit": {
             "title": "Aanmelden",
