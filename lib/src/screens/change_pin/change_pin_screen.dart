@@ -8,7 +8,6 @@ import 'package:irmamobile/src/screens/change_pin/widgets/choose_pin.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/confirm_error_dialog.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/confirm_pin.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/enter_pin.dart';
-import 'package:irmamobile/src/screens/change_pin/widgets/success.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/updating_pin.dart';
 import 'package:irmamobile/src/screens/change_pin/widgets/valdating_pin.dart';
 import 'package:irmamobile/src/screens/error/error_screen.dart';
@@ -18,7 +17,9 @@ import 'package:irmamobile/src/screens/settings/settings_screen.dart';
 import 'package:irmamobile/src/util/hero_controller.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_attempts.dart';
 
+import '../../theme/theme.dart';
 import '../../widgets/irma_repository_provider.dart';
+import '../../widgets/translated_text.dart';
 import '../pin/yivi_pin_screen.dart';
 
 class ChangePinScreen extends StatelessWidget {
@@ -55,7 +56,6 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
       ChoosePin.routeName: (_) => ChoosePin(chooseNewPin: chooseNewPin, cancel: cancel),
       ConfirmPin.routeName: (_) => ConfirmPin(confirmNewPin: confirmNewPin, cancel: returnToChoosePin),
       UpdatingPin.routeName: (_) => UpdatingPin(cancel: cancel),
-      Success.routeName: (_) => Success(cancel: cancel),
     };
   }
 
@@ -83,6 +83,24 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
     );
   }
 
+  void _handleResetPinSuccess(BuildContext context, ChangePinState state) {
+    final prefs = IrmaRepositoryProvider.of(context).preferences;
+    final theme = IrmaTheme.of(context);
+    prefs.setLongPin(state.longPin);
+    cancel();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: TranslatedText(
+          'change_pin.toast',
+          style: theme.themeData.textTheme.caption!.copyWith(color: theme.light),
+        ),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: theme.themeData.colorScheme.secondary,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final routeBuilders = _routeBuilders();
@@ -96,9 +114,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
         },
         listener: (BuildContext context, ChangePinState state) {
           if (state.newPinConfirmed == ValidationState.valid) {
-            navigatorKey.currentState?.pushNamedAndRemoveUntil(Success.routeName, (_) => false);
-            final prefs = IrmaRepositoryProvider.of(context).preferences;
-            prefs.setLongPin(state.longPin);
+            _handleResetPinSuccess(context, state);
           } else if (state.newPinConfirmed == ValidationState.invalid) {
             navigatorKey.currentState?.pop();
             // show error overlay

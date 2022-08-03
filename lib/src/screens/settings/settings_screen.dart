@@ -107,16 +107,16 @@ class SettingsScreen extends StatelessWidget {
               ),
             const Divider(),
             ListTile(
-              onTap: () => showDialog(
-                context: context,
-                builder: (BuildContext context) => ConfirmPinResetDialog(
-                  ok: () {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pushNamed(ChangePinScreen.routeName);
-                  },
-                  cancel: () => Navigator.of(context).pop(),
-                ),
-              ),
+              onTap: () async {
+                final confirmed = await showDialog<bool>(
+                  context: context,
+                  builder: (BuildContext context) => const ConfirmPinResetDialog(),
+                );
+
+                if (confirmed ?? false) {
+                  Navigator.of(context).pushNamed(ChangePinScreen.routeName);
+                }
+              },
               title: Text(
                 FlutterI18n.translate(context, 'settings.change_pin'),
                 style: theme.textTheme.bodyText2,
