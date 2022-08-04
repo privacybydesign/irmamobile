@@ -1,19 +1,11 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/widgets/irma_button.dart';
-import 'package:irmamobile/src/widgets/irma_dialog.dart';
-import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 
-class ConfirmErrorDialog extends StatelessWidget {
-  final void Function() onClose;
+import '../../../../widgets/irma_button.dart';
+import '../../../../widgets/irma_dialog.dart';
+import '../../../../widgets/irma_themed_button.dart';
 
-  const ConfirmErrorDialog({
-    @required this.onClose,
-  });
-
+class PinConfirmationFailedDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IrmaDialog(
@@ -21,7 +13,7 @@ class ConfirmErrorDialog extends StatelessWidget {
       content: FlutterI18n.translate(context, 'enrollment.choose_pin.error'),
       child: IrmaButton(
         size: IrmaButtonSize.small,
-        onPressed: onClose,
+        onPressed: () => Navigator.of(context).pop(),
         label: 'enrollment.choose_pin.error_action',
       ),
     );

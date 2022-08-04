@@ -1,44 +1,48 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/irma_app_bar.dart';
-import 'package:irmamobile/src/widgets/pin_field.dart';
 
-class ConfirmPin extends StatelessWidget {
+import '../../../theme/theme.dart';
+import '../../../widgets/irma_app_bar.dart';
+import '../../../widgets/pin_field.dart';
+
+class ConfirmPinScreen extends StatelessWidget {
   static const String routeName = 'confirm_pin';
 
   final Function(String) submitConfirmationPin;
-  final void Function(BuildContext) cancelAndNavigate;
 
-  const ConfirmPin({@required this.submitConfirmationPin, @required this.cancelAndNavigate});
+  final VoidCallback onPrevious;
+
+  const ConfirmPinScreen({
+    required this.onPrevious,
+    required this.submitConfirmationPin,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
     return Scaffold(
       appBar: IrmaAppBar(
         titleTranslationKey: 'enrollment.choose_pin.title',
-        leadingAction: () => cancelAndNavigate(context),
+        leadingAction: onPrevious,
         leadingTooltip: MaterialLocalizations.of(context).backButtonTooltip,
       ),
       body: SingleChildScrollView(
         child: Column(
           key: const Key('enrollment_confirm_pin'),
           children: [
-            SizedBox(height: IrmaTheme.of(context).hugeSpacing),
+            SizedBox(height: theme.hugeSpacing),
             Text(
               FlutterI18n.translate(context, 'enrollment.choose_pin.confirm_instruction'),
-              style: IrmaTheme.of(context).textTheme.bodyText2,
+              style: theme.textTheme.bodyText2,
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: IrmaTheme.of(context).mediumSpacing),
+            SizedBox(height: theme.mediumSpacing),
             PinField(
               longPin: false,
               onSubmit: submitConfirmationPin,
             ),
-            SizedBox(height: IrmaTheme.of(context).smallSpacing),
+            SizedBox(height: theme.smallSpacing),
           ],
         ),
       ),

@@ -1,180 +1,124 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/native_events.dart';
-import 'package:irmamobile/src/screens/enrollment/models/enrollment_bloc.dart';
-import 'package:irmamobile/src/screens/enrollment/models/enrollment_event.dart';
-import 'package:irmamobile/src/screens/enrollment/models/enrollment_state.dart';
-import 'package:irmamobile/src/screens/enrollment/widgets/choose_pin.dart';
-import 'package:irmamobile/src/screens/enrollment/widgets/confirm_error_dialog.dart';
-import 'package:irmamobile/src/screens/enrollment/widgets/confirm_pin.dart';
-import 'package:irmamobile/src/screens/enrollment/widgets/introduction.dart';
-import 'package:irmamobile/src/screens/enrollment/widgets/provide_email.dart';
-import 'package:irmamobile/src/screens/enrollment/widgets/submit.dart';
-import 'package:irmamobile/src/util/hero_controller.dart';
 
-class EnrollmentScreen extends StatefulWidget {
-  static const routeName = "/enrollment";
+import '../../widgets/irma_repository_provider.dart';
+import '../../widgets/loading_indicator.dart';
+import '../home/home_screen.dart';
+import 'accept_terms/accept_terms_screen.dart';
+import 'bloc/enrollment_bloc.dart';
+import 'choose_pin/choose_pin_screen.dart';
+import 'confirm_pin/widgets/pin_confirmation_failed_dialog.dart';
+import 'enrollment_failed_screen.dart';
+import 'introduction/introduction_screen.dart';
+import 'provide_email/email_sent_screen.dart';
+import 'provide_email/provide_email_screen.dart';
+import 'confirm_pin/confirm_pin_screen.dart';
 
-  @override
-  _EnrollmentScreenState createState() => _EnrollmentScreenState();
-}
+class EnrollmentScreen extends StatelessWidget {
+  static var routeName = 'enrollment';
 
-class _EnrollmentScreenState extends State<EnrollmentScreen> {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<EnrollmentBloc>(
-        create: (_) => EnrollmentBloc(FlutterI18n.currentLocale(context).languageCode),
-        child: BlocBuilder<EnrollmentBloc, EnrollmentState>(builder: (context, _) {
-          final bloc = BlocProvider.of<EnrollmentBloc>(context);
-          return ProvidedEnrollmentScreen(bloc: bloc);
-        }));
-  }
-}
-
-class ProvidedEnrollmentScreen extends StatefulWidget {
-  final EnrollmentBloc bloc;
-
-  const ProvidedEnrollmentScreen({this.bloc}) : super();
-
-  @override
-  State<StatefulWidget> createState() => ProvidedEnrollmentScreenState(bloc: bloc);
-}
-
-class ProvidedEnrollmentScreenState extends State<ProvidedEnrollmentScreen> {
-  FocusNode pinFocusNode;
-  final EnrollmentBloc bloc;
-  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-
-  ProvidedEnrollmentScreenState({this.bloc}) : super();
-
-  @override
-  void initState() {
-    super.initState();
-
-    pinFocusNode = FocusNode();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  Map<String, WidgetBuilder> _routeBuilders() {
-    return {
-      Introduction.routeName: (_) => Introduction(),
-      ChoosePin.routeName: (_) => ChoosePin(
-            pinFocusNode: pinFocusNode,
-            submitPin: _submitPin,
-            cancelAndNavigate: _cancelAndNavigate,
-          ),
-      ConfirmPin.routeName: (_) => ConfirmPin(
-            submitConfirmationPin: _submitConfirmationPin,
-            cancelAndNavigate: _cancelAndNavigate,
-          ),
-      ProvideEmail.routeName: (_) => ProvideEmail(
-            submitEmail: _submitEmail,
-            skipEmail: _skipEmail,
-            cancelAndNavigate: _cancelAndNavigate,
-          ),
-      Submit.routeName: (_) => Submit(
-            cancelAndNavigate: _cancelAndNavigate,
-            retryEnrollment: _retryEnrollment,
-          ),
-    };
-  }
-
-  void _submitPin(BuildContext context, String pin) {
-    bloc.add(PinSubmitted(pin: pin));
-    navigatorKey.currentState.pushNamed(ConfirmPin.routeName);
-  }
-
-  void _submitConfirmationPin(String pin) {
-    bloc.add(ConfirmationPinSubmitted(pin: pin));
-  }
-
-  void _submitEmail(String email) {
-    bloc.add(EmailSubmitted(email: email));
-  }
-
-  void _skipEmail() {
-    bloc.add(EmailSkipped());
-  }
-
-  void _retryEnrollment() {
-    bloc.add(Enroll());
-  }
-
-  void _cancelAndNavigate(BuildContext context) {
-    bloc.add(EnrollmentCanceled());
-
-    // Always pop at least one route (unless at the root), but return to Introduction or ChoosePin
-    Navigator.maybePop(context).then(
-      (_) => Navigator.of(context).popUntil(
-        (route) => route.settings.name == ChoosePin.routeName || route.settings.name == Introduction.routeName,
+    return BlocProvider(
+      create: (_) => EnrollmentBloc(
+        language: FlutterI18n.currentLocale(context)!.languageCode,
+        repo: IrmaRepositoryProvider.of(context),
       ),
+      child: _ProvidedEnrollmentScreen(),
     );
   }
+}
 
+class _ProvidedEnrollmentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final routeBuilders = _routeBuilders();
+    final bloc = context.read<EnrollmentBloc>();
+    void addEvent(EnrollmentBlocEvent event) => bloc.add(event);
+    void addOnPreviousPressed() => bloc.add(EnrollmentPreviousPressed());
+    void addOnNextPressed() => bloc.add(EnrollmentNextPressed());
 
-    return WillPopScope(
-        onWillPop: () async {
-          final willPop = await navigatorKey.currentState.maybePop();
-          if (!willPop) {
-            IrmaRepository.get().bridgedDispatch(AndroidSendToBackgroundEvent());
-          }
-
-          return false;
-        },
-        child: BlocListener<EnrollmentBloc, EnrollmentState>(
-          listenWhen: (EnrollmentState previous, EnrollmentState current) {
-            return (current.pinConfirmed != previous.pinConfirmed ||
-                    current.showPinValidation != previous.showPinValidation) ||
-                (!previous.isSubmitting && current.isSubmitting);
-          },
-          listener: (BuildContext context, EnrollmentState state) {
-            if (state.isSubmitting == true) {
-              navigatorKey.currentState.pushReplacementNamed(Submit.routeName);
-            } else if (state.pinConfirmed) {
-              navigatorKey.currentState.pushReplacementNamed(ProvideEmail.routeName);
-            } else if (state.pinMismatch) {
-              navigatorKey.currentState.popUntil((route) => route.settings.name == ChoosePin.routeName);
-              // show error overlay
-              showDialog(
-                context: context,
-                builder: (BuildContext context) => ConfirmErrorDialog(
-                  onClose: () async {
-                    // close the overlay
-                    Navigator.of(context).pop();
-                    pinFocusNode.requestFocus();
-                  },
-                ),
-              );
-            } else if (state.pinConfirmed == false && state.showPinValidation == true) {
-              navigatorKey.currentState.popUntil((route) => route.settings.name == ChoosePin.routeName);
-            }
-          },
-          child: HeroControllerScope(
-            controller: createHeroController(),
-            child: Navigator(
-              key: navigatorKey,
-              initialRoute: Introduction.routeName,
-              onGenerateRoute: (RouteSettings settings) {
-                if (!routeBuilders.containsKey(settings.name)) {
-                  throw Exception('Invalid route: ${settings.name}');
-                }
-                final child = routeBuilders[settings.name];
-                return MaterialPageRoute(builder: child, settings: settings);
-              },
+    return BlocConsumer<EnrollmentBloc, EnrollmentState>(
+      listener: (BuildContext context, EnrollmentState state) {
+        //Show dialog when pin confirmation failed
+        if (state is EnrollmentConfirmPin && state.confirmationFailed) {
+          showDialog(
+            context: context,
+            builder: (context) => PinConfirmationFailedDialog(),
+          );
+        }
+        //Navigate to home on EnrollmentCompleted
+        if (state is EnrollmentCompleted) {
+          Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
+        }
+      },
+      builder: (context, blocState) {
+        var state = blocState;
+        if (state is EnrollmentIntroduction) {
+          return IntroductionScreen(
+            currentStepIndex: state.currentStepIndex,
+            onContinue: addOnNextPressed,
+            onPrevious: addOnPreviousPressed,
+          );
+        }
+        if (state is EnrollmentChoosePin) {
+          return ChoosePinScreen(
+            onPrevious: addOnPreviousPressed,
+            onChosePin: (pin) => addEvent(
+              EnrollmentPinChosen(pin),
             ),
+          );
+        }
+        if (state is EnrollmentConfirmPin) {
+          return ConfirmPinScreen(
+            onPrevious: addOnPreviousPressed,
+            submitConfirmationPin: (pin) => addEvent(
+              EnrollmentPinConfirmed(pin),
+            ),
+          );
+        }
+        if (state is EnrollmentProvideEmail) {
+          return ProvideEmailScreen(
+            email: state.email,
+            onPrevious: addOnPreviousPressed,
+            onEmailSkipped: () => addEvent(EnrollmentEmailSkipped()),
+            onEmailProvided: (email) => addEvent(
+              EnrollmentEmailProvided(email),
+            ),
+          );
+        }
+        if (state is EnrollmentEmailSent) {
+          return EmailSentScreen(
+            email: state.email,
+            onContinue: addOnNextPressed,
+          );
+        }
+        if (state is EnrollmentAcceptTerms) {
+          return AcceptTermsScreen(
+            isAccepted: state.isAccepted,
+            onPrevious: addOnPreviousPressed,
+            onContinue: addOnNextPressed,
+            onToggleAccepted: (isAccepted) => addEvent(
+              EnrollmentTermsUpdated(
+                isAccepted: isAccepted,
+              ),
+            ),
+          );
+        }
+        if (state is EnrollmentFailed) {
+          return EnrollmentFailedScreen(
+            onPrevious: addOnPreviousPressed,
+            onRetryEnrollment: () => addEvent(EnrollmentRetried()),
+          );
+        }
+
+        // If state is loading/initial/submitting show centered loading indicator
+        return Scaffold(
+          body: Center(
+            child: LoadingIndicator(),
           ),
-        ));
+        );
+      },
+    );
   }
 }

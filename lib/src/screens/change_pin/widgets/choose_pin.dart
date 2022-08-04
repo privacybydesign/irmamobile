@@ -12,7 +12,7 @@ import 'package:irmamobile/src/widgets/irma_text_button.dart';
 import 'package:irmamobile/src/widgets/pin_field.dart';
 
 class ChoosePin extends StatelessWidget {
-  static const String routeName = 'change_pin/choose_pin';
+  static const String routeName = 'choose_pin';
 
   final void Function(BuildContext, String) chooseNewPin;
   final void Function() toggleLongPin;

@@ -156,7 +156,7 @@ class IrmaThemeData {
       ),
       focusedBorder: UnderlineInputBorder(
         borderSide: BorderSide(
-          color: primary,
+          color: secondary,
           width: 2.0,
         ),
       ),
