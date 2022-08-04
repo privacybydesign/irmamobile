@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/screens/loading/loading_screen.dart';
-import 'package:irmamobile/src/screens/splash_screen/splash_screen.dart';
 
 import '../screens/error/blocked_screen.dart';
 import '../screens/error/error_screen.dart';
 import '../screens/error/no_internet_screen.dart';
+import '../screens/loading/loading_screen.dart';
 import '../screens/pin/yivi_pin_screen.dart';
 import '../screens/required_update/required_update_screen.dart';
 import '../screens/rooted_warning/rooted_warning_screen.dart';
 import '../screens/session/widgets/arrow_back_screen.dart';
 import '../screens/session/widgets/disclosure_feedback_screen.dart';
+import '../screens/splash_screen/splash_screen.dart';
 import '../widgets/irma_error_scaffold_body.dart';
 import 'prototype_pin_screen.dart';
 

@@ -5,28 +5,28 @@
         "step": "Step",
         "done": "Done",
         "next": "Next",
+        "previous": "Previous",
         "cancel": "Cancel",
         "confirm": "Confirm",
-        "delete": "Delete"
+        "delete": "Delete",
+        "skip": "Skip",
+        "continue": "Continue",
+        "retry": "Try again",
+        "error": "Something went wrong"
     },
     "enrollment": {
         "introduction": {
-            "button_text": "Choose a PIN",
-            "screen1": {
-                "title": "Yivi is your identity on your mobile",
-                "text": "Your official name, date of birth, address, and more. All securely stored in your Yivi app."
+            "step_1": {
+                "title": "Yivi is your identity on your phone",
+                "explanation": "Your official name, date of birth, address, and more. All securely stored in your Yivi app."
             },
-            "screen2": {
+            "step_2": {
                 "title": "Make yourself known with Yivi",
-                "text": "Easy, secure, and fast. It's all in your hands."
+                "explanation": "Easy, secure, and fast. It's all in your hands"
             },
-            "screen3": {
+            "step_3": {
                 "title": "Yivi provides certainty, to you and to others",
-                "text": "Your data are stored solely within the Yivi app. Only you have access.",
-                "privacy": {
-                    "text": "Please read the privacy rules",
-                    "url": "https://privacybydesign.foundation/privacy-policy-en/"
-                }
+                "explanation": "Your data are stored solely within the Yivi app. Only you have access."
             }
         },
         "choose_pin": {
@@ -40,24 +40,32 @@
             "error": "PINs do not match. Choose a new PIN.",
             "error_action": "OK"
         },
-        "provide_email": {
-            "title": "Secure your Yivi app",
-            "instruction": "An email address allows you to disable your Yivi app when your mobile has been lost or stolen.",
-            "textfield": "Email address",
-            "skip": "Skip",
-            "next": "Next",
-            "error": "This is not a valid email address",
-            "skip_title": "Are you sure?",
-            "skip_content": "Protect your data. When you enter an email address, you can block your Yivi app when your mobile has been lost or stolen.",
-            "insert_email": "Enter an email address"
+        "email": {
+            "provide": {
+                "title": "Add email address",
+                "header": "Link your email address to your Yivi app",
+                "explanation": "An email address allows you to disable your Yivi app when your mobile has been lost or stolen",
+                "input": {
+                    "label": "Email address",
+                    "invalid": "This is not a valid email address"
+                },
+                "confirm_skip_dialog": {
+                    "title": "Are you sure?",
+                    "explanation": "Protect your data. When you enter an email address, you can block your Yivi app when your mobile has been lost or stolen.",
+                    "decline": "Enter an email address"
+                }
+            },
+            "confirm": {
+                "title": "Confirm your email address",
+                "header": "The email has been sent to:",
+                "explanation": "It can take a moment until the email arrives. Check your spam folder if you don't see the mail in your inbox.",
+                "explanation_extra_markdown": "You have received an email from **noreply@sidn.nl**. Open the link in this message to link your email address to your Yivi app."
+            }
         },
-        "email_sent": {
-            "title": "Secure your Yivi app",
-            "button": "Continue",
-            "message_title": "Confirm your email address",
-            "message_markdown": "You have received an email from **noreply@sidn.nl**. Open the link in this message to link your email address to your Yivi app.",
-            "mail_sent_text_markdown": "The email has been sent to: **{emailaddress}**.",
-            "check_spam": "It can take a moment until the email arrives. Check your spam folder if you don't see the mail in your inbox."
+        "terms_and_conditions": {
+            "title": "Start with Yivi",
+            "explanation": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do ab tempor incididunt ut labore et dolore magna aliqua.",
+            "accept_markdown": "Yes, I accept the [terms and conditions](https://privacybydesign.foundation/privacy-policy-en/)"
         },
         "submit": {
             "title": "Logging in",

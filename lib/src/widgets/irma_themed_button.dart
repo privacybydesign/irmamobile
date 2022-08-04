@@ -53,6 +53,7 @@ class IrmaThemedButton extends StatelessWidget {
           elevation: 0.0,
           primary: isSecondary ? Colors.white : color,
           onPrimary: textColor ?? (isSecondary ? color : Colors.white),
+          onSurface: disabledColor,
           shape: shape,
           padding: const EdgeInsets.symmetric(
             vertical: 10.0,

@@ -55,7 +55,7 @@ class PairingRequired extends StatelessWidget {
             children: [
               const IrmaMessage(
                 'session.pairing.message_title',
-                'session.pairing.message_body',
+                'session.pairing.message_body_markdown',
               ),
               SizedBox(
                 height: IrmaTheme.of(context).defaultSpacing,

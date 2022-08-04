@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../yivi_choose_pin_scaffold.dart';
 
 class ChoosePin extends StatelessWidget {
-  static const String routeName = 'change_pin/choose_pin';
+  static const String routeName = 'choose_pin';
 
   final void Function(BuildContext, String) chooseNewPin;
   final VoidCallback cancel, returnToChoosePin;

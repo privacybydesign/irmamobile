@@ -48,7 +48,7 @@ class _HelpScreenState extends State<HelpScreen> {
           SizedBox(height: theme.smallSpacing),
           HelpItem(
             headerTranslationKey: 'help.question_1',
-            body: const TranslatedText('help.answer_1'),
+            body: const TranslatedText('help.answer_1_markdown'),
             parentScrollController: _controller,
           ),
           SizedBox(height: theme.smallSpacing),
@@ -60,7 +60,7 @@ class _HelpScreenState extends State<HelpScreen> {
           SizedBox(height: theme.smallSpacing),
           HelpItem(
             headerTranslationKey: 'help.question_3',
-            body: const TranslatedText('help.answer_3'),
+            body: const TranslatedText('help.answer_3_markdown'),
             parentScrollController: _controller,
           ),
           SizedBox(height: theme.defaultSpacing),
@@ -93,7 +93,7 @@ class _HelpScreenState extends State<HelpScreen> {
           SizedBox(height: theme.smallSpacing),
           HelpItem(
             headerTranslationKey: 'help.question_6',
-            body: const TranslatedText('help.answer_6'),
+            body: const TranslatedText('help.answer_6_markdown'),
             parentScrollController: _controller,
           ),
           SizedBox(height: theme.smallSpacing),

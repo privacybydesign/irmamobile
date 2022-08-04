@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_i18n/utils/simple_translator.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
 import 'irma_markdown.dart';
@@ -54,16 +53,11 @@ class TranslatedText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final flutterI18n = Localizations.of<FlutterI18n>(context, FlutterI18n);
+    final splitKey = _key.split('.');
 
-    // Check if there's a translation with the same key suffixed with _markdown
-    final probeTranslator = SimpleTranslator(flutterI18n?.decodedMap, 'dummy', '.');
-    final submap = probeTranslator.calculateSubmap(_key);
-    final lastSubkey = _key.split(probeTranslator.keySeparator!).last;
-
-    if (submap != null && submap.containsKey('${lastSubkey}_markdown')) {
+    if (splitKey.isNotEmpty && splitKey.last.contains('_markdown')) {
       return _buildMarkdown(
-        _translate(context, '${_key}_markdown'),
+        _translate(context, _key),
         context,
       );
     }
