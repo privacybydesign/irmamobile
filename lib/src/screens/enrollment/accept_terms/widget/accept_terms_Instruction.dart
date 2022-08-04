@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../../theme/theme.dart';
 import '../../../../widgets/irma_button.dart';
-import '../../../../widgets/irma_markdown.dart';
 import '../../../../widgets/irma_text_button.dart';
 import '../../../../widgets/translated_text.dart';
 
@@ -60,12 +58,9 @@ class AcceptTermsInstruction extends StatelessWidget {
                 SizedBox(
                   width: theme.smallSpacing,
                 ),
-                Flexible(
-                  child: IrmaMarkdown(
-                    FlutterI18n.translate(
-                      context,
-                      'enrollment.terms_and_conditions.accept_markdown',
-                    ),
+                const Flexible(
+                  child: TranslatedText(
+                    'enrollment.terms_and_conditions.accept_markdown',
                   ),
                 ),
               ],
