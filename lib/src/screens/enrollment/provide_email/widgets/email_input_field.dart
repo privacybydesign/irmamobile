@@ -13,21 +13,27 @@ class EmailInputField extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => TextFormField(
-        controller: controller,
-        keyboardType: TextInputType.emailAddress,
-        autofillHints: const [AutofillHints.email],
-        cursorColor: IrmaTheme.of(context).themeData.colorScheme.secondary,
-        decoration: const InputDecoration(
-          label: TranslatedText(
-            'enrollment.email.provide.input.label',
-          ),
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
+    return TextFormField(
+      controller: controller,
+      keyboardType: TextInputType.emailAddress,
+      autofillHints: const [AutofillHints.email],
+      cursorColor: theme.themeData.colorScheme.secondary,
+      decoration: InputDecoration(
+        label: const TranslatedText(
+          'enrollment.email.provide.input.label',
         ),
-        validator: (email) => email != null && !EmailValidator.validate(email)
-            ? FlutterI18n.translate(
-                context,
-                'enrollment.email.provide.input.invalid',
-              )
-            : null,
-      );
+        floatingLabelAlignment: FloatingLabelAlignment.start,
+        floatingLabelStyle: theme.textTheme.bodyText2,
+      ),
+      validator: (email) => email != null && !EmailValidator.validate(email)
+          ? FlutterI18n.translate(
+              context,
+              'enrollment.email.provide.input.invalid',
+            )
+          : null,
+    );
+  }
 }
