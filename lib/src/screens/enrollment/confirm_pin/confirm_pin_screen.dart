@@ -8,11 +8,13 @@ class ConfirmPinScreen extends StatelessWidget {
   final StringCallback submitConfirmationPin;
   final VoidCallback onPrevious;
   final ValueNotifier<String> newPinNotifier;
+  final VoidCallback onPinMismatch;
 
   const ConfirmPinScreen({
     required this.submitConfirmationPin,
     required this.onPrevious,
     required this.newPinNotifier,
+    required this.onPinMismatch,
   });
 
   @override
@@ -24,7 +26,7 @@ class ConfirmPinScreen extends StatelessWidget {
         onBack: onPrevious,
         instructionKey: 'enrollment.choose_pin.confirm_instruction',
         newPinNotifier: newPinNotifier,
-        onPinMismatch: () {}, // control was ceded to the parent navigation
+        onPinMismatch: onPinMismatch,
       ),
     );
   }

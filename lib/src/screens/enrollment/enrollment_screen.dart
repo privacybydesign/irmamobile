@@ -41,13 +41,6 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
 
     return BlocConsumer<EnrollmentBloc, EnrollmentState>(
       listener: (BuildContext context, EnrollmentState state) {
-        //Show dialog when pin confirmation failed
-        if (state is EnrollmentConfirmPin && state.confirmationFailed) {
-          showDialog(
-            context: context,
-            builder: (context) => PinConfirmationFailedDialog(),
-          );
-        }
         //Navigate to home on EnrollmentCompleted
         if (state is EnrollmentCompleted) {
           Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
@@ -78,6 +71,12 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
             submitConfirmationPin: (pin) => addEvent(
               EnrollmentPinConfirmed(pin),
             ),
+            onPinMismatch: () {
+              showDialog(
+                context: context,
+                builder: (context) => PinConfirmationFailedDialog(),
+              );
+            },
           );
         }
         if (state is EnrollmentProvideEmail) {

@@ -101,7 +101,6 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
 
   void _handlePinMismatch() {
     showDialog(
-      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) => ConfirmErrorDialog(),
     );
