@@ -38,9 +38,9 @@ class YiviChoosePinScaffold extends StatelessWidget {
       body: StreamBuilder<bool>(
         stream: prefs.getLongPin(),
         builder: (context, snapshot) {
-          final toggleValue = ValueNotifier<bool>(newPinNotifier.value.isNotEmpty
-              ? newPinNotifier.value.length > shortPinSize
-              : (snapshot.data ?? false));
+          final toggleValue = ValueNotifier<bool>(
+            newPinNotifier.value.isNotEmpty ? newPinNotifier.value.length > shortPinSize : (snapshot.data ?? false),
+          );
           return ValueListenableBuilder<bool>(
             valueListenable: toggleValue,
             builder: (context, longPin, _) {
