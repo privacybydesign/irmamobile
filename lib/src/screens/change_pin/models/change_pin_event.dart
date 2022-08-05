@@ -1,37 +1,25 @@
-import 'package:equatable/equatable.dart';
-
-class OldPinEntered extends Equatable {
+abstract class PinEvent {
   final String pin;
+  PinEvent(this.pin);
+}
 
-  const OldPinEntered({required this.pin});
+class OldPinEntered extends PinEvent {
+  OldPinEntered({required String pin}) : super(pin);
 
   @override
   String toString() => 'OldPinEntered { pin: ${'*' * pin.length} }';
-
-  @override
-  List<Object> get props => [pin];
 }
 
-class NewPinChosen extends Equatable {
-  final String pin;
-
-  const NewPinChosen({required this.pin});
+class NewPinChosen extends PinEvent {
+  NewPinChosen({required pin}) : super(pin);
 
   @override
   String toString() => 'NewPinChosen { pin: ${'*' * pin.length} }';
-
-  @override
-  List<Object> get props => [pin];
 }
 
-class NewPinConfirmed extends Equatable {
-  final String pin;
-
-  const NewPinConfirmed({required this.pin});
+class NewPinConfirmed extends PinEvent {
+  NewPinConfirmed({required String pin}) : super(pin);
 
   @override
   String toString() => 'NewPinConfirmed { pin: ${'*' * pin.length} }';
-
-  @override
-  List<Object> get props => [pin];
 }
