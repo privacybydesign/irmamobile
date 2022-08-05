@@ -86,27 +86,24 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
                   padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
                   child: RotatedBox(
                     quarterTurns: quarterTurns,
-                    child: Container(
-                      color: Colors.white,
-                      child: RichText(
-                        textAlign: TextAlign.center,
-                        text: TextSpan(
-                          style: theme.textTheme.bodyText1,
-                          children: [
-                            TextSpan(
-                              text: widget.success
-                                  ? FlutterI18n.plural(context, 'arrow_back.info_success', widget.amountIssued)
-                                  : FlutterI18n.translate(context, 'arrow_back.info_no_success'),
-                            ),
-                            const TextSpan(
-                              text: '\n\n',
-                            ),
-                            TextSpan(
-                              text: FlutterI18n.translate(context, 'arrow_back.safari'),
-                              style: theme.textTheme.bodyText2,
-                            ),
-                          ],
-                        ),
+                    child: RichText(
+                      textAlign: TextAlign.center,
+                      text: TextSpan(
+                        style: theme.textTheme.bodyText1,
+                        children: [
+                          TextSpan(
+                            text: widget.success
+                                ? FlutterI18n.plural(context, 'arrow_back.info_success', widget.amountIssued)
+                                : FlutterI18n.translate(context, 'arrow_back.info_no_success'),
+                          ),
+                          const TextSpan(
+                            text: '\n\n',
+                          ),
+                          TextSpan(
+                            text: FlutterI18n.translate(context, 'arrow_back.safari'),
+                            style: theme.textTheme.bodyText2,
+                          ),
+                        ],
                       ),
                     ),
                   ),
