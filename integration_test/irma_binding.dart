@@ -14,8 +14,13 @@ class IntegrationTestIrmaBinding {
   static IntegrationTestIrmaBinding? _instance;
 
   final IrmaClientBridge _bridge;
+  IrmaRepository? _repository;
+  IrmaPreferences? _preferences;
 
-  late IrmaRepository repository;
+  IrmaRepository get repository {
+    if (_repository == null) throw Exception('IntegrationTestIrmaBinding has not been set up');
+    return _repository!;
+  }
 
   IntegrationTestIrmaBinding._(this._bridge);
 
@@ -28,15 +33,14 @@ class IntegrationTestIrmaBinding {
 
   Future<void> setUp({EnrollmentStatus enrollmentStatus = EnrollmentStatus.enrolled}) async {
     assert(enrollmentStatus != EnrollmentStatus.undetermined);
-    final preferences = await IrmaPreferences.fromInstance();
+    _preferences ??= await IrmaPreferences.fromInstance();
 
-    // Enable developer mode before initializing repository, such that we can use a local keyshare server.
-    _bridge.dispatch(ClientPreferencesEvent(clientPreferences: ClientPreferences(developerMode: true)));
-
-    // Ensure test scheme is available.
+    // Ensure test scheme is available and the app is not enrolled to its keyshare server yet.
     _bridge.dispatch(AppReadyEvent());
     EnrollmentStatusEvent currEnrollmentStatus = await _bridge.events.whereType<EnrollmentStatusEvent>().first;
-    if (!currEnrollmentStatus.unenrolledSchemeManagerIds.contains('test')) {
+    if (currEnrollmentStatus.enrolledSchemeManagerIds.contains('test')) {
+      await tearDown();
+    } else if (!currEnrollmentStatus.unenrolledSchemeManagerIds.contains('test')) {
       _bridge.dispatch(InstallSchemeEvent(
         url: 'https://drksn.nl/irma_configuration/test',
         publicKey:
@@ -48,6 +52,9 @@ class IntegrationTestIrmaBinding {
       }
     }
 
+    // Enable developer mode before initializing repository, such that we can use a local keyshare server.
+    _bridge.dispatch(ClientPreferencesEvent(clientPreferences: ClientPreferences(developerMode: true)));
+
     // Ensure enrollment status is set as expected.
     if (enrollmentStatus == EnrollmentStatus.enrolled) {
       _bridge.dispatch(EnrollEvent(
@@ -56,26 +63,27 @@ class IntegrationTestIrmaBinding {
         language: 'en',
         schemeId: 'test',
       ));
-      preferences.setLongPin(false);
+      _preferences!.setLongPin(false);
       await _bridge.events.firstWhere((event) => event is EnrollmentSuccessEvent);
     }
 
-    repository = IrmaRepository(
+    await _preferences!.setAcceptedRootedRisk(true);
+
+    _repository = IrmaRepository(
       client: _bridge,
-      preferences: preferences,
+      preferences: _preferences!,
       defaultKeyshareScheme: 'test',
     );
-
-    await preferences.setAcceptedRootedRisk(true);
   }
 
   Future<void> tearDown() async {
-    await repository.close();
+    await _repository?.close();
+    _repository = null;
     // Make sure there is a listener for the bridge events.
     final dataClearedFuture =
         _bridge.events.firstWhere((event) => event is EnrollmentStatusEvent && event.enrolledSchemeManagerIds.isEmpty);
     _bridge.dispatch(ClearAllDataEvent());
-    await repository.preferences.clearAll();
+    await _preferences?.clearAll();
     await dataClearedFuture;
   }
 }
