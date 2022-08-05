@@ -1,176 +1,229 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/screens/change_pin/models/change_pin_bloc.dart';
-import 'package:irmamobile/src/screens/change_pin/models/change_pin_event.dart';
-import 'package:irmamobile/src/screens/change_pin/models/change_pin_state.dart';
-import 'package:irmamobile/src/screens/change_pin/widgets/choose_pin.dart';
-import 'package:irmamobile/src/screens/change_pin/widgets/confirm_error_dialog.dart';
-import 'package:irmamobile/src/screens/change_pin/widgets/confirm_pin.dart';
-import 'package:irmamobile/src/screens/change_pin/widgets/enter_pin.dart';
-import 'package:irmamobile/src/screens/change_pin/widgets/success.dart';
-import 'package:irmamobile/src/screens/change_pin/widgets/updating_pin.dart';
-import 'package:irmamobile/src/screens/change_pin/widgets/valdating_pin.dart';
-import 'package:irmamobile/src/screens/error/error_screen.dart';
-import 'package:irmamobile/src/screens/error/session_error_screen.dart';
-import 'package:irmamobile/src/screens/home/home_screen.dart';
-import 'package:irmamobile/src/util/hero_controller.dart';
-import 'package:irmamobile/src/widgets/pin_common/pin_wrong_attempts.dart';
+
+import '../../data/irma_repository.dart';
+import '../../models/session.dart';
+import '../../theme/theme.dart';
+import '../../util/hero_controller.dart';
+import '../../widgets/irma_repository_provider.dart';
+import '../../widgets/pin_common/pin_wrong_attempts.dart';
+import '../../widgets/translated_text.dart';
+import '../change_pin/models/change_pin_bloc.dart';
+import '../change_pin/models/change_pin_event.dart';
+import '../change_pin/models/change_pin_state.dart';
+import '../change_pin/widgets/choose_pin.dart';
+import '../change_pin/widgets/confirm_error_dialog.dart';
+import '../change_pin/widgets/confirm_pin.dart';
+import '../change_pin/widgets/enter_pin.dart';
+import '../change_pin/widgets/updating_pin.dart';
+import '../change_pin/widgets/validating_pin.dart';
+import '../error/session_error_screen.dart';
+import '../home/home_screen.dart';
+import '../settings/settings_screen.dart';
+import 'models/old_pin_verification_state.dart';
+import 'models/validation_state.dart';
+import 'models/verify_old_pin_bloc.dart';
 
 class ChangePinScreen extends StatelessWidget {
   static const routeName = "/change_pin";
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<ChangePinBloc>(
-        create: (_) => ChangePinBloc(),
-        child: BlocBuilder<ChangePinBloc, ChangePinState>(builder: (context, _) {
-          final bloc = BlocProvider.of<ChangePinBloc>(context);
-          return ProvidedChangePinScreen(bloc: bloc);
-        }));
+    final IrmaRepository repo = IrmaRepositoryProvider.of(context);
+    final changePinBloc = ChangePinBloc(repo);
+    final verifyOldPinBloc = VerifyOldPinBloc(repo);
+    return ProvidedChangePinScreen(
+      verifyOldPinBloc: verifyOldPinBloc,
+      changePinBloc: changePinBloc,
+      repo: repo,
+    );
   }
 }
 
 class ProvidedChangePinScreen extends StatefulWidget {
-  final ChangePinBloc bloc;
+  final ChangePinBloc changePinBloc;
+  final VerifyOldPinBloc verifyOldPinBloc;
+  final IrmaRepository repo;
 
-  const ProvidedChangePinScreen({this.bloc}) : super();
+  const ProvidedChangePinScreen({
+    required this.repo,
+    required this.changePinBloc,
+    required this.verifyOldPinBloc,
+  }) : super();
 
   @override
-  State<StatefulWidget> createState() => ProvidedChangePinScreenState(bloc: bloc);
+  State<StatefulWidget> createState() => ProvidedChangePinScreenState();
 }
 
 class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
-  final IrmaRepository _repo = IrmaRepository.get();
-  final ChangePinBloc bloc;
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-  final FocusNode currentPinFocusNode = FocusNode();
-  final FocusNode newPinFocusNode = FocusNode();
-
-  ProvidedChangePinScreenState({this.bloc}) : super();
+  get theme => IrmaTheme.of(context);
+  final newPin = ValueNotifier<String>('');
 
   Map<String, WidgetBuilder> _routeBuilders() {
     return {
-      EnterPin.routeName: (_) =>
-          EnterPin(pinFocusNode: currentPinFocusNode, submitOldPin: submitOldPin, cancel: cancel),
-      ValidatingPin.routeName: (_) => ValidatingPin(cancel: cancel),
+      EnterPin.routeName: (_) => EnterPin(submitOldPin: _submitOldPin, cancel: _gotoSettings),
+      ValidatingPin.routeName: (_) => ValidatingPin(cancel: _gotoSettings),
       ChoosePin.routeName: (_) => ChoosePin(
-          pinFocusNode: newPinFocusNode, chooseNewPin: chooseNewPin, toggleLongPin: toggleLongPin, cancel: cancel),
-      ConfirmPin.routeName: (_) => ConfirmPin(confirmNewPin: confirmNewPin, cancel: () => {}),
-      UpdatingPin.routeName: (_) => UpdatingPin(cancel: cancel),
-      Success.routeName: (_) => Success(cancel: cancel),
+            chooseNewPin: _chooseNewPin,
+            cancel: _gotoSettings,
+            newPinNotifier: newPin,
+          ),
+      ConfirmPin.routeName: (_) => ConfirmPin(
+            confirmNewPin: _confirmNewPin,
+            cancel: _gotoSettings,
+            returnToChoosePin: _returnToChoosePin,
+            onPinMismatch: _handlePinMismatch,
+            newPinNotifier: newPin,
+          ),
+      UpdatingPin.routeName: (_) => UpdatingPin(cancel: _gotoSettings),
     };
   }
 
-  void submitOldPin(String pin) {
-    bloc.add(OldPinEntered(pin: pin));
+  void _returnToChoosePin() {
+    navigatorKey.currentState?.popUntil(
+      (route) => route.settings.name == ChoosePin.routeName,
+    );
   }
 
-  void toggleLongPin() {
-    bloc.add(ToggleLongPin());
+  void _submitOldPin(String pin) {
+    widget.verifyOldPinBloc.add(pin);
+    widget.changePinBloc.add(PinEvent(pin, PinEventType.oldPinEntered));
   }
 
-  void chooseNewPin(BuildContext context, String pin) {
-    bloc.add(NewPinChosen(pin: pin));
-    navigatorKey.currentState.pushNamed(ConfirmPin.routeName);
+  void _chooseNewPin(String pin) {
+    widget.changePinBloc.add(PinEvent(pin, PinEventType.newPinChosen));
+    navigatorKey.currentState?.pushNamed(ConfirmPin.routeName, arguments: pin);
   }
 
-  void confirmNewPin(String pin) {
-    bloc.add(NewPinConfirmed(pin: pin));
+  void _confirmNewPin(String pin) {
+    widget.changePinBloc.add(PinEvent(pin, PinEventType.newPinConfirmed));
   }
 
-  void cancel() {
-    bloc.add(ChangePinCanceled());
+  void _gotoSettings() {
+    // Return to SettingsScreen
+    Navigator.maybePop(context).then(
+      (_) => Navigator.of(context).popUntil(
+        (route) => route.settings.name == SettingsScreen.routeName,
+      ),
+    );
+  }
+
+  void _handlePinMismatch() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => ConfirmErrorDialog(),
+    );
+  }
+
+  void _onSuccessShowFloatingSnackbar() => ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: TranslatedText(
+            'change_pin.toast',
+            style: theme.themeData.textTheme.caption!.copyWith(color: theme.light),
+          ),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: theme.themeData.colorScheme.secondary,
+        ),
+      );
+
+  void _handleResetPinSuccess() {
+    _gotoSettings();
+    _onSuccessShowFloatingSnackbar();
+  }
+
+  void _handleBadPinAttempts(int attemptsRemaining, DateTime? blockedUntil) {
+    // go back
+    navigatorKey.currentState?.pop();
+    // and indicate mistake to user
+    if (attemptsRemaining > 0) {
+      showDialog(
+        context: context,
+        builder: (context) => PinWrongAttemptsDialog(
+          attemptsRemaining: attemptsRemaining,
+          onClose: Navigator.of(context).pop,
+        ),
+      );
+    } else {
+      Navigator.of(context, rootNavigator: true).popUntil(ModalRoute.withName(HomeScreen.routeName));
+      widget.repo.lock(unblockTime: blockedUntil);
+    }
+  }
+
+  void _handleException(SessionError? e) {
+    navigatorKey.currentState?.pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => SessionErrorScreen(
+          error: e,
+          onTapClose: () {
+            navigatorKey.currentState?.pop();
+          },
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final routeBuilders = _routeBuilders();
 
-    return BlocListener<ChangePinBloc, ChangePinState>(
-        listenWhen: (ChangePinState previous, ChangePinState current) {
-          return current.newPinConfirmed != previous.newPinConfirmed ||
-              current.oldPinVerified != previous.oldPinVerified ||
-              current.validatingPin != previous.validatingPin ||
-              current.attemptsRemaining != previous.attemptsRemaining;
-        },
-        listener: (BuildContext context, ChangePinState state) {
-          if (state.newPinConfirmed == ValidationState.valid) {
-            navigatorKey.currentState.pushNamedAndRemoveUntil(Success.routeName, (_) => false);
-          } else if (state.newPinConfirmed == ValidationState.invalid) {
-            navigatorKey.currentState.pop();
-            // show error overlay
-            showDialog(
-              context: context,
-              builder: (BuildContext context) => ConfirmErrorDialog(onClose: () async {
-                // close the overlay
-                Navigator.of(context).pop();
-                newPinFocusNode.requestFocus();
-              }),
-            );
-          } else if (state.newPinConfirmed == ValidationState.error) {
-            if (state.error != null) {
-              navigatorKey.currentState.pushReplacement(MaterialPageRoute(
-                builder: (context) => SessionErrorScreen(
-                  error: state.error,
-                  onTapClose: () => navigatorKey.currentState.pop(),
-                ),
-              ));
-            } else {
-              navigatorKey.currentState.pushReplacement(MaterialPageRoute(
-                builder: (context) => ErrorScreen(
-                  details: state.errorMessage,
-                  onTapClose: () => navigatorKey.currentState.pop(),
-                ),
-              ));
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<ChangePinBloc, ChangePinState>(
+          bloc: widget.changePinBloc,
+          listener: (BuildContext context, ChangePinState state) {
+            switch (state.newPinConfirmed) {
+              case ValidationState.valid:
+                _handleResetPinSuccess();
+                break;
+              case ValidationState.error:
+                _handleException(state.error);
+                break;
+              default:
+                break;
             }
-          } else if (state.oldPinVerified == ValidationState.valid) {
-            navigatorKey.currentState.pushReplacementNamed(ChoosePin.routeName);
-          } else if (state.oldPinVerified == ValidationState.invalid) {
-            // go back
-            navigatorKey.currentState.pop();
-            // and indicate mistake to user
-            if (state.attemptsRemaining != 0) {
-              showDialog(
-                context: context,
-                builder: (context) => PinWrongAttemptsDialog(attemptsRemaining: state.attemptsRemaining),
-              );
-            } else {
-              Navigator.of(context, rootNavigator: true).popUntil(ModalRoute.withName(HomeScreen.routeName));
-              _repo.lock(unblockTime: state.blockedUntil);
+          },
+        ),
+        BlocListener<VerifyOldPinBloc, OldPinVerificationState>(
+          bloc: widget.verifyOldPinBloc,
+          listener: (BuildContext context, OldPinVerificationState state) {
+            switch (state.validationState) {
+              case ValidationState.valid:
+                // old pin verified, proceed to new pin screen
+                navigatorKey.currentState?.pushReplacementNamed(ChoosePin.routeName);
+                break;
+              case ValidationState.invalid:
+                assert(state.attemptsRemaining != null);
+                _handleBadPinAttempts(state.attemptsRemaining!, state.blockedUntil);
+                navigatorKey.currentState?.pushNamed(EnterPin.routeName);
+                break;
+              case ValidationState.error:
+                _handleException(state.error);
+                break;
+              case ValidationState.initial: // for completeness
+                break;
             }
-          } else if (state.oldPinVerified == ValidationState.error) {
-            navigatorKey.currentState.pushReplacement(MaterialPageRoute(
-              builder: (context) => SessionErrorScreen(
-                error: state.error,
-                onTapClose: () {
-                  navigatorKey.currentState.pop();
-                },
-              ),
-            ));
-          } else if (state.updatingPin == true) {
-            navigatorKey.currentState.pushNamed(UpdatingPin.routeName);
-          } else if (state.validatingPin == true) {
-            navigatorKey.currentState.pushNamed(ValidatingPin.routeName);
-          }
-        },
-        child: HeroControllerScope(
-          controller: createHeroController(),
-          child: Navigator(
-            key: navigatorKey,
-            initialRoute: EnterPin.routeName,
-            onGenerateRoute: (RouteSettings settings) {
-              if (!routeBuilders.containsKey(settings.name)) {
-                throw Exception('Invalid route: ${settings.name}');
-              }
-              final child = routeBuilders[settings.name];
+          },
+        ),
+      ],
+      child: HeroControllerScope(
+        controller: createHeroController(),
+        child: Navigator(
+          key: navigatorKey,
+          initialRoute: EnterPin.routeName,
+          onGenerateRoute: (RouteSettings settings) {
+            if (!routeBuilders.containsKey(settings.name)) {
+              throw Exception('Invalid route: ${settings.name}');
+            }
+            final child = routeBuilders[settings.name];
 
-              return MaterialPageRoute(builder: child, settings: settings);
-            },
-          ),
-        ));
+            // only assert in debug mode
+            assert(child != null);
+
+            return MaterialPageRoute(builder: child!, settings: settings);
+          },
+        ),
+      ),
+    );
   }
 }

@@ -1,74 +1,28 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/screens/change_pin/models/change_pin_bloc.dart';
-import 'package:irmamobile/src/screens/change_pin/models/change_pin_state.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/irma_app_bar.dart';
-import 'package:irmamobile/src/widgets/irma_text_button.dart';
-import 'package:irmamobile/src/widgets/pin_field.dart';
+
+import '../../pin/yivi_pin_screen.dart';
+import '../../yivi_choose_pin_scaffold.dart';
 
 class ChoosePin extends StatelessWidget {
   static const String routeName = 'choose_pin';
 
-  final void Function(BuildContext, String) chooseNewPin;
-  final void Function() toggleLongPin;
-  final void Function() cancel;
-  final FocusNode pinFocusNode;
+  final StringCallback chooseNewPin;
+  final VoidCallback cancel;
+  final ValueNotifier<String> newPinNotifier;
 
-  const ChoosePin(
-      {@required this.pinFocusNode, @required this.chooseNewPin, @required this.toggleLongPin, @required this.cancel});
+  const ChoosePin({
+    required this.chooseNewPin,
+    required this.cancel,
+    required this.newPinNotifier,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: IrmaAppBar(
-        titleTranslationKey: 'change_pin.choose_pin.title',
-        leadingTooltip: MaterialLocalizations.of(context).openAppDrawerTooltip,
-        leadingAction: () async {
-          if (cancel != null) {
-            cancel();
-          }
-          Navigator.of(context, rootNavigator: true).pop();
-        },
-      ),
-      body: BlocBuilder<ChangePinBloc, ChangePinState>(
-        builder: (context, state) {
-          return SingleChildScrollView(
-            child: Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(
-                      left: IrmaTheme.of(context).defaultSpacing,
-                      right: IrmaTheme.of(context).defaultSpacing,
-                      top: IrmaTheme.of(context).hugeSpacing,
-                      bottom: IrmaTheme.of(context).mediumSpacing),
-                  child: Text(
-                    FlutterI18n.translate(context, 'change_pin.choose_pin.instruction'),
-                    style: IrmaTheme.of(context).textTheme.bodyText2,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                PinField(
-                  focusNode: pinFocusNode,
-                  longPin: state.longPin,
-                  onSubmit: (String pin) => chooseNewPin(context, pin),
-                ),
-                SizedBox(height: IrmaTheme.of(context).smallSpacing),
-                IrmaTextButton(
-                  onPressed: () {
-                    toggleLongPin();
-                  },
-                  label: state.longPin ? 'change_pin.choose_pin.switch_short' : 'change_pin.choose_pin.switch_long',
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+    return YiviChoosePinScaffold(
+      submit: chooseNewPin,
+      onBack: cancel,
+      instructionKey: 'change_pin.choose_pin.instruction',
+      newPinNotifier: newPinNotifier,
     );
   }
 }

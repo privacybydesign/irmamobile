@@ -30,7 +30,6 @@
             }
         },
         "choose_pin": {
-            "title": "Beveiliging instellen",
             "insert_pin": "Kies een pincode van 5 cijfers",
             "textfield": "Pincode",
             "confirm_title": "Herhaal je pincode",
@@ -155,8 +154,14 @@
         }
     },
     "change_pin": {
+        "dialog": {
+            "title": "Weet je zeker?",
+            "body": "Weet je zeker dat je je huidige pincode wil aanpassen?",
+            "ok": "Aanpassen",
+            "cancel": "Annuleer"
+        },
+        "toast": "Gelukt! De nieuwe pincode is opgeslagen",
         "enter_pin": {
-            "title": "Pincode veranderen",
             "instruction": "Vul eerst je huidige pincode in",
             "error_title": "Verkeerde pincode",
             "error": "Vul je huidige pincode in",
@@ -167,7 +172,6 @@
             "details": "Je pincode wordt gecontroleerd"
         },
         "choose_pin": {
-            "title": "Pincode veranderen",
             "instruction": "Kies je nieuwe pincode",
             "switch_long": "Liever een langere pincode?",
             "switch_short": "Liever een kortere pincode?",
@@ -176,7 +180,6 @@
             "error_action": "OK"
         },
         "confirm_pin": {
-            "title": "Pincode veranderen",
             "instruction": "Vul je nieuwe pincode nog een keer in."
         },
         "updating_pin": {
@@ -242,7 +245,6 @@
         "hide": "Pincode verbergen"
     },
     "pin": {
-        "title": "Inloggen",
         "subtitle": "Voer je pincode in",
         "button_forgot": "Pincode vergeten",
         "button_block": "Yivi blokkeren"
@@ -559,5 +561,16 @@
         },
         "about_to_expire": "Gaat verlopen",
         "expired": "Verlopen"
+    },
+    "secure_pin": {
+        "info_button": "Pincode mogelijk niet veilig",
+        "title": "Pincode aanmaken",
+        "subtitle": "Een veilige pincode voldoet aan:",
+        "rules": {
+            "contains_3_unique": "Bevat minimaal 3 unieke cijfers",
+            "must_not_asc_or_desc": "Bevat geen op- en aflopende reeksen, zoals 12345",
+            "not_abcab_nor_abcba": "Bevat geen toetsenbordpatronen, zoals: abcab, abcba. Voorbeelden: 12312, 12321, 13331",
+            "must_contain_valid_subset": "Moet een reeks van 5 bevatten, die aan de bovenstaande regels voldoen"
+        }
     }
 }

@@ -30,7 +30,6 @@
             }
         },
         "choose_pin": {
-            "title": "Secure your Yivi app",
             "insert_pin": "Choose a 5-digit PIN",
             "textfield": "PIN",
             "confirm_title": "Repeat your PIN",
@@ -155,8 +154,14 @@
         }
     },
     "change_pin": {
+        "dialog": {
+            "title": "Are you sure?",
+            "body": "Are you sure you want to reset the current password?",
+            "ok": "Change",
+            "cancel": "Cancel"
+        },
+        "toast": "The new PIN is active",
         "enter_pin": {
-            "title": "Change PIN",
             "instruction": "Enter your current PIN",
             "error_title": "PIN incorrect",
             "error": "Enter your current PIN",
@@ -167,7 +172,6 @@
             "details": "Your PIN is being checked"
         },
         "choose_pin": {
-            "title": "Change PIN",
             "instruction": "Choose your new PIN",
             "switch_long": "Prefer a longer PIN?",
             "switch_short": "Prefer a shorter PIN?",
@@ -176,7 +180,6 @@
             "error_action": "OK"
         },
         "confirm_pin": {
-            "title": "Change PIN",
             "instruction": "Enter your PIN one more time."
         },
         "updating_pin": {
@@ -242,7 +245,6 @@
         "hide": "Hide PIN"
     },
     "pin": {
-        "title": "Login",
         "subtitle": "Enter your PIN",
         "button_forgot": "PIN forgotten",
         "button_block": "Block Yivi"
@@ -559,5 +561,16 @@
         },
         "about_to_expire": "About to expire",
         "expired": "Expired"
+    },
+    "secure_pin": {
+        "info_button": "PIN possibly not secure",
+        "title": "Choose PIN",
+        "subtitle": "A secure PIN has the following properties:",
+        "rules": {
+            "contains_3_unique": "Contains at least 3 unique numbers",
+            "must_not_asc_or_desc": "Must not contain ascending nor descending keyboard patterns, like: 12345",
+            "not_abcab_nor_abcba": "Must not contain the following keyboard patterns: abcba, abcab, like: 12312, 12321, 13331",
+            "must_contain_valid_subset": "Must contain 5 adjacent numbers, that comply with the rules mentioned above"
+        }
     }
 }
