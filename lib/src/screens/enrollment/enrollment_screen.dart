@@ -45,8 +45,8 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
     void addOnNextPressed() => bloc.add(EnrollmentNextPressed());
     final newPin = ValueNotifier('');
 
-    // The default for this value are intentionally
-    // different for the fresh install and upgrade flows
+    // The default for this value is intentionally
+    // different for the fresh install and upgrade flows.
     repo.preferences.setLongPin(false);
 
     return BlocConsumer<EnrollmentBloc, EnrollmentState>(
