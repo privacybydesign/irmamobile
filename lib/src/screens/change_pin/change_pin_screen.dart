@@ -88,16 +88,16 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
 
   void _submitOldPin(String pin) {
     widget.verifyOldPinBloc.add(pin);
-    widget.changePinBloc.add(OldPinEntered(pin: pin));
+    widget.changePinBloc.add(PinEvent(pin, PinEventType.oldPinEntered));
   }
 
   void _chooseNewPin(String pin) {
-    widget.changePinBloc.add(NewPinChosen(pin: pin));
+    widget.changePinBloc.add(PinEvent(pin, PinEventType.newPinChosen));
     navigatorKey.currentState?.pushNamed(ConfirmPin.routeName, arguments: pin);
   }
 
   void _confirmNewPin(String pin) {
-    widget.changePinBloc.add(NewPinConfirmed(pin: pin));
+    widget.changePinBloc.add(PinEvent(pin, PinEventType.newPinConfirmed));
   }
 
   void _gotoSettings() {
