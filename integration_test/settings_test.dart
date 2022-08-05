@@ -33,6 +33,7 @@ void main() {
     return repo;
   }
 
+  // TODO: repair tests when test in aboutirma_test.dart is fixed and enable them again in test_all.dart.
   group('irma-settings', () {
     // Initialize the app's repository for integration tests (enable developer mode, etc.)
     setUp(() async => irmaBinding.setUp());
