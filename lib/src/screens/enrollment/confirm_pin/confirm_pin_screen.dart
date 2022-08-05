@@ -21,9 +21,10 @@ class ConfirmPinScreen extends StatelessWidget {
       valueListenable: newPinNotifier,
       builder: (context, pinString, _) => YiviConfirmPinScaffold(
         submit: submitConfirmationPin,
-        cancel: onPrevious,
+        onBack: onPrevious,
         instructionKey: 'enrollment.choose_pin.confirm_instruction',
-        longPin: pinString.length > shortPinSize,
+        newPinNotifier: newPinNotifier,
+        onPinMismatch: () {}, // control was ceded to the parent navigation
       ),
     );
   }

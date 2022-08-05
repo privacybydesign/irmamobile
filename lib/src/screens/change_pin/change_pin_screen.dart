@@ -1,81 +1,96 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/screens/change_pin/models/change_pin_bloc.dart';
-import 'package:irmamobile/src/screens/change_pin/models/change_pin_event.dart';
-import 'package:irmamobile/src/screens/change_pin/models/change_pin_state.dart';
-import 'package:irmamobile/src/screens/change_pin/widgets/choose_pin.dart';
-import 'package:irmamobile/src/screens/change_pin/widgets/confirm_error_dialog.dart';
-import 'package:irmamobile/src/screens/change_pin/widgets/confirm_pin.dart';
-import 'package:irmamobile/src/screens/change_pin/widgets/enter_pin.dart';
-import 'package:irmamobile/src/screens/change_pin/widgets/updating_pin.dart';
-import 'package:irmamobile/src/screens/change_pin/widgets/validating_pin.dart';
-import 'package:irmamobile/src/screens/error/error_screen.dart';
-import 'package:irmamobile/src/screens/error/session_error_screen.dart';
-import 'package:irmamobile/src/screens/home/home_screen.dart';
-import 'package:irmamobile/src/screens/settings/settings_screen.dart';
-import 'package:irmamobile/src/util/hero_controller.dart';
-import 'package:irmamobile/src/widgets/pin_common/pin_wrong_attempts.dart';
 
+import '../../data/irma_repository.dart';
 import '../../theme/theme.dart';
+import '../../util/hero_controller.dart';
 import '../../widgets/irma_repository_provider.dart';
+import '../../widgets/pin_common/pin_wrong_attempts.dart';
 import '../../widgets/translated_text.dart';
-import '../pin/yivi_pin_screen.dart';
+import '../change_pin/models/change_pin_bloc.dart';
+import '../change_pin/models/change_pin_event.dart';
+import '../change_pin/models/change_pin_state.dart';
+import '../change_pin/widgets/choose_pin.dart';
+import '../change_pin/widgets/confirm_error_dialog.dart';
+import '../change_pin/widgets/confirm_pin.dart';
+import '../change_pin/widgets/enter_pin.dart';
+import '../change_pin/widgets/updating_pin.dart';
+import '../change_pin/widgets/validating_pin.dart';
+import '../error/error_screen.dart';
+import '../error/session_error_screen.dart';
+import '../home/home_screen.dart';
+import '../settings/settings_screen.dart';
 
 class ChangePinScreen extends StatelessWidget {
   static const routeName = "/change_pin";
 
   @override
   Widget build(BuildContext context) {
+    final IrmaRepository repo = IrmaRepositoryProvider.of(context);
     return BlocProvider<ChangePinBloc>(
-        create: (_) => ChangePinBloc(),
+        create: (_) => ChangePinBloc(repo),
         child: BlocBuilder<ChangePinBloc, ChangePinState>(builder: (context, _) {
           final bloc = BlocProvider.of<ChangePinBloc>(context);
-          return ProvidedChangePinScreen(bloc: bloc);
+          return ProvidedChangePinScreen(bloc: bloc, repo: repo);
         }));
   }
 }
 
 class ProvidedChangePinScreen extends StatefulWidget {
   final ChangePinBloc bloc;
+  final IrmaRepository repo;
 
-  const ProvidedChangePinScreen({required this.bloc}) : super();
+  const ProvidedChangePinScreen({required this.bloc, required this.repo}) : super();
 
   @override
   State<StatefulWidget> createState() => ProvidedChangePinScreenState();
 }
 
 class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
-  final IrmaRepository _repo = IrmaRepository.get();
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  get theme => IrmaTheme.of(context);
+  final newPin = ValueNotifier<String>('');
 
   Map<String, WidgetBuilder> _routeBuilders() {
     return {
-      EnterPin.routeName: (_) => EnterPin(submitOldPin: submitOldPin, cancel: cancel),
-      ValidatingPin.routeName: (_) => ValidatingPin(cancel: cancel),
-      ChoosePin.routeName: (_) =>
-          ChoosePin(chooseNewPin: chooseNewPin, cancel: cancel, returnToChoosePin: returnToChoosePin),
-      ConfirmPin.routeName: (_) => ConfirmPin(confirmNewPin: confirmNewPin, cancel: cancel),
-      UpdatingPin.routeName: (_) => UpdatingPin(cancel: cancel),
+      EnterPin.routeName: (_) => EnterPin(submitOldPin: _submitOldPin, cancel: _gotoSettings),
+      ValidatingPin.routeName: (_) => ValidatingPin(cancel: _gotoSettings),
+      ChoosePin.routeName: (_) => ChoosePin(
+            chooseNewPin: _chooseNewPin,
+            cancel: _gotoSettings,
+            newPinNotifier: newPin,
+          ),
+      ConfirmPin.routeName: (_) => ConfirmPin(
+            confirmNewPin: _confirmNewPin,
+            cancel: _gotoSettings,
+            returnToChoosePin: _returnToChoosePin,
+            onPinMismatch: _handlePinMismatch,
+            newPinNotifier: newPin,
+          ),
+      UpdatingPin.routeName: (_) => UpdatingPin(cancel: _gotoSettings),
     };
   }
 
-  void returnToChoosePin() => navigatorKey.currentState?.pushReplacementNamed(ChoosePin.routeName);
+  void _returnToChoosePin() {
+    navigatorKey.currentState?.popUntil(
+      (route) => route.settings.name == ChoosePin.routeName,
+    );
+  }
 
-  void submitOldPin(String pin) {
+  void _submitOldPin(String pin) {
     widget.bloc.add(OldPinEntered(pin: pin));
   }
 
-  void chooseNewPin(BuildContext context, String pin) {
+  void _chooseNewPin(String pin) {
     widget.bloc.add(NewPinChosen(pin: pin));
-    navigatorKey.currentState?.pushNamed(ConfirmPin.routeName, arguments: pin.length > shortPinSize);
+    navigatorKey.currentState?.pushNamed(ConfirmPin.routeName, arguments: pin);
   }
 
-  void confirmNewPin(String pin) {
+  void _confirmNewPin(String pin) {
     widget.bloc.add(NewPinConfirmed(pin: pin));
   }
 
-  void cancel() {
+  void _gotoSettings() {
     // Return to SettingsScreen
     Navigator.maybePop(context).then(
       (_) => Navigator.of(context).popUntil(
@@ -84,22 +99,29 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
     );
   }
 
-  void _handleResetPinSuccess(BuildContext context, ChangePinState state) {
-    final prefs = IrmaRepositoryProvider.of(context).preferences;
-    final theme = IrmaTheme.of(context);
-    prefs.setLongPin(state.longPin);
-    cancel();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: TranslatedText(
-          'change_pin.toast',
-          style: theme.themeData.textTheme.caption!.copyWith(color: theme.light),
-        ),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: theme.themeData.colorScheme.secondary,
-      ),
+  void _handlePinMismatch() {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) => ConfirmErrorDialog(),
     );
+  }
+
+  void _onSuccessShowFloatingSnackbar() => ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: TranslatedText(
+            'change_pin.toast',
+            style: theme.themeData.textTheme.caption!.copyWith(color: theme.light),
+          ),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: theme.themeData.colorScheme.secondary,
+        ),
+      );
+
+  void _handleResetPinSuccess(ChangePinState state) {
+    widget.repo.preferences.setLongPin(state.longPin);
+    _gotoSettings();
+    _onSuccessShowFloatingSnackbar();
   }
 
   @override
@@ -115,17 +137,10 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
         },
         listener: (BuildContext context, ChangePinState state) {
           if (state.newPinConfirmed == ValidationState.valid) {
-            _handleResetPinSuccess(context, state);
+            _handleResetPinSuccess(state);
           } else if (state.newPinConfirmed == ValidationState.invalid) {
+            // wrong confirmation pin entered
             navigatorKey.currentState?.pop();
-            // show error overlay
-            showDialog(
-              context: context,
-              builder: (BuildContext context) => ConfirmErrorDialog(onClose: () async {
-                // close the overlay
-                Navigator.of(context).pop();
-              }),
-            );
           } else if (state.newPinConfirmed == ValidationState.error) {
             if (state.error != null) {
               navigatorKey.currentState?.pushReplacement(MaterialPageRoute(
@@ -143,6 +158,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
               ));
             }
           } else if (state.oldPinVerified == ValidationState.valid) {
+            // old pin verified, proceed to new pin screen
             navigatorKey.currentState?.pushReplacementNamed(ChoosePin.routeName);
           } else if (state.oldPinVerified == ValidationState.invalid) {
             // go back
@@ -151,11 +167,14 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
             if (state.attemptsRemaining != 0) {
               showDialog(
                 context: context,
-                builder: (context) => PinWrongAttemptsDialog(attemptsRemaining: state.attemptsRemaining),
+                builder: (context) => PinWrongAttemptsDialog(
+                  attemptsRemaining: state.attemptsRemaining,
+                  onClose: Navigator.of(context).pop,
+                ),
               );
             } else {
               Navigator.of(context, rootNavigator: true).popUntil(ModalRoute.withName(HomeScreen.routeName));
-              _repo.lock(unblockTime: state.blockedUntil);
+              widget.repo.lock(unblockTime: state.blockedUntil);
             }
           } else if (state.oldPinVerified == ValidationState.error) {
             navigatorKey.currentState?.pushReplacement(MaterialPageRoute(

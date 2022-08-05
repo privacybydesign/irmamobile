@@ -8,9 +8,8 @@ import 'package:irmamobile/src/screens/change_pin/models/change_pin_event.dart';
 import 'package:irmamobile/src/screens/change_pin/models/change_pin_state.dart';
 
 class ChangePinBloc extends Bloc<Object, ChangePinState> {
-  ChangePinBloc() : super(ChangePinState());
-
-  ChangePinBloc.test(ChangePinState initialState) : super(initialState);
+  final IrmaRepository repo;
+  ChangePinBloc(this.repo) : super(ChangePinState());
 
   @override
   Stream<ChangePinState> mapEventToState(Object event) async* {
@@ -19,7 +18,7 @@ class ChangePinBloc extends Bloc<Object, ChangePinState> {
         validatingPin: true,
       );
 
-      final authenticationEvent = await IrmaRepository.get().unlock(event.pin);
+      final authenticationEvent = await repo.unlock(event.pin);
       if (authenticationEvent is AuthenticationSuccessEvent) {
         yield state.copyWith(
           validatingPin: false,
@@ -57,7 +56,7 @@ class ChangePinBloc extends Bloc<Object, ChangePinState> {
           updatingPin: true,
         );
 
-        final changePinEvent = await IrmaRepository.get().changePin(state.oldPin, state.newPin);
+        final changePinEvent = await repo.changePin(state.oldPin, state.newPin);
         if (changePinEvent is ChangePinSuccessEvent) {
           yield state.copyWith(
             updatingPin: false,

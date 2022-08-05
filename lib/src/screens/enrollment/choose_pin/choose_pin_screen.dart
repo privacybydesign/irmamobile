@@ -7,17 +7,20 @@ class ChoosePinScreen extends StatelessWidget {
   static const String routeName = 'choose_pin';
   final StringCallback onChoosePin;
   final VoidCallback onPrevious;
+  final ValueNotifier<String> newPinNotifier;
 
   const ChoosePinScreen({
     required this.onChoosePin,
     required this.onPrevious,
+    required this.newPinNotifier,
   });
 
   @override
   Widget build(BuildContext context) {
     return YiviChoosePinScaffold(
+      newPinNotifier: newPinNotifier,
       submit: onChoosePin,
-      cancel: onPrevious,
+      onBack: onPrevious,
       instructionKey: 'enrollment.choose_pin.insert_pin',
     );
   }

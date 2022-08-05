@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
 
+import '../../pin/yivi_pin_screen.dart';
 import '../../yivi_choose_pin_scaffold.dart';
 
 class ChoosePin extends StatelessWidget {
   static const String routeName = 'choose_pin';
 
-  final void Function(BuildContext, String) chooseNewPin;
-  final VoidCallback cancel, returnToChoosePin;
+  final StringCallback chooseNewPin;
+  final VoidCallback cancel;
+  final ValueNotifier<String> newPinNotifier;
 
   const ChoosePin({
     required this.chooseNewPin,
     required this.cancel,
-    required this.returnToChoosePin,
+    required this.newPinNotifier,
   });
 
   @override
   Widget build(BuildContext context) {
     return YiviChoosePinScaffold(
-      submit: (pin) => chooseNewPin(context, pin),
-      cancel: returnToChoosePin,
+      submit: chooseNewPin,
+      onBack: cancel,
       instructionKey: 'change_pin.choose_pin.instruction',
+      newPinNotifier: newPinNotifier,
     );
   }
 }

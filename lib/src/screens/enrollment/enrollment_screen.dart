@@ -37,7 +37,7 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
     void addEvent(EnrollmentBlocEvent event) => bloc.add(event);
     void addOnPreviousPressed() => bloc.add(EnrollmentPreviousPressed());
     void addOnNextPressed() => bloc.add(EnrollmentNextPressed());
-    final newPin = ValueNotifier<String>('');
+    final newPin = ValueNotifier('');
 
     return BlocConsumer<EnrollmentBloc, EnrollmentState>(
       listener: (BuildContext context, EnrollmentState state) {
@@ -65,12 +65,10 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
         if (state is EnrollmentChoosePin) {
           return ChoosePinScreen(
             onPrevious: addOnPreviousPressed,
-            onChoosePin: (pin) {
-              newPin.value = pin;
-              addEvent(
-                EnrollmentPinChosen(pin),
-              );
-            },
+            onChoosePin: (pin) => addEvent(
+              EnrollmentPinChosen(pin),
+            ),
+            newPinNotifier: newPin,
           );
         }
         if (state is EnrollmentConfirmPin) {

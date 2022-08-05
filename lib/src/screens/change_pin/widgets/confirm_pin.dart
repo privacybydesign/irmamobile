@@ -7,10 +7,17 @@ import 'confirm_pin_reset_dialog.dart';
 class ConfirmPin extends StatelessWidget {
   static const String routeName = 'change_pin/confirm_pin';
 
-  final void Function(String) confirmNewPin;
-  final VoidCallback cancel;
+  final StringCallback confirmNewPin;
+  final VoidCallback cancel, returnToChoosePin, onPinMismatch;
+  final ValueNotifier<String> newPinNotifier;
 
-  const ConfirmPin({required this.confirmNewPin, required this.cancel});
+  const ConfirmPin({
+    required this.confirmNewPin,
+    required this.cancel,
+    required this.returnToChoosePin,
+    required this.onPinMismatch,
+    required this.newPinNotifier,
+  });
 
   StringCallback _showConfirmDialog(BuildContext context) => (String pin) async {
         final confirmed = await showDialog<bool>(
@@ -29,9 +36,10 @@ class ConfirmPin extends StatelessWidget {
   Widget build(BuildContext context) {
     return YiviConfirmPinScaffold(
       submit: _showConfirmDialog(context),
-      cancel: cancel,
+      onBack: returnToChoosePin,
       instructionKey: 'change_pin.confirm_pin.instruction',
-      longPin: ModalRoute.of(context)!.settings.arguments as bool,
+      onPinMismatch: onPinMismatch,
+      newPinNotifier: newPinNotifier,
     );
   }
 }

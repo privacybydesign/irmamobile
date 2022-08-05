@@ -76,9 +76,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
         useRootNavigator: false,
         builder: (BuildContext context) => PinWrongAttemptsDialog(
           attemptsRemaining: state.remainingAttempts,
-          onClose: () {
-            Navigator.of(navigatorContext).pop();
-          },
+          onClose: Navigator.of(navigatorContext).pop,
         ),
       );
     } else {

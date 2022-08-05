@@ -55,9 +55,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
             context: context,
             builder: (context) => PinWrongAttemptsDialog(
               attemptsRemaining: pinState.remainingAttempts,
-              onClose: () {
-                Navigator.of(context).pop();
-              },
+              onClose: Navigator.of(context).pop,
             ),
           );
         } else {
