@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:irmamobile/src/models/session.dart';
-import 'package:irmamobile/src/screens/scanner/widgets/qr_scanner.dart';
-import 'package:irmamobile/src/util/handle_pointer.dart';
+
+import '../../models/session.dart';
+import '../../util/handle_pointer.dart';
+import 'widgets/qr_scanner.dart';
 
 class ScannerScreen extends StatelessWidget {
   static const routeName = '/scanner';
-
-  static void _onClose(BuildContext context) {
-    Navigator.of(context).pop();
-  }
 
   void _onSuccess(BuildContext context, Pointer pointer) {
     // QR was scanned using IRMA app's internal QR code scanner, so we know for sure
@@ -19,14 +16,14 @@ class ScannerScreen extends StatelessWidget {
     }
 
     HapticFeedback.vibrate();
-    handlePointer(Navigator.of(context), pointer);
+    handlePointer(Navigator.of(context), pointer, pushReplacement: true);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: QRScanner(
-        onClose: () => _onClose(context),
+        onClose: () => Navigator.of(context).pop(),
         onFound: (code) => _onSuccess(context, code),
       ),
     );
