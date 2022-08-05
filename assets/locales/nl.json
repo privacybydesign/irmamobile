@@ -156,11 +156,11 @@
     "change_pin": {
         "dialog": {
             "title": "Weet je zeker?",
-            "body": "Weet je zeker dat je je huidige pin code wil aanpassen?",
+            "body": "Weet je zeker dat je je huidige pincode wil aanpassen?",
             "ok": "Aanpassen",
             "cancel": "Annuleer"
         },
-        "toast": "Gelukt! De nieuwe pin code is opgeslagen",
+        "toast": "Gelukt! De nieuwe pincode is opgeslagen",
         "enter_pin": {
             "instruction": "Vul eerst je huidige pincode in",
             "error_title": "Verkeerde pincode",
@@ -565,11 +565,11 @@
     "secure_pin": {
         "info_button": "Pincode mogelijk niet veilig",
         "title": "Pincode aanmaken",
-        "subtitle": "Een veilige Pin voldoet aan:",
+        "subtitle": "Een veilige pincode voldoet aan:",
         "rules": {
             "contains_3_unique": "Bevat minimaal 3 unieke cijfers",
             "must_not_asc_or_desc": "Bevat geen op- en aflopende reeksen, zoals 12345",
-            "not_abcab_nor_abcba": "Bevat geen toetsenbord partronen, zoals: abcab, abcba. Voorbeelden: 12312, 12321, 13331",
+            "not_abcab_nor_abcba": "Bevat geen toetsenbord toetsenbordpatronen, zoals: abcab, abcba. Voorbeelden: 12312, 12321, 13331",
             "must_contain_valid_subset": "Moet een reeks van 5 bevatten, die aan de bovenstaande regels voldoen"
         }
     }
