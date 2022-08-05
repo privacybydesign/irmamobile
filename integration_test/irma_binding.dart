@@ -63,7 +63,7 @@ class IntegrationTestIrmaBinding {
         language: 'en',
         schemeId: 'test',
       ));
-      _preferences!.setLongPin(false);
+      await _preferences!.setLongPin(false);
       await _bridge.events.firstWhere((event) => event is EnrollmentSuccessEvent);
     }
 
