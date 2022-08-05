@@ -1,8 +1,14 @@
 stages:
   - lint
-  - test
+  - unit_test
   - build_bridge
   - build_app
+  - integration_test
+
+workflow:
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 variables:
   GOPATH: ${CI_PROJECT_DIR}/.cache
@@ -21,32 +27,47 @@ lint:dart:
     - flutter format --line-length=120 --set-exit-if-changed lib/ test/ integration_test/
   stage: lint
 
-test:flutter:
+unit_test:flutter:
   script:
     - flutter test --no-sound-null-safety
-  stage: test
+  stage: unit_test
 
 build_bridge:
   stage: build_bridge
   interruptible: true
-  only:
-    - master
-    - merge_requests
   artifacts:
     paths:
       - android/irmagobridge/irmagobridge.aar
   script:
     - gomobile bind -target android -o android/irmagobridge/irmagobridge.aar github.com/privacybydesign/irmamobile/irmagobridge
 
-build_app:
+# We can only build for Android, because we don't have an MacOS runner yet.
+build_app:android_alpha:
   stage: build_app
   interruptible: true
-  only:
-    - master
-    - merge_requests
   artifacts:
     paths:
       - build/app/outputs/apk/alpha/release/*.apk
   script:
     - flutter build apk --target-platform android-arm,android-arm64 --split-per-abi --flavor alpha
 
+build_app:android_test:
+  stage: build_app
+  interruptible: true
+  artifacts:
+    paths:
+      - build/app/outputs/apk/alpha/debug/*.apk
+      - build/app/outputs/apk/androidTest/alpha/debug/*.apk
+  script:
+    - flutter build apk --debug --flavor alpha ./integration_test/test_all.dart
+    - (cd android && ./gradlew app:assembleAndroidTest)
+
+integration_test:
+  stage: integration_test
+  image: privacybydesign/gcloud
+  dependencies:
+    - build_app:android_test
+  script:
+    - gcloud auth activate-service-account --key-file <(echo $GCLOUD_SERVICE_KEY)
+    - gcloud config set project $GCLOUD_PROJECT_ID
+    - gcloud firebase test android run --app build/app/outputs/apk/alpha/debug/app-alpha-debug.apk --test build/app/outputs/apk/androidTest/alpha/debug/app-alpha-debug-androidTest.apk --timeout 10m --device=model=Pixel3,version=30
