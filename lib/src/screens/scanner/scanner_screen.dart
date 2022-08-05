@@ -16,7 +16,7 @@ class ScannerScreen extends StatelessWidget {
     }
 
     HapticFeedback.vibrate();
-    handlePointer(Navigator.of(context), pointer);
+    handlePointer(Navigator.of(context), pointer, pushReplacement: true);
   }
 
   @override
