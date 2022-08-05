@@ -114,7 +114,6 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
             onRetryEnrollment: () => addEvent(EnrollmentRetried()),
           );
         }
-
         // If state is loading/initial/submitting show centered loading indicator
         return Scaffold(
           body: Center(
