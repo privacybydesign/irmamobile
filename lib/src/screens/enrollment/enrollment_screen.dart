@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
+import '../../data/irma_repository.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/loading_indicator.dart';
 import '../home/home_screen.dart';
@@ -20,17 +21,22 @@ class EnrollmentScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final repo = IrmaRepositoryProvider.of(context);
     return BlocProvider(
       create: (_) => EnrollmentBloc(
         language: FlutterI18n.currentLocale(context)!.languageCode,
-        repo: IrmaRepositoryProvider.of(context),
+        repo: repo,
       ),
-      child: _ProvidedEnrollmentScreen(),
+      child: _ProvidedEnrollmentScreen(repo: repo),
     );
   }
 }
 
 class _ProvidedEnrollmentScreen extends StatelessWidget {
+  final IrmaRepository repo;
+
+  const _ProvidedEnrollmentScreen({Key? key, required this.repo}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final bloc = context.read<EnrollmentBloc>();
@@ -38,6 +44,10 @@ class _ProvidedEnrollmentScreen extends StatelessWidget {
     void addOnPreviousPressed() => bloc.add(EnrollmentPreviousPressed());
     void addOnNextPressed() => bloc.add(EnrollmentNextPressed());
     final newPin = ValueNotifier('');
+
+    // The default for this value are intentionally
+    // different for the fresh install and upgrade flows
+    repo.preferences.setLongPin(false);
 
     return BlocConsumer<EnrollmentBloc, EnrollmentState>(
       listener: (BuildContext context, EnrollmentState state) {
