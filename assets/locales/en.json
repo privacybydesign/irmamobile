@@ -568,8 +568,8 @@
         "subtitle": "A secure PIN has the following properties:",
         "rules": {
             "contains_3_unique": "Contains at least 3 unique numbers",
-            "must_not_asc_or_desc": "Must not contain ascending nor descending patterns, like: 12345",
-            "not_abcab_nor_abcba": "Must not contain the following patterns: abcba, abcab, like: 12312, 12321, 13331",
+            "must_not_asc_or_desc": "Must not contain ascending nor descending keyboard patterns, like: 12345",
+            "not_abcab_nor_abcba": "Must not contain the following keyboard patterns: abcba, abcab, like: 12312, 12321, 13331",
             "must_contain_valid_subset": "Must contain 5 adjacent numbers, that comply with the rules mentioned above"
         }
     }
