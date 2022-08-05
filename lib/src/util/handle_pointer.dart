@@ -18,15 +18,17 @@ Future<void> handlePointer(NavigatorState navigator, Pointer pointer, {bool push
   try {
     await pointer.validate(irmaRepository: IrmaRepositoryProvider.of(navigator.context));
   } catch (e) {
-    final Function(Route) navigatorPush = pushReplacement ? navigator.pushReplacement : navigator.push;
-    await navigatorPush(
-      MaterialPageRoute(
-        builder: (context) => ErrorScreen(
-          details: 'error starting session or wizard: ${e.toString()}',
-          onTapClose: () => navigator.pop(),
-        ),
+    final pageRoute = MaterialPageRoute(
+      builder: (context) => ErrorScreen(
+        details: 'error starting session or wizard: ${e.toString()}',
+        onTapClose: () => navigator.pop(),
       ),
     );
+    if (pushReplacement) {
+      await navigator.pushReplacement(pageRoute);
+    } else {
+      await navigator.push(pageRoute);
+    }
     return;
   }
 
