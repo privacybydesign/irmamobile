@@ -1,5 +1,5 @@
 enum PinEventType {
-  oldPinEntered, newPinChosen, newPinConfirmed;
+  oldPinEntered, newPinChosen, newPinConfirmed
 }
 class PinEvent {
   final String pin;
