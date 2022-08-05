@@ -13,7 +13,7 @@ class ArrowBack extends StatefulWidget {
   const ArrowBack({
     this.success = false,
     required this.amountIssued,
-  }) : assert(success == false);
+  });
 
   @override
   State<StatefulWidget> createState() => _ArrowBackState();
