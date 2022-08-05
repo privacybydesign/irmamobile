@@ -29,7 +29,7 @@ class VerifyOldPinBloc extends Bloc<String, OldPinVerificationState> {
         error: authenticationEvent.error,
       );
     } else {
-      throw Exception("Unexpected subtype of AuthenticationResult");
+      throw Exception('Unexpected subtype of AuthenticationResult');
     }
   }
 }
