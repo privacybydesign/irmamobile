@@ -17,7 +17,7 @@ import '../../util/language.dart';
 import '../../util/navigation.dart';
 
 class IssueWizardScreen extends StatefulWidget {
-  static const routeName = "/issuewizard";
+  static const routeName = '/issuewizard';
 
   static const defaultBackgroundColor = Colors.grey;
   static const defaultTextColor = Colors.black;
@@ -133,16 +133,16 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
 
     // Handle the different wizard item types
     switch (item?.type) {
-      case "credential":
+      case 'credential':
         _repo.openIssueURL(context, item?.credential ?? '');
         break;
-      case "session":
+      case 'session':
         handlePointer(
           Navigator.of(context),
-          SessionPointer(u: item?.sessionURL ?? '', irmaqr: "redirect"),
+          SessionPointer(u: item?.sessionURL ?? '', irmaqr: 'redirect'),
         );
         break;
-      case "website":
+      case 'website':
         item?.inApp ?? true
             ? _repo.openURL(getTranslation(context, item?.url ?? const TranslatedValue.empty()))
             : _repo.openURLExternally(getTranslation(context, item?.url ?? const TranslatedValue.empty()));

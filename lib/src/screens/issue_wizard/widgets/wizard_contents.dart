@@ -67,12 +67,12 @@ class IssueWizardContents extends StatelessWidget {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
     final activeItem = wizard.activeItem;
     final buttonLabel = wizard.completed
-        ? FlutterI18n.translate(context, "issue_wizard.done")
+        ? FlutterI18n.translate(context, 'issue_wizard.done')
         : activeItem?.label.translate(lang,
             fallback: FlutterI18n.translate(
               context,
-              "issue_wizard.add_credential",
-              translationParams: {"credential": activeItem.header.translate(lang)},
+              'issue_wizard.add_credential',
+              translationParams: {'credential': activeItem.header.translate(lang)},
             ));
     final wizardContentSize = wizard.wizardContents.length;
     final indicator = <Widget>[
