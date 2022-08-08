@@ -31,14 +31,6 @@ class IssueWizardContents extends StatelessWidget {
   });
 
   Widget _buildWizard(BuildContext context, String lang, IssueWizardEvent wizard) {
-    final contents = wizard.wizardContents
-        .map((item) => WizardCardItem(
-              header: item.header.translate(lang),
-              text: item.text.translate(lang),
-              completed: item.completed,
-            ))
-        .toList();
-
     final intro = wizard.wizardData.intro;
     final theme = IrmaTheme.of(context);
     return VisibilityDetector(
@@ -54,7 +46,7 @@ class IssueWizardContents extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
                 child: IrmaMarkdown(intro.translate(lang)),
               ),
-            WizardCardStepper(data: contents, completed: wizard.completed),
+            WizardCardStepper(data: wizard.wizardContents, completed: wizard.completed),
           ],
         ),
       ),

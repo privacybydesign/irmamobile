@@ -1,25 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
+import '../../../models/issue_wizard.dart';
 import '../../../widgets/irma_card.dart';
 import '../../../widgets/irma_stepper.dart';
 
-class WizardCardItem {
-  final String header;
-  final String? subheader;
-  final String text;
-  final bool completed;
-
-  WizardCardItem({
-    required this.header,
-    this.subheader,
-    required this.text,
-    this.completed = false,
-  });
-}
-
 class WizardCardStepper extends StatelessWidget {
-  final List<WizardCardItem> data;
+  final List<IssueWizardItem> data;
   final bool completed;
 
   const WizardCardStepper({
@@ -32,6 +20,7 @@ class WizardCardStepper extends StatelessWidget {
   Widget build(BuildContext context) {
     final activeItemIndex = data.indexWhere((item) => !item.completed);
     final theme = IrmaTheme.of(context);
+    final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     final contents = data
         .map(
@@ -39,9 +28,8 @@ class WizardCardStepper extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(item.header, style: theme.textTheme.bodyText1),
-                if (item.subheader != null) Text(item.subheader!, style: theme.textTheme.bodyText2),
-                Text(item.text, style: theme.textTheme.bodyText2),
+                Text(item.header.translate(lang), style: theme.textTheme.bodyText1),
+                Text(item.text.translate(lang), style: theme.textTheme.bodyText2),
               ],
             ),
           ),
