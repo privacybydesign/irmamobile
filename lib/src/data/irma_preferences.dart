@@ -19,6 +19,8 @@ class IrmaPreferences {
 
   IrmaPreferences._(StreamingSharedPreferences preferences)
       : _screenshotsEnabled = preferences.getBool(_screenshotsEnabledKey, defaultValue: false),
+        // Please don't arbitrarily change this value, this could hinder the upgrade flow
+        // For users before the pin size >5 was introduced.
         _longPin = preferences.getBool(_longPinKey, defaultValue: true),
         _reportErrors = preferences.getBool(_reportErrorsKey, defaultValue: false),
         _startQRScan = preferences.getBool(_startQRScanKey, defaultValue: false),

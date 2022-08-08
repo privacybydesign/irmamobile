@@ -106,9 +106,7 @@ class SettingsScreen extends StatelessWidget {
               ),
             const Divider(),
             ListTile(
-              onTap: () {
-                Navigator.of(context).pushNamed(ChangePinScreen.routeName);
-              },
+              onTap: () => Navigator.of(context).pushNamed(ChangePinScreen.routeName),
               title: Text(
                 FlutterI18n.translate(context, 'settings.change_pin'),
                 style: theme.textTheme.bodyText2,
@@ -120,9 +118,7 @@ class SettingsScreen extends StatelessWidget {
                 FlutterI18n.translate(context, 'settings.advanced.delete'),
                 style: theme.textTheme.bodyText2,
               ),
-              onTap: () {
-                openWalletResetDialog(context);
-              },
+              onTap: () => openWalletResetDialog(context),
               leading: Icon(IrmaIcons.delete, color: theme.themeData.colorScheme.secondary),
             ),
           ]),

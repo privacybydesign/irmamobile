@@ -39,23 +39,38 @@ class IrmaThemedButton extends StatelessWidget {
                 color: isSecondary ? color : Colors.white,
               ),
     );
+
     final fixedHeight = size != null ? size!.value : IrmaButtonSize.medium.value;
 
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        side: isSecondary ? BorderSide(color: color) : null,
-        elevation: 0.0,
-        primary: isSecondary ? Colors.white : color,
-        onPrimary: textColor ?? (isSecondary ? color : Colors.white),
-        shape: shape,
-        padding: const EdgeInsets.symmetric(
+    final style = ButtonStyle(
+      backgroundColor: MaterialStateProperty.resolveWith<Color?>((states) {
+        if (states.contains(MaterialState.disabled)) {
+          return disabledColor;
+        } else {
+          return isSecondary ? Colors.white : color;
+        }
+      }),
+      foregroundColor:
+          MaterialStateProperty.resolveWith<Color?>((_) => textColor ?? (isSecondary ? color : Colors.white)),
+      side: MaterialStateProperty.resolveWith<BorderSide?>((_) => isSecondary ? BorderSide(color: color) : null),
+      shape: MaterialStateProperty.resolveWith<OutlinedBorder?>((_) => shape),
+      padding: MaterialStateProperty.resolveWith<EdgeInsets>(
+        (_) => const EdgeInsets.symmetric(
           vertical: 10.0,
           horizontal: 20.0,
         ),
-        minimumSize: Size(minWidth, fixedHeight),
-        maximumSize: Size.fromHeight(fixedHeight),
       ),
+      minimumSize: MaterialStateProperty.resolveWith<Size>(
+        (_) => Size(minWidth, fixedHeight),
+      ),
+      maximumSize: MaterialStateProperty.resolveWith<Size>(
+        (_) => Size.fromHeight(fixedHeight),
+      ),
+    );
+
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: style,
       child: icon == null
           ? text
           : Row(

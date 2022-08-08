@@ -1,55 +1,44 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_svg/svg.dart';
-import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/screens/error/session_error_screen.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
 import 'package:irmamobile/src/screens/pin/bloc/pin_state.dart';
-import 'package:irmamobile/src/screens/reset_pin/reset_pin_screen.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/link.dart';
 import 'package:irmamobile/src/widgets/pin_common/format_blocked_for.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_attempts.dart';
 import 'package:irmamobile/src/widgets/pin_common/pin_wrong_blocked.dart';
-import 'package:irmamobile/src/widgets/pin_field.dart';
 
-import '../../data/irma_preferences.dart';
+import '../../widgets/irma_app_bar.dart';
+import '../../widgets/irma_repository_provider.dart';
+import '../reset_pin/reset_pin_screen.dart';
+import 'yivi_pin_screen.dart';
 
 class PinScreen extends StatefulWidget {
   static const String routeName = '/';
-  final PinEvent initialEvent;
+  final PinEvent? initialEvent;
 
-  const PinScreen({Key key, this.initialEvent}) : super(key: key);
+  const PinScreen({Key? key, this.initialEvent}) : super(key: key);
 
   @override
-  _PinScreenState createState() => _PinScreenState(initialEvent);
+  _PinScreenState createState() => _PinScreenState();
 }
 
 class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
   final _pinBloc = PinBloc();
-
-  FocusNode _focusNode;
-  StreamSubscription _pinBlocSubscription;
-
-  _PinScreenState(PinEvent initialEvent) {
-    if (initialEvent != null) {
-      _pinBloc.add(initialEvent);
-    }
-  }
+  late StreamSubscription _pinBlocSubscription;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance?.addObserver(this);
-    _focusNode = FocusNode();
+
+    if (widget.initialEvent != null) {
+      _pinBloc.add(widget.initialEvent);
+    }
 
     IrmaRepository.get().getBlockTime().first.then((blockedUntil) {
       if (blockedUntil != null) {
@@ -66,10 +55,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
             context: context,
             builder: (context) => PinWrongAttemptsDialog(
               attemptsRemaining: pinState.remainingAttempts,
-              onClose: () {
-                Navigator.of(context).pop();
-                _focusNode.requestFocus();
-              },
+              onClose: Navigator.of(context).pop,
             ),
           );
         } else {
@@ -86,25 +72,15 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
             error: pinState.error,
             onTapClose: () {
               Navigator.of(context).pop();
-              _delayedKeyboardFocus();
             },
           ),
         ));
-      } else {
-        _delayedKeyboardFocus();
       }
-    });
-  }
-
-  void _delayedKeyboardFocus() {
-    Future.delayed(const Duration(milliseconds: 100), () {
-      if (mounted) FocusScope.of(context).requestFocus(_focusNode);
     });
   }
 
   @override
   void dispose() {
-    _focusNode.dispose();
     _pinBloc.close();
     WidgetsBinding.instance?.removeObserver(this);
     super.dispose();
@@ -116,12 +92,12 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
       FocusScope.of(context).unfocus();
     } else if (state == AppLifecycleState.resumed) {
       if (_pinBloc.state.pinInvalid || _pinBloc.state.authenticateInProgress || _pinBloc.state.error != null) return;
-      Future.delayed(const Duration(milliseconds: 100), () => FocusScope.of(context).requestFocus(_focusNode));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final prefs = IrmaRepositoryProvider.of(context).preferences;
     return BlocBuilder<PinBloc, PinState>(
       bloc: _pinBloc,
       builder: (context, state) {
@@ -130,88 +106,62 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
           return Container();
         }
 
-        return Scaffold(
-          backgroundColor: IrmaTheme.of(context).background,
-          appBar: _buildAppBar(),
+        return YiviPinScaffold(
+          appBar: const IrmaAppBar(
+            noLeading: true,
+            title: '',
+          ),
           body: StreamBuilder(
             stream: _pinBloc.getPinBlockedFor(),
             builder: (BuildContext context, AsyncSnapshot<Duration> blockedFor) {
-              var subtitle = Text(FlutterI18n.translate(context, "pin.subtitle"));
-              if (blockedFor.hasData && blockedFor.data.inSeconds > 0) {
-                final blockedText = '${FlutterI18n.translate(context, "pin_common.blocked_for")}';
+              var subtitle = FlutterI18n.translate(context, 'pin.subtitle');
+              if (blockedFor.hasData && (blockedFor.data?.inSeconds ?? 0) > 0) {
+                final blockedText = FlutterI18n.translate(context, 'pin_common.blocked_for');
                 final blockedForTime = formatBlockedFor(context, blockedFor.data);
-                subtitle = Text('$blockedText $blockedForTime');
+                subtitle = '$blockedText $blockedForTime';
               }
-              return SafeArea(
-                child: SingleChildScrollView(
-                  child: Column(
-                    key: const Key('pin_screen'),
-                    children: <Widget>[
-                      SizedBox(
-                        height: 150,
-                        width: 200.0,
-                        child: SvgPicture.asset(
-                          'assets/non-free/logo.svg',
-                          semanticsLabel: FlutterI18n.translate(
-                            context,
-                            'accessibility.irma_logo',
-                          ),
-                        ),
+
+              return StreamBuilder<bool>(
+                stream: prefs.getLongPin(),
+                builder: (context, snapshot) {
+                  final maxPinSize = (snapshot.data ?? false) ? longPinSize : shortPinSize;
+
+                  final pinBloc = EnterPinStateBloc(maxPinSize);
+
+                  final enabled = (blockedFor.data ?? Duration.zero).inSeconds <= 0 && !state.authenticateInProgress;
+
+                  void submit(String pin) {
+                    _pinBloc.add(
+                      Unlock(pin),
+                    );
+                  }
+
+                  return Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      YiviPinScreen(
+                        instruction: subtitle,
+                        maxPinSize: maxPinSize,
+                        onSubmit: enabled ? submit : (_) {},
+                        pinBloc: pinBloc,
+                        enabled: enabled,
+                        onForgotPin: () => Navigator.of(context).pushNamed(ResetPinScreen.routeName),
+                        listener: (context, state) {
+                          if (maxPinSize == shortPinSize && state.pin.length == maxPinSize && enabled) {
+                            submit(state.toString());
+                          }
+                        },
+                        hideSubmit: shortPinSize == maxPinSize,
                       ),
-                      subtitle,
-                      SizedBox(
-                        height: IrmaTheme.of(context).defaultSpacing,
-                      ),
-                      StreamBuilder(
-                        stream: IrmaPreferences.get().getLongPin(),
-                        builder: (BuildContext context, AsyncSnapshot<bool> longPin) => PinField(
-                          focusNode: _focusNode,
-                          enabled: (blockedFor.data ?? Duration.zero).inSeconds <= 0 && !state.authenticateInProgress,
-                          longPin: longPin.hasData && longPin.data,
-                          onSubmit: (pin) {
-                            FocusScope.of(context).requestFocus();
-                            _pinBloc.add(
-                              Unlock(pin),
-                            );
-                          },
-                        ),
-                      ),
-                      SizedBox(
-                        height: IrmaTheme.of(context).defaultSpacing,
-                      ),
-                      Center(
-                        child: Link(
-                          onTap: () {
-                            Navigator.of(context).pushNamed(ResetPinScreen.routeName);
-                          },
-                          label: FlutterI18n.translate(context, "pin.button_forgot"),
-                        ),
-                      ),
-                      if (state.authenticateInProgress)
-                        Padding(
-                            padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
-                            child: const CircularProgressIndicator()),
+                      if (state.authenticateInProgress) const CircularProgressIndicator(),
                     ],
-                  ),
-                ),
+                  );
+                },
               );
             },
           ),
         );
       },
-    );
-  }
-
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      centerTitle: true,
-      backgroundColor: IrmaTheme.of(context).background,
-      key: const Key('pinscreen_app_bar'),
-      leading: Container(),
-      title: Text(
-        FlutterI18n.translate(context, "pin.title"),
-        style: IrmaTheme.of(context).textTheme.headline4,
-      ),
     );
   }
 }

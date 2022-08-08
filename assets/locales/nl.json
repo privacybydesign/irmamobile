@@ -5,32 +5,31 @@
         "step": "Stap",
         "done": "Gereed",
         "next": "Volgende",
+        "previous": "Vorige",
         "cancel": "Annuleren",
         "confirm": "Bevestigen",
-        "delete": "Verwijderen"
+        "delete": "Verwijderen",
+        "skip": "Overslaan",
+        "continue": "Doorgaan",
+        "retry": "Opnieuw proberen",
+        "error": "Er is iets misgegaan"
     },
     "enrollment": {
         "introduction": {
-            "button_text": "Kies je pincode",
-            "screen1": {
+            "step_1": {
                 "title": "Yivi is jouw identiteit op jouw mobiel",
-                "text": "Je officiële naam, geboortedatum, adres, BSN en meer. Alles bij elkaar in jouw Yivi-app."
+                "explanation": "Jouw officiële naam, geboortedatum, adres, BSN en meer. Allemaal veilig opgeslagen in jouw Yivi-app."
             },
-            "screen2": {
+            "step_2": {
                 "title": "Met Yivi maak je jezelf bekend",
-                "text": "Eenvoudig en snel. Je hebt dit zelf in de hand."
+                "explanation": "Makkelijk, veilig en snel. Allemaal binnen handbereik! "
             },
-            "screen3": {
-                "title": "Yivi geeft jou en anderen zekerheid",
-                "text": "Je gegevens staan alleen in jouw Yivi-app. Alleen jij kan erbij.",
-                "privacy": {
-                    "text": "Lees de privacyregels",
-                    "url": "https://privacybydesign.foundation/privacy-policy/"
-                }
+            "step_3": {
+                "title": "Yivi biedt zekerheid, voor jou en anderen",
+                "explanation": "Je gegevens worden alleen in de Yivi-app opgeslagen. Alleen jij hebt toegang hiertoe!"
             }
         },
         "choose_pin": {
-            "title": "Beveiliging instellen",
             "insert_pin": "Kies een pincode van 5 cijfers",
             "textfield": "Pincode",
             "confirm_title": "Herhaal je pincode",
@@ -41,24 +40,32 @@
             "error": "De pincodes zijn niet gelijk. Kies opnieuw een pincode.",
             "error_action": "OK"
         },
-        "provide_email": {
-            "title": "Beveiliging instellen",
-            "instruction": "Met een e-mailadres kun je je Yivi-app blokkeren bij verlies of diefstal van je mobiel.",
-            "textfield": "E-mailadres",
-            "skip": "Overslaan",
-            "next": "Volgende",
-            "error": "Dit is geen geldig e-mailadres",
-            "skip_title": "Weet je het zeker?",
-            "skip_content": "Bescherm jezelf. Als je een e-mailadres invult, kun je jouw Yivi-app blokkeren na het verlies van je mobiel.",
-            "insert_email": "Voer e-mailadres in"
+        "email": {
+            "provide": {
+                "title": "E-mailadres toevoegen",
+                "header": "Koppel je e-mailadres aan je Yivi-app",
+                "explanation": "Met een e-mailadres kun je je Yivi-app blokkeren bij verlies of diefstal van je mobiel.",
+                "input": {
+                    "label": "E-mailadres",
+                    "invalid": "Dit is geen geldig e-mailadres"
+                },
+                "confirm_skip_dialog": {
+                    "title": "Weet je het zeker?",
+                    "explanation": "Bescherm jezelf. Als je een e-mailadres invult, kun je jouw Yivi-app blokkeren na het verlies van je mobiel.",
+                    "decline": "Voer e-mailadres in"
+                }
+            },
+            "confirm": {
+                "title": "E-mailadres bevestigen",
+                "header": "De e-mail is gestuurd naar:",
+                "explanation": "Het kan even duren voordat de e-mail verschijnt. Controleer de spamfolder als je geen e-mail hebt ontvangen.",
+                "explanation_extra_markdown": "Je hebt een e-mail ontvangen van **noreply@sidn.nl**. Open de link in dit bericht om je e-mailadres aan je Yivi-app te koppelen."
+            }
         },
-        "email_sent": {
-            "title": "Beveiliging instellen",
-            "button": "Doorgaan",
-            "message_title": "Bevestig je e-mailadres",
-            "message_markdown": "Je hebt een e-mail ontvangen van **noreply@sidn.nl**. Open de link in dit bericht om je e-mailadres aan je Yivi-app te koppelen.",
-            "mail_sent_text_markdown": "De e-mail is gestuurd naar: **{emailaddress}**.",
-            "check_spam": "Het kan even duren voordat de e-mail verschijnt. Controleer de spamfolder als je geen e-mail hebt ontvangen."
+        "terms_and_conditions": {
+            "title": "Start met Yivi",
+            "explanation": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do ab tempor incididunt ut labore et dolore magna aliqua.",
+            "accept_markdown": "Ja, ik ga akkoord met de [algemene voorwaarden](https://privacybydesign.foundation/privacy-policy/)"
         },
         "submit": {
             "title": "Aanmelden",
@@ -147,8 +154,14 @@
         }
     },
     "change_pin": {
+        "dialog": {
+            "title": "Weet je zeker?",
+            "body": "Weet je zeker dat je je huidige pincode wil aanpassen?",
+            "ok": "Aanpassen",
+            "cancel": "Annuleer"
+        },
+        "toast": "Gelukt! De nieuwe pincode is opgeslagen",
         "enter_pin": {
-            "title": "Pincode veranderen",
             "instruction": "Vul eerst je huidige pincode in",
             "error_title": "Verkeerde pincode",
             "error": "Vul je huidige pincode in",
@@ -159,7 +172,6 @@
             "details": "Je pincode wordt gecontroleerd"
         },
         "choose_pin": {
-            "title": "Pincode veranderen",
             "instruction": "Kies je nieuwe pincode",
             "switch_long": "Liever een langere pincode?",
             "switch_short": "Liever een kortere pincode?",
@@ -168,7 +180,6 @@
             "error_action": "OK"
         },
         "confirm_pin": {
-            "title": "Pincode veranderen",
             "instruction": "Vul je nieuwe pincode nog een keer in."
         },
         "updating_pin": {
@@ -234,7 +245,6 @@
         "hide": "Pincode verbergen"
     },
     "pin": {
-        "title": "Inloggen",
         "subtitle": "Voer je pincode in",
         "button_forgot": "Pincode vergeten",
         "button_block": "Yivi blokkeren"
@@ -551,5 +561,16 @@
         },
         "about_to_expire": "Gaat verlopen",
         "expired": "Verlopen"
+    },
+    "secure_pin": {
+        "info_button": "Pincode mogelijk niet veilig",
+        "title": "Pincode aanmaken",
+        "subtitle": "Een veilige pincode voldoet aan:",
+        "rules": {
+            "contains_3_unique": "Bevat minimaal 3 unieke cijfers",
+            "must_not_asc_or_desc": "Bevat geen op- en aflopende reeksen, zoals 12345",
+            "not_abcab_nor_abcba": "Bevat geen toetsenbordpatronen, zoals: abcab, abcba. Voorbeelden: 12312, 12321, 13331",
+            "must_contain_valid_subset": "Moet een reeks van 5 bevatten, die aan de bovenstaande regels voldoen"
+        }
     }
 }

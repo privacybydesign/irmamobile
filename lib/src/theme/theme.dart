@@ -17,7 +17,7 @@ class IrmaThemeData {
   final Color secondary = const Color(0xFF363E6A); // Used for buttons and headlines
 
   // Background / contrast colors
-  final Color background = const Color(0xFFF7F7F7); //Used on scaffolds and scrollable backgrounds
+  final Color background = const Color(0xFFFAFAFA); //Used on scaffolds and scrollable backgrounds
   Color get surfacePrimary => light; // Used on cards etc, to contrast with the background
   final Color surfaceSecondary = const Color(0xFFE9F4FF); // Used on cards that are active etc.
   final Color dark = Colors.black; // Used as default, non headline, text color
@@ -26,6 +26,7 @@ class IrmaThemeData {
   final Color neutralLight = const Color(0xFF999999);
   final Color neutralExtraLight = const Color(0xFFE8E8E8);
   final Color light = Colors.white; // Mainly used to represent white
+  final Color darkPurple = const Color(0xFF362C78);
 
   // Communicating colors
   final Color error = const Color(0xFFBD1919);
@@ -109,7 +110,7 @@ class IrmaThemeData {
       // bodyText1 is used for emphasizing text
       bodyText1: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: dark),
       // bodyText2 is the default text style
-      bodyText2: TextStyle(fontSize: 16.0, fontWeight: FontWeight.normal, color: dark),
+      bodyText2: TextStyle(fontSize: 16.0, height: 24.0 / 16.0, fontWeight: FontWeight.w400, color: dark),
       // overline is used for the smallest text
       overline: TextStyle(
         fontSize: 12.0,
@@ -156,7 +157,7 @@ class IrmaThemeData {
       ),
       focusedBorder: UnderlineInputBorder(
         borderSide: BorderSide(
-          color: primary,
+          color: secondary,
           width: 2.0,
         ),
       ),

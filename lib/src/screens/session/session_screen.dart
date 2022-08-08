@@ -204,7 +204,8 @@ class _SessionScreenState extends State<SessionScreen> {
       return _buildFinishedReturnPhoneNumber(session);
     }
 
-    final popToMainScreen = widget.arguments.wizardActive ? popToWizard : popToHome;
+    ///final popToMainScreen = widget.arguments.wizardActive ? popToWizard : Navigator.of(context).pop;
+
     final issuedWizardCred = widget.arguments.wizardActive &&
         widget.arguments.wizardCred != null &&
         (session.issuedCredentials?.map((c) => c.info.fullId).contains(widget.arguments.wizardCred) ?? false);
@@ -217,7 +218,9 @@ class _SessionScreenState extends State<SessionScreen> {
         // hasUnderlyingSession during issuance is handled at the beginning of _buildFinished, so
         // we don't have to explicitly exclude issuance here.
         if (session.clientReturnURL!.isInApp) {
-          widget.arguments.hasUnderlyingSession ? Navigator.of(context).pop() : popToMainScreen(context);
+          widget.arguments.hasUnderlyingSession && !widget.arguments.wizardActive
+              ? Navigator.of(context).pop()
+              : popToWizard(context);
           if (session.inAppCredential != '') {
             _repo.expectInactivationForCredentialType(session.inAppCredential);
           }
@@ -225,11 +228,15 @@ class _SessionScreenState extends State<SessionScreen> {
         } else {
           final hasOpened = await _openClientReturnUrl(session.clientReturnURL!);
           if (!hasOpened || !mounted) return;
-          widget.arguments.hasUnderlyingSession ? Navigator.of(context).pop() : popToMainScreen(context);
+          widget.arguments.hasUnderlyingSession && !widget.arguments.wizardActive
+              ? Navigator.of(context).pop()
+              : popToWizard(context);
         }
       });
     } else if (widget.arguments.wizardActive || _isSpecialIssuanceSession(session)) {
-      WidgetsBinding.instance?.addPostFrameCallback((_) => popToMainScreen(context));
+      WidgetsBinding.instance?.addPostFrameCallback(
+        (_) => widget.arguments.wizardActive ? popToWizard : Navigator.of(context).pop(),
+      );
     } else if (widget.arguments.hasUnderlyingSession) {
       // In case of a disclosure having an underlying session we only continue to underlying session
       // if it is a mobile session and there was no clientReturnUrl.

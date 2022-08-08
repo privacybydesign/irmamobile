@@ -37,7 +37,7 @@ class IrmaButton extends StatelessWidget {
       minWidth: minWidth,
       icon: icon,
       color: color ?? theme.themeData.colorScheme.secondary,
-      disabledColor: Colors.grey,
+      disabledColor: color ?? theme.themeData.colorScheme.secondary.withOpacity(0.5),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(4.0),
       ),

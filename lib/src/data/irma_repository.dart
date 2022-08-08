@@ -319,11 +319,9 @@ class IrmaRepository {
           // Change pin length
           preferences.setLongPin(newPin.length != 5);
           return true;
-          break;
         case ChangePinFailedEvent:
         case ChangePinErrorEvent:
           return true;
-          break;
         default:
           return false;
       }

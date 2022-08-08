@@ -9,7 +9,7 @@ import 'src/models/native_events.dart';
 import 'src/screens/add_data/add_data_screen.dart';
 import 'src/screens/change_pin/change_pin_screen.dart';
 import 'src/screens/debug/debug_screen.dart';
-import 'src/screens/enrollment/email_sent_screen.dart';
+import 'src/screens/enrollment/provide_email/email_sent_screen.dart';
 import 'src/screens/enrollment/enrollment_screen.dart';
 import 'src/screens/help/help_screen.dart';
 import 'src/screens/home/home_screen.dart';
