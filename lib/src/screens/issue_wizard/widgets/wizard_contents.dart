@@ -81,7 +81,7 @@ class IssueWizardContents extends StatelessWidget {
       scrollviewKey: scrollviewKey,
       controller: controller,
       header: wizard.wizardData.title.translate(lang),
-      logo: logo,
+      image: logo,
       backgroundColor: IssueWizardScreen.defaultBackgroundColor,
       textColor: IssueWizardScreen.defaultTextColor,
       onBack: onBack,

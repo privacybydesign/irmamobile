@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:irmamobile/src/widgets/issuer_verifier_header.dart';
 
 import '../../../widgets/irma_app_bar.dart';
-import '../../../widgets/logo_banner.dart';
 
 class WizardScaffold extends StatelessWidget {
-  final Image logo;
+  final Image image;
   final String header;
   final Color backgroundColor;
   final Color textColor;
@@ -15,7 +15,7 @@ class WizardScaffold extends StatelessWidget {
   final ScrollController controller;
 
   const WizardScaffold({
-    required this.logo,
+    required this.image,
     required this.header,
     required this.backgroundColor,
     required this.textColor,
@@ -39,11 +39,9 @@ class WizardScaffold extends StatelessWidget {
         key: scrollviewKey,
         child: Column(
           children: [
-            LogoBanner(
-              text: header,
-              logo: logo,
-              backgroundColor: backgroundColor,
-              textColor: textColor,
+            IssuerVerifierHeader(
+              title: header,
+              image: image,
             ),
             body,
           ],
