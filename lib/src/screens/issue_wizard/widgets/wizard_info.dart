@@ -55,7 +55,7 @@ class IssueWizardInfo extends StatelessWidget {
         .toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
+      children: [
         Padding(
           padding: EdgeInsets.fromLTRB(
             IrmaTheme.of(context).defaultSpacing,
