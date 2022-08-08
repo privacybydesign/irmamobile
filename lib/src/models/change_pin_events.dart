@@ -39,10 +39,7 @@ class ChangePinErrorEvent extends ChangePinBaseEvent {
 
 @JsonSerializable()
 class ChangePinSuccessEvent extends ChangePinBaseEvent {
-  ChangePinSuccessEvent({required this.schemeManagerID});
-
-  @JsonKey(name: 'SchemeManagerID')
-  final String schemeManagerID;
+  ChangePinSuccessEvent();
 
   factory ChangePinSuccessEvent.fromJson(Map<String, dynamic> json) => _$ChangePinSuccessEventFromJson(json);
   Map<String, dynamic> toJson() => _$ChangePinSuccessEventToJson(this);

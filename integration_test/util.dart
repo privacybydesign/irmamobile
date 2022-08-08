@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 extension WidgetTesterUtil on WidgetTester {
   /// Renders the given widget and waits until it settles.
   Future<void> pumpWidgetAndSettle(Widget w) async {
-    await pumpWidget(w);
+    await pumpWidget(w, const Duration(seconds: 2));
     await waitFor(find.byWidget(w));
   }
 

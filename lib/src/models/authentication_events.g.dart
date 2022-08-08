@@ -9,11 +9,13 @@ part of 'authentication_events.dart';
 AuthenticateEvent _$AuthenticateEventFromJson(Map<String, dynamic> json) {
   return AuthenticateEvent(
     pin: json['Pin'] as String,
+    schemeId: json['SchemeID'] as String,
   );
 }
 
 Map<String, dynamic> _$AuthenticateEventToJson(AuthenticateEvent instance) => <String, dynamic>{
       'Pin': instance.pin,
+      'SchemeID': instance.schemeId,
     };
 
 AuthenticationSuccessEvent _$AuthenticationSuccessEventFromJson(Map<String, dynamic> json) {

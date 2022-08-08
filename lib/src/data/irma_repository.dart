@@ -62,10 +62,13 @@ class _ExternalBrowserCredtype {
 
 class IrmaRepository {
   static IrmaRepository? _instance;
-  factory IrmaRepository({required IrmaBridge client, required IrmaPreferences preferences}) {
-    _instance = IrmaRepository._internal(client, preferences);
+  factory IrmaRepository({
+    required IrmaBridge client,
+    required IrmaPreferences preferences,
+    String defaultKeyshareScheme = 'pbdf',
+  }) {
+    _instance = IrmaRepository._internal(client, preferences, defaultKeyshareScheme);
     _instance!.dispatch(AppReadyEvent(), isBridgedEvent: true);
-
     return _instance!;
   }
 
@@ -78,6 +81,7 @@ class IrmaRepository {
   }
 
   final IrmaPreferences preferences;
+  final String defaultKeyshareScheme;
 
   final IrmaBridge _bridge;
   final _eventSubject = PublishSubject<Event>();
@@ -110,6 +114,7 @@ class IrmaRepository {
   IrmaRepository._internal(
     this._bridge,
     this.preferences,
+    this.defaultKeyshareScheme,
   ) {
     _inAppCredentialSubject.add(_InAppCredentialState());
     _eventSubject.listen(_eventListener);
@@ -179,9 +184,18 @@ class IrmaRepository {
     } else if (event is ChangePinBaseEvent) {
       _changePinEventSubject.add(event);
     } else if (event is EnrollmentStatusEvent) {
-      _enrollmentStatusSubject.add(event.enrollmentStatus);
-      if (event.enrollmentStatus == EnrollmentStatus.unenrolled) {
+      if (event.enrolledSchemeManagerIds.contains(defaultKeyshareScheme)) {
+        _enrollmentStatusSubject.add(EnrollmentStatus.enrolled);
+      } else if (event.unenrolledSchemeManagerIds.contains(defaultKeyshareScheme)) {
+        _enrollmentStatusSubject.add(EnrollmentStatus.unenrolled);
         _lockedSubject.add(false);
+      } else {
+        _enrollmentStatusSubject.add(EnrollmentStatus.undetermined);
+        dispatch(ErrorEvent(
+          exception: 'Expected default keyshare scheme $defaultKeyshareScheme could not be found in configuration',
+          stack: '',
+          fatal: true,
+        ));
       }
     } else if (event is EnrollmentEvent) {
       _enrollmentEventSubject.add(event);
@@ -259,17 +273,23 @@ class IrmaRepository {
     _lockedSubject.add(false);
     _blockedSubject.add(null);
 
-    dispatch(EnrollEvent(email: email, pin: pin, language: language), isBridgedEvent: true);
+    dispatch(
+      EnrollEvent(
+        email: email,
+        pin: pin,
+        language: language,
+        schemeId: defaultKeyshareScheme,
+      ),
+      isBridgedEvent: true,
+    );
 
     return _enrollmentEventSubject.where((event) {
       switch (event.runtimeType) {
         case EnrollmentSuccessEvent:
           preferences.setLongPin(pin.length != 5);
           return true;
-          break;
         case EnrollmentFailureEvent:
           return true;
-          break;
         default:
           return false;
       }
@@ -292,18 +312,16 @@ class IrmaRepository {
   }
 
   Future<AuthenticationEvent> unlock(String pin) {
-    dispatch(AuthenticateEvent(pin: pin), isBridgedEvent: true);
+    dispatch(AuthenticateEvent(pin: pin, schemeId: defaultKeyshareScheme), isBridgedEvent: true);
 
     return _authenticationEventSubject.where((event) {
       switch (event.runtimeType) {
         case AuthenticationSuccessEvent:
           preferences.setLongPin(pin.length != 5);
           return true;
-          break;
         case AuthenticationFailedEvent:
         case AuthenticationErrorEvent:
           return true;
-          break;
         default:
           return false;
       }

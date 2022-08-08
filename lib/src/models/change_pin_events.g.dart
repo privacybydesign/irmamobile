@@ -31,14 +31,10 @@ Map<String, dynamic> _$ChangePinErrorEventToJson(ChangePinErrorEvent instance) =
     };
 
 ChangePinSuccessEvent _$ChangePinSuccessEventFromJson(Map<String, dynamic> json) {
-  return ChangePinSuccessEvent(
-    schemeManagerID: json['SchemeManagerID'] as String,
-  );
+  return ChangePinSuccessEvent();
 }
 
-Map<String, dynamic> _$ChangePinSuccessEventToJson(ChangePinSuccessEvent instance) => <String, dynamic>{
-      'SchemeManagerID': instance.schemeManagerID,
-    };
+Map<String, dynamic> _$ChangePinSuccessEventToJson(ChangePinSuccessEvent instance) => <String, dynamic>{};
 
 ChangePinFailedEvent _$ChangePinFailedEventFromJson(Map<String, dynamic> json) {
   return ChangePinFailedEvent(

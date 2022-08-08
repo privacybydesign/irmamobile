@@ -11,7 +11,10 @@ class AuthenticateEvent extends AuthenticationEvent {
   @JsonKey(name: "Pin")
   final String pin;
 
-  AuthenticateEvent({required this.pin});
+  @JsonKey(name: "SchemeID")
+  final String schemeId;
+
+  AuthenticateEvent({required this.pin, required this.schemeId});
   factory AuthenticateEvent.fromJson(Map<String, dynamic> json) => _$AuthenticateEventFromJson(json);
   Map<String, dynamic> toJson() => _$AuthenticateEventToJson(this);
 }

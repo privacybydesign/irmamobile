@@ -33,6 +33,7 @@ void main() {
     return repo;
   }
 
+  // TODO: repair tests when test in aboutirma_test.dart is fixed and enable them again in test_all.dart.
   group('irma-settings', () {
     // Initialize the app's repository for integration tests (enable developer mode, etc.)
     setUp(() async => irmaBinding.setUp());
@@ -78,11 +79,11 @@ void main() {
       expect(await repo.preferences.getStartQRScan().first, true);
       // Only on Android, check setting to enable screenshots. On iOS, the option should not be there.
       if (Platform.isAndroid) {
-        expect(tester.getSwitchListTileValue(find.text(textEnableScreenshots)), false);
-        expect(await repo.preferences.getScreenshotsEnabled().first, false);
-        await tester.tapAndSettle(find.text(textEnableScreenshots));
         expect(tester.getSwitchListTileValue(find.text(textEnableScreenshots)), true);
         expect(await repo.preferences.getScreenshotsEnabled().first, true);
+        await tester.tapAndSettle(find.text(textEnableScreenshots));
+        expect(tester.getSwitchListTileValue(find.text(textEnableScreenshots)), false);
+        expect(await repo.preferences.getScreenshotsEnabled().first, false);
       } else {
         expect(find.text(textEnableScreenshots), findsNothing);
       }
