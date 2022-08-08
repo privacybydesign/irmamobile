@@ -18,11 +18,15 @@ class WizardCardItem {
   });
 }
 
-class WizardCardList extends StatelessWidget {
+class WizardCardStepper extends StatelessWidget {
   final List<WizardCardItem> data;
   final bool completed;
 
-  const WizardCardList({Key? key, required this.data, this.completed = false}) : super(key: key);
+  const WizardCardStepper({
+    Key? key,
+    required this.data,
+    this.completed = false,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -35,10 +39,7 @@ class WizardCardList extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(item.header,
-                    style: theme.textTheme.bodyText2!.copyWith(
-                      fontWeight: FontWeight.w600,
-                    )),
+                Text(item.header, style: theme.textTheme.bodyText1),
                 if (item.subheader != null) Text(item.subheader!, style: theme.textTheme.bodyText2),
                 Text(item.text, style: theme.textTheme.bodyText2),
               ],

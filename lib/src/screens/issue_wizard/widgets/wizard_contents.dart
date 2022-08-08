@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/screens/issue_wizard/issue_wizard.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../../models/issue_wizard.dart';
-import '../../../screens/issue_wizard/widgets/wizard_info.dart';
+import '../../../screens/issue_wizard/issue_wizard.dart';
 import '../../../theme/theme.dart';
-import '../../../util/color_from_code.dart';
 import '../../../widgets/irma_bottom_bar.dart';
 import '../../../widgets/irma_markdown.dart';
 import '../../../widgets/irma_progress_indicator.dart';
-import 'wizard_card_list.dart';
+import 'wizard_card_stepper.dart';
 import 'wizard_scaffold.dart';
 
 class IssueWizardContents extends StatelessWidget {
@@ -32,8 +30,7 @@ class IssueWizardContents extends StatelessWidget {
     required this.onVisibilityChanged,
   });
 
-  Widget _buildWizard(BuildContext context, IssueWizardEvent wizard) {
-    final lang = FlutterI18n.currentLocale(context)?.languageCode ?? customWizardDefaultLanguage;
+  Widget _buildWizard(BuildContext context, String lang, IssueWizardEvent wizard) {
     final contents = wizard.wizardContents
         .map((item) => WizardCardItem(
               header: item.header.translate(lang),
@@ -45,9 +42,9 @@ class IssueWizardContents extends StatelessWidget {
     final intro = wizard.wizardData.intro;
     final theme = IrmaTheme.of(context);
     return VisibilityDetector(
-      key: const Key('wizard-key'),
+      key: const Key('wizard_key'),
       onVisibilityChanged: (v) => onVisibilityChanged(v, wizard),
-      child: Container(
+      child: Padding(
         padding: EdgeInsets.only(left: theme.defaultSpacing, right: theme.defaultSpacing),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,7 +54,7 @@ class IssueWizardContents extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
                 child: IrmaMarkdown(intro.translate(lang)),
               ),
-            WizardCardList(data: contents, completed: wizard.completed),
+            WizardCardStepper(data: contents, completed: wizard.completed),
           ],
         ),
       ),
@@ -67,7 +64,7 @@ class IssueWizardContents extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final lang = FlutterI18n.currentLocale(context)?.languageCode ?? customWizardDefaultLanguage;
+    final lang = FlutterI18n.currentLocale(context)!.languageCode;
     final activeItem = wizard.activeItem;
     final buttonLabel = wizard.completed
         ? FlutterI18n.translate(context, "issue_wizard.done")
@@ -98,8 +95,8 @@ class IssueWizardContents extends StatelessWidget {
       controller: controller,
       header: wizard.wizardData.title.translate(lang),
       logo: logo,
-      backgroundColor: colorFromCode(wizard.wizardData.color) ?? IssueWizardScreen.defaultBackgroundColor,
-      textColor: colorFromCode(wizard.wizardData.textColor) ?? IssueWizardScreen.defaultTextColor,
+      backgroundColor: IssueWizardScreen.defaultBackgroundColor,
+      textColor: IssueWizardScreen.defaultTextColor,
       onBack: onBack,
       bottomBar: IrmaBottomBar(
         primaryButtonLabel: buttonLabel,
@@ -110,7 +107,7 @@ class IssueWizardContents extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           if (wizardContentSize > 1) ...indicator,
-          _buildWizard(context, wizard),
+          _buildWizard(context, lang, wizard),
         ],
       ),
     );

@@ -121,8 +121,8 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
     final item = wizard.activeItem;
     if (item?.credential == null) {
       // If it is not known in advance which credential a wizard item will issue (if it issues anything at all),
-      // then the only reasonable condition that we can use to consider the item to be completed is whenenver the
-      // session that it starts has finished succesfully. So when the session starts, we save the session ID,
+      // then the only reasonable condition that we can use to consider the item to be completed is whenever the
+      // session that it starts has finished successfully. So when the session starts, we save the session ID,
       // so that when the user returns to this screen, we can check if it completed.
       _repo
           .getEvents()

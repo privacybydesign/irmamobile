@@ -3,14 +3,11 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../models/issue_wizard.dart';
 import '../../../theme/theme.dart';
-import '../../../util/color_from_code.dart';
 import '../../../widgets/collapsible.dart';
 import '../../../widgets/irma_bottom_bar.dart';
 import '../../../widgets/irma_markdown.dart';
 import '../issue_wizard.dart';
 import 'wizard_scaffold.dart';
-
-const customWizardDefaultLanguage = 'en'; // TODO or NL?
 
 class IssueWizardInfo extends StatelessWidget {
   final GlobalKey scrollviewKey;
@@ -43,7 +40,7 @@ class IssueWizardInfo extends StatelessWidget {
 
   Widget _buildIntro(BuildContext context, IssueWizard wizardData) {
     final _collapsableKeys = List<GlobalKey>.generate(wizardData.faq.length, (int index) => GlobalKey());
-    final lang = FlutterI18n.currentLocale(context)?.languageCode ?? customWizardDefaultLanguage;
+    final lang = FlutterI18n.currentLocale(context)!.languageCode;
     final items = wizardData.faq
         .asMap()
         .entries
@@ -84,16 +81,15 @@ class IssueWizardInfo extends StatelessWidget {
     return WizardScaffold(
       scrollviewKey: scrollviewKey,
       controller: controller,
-      header:
-          wizardData.title.translate(FlutterI18n.currentLocale(context)?.languageCode ?? customWizardDefaultLanguage),
+      header: wizardData.title.translate(FlutterI18n.currentLocale(context)!.languageCode),
       logo: logo,
-      backgroundColor: colorFromCode(wizardData.color) ?? IssueWizardScreen.defaultBackgroundColor,
-      textColor: colorFromCode(wizardData.textColor) ?? IssueWizardScreen.defaultTextColor,
+      backgroundColor: IssueWizardScreen.defaultBackgroundColor,
+      textColor: IssueWizardScreen.defaultTextColor,
       onBack: onBack,
       bottomBar: IrmaBottomBar(
-        primaryButtonLabel: FlutterI18n.translate(context, "issue_wizard.add"),
+        primaryButtonLabel: FlutterI18n.translate(context, 'issue_wizard.add'),
         onPrimaryPressed: onNext,
-        secondaryButtonLabel: FlutterI18n.translate(context, "issue_wizard.back"),
+        secondaryButtonLabel: FlutterI18n.translate(context, 'issue_wizard.back'),
         onSecondaryPressed: onBack,
         alignment: IrmaBottomBarAlignment.horizontal,
       ),
