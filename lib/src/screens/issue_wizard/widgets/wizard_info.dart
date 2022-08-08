@@ -38,9 +38,8 @@ class IssueWizardInfo extends StatelessWidget {
     );
   }
 
-  Widget _buildIntro(BuildContext context, IssueWizard wizardData) {
+  Widget _buildIntro(BuildContext context, String lang, IssueWizard wizardData) {
     final _collapsableKeys = List<GlobalKey>.generate(wizardData.faq.length, (int index) => GlobalKey());
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
     final items = wizardData.faq
         .asMap()
         .entries
@@ -78,10 +77,11 @@ class IssueWizardInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final lang = FlutterI18n.currentLocale(context)!.languageCode;
     return WizardScaffold(
       scrollviewKey: scrollviewKey,
       controller: controller,
-      header: wizardData.title.translate(FlutterI18n.currentLocale(context)!.languageCode),
+      header: wizardData.title.translate(lang),
       logo: logo,
       backgroundColor: IssueWizardScreen.defaultBackgroundColor,
       textColor: IssueWizardScreen.defaultTextColor,
@@ -93,7 +93,7 @@ class IssueWizardInfo extends StatelessWidget {
         onSecondaryPressed: onBack,
         alignment: IrmaBottomBarAlignment.horizontal,
       ),
-      body: _buildIntro(context, wizardData),
+      body: _buildIntro(context, lang, wizardData),
     );
   }
 }
