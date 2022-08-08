@@ -48,7 +48,7 @@ class IssueWizardContents extends StatelessWidget {
         padding: EdgeInsets.only(left: theme.defaultSpacing, right: theme.defaultSpacing),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
+          children: [
             if (intro.isNotEmpty)
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
@@ -72,24 +72,19 @@ class IssueWizardContents extends StatelessWidget {
             fallback: FlutterI18n.translate(
               context,
               'issue_wizard.add_credential',
-              translationParams: {'credential': activeItem.header.translate(lang)},
+              translationParams: {
+                'credential': activeItem.header.translate(lang),
+              },
             ));
     final wizardContentSize = wizard.wizardContents.length;
-    final indicator = <Widget>[
-      const SizedBox(
-        height: 4,
+    final indicator = Padding(
+      padding: EdgeInsets.only(top: 4, bottom: 32, left: theme.defaultSpacing, right: theme.defaultSpacing),
+      child: IrmaProgressIndicator(
+        step: wizard.completed ? wizard.wizardContents.length : wizard.activeItemIndex,
+        stepCount: wizardContentSize,
       ),
-      Padding(
-        padding: EdgeInsets.only(left: theme.defaultSpacing, right: theme.defaultSpacing),
-        child: IrmaProgressIndicator(
-          step: wizard.completed ? wizard.wizardContents.length : wizard.activeItemIndex,
-          stepCount: wizardContentSize,
-        ),
-      ),
-      const SizedBox(
-        height: 32,
-      )
-    ];
+    );
+
     return WizardScaffold(
       scrollviewKey: scrollviewKey,
       controller: controller,
@@ -106,7 +101,7 @@ class IssueWizardContents extends StatelessWidget {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          if (wizardContentSize > 1) ...indicator,
+          if (wizardContentSize > 1) indicator,
           _buildWizard(context, lang, wizard),
         ],
       ),
