@@ -20,7 +20,7 @@ class DisclosureTemplateStepper extends StatelessWidget {
     final int currentItemIndex = templates.indexWhere((cred) => cred == currentItem);
 
     return IrmaStepper(
-      currentIndex: 0,
+      currentIndex: currentItemIndex == -1 ? null : currentItemIndex,
       children: templates
           .map(
             (cred) => DisclosureIssueWizardCredentialCards(
