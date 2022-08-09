@@ -73,22 +73,24 @@ class PrototypesScreen extends StatelessWidget {
           _buildTile(
             context,
             'Onboarding pin, pin size = 5',
-            _toggleSetPinSize(context: context, isShort: true, instructionKey: 'enrollment.choose_pin.title'),
+            _toggleSetPinSize(
+                context: context, isShort: true, instructionKey: 'choose_pin.instruction.short'),
           ),
           _buildTile(
             context,
             'Onboarding pin, pin size > 5',
-            _toggleSetPinSize(context: context, isShort: false, instructionKey: 'enrollment.choose_pin.title'),
+            _toggleSetPinSize(
+                context: context, isShort: false, instructionKey: 'choose_pin.instruction.long'),
           ),
           _buildTile(
             context,
             'Reset pin, pin size = 5',
-            _toggleSetPinSize(context: context, isShort: true, instructionKey: 'change_pin.enter_pin.title'),
+            _toggleSetPinSize(context: context, isShort: true, instructionKey: 'change_pin.enter_pin.instruction'),
           ),
           _buildTile(
             context,
             'Reset pin, pin size > 5',
-            _toggleSetPinSize(context: context, isShort: false, instructionKey: 'change_pin.enter_pin.title'),
+            _toggleSetPinSize(context: context, isShort: false, instructionKey: 'change_pin.enter_pin.instruction'),
           ),
           _buildTile(
             context,

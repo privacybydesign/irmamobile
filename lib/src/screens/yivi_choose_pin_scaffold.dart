@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../widgets/irma_app_bar.dart';
@@ -9,13 +8,11 @@ class YiviChoosePinScaffold extends StatelessWidget {
   final StringCallback submit;
   final VoidCallback onBack;
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  final String instructionKey;
   final ValueNotifier<String> newPinNotifier;
 
   YiviChoosePinScaffold({
     required this.submit,
     required this.onBack,
-    required this.instructionKey,
     required this.newPinNotifier,
   });
 
@@ -46,7 +43,7 @@ class YiviChoosePinScaffold extends StatelessWidget {
             builder: (context, longPin, _) {
               final maxPinSize = longPin ? longPinSize : shortPinSize;
               final pinBloc = EnterPinStateBloc(maxPinSize);
-
+              final instructionKey = 'choose_pin.instruction.${longPin ? 'long' : 'short'}';
               return YiviPinScreen(
                 scaffoldKey: _scaffoldKey,
                 instructionKey: instructionKey,

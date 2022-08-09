@@ -3,7 +3,6 @@ library pin;
 import 'dart:async';
 import 'dart:math';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -129,7 +128,7 @@ class YiviPinScreen extends StatelessWidget {
           ),
           onPressed: activate && enabled ? () => onSubmit(pinBloc.state.toString()) : null,
           child: Text(
-            FlutterI18n.translate(context, 'enrollment.choose_pin.next'),
+            FlutterI18n.translate(context, 'choose_pin.next'),
             style: theme.textTheme.button?.copyWith(fontWeight: FontWeight.w700),
           ),
         );
@@ -140,9 +139,9 @@ class YiviPinScreen extends StatelessWidget {
           visible ? Icons.visibility_off : Icons.visibility, () => pinVisibilityValue.value = !visible),
     );
 
-    final instruction = Center(
+    final instructionText = Center(
       child: Text(
-        instructionKey != null ? FlutterI18n.translate(context, instructionKey!) : this.instruction!,
+        instruction ?? FlutterI18n.translate(context, instructionKey!),
         textAlign: TextAlign.center,
         style: theme.textTheme.headline3?.copyWith(fontWeight: FontWeight.w700),
       ),
@@ -202,8 +201,7 @@ class YiviPinScreen extends StatelessWidget {
       ],
     );
 
-    final togglePinSizeCopy =
-        maxPinSize > shortPinSize ? 'change_pin.choose_pin.switch_short' : 'change_pin.choose_pin.switch_long';
+    final togglePinSizeCopy = 'choose_pin.switch_pin_size.${maxPinSize > shortPinSize ? 'short' : 'long'}';
 
     final nextButton = BlocBuilder<EnterPinStateBloc, EnterPinState>(
       bloc: pinBloc,
@@ -236,7 +234,7 @@ class YiviPinScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      instruction,
+                      instructionText,
                       pinDotsDecorated,
                       if (checkSecurePin && showSecurePinText)
                         _UnsecurePinWarningTextButton(scaffoldKey: scaffoldKey!, bloc: pinBloc),
@@ -271,7 +269,7 @@ class YiviPinScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                instruction,
+                instructionText,
                 pinDotsDecorated,
                 if (checkSecurePin && showSecurePinText)
                   _UnsecurePinWarningTextButton(scaffoldKey: scaffoldKey!, bloc: pinBloc),

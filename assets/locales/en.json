@@ -29,16 +29,8 @@
                 "explanation": "Your data are stored solely within the Yivi app. Only you have access."
             }
         },
-        "choose_pin": {
-            "insert_pin": "Choose a 5-digit PIN",
-            "textfield": "PIN",
-            "confirm_title": "Repeat your PIN",
-            "instruction": "Choose a 5-digit PIN",
-            "confirm_instruction": "Enter your PIN again",
-            "next": "Next",
-            "error_title": "PIN incorrect",
-            "error": "PINs do not match. Choose a new PIN.",
-            "error_action": "OK"
+        "confirm_pin": {
+            "instruction": "Enter your PIN again"
         },
         "email": {
             "provide": {
@@ -167,28 +159,8 @@
             "error": "Enter your current PIN",
             "error_action": "OK"
         },
-        "validating_pin": {
-            "header": "One moment",
-            "details": "Your PIN is being checked"
-        },
-        "choose_pin": {
-            "instruction": "Choose your new PIN",
-            "switch_long": "Prefer a longer PIN?",
-            "switch_short": "Prefer a shorter PIN?",
-            "error_title": "PIN incorrect",
-            "error": "Different PINs. Choose a new PIN.",
-            "error_action": "OK"
-        },
         "confirm_pin": {
-            "instruction": "Enter your PIN one more time."
-        },
-        "updating_pin": {
-            "header": "One moment please",
-            "details": "Your PIN is being changed"
-        },
-        "success": {
-            "title": "Success",
-            "message": "Your PIN has been changed."
+            "instruction": "Enter your new PIN again"
         }
     },
     "qr_scanner": {
@@ -571,6 +543,24 @@
             "must_not_asc_or_desc": "Must not contain ascending nor descending keyboard patterns, like: 12345",
             "not_abcab_nor_abcba": "Must not contain the following keyboard patterns: abcba, abcab, like: 12312, 12321, 13331",
             "must_contain_valid_subset": "Must contain 5 adjacent numbers, that comply with the rules mentioned above"
+        }
+    },
+    "choose_pin": {
+        "next": "Next",
+        "instruction": {
+            "long": "Choose a PIN",
+            "short": "Choose a 5-digit PIN"
+        },
+        "switch_pin_size": {
+            "long": "Prefer a longer PIN?",
+            "short": "Prefer a shorter PIN?"
+        }
+    },
+    "confirm_pin": {
+        "error": {
+            "title": "PIN incorrect",
+            "body": "PINs do not match. Choose a new PIN.",
+            "action": "OK"
         }
     }
 }

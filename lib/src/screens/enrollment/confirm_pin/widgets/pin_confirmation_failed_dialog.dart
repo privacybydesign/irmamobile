@@ -9,12 +9,12 @@ class PinConfirmationFailedDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IrmaDialog(
-      title: FlutterI18n.translate(context, 'enrollment.choose_pin.error_title'),
-      content: FlutterI18n.translate(context, 'enrollment.choose_pin.error'),
+      title: FlutterI18n.translate(context, 'confirm_pin.error.title'),
+      content: FlutterI18n.translate(context, 'confirm_pin.error.body'),
       child: IrmaButton(
         size: IrmaButtonSize.small,
         onPressed: Navigator.of(context).pop,
-        label: 'enrollment.choose_pin.error_action',
+        label: 'confirm_pin.error.action',
       ),
     );
   }
