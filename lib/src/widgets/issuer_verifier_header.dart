@@ -20,6 +20,7 @@ class IssuerVerifierHeader extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         CircleAvatar(
           backgroundColor: Colors.grey.shade300,

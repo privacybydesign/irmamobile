@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/issuer_verifier_header.dart';
 
 import '../../../widgets/irma_app_bar.dart';
@@ -28,6 +29,7 @@ class WizardScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
     return Scaffold(
       appBar: IrmaAppBar(
         titleTranslationKey: 'issue_wizard.add_cards',
@@ -39,9 +41,13 @@ class WizardScaffold extends StatelessWidget {
         key: scrollviewKey,
         child: Column(
           children: [
-            IssuerVerifierHeader(
-              title: header,
-              image: image,
+            Container(
+              color: theme.light,
+              padding: EdgeInsets.all(theme.defaultSpacing),
+              child: IssuerVerifierHeader(
+                title: header,
+                image: image,
+              ),
             ),
             body,
           ],

@@ -70,7 +70,7 @@ class IssueWizardContents extends StatelessWidget {
             ));
     final wizardContentSize = wizard.wizardContents.length;
     final indicator = Padding(
-      padding: EdgeInsets.only(top: 4, bottom: 32, left: theme.defaultSpacing, right: theme.defaultSpacing),
+      padding: EdgeInsets.only(top: 24, bottom: 32, left: theme.defaultSpacing, right: theme.defaultSpacing),
       child: IrmaProgressIndicator(
         step: wizard.completed ? wizard.wizardContents.length : wizard.activeItemIndex,
         stepCount: wizardContentSize,
