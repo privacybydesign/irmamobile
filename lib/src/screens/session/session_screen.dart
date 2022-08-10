@@ -294,11 +294,9 @@ class _SessionScreenState extends State<SessionScreen> {
       );
 
   Widget _buildLoadingScreen(bool isIssuance) => SessionScaffold(
-        body: Column(children: [
-          Center(
-            child: LoadingIndicator(),
-          ),
-        ]),
+        body: Center(
+          child: LoadingIndicator(),
+        ),
         onDismiss: () => _dismissSession(),
         appBarTitle: _getAppBarTitle(isIssuance),
       );
