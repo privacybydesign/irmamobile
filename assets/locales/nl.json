@@ -29,16 +29,8 @@
                 "explanation": "Je gegevens worden alleen in de Yivi-app opgeslagen. Alleen jij hebt toegang hiertoe!"
             }
         },
-        "choose_pin": {
-            "insert_pin": "Kies een pincode van 5 cijfers",
-            "textfield": "Pincode",
-            "confirm_title": "Herhaal je pincode",
-            "instruction": "Kies een pincode van 5 cijfers",
-            "confirm_instruction": "Vul je pincode nog een keer in",
-            "next": "Volgende",
-            "error_title": "Pincode verkeerd",
-            "error": "De pincodes zijn niet gelijk. Kies opnieuw een pincode.",
-            "error_action": "OK"
+        "confirm_pin": {
+            "instruction": "Vul je pincode nog een keer in"
         },
         "email": {
             "provide": {
@@ -167,28 +159,8 @@
             "error": "Vul je huidige pincode in",
             "error_action": "OK"
         },
-        "validating_pin": {
-            "header": "Even geduld",
-            "details": "Je pincode wordt gecontroleerd"
-        },
-        "choose_pin": {
-            "instruction": "Kies je nieuwe pincode",
-            "switch_long": "Liever een langere pincode?",
-            "switch_short": "Liever een kortere pincode?",
-            "error_title": "Verkeerde pincode",
-            "error": "De pincodes zijn niet gelijk. Kies opnieuw een pincode.",
-            "error_action": "OK"
-        },
         "confirm_pin": {
             "instruction": "Vul je nieuwe pincode nog een keer in."
-        },
-        "updating_pin": {
-            "header": "Even geduld graag",
-            "details": "Je pincode wordt veranderd"
-        },
-        "success": {
-            "title": "Gelukt",
-            "message": "Je pincode is veranderd."
         }
     },
     "qr_scanner": {
@@ -571,6 +543,24 @@
             "must_not_asc_or_desc": "Bevat geen op- en aflopende reeksen, zoals 12345",
             "not_abcab_nor_abcba": "Bevat geen toetsenbordpatronen, zoals: abcab, abcba. Voorbeelden: 12312, 12321, 13331",
             "must_contain_valid_subset": "Moet een reeks van 5 bevatten, die aan de bovenstaande regels voldoen"
+        }
+    },
+    "choose_pin": {
+        "next": "Volgende",
+        "instruction": {
+            "long": "Kies een pincode",
+            "short": "Kies een 5-cijferige pincode"
+        },
+        "switch_pin_size": {
+            "long": "Liever een langere pincode?",
+            "short": "Liever een kortere pincode?"
+        }
+    },
+    "confirm_pin": {
+        "error": {
+            "title": "Pincode verkeerd",
+            "body": "De pincodes zijn niet gelijk. Kies opnieuw een pincode.",
+            "action": "OK"
         }
     }
 }

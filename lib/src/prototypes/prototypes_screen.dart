@@ -38,8 +38,11 @@ class PrototypesScreen extends StatelessWidget {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                _toggleSetPinSize(context: context, isShort: !isShort, instructionKey: instructionKey),
+            builder: (context) => _toggleSetPinSize(
+              context: context,
+              isShort: !isShort,
+              instructionKey: instructionKey,
+            ),
           ),
         );
       },
@@ -73,22 +76,38 @@ class PrototypesScreen extends StatelessWidget {
           _buildTile(
             context,
             'Onboarding pin, pin size = 5',
-            _toggleSetPinSize(context: context, isShort: true, instructionKey: 'enrollment.choose_pin.title'),
+            _toggleSetPinSize(
+              context: context,
+              isShort: true,
+              instructionKey: 'enrollment.choose_pin.title',
+            ),
           ),
           _buildTile(
             context,
             'Onboarding pin, pin size > 5',
-            _toggleSetPinSize(context: context, isShort: false, instructionKey: 'enrollment.choose_pin.title'),
+            _toggleSetPinSize(
+              context: context,
+              isShort: false,
+              instructionKey: 'enrollment.choose_pin.title',
+            ),
           ),
           _buildTile(
             context,
             'Reset pin, pin size = 5',
-            _toggleSetPinSize(context: context, isShort: true, instructionKey: 'change_pin.enter_pin.title'),
+            _toggleSetPinSize(
+              context: context,
+              isShort: true,
+              instructionKey: 'change_pin.enter_pin.title',
+            ),
           ),
           _buildTile(
             context,
             'Reset pin, pin size > 5',
-            _toggleSetPinSize(context: context, isShort: false, instructionKey: 'change_pin.enter_pin.title'),
+            _toggleSetPinSize(
+              context: context,
+              isShort: false,
+              instructionKey: 'change_pin.enter_pin.title',
+            ),
           ),
           _buildTile(
             context,

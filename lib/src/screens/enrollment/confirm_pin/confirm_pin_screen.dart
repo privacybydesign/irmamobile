@@ -19,15 +19,12 @@ class ConfirmPinScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<String>(
-      valueListenable: newPinNotifier,
-      builder: (context, pinString, _) => YiviConfirmPinScaffold(
-        submit: submitConfirmationPin,
-        onBack: onPrevious,
-        instructionKey: 'enrollment.choose_pin.confirm_instruction',
-        newPinNotifier: newPinNotifier,
-        onPinMismatch: onPinMismatch,
-      ),
+    return YiviConfirmPinScaffold(
+      submit: submitConfirmationPin,
+      onBack: onPrevious,
+      instructionKey: 'enrollment.confirm_pin.instruction',
+      newPinNotifier: newPinNotifier,
+      onPinMismatch: onPinMismatch,
     );
   }
 }
