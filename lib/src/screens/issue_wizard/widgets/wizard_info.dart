@@ -56,10 +56,7 @@ class IssueWizardInfo extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.fromLTRB(
-            IrmaTheme.of(context).defaultSpacing,
-            0,
-            IrmaTheme.of(context).defaultSpacing,
+          padding: EdgeInsets.all(
             IrmaTheme.of(context).defaultSpacing,
           ),
           child: IrmaMarkdown(wizardData.info.translate(lang)),
