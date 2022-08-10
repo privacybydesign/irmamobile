@@ -254,6 +254,7 @@ class _SessionScreenState extends State<SessionScreen> {
         popToHome(context);
       });
     }
+
     return _buildLoadingScreen(session.isIssuanceSession);
   }
 
@@ -297,7 +298,10 @@ class _SessionScreenState extends State<SessionScreen> {
         body: Center(
           child: LoadingIndicator(),
         ),
-        onDismiss: () => _dismissSession(),
+        onDismiss: () {
+          _dismissSession();
+          popToHome(context);
+        },
         appBarTitle: _getAppBarTitle(isIssuance),
       );
 
@@ -347,13 +351,28 @@ class _SessionScreenState extends State<SessionScreen> {
           case SessionStatus.requestPin:
             return SessionPinScreen(
               sessionID: widget.arguments.sessionID,
-              title: FlutterI18n.translate(context, _getAppBarTitle(session.isIssuanceSession)),
+              title: FlutterI18n.translate(
+                context,
+                _getAppBarTitle(
+                  session.isIssuanceSession,
+                ),
+              ),
             );
           case SessionStatus.error:
             return _buildErrorScreen(session);
           case SessionStatus.success:
+          // fall through to same handler as canceled
           case SessionStatus.canceled:
-            return _buildFinished(session);
+            {
+              // delayed on purpose to avoid the lock when the widget
+              // tree is being built
+              Future.delayed(
+                const Duration(milliseconds: 100),
+                Navigator.of(context).pop,
+              );
+
+              return _buildFinished(session);
+            }
           default:
             return _buildLoadingScreen(session.isIssuanceSession);
         }
