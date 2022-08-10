@@ -11,12 +11,10 @@ import '../../widgets/translated_text.dart';
 import '../change_pin/models/change_pin_bloc.dart';
 import '../change_pin/models/change_pin_event.dart';
 import '../change_pin/models/change_pin_state.dart';
-import '../change_pin/widgets/choose_pin.dart';
-import '../change_pin/widgets/confirm_error_dialog.dart';
 import '../change_pin/widgets/confirm_pin.dart';
 import '../change_pin/widgets/enter_pin.dart';
-import '../change_pin/widgets/updating_pin.dart';
-import '../change_pin/widgets/validating_pin.dart';
+import '../enrollment/choose_pin/choose_pin_screen.dart';
+import '../enrollment/confirm_pin/widgets/pin_confirmation_failed_dialog.dart';
 import '../error/session_error_screen.dart';
 import '../home/home_screen.dart';
 import '../settings/settings_screen.dart';
@@ -63,10 +61,9 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
   Map<String, WidgetBuilder> _routeBuilders() {
     return {
       EnterPin.routeName: (_) => EnterPin(submitOldPin: _submitOldPin, cancel: _gotoSettings),
-      ValidatingPin.routeName: (_) => ValidatingPin(cancel: _gotoSettings),
-      ChoosePin.routeName: (_) => ChoosePin(
-            chooseNewPin: _chooseNewPin,
-            cancel: _gotoSettings,
+      ChoosePinScreen.routeName: (_) => ChoosePinScreen(
+            onChoosePin: _chooseNewPin,
+            onPrevious: _gotoSettings,
             newPinNotifier: newPin,
           ),
       ConfirmPin.routeName: (_) => ConfirmPin(
@@ -76,13 +73,12 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
             onPinMismatch: _handlePinMismatch,
             newPinNotifier: newPin,
           ),
-      UpdatingPin.routeName: (_) => UpdatingPin(cancel: _gotoSettings),
     };
   }
 
   void _returnToChoosePin() {
     navigatorKey.currentState?.popUntil(
-      (route) => route.settings.name == ChoosePin.routeName,
+      (route) => route.settings.name == ChoosePinScreen.routeName,
     );
   }
 
@@ -112,7 +108,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
   void _handlePinMismatch() {
     showDialog(
       context: context,
-      builder: (BuildContext context) => ConfirmErrorDialog(),
+      builder: (BuildContext context) => PinConfirmationFailedDialog(),
     );
   }
 
@@ -190,7 +186,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
             switch (state.validationState) {
               case ValidationState.valid:
                 // old pin verified, proceed to new pin screen
-                navigatorKey.currentState?.pushReplacementNamed(ChoosePin.routeName);
+                navigatorKey.currentState?.pushReplacementNamed(ChoosePinScreen.routeName);
                 break;
               case ValidationState.invalid:
                 assert(state.attemptsRemaining != null);

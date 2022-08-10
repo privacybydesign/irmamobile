@@ -21,7 +21,6 @@ class ChoosePinScreen extends StatelessWidget {
       newPinNotifier: newPinNotifier,
       submit: onChoosePin,
       onBack: onPrevious,
-      instructionKey: 'enrollment.choose_pin.insert_pin',
     );
   }
 }
