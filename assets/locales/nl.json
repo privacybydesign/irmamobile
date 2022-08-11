@@ -393,10 +393,10 @@
         "existing_data_removed": "Alle gegevens in je Yivi-app worden verwijderd."
     },
     "arrow_back": {
-        "info_no_success": "Afgebroken.",
-        "info_success-0": "Gelukt, je gegevens zijn gedeeld.",
-        "info_success-1": "Gelukt, de gegevens zijn toegevoegd.",
-        "info_success-2": "Gelukt, de gegevens zijn toegevoegd.",
+        "info_no_success": "Afgebroken",
+        "info_success-0": "Gelukt, je gegevens zijn gedeeld",
+        "info_success-1": "Gelukt, de gegevens zijn toegevoegd",
+        "info_success-2": "Gelukt, de gegevens zijn toegevoegd",
         "safari": "Tik bovenin op de naam van het programma (bijvoorbeeld Safari, Chrome, Firefox) om terug te gaan naar het programma waar je mee bezig was."
     },
     "update": {
