@@ -113,7 +113,8 @@ class PrototypesScreen extends StatelessWidget {
             context,
             'Arrow back',
             const ArrowBack(
-              amountIssued: 0,
+              success: true,
+              amountIssued: 1,
             ),
           ),
           _buildTile(
