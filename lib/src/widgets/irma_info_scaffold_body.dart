@@ -38,25 +38,30 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
           linkTranslationKey != null || linkDialogText == null,
           'If you specify a linkKey, also set a linkDialogKey',
         ),
+        assert(
+          imagePath == null || icon == null,
+          'You cannot provide both an icon and an image path',
+        ),
         super(key: key);
+
+  Future _showIrmaDialog(BuildContext context) async => showDialog(
+        context: context,
+        builder: (context) {
+          return IrmaDialog(
+            title: FlutterI18n.translate(context, 'error.details_title'),
+            content: linkDialogText!,
+            child: IrmaButton(
+              size: IrmaButtonSize.small,
+              onPressed: () => Navigator.of(context).pop(),
+              label: 'error.button_ok',
+            ),
+          );
+        },
+      );
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    Future _showIrmaDialog() async => showDialog(
-          context: context,
-          builder: (context) {
-            return IrmaDialog(
-              title: FlutterI18n.translate(context, 'error.details_title'),
-              content: linkDialogText!,
-              child: IrmaButton(
-                size: IrmaButtonSize.small,
-                onPressed: () => Navigator.of(context).pop(),
-                label: 'error.button_ok',
-              ),
-            );
-          },
-        );
 
     return Center(
       child: SingleChildScrollView(
@@ -93,7 +98,7 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
             if (linkTranslationKey != null) ...[
               SizedBox(height: theme.mediumSpacing),
               GestureDetector(
-                onTap: _showIrmaDialog,
+                onTap: () => _showIrmaDialog(context),
                 child: TranslatedText(
                   linkTranslationKey!,
                   style: theme.textTheme.bodyText2?.copyWith(
