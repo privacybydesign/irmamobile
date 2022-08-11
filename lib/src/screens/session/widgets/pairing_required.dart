@@ -4,9 +4,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/screens/session/widgets/session_scaffold.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
-import 'package:irmamobile/src/widgets/irma_message.dart';
 import 'package:irmamobile/src/widgets/pin_box.dart';
-import 'package:irmamobile/src/widgets/translated_text.dart';
 
 class PairingRequired extends StatelessWidget {
   final String pairingCode;
@@ -14,15 +12,15 @@ class PairingRequired extends StatelessWidget {
 
   const PairingRequired({required this.pairingCode, required this.onDismiss});
 
-  Widget _buildPinBoxes(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
+  Widget _buildPinBoxes(BuildContext context, IrmaThemeData theme) {
     final boxes = List<Widget>.generate(
       pairingCode.length,
       (i) => PinBox(
         height: 60,
         margin: EdgeInsets.only(right: i == pairingCode.length - 1 ? 0 : theme.smallSpacing),
         char: pairingCode[i],
+        highlightBorder: true,
+        completed: true,
       ),
     );
 
@@ -39,34 +37,47 @@ class PairingRequired extends StatelessWidget {
 
   Widget _buildNavigationBar(BuildContext context) {
     return IrmaBottomBar(
-      secondaryButtonLabel: FlutterI18n.translate(context, "session.navigation_bar.cancel"),
+      secondaryButtonLabel: FlutterI18n.translate(context, 'session.navigation_bar.cancel'),
       onSecondaryPressed: () => onDismiss(),
     );
   }
 
   @override
-  Widget build(BuildContext context) => SessionScaffold(
-        appBarTitle: 'session.pairing.title',
-        bottomNavigationBar: _buildNavigationBar(context),
-        onDismiss: onDismiss,
-        body: Container(
-          margin: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
-          child: Column(
-            children: [
-              const IrmaMessage(
-                'session.pairing.message_title',
-                'session.pairing.message_body_markdown',
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    return SessionScaffold(
+      appBarTitle: 'session.pairing.title',
+      bottomNavigationBar: _buildNavigationBar(context),
+      onDismiss: onDismiss,
+      body: Container(
+        margin: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
+        child: Column(
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                color: Color(0xFFE9F4FF),
+                borderRadius: BorderRadius.all(
+                  Radius.circular(12.0),
+                ),
               ),
-              SizedBox(
-                height: IrmaTheme.of(context).defaultSpacing,
+              child: Padding(
+                padding: EdgeInsets.all(theme.defaultSpacing),
+                child: Text(
+                  FlutterI18n.translate(
+                    context,
+                    'session.pairing.instruction',
+                  ),
+                  style: theme.textTheme.bodyText2,
+                ),
               ),
-              const TranslatedText('session.pairing.explanation'),
-              SizedBox(
-                height: IrmaTheme.of(context).largeSpacing,
-              ),
-              _buildPinBoxes(context),
-            ],
-          ),
+            ),
+            const SizedBox(
+              height: 64,
+            ),
+            _buildPinBoxes(context, theme),
+          ],
         ),
-      );
+      ),
+    );
+  }
 }

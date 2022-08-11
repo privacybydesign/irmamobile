@@ -287,9 +287,7 @@
         },
         "pairing": {
             "title": "Extra safety check",
-            "explanation": "Please enter the code below on the website.",
-            "message_title": "Pairing code",
-            "message_body_markdown": "A pairing code makes sure that the following steps can only be done in *your* Yivi app."
+            "instruction": "Enter this verification code on the website to secure your account"
         },
         "unknown_session_type": {
             "title": "Cancelled",

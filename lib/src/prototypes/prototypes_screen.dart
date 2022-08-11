@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:irmamobile/src/screens/session/widgets/pairing_required.dart';
 
 import '../screens/error/blocked_screen.dart';
 import '../screens/error/error_screen.dart';
@@ -153,6 +154,11 @@ class PrototypesScreen extends StatelessWidget {
               onTapClose: () => Navigator.pop(context),
               type: ErrorType.pairingRejected,
             ),
+          ),
+          _buildTile(
+            context,
+            'Pairing required',
+            PairingRequired(pairingCode: '1234', onDismiss: Navigator.of(context).pop,),
           ),
           _buildTile(
             context,
