@@ -131,7 +131,7 @@ class PrototypesScreen extends StatelessWidget {
             context,
             'No internet',
             NoInternetScreen(
-              onTapClose: () => Navigator.pop(context),
+              onTapClose: Navigator.of(context).pop,
               onTapRetry: () {},
             ),
           ),
@@ -144,14 +144,14 @@ class PrototypesScreen extends StatelessWidget {
             context,
             'General error',
             ErrorScreen(
-              onTapClose: () => Navigator.pop(context),
+              onTapClose: Navigator.of(context).pop,
             ),
           ),
           _buildTile(
             context,
             'Error: pairing rejected',
             ErrorScreen(
-              onTapClose: () => Navigator.pop(context),
+              onTapClose: Navigator.of(context).pop,
               type: ErrorType.pairingRejected,
             ),
           ),
@@ -164,7 +164,7 @@ class PrototypesScreen extends StatelessWidget {
             context,
             'Error: session unknown / unexpected request',
             ErrorScreen(
-              onTapClose: () => Navigator.pop(context),
+              onTapClose: Navigator.of(context).pop,
               type: ErrorType.expired,
             ),
           ),
@@ -174,7 +174,7 @@ class PrototypesScreen extends StatelessWidget {
             DisclosureFeedbackScreen(
               feedbackType: DisclosureFeedbackType.success,
               otherParty: 'successful party',
-              popToWallet: (context) => Navigator.pop(context),
+              popToWallet: Navigator.pop,
             ),
           ),
           _buildTile(
@@ -183,7 +183,7 @@ class PrototypesScreen extends StatelessWidget {
             DisclosureFeedbackScreen(
               feedbackType: DisclosureFeedbackType.canceled,
               otherParty: 'canceled party',
-              popToWallet: (context) => Navigator.pop(context),
+              popToWallet: Navigator.pop,
             ),
           ),
           _buildTile(
@@ -192,7 +192,7 @@ class PrototypesScreen extends StatelessWidget {
             DisclosureFeedbackScreen(
               feedbackType: DisclosureFeedbackType.notSatisfiable,
               otherParty: 'unsatisfied party',
-              popToWallet: (context) => Navigator.pop(context),
+              popToWallet: Navigator.pop,
             ),
           ),
           _buildTile(
