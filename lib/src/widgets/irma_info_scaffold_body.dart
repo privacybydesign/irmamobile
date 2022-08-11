@@ -71,7 +71,8 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
                   color: iconColor ?? theme.themeData.colorScheme.secondary,
                   size: 125,
                 ),
-              if (imagePath != null) SvgPicture.asset(imagePath!),
+              if (imagePath != null)
+                (imagePath!.endsWith('svg')) ? SvgPicture.asset(imagePath!) : Image.asset(imagePath!),
               SizedBox(height: theme.mediumSpacing),
             ],
             TranslatedText(

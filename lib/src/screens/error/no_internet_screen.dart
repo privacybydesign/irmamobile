@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
-import '../../theme/theme.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_bottom_bar.dart';
 import '../../widgets/irma_info_scaffold_body.dart';
@@ -25,9 +24,8 @@ class NoInternetScreen extends StatelessWidget {
           titleTranslationKey: 'error.details_title',
           leadingAction: onTapClose,
         ),
-        body: IrmaInfoScaffoldBody(
-          icon: Icons.wifi_off_rounded,
-          iconColor: IrmaTheme.of(context).secondary,
+        body: const IrmaInfoScaffoldBody(
+          imagePath: 'assets/error/no_connection_illustration.svg',
           titleTranslationKey: 'error.title',
           bodyTranslationKey: 'error.types.no_internet',
         ),

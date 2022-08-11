@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
-import '../theme/irma_icons.dart';
-import '../theme/theme.dart';
 import '../widgets/irma_bottom_bar.dart';
 import 'irma_info_scaffold_body.dart';
 
@@ -37,8 +35,9 @@ class ActionFeedback extends StatelessWidget {
       },
       child: Scaffold(
         body: IrmaInfoScaffoldBody(
-          icon: success ? IrmaIcons.valid : IrmaIcons.invalid,
-          iconColor: success ? IrmaTheme.of(context).success : IrmaTheme.of(context).warning,
+          imagePath: success
+              ? 'assets/disclosure/disclosure_happy_illustration.svg'
+              : 'assets/error/general_error_illustration.svg',
           titleTranslationKey: titleTranslationKey,
           titleTranslationParams: titleTranslationParams,
           bodyTranslationKey: explanationTranslationKey,

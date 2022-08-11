@@ -82,7 +82,6 @@ flutter:
     - assets/reset/
     - assets/non-free/
     - assets/disclosure/
-    - assets/rooted_warning/
   fonts:
     - family: Open Sans
       fonts:
