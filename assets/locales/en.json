@@ -391,10 +391,9 @@
         "existing_data_removed": "All cards in your Yivi app are deleted."
     },
     "arrow_back": {
-        "info_no_success": "Cancelled.",
-        "info_success-0": "Done, your data have been disclosed.",
-        "info_success-1": "Done, the card is added.",
-        "info_success-2": "Done, the cards are added.",
+        "no_success": "Cancelled",
+        "disclosure_success" :  "Done, your data has been disclosed",
+        "issuance_success" : "Done, the data has been added",
         "safari": "Tap on the name of the application (such as Safari, Chrome, Firefox) in the top left corner to return to the application you came from."
     },
     "update": {
