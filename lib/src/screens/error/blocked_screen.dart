@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../models/clear_all_data_event.dart';
-import '../../theme/theme.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_bottom_bar.dart';
 import '../../widgets/irma_info_scaffold_body.dart';
@@ -24,9 +23,8 @@ class BlockedScreen extends StatelessWidget {
           titleTranslationKey: 'error.details_title',
           noLeading: true,
         ),
-        body: IrmaInfoScaffoldBody(
-          icon: Icons.block,
-          iconColor: IrmaTheme.of(context).secondary,
+        body: const IrmaInfoScaffoldBody(
+          imagePath: 'assets/error/update_request_illustration.svg',
           titleTranslationKey: 'error.title',
           bodyTranslationKey: 'error.types.blocked',
         ),
