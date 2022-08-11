@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:flutter_svg/svg.dart';
 
 import '../theme/theme.dart';
 import 'irma_button.dart';
@@ -12,6 +13,7 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
   final Map<String, String>? titleTranslationParams;
   final String? bodyTranslationKey;
   final Map<String, String>? bodyTranslationParams;
+  final String? imagePath;
   final IconData? icon;
   final Color? iconColor;
   final String? linkTranslationKey;
@@ -23,6 +25,7 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
     this.titleTranslationParams,
     this.bodyTranslationParams,
     required this.bodyTranslationKey,
+    this.imagePath,
     this.icon,
     this.iconColor,
     this.linkDialogText,
@@ -61,12 +64,14 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (icon != null) ...[
-              Icon(
-                icon,
-                color: iconColor ?? theme.themeData.colorScheme.secondary,
-                size: 125,
-              ),
+            if (icon != null || imagePath != null) ...[
+              if (icon != null)
+                Icon(
+                  icon,
+                  color: iconColor ?? theme.themeData.colorScheme.secondary,
+                  size: 125,
+                ),
+              if (imagePath != null) SvgPicture.asset(imagePath!),
               SizedBox(height: theme.mediumSpacing),
             ],
             TranslatedText(
