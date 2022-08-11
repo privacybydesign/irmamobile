@@ -12,23 +12,23 @@ class PinBox extends StatelessWidget {
   final bool completed;
   final bool highlightBorder;
 
-  bool get filled => char != '';
+  final bool filled;
 
-  const PinBox({
+  PinBox({
     required this.margin,
     required this.char,
     this.height = 40.0,
     this.disabled = false,
     this.completed = false,
     this.highlightBorder = false,
-  });
+  }) : filled = char.isNotEmpty;
 
   Color getBorderColor(IrmaThemeData theme) {
-    if (filled) {
-      return Colors.grey.shade300; // filled boxes
-    } else if (highlightBorder) {
+    if (highlightBorder) {
       // the box that is currently highlighted
       return theme.secondary;
+    } else if (filled) {
+      return Colors.grey.shade300; // filled boxes
     } else {
       // empty boxes that are not highlighted
       return Colors.grey;
