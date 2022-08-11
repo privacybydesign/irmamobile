@@ -79,8 +79,10 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
             child: IrmaInfoScaffoldBody(
               imagePath: 'assets/arrow_back/pointing_up.svg',
               titleTranslationKey: widget.success
-                  ? 'arrow_back.info_success-' + widget.amountIssued.toString()
-                  : 'arrow_back.info_no_success',
+                  ? widget.amountIssued > 0
+                      ? 'arrow_back.issuance_success'
+                      : 'arrow_back.disclosure_success'
+                  : 'arrow_back.no_success',
               bodyTranslationKey: 'arrow_back.safari',
             ),
           ),
