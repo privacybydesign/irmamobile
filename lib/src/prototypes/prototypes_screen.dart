@@ -19,7 +19,12 @@ class PrototypesScreen extends StatelessWidget {
   final pinBloc5 = EnterPinStateBloc(5);
   final pinBloc16 = EnterPinStateBloc(16);
 
-  Widget _buildTile(BuildContext context, String title, Widget screen) => ListTile(
+  Widget _buildTile(
+    BuildContext context,
+    String title,
+    Widget screen,
+  ) =>
+      ListTile(
         title: Text(title),
         onTap: () => Navigator.push(
           context,
@@ -29,7 +34,11 @@ class PrototypesScreen extends StatelessWidget {
         ),
       );
 
-  Widget _toggleSetPinSize({required BuildContext context, required bool isShort, required String instructionKey}) {
+  Widget _toggleSetPinSize({
+    required BuildContext context,
+    required bool isShort,
+    required String instructionKey,
+  }) {
     final size = isShort ? 5 : 16;
     final pinBloc = isShort ? pinBloc5 : pinBloc16;
 
@@ -159,7 +168,10 @@ class PrototypesScreen extends StatelessWidget {
           _buildTile(
             context,
             'Pairing required',
-            PairingRequired(pairingCode: '1234', onDismiss: Navigator.of(context).pop,),
+            PairingRequired(
+              pairingCode: '1234',
+              onDismiss: Navigator.of(context).pop,
+            ),
           ),
           _buildTile(
             context,
