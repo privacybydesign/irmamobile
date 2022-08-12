@@ -12,8 +12,24 @@
 			]
 		},
 		{
+			"name": "Android prototypes",
+			"program": "lib/main_prototypes.dart",
+			"request": "launch",
+			"type": "dart",
+			"args": [
+				"--flavor",
+				"alpha"
+			]
+		},
+		{
 			"name": "IOS app",
 			"program": "lib/main.dart",
+			"request": "launch",
+			"type": "dart",
+		},
+		{
+			"name": "IOS prototypes",
+			"program": "lib/main_prototypes.dart",
 			"request": "launch",
 			"type": "dart",
 		}

@@ -42,7 +42,7 @@ class ResetPinScreen extends StatelessWidget {
                         width: 94,
                         height: 113,
                         child: SvgPicture.asset(
-                          'assets/reset/prullenbak.svg',
+                          'assets/reset/forgot_pin_illustration.svg',
                           excludeFromSemantics: true,
                         ),
                       ),

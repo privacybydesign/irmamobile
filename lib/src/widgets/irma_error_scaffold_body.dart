@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../theme/theme.dart';
 import 'irma_info_scaffold_body.dart';
 
 enum ErrorType {
@@ -29,8 +28,7 @@ class IrmaErrorScaffoldBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IrmaInfoScaffoldBody(
-      icon: Icons.warning_amber_rounded,
-      iconColor: IrmaTheme.of(context).error,
+      imagePath: 'assets/error/general_error_illustration.svg',
       titleTranslationKey: _translationKeys[type]!,
       bodyTranslationKey: reportable == true ? 'error.report' : null,
       linkTranslationKey: details != null ? 'error.button_show_error' : null,
