@@ -12,7 +12,7 @@ class RequiredUpdateScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: const IrmaInfoScaffoldBody(
-        icon: Icons.cached,
+        imagePath: 'assets/error/update_request_illustration.svg',
         titleTranslationKey: 'update.title',
         bodyTranslationKey: 'update.explanation',
       ),
