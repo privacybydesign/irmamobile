@@ -1,14 +1,16 @@
-import 'package:flutter/material.dart';
+// import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/widgets/irma_stepper.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../../models/issue_wizard.dart';
 import '../../../screens/issue_wizard/issue_wizard.dart';
 import '../../../theme/theme.dart';
 import '../../../widgets/irma_bottom_bar.dart';
+import '../../../widgets/irma_card.dart';
 import '../../../widgets/irma_markdown.dart';
 import '../../../widgets/irma_progress_indicator.dart';
-import 'wizard_card_stepper.dart';
 import 'wizard_scaffold.dart';
 
 class IssueWizardContents extends StatelessWidget {
@@ -33,11 +35,12 @@ class IssueWizardContents extends StatelessWidget {
   Widget _buildWizard(BuildContext context, String lang, IssueWizardEvent wizard) {
     final intro = wizard.wizardData.intro;
     final theme = IrmaTheme.of(context);
+    final lang = FlutterI18n.currentLocale(context)!.languageCode;
     return VisibilityDetector(
       key: const Key('wizard_key'),
       onVisibilityChanged: (v) => onVisibilityChanged(v, wizard),
       child: Padding(
-        padding: EdgeInsets.only(left: theme.defaultSpacing, right: theme.defaultSpacing),
+        padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -46,7 +49,21 @@ class IssueWizardContents extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
                 child: IrmaMarkdown(intro.translate(lang)),
               ),
-            WizardCardStepper(data: wizard.wizardContents, completed: wizard.completed),
+            IrmaStepper(
+              children: wizard.wizardContents
+                  .map(
+                    (item) => IrmaCard(
+                      child: Column(
+                        children: [
+                          Text(item.header.translate(lang), style: theme.textTheme.bodyText1),
+                          Text(item.text.translate(lang), style: theme.textTheme.bodyText2),
+                        ],
+                      ),
+                    ),
+                  )
+                  .toList(growable: false),
+              currentIndex: wizard.activeItemIndex >= 0 ? wizard.activeItemIndex : null,
+            ),
           ],
         ),
       ),
