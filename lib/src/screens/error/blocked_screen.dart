@@ -24,7 +24,7 @@ class BlockedScreen extends StatelessWidget {
           noLeading: true,
         ),
         body: const IrmaInfoScaffoldBody(
-          imagePath: 'assets/error/update_request_illustration.svg',
+          imagePath: 'assets/error/general_error_illustration.svg',
           titleTranslationKey: 'error.title',
           bodyTranslationKey: 'error.types.blocked',
         ),
