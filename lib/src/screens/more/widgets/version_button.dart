@@ -69,7 +69,7 @@ class VersionButton extends StatelessWidget {
                       FlutterI18n.translate(context, 'more_tab.app_id', translationParams: {
                         'id': appId ?? '',
                       }),
-                      style: Theme.of(context).textTheme.bodyText2,
+                      style: theme.textTheme.bodyText2,
                     );
                   },
                 ),
@@ -79,7 +79,7 @@ class VersionButton extends StatelessWidget {
                     FlutterI18n.translate(context, 'more_tab.version', translationParams: {
                       'version': _buildVersionString(info),
                     }),
-                    style: Theme.of(context).textTheme.bodyText2,
+                    style: theme.textTheme.bodyText2,
                   ),
                 ),
               ],
