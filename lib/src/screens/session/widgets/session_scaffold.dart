@@ -6,10 +6,11 @@ import '../../../widgets/irma_app_bar.dart';
 class SessionScaffold extends StatelessWidget {
   final Widget? body, bottomNavigationBar;
   final String appBarTitle;
+  final VoidCallback? onDismiss;
 
   const SessionScaffold({
     Key? key,
-    Function()? onDismiss,
+    this.onDismiss,
     this.bottomNavigationBar,
     this.body,
     required this.appBarTitle,
@@ -18,30 +19,14 @@ class SessionScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    return _Scaffold(
+    return Scaffold(
       backgroundColor: theme.background,
       bottomNavigationBar: bottomNavigationBar,
       body: body,
-      appBarTitle: appBarTitle,
+      appBar: IrmaAppBar(
+        titleTranslationKey: appBarTitle,
+        leadingAction: onDismiss,
+      ),
     );
   }
-}
-
-class _Scaffold extends Scaffold {
-  _Scaffold({
-    Function()? onDismiss,
-    Widget? bottomNavigationBar,
-    Widget? body,
-    Color? backgroundColor,
-    required String appBarTitle,
-  }) : super(
-          // Material's ThemeData.primary should take care of this?
-          backgroundColor: backgroundColor,
-          appBar: IrmaAppBar(
-            titleTranslationKey: appBarTitle,
-            leadingAction: onDismiss,
-          ),
-          bottomNavigationBar: bottomNavigationBar,
-          body: body,
-        );
 }
