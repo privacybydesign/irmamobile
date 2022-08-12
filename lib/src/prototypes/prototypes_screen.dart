@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/screens/session/widgets/pairing_required.dart';
+import '../screens/session/widgets/pairing_required.dart';
 
 import '../screens/error/blocked_screen.dart';
 import '../screens/error/error_screen.dart';
