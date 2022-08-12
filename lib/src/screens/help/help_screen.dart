@@ -69,10 +69,10 @@ class _HelpScreenState extends State<HelpScreen> {
           HelpItem(
             headerTranslationKey: 'help.question_4',
             body: HelpCarousel(items: [
-              HelpCarouselItem('assets/help/q4_step_1.svg', 'help.answer_4.step_1'),
-              HelpCarouselItem('assets/help/q4_step_2.svg', 'help.answer_4.step_2'),
-              HelpCarouselItem('assets/help/q4_step_3.svg', 'help.answer_4.step_3'),
-              HelpCarouselItem('assets/help/q4_step_4.svg', 'help.answer_4.step_4'),
+              HelpCarouselItem('assets/help/mobile_login/website.svg', 'help.answer_4.step_1'),
+              HelpCarouselItem('assets/help/mobile_login/app.svg', 'help.answer_4.step_2'),
+              HelpCarouselItem('assets/help/mobile_login/success.svg', 'help.answer_4.step_3'),
+              HelpCarouselItem('assets/help/mobile_login/website.svg', 'help.answer_4.step_4'),
             ]),
             parentScrollController: _controller,
           ),
@@ -80,11 +80,11 @@ class _HelpScreenState extends State<HelpScreen> {
           HelpItem(
             headerTranslationKey: 'help.question_5',
             body: HelpCarousel(items: [
-              HelpCarouselItem('assets/help/q5_step_1.svg', 'help.answer_5.step_1'),
-              HelpCarouselItem('assets/help/q5_step_2.svg', 'help.answer_5.step_2'),
-              HelpCarouselItem('assets/help/q5_step_3.svg', 'help.answer_5.step_3'),
-              HelpCarouselItem('assets/help/q5_step_4.svg', 'help.answer_5.step_4'),
-              HelpCarouselItem('assets/help/q5_step_5.svg', 'help.answer_5.step_5'),
+              HelpCarouselItem('assets/help/computer_login/website.svg', 'help.answer_5.step_1'),
+              HelpCarouselItem('assets/help/computer_login/app.svg', 'help.answer_5.step_2'),
+              HelpCarouselItem('assets/help/computer_login/scan.svg', 'help.answer_5.step_3'),
+              HelpCarouselItem('assets/help/computer_login/success.svg', 'help.answer_5.step_4'),
+              HelpCarouselItem('assets/help/computer_login/website.svg', 'help.answer_5.step_5'),
             ]),
             parentScrollController: _controller,
           ),

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
@@ -16,8 +15,7 @@ class RootedWarningScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: const IrmaInfoScaffoldBody(
-        icon: Icons.gpp_bad_outlined,
-        iconColor: Colors.red,
+        imagePath: 'assets/error/insecure_device_illustration.svg',
         titleTranslationKey: 'rooted_warning.title',
         bodyTranslationKey: 'rooted_warning.explanation',
       ),
