@@ -6,7 +6,6 @@ import '../../../theme/theme.dart';
 import '../../../widgets/collapsible.dart';
 import '../../../widgets/irma_bottom_bar.dart';
 import '../../../widgets/irma_markdown.dart';
-import '../issue_wizard.dart';
 import 'wizard_scaffold.dart';
 
 class IssueWizardInfo extends StatelessWidget {
@@ -83,8 +82,6 @@ class IssueWizardInfo extends StatelessWidget {
       controller: controller,
       header: wizardData.title.translate(lang),
       image: logo,
-      backgroundColor: IssueWizardScreen.defaultBackgroundColor,
-      textColor: IssueWizardScreen.defaultTextColor,
       onBack: onBack,
       bottomBar: IrmaBottomBar(
         primaryButtonLabel: FlutterI18n.translate(context, 'issue_wizard.add'),

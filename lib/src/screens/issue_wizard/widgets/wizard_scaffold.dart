@@ -7,8 +7,6 @@ import '../../../widgets/issuer_verifier_header.dart';
 class WizardScaffold extends StatelessWidget {
   final Image image;
   final String header;
-  final Color backgroundColor;
-  final Color textColor;
   final Widget bottomBar;
   final Widget body;
   final void Function() onBack;
@@ -18,8 +16,6 @@ class WizardScaffold extends StatelessWidget {
   const WizardScaffold({
     required this.image,
     required this.header,
-    required this.backgroundColor,
-    required this.textColor,
     required this.bottomBar,
     required this.body,
     required this.scrollviewKey,
