@@ -6,6 +6,8 @@ import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 import 'package:irmamobile/src/widgets/pin_box.dart';
 
+import '../../../widgets/irma_quote.dart';
+
 class PairingRequired extends StatelessWidget {
   final String pairingCode;
   final Function() onDismiss;
@@ -53,26 +55,20 @@ class PairingRequired extends StatelessWidget {
         margin: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
         child: Column(
           children: [
-            Container(
-              decoration: const BoxDecoration(
+            IrmaQuote(
+              quote: FlutterI18n.translate(
+                context,
+                'session.pairing.instruction',
+              ),
+              boxDecoration: const BoxDecoration(
                 color: Color(0xFFE9F4FF),
                 borderRadius: BorderRadius.all(
                   Radius.circular(12.0),
                 ),
               ),
-              child: Padding(
-                padding: EdgeInsets.all(theme.defaultSpacing),
-                child: Text(
-                  FlutterI18n.translate(
-                    context,
-                    'session.pairing.instruction',
-                  ),
-                  style: theme.textTheme.bodyText2,
-                ),
-              ),
             ),
-            const SizedBox(
-              height: 64,
+            SizedBox(
+              height: theme.hugeSpacing,
             ),
             _buildPinBoxes(context, theme),
           ],
