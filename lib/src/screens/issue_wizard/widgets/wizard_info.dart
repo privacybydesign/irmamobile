@@ -84,9 +84,9 @@ class IssueWizardInfo extends StatelessWidget {
       image: logo,
       onBack: onBack,
       bottomBar: IrmaBottomBar(
-        primaryButtonLabel: FlutterI18n.translate(context, 'issue_wizard.add'),
+        primaryButtonLabel: 'issue_wizard.add',
         onPrimaryPressed: onNext,
-        secondaryButtonLabel: FlutterI18n.translate(context, 'issue_wizard.back'),
+        secondaryButtonLabel: 'issue_wizard.back',
         onSecondaryPressed: onBack,
         alignment: IrmaBottomBarAlignment.horizontal,
       ),

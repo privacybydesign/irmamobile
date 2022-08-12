@@ -5,7 +5,6 @@ import 'package:irmamobile/src/widgets/irma_stepper.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../../models/issue_wizard.dart';
-import '../../../screens/issue_wizard/issue_wizard.dart';
 import '../../../theme/theme.dart';
 import '../../../widgets/irma_bottom_bar.dart';
 import '../../../widgets/irma_card.dart';
