@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -12,7 +10,7 @@ import '../../../theme/theme.dart';
 import '../../../widgets/irma_repository_provider.dart';
 
 class VersionButton extends StatelessWidget {
-  final _streamController = StreamController<int>.broadcast();
+  final _developerModeTapStream = BehaviorSubject.seeded(0);
 
   String _buildVersionString(AsyncSnapshot<PackageInfo> info) {
     final String buildHash = version.substring(0, version != 'debugbuild' && 8 < version.length ? 8 : version.length);
@@ -42,56 +40,53 @@ class VersionButton extends StatelessWidget {
 
     const throttleTime = Duration(milliseconds: 100);
 
-    _streamController.stream.throttleTime(throttleTime).listen((i) {
+    _developerModeTapStream.throttleTime(throttleTime).listen((i) {
       if (i == 7) {
         showDeveloperMode();
       }
     });
 
-    return StreamBuilder<int>(
-      stream: _streamController.stream,
-      builder: (context, snapshot) => Row(
-        children: [
-          Expanded(
-            child: InkWell(
-              onTap: () {
-                _streamController.add((snapshot.data ?? 0) + 1);
-              },
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  StreamBuilder<Credentials>(
-                    stream: repo.getCredentials(),
-                    builder: (context, credentials) {
-                      String? appId;
-                      if (credentials.hasData) {
-                        final keyShareCred =
-                            credentials.data?.values.firstWhereOrNull((cred) => cred.isKeyshareCredential);
-                        appId = keyShareCred?.attributes.values.first.raw;
-                      }
-                      return Text(
-                        FlutterI18n.translate(context, 'more_tab.app_id', translationParams: {
-                          'id': appId ?? '',
-                        }),
-                        style: Theme.of(context).textTheme.bodyText2,
-                      );
-                    },
-                  ),
-                  FutureBuilder<PackageInfo>(
-                    future: PackageInfo.fromPlatform(),
-                    builder: (BuildContext context, AsyncSnapshot<PackageInfo> info) => Text(
-                      FlutterI18n.translate(context, 'more_tab.version', translationParams: {
-                        'version': _buildVersionString(info),
+    return Row(
+      children: [
+        Expanded(
+          child: InkWell(
+            onTap: () {
+              _developerModeTapStream.value = _developerModeTapStream.value + 1;
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                StreamBuilder<Credentials>(
+                  stream: repo.getCredentials(),
+                  builder: (context, credentials) {
+                    String? appId;
+                    if (credentials.hasData) {
+                      final keyShareCred =
+                          credentials.data?.values.firstWhereOrNull((cred) => cred.isKeyshareCredential);
+                      appId = keyShareCred?.attributes.values.first.raw;
+                    }
+                    return Text(
+                      FlutterI18n.translate(context, 'more_tab.app_id', translationParams: {
+                        'id': appId ?? '',
                       }),
                       style: Theme.of(context).textTheme.bodyText2,
-                    ),
+                    );
+                  },
+                ),
+                FutureBuilder<PackageInfo>(
+                  future: PackageInfo.fromPlatform(),
+                  builder: (BuildContext context, AsyncSnapshot<PackageInfo> info) => Text(
+                    FlutterI18n.translate(context, 'more_tab.version', translationParams: {
+                      'version': _buildVersionString(info),
+                    }),
+                    style: Theme.of(context).textTheme.bodyText2,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
