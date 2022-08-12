@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/theme/theme.dart';
 
 import '../../../models/issue_wizard.dart';
+import '../../../theme/theme.dart';
 import '../../../widgets/irma_card.dart';
 import '../../../widgets/irma_stepper.dart';
 

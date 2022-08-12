@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/issuer_verifier_header.dart';
 
+import '../../../theme/theme.dart';
 import '../../../widgets/irma_app_bar.dart';
+import '../../../widgets/issuer_verifier_header.dart';
 
 class WizardScaffold extends StatelessWidget {
   final Image image;
