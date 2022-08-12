@@ -8,6 +8,7 @@ import '../../../../sentry_dsn.dart';
 import '../../../models/credentials.dart';
 import '../../../theme/theme.dart';
 import '../../../widgets/irma_repository_provider.dart';
+import '../../../widgets/translated_text.dart';
 
 class VersionButton extends StatelessWidget {
   final _developerModeTapStream = BehaviorSubject.seeded(0);
@@ -65,20 +66,20 @@ class VersionButton extends StatelessWidget {
                           credentials.data?.values.firstWhereOrNull((cred) => cred.isKeyshareCredential);
                       appId = keyShareCred?.attributes.values.first.raw;
                     }
-                    return Text(
-                      FlutterI18n.translate(context, 'more_tab.app_id', translationParams: {
+                    return TranslatedText(
+                      'more_tab.app_id',
+                      translationParams: {
                         'id': appId ?? '',
-                      }),
-                      style: theme.textTheme.bodyText2,
+                      },
                     );
                   },
                 ),
                 FutureBuilder<PackageInfo>(
                   future: PackageInfo.fromPlatform(),
-                  builder: (BuildContext context, AsyncSnapshot<PackageInfo> info) => Text(
-                    FlutterI18n.translate(context, 'more_tab.version', translationParams: {
+                  builder: (BuildContext context, AsyncSnapshot<PackageInfo> info) =>
+                  TranslatedText('more_tab.version', translationParams: {
                       'version': _buildVersionString(info),
-                    }),
+                    },
                     style: theme.textTheme.bodyText2,
                   ),
                 ),
