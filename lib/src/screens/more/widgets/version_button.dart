@@ -1,6 +1,5 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:package_info/package_info.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -31,7 +30,7 @@ class VersionButton extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: theme.success,
-          content: Text(FlutterI18n.translate(context, 'more_tab.developer_mode_enabled')),
+          content: const TranslatedText('more_tab.developer_mode_enabled'),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -76,8 +75,9 @@ class VersionButton extends StatelessWidget {
                 ),
                 FutureBuilder<PackageInfo>(
                   future: PackageInfo.fromPlatform(),
-                  builder: (BuildContext context, AsyncSnapshot<PackageInfo> info) =>
-                  TranslatedText('more_tab.version', translationParams: {
+                  builder: (BuildContext context, AsyncSnapshot<PackageInfo> info) => TranslatedText(
+                    'more_tab.version',
+                    translationParams: {
                       'version': _buildVersionString(info),
                     },
                     style: theme.textTheme.bodyText2,
