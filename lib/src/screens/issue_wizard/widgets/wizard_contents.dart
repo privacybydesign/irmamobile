@@ -1,7 +1,5 @@
-// import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/widgets/irma_stepper.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../../models/issue_wizard.dart';
@@ -10,6 +8,7 @@ import '../../../widgets/irma_bottom_bar.dart';
 import '../../../widgets/irma_card.dart';
 import '../../../widgets/irma_markdown.dart';
 import '../../../widgets/irma_progress_indicator.dart';
+import '../../../widgets/irma_stepper.dart';
 import 'wizard_scaffold.dart';
 
 class IssueWizardContents extends StatelessWidget {
@@ -86,7 +85,11 @@ class IssueWizardContents extends StatelessWidget {
             ));
     final wizardContentSize = wizard.wizardContents.length;
     final indicator = Padding(
-      padding: EdgeInsets.only(top: 24, bottom: 32, left: theme.defaultSpacing, right: theme.defaultSpacing),
+      padding: EdgeInsets.only(
+          top: theme.mediumSpacing,
+          bottom: theme.largeSpacing,
+          left: theme.defaultSpacing,
+          right: theme.defaultSpacing),
       child: IrmaProgressIndicator(
         step: wizard.completed ? wizard.wizardContents.length : wizard.activeItemIndex,
         stepCount: wizardContentSize,
