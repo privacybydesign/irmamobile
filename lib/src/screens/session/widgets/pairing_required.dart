@@ -60,12 +60,7 @@ class PairingRequired extends StatelessWidget {
                 context,
                 'session.pairing.instruction',
               ),
-              boxDecoration: const BoxDecoration(
-                color: Color(0xFFE9F4FF),
-                borderRadius: BorderRadius.all(
-                  Radius.circular(12.0),
-                ),
-              ),
+              color: const Color(0xFFE9F4FF),
             ),
             SizedBox(
               height: theme.hugeSpacing,
