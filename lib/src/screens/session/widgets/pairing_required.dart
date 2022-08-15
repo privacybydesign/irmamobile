@@ -18,22 +18,18 @@ class PairingRequired extends StatelessWidget {
     final boxes = List<Widget>.generate(
       pairingCode.length,
       (i) => PinBox(
-        height: 60,
-        margin: EdgeInsets.only(right: i == pairingCode.length - 1 ? 0 : theme.smallSpacing),
+        height: 53,
         char: pairingCode[i],
         highlightBorder: true,
         completed: true,
       ),
+      growable: false,
     );
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 64),
-          child: Wrap(children: boxes),
-        ),
-      ],
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: theme.mediumSpacing,
+      children: boxes,
     );
   }
 
@@ -52,8 +48,9 @@ class PairingRequired extends StatelessWidget {
       bottomNavigationBar: _buildNavigationBar(context),
       onDismiss: onDismiss,
       body: Container(
-        margin: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
+        margin: EdgeInsets.all(theme.defaultSpacing),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             IrmaQuote(
               quote: FlutterI18n.translate(

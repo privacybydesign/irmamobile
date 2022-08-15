@@ -169,7 +169,7 @@ class PrototypesScreen extends StatelessWidget {
             context,
             'Pairing required',
             PairingRequired(
-              pairingCode: '1234',
+              pairingCode: '4567',
               onDismiss: Navigator.of(context).pop,
             ),
           ),

@@ -4,7 +4,6 @@ import '../theme/theme.dart';
 
 class PinBox extends StatelessWidget {
   final double height;
-  final EdgeInsets margin;
 
   final String char;
 
@@ -15,7 +14,6 @@ class PinBox extends StatelessWidget {
   final bool filled;
 
   PinBox({
-    required this.margin,
     required this.char,
     this.height = 40.0,
     this.disabled = false,
@@ -40,7 +38,6 @@ class PinBox extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
-      margin: margin,
       width: height / 4 * 3,
       height: height,
       alignment: Alignment.center,
