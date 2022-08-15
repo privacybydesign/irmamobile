@@ -37,8 +37,7 @@ class WizardScaffold extends StatelessWidget {
         key: scrollviewKey,
         child: Column(
           children: [
-            Container(
-              color: theme.light,
+            Padding(
               padding: EdgeInsets.all(theme.defaultSpacing),
               child: IssuerVerifierHeader(
                 title: header,
