@@ -52,9 +52,16 @@ class IssueWizardContents extends StatelessWidget {
                   .map(
                     (item) => IrmaCard(
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(item.header.translate(lang), style: theme.textTheme.bodyText1),
-                          Text(item.text.translate(lang), style: theme.textTheme.bodyText2),
+                          Text(
+                            item.header.translate(lang),
+                            style: theme.textTheme.bodyText1,
+                          ),
+                          Text(
+                            item.text.translate(lang),
+                            style: theme.textTheme.bodyText2,
+                          ),
                         ],
                       ),
                     ),
