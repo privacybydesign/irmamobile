@@ -34,7 +34,12 @@ class DisclosurePermissionChoice extends StatelessWidget {
               children: choice[i]!
                   .map(
                     (credential) => GestureDetector(
-                      onTap: () => isActive ? onChoiceUpdated(i) : null,
+                      onTap: () {
+                        if (isActive) {
+                          onChoiceUpdated(i);
+                          Feedback.forTap(context);
+                        }
+                      },
                       child: IrmaCredentialCard(
                         padding: EdgeInsets.only(
                           left: theme.tinySpacing,

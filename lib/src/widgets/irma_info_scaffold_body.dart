@@ -98,7 +98,10 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
             if (linkTranslationKey != null) ...[
               SizedBox(height: theme.mediumSpacing),
               GestureDetector(
-                onTap: () => _showIrmaDialog(context),
+                onTap: () {
+                  _showIrmaDialog(context);
+                  Feedback.forTap(context);
+                },
                 child: TranslatedText(
                   linkTranslationKey!,
                   style: theme.textTheme.bodyText2?.copyWith(
