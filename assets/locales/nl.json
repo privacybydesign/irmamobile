@@ -287,9 +287,7 @@
         },
         "pairing": {
             "title": "Extra veiligheidscontrole",
-            "explanation": "Vul onderstaande code in op de website.",
-            "message_title": "Koppelcode",
-            "message_body_markdown": "Een koppelcode zorgt ervoor dat de volgende stappen alleen in *jouw* Yivi-app gedaan kunnen worden."
+            "instruction": "Vul deze extra verificatiecode in op de website om je account veilig te stellen."
         },
         "unknown_session_type": {
             "title": "Afgebroken",
