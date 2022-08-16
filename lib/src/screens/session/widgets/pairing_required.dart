@@ -1,12 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/screens/session/widgets/session_scaffold.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
-import 'package:irmamobile/src/widgets/pin_box.dart';
 
+import '../../../theme/theme.dart';
+import '../../../widgets/irma_bottom_bar.dart';
 import '../../../widgets/irma_quote.dart';
+import '../../../widgets/pin_box.dart';
+import 'session_scaffold.dart';
 
 class PairingRequired extends StatelessWidget {
   final String pairingCode;
