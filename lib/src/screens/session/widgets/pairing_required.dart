@@ -62,7 +62,8 @@ class PairingRequired extends StatelessWidget {
               ),
             ),
             SizedBox(
-              height: MediaQuery.of(context).orientation == Orientation.landscape ? theme.mediumSpacing : theme.hugeSpacing,
+              height:
+                  MediaQuery.of(context).orientation == Orientation.landscape ? theme.mediumSpacing : theme.hugeSpacing,
             ),
             _buildPinBoxes(context, theme),
           ],
