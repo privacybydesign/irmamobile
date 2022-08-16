@@ -255,6 +255,13 @@ class _SessionScreenState extends State<SessionScreen> {
       });
     }
 
+    // The flow is blocked if the loading screen isn't popped.
+    // The pop is delayed on purpose to avoid the lock when the widget tree is being built
+    Future.delayed(
+      const Duration(milliseconds: 500),
+      Navigator.of(context).pop,
+    );
+
     return _buildLoadingScreen(session.isIssuanceSession);
   }
 
@@ -332,7 +339,7 @@ class _SessionScreenState extends State<SessionScreen> {
           case SessionStatus.pairing:
             return PairingRequired(
               pairingCode: session.pairingCode ?? '',
-              onDismiss: () => _dismissSession(),
+              onDismiss: _dismissSession,
             );
           case SessionStatus.requestDisclosurePermission:
             return DisclosurePermission(
@@ -345,7 +352,7 @@ class _SessionScreenState extends State<SessionScreen> {
             return IssuancePermission(
               satisfiable: session.satisfiable!,
               issuedCredentials: session.issuedCredentials!,
-              onDismiss: () => _dismissSession(),
+              onDismiss: _dismissSession,
               onGivePermission: () => _giveIssuancePermission(session),
             );
           case SessionStatus.requestPin:
@@ -363,16 +370,7 @@ class _SessionScreenState extends State<SessionScreen> {
           case SessionStatus.success:
           // fall through to same handler as canceled
           case SessionStatus.canceled:
-            {
-              // delayed on purpose to avoid the lock when the widget
-              // tree is being built
-              Future.delayed(
-                const Duration(milliseconds: 100),
-                Navigator.of(context).pop,
-              );
-
-              return _buildFinished(session);
-            }
+            return _buildFinished(session);
           default:
             return _buildLoadingScreen(session.isIssuanceSession);
         }
