@@ -39,7 +39,7 @@ class VersionButton extends StatelessWidget {
     }
 
     // throttle prevents multiple invocations of the dialog
-    // when tapping furiously 
+    // when tapping furiously
     const throttleTime = Duration(milliseconds: 100);
 
     _developerModeTapStream.throttleTime(throttleTime).listen((i) {
