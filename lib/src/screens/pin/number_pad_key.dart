@@ -58,6 +58,7 @@ class _NumberPadKey extends StatelessWidget {
           child: Material(
             color: Colors.transparent,
             child: InkWell(
+              enableFeedback: true,
               onTap: () => onEnterNumber(number),
               child: IgnorePointer(
                 child: Container(color: Colors.transparent),

@@ -49,6 +49,7 @@ class IrmaCard extends StatelessWidget {
     return Padding(
       padding: padding ?? EdgeInsets.all(theme.tinySpacing),
       child: InkWell(
+        enableFeedback: true,
         borderRadius: borderRadius,
         onTap: onTap,
         child: Container(

@@ -97,6 +97,7 @@ class YiviPinScreen extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: InkWell(
+                enableFeedback: true,
                 onTap: fn,
                 child: Icon(
                   icon,
@@ -110,6 +111,7 @@ class YiviPinScreen extends StatelessWidget {
 
     Widget activateNext(bool activate) => ElevatedButton(
           style: ButtonStyle(
+            enableFeedback: true,
             backgroundColor: MaterialStateProperty.resolveWith<Color>(
               (Set<MaterialState> states) {
                 final secondary = theme.secondary;

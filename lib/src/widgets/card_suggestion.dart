@@ -36,6 +36,7 @@ class CardSuggestion extends StatelessWidget {
         child: Semantics(
           button: true,
           child: InkWell(
+            enableFeedback: true,
             borderRadius: borderRadius,
             onTap: onTap,
             child: Padding(
