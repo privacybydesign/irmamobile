@@ -47,23 +47,25 @@ class PairingRequired extends StatelessWidget {
       appBarTitle: 'session.pairing.title',
       bottomNavigationBar: _buildNavigationBar(context),
       onDismiss: onDismiss,
-      body: Container(
-        margin: EdgeInsets.all(theme.defaultSpacing),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            IrmaQuote(
-              quote: FlutterI18n.translate(
-                context,
-                'session.pairing.instruction',
+      body: SingleChildScrollView(
+        child: Container(
+          margin: EdgeInsets.all(theme.defaultSpacing),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              IrmaQuote(
+                quote: FlutterI18n.translate(
+                  context,
+                  'session.pairing.instruction',
+                ),
+                color: const Color(0xFFE9F4FF),
               ),
-              color: const Color(0xFFE9F4FF),
-            ),
-            SizedBox(
-              height: theme.hugeSpacing,
-            ),
-            _buildPinBoxes(context, theme),
-          ],
+              SizedBox(
+                height: theme.hugeSpacing,
+              ),
+              _buildPinBoxes(context, theme),
+            ],
+          ),
         ),
       ),
     );
