@@ -12,7 +12,10 @@ class PairingRequired extends StatelessWidget {
   final String pairingCode;
   final Function() onDismiss;
 
-  const PairingRequired({required this.pairingCode, required this.onDismiss});
+  const PairingRequired({
+    required this.pairingCode,
+    required this.onDismiss,
+  });
 
   Widget _buildPinBoxes(BuildContext context, IrmaThemeData theme) {
     final boxes = List<Widget>.generate(
