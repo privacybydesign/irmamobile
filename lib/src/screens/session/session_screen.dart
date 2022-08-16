@@ -254,14 +254,6 @@ class _SessionScreenState extends State<SessionScreen> {
         popToHome(context);
       });
     }
-
-    // The flow is blocked if the loading screen isn't popped.
-    // The pop is delayed on purpose to avoid the lock when the widget tree is being built
-    Future.delayed(
-      const Duration(milliseconds: 500),
-      Navigator.of(context).pop,
-    );
-
     return _buildLoadingScreen(session.isIssuanceSession);
   }
 
@@ -302,13 +294,12 @@ class _SessionScreenState extends State<SessionScreen> {
       );
 
   Widget _buildLoadingScreen(bool isIssuance) => SessionScaffold(
-        body: Center(
-          child: LoadingIndicator(),
-        ),
-        onDismiss: () {
-          _dismissSession();
-          popToHome(context);
-        },
+        body: Column(children: [
+          Center(
+            child: LoadingIndicator(),
+          ),
+        ]),
+        onDismiss: () => _dismissSession(),
         appBarTitle: _getAppBarTitle(isIssuance),
       );
 
@@ -339,7 +330,7 @@ class _SessionScreenState extends State<SessionScreen> {
           case SessionStatus.pairing:
             return PairingRequired(
               pairingCode: session.pairingCode ?? '',
-              onDismiss: _dismissSession,
+              onDismiss: () => _dismissSession(),
             );
           case SessionStatus.requestDisclosurePermission:
             return DisclosurePermission(
@@ -352,23 +343,17 @@ class _SessionScreenState extends State<SessionScreen> {
             return IssuancePermission(
               satisfiable: session.satisfiable!,
               issuedCredentials: session.issuedCredentials!,
-              onDismiss: _dismissSession,
+              onDismiss: () => _dismissSession(),
               onGivePermission: () => _giveIssuancePermission(session),
             );
           case SessionStatus.requestPin:
             return SessionPinScreen(
               sessionID: widget.arguments.sessionID,
-              title: FlutterI18n.translate(
-                context,
-                _getAppBarTitle(
-                  session.isIssuanceSession,
-                ),
-              ),
+              title: FlutterI18n.translate(context, _getAppBarTitle(session.isIssuanceSession)),
             );
           case SessionStatus.error:
             return _buildErrorScreen(session);
           case SessionStatus.success:
-          // fall through to same handler as canceled
           case SessionStatus.canceled:
             return _buildFinished(session);
           default:
