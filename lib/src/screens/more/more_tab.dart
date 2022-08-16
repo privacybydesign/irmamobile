@@ -68,9 +68,10 @@ class MoreTab extends StatelessWidget {
                 shareTextKey: 'more_tab.share_text',
               ),
               const ExternalLink(
-                  iconData: Icons.description_outlined,
-                  translationKey: 'more_tab.privacy_policy',
-                  linkKey: 'enrollment.introduction.screen3.privacy.url'),
+                iconData: Icons.description_outlined,
+                translationKey: 'more_tab.privacy_policy',
+                linkKey: 'more_tab.privacy_policy_link',
+              ),
               _buildHeaderText('more_tab.stay_informed'),
               const ExternalLink(
                   iconData: Icons.groups_outlined,

@@ -504,6 +504,7 @@
         "irma_website": "Yivi-website",
         "irma_website_link": "https://irma.app/?lang=nl",
         "privacy_policy": "Yivi's privacyregels",
+        "privacy_policy_link": "https://privacybydesign.foundation/privacy-policy/",
         "app_id": "App-ID {id}",
         "log_out": "Uitloggen"
     },
