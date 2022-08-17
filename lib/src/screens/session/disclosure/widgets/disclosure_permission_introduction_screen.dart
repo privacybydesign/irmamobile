@@ -4,9 +4,16 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../theme/theme.dart';
 import '../../../../widgets/irma_bottom_bar.dart';
 import '../../widgets/session_scaffold.dart';
+import '../bloc/disclosure_permission_event.dart';
 import 'disclosure_permission_introduction_instruction.dart';
 
 class DisclosurePermissionIntroductionScreen extends StatelessWidget {
+  final Function(DisclosurePermissionBlocEvent) onEvent;
+
+  const DisclosurePermissionIntroductionScreen({
+    required this.onEvent,
+  });
+
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
@@ -26,7 +33,9 @@ class DisclosurePermissionIntroductionScreen extends StatelessWidget {
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: 'disclosure_permission.introduction.continue',
-        onPrimaryPressed: () {}, // TODO: Implement onTap
+        onPrimaryPressed: () => onEvent(
+          DisclosurePermissionNextPressed(),
+        ),
       ),
     );
   }

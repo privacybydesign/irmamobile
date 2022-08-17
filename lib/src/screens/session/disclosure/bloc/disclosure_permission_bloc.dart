@@ -37,6 +37,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
   })  : _repo = repo,
         _newlyAddedCredentialHashes = [],
         super(DisclosurePermissionInitial()) {
+    _maybeStartIntroduction();
     _sessionStateSubscription = repo
         .getSessionState(sessionID)
         .map((session) => _mapSessionStateToBlocState(state, session))
@@ -56,11 +57,21 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     super.close();
   }
 
+  void _maybeStartIntroduction() async {
+    var completedIntroduction = await _repo.preferences.getCompletedDisclosurePermissionIntro().first;
+    if (!completedIntroduction) add(DisclosurePermissionIntroductionStarted());
+  }
+
   @override
   Stream<DisclosurePermissionBlocState> mapEventToState(DisclosurePermissionBlocEvent event) async* {
     final state = this.state; // To prevent the need for type casting.
     final session = _repo.getCurrentSessionState(sessionID)!;
-    if (state is DisclosurePermissionIssueWizard && event is DisclosurePermissionChoiceUpdated) {
+
+    if (event is DisclosurePermissionIntroductionStarted) {
+      yield DisclosurePermissionIntroduction();
+    } else if (state is DisclosurePermissionIntroduction && event is DisclosurePermissionNextPressed) {
+      yield _mapSessionStateToBlocState(state, session);
+    } else if (state is DisclosurePermissionIssueWizard && event is DisclosurePermissionChoiceUpdated) {
       if (state.currentDiscon == null) throw Exception('No DisCon found that expects an update');
       if (event.conIndex < 0 || event.conIndex >= state.currentDiscon!.value.length) {
         throw Exception('Unknown conIndex ${event.conIndex} in current discon');
