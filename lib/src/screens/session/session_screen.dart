@@ -352,8 +352,11 @@ class _SessionScreenState extends State<SessionScreen> {
               title: FlutterI18n.translate(context, _getAppBarTitle(session.isIssuanceSession)),
             );
           case SessionStatus.error:
+            Feedback.forLongPress(context);
             return _buildErrorScreen(session);
           case SessionStatus.success:
+            Feedback.forTap(context);
+            return _buildFinished(session);
           case SessionStatus.canceled:
             return _buildFinished(session);
           default:
