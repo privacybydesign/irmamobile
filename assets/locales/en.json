@@ -222,8 +222,7 @@
         "button_block": "Block Yivi"
     },
     "session_pin": {
-        "subtitle": "Re-enter your PIN to continue.",
-        "explanation": "For your safety, the Yivi app regularly asks for your PIN."
+        "subtitle": "Enter your PIN"
     },
     "error": {
         "title": "Something went wrong",
