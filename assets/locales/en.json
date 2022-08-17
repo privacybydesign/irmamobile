@@ -302,6 +302,13 @@
         "obtain_new": "Obtain new data",
         "next_step": "Next step",
         "obtain_data": "Obtain data",
+        "introduction": {
+            "title": "Get going",
+            "header": "Share your data in 3 simple steps:",
+            "step_1": "Obtain the needed data.",
+            "step_2": "Choose the data you would like to share",
+            "step_3": "Share your data."
+        },
         "issue_wizard": {
             "title": "Collect data",
             "explanation": "Obtain your data step by step. You will be sharing these later.",
@@ -392,8 +399,8 @@
     },
     "arrow_back": {
         "no_success": "Cancelled",
-        "disclosure_success" :  "Done, your data has been disclosed",
-        "issuance_success" : "Done, the data has been added",
+        "disclosure_success": "Done, your data has been disclosed",
+        "issuance_success": "Done, the data has been added",
         "safari": "Tap on the name of the application (such as Safari, Chrome, Firefox) in the top left corner to return to the application you came from."
     },
     "update": {
