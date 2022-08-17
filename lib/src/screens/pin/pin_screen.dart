@@ -76,6 +76,11 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
           ),
         ));
       }
+      if (!pinState.authenticated) {
+        Feedback.forLongPress(context);
+      } else {
+        Feedback.forTap(context);
+      }
     });
   }
 

@@ -185,15 +185,18 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
           listener: (BuildContext context, OldPinVerificationState state) {
             switch (state.validationState) {
               case ValidationState.valid:
+                Feedback.forTap(context);
                 // old pin verified, proceed to new pin screen
                 navigatorKey.currentState?.pushReplacementNamed(ChoosePinScreen.routeName);
                 break;
               case ValidationState.invalid:
+                Feedback.forLongPress(context);
                 assert(state.attemptsRemaining != null);
                 _handleBadPinAttempts(state.attemptsRemaining!, state.blockedUntil);
                 navigatorKey.currentState?.pushNamed(EnterPin.routeName);
                 break;
               case ValidationState.error:
+                Feedback.forLongPress(context);
                 _handleException(state.error);
                 break;
               case ValidationState.initial: // for completeness
