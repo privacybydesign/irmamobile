@@ -96,6 +96,7 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
       builder: (context, state) {
         return Center(
           child: TextButton(
+            style: TextButton.styleFrom(enableFeedback: true),
             onPressed: () => _showSecurePinRules(state),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
