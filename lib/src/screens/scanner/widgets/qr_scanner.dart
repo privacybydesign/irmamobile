@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../models/session.dart';
@@ -43,9 +44,9 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     if (error) {
-      Feedback.forLongPress(context);
+      HapticFeedback.heavyImpact();
     } else {
-      Feedback.forTap(context);
+      HapticFeedback.mediumImpact();
     }
     return SafeArea(
       child: Stack(

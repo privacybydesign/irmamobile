@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../data/irma_repository.dart';
@@ -352,10 +353,10 @@ class _SessionScreenState extends State<SessionScreen> {
               title: FlutterI18n.translate(context, _getAppBarTitle(session.isIssuanceSession)),
             );
           case SessionStatus.error:
-            Feedback.forLongPress(context);
+            HapticFeedback.heavyImpact();
             return _buildErrorScreen(session);
           case SessionStatus.success:
-            Feedback.forTap(context);
+            HapticFeedback.mediumImpact();
             return _buildFinished(session);
           case SessionStatus.canceled:
             return _buildFinished(session);

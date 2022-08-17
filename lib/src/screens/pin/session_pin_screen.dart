@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/session_events.dart';
@@ -44,12 +45,12 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
       _pinBlocSubscription = _pinBloc.stream.listen((pinState) async {
         if (pinState.pinInvalid) {
           _handleInvalidPin(pinState);
-          Feedback.forLongPress(context);
+          HapticFeedback.heavyImpact();
         } else if (pinState.error != null) {
           _handleError(pinState);
-          Feedback.forLongPress(context);
+          HapticFeedback.heavyImpact();
         } else {
-          Feedback.forTap(context);
+          HapticFeedback.mediumImpact();
         }
       });
     });

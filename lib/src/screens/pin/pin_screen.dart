@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
@@ -77,9 +78,9 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
         ));
       }
       if (!pinState.authenticated) {
-        Feedback.forLongPress(context);
+        HapticFeedback.heavyImpact();
       } else {
-        Feedback.forTap(context);
+        HapticFeedback.mediumImpact();
       }
     });
   }
