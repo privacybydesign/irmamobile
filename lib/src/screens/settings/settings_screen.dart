@@ -36,6 +36,7 @@ class SettingsScreen extends StatelessWidget {
               stream: repo.preferences.getStartQRScan(),
               builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
                 return SwitchListTile.adaptive(
+                  enableFeedback: true,
                   title: Text(
                     FlutterI18n.translate(context, 'settings.start_qr'),
                     style: theme.textTheme.bodyText2,
@@ -51,6 +52,7 @@ class SettingsScreen extends StatelessWidget {
               stream: repo.preferences.getReportErrors(),
               builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
                 return SwitchListTile.adaptive(
+                  enableFeedback: true,
                   title: Text(
                     FlutterI18n.translate(context, 'settings.advanced.report_errors'),
                     style: theme.textTheme.bodyText2,
@@ -71,6 +73,7 @@ class SettingsScreen extends StatelessWidget {
                         stream: repo.getDeveloperMode(),
                         builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
                           return SwitchListTile.adaptive(
+                            enableFeedback: true,
                             title: Text(
                               FlutterI18n.translate(context, 'settings.advanced.developer_mode'),
                               style: theme.textTheme.bodyText2,
@@ -89,6 +92,7 @@ class SettingsScreen extends StatelessWidget {
                 stream: repo.preferences.getScreenshotsEnabled(),
                 builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
                   return SwitchListTile.adaptive(
+                    enableFeedback: true,
                     title: Text(
                       FlutterI18n.translate(context, 'settings.advanced.enable_screenshots'),
                       style: theme.textTheme.bodyText2,
