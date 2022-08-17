@@ -9,6 +9,7 @@ import '../screens/required_update/required_update_screen.dart';
 import '../screens/rooted_warning/rooted_warning_screen.dart';
 import '../screens/session/widgets/arrow_back_screen.dart';
 import '../screens/session/widgets/disclosure_feedback_screen.dart';
+import '../screens/session/widgets/pairing_required.dart';
 import '../screens/splash_screen/splash_screen.dart';
 import '../widgets/irma_error_scaffold_body.dart';
 import 'prototype_pin_screen.dart';
@@ -18,7 +19,12 @@ class PrototypesScreen extends StatelessWidget {
   final pinBloc5 = EnterPinStateBloc(5);
   final pinBloc16 = EnterPinStateBloc(16);
 
-  Widget _buildTile(BuildContext context, String title, Widget screen) => ListTile(
+  Widget _buildTile(
+    BuildContext context,
+    String title,
+    Widget screen,
+  ) =>
+      ListTile(
         title: Text(title),
         onTap: () => Navigator.push(
           context,
@@ -28,7 +34,11 @@ class PrototypesScreen extends StatelessWidget {
         ),
       );
 
-  Widget _toggleSetPinSize({required BuildContext context, required bool isShort, required String instructionKey}) {
+  Widget _toggleSetPinSize({
+    required BuildContext context,
+    required bool isShort,
+    required String instructionKey,
+  }) {
     final size = isShort ? 5 : 16;
     final pinBloc = isShort ? pinBloc5 : pinBloc16;
 
@@ -131,7 +141,7 @@ class PrototypesScreen extends StatelessWidget {
             context,
             'No internet',
             NoInternetScreen(
-              onTapClose: () => Navigator.pop(context),
+              onTapClose: Navigator.of(context).pop,
               onTapRetry: () {},
             ),
           ),
@@ -144,22 +154,30 @@ class PrototypesScreen extends StatelessWidget {
             context,
             'General error',
             ErrorScreen(
-              onTapClose: () => Navigator.pop(context),
+              onTapClose: Navigator.of(context).pop,
             ),
           ),
           _buildTile(
             context,
             'Error: pairing rejected',
             ErrorScreen(
-              onTapClose: () => Navigator.pop(context),
+              onTapClose: Navigator.of(context).pop,
               type: ErrorType.pairingRejected,
+            ),
+          ),
+          _buildTile(
+            context,
+            'Pairing required',
+            PairingRequired(
+              pairingCode: '4567',
+              onDismiss: Navigator.of(context).pop,
             ),
           ),
           _buildTile(
             context,
             'Error: session unknown / unexpected request',
             ErrorScreen(
-              onTapClose: () => Navigator.pop(context),
+              onTapClose: Navigator.of(context).pop,
               type: ErrorType.expired,
             ),
           ),
@@ -169,7 +187,7 @@ class PrototypesScreen extends StatelessWidget {
             DisclosureFeedbackScreen(
               feedbackType: DisclosureFeedbackType.success,
               otherParty: 'successful party',
-              popToWallet: (context) => Navigator.pop(context),
+              popToWallet: Navigator.pop,
             ),
           ),
           _buildTile(
@@ -178,7 +196,7 @@ class PrototypesScreen extends StatelessWidget {
             DisclosureFeedbackScreen(
               feedbackType: DisclosureFeedbackType.canceled,
               otherParty: 'canceled party',
-              popToWallet: (context) => Navigator.pop(context),
+              popToWallet: Navigator.pop,
             ),
           ),
           _buildTile(
@@ -187,7 +205,7 @@ class PrototypesScreen extends StatelessWidget {
             DisclosureFeedbackScreen(
               feedbackType: DisclosureFeedbackType.notSatisfiable,
               otherParty: 'unsatisfied party',
-              popToWallet: (context) => Navigator.pop(context),
+              popToWallet: Navigator.pop,
             ),
           ),
           _buildTile(

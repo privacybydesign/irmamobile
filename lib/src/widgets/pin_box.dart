@@ -4,7 +4,6 @@ import '../theme/theme.dart';
 
 class PinBox extends StatelessWidget {
   final double height;
-  final EdgeInsets margin;
 
   final String char;
 
@@ -12,23 +11,22 @@ class PinBox extends StatelessWidget {
   final bool completed;
   final bool highlightBorder;
 
-  bool get filled => char != '';
+  final bool filled;
 
-  const PinBox({
-    required this.margin,
+  PinBox({
     required this.char,
     this.height = 40.0,
     this.disabled = false,
     this.completed = false,
     this.highlightBorder = false,
-  });
+  }) : filled = char.isNotEmpty;
 
   Color getBorderColor(IrmaThemeData theme) {
-    if (filled) {
-      return Colors.grey.shade300; // filled boxes
-    } else if (highlightBorder) {
+    if (highlightBorder) {
       // the box that is currently highlighted
       return theme.secondary;
+    } else if (filled) {
+      return Colors.grey.shade300; // filled boxes
     } else {
       // empty boxes that are not highlighted
       return Colors.grey;
@@ -40,7 +38,6 @@ class PinBox extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
-      margin: margin,
       width: height / 4 * 3,
       height: height,
       alignment: Alignment.center,

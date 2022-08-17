@@ -287,9 +287,7 @@
         },
         "pairing": {
             "title": "Extra safety check",
-            "explanation": "Please enter the code below on the website.",
-            "message_title": "Pairing code",
-            "message_body_markdown": "A pairing code makes sure that the following steps can only be done in *your* Yivi app."
+            "instruction": "Enter this verification code on the website to secure your account"
         },
         "unknown_session_type": {
             "title": "Cancelled",
@@ -394,8 +392,8 @@
     },
     "arrow_back": {
         "no_success": "Cancelled",
-        "disclosure_success" :  "Done, your data has been disclosed",
-        "issuance_success" : "Done, the data has been added",
+        "disclosure_success": "Done, your data has been disclosed",
+        "issuance_success": "Done, the data has been added",
         "safari": "Tap on the name of the application (such as Safari, Chrome, Firefox) in the top left corner to return to the application you came from."
     },
     "update": {
@@ -486,6 +484,7 @@
         "debugging": "Debugging",
         "contact": "Contact us",
         "share": "Share Yivi",
+        "share_text": "Check out the Yivi app: https://irma.app",
         "website": "Yivi-website",
         "meet_up": "Yivi-meetups",
         "need_help": "Need help?",
@@ -503,6 +502,7 @@
         "irma_website": "Yivi-website",
         "irma_website_link": "https://irma.app/?lang=en",
         "privacy_policy": "Yivi's privacy policy",
+        "privacy_policy_link": "https://privacybydesign.foundation/privacy-policy-en/",
         "app_id": "App ID {id}",
         "log_out": "Log out"
     },
