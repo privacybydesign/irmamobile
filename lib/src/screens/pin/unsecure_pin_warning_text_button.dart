@@ -37,6 +37,7 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
                   child: const SizedBox.square(dimension: 32),
                 ),
                 IconButton(
+                  enableFeedback: true,
                   alignment: Alignment.center,
                   onPressed: () => Navigator.pop(context),
                   icon: Icon(

@@ -9,7 +9,6 @@ import '../../util/language.dart';
 import '../../widgets/credential_card/delete_credential_confirmation_dialog.dart';
 import '../../widgets/credential_card/irma_credential_card.dart';
 import '../../widgets/credential_card/irma_credential_card_options_bottom_sheet.dart';
-import '../../widgets/credential_card/models/card_expiry_date.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/translated_text.dart';
@@ -138,6 +137,7 @@ class _CredentialsDetailScreenState extends State<CredentialsDetailScreen> {
                             cred.info.credentialType.disallowDelete && cred.info.credentialType.issueUrl.isEmpty
                                 ? null
                                 : IconButton(
+                                    enableFeedback: true,
                                     alignment: Alignment.topRight,
                                     padding: EdgeInsets.zero,
                                     onPressed: () => _showCredentialOptionsBottomSheet(context, cred),

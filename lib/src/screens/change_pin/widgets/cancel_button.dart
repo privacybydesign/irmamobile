@@ -13,6 +13,7 @@ class CancelButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
+      enableFeedback: true,
       icon: Icon(IrmaIcons.arrowBack, semanticLabel: FlutterI18n.translate(context, "accessibility.back")),
       iconSize: 20.0,
       onPressed: () async {

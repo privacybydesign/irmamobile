@@ -44,6 +44,7 @@ class _IllustratorState extends State<Illustrator> with SingleTickerProviderStat
             Positioned(
               left: 0,
               child: IconButton(
+                enableFeedback: true,
                 icon: Icon(IrmaIcons.chevronLeft,
                     semanticLabel: FlutterI18n.translate(context, "disclosure.previous"),
                     color: IrmaTheme.of(context).success),
@@ -64,6 +65,7 @@ class _IllustratorState extends State<Illustrator> with SingleTickerProviderStat
             Positioned(
               right: 0,
               child: IconButton(
+                enableFeedback: true,
                 icon: Icon(IrmaIcons.chevronRight,
                     semanticLabel: FlutterI18n.translate(context, "disclosure.next"),
                     color: IrmaTheme.of(context).success),
