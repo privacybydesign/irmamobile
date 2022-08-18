@@ -43,7 +43,7 @@ class SettingsScreen extends StatelessWidget {
                   ),
                   activeColor: theme.themeData.colorScheme.secondary,
                   value: snapshot.hasData && snapshot.data!,
-                  onChanged: repo.preferences.setStartQRScan,
+                  onChanged: repo.preferences.setStartQRScan.haptic,
                   secondary: Icon(IrmaIcons.scanQrcode, size: 30, color: theme.themeData.colorScheme.secondary),
                 );
               },
@@ -78,7 +78,7 @@ class SettingsScreen extends StatelessWidget {
                             ),
                             activeColor: theme.themeData.colorScheme.secondary,
                             value: snapshot.data != null && snapshot.data!,
-                            onChanged: ((enabled) => repo.setDeveloperMode(enabled)).haptic,
+                            onChanged: repo.setDeveloperMode.haptic,
                             secondary: Icon(IrmaIcons.settings, size: 30, color: theme.themeData.colorScheme.secondary),
                           );
                         },
