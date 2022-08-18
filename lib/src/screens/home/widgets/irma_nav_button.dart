@@ -29,7 +29,6 @@ class IrmaNavButton extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     return Expanded(
       child: InkWell(
-        enableFeedback: true,
         onTap: () => changeTab?.call(tab),
         child: Column(
           mainAxisSize: MainAxisSize.min,

@@ -49,7 +49,6 @@ class IrmaThemedButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          enableFeedback: true,
           side: isSecondary ? BorderSide(color: color) : null,
           elevation: 0.0,
           primary: isSecondary ? Colors.white : color,

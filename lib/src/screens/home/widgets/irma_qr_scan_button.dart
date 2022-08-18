@@ -22,7 +22,6 @@ class IrmaQrScanButton extends StatelessWidget {
             backgroundColor: theme.themeData.colorScheme.secondary,
             radius: 36,
             child: IconButton(
-                enableFeedback: true,
                 tooltip: FlutterI18n.translate(context, 'home.nav_bar.scan_qr'),
                 color: Colors.white,
                 onPressed: () {

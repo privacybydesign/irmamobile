@@ -51,7 +51,6 @@ class ActionFeedback extends StatelessWidget {
               child: CircleAvatar(
                 backgroundColor: Colors.grey.shade300,
                 child: IconButton(
-                  enableFeedback: true,
                   onPressed: () => dismiss(context),
                   icon: Icon(
                     Icons.close_outlined,

@@ -91,7 +91,6 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
                 backgroundColor: Colors.grey.shade300,
                 radius: 24,
                 child: IconButton(
-                    enableFeedback: true,
                     tooltip: FlutterI18n.translate(context, 'accessibility.back'),
                     padding: EdgeInsets.zero,
                     onPressed: Navigator.of(context).pop,

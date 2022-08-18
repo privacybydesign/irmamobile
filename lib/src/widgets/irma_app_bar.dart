@@ -40,7 +40,6 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
               child: CircleAvatar(
                 backgroundColor: Colors.grey.shade300,
                 child: IconButton(
-                  enableFeedback: true,
                   key: const Key('irma_app_bar_leading'),
                   icon: leadingIcon ??
                       Icon(

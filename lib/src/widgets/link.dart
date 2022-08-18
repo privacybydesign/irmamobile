@@ -16,7 +16,6 @@ class Link extends StatelessWidget {
       link: true,
       key: const Key('irma_link'),
       child: InkWell(
-        enableFeedback: true,
         onTap: onTap,
         child: Text(
           label,

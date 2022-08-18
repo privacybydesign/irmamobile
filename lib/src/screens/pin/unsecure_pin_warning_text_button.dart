@@ -37,7 +37,6 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
                   child: const SizedBox.square(dimension: 32),
                 ),
                 IconButton(
-                  enableFeedback: true,
                   alignment: Alignment.center,
                   onPressed: () => Navigator.pop(context),
                   icon: Icon(
@@ -96,7 +95,6 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
       builder: (context, state) {
         return Center(
           child: TextButton(
-            style: TextButton.styleFrom(enableFeedback: true),
             onPressed: () => _showSecurePinRules(state),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,

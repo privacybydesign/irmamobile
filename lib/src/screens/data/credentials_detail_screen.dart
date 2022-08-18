@@ -137,7 +137,6 @@ class _CredentialsDetailScreenState extends State<CredentialsDetailScreen> {
                             cred.info.credentialType.disallowDelete && cred.info.credentialType.issueUrl.isEmpty
                                 ? null
                                 : IconButton(
-                                    enableFeedback: true,
                                     alignment: Alignment.topRight,
                                     padding: EdgeInsets.zero,
                                     onPressed: () => _showCredentialOptionsBottomSheet(context, cred),
