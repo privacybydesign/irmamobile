@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:irmamobile/src/prototypes/haptic_screen.dart';
 
 import '../screens/error/blocked_screen.dart';
 import '../screens/error/error_screen.dart';
@@ -67,6 +68,13 @@ class PrototypesScreen extends StatelessWidget {
       appBar: AppBar(centerTitle: true, title: const Text('Screens')),
       body: ListView(
         children: [
+          _buildTile(
+            context,
+            'Haptics',
+            HapticScreen(
+              onBack: Navigator.of(context).pop,
+            ),
+          ),
           _buildTile(
             context,
             'Basic pin input, exactly 5 digits',
