@@ -307,7 +307,8 @@
             "header": "Share your data in 3 simple steps:",
             "step_1": "Obtain the required data.",
             "step_2": "Choose the data you would like to share",
-            "step_3": "Share your data."
+            "step_3": "Share your data.",
+            "continue": "Get going"
         },
         "issue_wizard": {
             "title": "Collect data",
