@@ -222,8 +222,7 @@
         "button_block": "Yivi blokkeren"
     },
     "session_pin": {
-        "subtitle": "Voer je pincode opnieuw in om verder te gaan.",
-        "explanation": "Voor de veiligheid vraagt de Yivi-app regelmatig opnieuw je pincode."
+        "subtitle": "Voer je pincode in"
     },
     "error": {
         "title": "Er gaat iets fout",
@@ -392,8 +391,8 @@
     },
     "arrow_back": {
         "no_success": "Afgebroken",
-        "disclosure_success" :  "Gelukt, je gegevens zijn gedeeld",
-        "issuance_success" : "Gelukt, de gegevens zijn toegevoegd",
+        "disclosure_success": "Gelukt, je gegevens zijn gedeeld",
+        "issuance_success": "Gelukt, de gegevens zijn toegevoegd",
         "safari": "Tik bovenin op de naam van het programma (bijvoorbeeld Safari, Chrome, Firefox) om terug te gaan naar het programma waar je mee bezig was."
     },
     "update": {
