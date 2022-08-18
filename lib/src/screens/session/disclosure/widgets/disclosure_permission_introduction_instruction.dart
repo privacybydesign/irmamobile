@@ -12,6 +12,7 @@ class DisclosurePermissionIntroductionInstruction extends StatelessWidget {
     Widget _buildStepInstruction(int step) => Padding(
           padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               SizedBox(
                 height: 27,
@@ -26,19 +27,24 @@ class DisclosurePermissionIntroductionInstruction extends StatelessWidget {
           ),
         );
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        TranslatedText(
-          'disclosure_permission.introduction.header',
-          style: theme.themeData.textTheme.headline5,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TranslatedText(
+              'disclosure_permission.introduction.header',
+              style: theme.themeData.textTheme.headline5,
+            ),
+            SizedBox(
+              height: theme.smallSpacing,
+            ),
+            _buildStepInstruction(1),
+            _buildStepInstruction(2),
+            _buildStepInstruction(3)
+          ],
         ),
-        SizedBox(
-          height: theme.smallSpacing,
-        ),
-        _buildStepInstruction(1),
-        _buildStepInstruction(2),
-        _buildStepInstruction(3)
       ],
     );
   }
