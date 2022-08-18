@@ -107,8 +107,20 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
 
   void _handlePinMismatch() {
     showDialog(
+      barrierDismissible: false,
       context: context,
-      builder: (BuildContext context) => PinConfirmationFailedDialog(),
+      builder: (BuildContext context) => PinConfirmationFailedDialog(
+        onPressed: () {
+          Navigator.pop(context); // pop dialog
+          navigatorKey.currentState
+            ?..popUntil(
+              (route) => route.settings.name == ChoosePinScreen.routeName,
+            )
+            ..pushReplacementNamed(
+              ChoosePinScreen.routeName,
+            );
+        },
+      ),
     );
   }
 

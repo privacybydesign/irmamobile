@@ -6,6 +6,13 @@ import '../../../../widgets/irma_dialog.dart';
 import '../../../../widgets/irma_themed_button.dart';
 
 class PinConfirmationFailedDialog extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  const PinConfirmationFailedDialog({
+    Key? key,
+    required this.onPressed,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return IrmaDialog(
@@ -13,7 +20,7 @@ class PinConfirmationFailedDialog extends StatelessWidget {
       content: FlutterI18n.translate(context, 'confirm_pin.error.body'),
       child: IrmaButton(
         size: IrmaButtonSize.small,
-        onPressed: Navigator.of(context).pop,
+        onPressed: onPressed,
         label: 'confirm_pin.error.action',
       ),
     );

@@ -39,3 +39,5 @@ class EnrollmentNextPressed implements EnrollmentBlocEvent {}
 class EnrollmentPreviousPressed implements EnrollmentBlocEvent {}
 
 class EnrollmentRetried implements EnrollmentBlocEvent {}
+
+class EnrollmentPinMismatch implements EnrollmentBlocEvent {}
