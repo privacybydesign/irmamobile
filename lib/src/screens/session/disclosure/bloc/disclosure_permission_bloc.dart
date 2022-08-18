@@ -287,7 +287,9 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
 
   DisclosurePermissionBlocState _mapSessionStateToBlocState(DisclosurePermissionBlocState state, SessionState session) {
     if (session.status != SessionStatus.requestDisclosurePermission) {
-      if (state is! DisclosurePermissionInitial && state is! DisclosurePermissionFinished) {
+      if (state is! DisclosurePermissionInitial &&
+          state is! DisclosurePermissionIntroduction &&
+          state is! DisclosurePermissionFinished) {
         _repo.preferences.setCompletedDisclosurePermissionIntro(true);
         return DisclosurePermissionFinished();
       }
