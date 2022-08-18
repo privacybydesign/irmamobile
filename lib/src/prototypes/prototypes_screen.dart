@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_introduction_screen.dart';
 
 import '../screens/error/blocked_screen.dart';
 import '../screens/error/error_screen.dart';
@@ -215,8 +216,10 @@ class PrototypesScreen extends StatelessWidget {
           ),
           _buildTile(
             context,
-            'Loading screen',
-            LoadingScreen(),
+            'Disclosure permission introduction',
+            DisclosurePermissionIntroductionScreen(
+              onEvent: (_) {},
+            ),
           ),
         ],
       ),
