@@ -301,6 +301,14 @@
         "obtain_new": "Nieuwe gegevens ophalen",
         "next_step": "Volgende stap",
         "obtain_data": "Gegevens ophalen",
+        "introduction": {
+            "title": "Aan de slag",
+            "header": "Deel jouw gegevens in 3 simpele stappen:",
+            "step_1": "Verzamel de gegevens die nodig zijn.",
+            "step_2": "Kies de gegevens die jij wilt delen.",
+            "step_3": "Deel jouw gegevens.",
+            "continue": "Aan de slag"
+        },
         "issue_wizard": {
             "title": "Verzamel gegevens",
             "explanation": "Haal stap voor stap je nieuwe gegevens op. Deze worden later gedeeld.",

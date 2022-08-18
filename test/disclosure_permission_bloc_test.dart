@@ -55,6 +55,10 @@ void main() {
       isBridgedEvent: true,
     );
 
+    //The first test should see the introduction
+    expect(await bloc.stream.first, isA<DisclosurePermissionIntroduction>());
+    bloc.add(DisclosurePermissionNextPressed());
+
     expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
     DisclosurePermissionIssueWizard issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
     expect(issueWizardBlocState.plannedSteps, [

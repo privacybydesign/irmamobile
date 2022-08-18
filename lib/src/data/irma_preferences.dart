@@ -26,7 +26,9 @@ class IrmaPreferences {
         _startQRScan = preferences.getBool(_startQRScanKey, defaultValue: false),
         _showDisclosureDialog = preferences.getBool(_showDisclosureDialogKey, defaultValue: true),
         _developerModePrefVisible = preferences.getBool(_developerModePrefVisibleKey, defaultValue: false),
-        _acceptedRootedRisk = preferences.getBool(_acceptedRootedRiskKey, defaultValue: false);
+        _acceptedRootedRisk = preferences.getBool(_acceptedRootedRiskKey, defaultValue: false),
+        _completedDisclosurePermissionIntro =
+            preferences.getBool(_completedDisclosurePermissionIntroKey, defaultValue: false);
 
   static Future<IrmaPreferences> fromInstance() async => IrmaPreferences(await StreamingSharedPreferences.instance);
 
@@ -77,4 +79,10 @@ class IrmaPreferences {
 
   Stream<bool> getAcceptedRootedRisk() => _acceptedRootedRisk;
   Future<bool> setAcceptedRootedRisk(bool value) => _acceptedRootedRisk.setValue(value);
+
+  static const String _completedDisclosurePermissionIntroKey = "preference.completed_disclosure_permission_intro";
+  final Preference<bool> _completedDisclosurePermissionIntro;
+
+  Stream<bool> getCompletedDisclosurePermissionIntro() => _completedDisclosurePermissionIntro;
+  Future<bool> setCompletedDisclosurePermissionIntro(bool value) => _completedDisclosurePermissionIntro.setValue(value);
 }
