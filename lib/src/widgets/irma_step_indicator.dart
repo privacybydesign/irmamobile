@@ -38,21 +38,24 @@ class IrmaStepIndicator extends StatelessWidget {
           width: 2,
         ),
       ),
-      child: style == IrmaStepIndicatorStyle.success
-          ? const Icon(
-              Icons.check,
-              size: 14,
-              color: Colors.white,
-            )
-          : Text(
-              step.toString(),
-              textAlign: TextAlign.center,
-              style: theme.textTheme.caption!.copyWith(
-                height: 1.2,
-                fontWeight: FontWeight.bold,
-                color: style == IrmaStepIndicatorStyle.outlined ? theme.themeData.colorScheme.secondary : Colors.white,
+      child: FittedBox(
+        fit: BoxFit.fitHeight,
+        child: style == IrmaStepIndicatorStyle.success
+            ? const Icon(
+                Icons.check,
+                color: Colors.white,
+              )
+            : Text(
+                step.toString(),
+                textAlign: TextAlign.center,
+                style: theme.textTheme.caption!.copyWith(
+                  height: 1.2,
+                  fontWeight: FontWeight.bold,
+                  color:
+                      style == IrmaStepIndicatorStyle.outlined ? theme.themeData.colorScheme.secondary : Colors.white,
+                ),
               ),
-            ),
+      ),
     );
   }
 }
