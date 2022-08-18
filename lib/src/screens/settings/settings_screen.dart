@@ -6,6 +6,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import '../../models/clear_all_data_event.dart';
 import '../../theme/irma_icons.dart';
 import '../../theme/theme.dart';
+import '../../util/haptics.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_button.dart';
 import '../../widgets/irma_dialog.dart';
@@ -59,7 +60,7 @@ class SettingsScreen extends StatelessWidget {
                   ),
                   activeColor: theme.themeData.colorScheme.secondary,
                   value: snapshot.data != null && snapshot.data!,
-                  onChanged: repo.preferences.setReportErrors,
+                  onChanged: repo.preferences.setReportErrors.haptic,
                   secondary: Icon(IrmaIcons.invalid, size: 30, color: theme.themeData.colorScheme.secondary),
                 );
               },
@@ -80,7 +81,7 @@ class SettingsScreen extends StatelessWidget {
                             ),
                             activeColor: theme.themeData.colorScheme.secondary,
                             value: snapshot.data != null && snapshot.data!,
-                            onChanged: (enabled) => repo.setDeveloperMode(enabled),
+                            onChanged: ((enabled) => repo.setDeveloperMode(enabled)).haptic,
                             secondary: Icon(IrmaIcons.settings, size: 30, color: theme.themeData.colorScheme.secondary),
                           );
                         },
@@ -103,7 +104,7 @@ class SettingsScreen extends StatelessWidget {
                     ),
                     activeColor: theme.themeData.colorScheme.secondary,
                     value: snapshot.data != null && snapshot.data!,
-                    onChanged: repo.preferences.setScreenshotsEnabled,
+                    onChanged: repo.preferences.setScreenshotsEnabled.haptic,
                     secondary: Icon(IrmaIcons.phone, size: 30, color: theme.themeData.colorScheme.secondary),
                   );
                 },
