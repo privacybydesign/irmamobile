@@ -97,7 +97,7 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
         }
         yield EnrollmentProvideEmail();
       } else if (event is EnrollmentPreviousPressed) {
-        yield EnrollmentConfirmPin();
+        yield EnrollmentChoosePin();
       }
       // Terms are toggled
       else if (event is EnrollmentTermsUpdated) {
