@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/theme.dart';
+import 'irma_icon_button.dart';
 
 class IrmaCloseButton extends StatelessWidget {
   final Function()? onTap;
@@ -11,25 +11,9 @@ class IrmaCloseButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
-    return Padding(
-      padding: EdgeInsets.only(
-        right: theme.defaultSpacing,
-        top: theme.defaultSpacing,
-      ),
-      child: GestureDetector(
-        onTap: onTap ?? () => Navigator.of(context).pop(),
-        child: CircleAvatar(
-          backgroundColor: theme.neutralExtraLight,
-          radius: 18,
-          child: Icon(
-            Icons.close,
-            size: 20,
-            color: theme.neutral,
-          ),
-        ),
-      ),
+    return IrmaIconButton(
+      icon: Icons.close,
+      onTap: onTap ?? () => Navigator.of(context).pop(),
     );
   }
 }
