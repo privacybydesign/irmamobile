@@ -9,9 +9,11 @@ import 'disclosure_permission_introduction_instruction.dart';
 
 class DisclosurePermissionIntroductionScreen extends StatelessWidget {
   final Function(DisclosurePermissionBlocEvent) onEvent;
+  final Function() onDismiss;
 
   const DisclosurePermissionIntroductionScreen({
     required this.onEvent,
+    required this.onDismiss,
   });
 
   @override
@@ -20,6 +22,7 @@ class DisclosurePermissionIntroductionScreen extends StatelessWidget {
 
     return SessionScaffold(
       appBarTitle: 'disclosure_permission.introduction.title',
+      onDismiss: onDismiss,
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
         child: Column(

@@ -17,11 +17,13 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
   final RequestorInfo requestor;
   final DisclosurePermissionIssueWizard state;
   final Function(DisclosurePermissionBlocEvent) onEvent;
+  final Function() onDismiss;
 
   const DisclosurePermissionIssueWizardScreen({
     required this.requestor,
     required this.state,
     required this.onEvent,
+    required this.onDismiss,
   });
 
   @override
@@ -31,6 +33,7 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
 
     return SessionScaffold(
       appBarTitle: 'disclosure_permission.issue_wizard.title',
+      onDismiss: onDismiss,
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
         child: Column(
