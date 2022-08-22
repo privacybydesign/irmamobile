@@ -332,6 +332,12 @@
             "confirm": "Share",
             "decline": "Don't share"
         },
+        "confirm_close_dialog": {
+            "title": "Cancel data sharing",
+            "explanation": "Are you sure you don't want to share your data?",
+            "confirm": "Close",
+            "decline": "Continue"
+        },
         "wrong_credentials_added": {
             "title": "Error",
             "explanation": "Data has been added to the app, but they do not meet the criteria to share them. Please obtain the right data.",

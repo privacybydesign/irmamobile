@@ -224,6 +224,7 @@ class PrototypesScreen extends StatelessWidget {
             'Disclosure permission introduction',
             DisclosurePermissionIntroductionScreen(
               onEvent: (_) {},
+              onDismiss: () {},
             ),
           ),
         ],

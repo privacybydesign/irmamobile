@@ -19,12 +19,14 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
   final RequestorInfo requestor;
   final DisclosurePermissionChoices state;
   final Function(DisclosurePermissionBlocEvent) onEvent;
+  final Function() onDismiss;
   final ReturnURL? returnURL;
 
   const DisclosurePermissionChoicesScreen({
     required this.requestor,
     required this.state,
     required this.onEvent,
+    required this.onDismiss,
     this.returnURL,
   });
 
@@ -56,6 +58,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
       appBarTitle: state is DisclosurePermissionPreviouslyAddedCredentialsOverview
           ? 'disclosure_permission.previously_added.title'
           : 'disclosure_permission.overview.title',
+      onDismiss: onDismiss,
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
         child: Column(

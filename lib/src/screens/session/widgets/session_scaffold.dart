@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../theme/theme.dart';
 import '../../../widgets/irma_app_bar.dart';
+import '../../../widgets/irma_close_button.dart';
 
 class SessionScaffold extends StatelessWidget {
   final Widget? body, bottomNavigationBar;
@@ -19,13 +20,20 @@ class SessionScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+
     return Scaffold(
       backgroundColor: theme.background,
       bottomNavigationBar: bottomNavigationBar,
       body: body,
       appBar: IrmaAppBar(
         titleTranslationKey: appBarTitle,
-        leadingAction: onDismiss,
+        noLeading: true,
+        actions: [
+          if (onDismiss != null)
+            IrmaCloseButton(
+              onTap: onDismiss,
+            ),
+        ],
       ),
     );
   }
