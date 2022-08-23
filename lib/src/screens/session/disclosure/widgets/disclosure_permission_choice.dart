@@ -37,7 +37,6 @@ class DisclosurePermissionChoice extends StatelessWidget {
                       onTap: () {
                         if (isActive) {
                           onChoiceUpdated(i);
-                          Feedback.forTap(context);
                         }
                       },
                       child: IrmaCredentialCard(

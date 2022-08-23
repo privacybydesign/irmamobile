@@ -192,7 +192,6 @@ class _ConfigurableExpansionTileState extends State<ConfigurableExpansionTile> w
       PageStorage.of(context)?.writeState(context, _isExpanded);
     });
     widget.onExpansionChanged?.call(_isExpanded);
-    Feedback.forTap(context);
   }
 
   Widget _buildChildren(BuildContext context, Widget? child) {

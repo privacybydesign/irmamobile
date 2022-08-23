@@ -19,10 +19,7 @@ class IrmaCloseButton extends StatelessWidget {
         top: theme.defaultSpacing,
       ),
       child: GestureDetector(
-        onTap: () {
-          (onTap ?? Navigator.of(context).pop).call();
-          Feedback.forTap(context);
-        },
+        onTap: onTap ?? Navigator.of(context).pop,
         child: CircleAvatar(
           backgroundColor: theme.neutralExtraLight,
           radius: 18,

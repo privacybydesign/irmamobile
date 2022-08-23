@@ -48,7 +48,6 @@ class IrmaCredentialCardAttributeList extends StatelessWidget {
                       return GestureDetector(
                         onTap: () {
                           //TODO Implement open Photo.
-                          // Feedback.forTap(context); // TODO add haptic feedback
                         },
                         child: TranslatedText(
                           //TODO: Add translation

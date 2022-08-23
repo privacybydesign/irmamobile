@@ -43,11 +43,6 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
-    if (error) {
-      HapticFeedback.heavyImpact();
-    } else {
-      HapticFeedback.mediumImpact();
-    }
     return SafeArea(
       child: Stack(
         children: [
