@@ -15,6 +15,49 @@ import '../../widgets/irma_text_button.dart';
 import '../../widgets/irma_themed_button.dart';
 import '../change_pin/change_pin_screen.dart';
 
+class _SettingsScreenSwitchListTile extends StatelessWidget {
+  final String titleTranslationKey;
+  final String? subtitleTranslationKey;
+  final Stream<bool> stream;
+  final void Function(bool) onChanged;
+  final Icon icon;
+
+  const _SettingsScreenSwitchListTile({
+    Key? key,
+    required this.titleTranslationKey,
+    this.subtitleTranslationKey,
+    required this.stream,
+    required this.onChanged,
+    required this.icon,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+    return StreamBuilder(
+      stream: stream,
+      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+        return SwitchListTile.adaptive(
+          title: Text(
+            FlutterI18n.translate(context, titleTranslationKey),
+            style: theme.textTheme.bodyText2,
+          ),
+          subtitle: subtitleTranslationKey != null
+              ? Text(
+                  FlutterI18n.translate(context, subtitleTranslationKey!),
+                  style: theme.textTheme.caption!.copyWith(color: Colors.grey.shade500),
+                )
+              : null,
+          activeColor: theme.themeData.colorScheme.secondary,
+          value: snapshot.hasData && snapshot.data!,
+          onChanged: onChanged.haptic,
+          secondary: icon,
+        );
+      },
+    );
+  }
+}
+
 class SettingsScreen extends StatelessWidget {
   static const routeName = '/settings';
 
@@ -33,77 +76,31 @@ class SettingsScreen extends StatelessWidget {
             horizontal: theme.defaultSpacing,
           ),
           children: [
-            StreamBuilder(
+            _SettingsScreenSwitchListTile(
+              titleTranslationKey: 'settings.start_qr',
               stream: repo.preferences.getStartQRScan(),
-              builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-                return SwitchListTile.adaptive(
-                  title: Text(
-                    FlutterI18n.translate(context, 'settings.start_qr'),
-                    style: theme.textTheme.bodyText2,
-                  ),
-                  activeColor: theme.themeData.colorScheme.secondary,
-                  value: snapshot.hasData && snapshot.data!,
-                  onChanged: repo.preferences.setStartQRScan.haptic,
-                  secondary: Icon(IrmaIcons.scanQrcode, size: 30, color: theme.themeData.colorScheme.secondary),
-                );
-              },
+              onChanged: repo.preferences.setStartQRScan,
+              icon: Icon(IrmaIcons.scanQrcode, size: 30, color: theme.themeData.colorScheme.secondary),
             ),
-            StreamBuilder(
+            _SettingsScreenSwitchListTile(
+              titleTranslationKey: 'settings.advanced.report_errors',
               stream: repo.preferences.getReportErrors(),
-              builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-                return SwitchListTile.adaptive(
-                  title: Text(
-                    FlutterI18n.translate(context, 'settings.advanced.report_errors'),
-                    style: theme.textTheme.bodyText2,
-                  ),
-                  activeColor: theme.themeData.colorScheme.secondary,
-                  value: snapshot.data != null && snapshot.data!,
-                  onChanged: repo.preferences.setReportErrors.haptic,
-                  secondary: Icon(IrmaIcons.invalid, size: 30, color: theme.themeData.colorScheme.secondary),
-                );
-              },
+              onChanged: repo.preferences.setReportErrors,
+              icon: Icon(IrmaIcons.invalid, size: 30, color: theme.themeData.colorScheme.secondary),
             ),
-            StreamBuilder(
-              stream: repo.preferences.getDeveloperModeVisible(),
-              builder: (BuildContext context, AsyncSnapshot<bool> visible) {
-                return !visible.hasData || !visible.data!
-                    ? Container()
-                    : StreamBuilder(
-                        stream: repo.getDeveloperMode(),
-                        builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-                          return SwitchListTile.adaptive(
-                            title: Text(
-                              FlutterI18n.translate(context, 'settings.advanced.developer_mode'),
-                              style: theme.textTheme.bodyText2,
-                            ),
-                            activeColor: theme.themeData.colorScheme.secondary,
-                            value: snapshot.data != null && snapshot.data!,
-                            onChanged: repo.setDeveloperMode.haptic,
-                            secondary: Icon(IrmaIcons.settings, size: 30, color: theme.themeData.colorScheme.secondary),
-                          );
-                        },
-                      );
-              },
+            _SettingsScreenSwitchListTile(
+              titleTranslationKey: 'settings.advanced.developer_mode',
+              stream: repo.getDeveloperMode(),
+              onChanged: repo.setDeveloperMode,
+              icon: Icon(IrmaIcons.settings, size: 30, color: theme.themeData.colorScheme.secondary),
             ),
             if (Platform.isAndroid)
-              StreamBuilder(
+              _SettingsScreenSwitchListTile(
+                titleTranslationKey: 'settings.advanced.enable_screenshots',
+                subtitleTranslationKey: 'settings.advanced.enable_screenshots_note',
                 stream: repo.preferences.getScreenshotsEnabled(),
-                builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-                  return SwitchListTile.adaptive(
-                    title: Text(
-                      FlutterI18n.translate(context, 'settings.advanced.enable_screenshots'),
-                      style: theme.textTheme.bodyText2,
-                    ),
-                    subtitle: Text(
-                      FlutterI18n.translate(context, 'settings.advanced.enable_screenshots_note'),
-                      style: theme.textTheme.caption!.copyWith(color: Colors.grey.shade500),
-                    ),
-                    activeColor: theme.themeData.colorScheme.secondary,
-                    value: snapshot.data != null && snapshot.data!,
-                    onChanged: repo.preferences.setScreenshotsEnabled.haptic,
-                    secondary: Icon(IrmaIcons.phone, size: 30, color: theme.themeData.colorScheme.secondary),
-                  );
-                },
+                onChanged: repo.preferences.setScreenshotsEnabled,
+                icon: Icon(IrmaIcons.phone, size: 30, color: theme.themeData.colorScheme.secondary),
               ),
             const Divider(),
             ListTile(
