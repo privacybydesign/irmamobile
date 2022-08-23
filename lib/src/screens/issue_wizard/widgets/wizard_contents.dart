@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -34,6 +35,7 @@ class IssueWizardContents extends StatelessWidget {
     final intro = wizard.wizardData.intro;
     final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
+    final firstIncomplete = wizard.wizardContents.indexWhere((el) => !el.completed);
     return VisibilityDetector(
       key: const Key('wizard_key'),
       onVisibilityChanged: (v) => onVisibilityChanged(v, wizard),
@@ -49,8 +51,9 @@ class IssueWizardContents extends StatelessWidget {
               ),
             IrmaStepper(
               children: wizard.wizardContents
-                  .map(
-                    (item) => IrmaCard(
+                  .mapIndexed(
+                    (i, item) => IrmaCard(
+                      style: i == firstIncomplete ? IrmaCardStyle.highlighted : IrmaCardStyle.normal,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -98,7 +101,7 @@ class IssueWizardContents extends StatelessWidget {
           left: theme.defaultSpacing,
           right: theme.defaultSpacing),
       child: IrmaProgressIndicator(
-        step: wizard.completed ? wizard.wizardContents.length : wizard.activeItemIndex,
+        step: wizard.activeItemIndex + 1,
         stepCount: wizardContentSize,
       ),
     );
