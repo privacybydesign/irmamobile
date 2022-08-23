@@ -222,8 +222,7 @@
         "button_block": "Block Yivi"
     },
     "session_pin": {
-        "subtitle": "Re-enter your PIN to continue.",
-        "explanation": "For your safety, the Yivi app regularly asks for your PIN."
+        "subtitle": "Enter your PIN"
     },
     "error": {
         "title": "Something went wrong",
@@ -302,6 +301,14 @@
         "obtain_new": "Obtain new data",
         "next_step": "Next step",
         "obtain_data": "Obtain data",
+        "introduction": {
+            "title": "Get going",
+            "header": "Share your data in 3 simple steps:",
+            "step_1": "Obtain the required data.",
+            "step_2": "Choose the data you would like to share",
+            "step_3": "Share your data.",
+            "continue": "Get going"
+        },
         "issue_wizard": {
             "title": "Collect data",
             "explanation": "Obtain your data step by step. You will be sharing these later.",

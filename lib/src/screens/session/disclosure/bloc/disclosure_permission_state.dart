@@ -10,6 +10,9 @@ abstract class DisclosurePermissionBlocState {}
 /// Initial state to give us time to process the initial request from the IrmaBridge.
 class DisclosurePermissionInitial implements DisclosurePermissionBlocState {}
 
+/// State for showing the introduction when the user enters this flow for the first time.
+class DisclosurePermissionIntroduction implements DisclosurePermissionBlocState {}
+
 /// Enum with all possible DisclosurePermissionSteps.
 enum DisclosurePermissionStepName {
   issueWizard,

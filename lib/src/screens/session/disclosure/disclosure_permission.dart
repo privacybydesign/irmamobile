@@ -11,6 +11,7 @@ import 'bloc/disclosure_permission_bloc.dart';
 import 'bloc/disclosure_permission_event.dart';
 import 'bloc/disclosure_permission_state.dart';
 import 'widgets/disclosure_permission_choices_screen.dart';
+import 'widgets/disclosure_permission_introduction_screen.dart';
 import 'widgets/disclosure_permission_issue_wizard_screen.dart';
 import 'widgets/disclosure_permission_make_choice_screen.dart';
 import 'widgets/disclosure_permission_obtain_credentials_screen.dart';
@@ -91,7 +92,11 @@ class ProvidedDisclosurePermission extends StatelessWidget {
                 state = state.parentState;
               }
 
-              if (state is DisclosurePermissionIssueWizard) {
+              if (state is DisclosurePermissionIntroduction) {
+                return DisclosurePermissionIntroductionScreen(
+                  onEvent: addEvent,
+                );
+              } else if (state is DisclosurePermissionIssueWizard) {
                 return DisclosurePermissionIssueWizardScreen(
                   requestor: requestor,
                   state: state,
