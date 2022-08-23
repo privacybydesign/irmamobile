@@ -15,14 +15,14 @@ import '../../widgets/irma_text_button.dart';
 import '../../widgets/irma_themed_button.dart';
 import '../change_pin/change_pin_screen.dart';
 
-class _SettingsScreenSwitchListTile extends StatelessWidget {
+class _SettingsSwitchListTile extends StatelessWidget {
   final String titleTranslationKey;
   final String? subtitleTranslationKey;
   final Stream<bool> stream;
   final void Function(bool) onChanged;
   final Icon icon;
 
-  const _SettingsScreenSwitchListTile({
+  const _SettingsSwitchListTile({
     Key? key,
     required this.titleTranslationKey,
     this.subtitleTranslationKey,
@@ -76,26 +76,26 @@ class SettingsScreen extends StatelessWidget {
             horizontal: theme.defaultSpacing,
           ),
           children: [
-            _SettingsScreenSwitchListTile(
+            _SettingsSwitchListTile(
               titleTranslationKey: 'settings.start_qr',
               stream: repo.preferences.getStartQRScan(),
               onChanged: repo.preferences.setStartQRScan,
               icon: Icon(IrmaIcons.scanQrcode, size: 30, color: theme.themeData.colorScheme.secondary),
             ),
-            _SettingsScreenSwitchListTile(
+            _SettingsSwitchListTile(
               titleTranslationKey: 'settings.advanced.report_errors',
               stream: repo.preferences.getReportErrors(),
               onChanged: repo.preferences.setReportErrors,
               icon: Icon(IrmaIcons.invalid, size: 30, color: theme.themeData.colorScheme.secondary),
             ),
-            _SettingsScreenSwitchListTile(
+            _SettingsSwitchListTile(
               titleTranslationKey: 'settings.advanced.developer_mode',
               stream: repo.getDeveloperMode(),
               onChanged: repo.setDeveloperMode,
               icon: Icon(IrmaIcons.settings, size: 30, color: theme.themeData.colorScheme.secondary),
             ),
             if (Platform.isAndroid)
-              _SettingsScreenSwitchListTile(
+              _SettingsSwitchListTile(
                 titleTranslationKey: 'settings.advanced.enable_screenshots',
                 subtitleTranslationKey: 'settings.advanced.enable_screenshots_note',
                 stream: repo.preferences.getScreenshotsEnabled(),
