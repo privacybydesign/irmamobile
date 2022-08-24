@@ -20,7 +20,7 @@ class _SettingsSwitchListTile extends StatelessWidget {
   final String? subtitleTranslationKey;
   final Stream<bool> stream;
   final void Function(bool) onChanged;
-  final Icon icon;
+  final IconData iconData;
 
   const _SettingsSwitchListTile({
     Key? key,
@@ -28,7 +28,7 @@ class _SettingsSwitchListTile extends StatelessWidget {
     this.subtitleTranslationKey,
     required this.stream,
     required this.onChanged,
-    required this.icon,
+    required this.iconData,
   }) : super(key: key);
 
   @override
@@ -51,7 +51,7 @@ class _SettingsSwitchListTile extends StatelessWidget {
           activeColor: theme.themeData.colorScheme.secondary,
           value: snapshot.hasData && snapshot.data!,
           onChanged: onChanged.haptic,
-          secondary: icon,
+          secondary: Icon(iconData, size: 30, color: theme.themeData.colorScheme.secondary),
         );
       },
     );
@@ -80,19 +80,19 @@ class SettingsScreen extends StatelessWidget {
               titleTranslationKey: 'settings.start_qr',
               stream: repo.preferences.getStartQRScan(),
               onChanged: repo.preferences.setStartQRScan,
-              icon: Icon(IrmaIcons.scanQrcode, size: 30, color: theme.themeData.colorScheme.secondary),
+              iconData: IrmaIcons.scanQrcode,
             ),
             _SettingsSwitchListTile(
               titleTranslationKey: 'settings.advanced.report_errors',
               stream: repo.preferences.getReportErrors(),
               onChanged: repo.preferences.setReportErrors,
-              icon: Icon(IrmaIcons.invalid, size: 30, color: theme.themeData.colorScheme.secondary),
+              iconData: IrmaIcons.invalid,
             ),
             _SettingsSwitchListTile(
               titleTranslationKey: 'settings.advanced.developer_mode',
               stream: repo.getDeveloperMode(),
               onChanged: repo.setDeveloperMode,
-              icon: Icon(IrmaIcons.settings, size: 30, color: theme.themeData.colorScheme.secondary),
+              iconData: IrmaIcons.settings,
             ),
             if (Platform.isAndroid)
               _SettingsSwitchListTile(
@@ -100,7 +100,7 @@ class SettingsScreen extends StatelessWidget {
                 subtitleTranslationKey: 'settings.advanced.enable_screenshots_note',
                 stream: repo.preferences.getScreenshotsEnabled(),
                 onChanged: repo.preferences.setScreenshotsEnabled,
-                icon: Icon(IrmaIcons.phone, size: 30, color: theme.themeData.colorScheme.secondary),
+                iconData: IrmaIcons.phone,
               ),
             const Divider(),
             ListTile(
