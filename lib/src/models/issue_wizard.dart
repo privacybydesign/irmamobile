@@ -41,7 +41,7 @@ class IssueWizardEvent extends Event {
   bool get showSuccess => wizardData.successHeader.isNotEmpty && wizardData.successText.isNotEmpty;
   bool get completed => haveCredential || wizardContents.every((item) => item.completed);
   IssueWizardItem? get activeItem => wizardContents.firstWhereOrNull((item) => !item.completed);
-  int get _activeItemIndex => wizardContents.indexWhere((item) => !item.completed);
+  int get activeItemIndex => wizardContents.indexWhere((item) => !item.completed);
 
   /// A copy of the event with the currently active item marked completed.
   IssueWizardEvent get nextEvent => IssueWizardEvent(
@@ -50,7 +50,7 @@ class IssueWizardEvent extends Event {
         wizardContents: wizardContents
             .asMap()
             .entries
-            .map((e) => e.value.copyWith(completed: e.key == _activeItemIndex || e.value.completed))
+            .map((e) => e.value.copyWith(completed: e.key == activeItemIndex || e.value.completed))
             .toList(),
       );
 }

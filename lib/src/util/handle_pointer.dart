@@ -20,7 +20,7 @@ Future<void> handlePointer(NavigatorState navigator, Pointer pointer, {bool push
   } catch (e) {
     final pageRoute = MaterialPageRoute(
       builder: (context) => ErrorScreen(
-        details: 'error starting session or wizard: ${e.toString()}',
+        details: 'error starting session or wizard: $e',
         onTapClose: () => navigator.pop(),
       ),
     );

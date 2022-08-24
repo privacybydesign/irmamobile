@@ -1,28 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../theme/theme.dart';
 import '../../../widgets/irma_app_bar.dart';
-import '../../../widgets/logo_banner.dart';
+import '../../../widgets/issuer_verifier_header.dart';
 
-class LogoBannerHeader extends StatelessWidget {
-  final Image logo;
+class WizardScaffold extends StatelessWidget {
+  final Image image;
   final String header;
-  final Color backgroundColor;
-  final Color textColor;
   final Widget bottomBar;
-  final Widget child;
+  final Widget body;
   final void Function() onBack;
   final GlobalKey scrollviewKey;
   final ScrollController controller;
 
-  const LogoBannerHeader({
-    required this.logo,
+  const WizardScaffold({
+    required this.image,
     required this.header,
-    required this.backgroundColor,
-    required this.textColor,
     required this.bottomBar,
-    required this.child,
+    required this.body,
     required this.scrollviewKey,
     required this.controller,
     required this.onBack,
@@ -30,14 +25,11 @@ class LogoBannerHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
     return Scaffold(
       appBar: IrmaAppBar(
         titleTranslationKey: 'issue_wizard.add_cards',
         leadingAction: onBack,
-        leadingIcon: Icon(
-          Icons.arrow_back,
-          semanticLabel: FlutterI18n.translate(context, 'accessibility.back'),
-        ),
       ),
       bottomNavigationBar: bottomBar,
       body: SingleChildScrollView(
@@ -45,18 +37,14 @@ class LogoBannerHeader extends StatelessWidget {
         key: scrollviewKey,
         child: Column(
           children: [
-            LogoBanner(
-              text: header,
-              logo: logo,
-              backgroundColor: backgroundColor,
-              textColor: textColor,
-            ),
             Padding(
-              padding: EdgeInsets.only(
-                top: IrmaTheme.of(context).mediumSpacing,
+              padding: EdgeInsets.all(theme.defaultSpacing),
+              child: IssuerVerifierHeader(
+                title: header,
+                image: image,
               ),
-              child: child,
             ),
+            body,
           ],
         ),
       ),

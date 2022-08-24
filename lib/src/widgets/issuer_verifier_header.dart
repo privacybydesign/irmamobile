@@ -6,11 +6,13 @@ class IssuerVerifierHeader extends StatelessWidget {
   final String title;
   final TextStyle? titleTextStyle;
   final String? logo;
+  final Image? image;
 
   const IssuerVerifierHeader({
     required this.title,
     this.titleTextStyle,
     this.logo,
+    this.image,
   });
 
   @override
@@ -18,10 +20,12 @@ class IssuerVerifierHeader extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         CircleAvatar(
           backgroundColor: Colors.grey.shade300,
           radius: 24,
+          child: image,
         ),
         SizedBox(
           width: theme.smallSpacing,

@@ -6,7 +6,6 @@ import 'irma_themed_button.dart';
 class IrmaButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
-  final VoidCallback? onPressedDisabled;
   final TextStyle? textStyle;
   final IrmaButtonSize? size;
   final double minWidth;
@@ -18,7 +17,6 @@ class IrmaButton extends StatelessWidget {
     Key? key,
     required this.label,
     required this.onPressed,
-    this.onPressedDisabled,
     this.textStyle,
     this.size,
     this.minWidth = 232,
@@ -34,7 +32,6 @@ class IrmaButton extends StatelessWidget {
     return IrmaThemedButton(
       label: label,
       onPressed: onPressed,
-      onPressedDisabled: onPressedDisabled,
       textStyle: textStyle,
       size: size,
       minWidth: minWidth,
