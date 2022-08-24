@@ -72,7 +72,7 @@ class _PinIndicator extends StatelessWidget {
         (i) => Stack(
           alignment: Alignment.center,
           children: [
-            // SizedBox.square ensures that all the relevant
+            // SizedBox ensures that all the relevant
             // glyphs have a uniform size, that prevents realignment
             SizedBox(
               width: isMaxPin5 ? 14 : 9,
