@@ -6,7 +6,6 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import '../../models/clear_all_data_event.dart';
 import '../../theme/irma_icons.dart';
 import '../../theme/theme.dart';
-import '../../util/haptics.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_button.dart';
 import '../../widgets/irma_dialog.dart';
@@ -14,49 +13,7 @@ import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/irma_text_button.dart';
 import '../../widgets/irma_themed_button.dart';
 import '../change_pin/change_pin_screen.dart';
-
-class _SettingsSwitchListTile extends StatelessWidget {
-  final String titleTranslationKey;
-  final String? subtitleTranslationKey;
-  final Stream<bool> stream;
-  final void Function(bool) onChanged;
-  final IconData iconData;
-
-  const _SettingsSwitchListTile({
-    Key? key,
-    required this.titleTranslationKey,
-    this.subtitleTranslationKey,
-    required this.stream,
-    required this.onChanged,
-    required this.iconData,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-    return StreamBuilder(
-      stream: stream,
-      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-        return SwitchListTile.adaptive(
-          title: Text(
-            FlutterI18n.translate(context, titleTranslationKey),
-            style: theme.textTheme.bodyText2,
-          ),
-          subtitle: subtitleTranslationKey != null
-              ? Text(
-                  FlutterI18n.translate(context, subtitleTranslationKey!),
-                  style: theme.textTheme.caption!.copyWith(color: Colors.grey.shade500),
-                )
-              : null,
-          activeColor: theme.themeData.colorScheme.secondary,
-          value: snapshot.hasData && snapshot.data!,
-          onChanged: onChanged.haptic,
-          secondary: Icon(iconData, size: 30, color: theme.themeData.colorScheme.secondary),
-        );
-      },
-    );
-  }
-}
+import 'settings_switch_list_tile.dart';
 
 class SettingsScreen extends StatelessWidget {
   static const routeName = '/settings';
@@ -76,26 +33,26 @@ class SettingsScreen extends StatelessWidget {
             horizontal: theme.defaultSpacing,
           ),
           children: [
-            _SettingsSwitchListTile(
+            SettingsSwitchListTile(
               titleTranslationKey: 'settings.start_qr',
               stream: repo.preferences.getStartQRScan(),
               onChanged: repo.preferences.setStartQRScan,
               iconData: IrmaIcons.scanQrcode,
             ),
-            _SettingsSwitchListTile(
+            SettingsSwitchListTile(
               titleTranslationKey: 'settings.advanced.report_errors',
               stream: repo.preferences.getReportErrors(),
               onChanged: repo.preferences.setReportErrors,
               iconData: IrmaIcons.invalid,
             ),
-            _SettingsSwitchListTile(
+            SettingsSwitchListTile(
               titleTranslationKey: 'settings.advanced.developer_mode',
               stream: repo.getDeveloperMode(),
               onChanged: repo.setDeveloperMode,
               iconData: IrmaIcons.settings,
             ),
             if (Platform.isAndroid)
-              _SettingsSwitchListTile(
+              SettingsSwitchListTile(
                 titleTranslationKey: 'settings.advanced.enable_screenshots',
                 subtitleTranslationKey: 'settings.advanced.enable_screenshots_note',
                 stream: repo.preferences.getScreenshotsEnabled(),
