@@ -74,8 +74,9 @@ class _PinIndicator extends StatelessWidget {
           children: [
             // SizedBox.square ensures that all the relevant
             // glyphs have a uniform size, that prevents realignment
-            SizedBox.square(
-              dimension: 14,
+            SizedBox(
+              width: isMaxPin5 ? 14 : 9,
+              height: isMaxPin5 ? 36 : 21,
               child: BlockSemantics(
                 blocking: !isPinVisible,
                 child: Text(
