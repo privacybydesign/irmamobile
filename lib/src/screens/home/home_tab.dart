@@ -70,7 +70,9 @@ class HomeTab extends StatelessWidget {
                 style: theme.textTheme.headline4,
               ),
               GestureDetector(
-                onTap: () => onChangeTab(IrmaNavBarTab.activity),
+                onTap: () {
+                  onChangeTab(IrmaNavBarTab.activity);
+                },
                 child: TranslatedText('home_tab.view_more', style: theme.hyperlinkTextStyle),
               )
             ],

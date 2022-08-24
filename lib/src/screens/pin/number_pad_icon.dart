@@ -16,7 +16,7 @@ class _NumberPadIcon extends StatelessWidget {
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              onTap: () => callback(),
+              onTap: callback.haptic,
               child: IgnorePointer(
                 child: FractionallySizedBox(
                   // alignment: Alignment.topCenter,

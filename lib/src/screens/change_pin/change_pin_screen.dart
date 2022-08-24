@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../data/irma_repository.dart';
@@ -197,15 +198,18 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
           listener: (BuildContext context, OldPinVerificationState state) {
             switch (state.validationState) {
               case ValidationState.valid:
+                HapticFeedback.mediumImpact();
                 // old pin verified, proceed to new pin screen
                 navigatorKey.currentState?.pushReplacementNamed(ChoosePinScreen.routeName);
                 break;
               case ValidationState.invalid:
+                HapticFeedback.heavyImpact();
                 assert(state.attemptsRemaining != null);
                 _handleBadPinAttempts(state.attemptsRemaining!, state.blockedUntil);
                 navigatorKey.currentState?.pushNamed(EnterPin.routeName);
                 break;
               case ValidationState.error:
+                HapticFeedback.heavyImpact();
                 _handleException(state.error);
                 break;
               case ValidationState.initial: // for completeness

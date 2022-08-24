@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/session_events.dart';
@@ -44,10 +45,12 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
       _pinBlocSubscription = _pinBloc.stream.listen((pinState) async {
         if (pinState.pinInvalid) {
           _handleInvalidPin(pinState);
+          HapticFeedback.heavyImpact();
+        } else if (pinState.error != null) {
+          _handleError(pinState);
+          HapticFeedback.heavyImpact();
         } else {
-          if (pinState.error != null) {
-            _handleError(pinState);
-          }
+          HapticFeedback.mediumImpact();
         }
       });
     });
@@ -91,19 +94,9 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
       Navigator.of(navigatorContext).push(MaterialPageRoute(
         builder: (context) => SessionErrorScreen(
           error: state.error,
-          onTapClose: () {
-            Navigator.of(navigatorContext).pop();
-          },
+          onTapClose: Navigator.of(navigatorContext).pop,
         ),
       ));
-    }
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      final pinState = _pinBloc.state;
-      if (pinState.pinInvalid || pinState.authenticateInProgress || pinState.error != null) return;
     }
   }
 

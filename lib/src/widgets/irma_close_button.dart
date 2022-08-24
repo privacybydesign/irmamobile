@@ -10,10 +10,8 @@ class IrmaCloseButton extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    return IrmaIconButton(
-      icon: Icons.close,
-      onTap: onTap ?? () => Navigator.of(context).pop(),
-    );
-  }
+  Widget build(BuildContext context) => IrmaIconButton(
+        icon: Icons.close,
+        onTap: onTap ?? Navigator.of(context).pop,
+      );
 }
