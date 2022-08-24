@@ -72,11 +72,16 @@ class _PinIndicator extends StatelessWidget {
         (i) => Stack(
           alignment: Alignment.center,
           children: [
-            BlockSemantics(
-              blocking: !isPinVisible,
-              child: Text(
-                '${i < pinSize ? pinState.pin.elementAt(i) : '_'}',
-                style: i >= pinSize ? style?.copyWith(color: Colors.transparent) : style,
+            // SizedBox.square ensures that all the relevant
+            // glyphs have a uniform size, that prevents realignment
+            SizedBox.square(
+              dimension: 14,
+              child: BlockSemantics(
+                blocking: !isPinVisible,
+                child: Text(
+                  '${i < pinSize ? pinState.pin.elementAt(i) : '_'}',
+                  style: i >= pinSize ? style?.copyWith(color: Colors.transparent) : style,
+                ),
               ),
             ),
             if (i < pinSize)
