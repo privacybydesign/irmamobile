@@ -9,8 +9,8 @@ import 'src/models/native_events.dart';
 import 'src/screens/add_data/add_data_screen.dart';
 import 'src/screens/change_pin/change_pin_screen.dart';
 import 'src/screens/debug/debug_screen.dart';
-import 'src/screens/enrollment/provide_email/email_sent_screen.dart';
 import 'src/screens/enrollment/enrollment_screen.dart';
+import 'src/screens/enrollment/provide_email/email_sent_screen.dart';
 import 'src/screens/help/help_screen.dart';
 import 'src/screens/home/home_screen.dart';
 import 'src/screens/issue_wizard/issue_wizard.dart';
@@ -90,7 +90,7 @@ class Routing {
               if (settings.name == HomeScreen.routeName) {
                 // Check if we are in the drawn state.
                 // We don't want the app to background in this case.
-                // Defer to wallet_screen.dart
+                // Defer to home_screen.dart
                 return true;
               }
               IrmaRepository.get().bridgedDispatch(AndroidSendToBackgroundEvent());

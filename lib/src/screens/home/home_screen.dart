@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../models/native_events.dart';
+import '../../widgets/irma_repository_provider.dart';
 import '../activity/activity_tab.dart';
 import '../data/data_tab.dart';
 import '../more/more_tab.dart';
@@ -23,30 +25,46 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Builder(builder: (context) {
-          switch (selectedTab) {
-            case IrmaNavBarTab.data:
-              return DataTab();
-            case IrmaNavBarTab.activity:
-              return ActivityTab();
-            case IrmaNavBarTab.more:
-              return MoreTab();
-            case IrmaNavBarTab.home:
-              return HomeTab(
-                onChangeTab: _changeTab,
-              );
-          }
-        }),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: const IrmaQrScanButton(
-        key: Key('nav_button_scanner'),
-      ),
-      bottomNavigationBar: IrmaNavBar(
-        selectedTab: selectedTab,
-        onChangeTab: _changeTab,
+    // We wrap this widget in a WillPopScope to make sure a back press on Android returns the user to the
+    // home tab first. If the home tab is already selected, then we cannot go back further. The HomeScreen is the
+    // root route in the navigator. In that case, we background the app on Android.
+    // On iOS, there is no back button so we don't have to handle this case.
+    return WillPopScope(
+      onWillPop: () async {
+        if (selectedTab == IrmaNavBarTab.home) {
+          IrmaRepositoryProvider.of(context).bridgedDispatch(AndroidSendToBackgroundEvent());
+        } else {
+          setState(() {
+            selectedTab = IrmaNavBarTab.home;
+          });
+        }
+        return false;
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: Builder(builder: (context) {
+            switch (selectedTab) {
+              case IrmaNavBarTab.data:
+                return DataTab();
+              case IrmaNavBarTab.activity:
+                return ActivityTab();
+              case IrmaNavBarTab.more:
+                return MoreTab();
+              case IrmaNavBarTab.home:
+                return HomeTab(
+                  onChangeTab: _changeTab,
+                );
+            }
+          }),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButton: const IrmaQrScanButton(
+          key: Key('nav_button_scanner'),
+        ),
+        bottomNavigationBar: IrmaNavBar(
+          selectedTab: selectedTab,
+          onChangeTab: _changeTab,
+        ),
       ),
     );
   }
