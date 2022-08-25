@@ -101,7 +101,7 @@ class EnterPinStateBloc extends Bloc<int, EnterPinState> {
 
     if (event >= 0 && event < 10 && state.pin.length < maxPinSize) {
       pin.add(event);
-    } else if (event < 1 && state.pin.isNotEmpty) {
+    } else if (event.isNegative && state.pin.isNotEmpty) {
       pin.removeLast();
     }
 

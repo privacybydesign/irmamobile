@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -38,12 +39,6 @@ const _nextButtonHeight = 48.0;
 
 const shortPinSize = 5;
 const longPinSize = 16;
-
-Widget _resizeBox(Widget widget, double edge) => SizedBox(
-      width: edge,
-      height: edge,
-      child: widget,
-    );
 
 class YiviPinScreen extends StatelessWidget {
   final GlobalKey<ScaffoldState>? scaffoldKey;

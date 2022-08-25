@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../../theme/irma_icons.dart';
 import '../../theme/theme.dart';
 import '../../widgets/translated_text.dart';
 import '../activity/widgets/recent_activity.dart';
@@ -47,7 +46,7 @@ class HomeTab extends StatelessWidget {
             titleKey: 'home_tab.action_card.share.title',
             subtitleKey: 'home_tab.action_card.share.subtitle',
             onTap: () => Navigator.of(context).pushNamed(ScannerScreen.routeName),
-            icon: IrmaIcons.scanQrcode,
+            icon: Icons.qr_code_scanner,
             color: theme.themeData.colorScheme.primary,
           ),
           SizedBox(height: theme.defaultSpacing),

@@ -29,31 +29,28 @@ class _PinIndicator extends StatelessWidget {
             color: textColor,
           );
 
-    final circleFilled = Container(
-      decoration: BoxDecoration(
-        color: isPinVisible ? Colors.transparent : theme.darkPurple,
-        shape: BoxShape.circle,
-
-        // prevent unnecessary resize
-        border: Border.all(color: Colors.transparent, width: 2.0),
-      ),
-    );
-
-    final circleOutlined = Container(
-        decoration: BoxDecoration(
-      color: Colors.transparent, // border color
-      shape: BoxShape.circle,
-      border: Border.all(color: theme.darkPurple, width: 2.0),
-    ));
-
-    final pinSize = pinState.pin.length;
-
     final double edgeSize = maxPinSize != shortPinSize ? 6 : 12;
 
     // Applied scaling so, the circles / dots won't
     // get too small on devices bigger than the design
     // and too big on devices smaller than the design
     final scaledEdgeSize = edgeSize.scaleToDesignSize(context);
+
+    final circleFilledDecoration = BoxDecoration(
+      color: isPinVisible ? Colors.transparent : theme.darkPurple,
+      shape: BoxShape.circle,
+
+      // prevent unnecessary resize
+      border: Border.all(color: Colors.transparent, width: 2.0),
+    );
+
+    final circleOutlinedDecoration = BoxDecoration(
+      color: Colors.transparent, // border color
+      shape: BoxShape.circle,
+      border: Border.all(color: theme.darkPurple, width: 2.0),
+    );
+
+    final pinSize = pinState.pin.length;
 
     // prevent the row from collapsing
     if (pinSize == 0 && maxPinSize != shortPinSize) {
@@ -63,31 +60,45 @@ class _PinIndicator extends StatelessWidget {
       );
     }
 
+    final constraints = BoxConstraints.tightFor(width: scaledEdgeSize, height: scaledEdgeSize);
+
     final isMaxPin5 = maxPinSize == shortPinSize;
 
     return Row(
       mainAxisAlignment: isMaxPin5 ? MainAxisAlignment.spaceEvenly : MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        ...List.generate(
-          isMaxPin5 ? shortPinSize : pinSize,
-          (i) => Stack(
-            alignment: Alignment.center,
-            children: [
-              BlockSemantics(
+      children: List.generate(
+        isMaxPin5 ? shortPinSize : pinSize,
+        (i) => Stack(
+          alignment: Alignment.center,
+          children: [
+            // SizedBox ensures that all the relevant
+            // glyphs have a uniform size, that prevents realignment
+            SizedBox(
+              width: isMaxPin5 ? 14 : 9,
+              height: isMaxPin5 ? 36 : 21,
+              child: BlockSemantics(
                 blocking: !isPinVisible,
                 child: Text(
                   '${i < pinSize ? pinState.pin.elementAt(i) : '_'}',
                   style: i >= pinSize ? style?.copyWith(color: Colors.transparent) : style,
                 ),
               ),
-              if (i < pinSize) _resizeBox(circleFilled, scaledEdgeSize),
-              if (isMaxPin5 && i >= pinSize) _resizeBox(circleOutlined, scaledEdgeSize),
-            ],
-          ),
-          growable: false,
+            ),
+            if (i < pinSize)
+              Container(
+                constraints: constraints,
+                decoration: circleFilledDecoration,
+              ),
+            if (isMaxPin5 && i >= pinSize)
+              Container(
+                constraints: constraints,
+                decoration: circleOutlinedDecoration,
+              ),
+          ],
         ),
-      ],
+        growable: false,
+      ),
     );
   }
 }
