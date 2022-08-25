@@ -205,8 +205,6 @@ class _SessionScreenState extends State<SessionScreen> {
       return _buildFinishedReturnPhoneNumber(session);
     }
 
-    ///final popToMainScreen = widget.arguments.wizardActive ? popToWizard : Navigator.of(context).pop;
-
     final issuedWizardCred = widget.arguments.wizardActive &&
         widget.arguments.wizardCred != null &&
         (session.issuedCredentials?.map((c) => c.info.fullId).contains(widget.arguments.wizardCred) ?? false);
@@ -236,7 +234,7 @@ class _SessionScreenState extends State<SessionScreen> {
       });
     } else if (widget.arguments.wizardActive || _isSpecialIssuanceSession(session)) {
       WidgetsBinding.instance?.addPostFrameCallback(
-        (_) => widget.arguments.wizardActive ? popToWizard : Navigator.of(context).pop(),
+        (_) => widget.arguments.wizardActive ? popToWizard(context) : Navigator.of(context).pop(),
       );
     } else if (widget.arguments.hasUnderlyingSession) {
       // In case of a disclosure having an underlying session we only continue to underlying session
