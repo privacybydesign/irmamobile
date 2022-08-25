@@ -57,7 +57,7 @@ class DisclosurePermissionChoice extends StatelessWidget {
                                 child: Radio(
                                   value: i,
                                   groupValue: selectedConIndex,
-                                  onChanged: null, //We use the onTap wrapping GestureDetector
+                                  onChanged: null, // We use the onTap wrapping GestureDetector
                                   fillColor: MaterialStateColor.resolveWith(
                                     (_) => theme.themeData.colorScheme.secondary,
                                   ),
