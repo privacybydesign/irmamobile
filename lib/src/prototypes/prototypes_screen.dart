@@ -196,7 +196,7 @@ class PrototypesScreen extends StatelessWidget {
             DisclosureFeedbackScreen(
               feedbackType: DisclosureFeedbackType.success,
               otherParty: 'successful party',
-              popToWallet: Navigator.pop,
+              onDismiss: Navigator.pop,
             ),
           ),
           _buildTile(
@@ -205,7 +205,7 @@ class PrototypesScreen extends StatelessWidget {
             DisclosureFeedbackScreen(
               feedbackType: DisclosureFeedbackType.canceled,
               otherParty: 'canceled party',
-              popToWallet: Navigator.pop,
+              onDismiss: Navigator.pop,
             ),
           ),
           _buildTile(
@@ -214,7 +214,7 @@ class PrototypesScreen extends StatelessWidget {
             DisclosureFeedbackScreen(
               feedbackType: DisclosureFeedbackType.notSatisfiable,
               otherParty: 'unsatisfied party',
-              popToWallet: Navigator.pop,
+              onDismiss: Navigator.pop,
             ),
           ),
           _buildTile(
