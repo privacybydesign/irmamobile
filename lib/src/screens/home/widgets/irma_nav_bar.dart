@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/screens/home/widgets/irma_nav_button.dart';
-import 'package:irmamobile/src/theme/theme.dart';
+
+import '../../../theme/theme.dart';
+import 'irma_nav_button.dart';
 
 enum IrmaNavBarTab {
   home,
