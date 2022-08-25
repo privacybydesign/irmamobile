@@ -53,7 +53,7 @@ class IrmaNavBar extends StatelessWidget {
           ),
           IrmaNavButton(
             key: const Key('nav_button_data'),
-            iconData: Icons.folder_shared,
+            iconData: Icons.how_to_reg_outlined,
             tab: IrmaNavBarTab.data,
             changeTab: onChangeTab,
             isSelected: IrmaNavBarTab.data == selectedTab,
