@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/translated_text.dart';
+
+import '../../../theme/theme.dart';
+import '../../../widgets/translated_text.dart';
+import '../../scanner/scanner_screen.dart';
 
 class IrmaQrScanButton extends StatelessWidget {
   const IrmaQrScanButton({Key? key}) : super(key: key);
