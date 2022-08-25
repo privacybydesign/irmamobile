@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/screens/home/widgets/irma_nav_button.dart';
-import 'package:irmamobile/src/theme/theme.dart';
+
+import '../../../theme/theme.dart';
+import 'irma_nav_button.dart';
 
 enum IrmaNavBarTab {
   home,
@@ -53,7 +54,7 @@ class IrmaNavBar extends StatelessWidget {
           ),
           IrmaNavButton(
             key: const Key('nav_button_data'),
-            iconData: Icons.folder_shared,
+            iconData: Icons.how_to_reg_outlined,
             tab: IrmaNavBarTab.data,
             changeTab: onChangeTab,
             isSelected: IrmaNavBarTab.data == selectedTab,
