@@ -103,7 +103,7 @@ class _HelpScreenState extends State<HelpScreen> {
             parentScrollController: _controller,
           ),
           SizedBox(height: theme.defaultSpacing),
-          _buildHeader(theme, 'help.storage_and_privacy'),
+          _buildHeader(theme, 'help.security_and_privacy'),
           SizedBox(height: theme.smallSpacing),
           HelpItem(
             headerTranslationKey: 'help.question_8',
