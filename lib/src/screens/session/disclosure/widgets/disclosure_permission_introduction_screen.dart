@@ -19,7 +19,6 @@ class DisclosurePermissionIntroductionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-
     return SessionScaffold(
       appBarTitle: 'disclosure_permission.introduction.title',
       onDismiss: onDismiss,
@@ -28,7 +27,10 @@ class DisclosurePermissionIntroductionScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SvgPicture.asset('assets/disclosure/disclosure_intro.svg'),
+            SvgPicture.asset(
+              'assets/disclosure/disclosure_intro.svg',
+              height: MediaQuery.of(context).size.height < 670 ? 200 : null,
+            ),
             SizedBox(height: theme.defaultSpacing),
             DisclosurePermissionIntroductionInstruction()
           ],
