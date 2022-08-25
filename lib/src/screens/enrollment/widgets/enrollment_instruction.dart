@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 import '../../../theme/theme.dart';
-import '../../../widgets/irma_button.dart';
-import '../../../widgets/irma_text_button.dart';
 import '../../../widgets/translated_text.dart';
+import 'enrollment_nav_bar.dart';
 
 class EnrollmentInstruction extends StatelessWidget {
   final int? stepIndex;
@@ -12,7 +11,7 @@ class EnrollmentInstruction extends StatelessWidget {
   final String titleTranslationKey;
   final String explanationTranslationKey;
   final VoidCallback onContinue;
-  final VoidCallback onPrevious;
+  final VoidCallback? onPrevious;
 
   const EnrollmentInstruction({
     this.stepIndex,
@@ -31,15 +30,15 @@ class EnrollmentInstruction extends StatelessWidget {
     return SafeArea(
       top: isLandscape,
       bottom: isLandscape,
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: theme.mediumSpacing,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Column(
+      child: Stack(
+        children: [
+          // Instruction content
+          SingleChildScrollView(
+            padding: EdgeInsets.symmetric(
+              vertical: theme.mediumSpacing,
+              horizontal: theme.mediumSpacing,
+            ),
+            child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -48,35 +47,30 @@ class EnrollmentInstruction extends StatelessWidget {
                     (stepIndex! + 1).toString() + '/' + stepCount.toString(),
                     style: theme.textTheme.caption,
                   ),
+                SizedBox(
+                  height: theme.smallSpacing,
+                ),
                 TranslatedText(
                   titleTranslationKey,
                   style: theme.textTheme.headline1,
                 ),
+                SizedBox(
+                  height: theme.defaultSpacing,
+                ),
+                TranslatedText(explanationTranslationKey),
               ],
             ),
-            TranslatedText(explanationTranslationKey),
-            Row(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Flexible(
-                  child: stepIndex != 0
-                      ? IrmaTextButton(
-                          label: 'ui.previous',
-                          textStyle: theme.hyperlinkTextStyle,
-                          onPressed: onPrevious,
-                        )
-                      : Container(),
-                ),
-                Flexible(
-                  child: IrmaButton(
-                    label: 'ui.next',
-                    onPressed: onContinue,
-                  ),
-                )
-              ],
-            )
-          ],
-        ),
+          ),
+
+          // Bottom continue/previous bar
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: EnrollmentNavBar(
+              onPrevious: onPrevious,
+              onContinue: onContinue,
+            ),
+          ),
+        ],
       ),
     );
   }

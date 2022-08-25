@@ -49,7 +49,7 @@ class IntroductionScreen extends StatelessWidget {
           titleTranslationKey: introductionSteps[currentStepIndex].titleTranslationKey,
           explanationTranslationKey: introductionSteps[currentStepIndex].explanationTranslationKey,
           onContinue: onContinue,
-          onPrevious: onPrevious,
+          onPrevious: currentStepIndex != 0 ? onPrevious : null,
         ),
       ),
     );
