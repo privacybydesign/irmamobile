@@ -430,7 +430,6 @@
         "add_credential": "Add {credential}"
     },
     "home": {
-        "button_back": "Back",
         "nav_bar": {
             "home": "Home",
             "data": "Data",

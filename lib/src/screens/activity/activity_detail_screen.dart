@@ -30,10 +30,6 @@ class ActivityDetailScreen extends StatelessWidget {
       appBar: const IrmaAppBar(
         titleTranslationKey: 'home.nav_bar.activity',
       ),
-      bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: 'home.button_back',
-        onPrimaryPressed: () => Navigator.of(context).pop(),
-      ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
         child: Column(
