@@ -22,11 +22,14 @@ class EnrollmentLayout extends StatelessWidget {
         ],
       );
 
-  Column _buildPortraitLayout() => Column(
+  Column _buildPortraitLayout({
+    bool isSmallScreen = false,
+  }) =>
+      Column(
         mainAxisSize: MainAxisSize.max,
         children: [
           Flexible(
-            flex: 5,
+            flex: isSmallScreen ? 3 : 5,
             child: graphic,
           ),
           Flexible(
@@ -39,6 +42,12 @@ class EnrollmentLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isLandscape = MediaQuery.of(context).size.height < 450;
-    return isLandscape ? _buildLandscapeLayout() : _buildPortraitLayout();
+    final isSmallScreen = MediaQuery.of(context).size.height < 670;
+
+    return isLandscape
+        ? _buildLandscapeLayout()
+        : _buildPortraitLayout(
+            isSmallScreen: isSmallScreen,
+          );
   }
 }
