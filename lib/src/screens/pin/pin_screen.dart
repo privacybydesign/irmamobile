@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
@@ -13,6 +14,7 @@ import '../../widgets/pin_common/pin_wrong_attempts.dart';
 import '../../widgets/pin_common/pin_wrong_blocked.dart';
 import '../error/session_error_screen.dart';
 import '../reset_pin/reset_pin_screen.dart';
+
 import 'bloc/pin_bloc.dart';
 import 'bloc/pin_event.dart';
 import 'bloc/pin_state.dart';
@@ -113,6 +115,10 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
         }
 
         return YiviPinScaffold(
+          appBar: const IrmaAppBar(
+            noLeading: true,
+            title: '',
+          ),
           body: StreamBuilder(
             stream: _pinBloc.getPinBlockedFor(),
             builder: (BuildContext context, AsyncSnapshot<Duration> blockedFor) {
