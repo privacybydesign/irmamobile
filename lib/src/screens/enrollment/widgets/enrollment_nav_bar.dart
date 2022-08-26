@@ -7,12 +7,12 @@ import '../../../widgets/irma_themed_button.dart';
 
 class EnrollmentNavBar extends StatelessWidget {
   final VoidCallback? onPrevious;
-  final VoidCallback onContinue;
+  final VoidCallback? onContinue;
 
   const EnrollmentNavBar({
     Key? key,
-    required this.onPrevious,
-    required this.onContinue,
+    this.onPrevious,
+    this.onContinue,
   }) : super(key: key);
 
   @override

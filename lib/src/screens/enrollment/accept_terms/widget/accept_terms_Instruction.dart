@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../../../theme/theme.dart';
-import '../../../../widgets/irma_button.dart';
-import '../../../../widgets/irma_text_button.dart';
 import '../../../../widgets/translated_text.dart';
+import '../../widgets/enrollment_nav_bar.dart';
 
 class AcceptTermsInstruction extends StatelessWidget {
   final String titleTranslationKey;
@@ -31,59 +30,64 @@ class AcceptTermsInstruction extends StatelessWidget {
     return SafeArea(
       top: isLandscape,
       bottom: isLandscape,
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: theme.mediumSpacing,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TranslatedText(
-              titleTranslationKey,
-              style: theme.textTheme.headline1,
-            ),
-            TranslatedText(explanationTranslationKey),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.start,
+      child: Stack(
+        children: [
+          // Instruction content
+          SingleChildScrollView(
+            padding: EdgeInsets.all(theme.mediumSpacing),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Checkbox(
-                  value: isAccepted,
-                  fillColor: MaterialStateColor.resolveWith((_) => theme.themeData.colorScheme.secondary),
-                  onChanged: (isAccepted) => onToggleAccepted(
-                    isAccepted ?? false,
-                  ),
+                TranslatedText(
+                  titleTranslationKey,
+                  style: theme.textTheme.headline1,
                 ),
+                SizedBox(height: theme.defaultSpacing),
+                TranslatedText(explanationTranslationKey),
                 SizedBox(
-                  width: theme.smallSpacing,
+                  height: theme.defaultSpacing,
                 ),
-                const Flexible(
-                  child: TranslatedText(
-                    'enrollment.terms_and_conditions.accept_markdown',
-                  ),
+
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Checkbox(
+                      value: isAccepted,
+                      fillColor: MaterialStateColor.resolveWith((_) => theme.themeData.colorScheme.secondary),
+                      onChanged: (isAccepted) => onToggleAccepted(
+                        isAccepted ?? false,
+                      ),
+                    ),
+                    SizedBox(
+                      width: theme.smallSpacing,
+                    ),
+                    const Flexible(
+                      child: TranslatedText(
+                        'enrollment.terms_and_conditions.accept_markdown',
+                      ),
+                    ),
+                  ],
+                ),
+
+                // Extra white space so the content above always stays visible
+                SizedBox(
+                  height: theme.defaultSpacing + theme.hugeSpacing,
                 ),
               ],
             ),
-            Row(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Flexible(
-                    child: IrmaTextButton(
-                  label: 'ui.previous',
-                  textStyle: theme.hyperlinkTextStyle,
-                  onPressed: onPrevious,
-                )),
-                Flexible(
-                  child: IrmaButton(
-                    label: 'ui.next',
-                    onPressed: isAccepted ? () => onContinue() : null,
-                  ),
-                )
-              ],
-            )
-          ],
-        ),
+          ),
+
+          // Bottom continue/previous bar
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: EnrollmentNavBar(
+              onPrevious: onPrevious,
+              onContinue: isAccepted ? onContinue : null,
+            ),
+          ),
+        ],
       ),
     );
   }
