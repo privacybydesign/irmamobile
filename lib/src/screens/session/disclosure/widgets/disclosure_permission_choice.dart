@@ -53,11 +53,15 @@ class DisclosurePermissionChoice extends StatelessWidget {
                         compareTo: credential is TemplateDisclosureCredential ? credential.attributes : null,
                         hideFooter: true,
                         headerTrailing: credential == choice[i]!.first
-                            ? Radio(
-                                value: i,
-                                groupValue: selectedConIndex,
-                                onChanged: null, //We use the onTap wrapping GestureDetector
-                                fillColor: MaterialStateColor.resolveWith((_) => theme.themeData.colorScheme.secondary),
+                            ? IgnorePointer(
+                                child: Radio(
+                                  value: i,
+                                  groupValue: selectedConIndex,
+                                  onChanged: null, // We use the onTap wrapping GestureDetector
+                                  fillColor: MaterialStateColor.resolveWith(
+                                    (_) => theme.themeData.colorScheme.secondary,
+                                  ),
+                                ),
                               )
                             : null,
                         style: isActive
