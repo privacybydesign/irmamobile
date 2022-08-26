@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:intl/intl.dart';
 
@@ -6,8 +7,8 @@ import '../../models/irma_configuration.dart';
 import '../../models/log_entry.dart';
 import '../../theme/theme.dart';
 import '../../widgets/irma_app_bar.dart';
-import '../../widgets/irma_bottom_bar.dart';
 import '../../widgets/translated_text.dart';
+
 import 'widgets/activity_detail_disclosure.dart';
 import 'widgets/activity_detail_issuance.dart';
 import 'widgets/activity_detail_removal.dart';
