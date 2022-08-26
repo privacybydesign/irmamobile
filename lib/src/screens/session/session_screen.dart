@@ -145,7 +145,7 @@ class _SessionScreenState extends State<SessionScreen> {
     return DisclosureFeedbackScreen(
       feedbackType: feedbackType,
       otherParty: serverName,
-      popToWallet: popToHome,
+      onDismiss: popToHome,
     );
   }
 
@@ -184,7 +184,7 @@ class _SessionScreenState extends State<SessionScreen> {
       return DisclosureFeedbackScreen(
         feedbackType: DisclosureFeedbackType.canceled,
         otherParty: serverName,
-        popToWallet: popToHome,
+        onDismiss: popToHome,
       );
     }
   }
@@ -332,12 +332,21 @@ class _SessionScreenState extends State<SessionScreen> {
               onDismiss: () => _dismissSession(),
             );
           case SessionStatus.requestDisclosurePermission:
-            return DisclosurePermission(
-              sessionId: session.sessionID,
-              requestor: session.serverName,
-              returnURL: session.clientReturnURL,
-              repo: _repo,
-            );
+            if (session.canBeFinished ?? false) {
+              return DisclosurePermission(
+                sessionId: session.sessionID,
+                requestor: session.serverName,
+                returnURL: session.clientReturnURL,
+                repo: _repo,
+              );
+            } else {
+              final serverName = session.serverName.name.translate(FlutterI18n.currentLocale(context)!.languageCode);
+              return DisclosureFeedbackScreen(
+                feedbackType: DisclosureFeedbackType.notSatisfiable,
+                otherParty: serverName,
+                onDismiss: popToHome,
+              );
+            }
           case SessionStatus.requestIssuancePermission:
             return IssuancePermission(
               satisfiable: session.satisfiable!,

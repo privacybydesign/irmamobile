@@ -390,7 +390,7 @@
             "text": {
                 "success": "Your data are disclosed to {otherParty}",
                 "canceled": "Your data are not disclosed to {otherParty}",
-                "notSatisfiable": "Your data are not disclosed because {otherParty} requests outdated cards. Please contact this party."
+                "notSatisfiable": "Your data are not disclosed because {otherParty} requests outdated data. Please contact this party."
             }
         }
     },

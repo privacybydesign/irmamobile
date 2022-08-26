@@ -17,14 +17,14 @@ class DisclosureFeedbackScreen extends StatefulWidget {
 
   final DisclosureFeedbackType feedbackType;
   final String otherParty;
-  final Function(BuildContext) popToWallet;
+  final Function(BuildContext) onDismiss;
 
   final String? _translationKey;
 
   DisclosureFeedbackScreen({
     required this.feedbackType,
     required this.otherParty,
-    required this.popToWallet,
+    required this.onDismiss,
   }) : _translationKey = _translationKeys[feedbackType];
 
   @override
@@ -56,7 +56,7 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen> with
       titleTranslationParams: otherPartyTranslationParam,
       explanationTranslationKey: 'disclosure.feedback.text.${widget._translationKey}',
       explanationTranslationParams: otherPartyTranslationParam,
-      onDismiss: () => widget.popToWallet(context),
+      onDismiss: () => widget.onDismiss(context),
     );
   }
 
@@ -64,7 +64,7 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen> with
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     // If the app is resumed remove the route with this screen from the stack.
     if (state == AppLifecycleState.resumed) {
-      widget.popToWallet(context);
+      widget.onDismiss(context);
     }
   }
 }
