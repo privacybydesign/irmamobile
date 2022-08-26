@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../widgets/enrollment_graphic.dart';
 import '../widgets/enrollment_layout.dart';
-import 'widget/accept_terms_instruction.dart';
+import 'widgets/accept_terms_instruction.dart';
 
 class AcceptTermsScreen extends StatelessWidget {
   static const String routeName = 'terms';
