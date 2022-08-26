@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'package:flutter_i18n/flutter_i18n.dart';
-
 import '../theme/theme.dart';
 
 import 'loading_indicator.dart';
+import 'translated_text.dart';
 
 class IrmaProgress extends StatelessWidget {
   @override
@@ -20,11 +19,8 @@ class IrmaProgress extends StatelessWidget {
           SizedBox(
             height: theme.defaultSpacing,
           ),
-          Text(
-            FlutterI18n.translate(
-              context,
-              'ui.loading',
-            ),
+          TranslatedText(
+            'ui.loading',
             style: theme.textTheme.headline3,
             textAlign: TextAlign.center,
           ),
