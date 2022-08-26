@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/models/session_events.dart';
 import 'package:irmamobile/src/screens/error/session_error_screen.dart';
@@ -15,6 +17,7 @@ import 'package:irmamobile/src/widgets/pin_common/pin_wrong_attempts.dart';
 
 import '../../theme/theme.dart';
 import '../reset_pin/reset_pin_screen.dart';
+
 import 'bloc/pin_event.dart';
 import 'yivi_pin_screen.dart';
 
@@ -138,7 +141,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
                 // Wait until parent screen pops this widget.
                 return Scaffold(
                   appBar: _scaffoldTitle(),
-                  body: LoadingIndicator(),
+                  body: Center(child: LoadingIndicator()),
                 );
               }
 
