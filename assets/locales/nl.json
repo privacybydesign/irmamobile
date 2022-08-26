@@ -430,7 +430,6 @@
         "add_credential": "Haal {credential} op"
     },
     "home": {
-        "button_back": "Terug",
         "nav_bar": {
             "home": "Overzicht",
             "data": "Gegevens",
