@@ -4,10 +4,11 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:irmamobile/src/util/haptics.dart';
 
 import '../..//util/tablet.dart';
@@ -207,7 +208,7 @@ class YiviPinScreen extends StatelessWidget {
     // It's harder to define a fractional height in relation to the
     // screen size, due to variable nature of phone devices, hence
     // the scaling here
-    final logo = SvgPicture.asset(
+    final scaledLogo = SvgPicture.asset(
       'assets/non-free/logo_no_margin.svg',
       width: 127.scaleToDesignSize(context),
       height: 71.scaleToDesignSize(context),
@@ -224,7 +225,7 @@ class YiviPinScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                logo,
+                scaledLogo,
                 Expanded(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -259,36 +260,51 @@ class YiviPinScreen extends StatelessWidget {
           if (!hideSubmit) nextButton,
         ];
 
-    List<Widget> bodyLandscape(bool showSecurePinText) => [
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                instructionText,
-                pinDotsDecorated,
-                if (checkSecurePin && showSecurePinText)
-                  _UnsecurePinWarningTextButton(scaffoldKey: scaffoldKey!, bloc: pinBloc),
-                if (onTogglePinSize != null)
-                  Link(
-                    onTap: onTogglePinSize!,
-                    label: FlutterI18n.translate(context, togglePinSizeCopy),
-                  ),
-                if (onForgotPin != null)
-                  Link(
-                    onTap: onForgotPin!,
-                    label: FlutterI18n.translate(context, 'pin.button_forgot'),
-                  ),
-                if (!hideSubmit) nextButton
-              ],
+    List<Widget> bodyLandscape(bool showSecurePinText) {
+      final leftColumnChildren = [
+        instructionText,
+        pinDotsDecorated,
+        if (checkSecurePin && showSecurePinText)
+          _UnsecurePinWarningTextButton(scaffoldKey: scaffoldKey!, bloc: pinBloc),
+        if (onTogglePinSize != null)
+          Center(
+            child: Link(
+              onTap: onTogglePinSize!,
+              label: FlutterI18n.translate(context, togglePinSizeCopy),
             ),
           ),
-          Expanded(
-            child: _NumberPad(
-              onEnterNumber: pinBloc.add,
+        if (onForgotPin != null)
+          Center(
+            child: Link(
+              onTap: onForgotPin!,
+              label: FlutterI18n.translate(context, 'pin.button_forgot'),
             ),
           ),
-        ];
+        if (!hideSubmit) nextButton
+      ];
+
+      final lt4Children = leftColumnChildren.length < 4;
+
+      final separatedChildren = Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          if (lt4Children) scaledLogo,
+          ...leftColumnChildren,
+        ],
+      );
+
+      return [
+        Expanded(
+          child: separatedChildren,
+        ),
+        Expanded(
+          child: _NumberPad(
+            onEnterNumber: pinBloc.add,
+          ),
+        ),
+      ];
+    }
 
     return OrientationBuilder(
       builder: (context, orientation) {
@@ -303,6 +319,7 @@ class YiviPinScreen extends StatelessWidget {
               );
             } else {
               return Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: bodyLandscape(showSecurePinText),
               );
             }
