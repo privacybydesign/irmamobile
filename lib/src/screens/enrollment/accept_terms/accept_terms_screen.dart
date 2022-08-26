@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../widgets/enrollment_graphic.dart';
 import '../widgets/enrollment_layout.dart';
-import 'widget/accept_terms_Instruction.dart';
+import 'widgets/accept_terms_instruction.dart';
 
 class AcceptTermsScreen extends StatelessWidget {
   static const String routeName = 'terms';
@@ -12,8 +12,12 @@ class AcceptTermsScreen extends StatelessWidget {
   final VoidCallback onContinue;
   final VoidCallback onPrevious;
 
-  const AcceptTermsScreen(
-      {required this.isAccepted, required this.onToggleAccepted, required this.onContinue, required this.onPrevious});
+  const AcceptTermsScreen({
+    required this.isAccepted,
+    required this.onToggleAccepted,
+    required this.onContinue,
+    required this.onPrevious,
+  });
 
   @override
   Widget build(BuildContext context) {
