@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../theme/theme.dart';
+
 import 'loading_indicator.dart';
 
 class IrmaProgress extends StatelessWidget {
@@ -13,10 +15,10 @@ class IrmaProgress extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
+        children: [
           LoadingIndicator(),
           SizedBox(
-            height: IrmaTheme.of(context).defaultSpacing,
+            height: theme.defaultSpacing,
           ),
           Text(
             FlutterI18n.translate(
