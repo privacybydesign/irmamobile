@@ -34,10 +34,7 @@ class EnrollmentInstruction extends StatelessWidget {
         children: [
           // Instruction content
           SingleChildScrollView(
-            padding: EdgeInsets.symmetric(
-              vertical: theme.mediumSpacing,
-              horizontal: theme.mediumSpacing,
-            ),
+            padding: EdgeInsets.all(theme.mediumSpacing),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,6 +55,10 @@ class EnrollmentInstruction extends StatelessWidget {
                   height: theme.defaultSpacing,
                 ),
                 TranslatedText(explanationTranslationKey),
+                // Extra white space so the content above always stays visible
+                SizedBox(
+                  height: theme.defaultSpacing + theme.hugeSpacing,
+                ),
               ],
             ),
           ),
