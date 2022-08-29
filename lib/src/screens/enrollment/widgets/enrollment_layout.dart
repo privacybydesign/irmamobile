@@ -41,7 +41,7 @@ class EnrollmentLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isLandscape = MediaQuery.of(context).size.height < 450;
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
     final isSmallScreen = MediaQuery.of(context).size.height < 670;
 
     return isLandscape
