@@ -7,8 +7,11 @@ import 'util.dart';
 
 /// Unlocks the IRMA app and waits until the wallet is displayed.
 Future<void> unlock(WidgetTester tester) async {
-  await tester.enterTextAtFocusedAndSettle('12345');
-  await tester.waitFor(find.byType(HomeScreen));
+  final pin = [1, 2, 3, 4, 5];
+  for (final digit in pin) {
+    await tester.tapAndSettle(find.byKey(Key('number_pad_key_${digit.toString()}')));
+  }
+  await tester.waitFor(find.byType(HomeScreen).hitTestable());
 }
 
 /// Adds the municipality's personal data and address cards to the IRMA app.

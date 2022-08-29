@@ -35,12 +35,16 @@ class IntegrationTestIrmaBinding {
     assert(enrollmentStatus != EnrollmentStatus.undetermined);
     _preferences ??= await IrmaPreferences.fromInstance();
 
-    // Ensure test scheme is available and the app is not enrolled to its keyshare server yet.
     _bridge.dispatch(AppReadyEvent());
     EnrollmentStatusEvent currEnrollmentStatus = await _bridge.events.whereType<EnrollmentStatusEvent>().first;
-    if (currEnrollmentStatus.enrolledSchemeManagerIds.contains('test')) {
+
+    // Ensure the app is not enrolled to its keyshare server yet.
+    if (currEnrollmentStatus.enrolledSchemeManagerIds.isNotEmpty) {
       await tearDown();
-    } else if (!currEnrollmentStatus.unenrolledSchemeManagerIds.contains('test')) {
+    }
+
+    // Ensure test scheme is available.
+    if (!currEnrollmentStatus.unenrolledSchemeManagerIds.contains('test')) {
       _bridge.dispatch(InstallSchemeEvent(
         url: 'https://drksn.nl/irma_configuration/test',
         publicKey:

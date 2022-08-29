@@ -20,7 +20,7 @@ void main() {
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
 
-  // TODO: repair tests when test in aboutirma_test.dart is fixed and enable them again in test_all.dart.
+  // TODO: repair tests and enable them again in test_all.dart.
   group('home', () {
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
