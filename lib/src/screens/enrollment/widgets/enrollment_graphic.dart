@@ -13,7 +13,7 @@ class EnrollmentGraphic extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     return SafeArea(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
+        padding: EdgeInsets.all(theme.defaultSpacing),
         child: Image(
           image: AssetImage(imagePath),
           alignment: Alignment.center,
