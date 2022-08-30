@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+
+import '../../../theme/theme.dart';
 
 class EnrollmentGraphic extends StatelessWidget {
-  final String svgImagePath;
+  final String imagePath;
 
-  const EnrollmentGraphic(this.svgImagePath);
+  const EnrollmentGraphic(this.imagePath);
 
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
     return SafeArea(
-      child: Center(
-        child: SvgPicture.asset(
-          svgImagePath,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
+        child: Image(
+          image: AssetImage(imagePath),
+          alignment: Alignment.center,
+          fit: BoxFit.fill,
         ),
       ),
     );
