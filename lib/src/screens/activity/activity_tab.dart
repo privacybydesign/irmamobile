@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:intl/intl.dart';
 
@@ -14,6 +15,7 @@ import '../../util/combine.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/loading_indicator.dart';
+
 import 'history_repository.dart';
 import 'widgets/activity_card.dart';
 
@@ -96,15 +98,18 @@ class _ActivityTabState extends State<ActivityTab> {
             children: [
               //If the months differ, or its the first item, add month header
               if (index == 0 || (index > 0 && historyState.logEntries[index - 1].time.month != logEntry.time.month))
-                Padding(
-                  padding: EdgeInsets.only(
-                    top: index > 0 ? theme.defaultSpacing : 0, // If is not first add padding to top.
-                    left: theme.tinySpacing,
-                    right: theme.tinySpacing,
-                    bottom: theme.tinySpacing,
+                Semantics(
+                  container: true,
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      top: index > 0 ? theme.defaultSpacing : 0, // If is not first add padding to top.
+                      left: theme.tinySpacing,
+                      right: theme.tinySpacing,
+                      bottom: theme.tinySpacing,
+                    ),
+                    child: Text(DateFormat('MMMM', local).format(logEntry.time).toCapitalized(),
+                        style: theme.themeData.textTheme.headline3),
                   ),
-                  child: Text(DateFormat('MMMM', local).format(logEntry.time).toCapitalized(),
-                      style: theme.themeData.textTheme.headline3),
                 ),
               ActivityCard(
                 logEntry: logEntry,
