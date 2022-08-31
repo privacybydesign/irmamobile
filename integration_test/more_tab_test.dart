@@ -54,7 +54,7 @@ void main() {
       final PackageInfo packageInfo = await PackageInfo.fromPlatform();
       final versionFinder = find.text('Version ${packageInfo.version} (${packageInfo.buildNumber}, debugbuild)');
       await tester.scrollUntilVisible(versionFinder, 30);
-    }, timeout: const Timeout(Duration(seconds: 30)));
+    }, timeout: const Timeout(Duration(minutes: 1)));
 
     testWidgets('developer-mode', (tester) async {
       // Initialize the app for integration tests
@@ -76,7 +76,7 @@ void main() {
       }
       await tester.ensureVisible(find.text('Developer mode enabled'));
       expect(await irmaBinding.repository.getDeveloperMode().first, true);
-    }, timeout: const Timeout(Duration(seconds: 30)));
+    }, timeout: const Timeout(Duration(minutes: 1)));
 
     testWidgets('log-out', (tester) async {
       // Initialize the app for integration tests
@@ -93,7 +93,7 @@ void main() {
 
       // Verify that pin screen is shown
       await tester.waitFor(find.text('Enter your PIN').hitTestable());
-    }, timeout: const Timeout(Duration(seconds: 30)));
+    }, timeout: const Timeout(Duration(minutes: 1)));
 
     testWidgets('faq', (tester) async {
       // Initialize the app for integration tests
@@ -139,6 +139,6 @@ void main() {
 
       // Check whether the button to send an support email is tappable.
       await tester.scrollUntilVisible(find.text('Send an email').hitTestable(), 100);
-    }, timeout: const Timeout(Duration(seconds: 30)));
+    }, timeout: const Timeout(Duration(minutes: 1)));
   });
 }
