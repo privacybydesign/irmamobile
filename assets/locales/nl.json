@@ -335,8 +335,8 @@
         "confirm_close_dialog": {
             "title": "Data delen annuleren",
             "explanation": "Weet je zeker dat je je data niet wilt delen?",
-            "confirm" : "Sluiten",
-            "decline" : "Doorgaan"
+            "confirm": "Sluiten",
+            "decline": "Doorgaan"
         },
         "wrong_credentials_added": {
             "title": "Foutmelding",
