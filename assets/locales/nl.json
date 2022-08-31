@@ -573,5 +573,10 @@
             "body": "De pincodes zijn niet gelijk. Kies opnieuw een pincode.",
             "action": "OK"
         }
+    },
+    "pin_accessibility": {
+        "show_pin": "Toon pincode",
+        "hide_pin": "Verberg pin",
+        "backspace": "Maak ongedaan"
     }
 }

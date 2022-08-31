@@ -573,5 +573,10 @@
             "body": "PINs do not match. Choose a new PIN.",
             "action": "OK"
         }
+    },
+    "pin_accessibility": {
+        "show_pin": "Show PIN",
+        "hide_pin": "Hide PIN",
+        "backspace": "Backspace"
     }
 }
