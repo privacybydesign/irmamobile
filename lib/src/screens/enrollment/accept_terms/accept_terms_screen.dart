@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../widgets/enrollment_graphic.dart';
 import '../widgets/enrollment_layout.dart';
+
 import 'widgets/accept_terms_instruction.dart';
 
 class AcceptTermsScreen extends StatelessWidget {
@@ -23,7 +24,7 @@ class AcceptTermsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: EnrollmentLayout(
-        graphic: const EnrollmentGraphic('assets/enrollment/introduction_4.svg'),
+        graphic: const EnrollmentGraphic('assets/enrollment/introduction_4.webp'),
         instruction: AcceptTermsInstruction(
           titleTranslationKey: 'enrollment.terms_and_conditions.title',
           explanationTranslationKey: 'enrollment.terms_and_conditions.explanation',

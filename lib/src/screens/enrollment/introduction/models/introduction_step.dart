@@ -1,10 +1,10 @@
 class IntroductionStep {
-  final String svgImagePath;
+  final String imagePath;
   final String titleTranslationKey;
   final String explanationTranslationKey;
 
   const IntroductionStep({
-    required this.svgImagePath,
+    required this.imagePath,
     required this.titleTranslationKey,
     required this.explanationTranslationKey,
   });
