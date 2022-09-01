@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -328,13 +329,13 @@ class YiviPinScreen extends StatelessWidget {
         nextButton
       ];
 
-      final lt4Children = leftColumnChildren.length < 4;
+      final lt5Children = leftColumnChildren.length < 5;
 
       final separatedChildren = Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          if (lt4Children) scaledLogo,
+          if (lt5Children) scaledLogo,
           ...leftColumnChildren,
         ],
       );
