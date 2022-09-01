@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 
 import '../../../theme/theme.dart';
 import '../../../widgets/translated_text.dart';
+
 import 'enrollment_nav_bar.dart';
 
 class EnrollmentInstruction extends StatelessWidget {
@@ -34,7 +35,7 @@ class EnrollmentInstruction extends StatelessWidget {
         children: [
           // Instruction content
           SingleChildScrollView(
-            padding: EdgeInsets.all(theme.mediumSpacing),
+            padding: EdgeInsets.all(theme.defaultSpacing),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
