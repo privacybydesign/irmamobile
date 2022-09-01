@@ -24,48 +24,40 @@ class _NumberPadKey extends StatelessWidget {
       fontWeight: FontWeight.w600,
     );
 
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Flexible(
-              child: _ScalableText(
-                '$number',
-                heightFactor: (subtitle != null) ? heightFactor : .45,
-                textStyle: bigNumberTextStyle,
-              ),
-            ),
-            if (subtitle != null)
+    return ClipPath(
+      clipper: _PerfectCircleClip(),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: (() => onEnterNumber(number)).haptic,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
               Flexible(
                 child: _ScalableText(
-                  subtitle!,
-                  heightFactor: 1 - heightFactor,
-                  textStyle: TextStyle(
-                    fontFamily: theme.fontFamily,
-                    color: theme.secondary,
-                    fontWeight: FontWeight.w400,
-                    height: 14.0 / 24.0,
-                  ),
+                  '$number',
+                  heightFactor: (subtitle != null) ? heightFactor : .45,
+                  textStyle: bigNumberTextStyle,
                 ),
               ),
-          ],
-        ),
-        ClipPath(
-          clipper: _PerfectCircleClip(),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: (() => onEnterNumber(number)).haptic,
-              child: IgnorePointer(
-                child: Container(color: Colors.transparent),
-              ),
-            ),
+              if (subtitle != null)
+                Flexible(
+                  child: _ScalableText(
+                    subtitle!,
+                    heightFactor: 1 - heightFactor,
+                    textStyle: TextStyle(
+                      fontFamily: theme.fontFamily,
+                      color: theme.secondary,
+                      fontWeight: FontWeight.w400,
+                      height: 14.0 / 24.0,
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
 }

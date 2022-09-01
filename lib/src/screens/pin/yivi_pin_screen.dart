@@ -82,7 +82,12 @@ class YiviPinScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    Widget visibilityButton(IconData icon, VoidCallback fn) => ClipPath(
+    Widget visibilityButton(
+      IconData icon,
+      String semanticLabelKey,
+      VoidCallback fn,
+    ) =>
+        ClipPath(
           clipper: _PerfectCircleClip(),
           child: Material(
             color: Colors.transparent,
@@ -99,6 +104,10 @@ class YiviPinScreen extends StatelessWidget {
                   icon,
                   size: 24,
                   color: theme.secondary,
+                  semanticLabel: FlutterI18n.translate(
+                    context,
+                    semanticLabelKey,
+                  ),
                 ),
               ),
             ),
@@ -133,7 +142,10 @@ class YiviPinScreen extends StatelessWidget {
     Widget pinVisibility = ValueListenableBuilder<bool>(
       valueListenable: pinVisibilityValue,
       builder: (context, visible, _) => visibilityButton(
-          visible ? Icons.visibility_off : Icons.visibility, () => pinVisibilityValue.value = !visible),
+        visible ? Icons.visibility_off : Icons.visibility,
+        'pin_accessibility.${visible ? 'hide' : 'show'}_pin',
+        () => pinVisibilityValue.value = !visible,
+      ),
     );
 
     final instructionText = Center(
