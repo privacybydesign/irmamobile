@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../widgets/irma_app_bar.dart';
 import '../widgets/irma_repository_provider.dart';
+
 import 'pin/yivi_pin_screen.dart';
 
 class YiviChoosePinScaffold extends StatelessWidget {
@@ -57,6 +58,12 @@ class YiviChoosePinScaffold extends StatelessWidget {
                   if (maxPinSize == shortPinSize && state.goodEnough) {
                     _submit(state.toString());
                   }
+                },
+                submitButtonVisibilityListener: (context, state) {
+                  if (!longPin && state.pin.length < shortPinSize) {
+                    return defaultSubmitButtonVisibility(context, maxPinSize);
+                  }
+                  return WidgetVisibility.visible;
                 },
               );
             },

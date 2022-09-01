@@ -174,7 +174,6 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
                                   _submit(enabled, state.toString());
                                 }
                               },
-                              hideSubmit: shortPinSize == maxPinSize,
                             ),
                             if (state.authenticateInProgress)
                               Padding(
