@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import 'package:collection/collection.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:intl/intl.dart';
 
@@ -88,10 +89,10 @@ class _ActivityTabState extends State<ActivityTab> {
       historyState.logEntries.length,
       (index) {
         final logEntry = historyState.logEntries[index];
-        final isPreviousLogEntryFromLastMonth =
-            index > 0 && historyState.logEntries[index - 1].time.month != logEntry.time.month;
+        final insertMonthSeparator =
+            index == 0 || index > 0 && historyState.logEntries[index - 1].time.month != logEntry.time.month;
         return [
-          if (index == 0 || isPreviousLogEntryFromLastMonth)
+          if (insertMonthSeparator)
             Padding(
               padding: EdgeInsets.only(
                 // If is not first add padding to top.
@@ -111,7 +112,7 @@ class _ActivityTabState extends State<ActivityTab> {
           ),
         ];
       },
-    ).expand((i) => i).toList() // flatten
+    ).flattened.toList()
       ..add(
         Padding(
           padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
@@ -126,16 +127,13 @@ class _ActivityTabState extends State<ActivityTab> {
         ),
       );
 
-    return ListView.builder(
+    return ListView(
       controller: _scrollController,
       padding: EdgeInsets.symmetric(
         vertical: theme.smallSpacing,
         horizontal: theme.defaultSpacing,
       ),
-      itemBuilder: (context, i) {
-        return groupedItems[i];
-      },
-      itemCount: groupedItems.length,
+      children: groupedItems,
     );
   }
 
