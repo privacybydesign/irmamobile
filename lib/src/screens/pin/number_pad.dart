@@ -20,7 +20,13 @@ class _NumberPad extends StatelessWidget {
         _NumberPadKey(onEnterNumber, 9, 'WXYZ'),
         SizedBox.fromSize(size: const Size.square(20)),
         _NumberPadKey(onEnterNumber, 0),
-        _NumberPadIcon(icon: Icons.backspace_outlined, callback: () => onEnterNumber(-1)),
+        Semantics(
+          child: _NumberPadIcon(icon: Icons.backspace_outlined, callback: () => onEnterNumber(-1)),
+          label: FlutterI18n.translate(
+            context,
+            'pin_accessibility.backspace',
+          ),
+        ),
       ];
 
       final keyWidth = constraints.maxWidth / 3.0;

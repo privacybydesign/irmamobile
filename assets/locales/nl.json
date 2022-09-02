@@ -335,8 +335,8 @@
         "confirm_close_dialog": {
             "title": "Data delen annuleren",
             "explanation": "Weet je zeker dat je je data niet wilt delen?",
-            "confirm" : "Sluiten",
-            "decline" : "Doorgaan"
+            "confirm": "Sluiten",
+            "decline": "Doorgaan"
         },
         "wrong_credentials_added": {
             "title": "Foutmelding",
@@ -573,5 +573,10 @@
             "body": "De pincodes zijn niet gelijk. Kies opnieuw een pincode.",
             "action": "OK"
         }
+    },
+    "pin_accessibility": {
+        "show_pin": "Toon pincode",
+        "hide_pin": "Verberg pin",
+        "backspace": "Maak ongedaan"
     }
 }
