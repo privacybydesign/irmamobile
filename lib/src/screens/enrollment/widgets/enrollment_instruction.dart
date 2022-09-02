@@ -35,7 +35,7 @@ class EnrollmentInstruction extends StatelessWidget {
         children: [
           // Instruction content
           SingleChildScrollView(
-            padding: EdgeInsets.all(theme.mediumSpacing),
+            padding: EdgeInsets.all(theme.defaultSpacing),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,

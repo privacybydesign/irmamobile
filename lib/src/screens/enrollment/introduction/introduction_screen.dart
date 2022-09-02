@@ -13,7 +13,7 @@ class IntroductionScreen extends StatelessWidget {
     (int stepIndex) {
       final step = stepIndex + 1;
       return IntroductionStep(
-        svgImagePath: 'assets/enrollment/introduction_$step.svg',
+        imagePath: 'assets/enrollment/introduction_$step.webp',
         titleTranslationKey: 'enrollment.introduction.step_$step.title',
         explanationTranslationKey: 'enrollment.introduction.step_$step.explanation',
       );
@@ -36,7 +36,7 @@ class IntroductionScreen extends StatelessWidget {
     return Scaffold(
       body: EnrollmentLayout(
         graphic: EnrollmentGraphic(
-          introductionSteps[currentStepIndex].svgImagePath,
+          introductionSteps[currentStepIndex].imagePath,
         ),
         instruction: EnrollmentInstruction(
           stepIndex: currentStepIndex,

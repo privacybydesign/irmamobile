@@ -26,14 +26,11 @@ class EnrollmentLayout extends StatelessWidget {
     bool isSmallScreen = false,
   }) =>
       Column(
-        mainAxisSize: MainAxisSize.max,
         children: [
-          Flexible(
-            flex: isSmallScreen ? 3 : 5,
+          Expanded(
             child: graphic,
           ),
-          Flexible(
-            flex: 4,
+          Expanded(
             child: instruction,
           )
         ],
