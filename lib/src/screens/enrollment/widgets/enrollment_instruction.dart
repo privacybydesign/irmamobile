@@ -26,7 +26,7 @@ class EnrollmentInstruction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final isLandscape = MediaQuery.of(context).size.height < 450;
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
 
     return SafeArea(
       top: isLandscape,

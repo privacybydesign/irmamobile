@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+
 import 'package:sliver_tools/sliver_tools.dart';
 
 import '../../../models/irma_configuration.dart';
 import '../../../theme/theme.dart';
 import '../credentials_detail_screen.dart';
+
 import 'credential_type_tile.dart';
 
 class CredentialCategoryList extends StatelessWidget {
@@ -18,7 +20,7 @@ class CredentialCategoryList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final isLandscape = MediaQuery.of(context).size.height < 450;
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
 
     return MultiSliver(
       children: [
