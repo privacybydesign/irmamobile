@@ -1,8 +1,5 @@
 abstract class DisclosurePermissionBlocEvent {}
 
-/// Event to indicate that the user has yet to complete the introduction
-class DisclosurePermissionIntroductionStarted implements DisclosurePermissionBlocEvent {}
-
 /// Event to indicate that the user wants to continue to the next state.
 class DisclosurePermissionNextPressed implements DisclosurePermissionBlocEvent {}
 

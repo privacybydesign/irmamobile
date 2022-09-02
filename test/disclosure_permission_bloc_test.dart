@@ -30,6 +30,7 @@ void main() {
   });
   tearDown(() async {
     await mockBridge.close();
+    await repo.preferences.clearAll();
     await repo.close();
   });
 
@@ -55,7 +56,7 @@ void main() {
       isBridgedEvent: true,
     );
 
-    //The first test should see the introduction
+    // When doing a disclosure session the first time, we should see the introduction.
     expect(await bloc.stream.first, isA<DisclosurePermissionIntroduction>());
     bloc.add(DisclosurePermissionNextPressed());
 
@@ -236,6 +237,10 @@ void main() {
       NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
       isBridgedEvent: true,
     );
+
+    // When doing a disclosure session the first time, we should see the introduction.
+    expect(await bloc.stream.first, isA<DisclosurePermissionIntroduction>());
+    bloc.add(DisclosurePermissionNextPressed());
 
     expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
     DisclosurePermissionIssueWizard issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
@@ -524,6 +529,10 @@ void main() {
       isBridgedEvent: true,
     );
 
+    // When doing a disclosure session the first time, we should see the introduction.
+    expect(await bloc.stream.first, isA<DisclosurePermissionIntroduction>());
+    bloc.add(DisclosurePermissionNextPressed());
+
     expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
     DisclosurePermissionChoicesOverview choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
     expect(choicesOverviewBlocState.plannedSteps, [DisclosurePermissionStepName.choicesOverview]);
@@ -586,6 +595,10 @@ void main() {
       NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
       isBridgedEvent: true,
     );
+
+    // When doing a disclosure session the first time, we should see the introduction.
+    expect(await bloc.stream.first, isA<DisclosurePermissionIntroduction>());
+    bloc.add(DisclosurePermissionNextPressed());
 
     expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
     DisclosurePermissionIssueWizard issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
@@ -746,6 +759,10 @@ void main() {
       isBridgedEvent: true,
     );
 
+    // When doing a disclosure session the first time, we should see the introduction.
+    expect(await bloc.stream.first, isA<DisclosurePermissionIntroduction>());
+    bloc.add(DisclosurePermissionNextPressed());
+
     expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
     DisclosurePermissionIssueWizard issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
     expect(issueWizardBlocState.isCompleted, false);
@@ -879,6 +896,10 @@ void main() {
       isBridgedEvent: true,
     );
 
+    // When doing a disclosure session the first time, we should see the introduction.
+    expect(await bloc.stream.first, isA<DisclosurePermissionIntroduction>());
+    bloc.add(DisclosurePermissionNextPressed());
+
     expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
     DisclosurePermissionChoicesOverview choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
     expect(choicesOverviewBlocState.showConfirmationPopup, false);
@@ -975,6 +996,10 @@ void main() {
       NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
       isBridgedEvent: true,
     );
+
+    // When doing a disclosure session the first time, we should see the introduction.
+    expect(await bloc.stream.first, isA<DisclosurePermissionIntroduction>());
+    bloc.add(DisclosurePermissionNextPressed());
 
     expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
     DisclosurePermissionIssueWizard issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
@@ -1094,6 +1119,10 @@ void main() {
       NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
       isBridgedEvent: true,
     );
+
+    // When doing a disclosure session the first time, we should see the introduction.
+    expect(await bloc.stream.first, isA<DisclosurePermissionIntroduction>());
+    bloc.add(DisclosurePermissionNextPressed());
 
     expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
     DisclosurePermissionIssueWizard issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
@@ -1218,6 +1247,10 @@ void main() {
       NewSessionEvent(sessionID: 44, request: SessionPointer(irmaqr: 'disclosing', u: '')),
       isBridgedEvent: true,
     );
+
+    // When doing a disclosure session the first time, we should see the introduction.
+    expect(await bloc.stream.first, isA<DisclosurePermissionIntroduction>());
+    bloc.add(DisclosurePermissionNextPressed());
 
     expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
     DisclosurePermissionIssueWizard issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
@@ -1359,6 +1392,10 @@ void main() {
       isBridgedEvent: true,
     );
 
+    // When doing a disclosure session the first time, we should see the introduction.
+    expect(await bloc.stream.first, isA<DisclosurePermissionIntroduction>());
+    bloc.add(DisclosurePermissionNextPressed());
+
     expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
 
     bloc.add(DisclosurePermissionNextPressed());
@@ -1394,6 +1431,76 @@ void main() {
     bloc.add(DisclosurePermissionNextPressed());
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.success);
+  });
+
+  test('introduction', () async {
+    await _issueCredential(repo, mockBridge, 42, [
+      {
+        'irma-demo.IRMATube.member.id': TextValue.fromString('12345'),
+        'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
+      }
+    ]);
+
+    mockBridge.mockDisclosureSession(43, [
+      [
+        {
+          'irma-demo.IRMATube.member.id': null,
+        }
+      ]
+    ]);
+
+    final bloc = DisclosurePermissionBloc(
+      sessionID: 43,
+      repo: repo,
+      onObtainCredential: (_) => {},
+    );
+    expect(bloc.state, isA<DisclosurePermissionInitial>());
+
+    repo.dispatch(
+      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      isBridgedEvent: true,
+    );
+
+    // When doing a disclosure session the first time, we should see the introduction.
+    expect(await bloc.stream.first, isA<DisclosurePermissionIntroduction>());
+    bloc.add(DisclosurePermissionNextPressed());
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
+    bloc.add(DisclosurePermissionNextPressed());
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
+    bloc.add(DisclosurePermissionNextPressed());
+
+    await repo.getSessionState(43).firstWhere((session) => session.status == SessionStatus.success);
+
+    mockBridge.mockDisclosureSession(44, [
+      [
+        {
+          'irma-demo.IRMATube.member.id': null,
+        }
+      ]
+    ]);
+
+    final bloc2 = DisclosurePermissionBloc(
+      sessionID: 44,
+      repo: repo,
+      onObtainCredential: (_) => {},
+    );
+    expect(bloc2.state, isA<DisclosurePermissionInitial>());
+
+    repo.dispatch(
+      NewSessionEvent(sessionID: 44, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      isBridgedEvent: true,
+    );
+
+    // In the second session, the introduction should be skipped.
+    expect(await bloc2.stream.first, isA<DisclosurePermissionChoicesOverview>());
+    bloc2.add(DisclosurePermissionNextPressed());
+
+    expect(await bloc2.stream.first, isA<DisclosurePermissionChoicesOverview>());
+    bloc2.add(DisclosurePermissionNextPressed());
+
+    await repo.getSessionState(44).firstWhere((session) => session.status == SessionStatus.success);
   });
 }
 
