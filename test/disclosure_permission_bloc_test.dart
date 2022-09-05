@@ -859,7 +859,7 @@ void main() {
   });
 
   test('optional-attribute', () async {
-    // Optionally, disclose your mobile number and/or email address.
+    // Optionally, disclose your mobile number.
     mockBridge.mockDisclosureSession(42, [
       [
         {},
@@ -1045,7 +1045,7 @@ void main() {
       }
     ]);
 
-    // Optionally, disclose your mobile number and/or email address.
+    // Disclose your mobile number and optionally email address from pbdf or surfnet.
     mockBridge.mockDisclosureSession(43, [
       [
         {
