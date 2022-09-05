@@ -202,7 +202,13 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         throw Exception('Con with index ${event.conIndex} does not exist');
       }
       yield DisclosurePermissionChangeChoice(
-        parentState: _refreshChoices(state.parentState, state.discon, state.disconIndex, event.conIndex),
+        parentState: _refreshChoices(
+          state.parentState,
+          state.discon,
+          state.disconIndex,
+          session.disclosuresCandidates!.length,
+          event.conIndex,
+        ),
         discon: state.discon,
         disconIndex: state.disconIndex,
         selectedConIndex: event.conIndex,
@@ -227,7 +233,13 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       );
     } else if (state is DisclosurePermissionAddOptionalData && event is DisclosurePermissionNextPressed) {
       if (state.isSelectedChoosable) {
-        yield _refreshChoices(state.parentState, [state.selectedCon], state.disconIndexSelectedCon, 0);
+        yield _refreshChoices(
+          state.parentState,
+          [state.selectedCon],
+          state.disconIndexSelectedCon,
+          session.disclosuresCandidates!.length,
+          0,
+        );
       } else {
         yield* _obtainCredentials(state, state.selectedCon);
       }
@@ -241,7 +253,13 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       if (!state.optionalChoices.containsKey(event.disconIndex)) {
         throw Exception('Optional choice with index ${event.disconIndex} does not exist');
       }
-      yield _refreshChoices(state, [state.optionalChoices[event.disconIndex]!], event.disconIndex, null);
+      yield _refreshChoices(
+        state,
+        [state.optionalChoices[event.disconIndex]!],
+        event.disconIndex,
+        session.disclosuresCandidates!.length,
+        null,
+      );
     } else if (state is DisclosurePermissionChoicesOverview && event is DisclosurePermissionNextPressed) {
       if (!state.showConfirmationPopup) {
         yield DisclosurePermissionChoicesOverview(
@@ -318,7 +336,13 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         prevChoice: state.selectedCon,
       );
       final refreshedState = DisclosurePermissionChangeChoice(
-        parentState: _refreshChoices(state.parentState, discon, state.disconIndex, selectedConIndex),
+        parentState: _refreshChoices(
+          state.parentState,
+          discon,
+          state.disconIndex,
+          session.disclosuresCandidates!.length,
+          selectedConIndex,
+        ),
         discon: discon,
         disconIndex: state.disconIndex,
         selectedConIndex: selectedConIndex,
@@ -515,6 +539,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     DisclosurePermissionChoices prevState,
     List<Con<DisclosureCredential>> discon,
     int disconIndex,
+    int numberOfDiscons,
     int? selectedConIndex,
   ) {
     // The state machine should make sure the selected con only contains ChoosableDisclosureCredentials in this state.
@@ -537,19 +562,20 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       );
     }
 
+    final hasAdditionalOptionalChoices = requiredChoices.length + optionalChoices.length < numberOfDiscons;
     if (prevState is DisclosurePermissionPreviouslyAddedCredentialsOverview) {
       return DisclosurePermissionPreviouslyAddedCredentialsOverview(
         plannedSteps: prevState.plannedSteps,
         requiredChoices: requiredChoices,
         optionalChoices: optionalChoices,
-        hasAdditionalOptionalChoices: prevState.hasAdditionalOptionalChoices,
+        hasAdditionalOptionalChoices: hasAdditionalOptionalChoices,
       );
     } else if (prevState is DisclosurePermissionChoicesOverview) {
       return DisclosurePermissionChoicesOverview(
         plannedSteps: prevState.plannedSteps,
         requiredChoices: requiredChoices,
         optionalChoices: optionalChoices,
-        hasAdditionalOptionalChoices: prevState.hasAdditionalOptionalChoices,
+        hasAdditionalOptionalChoices: hasAdditionalOptionalChoices,
       );
     } else {
       throw UnsupportedError('Unknown DisclosurePermissionChoices implementation: ${prevState.runtimeType}');
