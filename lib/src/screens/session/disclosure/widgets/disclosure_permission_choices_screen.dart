@@ -73,14 +73,16 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
           ],
         ),
         SizedBox(height: theme.smallSpacing),
-        for (var credential in choiceEntry.value)
+        for (int i = 0; i < choiceEntry.value.length; i++)
           IrmaCredentialCard(
-            credentialInfo: credential,
-            attributes: credential.attributes,
+            credentialInfo: choiceEntry.value[i],
+            attributes: choiceEntry.value[i].attributes,
             hideFooter: true,
-            headerTrailing: isOptional
+            padding: EdgeInsets.symmetric(horizontal: theme.tinySpacing),
+            headerTrailing: isOptional && i == 0
                 ? IrmaIconButton(
                     icon: Icons.close,
+                    size: 12,
                     onTap: () => onEvent(DisclosurePermissionRemoveOptionalDataPressed(disconIndex: choiceEntry.key)))
                 : null,
           ),

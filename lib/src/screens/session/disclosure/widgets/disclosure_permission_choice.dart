@@ -29,7 +29,7 @@ class DisclosurePermissionChoice extends StatelessWidget {
       children: [
         for (final i in choice.keys) ...[
           Padding(
-            padding: EdgeInsets.only(bottom: theme.tinySpacing),
+            padding: EdgeInsets.all(theme.tinySpacing),
             child: Column(
               children: choice[i]!
                   .map(
@@ -40,14 +40,7 @@ class DisclosurePermissionChoice extends StatelessWidget {
                         }
                       },
                       child: IrmaCredentialCard(
-                        padding: EdgeInsets.only(
-                          left: theme.tinySpacing,
-                          right: theme.tinySpacing,
-                          //Only add top padding if this is the first item
-                          top: credential == choice[i]!.first ? theme.tinySpacing : 0,
-                          //Only add bottom padding if this is the last item.
-                          bottom: credential == choice[i]!.last ? theme.tinySpacing : 0,
-                        ),
+                        padding: EdgeInsets.zero,
                         credentialInfo: credential,
                         attributes: credential.attributes,
                         compareTo: credential is TemplateDisclosureCredential ? credential.attributes : null,
