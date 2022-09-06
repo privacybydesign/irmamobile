@@ -23,7 +23,7 @@ void main() {
     setUp(() async => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
 
-    testWidgets('empty-disclosure', (tester) async {
+    testWidgets('disclose-if-present', (tester) async {
       // Initialize the app for integration tests
       await tester.pumpWidgetAndSettle(IrmaApp(
         repository: irmaBinding.repository,
@@ -32,18 +32,20 @@ void main() {
 
       await unlock(tester);
 
-      // Start session
-      await irmaBinding.repository.startTestSession('''
+      const sessionRequest = '''
         {
           "@context": "https://irma.app/ld/request/disclosure/v2",
           "disclose": [
             [
-              [],
-              [ "irma-demo.sidn-pbdf.email.email" ]
+              [ "irma-demo.sidn-pbdf.email.email" ],
+              []
             ]
           ]
         }
-      ''');
+      ''';
+
+      // Start session without the credential being present.
+      await irmaBinding.repository.startTestSession(sessionRequest);
 
       // Dismiss introduction screen.
       await tester.waitFor(find.text('Share your data in 3 simple steps:'));
@@ -72,6 +74,22 @@ void main() {
         of: find.byType(IrmaCredentialCard),
         matching: find.byIcon(Icons.close),
       ));
+
+      // Finish session.
+      await tester.tapAndSettle(find.text('Share data'));
+      await tester.tapAndSettle(find.text('Share'));
+
+      await tester.waitFor(find.text('Success'));
+      await tester.tapAndSettle(find.text('OK'));
+
+      expect(find.byType(HomeScreen).hitTestable(), findsOneWidget);
+
+      // Start session again to validate that now email is pre-selected.
+      await irmaBinding.repository.startTestSession(sessionRequest);
+      await tester.waitFor(find.text('Share your data'));
+      expect(find.text('This is the data you are going to share:'), findsOneWidget);
+      expect(find.text('Demo Email address'), findsOneWidget);
+      expect(find.text('test@example.com'), findsOneWidget);
 
       // Finish session.
       await tester.tapAndSettle(find.text('Share data'));
