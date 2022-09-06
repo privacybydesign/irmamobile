@@ -25,8 +25,9 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
 
   final IrmaRepository _repo; // Repository is hidden by design, because behaviour should be triggered via bloc events.
 
-  late final StreamSubscription _sessionStateSubscription;
   late final StreamSubscription _sessionEventSubscription;
+
+  StreamSubscription? _sessionStateSubscription;
 
   final List<String> _newlyAddedCredentialHashes;
 
@@ -37,29 +38,34 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
   })  : _repo = repo,
         _newlyAddedCredentialHashes = [],
         super(DisclosurePermissionInitial()) {
-    _maybeStartIntroduction();
-    _sessionStateSubscription = repo
-        .getSessionState(sessionID)
-        .map((session) => _mapSessionStateToBlocState(state, session))
-        .where((newState) => newState != state) // To prevent the DisclosurePermissionInitial state is added twice.
-        .listen(emit);
     _sessionEventSubscription = repo
         .getEvents()
         .whereType<RequestIssuancePermissionSessionEvent>()
         .expand((event) => event.issuedCredentials.map((cred) => cred.hash))
         .listen(_newlyAddedCredentialHashes.add);
+    repo.preferences.getCompletedDisclosurePermissionIntro().first.then((introCompleted) {
+      if (isClosed) return;
+      if (introCompleted) {
+        _listenForSessionState();
+      } else {
+        emit(DisclosurePermissionIntroduction());
+      }
+    });
   }
 
   @override
   Future<void> close() async {
-    await _sessionStateSubscription.cancel();
+    await _sessionStateSubscription?.cancel();
     await _sessionEventSubscription.cancel();
     super.close();
   }
 
-  void _maybeStartIntroduction() async {
-    var completedIntroduction = await _repo.preferences.getCompletedDisclosurePermissionIntro().first;
-    if (!completedIntroduction) add(DisclosurePermissionIntroductionStarted());
+  void _listenForSessionState() {
+    _sessionStateSubscription = _repo
+        .getSessionState(sessionID)
+        .map((session) => _mapSessionStateToBlocState(state, session))
+        .where((newState) => newState != state) // To prevent the DisclosurePermissionInitial state is added twice.
+        .listen(emit);
   }
 
   @override
@@ -67,10 +73,8 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     final state = this.state; // To prevent the need for type casting.
     final session = _repo.getCurrentSessionState(sessionID)!;
 
-    if (event is DisclosurePermissionIntroductionStarted) {
-      yield DisclosurePermissionIntroduction();
-    } else if (state is DisclosurePermissionIntroduction && event is DisclosurePermissionNextPressed) {
-      yield _mapSessionStateToBlocState(state, session);
+    if (state is DisclosurePermissionIntroduction && event is DisclosurePermissionNextPressed) {
+      _listenForSessionState();
     } else if (state is DisclosurePermissionIssueWizard && event is DisclosurePermissionChoiceUpdated) {
       if (state.currentDiscon == null) throw Exception('No DisCon found that expects an update');
       if (event.conIndex < 0 || event.conIndex >= state.currentDiscon!.value.length) {
