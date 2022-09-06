@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../theme/theme.dart';
+import '../../widgets/irma_action_card.dart';
 import '../../widgets/translated_text.dart';
 import '../activity/widgets/recent_activity.dart';
 import '../add_data/add_data_screen.dart';
 import '../scanner/scanner_screen.dart';
-import 'widgets/irma_action_card.dart';
 import 'widgets/irma_info_card.dart';
 import 'widgets/irma_nav_bar.dart';
 

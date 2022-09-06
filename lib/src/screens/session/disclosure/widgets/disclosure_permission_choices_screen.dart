@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/widgets/irma_icon_button.dart';
 
+import '../../../../models/attributes.dart';
 import '../../../../models/return_url.dart';
 import '../../../../models/session.dart';
 import '../../../../theme/theme.dart';
 import '../../../../widgets/credential_card/irma_credential_card.dart';
+import '../../../../widgets/irma_action_card.dart';
 import '../../../../widgets/irma_bottom_bar.dart';
 import '../../../../widgets/irma_progress_indicator.dart';
 import '../../../../widgets/irma_quote.dart';
@@ -13,6 +16,7 @@ import '../../../../widgets/translated_text.dart';
 import '../../widgets/session_scaffold.dart';
 import '../bloc/disclosure_permission_event.dart';
 import '../bloc/disclosure_permission_state.dart';
+import '../models/choosable_disclosure_credential.dart';
 import 'disclosure_permission_share_dialog.dart';
 
 class DisclosurePermissionChoicesScreen extends StatelessWidget {
@@ -40,14 +44,54 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
     onEvent(confirmed ? DisclosurePermissionNextPressed() : DisclosurePermissionDialogDismissed());
   }
 
+  Widget _buildChoiceEntry(
+    BuildContext context,
+    MapEntry<int, Con<ChoosableDisclosureCredential>> choiceEntry,
+    bool isOptional,
+  ) {
+    final theme = IrmaTheme.of(context);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            GestureDetector(
+              onTap: () {
+                onEvent(
+                  DisclosurePermissionChangeChoicePressed(
+                    disconIndex: choiceEntry.key,
+                  ),
+                );
+                Feedback.forTap(context);
+              },
+              child: TranslatedText(
+                'disclosure_permission.change_choice',
+                style: theme.hyperlinkTextStyle,
+              ),
+            )
+          ],
+        ),
+        SizedBox(height: theme.smallSpacing),
+        for (var credential in choiceEntry.value)
+          IrmaCredentialCard(
+            credentialInfo: credential,
+            attributes: credential.attributes,
+            hideFooter: true,
+            headerTrailing: isOptional
+                ? IrmaIconButton(
+                    icon: Icons.close,
+                    onTap: () => onEvent(DisclosurePermissionRemoveOptionalDataPressed(disconIndex: choiceEntry.key)))
+                : null,
+          ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
-
-    if (state.optionalChoices.isNotEmpty || state.hasAdditionalOptionalChoices) {
-      throw UnimplementedError('Optional choices cannot be displayed yet');
-    }
 
     if (state is DisclosurePermissionChoicesOverview &&
         (state as DisclosurePermissionChoicesOverview).showConfirmationPopup) {
@@ -112,39 +156,25 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
               style: theme.themeData.textTheme.headline4,
             ),
             SizedBox(height: theme.smallSpacing),
-            ...state.requiredChoices.entries.map(
-              (choiceEntry) => Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          onEvent(
-                            DisclosurePermissionChangeChoicePressed(
-                              disconIndex: choiceEntry.key,
-                            ),
-                          );
-                          Feedback.forTap(context);
-                        },
-                        child: TranslatedText(
-                          'disclosure_permission.change_choice',
-                          style: theme.hyperlinkTextStyle,
-                        ),
-                      )
-                    ],
-                  ),
-                  SizedBox(height: theme.smallSpacing),
-                  for (var credential in choiceEntry.value)
-                    IrmaCredentialCard(
-                      credentialInfo: credential,
-                      attributes: credential.attributes,
-                      hideFooter: true,
-                    )
-                ],
+            ...state.requiredChoices.entries.map((choiceEntry) => _buildChoiceEntry(context, choiceEntry, false)),
+            if (state.optionalChoices.isNotEmpty) ...[
+              TranslatedText('disclosure_permission.optional_data', style: theme.themeData.textTheme.headline4),
+              ...state.optionalChoices.entries.map((choiceEntry) => _buildChoiceEntry(context, choiceEntry, true)),
+            ],
+            if (state.requiredChoices.isEmpty && state.optionalChoices.isEmpty)
+              TranslatedText('disclosure_permission.no_data_selected', style: theme.textTheme.caption),
+            if (state.hasAdditionalOptionalChoices) ...[
+              SizedBox(height: theme.defaultSpacing),
+              IrmaActionCard(
+                titleKey: 'disclosure_permission.add_optional_data',
+                onTap: () => onEvent(DisclosurePermissionAddOptionalDataPressed()),
+                icon: Icons.add_circle_outline,
+                color: theme.textTheme.headline1?.color ?? Colors.black,
+                invertColors: true,
+                style: theme.textTheme.button,
+                centerText: true,
               ),
-            ),
+            ],
           ],
         ),
       ),
