@@ -51,7 +51,7 @@ Future<void> issueCredentials(
   await tester.waitFor(find.text('Do you want to add this data to your Yivi app?'));
 
   // Check whether all credentials are displayed.
-  expect(tester.widgetList(find.byType(IrmaCredentialCard)).length, groupedAttributes.length);
+  expect(find.byType(IrmaCredentialCard), findsNWidgets(groupedAttributes.length));
 
   // Check whether all attributes are displayed in the right order.
   for (final credTypeId in groupedAttributes.keys) {
