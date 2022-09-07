@@ -34,10 +34,11 @@ Future<void> initSentry({required IrmaPreferences preferences}) async {
 Future<void> reportError(dynamic error, dynamic stackTrace, {bool userInitiated = false}) async {
   // If Sentry is not configured, we report the error to Flutter such that the test framework can detect it.
   if (dsn == '') {
+    final supportsDefaultStackFilter = stackTrace == null || stackTrace is StackTrace;
     FlutterError.reportError(FlutterErrorDetails(
       exception: error,
-      stack: stackTrace is StackTrace ? stackTrace : StackTrace.fromString(stackTrace.toString()),
-      stackFilter: stackTrace is StackTrace ? FlutterError.defaultStackFilter : (frames) => frames,
+      stack: supportsDefaultStackFilter ? stackTrace : StackTrace.fromString(stackTrace.toString()),
+      stackFilter: supportsDefaultStackFilter ? FlutterError.defaultStackFilter : (frames) => frames,
     ));
   } else {
     final enabled = await IrmaPreferences.get().getReportErrors().first;
