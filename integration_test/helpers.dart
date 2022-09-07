@@ -1,6 +1,12 @@
+import 'dart:convert';
+
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
+import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
+import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_attribute_list.dart';
+import 'package:irmamobile/src/widgets/irma_button.dart';
 
 import 'irma_binding.dart';
 import 'util.dart';
@@ -14,7 +20,61 @@ Future<void> unlock(WidgetTester tester) async {
   await tester.waitFor(find.byType(HomeScreen).hitTestable());
 }
 
+/// Starts an issuing session that adds the given credentials to the IRMA app.
+/// The attributes should be specified in the display order.
+Future<void> issueCredentials(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+  Map<String, String> attributes,
+) async {
+  final groupedAttributes = groupBy<MapEntry<String, String>, String>(
+    attributes.entries,
+    (attr) => attr.key.split('.').take(3).join('.'),
+  );
+  final credentialsJson = jsonEncode(groupedAttributes.entries
+      .map((credEntry) => {
+            'credential': credEntry.key,
+            'attributes': {
+              for (final attrEntry in credEntry.value) attrEntry.key.split('.')[3]: attrEntry.value,
+            },
+          })
+      .toList());
+
+  // Start session
+  await irmaBinding.repository.startTestSession('''
+    {
+      "@context": "https://irma.app/ld/request/issuance/v2",
+      "credentials": $credentialsJson
+    }
+  ''');
+
+  await tester.waitFor(find.text('Do you want to add this data to your Yivi app?'));
+
+  // Check whether all credentials are displayed.
+  expect(find.byType(IrmaCredentialCard), findsNWidgets(groupedAttributes.length));
+
+  // Check whether all attributes are displayed in the right order.
+  for (final credTypeId in groupedAttributes.keys) {
+    final credType = irmaBinding.repository.irmaConfiguration.credentialTypes[credTypeId]!;
+    expect(find.text(credType.name.translate('en')), findsOneWidget);
+  }
+  final attributeTexts = tester.getAllText(find.byType(IrmaCredentialCardAttributeList)).toList();
+  final attributeEntries = attributes.entries.toList();
+  for (int i = 0; i < attributes.length; i++) {
+    expect(
+      attributeTexts[i * 2],
+      irmaBinding.repository.irmaConfiguration.attributeTypes[attributeEntries[i].key]?.name.translate('en'),
+    );
+    expect(attributeTexts[i * 2 + 1], attributeEntries[i].value);
+  }
+
+  await tester.tapAndSettle(find.descendant(of: find.byType(IrmaButton), matching: find.text('Add data')));
+
+  await tester.waitUntilDisappeared(find.text('Add data'));
+}
+
 /// Adds the municipality's personal data and address cards to the IRMA app.
+@Deprecated('Use issueCredentials instead')
 Future<void> issueCardsMunicipality(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
   // Start session
   await irmaBinding.repository.startTestSession('''

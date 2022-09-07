@@ -11,10 +11,12 @@ import 'disclosure_template_stepper.dart';
 class DisclosurePermissionObtainCredentialsScreen extends StatelessWidget {
   final DisclosurePermissionObtainCredentials state;
   final Function(DisclosurePermissionBlocEvent) onEvent;
+  final Function() onDismiss;
 
   const DisclosurePermissionObtainCredentialsScreen({
     required this.state,
     required this.onEvent,
+    required this.onDismiss,
   });
 
   void _onButtonPressed(BuildContext context) {
@@ -34,6 +36,7 @@ class DisclosurePermissionObtainCredentialsScreen extends StatelessWidget {
 
     return SessionScaffold(
       appBarTitle: 'disclosure_permission.issue_wizard.title',
+      onDismiss: onDismiss,
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
         child: Column(

@@ -12,10 +12,12 @@ import 'disclosure_permission_choice.dart';
 class DisclosurePermissionMakeChoiceScreen extends StatelessWidget {
   final DisclosurePermissionMakeChoice state;
   final Function(DisclosurePermissionBlocEvent) onEvent;
+  final Function() onDismiss;
 
   const DisclosurePermissionMakeChoiceScreen({
     required this.state,
     required this.onEvent,
+    required this.onDismiss,
   });
 
   @override
@@ -23,7 +25,10 @@ class DisclosurePermissionMakeChoiceScreen extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return SessionScaffold(
-      appBarTitle: 'disclosure_permission.change_choice',
+      appBarTitle: state is DisclosurePermissionChangeChoice
+          ? 'disclosure_permission.change_choice'
+          : 'disclosure_permission.choose',
+      onDismiss: onDismiss,
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
         child: Column(

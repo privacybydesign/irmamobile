@@ -301,6 +301,9 @@
         "obtain_new": "Nieuwe gegevens ophalen",
         "next_step": "Volgende stap",
         "obtain_data": "Gegevens ophalen",
+        "optional_data": "Optionele gegevens",
+        "add_optional_data": "Voeg optionele gegevens toe",
+        "no_data_selected": "Geen gegevens geselecteerd",
         "introduction": {
             "title": "Aan de slag",
             "header": "Deel jouw gegevens in 3 simpele stappen:",

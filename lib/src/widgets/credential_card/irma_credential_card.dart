@@ -4,12 +4,9 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import '../../models/attribute_value.dart';
 import '../../models/attributes.dart';
 import '../../models/credentials.dart';
-
+import '../../screens/session/disclosure/models/disclosure_credential.dart';
 import '../../theme/theme.dart';
 import '../../util/date_formatter.dart';
-
-import '../../screens/session/disclosure/models/disclosure_credential.dart';
-
 import '../../util/language.dart';
 import '../irma_card.dart';
 import '../irma_divider.dart';
@@ -104,6 +101,7 @@ class IrmaCredentialCard extends StatelessWidget {
     return IrmaCard(
       style: isExpired ? IrmaCardStyle.disabled : style,
       onTap: onTap,
+      padding: padding,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,

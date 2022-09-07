@@ -858,7 +858,84 @@ void main() {
     await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.success);
   });
 
-  test('optional-attributes', () async {
+  test('optional-attribute', () async {
+    // Optionally, disclose your mobile number.
+    mockBridge.mockDisclosureSession(42, [
+      [
+        {},
+        {
+          'pbdf.pbdf.mobilenumber.mobilenumber': null,
+        },
+      ],
+    ]);
+
+    final obtainCredentialsController = StreamController<String>.broadcast();
+    final bloc = DisclosurePermissionBloc(
+      sessionID: 42,
+      repo: repo,
+      onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
+    );
+    repo.dispatch(
+      NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      isBridgedEvent: true,
+    );
+
+    // When doing a disclosure session the first time, we should see the introduction.
+    expect(await bloc.stream.first, isA<DisclosurePermissionIntroduction>());
+    bloc.add(DisclosurePermissionNextPressed());
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
+    DisclosurePermissionChoicesOverview choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
+    expect(choicesOverviewBlocState.showConfirmationPopup, false);
+    expect(choicesOverviewBlocState.requiredChoices, {});
+    expect(choicesOverviewBlocState.optionalChoices, {});
+    expect(choicesOverviewBlocState.hasAdditionalOptionalChoices, true);
+
+    bloc.add(DisclosurePermissionAddOptionalDataPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionAddOptionalData>());
+    DisclosurePermissionAddOptionalData addOptionalDataBlocState = bloc.state as DisclosurePermissionAddOptionalData;
+    expect(addOptionalDataBlocState.templateCons.keys, [0]);
+    expect(addOptionalDataBlocState.selectedConIndex, 0);
+
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await obtainCredentialsController.stream.first, 'pbdf.pbdf.mobilenumber');
+    await _issueCredential(repo, mockBridge, 43, [
+      {
+        'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678'),
+      }
+    ]);
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionAddOptionalData>());
+    addOptionalDataBlocState = bloc.state as DisclosurePermissionAddOptionalData;
+    expect(addOptionalDataBlocState.choosableCons.keys, [0]);
+    expect(addOptionalDataBlocState.choosableCons[0]?.length, 1);
+    expect(addOptionalDataBlocState.choosableCons[0]?[0].credentialHash, 'session-43-0');
+    expect(addOptionalDataBlocState.templateCons.keys, [1]);
+    expect(addOptionalDataBlocState.selectedConIndex, 0);
+
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
+    choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
+    expect(choicesOverviewBlocState.showConfirmationPopup, false);
+    expect(choicesOverviewBlocState.hasAdditionalOptionalChoices, false);
+    expect(choicesOverviewBlocState.requiredChoices, {});
+    expect(choicesOverviewBlocState.optionalChoices.keys, [0]);
+    expect(choicesOverviewBlocState.optionalChoices[0]?.length, 1);
+    expect(choicesOverviewBlocState.optionalChoices[0]?[0].fullId, 'pbdf.pbdf.mobilenumber');
+    expect(choicesOverviewBlocState.optionalChoices[0]?[0].attributes.length, 1);
+    expect(choicesOverviewBlocState.optionalChoices[0]?[0].attributes[0].value.raw, '+31612345678');
+
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
+    choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
+    expect(choicesOverviewBlocState.showConfirmationPopup, true);
+
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
+    await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.success);
+  });
+
+  test('multiple-optional-attributes', () async {
     await _issueCredential(repo, mockBridge, 42, [
       {
         'pbdf.pbdf.surfnet-2.id': TextValue.fromString('12345'),
@@ -968,7 +1045,7 @@ void main() {
       }
     ]);
 
-    // Optionally, disclose your mobile number and/or email address.
+    // Disclose your mobile number and optionally email address from pbdf or surfnet.
     mockBridge.mockDisclosureSession(43, [
       [
         {
