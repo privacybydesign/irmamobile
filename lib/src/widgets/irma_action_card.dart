@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
-import '../../../theme/theme.dart';
-import '../../../widgets/irma_card.dart';
-import '../../../widgets/translated_text.dart';
+import '../theme/theme.dart';
+import 'irma_card.dart';
+import 'translated_text.dart';
 
 class IrmaActionCard extends StatelessWidget {
   final String titleKey;
@@ -13,6 +13,7 @@ class IrmaActionCard extends StatelessWidget {
   final Color? color;
   final bool invertColors;
   final Function()? onTap;
+  final bool centerText;
 
   const IrmaActionCard({
     required this.titleKey,
@@ -22,6 +23,7 @@ class IrmaActionCard extends StatelessWidget {
     this.style,
     this.onTap,
     this.invertColors = false,
+    this.centerText = false,
   });
 
   @override
@@ -38,7 +40,7 @@ class IrmaActionCard extends StatelessWidget {
       margin: EdgeInsets.all(theme.defaultSpacing),
       onTap: onTap,
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: centerText ? CrossAxisAlignment.center : CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Flexible(
@@ -49,8 +51,8 @@ class IrmaActionCard extends StatelessWidget {
                   titleKey,
                   style: textStyle.copyWith(color: textColor),
                 ),
-                SizedBox(height: theme.smallSpacing),
-                if (subtitleKey != null)
+                if (subtitleKey != null) ...[
+                  SizedBox(height: theme.smallSpacing),
                   Text.rich(
                     TextSpan(
                       children: [
@@ -67,7 +69,8 @@ class IrmaActionCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                  )
+                  ),
+                ],
               ],
             ),
           ),

@@ -1,15 +1,15 @@
-import 'package:flutter/material.dart';
 import "package:collection/collection.dart";
+import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 
 import '../../models/credentials.dart';
 import '../../models/irma_configuration.dart';
 import '../../theme/theme.dart';
+import '../../widgets/irma_action_card.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/translated_text.dart';
 import '../add_data/add_data_screen.dart';
-import '../home/widgets/irma_action_card.dart';
 import 'widgets/credential_category_list.dart';
 
 class DataTab extends StatelessWidget {

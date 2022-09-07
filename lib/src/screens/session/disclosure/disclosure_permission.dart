@@ -110,11 +110,13 @@ class ProvidedDisclosurePermission extends StatelessWidget {
                 return DisclosurePermissionMakeChoiceScreen(
                   state: state,
                   onEvent: addEvent,
+                  onDismiss: onDismiss,
                 );
               } else if (state is DisclosurePermissionObtainCredentials) {
                 return DisclosurePermissionObtainCredentialsScreen(
                   state: state,
                   onEvent: addEvent,
+                  onDismiss: onDismiss,
                 );
               } else if (state is DisclosurePermissionChoices) {
                 return DisclosurePermissionChoicesScreen(
