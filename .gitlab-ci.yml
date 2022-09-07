@@ -63,6 +63,15 @@ build_app:android_alpha:
   script:
     - flutter build apk --target-platform android-arm,android-arm64 --flavor alpha
 
+build_app:android_beta:
+  stage: build_app
+  interruptible: true
+  artifacts:
+    paths:
+      - build/app/outputs/apk/alpha/release/*.apk
+  script:
+    - flutter build apk --target-platform android-arm,android-arm64 --flavor beta
+
 build_app:android_test:
   stage: build_app
   interruptible: true
