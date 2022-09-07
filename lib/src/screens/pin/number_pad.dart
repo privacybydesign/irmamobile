@@ -31,14 +31,26 @@ class _NumberPad extends StatelessWidget {
 
       final keyWidth = constraints.maxWidth / 3.0;
       final keyHeight = constraints.maxHeight / 4.0;
+      final resizedKeyHeight = keyHeight * 0.8;
 
       final grid = Wrap(
         children: keys
-            .map((e) => SizedBox(
+            .map(
+              (e) => Container(
+                alignment: Alignment.topCenter,
+                width: keyWidth,
+                height: keyHeight,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints.tight(
+                    Size(
+                      keyWidth,
+                      resizedKeyHeight,
+                    ),
+                  ),
                   child: e,
-                  width: keyWidth,
-                  height: keyHeight,
-                ))
+                ),
+              ),
+            )
             .toList(),
         alignment: WrapAlignment.center,
       );
