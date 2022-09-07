@@ -70,7 +70,7 @@ void main() {
       await irmaBinding.repository.getDeveloperMode().firstWhere((enabled) => !enabled);
 
       // Check enabling developer mode.
-      await tester.scrollUntilVisible(find.textContaining('Version'), 100);
+      await tester.scrollUntilVisible(find.textContaining('Version').hitTestable(), 100);
       for (int i = 0; i < 7; i++) {
         await tester.tapAndSettle(find.textContaining('Version'));
       }
@@ -126,19 +126,20 @@ void main() {
         if (!tester.any(questionFinder)) {
           await tester.scrollUntilVisible(questionFinder, 100);
         }
+        // Unfold answer.
+        await tester.tapAndSettle(questionFinder);
+        // Fold answer again.
         await tester.tapAndSettle(questionFinder);
       }
 
-      // Check folding a help item and check auto-scrolling when expanding a help item again.
       // We select an item without markdown to make testing easier.
       final questionFinder = find.text('Why do the data in the Yivi app have limited validity?').hitTestable();
-      await tester.scrollUntilVisible(questionFinder, -100);
-      await tester.tapAndSettle(questionFinder);
+      await tester.scrollUntilVisible(questionFinder, -50);
       await tester.tapAndSettle(questionFinder);
       expect(find.textContaining('that you can prove that you are older than 18 now.').hitTestable(), findsOneWidget);
 
       // Check whether the button to send an support email is tappable.
-      await tester.scrollUntilVisible(find.text('Send an email').hitTestable(), 100);
+      await tester.scrollUntilVisible(find.text('Send an email').hitTestable(), 50);
     }, timeout: const Timeout(Duration(minutes: 1)));
   });
 }
