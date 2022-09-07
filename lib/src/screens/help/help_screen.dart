@@ -82,7 +82,7 @@ class _HelpScreenState extends State<HelpScreen> {
             body: HelpCarousel(items: [
               HelpCarouselItem('assets/help/computer_login/website.svg', 'help.answer_5.step_1'),
               HelpCarouselItem('assets/help/computer_login/app.svg', 'help.answer_5.step_2'),
-              HelpCarouselItem('assets/help/computer_login/scan.svg', 'help.answer_5.step_3'),
+              HelpCarouselItem('assets/help/computer_login/scan.webp', 'help.answer_5.step_3'),
               HelpCarouselItem('assets/help/computer_login/success.svg', 'help.answer_5.step_4'),
               HelpCarouselItem('assets/help/computer_login/website.svg', 'help.answer_5.step_5'),
             ]),
@@ -103,7 +103,7 @@ class _HelpScreenState extends State<HelpScreen> {
             parentScrollController: _controller,
           ),
           SizedBox(height: theme.defaultSpacing),
-          _buildHeader(theme, 'help.storage_and_privacy'),
+          _buildHeader(theme, 'help.security_and_privacy'),
           SizedBox(height: theme.smallSpacing),
           HelpItem(
             headerTranslationKey: 'help.question_8',

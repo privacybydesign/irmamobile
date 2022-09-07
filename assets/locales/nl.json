@@ -110,7 +110,7 @@
         "question_11": "Yivi, privacy en veiligheid",
         "answer_11": "De Yivi-app is zo gemaakt dat jij en jij alleen je gegevens in de app kunt zien en gebruiken. Jouw gegevens staan alleen in de Yivi-app op je mobiel, en nergens anders (dus ook niet in de cloud).\n\nDe Yivi-app is zo gemaakt dat een website of winkel waar je jezelf bekend maakt (cryptografisch) kan controleren dat de gegevens die je toont echt zijn.\n\nDe Yivi-app toont jouw gegevens vanuit je mobiel rechtstreeks aan een website. Niemand anders kan zien dat jij jezelf daar bekendmaakt. Ook de organisatie achter Yivi kan niet meekijken. \n\nMet het gebruik van Yivi ga je akkoord met de [privacy policy](https://privacybydesign.foundation/privacy-policy/).",
         "send": "Heb je een andere vraag? Stuur een e-mail. Houd er rekening mee dat het enkele dagen kan duren voor je antwoord krijgt.",
-        "storage_and_privacy": "Opslag en privacy"
+        "security_and_privacy": "Beveiliging en privacy"
     },
     "accessibility": {
         "irma_logo": "Yivi Logo",
@@ -338,8 +338,8 @@
         "confirm_close_dialog": {
             "title": "Data delen annuleren",
             "explanation": "Weet je zeker dat je je data niet wilt delen?",
-            "confirm" : "Sluiten",
-            "decline" : "Doorgaan"
+            "confirm": "Sluiten",
+            "decline": "Doorgaan"
         },
         "wrong_credentials_added": {
             "title": "Foutmelding",
@@ -433,7 +433,6 @@
         "add_credential": "Haal {credential} op"
     },
     "home": {
-        "button_back": "Terug",
         "nav_bar": {
             "home": "Overzicht",
             "data": "Gegevens",
@@ -577,5 +576,10 @@
             "body": "De pincodes zijn niet gelijk. Kies opnieuw een pincode.",
             "action": "OK"
         }
+    },
+    "pin_accessibility": {
+        "show_pin": "Toon pincode",
+        "hide_pin": "Verberg pin",
+        "backspace": "Maak ongedaan"
     }
 }

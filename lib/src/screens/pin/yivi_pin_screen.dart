@@ -4,14 +4,14 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:irmamobile/src/util/haptics.dart';
 
 import '../..//util/tablet.dart';
 import '../../theme/theme.dart';
+import '../../util/haptics.dart';
 import '../../util/scale.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/link.dart';
@@ -31,6 +31,8 @@ part 'unsecure_pin_list_builder.dart';
 part 'unsecure_pin_warning_text_button.dart';
 part 'yivi_pin_scaffold.dart';
 
+enum WidgetVisibility { invisible, visible, gone }
+
 typedef PinQuality = Set<SecurePinAttribute>;
 typedef NumberCallback = void Function(int);
 typedef StringCallback = void Function(String);
@@ -39,6 +41,18 @@ const _nextButtonHeight = 48.0;
 
 const shortPinSize = 5;
 const longPinSize = 16;
+
+WidgetVisibility defaultSubmitButtonVisibility(BuildContext context, int maxPinSize) {
+  if (maxPinSize == longPinSize) {
+    return WidgetVisibility.visible;
+  }
+
+  if ((Orientation.landscape == MediaQuery.of(context).orientation)) {
+    return WidgetVisibility.gone;
+  } else {
+    return WidgetVisibility.invisible;
+  }
+}
 
 class YiviPinScreen extends StatelessWidget {
   final GlobalKey<ScaffoldState>? scaffoldKey;
@@ -53,8 +67,8 @@ class YiviPinScreen extends StatelessWidget {
   final String? instructionKey;
   final String? instruction;
   final bool enabled;
-  final bool hideSubmit;
   final void Function(BuildContext, EnterPinState)? listener;
+  final WidgetVisibility Function(BuildContext, EnterPinState)? submitButtonVisibilityListener;
 
   YiviPinScreen({
     Key? key,
@@ -70,7 +84,7 @@ class YiviPinScreen extends StatelessWidget {
     this.checkSecurePin = false,
     this.enabled = true,
     this.listener,
-    this.hideSubmit = false,
+    this.submitButtonVisibilityListener,
   })  : assert(instructionKey != null && instruction == null || instruction != null && instructionKey == null),
         assert(checkSecurePin ? scaffoldKey != null : true),
         super(key: key);
@@ -81,7 +95,12 @@ class YiviPinScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    Widget visibilityButton(IconData icon, VoidCallback fn) => ClipPath(
+    Widget pinVisibilityButton(
+      IconData icon,
+      String semanticLabelKey,
+      VoidCallback fn,
+    ) =>
+        ClipPath(
           clipper: _PerfectCircleClip(),
           child: Material(
             color: Colors.transparent,
@@ -98,41 +117,68 @@ class YiviPinScreen extends StatelessWidget {
                   icon,
                   size: 24,
                   color: theme.secondary,
+                  semanticLabel: FlutterI18n.translate(
+                    context,
+                    semanticLabelKey,
+                  ),
                 ),
               ),
             ),
           ),
         );
 
-    Widget activateNext(bool activate) => ElevatedButton(
-          style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.resolveWith<Color>(
-              (Set<MaterialState> states) {
-                final secondary = theme.secondary;
-                if (states.contains(MaterialState.pressed)) {
-                  return secondary.withOpacity(0.8);
-                } else if (states.contains(MaterialState.disabled)) {
-                  return secondary.withOpacity(0.5);
-                }
-                return secondary;
-              },
-            ),
-            minimumSize: MaterialStateProperty.resolveWith<Size>((s) => const Size.fromHeight(_nextButtonHeight)),
-            shape: MaterialStateProperty.resolveWith<OutlinedBorder>(
-              (s) => RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-            ),
+    Widget activateNext(bool activate, WidgetVisibility visibility) {
+      final button = ElevatedButton(
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.resolveWith<Color>(
+            (Set<MaterialState> states) {
+              final secondary = theme.secondary;
+              if (states.contains(MaterialState.pressed)) {
+                return secondary.withOpacity(0.8);
+              } else if (states.contains(MaterialState.disabled)) {
+                return secondary.withOpacity(0.5);
+              }
+              return secondary;
+            },
           ),
-          onPressed: activate && enabled ? () => onSubmit(pinBloc.state.toString()) : null,
-          child: Text(
-            FlutterI18n.translate(context, 'choose_pin.next'),
-            style: theme.textTheme.button?.copyWith(fontWeight: FontWeight.w700),
+          minimumSize: MaterialStateProperty.resolveWith<Size>((s) => const Size.fromHeight(_nextButtonHeight)),
+          shape: MaterialStateProperty.resolveWith<OutlinedBorder>(
+            (s) => RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
           ),
-        );
+        ),
+        onPressed: activate && enabled ? () => onSubmit(pinBloc.state.toString()) : null,
+        child: Text(
+          FlutterI18n.translate(context, 'choose_pin.next'),
+          style: theme.textTheme.button?.copyWith(fontWeight: FontWeight.w700),
+        ),
+      );
+
+      switch (visibility) {
+        case WidgetVisibility.gone:
+          return Visibility(
+            child: button,
+            visible: false,
+          );
+        case WidgetVisibility.invisible:
+          return Visibility(
+            child: button,
+            maintainSize: true,
+            maintainAnimation: true,
+            maintainState: true,
+            visible: false,
+          );
+        case WidgetVisibility.visible:
+          return button;
+      }
+    }
 
     Widget pinVisibility = ValueListenableBuilder<bool>(
       valueListenable: pinVisibilityValue,
-      builder: (context, visible, _) => visibilityButton(
-          visible ? Icons.visibility_off : Icons.visibility, () => pinVisibilityValue.value = !visible),
+      builder: (context, visible, _) => pinVisibilityButton(
+        visible ? Icons.visibility_off : Icons.visibility,
+        'pin_accessibility.${visible ? 'hide' : 'show'}_pin',
+        () => pinVisibilityValue.value = !visible,
+      ),
     );
 
     final instructionText = Center(
@@ -201,13 +247,14 @@ class YiviPinScreen extends StatelessWidget {
 
     final nextButton = BlocBuilder<EnterPinStateBloc, EnterPinState>(
       bloc: pinBloc,
-      builder: (context, state) => activateNext(state.pin.length >= (shortPinSize == maxPinSize ? 5 : 6)),
+      builder: (context, state) => activateNext(state.pin.length >= (shortPinSize == maxPinSize ? 5 : 6),
+          submitButtonVisibilityListener?.call(context, state) ?? defaultSubmitButtonVisibility(context, maxPinSize)),
     );
 
     // It's harder to define a fractional height in relation to the
     // screen size, due to variable nature of phone devices, hence
     // the scaling here
-    final logo = SvgPicture.asset(
+    final scaledLogo = SvgPicture.asset(
       'assets/non-free/logo_no_margin.svg',
       width: 127.scaleToDesignSize(context),
       height: 71.scaleToDesignSize(context),
@@ -224,7 +271,7 @@ class YiviPinScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                logo,
+                scaledLogo,
                 Expanded(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -256,39 +303,54 @@ class YiviPinScreen extends StatelessWidget {
             ),
           ),
           SizedBox(height: theme.screenPadding),
-          if (!hideSubmit) nextButton,
+          nextButton,
         ];
 
-    List<Widget> bodyLandscape(bool showSecurePinText) => [
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                instructionText,
-                pinDotsDecorated,
-                if (checkSecurePin && showSecurePinText)
-                  _UnsecurePinWarningTextButton(scaffoldKey: scaffoldKey!, bloc: pinBloc),
-                if (onTogglePinSize != null)
-                  Link(
-                    onTap: onTogglePinSize!,
-                    label: FlutterI18n.translate(context, togglePinSizeCopy),
-                  ),
-                if (onForgotPin != null)
-                  Link(
-                    onTap: onForgotPin!,
-                    label: FlutterI18n.translate(context, 'pin.button_forgot'),
-                  ),
-                if (!hideSubmit) nextButton
-              ],
+    List<Widget> bodyLandscape(bool showSecurePinText) {
+      final leftColumnChildren = [
+        instructionText,
+        pinDotsDecorated,
+        if (checkSecurePin && showSecurePinText)
+          _UnsecurePinWarningTextButton(scaffoldKey: scaffoldKey!, bloc: pinBloc),
+        if (onTogglePinSize != null)
+          Center(
+            child: Link(
+              onTap: onTogglePinSize!,
+              label: FlutterI18n.translate(context, togglePinSizeCopy),
             ),
           ),
-          Expanded(
-            child: _NumberPad(
-              onEnterNumber: pinBloc.add,
+        if (onForgotPin != null)
+          Center(
+            child: Link(
+              onTap: onForgotPin!,
+              label: FlutterI18n.translate(context, 'pin.button_forgot'),
             ),
           ),
-        ];
+        nextButton
+      ];
+
+      final lt5Children = leftColumnChildren.length < 5;
+
+      final separatedChildren = Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          if (lt5Children) scaledLogo,
+          ...leftColumnChildren,
+        ],
+      );
+
+      return [
+        Expanded(
+          child: separatedChildren,
+        ),
+        Expanded(
+          child: _NumberPad(
+            onEnterNumber: pinBloc.add,
+          ),
+        ),
+      ];
+    }
 
     return OrientationBuilder(
       builder: (context, orientation) {
@@ -303,6 +365,7 @@ class YiviPinScreen extends StatelessWidget {
               );
             } else {
               return Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: bodyLandscape(showSecurePinText),
               );
             }

@@ -110,7 +110,7 @@
         "question_11": "Yivi, privacy and safety",
         "answer_11": "The Yivi app has been developed in such a way that you and only you can see and use your personal data. Your personal data are stored on your phone only.\n\nThe Yivi app design enables a website or shop to (cryptographically) verify that the data you disclosed are genuine.\n\nThe Yivi app discloses your data directly from your phone to the website. No-one else can see that you identify yourself there. Even the organisation behind Yivi cannot observe such disclosures. \n\nWhen using Yivi, you agree with the [privacy policy](https://privacybydesign.foundation/privacy-policy-en/).",
         "send": "Do you have other/more questions? Send an email. It may take a couple of days before you get a reply.",
-        "storage_and_privacy": "Storage en privacy"
+        "security_and_privacy": "Security and privacy"
     },
     "accessibility": {
         "irma_logo": "Yivi Logo",
@@ -393,7 +393,7 @@
             "text": {
                 "success": "Your data are disclosed to {otherParty}",
                 "canceled": "Your data are not disclosed to {otherParty}",
-                "notSatisfiable": "Your data are not disclosed because {otherParty} requests outdated cards. Please contact this party."
+                "notSatisfiable": "Your data are not disclosed because {otherParty} requests outdated data. Please contact this party."
             }
         }
     },
@@ -433,7 +433,6 @@
         "add_credential": "Add {credential}"
     },
     "home": {
-        "button_back": "Back",
         "nav_bar": {
             "home": "Home",
             "data": "Data",
@@ -577,5 +576,10 @@
             "body": "PINs do not match. Choose a new PIN.",
             "action": "OK"
         }
+    },
+    "pin_accessibility": {
+        "show_pin": "Show PIN",
+        "hide_pin": "Hide PIN",
+        "backspace": "Backspace"
     }
 }

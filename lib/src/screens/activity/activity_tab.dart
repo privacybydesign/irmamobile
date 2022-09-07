@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import 'package:collection/collection.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:intl/intl.dart';
 
@@ -14,6 +16,7 @@ import '../../util/combine.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/loading_indicator.dart';
+
 import 'history_repository.dart';
 import 'widgets/activity_card.dart';
 
@@ -81,74 +84,78 @@ class _ActivityTabState extends State<ActivityTab> {
     _addPostFrameCallback();
     final local = FlutterI18n.currentLocale(context).toString();
     final theme = IrmaTheme.of(context);
-    return Expanded(
-      child: ListView.builder(
-        controller: _scrollController,
-        padding: EdgeInsets.symmetric(
-          vertical: theme.smallSpacing,
-          horizontal: theme.defaultSpacing,
-        ),
-        itemCount: historyState.logEntries.length,
-        itemBuilder: (context, index) {
-          final logEntry = historyState.logEntries[index];
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              //If the months differ, or its the first item, add month header
-              if (index == 0 || (index > 0 && historyState.logEntries[index - 1].time.month != logEntry.time.month))
-                Padding(
-                  padding: EdgeInsets.only(
-                    top: index > 0 ? theme.defaultSpacing : 0, // If is not first add padding to top.
-                    left: theme.tinySpacing,
-                    right: theme.tinySpacing,
-                    bottom: theme.tinySpacing,
-                  ),
-                  child: Text(DateFormat('MMMM', local).format(logEntry.time).toCapitalized(),
-                      style: theme.themeData.textTheme.headline3),
-                ),
-              ActivityCard(
-                logEntry: logEntry,
-                irmaConfiguration: irmaConfiguration,
+
+    final groupedItems = List.generate(
+      historyState.logEntries.length,
+      (index) {
+        final logEntry = historyState.logEntries[index];
+        final insertMonthSeparator =
+            index == 0 || index > 0 && historyState.logEntries[index - 1].time.month != logEntry.time.month;
+        return [
+          if (insertMonthSeparator)
+            Padding(
+              padding: EdgeInsets.only(
+                // If is not first add padding to top.
+                top: index > 0 ? theme.defaultSpacing : 0,
+                left: theme.tinySpacing,
+                right: theme.tinySpacing,
+                bottom: theme.tinySpacing,
               ),
-              // Put loading indicator or loading finished icon at end of ListView
-              if (index == historyState.logEntries.length - 1)
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
-                  child: Center(
-                    child: historyState.moreLogsAvailable
-                        ? SizedBox(
-                            height: 36,
-                            child: LoadingIndicator(),
-                          )
-                        : Icon(IrmaIcons.valid, color: theme.success),
-                  ),
-                )
-            ],
-          );
-        },
+              child: Text(
+                DateFormat('MMMM', local).format(logEntry.time).toCapitalized(),
+                style: theme.themeData.textTheme.headline3,
+              ),
+            ),
+          ActivityCard(
+            logEntry: logEntry,
+            irmaConfiguration: irmaConfiguration,
+          ),
+        ];
+      },
+    ).flattened.toList()
+      ..add(
+        Padding(
+          padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
+          child: Center(
+            child: historyState.moreLogsAvailable
+                ? SizedBox(
+                    height: 36,
+                    child: LoadingIndicator(),
+                  )
+                : Icon(IrmaIcons.valid, color: theme.success),
+          ),
+        ),
+      );
+
+    return ListView(
+      controller: _scrollController,
+      padding: EdgeInsets.symmetric(
+        vertical: theme.smallSpacing,
+        horizontal: theme.defaultSpacing,
       ),
+      children: groupedItems,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     _scrollController.addListener(_listenToScroll);
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const IrmaAppBar(
+    return Scaffold(
+      appBar: const IrmaAppBar(
         titleTranslationKey: 'home.nav_bar.activity',
         noLeading: true,
       ),
-      StreamBuilder<CombinedState2<IrmaConfiguration, HistoryState>>(
+      body: StreamBuilder<CombinedState2<IrmaConfiguration, HistoryState>>(
         stream: combine2(_historyRepo.repo.getIrmaConfiguration(), _historyRepo.getHistoryState()),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
-            return Container();
+            return Center(child: LoadingIndicator());
           }
           final irmaConfiguration = snapshot.data!.a;
           final historyState = snapshot.data!.b;
           return _buildLogEntries(context, irmaConfiguration, historyState);
         },
-      )
-    ]);
+      ),
+    );
   }
 }

@@ -19,13 +19,10 @@ class _NumberPadIcon extends StatelessWidget {
               onTap: callback.haptic,
               child: IgnorePointer(
                 child: FractionallySizedBox(
-                  // alignment: Alignment.topCenter,
                   heightFactor: .5,
                   child: FittedBox(
-                    // fit: BoxFit.scaleDown,
                     fit: BoxFit.fitHeight,
                     child: Container(
-                      // color: Colors.transparent,
                       alignment: Alignment.center,
                       child: Icon(
                         icon,

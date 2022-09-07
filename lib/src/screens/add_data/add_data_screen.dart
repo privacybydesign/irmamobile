@@ -87,7 +87,7 @@ class AddDataScreen extends StatelessWidget {
             IrmaRepositoryProvider.of(context).getCredentials(),
           ),
           builder: (context, snapshot) {
-            if (!snapshot.hasData) return const IrmaProgress();
+            if (!snapshot.hasData) return IrmaProgress();
 
             final irmaConfiguration = snapshot.data!.a;
             final credentials = snapshot.data!.b;

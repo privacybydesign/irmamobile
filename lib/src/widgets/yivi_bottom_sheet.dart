@@ -8,9 +8,9 @@ void showYiviBottomSheet({required BuildContext context, required Widget child})
     isScrollControlled: true,
     context: context,
     builder: (context) => Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
+      decoration: BoxDecoration(
+        color: theme.background,
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(30.0),
           topRight: Radius.circular(30.0),
         ),

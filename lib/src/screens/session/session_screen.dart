@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../data/irma_repository.dart';
@@ -17,6 +18,7 @@ import '../../util/navigation.dart';
 import '../../widgets/loading_indicator.dart';
 import '../error/session_error_screen.dart';
 import '../pin/session_pin_screen.dart';
+
 import 'call_info_screen.dart';
 import 'disclosure/disclosure_permission.dart';
 import 'session.dart';
@@ -145,7 +147,7 @@ class _SessionScreenState extends State<SessionScreen> {
     return DisclosureFeedbackScreen(
       feedbackType: feedbackType,
       otherParty: serverName,
-      popToWallet: popToHome,
+      onDismiss: popToHome,
     );
   }
 
@@ -184,7 +186,7 @@ class _SessionScreenState extends State<SessionScreen> {
       return DisclosureFeedbackScreen(
         feedbackType: DisclosureFeedbackType.canceled,
         otherParty: serverName,
-        popToWallet: popToHome,
+        onDismiss: popToHome,
       );
     }
   }
@@ -293,11 +295,9 @@ class _SessionScreenState extends State<SessionScreen> {
       );
 
   Widget _buildLoadingScreen(bool isIssuance) => SessionScaffold(
-        body: Column(children: [
-          Center(
-            child: LoadingIndicator(),
-          ),
-        ]),
+        body: Center(
+          child: LoadingIndicator(),
+        ),
         onDismiss: () => _dismissSession(),
         appBarTitle: _getAppBarTitle(isIssuance),
       );
@@ -332,12 +332,21 @@ class _SessionScreenState extends State<SessionScreen> {
               onDismiss: () => _dismissSession(),
             );
           case SessionStatus.requestDisclosurePermission:
-            return DisclosurePermission(
-              sessionId: session.sessionID,
-              requestor: session.serverName,
-              returnURL: session.clientReturnURL,
-              repo: _repo,
-            );
+            if (session.canBeFinished ?? false) {
+              return DisclosurePermission(
+                sessionId: session.sessionID,
+                requestor: session.serverName,
+                returnURL: session.clientReturnURL,
+                repo: _repo,
+              );
+            } else {
+              final serverName = session.serverName.name.translate(FlutterI18n.currentLocale(context)!.languageCode);
+              return DisclosureFeedbackScreen(
+                feedbackType: DisclosureFeedbackType.notSatisfiable,
+                otherParty: serverName,
+                onDismiss: popToHome,
+              );
+            }
           case SessionStatus.requestIssuancePermission:
             return IssuancePermission(
               satisfiable: session.satisfiable!,
