@@ -68,7 +68,7 @@ build_app:android_beta:
   interruptible: true
   artifacts:
     paths:
-      - build/app/outputs/apk/alpha/release/*.apk
+      - build/app/outputs/apk/beta/release/*.apk
   script:
     - flutter build apk --target-platform android-arm,android-arm64 --flavor beta
 
