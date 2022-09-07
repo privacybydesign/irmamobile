@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/widgets/irma_icon_button.dart';
 
 import '../../../../models/attributes.dart';
 import '../../../../models/return_url.dart';
@@ -9,6 +8,7 @@ import '../../../../theme/theme.dart';
 import '../../../../widgets/credential_card/irma_credential_card.dart';
 import '../../../../widgets/irma_action_card.dart';
 import '../../../../widgets/irma_bottom_bar.dart';
+import '../../../../widgets/irma_icon_button.dart';
 import '../../../../widgets/irma_progress_indicator.dart';
 import '../../../../widgets/irma_quote.dart';
 import '../../../../widgets/issuer_verifier_header.dart';
