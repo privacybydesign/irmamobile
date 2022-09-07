@@ -82,4 +82,4 @@ integration_test:
   script:
     - gcloud auth activate-service-account --key-file <(echo $GCLOUD_SERVICE_KEY)
     - gcloud config set project $GCLOUD_PROJECT_ID
-    - gcloud firebase test android run --app build/app/outputs/apk/alpha/debug/app-alpha-debug.apk --test build/app/outputs/apk/androidTest/alpha/debug/app-alpha-debug-androidTest.apk --timeout 10m --device=model=Pixel3,version=30
+    - gcloud firebase test android run --app build/app/outputs/apk/alpha/debug/app-alpha-debug.apk --test build/app/outputs/apk/androidTest/alpha/debug/app-alpha-debug-androidTest.apk --timeout 10m --device=model=Pixel3,version=30 --orientations=portrait,landscape

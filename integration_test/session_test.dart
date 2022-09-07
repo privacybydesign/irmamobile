@@ -55,7 +55,9 @@ void main() {
       expect(find.text('No data selected'), findsOneWidget);
 
       // Try to add optional data.
-      await tester.tapAndSettle(find.text('Add optional data'));
+      final addOptionalDataButton = find.text('Add optional data').hitTestable();
+      await tester.scrollUntilVisible(addOptionalDataButton, 50);
+      await tester.tapAndSettle(addOptionalDataButton);
 
       expect(find.text('Demo Email address'), findsOneWidget);
 
@@ -70,10 +72,12 @@ void main() {
       await tester.tapAndSettle(find.text('Done'));
 
       // Delete optional data from selection again.
-      await tester.tapAndSettle(find.descendant(
+      final deleteOptionalDataButton = find.descendant(
         of: find.byType(IrmaCredentialCard),
-        matching: find.byIcon(Icons.close),
-      ));
+        matching: find.byIcon(Icons.close).hitTestable(),
+      );
+      await tester.scrollUntilVisible(deleteOptionalDataButton, 50);
+      await tester.tapAndSettle(deleteOptionalDataButton);
 
       // Finish session.
       await tester.tapAndSettle(find.text('Share data'));
@@ -157,7 +161,9 @@ void main() {
       expect(find.text('No data selected'), findsOneWidget);
 
       // Try to add optional data.
-      await tester.tapAndSettle(find.text('Add optional data'));
+      final addOptionalDataButton = find.text('Add optional data').hitTestable();
+      await tester.scrollUntilVisible(addOptionalDataButton, 50);
+      await tester.tapAndSettle(addOptionalDataButton);
 
       // There should be three options: the option we added at the beginning of this test and two template options
       // to obtain new mobile number credential instances for either pbdf or sidn-pbdf.
