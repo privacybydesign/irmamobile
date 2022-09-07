@@ -194,10 +194,12 @@ abstract class DisclosurePermissionMakeChoice implements DisclosurePermissionBlo
       };
 
   /// All template cons within this choice. This also includes choices with combinations of
-  /// ChoosableDisclosureCredential and TemplateDisclosureCredentials.
-  Map<int, Con<DisclosureCredential>> get templateCons => {
+  /// ChoosableDisclosureCredentials and TemplateDisclosureCredentials. Of those choices,
+  /// only the TemplateDisclosureCredentials are returned.
+  Map<int, Con<TemplateDisclosureCredential>> get templateCons => {
         for (int i = 0; i < discon.length; i++)
-          if (discon[i].any((cred) => cred is TemplateDisclosureCredential)) i: discon[i]
+          if (discon[i].any((cred) => cred is TemplateDisclosureCredential))
+            i: Con(discon[i].whereType<TemplateDisclosureCredential>())
       };
 
   /// The con that is currently selected.
