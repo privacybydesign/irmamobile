@@ -28,18 +28,21 @@ class IrmaCredentialCardAttributeList extends StatelessWidget {
                 attrComp.value is! NullValue && attr.attributeType.fullId == attrComp.attributeType.fullId) ??
             true));
 
-    Text buildLabel(Attribute attribute) => Text(
-          attribute.attributeType.name.translate(lang),
+    final textValueAttrs = attributesWithValue.where((a) => a.value is TextValue);
+    final photoValueAttrs = attributesWithValue.where((a) => a.value is PhotoValue);
+
+    Text buildLabel(Attribute a) => Text(
+          a.attributeType.name.translate(lang),
           style: theme.themeData.textTheme.caption!.copyWith(
             color: theme.neutralDark,
           ),
         );
 
-    TranslatedText buildTextContent(Attribute attribute) {
+    TranslatedText buildTextContent(Attribute attribute, TextValue attrValue) {
       final Attribute? compareValue =
           compareTo?.firstWhereOrNull((e) => e.attributeType.fullId == attribute.attributeType.fullId);
       return TranslatedText(
-        (attribute.value as TextValue).translated.translate(lang),
+        attrValue.translated.translate(lang),
         style: theme.themeData.textTheme.bodyText1!.copyWith(
           color: compareValue == null || compareValue.value is NullValue
               ? theme.dark
@@ -50,9 +53,7 @@ class IrmaCredentialCardAttributeList extends StatelessWidget {
       );
     }
 
-    GestureDetector buildTappableImage(Attribute attribute) {
-      final image = (attribute.value as PhotoValue).image;
-      //If attribute is photo show link
+    GestureDetector buildTappableImage(Attribute attribute, Image image) {
       return GestureDetector(
         onTap: () {
           Navigator.push(
@@ -80,46 +81,37 @@ class IrmaCredentialCardAttributeList extends StatelessWidget {
       );
     }
 
-    final photoValueAttrs = attributesWithValue.where((a) => a.value is PhotoValue);
-    final groupedByAttrTypeName = groupBy(photoValueAttrs.toList(), (Attribute a) => a.attributeType.name);
-
     return LayoutBuilder(
       builder: (context, constraints) => Wrap(
         direction: Axis.vertical,
         spacing: theme.smallSpacing,
         children: [
-          ...(attributesWithValue.where((a) => a.value is TextValue)).map((attribute) {
-            return Column(
+          for (Attribute a in textValueAttrs)
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                buildLabel(attribute),
-                buildTextContent(attribute),
+                buildLabel(a),
+                buildTextContent(a, a.value as TextValue),
               ],
-            );
-          }).toList(),
-          ...groupedByAttrTypeName.keys
-              .map((e) => Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: theme.defaultSpacing),
-                      Container(
-                        height: 1,
-                        width: constraints.maxWidth * 0.8,
-                        decoration: BoxDecoration(
-                          color: theme.neutralExtraLight,
-                        ),
-                      ),
-                      SizedBox(height: theme.defaultSpacing),
-                      buildLabel(groupedByAttrTypeName[e]![0]),
-                      SizedBox(height: theme.tinySpacing),
-                      Wrap(
-                        direction: Axis.horizontal,
-                        spacing: theme.tinySpacing,
-                        children: groupedByAttrTypeName[e]!.map((a) => buildTappableImage(a)).toList(),
-                      ),
-                    ],
-                  ))
-              .toList(),
+            ),
+          for (Attribute a in photoValueAttrs)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: theme.defaultSpacing),
+                Container(
+                  height: 1,
+                  width: constraints.maxWidth * 0.8,
+                  decoration: BoxDecoration(
+                    color: theme.neutralExtraLight,
+                  ),
+                ),
+                SizedBox(height: theme.defaultSpacing),
+                buildLabel(a),
+                SizedBox(height: theme.tinySpacing),
+                buildTappableImage(a, (a.value as PhotoValue).image),
+              ],
+            ),
         ],
       ),
     );
