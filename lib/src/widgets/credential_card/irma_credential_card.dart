@@ -4,6 +4,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import '../../models/attribute_value.dart';
 import '../../models/attributes.dart';
 import '../../models/credentials.dart';
+import '../../screens/session/disclosure/models/choosable_disclosure_credential.dart';
 import '../../screens/session/disclosure/models/disclosure_credential.dart';
 import '../../theme/theme.dart';
 import '../../util/date_formatter.dart';
@@ -19,6 +20,7 @@ class IrmaCredentialCard extends StatelessWidget {
   final CredentialInfo credentialInfo;
   final List<Attribute> attributes;
   final List<Attribute>? compareTo;
+  final bool? expired;
   final bool revoked;
   final Function()? onTap;
   final IrmaCardStyle style;
@@ -32,6 +34,7 @@ class IrmaCredentialCard extends StatelessWidget {
     CredentialInfo? credentialInfo,
     this.attributes = const [],
     this.compareTo,
+    this.expired,
     this.revoked = false,
     this.onTap,
     this.headerTrailing,
@@ -63,6 +66,7 @@ class IrmaCredentialCard extends StatelessWidget {
   })  : credentialInfo = credential.info,
         attributes = credential.attributeList,
         revoked = credential.revoked,
+        expired = credential.expired,
         expiryDate = CardExpiryDate(credential.expires),
         super(key: key);
 
@@ -73,10 +77,11 @@ class IrmaCredentialCard extends StatelessWidget {
     this.style = IrmaCardStyle.normal,
     this.headerTrailing,
     this.padding,
-    this.expiryDate,
     this.hideFooter = false,
   })  : credentialInfo = credential.info,
         attributes = credential.attributeList,
+        expiryDate = null,
+        expired = false,
         revoked = false;
 
   IrmaCredentialCard.fromDisclosureCredential(
@@ -90,12 +95,13 @@ class IrmaCredentialCard extends StatelessWidget {
     this.hideFooter = true,
   })  : credentialInfo = credential,
         attributes = credential.attributes,
-        revoked = false;
+        expired = credential is ChoosableDisclosureCredential ? credential.expired : null,
+        revoked = credential is ChoosableDisclosureCredential ? credential.revoked : false;
 
   @override
   Widget build(BuildContext context) {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final isExpired = expiryDate?.expired ?? false;
+    final isExpired = expired ?? expiryDate?.expired ?? false;
     final isExpiringSoon = expiryDate?.expiresSoon ?? false;
 
     return IrmaCard(

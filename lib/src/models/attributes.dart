@@ -115,21 +115,22 @@ class CredentialAttribute extends Attribute {
   final Credential credential;
 
   @override
-  final bool notRevokable;
+  final bool choosable;
 
   CredentialAttribute({
     required this.credential,
     required AttributeType attributeType,
     required AttributeValue value,
-    required this.notRevokable,
-  }) : super(credentialInfo: credential.info, attributeType: attributeType, value: value);
+    required bool notRevokable,
+  })  : // In case a revocation proof was requested and none could be generated (i.e. the attribute is notRevokable),
+        // we enforce the credential to be re-obtained to resolve the issue.
+        choosable = !notRevokable,
+        super(credentialInfo: credential.info, attributeType: attributeType, value: value);
 
   @override
   bool get expired => credential.expired;
   @override
   bool get revoked => credential.revoked;
-  @override
-  bool get choosable => !notRevokable && !expired && !revoked;
   @override
   String get credentialHash => credential.hash;
 }
@@ -147,7 +148,6 @@ class Attribute {
 
   bool get expired => false;
   bool get revoked => false;
-  bool get notRevokable => false;
   bool get choosable => false;
   bool get obtainable => credentialInfo.credentialType.issueUrl.isNotEmpty;
   String get credentialHash => '';

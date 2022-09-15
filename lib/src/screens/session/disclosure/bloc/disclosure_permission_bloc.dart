@@ -261,6 +261,9 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         null,
       );
     } else if (state is DisclosurePermissionChoicesOverview && event is DisclosurePermissionNextPressed) {
+      if (!state.isValid) {
+        throw Exception('Selected choice is not valid');
+      }
       if (!state.showConfirmationPopup) {
         yield DisclosurePermissionChoicesOverview(
           plannedSteps: state.plannedSteps,
