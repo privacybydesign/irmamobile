@@ -261,8 +261,8 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         null,
       );
     } else if (state is DisclosurePermissionChoicesOverview && event is DisclosurePermissionNextPressed) {
-      if (!state.isValid) {
-        throw Exception('Selected choice is not valid');
+      if (!state.choicesValid) {
+        throw Exception('Selected choices are not valid');
       }
       if (!state.showConfirmationPopup) {
         yield DisclosurePermissionChoicesOverview(
@@ -362,10 +362,40 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         prevState: state,
       );
     } else if (state is DisclosurePermissionChoices) {
-      // Usually, this session state change should not introduce any bloc state changes.
-      // Session requests cannot change within a session and credentials cannot be deleted during the session,
-      // so the current selection should still be present.
-      return state;
+      final choices = state.choices.map((i, prevChoice) {
+        final discon = _parseCandidatesDisCon(session.disclosuresCandidates![i]);
+        // Only include the prevChoice in the prevDiscon, such that valid discons get preference when the prevChoice
+        // itself is invalid.
+        final choice = discon[_findSelectedConIndex(
+          discon,
+          prevDiscon: DisCon([prevChoice]),
+          prevChoice: prevChoice,
+          preferValidChoices: true,
+        )];
+        return MapEntry(
+          i,
+          choice.every((cred) => cred is ChoosableDisclosureCredential)
+              ? Con(choice.cast<ChoosableDisclosureCredential>())
+              : prevChoice,
+        );
+      });
+      final requiredChoices = state.requiredChoices.map((i, _) => MapEntry(i, choices[i]!));
+      final optionalChoices = state.optionalChoices.map((i, _) => MapEntry(i, choices[i]!));
+      if (state is DisclosurePermissionPreviouslyAddedCredentialsOverview) {
+        return DisclosurePermissionPreviouslyAddedCredentialsOverview(
+          requiredChoices: requiredChoices,
+          optionalChoices: optionalChoices,
+          plannedSteps: state.plannedSteps,
+          hasAdditionalOptionalChoices: state.hasAdditionalOptionalChoices,
+        );
+      } else {
+        return DisclosurePermissionChoicesOverview(
+          requiredChoices: requiredChoices,
+          optionalChoices: optionalChoices,
+          plannedSteps: state.plannedSteps,
+          hasAdditionalOptionalChoices: state.hasAdditionalOptionalChoices,
+        );
+      }
     } else if (state is DisclosurePermissionWrongCredentialsObtained) {
       return DisclosurePermissionWrongCredentialsObtained(
         parentState: _mapSessionStateToBlocState(state.parentState, session),
@@ -612,6 +642,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     DisCon<DisclosureCredential> discon, {
     DisCon<DisclosureCredential>? prevDiscon,
     Con<DisclosureCredential>? prevChoice,
+    bool preferValidChoices = false,
   }) {
     // If a new choosable option has been added, then we select the new option.
     if (prevDiscon != null) {
@@ -619,6 +650,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
           prevDiscon.flattened.whereType<ChoosableDisclosureCredential>().none((cred) => cred.credentialHash == hash));
       final choice = discon.indexWhere((con) => con.any((cred) =>
           cred is ChoosableDisclosureCredential &&
+          (!preferValidChoices || cred.valid) &&
           recentlyAddedCredentialHashes.any((hash) => cred.credentialHash == hash)));
       if (choice >= 0) return choice;
     }
@@ -626,10 +658,17 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     // If no new option could be found, then we try to find the option that was selected previously.
     if (prevChoice != null) {
       final choice = discon.indexWhere((con) => prevChoice.every((prevCred) => con.any((cred) => cred == prevCred)));
+
       if (choice >= 0) return choice;
     }
-    // If no con is selected yet, we simply select the first choosable option.
-    // If there is no choosable option at all, we select the first option.
+
+    // If no con is selected yet, we simply select the first valid choosable option.
+    // If none of the options is valid, we select the first invalid choosable option.
+    // If there is no choosable option at all, we simply select the first option.
+    final validChoice = discon.indexWhere(
+      (con) => con.every((cred) => cred is ChoosableDisclosureCredential && cred.valid),
+    );
+    if (validChoice >= 0) return validChoice;
     final choice = discon.indexWhere((con) => con.every((cred) => cred is ChoosableDisclosureCredential));
     return choice >= 0 ? choice : 0;
   }

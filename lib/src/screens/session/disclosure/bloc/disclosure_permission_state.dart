@@ -58,7 +58,7 @@ abstract class DisclosurePermissionChoices extends DisclosurePermissionStep {
   Map<int, Con<ChoosableDisclosureCredential>> get choices => {...requiredChoices, ...optionalChoices};
 
   /// Returns whether the selected choices are valid.
-  bool get isValid => choices.values.flattened.every((cred) => !cred.revoked && !cred.expired);
+  bool get choicesValid => choices.values.flattened.every((cred) => cred.valid);
 }
 
 class DisclosurePermissionIssueWizard extends DisclosurePermissionStep {
