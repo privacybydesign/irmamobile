@@ -137,7 +137,7 @@ Future<void> issueCardsMunicipality(WidgetTester tester, IntegrationTestIrmaBind
 
 /// Generates a revocation key that can be used for issueCredentials.
 String generateRevocationKey() {
-  var r = Random();
+  final r = Random();
   return String.fromCharCodes(List.generate(20, (index) => r.nextInt(26) + 97));
 }
 
