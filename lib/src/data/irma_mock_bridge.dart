@@ -192,7 +192,13 @@ class IrmaMockBridge extends IrmaBridge {
   /// Mock an issuing session of the given list credentials. Credentials should be given by
   /// specifying a text value for each attribute in a map.
   @visibleForTesting
-  Future<void> mockIssuanceSession(int sessionId, List<Map<String, TextValue>> credentials) => () async* {
+  Future<void> mockIssuanceSession(
+    int sessionId,
+    List<Map<String, TextValue>> credentials, {
+    Duration validity = const Duration(days: 365),
+    bool revoked = false,
+  }) =>
+      () async* {
         await _sessionEventsSubject.firstWhere((event) => event is NewSessionEvent && event.sessionID == sessionId);
         yield StatusUpdateSessionEvent(
           sessionID: sessionId,
@@ -223,12 +229,12 @@ class IrmaMockBridge extends IrmaBridge {
             schemeManagerId: attributeType.schemeManagerId,
             issuerId: attributeType.issuerId,
             id: attributeType.credentialTypeId,
-            signedOn: now.microsecondsSinceEpoch ~/ 1000,
-            expires: now.add(const Duration(days: 365)).microsecondsSinceEpoch ~/ 1000,
+            signedOn: now.millisecondsSinceEpoch ~/ 1000,
+            expires: now.add(validity).millisecondsSinceEpoch ~/ 1000,
             attributes: attrs.map((key, value) => MapEntry(key, value.toRaw())),
             hash: 'session-$sessionId-$i', // Use the session id as a dummy hash to make it unique and predicable.
-            revoked: false,
-            revocationSupported: false,
+            revoked: revoked,
+            revocationSupported: revoked,
           );
         }).toList();
 
