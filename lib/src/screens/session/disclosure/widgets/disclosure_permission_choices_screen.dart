@@ -77,8 +77,6 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
           IrmaCredentialCard(
             credentialInfo: choiceEntry.value[i],
             attributes: choiceEntry.value[i].attributes,
-            expired: choiceEntry.value[i].expired,
-            revoked: choiceEntry.value[i].revoked,
             hideFooter: true,
             padding: EdgeInsets.symmetric(horizontal: theme.tinySpacing),
             headerTrailing: isOptional && i == 0
