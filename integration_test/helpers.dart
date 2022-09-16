@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
@@ -25,8 +27,9 @@ Future<void> unlock(WidgetTester tester) async {
 Future<void> issueCredentials(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
-  Map<String, String> attributes,
-) async {
+  Map<String, String> attributes, {
+  Map<String, String> revocationKeys = const {},
+}) async {
   final groupedAttributes = groupBy<MapEntry<String, String>, String>(
     attributes.entries,
     (attr) => attr.key.split('.').take(3).join('.'),
@@ -37,6 +40,7 @@ Future<void> issueCredentials(
             'attributes': {
               for (final attrEntry in credEntry.value) attrEntry.key.split('.')[3]: attrEntry.value,
             },
+            if (revocationKeys.containsKey(credEntry.key)) 'revocationKey': revocationKeys[credEntry.key],
           })
       .toList());
 
@@ -129,4 +133,30 @@ Future<void> issueCardsMunicipality(WidgetTester tester, IntegrationTestIrmaBind
   await tester.waitFor(find.byType(HomeScreen));
   // Wait 3 seconds
   await tester.pumpAndSettle(const Duration(seconds: 3));
+}
+
+/// Generates a revocation key that can be used for issueCredentials.
+String generateRevocationKey() {
+  var r = Random();
+  return String.fromCharCodes(List.generate(20, (index) => r.nextInt(26) + 97));
+}
+
+/// Revokes a previously issued credential.
+Future<void> revokeCredential(String credId, String revocationKey) async {
+  final Uri uri = Uri.parse('https://demo.privacybydesign.foundation/backend/revocation');
+
+  final request = await HttpClient().postUrl(uri);
+  request.headers.set('Content-Type', 'application/json');
+  request.write('''
+    {
+      "@context": "https://irma.app/ld/request/revocation/v1",
+      "type": "$credId",
+      "revocationKey": "$revocationKey"
+    }
+  ''');
+
+  final response = await request.close();
+  if (response.statusCode != 200) {
+    throw Exception('Credential $credId could not be revoked: status code ${response.statusCode}');
+  }
 }
