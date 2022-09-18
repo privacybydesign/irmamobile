@@ -370,7 +370,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
           discon,
           prevDiscon: DisCon([prevChoice]),
           prevChoice: prevChoice,
-          preferValidChoices: true,
+          keepValidPrevChoice: true,
         )];
         return MapEntry(
           i,
@@ -642,25 +642,30 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     DisCon<DisclosureCredential> discon, {
     DisCon<DisclosureCredential>? prevDiscon,
     Con<DisclosureCredential>? prevChoice,
-    bool preferValidChoices = false,
+    bool keepValidPrevChoice = false,
   }) {
+    int currSelected = -1;
+    if (prevChoice != null) {
+      currSelected = discon.indexWhere((con) => prevChoice.every((prevCred) => con.any((cred) => cred == prevCred)));
+      if (keepValidPrevChoice &&
+          currSelected >= 0 &&
+          prevChoice.every((cred) => cred is ChoosableDisclosureCredential && cred.valid)) {
+        return currSelected;
+      }
+    }
+
     // If a new choosable option has been added, then we select the new option.
     if (prevDiscon != null) {
       final recentlyAddedCredentialHashes = _newlyAddedCredentialHashes.reversed.where((hash) =>
           prevDiscon.flattened.whereType<ChoosableDisclosureCredential>().none((cred) => cred.credentialHash == hash));
       final choice = discon.indexWhere((con) => con.any((cred) =>
           cred is ChoosableDisclosureCredential &&
-          (!preferValidChoices || cred.valid) &&
           recentlyAddedCredentialHashes.any((hash) => cred.credentialHash == hash)));
       if (choice >= 0) return choice;
     }
 
-    // If no new option could be found, then we try to find the option that was selected previously.
-    if (prevChoice != null) {
-      final choice = discon.indexWhere((con) => prevChoice.every((prevCred) => con.any((cred) => cred == prevCred)));
-
-      if (choice >= 0) return choice;
-    }
+    // If no new option could be found and an option was selected previously, then we keep that one.
+    if (currSelected >= 0) return currSelected;
 
     // If no con is selected yet, we simply select the first valid choosable option.
     // If none of the options is valid, we select the first invalid choosable option.
