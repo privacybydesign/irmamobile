@@ -141,7 +141,7 @@ class IrmaCredentialCard extends StatelessWidget {
                         : 'credential.valid_until',
                 translationParams: {
                   'date': printableDate(
-                    expiryDate!.dateTime,
+                    expiryDate?.dateTime ?? DateTime.now(),
                     lang,
                   ),
                 },
