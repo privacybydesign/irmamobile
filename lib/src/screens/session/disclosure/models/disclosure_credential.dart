@@ -9,13 +9,19 @@ import '../../../../models/irma_configuration.dart';
 /// Abstract class that contains the overlapping behaviour of ChoosableDisclosureCredential and TemplateDisclosureCredential.
 abstract class DisclosureCredential extends Equatable implements CredentialInfo {
   final UnmodifiableListView<Attribute> attributes;
+  final CredentialAttribute? credentialAttribute;
 
   DisclosureCredential({required List<Attribute> attributes})
       : assert(attributes.isNotEmpty),
         assert(attributes.every((attr) => attr.credentialInfo.fullId == attributes.first.credentialInfo.fullId)),
+        credentialAttribute =
+            attributes.firstWhereOrNull((attrib) => attrib is CredentialAttribute) as CredentialAttribute?,
         attributes = UnmodifiableListView(attributes);
 
   Iterable<Attribute> get attributesWithValue => attributes.where((att) => att.value is! NullValue);
+
+  DateTime? get expires => credentialAttribute?.credential.expires;
+  bool get revoked => credentialAttribute?.credential.revoked ?? false;
 
   @override
   CredentialType get credentialType => attributes.first.credentialInfo.credentialType;

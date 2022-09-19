@@ -12,6 +12,7 @@ class IrmaCredentialCardHeader extends StatelessWidget {
   final Widget? trailing;
   final bool isExpired;
   final bool isExpiringSoon;
+  final bool isRevoked;
 
   const IrmaCredentialCardHeader({
     required this.title,
@@ -20,6 +21,7 @@ class IrmaCredentialCardHeader extends StatelessWidget {
     this.trailing,
     this.isExpiringSoon = false,
     this.isExpired = false,
+    this.isRevoked = false,
   });
 
   @override
@@ -62,6 +64,13 @@ class IrmaCredentialCardHeader extends StatelessWidget {
                   style: theme.themeData.textTheme.headline4!.copyWith(
                     color: theme.warning,
                   ),
+                )
+              else if (isRevoked)
+                TranslatedText(
+                  'credential.revoked',
+                  style: theme.themeData.textTheme.headline4!.copyWith(
+                    color: theme.warning,
+                  ),
                 ),
               Text(
                 title,
@@ -76,7 +85,7 @@ class IrmaCredentialCardHeader extends StatelessWidget {
             ],
           ),
         ),
-        if (trailing != null) ...[
+        if (trailing != null && !isExpired && !isRevoked) ...[
           SizedBox(width: theme.smallSpacing),
           trailing!,
         ],

@@ -113,6 +113,7 @@ class IrmaCredentialCard extends StatelessWidget {
             trailing: headerTrailing,
             isExpired: isExpired,
             isExpiringSoon: isExpiringSoon,
+            isRevoked: revoked,
           ),
           // If there are attributes in this credential, then we show the attribute list
           if (attributes.any((att) => att.value is! NullValue)) ...[
