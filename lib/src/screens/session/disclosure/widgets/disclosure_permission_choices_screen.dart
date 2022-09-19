@@ -184,9 +184,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
         primaryButtonLabel: state is DisclosurePermissionPreviouslyAddedCredentialsOverview
             ? 'disclosure_permission.next_step'
             : 'disclosure_permission.overview.confirm',
-        onPrimaryPressed: () => onEvent(
-          DisclosurePermissionNextPressed(),
-        ),
+        onPrimaryPressed: state.choicesValid ? () => onEvent(DisclosurePermissionNextPressed()) : null,
       ),
     );
   }

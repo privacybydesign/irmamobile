@@ -1579,15 +1579,194 @@ void main() {
 
     await repo.getSessionState(44).firstWhere((session) => session.status == SessionStatus.success);
   });
+
+  test('expired-credential', () async {
+    await _issueCredential(
+      repo,
+      mockBridge,
+      42,
+      [
+        {
+          'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678'),
+        }
+      ],
+      validity: const Duration(days: -1),
+    );
+
+    mockBridge.mockDisclosureSession(43, [
+      [
+        {
+          'pbdf.pbdf.mobilenumber.mobilenumber': null,
+        },
+      ],
+    ]);
+
+    final bloc = DisclosurePermissionBloc(
+      sessionID: 43,
+      repo: repo,
+      onObtainCredential: (_) => {},
+    );
+    expect(bloc.state, isA<DisclosurePermissionInitial>());
+
+    repo.dispatch(
+      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      isBridgedEvent: true,
+    );
+
+    // When doing a disclosure session the first time, we should see the introduction.
+    expect(await bloc.stream.first, isA<DisclosurePermissionIntroduction>());
+    bloc.add(DisclosurePermissionNextPressed());
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
+    DisclosurePermissionChoicesOverview choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
+    expect(choicesOverviewBlocState.choicesValid, false);
+    expect(choicesOverviewBlocState.requiredChoices.keys, [0]);
+    expect(choicesOverviewBlocState.requiredChoices[0]?.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].credentialHash, 'session-42-0');
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].expired, true);
+
+    await _issueCredential(repo, mockBridge, 44, [
+      {
+        'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678'),
+      }
+    ]);
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
+    choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
+    expect(choicesOverviewBlocState.choicesValid, true);
+    expect(choicesOverviewBlocState.requiredChoices.keys, [0]);
+    expect(choicesOverviewBlocState.requiredChoices[0]?.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].credentialHash, 'session-44-0');
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].expired, false);
+
+    bloc.add(DisclosurePermissionNextPressed());
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
+    bloc.add(DisclosurePermissionNextPressed());
+
+    await repo.getSessionState(43).firstWhere((session) => session.status == SessionStatus.success);
+  });
+
+  test('revoked-credential', () async {
+    await _issueCredential(
+      repo,
+      mockBridge,
+      42,
+      [
+        {
+          'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678'),
+        }
+      ],
+      revoked: true,
+    );
+
+    mockBridge.mockDisclosureSession(43, [
+      [
+        {
+          'pbdf.pbdf.mobilenumber.mobilenumber': null,
+        },
+      ],
+      [
+        {
+          'irma-demo.IRMATube.member.id': null,
+        }
+      ],
+    ]);
+
+    final obtainCredentialsController = StreamController<String>.broadcast();
+    final bloc = DisclosurePermissionBloc(
+      sessionID: 43,
+      repo: repo,
+      onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
+    );
+    expect(bloc.state, isA<DisclosurePermissionInitial>());
+
+    repo.dispatch(
+      NewSessionEvent(sessionID: 43, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      isBridgedEvent: true,
+    );
+
+    // When doing a disclosure session the first time, we should see the introduction.
+    expect(await bloc.stream.first, isA<DisclosurePermissionIntroduction>());
+    bloc.add(DisclosurePermissionNextPressed());
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
+    DisclosurePermissionIssueWizard issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
+    expect(issueWizardBlocState.candidates.keys, [1]);
+    expect(issueWizardBlocState.candidates[1]?.length, 1);
+    expect(issueWizardBlocState.candidates[1]?[0].length, 1);
+    expect(issueWizardBlocState.candidates[1]?[0][0].fullId, 'irma-demo.IRMATube.member');
+
+    bloc.add(DisclosurePermissionNextPressed());
+
+    expect(await obtainCredentialsController.stream.first, 'irma-demo.IRMATube.member');
+    await _issueCredential(repo, mockBridge, 44, [
+      {
+        'irma-demo.IRMATube.member.id': TextValue.fromString('12345'),
+        'irma-demo.IRMATube.member.type': TextValue.fromString('member'),
+      }
+    ]);
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
+    issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
+    expect(issueWizardBlocState.isCompleted, true);
+
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionPreviouslyAddedCredentialsOverview>());
+    DisclosurePermissionPreviouslyAddedCredentialsOverview prevAddedCredsBlocState =
+        bloc.state as DisclosurePermissionPreviouslyAddedCredentialsOverview;
+    expect(prevAddedCredsBlocState.choicesValid, false);
+    expect(prevAddedCredsBlocState.requiredChoices.keys, [0]);
+    expect(prevAddedCredsBlocState.requiredChoices[0]?.length, 1);
+    expect(prevAddedCredsBlocState.requiredChoices[0]?[0].credentialHash, 'session-42-0');
+    expect(prevAddedCredsBlocState.requiredChoices[0]?[0].revoked, true);
+
+    await _issueCredential(repo, mockBridge, 45, [
+      {
+        'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678'),
+      }
+    ]);
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionPreviouslyAddedCredentialsOverview>());
+    prevAddedCredsBlocState = bloc.state as DisclosurePermissionPreviouslyAddedCredentialsOverview;
+    expect(prevAddedCredsBlocState.choicesValid, true);
+    expect(prevAddedCredsBlocState.requiredChoices.keys, [0]);
+    expect(prevAddedCredsBlocState.requiredChoices[0]?.length, 1);
+    expect(prevAddedCredsBlocState.requiredChoices[0]?[0].credentialHash, 'session-45-0');
+    expect(prevAddedCredsBlocState.requiredChoices[0]?[0].expired, false);
+
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
+    DisclosurePermissionChoicesOverview choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
+    expect(choicesOverviewBlocState.choicesValid, true);
+    expect(choicesOverviewBlocState.showConfirmationPopup, false);
+
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
+    choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
+    expect(choicesOverviewBlocState.choicesValid, true);
+    expect(choicesOverviewBlocState.showConfirmationPopup, true);
+
+    bloc.add(DisclosurePermissionNextPressed());
+
+    await repo.getSessionState(43).firstWhere((session) => session.status == SessionStatus.success);
+  });
 }
 
 Future<void> _issueCredential(
   IrmaRepository repo,
   IrmaMockBridge mockBridge,
   int sessionID,
-  List<Map<String, TextValue>> credentials,
-) async {
-  mockBridge.mockIssuanceSession(sessionID, credentials);
+  List<Map<String, TextValue>> credentials, {
+  Duration validity = const Duration(days: 365),
+  bool revoked = false,
+}) async {
+  mockBridge.mockIssuanceSession(
+    sessionID,
+    credentials,
+    validity: validity,
+    revoked: revoked,
+  );
 
   repo.dispatch(
     NewSessionEvent(sessionID: sessionID, request: SessionPointer(irmaqr: 'issuing', u: '')),
