@@ -81,7 +81,7 @@ lane :alpha_ios_build do
   end
 end
 
-lane :beta_ios_build do 
+lane :beta_ios_build do
   update_schemes()
   build_irmagobridge_ios()
   update_app_identifier(
@@ -115,7 +115,7 @@ end
 
 lane :build_irmagobridge_ios do
   Dir.chdir("..") do
-    sh("gomobile", "bind", "-target", "ios", "-o", "ios/Runner/Irmagobridge.xcframework", "github.com/privacybydesign/irmamobile/irmagobridge")
+    sh("gomobile", "bind", "-target", "ios", "-iosversion", "12.0", "-o", "ios/Runner/Irmagobridge.xcframework", "github.com/privacybydesign/irmamobile/irmagobridge")
   end
 end
 

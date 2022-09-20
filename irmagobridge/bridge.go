@@ -62,7 +62,7 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 	// Copy the byte slice to a byte array. This enforces the correct key size and prevents that the
 	// bytes change due to unexpected memory allocation of C.
 	var aesKeyCopy [32]byte
-  	copy(aesKeyCopy[:], aesKey)
+	copy(aesKeyCopy[:], aesKey)
 
 	bridge = givenBridge
 
