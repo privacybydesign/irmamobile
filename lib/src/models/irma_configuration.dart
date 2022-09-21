@@ -246,6 +246,7 @@ class CredentialType {
 
   String get fullId => '$schemeManagerId.$issuerId.$id';
   String get fullIssuerId => '$schemeManagerId.$issuerId';
+  bool get obtainable => issueUrl.isNotEmpty;
 }
 
 @JsonSerializable(createToJson: false)

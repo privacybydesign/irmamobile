@@ -1,8 +1,10 @@
 import 'package:collection/collection.dart';
-import 'package:irmamobile/src/models/attributes.dart';
-import 'package:irmamobile/src/models/credentials.dart';
-import 'package:irmamobile/src/models/return_url.dart';
-import 'package:irmamobile/src/models/session.dart';
+
+import '../util/con_dis_con.dart';
+import 'attribute.dart';
+import 'credentials.dart';
+import 'return_url.dart';
+import 'session.dart';
 
 class SessionState {
   final int sessionID;

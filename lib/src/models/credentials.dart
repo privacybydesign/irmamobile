@@ -1,9 +1,11 @@
 import 'dart:collection';
 
-import 'package:irmamobile/src/models/attributes.dart';
-import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+import 'attribute.dart';
+import 'attribute_value.dart';
+import 'irma_configuration.dart';
+import 'translated_value.dart';
 
 part 'credentials.g.dart';
 
@@ -34,73 +36,120 @@ class Credentials extends UnmodifiableMapView<String, Credential> {
   }
 }
 
-class Credential {
+abstract class AbstractCredential implements CredentialInfo {
   final CredentialInfo info;
+  final List<Attribute> _attributes;
+
+  AbstractCredential({
+    required this.info,
+    required Iterable<Attribute> attributes,
+  }) : _attributes = attributes.toList() {
+    assert(_attributes.every((attr) => attr.attributeType.fullCredentialId == info.fullId));
+    // Sort by display index if every attribute has one. Otherwise, we keep the current sorting.
+    if (_attributes.every((attr) => attr.attributeType.displayIndex != null)) {
+      _attributes.sort((a1, a2) => a1.attributeType.displayIndex!.compareTo(a2.attributeType.displayIndex!));
+    }
+  }
+
+  UnmodifiableListView<Attribute> get attributes => UnmodifiableListView(_attributes);
+  Iterable<Attribute> get attributesWithValue => _attributes.where((att) => att.value is! NullValue);
+  bool get isKeyshareCredential =>
+      attributes.any((attr) => info.schemeManager.keyshareAttributes.contains(attr.attributeType.fullId));
+
+  @override
+  CredentialType get credentialType => info.credentialType;
+
+  @override
+  String get fullId => info.fullId;
+
+  @override
+  String get id => info.id;
+
+  @override
+  Issuer get issuer => info.issuer;
+
+  @override
+  SchemeManager get schemeManager => info.schemeManager;
+}
+
+class Credential extends AbstractCredential {
   final DateTime signedOn;
   final DateTime expires;
-  final Attributes attributes;
   final bool revoked;
   final String hash;
 
   bool get expired => expires.isBefore(DateTime.now());
-  bool get isKeyshareCredential =>
-      attributes.keys.any((attributeType) => info.schemeManager.keyshareAttributes.contains(attributeType.fullId));
-
-  // TODO: List is not properly sorted.
-  List<Attribute> get attributeList => attributes.entries
-      .map((entry) =>
-          CredentialAttribute(credential: this, attributeType: entry.key, value: entry.value, notRevokable: false))
-      .toList();
+  bool get valid => !expired && !revoked;
 
   Credential({
-    required this.info,
+    required CredentialInfo info,
     required this.signedOn,
     required this.expires,
-    required this.attributes,
+    required Iterable<Attribute> attributes,
     required this.revoked,
     required this.hash,
-  });
+  }) : super(info: info, attributes: attributes);
 
-  Credential.fromRaw({required IrmaConfiguration irmaConfiguration, required RawCredential rawCredential})
-      : info = CredentialInfo.fromConfiguration(
-          irmaConfiguration: irmaConfiguration,
-          credentialIdentifier: rawCredential.fullId,
-        ),
-        signedOn = DateTime.fromMillisecondsSinceEpoch(rawCredential.signedOn * 1000),
-        expires = DateTime.fromMillisecondsSinceEpoch(rawCredential.expires * 1000),
-        attributes = Attributes.fromRaw(
-          irmaConfiguration: irmaConfiguration,
-          rawAttributes: rawCredential.attributes,
-        ),
-        revoked = rawCredential.revoked,
-        hash = rawCredential.hash;
+  factory Credential.fromRaw({required IrmaConfiguration irmaConfiguration, required RawCredential rawCredential}) {
+    final credInfo = CredentialInfo.fromConfiguration(
+      irmaConfiguration: irmaConfiguration,
+      credentialIdentifier: rawCredential.fullId,
+    );
+
+    final attributes = rawCredential.attributes.entries.map((entry) {
+      final attrType = irmaConfiguration.attributeTypes[entry.key];
+      if (attrType == null) {
+        throw Exception('Attribute type $attrType not present in configuration');
+      }
+
+      return Attribute(
+        attributeType: attrType,
+        value: AttributeValue.fromRaw(attrType, entry.value),
+        credentialHash: rawCredential.hash,
+      );
+    });
+
+    return Credential(
+      info: credInfo,
+      signedOn: DateTime.fromMillisecondsSinceEpoch(rawCredential.signedOn * 1000),
+      expires: DateTime.fromMillisecondsSinceEpoch(rawCredential.expires * 1000),
+      attributes: attributes,
+      revoked: rawCredential.revoked,
+      hash: rawCredential.hash,
+    );
+  }
 }
 
-class RemovedCredential {
-  final CredentialInfo info;
-  final Attributes attributes;
-
+class RemovedCredential extends AbstractCredential {
   RemovedCredential({
-    required this.info,
-    required this.attributes,
-  });
+    required CredentialInfo info,
+    required Iterable<Attribute> attributes,
+  }) : super(info: info, attributes: attributes);
 
-  // TODO: List is not properly sorted.
-  List<Attribute> get attributeList => attributes.entries
-      .map((entry) => Attribute(
-            credentialInfo: info,
-            attributeType: entry.key,
-            value: entry.value,
-          ))
-      .toList();
-
-  RemovedCredential.fromRaw({
+  factory RemovedCredential.fromRaw({
     required IrmaConfiguration irmaConfiguration,
     required String credentialIdentifier,
     required Map<String, TranslatedValue> rawAttributes,
-  })  : info = CredentialInfo.fromConfiguration(
-            irmaConfiguration: irmaConfiguration, credentialIdentifier: credentialIdentifier),
-        attributes = Attributes.fromRaw(irmaConfiguration: irmaConfiguration, rawAttributes: rawAttributes);
+  }) {
+    final credInfo = CredentialInfo.fromConfiguration(
+      irmaConfiguration: irmaConfiguration,
+      credentialIdentifier: credentialIdentifier,
+    );
+    return RemovedCredential(
+      info: credInfo,
+      attributes: rawAttributes.entries.map((entry) {
+        final attrType = irmaConfiguration.attributeTypes[entry.key];
+        if (attrType == null) {
+          throw Exception('Attribute type $attrType not present in configuration');
+        }
+
+        return Attribute(
+          attributeType: attrType,
+          value: AttributeValue.fromRaw(attrType, entry.value),
+        );
+      }),
+    );
+  }
 }
 
 class CredentialInfo {

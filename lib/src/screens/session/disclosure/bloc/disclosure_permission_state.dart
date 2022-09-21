@@ -1,6 +1,6 @@
 import 'package:collection/collection.dart';
 
-import '../../../../models/attributes.dart';
+import '../../../../util/con_dis_con.dart';
 import '../models/choosable_disclosure_credential.dart';
 import '../models/disclosure_credential.dart';
 import '../models/template_disclosure_credential.dart';

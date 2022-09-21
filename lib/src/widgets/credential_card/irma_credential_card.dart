@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
+import '../../models/attribute.dart';
 import '../../models/attribute_value.dart';
-import '../../models/attributes.dart';
 import '../../models/credentials.dart';
 import '../../screens/session/disclosure/models/disclosure_credential.dart';
 import '../../theme/theme.dart';
@@ -29,7 +29,7 @@ class IrmaCredentialCard extends StatelessWidget {
 
   IrmaCredentialCard({
     Key? key,
-    CredentialInfo? credentialInfo,
+    required this.credentialInfo,
     this.attributes = const [],
     this.compareTo,
     this.revoked = false,
@@ -40,15 +40,9 @@ class IrmaCredentialCard extends StatelessWidget {
     this.expiryDate,
     this.hideFooter = false,
   })  : assert(
-          credentialInfo != null || attributes.isNotEmpty,
-          'Make sure you either provide attributes or credentialInfo',
-        ),
-        assert(
-          attributes.isEmpty ||
-              attributes.every((att) => att.credentialInfo.fullId == attributes.first.credentialInfo.fullId),
+          attributes.isEmpty || attributes.every((att) => att.attributeType.fullCredentialId == credentialInfo.fullId),
           'Make sure that all attributes belong to the same credential',
         ),
-        credentialInfo = credentialInfo ?? attributes.first.credentialInfo,
         super(key: key);
 
   IrmaCredentialCard.fromCredential(
@@ -61,7 +55,7 @@ class IrmaCredentialCard extends StatelessWidget {
     this.padding,
     this.hideFooter = false,
   })  : credentialInfo = credential.info,
-        attributes = credential.attributeList,
+        attributes = credential.attributes,
         revoked = credential.revoked,
         expiryDate = CardExpiryDate(credential.expires),
         super(key: key);
@@ -76,7 +70,7 @@ class IrmaCredentialCard extends StatelessWidget {
     this.expiryDate,
     this.hideFooter = false,
   })  : credentialInfo = credential.info,
-        attributes = credential.attributeList,
+        attributes = credential.attributes,
         revoked = false;
 
   IrmaCredentialCard.fromDisclosureCredential(

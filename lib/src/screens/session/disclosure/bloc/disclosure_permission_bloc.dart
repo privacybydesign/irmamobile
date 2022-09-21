@@ -5,11 +5,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../../../../data/irma_repository.dart';
-import '../../../../models/attributes.dart';
+import '../../../../models/attribute.dart';
 import '../../../../models/credentials.dart';
 import '../../../../models/irma_configuration.dart';
 import '../../../../models/session_events.dart';
 import '../../../../models/session_state.dart';
+import '../../../../util/con_dis_con.dart';
 import '../bloc/disclosure_permission_event.dart';
 import '../bloc/disclosure_permission_state.dart';
 import '../models/choosable_disclosure_credential.dart';
@@ -616,23 +617,44 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
   }
 
   DisCon<DisclosureCredential> _parseCandidatesDisCon(DisCon<DisclosureCandidate> rawDiscon) {
-    final attrs = rawDiscon.map((con) => con.map((candidate) => Attribute.fromCandidate(
-          _repo.irmaConfiguration,
-          _repo.credentials,
-          candidate,
-        )));
-    // We only include discons for which all attributes are either choosable or obtainable.
-    return DisCon(attrs.where((con) => con.every((attr) => attr.choosable || attr.obtainable)).map((con) {
-      final groupedCon = groupBy(con, (Attribute attr) => attr.credentialInfo.fullId);
+    // irmago makes sure that a raw discon only contains options that should be shown. Therefore,
+    // we don't have to check the attributes for obtainability.
+    return DisCon(rawDiscon.map((rawCon) {
+      // irmago enforces that the type of the given attribute is known in the configuration.
+      final groupedCon = groupBy(
+        rawCon,
+        (DisclosureCandidate attr) => _repo.irmaConfiguration.attributeTypes[attr.type]!.fullCredentialId,
+      );
+
       return Con(groupedCon.entries.map((entry) {
-        final credentialAttributes = entry.value;
-        if (credentialAttributes.first.choosable) {
-          return ChoosableDisclosureCredential(
-            attributes: credentialAttributes,
-            previouslyAdded: !_newlyAddedCredentialHashes.contains(credentialAttributes.first.credentialHash),
+        final attributes = entry.value
+            .map((candidate) => Attribute.fromCandidate(
+                  _repo.irmaConfiguration,
+                  candidate,
+                ))
+            .toList();
+        final credential = _repo.credentials[entry.value.first.credentialHash];
+
+        // In case the credential is not present or one of the attributes is notRevokable (i.e. a revocation proof
+        // was requested and none could be generated), then we generate a template credential as placeholder
+        // as indication that it needs to be obtained still.
+        if (credential == null || entry.value.any((attr) => attr.notRevokable)) {
+          return TemplateDisclosureCredential(
+            info: CredentialInfo.fromConfiguration(
+              irmaConfiguration: _repo.irmaConfiguration,
+              credentialIdentifier: entry.key,
+            ),
+            attributes: attributes,
           );
         } else {
-          return TemplateDisclosureCredential(attributes: credentialAttributes);
+          return ChoosableDisclosureCredential(
+            info: credential.info,
+            attributes: attributes,
+            previouslyAdded: !_newlyAddedCredentialHashes.contains(credential.hash),
+            expired: credential.expired,
+            revoked: credential.revoked,
+            credentialHash: credential.hash,
+          );
         }
       }));
     }));
