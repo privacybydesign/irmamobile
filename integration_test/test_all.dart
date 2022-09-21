@@ -8,7 +8,7 @@
 import 'more_tab_test.dart' as more_tab_test;
 // import 'screens_test.dart' as screens_test;
 import 'session_test.dart' as session_test;
-// import 'settings_test.dart' as settings_test;
+import 'settings_test.dart' as settings_test;
 import 'home_test.dart' as home_test;
 
 /// Wrapper to execute all tests at once.
@@ -17,7 +17,7 @@ void main() {
   // enroll_test.main();
   // screens_test.main();
   // login_test.main();
-  // settings_test.main();
+  settings_test.main();
   // issuance_test.main();
   more_tab_test.main();
   // activity_test.main();

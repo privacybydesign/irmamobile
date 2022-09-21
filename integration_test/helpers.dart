@@ -18,11 +18,15 @@ import 'util.dart';
 
 /// Unlocks the IRMA app and waits until the wallet is displayed.
 Future<void> unlock(WidgetTester tester) async {
-  final pin = [1, 2, 3, 4, 5];
-  for (final digit in pin) {
+  await enterPin(tester, '12345');
+  await tester.waitFor(find.byType(HomeScreen).hitTestable());
+}
+
+Future<void> enterPin(WidgetTester tester, String pin) async {
+  final splitPin = pin.split('');
+  for (final digit in splitPin) {
     await tester.tapAndSettle(find.byKey(Key('number_pad_key_${digit.toString()}')));
   }
-  await tester.waitFor(find.byType(HomeScreen).hitTestable());
 }
 
 // Pump a new app and unlock it

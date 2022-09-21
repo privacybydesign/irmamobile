@@ -90,6 +90,7 @@ class MoreTab extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.all(theme.defaultSpacing),
                 child: IrmaButton(
+                  key: const Key('log_out_button'),
                   label: 'more_tab.log_out',
                   onPressed: () => IrmaRepositoryProvider.of(context).lock(),
                 ),
