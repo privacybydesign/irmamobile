@@ -51,25 +51,25 @@ class IrmaCredentialCardHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (isExpired)
-                TranslatedText(
-                  'credential.expired',
-                  style: theme.themeData.textTheme.headline4!.copyWith(
-                    color: theme.error,
-                  ),
-                )
-              else if (isExpiringSoon)
+              if (isExpiringSoon)
                 TranslatedText(
                   'credential.about_to_expire',
                   style: theme.themeData.textTheme.headline4!.copyWith(
                     color: theme.warning,
                   ),
                 )
+              else if (isExpired)
+                TranslatedText(
+                  'credential.expired',
+                  style: theme.themeData.textTheme.headline4!.copyWith(
+                    color: theme.error,
+                  ),
+                )
               else if (isRevoked)
                 TranslatedText(
                   'credential.revoked',
                   style: theme.themeData.textTheme.headline4!.copyWith(
-                    color: theme.warning,
+                    color: theme.error,
                   ),
                 ),
               Text(

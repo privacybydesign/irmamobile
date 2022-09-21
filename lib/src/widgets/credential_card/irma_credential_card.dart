@@ -98,8 +98,19 @@ class IrmaCredentialCard extends StatelessWidget {
     final isExpired = expiryDate?.expired ?? false;
     final isExpiringSoon = expiryDate?.expiresSoon ?? false;
 
+    String footerTextKey;
+    if (isExpiringSoon) {
+      footerTextKey = 'credential.expires_on';
+    } else if (isExpired) {
+      footerTextKey = 'credential.expired_on';
+    } else if (revoked) {
+      footerTextKey = 'credential.revoked_on';
+    } else {
+      footerTextKey = 'credential.valid_until';
+    }
+
     return IrmaCard(
-      style: isExpired ? IrmaCardStyle.disabled : style,
+      style: isExpired || revoked ? IrmaCardStyle.disabled : style,
       onTap: onTap,
       padding: padding,
       child: Column(
@@ -134,11 +145,7 @@ class IrmaCredentialCard extends StatelessWidget {
               credentialType: credentialInfo.credentialType,
               text: FlutterI18n.translate(
                 context,
-                isExpired
-                    ? 'credential.expired_on'
-                    : isExpiringSoon
-                        ? 'credential.expires_on'
-                        : 'credential.valid_until',
+                footerTextKey,
                 translationParams: {
                   'date': printableDate(
                     expiryDate?.dateTime ?? DateTime.now(),
@@ -146,7 +153,8 @@ class IrmaCredentialCard extends StatelessWidget {
                   ),
                 },
               ),
-              isObtainable: (isExpired || isExpiringSoon) && credentialInfo.credentialType.issueUrl.isNotEmpty,
+              isObtainable:
+                  (isExpired || isExpiringSoon || revoked) && credentialInfo.credentialType.issueUrl.isNotEmpty,
             )
           ]
         ],
