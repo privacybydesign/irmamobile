@@ -35,7 +35,6 @@ void main() {
     return repo;
   }
 
-  // TODO: repair tests and enable them again in test_all.dart.
   group('irma-settings', () {
     // Initialize the app's repository for integration tests (enable developer mode, etc.)
     setUp(() async => irmaBinding.setUp());
@@ -52,20 +51,21 @@ void main() {
 
       // Check screen settings text
       const String textQRscanner = 'Open QR scanner automatically after start-up';
-      const String textErrorReports = 'Send error reports to IRMA';
+      const String textErrorReports = 'Send error reports to Yivi';
       const String textEnableScreenshots = 'Enable screenshots';
       final list = tester.getAllText(find.byType(ListView));
       expect(list, [
         textQRscanner,
-        'Change your PIN',
-        'Advanced',
         textErrorReports,
+        'Developer mode',
+        'Change your PIN',
         'Delete everything and start over',
         if (Platform.isAndroid) ...[
           textEnableScreenshots,
           'When enabled, the app will not be blurred in the app switcher.',
         ]
       ]);
+
       // Check the initial value of all settings.
       expect(tester.getSwitchListTileValue(find.text(textQRscanner)), false);
       expect(await repo.preferences.getStartQRScan().first, false);
@@ -91,67 +91,43 @@ void main() {
       }
     }, timeout: const Timeout(Duration(seconds: 30)));
 
-    // testWidgets('change-PIN', (tester) async {
-    //   // Initialize and open settings screen
-    //   final repo = irmaBinding.repository;
-    //   await tester.pumpWidgetAndSettle(IrmaApp(repository: repo));
-    //   await unlock(tester);
-    //   await tester.pumpWidgetAndSettle(SettingsScreen());
+    testWidgets('change-PIN', (tester) async {
+      // Initialize and open settings screen
+      final repo = irmaBinding.repository;
+      await tester.pumpWidgetAndSettle(IrmaApp(repository: repo));
+      await unlock(tester);
 
-    //   expect(find.byType(SettingsScreen), findsOneWidget);
-    //   // Tap on option to change PIN
-    //   await tester.tapAndSettle(find.text('Change your PIN'));
-    //   // Enter current PIN
-    //   await tester.enterTextAtFocusedAndSettle('12345');
-    //   // Enter new PIN
-    //   await tester.waitFor(find.text('Choose your new PIN'));
-    //   await tester.enterTextAtFocusedAndSettle('54321');
-    //   // Enter new PIN (again)
-    //   await tester.waitFor(find.text('Enter your PIN one more time.'));
-    //   await tester.enterTextAtFocusedAndSettle('54321');
-    //   await tester.waitFor(find.text('Success'));
-    //   // Check whether changing the PIN has succeeded
-    //   final column = tester.getAllText(find.byType(Column));
-    //   expect(column, [
-    //     'Success',
-    //     'Your PIN has been changed.',
-    //     'OK',
-    //   ]);
-    //   await tester.tapAndSettle(find.text('OK'));
-    //   await tester.tapAndSettle(find.byKey(const Key('irma_app_bar_leading')));
-    //   // Log out
-    //   await tester.moreTabLogout();
-    //   // Check whether login has succeeded
-    //   await tester.waitFor(find.byKey(const Key('pin_screen')));
-    //   await tester.enterTextAtFocusedAndSettle('54321');
-    //   await tester.moreTabLogout();
-    // }, timeout: const Timeout(Duration(seconds: 30)));
+      await tester.tapAndSettle(find.byKey(const Key('nav_button_more')));
+      await tester.tapAndSettle(find.byKey(const Key('open_settings_screen_button')));
+      // Tap on option to change PIN
+      await tester.tapAndSettle(find.text('Change your PIN'));
+      // Enter current PIN
+      await tester.enterTextAtFocusedAndSettle('12345');
+      // Enter new PIN
+      await tester.enterTextAtFocusedAndSettle('54921');
+      // Enter new PIN (again)
+      await tester.enterTextAtFocusedAndSettle('54921');
+      await tester.tapAndSettle(find.descendant(
+        of: find.byKey(const Key('irma_dialog')),
+        matching: find.text('Change'),
+      ));
+    }, timeout: const Timeout(Duration(seconds: 30)));
 
-    // testWidgets('delete-all-data', (tester) async {
-    //   // Initialize and open settings screen
-    //   final repo = irmaBinding.repository;
-    //   await tester.pumpWidgetAndSettle(IrmaApp(repository: repo));
-    //   await unlock(tester);
+    testWidgets('delete-all-data', (tester) async {
+      // Initialize and open settings screen
+      final repo = irmaBinding.repository;
+      await tester.pumpWidgetAndSettle(IrmaApp(repository: repo));
+      await unlock(tester);
 
-    //   await tester.pumpWidgetAndSettle(SettingsScreen());
-
-    //   await Future.delayed(Duration(seconds: 10));
-
-    //   // Scenario 3 of IRMA app settings
-    //   // Initialize the app for integration tests
-    //   // await tester.pumpWidgetAndSettle(IrmaApp(repository: irmaBinding.repository));
-    //   // await unlock(tester);
-
-    //   // // Open menu
-    //   // await tester.tapAndSettle(find.byKey(const Key('nav_button_more')));
-    //   // // Open settings
-    //   // await tester.tapAndSettle(find.text('Settings'));
-    //   // // Tap on option to delete everything and start over
-    //   // await tester.tapAndSettle(find.text('Delete everything and start over'));
-    //   // // Tap on the confirmation to delete all data
-    //   // await tester.tapAndSettle(find.text('Yes, delete everything'));
-    //   // // Check whether the enrollment info screen is shown
-    //   // await tester.waitFor(find.byKey(const Key('enrollment_p1')));
-    // }, timeout: const Timeout(Duration(seconds: 30)));
+      // Scenario 3 of IRMA app settings
+      // Open menu
+      await tester.tapAndSettle(find.byKey(const Key('nav_button_more')));
+      // Open settings
+      await tester.tapAndSettle(find.text('Settings'));
+      // Tap on option to delete everything and start over
+      await tester.tapAndSettle(find.text('Delete everything and start over'));
+      // Tap on the confirmation to delete all data
+      await tester.tapAndSettle(find.text('Yes, delete everything'));
+    }, timeout: const Timeout(Duration(seconds: 30)));
   });
 }
