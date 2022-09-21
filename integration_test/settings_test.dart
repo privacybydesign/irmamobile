@@ -4,8 +4,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+
 import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
@@ -118,11 +120,11 @@ void main() {
     //   await tester.tapAndSettle(find.text('OK'));
     //   await tester.tapAndSettle(find.byKey(const Key('irma_app_bar_leading')));
     //   // Log out
-    //   await tester.tapAndSettle(find.byKey(const Key('menu_logout_icon')));
+    //   await tester.moreTabLogout();
     //   // Check whether login has succeeded
     //   await tester.waitFor(find.byKey(const Key('pin_screen')));
     //   await tester.enterTextAtFocusedAndSettle('54321');
-    //   await tester.tapAndSettle(find.byKey(const Key('menu_logout_icon')));
+    //   await tester.moreTabLogout();
     // }, timeout: const Timeout(Duration(seconds: 30)));
 
     // testWidgets('delete-all-data', (tester) async {
@@ -141,7 +143,7 @@ void main() {
     //   // await unlock(tester);
 
     //   // // Open menu
-    //   // await tester.tapAndSettle(find.byKey(const Key('open_menu_icon')));
+    //   // await tester.tapAndSettle(find.byKey(const Key('nav_button_more')));
     //   // // Open settings
     //   // await tester.tapAndSettle(find.text('Settings'));
     //   // // Tap on option to delete everything and start over

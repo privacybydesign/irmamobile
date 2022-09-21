@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_test/flutter_test.dart';
 
 extension WidgetTesterUtil on WidgetTester {
@@ -10,8 +11,22 @@ extension WidgetTesterUtil on WidgetTester {
 
   /// Enters the given text in the EditableText that currently is in focus.
   Future<void> enterTextAtFocusedAndSettle(String text) async {
-    await enterText(find.byWidgetPredicate((w) => w is EditableText && w.focusNode.hasFocus), text);
-    await pumpAndSettle(const Duration(milliseconds: 500));
+    for (final digit in text.split('')) {
+      await tap(find.byKey(Key('number_pad_key_$digit')));
+      await pumpAndSettle();
+    }
+  }
+
+  Future<void> moreTabLogout() async {
+    await dragUntilVisible(
+      find.byKey(const Key('more_tab_log_out'), skipOffstage: false),
+      find.byType(ListView),
+      const Offset(0, -50),
+    );
+    final logoutKeyFinder = find.byKey(const Key('more_tab_log_out'), skipOffstage: false);
+    await ensureVisible(logoutKeyFinder);
+    await pumpAndSettle(const Duration(milliseconds: 100));
+    await tapAndSettle(logoutKeyFinder);
   }
 
   /// Taps on the given widget, waits for a response, triggers a new frame sequence

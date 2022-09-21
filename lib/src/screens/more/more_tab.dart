@@ -7,7 +7,9 @@ import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_button.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/translated_text.dart';
+import '../home/home_screen.dart';
 import '../home/widgets/links.dart';
+
 import 'widgets/version_button.dart';
 
 class MoreTab extends StatelessWidget {
@@ -90,9 +92,12 @@ class MoreTab extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.all(theme.defaultSpacing),
                 child: IrmaButton(
-                  label: 'more_tab.log_out',
-                  onPressed: () => IrmaRepositoryProvider.of(context).lock(),
-                ),
+                    key: const Key('more_tab_log_out'),
+                    label: 'more_tab.log_out',
+                    onPressed: () {
+                      Navigator.of(context, rootNavigator: true).pushReplacementNamed(HomeScreen.routeName);
+                      IrmaRepositoryProvider.of(context).lock();
+                    }),
               ),
               Padding(
                 padding: EdgeInsets.all(theme.defaultSpacing),

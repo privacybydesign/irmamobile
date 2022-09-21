@@ -71,7 +71,7 @@ class YiviPinScreen extends StatelessWidget {
   final WidgetVisibility Function(BuildContext, EnterPinState)? submitButtonVisibilityListener;
 
   YiviPinScreen({
-    Key? key,
+    Key key = const Key('pin_screen'),
     this.scaffoldKey,
     this.instructionKey,
     this.instruction,
