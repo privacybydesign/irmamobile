@@ -1,10 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:irmamobile/main.dart';
+import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_attribute_list.dart';
@@ -20,6 +23,15 @@ Future<void> unlock(WidgetTester tester) async {
     await tester.tapAndSettle(find.byKey(Key('number_pad_key_${digit.toString()}')));
   }
   await tester.waitFor(find.byType(HomeScreen).hitTestable());
+}
+
+// Pump a new app and unlock it
+Future<void> pumpAndUnlockApp(WidgetTester tester, IrmaRepository repo) async {
+  await tester.pumpWidgetAndSettle(IrmaApp(
+    repository: repo,
+    forcedLocale: const Locale('en', 'EN'),
+  ));
+  await unlock(tester);
 }
 
 /// Starts an issuing session that adds the given credentials to the IRMA app.
