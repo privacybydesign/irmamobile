@@ -176,12 +176,19 @@ class CredentialInfo {
     final schemeManagerId = parsedCredentialId[0];
     final issuerId = '$schemeManagerId.${parsedCredentialId[1]}';
     final credentialId = '$issuerId.${parsedCredentialId[2]}';
-    // irmago enforces that the type of the given credential is known in the configuration.
+
+    final schemeManager = irmaConfiguration.schemeManagers[schemeManagerId];
+    final issuer = irmaConfiguration.issuers[issuerId];
+    final credentialType = irmaConfiguration.credentialTypes[credentialId];
+    if (schemeManager == null || issuer == null || credentialType == null) {
+      throw Exception('Credential type $credentialId not present in configuration');
+    }
+
     return CredentialInfo(
       id: parsedCredentialId.last,
-      issuer: irmaConfiguration.issuers[issuerId]!,
-      schemeManager: irmaConfiguration.schemeManagers[schemeManagerId]!,
-      credentialType: irmaConfiguration.credentialTypes[credentialId]!,
+      schemeManager: schemeManager,
+      issuer: issuer,
+      credentialType: credentialType,
     );
   }
 }

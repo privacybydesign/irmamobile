@@ -38,8 +38,11 @@ class Attribute {
 
   /// Generates an attribute from the given disclosure candidate.
   factory Attribute.fromCandidate(IrmaConfiguration irmaConfiguration, DisclosureCandidate candidate) {
-    // irmago enforces that the type of the given attribute is known in the configuration.
-    final attributeType = irmaConfiguration.attributeTypes[candidate.type]!;
+    final attributeType = irmaConfiguration.attributeTypes[candidate.type];
+    if (attributeType == null) {
+      throw Exception('Attribute type $attributeType not present in configuration');
+    }
+
     return Attribute(
       attributeType: attributeType,
       value: AttributeValue.fromRaw(attributeType, candidate.value),
@@ -48,8 +51,11 @@ class Attribute {
   }
 
   factory Attribute.fromDisclosedAttribute(IrmaConfiguration irmaConfiguration, DisclosedAttribute disclosedAttribute) {
-    // irmago enforces that the type of the given attribute is known in the configuration.
-    final attributeType = irmaConfiguration.attributeTypes[disclosedAttribute.identifier]!;
+    final attributeType = irmaConfiguration.attributeTypes[disclosedAttribute.identifier];
+    if (attributeType == null) {
+      throw Exception('Attribute type $attributeType not present in configuration');
+    }
+
     return Attribute(
       attributeType: attributeType,
       value: AttributeValue.fromRaw(attributeType, disclosedAttribute.value),

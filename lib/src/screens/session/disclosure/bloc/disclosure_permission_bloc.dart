@@ -620,10 +620,15 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     // irmago makes sure that a raw discon only contains options that should be shown. Therefore,
     // we don't have to check the attributes for obtainability.
     return DisCon(rawDiscon.map((rawCon) {
-      // irmago enforces that the type of the given attribute is known in the configuration.
       final groupedCon = groupBy(
         rawCon,
-        (DisclosureCandidate attr) => _repo.irmaConfiguration.attributeTypes[attr.type]!.fullCredentialId,
+        (DisclosureCandidate attr) {
+          final attrType = _repo.irmaConfiguration.attributeTypes[attr.type];
+          if (attrType == null) {
+            throw Exception('Attribute type ${attr.type} not present in configuration');
+          }
+          return attrType.fullCredentialId;
+        },
       );
 
       return Con(groupedCon.entries.map((entry) {
