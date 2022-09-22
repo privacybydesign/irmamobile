@@ -19,8 +19,7 @@ class ChoosableDisclosureCredential extends DisclosureCredential {
     required this.revoked,
     required this.credentialHash,
     required this.previouslyAdded,
-  })  : assert(attributes.every((attr) => attr.credentialHash.isNotEmpty)),
-        super(info: info, attributes: attributes);
+  }) : super(info: info, attributes: attributes);
 
   /// Converts the given credential to a ChoosableDisclosureCredential using the given template.
   factory ChoosableDisclosureCredential.fromTemplate({

@@ -18,22 +18,15 @@ class AttributeIdentifier {
 
   factory AttributeIdentifier.fromJson(Map<String, dynamic> json) => _$AttributeIdentifierFromJson(json);
   Map<String, dynamic> toJson() => _$AttributeIdentifierToJson(this);
-
-  factory AttributeIdentifier.fromAttribute(Attribute attribute) => AttributeIdentifier(
-        type: attribute.attributeType.fullId,
-        credentialHash: attribute.credentialHash,
-      );
 }
 
 class Attribute {
   final AttributeType attributeType;
   final AttributeValue value;
-  final String credentialHash;
 
   Attribute({
     required this.attributeType,
     required this.value,
-    this.credentialHash = '',
   });
 
   /// Generates an attribute from the given disclosure candidate.
@@ -46,7 +39,6 @@ class Attribute {
     return Attribute(
       attributeType: attributeType,
       value: AttributeValue.fromRaw(attributeType, candidate.value),
-      credentialHash: candidate.credentialHash,
     );
   }
 

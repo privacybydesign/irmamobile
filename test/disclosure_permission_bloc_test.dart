@@ -328,8 +328,8 @@ void main() {
     expect(prevAddedCredsBlocState.requiredChoices.keys, [1]);
     expect(prevAddedCredsBlocState.requiredChoices[1]?.length, 1);
     expect(prevAddedCredsBlocState.requiredChoices[1]?[0].fullId, 'pbdf.pbdf.email');
+    expect(prevAddedCredsBlocState.requiredChoices[1]?[0].credentialHash, 'session-42-0');
     expect(prevAddedCredsBlocState.requiredChoices[1]?[0].attributes.length, 1);
-    expect(prevAddedCredsBlocState.requiredChoices[1]?[0].attributes[0].credentialHash, 'session-42-0');
     expect(prevAddedCredsBlocState.requiredChoices[1]?[0].attributes[0].value.raw, 'test@example.com');
 
     // Choose for another email address.

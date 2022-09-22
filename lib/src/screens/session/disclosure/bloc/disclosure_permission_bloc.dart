@@ -278,7 +278,10 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         final disclosureChoices = [
           for (int i = 0; i < session.disclosuresCandidates!.length; i++)
             state.choices[i]
-                    ?.expand((cred) => cred.attributes.map((attr) => AttributeIdentifier.fromAttribute(attr)))
+                    ?.expand((cred) => cred.attributes.map((attr) => AttributeIdentifier(
+                          type: attr.attributeType.fullId,
+                          credentialHash: cred.credentialHash,
+                        )))
                     .toList() ??
                 []
         ];

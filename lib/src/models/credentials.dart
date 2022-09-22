@@ -105,7 +105,6 @@ class Credential extends AbstractCredential {
       return Attribute(
         attributeType: attrType,
         value: AttributeValue.fromRaw(attrType, entry.value),
-        credentialHash: rawCredential.hash,
       );
     });
 
