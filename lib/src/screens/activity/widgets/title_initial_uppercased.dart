@@ -11,7 +11,8 @@ class TitleInitialUpperCased extends StatelessWidget {
           title[0].toUpperCase(),
           textAlign: TextAlign.center,
           style: const TextStyle(
-            color: Colors.black,
+            color: Color(0xFF9A9EB4),
+            fontWeight: FontWeight.bold,
           ),
         ),
       );
