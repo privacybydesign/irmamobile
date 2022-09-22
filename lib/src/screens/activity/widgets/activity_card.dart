@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:intl/intl.dart';
 
@@ -11,6 +12,8 @@ import '../../../theme/theme.dart';
 import '../../../widgets/irma_card.dart';
 import '../../../widgets/translated_text.dart';
 import '../activity_detail_screen.dart';
+
+import 'title_initial_uppercased.dart';
 
 class ActivityCard extends StatelessWidget {
   final LogEntry logEntry;
@@ -100,7 +103,7 @@ class ActivityCard extends StatelessWidget {
                     width: 56,
                     child: logoFile.existsSync()
                         ? SizedBox(height: 24, child: Image.file(logoFile, excludeFromSemantics: true))
-                        : null,
+                        : TitleInitialUpperCased(title),
                   ),
                 ),
                 Flexible(

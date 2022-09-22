@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 
+import '../screens/activity/widgets/title_initial_uppercased.dart';
 import '../theme/theme.dart';
 
 class IssuerVerifierHeader extends StatelessWidget {
   final String title;
   final TextStyle? titleTextStyle;
-  final String? logo;
   final Image? image;
 
   const IssuerVerifierHeader({
     required this.title,
     this.titleTextStyle,
-    this.logo,
     this.image,
   });
 
@@ -25,7 +24,7 @@ class IssuerVerifierHeader extends StatelessWidget {
         CircleAvatar(
           backgroundColor: Colors.grey.shade300,
           radius: 24,
-          child: image,
+          child: image ?? TitleInitialUpperCased(title),
         ),
         SizedBox(
           width: theme.smallSpacing,
