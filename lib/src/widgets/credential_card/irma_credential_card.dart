@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../models/attribute_value.dart';
@@ -10,6 +11,7 @@ import '../../util/date_formatter.dart';
 import '../../util/language.dart';
 import '../irma_card.dart';
 import '../irma_divider.dart';
+
 import 'irma_credential_card_attribute_list.dart';
 import 'irma_credential_card_footer.dart';
 import 'irma_credential_card_header.dart';
@@ -134,7 +136,7 @@ class IrmaCredentialCard extends StatelessWidget {
               compareTo: compareTo,
             ),
           ],
-          if (!hideFooter && expiryDate != null) ...[
+          if (!hideFooter && expiryDate?.dateTime != null) ...[
             IrmaDivider(
               isDisabled: isExpired,
             ),
@@ -148,7 +150,7 @@ class IrmaCredentialCard extends StatelessWidget {
                 footerTextKey,
                 translationParams: {
                   'date': printableDate(
-                    expiryDate?.dateTime ?? DateTime.now(),
+                    expiryDate!.dateTime!,
                     lang,
                   ),
                 },
