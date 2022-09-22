@@ -81,9 +81,9 @@ void main() {
           find.descendant(of: find.byKey(const Key('enrollment_p3')), matching: find.byKey(const Key('next'))));
 
       // Enter Pin
-      await tester.enterTextAtFocusedAndSettle('12345');
+      await tester.enterPin('12345');
       // Enter wrong pin
-      await tester.enterTextAtFocusedAndSettle('67890');
+      await tester.enterPin('67890');
 
       await tester.waitFor(find.byKey(const Key('irma_dialog')));
 
@@ -98,9 +98,9 @@ void main() {
           .tapAndSettle(find.descendant(of: find.byKey(const Key('irma_dialog')), matching: find.byType(IrmaButton)));
 
       // Enter pin
-      await tester.enterTextAtFocusedAndSettle('12345');
+      await tester.enterPin('12345');
       // Confirm pin
-      await tester.enterTextAtFocusedAndSettle('12345');
+      await tester.enterPin('12345');
 
       // Check error message is not displayed
       expect(
@@ -177,7 +177,7 @@ void main() {
       expect(string, 'Choose a 5-digit PIN');
 
       // Enter Pin
-      await tester.enterTextAtFocusedAndSettle('12345');
+      await tester.enterPin('12345');
 
       // Check screen title
       string = tester.getAllText(find.byKey(const Key('irma_app_bar'))).first;
@@ -188,7 +188,7 @@ void main() {
       expect(string, 'Enter your PIN again');
 
       // Confirm pin
-      await tester.enterTextAtFocusedAndSettle('12345');
+      await tester.enterPin('12345');
 
       // Check screen title
       string = tester.getAllText(find.byKey(const Key('irma_app_bar'))).first;

@@ -1,7 +1,7 @@
 // We cannot test using null safety as long as there are widgets that are not migrated yet.
 // @dart=2.11
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -29,14 +29,15 @@ void main() {
       // Initialize the app for integration tests
       await tester.pumpWidgetAndSettle(IrmaApp(repository: irmaBinding.repository));
       await unlock(tester);
+      await tester.waitFor(find.byType(HomeTab));
       // Open more tab
       await tester.tapAndSettle(find.byKey(const Key('nav_button_more')));
       // Logout
       await tester.moreTabLogout();
 
-      // // login using wrong pin
+      // login using wrong pin
       await tester.waitFor(find.byKey(const Key('pin_screen')));
-      await tester.enterTextAtFocusedAndSettle('54321');
+      await tester.enterPin('54321');
       // Check error dialog
       await tester.waitFor(find.byKey(const Key('irma_dialog')));
       // Check "Wrong PIN" dialog title text
@@ -51,8 +52,6 @@ void main() {
         of: find.byKey(const Key('irma_dialog')),
         matching: find.byType(IrmaButton),
       ));
-
-      await tester.waitFor(find.byType(HomeTab));
     }, timeout: const Timeout(Duration(minutes: 1)));
 
     testWidgets('tc2', (tester) async {
@@ -66,7 +65,7 @@ void main() {
       await tester.moreTabLogout();
       // login using wrong pin
       await tester.waitFor(find.byKey(const Key('pin_screen')));
-      await tester.enterTextAtFocusedAndSettle('54321');
+      await tester.enterPin('54321');
       // Check error dialog
       await tester.waitFor(find.byKey(const Key('irma_dialog')));
       // Check "Wrong PIN" dialog title text
@@ -81,7 +80,7 @@ void main() {
         matching: find.byType(IrmaButton),
       ));
       // login using wrong pin
-      await tester.enterTextAtFocusedAndSettle('54321');
+      await tester.enterPin('54321');
       // Check error dialog
       await tester.waitFor(find.byKey(const Key('irma_dialog')));
       // Check "Wrong PIN" dialog title text
@@ -96,7 +95,7 @@ void main() {
         matching: find.byType(IrmaButton),
       ));
       // login using wrong pin
-      await tester.enterTextAtFocusedAndSettle('54321');
+      await tester.enterPin('54321');
       // Check error dialog
       await tester.waitFor(find.byKey(const Key('irma_dialog')));
       // Check "Wrong PIN" dialog title text
@@ -111,11 +110,8 @@ void main() {
         matching: find.byType(IrmaButton),
       ));
       // Wait 65 seconds and try again using the correct pin
-      await Future.delayed(const Duration(seconds: 65));
-      // login using correct pin
-      await tester.waitFor(find.byKey(const Key('pin_screen')));
-      await tester.enterTextAtFocusedAndSettle('12345');
-      await tester.waitFor(find.byType(HomeTab));
-    }, timeout: const Timeout(Duration(minutes: 2)));
+      await tester.pumpAndSettle(const Duration(seconds: 65));
+      await tester.unlock();
+    }, timeout: const Timeout(Duration(minutes: 3)));
   });
 }
