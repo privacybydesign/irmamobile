@@ -6,20 +6,6 @@ import 'translated_value.dart';
 
 part 'attribute.g.dart';
 
-@JsonSerializable()
-class AttributeIdentifier {
-  const AttributeIdentifier({required this.type, required this.credentialHash});
-
-  @JsonKey(name: 'Type')
-  final String type;
-
-  @JsonKey(name: 'CredentialHash')
-  final String credentialHash;
-
-  factory AttributeIdentifier.fromJson(Map<String, dynamic> json) => _$AttributeIdentifierFromJson(json);
-  Map<String, dynamic> toJson() => _$AttributeIdentifierToJson(this);
-}
-
 class Attribute {
   final AttributeType attributeType;
   final AttributeValue value;
@@ -53,6 +39,20 @@ class Attribute {
       value: AttributeValue.fromRaw(attributeType, disclosedAttribute.value),
     );
   }
+}
+
+@JsonSerializable()
+class AttributeIdentifier {
+  const AttributeIdentifier({required this.type, required this.credentialHash});
+
+  @JsonKey(name: 'Type')
+  final String type;
+
+  @JsonKey(name: 'CredentialHash')
+  final String credentialHash;
+
+  factory AttributeIdentifier.fromJson(Map<String, dynamic> json) => _$AttributeIdentifierFromJson(json);
+  Map<String, dynamic> toJson() => _$AttributeIdentifierToJson(this);
 }
 
 @JsonSerializable()
