@@ -16,15 +16,21 @@ class Attribute {
   });
 
   /// Generates an attribute from the given disclosure candidate.
-  factory Attribute.fromCandidate(IrmaConfiguration irmaConfiguration, DisclosureCandidate candidate) {
+  factory Attribute.fromCandidate(
+    IrmaConfiguration irmaConfiguration,
+    DisclosureCandidate candidate,
+    AttributeValue? actualValue,
+  ) {
     final attributeType = irmaConfiguration.attributeTypes[candidate.type];
     if (attributeType == null) {
       throw Exception('Attribute type $attributeType not present in configuration');
     }
 
+    // The attribute value in DisclosureCandidate specifies the attribute value constraint.
+    // In the Attribute class we want the actual value to be set if present.
     return Attribute(
       attributeType: attributeType,
-      value: AttributeValue.fromRaw(attributeType, candidate.value),
+      value: actualValue ?? AttributeValue.fromRaw(attributeType, candidate.value),
     );
   }
 

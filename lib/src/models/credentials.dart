@@ -45,9 +45,11 @@ abstract class AbstractCredential implements CredentialInfo {
     required Iterable<Attribute> attributes,
   }) : _attributes = attributes.toList() {
     assert(_attributes.every((attr) => attr.attributeType.fullCredentialId == info.fullId));
-    // Sort by display index if every attribute has one. Otherwise, we keep the current sorting.
+    // Sort by display index if every attribute has one. Otherwise, we sort on regular index.
     if (_attributes.every((attr) => attr.attributeType.displayIndex != null)) {
       _attributes.sort((a1, a2) => a1.attributeType.displayIndex!.compareTo(a2.attributeType.displayIndex!));
+    } else {
+      _attributes.sort((a1, a2) => a1.attributeType.index.compareTo(a2.attributeType.index));
     }
   }
 

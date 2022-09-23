@@ -635,13 +635,14 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       );
 
       return Con(groupedCon.entries.map((entry) {
+        final credential = _repo.credentials[entry.value.first.credentialHash];
         final attributes = entry.value
             .map((candidate) => Attribute.fromCandidate(
                   _repo.irmaConfiguration,
                   candidate,
+                  credential?.attributes.firstWhereOrNull((attr) => attr.attributeType.fullId == candidate.type)?.value,
                 ))
             .toList();
-        final credential = _repo.credentials[entry.value.first.credentialHash];
 
         // In case the credential is not present or one of the attributes is notRevokable (i.e. a revocation proof
         // was requested and none could be generated), then we generate a template credential as placeholder

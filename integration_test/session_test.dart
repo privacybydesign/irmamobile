@@ -63,10 +63,9 @@ void main() {
 
       // We cannot actually press the 'Obtain data' button, because we get redirected to an external flow then.
       // Therefore, we mock this behaviour using the helper below until we have a better solution.
-      // TODO: attribute order is wrong (IRMA-2073)
       await issueCredentials(tester, irmaBinding, {
-        'irma-demo.sidn-pbdf.email.domain': 'example.com',
         'irma-demo.sidn-pbdf.email.email': 'test@example.com',
+        'irma-demo.sidn-pbdf.email.domain': 'example.com',
       });
 
       await tester.tapAndSettle(find.text('Done'));
@@ -147,10 +146,9 @@ void main() {
 
       // We cannot actually press the 'Obtain data' button, because we get redirected to an external flow then.
       // Therefore, we mock this behaviour using the helper below until we have a better solution.
-      // TODO: attribute order is wrong (IRMA-2073)
       await issueCredentials(tester, irmaBinding, {
-        'irma-demo.sidn-pbdf.email.domain': 'example.com',
         'irma-demo.sidn-pbdf.email.email': 'test@example.com',
+        'irma-demo.sidn-pbdf.email.domain': 'example.com',
       });
       expect(find.text('All required data has been added.'), findsOneWidget);
 
