@@ -75,8 +75,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
         SizedBox(height: theme.smallSpacing),
         for (int i = 0; i < choiceEntry.value.length; i++)
           IrmaCredentialCard(
-            credentialInfo: choiceEntry.value[i],
-            attributes: choiceEntry.value[i].attributes,
+            credentialView: choiceEntry.value[i],
             hideFooter: true,
             padding: EdgeInsets.symmetric(horizontal: theme.tinySpacing),
             headerTrailing: isOptional && i == 0

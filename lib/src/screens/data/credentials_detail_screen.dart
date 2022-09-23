@@ -129,8 +129,8 @@ class _CredentialsDetailScreenState extends State<CredentialsDetailScreen> {
                 ),
                 ...filteredCredentials
                     .map(
-                      (cred) => IrmaCredentialCard.fromCredential(
-                        cred,
+                      (cred) => IrmaCredentialCard(
+                        credentialView: cred,
                         headerTrailing:
                             // Credential must either be reobtainable or deletable
                             // for the options bottom sheet to be accessible

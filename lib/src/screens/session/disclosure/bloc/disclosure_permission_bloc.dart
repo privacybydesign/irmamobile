@@ -579,23 +579,30 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     int numberOfDiscons,
     int? selectedConIndex,
   ) {
+    // In case a template option is selected, we cannot refresh the choices yet.
+    Con<ChoosableDisclosureCredential>? selectedCon;
+    if (selectedConIndex != null) {
+      selectedCon = Con(discon[selectedConIndex].whereType<ChoosableDisclosureCredential>());
+      if (discon[selectedConIndex].length != selectedCon.length) {
+        selectedCon = null;
+      }
+    }
+
     // The state machine should make sure the selected con only contains ChoosableDisclosureCredentials in this state.
-    final requiredChoices = selectedConIndex != null
-        ? prevState.requiredChoices.map((i, con) =>
-            MapEntry(i, i == disconIndex ? Con(discon[selectedConIndex].cast<ChoosableDisclosureCredential>()) : con))
+    final requiredChoices = selectedCon != null
+        ? prevState.requiredChoices.map((i, con) => MapEntry(i, i == disconIndex ? selectedCon! : con))
         : Map.of(prevState.requiredChoices);
-    final optionalChoices = selectedConIndex != null
-        ? prevState.optionalChoices.map((i, con) =>
-            MapEntry(i, i == disconIndex ? Con(discon[selectedConIndex].cast<ChoosableDisclosureCredential>()) : con))
+    final optionalChoices = selectedCon != null
+        ? prevState.optionalChoices.map((i, con) => MapEntry(i, i == disconIndex ? selectedCon! : con))
         : Map.of(prevState.optionalChoices);
 
     // Add or remove optional choices if necessary.
-    if (selectedConIndex == null) {
+    if (selectedCon == null) {
       optionalChoices.remove(disconIndex);
     } else if (!requiredChoices.containsKey(disconIndex) && !optionalChoices.containsKey(disconIndex)) {
       optionalChoices.putIfAbsent(
         disconIndex,
-        () => Con(discon[selectedConIndex].cast<ChoosableDisclosureCredential>()),
+        () => Con(selectedCon!),
       );
     }
 
@@ -660,7 +667,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
             info: credential.info,
             attributes: attributes,
             previouslyAdded: !_newlyAddedCredentialHashes.contains(credential.hash),
-            expired: credential.expired,
+            expires: credential.expires,
             revoked: credential.revoked,
             credentialHash: credential.hash,
           );

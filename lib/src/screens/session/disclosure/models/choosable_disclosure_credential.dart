@@ -5,17 +5,20 @@ import 'template_disclosure_credential.dart';
 
 /// DisclosureCredential that is choosable and only contains the attributes that are going to be disclosed in the session.
 class ChoosableDisclosureCredential extends DisclosureCredential {
-  final bool expired;
-  final bool revoked;
   final String credentialHash;
 
   /// Indicates whether the backing credential was already present when the disclosure session started.
   final bool previouslyAdded;
 
+  @override
+  final DateTime expires;
+  @override
+  final bool revoked;
+
   ChoosableDisclosureCredential({
     required CredentialInfo info,
     required List<Attribute> attributes,
-    required this.expired,
+    required this.expires,
     required this.revoked,
     required this.credentialHash,
     required this.previouslyAdded,
@@ -33,14 +36,12 @@ class ChoosableDisclosureCredential extends DisclosureCredential {
           .where((credAttr) =>
               template.attributes.any((templAttr) => templAttr.attributeType.fullId == credAttr.attributeType.fullId))
           .toList(),
-      expired: credential.expired,
+      expires: credential.expires,
       revoked: credential.revoked,
       credentialHash: credential.hash,
       previouslyAdded: false,
     );
   }
-
-  bool get valid => !expired && !revoked;
 
   @override
   List<Object?> get props => [...super.props, credentialHash];

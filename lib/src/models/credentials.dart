@@ -36,14 +36,15 @@ class Credentials extends UnmodifiableMapView<String, Credential> {
   }
 }
 
-abstract class AbstractCredential implements CredentialInfo {
+class CredentialView implements CredentialInfo {
   final CredentialInfo info;
   final List<Attribute> _attributes;
 
-  AbstractCredential({
+  CredentialView({
     required this.info,
     required Iterable<Attribute> attributes,
-  }) : _attributes = attributes.toList() {
+  })  : assert(attributes.isNotEmpty),
+        _attributes = attributes.toList() {
     assert(_attributes.every((attr) => attr.attributeType.fullCredentialId == info.fullId));
     // Sort by display index if every attribute has one. Otherwise, we sort on regular index.
     if (_attributes.every((attr) => attr.attributeType.displayIndex != null)) {
@@ -53,10 +54,50 @@ abstract class AbstractCredential implements CredentialInfo {
     }
   }
 
+  factory CredentialView.fromAttributes({
+    required IrmaConfiguration irmaConfiguration,
+    required Iterable<Attribute> attributes,
+  }) {
+    assert(attributes.isNotEmpty);
+    return CredentialView(
+      info: CredentialInfo.fromConfiguration(
+        irmaConfiguration: irmaConfiguration,
+        credentialIdentifier: attributes.first.attributeType.fullCredentialId,
+      ),
+      attributes: attributes,
+    );
+  }
+
+  factory CredentialView.fromRawAttributes({
+    required IrmaConfiguration irmaConfiguration,
+    required Map<String, TranslatedValue> rawAttributes,
+  }) {
+    final attributes = rawAttributes.entries.map((entry) {
+      final attrType = irmaConfiguration.attributeTypes[entry.key];
+      if (attrType == null) {
+        throw Exception('Attribute type $attrType not present in configuration');
+      }
+      return Attribute(
+        attributeType: attrType,
+        value: AttributeValue.fromRaw(attrType, entry.value),
+      );
+    });
+    return CredentialView.fromAttributes(
+      irmaConfiguration: irmaConfiguration,
+      attributes: attributes,
+    );
+  }
+
+  DateTime? get expires => null;
+  bool get revoked => false;
+
   UnmodifiableListView<Attribute> get attributes => UnmodifiableListView(_attributes);
   Iterable<Attribute> get attributesWithValue => _attributes.where((att) => att.value is! NullValue);
+
   bool get isKeyshareCredential =>
       attributes.any((attr) => info.schemeManager.keyshareAttributes.contains(attr.attributeType.fullId));
+  bool get expired => expires?.isBefore(DateTime.now()) ?? false;
+  bool get valid => !expired && !revoked;
 
   @override
   CredentialType get credentialType => info.credentialType;
@@ -74,14 +115,14 @@ abstract class AbstractCredential implements CredentialInfo {
   SchemeManager get schemeManager => info.schemeManager;
 }
 
-class Credential extends AbstractCredential {
+class Credential extends CredentialView {
   final DateTime signedOn;
-  final DateTime expires;
-  final bool revoked;
   final String hash;
 
-  bool get expired => expires.isBefore(DateTime.now());
-  bool get valid => !expired && !revoked;
+  @override
+  final DateTime expires;
+  @override
+  final bool revoked;
 
   Credential({
     required CredentialInfo info,
@@ -117,38 +158,6 @@ class Credential extends AbstractCredential {
       attributes: attributes,
       revoked: rawCredential.revoked,
       hash: rawCredential.hash,
-    );
-  }
-}
-
-class RemovedCredential extends AbstractCredential {
-  RemovedCredential({
-    required CredentialInfo info,
-    required Iterable<Attribute> attributes,
-  }) : super(info: info, attributes: attributes);
-
-  factory RemovedCredential.fromRaw({
-    required IrmaConfiguration irmaConfiguration,
-    required String credentialIdentifier,
-    required Map<String, TranslatedValue> rawAttributes,
-  }) {
-    final credInfo = CredentialInfo.fromConfiguration(
-      irmaConfiguration: irmaConfiguration,
-      credentialIdentifier: credentialIdentifier,
-    );
-    return RemovedCredential(
-      info: credInfo,
-      attributes: rawAttributes.entries.map((entry) {
-        final attrType = irmaConfiguration.attributeTypes[entry.key];
-        if (attrType == null) {
-          throw Exception('Attribute type $attrType not present in configuration');
-        }
-
-        return Attribute(
-          attributeType: attrType,
-          value: AttributeValue.fromRaw(attrType, entry.value),
-        );
-      }),
     );
   }
 }

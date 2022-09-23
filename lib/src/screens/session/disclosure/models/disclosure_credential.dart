@@ -4,7 +4,7 @@ import '../../../../models/attribute.dart';
 import '../../../../models/credentials.dart';
 
 /// Abstract class that contains the overlapping behaviour of ChoosableDisclosureCredential and TemplateDisclosureCredential.
-abstract class DisclosureCredential extends AbstractCredential with EquatableMixin {
+abstract class DisclosureCredential extends CredentialView with EquatableMixin {
   DisclosureCredential({
     required CredentialInfo info,
     required Iterable<Attribute> attributes,

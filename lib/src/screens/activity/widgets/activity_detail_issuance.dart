@@ -38,8 +38,8 @@ class ActivityDetailIssuance extends StatelessWidget {
         ),
         SizedBox(height: theme.smallSpacing),
         for (var rawCredential in logEntry.issuedCredentials)
-          IrmaCredentialCard.fromCredential(
-            Credential.fromRaw(
+          IrmaCredentialCard(
+            credentialView: Credential.fromRaw(
               irmaConfiguration: irmaConfiguration,
               rawCredential: rawCredential,
             ),

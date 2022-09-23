@@ -20,7 +20,7 @@ class IssuingDetail extends StatelessWidget {
         padding: EdgeInsets.only(
           bottom: IrmaTheme.of(context).defaultSpacing,
         ),
-        child: IrmaCredentialCard.fromCredential(credential),
+        child: IrmaCredentialCard(credentialView: credential),
       );
     }).toList();
   }

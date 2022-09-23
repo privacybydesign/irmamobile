@@ -25,15 +25,17 @@ class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
       child: Column(
         children: [
           ...state.obtainedCredentials.mapIndexed(
-            (i, cred) => IrmaCredentialCard.fromDisclosureCredential(
-              cred,
+            (i, cred) => IrmaCredentialCard(
+              credentialView: cred,
               compareTo: state.templates[i].attributes,
+              hideFooter: true,
             ),
           ),
           ...state.templates.map(
-            (cred) => IrmaCredentialCard.fromDisclosureCredential(
-              cred,
+            (cred) => IrmaCredentialCard(
+              credentialView: cred,
               compareTo: cred.attributes,
+              hideFooter: true,
             ),
           ),
           SizedBox(height: theme.defaultSpacing),
