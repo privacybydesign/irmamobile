@@ -1,18 +1,13 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/log_entry.dart';
-import 'package:irmamobile/src/models/session_events.dart';
 import 'package:rxdart/rxdart.dart';
 
+import '../../data/irma_repository.dart';
+import '../../models/log_entry.dart';
+
 class LogEntries extends UnmodifiableListView<LogEntry> {
-  LogEntries(Iterable<LogEntry> list)
-      : assert(list != null),
-        super(list);
+  LogEntries(Iterable<LogEntry> list) : super(list);
 }
 
 class HistoryState {
@@ -27,9 +22,9 @@ class HistoryState {
   });
 
   HistoryState copyWith({
-    List<LogEntry> logEntries,
-    bool loading,
-    bool moreLogsAvailable,
+    List<LogEntry>? logEntries,
+    bool? loading,
+    bool? moreLogsAvailable,
   }) {
     return HistoryState(
       logEntries: logEntries ?? this.logEntries,
@@ -45,7 +40,7 @@ class HistoryRepository {
   IrmaRepository repo = IrmaRepository.get();
 
   final _historyStateSubject = BehaviorSubject<HistoryState>();
-  StreamSubscription _historyStateSubscription;
+  late StreamSubscription _historyStateSubscription;
 
   HistoryRepository() {
     _historyStateSubscription = repo.getEvents().scan<HistoryState>((prevState, event, _) {

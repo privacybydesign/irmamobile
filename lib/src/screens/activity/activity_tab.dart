@@ -80,17 +80,17 @@ class _ActivityTabState extends State<ActivityTab> {
     }
   }
 
-  Widget _buildLogEntries(BuildContext context, IrmaConfiguration irmaConfiguration, HistoryState historyState) {
+  Widget _buildLogEntries(
+      BuildContext context, IrmaConfiguration irmaConfiguration, List<LogEntry> logEntries, bool moreLogsAvailable) {
     _addPostFrameCallback();
     final local = FlutterI18n.currentLocale(context).toString();
     final theme = IrmaTheme.of(context);
 
     final groupedItems = List.generate(
-      historyState.logEntries.length,
+      logEntries.length,
       (index) {
-        final logEntry = historyState.logEntries[index];
-        final insertMonthSeparator =
-            index == 0 || index > 0 && historyState.logEntries[index - 1].time.month != logEntry.time.month;
+        final logEntry = logEntries[index];
+        final insertMonthSeparator = index == 0 || index > 0 && logEntries[index - 1].time.month != logEntry.time.month;
         return [
           if (insertMonthSeparator)
             Padding(
@@ -117,7 +117,7 @@ class _ActivityTabState extends State<ActivityTab> {
         Padding(
           padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
           child: Center(
-            child: historyState.moreLogsAvailable
+            child: moreLogsAvailable
                 ? SizedBox(
                     height: 36,
                     child: LoadingIndicator(),
@@ -153,7 +153,11 @@ class _ActivityTabState extends State<ActivityTab> {
           }
           final irmaConfiguration = snapshot.data!.a;
           final historyState = snapshot.data!.b;
-          return _buildLogEntries(context, irmaConfiguration, historyState);
+          // hack to remove the first activity logged by the bridge
+          final logEntries = historyState.moreLogsAvailable
+              ? historyState.logEntries.sublist(0, historyState.logEntries.length - 1)
+              : historyState.logEntries;
+          return _buildLogEntries(context, irmaConfiguration, logEntries, historyState.moreLogsAvailable);
         },
       ),
     );
