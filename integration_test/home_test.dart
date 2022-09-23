@@ -65,7 +65,7 @@ void main() {
     group('nav-bar', () {
       testWidgets('navigate-between-tabs', (tester) async {
         await pumpAndUnlockApp(tester, irmaBinding.repository);
-        
+
         //Make sure hometab and nav bar are rendered
         expect(find.byType(IrmaNavBar), findsOneWidget);
         expect(find.byType(HomeTab), findsOneWidget);

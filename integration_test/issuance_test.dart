@@ -5,6 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/main.dart';
+import 'package:irmamobile/src/screens/data/credentials_detail_screen.dart';
+import 'package:irmamobile/src/screens/data/widgets/credential_type_tile.dart';
+import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
+import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_attribute_list.dart';
+import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_header.dart';
 
 import 'helpers.dart';
 import 'irma_binding.dart';
@@ -15,248 +20,155 @@ void main() {
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
 
-  // TODO: repair tests and enable them again in test_all.dart.
   group('issuance', () {
     // Initialize the app's repository for integration tests (enable developer mode, etc.)
-    setUp(() async => irmaBinding.setUp());
+    setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
 
-    testWidgets('add-cards-municipality', (tester) async {
-      // Scenario 1 of issuance process
-      // Initialize the app for integration tests
-      await tester.pumpWidgetAndSettle(IrmaApp(repository: irmaBinding.repository));
-      await unlock(tester);
-      // start session
-      await issueCardsMunicipality(tester, irmaBinding);
-      // Check whether the cards are present in the wallet
-      expect(tester.any(find.byKey(const Key('wallet_card_0'))), true);
-      expect(tester.any(find.byKey(const Key('wallet_card_1'))), true);
-      // Tap personal data card to open
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('wallet_card_1')), matching: find.byKey(const Key('card_title'))));
-      // Checking Personal data card
-      String string = tester
-          .getAllText(find.descendant(
-              of: find.byKey(const Key('wallet_card_1')), matching: find.byKey(const Key('card_title'))))
-          .first;
-      expect(string, 'Demo Personal data');
+    Future<void> testIssueMunicipality(
+      WidgetTester tester,
+      Locale locale,
+      List<String> expectedHeaderText,
+      List<String> expectedAttributeText,
+    ) async {
+      await pumpAndUnlockApp(
+        tester,
+        irmaBinding.repository,
+        locale,
+      );
+      await issueMunicipalityCards(tester, irmaBinding);
 
-      // Checking Names and values
-      // Checking full name
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_0_name', 'Full name');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_0_value', 'W.L. de Bruijn');
+      // Go to data tab
+      await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
 
-      // Checking initials
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_1_name', 'Initials');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_1_value', 'W.L.');
+      // Expect at least one CredentialTypeTile and tap it
+      expect(find.byType(CredentialTypeTile), findsOneWidget);
+      await tester.tapAndSettle(find.text("Demo Personal data"));
 
-      // Checking first names
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_2_name', 'First names');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_2_value', 'Willeke Liselotte');
+      // Expect detail page
+      expect(find.byType(CredentialsDetailScreen), findsOneWidget);
 
-      // Checking prefix
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_3_name', 'Prefix');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_3_value', 'de');
+      // Expect to find a card
+      final credentialCardFinder = find.byType(IrmaCredentialCard);
+      expect(credentialCardFinder, findsOneWidget);
 
-      // Checking surname
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_4_name', 'Surname');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_4_value', 'de Bruijn');
+      // Expect correct text in the header
+      final cardHeaderFinder =
+          find.descendant(of: credentialCardFinder, matching: find.byType(IrmaCredentialCardHeader));
+      final cardHeaderText = tester.getAllText(cardHeaderFinder);
+      expect(cardHeaderText, expectedHeaderText);
 
-      // Checking family name
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_5_name', 'Family name');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_5_value', 'Bruijn');
+      // Expect correct text in the attribute list
+      final attributeListFinder =
+          find.descendant(of: credentialCardFinder, matching: find.byType(IrmaCredentialCardAttributeList));
+      final actualAttributeListText = tester.getAllText(attributeListFinder);
+      final expectedAttributeListText = expectedAttributeText;
+      expect(actualAttributeListText, expectedAttributeListText);
+    }
 
-      // Checking gender
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_6_name', 'Gender');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_6_value', 'V');
+    testWidgets(
+        'issue-municipality-en',
+        (tester) => testIssueMunicipality(
+              tester,
+              const Locale('en', 'EN'),
+              [
+                'Demo Personal data',
+                'Demo Municipality',
+              ],
+              [
+                'BSN',
+                '999999990',
+                'City of birth',
+                'Amsterdam',
+                'Country of birth',
+                'Nederland',
+                'Date of birth',
+                '10-04-1965',
+                'Assurance level',
+                'Substantieel',
+                'Family name',
+                'Bruijn',
+                'First names',
+                'Willeke Liselotte',
+                'Full name',
+                'W.L. de Bruijn',
+                'Gender',
+                'V',
+                'Initials',
+                'W.L.',
+                'Dutch nationality',
+                'Yes',
+                'Over 12',
+                'Yes',
+                'Over 16',
+                'Yes',
+                'Over 18',
+                'Yes',
+                'Over 21',
+                'Yes',
+                'Over 65',
+                'No',
+                'Prefix',
+                'de',
+                'Surname',
+                'de Bruijn'
+              ],
+            ),
+        timeout: const Timeout(
+          Duration(minutes: 1, seconds: 30),
+        ));
 
-      // Checking date of birth
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_7_name', 'Date of birth');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_7_value', '10-04-1965');
-
-      // Checking age
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_8_name', 'Over 12');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_8_value', 'Yes');
-
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_9_name', 'Over 16');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_9_value', 'Yes');
-
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_10_name', 'Over 18');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_10_value', 'Yes');
-
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_11_name', 'Over 21');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_11_value', 'Yes');
-
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_12_name', 'Over 65');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_12_value', 'No');
-
-      // Checking nationality
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_13_name', 'Dutch nationality');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_13_value', 'Yes');
-
-      // Checking city of birth
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_14_name', 'City of birth');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_14_value', 'Amsterdam');
-
-      // Checking country of birth
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_15_name', 'Country of birth');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_15_value', 'Nederland');
-
-      // Checking BSN
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_16_name', 'BSN');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_16_value', '999999990');
-
-      // Checking DigiD assurance level
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_17_name', 'Assurance level');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_17_value', 'Substantieel');
-
-      // Tap personal data card to close
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('wallet_card_1')), matching: find.byKey(const Key('card_title'))));
-
-      // Tap Demo address card to open
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('wallet_card_0')), matching: find.byKey(const Key('card_title'))));
-
-      // Checking Demo address card
-      string = tester
-          .getAllText(find.descendant(
-              of: find.byKey(const Key('wallet_card_0')), matching: find.byKey(const Key('card_title'))))
-          .first;
-      expect(string, 'Demo Address');
-      // Checking Gemeente adresgegevens - Names and values
-
-      // Checking Address
-      await tester.scrollAndCheckText('wallet_card_0', 'attr_0_name', 'Street');
-      await tester.scrollAndCheckText('wallet_card_0', 'attr_0_value', 'Meander');
-
-      // Checking Huisnummer
-      await tester.scrollAndCheckText('wallet_card_0', 'attr_1_name', 'House number');
-      await tester.scrollAndCheckText('wallet_card_0', 'attr_1_value', '501');
-
-      // Checking Postcode
-      await tester.scrollAndCheckText('wallet_card_0', 'attr_2_name', 'Postal code');
-      await tester.scrollAndCheckText('wallet_card_0', 'attr_2_value', '1234AB');
-
-      // Checking Gemeente
-      await tester.scrollAndCheckText('wallet_card_0', 'attr_3_name', 'City');
-      await tester.scrollAndCheckText('wallet_card_0', 'attr_3_value', 'Arnhem');
-
-      // Checking City
-      await tester.scrollAndCheckText('wallet_card_0', 'attr_4_name', 'Municipality');
-      await tester.scrollAndCheckText('wallet_card_0', 'attr_4_value', 'Arnhem');
-      // We have a large timeout because scrollAndCheckText takes too long.
-    }, timeout: const Timeout(Duration(minutes: 1, seconds: 30)));
-
-    testWidgets('add-cards-municipality-nl', (tester) async {
-      // Scenario 2 yesno-display-hint
-      // Initialize the app for integration tests
-      await tester.pumpWidgetAndSettle(IrmaApp(
-        forcedLocale: const Locale('nl', 'NL'),
-        repository: irmaBinding.repository,
-      ));
-      await unlock(tester);
-      // start session
-      await issueCardsMunicipality(tester, irmaBinding);
-
-      // Checking language Personal data card
-      await tester.tapAndSettle(find.text('Demo Persoonsgegevens'));
-      // Checking Names and values
-      // Checking full name
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_0_name', 'Volledige naam');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_0_value', 'W.L. de Bruijn');
-
-      // Checking initials
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_1_name', 'Voorletters');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_1_value', 'W.L.');
-
-      // Checking first names
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_2_name', 'Voornamen');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_2_value', 'Willeke Liselotte');
-
-      // Checking prefix
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_3_name', 'Voorvoegsel');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_3_value', 'de');
-
-      // Checking surname
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_4_name', 'Achternaam');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_4_value', 'de Bruijn');
-
-      // Checking family name
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_5_name', 'Geslachtsnaam');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_5_value', 'Bruijn');
-
-      // Checking gender
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_6_name', 'Geslacht');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_6_value', 'V');
-
-      // Checking date of birth
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_7_name', 'Geboortedatum');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_7_value', '10-04-1965');
-
-      // Checking age
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_8_name', 'Ouder dan 12');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_8_value', 'Ja');
-
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_9_name', 'Ouder dan 16');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_9_value', 'Ja');
-
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_10_name', 'Ouder dan 18');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_10_value', 'Ja');
-
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_11_name', 'Ouder dan 21');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_11_value', 'Ja');
-
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_12_name', 'Ouder dan 65');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_12_value', 'Nee');
-
-      // Checking nationality
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_13_name', 'Nederlandse nationaliteit');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_13_value', 'Ja');
-
-      // Checking city of birth
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_14_name', 'Geboorteplaats');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_14_value', 'Amsterdam');
-
-      // Checking country of birth
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_15_name', 'Geboorteland');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_15_value', 'Nederland');
-
-      // Checking BSN
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_16_name', 'BSN');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_16_value', '999999990');
-
-      // Checking DigiD assurance level
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_17_name', 'Betrouwbaarheidsniveau');
-      await tester.scrollAndCheckText('wallet_card_1', 'attr_17_value', 'Substantieel');
-
-      // Close the Personal Data card
-      await tester.tapAndSettle(find.text('Demo Persoonsgegevens'));
-
-      // Checking language Demo address card
-      await tester.tapAndSettle(find.text('Demo Adres'));
-
-      // Checking Gemeente adresgegevens - Names and values
-      // Checking Address
-      await tester.scrollAndCheckText('wallet_card_0', 'attr_0_name', 'Straat');
-      await tester.scrollAndCheckText('wallet_card_0', 'attr_0_value', 'Meander');
-
-      // Checking Huisnummer
-      await tester.scrollAndCheckText('wallet_card_0', 'attr_1_name', 'Huisnummer');
-      await tester.scrollAndCheckText('wallet_card_0', 'attr_1_value', '501');
-
-      // Checking Postcode
-      await tester.scrollAndCheckText('wallet_card_0', 'attr_2_name', 'Postcode');
-      await tester.scrollAndCheckText('wallet_card_0', 'attr_2_value', '1234AB');
-
-      // Checking Gemeente
-      await tester.scrollAndCheckText('wallet_card_0', 'attr_4_name', 'Gemeente');
-      await tester.scrollAndCheckText('wallet_card_0', 'attr_4_value', 'Arnhem');
-
-      // Checking City
-      await tester.scrollAndCheckText('wallet_card_0', 'attr_3_name', 'Woonplaats');
-      await tester.scrollAndCheckText('wallet_card_0', 'attr_3_value', 'Arnhem');
-      // We have a large timeout because scrollAndCheckText takes too long.
-    }, timeout: const Timeout(Duration(minutes: 1, seconds: 30)));
+    testWidgets(
+      'issue-municipality-nl',
+      (tester) => testIssueMunicipality(
+        tester,
+        const Locale('nl', 'NL'),
+        [
+          'Demo Persoonsgegevens',
+          'Demo Gemeente',
+        ],
+        [
+          'BSN',
+          '999999990',
+          'Geboorteplaats',
+          'Amsterdam',
+          'Geboorteland',
+          'Nederland',
+          'Geboortedatum',
+          '10-04-1965',
+          'Betrouwbaarheidsniveau',
+          'Substantieel',
+          'Geslachtsnaam',
+          'Bruijn',
+          'Voornamen',
+          'Willeke Liselotte',
+          'Volledige naam',
+          'W.L. de Bruijn',
+          'Geslacht',
+          'V',
+          'Voorletters',
+          'W.L.',
+          'Nederlandse nationaliteit',
+          'Ja',
+          'Ouder dan 12',
+          'Ja',
+          'Ouder dan 16',
+          'Ja',
+          'Ouder dan 18',
+          'Ja',
+          'Ouder dan 21',
+          'Yes',
+          'Ouder dan 65',
+          'Nee',
+          'Voorvoegsel',
+          'de',
+          'Achternaam',
+          'de Bruijn'
+        ],
+      ),
+      timeout: const Timeout(
+        Duration(minutes: 1, seconds: 30),
+      ),
+    );
   });
 }

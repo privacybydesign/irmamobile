@@ -9,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
+import 'package:irmamobile/src/screens/session/widgets/issuance_permission.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_attribute_list.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
@@ -30,10 +31,10 @@ Future<void> enterPin(WidgetTester tester, String pin) async {
 }
 
 // Pump a new app and unlock it
-Future<void> pumpAndUnlockApp(WidgetTester tester, IrmaRepository repo) async {
+Future<void> pumpAndUnlockApp(WidgetTester tester, IrmaRepository repo, [Locale? locale]) async {
   await tester.pumpWidgetAndSettle(IrmaApp(
     repository: repo,
-    forcedLocale: const Locale('en', 'EN'),
+    forcedLocale: locale ?? const Locale('en', 'EN'),
   ));
   await unlock(tester);
 }
@@ -68,7 +69,8 @@ Future<void> issueCredentials(
     }
   ''');
 
-  await tester.waitFor(find.text('Do you want to add this data to your Yivi app?'));
+  var issuancePageFinder = find.byType(IssuancePermission);
+  await tester.waitFor(issuancePageFinder);
 
   // Check whether all credentials are displayed.
   expect(find.byType(IrmaCredentialCard), findsNWidgets(groupedAttributes.length));
@@ -90,66 +92,90 @@ Future<void> issueCredentials(
 
   await tester.tapAndSettle(find.descendant(of: find.byType(IrmaButton), matching: find.text('Add data')));
 
-  await tester.waitUntilDisappeared(find.text('Add data'));
+  await tester.waitUntilDisappeared(issuancePageFinder);
 }
 
-/// Adds the municipality's personal data and address cards to the IRMA app.
-@Deprecated('Use issueCredentials instead')
-Future<void> issueCardsMunicipality(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
-  // Start session
-  await irmaBinding.repository.startTestSession('''
-        {
-          "@context": "https://irma.app/ld/request/issuance/v2",
-          "credentials": [
-            {
-              "credential": "irma-demo.gemeente.personalData",
-              "attributes": {
-                "initials": "W.L.",
-                "firstnames": "Willeke Liselotte",
-                "prefix": "de",
-                "familyname": "Bruijn",
-                "fullname": "W.L. de Bruijn",
-                "gender": "V",
-                "nationality": "Ja",
-                "surname": "de Bruijn",
-                "dateofbirth": "10-04-1965",
-                "cityofbirth": "Amsterdam",
-                "countryofbirth": "Nederland",
-                "over12": "Yes",
-                "over16": "Yes",
-                "over18": "Yes",
-                "over21": "Yes",
-                "over65": "No",
-                "bsn": "999999990",
-                "digidlevel": "Substantieel"
-              }
-            },
-            {
-              "credential": "irma-demo.gemeente.address",
-              "attributes": {
-                "street":"Meander",
-                "houseNumber":"501",
-                "zipcode":"1234AB",
-                "municipality":"Arnhem",
-                "city":"Arnhem"
-              }
-            }
-          ]
-        }
-      ''');
-
-  // Wait for accept button to appear
-  await tester.waitFor(find.byKey(const Key('issuance_accept')));
-  // Accept issued credential
-  await tester.tap(find.descendant(
-    of: find.byKey(const Key('issuance_accept')),
-    matching: find.byKey(const Key('primary')),
-  ));
-  // Wait until done
-  await tester.waitFor(find.byType(HomeScreen));
-  // Wait 3 seconds
-  await tester.pumpAndSettle(const Duration(seconds: 3));
+Future<void> issueMunicipalityCards(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+  const credentialId = 'irma-demo.gemeente.personalData';
+  await issueCredentials(tester, irmaBinding, {
+    '$credentialId.bsn': '999999990',
+    '$credentialId.cityofbirth': 'Amsterdam',
+    '$credentialId.countryofbirth': 'Nederland',
+    '$credentialId.dateofbirth': '10-04-1965',
+    '$credentialId.digidlevel': 'Substantieel',
+    '$credentialId.familyname': 'Bruijn',
+    '$credentialId.firstnames': 'Willeke Liselotte',
+    '$credentialId.fullname': 'W.L. de Bruijn',
+    '$credentialId.gender': 'V',
+    '$credentialId.initials': 'W.L.',
+    '$credentialId.nationality': 'Yes',
+    '$credentialId.over12': 'Yes',
+    '$credentialId.over16': 'Yes',
+    '$credentialId.over18': 'Yes',
+    '$credentialId.over21': 'Yes',
+    '$credentialId.over65': 'No',
+    '$credentialId.prefix': 'de',
+    '$credentialId.surname': 'de Bruijn',
+  });
 }
+
+// /// Adds the municipality's personal data and address cards to the IRMA app.
+// @Deprecated('Use issueCredentials instead')
+// Future<void> issueCardsMunicipality(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+//   // Start session
+//   await irmaBinding.repository.startTestSession('''
+//         {
+//           "@context": "https://irma.app/ld/request/issuance/v2",
+//           "credentials": [
+//             {
+//               "credential": "irma-demo.gemeente.personalData",
+//               "attributes": {
+//                 "initials": "W.L.",
+//                 "firstnames": "Willeke Liselotte",
+//                 "prefix": "de",
+//                 "familyname": "Bruijn",
+//                 "fullname": "W.L. de Bruijn",
+//                 "gender": "V",
+//                 "nationality": "Ja",
+//                 "surname": "de Bruijn",
+//                 "dateofbirth": "10-04-1965",
+//                 "cityofbirth": "Amsterdam",
+//                 "countryofbirth": "Nederland",
+//                 "over12": "Yes",
+//                 "over16": "Yes",
+//                 "over18": "Yes",
+//                 "over21": "Yes",
+//                 "over65": "No",
+//                 "bsn": "999999990",
+//                 "digidlevel": "Substantieel"
+//               }
+//             },
+//             {
+//               "credential": "irma-demo.gemeente.address",
+//               "attributes": {
+//                 "street":"Meander",
+//                 "houseNumber":"501",
+//                 "zipcode":"1234AB",
+//                 "municipality":"Arnhem",
+//                 "city":"Arnhem"
+//               }
+//             }
+//           ]
+//         }
+//       ''');
+
+//   // Wait for accept button to appear
+//   await tester.waitFor(find.byKey(const Key('issuance_accept')));
+//   // Accept issued credential
+//   await tester.tap(find.descendant(
+//     of: find.byKey(const Key('issuance_accept')),
+//     matching: find.byKey(const Key('primary')),
+//   ));
+//   // Wait until done
+//   await tester.waitFor(find.byType(HomeScreen));
+//   // Wait 3 seconds
+//   await tester.pumpAndSettle(const Duration(seconds: 3));
+// }
 
 /// Generates a revocation key that can be used for issueCredentials.
 String generateRevocationKey() {
