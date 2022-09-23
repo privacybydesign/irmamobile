@@ -1,7 +1,8 @@
 import 'dart:io';
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+
+import 'package:collection/collection.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../models/credentials.dart';
@@ -14,6 +15,7 @@ import '../../widgets/irma_card.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/progress.dart';
 import '../../widgets/translated_text.dart';
+
 import 'add_data_details_screen.dart';
 
 class AddDataScreen extends StatelessWidget {
@@ -21,19 +23,16 @@ class AddDataScreen extends StatelessWidget {
 
   static const _logoContainerSize = 48.0;
 
-  Widget _buildCredentialTypeItem(BuildContext context, Issuer issuer, CredentialType credType, bool alreadyObtained) {
+  Widget _buildAddedCredentialTypeItem(BuildContext context, Issuer issuer, CredentialType credType) {
     final logoFile = File(credType.logo ?? '');
     final theme = IrmaTheme.of(context);
-    final fullyObtained = credType.isSingleton && alreadyObtained;
     return IrmaCard(
       padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
-      onTap: fullyObtained
-          ? null
-          : () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => AddDataDetailsScreen(credentialType: credType),
-                ),
-              ),
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => AddDataDetailsScreen(credentialType: credType),
+        ),
+      ),
       child: Row(
         children: [
           Container(
@@ -67,8 +66,8 @@ class AddDataScreen extends StatelessWidget {
           ),
           SizedBox(width: theme.smallSpacing),
           Icon(
-            fullyObtained ? Icons.check_circle : Icons.add_circle_outline,
-            color: fullyObtained ? theme.success : theme.themeData.colorScheme.secondary,
+            Icons.add_circle_outline,
+            color: theme.themeData.colorScheme.secondary,
             size: _logoContainerSize * 0.7,
           ),
         ],
@@ -123,12 +122,13 @@ class AddDataScreen extends StatelessWidget {
                       style: theme.textTheme.headline3,
                     ),
                     for (final credType in credentialTypesByCategory[category]!)
-                      _buildCredentialTypeItem(
-                        context,
-                        irmaConfiguration.issuers[credType.fullIssuerId]!,
-                        credType,
-                        credentials.values.any((cred) => cred.info.fullId == credType.fullId),
-                      ),
+                      if (!(credType.isSingleton &&
+                          credentials.values.any((cred) => cred.info.fullId == credType.fullId)))
+                        _buildAddedCredentialTypeItem(
+                          context,
+                          irmaConfiguration.issuers[credType.fullIssuerId]!,
+                          credType,
+                        ),
                     SizedBox(height: theme.defaultSpacing),
                   ]
                 ],
