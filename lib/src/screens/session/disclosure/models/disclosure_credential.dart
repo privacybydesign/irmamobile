@@ -8,11 +8,7 @@ abstract class DisclosureCredential extends CredentialView with EquatableMixin {
   DisclosureCredential({
     required CredentialInfo info,
     required Iterable<Attribute> attributes,
-  })  : assert(attributes.isNotEmpty),
-        assert(attributes.every(
-          (attr) => attr.attributeType.fullCredentialId == attributes.first.attributeType.fullCredentialId,
-        )),
-        super(info: info, attributes: attributes);
+  }) : super(info: info, attributes: attributes);
 
   @override
   List<Object?> get props => [

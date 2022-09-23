@@ -43,8 +43,7 @@ class CredentialView implements CredentialInfo {
   CredentialView({
     required this.info,
     required Iterable<Attribute> attributes,
-  })  : assert(attributes.isNotEmpty),
-        _attributes = attributes.toList() {
+  }) : _attributes = attributes.toList() {
     assert(_attributes.every((attr) => attr.attributeType.fullCredentialId == info.fullId));
     // Sort by display index if every attribute has one. Otherwise, we sort on regular index.
     if (_attributes.every((attr) => attr.attributeType.displayIndex != null)) {
