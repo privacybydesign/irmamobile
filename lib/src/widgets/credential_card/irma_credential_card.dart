@@ -35,13 +35,13 @@ class IrmaCredentialCard extends StatelessWidget {
     this.hideFooter = false,
   }) : super(key: key);
 
-  IrmaCredentialCard.fromCredential({
+  IrmaCredentialCard.fromCredential(
+    Credential credential, {
     Key? key,
-    required Credential credential,
     this.compareTo,
     this.onTap,
-    this.headerTrailing,
     this.style = IrmaCardStyle.normal,
+    this.headerTrailing,
     this.padding,
     this.hideFooter = false,
   })  : credentialView = credential,
