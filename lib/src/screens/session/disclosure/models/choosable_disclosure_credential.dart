@@ -10,19 +10,14 @@ class ChoosableDisclosureCredential extends DisclosureCredential {
   /// Indicates whether the backing credential was already present when the disclosure session started.
   final bool previouslyAdded;
 
-  @override
-  final DateTime expires;
-  @override
-  final bool revoked;
-
   ChoosableDisclosureCredential({
     required CredentialInfo info,
     required List<Attribute> attributes,
-    required this.expires,
-    required this.revoked,
+    required bool expired,
+    required bool revoked,
     required this.credentialHash,
     required this.previouslyAdded,
-  }) : super(info: info, attributes: attributes);
+  }) : super(info: info, expired: expired, revoked: revoked, attributes: attributes);
 
   /// Converts the given credential to a ChoosableDisclosureCredential using the given template.
   factory ChoosableDisclosureCredential.fromTemplate({
@@ -36,7 +31,7 @@ class ChoosableDisclosureCredential extends DisclosureCredential {
           .where((credAttr) =>
               template.attributes.any((templAttr) => templAttr.attributeType.fullId == credAttr.attributeType.fullId))
           .toList(),
-      expires: credential.expires,
+      expired: credential.expired,
       revoked: credential.revoked,
       credentialHash: credential.hash,
       previouslyAdded: false,

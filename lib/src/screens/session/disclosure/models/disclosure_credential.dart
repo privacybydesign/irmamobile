@@ -8,7 +8,9 @@ abstract class DisclosureCredential extends CredentialView with EquatableMixin {
   DisclosureCredential({
     required CredentialInfo info,
     required Iterable<Attribute> attributes,
-  }) : super(info: info, attributes: attributes);
+    bool expired = false,
+    bool revoked = false,
+  }) : super(info: info, expired: expired, revoked: revoked, attributes: attributes);
 
   @override
   List<Object?> get props => [

@@ -20,6 +20,7 @@ class IrmaCredentialCard extends StatelessWidget {
   final IrmaCardStyle style;
   final Widget? headerTrailing;
   final EdgeInsetsGeometry? padding;
+  final CardExpiryDate? expiryDate;
   final bool hideFooter;
 
   const IrmaCredentialCard({
@@ -30,14 +31,27 @@ class IrmaCredentialCard extends StatelessWidget {
     this.headerTrailing,
     this.style = IrmaCardStyle.normal,
     this.padding,
+    this.expiryDate,
     this.hideFooter = false,
   }) : super(key: key);
+
+  IrmaCredentialCard.fromCredential({
+    Key? key,
+    required Credential credential,
+    this.compareTo,
+    this.onTap,
+    this.headerTrailing,
+    this.style = IrmaCardStyle.normal,
+    this.padding,
+    this.hideFooter = false,
+  })  : credentialView = credential,
+        expiryDate = CardExpiryDate(credential.expires),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final expiryDate = credentialView.expires != null ? CardExpiryDate(credentialView.expires!) : null;
-    final isExpired = expiryDate?.expired ?? false;
+    final isExpired = expiryDate?.expired ?? credentialView.expired;
     final isExpiringSoon = expiryDate?.expiresSoon ?? false;
 
     return IrmaCard(
@@ -82,7 +96,7 @@ class IrmaCredentialCard extends StatelessWidget {
                         : 'credential.valid_until',
                 translationParams: {
                   'date': printableDate(
-                    expiryDate.dateTime,
+                    expiryDate!.dateTime,
                     lang,
                   ),
                 },

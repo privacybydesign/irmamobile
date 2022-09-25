@@ -38,10 +38,14 @@ class Credentials extends UnmodifiableMapView<String, Credential> {
 
 class CredentialView implements CredentialInfo {
   final CredentialInfo info;
+  final bool expired;
+  final bool revoked;
   final List<Attribute> _attributes;
 
   CredentialView({
     required this.info,
+    this.expired = false,
+    this.revoked = false,
     required Iterable<Attribute> attributes,
   }) : _attributes = attributes.toList() {
     assert(_attributes.every((attr) => attr.attributeType.fullCredentialId == info.fullId));
@@ -87,15 +91,11 @@ class CredentialView implements CredentialInfo {
     );
   }
 
-  DateTime? get expires => null;
-  bool get revoked => false;
-
   UnmodifiableListView<Attribute> get attributes => UnmodifiableListView(_attributes);
   Iterable<Attribute> get attributesWithValue => _attributes.where((att) => att.value is! NullValue);
 
   bool get isKeyshareCredential =>
       attributes.any((attr) => info.schemeManager.keyshareAttributes.contains(attr.attributeType.fullId));
-  bool get expired => expires?.isBefore(DateTime.now()) ?? false;
   bool get valid => !expired && !revoked;
 
   @override
@@ -117,20 +117,16 @@ class CredentialView implements CredentialInfo {
 class Credential extends CredentialView {
   final DateTime signedOn;
   final String hash;
-
-  @override
   final DateTime expires;
-  @override
-  final bool revoked;
 
   Credential({
     required CredentialInfo info,
     required this.signedOn,
     required this.expires,
     required Iterable<Attribute> attributes,
-    required this.revoked,
+    required bool revoked,
     required this.hash,
-  }) : super(info: info, attributes: attributes);
+  }) : super(info: info, expired: expires.isBefore(DateTime.now()), revoked: revoked, attributes: attributes);
 
   factory Credential.fromRaw({required IrmaConfiguration irmaConfiguration, required RawCredential rawCredential}) {
     final credInfo = CredentialInfo.fromConfiguration(
