@@ -116,8 +116,8 @@ class CredentialView implements CredentialInfo {
 
 class Credential extends CredentialView {
   final DateTime signedOn;
-  final String hash;
   final DateTime expires;
+  final String hash;
 
   Credential({
     required CredentialInfo info,
