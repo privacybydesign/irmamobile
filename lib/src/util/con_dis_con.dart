@@ -40,5 +40,6 @@ class ConCon<T> extends UnmodifiableListView<Con<T>> {
 }
 
 class Con<T> extends UnmodifiableListView<T> {
-  Con(Iterable<T> list) : super(list);
+  // Convert iterable to list first to prevent issues with late type checking.
+  Con(Iterable<T> iterable) : super(iterable.toList());
 }
