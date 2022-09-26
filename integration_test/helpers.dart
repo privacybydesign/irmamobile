@@ -10,7 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/screens/home/home_screen.dart';
+import 'package:irmamobile/src/screens/home/home_tab.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_permission.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_attribute_list.dart';

@@ -54,13 +54,14 @@ void main() {
         textQRscanner,
         textErrorReports,
         if (kDebugMode) ...['Developer mode'],
-        'Change your PIN',
-        'Delete everything and start over',
         if (Platform.isAndroid) ...[
           textEnableScreenshots,
           'When enabled, the app will not be blurred in the app switcher.',
-        ]
+        ],
+        'Change your PIN',
+        'Delete everything and start over',
       ]);
+
       // Check the initial value of all settings.
       expect(tester.getSwitchListTileValue(find.text(textQRscanner)), false);
       expect(await irmaBinding.repository.preferences.getStartQRScan().first, false);
