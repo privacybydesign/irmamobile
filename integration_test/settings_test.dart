@@ -96,7 +96,7 @@ void main() {
 
       // Enter new PIN
       await enterPin(tester, '54321');
-      await tester.tapAndSettle(find.text('Next'));
+      await tester.tapAndSettle(find.byKey(const Key('pin_next')));
 
       // Enter new PIN (again)
       await enterPin(tester, '54321');

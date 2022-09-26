@@ -129,6 +129,7 @@ class YiviPinScreen extends StatelessWidget {
 
     Widget activateNext(bool activate, WidgetVisibility visibility) {
       final button = ElevatedButton(
+        key: const Key('pin_next'),
         style: ButtonStyle(
           backgroundColor: MaterialStateProperty.resolveWith<Color>(
             (Set<MaterialState> states) {
