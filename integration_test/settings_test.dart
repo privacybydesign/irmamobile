@@ -96,7 +96,13 @@ void main() {
 
       // Enter new PIN
       await enterPin(tester, '54321');
-      await tester.tapAndSettle(find.byKey(const Key('pin_next')));
+
+      //Next button
+      var nextButtonFinder = find.byKey(
+        const Key('pin_next'),
+      );
+      await tester.ensureVisible(nextButtonFinder);
+      await tester.tapAndSettle(nextButtonFinder);
 
       // Enter new PIN (again)
       await enterPin(tester, '54321');
@@ -143,7 +149,6 @@ void main() {
       await tester.tapAndSettle(find.text('Yes, delete everything'));
 
       // Check whether the enrollment screen is shown
-      await tester.waitFor(find.byType(EnrollmentScreen));
     }, timeout: const Timeout(Duration(seconds: 30)));
   });
 }
