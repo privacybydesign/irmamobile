@@ -4,9 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/screens/data/credentials_detail_screen.dart';
-import 'package:irmamobile/src/screens/data/widgets/credential_type_tile.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_attribute_list.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_header.dart';
@@ -36,14 +34,20 @@ void main() {
         irmaBinding.repository,
         locale,
       );
-      await issueMunicipalityCards(tester, irmaBinding);
+
+      await issueMunicipalityCards(
+        tester,
+        irmaBinding,
+        locale: locale,
+      );
 
       // Go to data tab
       await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
 
-      // Expect at least one CredentialTypeTile and tap it
-      expect(find.byType(CredentialTypeTile), findsOneWidget);
-      await tester.tapAndSettle(find.text("Demo Personal data"));
+      // Expect CredentialTypeTile and tap it
+      var categoryTileFinder = find.byKey(const Key('irma-demo.gemeente.personalData_tile'));
+      expect(categoryTileFinder, findsOneWidget);
+      await tester.tapAndSettle(categoryTileFinder);
 
       // Expect detail page
       expect(find.byType(CredentialsDetailScreen), findsOneWidget);
@@ -157,7 +161,7 @@ void main() {
           'Ouder dan 18',
           'Ja',
           'Ouder dan 21',
-          'Yes',
+          'Ja',
           'Ouder dan 65',
           'Nee',
           'Voorvoegsel',
