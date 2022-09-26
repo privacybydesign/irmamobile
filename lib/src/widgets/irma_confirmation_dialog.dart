@@ -23,6 +23,7 @@ class IrmaConfirmationDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final confirmButton = IrmaButton(
+      key: const Key('dialog_confirm_button'),
       size: IrmaButtonSize.small,
       onPressed: () => Navigator.of(context).pop(true),
       label: confirmTranslationKey ?? 'ui.confirm',
@@ -30,6 +31,7 @@ class IrmaConfirmationDialog extends StatelessWidget {
     );
 
     final cancelButton = IrmaButton(
+      key: const Key('dialog_cancel_button'),
       size: IrmaButtonSize.small,
       onPressed: () => Navigator.of(context).pop(false),
       label: cancelTranslationKey ?? 'ui.cancel',
