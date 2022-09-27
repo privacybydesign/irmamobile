@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../theme/theme.dart';
@@ -7,6 +8,7 @@ import '../../widgets/translated_text.dart';
 import '../activity/widgets/recent_activity.dart';
 import '../add_data/add_data_screen.dart';
 import '../scanner/scanner_screen.dart';
+
 import 'widgets/irma_info_card.dart';
 import 'widgets/irma_nav_bar.dart';
 
@@ -61,24 +63,7 @@ class HomeTab extends StatelessWidget {
           SizedBox(height: theme.largeSpacing),
 
           //Recent activity
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              TranslatedText(
-                'home_tab.recent_activity',
-                style: theme.textTheme.headline4,
-              ),
-              GestureDetector(
-                onTap: () {
-                  onChangeTab(IrmaNavBarTab.activity);
-                },
-                child: TranslatedText('home_tab.view_more', style: theme.hyperlinkTextStyle),
-              )
-            ],
-          ),
-          SizedBox(height: theme.defaultSpacing),
-          const RecentActivity(),
-          SizedBox(height: theme.largeSpacing),
+          RecentActivity(onTap: () => onChangeTab(IrmaNavBarTab.activity)),
 
           //More info
           TranslatedText(

@@ -16,6 +16,7 @@ import '../../util/combine.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/loading_indicator.dart';
+import '../../widgets/translated_text.dart';
 
 import 'history_repository.dart';
 import 'widgets/activity_card.dart';
@@ -86,6 +87,19 @@ class _ActivityTabState extends State<ActivityTab> {
     final local = FlutterI18n.currentLocale(context).toString();
     final theme = IrmaTheme.of(context);
 
+    Widget _listStateIndicator() {
+      if (logEntries.isEmpty) {
+        return const TranslatedText('activity.empty_placeholder');
+      } else if (moreLogsAvailable) {
+        return SizedBox(
+          height: 36,
+          child: LoadingIndicator(),
+        );
+      } else {
+        return Icon(IrmaIcons.valid, color: theme.success);
+      }
+    }
+
     final groupedItems = List.generate(
       logEntries.length,
       (index) {
@@ -117,12 +131,7 @@ class _ActivityTabState extends State<ActivityTab> {
         Padding(
           padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
           child: Center(
-            child: moreLogsAvailable
-                ? SizedBox(
-                    height: 36,
-                    child: LoadingIndicator(),
-                  )
-                : Icon(IrmaIcons.valid, color: theme.success),
+            child: _listStateIndicator(),
           ),
         ),
       );
@@ -154,7 +163,7 @@ class _ActivityTabState extends State<ActivityTab> {
           final irmaConfiguration = snapshot.data!.a;
           final historyState = snapshot.data!.b;
           // hack to remove the first activity logged by the bridge
-          final logEntries = historyState.moreLogsAvailable
+          final logEntries = !historyState.moreLogsAvailable && historyState.logEntries.isNotEmpty
               ? historyState.logEntries.sublist(0, historyState.logEntries.length - 1)
               : historyState.logEntries;
           return _buildLogEntries(context, irmaConfiguration, logEntries, historyState.moreLogsAvailable);

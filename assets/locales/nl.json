@@ -530,7 +530,8 @@
         "shared_with": "Gedeeld met",
         "shared_data": "Gedeelde gegevens",
         "received_data": "Ontvangen gegevens",
-        "deleted_data": "Verwijderde gegevens"
+        "deleted_data": "Verwijderde gegevens",
+        "empty_placeholder": "Er zijn momenteel geen activiteiten."
     },
     "credential": {
         "no_data": "Geen gegevens",
