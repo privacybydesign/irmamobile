@@ -37,7 +37,3 @@ runs:
     - name: Ensure Go mobile is installed
       run: ./ci_scripts/install_gomobile.sh
       shell: bash
-    - name: Invalidate cached build tools when installation failed
-      if: ${{ failure() }}
-      run: rm -rf ./build_tools/*
-      shell: bash
