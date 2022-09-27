@@ -47,7 +47,8 @@ class HistoryRepository {
       if (event is LoadLogsEvent) {
         return prevState.copyWith(
           loading: true,
-          logEntries: event.before == null ? [] : prevState.logEntries,
+          logEntries: event.before == null ? [] : prevState.logEntries
+            ..removeWhere((e) => e.id == 1), // repeat hack when reloading
         );
       } else if (event is LogsEvent) {
         // Some legacy log formats don't specify a serverName. For disclosing and signing logs this is an issue,
@@ -56,18 +57,23 @@ class HistoryRepository {
         final supportedLogEntries =
             event.logEntries.where((entry) => _serverNameOptional.contains(entry.type) || entry.serverName != null);
 
-        final logEntries = List.of(prevState.logEntries);
-        logEntries.addAll(supportedLogEntries);
+        final logEntries = prevState.logEntries..addAll(supportedLogEntries);
 
         return prevState.copyWith(
           loading: false,
-          logEntries: LogEntries(logEntries),
-          moreLogsAvailable: event.logEntries.isNotEmpty,
+          logEntries: logEntries,
+          moreLogsAvailable: event.logEntries.isEmpty,
         );
       }
 
       return prevState;
-    }, HistoryState()).listen((historyState) {
+    }, HistoryState()).doOnEach((i) {
+      // hack to remove first logged event
+      // if filtered out post-listen, then the widgets will redraw
+      if (i.requireData.logEntries.isNotEmpty) {
+        i.requireData.logEntries.removeWhere((e) => e.id == 1);
+      }
+    }).listen((historyState) {
       _historyStateSubject.add(historyState);
     });
   }

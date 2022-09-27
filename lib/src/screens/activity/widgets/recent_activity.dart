@@ -89,14 +89,11 @@ class _RecentActivityState extends State<RecentActivity> {
         }
         final irmaConfiguration = snapshot.data!.a;
         final historyState = snapshot.data!.b;
+        final logEntries = historyState.logEntries;
 
-        if (historyState.logEntries.isEmpty) {
+        if (logEntries.isEmpty) {
           return Container();
         }
-
-        // TODO add extension that filters out the "on behalf of SIDN"
-        final logEntries = historyState.logEntries.sublist(
-            0, !historyState.moreLogsAvailable ? historyState.logEntries.length - 1 : historyState.logEntries.length);
 
         return Visibility(
           visible: logEntries.isNotEmpty,

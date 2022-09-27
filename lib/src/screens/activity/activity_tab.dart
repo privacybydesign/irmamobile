@@ -162,11 +162,7 @@ class _ActivityTabState extends State<ActivityTab> {
           }
           final irmaConfiguration = snapshot.data!.a;
           final historyState = snapshot.data!.b;
-          // hack to remove the first activity logged by the bridge
-          final logEntries = !historyState.moreLogsAvailable && historyState.logEntries.isNotEmpty
-              ? historyState.logEntries.sublist(0, historyState.logEntries.length - 1)
-              : historyState.logEntries;
-          return _buildLogEntries(context, irmaConfiguration, logEntries, historyState.moreLogsAvailable);
+          return _buildLogEntries(context, irmaConfiguration, historyState.logEntries, historyState.moreLogsAvailable);
         },
       ),
     );
