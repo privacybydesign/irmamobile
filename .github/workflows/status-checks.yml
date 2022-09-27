@@ -16,5 +16,8 @@ jobs:
           submodules: true
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
-      - name: Run flutter format
+      - name: Check flutter format
         run: flutter format --line-length=120 --set-exit-if-changed lib/ test/ integration_test/
+      - name: Check flutter analyze for errors
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings lib/ test/ integration_test/
+
