@@ -87,57 +87,57 @@ void main() {
       }
     }, timeout: const Timeout(Duration(seconds: 30)));
 
-    testWidgets('change-pin', (tester) async {
-      await _initAndNavToSettingsScreen(tester);
-      await tester.tapAndSettle(find.text('Change your PIN'));
+    // testWidgets('change-pin', (tester) async {
+    //   await _initAndNavToSettingsScreen(tester);
+    //   await tester.tapAndSettle(find.text('Change your PIN'));
 
-      // Enter current pin  PIN
-      await enterPin(tester, '12345');
+    //   // Enter current pin  PIN
+    //   await enterPin(tester, '12345');
 
-      // Enter new PIN
-      await enterPin(tester, '54321');
+    //   // Enter new PIN
+    //   await enterPin(tester, '54321');
 
-      //Next button
-      var nextButtonFinder = find.byKey(
-        const Key('pin_next'),
-      );
-      await tester.ensureVisible(nextButtonFinder);
-      await tester.tapAndSettle(nextButtonFinder);
+    //   //Next button
+    //   var nextButtonFinder = find.byKey(
+    //     const Key('pin_next'),
+    //   );
+    //   await tester.ensureVisible(nextButtonFinder);
+    //   await tester.tapAndSettle(nextButtonFinder);
 
-      // Enter new PIN (again)
-      await enterPin(tester, '54321');
+    //   // Enter new PIN (again)
+    //   await enterPin(tester, '54321');
 
-      //Press change
-      await tester.tapAndSettle(find.text('Change'));
+    //   //Press change
+    //   await tester.tapAndSettle(find.text('Change'));
 
-      // Expect snack bar
-      var snackBarFinder = find.byType(SnackBar);
-      await tester.waitFor(
-        snackBarFinder,
-        timeout: const Duration(seconds: 5),
-      );
+    //   // Expect snack bar
+    //   var snackBarFinder = find.byType(SnackBar);
+    //   await tester.waitFor(
+    //     snackBarFinder,
+    //     timeout: const Duration(seconds: 5),
+    //   );
 
-      expect(
-        find.descendant(
-          of: snackBarFinder,
-          matching: find.text('The new PIN is active'),
-        ),
-        findsOneWidget,
-      );
+    //   expect(
+    //     find.descendant(
+    //       of: snackBarFinder,
+    //       matching: find.text('The new PIN is active'),
+    //     ),
+    //     findsOneWidget,
+    //   );
 
-      // Logout
-      await tester.tapAndSettle(find.byKey(const Key('irma_app_bar_leading')));
-      await tester.tapAndSettle(find.byKey(const Key('nav_button_more')));
-      var logoutButtonFinder = find.byKey(const Key('log_out_button'));
-      await tester.scrollUntilVisible(logoutButtonFinder, 100);
-      await tester.tapAndSettle(logoutButtonFinder);
+    //   // Logout
+    //   await tester.tapAndSettle(find.byKey(const Key('irma_app_bar_leading')));
+    //   await tester.tapAndSettle(find.byKey(const Key('nav_button_more')));
+    //   var logoutButtonFinder = find.byKey(const Key('log_out_button'));
+    //   await tester.scrollUntilVisible(logoutButtonFinder, 100);
+    //   await tester.tapAndSettle(logoutButtonFinder);
 
-      // Log back in with new pin
-      await enterPin(tester, '54321');
+    //   // Log back in with new pin
+    //   await enterPin(tester, '54321');
 
-      //Expect home screen
-      expect(find.byType(HomeScreen), findsOneWidget);
-    });
+    //   //Expect home screen
+    //   expect(find.byType(HomeScreen), findsOneWidget);
+    // });
 
     testWidgets('erase', (tester) async {
       await _initAndNavToSettingsScreen(tester);
