@@ -1,0 +1,43 @@
+name: Setup build environment
+description: This action installs all build tools needed for irmamobile and caches the result to speed up future runs.
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-java@v3
+      with:
+        distribution: adopt
+        java-version: 11
+    - uses: actions/setup-go@v3
+      with:
+        go-version: ^1.18
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.7
+        bundler-cache: true
+    - uses: actions/cache@v3
+      with:
+        path: ./build_tools/
+        key: ${{ runner.os }}-${{ hashFiles('ci_scripts/*') }}
+    - name: Set environment variables
+      env:
+        ANDROID_HOME: ${{ github.workspace }}/build_tools/android-sdk
+        FLUTTER_HOME: ${{ github.workspace }}/build_tools/flutter
+      run: |
+        echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+        echo "FLUTTER_HOME=$FLUTTER_HOME" >> $GITHUB_ENV
+        echo "$ANDROID_HOME/cmdline-tools/bin" >> $GITHUB_PATH
+        echo "$FLUTTER_HOME/bin" >> $GITHUB_PATH
+      shell: bash
+    - name: Ensure Android SDK is installed
+      run: ./ci_scripts/install_android_sdk.sh
+      shell: bash
+    - name: Ensure Flutter is installed
+      run: ./ci_scripts/install_flutter.sh
+      shell: bash
+    - name: Ensure Go mobile is installed
+      run: ./ci_scripts/install_gomobile.sh
+      shell: bash
+    - name: Invalidate cached build tools when installation failed
+      if: ${{ failure() }}
+      run: rm -rf ./build_tools/*
+      shell: bash
