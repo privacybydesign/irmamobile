@@ -35,7 +35,8 @@ else
   echo "Unsupported operating system $OSTYPE"
   exit 1
 fi
-mv ./flutter/* .
+# Move all files and directories (including the hidden ones) to the root directory of FLUTTER_HOME.
+(shopt -s dotglob && mv ./flutter/* .)
 rm -rf ./flutter/ ./flutter.zip ./flutter.tar.xz
 popd
 
