@@ -19,7 +19,6 @@ class CredentialTypeTile extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return IrmaCard(
-      key: Key(credentialType.fullId + '_tile'),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

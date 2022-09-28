@@ -2,8 +2,10 @@
 // @dart=2.11
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+
 import 'package:irmamobile/main.dart';
 
 import 'helpers.dart';
@@ -29,7 +31,7 @@ void main() {
       // Open menu
       await tester.tapAndSettle(find.byKey(const Key('open_menu_icon')));
       // Logout
-      await tester.tapAndSettle(find.byKey(const Key('menu_logout')));
+      await tester.moreTabLogout();
       // login window is displayed
       // Check screen title
       String string = tester.getAllText(find.byKey(const Key('pinscreen_app_bar'))).first;

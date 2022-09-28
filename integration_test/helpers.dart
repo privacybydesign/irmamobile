@@ -3,12 +3,14 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
+
+import 'package:collection/collection.dart';
 import 'package:flutter_test/flutter_test.dart';
+
 import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/screens/home/home_screen.dart';
+import 'package:irmamobile/src/screens/home/home_tab.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_permission.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_attribute_list.dart';
@@ -19,7 +21,7 @@ import 'util.dart';
 /// Unlocks the IRMA app and waits until the wallet is displayed.
 Future<void> unlock(WidgetTester tester) async {
   await enterPin(tester, '12345');
-  await tester.waitFor(find.byType(HomeScreen).hitTestable());
+  await tester.waitFor(find.byType(HomeTab).hitTestable());
 }
 
 Future<void> enterPin(WidgetTester tester, String pin) async {

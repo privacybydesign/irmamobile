@@ -34,18 +34,21 @@ class SettingsScreen extends StatelessWidget {
           ),
           children: [
             SettingsSwitchListTile(
+              key: const Key('qr_toggle'),
               titleTranslationKey: 'settings.start_qr',
               stream: repo.preferences.getStartQRScan(),
               onChanged: repo.preferences.setStartQRScan,
               iconData: IrmaIcons.scanQrcode,
             ),
             SettingsSwitchListTile(
+              key: const Key('report_toggle'),
               titleTranslationKey: 'settings.advanced.report_errors',
               stream: repo.preferences.getReportErrors(),
               onChanged: repo.preferences.setReportErrors,
               iconData: IrmaIcons.invalid,
             ),
             SettingsSwitchListTile(
+              key: const Key('dev_mode_toggle'),
               titleTranslationKey: 'settings.advanced.developer_mode',
               stream: repo.getDeveloperMode(),
               onChanged: repo.setDeveloperMode,
@@ -53,6 +56,7 @@ class SettingsScreen extends StatelessWidget {
             ),
             if (Platform.isAndroid)
               SettingsSwitchListTile(
+                key: const Key('screenshot_toggle'),
                 titleTranslationKey: 'settings.advanced.enable_screenshots',
                 subtitleTranslationKey: 'settings.advanced.enable_screenshots_note',
                 stream: repo.preferences.getScreenshotsEnabled(),
@@ -61,6 +65,7 @@ class SettingsScreen extends StatelessWidget {
               ),
             const Divider(),
             ListTile(
+              key: const Key('change_pin_link'),
               onTap: () => Navigator.of(context).pushNamed(ChangePinScreen.routeName),
               title: Text(
                 FlutterI18n.translate(context, 'settings.change_pin'),
@@ -69,6 +74,7 @@ class SettingsScreen extends StatelessWidget {
               leading: Icon(IrmaIcons.edit, size: 30, color: theme.themeData.colorScheme.secondary),
             ),
             ListTile(
+              key: const Key('delete_link'),
               title: Text(
                 FlutterI18n.translate(context, 'settings.advanced.delete'),
                 style: theme.textTheme.bodyText2,

@@ -45,8 +45,8 @@ void main() {
       await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
 
       // Expect CredentialTypeTile and tap it
-      var categoryTileFinder = find.byKey(const Key('irma-demo.gemeente.personalData_tile'));
-      expect(categoryTileFinder, findsOneWidget);
+      var categoryTileFinder = find.byKey(const Key('irma-demo.gemeente.personalData_tile')).hitTestable();
+      await tester.scrollUntilVisible(categoryTileFinder, 75);
       await tester.tapAndSettle(categoryTileFinder);
 
       // Expect detail page
