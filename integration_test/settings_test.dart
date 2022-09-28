@@ -11,6 +11,7 @@ import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
 import 'package:flutter/foundation.dart';
+import 'package:irmamobile/src/screens/settings/settings_switch_list_tile.dart';
 
 import 'helpers.dart';
 import 'irma_binding.dart';
@@ -36,56 +37,80 @@ void main() {
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
 
+    Future<void> _testToggle(WidgetTester tester, String key, bool defaultValue, Stream<bool> valueStream) async {
+      var toggleFinder = find.byKey(Key(key));
+      await tester.scrollUntilVisible(toggleFinder, 50);
+
+      // Find the actual SwitchListTile in the SettingsSwitchListTile
+      var switchTileFinder = find.descendant(
+        of: toggleFinder,
+        matching: find.byType(SwitchListTile),
+      );
+
+      // Check default value
+      expect(
+        (switchTileFinder.evaluate().single.widget as SwitchListTile).value,
+        defaultValue,
+      );
+
+      // Toggle it
+      await tester.tapAndSettle(toggleFinder);
+
+      // Check switch tile is toggled
+      expect(
+        (switchTileFinder.evaluate().single.widget as SwitchListTile).value,
+        !defaultValue,
+      );
+
+      // Check if value in repo is toggled
+      expect(
+        await valueStream.first,
+        !defaultValue,
+      );
+    }
+
     testWidgets('reach', (tester) async {
       await _initAndNavToSettingsScreen(tester);
       expect(find.byType(SettingsScreen), findsOneWidget);
     });
 
-    testWidgets('content', (tester) async {
-      await _initAndNavToSettingsScreen(tester);
+    testWidgets(
+      'toggles',
+      (tester) async {
+        final repo = irmaBinding.repository;
+        await _initAndNavToSettingsScreen(tester);
 
-      // Check screen settings text
-      const String textQRscanner = 'Open QR scanner automatically after start-up';
-      const String textErrorReports = 'Send error reports to Yivi';
-      const String textEnableScreenshots = 'Enable screenshots';
-      final list = tester.getAllText(find.byType(ListView));
-
-      expect(list, [
-        textQRscanner,
-        textErrorReports,
-        if (kDebugMode) ...['Developer mode'],
-        if (Platform.isAndroid) ...[
-          textEnableScreenshots,
-          'When enabled, the app will not be blurred in the app switcher.',
-        ],
-        'Change your PIN',
-        'Delete everything and start over',
-      ]);
-
-      // Check the initial value of all settings.
-      expect(tester.getSwitchListTileValue(find.text(textQRscanner)), false);
-      expect(await irmaBinding.repository.preferences.getStartQRScan().first, false);
-      expect(tester.getSwitchListTileValue(find.text(textErrorReports)), false);
-      expect(await irmaBinding.repository.preferences.getStartQRScan().first, false);
-      // Enable all settings.
-      await tester.tapAndSettle(find.text(textQRscanner));
-      await tester.tapAndSettle(find.text(textErrorReports));
-      // Check whether all settings are enabled.
-      expect(tester.getSwitchListTileValue(find.text(textQRscanner)), true);
-      expect(await irmaBinding.repository.preferences.getStartQRScan().first, true);
-      expect(tester.getSwitchListTileValue(find.text(textErrorReports)), true);
-      expect(await irmaBinding.repository.preferences.getStartQRScan().first, true);
-      // Only on Android, check setting to enable screenshots. On iOS, the option should not be there.
-      if (Platform.isAndroid) {
-        expect(tester.getSwitchListTileValue(find.text(textEnableScreenshots)), true);
-        expect(await irmaBinding.repository.preferences.getScreenshotsEnabled().first, true);
-        await tester.tapAndSettle(find.text(textEnableScreenshots));
-        expect(tester.getSwitchListTileValue(find.text(textEnableScreenshots)), false);
-        expect(await irmaBinding.repository.preferences.getScreenshotsEnabled().first, false);
-      } else {
-        expect(find.text(textEnableScreenshots), findsNothing);
-      }
-    }, timeout: const Timeout(Duration(seconds: 30)));
+        await _testToggle(
+          tester,
+          'qr_toggle',
+          false,
+          repo.preferences.getStartQRScan(),
+        );
+        await _testToggle(
+          tester,
+          'report_toggle',
+          false,
+          repo.preferences.getReportErrors(),
+        );
+        if (kDebugMode) {
+          await _testToggle(
+            tester,
+            'dev_mode_toggle',
+            true,
+            repo.getDeveloperMode(),
+          );
+        }
+        if (Platform.isAndroid) {
+          await _testToggle(
+            tester,
+            'screenshot_toggle',
+            true,
+            repo.preferences.getScreenshotsEnabled(),
+          );
+        }
+      },
+      timeout: const Timeout(Duration(seconds: 30)),
+    );
 
     // testWidgets('change-pin', (tester) async {
     //   await _initAndNavToSettingsScreen(tester);
@@ -142,8 +167,11 @@ void main() {
     testWidgets('erase', (tester) async {
       await _initAndNavToSettingsScreen(tester);
 
+      var deleteFinder = find.text('Delete everything and start over');
+
       // Tap on option to delete everything and start over
-      await tester.tapAndSettle(find.text('Delete everything and start over'));
+      await tester.scrollUntilVisible(deleteFinder, 75);
+      await tester.tapAndSettle(deleteFinder);
 
       // Tap on the confirmation to delete all data
       await tester.tapAndSettle(find.text('Yes, delete everything'));
