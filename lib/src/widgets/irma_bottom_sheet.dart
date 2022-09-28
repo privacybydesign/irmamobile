@@ -31,6 +31,7 @@ class IrmaBottomSheet extends StatelessWidget {
               child: Padding(
                 padding: EdgeInsets.only(
                   right: theme.defaultSpacing,
+                  top: theme.defaultSpacing,
                 ),
                 child: const IrmaCloseButton(),
               ),
