@@ -17,28 +17,26 @@ if [[ ! "$PATH" =~ "$FLUTTER_HOME/bin" ]]; then
   exit 1
 fi
 
-if [ -x "$(command -v "flutter")" ]; then
-  exit 0
+if ! [ -x "$(command -v "flutter")" ]; then
+  mkdir -p "$FLUTTER_HOME"
+  pushd "$FLUTTER_HOME"
+  if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    wget -q -O ./flutter.tar.xz https://storage.googleapis.com/flutter_infra_release/releases/${FLUTTER_CHANNEL}/linux/flutter_linux_${FLUTTER_VERSION}-${FLUTTER_CHANNEL}.tar.xz
+    echo "${FLUTTER_CHECKSUM_LINUX}  flutter.tar.xz" | sha256sum -c
+    tar xf flutter.tar.xz
+  elif [[ "$OSTYPE" == "darwin"* ]]; then
+    wget -q -O ./flutter.zip https://storage.googleapis.com/flutter_infra_release/releases/${FLUTTER_CHANNEL}/macos/flutter_macos_${FLUTTER_VERSION}-${FLUTTER_CHANNEL}.zip
+    echo "${FLUTTER_CHECKSUM_MACOS}  flutter.zip" | sha256sum -c
+    unzip -q flutter.zip
+  else
+    echo "Unsupported operating system $OSTYPE"
+    exit 1
+  fi
+  # Move all files and directories (including the hidden ones) to the root directory of FLUTTER_HOME.
+  (shopt -s dotglob && mv ./flutter/* .)
+  rm -rf ./flutter/ ./flutter.zip ./flutter.tar.xz
+  popd
 fi
-
-mkdir -p "$FLUTTER_HOME"
-pushd "$FLUTTER_HOME"
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-  wget -q -O ./flutter.tar.xz https://storage.googleapis.com/flutter_infra_release/releases/${FLUTTER_CHANNEL}/linux/flutter_linux_${FLUTTER_VERSION}-${FLUTTER_CHANNEL}.tar.xz
-  echo "${FLUTTER_CHECKSUM_LINUX}  flutter.tar.xz" | sha256sum -c
-  tar xf flutter.tar.xz
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-  wget -q -O ./flutter.zip https://storage.googleapis.com/flutter_infra_release/releases/${FLUTTER_CHANNEL}/macos/flutter_macos_${FLUTTER_VERSION}-${FLUTTER_CHANNEL}.zip
-  echo "${FLUTTER_CHECKSUM_MACOS}  flutter.zip" | sha256sum -c
-  unzip -q flutter.zip
-else
-  echo "Unsupported operating system $OSTYPE"
-  exit 1
-fi
-# Move all files and directories (including the hidden ones) to the root directory of FLUTTER_HOME.
-(shopt -s dotglob && mv ./flutter/* .)
-rm -rf ./flutter/ ./flutter.zip ./flutter.tar.xz
-popd
 
 flutter config --no-analytics
 flutter doctor -v
