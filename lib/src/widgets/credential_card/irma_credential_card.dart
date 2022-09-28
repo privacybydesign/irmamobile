@@ -109,8 +109,7 @@ class IrmaCredentialCard extends StatelessWidget {
       footerTextKey = 'credential.valid_until';
     }
 
-    final obtainable = (isExpired || isExpiringSoon || revoked)
-      && credentialInfo.credentialType.issueUrl.isNotEmpty;
+    final obtainable = (isExpired || isExpiringSoon || revoked) && credentialInfo.credentialType.issueUrl.isNotEmpty;
 
     return IrmaCard(
       style: isExpired || revoked ? IrmaCardStyle.disabled : style,
