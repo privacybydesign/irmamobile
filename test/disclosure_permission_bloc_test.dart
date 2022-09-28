@@ -77,7 +77,6 @@ void main() {
       'irma-demo.IRMATube.member.id',
     );
     expect(issueWizardBlocState.candidates[0]?[0][0].attributes[0].value.raw, null);
-    expect(issueWizardBlocState.candidates[0]?[0][0].attributes[0].choosable, false);
 
     bloc.add(DisclosurePermissionNextPressed());
     expect(await obtainCredentialsController.stream.first, 'irma-demo.IRMATube.member');
@@ -108,7 +107,6 @@ void main() {
     expect(choicesOverviewBlocState.requiredChoices[0]?[0], isA<ChoosableDisclosureCredential>());
     expect(choicesOverviewBlocState.requiredChoices[0]?[0].fullId, 'irma-demo.IRMATube.member');
     expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes.length, 1);
-    expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].choosable, true);
     expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].attributeType.fullId,
         'irma-demo.IRMATube.member.id');
     expect(choicesOverviewBlocState.requiredChoices[0]?[0].attributes[0].value.raw, '12345');
@@ -330,8 +328,8 @@ void main() {
     expect(prevAddedCredsBlocState.requiredChoices.keys, [1]);
     expect(prevAddedCredsBlocState.requiredChoices[1]?.length, 1);
     expect(prevAddedCredsBlocState.requiredChoices[1]?[0].fullId, 'pbdf.pbdf.email');
+    expect(prevAddedCredsBlocState.requiredChoices[1]?[0].credentialHash, 'session-42-0');
     expect(prevAddedCredsBlocState.requiredChoices[1]?[0].attributes.length, 1);
-    expect(prevAddedCredsBlocState.requiredChoices[1]?[0].attributes[0].credentialHash, 'session-42-0');
     expect(prevAddedCredsBlocState.requiredChoices[1]?[0].attributes[0].value.raw, 'test@example.com');
 
     // Choose for another email address.

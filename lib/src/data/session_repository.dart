@@ -1,13 +1,15 @@
 import 'package:collection/collection.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/attributes.dart';
-import 'package:irmamobile/src/models/credentials.dart';
-import 'package:irmamobile/src/models/return_url.dart';
-import 'package:irmamobile/src/models/session.dart';
-import 'package:irmamobile/src/models/session_events.dart';
-import 'package:irmamobile/src/models/session_state.dart';
-import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:rxdart/rxdart.dart';
+
+import '../models/attribute.dart';
+import '../models/credentials.dart';
+import '../models/return_url.dart';
+import '../models/session.dart';
+import '../models/session_events.dart';
+import '../models/session_state.dart';
+import '../models/translated_value.dart';
+import '../util/con_dis_con.dart';
+import 'irma_repository.dart';
 
 // Typedefs are still experimental in Flutter. Therefore, we use inheritance for now.
 class SessionStates extends UnmodifiableMapView<int, SessionState> {

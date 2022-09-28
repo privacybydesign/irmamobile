@@ -20,9 +20,8 @@ class ActivityDetailRemoval extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final removedCredentials = logEntry.removedCredentials.entries
-        .map<RemovedCredential>((entry) => RemovedCredential.fromRaw(
+        .map((entry) => CredentialView.fromRawAttributes(
               irmaConfiguration: irmaConfiguration,
-              credentialIdentifier: entry.key,
               rawAttributes: entry.value,
             ))
         .toList();
@@ -38,8 +37,8 @@ class ActivityDetailRemoval extends StatelessWidget {
         for (var removedCredential in removedCredentials)
           Padding(
             padding: EdgeInsets.only(top: theme.smallSpacing),
-            child: IrmaCredentialCard.fromRemovedCredential(
-              removedCredential,
+            child: IrmaCredentialCard(
+              credentialView: removedCredential,
               hideFooter: true,
             ),
           )

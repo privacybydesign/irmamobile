@@ -2,20 +2,21 @@ import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
-import 'package:irmamobile/src/data/irma_bridge.dart';
-import 'package:irmamobile/src/data/mock_data.dart';
-import 'package:irmamobile/src/models/attribute_value.dart';
-import 'package:irmamobile/src/models/attributes.dart';
-import 'package:irmamobile/src/models/credential_events.dart';
-import 'package:irmamobile/src/models/credentials.dart';
-import 'package:irmamobile/src/models/enrollment_events.dart';
-import 'package:irmamobile/src/models/event.dart';
-import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'package:irmamobile/src/models/native_events.dart';
-import 'package:irmamobile/src/models/session.dart';
-import 'package:irmamobile/src/models/session_events.dart';
-import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:rxdart/rxdart.dart';
+
+import '../models/attribute.dart';
+import '../models/attribute_value.dart';
+import '../models/credential_events.dart';
+import '../models/credentials.dart';
+import '../models/enrollment_events.dart';
+import '../models/event.dart';
+import '../models/irma_configuration.dart';
+import '../models/native_events.dart';
+import '../models/session.dart';
+import '../models/session_events.dart';
+import '../models/translated_value.dart';
+import 'irma_bridge.dart';
+import 'mock_data.dart';
 
 typedef EventUnmarshaller = Event Function(Map<String, dynamic>);
 

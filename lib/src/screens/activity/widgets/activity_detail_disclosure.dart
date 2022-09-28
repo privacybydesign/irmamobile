@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../models/attributes.dart';
+import '../../../models/attribute.dart';
+import '../../../models/credentials.dart';
 import '../../../models/irma_configuration.dart';
 import '../../../models/log_entry.dart';
 import '../../../theme/theme.dart';
@@ -24,10 +25,13 @@ class ActivityDetailDisclosure extends StatelessWidget {
   ) {
     final mappedAttributes =
         disclosedAttributes.map((e) => Attribute.fromDisclosedAttribute(irmaConfiguration, e)).toList();
+    final credentialView = CredentialView.fromAttributes(
+      irmaConfiguration: irmaConfiguration,
+      attributes: mappedAttributes,
+    );
 
     return IrmaCredentialCard(
-      credentialInfo: mappedAttributes.first.credentialInfo,
-      attributes: mappedAttributes,
+      credentialView: credentialView,
       hideFooter: true,
     );
   }

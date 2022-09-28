@@ -1,8 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
-import '../../../../models/attributes.dart';
 import '../../../../theme/theme.dart';
+import '../../../../util/con_dis_con.dart';
 import '../../../../widgets/irma_stepper.dart';
 import '../../../../widgets/translated_text.dart';
 import '../models/disclosure_credential.dart';

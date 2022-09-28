@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../../models/attributes.dart';
 import '../../../../theme/theme.dart';
+import '../../../../util/con_dis_con.dart';
 import '../../../../widgets/credential_card/irma_credential_card.dart';
 import '../../../../widgets/irma_card.dart';
 import '../models/disclosure_credential.dart';
@@ -41,8 +41,7 @@ class DisclosurePermissionChoice extends StatelessWidget {
                       },
                       child: IrmaCredentialCard(
                         padding: EdgeInsets.zero,
-                        credentialInfo: credential,
-                        attributes: credential.attributes,
+                        credentialView: credential,
                         compareTo: credential is TemplateDisclosureCredential ? credential.attributes : null,
                         hideFooter: true,
                         headerTrailing: credential == choice[i]!.first
