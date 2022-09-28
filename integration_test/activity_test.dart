@@ -4,12 +4,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/screens/activity/activity_detail_screen.dart';
-import 'package:irmamobile/src/screens/activity/activity_tab.dart';
-import 'package:irmamobile/src/screens/activity/widgets/activity_card.dart';
 import 'package:irmamobile/src/screens/activity/widgets/activity_detail_issuance.dart';
-import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_attribute_list.dart';
 
@@ -22,7 +18,6 @@ void main() {
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
 
-  // TODO: repair tests and enable them again in test_all.dart.
   group('activity', () {
     // Initialize the app's repository for integration tests (enable developer mode, etc.)
     setUp(() => irmaBinding.setUp());
@@ -32,133 +27,84 @@ void main() {
       'issuance',
       (tester) async {
         await pumpAndUnlockApp(tester, irmaBinding.repository);
-
-        // // Start issuance session
-        // const credentialId = 'irma-demo.gemeente.personalData';
-        // await issueCredentials(tester, irmaBinding, {
-        //   '$credentialId.bsn': '999999990',
-        //   '$credentialId.cityofbirth': 'Amsterdam',
-        //   '$credentialId.countryofbirth': 'Nederland',
-        //   '$credentialId.dateofbirth': '10-04-1965',
-        //   '$credentialId.digidlevel': 'Substantieel',
-        //   '$credentialId.familyname': 'Bruijn',
-        //   '$credentialId.firstnames': 'Willeke Liselotte',
-        //   '$credentialId.fullname': 'W.L. de Bruijn',
-        //   '$credentialId.gender': 'V',
-        //   '$credentialId.initials': 'W.L.',
-        //   '$credentialId.nationality': 'Yes',
-        //   '$credentialId.over12': 'Yes',
-        //   '$credentialId.over16': 'Yes',
-        //   '$credentialId.over18': 'Yes',
-        //   '$credentialId.over21': 'Yes',
-        //   '$credentialId.over65': 'No',
-        //   '$credentialId.prefix': 'de',
-        //   '$credentialId.surname': 'de Bruijn',
-        // });
-
         await issueMunicipalityCards(tester, irmaBinding);
 
-        //await Future.delayed(Duration(seconds: 20));
+        await tester.tap(find.byKey(const Key('nav_button_activity')));
+        await tester.pump(const Duration(seconds: 1));
 
-        // Navigate to activity tab
-        await tester.tapAndSettle(find.byKey(const Key('nav_button_activity')));
-        expect(find.byType(ActivityTab), findsOneWidget);
+        // Tap on the Demo Municipality card
+        await tester.tapAndSettle(find.text('Demo Municipality'));
 
-        // // Check if the activity cards are displayed
-        // final activityCards = tester.widgetList(find.byType(ActivityCard));
-        // expect(activityCards.length, 2);
+        // Check if the correct detail screen is rendered
+        expect(find.byType(ActivityDetailScreen), findsOneWidget);
+        expect(find.byType(ActivityDetailIssuance), findsOneWidget);
 
-        // // Tap on the Demo Municipality card
-        // await tester.tapAndSettle(find.text('Demo Municipality'));
+        // Expect headers
+        expect(find.text('Activity'), findsOneWidget);
+        expect(find.text('Received data'), findsOneWidget);
 
-        // // Check if the correct detail screen is rendered
-        // expect(find.byType(ActivityDetailScreen), findsOneWidget);
-        // expect(find.byType(ActivityDetailIssuance), findsOneWidget);
+        // Get all the text in the attribute list
+        final cardAttributes = tester
+            .getAllText(find.descendant(
+              of: tester.findByTypeWithContent(
+                type: IrmaCredentialCard,
+                content: find.text('Demo Personal data'),
+              ),
+              matching: find.byType(IrmaCredentialCardAttributeList),
+            ))
+            .toList();
 
-        // // Get all the text in the attribute list
-        // final cardAttributes = tester
-        //     .getAllText(find.descendant(
-        //       of: tester.findByTypeWithContent(
-        //         type: IrmaCredentialCard,
-        //         content: find.text('Demo Personal data'),
-        //       ),
-        //       matching: find.byType(IrmaCredentialCardAttributeList),
-        //     ))
-        //     .toList();
+        // Assert if the values are present and sorted correctly
+        expect(
+          cardAttributes,
+          [
+            'BSN',
+            '999999990',
+            'City of birth',
+            'Amsterdam',
+            'Country of birth',
+            'Nederland',
+            'Date of birth',
+            '10-04-1965',
+            'Assurance level',
+            'Substantieel',
+            'Family name',
+            'Bruijn',
+            'First names',
+            'Willeke Liselotte',
+            'Full name',
+            'W.L. de Bruijn',
+            'Gender',
+            'V',
+            'Initials',
+            'W.L.',
+            'Dutch nationality',
+            'Yes',
+            'Over 12',
+            'Yes',
+            'Over 16',
+            'Yes',
+            'Over 18',
+            'Yes',
+            'Over 21',
+            'Yes',
+            'Over 65',
+            'No',
+            'Prefix',
+            'de',
+            'Surname',
+            'de Bruijn'
+          ],
+        );
 
-        // // Assert if the values are present and sorted correctly
-        // expect(
-        //   cardAttributes,
-        //   [
-        //     'Full name',
-        //     'W.L. de Bruijn',
-        //     'Initials',
-        //     'W.L.',
-        //     'First names',
-        //     'Willeke Liselotte',
-        //     'Prefix',
-        //     'de',
-        //     'Surname',
-        //     'de Bruijn',
-        //     'Family name',
-        //     'Bruijn',
-        //     'Gender',
-        //     'V',
-        //     'Date of birth',
-        //     '10-04-1965',
-        //     'Over 12',
-        //     'Yes',
-        //     'Over 16',
-        //     'Yes',
-        //     'Over 18',
-        //     'Yes',
-        //     'Over 21',
-        //     'Yes',
-        //     'Over 65',
-        //     'No',
-        //     'Dutch nationality',
-        //     'Yes',
-        //     'City of birth',
-        //     'Amsterdam',
-        //     'Country of birth',
-        //     'Nederland',
-        //     'BSN',
-        //     '999999990',
-        //     'Assurance level',
-        //     'Substantieel',
-        //   ],
-        // );
-
-        // // Check the address card.
-        // // Get all the text in the attribute list
-        // final personalCardAttributes = tester
-        //     .getAllText(find.descendant(
-        //       of: tester.findByTypeWithContent(type: IrmaCredentialCard, content: find.text('Demo Address')),
-        //       matching: find.byType(IrmaCredentialCardAttributeList),
-        //     ))
-        //     .toList();
-
-        // // Assert if the values are present and sorted correctly
-        // expect(
-        //   personalCardAttributes,
-        //   [
-        //     'Street',
-        //     'Meander',
-        //     'House number',
-        //     '501',
-        //     'Postal code',
-        //     '1234AB',
-        //     'City',
-        //     'Arnhem',
-        //     'Municipality',
-        //     'Arnhem',
-        //   ],
-        // );
-
-        // // Return to the home
-        // await tester.tapAndSettle(find.text('Back'));
-        // expect(find.byType(HomeScreen), findsOneWidget);
+        // Find the activity timestamp
+        final timestampFinder = find.byKey(const Key('activity_timestamp'));
+        await tester.scrollUntilVisible(timestampFinder, 50);
+        expect(timestampFinder, findsOneWidget);
       },
+      timeout: const Timeout(
+        Duration(minutes: 1),
+      ),
     );
   });
 }
