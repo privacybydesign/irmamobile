@@ -25,6 +25,7 @@ cache:
 lint:dart:
   script:
     - flutter format --line-length=120 --set-exit-if-changed lib/ test/ integration_test/
+    - flutter analyze --no-fatal-infos
   stage: lint
 
 unit_test:flutter:
