@@ -33,7 +33,7 @@ extension WidgetTesterUtil on WidgetTester {
     await dragUntilVisible(
       find.byKey(const Key('log_out_button'), skipOffstage: false),
       find.byType(ListView),
-      const Offset(0, -50),
+      const Offset(0, -75),
       maxIteration: 10,
     );
     final logoutKeyFinder = find.byKey(const Key('log_out_button'), skipOffstage: false);
