@@ -1,3 +1,9 @@
+lane :lint do
+  sh("flutter", "format", "--line-length=120", "--set-exit-if-changed", "lib/", "test/", "integration_test/")
+  # TODO: Remove --no-fatal-warnings option when all warnings are resolved.
+  sh("flutter", "analyze", "--no-fatal-infos", "--no-fatal-warnings")
+end
+
 lane :alpha_resign do
   apks = Dir['../build/app/outputs/apk/alpha/release/*.apk']
   apks.each do |apk|
