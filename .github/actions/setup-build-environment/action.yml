@@ -14,20 +14,21 @@ runs:
       with:
         ruby-version: 2.7
         bundler-cache: true
-    - uses: actions/cache@v3
-      with:
-        path: ./build_tools/
-        key: ${{ runner.os }}-${{ hashFiles('ci_scripts/*') }}
     - name: Set environment variables
-      env:
-        ANDROID_HOME: ${{ github.workspace }}/build_tools/android-sdk
-        FLUTTER_HOME: ${{ github.workspace }}/build_tools/flutter
       run: |
+        ANDROID_HOME=~/android-sdk
+        FLUTTER_HOME=~/flutter
         echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
         echo "FLUTTER_HOME=$FLUTTER_HOME" >> $GITHUB_ENV
         echo "$ANDROID_HOME/cmdline-tools/bin" >> $GITHUB_PATH
         echo "$FLUTTER_HOME/bin" >> $GITHUB_PATH
       shell: bash
+    - uses: actions/cache@v3
+      with:
+        path: |
+          ${{ env.ANDROID_HOME }}
+          ${{ env.FLUTTER_HOME }}
+        key: ${{ runner.os }}-${{ hashFiles('ci_scripts/*') }}
     - name: Ensure Android SDK is installed
       run: ./ci_scripts/install_android_sdk.sh
       shell: bash
