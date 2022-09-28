@@ -537,7 +537,6 @@
         "valid_until": "Valid until: {date}",
         "expires_on": "Expires on {date}",
         "expired_on": "Expired on {date}",
-        "revoked_on": "Revoked on {date}",
         "date_at_time": "{date} at {time}",
         "options": {
             "title": "Options",

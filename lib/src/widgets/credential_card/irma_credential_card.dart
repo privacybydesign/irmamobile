@@ -105,11 +105,12 @@ class IrmaCredentialCard extends StatelessWidget {
       footerTextKey = 'credential.expires_on';
     } else if (isExpired) {
       footerTextKey = 'credential.expired_on';
-    } else if (revoked) {
-      footerTextKey = 'credential.revoked_on';
     } else {
       footerTextKey = 'credential.valid_until';
     }
+
+    final obtainable = (isExpired || isExpiringSoon || revoked)
+      && credentialInfo.credentialType.issueUrl.isNotEmpty;
 
     return IrmaCard(
       style: isExpired || revoked ? IrmaCardStyle.disabled : style,
@@ -136,27 +137,28 @@ class IrmaCredentialCard extends StatelessWidget {
               compareTo: compareTo,
             ),
           ],
-          if (!hideFooter && expiryDate?.dateTime != null) ...[
+          if (!hideFooter) ...[
             IrmaDivider(
-              isDisabled: isExpired,
+              isDisabled: obtainable,
             ),
             SizedBox(
               height: IrmaTheme.of(context).tinySpacing,
             ),
             IrmaCredentialCardFooter(
               credentialType: credentialInfo.credentialType,
-              text: FlutterI18n.translate(
-                context,
-                footerTextKey,
-                translationParams: {
-                  'date': printableDate(
-                    expiryDate!.dateTime!,
-                    lang,
-                  ),
-                },
-              ),
-              isObtainable:
-                  (isExpired || isExpiringSoon || revoked) && credentialInfo.credentialType.issueUrl.isNotEmpty,
+              text: (expiryDate?.dateTime != null)
+                  ? FlutterI18n.translate(
+                      context,
+                      footerTextKey,
+                      translationParams: {
+                        'date': printableDate(
+                          expiryDate!.dateTime!,
+                          lang,
+                        ),
+                      },
+                    )
+                  : null,
+              isObtainable: obtainable,
             )
           ]
         ],

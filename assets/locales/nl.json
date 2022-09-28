@@ -537,7 +537,6 @@
         "valid_until": "Geldig tot: {date}",
         "expires_on": "Verloopt op: {date}",
         "expired_on": "Verlopen op {date}",
-        "revoked_on": "Ingetrokken op {date}",
         "date_at_time": "{date} om {time}",
         "options": {
             "title": "Opties",
