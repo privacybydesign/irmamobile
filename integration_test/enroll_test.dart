@@ -12,7 +12,6 @@ import 'package:irmamobile/src/screens/enrollment/accept_terms/accept_terms_scre
 import 'package:irmamobile/src/screens/enrollment/choose_pin/choose_pin_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/confirm_pin/confirm_pin_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
-import 'package:irmamobile/src/screens/enrollment/provide_email/email_sent_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/enrollment_instruction.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';

@@ -6,12 +6,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:irmamobile/main.dart';
-import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
-import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
 import 'package:flutter/foundation.dart';
-import 'package:irmamobile/src/screens/settings/settings_switch_list_tile.dart';
 
 import 'helpers.dart';
 import 'irma_binding.dart';
