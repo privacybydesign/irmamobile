@@ -16,4 +16,4 @@ jobs:
           submodules: true
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
-      - run: fastlane lint
+      - run: bundle exec fastlane lint
