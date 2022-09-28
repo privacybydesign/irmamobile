@@ -23,7 +23,17 @@ class AddDataScreen extends StatelessWidget {
 
   static const _logoContainerSize = 48.0;
 
-  Widget _buildAddedCredentialTypeItem(BuildContext context, Issuer issuer, CredentialType credType) {
+  Widget _buildAddedCredentialTypeItem(
+    BuildContext context,
+    Issuer issuer,
+    CredentialType credType,
+    Credentials credentials,
+  ) {
+    bool obtained = credentials.values.any((cred) => cred.info.fullId == credType.fullId);
+    if (credType.isSingleton && obtained) {
+      return const SizedBox();
+    }
+
     final logoFile = File(credType.logo ?? '');
     final theme = IrmaTheme.of(context);
     return IrmaCard(
@@ -35,16 +45,29 @@ class AddDataScreen extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
-            padding: EdgeInsets.all(theme.smallSpacing),
-            height: _logoContainerSize,
-            width: _logoContainerSize,
-            child: logoFile.existsSync()
-                ? SizedBox(
-                    height: _logoContainerSize / 2,
-                    child: Image.file(logoFile, excludeFromSemantics: true),
-                  )
-                : null,
+          Stack(
+            alignment: Alignment.topRight,
+            children: [
+              Container(
+                padding: EdgeInsets.all(theme.smallSpacing),
+                height: _logoContainerSize,
+                width: _logoContainerSize,
+                child: logoFile.existsSync()
+                    ? SizedBox(
+                        height: _logoContainerSize / 2,
+                        child: Image.file(logoFile, excludeFromSemantics: true),
+                      )
+                    : null,
+              ),
+              Visibility(
+                visible: obtained,
+                child: Icon(
+                  Icons.check_circle,
+                  color: theme.success,
+                  size: _logoContainerSize * 0.3,
+                ),
+              ),
+            ],
           ),
           SizedBox(width: theme.smallSpacing),
           Expanded(
@@ -122,13 +145,12 @@ class AddDataScreen extends StatelessWidget {
                       style: theme.textTheme.headline3,
                     ),
                     for (final credType in credentialTypesByCategory[category]!)
-                      if (!(credType.isSingleton &&
-                          credentials.values.any((cred) => cred.info.fullId == credType.fullId)))
-                        _buildAddedCredentialTypeItem(
-                          context,
-                          irmaConfiguration.issuers[credType.fullIssuerId]!,
-                          credType,
-                        ),
+                      _buildAddedCredentialTypeItem(
+                        context,
+                        irmaConfiguration.issuers[credType.fullIssuerId]!,
+                        credType,
+                        credentials,
+                      ),
                     SizedBox(height: theme.defaultSpacing),
                   ]
                 ],
