@@ -7,13 +7,59 @@ on:
   pull_request:
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
+  setup-build-environment:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest ]
+    runs-on: ${{ matrix.os }}
+    concurrency: setup-build-environment-${{ runner.os }}-${{ hashFiles('ci_scripts/*') }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
-        with:
-          submodules: true
+      # The setup-build-environment action caches the results, so we don't have to upload the artifacts.
+      - name: Setup build environment
+        uses: ./.github/actions/setup-build-environment
+  lint:
+    runs-on: ubuntu-latest
+    needs: setup-build-environment
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
       - run: bundle exec fastlane lint
+  unit-test:
+    runs-on: ubuntu-latest
+    needs: setup-build-environment
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Setup build environment
+        uses: ./.github/actions/setup-build-environment
+      - run: bundle exec fastlane unit_test
+  build-irmagobridge-ios:
+    runs-on: macos-latest
+    needs: setup-build-environment
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Setup build environment
+        uses: ./.github/actions/setup-build-environment
+      - run: bundle exec fastlane build_irmagobridge_ios
+      - uses: actions/upload-artifact@v3
+        with:
+          name: irmagobridge-ios
+          path: ios/Runner/Irmagobridge.xcframework/
+  build-irmagobridge-android:
+    runs-on: ubuntu-latest
+    needs: setup-build-environment
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Setup build environment
+        uses: ./.github/actions/setup-build-environment
+      - run: bundle exec fastlane build_irmagobridge_android
+      - uses: actions/upload-artifact@v3
+        with:
+          name: irmagobridge-android
+          path: android/irmagobridge/irmagobridge.aar
