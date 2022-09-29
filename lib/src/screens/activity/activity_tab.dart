@@ -126,15 +126,7 @@ class _ActivityTabState extends State<ActivityTab> {
           ),
         ];
       },
-    ).flattened.toList()
-      ..add(
-        Padding(
-          padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
-          child: Center(
-            child: _listStateIndicator(),
-          ),
-        ),
-      );
+    ).flattened.toList();
 
     return ListView(
       controller: _scrollController,
@@ -142,7 +134,15 @@ class _ActivityTabState extends State<ActivityTab> {
         vertical: theme.smallSpacing,
         horizontal: theme.defaultSpacing,
       ),
-      children: groupedItems,
+      children: [
+        ...groupedItems,
+        Padding(
+          padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
+          child: Center(
+            child: _listStateIndicator(),
+          ),
+        ),
+      ],
     );
   }
 
