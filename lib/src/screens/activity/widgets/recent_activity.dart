@@ -60,7 +60,6 @@ class _RecentActivityState extends State<RecentActivity> {
   List<Widget> _decorateForHomeTab(BuildContext context, Widget child) {
     final theme = IrmaTheme.of(context);
     return [
-      //Recent activity
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -69,6 +68,7 @@ class _RecentActivityState extends State<RecentActivity> {
             style: theme.textTheme.headline4,
           ),
           GestureDetector(
+            key: const Key('home_recent_activity_link'),
             onTap: widget.onTap,
             child: TranslatedText('home_tab.view_more', style: theme.hyperlinkTextStyle),
           )

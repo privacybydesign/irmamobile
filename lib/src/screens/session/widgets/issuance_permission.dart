@@ -26,7 +26,6 @@ class IssuancePermission extends StatelessWidget {
   Widget _buildNavigationBar(BuildContext context) {
     return satisfiable
         ? IrmaBottomBar(
-            key: const Key('issuance_accept'),
             primaryButtonLabel: FlutterI18n.translate(context, 'issuance.add'),
             onPrimaryPressed: () => onGivePermission?.call(),
             secondaryButtonLabel: FlutterI18n.translate(context, 'issuance.cancel'),

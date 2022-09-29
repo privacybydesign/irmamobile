@@ -45,6 +45,7 @@ class HomeTab extends StatelessWidget {
           ),
           SizedBox(height: theme.defaultSpacing),
           IrmaActionCard(
+            key: const Key('home_action_share'),
             titleKey: 'home_tab.action_card.share.title',
             subtitleKey: 'home_tab.action_card.share.subtitle',
             onTap: () => Navigator.of(context).pushNamed(ScannerScreen.routeName),
@@ -53,6 +54,7 @@ class HomeTab extends StatelessWidget {
           ),
           SizedBox(height: theme.defaultSpacing),
           IrmaActionCard(
+            key: const Key('home_action_fetch'),
             titleKey: 'home_tab.action_card.fetch.title',
             subtitleKey: 'home_tab.action_card.fetch.subtitle',
             onTap: () => Navigator.of(context).pushNamed(AddDataScreen.routeName),
@@ -72,6 +74,7 @@ class HomeTab extends StatelessWidget {
           ),
           SizedBox(height: theme.defaultSpacing),
           const IrmaInfoCard(
+            key: Key('home_info_safety'),
             titleKey: 'home_tab.info_card.safety.title',
             bodyKey: 'home_tab.info_card.safety.body',
             avatar: Icon(Icons.shield_outlined, size: 32),
@@ -79,6 +82,7 @@ class HomeTab extends StatelessWidget {
           ),
           SizedBox(height: theme.smallSpacing),
           IrmaInfoCard(
+            key: const Key('home_info_about'),
             titleKey: 'home_tab.info_card.about.title',
             bodyKey: 'home_tab.info_card.about.body',
             avatar: SvgPicture.asset('assets/non-free/logo.svg'),
