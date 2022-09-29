@@ -138,7 +138,7 @@ class IrmaCredentialCard extends StatelessWidget {
           ],
           if (!hideFooter) ...[
             IrmaDivider(
-              isDisabled: obtainable,
+              isDisabled: isExpired || revoked,
             ),
             SizedBox(
               height: IrmaTheme.of(context).tinySpacing,
