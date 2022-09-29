@@ -53,8 +53,8 @@ void main() {
       );
 
       // Recent activity
-      expect(find.text('Recent activity'), findsOneWidget);
-      expect(find.text('View more'), findsOneWidget);
+      expect(find.text('Recent activity'), findsNothing);
+      expect(find.text('View more'), findsNothing);
 
       // More information
       expect(find.text('More information'), findsOneWidget);

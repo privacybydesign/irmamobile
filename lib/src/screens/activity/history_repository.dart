@@ -23,12 +23,16 @@ class HistoryState {
   });
 
   HistoryState copyWith({
+    required IrmaRepository repo,
     List<LogEntry>? logEntries,
     bool? loading,
     bool? moreLogsAvailable,
   }) {
+    bool containsKeyshareCredential(LogEntry e) => e.issuedCredentials.any(
+        (c) => Credential.fromRaw(irmaConfiguration: repo.irmaConfiguration, rawCredential: c).isKeyshareCredential);
+
     return HistoryState(
-      logEntries: logEntries ?? this.logEntries,
+      logEntries: (logEntries ?? this.logEntries)..removeWhere(containsKeyshareCredential),
       loading: loading ?? this.loading,
       moreLogsAvailable: moreLogsAvailable ?? this.moreLogsAvailable,
     );
@@ -43,19 +47,13 @@ class HistoryRepository {
   final _historyStateSubject = BehaviorSubject<HistoryState>();
   late StreamSubscription _historyStateSubscription;
 
-  bool containsKeyshareCredential(LogEntry e) {
-    e.issuedCredentials.any(
-        (c) => Credential.fromRaw(irmaConfiguration: repo.irmaConfiguration, rawCredential: c).isKeyshareCredential);
-    return true;
-  }
-
   HistoryRepository() {
     _historyStateSubscription = repo.getEvents().scan<HistoryState>((prevState, event, _) {
       if (event is LoadLogsEvent) {
         return prevState.copyWith(
+          repo: repo,
           loading: true,
-          logEntries: event.before == null ? [] : prevState.logEntries
-            ..removeWhere(containsKeyshareCredential), // repeat hack when reloading
+          logEntries: event.before == null ? [] : prevState.logEntries,
         );
       } else if (event is LogsEvent) {
         // Some legacy log formats don't specify a serverName. For disclosing and signing logs this is an issue,
@@ -67,6 +65,7 @@ class HistoryRepository {
         final logEntries = prevState.logEntries..addAll(supportedLogEntries);
 
         return prevState.copyWith(
+          repo: repo,
           loading: false,
           logEntries: logEntries,
           moreLogsAvailable: event.logEntries.isEmpty,
@@ -74,13 +73,7 @@ class HistoryRepository {
       }
 
       return prevState;
-    }, HistoryState()).doOnEach((i) {
-      // hack to remove logged keyshare credential events
-      // if filtered out post-listen, then the widgets will redraw
-      if (i.requireData.logEntries.isNotEmpty) {
-        i.requireData.logEntries.removeWhere(containsKeyshareCredential);
-      }
-    }).listen((historyState) {
+    }, HistoryState()).listen((historyState) {
       _historyStateSubject.add(historyState);
     });
   }

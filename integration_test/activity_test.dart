@@ -2,8 +2,10 @@
 // @dart=2.11
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+
 import 'package:irmamobile/src/screens/activity/activity_detail_screen.dart';
 import 'package:irmamobile/src/screens/activity/widgets/activity_detail_issuance.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
@@ -27,6 +29,12 @@ void main() {
       'issuance',
       (tester) async {
         await pumpAndUnlockApp(tester, irmaBinding.repository);
+
+        await tester.tap(find.byKey(const Key('nav_button_activity')));
+        await tester.pump(const Duration(seconds: 1));
+
+        expect(find.text('No activities were logged.'), findsOneWidget);
+
         await issueMunicipalityCards(tester, irmaBinding);
 
         await tester.tap(find.byKey(const Key('nav_button_activity')));
