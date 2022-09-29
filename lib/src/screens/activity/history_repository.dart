@@ -4,6 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../../data/irma_repository.dart';
+import '../../models/credentials.dart';
 import '../../models/log_entry.dart';
 
 class LogEntries extends UnmodifiableListView<LogEntry> {
@@ -42,13 +43,19 @@ class HistoryRepository {
   final _historyStateSubject = BehaviorSubject<HistoryState>();
   late StreamSubscription _historyStateSubscription;
 
+  bool containsKeyshareCredential(LogEntry e) {
+    e.issuedCredentials.any(
+        (c) => Credential.fromRaw(irmaConfiguration: repo.irmaConfiguration, rawCredential: c).isKeyshareCredential);
+    return true;
+  }
+
   HistoryRepository() {
     _historyStateSubscription = repo.getEvents().scan<HistoryState>((prevState, event, _) {
       if (event is LoadLogsEvent) {
         return prevState.copyWith(
           loading: true,
           logEntries: event.before == null ? [] : prevState.logEntries
-            ..removeWhere((e) => e.id == 1), // repeat hack when reloading
+            ..removeWhere(containsKeyshareCredential), // repeat hack when reloading
         );
       } else if (event is LogsEvent) {
         // Some legacy log formats don't specify a serverName. For disclosing and signing logs this is an issue,
@@ -68,10 +75,10 @@ class HistoryRepository {
 
       return prevState;
     }, HistoryState()).doOnEach((i) {
-      // hack to remove first logged event
+      // hack to remove logged keyshare credential events
       // if filtered out post-listen, then the widgets will redraw
       if (i.requireData.logEntries.isNotEmpty) {
-        i.requireData.logEntries.removeWhere((e) => e.id == 1);
+        i.requireData.logEntries.removeWhere(containsKeyshareCredential);
       }
     }).listen((historyState) {
       _historyStateSubject.add(historyState);
