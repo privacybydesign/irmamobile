@@ -101,10 +101,10 @@ class IrmaCredentialCard extends StatelessWidget {
     final isExpiringSoon = expiryDate?.expiresSoon ?? false;
 
     String footerTextKey;
-    if (isExpiringSoon) {
-      footerTextKey = 'credential.expires_on';
-    } else if (isExpired) {
+    if (isExpired) {
       footerTextKey = 'credential.expired_on';
+    } else if (isExpiringSoon) {
+      footerTextKey = 'credential.expires_on';
     } else {
       footerTextKey = 'credential.valid_until';
     }
