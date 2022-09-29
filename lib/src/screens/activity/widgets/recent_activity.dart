@@ -80,8 +80,8 @@ class _RecentActivityState extends State<RecentActivity> {
     ];
   }
 
-  Widget _buildLogEntries(BuildContext context) {
-    return StreamBuilder<CombinedState2<IrmaConfiguration, HistoryState>>(
+  @override
+  Widget build(BuildContext context) => StreamBuilder<CombinedState2<IrmaConfiguration, HistoryState>>(
       stream: combine2(_historyRepo.repo.getIrmaConfiguration(), _historyRepo.getHistoryState()),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
@@ -95,32 +95,22 @@ class _RecentActivityState extends State<RecentActivity> {
           return Container();
         }
 
-        return Visibility(
-          visible: logEntries.isNotEmpty,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: _decorateForHomeTab(
-              context,
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: logEntries
-                    .map(
-                      (logEntry) => ActivityCard(
-                        logEntry: logEntry,
-                        irmaConfiguration: irmaConfiguration,
-                      ),
-                    )
-                    .toList(),
-              ),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: _decorateForHomeTab(
+            context,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: logEntries
+                  .map(
+                    (logEntry) => ActivityCard(
+                      logEntry: logEntry,
+                      irmaConfiguration: irmaConfiguration,
+                    ),
+                  )
+                  .toList(),
             ),
           ),
         );
-      },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return _buildLogEntries(context);
-  }
+      });
 }
