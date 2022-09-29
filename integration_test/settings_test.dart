@@ -120,9 +120,13 @@ void main() {
       await enterPin(tester, '54321');
 
       // Next button
-      var nextButtonFinder = find.byKey(
-        const Key('pin_next'),
-      );
+      var nextButtonFinder = find
+          .byKey(
+            const Key('pin_next'),
+          )
+          .hitTestable();
+
+      await tester.waitFor(nextButtonFinder);
       await tester.ensureVisible(nextButtonFinder);
       await tester.tapAndSettle(nextButtonFinder);
 

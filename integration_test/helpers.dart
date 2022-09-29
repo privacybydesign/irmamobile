@@ -27,8 +27,11 @@ Future<void> unlock(WidgetTester tester) async {
 Future<void> enterPin(WidgetTester tester, String pin) async {
   final splitPin = pin.split('');
   for (final digit in splitPin) {
-    await tester.tapAndSettle(find.byKey(Key('number_pad_key_${digit.toString()}')));
+    await tester.tapAndSettle(
+      find.byKey(Key('number_pad_key_${digit.toString()}')),
+    );
   }
+  await tester.pumpAndSettle(const Duration(seconds: 1));
 }
 
 // Pump a new app and unlock it
