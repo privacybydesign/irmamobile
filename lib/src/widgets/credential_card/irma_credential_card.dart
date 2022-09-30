@@ -130,7 +130,7 @@ class IrmaCredentialCard extends StatelessWidget {
           ),
           // If there are attributes in this credential, then we show the attribute list
           if (attributes.any((att) => att.value is! NullValue)) ...[
-            IrmaDivider(isDisabled: isExpired),
+            IrmaDivider(isDisabled: isExpired || revoked),
             IrmaCredentialCardAttributeList(
               attributes,
               compareTo: compareTo,
@@ -145,7 +145,7 @@ class IrmaCredentialCard extends StatelessWidget {
             ),
             IrmaCredentialCardFooter(
               credentialType: credentialInfo.credentialType,
-              text: (expiryDate?.dateTime != null)
+              text: (!revoked && expiryDate?.dateTime != null)
                   ? FlutterI18n.translate(
                       context,
                       footerTextKey,
