@@ -55,8 +55,11 @@
             }
         },
         "terms_and_conditions": {
-            "title": "Start met Yivi",
-            "explanation": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do ab tempor incididunt ut labore et dolore magna aliqua.",
+            "title": "Onze voorwaarden",
+            "explanation_markdown": "Dit zijn de drie belangrijkste punten van onze voorwaarde. Lees hier de [algemene voorwaarden](https://privacybydesign.foundation/privacy-policy/) in zijn totaal.",
+            "point_1": "Jij beslist welke persoonlijke gegevens je veilig bewaart in Yivi.",
+            "point_2": "Jij beslist welke gegevens je met wie deelt.",
+            "point_3": "Niemand kan zonder jouw toestemming bij je gegevens, ook Yivi niet.",
             "accept_markdown": "Ja, ik ga akkoord met de [algemene voorwaarden](https://privacybydesign.foundation/privacy-policy/)"
         },
         "submit": {
