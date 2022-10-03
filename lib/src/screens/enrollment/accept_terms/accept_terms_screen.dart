@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/screens/enrollment/accept_terms/widgets/terms_bullet_list.dart';
-import 'package:irmamobile/src/widgets/bullet_list.dart';
-import 'package:irmamobile/src/screens/enrollment/accept_terms/widgets/terms_check_box.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/irma_markdown.dart';
 
+import '../../../theme/theme.dart';
+import '../../../widgets/irma_markdown.dart';
 import '../../../widgets/translated_text.dart';
 import '../widgets/enrollment_nav_bar.dart';
+import 'widgets/terms_bullet_list.dart';
+import 'widgets/terms_check_box.dart';
 
 class AcceptTermsScreen extends StatelessWidget {
   static const String routeName = 'terms';
@@ -42,6 +41,7 @@ class AcceptTermsScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Title
+                        SizedBox(height: theme.mediumSpacing),
                         TranslatedText(
                           'enrollment.terms_and_conditions.title',
                           style: theme.textTheme.headline1,
@@ -58,7 +58,6 @@ class AcceptTermsScreen extends StatelessWidget {
                         ),
                         SizedBox(height: theme.mediumSpacing),
 
-                        // Bullet points
                         TermsBulletList(),
                         const Spacer(),
 
