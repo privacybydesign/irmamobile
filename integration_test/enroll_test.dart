@@ -119,6 +119,7 @@ void main() {
     testWidgets('choose-pin', (tester) async {
       await _initEnrollment(tester);
       await _goThroughIntroduction(tester);
+      await _goThroughTerms(tester);
 
       //Choose the pin
       expect(find.byType(ChoosePinScreen), findsOneWidget);
@@ -162,7 +163,6 @@ void main() {
       (tester) async {
         await _initEnrollment(tester);
         await _goThroughIntroduction(tester);
-        await _goThroughChoosePin(tester);
         expect(find.byType(AcceptTermsScreen), findsOneWidget);
 
         // Next button should be disabled by default
@@ -189,8 +189,8 @@ void main() {
       Future<void> _goToEmailScreen(WidgetTester tester) async {
         await _initEnrollment(tester);
         await _goThroughIntroduction(tester);
-        await _goThroughChoosePin(tester);
         await _goThroughTerms(tester);
+        await _goThroughChoosePin(tester);
       }
 
       testWidgets(
