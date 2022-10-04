@@ -25,6 +25,10 @@ runs:
         echo "$FLUTTER_HOME/bin" >> $GITHUB_PATH
       shell: bash
     - uses: actions/cache@v3
+      # If we cannot download the cached content from GitHub within 5 minutes, then
+      # we continue like there was no cache hit.
+      env:
+        SEGMENT_DOWNLOAD_TIMEOUT_MINS: '5'
       with:
         path: |
           ${{ env.ANDROID_HOME }}
