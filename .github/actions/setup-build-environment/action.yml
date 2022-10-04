@@ -13,7 +13,8 @@ runs:
     - uses: ruby/setup-ruby@v1
       with:
         ruby-version: 2.7
-        bundler-cache: true
+    - run: bundle install
+      shell: bash
     - name: Set environment variables
       run: |
         ANDROID_HOME=~/android-sdk
