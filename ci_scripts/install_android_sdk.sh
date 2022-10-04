@@ -34,7 +34,7 @@ fi
 mkdir -p "$ANDROID_HOME"
 pushd "$ANDROID_HOME"
 wget -q -O sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip
-echo "${ANDROID_SDK_CHECKSUM} sdk.zip" | sha256sum -c
+shasum -a 256 -c - <<< "${ANDROID_SDK_CHECKSUM}  sdk.zip"
 
 unzip -q sdk.zip -d "$ANDROID_HOME"
 rm sdk.zip

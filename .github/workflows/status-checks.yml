@@ -1,4 +1,5 @@
 # Workflow to check whether changes to master fulfill all requirements.
+# We execute build stages in separate jobs to prevent artifact duplication.
 name: Status checks
 
 on:
@@ -7,7 +8,7 @@ on:
   pull_request:
 
 concurrency:
-  group: status-checks-${{ github.ref }}
+  group: ${{ github.ref }}
   cancel-in-progress: true
 
 jobs:

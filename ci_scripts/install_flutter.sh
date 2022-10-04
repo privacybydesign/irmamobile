@@ -22,11 +22,11 @@ if ! [ -x "$(command -v "flutter")" ]; then
   pushd "$FLUTTER_HOME"
   if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     wget -q -O ./flutter.tar.xz https://storage.googleapis.com/flutter_infra_release/releases/${FLUTTER_CHANNEL}/linux/flutter_linux_${FLUTTER_VERSION}-${FLUTTER_CHANNEL}.tar.xz
-    echo "${FLUTTER_CHECKSUM_LINUX}  flutter.tar.xz" | sha256sum -c
+    shasum -a 256 -c - <<< "${FLUTTER_CHECKSUM_LINUX}  flutter.tar.xz"
     tar xf flutter.tar.xz
   elif [[ "$OSTYPE" == "darwin"* ]]; then
     wget -q -O ./flutter.zip https://storage.googleapis.com/flutter_infra_release/releases/${FLUTTER_CHANNEL}/macos/flutter_macos_${FLUTTER_VERSION}-${FLUTTER_CHANNEL}.zip
-    echo "${FLUTTER_CHECKSUM_MACOS}  flutter.zip" | sha256sum -c
+    shasum -a 256 -c - <<< "${FLUTTER_CHECKSUM_MACOS}  flutter.zip"
     unzip -q flutter.zip
   else
     echo "Unsupported operating system $OSTYPE"
