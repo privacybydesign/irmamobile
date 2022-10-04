@@ -53,11 +53,30 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
         if (state.currentStepIndex < IntroductionScreen.introductionSteps.length - 1) {
           yield EnrollmentIntroduction(currentStepIndex: state.currentStepIndex + 1);
         } else {
-          yield EnrollmentChoosePin();
+          yield EnrollmentAcceptTerms();
         }
       } else if (event is EnrollmentPreviousPressed) {
         yield EnrollmentIntroduction(
           currentStepIndex: state.currentStepIndex > 0 ? state.currentStepIndex - 1 : 0,
+        );
+      }
+    }
+    // Accept terms
+    else if (state is EnrollmentAcceptTerms) {
+      if (event is EnrollmentNextPressed) {
+        if (!state.isAccepted) {
+          throw ('Continuing without accepting the terms is not possible');
+        }
+        yield EnrollmentChoosePin();
+      } else if (event is EnrollmentPreviousPressed) {
+        yield EnrollmentIntroduction(
+          currentStepIndex: IntroductionScreen.introductionSteps.length - 1,
+        );
+      }
+      // Terms are toggled
+      else if (event is EnrollmentTermsUpdated) {
+        yield EnrollmentAcceptTerms(
+          isAccepted: event.isAccepted,
         );
       }
     }
@@ -67,8 +86,8 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
         _pin = event.pin;
         yield EnrollmentConfirmPin();
       } else if (event is EnrollmentPreviousPressed) {
-        yield EnrollmentIntroduction(
-          currentStepIndex: IntroductionScreen.introductionSteps.length - 1,
+        yield EnrollmentAcceptTerms(
+          isAccepted: true,
         );
       }
     }
@@ -79,7 +98,7 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
       }
       if (event is EnrollmentPinConfirmed) {
         if (_pin == event.pin) {
-          yield EnrollmentAcceptTerms();
+          yield EnrollmentProvideEmail();
         } else {
           yield EnrollmentConfirmPin(
             confirmationFailed: true,
@@ -89,23 +108,7 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
         yield EnrollmentChoosePin();
       }
     }
-    // Accept terms
-    else if (state is EnrollmentAcceptTerms) {
-      if (event is EnrollmentNextPressed) {
-        if (!state.isAccepted) {
-          throw ('Continuing without accepting the terms is not possible');
-        }
-        yield EnrollmentProvideEmail();
-      } else if (event is EnrollmentPreviousPressed) {
-        yield EnrollmentChoosePin();
-      }
-      // Terms are toggled
-      else if (event is EnrollmentTermsUpdated) {
-        yield EnrollmentAcceptTerms(
-          isAccepted: event.isAccepted,
-        );
-      }
-    }
+
     // Provide email
     else if (state is EnrollmentProvideEmail) {
       if (event is EnrollmentEmailProvided || event is EnrollmentEmailSkipped) {
@@ -114,9 +117,7 @@ class EnrollmentBloc extends Bloc<EnrollmentBlocEvent, EnrollmentState> {
         yield await _enroll();
       }
       if (event is EnrollmentPreviousPressed) {
-        yield EnrollmentAcceptTerms(
-          isAccepted: true,
-        );
+        yield EnrollmentChoosePin();
       }
     } else if (state is EnrollmentEmailSent) {
       if (event is EnrollmentNextPressed) {
