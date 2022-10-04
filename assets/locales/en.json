@@ -530,7 +530,8 @@
         "shared_with": "Shared with",
         "shared_data": "Shared data",
         "received_data": "Received data",
-        "deleted_data": "Deleted data"
+        "deleted_data": "Deleted data",
+        "empty_placeholder": "No activities were logged."
     },
     "credential": {
         "no_data": "No data",

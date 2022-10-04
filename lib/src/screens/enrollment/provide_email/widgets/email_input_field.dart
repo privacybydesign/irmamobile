@@ -17,6 +17,7 @@ class EmailInputField extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return TextFormField(
+      key: const Key('email_input_field'),
       controller: controller,
       keyboardType: TextInputType.emailAddress,
       autofillHints: const [AutofillHints.email],

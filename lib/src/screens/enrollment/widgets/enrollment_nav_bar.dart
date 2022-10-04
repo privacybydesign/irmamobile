@@ -33,6 +33,7 @@ class EnrollmentNavBar extends StatelessWidget {
             child: onPrevious == null
                 ? Container()
                 : IrmaTextButton(
+                    key: const Key('enrollment_previous_button'),
                     label: 'ui.previous',
                     textStyle: theme.hyperlinkTextStyle,
                     onPressed: onPrevious,
@@ -43,6 +44,7 @@ class EnrollmentNavBar extends StatelessWidget {
           // Next button
           Flexible(
             child: IrmaButton(
+              key: const Key('enrollment_next_button'),
               label: 'ui.next',
               onPressed: onContinue,
               size: IrmaButtonSize.large,

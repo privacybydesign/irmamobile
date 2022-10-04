@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:native_device_orientation/native_device_orientation.dart';
+
+import 'package:irmamobile/src/screens/home/home_screen.dart';
 
 import '../../../widgets/irma_info_scaffold_body.dart';
 
@@ -39,6 +42,7 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance?.addObserver(this);
     _forcePortraitOrientation();
   }
 
@@ -95,7 +99,7 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     // If the app is resumed remove the route with this screen from the stack.
     if (state == AppLifecycleState.resumed) {
-      Navigator.of(context).removeRoute(ModalRoute.of(context)!);
+      Navigator.of(context).popUntil(ModalRoute.withName(HomeScreen.routeName));
     }
   }
 }

@@ -65,7 +65,7 @@ class VersionButton extends StatelessWidget {
                     if (credentials.hasData) {
                       final keyShareCred =
                           credentials.data?.values.firstWhereOrNull((cred) => cred.isKeyshareCredential);
-                      appId = keyShareCred?.attributes.values.first.raw;
+                      appId = keyShareCred?.attributes.first.value.raw;
                     }
                     return TranslatedText(
                       'more_tab.app_id',

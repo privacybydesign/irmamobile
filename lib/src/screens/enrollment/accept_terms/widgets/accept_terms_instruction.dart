@@ -48,12 +48,12 @@ class AcceptTermsInstruction extends StatelessWidget {
                 SizedBox(
                   height: theme.defaultSpacing,
                 ),
-
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Checkbox(
+                      key: const Key('accept_terms_checkbox'),
                       value: isAccepted,
                       fillColor: MaterialStateColor.resolveWith((_) => theme.themeData.colorScheme.secondary),
                       onChanged: (isAccepted) => onToggleAccepted(

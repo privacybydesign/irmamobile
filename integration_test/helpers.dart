@@ -1,25 +1,46 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:irmamobile/src/screens/home/home_screen.dart';
+
+import 'package:irmamobile/main.dart';
+import 'package:irmamobile/src/data/irma_repository.dart';
+import 'package:irmamobile/src/screens/home/home_tab.dart';
+import 'package:irmamobile/src/screens/session/widgets/issuance_permission.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_attribute_list.dart';
-import 'package:irmamobile/src/widgets/irma_button.dart';
 
 import 'irma_binding.dart';
 import 'util.dart';
 
 /// Unlocks the IRMA app and waits until the wallet is displayed.
 Future<void> unlock(WidgetTester tester) async {
-  final pin = [1, 2, 3, 4, 5];
-  for (final digit in pin) {
-    await tester.tapAndSettle(find.byKey(Key('number_pad_key_${digit.toString()}')));
+  await enterPin(tester, '12345');
+  await tester.waitFor(find.byType(HomeTab).hitTestable());
+}
+
+Future<void> enterPin(WidgetTester tester, String pin) async {
+  final splitPin = pin.split('');
+  for (final digit in splitPin) {
+    await tester.tapAndSettle(
+      find.byKey(Key('number_pad_key_${digit.toString()}')),
+    );
   }
-  await tester.waitFor(find.byType(HomeScreen).hitTestable());
+  await tester.pumpAndSettle(const Duration(seconds: 1));
+}
+
+// Pump a new app and unlock it
+Future<void> pumpAndUnlockApp(WidgetTester tester, IrmaRepository repo, [Locale? locale]) async {
+  await tester.pumpWidgetAndSettle(IrmaApp(
+    repository: repo,
+    forcedLocale: locale ?? const Locale('en', 'EN'),
+  ));
+  await unlock(tester);
 }
 
 /// Starts an issuing session that adds the given credentials to the IRMA app.
@@ -28,6 +49,7 @@ Future<void> issueCredentials(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding,
   Map<String, String> attributes, {
+  Locale locale = const Locale('en', 'EN'),
   Map<String, String> revocationKeys = const {},
 }) async {
   final groupedAttributes = groupBy<MapEntry<String, String>, String>(
@@ -52,7 +74,8 @@ Future<void> issueCredentials(
     }
   ''');
 
-  await tester.waitFor(find.text('Do you want to add this data to your Yivi app?'));
+  var issuancePageFinder = find.byType(IssuancePermission);
+  await tester.waitFor(issuancePageFinder);
 
   // Check whether all credentials are displayed.
   expect(find.byType(IrmaCredentialCard), findsNWidgets(groupedAttributes.length));
@@ -60,79 +83,85 @@ Future<void> issueCredentials(
   // Check whether all attributes are displayed in the right order.
   for (final credTypeId in groupedAttributes.keys) {
     final credType = irmaBinding.repository.irmaConfiguration.credentialTypes[credTypeId]!;
-    expect(find.text(credType.name.translate('en')), findsOneWidget);
+    expect(find.text(credType.name.translate(locale.languageCode)), findsOneWidget);
   }
   final attributeTexts = tester.getAllText(find.byType(IrmaCredentialCardAttributeList)).toList();
   final attributeEntries = attributes.entries.toList();
+
   for (int i = 0; i < attributes.length; i++) {
     expect(
       attributeTexts[i * 2],
-      irmaBinding.repository.irmaConfiguration.attributeTypes[attributeEntries[i].key]?.name.translate('en'),
+      irmaBinding.repository.irmaConfiguration.attributeTypes[attributeEntries[i].key]?.name
+          .translate(locale.languageCode),
     );
     expect(attributeTexts[i * 2 + 1], attributeEntries[i].value);
   }
 
-  await tester.tapAndSettle(find.descendant(of: find.byType(IrmaButton), matching: find.text('Add data')));
+  var acceptButtonFinder = find.byKey(const Key('bottom_bar_primary'));
+  expect(acceptButtonFinder, findsOneWidget);
 
-  await tester.waitUntilDisappeared(find.text('Add data'));
+  await tester.tapAndSettle(acceptButtonFinder);
+
+  await tester.waitUntilDisappeared(issuancePageFinder);
 }
 
-/// Adds the municipality's personal data and address cards to the IRMA app.
-@Deprecated('Use issueCredentials instead')
-Future<void> issueCardsMunicipality(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
-  // Start session
-  await irmaBinding.repository.startTestSession('''
-        {
-          "@context": "https://irma.app/ld/request/issuance/v2",
-          "credentials": [
-            {
-              "credential": "irma-demo.gemeente.personalData",
-              "attributes": {
-                "initials": "W.L.",
-                "firstnames": "Willeke Liselotte",
-                "prefix": "de",
-                "familyname": "Bruijn",
-                "fullname": "W.L. de Bruijn",
-                "gender": "V",
-                "nationality": "Ja",
-                "surname": "de Bruijn",
-                "dateofbirth": "10-04-1965",
-                "cityofbirth": "Amsterdam",
-                "countryofbirth": "Nederland",
-                "over12": "Yes",
-                "over16": "Yes",
-                "over18": "Yes",
-                "over21": "Yes",
-                "over65": "No",
-                "bsn": "999999990",
-                "digidlevel": "Substantieel"
-              }
-            },
-            {
-              "credential": "irma-demo.gemeente.address",
-              "attributes": {
-                "street":"Meander",
-                "houseNumber":"501",
-                "zipcode":"1234AB",
-                "municipality":"Arnhem",
-                "city":"Arnhem"
-              }
-            }
-          ]
-        }
-      ''');
+Future<void> issueMunicipalityCards(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding, {
+  Locale locale = const Locale('en', 'EN'),
+}) async {
+  const credentialId = 'irma-demo.gemeente.personalData';
 
-  // Wait for accept button to appear
-  await tester.waitFor(find.byKey(const Key('issuance_accept')));
-  // Accept issued credential
-  await tester.tap(find.descendant(
-    of: find.byKey(const Key('issuance_accept')),
-    matching: find.byKey(const Key('primary')),
-  ));
-  // Wait until done
-  await tester.waitFor(find.byType(HomeScreen));
-  // Wait 3 seconds
-  await tester.pumpAndSettle(const Duration(seconds: 3));
+  var attributes = {
+    '$credentialId.bsn': '999999990',
+    '$credentialId.cityofbirth': 'Amsterdam',
+    '$credentialId.countryofbirth': 'Nederland',
+    '$credentialId.dateofbirth': '10-04-1965',
+    '$credentialId.digidlevel': 'Substantieel',
+    '$credentialId.familyname': 'Bruijn',
+    '$credentialId.firstnames': 'Willeke Liselotte',
+    '$credentialId.fullname': 'W.L. de Bruijn',
+    '$credentialId.gender': 'V',
+    '$credentialId.initials': 'W.L.',
+    '$credentialId.nationality': 'Yes',
+    '$credentialId.over12': 'Yes',
+    '$credentialId.over16': 'Yes',
+    '$credentialId.over18': 'Yes',
+    '$credentialId.over21': 'Yes',
+    '$credentialId.over65': 'No',
+    '$credentialId.prefix': 'de',
+    '$credentialId.surname': 'de Bruijn',
+  };
+
+  if (locale.languageCode == 'nl') {
+    attributes = {
+      '$credentialId.bsn': '999999990',
+      '$credentialId.cityofbirth': 'Amsterdam',
+      '$credentialId.countryofbirth': 'Nederland',
+      '$credentialId.dateofbirth': '10-04-1965',
+      '$credentialId.digidlevel': 'Substantieel',
+      '$credentialId.familyname': 'Bruijn',
+      '$credentialId.firstnames': 'Willeke Liselotte',
+      '$credentialId.fullname': 'W.L. de Bruijn',
+      '$credentialId.gender': 'V',
+      '$credentialId.initials': 'W.L.',
+      '$credentialId.nationality': 'Ja',
+      '$credentialId.over12': 'Ja',
+      '$credentialId.over16': 'Ja',
+      '$credentialId.over18': 'Ja',
+      '$credentialId.over21': 'Ja',
+      '$credentialId.over65': 'Nee',
+      '$credentialId.prefix': 'de',
+      '$credentialId.surname': 'de Bruijn',
+    };
+  }
+
+  await issueCredentials(
+    tester,
+    irmaBinding,
+    attributes,
+    locale: locale,
+  );
 }
 
 /// Generates a revocation key that can be used for issueCredentials.

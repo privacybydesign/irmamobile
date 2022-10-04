@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../theme/theme.dart';
@@ -7,6 +8,7 @@ import '../../widgets/translated_text.dart';
 import '../activity/widgets/recent_activity.dart';
 import '../add_data/add_data_screen.dart';
 import '../scanner/scanner_screen.dart';
+
 import 'widgets/irma_info_card.dart';
 import 'widgets/irma_nav_bar.dart';
 
@@ -43,6 +45,7 @@ class HomeTab extends StatelessWidget {
           ),
           SizedBox(height: theme.defaultSpacing),
           IrmaActionCard(
+            key: const Key('home_action_share'),
             titleKey: 'home_tab.action_card.share.title',
             subtitleKey: 'home_tab.action_card.share.subtitle',
             onTap: () => Navigator.of(context).pushNamed(ScannerScreen.routeName),
@@ -51,6 +54,7 @@ class HomeTab extends StatelessWidget {
           ),
           SizedBox(height: theme.defaultSpacing),
           IrmaActionCard(
+            key: const Key('home_action_fetch'),
             titleKey: 'home_tab.action_card.fetch.title',
             subtitleKey: 'home_tab.action_card.fetch.subtitle',
             onTap: () => Navigator.of(context).pushNamed(AddDataScreen.routeName),
@@ -61,24 +65,7 @@ class HomeTab extends StatelessWidget {
           SizedBox(height: theme.largeSpacing),
 
           //Recent activity
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              TranslatedText(
-                'home_tab.recent_activity',
-                style: theme.textTheme.headline4,
-              ),
-              GestureDetector(
-                onTap: () {
-                  onChangeTab(IrmaNavBarTab.activity);
-                },
-                child: TranslatedText('home_tab.view_more', style: theme.hyperlinkTextStyle),
-              )
-            ],
-          ),
-          SizedBox(height: theme.defaultSpacing),
-          const RecentActivity(),
-          SizedBox(height: theme.largeSpacing),
+          RecentActivity(onTap: () => onChangeTab(IrmaNavBarTab.activity)),
 
           //More info
           TranslatedText(
@@ -87,6 +74,7 @@ class HomeTab extends StatelessWidget {
           ),
           SizedBox(height: theme.defaultSpacing),
           const IrmaInfoCard(
+            key: Key('home_info_safety'),
             titleKey: 'home_tab.info_card.safety.title',
             bodyKey: 'home_tab.info_card.safety.body',
             avatar: Icon(Icons.shield_outlined, size: 32),
@@ -94,6 +82,7 @@ class HomeTab extends StatelessWidget {
           ),
           SizedBox(height: theme.smallSpacing),
           IrmaInfoCard(
+            key: const Key('home_info_about'),
             titleKey: 'home_tab.info_card.about.title',
             bodyKey: 'home_tab.info_card.about.body',
             avatar: SvgPicture.asset('assets/non-free/logo.svg'),

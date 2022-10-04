@@ -16,6 +16,7 @@ class IrmaActionCard extends StatelessWidget {
   final bool centerText;
 
   const IrmaActionCard({
+    Key? key,
     required this.titleKey,
     required this.icon,
     required this.color,
@@ -24,7 +25,7 @@ class IrmaActionCard extends StatelessWidget {
     this.onTap,
     this.invertColors = false,
     this.centerText = false,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

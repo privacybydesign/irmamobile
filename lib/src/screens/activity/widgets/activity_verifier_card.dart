@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../models/session.dart';
@@ -20,7 +21,6 @@ class ActivityVerifierHeader extends StatelessWidget {
           FlutterI18n.currentLocale(context)!.languageCode,
         ),
         titleTextStyle: IrmaTheme.of(context).textTheme.headline5,
-        logo: requestorInfo.logo,
       ),
     );
   }

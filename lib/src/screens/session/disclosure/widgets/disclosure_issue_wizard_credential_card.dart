@@ -20,11 +20,10 @@ class DisclosureIssueWizardCredentialCards extends StatelessWidget {
     return Column(
       children: credentials
           .map(
-            (credentialInfo) => IrmaCredentialCard(
-              credentialInfo: credentialInfo,
-              attributes: showAttributes ? credentialInfo.attributes : [],
+            (cred) => IrmaCredentialCard(
+              credentialView: cred,
               style: isActive ? IrmaCardStyle.highlighted : IrmaCardStyle.normal,
-              compareTo: credentialInfo.attributes,
+              compareTo: cred.attributes,
               hideFooter: true,
             ),
           )
