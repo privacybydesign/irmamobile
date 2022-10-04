@@ -30,6 +30,7 @@ runs:
           ${{ env.FLUTTER_HOME }}
         key: ${{ runner.os }}-${{ hashFiles('ci_scripts/*') }}
     - name: Ensure Android SDK is installed
+      if: runner.os == 'Linux'
       run: ./ci_scripts/install_android_sdk.sh
       shell: bash
     - name: Ensure Flutter is installed

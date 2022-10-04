@@ -87,7 +87,7 @@ jobs:
       - run: bundle exec fastlane ios_build_app flavor:${{ matrix.flavor }}
       # We don't run ios_export here, so we have no artifact to upload for now.
   build-app-android:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     needs: build-irmagobridge-android
     strategy:
       matrix:
