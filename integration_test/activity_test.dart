@@ -41,7 +41,7 @@ void main() {
         await tester.pump(const Duration(seconds: 1));
 
         // Tap on the Demo Municipality card
-        await tester.tapAndSettle(find.text('Demo Municipality'));
+        await tester.tapAndSettle(find.text('Demo Municipalities'));
 
         // Check if the correct detail screen is rendered
         expect(find.byType(ActivityDetailScreen), findsOneWidget);
@@ -66,28 +66,24 @@ void main() {
         expect(
           cardAttributes,
           [
-            'BSN',
-            '999999990',
-            'City of birth',
-            'Amsterdam',
-            'Country of birth',
-            'Nederland',
-            'Date of birth',
-            '10-04-1965',
-            'Assurance level',
-            'Substantieel',
-            'Family name',
-            'Bruijn',
+            'Initials',
+            'W.L.',
             'First names',
             'Willeke Liselotte',
+            'Prefix',
+            'de',
+            'Family name',
+            'Bruijn',
             'Full name',
             'W.L. de Bruijn',
             'Gender',
             'V',
-            'Initials',
-            'W.L.',
             'Dutch nationality',
             'Yes',
+            'Surname',
+            'de Bruijn',
+            'Date of birth',
+            '10-04-1965',
             'Over 12',
             'Yes',
             'Over 16',
@@ -98,10 +94,10 @@ void main() {
             'Yes',
             'Over 65',
             'No',
-            'Prefix',
-            'de',
-            'Surname',
-            'de Bruijn'
+            'BSN',
+            '999999990',
+            'DigiD assurance level',
+            'Substantieel',
           ],
         );
 

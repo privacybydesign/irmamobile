@@ -547,7 +547,8 @@
             "delete_success": "Success! The data has been deleted."
         },
         "about_to_expire": "About to expire",
-        "expired": "Expired"
+        "expired": "Expired",
+        "revoked": "Revoked"
     },
     "secure_pin": {
         "info_button": "PIN possibly not secure",

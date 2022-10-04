@@ -547,7 +547,8 @@
             "delete_success": "Gelukt! De gegevens zijn verwijderd."
         },
         "about_to_expire": "Gaat verlopen",
-        "expired": "Verlopen"
+        "expired": "Verlopen",
+        "revoked": "Ingetrokken"
     },
     "secure_pin": {
         "info_button": "Pincode mogelijk niet veilig",

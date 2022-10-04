@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../models/attribute.dart';
@@ -8,6 +9,7 @@ import '../../util/date_formatter.dart';
 import '../../util/language.dart';
 import '../irma_card.dart';
 import '../irma_divider.dart';
+
 import 'irma_credential_card_attribute_list.dart';
 import 'irma_credential_card_footer.dart';
 import 'irma_credential_card_header.dart';
@@ -51,11 +53,11 @@ class IrmaCredentialCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final isExpired = expiryDate?.expired ?? credentialView.expired;
+    final isInvalid = credentialView.expired || credentialView.revoked;
     final isExpiringSoon = expiryDate?.expiresSoon ?? false;
 
     return IrmaCard(
-      style: isExpired ? IrmaCardStyle.disabled : style,
+      style: isInvalid ? IrmaCardStyle.disabled : style,
       onTap: onTap,
       padding: padding,
       child: Column(
@@ -67,41 +69,44 @@ class IrmaCredentialCard extends StatelessWidget {
             subtitle: getTranslation(context, credentialView.issuer.name),
             logo: credentialView.credentialType.logo,
             trailing: headerTrailing,
-            isExpired: isExpired,
+            isExpired: credentialView.expired,
+            isRevoked: credentialView.revoked,
             isExpiringSoon: isExpiringSoon,
           ),
           // If there are attributes in this credential, then we show the attribute list
           if (credentialView.attributesWithValue.isNotEmpty) ...[
-            IrmaDivider(isDisabled: isExpired),
+            IrmaDivider(isDisabled: isInvalid),
             IrmaCredentialCardAttributeList(
               credentialView.attributes,
               compareTo: compareTo,
             ),
           ],
-          if (!hideFooter && expiryDate != null) ...[
+          if (!hideFooter) ...[
             IrmaDivider(
-              isDisabled: isExpired,
+              isDisabled: isInvalid,
             ),
             SizedBox(
               height: IrmaTheme.of(context).tinySpacing,
             ),
             IrmaCredentialCardFooter(
               credentialType: credentialView.credentialType,
-              text: FlutterI18n.translate(
-                context,
-                isExpired
-                    ? 'credential.expired_on'
-                    : isExpiringSoon
-                        ? 'credential.expires_on'
-                        : 'credential.valid_until',
-                translationParams: {
-                  'date': printableDate(
-                    expiryDate!.dateTime,
-                    lang,
-                  ),
-                },
-              ),
-              isObtainable: (isExpired || isExpiringSoon) && credentialView.credentialType.issueUrl.isNotEmpty,
+              text: credentialView.revoked || expiryDate == null || expiryDate!.dateTime == null
+                  ? null
+                  : FlutterI18n.translate(
+                      context,
+                      credentialView.expired
+                          ? 'credential.expired_on'
+                          : isExpiringSoon
+                              ? 'credential.expires_on'
+                              : 'credential.valid_until',
+                      translationParams: {
+                        'date': printableDate(
+                          expiryDate!.dateTime!,
+                          lang,
+                        ),
+                      },
+                    ),
+              isObtainable: (isInvalid || isExpiringSoon) && credentialView.credentialType.issueUrl.isNotEmpty,
             )
           ]
         ],
