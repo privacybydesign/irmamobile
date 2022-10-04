@@ -6,7 +6,6 @@ import '../../../../models/session.dart';
 import '../../../../theme/theme.dart';
 import '../../../../util/con_dis_con.dart';
 import '../../../../widgets/credential_card/irma_credential_card.dart';
-import '../../../../widgets/credential_card/models/card_expiry_date.dart';
 import '../../../../widgets/irma_action_card.dart';
 import '../../../../widgets/irma_bottom_bar.dart';
 import '../../../../widgets/irma_icon_button.dart';
@@ -85,8 +84,6 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                     size: 12,
                     onTap: () => onEvent(DisclosurePermissionRemoveOptionalDataPressed(disconIndex: choiceEntry.key)))
                 : null,
-            expiryDate: CardExpiryDate(choiceEntry.value[i].expires),
-            revoked: choiceEntry.value[i].revoked,
           ),
       ],
     );
