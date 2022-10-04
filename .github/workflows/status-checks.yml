@@ -6,13 +6,16 @@ on:
     branches: [ master ]
   pull_request:
 
+concurrency:
+  group: status-checks-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   setup-build-environment:
     strategy:
       matrix:
         os: [ ubuntu-latest, macos-latest ]
     runs-on: ${{ matrix.os }}
-    concurrency: setup-build-environment-${{ runner.os }}-${{ hashFiles('ci_scripts/*') }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
@@ -45,7 +48,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
-      - run: bundle exec fastlane build_irmagobridge_ios
+      - run: bundle exec fastlane ios_build_irmagobridge
       - uses: actions/upload-artifact@v3
         with:
           name: irmagobridge-ios
@@ -58,8 +61,52 @@ jobs:
         uses: actions/checkout@v3
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
-      - run: bundle exec fastlane build_irmagobridge_android
+      - run: bundle exec fastlane android_build_irmagobridge
       - uses: actions/upload-artifact@v3
         with:
           name: irmagobridge-android
           path: android/irmagobridge/irmagobridge.aar
+  build-app-ios:
+    runs-on: macos-latest
+    needs: build-irmagobridge-ios
+    strategy:
+      matrix:
+        flavor: [ alpha, beta ]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Setup build environment
+        uses: ./.github/actions/setup-build-environment
+      - name: Download irmagobridge artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: irmagobridge-ios
+          path: ios/Runner/Irmagobridge.xcframework/
+      - run: bundle exec fastlane ios_build_app flavor:${{ matrix.flavor }}
+      # We don't run ios_export here, so we have no artifact to upload for now.
+  build-app-android:
+    runs-on: macos-latest
+    needs: build-irmagobridge-android
+    strategy:
+      matrix:
+        flavor: [ alpha, beta ]
+        target-platform: [ android-arm, android-arm64, android-x64 ]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Setup build environment
+        uses: ./.github/actions/setup-build-environment
+      - name: Download irmagobridge artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: irmagobridge-android
+          path: android/irmagobridge/irmagobridge.aar
+      - run: bundle exec fastlane android_build_app flavor:${{ matrix.flavor }} target_platform:${{ matrix.target-platform }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build-app-${{ matrix.flavor }}-${{ matrix.target-platform }}
+          path: ./fastlane/build/*.apk
