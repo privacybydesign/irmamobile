@@ -1,8 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:intl/intl.dart';
 
@@ -16,6 +15,7 @@ import '../../util/combine.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/loading_indicator.dart';
+import '../../widgets/translated_text.dart';
 
 import 'history_repository.dart';
 import 'widgets/activity_card.dart';
@@ -80,17 +80,30 @@ class _ActivityTabState extends State<ActivityTab> {
     }
   }
 
-  Widget _buildLogEntries(BuildContext context, IrmaConfiguration irmaConfiguration, HistoryState historyState) {
+  Widget _buildLogEntries(
+      BuildContext context, IrmaConfiguration irmaConfiguration, List<LogEntry> logEntries, bool moreLogsAvailable) {
     _addPostFrameCallback();
     final local = FlutterI18n.currentLocale(context).toString();
     final theme = IrmaTheme.of(context);
 
+    Widget _listStateIndicator() {
+      if (logEntries.isEmpty) {
+        return const TranslatedText('activity.empty_placeholder');
+      } else if (moreLogsAvailable) {
+        return SizedBox(
+          height: 36,
+          child: LoadingIndicator(),
+        );
+      } else {
+        return Icon(IrmaIcons.valid, color: theme.success);
+      }
+    }
+
     final groupedItems = List.generate(
-      historyState.logEntries.length,
+      logEntries.length,
       (index) {
-        final logEntry = historyState.logEntries[index];
-        final insertMonthSeparator =
-            index == 0 || index > 0 && historyState.logEntries[index - 1].time.month != logEntry.time.month;
+        final logEntry = logEntries[index];
+        final insertMonthSeparator = index == 0 || index > 0 && logEntries[index - 1].time.month != logEntry.time.month;
         return [
           if (insertMonthSeparator)
             Padding(
@@ -112,20 +125,7 @@ class _ActivityTabState extends State<ActivityTab> {
           ),
         ];
       },
-    ).flattened.toList()
-      ..add(
-        Padding(
-          padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
-          child: Center(
-            child: historyState.moreLogsAvailable
-                ? SizedBox(
-                    height: 36,
-                    child: LoadingIndicator(),
-                  )
-                : Icon(IrmaIcons.valid, color: theme.success),
-          ),
-        ),
-      );
+    ).flattened.toList();
 
     return ListView(
       controller: _scrollController,
@@ -133,7 +133,15 @@ class _ActivityTabState extends State<ActivityTab> {
         vertical: theme.smallSpacing,
         horizontal: theme.defaultSpacing,
       ),
-      children: groupedItems,
+      children: [
+        ...groupedItems,
+        Padding(
+          padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
+          child: Center(
+            child: _listStateIndicator(),
+          ),
+        ),
+      ],
     );
   }
 
@@ -153,7 +161,7 @@ class _ActivityTabState extends State<ActivityTab> {
           }
           final irmaConfiguration = snapshot.data!.a;
           final historyState = snapshot.data!.b;
-          return _buildLogEntries(context, irmaConfiguration, historyState);
+          return _buildLogEntries(context, irmaConfiguration, historyState.logEntries, historyState.moreLogsAvailable);
         },
       ),
     );

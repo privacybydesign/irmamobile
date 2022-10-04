@@ -50,6 +50,7 @@ class CredentialCategoryList extends StatelessWidget {
             ),
             delegate: SliverChildBuilderDelegate(
               (context, index) => GestureDetector(
+                key: Key(credentialTypes[index].fullId + '_tile'),
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(

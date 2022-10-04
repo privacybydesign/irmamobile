@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_test/flutter_test.dart';
+
+import 'package:irmamobile/src/screens/home/home_tab.dart';
 
 extension WidgetTesterUtil on WidgetTester {
   /// Renders the given widget and waits until it settles.
@@ -8,10 +11,35 @@ extension WidgetTesterUtil on WidgetTester {
     await waitFor(find.byWidget(w));
   }
 
+  Future<void> unlock() async {
+    await enterPin('12345');
+    await waitFor(find.byType(HomeTab).hitTestable());
+  }
+
   /// Enters the given text in the EditableText that currently is in focus.
   Future<void> enterTextAtFocusedAndSettle(String text) async {
     await enterText(find.byWidgetPredicate((w) => w is EditableText && w.focusNode.hasFocus), text);
     await pumpAndSettle(const Duration(milliseconds: 500));
+  }
+
+  Future<void> enterPin(String text) async {
+    for (final digit in text.split('')) {
+      await tap(find.byKey(Key('number_pad_key_$digit')));
+      await pumpAndSettle();
+    }
+  }
+
+  Future<void> moreTabLogout() async {
+    await dragUntilVisible(
+      find.byKey(const Key('log_out_button'), skipOffstage: false),
+      find.byType(ListView),
+      const Offset(0, -75),
+      maxIteration: 10,
+    );
+    final logoutKeyFinder = find.byKey(const Key('log_out_button'), skipOffstage: false);
+    await ensureVisible(logoutKeyFinder);
+    await pumpAndSettle(const Duration(milliseconds: 100));
+    await tapAndSettle(logoutKeyFinder);
   }
 
   /// Taps on the given widget, waits for a response, triggers a new frame sequence

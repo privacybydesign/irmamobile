@@ -63,6 +63,7 @@ class ActivityDetailScreen extends StatelessWidget {
             Center(
               child: TranslatedText(
                 'credential.date_at_time',
+                key: const Key('activity_timestamp'),
                 translationParams: {
                   'date': DateFormat.yMMMMd(lang).format(logEntry.time),
                   'time': DateFormat.jm(lang).format(logEntry.time),
