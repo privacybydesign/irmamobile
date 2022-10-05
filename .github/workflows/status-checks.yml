@@ -124,7 +124,9 @@ jobs:
   integration-test-android:
     runs-on: ubuntu-latest
     container: google/cloud-sdk:latest
-    needs: build-integration-test-android
+    needs:
+     - build-integration-test-android
+     - unit-test # To prevent that test resources are used when we already know there is an issue.
     steps:
       - name: Download test artifacts
         uses: actions/download-artifact@v3
