@@ -137,6 +137,7 @@ jobs:
         env:
           GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_SERVICE_KEY }}
         run: gcloud auth activate-service-account --key-file <(echo $GCLOUD_SERVICE_KEY)
+        shell: bash
       - name: Set Firebase project
         run: gcloud config set project yivimobile
       - name: Run integration tests
