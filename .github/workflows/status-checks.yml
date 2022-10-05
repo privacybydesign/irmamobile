@@ -127,6 +127,7 @@ jobs:
     needs:
      - build-integration-test-android
      - unit-test # To prevent that test resources are used when we already know there is an issue.
+    concurrency: integration-test-android # To prevent that we use too much test resources at the same time.
     steps:
       - name: Download test artifacts
         uses: actions/download-artifact@v3
