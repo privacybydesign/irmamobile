@@ -15,6 +15,10 @@ if [[ ! "$PATH" =~ "$ANDROID_HOME/cmdline-tools/bin" ]]; then
   echo "$ANDROID_HOME/cmdline-tools/bin is not added to PATH"
   exit 1
 fi
+if [[ "$ANDROID_NDK_HOME" != "$ANDROID_HOME/ndk-bundle" ]]; then
+  echo "Environment variable ANDROID_NDK_HOME needs to be set to \$ANDROID_HOME/ndk-bundle"
+  exit 1
+fi
 
 # We assume that Java is already installed.
 if [ ! -x "$(command -v "java")" ]; then
