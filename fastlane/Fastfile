@@ -1,3 +1,23 @@
+before_all do
+  # Ensure build directory is present in fastlane directory.
+  sh("mkdir -p ./build/")
+end
+
+lane :lint do
+  Dir.chdir("..") do
+    sh("flutter", "format", "--line-length", "120", "--set-exit-if-changed", "lib/", "test/", "integration_test/")
+    # TODO: Remove --no-fatal-warnings option when all warnings are resolved.
+    sh("flutter", "analyze", "--no-fatal-infos", "--no-fatal-warnings")
+  end
+end
+
+lane :unit_test do
+  Dir.chdir("..") do
+    # TODO: remove --no-sound-null-safety option when all unit tests use null-safely
+    sh("flutter", "test", "--no-sound-null-safety")
+  end
+end
+
 lane :alpha_resign do
   apks = Dir['../build/app/outputs/apk/alpha/release/*.apk']
   apks.each do |apk|
@@ -33,47 +53,95 @@ lane :beta_build do
 end
 
 lane :alpha_android_build do
-  update_schemes()
-  build_irmagobridge_android()
-  commit = last_git_commit()
-  write_sentrydata(
-    dsn: ENV["SENTRY_DSN_ALPHA"],
-    version: commit[:commit_hash]
-  )
-  Dir.chdir("..") do
-    sh("flutter", "build", "apk", "--split-per-abi", "--flavor", "alpha", "--release")
-  end
+    android_build_irmagobridge()
+    android_build_app(flavor: "alpha", target_platform: "android-arm", sentry_dsn: ENV["SENTRY_DSN_ALPHA"])
+    android_build_app(flavor: "alpha", target_platform: "android-arm64", sentry_dsn: ENV["SENTRY_DSN_ALPHA"])
+    android_build_app(flavor: "alpha", target_platform: "android-x64", sentry_dsn: ENV["SENTRY_DSN_ALPHA"])
 end
 
 lane :beta_android_build do
+  android_build_irmagobridge()
+  android_build_app(flavor: "beta", target_platform: "android-arm", sentry_dsn: ENV["SENTRY_DSN_PROD"])
+  android_build_app(flavor: "beta", target_platform: "android-arm64", sentry_dsn: ENV["SENTRY_DSN_PROD"])
+  android_build_app(flavor: "beta", target_platform: "android-x64", sentry_dsn: ENV["SENTRY_DSN_PROD"])
+end
+
+lane :android_build_app do |options|
   update_schemes()
-  build_irmagobridge_android()
   commit = last_git_commit()
   write_sentrydata(
-    dsn: ENV["SENTRY_DSN_PROD"],
+    dsn: options[:sentry_dsn],
     version: commit[:commit_hash]
   )
+
+  # We use the React Native build numbering (with base 0x100000 and different multipliers per target platform)
+  # Flutter modifies the build number that we specify with its own build number base and target platform multiplier.
+  # Therefore, we have to correct this by subtracting the value that Flutter will add.
+  build_number = get_flutter_build_number()
+  case options[:target_platform]
+  when "android-arm"
+    build_number += 0x100000 - 1000
+  when "android-arm64"
+    build_number += 0x300000 - 2000
+  when "android-x64"
+    build_number += 0x400000 - 4000
+  else
+    raise "Unsupported target platform"
+  end
+
   Dir.chdir("..") do
-    sh("flutter", "build", "apk", "--split-per-abi", "--flavor", "beta", "--release")
+    sh(
+      "flutter", "build", "apk",
+      "--split-per-abi",
+      "--flavor", options[:flavor],
+      "--target-platform", options[:target_platform],
+      "--build-number", build_number.to_s,
+      "--release"
+    )
+    sh("cp ./build/app/outputs/apk/#{options[:flavor]}/release/*.apk ./fastlane/build/")
   end
 end
 
 lane :alpha_ios_build do
+  ios_build_irmagobridge()
+  ios_build_app(flavor: "alpha", sentry_dsn: ENV["SENTRY_DSN_ALPHA"])
+  ios_export(flavor: "alpha")
+end
+
+lane :beta_ios_build do
+  ios_build_irmagobridge()
+  ios_build_app(flavor: "beta", sentry_dsn: ENV["SENTRY_DSN_PROD"])
+  ios_export(flavor: "beta")
+end
+
+lane :ios_build_app do |options|
+  display_name = ""
+  app_identifier = ""
+  case options[:flavor]
+  when "alpha"
+    display_name = "IRMA 2020"
+    app_identifier = "foundation.privacybydesign.irmamob.alpha"
+  when "beta"
+    display_name = "IRMA"
+    app_identifier = "foundation.privacybydesign.irmamob"
+  else
+    raise "Unsupported flavor"
+  end
+
   update_schemes()
-  build_irmagobridge_ios()
   update_app_identifier(
     xcodeproj: "ios/Runner.xcodeproj",
     plist_path: "Runner/Info.plist",
-    app_identifier: "foundation.privacybydesign.irmamob.alpha"
+    app_identifier: app_identifier
   )
   update_info_plist(
     xcodeproj: "ios/Runner.xcodeproj",
     plist_path: "Runner/Info.plist",
-    display_name: "IRMA 2020"
+    display_name: display_name
   )
   commit = last_git_commit()
   write_sentrydata(
-    dsn: ENV["SENTRY_DSN_ALPHA"],
+    dsn: options[:sentry_dsn],
     version: commit[:commit_hash]
   )
   Dir.chdir("..") do
@@ -81,41 +149,38 @@ lane :alpha_ios_build do
   end
 end
 
-lane :beta_ios_build do 
-  update_schemes()
-  build_irmagobridge_ios()
-  update_app_identifier(
-    xcodeproj: "ios/Runner.xcodeproj",
-    plist_path: "Runner/Info.plist",
-    app_identifier: "foundation.privacybydesign.irmamob"
-  )
-  update_info_plist(
-    xcodeproj: "ios/Runner.xcodeproj",
-    plist_path: "Runner/Info.plist",
-    display_name: "IRMA"
-  )
-  commit = last_git_commit()
-  write_sentrydata(
-    dsn: ENV["SENTRY_DSN_PROD"],
-    version: commit[:commit_hash]
-  )
+lane :ios_export do |options|
+  # For now, we assume the provisioning profile and the corresponding keys are already set.
+  # Support should be added to give those as parameters to enable releasing in CI/CD.
+  export_options = ""
+  export_path = ""
+  case options[:flavor]
+  when "alpha"
+    export_options = "./ios/AdHocExportOptions.plist"
+    export_path = "./ios/build/AdHoc"
+  when "beta"
+    export_options = "./ios/AppStoreExportOptions.plist"
+    export_path = "./ios/build/AppStore"
+  else
+    raise "Unsupported flavor"
+  end
+
   Dir.chdir("..") do
-    sh("flutter", "build", "ios", "--release", "--no-codesign")
     sh("xcodebuild", "-workspace", "./ios/Runner.xcworkspace", "-scheme", "Runner", "-sdk", "iphoneos", "-configuration", "Release", "archive", "-archivePath", "./ios/build/Runner.xcarchive")
-    sh("xcodebuild", "-exportArchive", "-archivePath", "./ios/build/Runner.xcarchive", "-exportOptionsPlist", "./ios/AppStoreExportOptions.plist", "-exportPath", "./ios/build/AppStore")
-    # xcrun altool --upload-app --type ios --file ./ios/build/AppStore/Runner.ipa --username "info@example.com"
+    sh("xcodebuild", "-exportArchive", "-archivePath", "./ios/build/Runner.xcarchive", "-exportOptionsPlist", export_options, "-exportPath", export_path)
+    sh("cp #{export_path}/*.ipa ./fastlane/build/")
   end
 end
 
-lane :build_irmagobridge_android do
+lane :android_build_irmagobridge do
   Dir.chdir("..") do
     sh("gomobile", "bind", "-target", "android", "-o", "android/irmagobridge/irmagobridge.aar", "github.com/privacybydesign/irmamobile/irmagobridge")
   end
 end
 
-lane :build_irmagobridge_ios do
+lane :ios_build_irmagobridge do
   Dir.chdir("..") do
-    sh("gomobile", "bind", "-target", "ios", "-o", "ios/Runner/Irmagobridge.xcframework", "github.com/privacybydesign/irmamobile/irmagobridge")
+    sh("gomobile", "bind", "-target", "ios", "-iosversion", "12.0", "-o", "ios/Runner/Irmagobridge.xcframework", "github.com/privacybydesign/irmamobile/irmagobridge")
   end
 end
 
@@ -148,4 +213,13 @@ lane :write_sentrydata do |options|
       :version => options[:version]
     }
   )
+end
+
+private_lane :get_flutter_build_number do
+  Dir.chdir("..") do
+    file = File.open("pubspec.yaml")
+    file_data = file.read
+    file.close
+    file_data.match(/version:(.*)\+(\d+)/).captures[1].to_i
+  end
 end

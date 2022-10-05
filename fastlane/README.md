@@ -15,6 +15,16 @@ Install _fastlane_ using
 or alternatively using `brew cask install fastlane`
 
 # Available Actions
+### lint
+```
+fastlane lint
+```
+
+### unit_test
+```
+fastlane unit_test
+```
+
 ### alpha_resign
 ```
 fastlane alpha_resign
@@ -45,6 +55,11 @@ fastlane alpha_android_build
 fastlane beta_android_build
 ```
 
+### android_build_app
+```
+fastlane android_build_app
+```
+
 ### alpha_ios_build
 ```
 fastlane alpha_ios_build
@@ -55,14 +70,24 @@ fastlane alpha_ios_build
 fastlane beta_ios_build
 ```
 
-### build_irmagobridge_android
+### ios_build_app
 ```
-fastlane build_irmagobridge_android
+fastlane ios_build_app
 ```
 
-### build_irmagobridge_ios
+### ios_export
 ```
-fastlane build_irmagobridge_ios
+fastlane ios_export
+```
+
+### android_build_irmagobridge
+```
+fastlane android_build_irmagobridge
+```
+
+### ios_build_irmagobridge
+```
+fastlane ios_build_irmagobridge
 ```
 
 ### update_schemes
