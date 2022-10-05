@@ -95,7 +95,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: irmagobridge-android
-          path: android/irmagobridge/irmagobridge.aar
+          path: android/irmagobridge/
       - run: bundle exec fastlane android_build_app flavor:${{ matrix.flavor }} target_platform:${{ matrix.target-platform }}
       - uses: actions/upload-artifact@v3
         with:
