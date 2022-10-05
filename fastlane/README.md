@@ -100,6 +100,11 @@ fastlane update_schemes
 fastlane write_sentrydata
 ```
 
+### integration_test_android_build
+```
+fastlane integration_test_android_build
+```
+
 
 ----
 

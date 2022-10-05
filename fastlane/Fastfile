@@ -215,6 +215,23 @@ lane :write_sentrydata do |options|
   )
 end
 
+lane :integration_test_android_build do
+  update_schemes()
+  Dir.chdir("..") do
+    sh(
+      "flutter", "build", "apk",
+      "--flavor", "alpha",
+      "--debug",
+      "./integration_test/test_all.dart"
+    )
+    Dir.chdir("./android") do
+      sh("./gradlew", "app:assembleAndroidTest")
+    end
+    sh("cp ./build/app/outputs/apk/alpha/debug/*.apk ./fastlane/build/")
+    sh("cp ./build/app/outputs/apk/androidTest/alpha/debug/*.apk ./fastlane/build/")
+  end
+end
+
 private_lane :get_flutter_build_number do
   Dir.chdir("..") do
     file = File.open("pubspec.yaml")
