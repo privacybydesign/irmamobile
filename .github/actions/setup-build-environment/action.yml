@@ -10,9 +10,16 @@ runs:
     - uses: actions/setup-go@v3
       with:
         go-version: ^1.18
+        cache: true
     - uses: ruby/setup-ruby@v1
       with:
         ruby-version: 2.7
+    - uses: actions/cache@v3
+      env:
+        SEGMENT_DOWNLOAD_TIMEOUT_MINS: "1"
+      with:
+        path: rubyvendor/
+        key: ${{ runner.os }}-${{ hashFiles('Gemfile.lock') }}
     - run: bundle install
       shell: bash
     - name: Set environment variables
@@ -29,7 +36,7 @@ runs:
       # If we cannot download the cached content from GitHub within 5 minutes, then
       # we continue like there was no cache hit.
       env:
-        SEGMENT_DOWNLOAD_TIMEOUT_MINS: '5'
+        SEGMENT_DOWNLOAD_TIMEOUT_MINS: "5"
       with:
         path: |
           ${{ env.ANDROID_HOME }}
