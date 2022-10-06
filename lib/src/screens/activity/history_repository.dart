@@ -1,18 +1,14 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/log_entry.dart';
-import 'package:irmamobile/src/models/session_events.dart';
 import 'package:rxdart/rxdart.dart';
 
+import '../../data/irma_repository.dart';
+import '../../models/credentials.dart';
+import '../../models/log_entry.dart';
+
 class LogEntries extends UnmodifiableListView<LogEntry> {
-  LogEntries(Iterable<LogEntry> list)
-      : assert(list != null),
-        super(list);
+  LogEntries(Iterable<LogEntry> list) : super(list);
 }
 
 class HistoryState {
@@ -27,12 +23,16 @@ class HistoryState {
   });
 
   HistoryState copyWith({
-    List<LogEntry> logEntries,
-    bool loading,
-    bool moreLogsAvailable,
+    required IrmaRepository repo,
+    List<LogEntry>? logEntries,
+    bool? loading,
+    bool? moreLogsAvailable,
   }) {
+    bool containsKeyshareCredential(LogEntry e) => e.issuedCredentials.any(
+        (c) => Credential.fromRaw(irmaConfiguration: repo.irmaConfiguration, rawCredential: c).isKeyshareCredential);
+
     return HistoryState(
-      logEntries: logEntries ?? this.logEntries,
+      logEntries: (logEntries ?? this.logEntries)..removeWhere(containsKeyshareCredential),
       loading: loading ?? this.loading,
       moreLogsAvailable: moreLogsAvailable ?? this.moreLogsAvailable,
     );
@@ -45,12 +45,13 @@ class HistoryRepository {
   IrmaRepository repo = IrmaRepository.get();
 
   final _historyStateSubject = BehaviorSubject<HistoryState>();
-  StreamSubscription _historyStateSubscription;
+  late StreamSubscription _historyStateSubscription;
 
   HistoryRepository() {
     _historyStateSubscription = repo.getEvents().scan<HistoryState>((prevState, event, _) {
       if (event is LoadLogsEvent) {
         return prevState.copyWith(
+          repo: repo,
           loading: true,
           logEntries: event.before == null ? [] : prevState.logEntries,
         );
@@ -61,13 +62,13 @@ class HistoryRepository {
         final supportedLogEntries =
             event.logEntries.where((entry) => _serverNameOptional.contains(entry.type) || entry.serverName != null);
 
-        final logEntries = List.of(prevState.logEntries);
-        logEntries.addAll(supportedLogEntries);
+        final logEntries = prevState.logEntries..addAll(supportedLogEntries);
 
         return prevState.copyWith(
+          repo: repo,
           loading: false,
-          logEntries: LogEntries(logEntries),
-          moreLogsAvailable: event.logEntries.isNotEmpty,
+          logEntries: logEntries,
+          moreLogsAvailable: event.logEntries.isEmpty,
         );
       }
 

@@ -6,13 +6,13 @@ import '../irma_button.dart';
 import '../irma_repository_provider.dart';
 
 class IrmaCredentialCardFooter extends StatelessWidget {
-  final String text;
+  final String? text;
   final bool isObtainable;
   final CredentialType credentialType;
 
   const IrmaCredentialCardFooter({
     required this.credentialType,
-    required this.text,
+    this.text,
     this.isObtainable = false,
   });
 
@@ -24,12 +24,13 @@ class IrmaCredentialCardFooter extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          text,
-          style: theme.textTheme.caption!.copyWith(
-            color: theme.neutral,
+        if (text != null)
+          Text(
+            text!,
+            style: theme.textTheme.caption!.copyWith(
+              color: theme.neutral,
+            ),
           ),
-        ),
         if (isObtainable)
           Padding(
             padding: EdgeInsets.only(top: theme.smallSpacing),

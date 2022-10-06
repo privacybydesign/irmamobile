@@ -533,7 +533,8 @@
         "shared_with": "Gedeeld met",
         "shared_data": "Gedeelde gegevens",
         "received_data": "Ontvangen gegevens",
-        "deleted_data": "Verwijderde gegevens"
+        "deleted_data": "Verwijderde gegevens",
+        "empty_placeholder": "Er zijn momenteel geen activiteiten."
     },
     "credential": {
         "no_data": "Geen gegevens",
@@ -549,7 +550,8 @@
             "delete_success": "Gelukt! De gegevens zijn verwijderd."
         },
         "about_to_expire": "Gaat verlopen",
-        "expired": "Verlopen"
+        "expired": "Verlopen",
+        "revoked": "Ingetrokken"
     },
     "secure_pin": {
         "info_button": "Pincode mogelijk niet veilig",

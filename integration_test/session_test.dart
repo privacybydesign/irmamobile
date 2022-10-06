@@ -2,8 +2,10 @@
 // @dart=2.11
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+
 import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
@@ -241,9 +243,7 @@ void main() {
       expect(find.text('This is the data you are going to share:'), findsOneWidget);
       expect(find.text('Demo MijnOverheid.nl'), findsOneWidget);
       expect(find.text('12345'), findsOneWidget);
-      // TODO: Revoked message is not shown yet.
-      // expect(find.text('Revoked'), findsOneWidget);
-      // expect(find.descendant(of: find.byType(IrmaButton), matching: find.text('Reobtain')), findsOneWidget);
+      expect(find.text('Revoked'), findsOneWidget);
       expect(
         tester
             .widget<ElevatedButton>(find.ancestor(of: find.text('Share data'), matching: find.byType(ElevatedButton)))

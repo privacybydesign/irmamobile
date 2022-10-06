@@ -533,7 +533,8 @@
         "shared_with": "Shared with",
         "shared_data": "Shared data",
         "received_data": "Received data",
-        "deleted_data": "Deleted data"
+        "deleted_data": "Deleted data",
+        "empty_placeholder": "No activities were logged."
     },
     "credential": {
         "no_data": "No data",
@@ -549,7 +550,8 @@
             "delete_success": "Success! The data has been deleted."
         },
         "about_to_expire": "About to expire",
-        "expired": "Expired"
+        "expired": "Expired",
+        "revoked": "Revoked"
     },
     "secure_pin": {
         "info_button": "PIN possibly not secure",

@@ -14,11 +14,12 @@ class IrmaInfoCard extends StatelessWidget {
   final Widget? avatar;
 
   const IrmaInfoCard({
+    Key? key,
     required this.titleKey,
     required this.bodyKey,
     this.avatar,
     this.linkKey,
-  });
+  }) : super(key: key);
 
   void _tryLaunchLink(BuildContext context) {
     if (linkKey != null) {
