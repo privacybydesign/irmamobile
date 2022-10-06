@@ -33,8 +33,9 @@ void main() {
       // Open more tab
       await tester.tapAndSettle(find.byKey(const Key('nav_button_more')));
       // Logout
-      await tester.moreTabLogout();
-
+      final logoutButtonFinder = find.byKey(const Key('log_out_button'));
+      await tester.scrollUntilVisible(logoutButtonFinder, 500);
+      await tester.tapAndSettle(logoutButtonFinder);
       // login using wrong pin
       await tester.waitFor(find.byKey(const Key('pin_screen')));
       await tester.enterPin('54321');
@@ -62,7 +63,9 @@ void main() {
       // Open more tab
       await tester.tapAndSettle(find.byKey(const Key('nav_button_more')));
       // Logout
-      await tester.moreTabLogout();
+      final logoutButtonFinder = find.byKey(const Key('log_out_button'));
+      await tester.scrollUntilVisible(logoutButtonFinder, 500);
+      await tester.tapAndSettle(logoutButtonFinder);
       // login using wrong pin
       await tester.waitFor(find.byKey(const Key('pin_screen')));
       await tester.enterPin('54321');

@@ -158,10 +158,13 @@ void main() {
         timeout: const Duration(seconds: 10),
       );
 
-      // Logout
+      // Navigate to back to more tab
       await tester.tapAndSettle(find.byKey(const Key('irma_app_bar_leading')));
-      await tester.tapAndSettle(find.byKey(const Key('nav_button_more')));
-      await tester.moreTabLogout();
+
+      // Logout
+      final logoutButtonFinder = find.byKey(const Key('log_out_button'));
+      await tester.scrollUntilVisible(logoutButtonFinder, 500);
+      await tester.tapAndSettle(logoutButtonFinder);
 
       // Log back in with new pin
       await enterPin(tester, '54321');

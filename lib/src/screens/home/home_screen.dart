@@ -49,7 +49,9 @@ class _HomeScreenState extends State<HomeScreen> {
               case IrmaNavBarTab.activity:
                 return ActivityTab();
               case IrmaNavBarTab.more:
-                return MoreTab();
+                return MoreTab(
+                  onChangeTab: _changeTab,
+                );
               case IrmaNavBarTab.home:
                 return HomeTab(
                   onChangeTab: _changeTab,
