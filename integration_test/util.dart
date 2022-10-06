@@ -29,19 +29,6 @@ extension WidgetTesterUtil on WidgetTester {
     }
   }
 
-  Future<void> moreTabLogout() async {
-    await dragUntilVisible(
-      find.byKey(const Key('log_out_button'), skipOffstage: false),
-      find.byType(ListView),
-      const Offset(0, -75),
-      maxIteration: 10,
-    );
-    final logoutKeyFinder = find.byKey(const Key('log_out_button'), skipOffstage: false);
-    await ensureVisible(logoutKeyFinder);
-    await pumpAndSettle(const Duration(milliseconds: 100));
-    await tapAndSettle(logoutKeyFinder);
-  }
-
   /// Taps on the given widget, waits for a response, triggers a new frame sequence
   /// to be rendered (check the description of pump) and waits until the widget settles.
   /// The waiting time can be specified using 'duration'.
