@@ -44,7 +44,7 @@ dependencies:
   sliver_tools: ^0.2.7
 
 flutter_native_splash:
-  image: assets/non-free/logo.png
+  image: assets/non-free/logo_payoff.png
   color: "F7F7F7"
   android_disable_fullscreen: true
 
