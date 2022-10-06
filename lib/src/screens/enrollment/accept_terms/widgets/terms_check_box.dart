@@ -21,6 +21,7 @@ class TermsCheckBox extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Checkbox(
+          key: const Key('accept_terms_checkbox'),
           value: isAccepted,
           fillColor: MaterialStateColor.resolveWith(
             (_) => theme.themeData.colorScheme.secondary,
