@@ -33,7 +33,10 @@ void main() {
       'Yivi is your identity on your phone',
       'Your official name, date of birth, address, and more. All securely stored in your Yivi app.'
     ],
-    ['Make yourself known with Yivi', "Easy, secure, and fast. It's all in your hands"],
+    [
+      'Make yourself known with Yivi',
+      'Easy, secure, and fast. It\'s all in your hands',
+    ],
     [
       'Yivi provides certainty, to you and to others',
       'Your data are stored solely within the Yivi app. Only you have access.'
@@ -47,7 +50,7 @@ void main() {
         ));
     tearDown(() => irmaBinding.tearDown());
 
-    // Reusable finders;
+    // Reusable finders
     final nextButtonFinder = find.byKey(const Key('enrollment_next_button'));
     final previousButtonFinder = find.byKey(const Key('enrollment_previous_button'));
 
@@ -97,7 +100,7 @@ void main() {
           final instructionFinder = find.byType(EnrollmentInstruction);
           final actualCurrentInstructionTexts = tester.getAllText(instructionFinder);
           final expectedCurrentInstructionTexts = [
-            "${(i + 1).toString()}/${expectedInstructions.length}",
+            '${(i + 1).toString()}/${expectedInstructions.length}',
             ...expectedInstructions[i],
             if (i != 0) 'Previous',
             'Next'
@@ -123,7 +126,7 @@ void main() {
 
       //Choose the pin
       expect(find.byType(ChoosePinScreen), findsOneWidget);
-      const pin = "12345";
+      const pin = '12345';
       await enterPin(tester, pin);
       await tester.tapAndSettle(find.text('Next'));
 
@@ -131,7 +134,7 @@ void main() {
       expect(find.byType(ConfirmPinScreen), findsOneWidget);
 
       // Enter false pin
-      const falsePin = "54321";
+      const falsePin = '54321';
       await enterPin(tester, falsePin);
 
       //Expect false pin dialog
