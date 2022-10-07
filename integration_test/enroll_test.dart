@@ -78,7 +78,9 @@ void main() {
 
     Future<void> _goThroughTerms(WidgetTester tester) async {
       expect(find.byType(AcceptTermsScreen), findsOneWidget);
-      await tester.tapAndSettle(find.byKey(const Key('accept_terms_checkbox')));
+      final checkBoxFinder = find.byKey(const Key('accept_terms_checkbox'));
+      await tester.scrollUntilVisible(checkBoxFinder, 300);
+      await tester.tapAndSettle(checkBoxFinder);
       await tester.tapAndSettle(nextButtonFinder);
     }
 
@@ -172,7 +174,9 @@ void main() {
         expect(tester.widget<IrmaButton>(nextButtonFinder).onPressed, isNull);
 
         // Tap checkbox
-        await tester.tapAndSettle(find.byKey(const Key('accept_terms_checkbox')));
+        final checkBoxFinder = find.byKey(const Key('accept_terms_checkbox'));
+        await tester.scrollUntilVisible(checkBoxFinder, 300);
+        await tester.tapAndSettle(checkBoxFinder);
 
         // Next button should be enabled now
         expect(tester.widget<IrmaButton>(nextButtonFinder).onPressed, isNotNull);

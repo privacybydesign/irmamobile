@@ -55,8 +55,11 @@
             }
         },
         "terms_and_conditions": {
-            "title": "Start with Yivi",
-            "explanation": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do ab tempor incididunt ut labore et dolore magna aliqua.",
+            "title": "Our terms and conditions",
+            "explanation_markdown": "These are the three main points of our terms and conditions. Read the complete [terms and conditions](https://privacybydesign.foundation/privacy-policy-en/) here.",
+            "point_1": "You decide which personal data you keep safe in Yivi.",
+            "point_2": "You decide which data you share with whom.",
+            "point_3": "No one can access your data without your permission, including Yivi.",
             "accept_markdown": "Yes, I accept the [terms and conditions](https://privacybydesign.foundation/privacy-policy-en/)"
         },
         "submit": {

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 
-import '../widgets/enrollment_graphic.dart';
-import '../widgets/enrollment_layout.dart';
-
-import 'widgets/accept_terms_instruction.dart';
+import '../../../theme/theme.dart';
+import '../../../widgets/irma_markdown.dart';
+import '../../../widgets/translated_text.dart';
+import '../widgets/enrollment_nav_bar.dart';
+import 'widgets/terms_bullet_list.dart';
+import 'widgets/terms_check_box.dart';
 
 class AcceptTermsScreen extends StatelessWidget {
   static const String routeName = 'terms';
@@ -22,17 +25,58 @@ class AcceptTermsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
     return Scaffold(
-      body: EnrollmentLayout(
-        graphic: const EnrollmentGraphic('assets/enrollment/introduction_4.webp'),
-        instruction: AcceptTermsInstruction(
-          titleTranslationKey: 'enrollment.terms_and_conditions.title',
-          explanationTranslationKey: 'enrollment.terms_and_conditions.explanation',
-          isAccepted: isAccepted,
-          onContinue: onContinue,
-          onPrevious: onPrevious,
-          onToggleAccepted: onToggleAccepted,
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraint) {
+            return SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraint.maxHeight),
+                child: IntrinsicHeight(
+                  child: Padding(
+                    padding: EdgeInsets.all(theme.mediumSpacing),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Title
+                        SizedBox(height: theme.mediumSpacing),
+                        TranslatedText(
+                          'enrollment.terms_and_conditions.title',
+                          style: theme.textTheme.headline1,
+                          textAlign: TextAlign.start,
+                        ),
+                        SizedBox(height: theme.mediumSpacing),
+
+                        // Explanation
+                        IrmaMarkdown(
+                          FlutterI18n.translate(
+                            context,
+                            'enrollment.terms_and_conditions.explanation_markdown',
+                          ),
+                        ),
+                        SizedBox(height: theme.mediumSpacing),
+
+                        TermsBulletList(),
+                        const Spacer(),
+
+                        TermsCheckBox(
+                          isAccepted: isAccepted,
+                          onToggleAccepted: onToggleAccepted,
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
         ),
+      ),
+      bottomNavigationBar: EnrollmentNavBar(
+        onPrevious: onPrevious,
+        onContinue: isAccepted ? onContinue : null,
       ),
     );
   }
