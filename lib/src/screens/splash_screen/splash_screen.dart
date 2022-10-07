@@ -28,7 +28,7 @@ class SplashScreen extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             SvgPicture.asset(
-              'assets/non-free/logo.svg',
+              'assets/non-free/logo_payoff.svg',
               height: logoHeight,
               width: logoWidth,
               semanticsLabel: FlutterI18n.translate(
