@@ -32,7 +32,7 @@ jobs:
         uses: ./.github/actions/setup-build-environment
       - run: bundle exec fastlane unit_test
   build-irmagobridge-ios:
-    runs-on: macos-latest
+    runs-on: macos-12
     needs: lint
     steps:
       - name: Check out repository
@@ -58,7 +58,7 @@ jobs:
           name: irmagobridge-android
           path: android/irmagobridge/irmagobridge.aar
   build-app-ios:
-    runs-on: macos-latest
+    runs-on: macos-12
     needs: build-irmagobridge-ios
     strategy:
       matrix:
