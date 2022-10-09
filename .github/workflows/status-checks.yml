@@ -32,7 +32,7 @@ jobs:
         uses: ./.github/actions/setup-build-environment
       - run: bundle exec fastlane unit_test
   build-irmagobridge-ios:
-    runs-on: macos-12
+    runs-on: macos-12 # MacOS version is pinned, because it determines which XCode version is used.
     needs: lint
     steps:
       - name: Check out repository
@@ -58,7 +58,7 @@ jobs:
           name: irmagobridge-android
           path: android/irmagobridge/irmagobridge.aar
   build-app-ios:
-    runs-on: macos-12
+    runs-on: macos-12 # MacOS version is pinned, because it determines which XCode version is used.
     needs: build-irmagobridge-ios
     strategy:
       matrix:
@@ -101,6 +101,26 @@ jobs:
         with:
           name: app-${{ matrix.flavor }}-${{ matrix.target-platform }}
           path: ./fastlane/build/*.apk
+  build-integration-test-ios:
+    runs-on: macos-12 # MacOS version is pinned, because it determines which XCode version is used.
+    needs: build-irmagobridge-ios
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Setup build environment
+        uses: ./.github/actions/setup-build-environment
+      - name: Download irmagobridge artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: irmagobridge-ios
+          path: ios/Runner/Irmagobridge.xcframework/
+      - run: bundle exec fastlane integration_test_ios_build
+      - uses: actions/upload-artifact@v3
+        with:
+          name: integration-test-ios
+          path: ./fastlane/build/*.zip
   build-integration-test-android:
     runs-on: ubuntu-latest
     needs: build-irmagobridge-android
@@ -121,6 +141,28 @@ jobs:
         with:
           name: integration-test-android
           path: ./fastlane/build/*.apk
+  integration-test-ios:
+    runs-on: ubuntu-latest
+    container: google/cloud-sdk:latest
+    needs:
+      - build-integration-test-ios
+      - unit-test # To prevent that test resources are used when we already know there is an issue.
+    concurrency: integration-test-ios # To prevent that we use too much test resources at the same time.
+    steps:
+      - name: Download test artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: integration-test-ios
+          path: .
+      - name: Authenticate to Firebase
+        env:
+          GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_SERVICE_KEY }}
+        run: gcloud auth activate-service-account --key-file <(echo $GCLOUD_SERVICE_KEY)
+        shell: bash
+      - name: Set Firebase project
+        run: gcloud config set project yivimobile
+      - name: Run integration tests
+        run: gcloud firebase test ios run --test ios_tests.zip --xcode-version $XCODE_VERSION --timeout 10m --device=model=iphone8
   integration-test-android:
     runs-on: ubuntu-latest
     container: google/cloud-sdk:latest

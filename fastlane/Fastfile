@@ -232,6 +232,34 @@ lane :integration_test_android_build do
   end
 end
 
+lane :integration_test_ios_build do
+  update_schemes()
+  Dir.chdir("..") do
+    # TODO: code sign identity should be set.
+    sh(
+      "flutter", "build", "ios",
+      "--release",
+      "--no-codesign",
+      "./integration_test/test_all.dart"
+    )
+    Dir.chdir("./ios") do
+      sh(
+        "xcodebuild",
+        "-workspace", "Runner.xcworkspace",
+        "-scheme", "Runner",
+        "-config", "Flutter/Release.xcconfig",
+        "-derivedDataPath", "../build/ios_integ",
+        "-sdk", "iphoneos",
+        "build-for-testing",
+      )
+    end
+    Dir.chdir("./build/ios_integ/Build/Products") do
+      sh("rm -f ../../../../fastlane/build/ios_tests.zip")
+      sh("zip -r ../../../../fastlane/build/ios_tests.zip *")
+    end
+  end
+end
+
 private_lane :get_flutter_build_number do
   Dir.chdir("..") do
     file = File.open("pubspec.yaml")
