@@ -61,6 +61,7 @@ class ProvidedDisclosurePermission extends StatelessWidget {
   Widget build(BuildContext context) {
     final bloc = context.read<DisclosurePermissionBloc>();
     void addEvent(DisclosurePermissionBlocEvent event) => bloc.add(event);
+    void addPrevious() => addEvent(DisclosurePermissionPreviousPressed());
     void onDismiss() => DisclosurePermissionCloseDialog.show(context);
 
     // Wrap our widget in a custom navigator, such that popping this widget from the root navigator will include
@@ -110,7 +111,7 @@ class ProvidedDisclosurePermission extends StatelessWidget {
                 return DisclosurePermissionMakeChoiceScreen(
                   state: state,
                   onEvent: addEvent,
-                  onDismiss: onDismiss,
+                  onPrevious: addPrevious,
                 );
               } else if (state is DisclosurePermissionObtainCredentials) {
                 return DisclosurePermissionObtainCredentialsScreen(

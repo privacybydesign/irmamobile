@@ -8,10 +8,12 @@ class SessionScaffold extends StatelessWidget {
   final Widget? body, bottomNavigationBar;
   final String appBarTitle;
   final VoidCallback? onDismiss;
+  final VoidCallback? onPrevious;
 
   const SessionScaffold({
     Key? key,
     this.onDismiss,
+    this.onPrevious,
     this.bottomNavigationBar,
     this.body,
     required this.appBarTitle,
@@ -27,7 +29,8 @@ class SessionScaffold extends StatelessWidget {
       body: body,
       appBar: IrmaAppBar(
         titleTranslationKey: appBarTitle,
-        noLeading: true,
+        noLeading: onPrevious == null,
+        leadingAction: onPrevious,
         actions: [
           if (onDismiss != null)
             Padding(

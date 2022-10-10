@@ -6,40 +6,54 @@ import '../../../../widgets/translated_text.dart';
 import '../../widgets/session_scaffold.dart';
 import '../bloc/disclosure_permission_event.dart';
 import '../bloc/disclosure_permission_state.dart';
-import '../models/template_disclosure_credential.dart';
 import 'disclosure_permission_choice.dart';
 
-class DisclosurePermissionMakeChoiceScreen extends StatelessWidget {
+class DisclosurePermissionMakeChoiceScreen extends StatefulWidget {
   final DisclosurePermissionMakeChoice state;
   final Function(DisclosurePermissionBlocEvent) onEvent;
-  final Function() onDismiss;
+  final Function() onPrevious;
 
   const DisclosurePermissionMakeChoiceScreen({
     required this.state,
     required this.onEvent,
-    required this.onDismiss,
+    required this.onPrevious,
   });
+
+  @override
+  State<DisclosurePermissionMakeChoiceScreen> createState() => _DisclosurePermissionMakeChoiceScreenState();
+}
+
+class _DisclosurePermissionMakeChoiceScreenState extends State<DisclosurePermissionMakeChoiceScreen> {
+  late int selectedConIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    selectedConIndex = widget.state.selectedConIndex;
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
     return SessionScaffold(
-      appBarTitle: state is DisclosurePermissionChangeChoice
+      appBarTitle: widget.state is DisclosurePermissionChangeChoice
           ? 'disclosure_permission.change_choice'
           : 'disclosure_permission.choose',
-      onDismiss: onDismiss,
+      onPrevious: widget.onPrevious,
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             DisclosurePermissionChoice(
-              choice: state.choosableCons,
-              selectedConIndex: state.selectedConIndex,
-              onChoiceUpdated: (int conIndex) => onEvent(DisclosurePermissionChoiceUpdated(conIndex: conIndex)),
+              choice: widget.state.choosableCons,
+              selectedConIndex: selectedConIndex,
+              onChoiceUpdated: (int conIndex) => setState(
+                () => selectedConIndex = conIndex,
+              ),
             ),
-            if (state.templateCons.isNotEmpty) ...[
+            if (widget.state.templateCons.isNotEmpty) ...[
               Padding(
                 padding: EdgeInsets.all(theme.smallSpacing),
                 child: TranslatedText(
@@ -48,20 +62,25 @@ class DisclosurePermissionMakeChoiceScreen extends StatelessWidget {
                 ),
               ),
               DisclosurePermissionChoice(
-                choice: state.templateCons,
-                selectedConIndex: state.selectedConIndex,
-                onChoiceUpdated: (int conIndex) => onEvent(DisclosurePermissionChoiceUpdated(conIndex: conIndex)),
+                choice: widget.state.templateCons,
+                selectedConIndex: selectedConIndex,
+                onChoiceUpdated: (int conIndex) => setState(
+                  () => selectedConIndex = conIndex,
+                ),
               ),
             ],
           ],
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: state.selectedCon.whereType<TemplateDisclosureCredential>().isNotEmpty
-            ? 'disclosure_permission.obtain_data'
-            : 'ui.done',
-        onPrimaryPressed: () => onEvent(DisclosurePermissionNextPressed()),
-      ),
+          primaryButtonLabel: (selectedConIndex + 1) > widget.state.choosableCons.length
+              ? 'disclosure_permission.obtain_data'
+              : 'ui.done',
+          onPrimaryPressed: () {
+            // TODO Merge these events?
+            widget.onEvent(DisclosurePermissionChoiceUpdated(conIndex: selectedConIndex));
+            widget.onEvent(DisclosurePermissionNextPressed());
+          }),
     );
   }
 }
