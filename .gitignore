@@ -1,8 +1,8 @@
 /vendor
 
 rubyvendor/
-.bundle/
 fastlane/.env.default
+fastlane/build
 fastlane/report.xml
 
 # ---
