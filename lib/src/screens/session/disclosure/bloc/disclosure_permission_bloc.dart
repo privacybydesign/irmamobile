@@ -220,7 +220,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       } else {
         yield state.parentState;
       }
-    } else if (state is DisclosurePermissionChangeChoice && event is DisclosurePermissionPreviousPressed) {
+    } else if (state is DisclosurePermissionMakeChoice && event is DisclosurePermissionPreviousPressed) {
       yield state.parentState;
     } else if (state is DisclosurePermissionWrongCredentialsObtained && event is DisclosurePermissionDialogDismissed) {
       yield state.parentState;

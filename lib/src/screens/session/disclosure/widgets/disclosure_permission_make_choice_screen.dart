@@ -11,12 +11,10 @@ import 'disclosure_permission_choice.dart';
 class DisclosurePermissionMakeChoiceScreen extends StatefulWidget {
   final DisclosurePermissionMakeChoice state;
   final Function(DisclosurePermissionBlocEvent) onEvent;
-  final Function() onPrevious;
 
   const DisclosurePermissionMakeChoiceScreen({
     required this.state,
     required this.onEvent,
-    required this.onPrevious,
   });
 
   @override
@@ -40,7 +38,9 @@ class _DisclosurePermissionMakeChoiceScreenState extends State<DisclosurePermiss
       appBarTitle: widget.state is DisclosurePermissionChangeChoice
           ? 'disclosure_permission.change_choice'
           : 'disclosure_permission.choose',
-      onPrevious: widget.onPrevious,
+      onPrevious: () => widget.onEvent(
+        DisclosurePermissionPreviousPressed(),
+      ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
         child: Column(
@@ -77,7 +77,6 @@ class _DisclosurePermissionMakeChoiceScreenState extends State<DisclosurePermiss
               ? 'disclosure_permission.obtain_data'
               : 'ui.done',
           onPrimaryPressed: () {
-            // TODO Merge these events?
             widget.onEvent(DisclosurePermissionChoiceUpdated(conIndex: selectedConIndex));
             widget.onEvent(DisclosurePermissionNextPressed());
           }),
