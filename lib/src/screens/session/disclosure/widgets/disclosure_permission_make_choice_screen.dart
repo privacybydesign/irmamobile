@@ -6,6 +6,7 @@ import '../../../../widgets/translated_text.dart';
 import '../../widgets/session_scaffold.dart';
 import '../bloc/disclosure_permission_event.dart';
 import '../bloc/disclosure_permission_state.dart';
+import '../models/template_disclosure_credential.dart';
 import 'disclosure_permission_choice.dart';
 
 class DisclosurePermissionMakeChoiceScreen extends StatefulWidget {
@@ -73,13 +74,14 @@ class _DisclosurePermissionMakeChoiceScreenState extends State<DisclosurePermiss
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
-          primaryButtonLabel: (selectedConIndex + 1) > widget.state.choosableCons.length
-              ? 'disclosure_permission.obtain_data'
-              : 'ui.done',
-          onPrimaryPressed: () {
-            widget.onEvent(DisclosurePermissionChoiceUpdated(conIndex: selectedConIndex));
-            widget.onEvent(DisclosurePermissionNextPressed());
-          }),
+        primaryButtonLabel: widget.state.discon[selectedConIndex].whereType<TemplateDisclosureCredential>().isNotEmpty
+            ? 'disclosure_permission.obtain_data'
+            : 'ui.done',
+        onPrimaryPressed: () {
+          widget.onEvent(DisclosurePermissionChoiceUpdated(conIndex: selectedConIndex));
+          widget.onEvent(DisclosurePermissionNextPressed());
+        },
+      ),
     );
   }
 }
