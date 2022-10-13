@@ -203,13 +203,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         throw Exception('Con with index ${event.conIndex} does not exist');
       }
       yield DisclosurePermissionChangeChoice(
-        parentState: _refreshChoices(
-          state.parentState,
-          state.discon,
-          state.disconIndex,
-          session.disclosuresCandidates!.length,
-          event.conIndex,
-        ),
+        parentState: state.parentState,
         discon: state.discon,
         disconIndex: state.disconIndex,
         selectedConIndex: event.conIndex,
@@ -218,7 +212,13 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       if (state.selectedCon.any((cred) => cred is TemplateDisclosureCredential)) {
         yield* _obtainCredentials(state, state.selectedCon);
       } else {
-        yield state.parentState;
+        yield _refreshChoices(
+          state.parentState,
+          state.discon,
+          state.disconIndex,
+          session.disclosuresCandidates!.length,
+          state.selectedConIndex,
+        );
       }
     } else if (state is DisclosurePermissionMakeChoice && event is DisclosurePermissionPreviousPressed) {
       yield state.parentState;
@@ -345,13 +345,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         prevChoice: state.selectedCon,
       );
       final refreshedState = DisclosurePermissionChangeChoice(
-        parentState: _refreshChoices(
-          state.parentState,
-          discon,
-          state.disconIndex,
-          session.disclosuresCandidates!.length,
-          selectedConIndex,
-        ),
+        parentState: state.parentState,
         discon: discon,
         disconIndex: state.disconIndex,
         selectedConIndex: selectedConIndex,
