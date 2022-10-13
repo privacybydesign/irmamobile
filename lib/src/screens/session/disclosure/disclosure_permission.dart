@@ -63,6 +63,7 @@ class ProvidedDisclosurePermission extends StatelessWidget {
     void addEvent(DisclosurePermissionBlocEvent event) => bloc.add(event);
     void onDismiss() => DisclosurePermissionCloseDialog.show(context);
 
+    // Wrapped with WillPopScope to gain control over the behavior of the "go back" gesture
     return WillPopScope(
       onWillPop: () async {
         if (bloc.state is DisclosurePermissionMakeChoice) {
