@@ -6,6 +6,7 @@ import '../../models/attribute.dart';
 import '../../models/attribute_value.dart';
 import '../../theme/theme.dart';
 import '../irma_app_bar.dart';
+import '../irma_divider.dart';
 import '../translated_text.dart';
 
 class IrmaCredentialCardAttributeList extends StatelessWidget {
@@ -80,39 +81,37 @@ class IrmaCredentialCardAttributeList extends StatelessWidget {
       );
     }
 
-    return LayoutBuilder(
-      builder: (context, constraints) => Wrap(
-        direction: Axis.vertical,
-        spacing: theme.smallSpacing,
-        children: [
-          for (Attribute a in textValueAttrs)
-            Column(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (Attribute a in textValueAttrs)
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: theme.tinySpacing),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 buildLabel(a),
                 buildTextContent(a, a.value as TextValue),
               ],
             ),
-          for (Attribute a in photoValueAttrs)
-            Column(
+          ),
+        for (Attribute a in photoValueAttrs)
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: theme.tinySpacing),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: theme.defaultSpacing),
-                Container(
-                  height: 1,
-                  width: constraints.maxWidth * 0.8,
-                  decoration: BoxDecoration(
-                    color: theme.neutralExtraLight,
-                  ),
-                ),
-                SizedBox(height: theme.defaultSpacing),
+                if (a == photoValueAttrs.first) const IrmaDivider(),
                 buildLabel(a),
                 SizedBox(height: theme.tinySpacing),
                 buildTappableImage(a, (a.value as PhotoValue).image),
               ],
             ),
-        ],
-      ),
+          ),
+      ],
     );
   }
 }
