@@ -61,13 +61,12 @@ class ProvidedDisclosurePermission extends StatelessWidget {
   Widget build(BuildContext context) {
     final bloc = context.read<DisclosurePermissionBloc>();
     void addEvent(DisclosurePermissionBlocEvent event) => bloc.add(event);
-    void addPrevious() => addEvent(DisclosurePermissionPreviousPressed());
     void onDismiss() => DisclosurePermissionCloseDialog.show(context);
 
     return WillPopScope(
       onWillPop: () async {
         if (bloc.state is DisclosurePermissionMakeChoice) {
-          addPrevious();
+          addEvent(DisclosurePermissionPreviousPressed());
         } else {
           onDismiss();
         }
