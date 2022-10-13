@@ -60,6 +60,9 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final mediaQuery = MediaQuery.of(context);
+    final keyboardIsActive = mediaQuery.viewInsets.bottom > 0;
+    final isLandscape = mediaQuery.size.width > 450;
 
     return Scaffold(
       appBar: IrmaAppBar(
@@ -67,32 +70,48 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
         leadingAction: widget.onPrevious,
         leadingTooltip: MaterialLocalizations.of(context).backButtonTooltip,
       ),
-      bottomNavigationBar: IrmaBottomBar(
-        alignment: IrmaBottomBarAlignment.horizontal,
-        primaryButtonLabel: 'ui.next',
-        onPrimaryPressed: _onContinuePressed,
-        secondaryButtonLabel: 'ui.skip',
-        onSecondaryPressed: _onSkipPressed,
-      ),
-      body: Form(
-        key: _emailFormKey,
-        child: SingleChildScrollView(
-          padding: EdgeInsets.all(theme.defaultSpacing),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
-            children: [
-              TranslatedText(
-                'enrollment.email.provide.header',
-                style: theme.textTheme.headline3,
+      body: LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: IntrinsicHeight(
+              child: Form(
+                key: _emailFormKey,
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.all(theme.defaultSpacing),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          TranslatedText(
+                            'enrollment.email.provide.header',
+                            style: theme.textTheme.headline3,
+                          ),
+                          SizedBox(
+                            height: theme.defaultSpacing,
+                          ),
+                          const TranslatedText('enrollment.email.provide.explanation'),
+                          SizedBox(height: theme.defaultSpacing),
+                          EmailInputField(controller: _emailController),
+                        ],
+                      ),
+                    ),
+                    if (!keyboardIsActive || !isLandscape) ...[
+                      const Spacer(),
+                      IrmaBottomBar(
+                        alignment: IrmaBottomBarAlignment.horizontal,
+                        primaryButtonLabel: 'ui.next',
+                        onPrimaryPressed: _onContinuePressed,
+                        secondaryButtonLabel: 'ui.skip',
+                        onSecondaryPressed: _onSkipPressed,
+                      )
+                    ]
+                  ],
+                ),
               ),
-              SizedBox(
-                height: theme.defaultSpacing,
-              ),
-              const TranslatedText('enrollment.email.provide.explanation'),
-              SizedBox(height: theme.defaultSpacing),
-              EmailInputField(controller: _emailController)
-            ],
+            ),
           ),
         ),
       ),
