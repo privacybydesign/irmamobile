@@ -256,6 +256,8 @@ void main() {
           String seed = random.nextInt(100).toString();
           var email = 'test' + seed + '@test.com';
           await tester.enterText(emailInputFinder, email);
+          await tester.testTextInput.receiveAction(TextInputAction.done);
+          await tester.pumpAndSettle(const Duration(seconds: 1));
           await tester.tapAndSettle(find.text('Next'));
 
           // Wait for email sent screen
