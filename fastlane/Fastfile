@@ -152,7 +152,7 @@ lane :ios_build_app do |options|
   keychain_path = ""
   unless !export || options[:provisioning_profile_path].empty?
     Dir.chdir("../ios") do
-      keychain_path = "../fastlane/profile/apple_distribution.keychain"
+      keychain_path = "../fastlane/profiles/apple_distribution.keychain"
       create_keychain(
         path: keychain_path,
         password: options[:certificate_password],
