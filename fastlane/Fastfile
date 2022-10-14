@@ -165,7 +165,7 @@ lane :ios_build_app do |options|
         keychain_path: keychain_path,
         keychain_password: options[:certificate_password]
       )
-      update_provisioning_profile(
+      update_project_provisioning(
         xcodeproj: "Runner.xcodeproj",
         profile: "../fastlane/#{options[:provisioning_profile_path]}"
       )
