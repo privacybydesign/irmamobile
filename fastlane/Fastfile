@@ -1,7 +1,7 @@
 before_all do
   skip_docs()
-  # Ensure build directory is present in fastlane directory.
-  sh("mkdir -p ./build/")
+  # Ensure that build and profiles directories are present in fastlane directory.
+  sh("mkdir -p ./build/ ./profiles/")
 end
 
 lane :lint do
@@ -106,13 +106,11 @@ end
 lane :alpha_ios_build do
   ios_build_irmagobridge()
   ios_build_app(flavor: "alpha", sentry_dsn: ENV["SENTRY_DSN_ALPHA"])
-  ios_export(flavor: "alpha")
 end
 
 lane :beta_ios_build do
   ios_build_irmagobridge()
   ios_build_app(flavor: "beta", sentry_dsn: ENV["SENTRY_DSN_PROD"])
-  ios_export(flavor: "beta")
 end
 
 lane :ios_build_app do |options|
@@ -151,11 +149,19 @@ lane :ios_build_app do |options|
     version: commit[:commit_hash]
   )
 
+  keychain_path = ""
   unless !export || options[:provisioning_profile_path].empty?
     Dir.chdir("../ios") do
+      keychain_path = "../fastlane/profile/apple_distribution.keychain"
+      create_keychain(
+        path: keychain_path,
+        unlock: true,
+        timeout: 600
+      )
       import_certificate(
         certificate_path: "../fastlane/#{options[:certificate_path]}",
-        certificate_password: "../fastlane/#{options[:certificate_password]}"
+        certificate_password: "../fastlane/#{options[:certificate_password]}",
+        keychain_path: keychain_path
       )
       update_provisioning_profile(
         xcodeproj: "Runner.xcodeproj",
@@ -171,6 +177,12 @@ lane :ios_build_app do |options|
     else
       # Unexported builds can be useful for testing this lane in development.
       sh("flutter", "build", "ios", "--release", "--no-codesign")
+    end
+  end
+
+  unless keychain_path.empty?
+    Dir.chdir("../ios") do
+      delete_keychain(keychain_path: keychain_path)
     end
   end
 end

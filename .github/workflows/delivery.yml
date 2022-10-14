@@ -64,7 +64,7 @@ jobs:
           submodules: true
       - name: Setup build environment
         uses: ./.github/actions/setup-build-environment
-      - name: Download app artifact
+      - name: Download irmagobridge artifact
         uses: actions/download-artifact@v3
         with:
           name: irmagobridge-ios
@@ -77,7 +77,8 @@ jobs:
           mkdir -p ./fastlane/profiles
           echo $APPLE_DISTRIBUTION_CERTIFICATE | base64 --decode > ./fastlane/profiles/apple_distribution.p12
           echo $APPLE_PROVISIONING_PROFILE | base64 --decode > ./fastlane/profiles/ad_hoc_alpha.mobileprovision
-      - run: >
+      - name: Build app
+        run: >
           bundle exec fastlane ios_build_app
           flavor:alpha
           certificate_path:profiles/apple_distribution.p12
@@ -110,7 +111,8 @@ jobs:
         with:
           name: irmagobridge-android
           path: android/irmagobridge/
-      - run: >
+      - name: Build app
+        run: >
           bundle exec fastlane android_build_app
           flavor:alpha
           target_platform:${{ matrix.target-platform }}
