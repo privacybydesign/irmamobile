@@ -155,13 +155,15 @@ lane :ios_build_app do |options|
       keychain_path = "../fastlane/profile/apple_distribution.keychain"
       create_keychain(
         path: keychain_path,
+        password: options[:certificate_password],
         unlock: true,
         timeout: 600
       )
       import_certificate(
         certificate_path: "../fastlane/#{options[:certificate_path]}",
-        certificate_password: "../fastlane/#{options[:certificate_password]}",
-        keychain_path: keychain_path
+        certificate_password: options[:certificate_password],
+        keychain_path: keychain_path,
+        keychain_password: options[:certificate_password]
       )
       update_provisioning_profile(
         xcodeproj: "Runner.xcodeproj",
