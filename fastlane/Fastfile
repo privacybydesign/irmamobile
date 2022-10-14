@@ -1,4 +1,5 @@
 before_all do
+  skip_docs()
   # Ensure build directory is present in fastlane directory.
   sh("mkdir -p ./build/")
 end
@@ -117,13 +118,18 @@ end
 lane :ios_build_app do |options|
   display_name = ""
   app_identifier = ""
+  export = options[:export] || true
+  export_options = ""
+  # For now, we assume that alpha builds are meant for ad hoc distribution and beta builds for app store distribution.
   case options[:flavor]
   when "alpha"
     display_name = "IRMA 2020"
     app_identifier = "foundation.privacybydesign.irmamob.alpha"
+    export_options = "./ios/AdHocExportOptions.plist"
   when "beta"
     display_name = "IRMA"
     app_identifier = "foundation.privacybydesign.irmamob"
+    export_options = "./ios/AppStoreExportOptions.plist"
   else
     raise "Unsupported flavor"
   end
@@ -144,31 +150,28 @@ lane :ios_build_app do |options|
     dsn: options[:sentry_dsn],
     version: commit[:commit_hash]
   )
-  Dir.chdir("..") do
-    sh("flutter", "build", "ios", "--release", "--no-codesign")
-  end
-end
 
-lane :ios_export do |options|
-  # For now, we assume the provisioning profile and the corresponding keys are already set.
-  # Support should be added to give those as parameters to enable releasing in CI/CD.
-  export_options = ""
-  export_path = ""
-  case options[:flavor]
-  when "alpha"
-    export_options = "./ios/AdHocExportOptions.plist"
-    export_path = "./ios/build/AdHoc"
-  when "beta"
-    export_options = "./ios/AppStoreExportOptions.plist"
-    export_path = "./ios/build/AppStore"
-  else
-    raise "Unsupported flavor"
+  unless !export || options[:provisioning_profile_path].empty?
+    Dir.chdir("../ios") do
+      import_certificate(
+        certificate_path: "../fastlane/#{options[:certificate_path]}",
+        certificate_password: "../fastlane/#{options[:certificate_password]}"
+      )
+      update_provisioning_profile(
+        xcodeproj: "Runner.xcodeproj",
+        profile: "../fastlane/#{options[:provisioning_profile_path]}"
+      )
+    end
   end
 
   Dir.chdir("..") do
-    sh("xcodebuild", "-workspace", "./ios/Runner.xcworkspace", "-scheme", "Runner", "-sdk", "iphoneos", "-configuration", "Release", "archive", "-archivePath", "./ios/build/Runner.xcarchive")
-    sh("xcodebuild", "-exportArchive", "-archivePath", "./ios/build/Runner.xcarchive", "-exportOptionsPlist", export_options, "-exportPath", export_path)
-    sh("cp #{export_path}/*.ipa ./fastlane/build/")
+    if export
+      sh("flutter", "build", "ipa", "--release", "--export-options-plist", export_options)
+      sh("cp ./build/ios/ipa/*.ipa ./fastlane/build/")
+    else
+      # Unexported builds can be useful for testing this lane in development.
+      sh("flutter", "build", "ios", "--release", "--no-codesign")
+    end
   end
 end
 
