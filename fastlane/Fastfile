@@ -151,23 +151,23 @@ lane :ios_build_app do |options|
 
   keychain_path = ""
   unless !export || options[:provisioning_profile_path].empty?
-    Dir.chdir("../ios") do
-      keychain_path = "../fastlane/profiles/apple_distribution.keychain"
-      create_keychain(
-        path: keychain_path,
-        password: options[:certificate_password],
-        unlock: true,
-        timeout: 600
-      )
-      import_certificate(
-        certificate_path: "../fastlane/#{options[:certificate_path]}",
-        certificate_password: options[:certificate_password],
-        keychain_path: keychain_path,
-        keychain_password: options[:certificate_password]
-      )
+    keychain_path = "profiles/apple_distribution.keychain"
+    create_keychain(
+      path: keychain_path,
+      password: options[:certificate_password],
+      unlock: true,
+      timeout: 600
+    )
+    import_certificate(
+      certificate_path: options[:certificate_path],
+      certificate_password: options[:certificate_password],
+      keychain_path: keychain_path,
+      keychain_password: options[:certificate_password]
+    )
+    Dir.chdir("..") do
       update_project_provisioning(
-        xcodeproj: "Runner.xcodeproj",
-        profile: "../fastlane/#{options[:provisioning_profile_path]}"
+        xcodeproj: "ios/Runner.xcodeproj",
+        profile: "fastlane/#{options[:provisioning_profile_path]}"
       )
     end
   end
