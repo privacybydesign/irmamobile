@@ -15,7 +15,7 @@ Setup scripts for CI platforms can be found in the _ci_scripts_ directory.
 For _fastlane_ installation instructions, see [Installing _fastlane_](https://docs.fastlane.tools/#installing-fastlane)
 
 # Apple provisioning profiles
-All actions that make iOS app builds require an app provisioning profile and the corresponding PKCS#12 certificate bundle.
+The `ios_build_app` action needs the app's provisioning profile and the corresponding PKCS#12 certificate bundle.
 Therefore, these actions require the parameters `provisioning_profile_path`, `certificate_path` and `certificate_password`.
 
 Below we describe how to generate these assets. This can only be done by users with the 'Admin' role or
@@ -23,7 +23,7 @@ the 'App Manager' role with access to certificates, identifiers and profiles in 
 Generated provisioning profiles are valid for one year.
 
  1. Go to the ./fastlane directory in irmamobile
- 2. Run `mkdir -p ./fastlane/profiles && cd ./fastlane/profiles`
+ 2. Run `mkdir -p ./profiles && cd ./profiles`
  3. Run `openssl req -nodes -newkey rsa:2048 -keyout apple_distribution.key -out apple_distribution.csr`
  4. Follow the instruction prompts
  5. Upload the CSR to Apple: go to https://developer.apple.com/account/resources/certificates/list, press the '+' sign
@@ -66,95 +66,32 @@ Checks the code quality of the project.
 
 Checks whether all unit tests pass.
 
-### alpha_resign
+### android_resign
 
 ```sh
-[bundle exec] fastlane alpha_resign
+[bundle exec] fastlane android_resign flavor:<VALUE> keystore_path:<VALUE> key_alias:<VALUE> keystore_password:<VALUE> key_password:<VALUE>
 ```
 
-Resigns the alpha flavor APKs in the `build` directory (so `fastlane/build` from the repository's root).
+Resigns the APKs in the `build` directory (so `fastlane/build` from the repository's root) for the requested flavor.
 
-This action expects the following parameters as environment variables:
-
-    ANDROID_SIGN_KEYSTORE=...
-    ANDROID_SIGN_KEY_ALIAS=...
-    ANDROID_SIGN_STORE_PASSWORD=...
-    ANDROID_SIGN_KEY_PASSWORD=...
-
-### beta_resign
+### android_build
 
 ```sh
-[bundle exec] fastlane beta_resign
+[bundle exec] fastlane android_build flavor:<VALUE> sentry_dsn:<VALUE>
 ```
 
-Resigns the beta flavor APKs in the `build` directory (so `fastlane/build` from the repository's root).
+Builds the Android APKs for the requested flavor. The APKs are split on target platform.
+The unsigned Android APKs are written to the `build` directory (so `fastlane/build` from the repository's root).
 
-This action expects the following parameters as environment variables:
+The `flavor` parameter accepts the values `alpha` or `beta`.
 
-    ANDROID_SIGN_KEYSTORE=...
-    ANDROID_SIGN_KEY_ALIAS=...
-    ANDROID_SIGN_STORE_PASSWORD=...
-    ANDROID_SIGN_KEY_PASSWORD=...
-
-### alpha_build
+### android_build_irmagobridge
 
 ```sh
-[bundle exec] fastlane alpha_build
+[bundle exec] fastlane android_build_irmagobridge
 ```
 
-Builds the alpha flavor for both iOS and Android, including the irmagobridge.
-The unsigned Android APK and the signed iOS IPA files are written to
-`build` directory (so `fastlane/build` from the repository's root).
-
-This action expects the following parameters as environment variables:
-
-    SENTRY_DSN_ALPHA=...
-
-Furthermore, it assumes the iOS provisioning profile is manually set in Xcode.
-If this is not the case, consider to use the `ios_build_app` action instead.
-
-### beta_build
-
-```sh
-[bundle exec] fastlane beta_build
-```
-
-Builds the beta flavor for both iOS and Android, including the irmagobridge.
-The unsigned Android APK and the signed iOS IPA files are written to the
-`build` directory (so `fastlane/build` from the repository's root).
-
-This action expects the following parameters as environment variables:
-
-    SENTRY_DSN_PROD=...
-
-Furthermore, it assumes the iOS provisioning profile is manually set in Xcode.
-If this is not the case, consider to use the `ios_build_app` action instead.
-
-### alpha_android_build
-
-```sh
-[bundle exec] fastlane alpha_android_build
-```
-
-Builds the alpha flavor for both Android only, including the irmagobridge.
-The unsigned Android APK files are written to the
-`build` directory (so `fastlane/build` from the repository's root).
-This action expects the following parameters as environment variables:
-
-    SENTRY_DSN_ALPHA=...
-
-### beta_android_build
-
-```sh
-[bundle exec] fastlane beta_android_build
-```
-
-Builds the beta flavor for both iOS and Android, including the irmagobridge.
-The unsigned Android APK files are written to the
-`build` directory (so `fastlane/build` from the repository's root).
-This action expects the following parameters as environment variables:
-
-    SENTRY_DSN_PROD=...
+Builds the irmagobridge for Android.
 
 ### android_build_app
 
@@ -163,61 +100,44 @@ This action expects the following parameters as environment variables:
 ```
 
 Builds the Android APK for the requested flavor and target platform. This action
-assumes the android_build_irmagobridge action has been run first.
-The unsigned Android APK is written to the
-`build` directory (so `fastlane/build` from the repository's root).
+assumes the `android_build_irmagobridge` action has been run first.
+The unsigned Android APK is written to the `build` directory (so `fastlane/build` from the repository's root).
 
 The `flavor` parameter accepts the values `alpha` or `beta`.
 
 The `target_platform` parameter accepts the values `android-arm`, `android-arm64` or `android-x64`.
 
-### alpha_ios_build
+### ios_build
 
 ```sh
-[bundle exec] fastlane alpha_ios_build
+[bundle exec] fastlane ios_build flavor:<VALUE> sentry_dsn:<VALUE>
 ```
 
-Builds the alpha flavor for iOS only, including the irmagobridge.
-The signed iOS IPA file is written to the
-`build` directory (so `fastlane/build` from the repository's root).
+Builds an iOS IPA file for the requested flavor.
 
-This action expects the following parameters as environment variables:
+For all extra parameters, please check the [documentation of `ios_build_app`](#ios_build_app).
 
-    SENTRY_DSN_ALPHA=...
-
-Furthermore, it assumes the iOS provisioning profile is manually set in Xcode.
-If this is not the case, consider to use the `ios_build_app` action instead.
-
-### beta_ios_build
+### ios_build_irmagobridge
 
 ```sh
-[bundle exec] fastlane beta_ios_build
+[bundle exec] fastlane ios_build_irmagobridge
 ```
 
-Builds the beta flavor for iOS only, including the irmagobridge.
-The signed iOS IPA file is written to the
-`build` directory (so `fastlane/build` from the repository's root).
-
-This action expects the following parameters as environment variables:
-
-    SENTRY_DSN_PROD=...
-
-Furthermore, it assumes the iOS provisioning profile is manually set in Xcode.
-If this is not the case, consider to use the `ios_build_app` action instead.
+Builds the irmagobridge for iOS.
 
 ### ios_build_app
 
 ```sh
-[bundle exec] fastlane ios_build_app flavor:<VALUE>
+[bundle exec] fastlane ios_build_app flavor:<VALUE> sentry_dsn:<VALUE>
 ```
 
-Builds the requested flavor for iOS only. This action
-assumes the ios_build_irmagobridge action has been run first.
-The signed iOS IPA file is written to the
-`build` directory (so `fastlane/build` from the repository's root).
+Builds an iOS IPA file for requested flavor. This action
+assumes the `ios_build_irmagobridge` action has been run first.
+The signed iOS IPA file is written to the `build` directory (so `fastlane/build` from the repository's root).
 
 Optionally, you can specify the paths to the app provisioning profile and the corresponding PKCS#12 certificate bundle
-that should be used to provision and sign the build.
+that should be used to provision and sign the build. If the given path is relative, then it is evaluated using the
+fastlane directory as base (so `./fastlane` from the repository's root).
 
 ```sh
 [bundle exec] fastlane ios_build_app flavor:<VALUE> provisioning_profile_path:<VALUE> certificate_path:<VALUE> certificate_password:<VALUE>
@@ -227,22 +147,6 @@ The `flavor` parameter accepts the values `alpha` or `beta`.
 
 The `alpha` flavor expects an ad-hoc provisioning profile and the `beta` flavor an app-store provisioning profile.
 More information on how to achieve app provisioning profiles can be found [above](#apple-provisioning-profiles).
-
-### android_build_irmagobridge
-
-```sh
-[bundle exec] fastlane android_build_irmagobridge
-```
-
-
-
-### ios_build_irmagobridge
-
-```sh
-[bundle exec] fastlane ios_build_irmagobridge
-```
-
-
 
 ----
 

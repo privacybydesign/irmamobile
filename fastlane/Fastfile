@@ -19,52 +19,29 @@ lane :unit_test do
   end
 end
 
-lane :alpha_resign do
-  apks = Dir["build/app-alpha-*.apk"]
+lane :android_resign do |options|
+  apks = Dir["build/app-#{options[:flavor]}-*.apk"]
   apks.each do |apk|
     sh("apksigner", "sign",
-      "--ks", ENV["ANDROID_SIGN_KEYSTORE"],
-      "--ks-key-alias", ENV["ANDROID_SIGN_KEY_ALIAS"],
-      "--ks-pass", "pass:"+ENV["ANDROID_SIGN_STORE_PASSWORD"],
-      "--key-pass", "pass:"+ENV["ANDROID_SIGN_KEY_PASSWORD"],
+      "--ks", options[:keystore_path],
+      "--ks-key-alias", options[:key_alias],
+      "--ks-pass", "pass:"+options[:keystore_password],
+      "--key-pass", "pass:"+options[:key_password],
       apk)
   end
 end
 
-lane :beta_resign do
-  apks = Dir["build/app-beta-*.apk"]
-  apks.each do |apk|
-    sh("apksigner", "sign",
-      "--ks", ENV["ANDROID_SIGN_KEYSTORE"],
-      "--ks-key-alias", ENV["ANDROID_SIGN_KEY_ALIAS"],
-      "--ks-pass", "pass:"+ENV["ANDROID_SIGN_STORE_PASSWORD"],
-      "--key-pass", "pass:"+ENV["ANDROID_SIGN_KEY_PASSWORD"],
-      apk)
-  end
-end
-
-lane :alpha_build do
-  alpha_android_build()
-  alpha_ios_build()
-end
-
-lane :beta_build do
-  beta_android_build()
-  beta_ios_build()
-end
-
-lane :alpha_android_build do
+lane :android_build do |options|
     android_build_irmagobridge()
-    android_build_app(flavor: "alpha", target_platform: "android-arm", sentry_dsn: ENV["SENTRY_DSN_ALPHA"])
-    android_build_app(flavor: "alpha", target_platform: "android-arm64", sentry_dsn: ENV["SENTRY_DSN_ALPHA"])
-    android_build_app(flavor: "alpha", target_platform: "android-x64", sentry_dsn: ENV["SENTRY_DSN_ALPHA"])
+    android_build_app(flavor: options[:flavor], target_platform: "android-arm", sentry_dsn: options[:sentry_dsn])
+    android_build_app(flavor: options[:flavor], target_platform: "android-arm64", sentry_dsn: options[:sentry_dsn])
+    android_build_app(flavor: options[:flavor], target_platform: "android-x64", sentry_dsn: options[:sentry_dsn])
 end
 
-lane :beta_android_build do
-  android_build_irmagobridge()
-  android_build_app(flavor: "beta", target_platform: "android-arm", sentry_dsn: ENV["SENTRY_DSN_PROD"])
-  android_build_app(flavor: "beta", target_platform: "android-arm64", sentry_dsn: ENV["SENTRY_DSN_PROD"])
-  android_build_app(flavor: "beta", target_platform: "android-x64", sentry_dsn: ENV["SENTRY_DSN_PROD"])
+lane :android_build_irmagobridge do
+  Dir.chdir("..") do
+    sh("gomobile", "bind", "-target", "android", "-o", "android/irmagobridge/irmagobridge.aar", "github.com/privacybydesign/irmamobile/irmagobridge")
+  end
 end
 
 lane :android_build_app do |options|
@@ -103,14 +80,22 @@ lane :android_build_app do |options|
   end
 end
 
-lane :alpha_ios_build do
+lane :ios_build do |options|
   ios_build_irmagobridge()
-  ios_build_app(flavor: "alpha", sentry_dsn: ENV["SENTRY_DSN_ALPHA"])
+  ios_build_app(
+    export: options[:export],
+    flavor: options[:flavor],
+    sentry_dsn: options[:sentry_dsn],
+    certificate_path: options[:certificate_path],
+    certificate_password: options[:certificate_password],
+    provisioning_profile_path: options[:provisioning_profile_path]
+  )
 end
 
-lane :beta_ios_build do
-  ios_build_irmagobridge()
-  ios_build_app(flavor: "beta", sentry_dsn: ENV["SENTRY_DSN_PROD"])
+lane :ios_build_irmagobridge do
+  Dir.chdir("..") do
+    sh("gomobile", "bind", "-target", "ios", "-iosversion", "12.0", "-o", "ios/Runner/Irmagobridge.xcframework", "github.com/privacybydesign/irmamobile/irmagobridge")
+  end
 end
 
 lane :ios_build_app do |options|
@@ -195,18 +180,6 @@ lane :ios_build_app do |options|
       output_name: "app-#{options[:flavor]}-ios-#{export_method}.ipa",
       export_method: export_method
     )
-  end
-end
-
-lane :android_build_irmagobridge do
-  Dir.chdir("..") do
-    sh("gomobile", "bind", "-target", "android", "-o", "android/irmagobridge/irmagobridge.aar", "github.com/privacybydesign/irmamobile/irmagobridge")
-  end
-end
-
-lane :ios_build_irmagobridge do
-  Dir.chdir("..") do
-    sh("gomobile", "bind", "-target", "ios", "-iosversion", "12.0", "-o", "ios/Runner/Irmagobridge.xcframework", "github.com/privacybydesign/irmamobile/irmagobridge")
   end
 end
 
