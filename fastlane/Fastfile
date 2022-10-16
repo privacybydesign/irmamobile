@@ -20,7 +20,7 @@ lane :unit_test do
 end
 
 lane :alpha_resign do
-  apks = Dir['../build/app/outputs/apk/alpha/release/*.apk']
+  apks = Dir["build/app-alpha-*.apk"]
   apks.each do |apk|
     sh("apksigner", "sign",
       "--ks", ENV["ANDROID_SIGN_KEYSTORE"],
@@ -32,7 +32,7 @@ lane :alpha_resign do
 end
 
 lane :beta_resign do
-  apks = Dir['../build/app/outputs/apk/beta/release/*.apk']
+  apks = Dir["build/app-beta-*.apk"]
   apks.each do |apk|
     sh("apksigner", "sign",
       "--ks", ENV["ANDROID_SIGN_KEYSTORE"],
@@ -117,17 +117,17 @@ lane :ios_build_app do |options|
   display_name = ""
   app_identifier = ""
   export = options[:export] || true
-  export_options = ""
+  export_method = ""
   # For now, we assume that alpha builds are meant for ad hoc distribution and beta builds for app store distribution.
   case options[:flavor]
   when "alpha"
     display_name = "IRMA 2020"
     app_identifier = "foundation.privacybydesign.irmamob.alpha"
-    export_options = "./ios/AdHocExportOptions.plist"
+    export_method = "ad-hoc"
   when "beta"
     display_name = "IRMA"
     app_identifier = "foundation.privacybydesign.irmamob"
-    export_options = "./ios/AppStoreExportOptions.plist"
+    export_method = "app-store"
   else
     raise "Unsupported flavor"
   end
@@ -149,43 +149,52 @@ lane :ios_build_app do |options|
     version: commit[:commit_hash]
   )
 
-  keychain_path = ""
-  unless !export || options[:provisioning_profile_path].empty?
-    keychain_path = "profiles/apple_distribution.keychain"
+  # When a certificate path is given, we ensure it is properly installed.
+  if options[:certificate_path]
+    keychain_path = File.absolute_path("profiles/apple_distribution.keychain")
+    certificate_password = options[:certificate_password] || ""
     create_keychain(
       path: keychain_path,
-      password: options[:certificate_password],
+      password: certificate_password,
       unlock: true,
       timeout: 600
     )
     import_certificate(
-      certificate_path: options[:certificate_path],
-      certificate_password: options[:certificate_password],
+      certificate_path: File.absolute_path(options[:certificate_path]),
+      certificate_password: certificate_password,
       keychain_path: keychain_path,
-      keychain_password: options[:certificate_password]
+      keychain_password: certificate_password
     )
-    Dir.chdir("..") do
-      update_project_provisioning(
-        xcodeproj: "ios/Runner.xcodeproj",
-        profile: "fastlane/#{options[:provisioning_profile_path]}"
-      )
-    end
   end
 
+  # When a provisioning profile is given, we ensure it is installed and selected in the project.
+  # Otherwise, we use the profile that is currently selected in XCode.
+  if options[:provisioning_profile_path]
+    provisioning_profile_path = File.absolute_path(options[:provisioning_profile_path])
+    install_provisioning_profile(
+      path: provisioning_profile_path
+    )
+    update_project_provisioning(
+      xcodeproj: "ios/Runner.xcodeproj",
+      profile: provisioning_profile_path
+    )
+  end
+
+  # The 'flutter build ipa' command does not support changing the export method in Flutter 2.
+  # Therefore, we use 'flutter build ios' for now with the --no-codesign option
+  # and then we use Fastlane's build_ios_app action to sign and export the build.
   Dir.chdir("..") do
-    if export
-      sh("flutter", "build", "ipa", "--release", "--export-options-plist", export_options)
-      sh("cp ./build/ios/ipa/*.ipa ./fastlane/build/")
-    else
-      # Unexported builds can be useful for testing this lane in development.
-      sh("flutter", "build", "ios", "--release", "--no-codesign")
-    end
+    sh("flutter", "build", "ios", "--release", "--no-codesign")
   end
 
-  unless keychain_path.empty?
-    Dir.chdir("../ios") do
-      delete_keychain(keychain_path: keychain_path)
-    end
+  if export
+    build_ios_app(
+      scheme: "Runner",
+      workspace: "ios/Runner.xcworkspace",
+      output_directory: "fastlane/build",
+      output_name: "app-#{options[:flavor]}-ios-#{export_method}.ipa",
+      export_method: export_method
+    )
   end
 end
 
@@ -201,7 +210,7 @@ lane :ios_build_irmagobridge do
   end
 end
 
-lane :update_schemes do
+private_lane :update_schemes do
   Dir.chdir("../irma_configuration/pbdf") do
     sh("git", "checkout", "master")
     sh("git", "pull", "-f")
@@ -221,7 +230,7 @@ lane :update_schemes do
   end
 end
 
-lane :write_sentrydata do |options|
+private_lane :write_sentrydata do |options|
   erb(
     template: "fastlane/sentry_dsn.erb",
     destination: "lib/sentry_dsn.dart",

@@ -56,7 +56,7 @@ Uploading can be done using [Transporter for MacOS](https://apps.apple.com/us/ap
 [bundle exec] fastlane lint
 ```
 
-
+Checks the code quality of the project.
 
 ### unit_test
 
@@ -64,7 +64,7 @@ Uploading can be done using [Transporter for MacOS](https://apps.apple.com/us/ap
 [bundle exec] fastlane unit_test
 ```
 
-
+Checks whether all unit tests pass.
 
 ### alpha_resign
 
@@ -72,7 +72,14 @@ Uploading can be done using [Transporter for MacOS](https://apps.apple.com/us/ap
 [bundle exec] fastlane alpha_resign
 ```
 
+Resigns the alpha flavor APKs in the `build` directory (so `fastlane/build` from the repository's root).
 
+This action expects the following parameters as environment variables:
+
+    ANDROID_SIGN_KEYSTORE=...
+    ANDROID_SIGN_KEY_ALIAS=...
+    ANDROID_SIGN_STORE_PASSWORD=...
+    ANDROID_SIGN_KEY_PASSWORD=...
 
 ### beta_resign
 
@@ -80,7 +87,14 @@ Uploading can be done using [Transporter for MacOS](https://apps.apple.com/us/ap
 [bundle exec] fastlane beta_resign
 ```
 
+Resigns the beta flavor APKs in the `build` directory (so `fastlane/build` from the repository's root).
 
+This action expects the following parameters as environment variables:
+
+    ANDROID_SIGN_KEYSTORE=...
+    ANDROID_SIGN_KEY_ALIAS=...
+    ANDROID_SIGN_STORE_PASSWORD=...
+    ANDROID_SIGN_KEY_PASSWORD=...
 
 ### alpha_build
 
@@ -88,7 +102,16 @@ Uploading can be done using [Transporter for MacOS](https://apps.apple.com/us/ap
 [bundle exec] fastlane alpha_build
 ```
 
+Builds the alpha flavor for both iOS and Android, including the irmagobridge.
+The unsigned Android APK and the signed iOS IPA files are written to
+`build` directory (so `fastlane/build` from the repository's root).
 
+This action expects the following parameters as environment variables:
+
+    SENTRY_DSN_ALPHA=...
+
+Furthermore, it assumes the iOS provisioning profile is manually set in Xcode.
+If this is not the case, consider to use the `ios_build_app` action instead.
 
 ### beta_build
 
@@ -96,7 +119,16 @@ Uploading can be done using [Transporter for MacOS](https://apps.apple.com/us/ap
 [bundle exec] fastlane beta_build
 ```
 
+Builds the beta flavor for both iOS and Android, including the irmagobridge.
+The unsigned Android APK and the signed iOS IPA files are written to the
+`build` directory (so `fastlane/build` from the repository's root).
 
+This action expects the following parameters as environment variables:
+
+    SENTRY_DSN_PROD=...
+
+Furthermore, it assumes the iOS provisioning profile is manually set in Xcode.
+If this is not the case, consider to use the `ios_build_app` action instead.
 
 ### alpha_android_build
 
@@ -104,7 +136,12 @@ Uploading can be done using [Transporter for MacOS](https://apps.apple.com/us/ap
 [bundle exec] fastlane alpha_android_build
 ```
 
+Builds the alpha flavor for both Android only, including the irmagobridge.
+The unsigned Android APK files are written to the
+`build` directory (so `fastlane/build` from the repository's root).
+This action expects the following parameters as environment variables:
 
+    SENTRY_DSN_ALPHA=...
 
 ### beta_android_build
 
@@ -112,15 +149,27 @@ Uploading can be done using [Transporter for MacOS](https://apps.apple.com/us/ap
 [bundle exec] fastlane beta_android_build
 ```
 
+Builds the beta flavor for both iOS and Android, including the irmagobridge.
+The unsigned Android APK files are written to the
+`build` directory (so `fastlane/build` from the repository's root).
+This action expects the following parameters as environment variables:
 
+    SENTRY_DSN_PROD=...
 
 ### android_build_app
 
 ```sh
-[bundle exec] fastlane android_build_app
+[bundle exec] fastlane android_build_app flavor:<VALUE> target_platform:<VALUE> sentry_dsn:<VALUE>
 ```
 
+Builds the Android APK for the requested flavor and target platform. This action
+assumes the android_build_irmagobridge action has been run first.
+The unsigned Android APK is written to the
+`build` directory (so `fastlane/build` from the repository's root).
 
+The `flavor` parameter accepts the values `alpha` or `beta`.
+
+The `target_platform` parameter accepts the values `android-arm`, `android-arm64` or `android-x64`.
 
 ### alpha_ios_build
 
@@ -128,7 +177,16 @@ Uploading can be done using [Transporter for MacOS](https://apps.apple.com/us/ap
 [bundle exec] fastlane alpha_ios_build
 ```
 
+Builds the alpha flavor for iOS only, including the irmagobridge.
+The signed iOS IPA file is written to the
+`build` directory (so `fastlane/build` from the repository's root).
 
+This action expects the following parameters as environment variables:
+
+    SENTRY_DSN_ALPHA=...
+
+Furthermore, it assumes the iOS provisioning profile is manually set in Xcode.
+If this is not the case, consider to use the `ios_build_app` action instead.
 
 ### beta_ios_build
 
@@ -136,23 +194,39 @@ Uploading can be done using [Transporter for MacOS](https://apps.apple.com/us/ap
 [bundle exec] fastlane beta_ios_build
 ```
 
+Builds the beta flavor for iOS only, including the irmagobridge.
+The signed iOS IPA file is written to the
+`build` directory (so `fastlane/build` from the repository's root).
 
+This action expects the following parameters as environment variables:
+
+    SENTRY_DSN_PROD=...
+
+Furthermore, it assumes the iOS provisioning profile is manually set in Xcode.
+If this is not the case, consider to use the `ios_build_app` action instead.
 
 ### ios_build_app
 
 ```sh
-[bundle exec] fastlane ios_build_app
+[bundle exec] fastlane ios_build_app flavor:<VALUE>
 ```
 
+Builds the requested flavor for iOS only. This action
+assumes the ios_build_irmagobridge action has been run first.
+The signed iOS IPA file is written to the
+`build` directory (so `fastlane/build` from the repository's root).
 
-
-### ios_export
+Optionally, you can specify the paths to the app provisioning profile and the corresponding PKCS#12 certificate bundle
+that should be used to provision and sign the build.
 
 ```sh
-[bundle exec] fastlane ios_export
+[bundle exec] fastlane ios_build_app flavor:<VALUE> provisioning_profile_path:<VALUE> certificate_path:<VALUE> certificate_password:<VALUE>
 ```
 
+The `flavor` parameter accepts the values `alpha` or `beta`.
 
+The `alpha` flavor expects an ad-hoc provisioning profile and the `beta` flavor an app-store provisioning profile.
+More information on how to achieve app provisioning profiles can be found [above](#apple-provisioning-profiles).
 
 ### android_build_irmagobridge
 
@@ -170,25 +244,7 @@ Uploading can be done using [Transporter for MacOS](https://apps.apple.com/us/ap
 
 
 
-### update_schemes
-
-```sh
-[bundle exec] fastlane update_schemes
-```
-
-
-
-### write_sentrydata
-
-```sh
-[bundle exec] fastlane write_sentrydata
-```
-
-
-
 ----
-
-This README.md is auto-generated and will be re-generated every time [_fastlane_](https://fastlane.tools) is run.
 
 More information about _fastlane_ can be found on [fastlane.tools](https://fastlane.tools).
 
