@@ -1,8 +1,12 @@
+# Delivery workflow for master branch.
+# We execute build stages in separate jobs to prevent artifact duplication.
 name: Delivery
 
 on:
   push:
     branches: [ master ]
+
+concurrency: ${{ github.ref }}
 
 jobs:
   # We make sure that lint succeeds before we start any other job to
