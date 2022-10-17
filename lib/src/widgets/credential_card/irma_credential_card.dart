@@ -24,6 +24,7 @@ class IrmaCredentialCard extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final CardExpiryDate? expiryDate;
   final bool hideFooter;
+  final bool hideAttributes;
 
   const IrmaCredentialCard({
     Key? key,
@@ -35,6 +36,7 @@ class IrmaCredentialCard extends StatelessWidget {
     this.padding,
     this.expiryDate,
     this.hideFooter = false,
+    this.hideAttributes = false,
   }) : super(key: key);
 
   IrmaCredentialCard.fromCredential(
@@ -46,6 +48,7 @@ class IrmaCredentialCard extends StatelessWidget {
     this.headerTrailing,
     this.padding,
     this.hideFooter = false,
+    this.hideAttributes = false,
   })  : credentialView = credential,
         expiryDate = CardExpiryDate(credential.expires),
         super(key: key);
@@ -74,7 +77,7 @@ class IrmaCredentialCard extends StatelessWidget {
             isExpiringSoon: isExpiringSoon,
           ),
           // If there are attributes in this credential, then we show the attribute list
-          if (credentialView.attributesWithValue.isNotEmpty) ...[
+          if (credentialView.attributesWithValue.isNotEmpty && !hideAttributes) ...[
             IrmaDivider(isDisabled: isInvalid),
             IrmaCredentialCardAttributeList(
               credentialView.attributes,
