@@ -1,4 +1,4 @@
-# Delivery workflow for master branch.
+# Delivery workflow for the master branch.
 # We execute build stages in separate jobs to prevent artifact duplication.
 name: Delivery
 
