@@ -163,11 +163,95 @@ jobs:
           git diff -U0 ${{ github.event.before }} -- pubspec.yaml | egrep "^\+version: \d+\.\d+\.\d+\+\d+$"
         shell: bash
         continue-on-error: true
+  build-app-ios-beta:
+    runs-on: macos-12
+    needs: version-check
+    if: needs.version-check.outputs.version-changed == 'true'
+    environment: app-store-beta
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Setup build environment
+        uses: ./.github/actions/setup-build-environment
+      - name: Download irmagobridge artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: irmagobridge-ios
+          path: ios/Runner/Irmagobridge.xcframework/
+      - name: Decode binary environment secrets
+        env:
+          APPLE_DISTRIBUTION_CERTIFICATE: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE }}
+          APPLE_PROVISIONING_PROFILE: ${{ secrets.APPLE_PROVISIONING_PROFILE }}
+        run: |
+          mkdir -p ./fastlane/profiles
+          echo $APPLE_DISTRIBUTION_CERTIFICATE | base64 --decode > ./fastlane/profiles/apple_distribution.p12
+          echo $APPLE_PROVISIONING_PROFILE | base64 --decode > ./fastlane/profiles/app_store_beta.mobileprovision
+      - name: Build app
+        run: >
+          bundle exec fastlane ios_build_app
+          flavor:beta
+          certificate_path:profiles/apple_distribution.p12
+          certificate_password:${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+          provisioning_profile_path:profiles/app_store_beta.mobileprovision
+          sentry_dsn:${{ secrets.SENTRY_DSN }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: app-beta-ios
+          path: ./fastlane/build/*.ipa
   build-app-android-beta:
     # The Android builds are only signed with a development key. Signing needs to be done manually still.
     runs-on: ubuntu-latest
     needs: version-check
     if: needs.version-check.outputs.version-changed == 'true'
+    environment: app-store-beta
     steps:
-      - name: Placeholder task
-        run: echo "Hello world!"
+      - name: Check out repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Setup build environment
+        uses: ./.github/actions/setup-build-environment
+      - name: Download irmagobridge artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: irmagobridge-android
+          path: android/irmagobridge/
+      - name: Build app
+        run: >
+          bundle exec fastlane android_build_app
+          flavor:beta
+          target_platform:${{ matrix.target-platform }}
+          sentry_dsn:${{ secrets.SENTRY_DSN }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: app-beta-${{ matrix.target-platform }}
+          path: ./fastlane/build/*.apk
+  bundle-app-beta:
+    runs-on: ubuntu-latest
+    needs:
+      - build-app-ios-beta
+      - build-app-android-beta
+    steps:
+      - name: Download app-beta-ios artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: app-beta-ios
+      - name: Download app-beta-android-arm artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: app-beta-android-arm
+      - name: Download app-beta-android-arm64 artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: app-beta-android-arm64
+      - name: Download app-beta-android-x64 artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: app-beta-android-x64
+      - name: Bundle all artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-bundle-beta
+          path: .
