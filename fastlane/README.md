@@ -25,18 +25,17 @@ Generated provisioning profiles are valid for one year.
  1. Go to the ./fastlane directory in irmamobile
  2. Run `mkdir -p ./profiles && cd ./profiles`
  3. Run `openssl req -nodes -newkey rsa:2048 -keyout apple_distribution.key -out apple_distribution.csr`
- 4. Follow the instruction prompts
- 5. Upload the CSR to Apple: go to https://developer.apple.com/account/resources/certificates/list, press the '+' sign
+ 4. Upload the CSR to Apple: go to https://developer.apple.com/account/resources/certificates/list, press the '+' sign
     and choose "iOS Distribution (App Store and Ad Hoc)"
- 6. When finished, download the .cer file and save it to the directory created in step 2 as `apple_distribution.cer`
- 7. Convert the .cer file to a .pem file:
+ 5. When finished, download the .cer file and save it to the directory created in step 2 as `apple_distribution.cer`
+ 6. Convert the .cer file to a .pem file:
     `openssl x509 -in apple_distribution.cer -inform DER -out apple_distribution.pem -outform PEM`
- 8. Convert the .pem to a .p12 and choose the certificate password:
+ 7. Convert the .pem to a .p12 and choose the certificate password:
     `openssl pkcs12 -export -inkey apple_distribution.key -in apple_distribution.pem -out apple_distribution.p12`
- 9. You can now create a provisioning profile: go to https://developer.apple.com/account/resources/profiles/list,
+ 8. You can now create a provisioning profile: go to https://developer.apple.com/account/resources/profiles/list,
     press the '+' sign and follow the instructions
- 10. When finished, download the provisioning profile and save it to the directory created in step 2
- 11. In case you need to upload the assets to a secret vault, then you need to encode the files with base64,
+ 9. When finished, download the provisioning profile and save it to the directory created in step 2
+ 10. In case you need to upload the assets to a secret vault, then you need to encode the files with base64,
      i.e. `cat apple_distribution.p12 | base64 > apple_distribution.p12.base64`
 
 When generating keys for CI platforms, it's recommended to protect the certificate bundle as a secret in
@@ -141,6 +140,13 @@ fastlane directory as base (so `./fastlane` from the repository's root).
 
 ```sh
 [bundle exec] fastlane ios_build_app flavor:<VALUE> provisioning_profile_path:<VALUE> certificate_path:<VALUE> certificate_password:<VALUE>
+```
+
+Alternatively, you can run this action without an app provisioning profile by disabling the IPA export.
+This can be useful for testing purposes if you don't have access to the keys.
+
+```sh
+[bundle exec] fastlane ios_build_app flavor:<VALUE> export:false
 ```
 
 The `flavor` parameter accepts the values `alpha` or `beta`.
