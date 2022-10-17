@@ -101,7 +101,8 @@ end
 lane :ios_build_app do |options|
   display_name = ""
   app_identifier = ""
-  export = options[:export] || true
+  export = options[:export]
+  export = true if export.nil?
   export_method = ""
   # For now, we assume that alpha builds are meant for ad hoc distribution and beta builds for app store distribution.
   case options[:flavor]
