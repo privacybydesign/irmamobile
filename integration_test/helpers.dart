@@ -83,7 +83,7 @@ Future<void> issueCredentials(
   // Check whether all attributes are displayed in the right order.
   for (final credTypeId in groupedAttributes.keys) {
     final credType = irmaBinding.repository.irmaConfiguration.credentialTypes[credTypeId]!;
-    expect(find.text(credType.name.translate(locale.languageCode)), findsOneWidget);
+    expect(find.text(credType.name.translate(locale.languageCode)).last, findsOneWidget);
   }
   final attributeTexts = tester.getAllText(find.byType(IrmaCredentialCardAttributeList)).toList();
   final attributeEntries = attributes.entries.toList();
@@ -104,6 +104,15 @@ Future<void> issueCredentials(
 
   await tester.waitUntilDisappeared(issuancePageFinder);
 }
+
+Future<void> issueEmailAddress(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) =>
+    issueCredentials(tester, irmaBinding, {
+      'irma-demo.sidn-pbdf.email.email': 'test@example.com',
+      'irma-demo.sidn-pbdf.email.domain': 'example.com',
+    });
 
 Future<void> issueMunicipalityCards(
   WidgetTester tester,
