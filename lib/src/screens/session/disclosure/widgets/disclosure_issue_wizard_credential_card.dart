@@ -7,12 +7,12 @@ import '../models/disclosure_credential.dart';
 class DisclosureIssueWizardCredentialCards extends StatelessWidget {
   final List<DisclosureCredential> credentials;
   final bool isActive;
-  final bool showAttributes;
+  final bool hideAttributes;
 
   const DisclosureIssueWizardCredentialCards({
     required this.credentials,
     this.isActive = false,
-    this.showAttributes = true,
+    this.hideAttributes = false,
   });
 
   @override
@@ -24,6 +24,7 @@ class DisclosureIssueWizardCredentialCards extends StatelessWidget {
               credentialView: cred,
               style: isActive ? IrmaCardStyle.highlighted : IrmaCardStyle.normal,
               compareTo: cred.attributes,
+              hideAttributes: hideAttributes,
               hideFooter: true,
             ),
           )

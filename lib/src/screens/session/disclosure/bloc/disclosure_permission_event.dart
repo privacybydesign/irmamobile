@@ -3,6 +3,9 @@ abstract class DisclosurePermissionBlocEvent {}
 /// Event to indicate that the user wants to continue to the next state.
 class DisclosurePermissionNextPressed implements DisclosurePermissionBlocEvent {}
 
+/// Event to indicate that the user wants to go back to the previous state.
+class DisclosurePermissionPreviousPressed implements DisclosurePermissionBlocEvent {}
+
 /// Event to indicate for which discon in the condiscon all available choices should be displayed.
 class DisclosurePermissionChangeChoicePressed implements DisclosurePermissionBlocEvent {
   final int disconIndex;
