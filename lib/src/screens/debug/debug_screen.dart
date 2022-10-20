@@ -6,7 +6,9 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/models/credential_events.dart';
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/session.dart';
+import 'package:irmamobile/src/screens/debug/manage_schemes_screen.dart';
 import 'package:irmamobile/src/screens/debug/portrait_photo_mock.dart';
+import 'package:irmamobile/src/screens/debug/session_helper_screen.dart';
 import 'package:irmamobile/src/util/handle_pointer.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/irma_repository_provider.dart';
@@ -118,15 +120,8 @@ class DemoSessionHelper {
   }
 }
 
-class DebugScreen extends StatefulWidget {
+class DebugScreen extends StatelessWidget {
   static const routeName = '/debug';
-
-  @override
-  State<StatefulWidget> createState() => _DebugScreenState();
-}
-
-class _DebugScreenState extends State<DebugScreen> {
-  final _controller = TextEditingController(text: DemoSessionHelper.disclosureSessionRequest());
 
   void _onClose(BuildContext context) {
     Navigator.of(context).pop();
@@ -148,6 +143,17 @@ class _DebugScreenState extends State<DebugScreen> {
     }
   }
 
+  Widget _buildTile({
+    required IconData icon,
+    required String title,
+    required GestureTapCallback onTap,
+  }) =>
+      ListTile(
+        leading: Icon(icon),
+        title: Text(title),
+        onTap: onTap,
+      );
+
   @override
   Widget build(BuildContext context) {
     final irmaConfigurationFuture = IrmaRepositoryProvider.of(context).getIrmaConfiguration().first;
@@ -157,43 +163,64 @@ class _DebugScreenState extends State<DebugScreen> {
         titleTranslationKey: 'Debugger',
         leadingAction: () => _onClose(context),
         leadingIcon: Icon(Icons.arrow_back, semanticLabel: FlutterI18n.translate(context, 'accessibility.back')),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.image),
-            onPressed: () => _getCards(
+      ),
+      body: ListView(
+        children: [
+          _buildTile(
+            icon: Icons.image,
+            title: 'Add credential with image',
+            onTap: () => _getCards(
               context,
               DemoSessionHelper.digidProefIssuanceRequest(irmaConfigurationFuture),
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.exposure_plus_2),
-            onPressed: () => _getCards(
+          _buildTile(
+            icon: Icons.exposure_plus_2,
+            title: 'Add two credentials',
+            onTap: () => _getCards(
               context,
               DemoSessionHelper.randomIssuanceRequest(irmaConfigurationFuture, 2),
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.list_alt),
-            onPressed: () => handlePointer(
+          _buildTile(
+            icon: Icons.list_alt,
+            title: 'Do a custom issue wizard',
+            onTap: () => handlePointer(
               Navigator.of(context),
               IssueWizardPointer('irma-demo-requestors.ivido.demo-client'),
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: () => _deleteAllDeletableCards(context),
+          _buildTile(
+            icon: Icons.share,
+            title: 'Do a disclosure session',
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => SessionHelperScreen(
+                initialRequest: DemoSessionHelper.disclosureSessionRequest(),
+              ),
+            )),
           ),
-          IconButton(
-            icon: const Icon(Icons.send),
-            onPressed: () => IrmaRepositoryProvider.of(context).startTestSession(_controller.text),
+          _buildTile(
+            icon: Icons.edit,
+            title: 'Do a signature session',
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => SessionHelperScreen(
+                initialRequest: DemoSessionHelper.signingSessionRequest(),
+              ),
+            )),
+          ),
+          _buildTile(
+            icon: Icons.manage_accounts,
+            title: 'Manage schemes',
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => ManageSchemesScreen(),
+            )),
+          ),
+          _buildTile(
+            icon: Icons.delete,
+            title: 'Delete all credentials',
+            onTap: () => _deleteAllDeletableCards(context),
           ),
         ],
-      ),
-      body: TextField(
-        controller: _controller,
-        keyboardType: TextInputType.multiline,
-        maxLines: null,
-        expands: true,
       ),
     );
   }
