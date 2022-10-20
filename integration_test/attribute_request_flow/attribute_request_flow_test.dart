@@ -10,6 +10,7 @@ import 'empty_app_scenarios/scenario_2.dart';
 import 'empty_app_scenarios/scenario_3.dart';
 import 'empty_app_scenarios/scenario_4.dart';
 import 'empty_app_scenarios/scenario_5.dart';
+import 'empty_app_scenarios/scenario_6.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +36,10 @@ void main() {
 
       // Student/employee id from university OR full name from municipality AND email address
       testWidgets('scenario-5', (tester) => scenario5(tester, irmaBinding));
+
+      // Bank account number from iDeal. BIC has to be RABONL2U. OR
+      // Initials, family name and city from iDIN. The city has to be Arnhem
+      testWidgets('scenario-6', (tester) => scenario6(tester, irmaBinding));
     });
   });
 }
