@@ -48,7 +48,10 @@ Future<void> scenario5(WidgetTester tester, IntegrationTestIrmaBinding irmaBindi
   expect(choiceFinder, findsOneWidget);
 
   // Select the second choice
-  await tester.tapAndSettle(find.text('Demo Personal data'));
+  final personalDataFinder = find.text('Demo Personal data');
+  await tester.ensureVisible(personalDataFinder);
+  await tester.pumpAndSettle();
+  await tester.tapAndSettle(personalDataFinder);
   await tester.tapAndSettle(find.text('Obtain data'));
 
   // Expect sub-issue wizard

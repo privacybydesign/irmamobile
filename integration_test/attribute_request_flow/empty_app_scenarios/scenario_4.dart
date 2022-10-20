@@ -60,7 +60,10 @@ Future<void> scenario4(WidgetTester tester, IntegrationTestIrmaBinding irmaBindi
   expect((choiceCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.outlined);
 
   // Select the iDIN option
-  await tester.tapAndSettle(find.text('Demo iDIN').first);
+  final iDinOptionFinder = find.text('Demo iDIN').first;
+  await tester.ensureVisible(iDinOptionFinder);
+  await tester.pumpAndSettle();
+  await tester.tapAndSettle(iDinOptionFinder);
 
   // Now the second card in the choice should be highlighted, second card should be outlined
   expect((choiceCardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.outlined);
