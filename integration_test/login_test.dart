@@ -99,11 +99,11 @@ void main() {
       await tester.waitFor(find.byKey(const Key('irma_dialog')));
       // Check "Wrong PIN" dialog title text
       string = tester.getAllText(find.byKey(const Key('irma_dialog_title'))).first;
-      expect(string, 'Account blocked');
+      expect(string, 'Blocked');
       // Check dialog text
       string = tester.getAllText(find.byKey(const Key('irma_dialog_content'))).first;
 
-      expect(string, 'Your account has been blocked for 1 minute. Please try again later.');
+      expect(string, 'Your IRMA app has been blocked for 1 minute. Please try again later.');
       await tester.tapAndSettle(find.descendant(
         of: find.byKey(const Key('irma_dialog')),
         matching: find.byType(IrmaButton),

@@ -1,0 +1,54 @@
+name: Setup build environment
+description: This action installs all build tools needed for irmamobile and caches the result to speed up future runs.
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-java@v3
+      with:
+        distribution: adopt
+        java-version: 11
+    - uses: actions/setup-go@v3
+      with:
+        go-version: ^1.18
+        cache: true
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.7
+    - uses: actions/cache@v3
+      env:
+        SEGMENT_DOWNLOAD_TIMEOUT_MINS: "1"
+      with:
+        path: rubyvendor/
+        key: ${{ runner.os }}-${{ hashFiles('Gemfile.lock') }}
+    - run: bundle install
+      shell: bash
+    - name: Set environment variables
+      run: |
+        ANDROID_HOME=~/android-sdk
+        FLUTTER_HOME=~/flutter
+        echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+        echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk-bundle" >> $GITHUB_ENV
+        echo "FLUTTER_HOME=$FLUTTER_HOME" >> $GITHUB_ENV
+        echo "$ANDROID_HOME/cmdline-tools/bin" >> $GITHUB_PATH
+        echo "$FLUTTER_HOME/bin" >> $GITHUB_PATH
+      shell: bash
+    - uses: actions/cache@v3
+      # If we cannot download the cached content from GitHub within 5 minutes, then
+      # we continue like there was no cache hit.
+      env:
+        SEGMENT_DOWNLOAD_TIMEOUT_MINS: "5"
+      with:
+        path: |
+          ${{ env.ANDROID_HOME }}
+          ${{ env.FLUTTER_HOME }}
+        key: ${{ runner.os }}-${{ hashFiles('ci_scripts/*') }}
+    - name: Ensure Android SDK is installed
+      if: runner.os == 'Linux'
+      run: ./ci_scripts/install_android_sdk.sh
+      shell: bash
+    - name: Ensure Flutter is installed
+      run: ./ci_scripts/install_flutter.sh
+      shell: bash
+    - name: Ensure Go mobile is installed
+      run: ./ci_scripts/install_gomobile.sh
+      shell: bash
