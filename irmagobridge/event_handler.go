@@ -1,6 +1,7 @@
 package irmagobridge
 
 import (
+	"fmt"
 	"github.com/go-errors/errors"
 	irma "github.com/privacybydesign/irmago"
 	irmaclient "github.com/privacybydesign/irmago/irmaclient"
@@ -12,22 +13,41 @@ type eventHandler struct {
 
 // Enrollment to a keyshare server
 func (ah *eventHandler) enroll(event *enrollEvent) (err error) {
-	unenrolled := client.UnenrolledSchemeManagers()
-
-	if len(unenrolled) == 0 {
-		return errors.Errorf("No unenrolled scheme manager available to enroll with")
+	found := false
+	for _, schemeID := range client.UnenrolledSchemeManagers() {
+		if schemeID == event.SchemeID {
+			found = true
+			break
+		}
 	}
 
-	// Irmago doesn't actually support multiple scheme managers with keyshare enrollment,
-	// so we just pick the first unenrolled, which should be PBDF production
-	client.KeyshareEnroll(unenrolled[0], event.Email, event.Pin, event.Language)
-	return nil
+	if !found {
+		msg := fmt.Sprintf("no unenrolled scheme manager found with name %s", event.SchemeID)
+		dispatchEvent(&enrollmentFailureEvent{
+			SchemeManagerID: event.SchemeID,
+			Error: &sessionError{&irma.SessionError{
+				Err:       errors.New(msg),
+				ErrorType: irma.ErrorUnknownSchemeManager,
+				Info:      msg,
+			}},
+		})
+		return
+	}
+
+	client.KeyshareEnroll(event.SchemeID, event.Email, event.Pin, event.Language)
+	return
 }
 
 // Authenticate to the keyshare server to get access to the app
 func (ah *eventHandler) authenticate(event *authenticateEvent) (err error) {
-	enrolled := client.EnrolledSchemeManagers()
-	if len(enrolled) == 0 {
+	enrolled := false
+	for _, schemeID := range client.EnrolledSchemeManagers() {
+		if schemeID == event.SchemeID {
+			enrolled = true
+		}
+	}
+
+	if !enrolled {
 		dispatchEvent(&authenticationErrorEvent{
 			Error: &sessionError{&irma.SessionError{
 				Err:       errors.Errorf("Can't verify PIN, not enrolled"),
@@ -35,12 +55,11 @@ func (ah *eventHandler) authenticate(event *authenticateEvent) (err error) {
 				Info:      "Can't verify PIN, not enrolled",
 			}},
 		})
-
 		return
 	}
 
 	go func() {
-		success, tries, blocked, err := client.KeyshareVerifyPin(event.Pin, enrolled[0])
+		success, tries, blocked, err := client.KeyshareVerifyPin(event.Pin, event.SchemeID)
 		if err != nil {
 			dispatchEvent(&authenticationErrorEvent{
 				Error: &sessionError{err.(*irma.SessionError)},
@@ -66,9 +85,7 @@ func (ah *eventHandler) changePin(event *changePinEvent) (err error) {
 		return errors.Errorf("No enrolled scheme managers to change pin for")
 	}
 
-	// Irmago doesn't actually support multiple scheme managers with keyshare enrollment,
-	// so we just pick the first enrolled, which should be PBDF production
-	client.KeyshareChangePin(enrolled[0], event.OldPin, event.NewPin)
+	client.KeyshareChangePin(event.OldPin, event.NewPin)
 	return nil
 }
 
@@ -254,5 +271,25 @@ func (ah *eventHandler) getIssueWizardContents(event *getIssueWizardContentsEven
 		ID:             event.ID,
 		WizardContents: contents,
 	})
+	return nil
+}
+
+func (ah *eventHandler) installScheme(event *installSchemeEvent) error {
+	err := client.Configuration.InstallScheme(event.URL, []byte(event.PublicKey))
+	if err != nil {
+		return err
+	}
+	dispatchConfigurationEvent()
+	dispatchEnrollmentStatusEvent()
+	return nil
+}
+
+func (ah *eventHandler) removeScheme(event *removeSchemeEvent) error {
+	err := client.RemoveScheme(event.SchemeID)
+	if err != nil {
+		return err
+	}
+	dispatchConfigurationEvent()
+	dispatchEnrollmentStatusEvent()
 	return nil
 }

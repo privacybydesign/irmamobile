@@ -65,10 +65,8 @@ func (ch *clientHandler) ChangePinFailure(managerIdentifier irma.SchemeManagerId
 	})
 }
 
-func (ch *clientHandler) ChangePinSuccess(managerIdentifier irma.SchemeManagerIdentifier) {
-	dispatchEvent(&changePinSuccessEvent{
-		SchemeManagerID: managerIdentifier,
-	})
+func (ch *clientHandler) ChangePinSuccess() {
+	dispatchEvent(&changePinSuccessEvent{})
 }
 
 func (ch *clientHandler) ChangePinIncorrect(managerIdentifier irma.SchemeManagerIdentifier, remainingAttempts int) {
