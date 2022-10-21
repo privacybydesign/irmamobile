@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_share_dialog.dart';
 import 'package:irmamobile/src/screens/session/session_screen.dart';
@@ -12,6 +13,9 @@ import '../../util.dart';
 
 Future<void> scenario1(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
+
+  // Session requesting:
+  // Full name AND nationality
   const sessionRequest = '''
         {
           "@context": "https://irma.app/ld/request/disclosure/v2",

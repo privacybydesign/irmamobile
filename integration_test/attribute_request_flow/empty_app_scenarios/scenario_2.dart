@@ -15,6 +15,9 @@ import '../../util.dart';
 
 Future<void> scenario2(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
+
+  // Session requesting:
+  // Email OR your mobile number.
   const sessionRequest = '''
         {
           "@context": "https://irma.app/ld/request/disclosure/v2",

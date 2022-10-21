@@ -15,6 +15,10 @@ import '../../util.dart';
 
 Future<void> scenario4(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
+
+  // Session requesting:
+  // Address from multiplicity OR address from iDIN
+  // AND your AGB code (from Nuts)
   const sessionRequest = '''
         {
           "@context": "https://irma.app/ld/request/disclosure/v2",

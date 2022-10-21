@@ -23,22 +23,24 @@ void main() {
     tearDown(() => irmaBinding.tearDown());
 
     group('empty-app-scenarios', () {
-      // Share your full name AND nationality
+      // Full name AND nationality
       testWidgets('scenario-1', (tester) => scenario1(tester, irmaBinding));
 
-      // Share your email OR your mobile number.
+      // Email OR your mobile number.
       testWidgets('scenario-2', (tester) => scenario2(tester, irmaBinding));
 
-      // Share your email AND mobile number
+      // Email AND mobile number
       testWidgets('scenario-3', (tester) => scenario3(tester, irmaBinding));
 
-      // Address from multiplicity OR your AGB code (from Nuts)
+      // Address from multiplicity OR iDIN
+      // AND your AGB code (from Nuts)
       testWidgets('scenario-4', (tester) => scenario4(tester, irmaBinding));
 
-      // Student/employee id from university OR full name from municipality AND email address
+      // Student/employee id from university OR
+      // Full name from municipality AND email address
       testWidgets('scenario-5', (tester) => scenario5(tester, irmaBinding));
 
-      // Bank account number from iDeal. BIC has to be RABONL2U. OR
+      // Bank account number from iDeal. BIC has to be RABONL2U. AND
       // Initials, family name and city from iDIN. The city has to be Arnhem
       testWidgets('scenario-6', (tester) => scenario6(tester, irmaBinding));
 
