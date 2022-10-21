@@ -69,13 +69,29 @@ Future<void> scenario6(WidgetTester tester, IntegrationTestIrmaBinding irmaBindi
   );
   expect(firstCardAttListFinder, findsOneWidget);
 
-  // The name of the attribute should be visible and styled normally
+  // The name of the attribute with a value should be visible and styled normally
   final firstCardAttNameFinder = find.descendant(
     of: firstCardAttListFinder,
     matching: find.text('City'),
   );
   expect(firstCardAttNameFinder, findsOneWidget);
   expect((firstCardAttNameFinder.evaluate().first.widget as Text).style?.color!, defaultTextColor);
+
+  // The names of the other requested attributes (without a value) should not be visible
+  expect(
+    find.descendant(
+      of: firstCardAttListFinder,
+      matching: find.text('Initials'),
+    ),
+    findsNothing,
+  );
+  expect(
+    find.descendant(
+      of: firstCardAttListFinder,
+      matching: find.text('Family name'),
+    ),
+    findsNothing,
+  );
 
   // The value of the attribute should be visible and styled green
   final firstCardAttValueFinder = find.descendant(
