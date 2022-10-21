@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart';
-import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_issue_wizard_credential_card.dart';
-import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choice.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_share_dialog.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_wrong_credentials_obtained_dialog.dart';
