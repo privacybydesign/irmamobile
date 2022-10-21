@@ -33,7 +33,9 @@ Future<void> scenario6(WidgetTester tester, IntegrationTestIrmaBinding irmaBindi
           "@context": "https://irma.app/ld/request/disclosure/v2",
           "disclose": [
             [
-              [ "irma-demo.idin.idin.initials", "irma-demo.idin.idin.familyname", { "type" : "irma-demo.idin.idin.city", "value" : "Arnhem" }],
+              [ "irma-demo.idin.idin.initials", "irma-demo.idin.idin.familyname", { "type" : "irma-demo.idin.idin.city", "value" : "Arnhem" }]
+            ],
+            [
               [ "irma-demo.ideal.ideal.iban", { "type": "irma-demo.ideal.ideal.bic", "value": "RABONL2U" }]
             ]
           ]
@@ -51,19 +53,9 @@ Future<void> scenario6(WidgetTester tester, IntegrationTestIrmaBinding irmaBindi
   final disConStepperFinder = find.byType(DisclosureDisconStepper);
   expect(disConStepperFinder, findsOneWidget);
 
-  // The discon stepper should have one choice
-  final choiceFinder = find.descendant(
-    of: disConStepperFinder,
-    matching: find.byType(DisclosurePermissionChoice),
-  );
-  expect(choiceFinder, findsOneWidget);
-
-  // Choice should contain header text "Make a choice"
-  expect(find.text("Make a choice"), findsOneWidget);
-
-  // The choice should consist of two cards
+  // The discon stepper should two cards
   final choiceCardsFinder = find.descendant(
-    of: choiceFinder,
+    of: disConStepperFinder,
     matching: find.byType(IrmaCredentialCard),
   );
   expect(choiceCardsFinder, findsNWidgets(2));
@@ -102,7 +94,19 @@ Future<void> scenario6(WidgetTester tester, IntegrationTestIrmaBinding irmaBindi
     150,
     maxScrolls: 300,
   );
-  expect((secondCardFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.outlined);
+  expect((secondCardFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
+
+  // Issue the right iDIN credential
+  await issueCredentials(tester, irmaBinding, {
+    'irma-demo.idin.idin.initials': 'J',
+    'irma-demo.idin.idin.familyname': 'Doe',
+    'irma-demo.idin.idin.dateofbirth': '01-01-1991',
+    'irma-demo.idin.idin.gender': 'M',
+    'irma-demo.idin.idin.address': 'Teststraat 12',
+    'irma-demo.idin.idin.zipcode': '1234 AB',
+    'irma-demo.idin.idin.city': 'Arnhem',
+    'irma-demo.idin.idin.country': 'Netherlands',
+  });
 
   // Tap it and the styling should change.
   await tester.tapAndSettle(secondCardFinder);
@@ -219,30 +223,10 @@ Future<void> scenario6(WidgetTester tester, IntegrationTestIrmaBinding irmaBindi
   // No dialog should appear
   expect(wrongCredAddedDialogFinder, findsNothing);
 
-  // The choice should disappear too
-  expect(choiceFinder, findsNothing);
-
-  // The discon stepper should have one choice
-  final disclosureCards = find.descendant(
-    of: disConStepperFinder,
-    matching: find.byType(DisclosureIssueWizardCredentialCards),
-  );
-  expect(disclosureCards, findsOneWidget);
-  final disclosureCard = disclosureCards.first;
-
-  // The disclosure card should have the right text
+  // The disclosure cards should not have a attribute cards list.
   expect(
     find.descendant(
-      of: disclosureCard,
-      matching: find.text('Demo iDEAL'),
-    ),
-    findsOneWidget,
-  );
-
-  // The disclosure card should not have a attribute cards list.
-  expect(
-    find.descendant(
-      of: disclosureCard,
+      of: dialogCardsFinder,
       matching: find.byType(IrmaCredentialCardAttributeList),
     ),
     findsNothing,
