@@ -57,7 +57,7 @@ Future<void> scenario3(WidgetTester tester, IntegrationTestIrmaBinding irmaBindi
   expect((cardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.highlighted);
   expect((cardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
 
-  //Issue the email credential
+  // Issue the email credential
   await issueEmailAddress(tester, irmaBinding);
 
   // Now only the second card should be highlighted

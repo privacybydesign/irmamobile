@@ -66,7 +66,7 @@ Future<void> scenario5(WidgetTester tester, IntegrationTestIrmaBinding irmaBindi
   final templateStepperFinder = find.byType(DisclosureTemplateStepper);
   expect(templateStepperFinder, findsOneWidget);
 
-  // The  template stepper should have two items
+  // The template stepper should have two items
   final templateCardsFinder = find.descendant(
     of: templateStepperFinder,
     matching: find.byType(IrmaCredentialCard),

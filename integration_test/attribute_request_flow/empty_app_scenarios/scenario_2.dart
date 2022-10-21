@@ -59,7 +59,7 @@ Future<void> scenario2(WidgetTester tester, IntegrationTestIrmaBinding irmaBindi
   );
   expect(cardsFinder, findsNWidgets(2));
 
-  //First card should be highlighted.
+  // First card should be highlighted.
   expect((cardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.highlighted);
 
   // We cannot actually press the 'Obtain data' button, because we get redirected to an external flow then.
