@@ -1,15 +1,14 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../theme/irma_icons.dart';
 import '../../theme/theme.dart';
+import '../../util/check_testing_enabled.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_button.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/translated_text.dart';
 import '../home/widgets/irma_nav_bar.dart';
 import '../home/widgets/links.dart';
-
 import 'widgets/version_button.dart';
 
 class MoreTab extends StatelessWidget {
@@ -52,12 +51,16 @@ class MoreTab extends StatelessWidget {
                 translationKey: 'help.faq',
                 routeName: '/help',
               ),
-              if (kDebugMode)
-                const InternalLink(
-                  iconData: Icons.videogame_asset,
-                  translationKey: 'more_tab.debugging',
-                  routeName: '/debug',
-                ),
+              FutureBuilder<bool>(
+                future: checkTestingEnabled(),
+                builder: (context, snapshot) => snapshot.data ?? false
+                    ? const InternalLink(
+                        iconData: Icons.videogame_asset,
+                        translationKey: 'more_tab.debugging',
+                        routeName: '/debug',
+                      )
+                    : Container(),
+              ),
               _buildHeaderText('help.about_irma'),
               const ExternalLink(
                   iconData: Icons.info_outline,

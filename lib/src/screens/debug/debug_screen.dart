@@ -156,7 +156,8 @@ class DebugScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final irmaConfigurationFuture = IrmaRepositoryProvider.of(context).getIrmaConfiguration().first;
+    final repo = IrmaRepositoryProvider.of(context);
+    final irmaConfigurationFuture = repo.getIrmaConfiguration().first;
 
     return Scaffold(
       appBar: IrmaAppBar(
@@ -212,7 +213,7 @@ class DebugScreen extends StatelessWidget {
             icon: Icons.manage_accounts,
             title: 'Manage schemes',
             onTap: () => Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => ManageSchemesScreen(),
+              builder: (context) => ManageSchemesScreen(irmaRepository: repo),
             )),
           ),
           _buildTile(

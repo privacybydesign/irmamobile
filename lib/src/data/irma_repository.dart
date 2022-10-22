@@ -110,12 +110,15 @@ class IrmaRepository {
 
   late StreamSubscription<Event> _bridgeEventSubscription;
 
+  bool automaticErrorReporting;
+
   // _internal is a named constructor only used by the factory
   IrmaRepository._internal(
     this._bridge,
     this.preferences,
-    this.defaultKeyshareScheme,
-  ) {
+    this.defaultKeyshareScheme, [
+    this.automaticErrorReporting = true,
+  ]) {
     _inAppCredentialSubject.add(_InAppCredentialState());
     _eventSubject.listen(_eventListener);
     _sessionRepository = SessionRepository(
@@ -164,7 +167,7 @@ class IrmaRepository {
       if (event.fatal) {
         _fatalErrorSubject.add(event);
         _lockedSubject.add(false);
-      } else {
+      } else if (automaticErrorReporting) {
         // Only fatal errors on start-up are caught at the moment, so we have to report other errors manually.
         reportError(event.exception, event.stack);
       }
