@@ -10,7 +10,7 @@ import '../../models/session.dart';
 import '../../util/handle_pointer.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
-import '../testing/manage_schemes_screen.dart';
+import 'manage_schemes_screen.dart';
 import 'portrait_photo_mock.dart';
 import 'session_helper_screen.dart';
 
