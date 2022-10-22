@@ -127,8 +127,7 @@ class _ManageSchemesScreenState extends State<ManageSchemesScreen> {
       final response = await request.close();
       publicKey = await response.transform(utf8.decoder).first;
       if (response.statusCode != 200) {
-        _showMessage('Error while fetching scheme: HTTP status code ${response.statusCode} received.');
-        return;
+        throw 'HTTP status code ${response.statusCode} received';
       }
     } catch (e) {
       _showMessage('Error while fetching scheme: ${e.toString()}.');
