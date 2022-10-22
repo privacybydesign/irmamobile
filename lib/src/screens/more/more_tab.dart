@@ -1,8 +1,10 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../theme/irma_icons.dart';
 import '../../theme/theme.dart';
-import '../../util/check_testing_enabled.dart';
+import '../../util/combine.dart';
+import '../../util/get_flavor.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_button.dart';
 import '../../widgets/irma_repository_provider.dart';
@@ -15,6 +17,26 @@ class MoreTab extends StatelessWidget {
   final Function(IrmaNavBarTab tab) onChangeTab;
 
   const MoreTab({required this.onChangeTab});
+
+  Widget _onlyShowToDevelopers({
+    required BuildContext context,
+    required Widget child,
+  }) =>
+      StreamBuilder<CombinedState2<Flavor, bool>>(
+          stream: combine2(getFlavor().asStream(), IrmaRepositoryProvider.of(context).getDeveloperMode()),
+          // We show it when debug mode is enabled or when developer mode is enabled in a non-production build.
+          builder: (context, snapshot) {
+            if (kDebugMode) return child;
+
+            if (!snapshot.hasData) return Container();
+
+            final flavor = snapshot.data!.a;
+            final developerMode = snapshot.data!.b;
+
+            if (developerMode && flavor != Flavor.beta) return child;
+
+            return Container();
+          });
 
   @override
   Widget build(BuildContext context) {
@@ -51,15 +73,13 @@ class MoreTab extends StatelessWidget {
                 translationKey: 'help.faq',
                 routeName: '/help',
               ),
-              FutureBuilder<bool>(
-                future: checkTestingEnabled(),
-                builder: (context, snapshot) => snapshot.data ?? false
-                    ? const InternalLink(
-                        iconData: Icons.videogame_asset,
-                        translationKey: 'more_tab.debugging',
-                        routeName: '/debug',
-                      )
-                    : Container(),
+              _onlyShowToDevelopers(
+                context: context,
+                child: const InternalLink(
+                  iconData: Icons.videogame_asset,
+                  translationKey: 'more_tab.debugging',
+                  routeName: '/debug',
+                ),
               ),
               _buildHeaderText('help.about_irma'),
               const ExternalLink(
