@@ -11,37 +11,37 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  sentry_flutter: ^6.0.0
+  sentry_flutter: ^6.13.1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.3
-  flutter_svg: ^0.22.0
-  flutter_i18n: ^0.32.3
+  cupertino_icons: ^1.0.5
+  flutter_svg: ^1.1.5
+  flutter_i18n: ^0.32.4
   flutter_bloc: ^7.2.0
-  equatable: ^2.0.3
-  email_validator: ^2.0.1
-  url_launcher: ^6.0.10
-  json_annotation: ^4.0.1
-  rxdart: ^0.27.2
+  equatable: ^2.0.5
+  email_validator: ^2.1.17
+  url_launcher: ^6.1.6
+  json_annotation: ^4.7.0
+  rxdart: ^0.27.5
   package_info: ^2.0.2
-  collection: ^1.15.0
+  collection: ^1.16.0
   mobile_scanner: ^1.0.0
-  native_device_orientation: ^1.0.0 # TODO: Remove this package once mobile_scanner supports landscape
+  native_device_orientation: ^1.1.4 # TODO: Remove this package once mobile_scanner supports landscape
   share: ^2.0.4
   intl: ^0.17.0
-  flutter_markdown: ^0.6.6
-  shared_preferences: ^2.0.7
+  flutter_markdown: ^0.6.12
+  shared_preferences: ^2.0.15
   async: ^2.6.1
   streaming_shared_preferences: ^2.0.0
-  path_drawing: ^0.5.1
+  path_drawing: ^1.0.1
   flutter_jailbreak_detection: ^1.8.0
-  visibility_detector: ^0.2.2
-  quiver: ^3.0.1
+  visibility_detector: ^0.3.3
+  quiver: ^3.1.0
   flutter_privacy_screen: ^1.2.0
   dotted_decoration: ^2.0.0
   timeline_tile: ^2.0.0
-  sliver_tools: ^0.2.7
+  sliver_tools: ^0.2.8
 
 flutter_native_splash:
   image: assets/non-free/logo_payoff.png
@@ -53,9 +53,9 @@ dev_dependencies:
     sdk: flutter
   integration_test:
     sdk: flutter
-  json_serializable: ^4.1.4
-  flutter_lints: ^1.0.4
-  flutter_native_splash: ^1.2.1
+  json_serializable: ^6.5.3
+  flutter_lints: ^2.0.1
+  flutter_native_splash: ^2.2.12
   build_runner: ^2.1.2
 
 # For information on the generic Dart part of this file, see the

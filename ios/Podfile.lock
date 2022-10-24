@@ -4,11 +4,13 @@ PODS:
   - flutter_jailbreak_detection (1.0.0):
     - DTTJailbreakDetection
     - Flutter
+  - flutter_native_splash (0.0.1):
+    - Flutter
   - flutter_privacy_screen (0.0.1):
     - Flutter
-  - GoogleDataTransport (9.1.2):
-    - GoogleUtilities/Environment (~> 7.2)
-    - nanopb (~> 2.30908.0)
+  - GoogleDataTransport (9.2.0):
+    - GoogleUtilities/Environment (~> 7.7)
+    - nanopb (< 2.30910.0, >= 2.30908.0)
     - PromisesObjC (< 3.0, >= 1.2)
   - GoogleMLKit/BarcodeScanning (2.6.0):
     - GoogleMLKit/MLKitCore
@@ -27,15 +29,15 @@ PODS:
     - GoogleToolboxForMac/Defines (= 2.3.2)
     - "GoogleToolboxForMac/NSString+URLArguments (= 2.3.2)"
   - "GoogleToolboxForMac/NSString+URLArguments (2.3.2)"
-  - GoogleUtilities/Environment (7.7.0):
+  - GoogleUtilities/Environment (7.8.0):
     - PromisesObjC (< 3.0, >= 1.2)
-  - GoogleUtilities/Logger (7.7.0):
+  - GoogleUtilities/Logger (7.8.0):
     - GoogleUtilities/Environment
-  - GoogleUtilities/UserDefaults (7.7.0):
+  - GoogleUtilities/UserDefaults (7.8.0):
     - GoogleUtilities/Logger
   - GoogleUtilitiesComponents (1.1.0):
     - GoogleUtilities/Logger
-  - GTMSessionFetcher/Core (1.7.0)
+  - GTMSessionFetcher/Core (1.7.2)
   - integration_test (0.0.1):
     - Flutter
   - MLImage (1.0.0-beta2)
@@ -61,36 +63,37 @@ PODS:
   - mobile_scanner (0.0.1):
     - Flutter
     - GoogleMLKit/BarcodeScanning (~> 2.6.0)
-  - nanopb (2.30908.0):
-    - nanopb/decode (= 2.30908.0)
-    - nanopb/encode (= 2.30908.0)
-  - nanopb/decode (2.30908.0)
-  - nanopb/encode (2.30908.0)
+  - nanopb (2.30909.0):
+    - nanopb/decode (= 2.30909.0)
+    - nanopb/encode (= 2.30909.0)
+  - nanopb/decode (2.30909.0)
+  - nanopb/encode (2.30909.0)
   - native_device_orientation (0.0.1):
     - Flutter
   - package_info (0.0.1):
     - Flutter
   - package_info_plus (0.4.5):
     - Flutter
-  - PromisesObjC (2.0.0)
-  - Protobuf (3.19.4)
-  - Sentry (7.2.10):
-    - Sentry/Core (= 7.2.10)
-  - Sentry/Core (7.2.10)
+  - PromisesObjC (2.1.1)
+  - Protobuf (3.21.8)
+  - Sentry (7.28.0):
+    - Sentry/Core (= 7.28.0)
+  - Sentry/Core (7.28.0)
   - sentry_flutter (0.0.1):
     - Flutter
     - FlutterMacOS
-    - Sentry (~> 7.2.7)
+    - Sentry (~> 7.28.0)
   - share (0.0.1):
     - Flutter
-  - shared_preferences (0.0.1):
+  - shared_preferences_ios (0.0.1):
     - Flutter
-  - url_launcher (0.0.1):
+  - url_launcher_ios (0.0.1):
     - Flutter
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_jailbreak_detection (from `.symlinks/plugins/flutter_jailbreak_detection/ios`)
+  - flutter_native_splash (from `.symlinks/plugins/flutter_native_splash/ios`)
   - flutter_privacy_screen (from `.symlinks/plugins/flutter_privacy_screen/ios`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
   - mobile_scanner (from `.symlinks/plugins/mobile_scanner/ios`)
@@ -99,8 +102,8 @@ DEPENDENCIES:
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - sentry_flutter (from `.symlinks/plugins/sentry_flutter/ios`)
   - share (from `.symlinks/plugins/share/ios`)
-  - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
-  - url_launcher (from `.symlinks/plugins/url_launcher/ios`)
+  - shared_preferences_ios (from `.symlinks/plugins/shared_preferences_ios/ios`)
+  - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
 
 SPEC REPOS:
   trunk:
@@ -125,6 +128,8 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_jailbreak_detection:
     :path: ".symlinks/plugins/flutter_jailbreak_detection/ios"
+  flutter_native_splash:
+    :path: ".symlinks/plugins/flutter_native_splash/ios"
   flutter_privacy_screen:
     :path: ".symlinks/plugins/flutter_privacy_screen/ios"
   integration_test:
@@ -141,40 +146,41 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/sentry_flutter/ios"
   share:
     :path: ".symlinks/plugins/share/ios"
-  shared_preferences:
-    :path: ".symlinks/plugins/shared_preferences/ios"
-  url_launcher:
-    :path: ".symlinks/plugins/url_launcher/ios"
+  shared_preferences_ios:
+    :path: ".symlinks/plugins/shared_preferences_ios/ios"
+  url_launcher_ios:
+    :path: ".symlinks/plugins/url_launcher_ios/ios"
 
 SPEC CHECKSUMS:
   DTTJailbreakDetection: 5e356c5badc17995f65a83ed9483f787a0057b71
-  Flutter: 50d75fe2f02b26cc09d224853bb45737f8b3214a
+  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   flutter_jailbreak_detection: f6c01e4bc73641c6b69c5112e50301240601abb4
+  flutter_native_splash: 52501b97d1c0a5f898d687f1646226c1f93c56ef
   flutter_privacy_screen: 60e2b67bb00f0bba6ccfbdf8c5ad353ef928fb68
-  GoogleDataTransport: 629c20a4d363167143f30ea78320d5a7eb8bd940
+  GoogleDataTransport: 1c8145da7117bd68bbbed00cf304edb6a24de00f
   GoogleMLKit: 755661c46990a85e42278015f26400286d98ad95
   GoogleToolboxForMac: 8bef7c7c5cf7291c687cf5354f39f9db6399ad34
-  GoogleUtilities: e0913149f6b0625b553d70dae12b49fc62914fd1
+  GoogleUtilities: 1d20a6ad97ef46f67bbdec158ce00563a671ebb7
   GoogleUtilitiesComponents: 679b2c881db3b615a2777504623df6122dd20afe
-  GTMSessionFetcher: 43748f93435c2aa068b1cbe39655aaf600652e91
+  GTMSessionFetcher: 5595ec75acf5be50814f81e9189490412bad82ba
   integration_test: a1e7d09bd98eca2fc37aefd79d4f41ad37bdbbe5
   MLImage: a454f9f8ecfd537783a12f9488f5be1a68820829
   MLKitBarcodeScanning: b8257854f6afc1c8443d61ec6b98c28b35625df6
   MLKitCommon: 3bc17c6f7d25ce3660f030350b46ae7ec9ebca6e
   MLKitVision: e87dc3f2e456a6ab32361ebd985e078dd2746143
   mobile_scanner: 073e39c0c96360297389f4db68e4297a1fa58349
-  nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
+  nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
   native_device_orientation: 3b4cfc9565a7b879cc4fde282b3e27745e852d0d
   package_info: 873975fc26034f0b863a300ad47e7f1ac6c7ec62
   package_info_plus: 6c92f08e1f853dc01228d6f553146438dafcd14e
-  PromisesObjC: 68159ce6952d93e17b2dfe273b8c40907db5ba58
-  Protobuf: 235750e4696ff59fb07d949a9dbbc92b3c0700fe
-  Sentry: 013d45af76b45749e3b646809eee3320bb209fca
-  sentry_flutter: 28e1e38fe797d3e5d766c596324834fed599bc0f
+  PromisesObjC: ab77feca74fa2823e7af4249b8326368e61014cb
+  Protobuf: 0a11f3000cd10ffa17611bf96e66a66b25c956e4
+  Sentry: 2c6053e4cfe6dea6608135dea1928ffbb4ecfba5
+  sentry_flutter: fad3ef0917dc1afa7d242af0743696ed9a9a8864
   share: 0b2c3e82132f5888bccca3351c504d0003b3b410
-  shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
-  url_launcher: 6fef411d543ceb26efce54b05a0a40bfd74cbbef
+  shared_preferences_ios: 548a61f8053b9b8a49ac19c1ffbc8b92c50d68ad
+  url_launcher_ios: 839c58cdb4279282219f5e248c3321761ff3c4de
 
-PODFILE CHECKSUM: 985e5b058f26709dc81f9ae74ea2b2775bdbcefe
+PODFILE CHECKSUM: ef19549a9bc3046e7bb7d2fab4d021637c0c58a3
 
 COCOAPODS: 1.11.3
