@@ -256,7 +256,7 @@ class _ManageSchemesScreenState extends State<ManageSchemesScreen> {
     return showDialog(
       context: context,
       builder: (context) => IrmaDialog(
-        title: 'Scheme ${schemeManager.id}',
+        title: 'Issuer scheme ${schemeManager.id}',
         content: [
           schemeManager.demo ? 'Demo scheme' : 'Production scheme',
           if (schemeManager.id == widget.irmaRepository.defaultKeyshareScheme) 'Default keyshare scheme',
@@ -282,6 +282,7 @@ class _ManageSchemesScreenState extends State<ManageSchemesScreen> {
                 onPressed: () => _verifyPin(schemeManager.id),
               ),
             // irmago cannot remove inactive schemes and schemes without a keyshare server yet.
+            // https://github.com/privacybydesign/irmago/issues/260
             if (isActive &&
                 schemeManager.keyshareServer.isNotEmpty &&
                 schemeManager.id != widget.irmaRepository.defaultKeyshareScheme)
@@ -335,10 +336,19 @@ class _ManageSchemesScreenState extends State<ManageSchemesScreen> {
           return ListView(
             padding: EdgeInsets.all(theme.defaultSpacing),
             children: [
+              const Text("Issuer schemes:"),
               for (final schemeManager in irmaConfiguration.schemeManagers.values)
                 _buildSchemeManagerTile(
                   schemeManager,
                   isActive: !enrollmentStatus.unenrolledSchemeManagerIds.contains(schemeManager.id),
+                ),
+              const Text("Requestor schemes:"),
+              // irmago cannot remove requestor schemes schemes yet.
+              // https://github.com/privacybydesign/irmago/issues/260
+              for (final schemeId in irmaConfiguration.requestorSchemes.keys)
+                ListTile(
+                  title: Text(schemeId),
+                  subtitle: Text('Cannot be edited yet', style: theme.textTheme.caption),
                 ),
             ],
           );
