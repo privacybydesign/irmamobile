@@ -3,7 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choice.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
+import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_obtain_credentials_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_share_dialog.dart';
+import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_template_stepper.dart';
 import 'package:irmamobile/src/screens/session/session_screen.dart';
 import 'package:irmamobile/src/screens/session/widgets/disclosure_feedback_screen.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
@@ -14,18 +16,19 @@ import '../../helpers.dart';
 import '../../irma_binding.dart';
 import '../../util.dart';
 
-Future<void> scenario2(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
 
   // Session requesting:
-  // Email OR your mobile number.
+  // Student/employee id from university OR
+  // Full name from municipality AND email address
   const sessionRequest = '''
         {
           "@context": "https://irma.app/ld/request/disclosure/v2",
           "disclose": [
             [
-              [ "irma-demo.sidn-pbdf.email.email" ],
-              [ "irma-demo.sidn-pbdf.mobilenumber.mobilenumber" ]
+              [ "irma-demo.pbdf.surfnet-2.id" ],
+              [ "irma-demo.gemeente.personalData.fullname", "irma-demo.sidn-pbdf.email.email"]
             ]
           ]
         }
@@ -38,36 +41,60 @@ Future<void> scenario2(WidgetTester tester, IntegrationTestIrmaBinding irmaBindi
   await tester.waitFor(find.text('Share your data in 3 simple steps:'));
   await tester.tapAndSettle(find.descendant(of: find.byType(IrmaButton), matching: find.text('Get going')));
 
-  // First, the missing required disjunctions should be obtained using an issue wizard.
-  expect(find.text('Collect data'), findsOneWidget);
-
-  // We should have one discon stepper
+  // Expect a disclose stepper
   final disConStepperFinder = find.byType(DisclosureDisconStepper);
   expect(disConStepperFinder, findsOneWidget);
 
-  // The discon stepper should contain one choice
-  final disconChoiceFinder = find.descendant(
+  // The discon stepper should have one choice
+  final choiceFinder = find.descendant(
     of: disConStepperFinder,
     matching: find.byType(DisclosurePermissionChoice),
   );
-  expect(disconChoiceFinder, findsOneWidget);
+  expect(choiceFinder, findsOneWidget);
 
-  // The choice should consist of two options/cards
-  final cardsFinder = find.descendant(
-    of: disconChoiceFinder,
+  // Select the second choice
+  final personalDataFinder = find.text('Demo Personal data');
+  await tester.ensureVisible(personalDataFinder);
+  await tester.pumpAndSettle();
+  await tester.tapAndSettle(personalDataFinder);
+  await tester.tapAndSettle(find.text('Obtain data'));
+
+  // Expect sub-issue wizard
+  expect(find.byType(DisclosurePermissionObtainCredentialsScreen), findsOneWidget);
+
+  // Expect a template stepper
+  final templateStepperFinder = find.byType(DisclosureTemplateStepper);
+  expect(templateStepperFinder, findsOneWidget);
+
+  // The template stepper should have two items
+  final templateCardsFinder = find.descendant(
+    of: templateStepperFinder,
     matching: find.byType(IrmaCredentialCard),
   );
-  expect(cardsFinder, findsNWidgets(2));
+  expect(templateCardsFinder, findsNWidgets(2));
 
-  // First card should be highlighted.
-  expect((cardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.highlighted);
+  // The first card should be highlighted
+  expect((templateCardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.highlighted);
+  expect((templateCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
 
-  // We cannot actually press the 'Obtain data' button, because we get redirected to an external flow then.
-  // Therefore, we mock this behavior using the helper below until we have a better solution.
+  // Issue the personal data
+  await issueMunicipalityCards(tester, irmaBinding);
+
+  // The second card should now be highlighted
+  expect((templateCardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
+  expect((templateCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.highlighted);
+
+// Issue the email
   await issueEmailAddress(tester, irmaBinding);
 
-  // The choice should be gone now and the phase should be completed.
-  expect(disconChoiceFinder, findsNothing);
+  // Both should be finished now
+  expect((templateCardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
+  expect((templateCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
+
+  // Button should say done now
+  await tester.tapAndSettle(find.text('Done'));
+
+  // Issue wizard should be completed
   expect(find.text('All required data has been added.'), findsOneWidget);
   await tester.tapAndSettle(find.text('Next step'));
 

@@ -11,7 +11,7 @@ import '../../helpers.dart';
 import '../../irma_binding.dart';
 import '../../util.dart';
 
-Future<void> scenario1(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> noChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
 
   // Session requesting:
