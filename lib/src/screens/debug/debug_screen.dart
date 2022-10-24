@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../models/credential_events.dart';
 import '../../models/irma_configuration.dart';
@@ -164,7 +163,6 @@ class DebugScreen extends StatelessWidget {
       appBar: IrmaAppBar(
         titleTranslationKey: 'Debugger',
         leadingAction: () => _onClose(context),
-        leadingIcon: Icon(Icons.arrow_back, semanticLabel: FlutterI18n.translate(context, 'accessibility.back')),
       ),
       body: ListView(
         children: [

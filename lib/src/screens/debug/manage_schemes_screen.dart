@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:rxdart/rxdart.dart';
@@ -253,6 +254,13 @@ class _ManageSchemesScreenState extends State<ManageSchemesScreen> {
     required bool isActive,
   }) {
     final theme = IrmaTheme.of(context);
+    final appId = widget.irmaRepository.credentials.values
+            .firstWhereOrNull((cred) => cred.isKeyshareCredential && cred.schemeManager.id == schemeManager.id)
+            ?.attributes
+            .firstOrNull
+            ?.value
+            .raw ??
+        '(not applicable)';
     return showDialog(
       context: context,
       builder: (context) => IrmaDialog(
@@ -266,6 +274,8 @@ class _ManageSchemesScreenState extends State<ManageSchemesScreen> {
           '',
           'Keyshare server:',
           schemeManager.keyshareServer.isNotEmpty ? schemeManager.keyshareServer : '(none)',
+          '',
+          'App ID: $appId',
         ].join('\n'),
         child: Wrap(
           runSpacing: theme.defaultSpacing,
@@ -315,11 +325,13 @@ class _ManageSchemesScreenState extends State<ManageSchemesScreen> {
       appBar: IrmaAppBar(
         titleTranslationKey: 'Manage schemes',
         leadingAction: () => navigator?.pop(),
-        leadingIcon: Icon(Icons.arrow_back, semanticLabel: FlutterI18n.translate(context, 'accessibility.back')),
         actions: [
-          IrmaIconButton(
-            icon: Icons.add,
-            onTap: () => _installScheme(),
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: IrmaIconButton(
+              icon: Icons.add,
+              onTap: () => _installScheme(),
+            ),
           ),
         ],
       ),
