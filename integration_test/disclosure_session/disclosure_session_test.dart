@@ -18,7 +18,7 @@ void main() {
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
 
-  group('attribute-request-flow', () {
+  group('disclosure-session', () {
     setUp(() async => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
 
