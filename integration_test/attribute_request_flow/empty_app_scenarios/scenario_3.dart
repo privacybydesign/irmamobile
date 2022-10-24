@@ -64,7 +64,7 @@ Future<void> scenario3(WidgetTester tester, IntegrationTestIrmaBinding irmaBindi
   expect((cardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
   expect((cardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.highlighted);
 
-  // Issue the telephone number credential
+  // Issue the mobile number credential
   await issueCredentials(tester, irmaBinding, {
     'irma-demo.sidn-pbdf.mobilenumber.mobilenumber': '0612345678',
   });
