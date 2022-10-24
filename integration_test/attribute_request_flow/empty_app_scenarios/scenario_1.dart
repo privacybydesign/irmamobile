@@ -21,7 +21,7 @@ Future<void> scenario1(WidgetTester tester, IntegrationTestIrmaBinding irmaBindi
           "@context": "https://irma.app/ld/request/disclosure/v2",
           "disclose": [
             [
-              [ "irma-demo.gemeenten.personalData.fullname", "irma-demo.gemeenten.personalData.nationality" ]
+              [ "irma-demo.gemeente.personalData.fullname", "irma-demo.gemeente.personalData.nationality" ]
             ]
           ]
         }

@@ -119,43 +119,47 @@ Future<void> issueMunicipalityCards(
   IntegrationTestIrmaBinding irmaBinding, {
   Locale locale = const Locale('en', 'EN'),
 }) async {
-  const credentialId = 'irma-demo.gemeenten.personalData';
+  const credentialId = 'irma-demo.gemeente.personalData';
 
   var attributes = {
+    '$credentialId.fullname': 'W.L. de Bruijn',
     '$credentialId.initials': 'W.L.',
     '$credentialId.firstnames': 'Willeke Liselotte',
     '$credentialId.prefix': 'de',
-    '$credentialId.familyname': 'Bruijn',
-    '$credentialId.fullname': 'W.L. de Bruijn',
-    '$credentialId.gender': 'V',
-    '$credentialId.nationality': 'Yes',
     '$credentialId.surname': 'de Bruijn',
+    '$credentialId.familyname': 'Bruijn',
+    '$credentialId.gender': 'V',
     '$credentialId.dateofbirth': '10-04-1965',
     '$credentialId.over12': 'Yes',
     '$credentialId.over16': 'Yes',
     '$credentialId.over18': 'Yes',
     '$credentialId.over21': 'Yes',
     '$credentialId.over65': 'No',
+    '$credentialId.nationality': 'Yes',
+    '$credentialId.cityofbirth': 'Arnhem',
+    '$credentialId.countryofbirth': 'Arnhem',
     '$credentialId.bsn': '999999990',
     '$credentialId.digidlevel': 'Substantieel',
   };
 
   if (locale.languageCode == 'nl') {
     attributes = {
+      '$credentialId.fullname': 'W.L. de Bruijn',
       '$credentialId.initials': 'W.L.',
       '$credentialId.firstnames': 'Willeke Liselotte',
       '$credentialId.prefix': 'de',
-      '$credentialId.familyname': 'Bruijn',
-      '$credentialId.fullname': 'W.L. de Bruijn',
-      '$credentialId.gender': 'V',
-      '$credentialId.nationality': 'Ja',
       '$credentialId.surname': 'de Bruijn',
+      '$credentialId.familyname': 'Bruijn',
+      '$credentialId.gender': 'V',
       '$credentialId.dateofbirth': '10-04-1965',
       '$credentialId.over12': 'Ja',
       '$credentialId.over16': 'Ja',
       '$credentialId.over18': 'Ja',
       '$credentialId.over21': 'Ja',
       '$credentialId.over65': 'Nee',
+      '$credentialId.nationality': 'Ja',
+      '$credentialId.cityofbirth': 'Arnhem',
+      '$credentialId.countryofbirth': 'Arnhem',
       '$credentialId.bsn': '999999990',
       '$credentialId.digidlevel': 'Substantieel',
     };

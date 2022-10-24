@@ -24,7 +24,7 @@ Future<void> scenario7(WidgetTester tester, IntegrationTestIrmaBinding irmaBindi
           "@context": "https://irma.app/ld/request/disclosure/v2",
           "disclose": [
             [
-              [ "irma-demo.gemeenten.address.street", "irma-demo.gemeenten.address.houseNumber", "irma-demo.gemeenten.address.city" ],
+              [ "irma-demo.gemeente.address.street", "irma-demo.gemeente.address.houseNumber", "irma-demo.gemeente.address.city" ],
               [ "irma-demo.idin.idin.address" , "irma-demo.idin.idin.city" ]
             ],
             [
@@ -49,10 +49,10 @@ Future<void> scenario7(WidgetTester tester, IntegrationTestIrmaBinding irmaBindi
 
   // Add one of the required credentials, in this case the address from municipality
   await issueCredentials(tester, irmaBinding, {
-    'irma-demo.gemeenten.address.street': 'Teststraat 12',
-    'irma-demo.gemeenten.address.zipcode': '12345 AB',
-    'irma-demo.gemeenten.address.municipality': 'Maastricht',
-    'irma-demo.gemeenten.address.city': 'Maastricht',
+    'irma-demo.gemeente.address.street': 'Teststraat 12',
+    'irma-demo.gemeente.address.zipcode': '12345 AB',
+    'irma-demo.gemeente.address.city': 'Maastricht',
+    'irma-demo.gemeente.address.municipality': 'Maastricht',
   });
 
   // Issue wizard should be completed

@@ -28,7 +28,7 @@ Future<void> scenario5(WidgetTester tester, IntegrationTestIrmaBinding irmaBindi
           "disclose": [
             [
               [ "irma-demo.pbdf.surfnet-2.id" ],
-              [ "irma-demo.gemeenten.personalData.fullname", "irma-demo.sidn-pbdf.email.email"]
+              [ "irma-demo.gemeente.personalData.fullname", "irma-demo.sidn-pbdf.email.email"]
             ]
           ]
         }
