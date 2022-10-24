@@ -92,7 +92,7 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
   expect((templateCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
 
   // Button should say done now
-  await tester.tapAndSettle(find.text('Done'));
+  await tester.tapAndSettle(find.text('Done'), duration: const Duration(seconds: 1));
 
   // Issue wizard should be completed
   expect(find.text('All required data has been added.'), findsOneWidget);
