@@ -25,6 +25,7 @@ class MoreTab extends StatelessWidget {
       StreamBuilder<CombinedState2<Flavor, bool>>(
           stream: combine2(getFlavor().asStream(), IrmaRepositoryProvider.of(context).getDeveloperMode()),
           // We show it when debug mode is enabled or when developer mode is enabled in a non-production build.
+          // As long as the alpha flavor is used for user testing, we only show the child when in developer mode.
           builder: (context, snapshot) {
             if (kDebugMode) return child;
 
