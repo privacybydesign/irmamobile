@@ -166,7 +166,7 @@ class _ManageSchemesScreenState extends State<ManageSchemesScreen> {
           .timeout(const Duration(seconds: 5));
     } on TimeoutException {
       // Installing the scheme took too long. We therefore assume that it failed.
-      // Error is sent as ErrorEvent and will be handled by listener in initState.
+      // Error is sent as ErrorEvent and will be handled by a listener in initState.
       return;
     }
     _showMessage('Scheme installed successfully.');
@@ -343,7 +343,7 @@ class _ManageSchemesScreenState extends State<ManageSchemesScreen> {
                   isActive: !enrollmentStatus.unenrolledSchemeManagerIds.contains(schemeManager.id),
                 ),
               const Text("Requestor schemes:"),
-              // irmago cannot remove requestor schemes schemes yet.
+              // irmago cannot remove requestor schemes yet.
               // https://github.com/privacybydesign/irmago/issues/260
               for (final schemeId in irmaConfiguration.requestorSchemes.keys)
                 ListTile(
