@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import '../irma_binding.dart';
+import 'empty_app_scenarios/completely_optional.dart';
 import 'empty_app_scenarios/no_choice.dart';
 import 'empty_app_scenarios/choice.dart';
 import 'empty_app_scenarios/no_choice_mlptl_creds.dart';
@@ -47,6 +48,9 @@ void main() {
       // Address from iDIN or municipality
       // And optionally mobile number or e-mail address
       testWidgets('optionals', (tester) => optionalsTest(tester, irmaBinding));
+
+      // E-mail address or nothing
+      testWidgets('completely-optional', (tester) => completelyOptionalTest(tester, irmaBinding));
     });
   });
 }
