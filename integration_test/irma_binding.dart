@@ -55,6 +55,12 @@ class IntegrationTestIrmaBinding {
     // Enable developer mode before initializing repository, such that we can use a local keyshare server.
     _bridge.dispatch(ClientPreferencesEvent(clientPreferences: ClientPreferences(developerMode: true)));
 
+    // Enable screenshots to make sure screen recordings can be made.
+    await _preferences!.setScreenshotsEnabled(true);
+
+    // Prevent rooted warning to be shown on simulators.
+    await _preferences!.setAcceptedRootedRisk(true);
+
     // Ensure enrollment status is set as expected.
     if (enrollmentStatus == EnrollmentStatus.enrolled) {
       _bridge.dispatch(EnrollEvent(
