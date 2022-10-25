@@ -5,10 +5,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_privacy_screen/flutter_privacy_screen.dart';
+import 'package:privacy_screen/privacy_screen.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../../routing.dart';
@@ -89,6 +88,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   void initState() {
     super.initState();
     WidgetsBinding.instance?.addObserver(this);
+
     _listenForDataClear();
     _listenScreenshotPref();
   }
@@ -281,14 +281,32 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     );
   }
 
+  Future<void> _enablePrivacyScreen() async {
+    await PrivacyScreen.instance.enable(
+      iosOptions: const PrivacyIosOptions(
+        enablePrivacy: true,
+      ),
+      androidOptions: const PrivacyAndroidOptions(
+        enableSecure: true,
+      ),
+      backgroundColor: Colors.white.withOpacity(0),
+      blurEffect: PrivacyBlurEffect.extraLight,
+    );
+  }
+
+  Future<void> _disablePrivacyScreen() async {
+    await PrivacyScreen.instance.disable();
+  }
+
   void _listenScreenshotPref() {
     // We only wait for the privacy screen to be loaded on start-up.
     _privacyScreenLoaded = false;
+
     _screenshotPrefSubscription = IrmaPreferences.get().getScreenshotsEnabled().listen((enabled) async {
       if (enabled) {
-        await FlutterPrivacyScreen.disablePrivacyScreen();
+        await _disablePrivacyScreen();
       } else {
-        await FlutterPrivacyScreen.enablePrivacyScreen();
+        await _enablePrivacyScreen();
       }
       if (!_privacyScreenLoaded) setState(() => _privacyScreenLoaded = true);
     });

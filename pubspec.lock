@@ -282,13 +282,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.2.12"
-  flutter_privacy_screen:
-    dependency: "direct main"
-    description:
-      name: flutter_privacy_screen
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.2.0"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -575,6 +568,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.5.1"
+  privacy_screen:
+    dependency: "direct main"
+    description:
+      name: privacy_screen
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.6"
   process:
     dependency: transitive
     description:

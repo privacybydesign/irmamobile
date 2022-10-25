@@ -38,7 +38,7 @@ dependencies:
   flutter_jailbreak_detection: ^1.8.0
   visibility_detector: ^0.3.3
   quiver: ^3.1.0
-  flutter_privacy_screen: ^1.2.0
+  privacy_screen: ^0.0.6
   dotted_decoration: ^2.0.0
   timeline_tile: ^2.0.0
   sliver_tools: ^0.2.8
