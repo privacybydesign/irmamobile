@@ -95,7 +95,6 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
   await tester.tapAndSettle(find.text('Done'), duration: const Duration(seconds: 1));
 
   // Issue wizard should be completed
-  expect(find.text('All required data has been added.'), findsOneWidget);
   await tester.tapAndSettle(find.text('Next step'));
 
   // Expect the choices screen
