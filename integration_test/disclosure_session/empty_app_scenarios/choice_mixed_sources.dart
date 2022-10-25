@@ -92,10 +92,14 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
   expect((templateCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
 
   // Button should say done now
-  await tester.tapAndSettle(find.text('Done'), duration: const Duration(seconds: 1));
+  await tester.tapAndSettle(find.text('Done'));
+  await tester.pumpAndSettle(const Duration(seconds: 1));
 
   // Issue wizard should be completed
-  await tester.tapAndSettle(find.text('Next step'));
+  final nextStepButtonFinder = find.text('Next step');
+  await tester.waitFor(nextStepButtonFinder);
+  await tester.ensureVisible(nextStepButtonFinder);
+  await tester.tapAndSettle(nextStepButtonFinder);
 
   // Expect the choices screen
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
