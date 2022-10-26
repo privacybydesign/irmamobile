@@ -14,6 +14,8 @@ import 'package:irmamobile/src/screens/home/home_tab.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_permission.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_attribute_list.dart';
+import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_header.dart';
+import 'package:irmamobile/src/widgets/irma_card.dart';
 
 import 'irma_binding.dart';
 import 'util.dart';
@@ -114,6 +116,14 @@ Future<void> issueEmailAddress(
       'irma-demo.sidn-pbdf.email.domain': 'example.com',
     });
 
+Future<void> issueMobileNumber(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) =>
+    issueCredentials(tester, irmaBinding, {
+      'irma-demo.sidn-pbdf.mobilenumber.mobilenumber': '0612345678',
+    });
+
 Future<void> issueMunicipalityCards(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding, {
@@ -196,5 +206,78 @@ Future<void> revokeCredential(String credId, String revocationKey) async {
   final response = await request.close();
   if (response.statusCode != 200) {
     throw Exception('Credential $credId could not be revoked: status code ${response.statusCode}');
+  }
+}
+
+Future<void> evaluateCredentialCard(
+  WidgetTester tester,
+  Finder credentialCardFinder, {
+  String? credentialName,
+  String? issuerName,
+  Map<String, String>? attributes,
+  IrmaCardStyle? style,
+}) async {
+// Find one IrmaCredentialCard with the provided finder
+  expect(
+    find.descendant(
+      of: credentialCardFinder,
+      matching: find.byType(IrmaCredentialCard),
+      matchRoot: true,
+    ),
+    findsOneWidget,
+  );
+
+  if (style != null) {
+    expect(
+      (credentialCardFinder.evaluate().first.widget as IrmaCredentialCard).style,
+      style,
+    );
+  }
+
+  if (credentialName != null || issuerName != null) {
+    // Card should have a header
+    final cardHeaderFinder = find.descendant(
+      of: credentialCardFinder,
+      matching: find.byType(IrmaCredentialCardHeader),
+    );
+    expect(cardHeaderFinder, findsOneWidget);
+
+    // Get the text from the header
+    final cardHeaderText = tester.getAllText(cardHeaderFinder);
+
+    // Compare the expected credential name
+    if (credentialName != null) {
+      expect(cardHeaderText.first, credentialName);
+    }
+
+    // Compare the issuer credential name
+    if (issuerName != null) {
+      expect(cardHeaderText.elementAt(1), issuerName);
+    }
+  }
+
+  if (attributes != null) {
+    // Card should have an attribute list
+    final cardAttList = find.descendant(
+      of: credentialCardFinder,
+      matching: find.byType(IrmaCredentialCardAttributeList),
+    );
+
+    if (attributes.isNotEmpty) {
+      // Expect attribute list
+      expect(cardAttList, findsOneWidget);
+
+      // Compare the attribute list texts
+      final flattendAttributeMap = attributes.entries.expand(
+        (element) => [element.key, element.value],
+      );
+      expect(
+        tester.getAllText(cardAttList),
+        flattendAttributeMap,
+      );
+    } else {
+      // Expect no attribute list
+      expect(cardAttList, findsNothing);
+    }
   }
 }
