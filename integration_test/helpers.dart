@@ -83,7 +83,7 @@ Future<void> issueCredentials(
   // Check whether all attributes are displayed in the right order.
   for (final credTypeId in groupedAttributes.keys) {
     final credType = irmaBinding.repository.irmaConfiguration.credentialTypes[credTypeId]!;
-    expect(find.text(credType.name.translate(locale.languageCode)), findsOneWidget);
+    expect(find.text(credType.name.translate(locale.languageCode)).last, findsOneWidget);
   }
   final attributeTexts = tester.getAllText(find.byType(IrmaCredentialCardAttributeList)).toList();
   final attributeEntries = attributes.entries.toList();
@@ -105,48 +105,61 @@ Future<void> issueCredentials(
   await tester.waitUntilDisappeared(issuancePageFinder);
 }
 
+Future<void> issueEmailAddress(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) =>
+    issueCredentials(tester, irmaBinding, {
+      'irma-demo.sidn-pbdf.email.email': 'test@example.com',
+      'irma-demo.sidn-pbdf.email.domain': 'example.com',
+    });
+
 Future<void> issueMunicipalityCards(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding, {
   Locale locale = const Locale('en', 'EN'),
 }) async {
-  const credentialId = 'irma-demo.gemeenten.personalData';
+  const credentialId = 'irma-demo.gemeente.personalData';
 
   var attributes = {
+    '$credentialId.fullname': 'W.L. de Bruijn',
     '$credentialId.initials': 'W.L.',
     '$credentialId.firstnames': 'Willeke Liselotte',
     '$credentialId.prefix': 'de',
-    '$credentialId.familyname': 'Bruijn',
-    '$credentialId.fullname': 'W.L. de Bruijn',
-    '$credentialId.gender': 'V',
-    '$credentialId.nationality': 'Yes',
     '$credentialId.surname': 'de Bruijn',
+    '$credentialId.familyname': 'Bruijn',
+    '$credentialId.gender': 'V',
     '$credentialId.dateofbirth': '10-04-1965',
     '$credentialId.over12': 'Yes',
     '$credentialId.over16': 'Yes',
     '$credentialId.over18': 'Yes',
     '$credentialId.over21': 'Yes',
     '$credentialId.over65': 'No',
+    '$credentialId.nationality': 'Yes',
+    '$credentialId.cityofbirth': 'Arnhem',
+    '$credentialId.countryofbirth': 'Arnhem',
     '$credentialId.bsn': '999999990',
     '$credentialId.digidlevel': 'Substantieel',
   };
 
   if (locale.languageCode == 'nl') {
     attributes = {
+      '$credentialId.fullname': 'W.L. de Bruijn',
       '$credentialId.initials': 'W.L.',
       '$credentialId.firstnames': 'Willeke Liselotte',
       '$credentialId.prefix': 'de',
-      '$credentialId.familyname': 'Bruijn',
-      '$credentialId.fullname': 'W.L. de Bruijn',
-      '$credentialId.gender': 'V',
-      '$credentialId.nationality': 'Ja',
       '$credentialId.surname': 'de Bruijn',
+      '$credentialId.familyname': 'Bruijn',
+      '$credentialId.gender': 'V',
       '$credentialId.dateofbirth': '10-04-1965',
       '$credentialId.over12': 'Ja',
       '$credentialId.over16': 'Ja',
       '$credentialId.over18': 'Ja',
       '$credentialId.over21': 'Ja',
       '$credentialId.over65': 'Nee',
+      '$credentialId.nationality': 'Ja',
+      '$credentialId.cityofbirth': 'Arnhem',
+      '$credentialId.countryofbirth': 'Arnhem',
       '$credentialId.bsn': '999999990',
       '$credentialId.digidlevel': 'Substantieel',
     };
