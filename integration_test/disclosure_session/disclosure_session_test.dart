@@ -5,20 +5,22 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
 import '../irma_binding.dart';
-import 'empty_app_scenarios/completely_optional.dart';
-import 'empty_app_scenarios/no_choice.dart';
 import 'empty_app_scenarios/choice.dart';
-import 'empty_app_scenarios/no_choice_mlptl_creds.dart';
 import 'empty_app_scenarios/choice_mixed.dart';
 import 'empty_app_scenarios/choice_mixed_sources.dart';
-import 'empty_app_scenarios/specific_att_values.dart';
+import 'empty_app_scenarios/completely_optional.dart';
+import 'empty_app_scenarios/no_choice.dart';
+import 'empty_app_scenarios/no_choice_mlptl_creds.dart';
 import 'empty_app_scenarios/optionals.dart';
+import 'empty_app_scenarios/specific_att_values.dart';
 import 'filled_app_scenearios/filled_choice_test.dart';
+import 'filled_app_scenearios/filled_no_choice_multiple_creds.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
+  const generalTimeout = Timeout(Duration(minutes: 1));
 
   group('disclosure-session', () {
     setUp(() async => irmaBinding.setUp());
@@ -31,27 +33,21 @@ void main() {
         testWidgets(
           'no-choice',
           (tester) => noChoiceTest(tester, irmaBinding),
-          timeout: const Timeout(
-            Duration(minutes: 1),
-          ),
+          timeout: generalTimeout,
         );
 
         // Email OR your mobile number.
         testWidgets(
           'choice',
           (tester) => choiceTest(tester, irmaBinding),
-          timeout: const Timeout(
-            Duration(minutes: 1),
-          ),
+          timeout: generalTimeout,
         );
 
         // Email AND mobile number
         testWidgets(
           'no-choice-mltpl-creds',
           (tester) => noChoiceMltplCredsTest(tester, irmaBinding),
-          timeout: const Timeout(
-            Duration(minutes: 1),
-          ),
+          timeout: generalTimeout,
         );
 
         // Address from multiplicity OR iDIN
@@ -59,9 +55,7 @@ void main() {
         testWidgets(
           'choice-mixed',
           (tester) => choiceMixedTest(tester, irmaBinding),
-          timeout: const Timeout(
-            Duration(minutes: 1),
-          ),
+          timeout: generalTimeout,
         );
 
         // Student/employee id from university OR
@@ -69,9 +63,7 @@ void main() {
         testWidgets(
           'choice-mixed-sources',
           (tester) => choiceMixedSourcesTest(tester, irmaBinding),
-          timeout: const Timeout(
-            Duration(minutes: 1),
-          ),
+          timeout: generalTimeout,
         );
 
         // Bank account number from iDeal. BIC has to be RABONL2U. AND
@@ -79,9 +71,7 @@ void main() {
         testWidgets(
           'specific-att-values',
           (tester) => specificAttValuesTest(tester, irmaBinding),
-          timeout: const Timeout(
-            Duration(minutes: 1),
-          ),
+          timeout: generalTimeout,
         );
 
         // Address from iDIN or municipality
@@ -89,29 +79,29 @@ void main() {
         testWidgets(
           'optionals',
           (tester) => optionalsTest(tester, irmaBinding),
-          timeout: const Timeout(
-            Duration(minutes: 1),
-          ),
+          timeout: generalTimeout,
         );
 
         // E-mail address or nothing
         testWidgets(
           'completely-optional',
           (tester) => completelyOptionalTest(tester, irmaBinding),
-          timeout: const Timeout(
-            Duration(minutes: 1),
-          ),
+          timeout: generalTimeout,
         );
       },
     );
 
     group('filled-app-scenarios', () {
       testWidgets(
-        'filed-choice-test',
+        'filled-choice-test',
         (tester) => filledChoiceTest(tester, irmaBinding),
-        timeout: const Timeout(
-          Duration(minutes: 1),
-        ),
+        timeout: generalTimeout,
+      );
+
+      testWidgets(
+        'filled-no-choice-multiple-creds',
+        (tester) => filledNoChoiceMultipleCredsTest(tester, irmaBinding),
+        timeout: generalTimeout,
       );
     });
   });
