@@ -13,6 +13,7 @@ import 'empty_app_scenarios/no_choice.dart';
 import 'empty_app_scenarios/no_choice_mlptl_creds.dart';
 import 'empty_app_scenarios/optionals.dart';
 import 'empty_app_scenarios/specific_att_values.dart';
+import 'filled_app_scenearios/filled_choice_mixed.dart';
 import 'filled_app_scenearios/filled_choice_test.dart';
 import 'filled_app_scenearios/filled_no_choice_multiple_creds.dart';
 
@@ -23,7 +24,7 @@ void main() {
   const generalTimeout = Timeout(Duration(minutes: 1));
 
   group('disclosure-session', () {
-    setUp(() async => irmaBinding.setUp());
+    setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
 
     group(
@@ -36,7 +37,7 @@ void main() {
           timeout: generalTimeout,
         );
 
-        // Email OR your mobile number.
+        // Email OR your mobile number
         testWidgets(
           'choice',
           (tester) => choiceTest(tester, irmaBinding),
@@ -92,15 +93,29 @@ void main() {
     );
 
     group('filled-app-scenarios', () {
+      // All these tests start with a filled app including:
+      // An email address
+      // Personal data from municipality
+
+      // Email OR your mobile number.
       testWidgets(
         'filled-choice-test',
         (tester) => filledChoiceTest(tester, irmaBinding),
         timeout: generalTimeout,
       );
 
+      // Email AND telephone number
       testWidgets(
         'filled-no-choice-multiple-creds',
         (tester) => filledNoChoiceMultipleCredsTest(tester, irmaBinding),
+        timeout: generalTimeout,
+      );
+
+      // Address from municipality OR
+      // Address from iDIN, with city
+      testWidgets(
+        'filled-choice-mixed',
+        (tester) => filledChoiceMixedTest(tester, irmaBinding),
         timeout: generalTimeout,
       );
     });

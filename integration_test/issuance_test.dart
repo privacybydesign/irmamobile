@@ -31,7 +31,7 @@ void main() {
         locale,
       );
 
-      await issueMunicipalityCards(
+      await issueMunicipalityPersonalData(
         tester,
         irmaBinding,
         locale: locale,

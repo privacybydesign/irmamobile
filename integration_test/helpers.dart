@@ -3,17 +3,16 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
 
-import 'package:flutter/foundation.dart';
-
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/screens/home/home_tab.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_permission.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_attribute_list.dart';
+import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_footer.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_header.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 
@@ -124,7 +123,34 @@ Future<void> issueMobileNumber(
       'irma-demo.sidn-pbdf.mobilenumber.mobilenumber': '0612345678',
     });
 
-Future<void> issueMunicipalityCards(
+Future<void> issueMunicipalityAddress(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) =>
+    issueCredentials(tester, irmaBinding, {
+      "irma-demo.gemeente.address.street": "Meander",
+      "irma-demo.gemeente.address.houseNumber": "501",
+      "irma-demo.gemeente.address.zipcode": "1234AB",
+      "irma-demo.gemeente.address.city": "Arnhem",
+      "irma-demo.gemeente.address.municipality": "Arnhem"
+    });
+
+Future<void> issueIdin(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding,
+) =>
+    issueCredentials(tester, irmaBinding, {
+      'irma-demo.idin.idin.initials': 'W.L.',
+      'irma-demo.idin.idin.familyname': 'Bruijn',
+      'irma-demo.idin.idin.dateofbirth': '10-04-1965',
+      'irma-demo.idin.idin.gender': 'V',
+      'irma-demo.idin.idin.address': 'Meander 501',
+      'irma-demo.idin.idin.zipcode': '1234 AB',
+      'irma-demo.idin.idin.city': 'Arnhem',
+      'irma-demo.idin.idin.country': 'Netherlands',
+    });
+
+Future<void> issueMunicipalityPersonalData(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding, {
   Locale locale = const Locale('en', 'EN'),
@@ -215,6 +241,7 @@ Future<void> evaluateCredentialCard(
   String? credentialName,
   String? issuerName,
   Map<String, String>? attributes,
+  String? footerText,
   IrmaCardStyle? style,
 }) async {
 // Find one IrmaCredentialCard with the provided finder
@@ -279,5 +306,17 @@ Future<void> evaluateCredentialCard(
       // Expect no attribute list
       expect(cardAttList, findsNothing);
     }
+  }
+
+  // Check the footer text
+  if (footerText != null) {
+    final footerFinder = find.byType(IrmaCredentialCardFooter);
+    expect(
+      find.descendant(
+        of: footerFinder,
+        matching: find.text(footerText),
+      ),
+      findsOneWidget,
+    );
   }
 }

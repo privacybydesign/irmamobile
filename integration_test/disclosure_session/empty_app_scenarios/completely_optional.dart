@@ -45,10 +45,7 @@ Future<void> completelyOptionalTest(WidgetTester tester, IntegrationTestIrmaBind
 
   // We cannot actually press the 'Obtain data' button, because we get redirected to an external flow then.
   // Therefore, we mock this behaviour using the helper below until we have a better solution.
-  await issueCredentials(tester, irmaBinding, {
-    'irma-demo.sidn-pbdf.email.email': 'test@example.com',
-    'irma-demo.sidn-pbdf.email.domain': 'example.com',
-  });
+  await issueEmailAddress(tester, irmaBinding);
 
   await tester.tapAndSettle(find.text('Done'));
 
@@ -73,8 +70,16 @@ Future<void> completelyOptionalTest(WidgetTester tester, IntegrationTestIrmaBind
   await irmaBinding.repository.startTestSession(sessionRequest);
   await tester.waitFor(find.text('Share your data'));
   expect(find.text('This is the data you are going to share:'), findsOneWidget);
-  expect(find.text('Demo Email address'), findsOneWidget);
-  expect(find.text('test@example.com'), findsOneWidget);
+
+  await evaluateCredentialCard(
+    tester,
+    find.byType(IrmaCredentialCard).first,
+    credentialName: 'Demo Email address',
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    attributes: {
+      'Email address': 'test@example.com',
+    },
+  );
 
   // Finish session.
   await tester.tapAndSettle(find.text('Share data'));

@@ -74,22 +74,64 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
   expect(templateCardsFinder, findsNWidgets(2));
 
   // The first card should be highlighted
-  expect((templateCardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.highlighted);
-  expect((templateCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
+  await evaluateCredentialCard(
+    tester,
+    templateCardsFinder.first,
+    credentialName: 'Demo Personal data',
+    issuerName: 'Demo Municipality',
+    attributes: {},
+    style: IrmaCardStyle.highlighted,
+  );
+  await evaluateCredentialCard(
+    tester,
+    templateCardsFinder.at(1),
+    credentialName: 'Demo Email address',
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    attributes: {},
+    style: IrmaCardStyle.normal,
+  );
 
   // Issue the personal data
-  await issueMunicipalityCards(tester, irmaBinding);
+  await issueMunicipalityPersonalData(tester, irmaBinding);
 
   // The second card should now be highlighted
-  expect((templateCardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
-  expect((templateCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.highlighted);
+  await evaluateCredentialCard(
+    tester,
+    templateCardsFinder.first,
+    credentialName: 'Demo Personal data',
+    issuerName: 'Demo Municipality',
+    attributes: {},
+    style: IrmaCardStyle.normal,
+  );
+  await evaluateCredentialCard(
+    tester,
+    templateCardsFinder.at(1),
+    credentialName: 'Demo Email address',
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    attributes: {},
+    style: IrmaCardStyle.highlighted,
+  );
 
-// Issue the email
+  // Issue the email
   await issueEmailAddress(tester, irmaBinding);
 
   // Both should be finished now
-  expect((templateCardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
-  expect((templateCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
+  await evaluateCredentialCard(
+    tester,
+    templateCardsFinder.first,
+    credentialName: 'Demo Personal data',
+    issuerName: 'Demo Municipality',
+    attributes: {},
+    style: IrmaCardStyle.normal,
+  );
+  await evaluateCredentialCard(
+    tester,
+    templateCardsFinder.at(1),
+    credentialName: 'Demo Email address',
+    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    attributes: {},
+    style: IrmaCardStyle.normal,
+  );
 
   // Button should say done now
   await tester.tapAndSettle(find.text('Done'));

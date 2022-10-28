@@ -38,7 +38,7 @@ Future<void> noChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBi
   expect(find.text('Collect data'), findsOneWidget);
   expect(tester.widgetList(find.byType(IrmaCredentialCard)).length, 1);
 
-  await issueMunicipalityCards(tester, irmaBinding);
+  await issueMunicipalityPersonalData(tester, irmaBinding);
 
   // Issue wizard should be completed
   expect(find.text('All required data has been added.'), findsOneWidget);

@@ -17,7 +17,7 @@ import '../../util.dart';
 
 Future<void> _fillApp(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
   await issueEmailAddress(tester, irmaBinding);
-  await issueMunicipalityCards(tester, irmaBinding);
+  await issueMunicipalityPersonalData(tester, irmaBinding);
 }
 
 Future<void> filledNoChoiceMultipleCredsTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
@@ -34,7 +34,7 @@ Future<void> filledNoChoiceMultipleCredsTest(WidgetTester tester, IntegrationTes
           "@context": "https://irma.app/ld/request/disclosure/v2",
           "disclose": [
             [
-              [ "irma-demo.sidn-pbdf.email.email"]
+              [ "irma-demo.sidn-pbdf.email.email" ]
             ],
             [
               [ "irma-demo.sidn-pbdf.mobilenumber.mobilenumber" ]

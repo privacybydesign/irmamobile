@@ -64,10 +64,7 @@ Future<void> noChoiceMltplCredsTest(WidgetTester tester, IntegrationTestIrmaBind
   expect((cardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
   expect((cardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.highlighted);
 
-  // Issue the mobile number credential
-  await issueCredentials(tester, irmaBinding, {
-    'irma-demo.sidn-pbdf.mobilenumber.mobilenumber': '0612345678',
-  });
+  await issueMobileNumber(tester, irmaBinding);
 
   // Issue wizard should be completed
   expect(find.text('All required data has been added.'), findsOneWidget);

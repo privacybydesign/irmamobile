@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_share_dialog.dart';
@@ -15,9 +16,10 @@ import '../../util.dart';
 Future<void> _fillApp(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
   await issueEmailAddress(tester, irmaBinding);
   await issueMunicipalityPersonalData(tester, irmaBinding);
+  await issueMunicipalityAddress(tester, irmaBinding);
 }
 
-Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> filledChoiceMixedTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
 
   // Fill app with:
@@ -25,15 +27,15 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
   await _fillApp(tester, irmaBinding);
 
   // Session requesting:
-  // Email OR
-  // Mobile number
+  // Address from municipality OR
+  // Address from iDIN, with city
   const sessionRequest = '''
         {
           "@context": "https://irma.app/ld/request/disclosure/v2",
           "disclose": [
             [
-              [ "irma-demo.sidn-pbdf.email.email" ],
-              [ "irma-demo.sidn-pbdf.mobilenumber.mobilenumber" ]
+              [ "irma-demo.gemeente.address.street", "irma-demo.gemeente.address.houseNumber", "irma-demo.gemeente.address.city" ],
+              [ "irma-demo.idin.idin.address", "irma-demo.idin.idin.city" ]
             ]
           ]
         }
@@ -49,21 +51,23 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     matching: find.text('Get going'),
   ));
 
-  // Expect the choices screen
+  // Should go straight to overview screen,
+  // because the address has already been obtained
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  await tester.waitFor(find.text('This is the data you are going to share:'));
 
-  // Expect one credential card to be present
-  final cardFinder = find.byType(IrmaCredentialCard);
-  expect(cardFinder, findsOneWidget);
-
-  // Card should be filled and have correct header
+  // Expect the already obtained municipality address
+  final cardsFinder = find.byType(IrmaCredentialCard);
+  expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,
-    cardFinder,
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    cardsFinder.first,
+    credentialName: 'Demo Address',
+    issuerName: 'Demo Municipality',
     attributes: {
-      'Email address': 'test@example.com',
+      'Street': 'Meander',
+      'House number': '501',
+      'City': 'Arnhem',
     },
     style: IrmaCardStyle.normal,
   );
@@ -78,108 +82,88 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
   // Expect make choice screen
   expect(find.byType(DisclosurePermissionMakeChoiceScreen), findsOneWidget);
 
-  // This screen to have three options
-  expect(cardFinder, findsNWidgets(3));
-
-  // The first card should be select
+  //This screen to have two options
+  expect(cardsFinder, findsNWidgets(2));
   await evaluateCredentialCard(
     tester,
-    cardFinder.first,
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    cardsFinder.first,
+    credentialName: 'Demo Address',
+    issuerName: 'Demo Municipality',
     attributes: {
-      'Email address': 'test@example.com',
+      'Street': 'Meander',
+      'House number': '501',
+      'City': 'Arnhem',
     },
     style: IrmaCardStyle.highlighted,
   );
-
-  // The second card should show a template credential
   await evaluateCredentialCard(
     tester,
-    cardFinder.at(1),
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    cardsFinder.at(1),
+    credentialName: 'Demo iDIN',
+    issuerName: 'Demo iDIN',
     attributes: {},
     style: IrmaCardStyle.outlined,
   );
 
-  // The third card should show a template credential too
-  final thirdCardFinder = cardFinder.at(2);
+  // Press iDin option
+  await tester.tapAndSettle(cardsFinder.at(1));
+
+  // The styling of the cards should represent this choice
   await evaluateCredentialCard(
     tester,
-    thirdCardFinder,
-    credentialName: 'Demo Mobile phone number',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {},
+    cardsFinder.first,
     style: IrmaCardStyle.outlined,
   );
-
-  // Select the obtain mobile number
-  await tester.tapAndSettle(thirdCardFinder);
-
-  // Card should be highlighted now
   await evaluateCredentialCard(
     tester,
-    thirdCardFinder,
+    cardsFinder.at(1),
     style: IrmaCardStyle.highlighted,
   );
 
-  await issueMobileNumber(tester, irmaBinding);
+  // Issue iDin
+  await issueIdin(tester, irmaBinding);
 
-  // Now four cards should   be visible
-  expect(cardFinder, findsNWidgets(4));
-
-  // Check if all cards display the correct
+  // Now two filled cards should be present
   await evaluateCredentialCard(
     tester,
-    cardFinder.first,
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    cardsFinder.first,
+    credentialName: 'Demo Address',
+    issuerName: 'Demo Municipality',
     attributes: {
-      'Email address': 'test@example.com',
+      'Street': 'Meander',
+      'House number': '501',
+      'City': 'Arnhem',
     },
     style: IrmaCardStyle.outlined,
   );
   await evaluateCredentialCard(
     tester,
-    cardFinder.at(1),
-    credentialName: 'Demo Mobile phone number',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    cardsFinder.at(1),
+    credentialName: 'Demo iDIN',
+    issuerName: 'Demo iDIN',
     attributes: {
-      'Mobile phone number': '0612345678',
+      'Address': 'Meander 501',
+      'City': 'Arnhem',
     },
     style: IrmaCardStyle.highlighted,
   );
 
-  await evaluateCredentialCard(
-    tester,
-    cardFinder.at(2),
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {},
-    style: IrmaCardStyle.outlined,
-  );
-  await evaluateCredentialCard(
-    tester,
-    cardFinder.at(3),
-    credentialName: 'Demo Mobile phone number',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {},
-    style: IrmaCardStyle.outlined,
-  );
-
-  // Confirm choice
   await tester.tapAndSettle(find.text('Done'));
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
 
-  // Only selected card should remain
+  // Expect choices overview
+  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  expect(find.text('This is the data you are going to share:'), findsOneWidget);
+
+  // Now two filled cards should be visible
+  expect(cardsFinder, findsOneWidget);
   await evaluateCredentialCard(
     tester,
-    cardFinder.first,
-    credentialName: 'Demo Mobile phone number',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
+    cardsFinder.first,
+    credentialName: 'Demo iDIN',
+    issuerName: 'Demo iDIN',
     attributes: {
-      'Mobile phone number': '0612345678',
+      'Address': 'Meander 501',
+      'City': 'Arnhem',
     },
     style: IrmaCardStyle.normal,
   );
