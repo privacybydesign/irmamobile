@@ -8,21 +8,14 @@ import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 
-import '../../helpers.dart';
+import '../../helpers/helpers.dart';
 import '../../irma_binding.dart';
+import '../../helpers/issuance_helpers.dart';
 import '../../util.dart';
-
-Future<void> _fillApp(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
-  await issueEmailAddress(tester, irmaBinding);
-  await issueMunicipalityPersonalData(tester, irmaBinding);
-}
 
 Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
-
-  // Fill app with:
-  // Email and personal data from municipality
-  await _fillApp(tester, irmaBinding);
+  await issueDemoCredentials(tester, irmaBinding);
 
   // Session requesting:
   // Email OR

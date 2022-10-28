@@ -7,7 +7,7 @@ import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:package_info/package_info.dart';
 
-import 'helpers.dart';
+import 'helpers/helpers.dart';
 import 'irma_binding.dart';
 import 'util.dart';
 

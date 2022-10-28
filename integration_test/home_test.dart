@@ -11,7 +11,7 @@ import 'package:irmamobile/src/screens/home/widgets/irma_nav_bar.dart';
 import 'package:irmamobile/src/screens/more/more_tab.dart';
 import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 
-import 'helpers.dart';
+import 'helpers/helpers.dart';
 import 'irma_binding.dart';
 import 'util.dart';
 
