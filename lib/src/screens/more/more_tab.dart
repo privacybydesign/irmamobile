@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../../theme/irma_icons.dart';
 import '../../theme/theme.dart';
 import '../../util/combine.dart';
-import '../../util/get_flavor.dart';
+import '../../util/flavor.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_button.dart';
 import '../../widgets/irma_repository_provider.dart';
