@@ -15,6 +15,7 @@ import 'empty_app_scenarios/optionals.dart';
 import 'empty_app_scenarios/specific_att_values.dart';
 import 'filled_app_scenearios/filled_choice_mixed.dart';
 import 'filled_app_scenearios/filled_choice_test.dart';
+import 'filled_app_scenearios/filled_discon.dart';
 import 'filled_app_scenearios/filled_no_choice_multiple_creds.dart';
 
 void main() {
@@ -116,6 +117,15 @@ void main() {
       testWidgets(
         'filled-choice-mixed',
         (tester) => filledChoiceMixedTest(tester, irmaBinding),
+        timeout: generalTimeout,
+      );
+
+      // Address from municipality OR
+      // Address from iDIN AND
+      // Email
+      testWidgets(
+        'filled-discon',
+        (tester) => filledDisconTest(tester, irmaBinding),
         timeout: generalTimeout,
       );
     });
