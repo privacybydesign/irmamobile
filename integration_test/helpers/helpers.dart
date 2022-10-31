@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:irmamobile/main.dart';
@@ -139,6 +139,7 @@ Future<void> evaluateCredentialCard(
   String? credentialName,
   String? issuerName,
   Map<String, String>? attributes,
+  Map<String, String>? attributesCompareTo,
   String? footerText,
   IrmaCardStyle? style,
 }) async {
@@ -189,17 +190,44 @@ Future<void> evaluateCredentialCard(
     );
 
     if (attributes.isNotEmpty) {
-      // Expect attribute list
-      expect(cardAttList, findsOneWidget);
+      final cardAttListText = tester.getAllText(cardAttList).toList();
 
-      // Compare the attribute list texts
-      final flattendAttributeMap = attributes.entries.expand(
-        (element) => [element.key, element.value],
-      );
-      expect(
-        tester.getAllText(cardAttList),
-        flattendAttributeMap,
-      );
+      var mappedCardList = <String, String>{};
+      for (var i = 0; i < cardAttListText.length; i = i + 2) {
+        final attName = cardAttListText[i];
+        final attVal = cardAttListText[i + 1];
+        mappedCardList[attName] = attVal;
+      }
+
+      // Mapped card list should match the provided attributes
+      expect(mapEquals(mappedCardList, attributes), true);
+
+      if (attributesCompareTo != null) {
+        for (var compareAttEntry in attributesCompareTo.entries) {
+          // This key should be present in mappedCardList
+          expect(mappedCardList.containsKey(compareAttEntry.key), true);
+
+
+          // Expected the targeted attribute value to be in the list
+          final textFinder = find.descendant(
+            of: cardAttList,
+            matching: find.text(mappedCardList[compareAttEntry.key]!),
+          );
+          expect(textFinder, findsOneWidget);
+
+          Color expectedTextColor;
+          if (mappedCardList[compareAttEntry.key] == null ||
+              mappedCardList[compareAttEntry.key]! != compareAttEntry.value) {
+            expectedTextColor = const Color(0xffbd1919);
+          } else {
+            expectedTextColor = const Color(0xff33ad38);
+          }
+          expect(
+            (textFinder.evaluate().first.widget as Text).style?.color!,
+            expectedTextColor,
+          );
+        }
+      }
     } else {
       // Expect no attribute list
       expect(cardAttList, findsNothing);

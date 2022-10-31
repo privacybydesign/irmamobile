@@ -17,6 +17,7 @@ import 'filled_app_scenearios/filled_choice_mixed.dart';
 import 'filled_app_scenearios/filled_choice_test.dart';
 import 'filled_app_scenearios/filled_discon.dart';
 import 'filled_app_scenearios/filled_no_choice_multiple_creds.dart';
+import 'filled_app_scenearios/filled_specific_attribute_values_match.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -126,6 +127,14 @@ void main() {
       testWidgets(
         'filled-discon',
         (tester) => filledDisconTest(tester, irmaBinding),
+        timeout: generalTimeout,
+      );
+
+      // Address from municipality where city hast to be Arnhem AND
+      // Email address where domain has to be test.com
+      testWidgets(
+        'filled-specific-attribute-values-match',
+        (tester) => filledSpecificAttributeValuesMatchTest(tester, irmaBinding),
         timeout: generalTimeout,
       );
     });
