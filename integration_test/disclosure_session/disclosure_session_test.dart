@@ -18,6 +18,7 @@ import 'filled_app_scenearios/filled_choice_test.dart';
 import 'filled_app_scenearios/filled_discon.dart';
 import 'filled_app_scenearios/filled_no_choice_multiple_creds.dart';
 import 'filled_app_scenearios/filled_specific_attribute_values_match.dart';
+import 'filled_app_scenearios/filled_specific_attribute_values_no_match.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -135,6 +136,13 @@ void main() {
       testWidgets(
         'filled-specific-attribute-values-match',
         (tester) => filledSpecificAttributeValuesMatchTest(tester, irmaBinding),
+        timeout: generalTimeout,
+      );
+
+      // Email address where domain has to be test.com
+      testWidgets(
+        'filled-specific-attribute-values-no-match',
+        (tester) => filledSpecificAttributeValuesNoMatchTest(tester, irmaBinding),
         timeout: generalTimeout,
       );
     });

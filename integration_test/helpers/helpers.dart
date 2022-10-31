@@ -207,7 +207,6 @@ Future<void> evaluateCredentialCard(
           // This key should be present in mappedCardList
           expect(mappedCardList.containsKey(compareAttEntry.key), true);
 
-
           // Expected the targeted attribute value to be in the list
           final textFinder = find.descendant(
             of: cardAttList,
