@@ -22,7 +22,7 @@ import 'irma_binding.dart';
 import 'util.dart';
 
 void main() {
-  Random random = Random();
+  final random = Random();
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
@@ -253,9 +253,8 @@ void main() {
           expect(emailInvalidMessageFinder, findsOneWidget);
 
           // Enter valid e-mail
-          String seed = random.nextInt(100).toString();
-          var email = 'test' + seed + '@test.com';
-          await tester.enterText(emailInputFinder, email);
+          final seed = random.nextInt(1000000).toString();
+          await tester.enterText(emailInputFinder, 'test$seed@example.com');
           await tester.testTextInput.receiveAction(TextInputAction.done);
           await tester.pumpAndSettle(const Duration(seconds: 1));
           await tester.tapAndSettle(find.text('Next'));
