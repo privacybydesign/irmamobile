@@ -3,6 +3,7 @@
 rubyvendor/
 fastlane/.env.default
 fastlane/build
+fastlane/profiles
 fastlane/report.xml
 
 # ---
