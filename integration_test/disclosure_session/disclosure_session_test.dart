@@ -24,7 +24,6 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
-  const generalTimeout = Timeout(Duration(minutes: 1));
 
   group('disclosure-session', () {
     setUp(() => irmaBinding.setUp());
@@ -37,21 +36,18 @@ void main() {
         testWidgets(
           'no-choice',
           (tester) => noChoiceTest(tester, irmaBinding),
-          timeout: generalTimeout,
         );
 
         // Email OR your mobile number
         testWidgets(
           'choice',
           (tester) => choiceTest(tester, irmaBinding),
-          timeout: generalTimeout,
         );
 
         // Email AND mobile number
         testWidgets(
           'no-choice-mltpl-creds',
           (tester) => noChoiceMltplCredsTest(tester, irmaBinding),
-          timeout: generalTimeout,
         );
 
         // Address from multiplicity OR iDIN
@@ -59,7 +55,6 @@ void main() {
         testWidgets(
           'choice-mixed',
           (tester) => choiceMixedTest(tester, irmaBinding),
-          timeout: generalTimeout,
         );
 
         // Student/employee id from university OR
@@ -67,7 +62,6 @@ void main() {
         testWidgets(
           'choice-mixed-sources',
           (tester) => choiceMixedSourcesTest(tester, irmaBinding),
-          timeout: generalTimeout,
         );
 
         // Bank account number from iDeal. BIC has to be RABONL2U. AND
@@ -75,22 +69,16 @@ void main() {
         testWidgets(
           'specific-att-values',
           (tester) => specificAttValuesTest(tester, irmaBinding),
-          timeout: generalTimeout,
         );
 
         // Address from iDIN or municipality
         // And optionally mobile number or e-mail address
-        testWidgets(
-          'optionals',
-          (tester) => optionalsTest(tester, irmaBinding),
-          timeout: generalTimeout,
-        );
+        testWidgets('optionals', (tester) => optionalsTest(tester, irmaBinding));
 
         // E-mail address or nothing
         testWidgets(
           'completely-optional',
           (tester) => completelyOptionalTest(tester, irmaBinding),
-          timeout: generalTimeout,
         );
       },
     );
@@ -104,14 +92,12 @@ void main() {
       testWidgets(
         'filled-choice-test',
         (tester) => filledChoiceTest(tester, irmaBinding),
-        timeout: generalTimeout,
       );
 
       // Email AND telephone number
       testWidgets(
         'filled-no-choice-multiple-creds',
         (tester) => filledNoChoiceMultipleCredsTest(tester, irmaBinding),
-        timeout: generalTimeout,
       );
 
       // Address from municipality OR
@@ -119,31 +105,35 @@ void main() {
       testWidgets(
         'filled-choice-mixed',
         (tester) => filledChoiceMixedTest(tester, irmaBinding),
-        timeout: generalTimeout,
       );
 
       // Address from municipality OR
       // Address from iDIN AND
       // Email
       testWidgets(
-        'filled-discon',
-        (tester) => filledDisconTest(tester, irmaBinding),
-        timeout: generalTimeout,
-      );
+          'filled-discon',
+          (tester) => filledDisconTest(
+                tester,
+                irmaBinding,
+              ));
 
       // Address from municipality where city hast to be Arnhem AND
       // Email address where domain has to be test.com
       testWidgets(
         'filled-specific-attribute-values-match',
-        (tester) => filledSpecificAttributeValuesMatchTest(tester, irmaBinding),
-        timeout: generalTimeout,
+        (tester) => filledSpecificAttributeValuesMatchTest(
+          tester,
+          irmaBinding,
+        ),
       );
 
       // Email address where domain has to be test.com
       testWidgets(
         'filled-specific-attribute-values-no-match',
-        (tester) => filledSpecificAttributeValuesNoMatchTest(tester, irmaBinding),
-        timeout: generalTimeout,
+        (tester) => filledSpecificAttributeValuesNoMatchTest(
+          tester,
+          irmaBinding,
+        ),
       );
     });
   });
