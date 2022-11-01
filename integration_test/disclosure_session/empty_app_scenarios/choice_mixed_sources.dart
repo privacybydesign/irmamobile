@@ -56,7 +56,7 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
   // Select the second choice
   final personalDataFinder = find.text('Demo Personal data');
   await tester.ensureVisible(personalDataFinder);
-  await tester.pumpAndSettle();
+  await tester.pumpAndSettle(const Duration(seconds: 1));
   await tester.tapAndSettle(personalDataFinder);
   await tester.tapAndSettle(find.text('Obtain data'));
 
