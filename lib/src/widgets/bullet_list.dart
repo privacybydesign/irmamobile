@@ -5,9 +5,11 @@ import 'translated_text.dart';
 
 class BulletList extends StatelessWidget {
   final List<String> translationKeys;
+  final Widget? leading;
 
   const BulletList({
     required this.translationKeys,
+    this.leading,
   });
 
   @override
@@ -24,9 +26,14 @@ class BulletList extends StatelessWidget {
                 mainAxisSize: MainAxisSize.max,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    '•  ',
-                    style: textStyle,
+                  leading != null
+                      ? leading!
+                      : Text(
+                          '•  ',
+                          style: textStyle,
+                        ),
+                  SizedBox(
+                    width: theme.smallSpacing,
                   ),
                   Expanded(
                     child: TranslatedText(

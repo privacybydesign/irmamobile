@@ -56,9 +56,9 @@
         },
         "terms_and_conditions": {
             "title": "Our terms and conditions",
-            "explanation_markdown": "These are the three main points of our terms and conditions. Read the complete [terms and conditions](https://privacybydesign.foundation/privacy-policy-en/) here.",
-            "point_1": "You decide which personal data you keep safe in Yivi.",
-            "point_2": "You decide which data you share with whom.",
+            "explanation": "With Yivi you take control of your data and protect your privacy online",
+            "point_1": "You decide what to store, what to share and with whom.",
+            "point_2": "Your data is stored on your phone only",
             "point_3": "No one can access your data without your permission, including Yivi.",
             "accept_markdown": "Yes, I accept the [terms and conditions](https://privacybydesign.foundation/privacy-policy-en/)"
         },
