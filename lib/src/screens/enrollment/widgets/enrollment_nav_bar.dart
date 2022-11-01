@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../theme/theme.dart';
 import '../../../widgets/irma_button.dart';
-import '../../../widgets/irma_text_button.dart';
 import '../../../widgets/irma_themed_button.dart';
 
 class EnrollmentNavBar extends StatelessWidget {
@@ -32,12 +31,15 @@ class EnrollmentNavBar extends StatelessWidget {
           Flexible(
             child: onPrevious == null
                 ? Container()
-                : IrmaTextButton(
-                    key: const Key('enrollment_previous_button'),
-                    label: 'ui.previous',
-                    textStyle: theme.hyperlinkTextStyle,
-                    onPressed: onPrevious,
-                    size: IrmaButtonSize.large,
+                : Padding(
+                    padding: EdgeInsets.only(right: theme.smallSpacing),
+                    child: IrmaButton(
+                      key: const Key('enrollment_previous_button'),
+                      label: 'ui.previous',
+                      onPressed: onPrevious,
+                      size: IrmaButtonSize.large,
+                      isSecondary: true,
+                    ),
                   ),
           ),
 
