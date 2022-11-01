@@ -14,7 +14,7 @@ import '../../irma_binding.dart';
 import '../../helpers/issuance_helpers.dart';
 import '../../util.dart';
 
-Future<void> noChoiceMltplCredsTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> noChoiceMultipleCredsTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
 
   // Session requesting:

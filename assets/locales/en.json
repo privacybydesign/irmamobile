@@ -103,7 +103,7 @@
         "question_6": "What to do if I lose my mobile?",
         "answer_6_markdown": "If you lose your mobile, nobody can use your Yivi app, at least if you have chosen a non-trivial PIN.\n\nYou can protect yourself even more: upon installing Yivi you have been given the choice to enter an email address. If you have done so, you can block your Yivi app altogether via [MyYivi](https://privacybydesign.foundation/myirma/). The Yivi app on your old (lost) mobile is then completely unusable.\n\nIf you have not yet added an email address in [MyYivi](https://privacybydesign.foundation/myirma/) you can still do so now. This is recommended.\n\nOn your new mobile you can re-install the Yivi app and re-fill it with your data. Then you are good to go again.",
         "question_7": "Can I install Yivi on multiple mobile devices?",
-        "answer_7": "Yes, on every mobile device (Android or iOS) you can open a separate Yivi account and fill it with cards with your personal data. It is actually wise to do so. If you lose one device, you can still log on with your other device.",
+        "answer_7": "Yes, on every mobile device (Android or iOS) you can install a separate Yivi app and fill it with cards with your personal data. It is actually wise to do so. If you lose one device, you can still log on with your other device.",
         "question_8": "Where are my Yivi data stored?",
         "answer_8": "Your data are stored in the Yivi app on your mobile and not in the cloud.\n\nYou explicitly agree (or not) to reveal your personal data from your Yivi app to a website.\nWhen you remove your data from the Yivi app, they are really gone from Yivi.",
         "question_9": "What makes Yivi privacy-friendly and secure?",
@@ -212,8 +212,8 @@
             "attempts-2": "This PIN is not correct. You have {attemps} attempts left before your Yivi app will be blocked temporarily."
         },
         "invalid_close": "Try again",
-        "blocked_title": "Account blocked",
-        "blocked_pin": "Your account has been blocked for {blocked}. Please try again later.",
+        "blocked_title": "App blocked",
+        "blocked_pin": "Your app has been blocked for {blocked}. Please try again later.",
         "blocked_close": "Try again",
         "done": "Continue",
         "view": "Show PIN",
@@ -289,7 +289,7 @@
         },
         "pairing": {
             "title": "Extra safety check",
-            "instruction": "Enter this verification code on the website to secure your account"
+            "instruction": "Enter this verification code on the website to secure your app"
         },
         "unknown_session_type": {
             "title": "Cancelled",
