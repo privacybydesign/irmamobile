@@ -10,9 +10,9 @@ import 'empty_app_scenarios/choice_mixed.dart';
 import 'empty_app_scenarios/choice_mixed_sources.dart';
 import 'empty_app_scenarios/completely_optional.dart';
 import 'empty_app_scenarios/no_choice.dart';
-import 'empty_app_scenarios/no_choice_mlptl_creds.dart';
+import 'empty_app_scenarios/no_choice_multiple_creds.dart';
 import 'empty_app_scenarios/optionals.dart';
-import 'empty_app_scenarios/specific_att_values.dart';
+import 'empty_app_scenarios/specific_attribute_values.dart';
 import 'filled_app_scenearios/filled_choice_mixed.dart';
 import 'filled_app_scenearios/filled_choice_test.dart';
 import 'filled_app_scenearios/filled_discon.dart';
@@ -46,8 +46,8 @@ void main() {
 
         // Email AND mobile number
         testWidgets(
-          'no-choice-mltpl-creds',
-          (tester) => noChoiceMltplCredsTest(tester, irmaBinding),
+          'no-choice-multiple-creds',
+          (tester) => noChoiceMultipleCredsTest(tester, irmaBinding),
         );
 
         // Address from multiplicity OR iDIN
@@ -67,8 +67,8 @@ void main() {
         // Bank account number from iDeal. BIC has to be RABONL2U. AND
         // Initials, family name and city from iDIN. The city has to be Arnhem
         testWidgets(
-          'specific-att-values',
-          (tester) => specificAttValuesTest(tester, irmaBinding),
+          'specific-attribute-values',
+          (tester) => specificAttributeValuesTest(tester, irmaBinding),
         );
 
         // Address from iDIN or municipality
@@ -110,12 +110,7 @@ void main() {
       // Address from municipality OR
       // Address from iDIN AND
       // Email
-      testWidgets(
-          'filled-discon',
-          (tester) => filledDisconTest(
-                tester,
-                irmaBinding,
-              ));
+      testWidgets('filled-discon', (tester) => filledDisconTest(tester, irmaBinding));
 
       // Address from municipality where city hast to be Arnhem AND
       // Email address where domain has to be test.com
