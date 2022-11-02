@@ -58,7 +58,9 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
   await tester.ensureVisible(personalDataFinder);
   await tester.pumpAndSettle(const Duration(seconds: 1));
   await tester.tapAndSettle(personalDataFinder);
+  await tester.pumpAndSettle(const Duration(seconds: 1));
   await tester.tapAndSettle(find.text('Obtain data'));
+  await tester.pumpAndSettle(const Duration(seconds: 1));
 
   // Expect sub-issue wizard
   expect(find.byType(DisclosurePermissionObtainCredentialsScreen), findsOneWidget);
