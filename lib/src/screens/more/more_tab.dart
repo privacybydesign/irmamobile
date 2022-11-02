@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 import '../../theme/irma_icons.dart';
 import '../../theme/theme.dart';
-import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_button.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/translated_text.dart';
@@ -32,10 +31,6 @@ class MoreTab extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const IrmaAppBar(
-          titleTranslationKey: 'home.nav_bar.more',
-          noLeading: true,
-        ),
         Expanded(
           child: ListView(
             padding: EdgeInsets.only(bottom: theme.defaultSpacing),

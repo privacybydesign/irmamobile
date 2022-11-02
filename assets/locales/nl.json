@@ -445,31 +445,13 @@
         }
     },
     "home_tab": {
-        "title": "Jouw gegevens,\nop jouw telefoon.",
-        "get_going": "Ga aan de slag",
-        "more_information": "Meer informatie",
+        "title": "The identity wallet",
         "recent_activity": "Recente activiteit",
         "view_more": "Bekijk meer",
         "action_card": {
-            "share": {
-                "title": "Deel direct je gegevens",
-                "subtitle": "met de organisatie die daar om vraagt"
-            },
             "fetch": {
-                "title": "Haal jouw gegevens op",
-                "subtitle": "om ze in de toekomst direct te kunnen delen"
-            }
-        },
-        "info_card": {
-            "safety": {
-                "title": "Hoe veilig is Yivi?",
-                "body": "Informatie over de veiligheid van Yivi en hoe om te gaan met digitale identiteiten.",
-                "link": "https://irma.app/?lang=nl"
-            },
-            "about": {
-                "title": "Over de organisatie Yivi",
-                "body": "Lees hier alles over Yivi. Van algemene informatie tot techniek.",
-                "link": "https://privacybydesign.foundation/irma/"
+                "title": "Haal persoonlijke gegevens op",
+                "subtitle": "Om ze in de toekomst direct te kunnen delen"
             }
         }
     },
