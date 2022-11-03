@@ -101,7 +101,10 @@ Future<void> filledNoChoiceMultipleCredsTest(WidgetTester tester, IntegrationTes
 
   // Change choice should be visible
   final changeChoiceFinder = find.text('Change choice');
-  expect(changeChoiceFinder, findsOneWidget);
+  await tester.scrollUntilVisible(
+    changeChoiceFinder,
+    50,
+  );
 
   // Press the change choice
   await tester.tapAndSettle(changeChoiceFinder);
