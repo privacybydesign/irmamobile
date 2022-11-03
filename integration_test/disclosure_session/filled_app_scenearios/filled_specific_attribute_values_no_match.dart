@@ -105,7 +105,11 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
     style: IrmaCardStyle.normal,
   );
 
-  await tester.tapAndSettle(find.text('OK'));
+  // Close the dialog
+  final okButtonFinder = find.text('OK');
+  await tester.ensureVisible(okButtonFinder);
+  await tester.pumpAndSettle();
+  await tester.tapAndSettle(okButtonFinder);
 
   // Now issue the correct right credential
   await issueCredentials(tester, irmaBinding, {

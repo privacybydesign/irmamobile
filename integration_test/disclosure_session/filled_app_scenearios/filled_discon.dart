@@ -97,17 +97,21 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
   );
 
   // Second card should show the option to add iDIN
+  final secondCardFinder = cardsFinder.at(1);
   await evaluateCredentialCard(
     tester,
-    cardsFinder.at(1),
+    secondCardFinder,
     credentialName: 'Demo iDIN',
     issuerName: 'Demo iDIN',
     attributes: {},
     style: IrmaCardStyle.outlined,
   );
-
+  await tester.scrollUntilVisible(
+    secondCardFinder,
+    50,
+  );
   // Tap iDIN option
-  await tester.tapAndSettle(cardsFinder.at(1));
+  await tester.tapAndSettle(secondCardFinder);
 
   // Evaluate the card styling again now that iDIN is selected
   await evaluateCredentialCard(
@@ -158,6 +162,10 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
 
   // Check the second change choice
+  await tester.scrollUntilVisible(
+    cardsFinder.at(1),
+    50,
+  );
   await tester.tapAndSettle(changeChoiceFinder.at(1));
 
   // Evaluate the choice screen

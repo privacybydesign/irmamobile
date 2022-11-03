@@ -85,9 +85,11 @@ Future<void> filledChoiceMixedTest(WidgetTester tester, IntegrationTestIrmaBindi
     },
     style: IrmaCardStyle.highlighted,
   );
+
+  final secondCardFinder = cardsFinder.at(1);
   await evaluateCredentialCard(
     tester,
-    cardsFinder.at(1),
+    secondCardFinder,
     credentialName: 'Demo iDIN',
     issuerName: 'Demo iDIN',
     attributes: {},
@@ -95,7 +97,11 @@ Future<void> filledChoiceMixedTest(WidgetTester tester, IntegrationTestIrmaBindi
   );
 
   // Press iDin option
-  await tester.tapAndSettle(cardsFinder.at(1));
+  await tester.scrollUntilVisible(
+    secondCardFinder,
+    50,
+  );
+  await tester.tapAndSettle(secondCardFinder);
 
   // The styling of the cards should represent this choice
   await evaluateCredentialCard(
