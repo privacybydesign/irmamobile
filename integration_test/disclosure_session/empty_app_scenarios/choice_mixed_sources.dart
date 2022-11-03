@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart';
@@ -54,8 +55,20 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
   expect(choiceFinder, findsOneWidget);
 
   // Select the second choice
-  await tester.tapAndSettle(find.text('Demo Personal data').hitTestable());
-  await tester.tapAndSettle(find.text('Obtain data').hitTestable());
+  final personalDataCardFinder = find.descendant(
+    of: find.byType(IrmaCredentialCard),
+    matching: find.text('Demo Personal data'),
+  );
+  await tester.dragUntilVisible(
+    personalDataCardFinder,
+    find.byType(SingleChildScrollView),
+    const Offset(0, 50),
+  );
+  await tester.tap(personalDataCardFinder);
+  await tester.pump(const Duration(seconds: 1));
+
+  //await tester.tapAndSettle(.hitTestable());
+  await tester.tapAndSettle(find.text('Obtain data'));
 
   // Expect sub-issue wizard
   expect(find.byType(DisclosurePermissionObtainCredentialsScreen), findsOneWidget);
