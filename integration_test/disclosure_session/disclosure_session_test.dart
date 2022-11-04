@@ -62,6 +62,9 @@ void main() {
         testWidgets(
           'choice-mixed-sources',
           (tester) => choiceMixedSourcesTest(tester, irmaBinding),
+          timeout: const Timeout(
+            Duration(minutes: 2),
+          ),
         );
 
         // Bank account number from iDeal. BIC has to be RABONL2U. AND
