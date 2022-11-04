@@ -31,45 +31,48 @@ class DynamicLayout extends StatelessWidget {
   _buildLandscapeLayout(
     IrmaThemeData theme,
     BoxConstraints constraints,
+    bool isSmallScreen,
   ) =>
       Padding(
         padding: EdgeInsets.all(theme.defaultSpacing),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Flexible(
-              child: hero,
-            ),
-            SizedBox(
-              width: theme.smallSpacing,
-            ),
-            Flexible(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: IntrinsicHeight(
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: Center(
-                          child: SingleChildScrollView(
-                            child: content,
+        child: SafeArea(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: hero,
+              ),
+              SizedBox(
+                width: theme.smallSpacing,
+              ),
+              Expanded(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      children: [
+                        Expanded(
+                          child: Center(
+                            child: SingleChildScrollView(
+                              child: content,
+                            ),
                           ),
                         ),
-                      ),
-                      if (actions != null)
-                        Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Container(
-                            padding: EdgeInsets.only(bottom: theme.defaultSpacing),
-                            child: _buildButtonsRow(theme),
+                        if (actions != null)
+                          Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Container(
+                              padding: EdgeInsets.only(bottom: theme.defaultSpacing),
+                              child: _buildButtonsRow(theme),
+                            ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       );
 
@@ -77,6 +80,7 @@ class DynamicLayout extends StatelessWidget {
     IrmaThemeData theme,
     Size screenSize,
     BoxConstraints constraints,
+    bool isSmallScreen,
   ) =>
       ConstrainedBox(
         constraints: BoxConstraints(minHeight: constraints.maxHeight),
@@ -84,7 +88,9 @@ class DynamicLayout extends StatelessWidget {
           child: Stack(
             children: [
               SingleChildScrollView(
-                padding: EdgeInsets.all(theme.defaultSpacing),
+                padding: EdgeInsets.all(
+                  isSmallScreen ? theme.defaultSpacing : theme.largeSpacing,
+                ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -112,18 +118,12 @@ class DynamicLayout extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     final mediaQuery = MediaQuery.of(context);
     final isLandscape = mediaQuery.orientation == Orientation.landscape;
+    final isSmallScreen = mediaQuery.size.height < 670;
 
     return LayoutBuilder(
       builder: ((context, constraints) => isLandscape
-          ? _buildLandscapeLayout(
-              theme,
-              constraints,
-            )
-          : _buildPortraitLayout(
-              theme,
-              mediaQuery.size,
-              constraints,
-            )),
+          ? _buildLandscapeLayout(theme, constraints, isSmallScreen)
+          : _buildPortraitLayout(theme, mediaQuery.size, constraints, isSmallScreen)),
     );
   }
 }
