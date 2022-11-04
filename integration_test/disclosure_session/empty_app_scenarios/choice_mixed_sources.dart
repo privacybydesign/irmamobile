@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart';
@@ -14,8 +13,8 @@ import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 
 import '../../helpers/helpers.dart';
-import '../../irma_binding.dart';
 import '../../helpers/issuance_helpers.dart';
+import '../../irma_binding.dart';
 import '../../util.dart';
 
 Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
@@ -55,19 +54,10 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
   expect(choiceFinder, findsOneWidget);
 
   // Select the second choice
-  final personalDataCardFinder = find.descendant(
-    of: find.byType(IrmaCredentialCard),
-    matching: find.text('Demo Personal data'),
-  );
-  await tester.dragUntilVisible(
-    personalDataCardFinder,
-    find.byType(SingleChildScrollView),
-    const Offset(0, 50),
-  );
-  await tester.tap(personalDataCardFinder);
-  await tester.pump(const Duration(seconds: 1));
-
-  //await tester.tapAndSettle(.hitTestable());
+  final personalDataFinder = find.text('Demo Personal data');
+  await tester.ensureVisible(personalDataFinder);
+  await tester.pumpAndSettle();
+  await tester.tapAndSettle(personalDataFinder);
   await tester.tapAndSettle(find.text('Obtain data'));
 
   // Expect sub-issue wizard
@@ -85,64 +75,22 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
   expect(templateCardsFinder, findsNWidgets(2));
 
   // The first card should be highlighted
-  await evaluateCredentialCard(
-    tester,
-    templateCardsFinder.first,
-    credentialName: 'Demo Personal data',
-    issuerName: 'Demo Municipality',
-    attributes: {},
-    style: IrmaCardStyle.highlighted,
-  );
-  await evaluateCredentialCard(
-    tester,
-    templateCardsFinder.at(1),
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {},
-    style: IrmaCardStyle.normal,
-  );
+  expect((templateCardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.highlighted);
+  expect((templateCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
 
   // Issue the personal data
   await issueMunicipalityPersonalData(tester, irmaBinding);
 
   // The second card should now be highlighted
-  await evaluateCredentialCard(
-    tester,
-    templateCardsFinder.first,
-    credentialName: 'Demo Personal data',
-    issuerName: 'Demo Municipality',
-    attributes: {},
-    style: IrmaCardStyle.normal,
-  );
-  await evaluateCredentialCard(
-    tester,
-    templateCardsFinder.at(1),
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {},
-    style: IrmaCardStyle.highlighted,
-  );
+  expect((templateCardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
+  expect((templateCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.highlighted);
 
-  // Issue the email
+// Issue the email
   await issueEmailAddress(tester, irmaBinding);
 
   // Both should be finished now
-  await evaluateCredentialCard(
-    tester,
-    templateCardsFinder.first,
-    credentialName: 'Demo Personal data',
-    issuerName: 'Demo Municipality',
-    attributes: {},
-    style: IrmaCardStyle.normal,
-  );
-  await evaluateCredentialCard(
-    tester,
-    templateCardsFinder.at(1),
-    credentialName: 'Demo Email address',
-    issuerName: 'Demo Privacy by Design Foundation via SIDN',
-    attributes: {},
-    style: IrmaCardStyle.normal,
-  );
+  expect((templateCardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
+  expect((templateCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
 
   // Button should say done now
   await tester.tapAndSettle(find.text('Done'));
