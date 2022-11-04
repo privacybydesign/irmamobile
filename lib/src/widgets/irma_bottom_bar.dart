@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/theme.dart';
+import 'irma_bottom_bar_base.dart';
 import 'irma_button.dart';
 import 'irma_themed_button.dart';
 
@@ -61,55 +62,39 @@ class IrmaBottomBar extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     final mediaQuery = MediaQuery.of(context);
 
-    return Container(
-      width: mediaQuery.size.width,
-      decoration: BoxDecoration(
-        color: theme.surfacePrimary,
-        border: const Border(
-          top: BorderSide(
-            color: Colors.white,
-            width: 2.0,
-          ),
-        ),
-      ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          vertical: mediaQuery.size.height > 450 ? theme.defaultSpacing : theme.smallSpacing,
-          horizontal: theme.defaultSpacing,
-        ),
-        // Change layout according to limited height (i.e. landscape mode) and alignment setting.
-        child: alignment == IrmaBottomBarAlignment.vertical ||
-                alignment == IrmaBottomBarAlignment.automatic && mediaQuery.size.height > 450
-            ? Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (primaryButtonLabel != null)
-                    Row(
-                      children: [_buildPrimaryButton(context)],
-                    ),
-                  if (secondaryButtonLabel != null) ...[
-                    SizedBox(
-                      height: theme.tinySpacing,
-                    ),
-                    Row(
-                      children: [_buildSecondaryButton(context)],
-                    )
-                  ]
+    return IrmaBottomBarBase(
+      // Change layout according to limited height (i.e. landscape mode) and alignment setting.
+      child: alignment == IrmaBottomBarAlignment.vertical ||
+              alignment == IrmaBottomBarAlignment.automatic && mediaQuery.size.height > 450
+          ? Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (primaryButtonLabel != null)
+                  Row(
+                    children: [_buildPrimaryButton(context)],
+                  ),
+                if (secondaryButtonLabel != null) ...[
+                  SizedBox(
+                    height: theme.tinySpacing,
+                  ),
+                  Row(
+                    children: [_buildSecondaryButton(context)],
+                  )
+                ]
+              ],
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (secondaryButtonLabel != null) ...[
+                  _buildSecondaryButton(context),
+                  SizedBox(
+                    width: theme.tinySpacing,
+                  )
                 ],
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (secondaryButtonLabel != null) ...[
-                    _buildSecondaryButton(context),
-                    SizedBox(
-                      width: theme.tinySpacing,
-                    )
-                  ],
-                  if (primaryButtonLabel != null) _buildPrimaryButton(context),
-                ],
-              ),
-      ),
+                if (primaryButtonLabel != null) _buildPrimaryButton(context),
+              ],
+            ),
     );
   }
 }

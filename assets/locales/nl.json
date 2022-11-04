@@ -309,10 +309,8 @@
         "no_data_selected": "Geen gegevens geselecteerd",
         "introduction": {
             "title": "Aan de slag",
-            "header": "Deel jouw gegevens in een paar simpele stappen:",
-            "step_1": "Verzamel de gegevens die nodig zijn.",
-            "step_2": "Kies de gegevens die jij wilt delen.",
-            "step_3": "Deel jouw gegevens.",
+            "header": "Deel jouw gegevens",
+            "explanation": "Verzamel de gegevens die nodig zijn om deze vervolgens te kunnen de delen met de instantie die daar om vraagt.",
             "continue": "Aan de slag"
         },
         "issue_wizard": {
