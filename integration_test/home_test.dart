@@ -30,7 +30,7 @@ void main() {
       await pumpAndUnlockApp(tester, irmaBinding.repository);
 
       // Title
-      expect(find.text('The identity wallet'), findsOneWidget);
+      expect(find.text('The Identity Wallet'), findsOneWidget);
 
       // Action card
       final actionCardFetchFinder = find.byKey(const Key('home_action_fetch'));
