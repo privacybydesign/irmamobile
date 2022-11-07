@@ -7,7 +7,9 @@ import '../../../models/log_entry.dart';
 import '../../../models/session_events.dart';
 import '../../../theme/theme.dart';
 import '../../../util/combine.dart';
+import '../../../widgets/irma_button.dart';
 import '../../../widgets/irma_repository_provider.dart';
+import '../../../widgets/irma_themed_button.dart';
 import '../../../widgets/translated_text.dart';
 import '../history_repository.dart';
 
@@ -57,31 +59,11 @@ class _RecentActivityState extends State<RecentActivity> {
     ));
   }
 
-  List<Widget> _decorateForHomeTab(BuildContext context, Widget child) {
-    final theme = IrmaTheme.of(context);
-    return [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          TranslatedText(
-            'home_tab.recent_activity',
-            style: theme.textTheme.headline4,
-          ),
-          GestureDetector(
-            key: const Key('home_recent_activity_link'),
-            onTap: widget.onTap,
-            child: TranslatedText('home_tab.view_more', style: theme.hyperlinkTextStyle),
-          )
-        ],
-      ),
-      SizedBox(height: theme.defaultSpacing),
-      child,
-      SizedBox(height: theme.largeSpacing),
-    ];
-  }
-
   @override
-  Widget build(BuildContext context) => StreamBuilder<CombinedState2<IrmaConfiguration, HistoryState>>(
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
+    return StreamBuilder<CombinedState2<IrmaConfiguration, HistoryState>>(
       stream: combine2(_historyRepo.repo.getIrmaConfiguration(), _historyRepo.getHistoryState()),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
@@ -91,26 +73,51 @@ class _RecentActivityState extends State<RecentActivity> {
         final historyState = snapshot.data!.b;
         final logEntries = historyState.logEntries;
 
-        if (logEntries.isEmpty) {
-          return Container();
-        }
-
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: _decorateForHomeTab(
-            context,
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: logEntries
-                  .map(
-                    (logEntry) => ActivityCard(
-                      logEntry: logEntry,
-                      irmaConfiguration: irmaConfiguration,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: TranslatedText(
+                    'home_tab.recent_activity',
+                    style: theme.textTheme.headline4,
+                  ),
+                ),
+                Flexible(
+                  child: IrmaButton(
+                    label: 'home_tab.view_more',
+                    textStyle: theme.textTheme.bodyText1!.copyWith(
+                      color: theme.themeData.colorScheme.secondary,
+                      fontSize: 12,
                     ),
-                  )
-                  .toList(),
+                    onPressed: widget.onTap,
+                    size: IrmaButtonSize.extraSmall,
+                    isSecondary: true,
+                    minWidth: 130,
+                  ),
+                ),
+              ],
             ),
-          ),
+            SizedBox(height: theme.defaultSpacing),
+            logEntries.isEmpty
+                ? const TranslatedText('activity.empty_placeholder')
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: logEntries
+                        .map(
+                          (logEntry) => ActivityCard(
+                            logEntry: logEntry,
+                            irmaConfiguration: irmaConfiguration,
+                          ),
+                        )
+                        .toList(),
+                  ),
+          ],
         );
-      });
+      },
+    );
+  }
 }

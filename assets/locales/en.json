@@ -445,31 +445,13 @@
         }
     },
     "home_tab": {
-        "title": "Your data,\non your phone.",
-        "get_going": "Get going",
-        "more_information": "More information",
+        "title": "The Identity Wallet",
         "recent_activity": "Recent activity",
         "view_more": "View more",
         "action_card": {
-            "share": {
-                "title": "Share your data straight away",
-                "subtitle": "with the requesting organization"
-            },
             "fetch": {
-                "title": "Fetch your data",
-                "subtitle": "to share it in the future with ease"
-            }
-        },
-        "info_card": {
-            "safety": {
-                "title": "How safe is Yivi?",
-                "body": "Information about the security of Yivi and the usage of digital identities.",
-                "link": "https://irma.app/?lang=en"
-            },
-            "about": {
-                "title": "About Yivi",
-                "body": "Read up on Yivi. Both general and technical information.",
-                "link": "https://privacybydesign.foundation/irma-en/"
+                "title": "Obtain personal data",
+                "subtitle": "To share it in the future with ease"
             }
         }
     },

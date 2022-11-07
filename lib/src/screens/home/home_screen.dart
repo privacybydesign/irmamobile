@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 import '../../models/native_events.dart';
 import '../../widgets/irma_repository_provider.dart';
@@ -41,6 +42,11 @@ class _HomeScreenState extends State<HomeScreen> {
         return false;
       },
       child: Scaffold(
+        appBar: IrmaAppBar(
+          titleTranslationKey:
+              selectedTab == IrmaNavBarTab.home ? 'home_tab.title' : 'home.nav_bar.${selectedTab.name}',
+          noLeading: true,
+        ),
         body: SafeArea(
           child: Builder(builder: (context) {
             switch (selectedTab) {

@@ -12,7 +12,6 @@ import '../../theme/irma_icons.dart';
 import '../../theme/theme.dart';
 import '../../util/capitalize.dart';
 import '../../util/combine.dart';
-import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/loading_indicator.dart';
 import '../../widgets/translated_text.dart';
@@ -148,22 +147,16 @@ class _ActivityTabState extends State<ActivityTab> {
   @override
   Widget build(BuildContext context) {
     _scrollController.addListener(_listenToScroll);
-    return Scaffold(
-      appBar: const IrmaAppBar(
-        titleTranslationKey: 'home.nav_bar.activity',
-        noLeading: true,
-      ),
-      body: StreamBuilder<CombinedState2<IrmaConfiguration, HistoryState>>(
-        stream: combine2(_historyRepo.repo.getIrmaConfiguration(), _historyRepo.getHistoryState()),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Center(child: LoadingIndicator());
-          }
-          final irmaConfiguration = snapshot.data!.a;
-          final historyState = snapshot.data!.b;
-          return _buildLogEntries(context, irmaConfiguration, historyState.logEntries, historyState.moreLogsAvailable);
-        },
-      ),
+    return StreamBuilder<CombinedState2<IrmaConfiguration, HistoryState>>(
+      stream: combine2(_historyRepo.repo.getIrmaConfiguration(), _historyRepo.getHistoryState()),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return Center(child: LoadingIndicator());
+        }
+        final irmaConfiguration = snapshot.data!.a;
+        final historyState = snapshot.data!.b;
+        return _buildLogEntries(context, irmaConfiguration, historyState.logEntries, historyState.moreLogsAvailable);
+      },
     );
   }
 }

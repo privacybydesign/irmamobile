@@ -4,7 +4,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+
 import 'package:irmamobile/src/screens/activity/activity_tab.dart';
+import 'package:irmamobile/src/screens/activity/widgets/recent_activity.dart';
 import 'package:irmamobile/src/screens/data/data_tab.dart';
 import 'package:irmamobile/src/screens/home/home_tab.dart';
 import 'package:irmamobile/src/screens/home/widgets/irma_nav_bar.dart';
@@ -28,45 +30,28 @@ void main() {
       await pumpAndUnlockApp(tester, irmaBinding.repository);
 
       // Title
-      expect(find.text('Your data,\non your phone.'), findsOneWidget);
+      expect(find.text('The Identity Wallet'), findsOneWidget);
 
-      // Action cards
-      expect(find.text('Get going'), findsOneWidget);
-      final actionCardShareFinder = find.byKey(const Key('home_action_share'));
-      expect(actionCardShareFinder, findsOneWidget);
-      expect(
-        find.descendant(
-          of: actionCardShareFinder,
-          matching: find.text('Share your data straight away'),
-        ),
-        findsOneWidget,
-      );
-
+      // Action card
       final actionCardFetchFinder = find.byKey(const Key('home_action_fetch'));
       expect(actionCardFetchFinder, findsOneWidget);
       expect(
         find.descendant(
           of: actionCardFetchFinder,
-          matching: find.text('Fetch your data'),
+          matching: find.text('Obtain personal data'),
         ),
         findsOneWidget,
       );
 
       // Recent activity
-      expect(find.text('Recent activity'), findsNothing);
-      expect(find.text('View more'), findsNothing);
-
-      // More information
-      expect(find.text('More information'), findsOneWidget);
-      expect(find.byKey(const Key('home_info_safety')), findsOneWidget);
-      expect(find.byKey(const Key('home_info_about')), findsOneWidget);
+      expect(find.byType(RecentActivity), findsOneWidget);
     });
 
     group('nav-bar', () {
       testWidgets('navigate-between-tabs', (tester) async {
         await pumpAndUnlockApp(tester, irmaBinding.repository);
 
-        //Make sure hometab and nav bar are rendered
+        //Make sure home tab and nav bar are rendered
         expect(find.byType(IrmaNavBar), findsOneWidget);
         expect(find.byType(HomeTab), findsOneWidget);
 
