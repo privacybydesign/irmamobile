@@ -30,7 +30,7 @@ Future<void> completelyOptionalTest(WidgetTester tester, IntegrationTestIrmaBind
   await irmaBinding.repository.startTestSession(sessionRequest);
 
   // Dismiss introduction screen.
-  await tester.waitFor(find.text('Share your data in 3 simple steps:'));
+  await tester.waitFor(find.text('Share your data'));
   await tester.tapAndSettle(find.descendant(of: find.byType(IrmaButton), matching: find.text('Get going')));
 
   expect(find.text('This is the data you are going to share:'), findsOneWidget);
