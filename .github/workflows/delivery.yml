@@ -99,9 +99,6 @@ jobs:
       - unit-test
       - build-irmagobridge-android
     environment: ad-hoc-alpha
-    strategy:
-      matrix:
-        target-platform: [ android-arm, android-arm64, android-x64 ]
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
@@ -118,11 +115,10 @@ jobs:
         run: >
           bundle exec fastlane android_build_app
           flavor:alpha
-          target_platform:${{ matrix.target-platform }}
           sentry_dsn:${{ secrets.SENTRY_DSN }}
       - uses: actions/upload-artifact@v3
         with:
-          name: app-alpha-${{ matrix.target-platform }}
+          name: app-alpha-android
           path: ./fastlane/build/*.apk
   bundle-app-alpha:
     runs-on: ubuntu-latest
@@ -134,18 +130,10 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: app-alpha-ios
-      - name: Download app-alpha-android-arm artifact
+      - name: Download app-alpha-android artifact
         uses: actions/download-artifact@v3
         with:
-          name: app-alpha-android-arm
-      - name: Download app-alpha-android-arm64 artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: app-alpha-android-arm64
-      - name: Download app-alpha-android-x64 artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: app-alpha-android-x64
+          name: app-alpha-android
       - name: Bundle all artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -226,11 +214,10 @@ jobs:
         run: >
           bundle exec fastlane android_build_app
           flavor:beta
-          target_platform:${{ matrix.target-platform }}
           sentry_dsn:${{ secrets.SENTRY_DSN }}
       - uses: actions/upload-artifact@v3
         with:
-          name: app-beta-${{ matrix.target-platform }}
+          name: app-beta-android
           path: ./fastlane/build/*.apk
   bundle-app-beta:
     runs-on: ubuntu-latest
@@ -242,18 +229,10 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: app-beta-ios
-      - name: Download app-beta-android-arm artifact
+      - name: Download app-beta-android artifact
         uses: actions/download-artifact@v3
         with:
-          name: app-beta-android-arm
-      - name: Download app-beta-android-arm64 artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: app-beta-android-arm64
-      - name: Download app-beta-android-x64 artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: app-beta-android-x64
+          name: app-beta-android
       - name: Bundle all artifacts
         uses: actions/upload-artifact@v3
         with:

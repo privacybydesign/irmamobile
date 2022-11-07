@@ -59,6 +59,24 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+
+    // We use the React Native build numbering (with base 0x100000 and different multipliers per target platform)
+    android.applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            def versionCodes = ["armeabi-v7a": 1, "x86": 2, "arm64-v8a": 3, "x86_64": 4]
+            def abi = output.getFilter(com.android.build.OutputFile.ABI)
+            if (abi != null) {  // null for the universal-debug and universal-release variants
+                output.versionCodeOverride = versionCodes.get(abi) * 0x100000 + defaultConfig.versionCode
+            }
+        }
+    }
+
+    // We also include the universal APK for ad-hoc app test distribution.
+    splits {
+        abi {
+            universalApk true
+        }
+    }
 }
 
 flutter {
