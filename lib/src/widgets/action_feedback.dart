@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:flutter_svg/svg.dart';
 
-import '../widgets/irma_bottom_bar.dart';
-import 'irma_info_scaffold_body.dart';
+import '../screens/session/widgets/dynamic_layout.dart';
+import '../theme/theme.dart';
+import 'irma_button.dart';
+import 'irma_themed_button.dart';
+import 'translated_text.dart';
 
 class ActionFeedback extends StatelessWidget {
   final Function() onDismiss;
@@ -28,21 +32,14 @@ class ActionFeedback extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
     return WillPopScope(
       onWillPop: () async {
         dismiss(context);
         return false;
       },
       child: Scaffold(
-        body: IrmaInfoScaffoldBody(
-          imagePath: success
-              ? 'assets/disclosure/disclosure_happy_illustration.svg'
-              : 'assets/error/general_error_illustration.svg',
-          titleTranslationKey: titleTranslationKey,
-          titleTranslationParams: titleTranslationParams,
-          bodyTranslationKey: explanationTranslationKey,
-          bodyTranslationParams: explanationTranslationParams,
-        ),
         appBar: AppBar(
           automaticallyImplyLeading: false,
           actions: [
@@ -63,9 +60,36 @@ class ActionFeedback extends StatelessWidget {
             ),
           ],
         ),
-        bottomNavigationBar: IrmaBottomBar(
-          primaryButtonLabel: FlutterI18n.translate(context, 'action_feedback.ok'),
-          onPrimaryPressed: () => dismiss(context),
+        body: DynamicLayout(
+          hero: SvgPicture.asset(
+            success
+                ? 'assets/disclosure/disclosure_happy_illustration.svg'
+                : 'assets/error/general_error_illustration.svg',
+          ),
+          content: Column(
+            children: [
+              TranslatedText(
+                titleTranslationKey,
+                translationParams: titleTranslationParams,
+                style: theme.textTheme.headline1,
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: theme.defaultSpacing),
+              TranslatedText(
+                explanationTranslationKey,
+                translationParams: explanationTranslationParams,
+                style: theme.textTheme.bodyText2,
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+          actions: [
+            IrmaButton(
+              label: 'action_feedback.ok',
+              size: IrmaButtonSize.large,
+              onPressed: () => dismiss(context),
+            )
+          ],
         ),
       ),
     );

@@ -309,10 +309,8 @@
         "no_data_selected": "No data selected",
         "introduction": {
             "title": "Get going",
-            "header": "Share your data in 3 simple steps:",
-            "step_1": "Obtain the required data.",
-            "step_2": "Choose the data you would like to share",
-            "step_3": "Share your data.",
+            "header": "Share your data",
+            "explanation": "Collect the required data to be able to share it with the requesting party.",
             "continue": "Get going"
         },
         "issue_wizard": {
