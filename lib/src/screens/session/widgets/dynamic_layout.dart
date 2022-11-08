@@ -14,11 +14,14 @@ class DynamicLayout extends StatelessWidget {
     required this.actions,
   });
 
-  Row _buildButtonsRow(IrmaThemeData theme) {
+  Row _buildButtonsRow(
+    IrmaThemeData theme,
+    List<Widget> actions,
+  ) {
     final List<Widget> rowChildren = [];
-    for (var action in actions!) {
+    for (var action in actions) {
       rowChildren.add(Expanded(child: action));
-      if (action != actions!.last) {
+      if (action != actions.last) {
         rowChildren.add(SizedBox(width: theme.smallSpacing));
       }
     }
@@ -32,86 +35,92 @@ class DynamicLayout extends StatelessWidget {
     IrmaThemeData theme,
     BoxConstraints constraints,
     bool isSmallScreen,
-  ) =>
-      Padding(
-        padding: EdgeInsets.all(theme.defaultSpacing),
-        child: SafeArea(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: hero,
-              ),
-              SizedBox(
-                width: theme.smallSpacing,
-              ),
-              Expanded(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                  child: IntrinsicHeight(
-                    child: Column(
-                      children: [
-                        Expanded(
-                          child: Center(
-                            child: SingleChildScrollView(
-                              child: content,
-                            ),
+  ) {
+    final actions = this.actions;
+
+    return Padding(
+      padding: EdgeInsets.all(theme.defaultSpacing),
+      child: SafeArea(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: hero,
+            ),
+            SizedBox(
+              width: theme.smallSpacing,
+            ),
+            Expanded(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: IntrinsicHeight(
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: Center(
+                          child: SingleChildScrollView(
+                            child: content,
                           ),
                         ),
-                        if (actions != null)
-                          Align(
-                            alignment: Alignment.bottomCenter,
-                            child: Container(
-                              padding: EdgeInsets.only(bottom: theme.defaultSpacing),
-                              child: _buildButtonsRow(theme),
-                            ),
+                      ),
+                      if (actions != null)
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Container(
+                            padding: EdgeInsets.only(bottom: theme.defaultSpacing),
+                            child: _buildButtonsRow(theme, actions),
                           ),
-                      ],
-                    ),
+                        ),
+                    ],
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      );
+      ),
+    );
+  }
 
   _buildPortraitLayout(
     IrmaThemeData theme,
     Size screenSize,
     BoxConstraints constraints,
     bool isSmallScreen,
-  ) =>
-      ConstrainedBox(
-        constraints: BoxConstraints(minHeight: constraints.maxHeight),
-        child: IntrinsicHeight(
-          child: Stack(
-            children: [
-              SingleChildScrollView(
-                padding: EdgeInsets.all(
-                  isSmallScreen ? theme.defaultSpacing : theme.largeSpacing,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    hero,
-                    SizedBox(height: theme.defaultSpacing),
-                    content,
-                    if (actions != null) const SizedBox(height: 100)
-                  ],
+  ) {
+    final actions = this.actions;
+
+    return ConstrainedBox(
+      constraints: BoxConstraints(minHeight: constraints.maxHeight),
+      child: IntrinsicHeight(
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              padding: EdgeInsets.all(
+                isSmallScreen ? theme.defaultSpacing : theme.largeSpacing,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  hero,
+                  SizedBox(height: theme.defaultSpacing),
+                  content,
+                  if (actions != null) const SizedBox(height: 100)
+                ],
+              ),
+            ),
+            if (actions != null)
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: IrmaBottomBarBase(
+                  child: _buildButtonsRow(theme, actions),
                 ),
               ),
-              if (actions != null)
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: IrmaBottomBarBase(
-                    child: _buildButtonsRow(theme),
-                  ),
-                ),
-            ],
-          ),
+          ],
         ),
-      );
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
