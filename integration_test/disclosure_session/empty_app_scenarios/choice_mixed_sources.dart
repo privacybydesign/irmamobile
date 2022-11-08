@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart';
@@ -95,13 +96,10 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
 
   // Button should say done now
   await tester.tapAndSettle(find.text('Done'));
-  await tester.pumpAndSettle(const Duration(seconds: 2));
 
   // Issue wizard should be completed
-  final nextStepButtonFinder = find.text('Next step');
-  await tester.ensureVisible(nextStepButtonFinder);
-  expect(nextStepButtonFinder, findsOneWidget);
-  await tester.tapAndSettle(nextStepButtonFinder);
+  await tester.pumpAndSettle();
+  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
 
   // Expect the choices screen
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
