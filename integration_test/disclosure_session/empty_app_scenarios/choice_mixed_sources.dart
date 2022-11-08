@@ -98,6 +98,7 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
   await tester.pumpAndSettle(const Duration(seconds: 1));
 
   // Issue wizard should be completed
+  await tester.pump(const Duration(seconds: 1));
   await tester.tapAndSettle(find.text('Next step'));
 
   // Expect the choices screen
