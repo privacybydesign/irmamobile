@@ -95,11 +95,13 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
 
   // Button should say done now
   await tester.tapAndSettle(find.text('Done'));
-  await tester.pumpAndSettle(const Duration(seconds: 1));
+  await tester.pumpAndSettle(const Duration(seconds: 2));
 
   // Issue wizard should be completed
-  await tester.pump(const Duration(seconds: 1));
-  await tester.tapAndSettle(find.text('Next step'));
+  final nextStepButtonFinder = find.text('Next step');
+  await tester.ensureVisible(nextStepButtonFinder);
+  expect(nextStepButtonFinder, findsOneWidget);
+  await tester.tapAndSettle(nextStepButtonFinder);
 
   // Expect the choices screen
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
