@@ -102,14 +102,17 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
   await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
 
   // Expect the choices screen
+  await tester.pumpAndSettle();
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
   await tester.tapAndSettle(find.text('Share data'));
 
   // Confirm the dialog
+  await tester.pumpAndSettle();
   expect(find.byType(DisclosurePermissionConfirmDialog), findsOneWidget);
   await tester.tapAndSettle(find.text('Share'));
 
   // Expect the success screen
+  await tester.pumpAndSettle();
   final feedbackScreenFinder = find.byType(DisclosureFeedbackScreen);
   expect(feedbackScreenFinder, findsOneWidget);
   expect(
@@ -119,5 +122,6 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
   await tester.tapAndSettle(find.text('OK'));
 
   // Session flow should be over now
+  await tester.pumpAndSettle();
   expect(find.byType(SessionScreen), findsNothing);
 }
