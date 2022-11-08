@@ -97,30 +97,26 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
   await tester.tapAndSettle(find.text('Done'));
   await tester.pumpAndSettle(const Duration(seconds: 1));
 
-  // TODO Fix test
-//   // Issue wizard should be completed
-//   final nextStepButtonFinder = find.text('Next step');
-//   await tester.waitFor(nextStepButtonFinder);
-//   await tester.ensureVisible(nextStepButtonFinder);
-//   await tester.tapAndSettle(nextStepButtonFinder);
+  // Issue wizard should be completed
+  await tester.tapAndSettle(find.text('Next step'));
 
-//   // Expect the choices screen
-//   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
-//   await tester.tapAndSettle(find.text('Share data'));
+  // Expect the choices screen
+  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  await tester.tapAndSettle(find.text('Share data'));
 
-//   // Confirm the dialog
-//   expect(find.byType(DisclosurePermissionConfirmDialog), findsOneWidget);
-//   await tester.tapAndSettle(find.text('Share'));
+  // Confirm the dialog
+  expect(find.byType(DisclosurePermissionConfirmDialog), findsOneWidget);
+  await tester.tapAndSettle(find.text('Share'));
 
-//   // Expect the success screen
-//   final feedbackScreenFinder = find.byType(DisclosureFeedbackScreen);
-//   expect(feedbackScreenFinder, findsOneWidget);
-//   expect(
-//     (feedbackScreenFinder.evaluate().single.widget as DisclosureFeedbackScreen).feedbackType,
-//     DisclosureFeedbackType.success,
-//   );
-//   await tester.tapAndSettle(find.text('OK'));
+  // Expect the success screen
+  final feedbackScreenFinder = find.byType(DisclosureFeedbackScreen);
+  expect(feedbackScreenFinder, findsOneWidget);
+  expect(
+    (feedbackScreenFinder.evaluate().single.widget as DisclosureFeedbackScreen).feedbackType,
+    DisclosureFeedbackType.success,
+  );
+  await tester.tapAndSettle(find.text('OK'));
 
-//   // Session flow should be over now
-//   expect(find.byType(SessionScreen), findsNothing);
+  // Session flow should be over now
+  expect(find.byType(SessionScreen), findsNothing);
 }
