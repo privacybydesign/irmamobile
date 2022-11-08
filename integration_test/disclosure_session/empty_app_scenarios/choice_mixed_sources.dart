@@ -64,40 +64,40 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
   // Expect sub-issue wizard
   expect(find.byType(DisclosurePermissionObtainCredentialsScreen), findsOneWidget);
 
+  // Expect a template stepper
+  final templateStepperFinder = find.byType(DisclosureTemplateStepper);
+  expect(templateStepperFinder, findsOneWidget);
+
+  // The template stepper should have two items
+  final templateCardsFinder = find.descendant(
+    of: templateStepperFinder,
+    matching: find.byType(IrmaCredentialCard),
+  );
+  expect(templateCardsFinder, findsNWidgets(2));
+
+  // The first card should be highlighted
+  expect((templateCardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.highlighted);
+  expect((templateCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
+
+  // Issue the personal data
+  await issueMunicipalityPersonalData(tester, irmaBinding);
+
+  // The second card should now be highlighted
+  expect((templateCardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
+  expect((templateCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.highlighted);
+
+// Issue the email
+  await issueEmailAddress(tester, irmaBinding);
+
+  // Both should be finished now
+  expect((templateCardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
+  expect((templateCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
+
+  // Button should say done now
+  await tester.tapAndSettle(find.text('Done'));
+  await tester.pumpAndSettle(const Duration(seconds: 1));
+
   // TODO Fix test
-//   // Expect a template stepper
-//   final templateStepperFinder = find.byType(DisclosureTemplateStepper);
-//   expect(templateStepperFinder, findsOneWidget);
-
-//   // The template stepper should have two items
-//   final templateCardsFinder = find.descendant(
-//     of: templateStepperFinder,
-//     matching: find.byType(IrmaCredentialCard),
-//   );
-//   expect(templateCardsFinder, findsNWidgets(2));
-
-//   // The first card should be highlighted
-//   expect((templateCardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.highlighted);
-//   expect((templateCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
-
-//   // Issue the personal data
-//   await issueMunicipalityPersonalData(tester, irmaBinding);
-
-//   // The second card should now be highlighted
-//   expect((templateCardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
-//   expect((templateCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.highlighted);
-
-// // Issue the email
-//   await issueEmailAddress(tester, irmaBinding);
-
-//   // Both should be finished now
-//   expect((templateCardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
-//   expect((templateCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
-
-//   // Button should say done now
-//   await tester.tapAndSettle(find.text('Done'));
-//   await tester.pumpAndSettle(const Duration(seconds: 1));
-
 //   // Issue wizard should be completed
 //   final nextStepButtonFinder = find.text('Next step');
 //   await tester.waitFor(nextStepButtonFinder);
