@@ -3,12 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choice.dart';
-import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_obtain_credentials_screen.dart';
-import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_share_dialog.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_template_stepper.dart';
-import 'package:irmamobile/src/screens/session/session_screen.dart';
-import 'package:irmamobile/src/screens/session/widgets/disclosure_feedback_screen.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
@@ -98,30 +94,19 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
   await tester.tapAndSettle(find.text('Done'));
 
   // Issue wizard should be completed
-  await tester.pumpAndSettle(const Duration(seconds: 1));
-  await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
+  final bottomBarButtonFinder = find.byKey(const Key('bottom_bar_primary'));
+  await tester.pumpAndSettle();
+  await tester.tapAndSettle(bottomBarButtonFinder);
 
-  // Expect the choices screen
-  await tester.pumpAndSettle(const Duration(seconds: 2));
-  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
-  await tester.tapAndSettle(find.text('Share data'));
+  //Share data
+  await tester.pumpAndSettle();
+  await tester.tapAndSettle(bottomBarButtonFinder);
 
   // Confirm the dialog
-  await tester.pumpAndSettle(const Duration(seconds: 1));
-  expect(find.byType(DisclosurePermissionConfirmDialog), findsOneWidget);
-  await tester.tapAndSettle(find.text('Share'));
+  await tester.pumpAndSettle();
+  await tester.tapAndSettle(find.byKey(const Key('confirm_share_button')));
 
-  // Expect the success screen
-  await tester.pumpAndSettle(const Duration(seconds: 1));
-  final feedbackScreenFinder = find.byType(DisclosureFeedbackScreen);
-  expect(feedbackScreenFinder, findsOneWidget);
-  expect(
-    (feedbackScreenFinder.evaluate().single.widget as DisclosureFeedbackScreen).feedbackType,
-    DisclosureFeedbackType.success,
-  );
-  await tester.tapAndSettle(find.text('OK'));
-
-  // Session flow should be over now
-  await tester.pumpAndSettle(const Duration(seconds: 1));
-  expect(find.byType(SessionScreen), findsNothing);
+  // Success screen
+  await tester.pumpAndSettle();
+  await tester.tapAndSettle(bottomBarButtonFinder);
 }
