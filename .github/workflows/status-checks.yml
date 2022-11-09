@@ -81,7 +81,6 @@ jobs:
     strategy:
       matrix:
         flavor: [ alpha, beta ]
-        target-platform: [ android-arm, android-arm64, android-x64 ]
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
@@ -94,8 +93,8 @@ jobs:
         with:
           name: irmagobridge-android
           path: android/irmagobridge/
-      - run: bundle exec fastlane android_build_app flavor:${{ matrix.flavor }} target_platform:${{ matrix.target-platform }}
+      - run: bundle exec fastlane android_build_app flavor:${{ matrix.flavor }}
       - uses: actions/upload-artifact@v3
         with:
-          name: app-${{ matrix.flavor }}-${{ matrix.target-platform }}
+          name: app-${{ matrix.flavor }}-android
           path: ./fastlane/build/*.apk
