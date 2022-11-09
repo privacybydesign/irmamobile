@@ -142,9 +142,9 @@ jobs:
         with:
           name: app-alpha-android-alpha
       - name: Download app-alpha-android-beta artifact
-          uses: actions/download-artifact@v3
-          with:
-            name: app-alpha-android-beta
+        uses: actions/download-artifact@v3
+        with:
+          name: app-alpha-android-beta
       - name: Bundle all artifacts
         uses: actions/upload-artifact@v3
         with:
