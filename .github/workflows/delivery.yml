@@ -99,6 +99,12 @@ jobs:
       - unit-test
       - build-irmagobridge-android
     environment: ad-hoc-alpha
+    # For now, we also build the beta flavor using the alpha secrets to enable ad-hoc distribution of the
+    # beta flavor Android app. This is needed, because the irma-frontend-packages use the app identifier of the
+    # beta flavor Android app in the intent:// links.
+    strategy:
+      matrix:
+        flavor: [ alpha, beta ]
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
@@ -114,11 +120,11 @@ jobs:
       - name: Build app
         run: >
           bundle exec fastlane android_build_app
-          flavor:alpha
+          flavor:${{ matrix.flavor }}
           sentry_dsn:${{ secrets.SENTRY_DSN }}
       - uses: actions/upload-artifact@v3
         with:
-          name: app-alpha-android
+          name: app-alpha-android-${{ matrix.flavor }}
           path: ./fastlane/build/*.apk
   bundle-app-alpha:
     runs-on: ubuntu-latest
@@ -130,10 +136,15 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: app-alpha-ios
-      - name: Download app-alpha-android artifact
+      # Check the comment above in the build-app-android-alpha job spec why the beta is also present here.
+      - name: Download app-alpha-android-alpha artifact
         uses: actions/download-artifact@v3
         with:
-          name: app-alpha-android
+          name: app-alpha-android-alpha
+      - name: Download app-alpha-android-beta artifact
+          uses: actions/download-artifact@v3
+          with:
+            name: app-alpha-android-beta
       - name: Bundle all artifacts
         uses: actions/upload-artifact@v3
         with:
