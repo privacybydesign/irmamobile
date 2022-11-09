@@ -89,15 +89,16 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
   // Both should be finished now
   expect((templateCardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
   expect((templateCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
+  await tester.pump(const Duration(seconds: 1));
 
   // Button should say done now
   await tester.tap(find.text('Done'));
-  await tester.pump();
+  await tester.pump(const Duration(seconds: 1));
 
   // Issue wizard should be completed
   final bottomBarButtonFinder = find.byKey(const Key('bottom_bar_primary'));
   await tester.tap(bottomBarButtonFinder);
-  await tester.pump();
+  await tester.pump(const Duration(seconds: 1));
 
   //Share data
   await tester.tap(bottomBarButtonFinder);
@@ -109,5 +110,5 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
 
   // Success screen
   await tester.tap(bottomBarButtonFinder);
-  await tester.pump();
+  await tester.pump(const Duration(seconds: 1));
 }
