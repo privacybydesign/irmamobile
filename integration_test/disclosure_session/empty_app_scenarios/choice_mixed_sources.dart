@@ -83,7 +83,7 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
   expect((templateCardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
   expect((templateCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.highlighted);
 
-// Issue the email
+  // Issue the email
   await issueEmailAddress(tester, irmaBinding);
 
   // Both should be finished now
@@ -91,22 +91,23 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
   expect((templateCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
 
   // Button should say done now
-  await tester.tapAndSettle(find.text('Done'));
+  await tester.tap(find.text('Done'));
+  await tester.pump();
 
   // Issue wizard should be completed
   final bottomBarButtonFinder = find.byKey(const Key('bottom_bar_primary'));
-  await tester.pumpAndSettle();
-  await tester.tapAndSettle(bottomBarButtonFinder);
+  await tester.tap(bottomBarButtonFinder);
+  await tester.pump();
 
   //Share data
-  await tester.pumpAndSettle();
-  await tester.tapAndSettle(bottomBarButtonFinder);
+  await tester.tap(bottomBarButtonFinder);
+  await tester.pump(const Duration(seconds: 1));
 
   // Confirm the dialog
-  await tester.pumpAndSettle(const Duration(seconds: 2));
-  await tester.tapAndSettle(find.byKey(const Key('confirm_share_button')));
+  await tester.tap(find.byKey(const Key('confirm_share_button')));
+  await tester.pump(const Duration(seconds: 1));
 
   // Success screen
-  await tester.pumpAndSettle(const Duration(seconds: 2));
-  await tester.tapAndSettle(bottomBarButtonFinder);
+  await tester.tap(bottomBarButtonFinder);
+  await tester.pump();
 }
