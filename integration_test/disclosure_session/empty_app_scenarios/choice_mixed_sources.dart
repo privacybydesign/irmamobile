@@ -101,7 +101,7 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
 
   //Share data
   await tester.tap(bottomBarButtonFinder);
-  await tester.pump(const Duration(seconds: 1));
+  await tester.pump(const Duration(seconds: 3));
 
   // Confirm the dialog
   await tester.tap(find.byKey(const Key('confirm_share_button')));
