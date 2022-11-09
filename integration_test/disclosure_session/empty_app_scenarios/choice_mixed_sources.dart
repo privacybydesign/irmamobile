@@ -103,10 +103,10 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
   await tester.tapAndSettle(bottomBarButtonFinder);
 
   // Confirm the dialog
-  await tester.pumpAndSettle();
+  await tester.pumpAndSettle(const Duration(seconds: 2));
   await tester.tapAndSettle(find.byKey(const Key('confirm_share_button')));
 
   // Success screen
-  await tester.pumpAndSettle();
+  await tester.pumpAndSettle(const Duration(seconds: 2));
   await tester.tapAndSettle(bottomBarButtonFinder);
 }
