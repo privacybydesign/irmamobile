@@ -79,7 +79,7 @@ Resigns the APKs in the `build` directory (so `fastlane/build` from the reposito
 [bundle exec] fastlane android_build flavor:<VALUE> sentry_dsn:<VALUE>
 ```
 
-Builds the Android APKs for the requested flavor. The APKs are split on target platform.
+Builds the Android APKs for the requested flavor. The APKs are split on target platform and a universal build is included.
 The unsigned Android APKs are written to the `build` directory (so `fastlane/build` from the repository's root).
 
 The `flavor` parameter accepts the values `alpha` or `beta`.
@@ -95,16 +95,14 @@ Builds the irmagobridge for Android.
 ### android_build_app
 
 ```sh
-[bundle exec] fastlane android_build_app flavor:<VALUE> target_platform:<VALUE> sentry_dsn:<VALUE>
+[bundle exec] fastlane android_build_app flavor:<VALUE> sentry_dsn:<VALUE>
 ```
 
-Builds the Android APK for the requested flavor and target platform. This action
-assumes the `android_build_irmagobridge` action has been run first.
-The unsigned Android APK is written to the `build` directory (so `fastlane/build` from the repository's root).
+Builds the Android APK for the requested flavor. The APKs are split on target platform and a universal build is included.
+This action assumes the `android_build_irmagobridge` action has been run first.
+The unsigned Android APKs are written to the `build` directory (so `fastlane/build` from the repository's root).
 
 The `flavor` parameter accepts the values `alpha` or `beta`.
-
-The `target_platform` parameter accepts the values `android-arm`, `android-arm64` or `android-x64`.
 
 ### android_build_integration_test
 
