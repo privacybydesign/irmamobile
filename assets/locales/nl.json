@@ -56,7 +56,7 @@
         },
         "terms_and_conditions": {
             "title": "Onze voorwaarden",
-            "explanation_markdown": "Met Yivi pak jij de controle over jouw online gegevens. Zo bescherm je jouw online privacy.",
+            "explanation": "Met Yivi pak jij de controle over jouw online gegevens. Zo bescherm je jouw online privacy.",
             "point_1": "Jij bepaalt wat je opslaat, wat je deelt en met wie.",
             "point_2": "Jouw gegevens staan alleen op je mobiel, wel zo veilig.",
             "point_3": "Niemand kijkt mee met wat je deelt en met wie, ook wij niet!",
@@ -309,10 +309,8 @@
         "no_data_selected": "Geen gegevens geselecteerd",
         "introduction": {
             "title": "Aan de slag",
-            "header": "Deel jouw gegevens in een paar simpele stappen:",
-            "step_1": "Verzamel de gegevens die nodig zijn.",
-            "step_2": "Kies de gegevens die jij wilt delen.",
-            "step_3": "Deel jouw gegevens.",
+            "header": "Deel jouw gegevens",
+            "explanation": "Verzamel de gegevens die nodig zijn om deze vervolgens te kunnen de delen met de instantie die daar om vraagt.",
             "continue": "Aan de slag"
         },
         "issue_wizard": {
@@ -445,31 +443,13 @@
         }
     },
     "home_tab": {
-        "title": "Jouw gegevens,\nop jouw telefoon.",
-        "get_going": "Ga aan de slag",
-        "more_information": "Meer informatie",
+        "title": "The Identity Wallet",
         "recent_activity": "Recente activiteit",
         "view_more": "Bekijk meer",
         "action_card": {
-            "share": {
-                "title": "Deel direct je gegevens",
-                "subtitle": "met de organisatie die daar om vraagt"
-            },
             "fetch": {
-                "title": "Haal jouw gegevens op",
-                "subtitle": "om ze in de toekomst direct te kunnen delen"
-            }
-        },
-        "info_card": {
-            "safety": {
-                "title": "Hoe veilig is Yivi?",
-                "body": "Informatie over de veiligheid van Yivi en hoe om te gaan met digitale identiteiten.",
-                "link": "https://irma.app/?lang=nl"
-            },
-            "about": {
-                "title": "Over de organisatie Yivi",
-                "body": "Lees hier alles over Yivi. Van algemene informatie tot techniek.",
-                "link": "https://privacybydesign.foundation/irma/"
+                "title": "Haal persoonlijke gegevens op",
+                "subtitle": "Om ze in de toekomst direct te kunnen delen"
             }
         }
     },

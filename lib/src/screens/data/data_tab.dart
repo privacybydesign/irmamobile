@@ -8,7 +8,6 @@ import '../../models/irma_configuration.dart';
 import '../../theme/theme.dart';
 import '../../widgets/irma_action_card.dart';
 import '../../widgets/irma_repository_provider.dart';
-import '../../widgets/translated_text.dart';
 import '../add_data/add_data_screen.dart';
 import 'widgets/credential_category_list.dart';
 
@@ -33,24 +32,20 @@ class DataTab extends StatelessWidget {
     return CustomScrollView(
       slivers: [
         SliverPadding(
-          padding: EdgeInsets.symmetric(
-            vertical: theme.defaultSpacing,
-            horizontal: theme.defaultSpacing,
+          padding: EdgeInsets.only(
+            left: theme.defaultSpacing,
+            right: theme.defaultSpacing,
+            bottom: theme.defaultSpacing,
           ),
           sliver: SliverToBoxAdapter(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TranslatedText(
-                  'data.tab.title',
-                  style: theme.textTheme.headline2,
-                ),
-                SizedBox(height: theme.largeSpacing),
                 IrmaActionCard(
                   titleKey: 'data.tab.obtain_data',
                   onTap: () => Navigator.of(context).pushNamed(AddDataScreen.routeName),
                   icon: Icons.add_circle_outline,
-                  color: theme.themeData.colorScheme.secondary,
+                  color: theme.themeData.colorScheme.primary,
                   style: theme.textTheme.headline3,
                 ),
               ],

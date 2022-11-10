@@ -56,9 +56,9 @@
         },
         "terms_and_conditions": {
             "title": "Our terms and conditions",
-            "explanation_markdown": "These are the three main points of our terms and conditions. Read the complete [terms and conditions](https://privacybydesign.foundation/privacy-policy-en/) here.",
-            "point_1": "You decide which personal data you keep safe in Yivi.",
-            "point_2": "You decide which data you share with whom.",
+            "explanation": "With Yivi you take control of your data and protect your privacy online",
+            "point_1": "You decide what to store, what to share and with whom.",
+            "point_2": "Your data is stored on your phone only",
             "point_3": "No one can access your data without your permission, including Yivi.",
             "accept_markdown": "Yes, I accept the [terms and conditions](https://privacybydesign.foundation/privacy-policy-en/)"
         },
@@ -309,10 +309,8 @@
         "no_data_selected": "No data selected",
         "introduction": {
             "title": "Get going",
-            "header": "Share your data in 3 simple steps:",
-            "step_1": "Obtain the required data.",
-            "step_2": "Choose the data you would like to share",
-            "step_3": "Share your data.",
+            "header": "Share your data",
+            "explanation": "Collect the required data to be able to share it with the requesting party.",
             "continue": "Get going"
         },
         "issue_wizard": {
@@ -445,31 +443,13 @@
         }
     },
     "home_tab": {
-        "title": "Your data,\non your phone.",
-        "get_going": "Get going",
-        "more_information": "More information",
+        "title": "The Identity Wallet",
         "recent_activity": "Recent activity",
         "view_more": "View more",
         "action_card": {
-            "share": {
-                "title": "Share your data straight away",
-                "subtitle": "with the requesting organization"
-            },
             "fetch": {
-                "title": "Fetch your data",
-                "subtitle": "to share it in the future with ease"
-            }
-        },
-        "info_card": {
-            "safety": {
-                "title": "How safe is Yivi?",
-                "body": "Information about the security of Yivi and the usage of digital identities.",
-                "link": "https://irma.app/?lang=en"
-            },
-            "about": {
-                "title": "About Yivi",
-                "body": "Read up on Yivi. Both general and technical information.",
-                "link": "https://privacybydesign.foundation/irma-en/"
+                "title": "Obtain personal data",
+                "subtitle": "To share it in the future with ease"
             }
         }
     },

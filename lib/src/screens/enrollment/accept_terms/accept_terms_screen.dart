@@ -50,11 +50,9 @@ class AcceptTermsScreen extends StatelessWidget {
                         SizedBox(height: theme.mediumSpacing),
 
                         // Explanation
-                        IrmaMarkdown(
-                          FlutterI18n.translate(
-                            context,
-                            'enrollment.terms_and_conditions.explanation_markdown',
-                          ),
+                        const TranslatedText(
+                          'enrollment.terms_and_conditions.explanation',
+                          textAlign: TextAlign.start,
                         ),
                         SizedBox(height: theme.mediumSpacing),
 
