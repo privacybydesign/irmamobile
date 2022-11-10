@@ -116,9 +116,9 @@ void main() {
         'How to use Yivi for logging onto a website on my computer?',
         'What to do if I lose my mobile?',
         'Can I install Yivi on multiple mobile devices?',
-        'Where are my Yivi data stored?',
+        'Where is my Yivi data stored?',
         'What makes Yivi privacy-friendly and secure?',
-        'Why do the data in the Yivi app have limited validity?',
+        'Why does the data in the Yivi app have limited validity?',
         'Yivi, privacy and safety',
       ];
       for (final question in questions) {
@@ -133,13 +133,14 @@ void main() {
       }
 
       // We select an item without markdown to make testing easier.
-      final questionFinder = find.text('Why do the data in the Yivi app have limited validity?').hitTestable();
+      final questionFinder = find.text('Why does the data in the Yivi app have limited validity?').hitTestable();
       await tester.scrollUntilVisible(questionFinder, -50);
       await tester.tapAndSettle(questionFinder);
-      expect(find.textContaining('that you can prove that you are older than 18 now.').hitTestable(), findsOneWidget);
+      expect(find.textContaining('That way you can directly show that you\'re older than 18.').hitTestable(),
+          findsOneWidget);
 
       // Check whether the button to send an support email is tappable.
-      await tester.scrollUntilVisible(find.text('Send an email').hitTestable(), 50);
+      await tester.scrollUntilVisible(find.text('Send an e-mail').hitTestable(), 50);
     }, timeout: const Timeout(Duration(minutes: 1)));
   });
 }
