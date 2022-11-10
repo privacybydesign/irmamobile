@@ -13,12 +13,12 @@ import 'empty_app_scenarios/no_choice.dart';
 import 'empty_app_scenarios/no_choice_multiple_creds.dart';
 import 'empty_app_scenarios/optionals.dart';
 import 'empty_app_scenarios/specific_attribute_values.dart';
-import 'filled_app_scenearios/filled_choice_mixed.dart';
-import 'filled_app_scenearios/filled_choice_test.dart';
-import 'filled_app_scenearios/filled_discon.dart';
-import 'filled_app_scenearios/filled_no_choice_multiple_creds.dart';
-import 'filled_app_scenearios/filled_specific_attribute_values_match.dart';
-import 'filled_app_scenearios/filled_specific_attribute_values_no_match.dart';
+import 'filled_app_scenarios/filled_choice_mixed.dart';
+import 'filled_app_scenarios/filled_choice_test.dart';
+import 'filled_app_scenarios/filled_discon.dart';
+import 'filled_app_scenarios/filled_no_choice_multiple_creds.dart';
+import 'filled_app_scenarios/filled_specific_attribute_values_match.dart';
+import 'filled_app_scenarios/filled_specific_attribute_values_no_match.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -110,7 +110,10 @@ void main() {
       // Address from municipality OR
       // Address from iDIN AND
       // Email
-      testWidgets('filled-discon', (tester) => filledDisconTest(tester, irmaBinding));
+      testWidgets(
+        'filled-discon',
+        (tester) => filledDisconTest(tester, irmaBinding),
+      );
 
       // Address from municipality where city hast to be Arnhem AND
       // Email address where domain has to be test.com
