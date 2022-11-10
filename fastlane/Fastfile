@@ -61,6 +61,23 @@ lane :android_build_app do |options|
   end
 end
 
+lane :android_build_integration_test do
+  update_schemes()
+  Dir.chdir("..") do
+    sh(
+      "flutter", "build", "apk",
+      "--flavor", "alpha",
+      "--debug",
+      "./integration_test/test_all.dart"
+    )
+    Dir.chdir("./android") do
+      sh("./gradlew", "app:assembleAndroidTest")
+    end
+    sh("cp ./build/app/outputs/apk/alpha/debug/*.apk ./fastlane/build/")
+    sh("cp ./build/app/outputs/apk/androidTest/alpha/debug/*.apk ./fastlane/build/")
+  end
+end
+
 lane :ios_build do |options|
   ios_build_irmagobridge()
   ios_build_app(

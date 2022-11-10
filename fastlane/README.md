@@ -104,6 +104,16 @@ The unsigned Android APKs are written to the `build` directory (so `fastlane/bui
 
 The `flavor` parameter accepts the values `alpha` or `beta`.
 
+### android_build_integration_test
+
+```sh
+[bundle exec] fastlane android_build_integration_test
+```
+
+Builds the APKs for Android instrumentation testing to run the Flutter integration tests on Android natively.
+This action assumes the `android_build_irmagobridge` action has been run first.
+The APKs are written to the `build` directory (so `fastlane/build` from the repository's root).
+
 ### ios_build
 
 ```sh
