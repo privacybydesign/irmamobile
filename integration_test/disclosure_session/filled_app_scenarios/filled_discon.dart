@@ -39,8 +39,8 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
   // Start session without the credential being present
   await irmaBinding.repository.startTestSession(sessionRequest);
 
-  // Dismiss introduction screen
-  await tester.waitFor(find.text('Share your data in 3 simple steps:'));
+  // Dismiss introduction screen.
+  await tester.waitFor(find.text('Share your data'));
   await tester.tapAndSettle(find.descendant(
     of: find.byType(IrmaButton),
     matching: find.text('Get going'),

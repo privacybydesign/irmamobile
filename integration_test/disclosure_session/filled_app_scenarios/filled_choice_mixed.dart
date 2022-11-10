@@ -34,7 +34,7 @@ Future<void> filledChoiceMixedTest(WidgetTester tester, IntegrationTestIrmaBindi
   await irmaBinding.repository.startTestSession(sessionRequest);
 
   // Dismiss introduction screen.
-  await tester.waitFor(find.text('Share your data in 3 simple steps:'));
+  await tester.waitFor(find.text('Share your data'));
   await tester.tapAndSettle(find.descendant(
     of: find.byType(IrmaButton),
     matching: find.text('Get going'),
