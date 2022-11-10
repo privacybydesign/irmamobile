@@ -33,9 +33,7 @@ end
 
 lane :android_build do |options|
     android_build_irmagobridge()
-    android_build_app(flavor: options[:flavor], target_platform: "android-arm", sentry_dsn: options[:sentry_dsn])
-    android_build_app(flavor: options[:flavor], target_platform: "android-arm64", sentry_dsn: options[:sentry_dsn])
-    android_build_app(flavor: options[:flavor], target_platform: "android-x64", sentry_dsn: options[:sentry_dsn])
+    android_build_app(flavor: options[:flavor], sentry_dsn: options[:sentry_dsn])
 end
 
 lane :android_build_irmagobridge do
@@ -52,31 +50,31 @@ lane :android_build_app do |options|
     version: commit[:commit_hash]
   )
 
-  # We use the React Native build numbering (with base 0x100000 and different multipliers per target platform)
-  # Flutter modifies the build number that we specify with its own build number base and target platform multiplier.
-  # Therefore, we have to correct this by subtracting the value that Flutter will add.
-  build_number = get_flutter_build_number()
-  case options[:target_platform]
-  when "android-arm"
-    build_number += 0x100000 - 1000
-  when "android-arm64"
-    build_number += 0x300000 - 2000
-  when "android-x64"
-    build_number += 0x400000 - 4000
-  else
-    raise "Unsupported target platform"
-  end
-
   Dir.chdir("..") do
     sh(
       "flutter", "build", "apk",
       "--split-per-abi",
       "--flavor", options[:flavor],
-      "--target-platform", options[:target_platform],
-      "--build-number", build_number.to_s,
       "--release"
     )
     sh("cp ./build/app/outputs/apk/#{options[:flavor]}/release/*.apk ./fastlane/build/")
+  end
+end
+
+lane :android_build_integration_test do
+  update_schemes()
+  Dir.chdir("..") do
+    sh(
+      "flutter", "build", "apk",
+      "--flavor", "alpha",
+      "--debug",
+      "./integration_test/test_all.dart"
+    )
+    Dir.chdir("./android") do
+      sh("./gradlew", "app:assembleAndroidTest")
+    end
+    sh("cp ./build/app/outputs/apk/alpha/debug/*.apk ./fastlane/build/")
+    sh("cp ./build/app/outputs/apk/androidTest/alpha/debug/*.apk ./fastlane/build/")
   end
 end
 
