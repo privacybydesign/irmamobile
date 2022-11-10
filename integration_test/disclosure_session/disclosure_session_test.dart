@@ -26,7 +26,7 @@ void main() {
   WidgetController.hitTestWarningShouldBeFatal = true;
 
   group('disclosure-session', () {
-    setUp(() => irmaBinding.setUp());
+    setUp(() async => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
 
     group(
@@ -62,9 +62,6 @@ void main() {
         testWidgets(
           'choice-mixed-sources',
           (tester) => choiceMixedSourcesTest(tester, irmaBinding),
-          timeout: const Timeout(
-            Duration(minutes: 2),
-          ),
         );
 
         // Bank account number from iDeal. BIC has to be RABONL2U. AND

@@ -1,10 +1,13 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choice.dart';
+import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_obtain_credentials_screen.dart';
+import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_share_dialog.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_template_stepper.dart';
+import 'package:irmamobile/src/screens/session/session_screen.dart';
+import 'package:irmamobile/src/screens/session/widgets/disclosure_feedback_screen.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
@@ -36,8 +39,7 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
   await irmaBinding.repository.startTestSession(sessionRequest);
 
   // Dismiss introduction screen.
-  await tester.pumpAndSettle();
-  expect(find.text('Share your data in 3 simple steps:'), findsOneWidget);
+  await tester.waitFor(find.text('Get going'));
   await tester.tapAndSettle(find.descendant(of: find.byType(IrmaButton), matching: find.text('Get going')));
 
   // Expect a disclose stepper
@@ -89,26 +91,34 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
   // Both should be finished now
   expect((templateCardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
   expect((templateCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
-  await tester.pump(const Duration(seconds: 1));
 
   // Button should say done now
-  await tester.tap(find.text('Done'));
-  await tester.pump(const Duration(seconds: 1));
+  await tester.tapAndSettle(find.text('Done'));
+  await tester.pumpAndSettle(const Duration(seconds: 1));
 
   // Issue wizard should be completed
-  final bottomBarButtonFinder = find.byKey(const Key('bottom_bar_primary'));
-  await tester.tap(bottomBarButtonFinder);
-  await tester.pump(const Duration(seconds: 1));
+  final nextStepButtonFinder = find.text('Next step');
+  await tester.waitFor(nextStepButtonFinder);
+  await tester.ensureVisible(nextStepButtonFinder);
+  await tester.tapAndSettle(nextStepButtonFinder);
 
-  //Share data
-  await tester.tap(bottomBarButtonFinder);
-  await tester.pump(const Duration(seconds: 3));
+  // Expect the choices screen
+  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  await tester.tapAndSettle(find.text('Share data'));
 
   // Confirm the dialog
-  await tester.tap(find.byKey(const Key('confirm_share_button')));
-  await tester.pump(const Duration(seconds: 1));
+  expect(find.byType(DisclosurePermissionConfirmDialog), findsOneWidget);
+  await tester.tapAndSettle(find.text('Share'));
 
-  // Success screen
-  await tester.tap(bottomBarButtonFinder);
-  await tester.pump(const Duration(seconds: 1));
+  // Expect the success screen
+  final feedbackScreenFinder = find.byType(DisclosureFeedbackScreen);
+  expect(feedbackScreenFinder, findsOneWidget);
+  expect(
+    (feedbackScreenFinder.evaluate().single.widget as DisclosureFeedbackScreen).feedbackType,
+    DisclosureFeedbackType.success,
+  );
+  await tester.tapAndSettle(find.text('OK'));
+
+  // Session flow should be over now
+  expect(find.byType(SessionScreen), findsNothing);
 }
