@@ -7,15 +7,13 @@ end
 lane :lint do
   Dir.chdir("..") do
     sh("flutter", "format", "--line-length", "120", "--set-exit-if-changed", "lib/", "test/", "integration_test/")
-    # TODO: Remove --no-fatal-warnings option when all warnings are resolved.
-    sh("flutter", "analyze", "--no-fatal-infos", "--no-fatal-warnings")
+    sh("flutter", "analyze", "--no-fatal-infos")
   end
 end
 
 lane :unit_test do
   Dir.chdir("..") do
-    # TODO: remove --no-sound-null-safety option when all unit tests use null-safely
-    sh("flutter", "test", "--no-sound-null-safety")
+    sh("flutter", "test")
   end
 end
 
