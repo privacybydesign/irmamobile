@@ -150,6 +150,22 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: theme.defaultSpacing),
+            if (state is DisclosurePermissionChoicesOverview &&
+                (state as DisclosurePermissionChoicesOverview).isSignatureSession) ...[
+              TranslatedText(
+                'disclosure_permission.overview.sign',
+                style: theme.themeData.textTheme.headline4,
+              ),
+              Padding(
+                padding: EdgeInsets.only(
+                  top: theme.smallSpacing,
+                  bottom: theme.defaultSpacing,
+                ),
+                child: IrmaQuote(
+                  quote: (state as DisclosurePermissionChoicesOverview).signedMessage,
+                ),
+              ),
+            ],
             TranslatedText(
               state is DisclosurePermissionPreviouslyAddedCredentialsOverview
                   ? 'disclosure_permission.previously_added.header'

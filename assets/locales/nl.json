@@ -328,6 +328,7 @@
             "title": "Deel je gegevens",
             "explanation": "Deel je gegevens met {requestorName}",
             "header": "Deze gegevens ga je delen:",
+            "sign" : "Dit bericht ga je ondertekenen:",
             "confirm": "Gegevens delen"
         },
         "confirm_dialog": {

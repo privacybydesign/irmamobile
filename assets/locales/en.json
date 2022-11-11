@@ -328,6 +328,7 @@
             "title": "Share your data",
             "explanation": "Share your date with {requestorName}",
             "header": "This is the data you are going to share:",
+            "sign" : "This is the message you are going to sign:",
             "confirm": "Share data"
         },
         "confirm_dialog": {
