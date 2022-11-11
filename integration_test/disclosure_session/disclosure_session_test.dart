@@ -19,6 +19,7 @@ import 'filled_app_scenarios/filled_discon.dart';
 import 'filled_app_scenarios/filled_no_choice_multiple_creds.dart';
 import 'filled_app_scenarios/filled_specific_attribute_values_match.dart';
 import 'filled_app_scenarios/filled_specific_attribute_values_no_match.dart';
+import 'special_scenarios/combined_session.dart';
 import 'special_scenarios/signing.dart';
 
 void main() {
@@ -141,6 +142,14 @@ void main() {
       testWidgets(
         'signing',
         (tester) => signingTest(
+          tester,
+          irmaBinding,
+        ),
+      );
+
+      testWidgets(
+        'combined-session',
+        (tester) => combinedSessionTest(
           tester,
           irmaBinding,
         ),
