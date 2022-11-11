@@ -159,4 +159,4 @@ jobs:
       - name: Set Firebase project
         run: gcloud config set project yivimobile
       - name: Run integration tests
-        run: gcloud firebase test android run --app app-alpha-debug.apk --test app-alpha-debug-androidTest.apk --timeout 10m --device=model=Pixel3,version=30
+        run: gcloud firebase test android run --app app-alpha-debug.apk --test app-alpha-debug-androidTest.apk --timeout 15m --device=model=Pixel3,version=30,orientation=portrait --device=model=Pixel3,version=30,orientation=landscape
