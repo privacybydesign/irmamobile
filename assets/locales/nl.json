@@ -324,7 +324,7 @@
     "question_7": "Kan ik Yivi op meerdere mobiele telefoons zetten?",
     "answer_7": "Jazeker, we raden het zelfs aan! Download de app en vul Yivi met jouw gegevens. Als je jouw mobiel kwijt bent, kun je altijd nog met je andere toestel inloggen.",
     "question_8": "Waar staan mijn Yivi-gegevens opgeslagen?",
-    "answer_8": "Alle gegevens die je in de Yivi app zet, staan alleen daar. Er is geen centraal opslagpunt of een cloud omgeving.  Zo ben jij de enige die bij je eigen gegevens kan.\n Jij geeft zelf steeds toestemming (of niet) om je gegevens vanuit de Yivi-app aan een website door te geven.\n Verwijder je gegevens uit de app? Dan zijn ze ook echt weg. Jij bent volledig in controle over je gegevens. Alleen jij bepaalt wat je deelt. En met wie.",
+    "answer_8": "Alle gegevens die je in de Yivi-app zet, staan alleen daar. Er is geen centraal opslagpunt of een cloud omgeving.  Zo ben jij de enige die bij je eigen gegevens kan.\n Jij geeft zelf steeds toestemming (of niet) om je gegevens vanuit de Yivi-app aan een website door te geven.\n Verwijder je gegevens uit de app? Dan zijn ze ook echt weg. Jij bent volledig in controle over je gegevens. Alleen jij bepaalt wat je deelt. En met wie.",
     "question_9": "Wat maakt Yivi privacy-vriendelijk en veilig?",
     "answer_9": "Mensen de controle laten terugpakken over hun online gegevens. Dat is de missie van Yivi. Wat sla je op? Wat deel je? En met wie? Yivi laat de keuze aan jou. Met jouw telefoon bepaal je in een handomdraai wat mensen online van je mogen weten. Niemand kijkt mee. Ook Yivi niet. Alles staat veilig in je eigen app, met pincode. Er is geen centrale opslagplek of cloud. Telefoon verloren? Geen paniek. Blokkeer jouw Yivi-app op afstand. Zo gaat niemand met je gegevens aan de haal.\n De gegevens die je ophaalt (bijvoorbeeld bij de gemeente of overheid) en in de Yivi-app zet, zijn digitaal ondertekend door hen. Daarom weet een website of winkel direct dat jouw gegevens echt zijn. En hoeven deze niet gecontroleerd te worden door anderen.",
     "question_10": "Waarom zijn gegevens in de Yivi-app beperkt geldig?",
@@ -381,7 +381,7 @@
     "know_more": "Meer weten",
     "stay_informed": "Blijf op de hoogte en praat mee",
     "slogan": "Gun iedereen privacy",
-    "meetups": "Yivi meetups",
+    "meetups": "Yivi-meetups",
     "meetups_link": "https://privacybydesign.foundation/meetings/",
     "twitter": "@irma_privacy",
     "twitter_link": "https://twitter.com/irma_privacy",
@@ -537,7 +537,7 @@
   },
   "update": {
     "title": "Update beschikbaar",
-    "explanation": "Om de Yivi app te blijven gebruiken moet je de laatste versie downloaden",
+    "explanation": "Om de Yivi-app te blijven gebruiken moet je de laatste versie downloaden",
     "update_app": "Update app"
   }
 }

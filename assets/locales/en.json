@@ -375,8 +375,8 @@
     "contact": "Contact us",
     "share": "Share Yivi",
     "share_text": "Check out the Yivi app: https://irma.app",
-    "website": "Yivi-website",
-    "meet_up": "Yivi-meetups",
+    "website": "Yivi website",
+    "meet_up": "Yivi meetups",
     "need_help": "Need help?",
     "know_more": "More information",
     "stay_informed": "Stay informed and join the conversation",
@@ -389,7 +389,7 @@
     "github_link": "https://github.com/privacybydesign",
     "version": "Version {version}",
     "developer_mode_enabled": "Developer mode enabled",
-    "irma_website": "Yivi-website",
+    "irma_website": "Yivi website",
     "irma_website_link": "https://irma.app/?lang=en",
     "privacy_policy": "Yivi's privacy policy",
     "privacy_policy_link": "https://privacybydesign.foundation/privacy-policy-en/",
@@ -463,10 +463,10 @@
     "title": "Lost PIN",
     "message": "Lost your PIN? We're sorry but the Yivi organisation does not have a copy of your PIN. If you wish to continue using Yivi, you will have to enter a new PIN and reload all data.",
     "existing_data_title": "What happens to my data",
-    "existing_data_message": "All existing data will be deleted from your Yivi-app. After adding new data to the app you can start using Yivi again.",
+    "existing_data_message": "All existing data will be deleted from your Yivi app. After adding new data to the app you can start using Yivi again.",
     "back": "Cancel",
     "reset": "Start all over",
-    "existing_data_removed": "All data in your Yivi-app will be deleted."
+    "existing_data_removed": "All data in your Yivi app will be deleted."
   },
   "rooted_warning": {
     "title": "Device unsafe",
