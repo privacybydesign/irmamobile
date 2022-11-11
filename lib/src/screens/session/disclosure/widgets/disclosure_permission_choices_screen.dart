@@ -162,6 +162,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                   bottom: theme.defaultSpacing,
                 ),
                 child: IrmaQuote(
+                  key: const Key('signature_message'),
                   quote: (state as DisclosurePermissionChoicesOverview).signedMessage,
                 ),
               ),

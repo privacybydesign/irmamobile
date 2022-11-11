@@ -19,6 +19,7 @@ import 'filled_app_scenarios/filled_discon.dart';
 import 'filled_app_scenarios/filled_no_choice_multiple_creds.dart';
 import 'filled_app_scenarios/filled_specific_attribute_values_match.dart';
 import 'filled_app_scenarios/filled_specific_attribute_values_no_match.dart';
+import 'special_scenarios/signing.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -130,6 +131,16 @@ void main() {
       testWidgets(
         'filled-specific-attribute-values-no-match',
         (tester) => filledSpecificAttributeValuesNoMatchTest(
+          tester,
+          irmaBinding,
+        ),
+      );
+    });
+
+    group('special-scenarios', () {
+      testWidgets(
+        'signing',
+        (tester) => signingTest(
           tester,
           irmaBinding,
         ),
