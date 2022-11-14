@@ -1,570 +1,543 @@
 {
-    "ui": {
-        "loading": "Loading…",
-        "step_of_steps": "Step {i} of {n}",
-        "step": "Step",
-        "done": "Done",
-        "next": "Next",
-        "previous": "Previous",
-        "cancel": "Cancel",
-        "confirm": "Confirm",
-        "delete": "Delete",
-        "skip": "Skip",
-        "continue": "Continue",
-        "retry": "Try again",
-        "error": "Something went wrong"
+  "accessibility": {
+    "irma_logo": "Yivi Logo",
+    "slideshow": "Slide {i} of {n}: {description}",
+    "menu": "Menu",
+    "back": "Back",
+    "close": "Close",
+    "next": "Next",
+    "alert": "Alert",
+    "previous": "Previous",
+    "expanded": "Expanded",
+    "collapsed": "Collapsed",
+    "unfold": "Expand",
+    "update": "Update",
+    "remove": "Remove",
+    "expand": "Expand",
+    "refresh": "Refresh"
+  },
+  "action_feedback": {
+    "ok": "OK"
+  },
+  "activity": {
+    "data_deleted": "Data deleted",
+    "data_received": "Data received",
+    "data_shared": "Data shared",
+    "signed_message": "Signed message",
+    "message_signed": "Message signed",
+    "shared_with": "Shared with",
+    "shared_data": "Shared data",
+    "received_data": "Received data",
+    "deleted_data": "Deleted data",
+    "empty_placeholder": "No activities were logged."
+  },
+  "arrow_back": {
+    "no_success": "Cancelled",
+    "disclosure_success": "Success, your data has been disclosed",
+    "issuance_success": "Success, the data has been added",
+    "safari": "Tap on the name of the application (such as Safari, Chrome, Firefox) in the top left corner to return to the previous application."
+  },
+  "change_pin": {
+    "dialog": {
+      "title": "Are you sure?",
+      "body": "Are you sure you want to reset the current PIN?",
+      "ok": "Change",
+      "cancel": "Cancel"
     },
-    "enrollment": {
-        "introduction": {
-            "step_1": {
-                "title": "Yivi is your identity on your phone",
-                "explanation": "Your official name, date of birth, address, and more. All securely stored in your Yivi app."
-            },
-            "step_2": {
-                "title": "Make yourself known with Yivi",
-                "explanation": "Easy, secure, and fast. It's all in your hands"
-            },
-            "step_3": {
-                "title": "Yivi provides certainty, to you and to others",
-                "explanation": "Your data are stored solely within the Yivi app. Only you have access."
-            }
-        },
-        "confirm_pin": {
-            "instruction": "Enter your PIN again"
-        },
-        "email": {
-            "provide": {
-                "title": "Add email address",
-                "header": "Link your email address to your Yivi app",
-                "explanation": "An email address allows you to disable your Yivi app when your mobile has been lost or stolen",
-                "input": {
-                    "label": "Email address",
-                    "invalid": "This is not a valid email address"
-                },
-                "confirm_skip_dialog": {
-                    "title": "Are you sure?",
-                    "explanation": "Protect your data. When you enter an email address, you can block your Yivi app when your mobile has been lost or stolen.",
-                    "decline": "Enter an email address"
-                }
-            },
-            "confirm": {
-                "title": "Confirm your email address",
-                "header": "The email has been sent to:",
-                "explanation": "It can take a moment until the email arrives. Check your spam folder if you don't see the mail in your inbox.",
-                "explanation_extra_markdown": "You have received an email from **noreply@sidn.nl**. Open the link in this message to link your email address to your Yivi app."
-            }
-        },
-        "terms_and_conditions": {
-            "title": "Our terms and conditions",
-            "explanation": "With Yivi you take control of your data and protect your privacy online",
-            "point_1": "You decide what to store, what to share and with whom.",
-            "point_2": "Your data is stored on your phone only",
-            "point_3": "No one can access your data without your permission, including Yivi.",
-            "accept_markdown": "Yes, I accept the [terms and conditions](https://privacybydesign.foundation/privacy-policy-en/)"
-        },
-        "submit": {
-            "title": "Logging in",
-            "progress_enrollment": "You're being logged in"
-        }
-    },
-    "help": {
-        "about_irma": "About Yivi",
-        "ask": "Ask a question",
-        "contact": "app@privacybydesign.foundation",
-        "device": "Device",
-        "email": "Send an email",
-        "faq": "Frequently asked questions",
-        "login": "Login",
-        "mail_error": "Mail app cannot be opened",
-        "mail_error_button": "OK",
-        "mail_error_title": "Sorry",
-        "mail_subject": "Assistance with the Yivi app",
-        "question_1": "What can I do with Yivi?",
-        "answer_1_markdown": "With Yivi it's easy to log in and make yourself known. You disclose only the necessary attributes of yourself. For instance, in order to watch a certain movie, you disclose that you are over 16 years old and nothing else. With Yivi you can digitally sign documents too. You only use relevant characteristics of yourself, in some sort of digital stamp. In this way Yivi allows you to sign as medical doctor, as citizen, or in some other role.\n\nMore and more websites support logging in with Yivi. For instance, doctors in The Netherlands can access medical dossiers via the website [helder](https://www.helder.health/). Yivi support is growing especially at municipalities and health care providers. To get an idea of the possibilities, you can try out yourself some of the available Yivi [demo's](https://privacybydesign.foundation/demo-en/).",
-        "question_2": "Why does Yivi exist?",
-        "answer_2": "**Yivi exists because you have the right to an online identity that you really own.** Yivi is not a commercial app that is used to track you, to profile you and to sell your personal data to third parties.\n\nYivi is in the spirit of the [General Data Protection Regulation (GDPR)](https://gdpr-info.eu/). Via the Yivi app you disclose only these data about yourself that are relevant and necessary in a particular situation.\n\n**With the Yivi app your identity is in your own hands, within the secured Yivi app on your own phone.** The Yivi app is is a powerful means for making yourself known (online) and for digital signing. With respect for your privacy.",
-        "question_3": "Who is behind the Yivi app?",
-        "answer_3_markdown": "Yivi is produced by the **Privacy by Design** foundation. In 2016 this foundation grew out of the Digital Security research group at Radboud University Nijmegen. This foundation is independent and non-profit.\n\nThe Yivi app is open source and is developed jointly with SIDN, the manager of the .nl-domain. This development is done jointly with local government and health care. Some 30 municipalities are involved, including Nijmegen, Amsterdam and Leiden. Yivi is recipient of the Dutch Privacy Awards 2018.",
-        "question_4": "How to use Yivi for logging onto a mobile website?",
-        "answer_4": {
-            "step_1": "Open the website on your mobile and select logging in with Yivi.",
-            "step_2": "The Yivi app starts automatically.\nEnter your PIN.",
-            "step_3": "Agree (or disagree) to disclose your personal data.",
-            "step_4": "After disclosing you are logged in.\nYou can now use the website."
-        },
-        "question_5": "How to use Yivi for logging onto a website on my computer?",
-        "answer_5": {
-            "step_1": "Open the website on your computer and select logging in with Yivi.",
-            "step_2": "Open the Yivi app on your mobile and enter your PIN.",
-            "step_3": "Start the QR code scanner in the Yivi app. Scan the QR code on the screen of your computer.",
-            "step_4": "Agree (or not) to disclose your personal data.",
-            "step_5": "After disclosing you are logged in.\nYou can now use the website."
-        },
-        "question_6": "What to do if I lose my mobile?",
-        "answer_6_markdown": "If you lose your mobile, nobody can use your Yivi app, at least if you have chosen a non-trivial PIN.\n\nYou can protect yourself even more: upon installing Yivi you have been given the choice to enter an email address. If you have done so, you can block your Yivi app altogether via [MyYivi](https://privacybydesign.foundation/myirma/). The Yivi app on your old (lost) mobile is then completely unusable.\n\nIf you have not yet added an email address in [MyYivi](https://privacybydesign.foundation/myirma/) you can still do so now. This is recommended.\n\nOn your new mobile you can re-install the Yivi app and re-fill it with your data. Then you are good to go again.",
-        "question_7": "Can I install Yivi on multiple mobile devices?",
-        "answer_7": "Yes, on every mobile device (Android or iOS) you can install a separate Yivi app and fill it with cards with your personal data. It is actually wise to do so. If you lose one device, you can still log on with your other device.",
-        "question_8": "Where are my Yivi data stored?",
-        "answer_8": "Your data are stored in the Yivi app on your mobile and not in the cloud.\n\nYou explicitly agree (or not) to reveal your personal data from your Yivi app to a website.\nWhen you remove your data from the Yivi app, they are really gone from Yivi.",
-        "question_9": "What makes Yivi privacy-friendly and secure?",
-        "answer_9": "Your personal data are protected via your personal PIN. Your data are stored exclusively in the Yivi app and not in the cloud.\n\nThe data in your Yivi app are digitally signed by the source (issuer) where the data come from (such as the local authorities).\n\nIn this way a website or shop, where you make yourself known, can cryptographically verify that your data are genuine.\nThis exchange of personal data happens directly between your mobile and the website. No one else can see that you make yourself known there, not even the organisation behind Yivi.",
-        "question_10": "Why do the data in the Yivi app have limited validity?",
-        "answer_10": "Every card in Yivi shows its validity. The validity period depends on the kind of data on the card and how stable these data are. Your name and date of birth data are valid for five years, but your address data only one year. The source (issuer) of the data determines this validity period. The cards in your Yivi app may thus expire. The Yivi app then gives you a warning.\n\nYou can always, also without such a warning, refresh your cards by reloading them from the source. For instance, after your 18th birthday you can reload your data from your municipality so that you can prove that you are older than 18 now.",
-        "question_11": "Yivi, privacy and safety",
-        "answer_11": "The Yivi app has been developed in such a way that you and only you can see and use your personal data. Your personal data are stored on your phone only.\n\nThe Yivi app design enables a website or shop to (cryptographically) verify that the data you disclosed are genuine.\n\nThe Yivi app discloses your data directly from your phone to the website. No-one else can see that you identify yourself there. Even the organisation behind Yivi cannot observe such disclosures. \n\nWhen using Yivi, you agree with the [privacy policy](https://privacybydesign.foundation/privacy-policy-en/).",
-        "send": "Do you have other/more questions? Send an email. It may take a couple of days before you get a reply.",
-        "security_and_privacy": "Security and privacy"
-    },
-    "accessibility": {
-        "irma_logo": "Yivi Logo",
-        "slideshow": "Slide {i} of {n}: {description}",
-        "menu": "Menu",
-        "back": "Back",
-        "close": "Close",
-        "next": "Next",
-        "alert": "Alert",
-        "previous": "Previous",
-        "expanded": "Expanded",
-        "collapsed": "Collapsed",
-        "unfold": "Expand",
-        "update": "Update",
-        "remove": "Remove",
-        "expand": "Expand",
-        "refresh": "Refresh"
-    },
-    "settings": {
-        "title": "Settings",
-        "start_qr": "Open QR scanner automatically after start-up",
-        "change_pin": "Change your PIN",
-        "advanced": {
-            "report_errors": "Send error reports to Yivi",
-            "delete": "Delete everything and start over",
-            "delete_title": "Are you sure?",
-            "delete_content": "If you proceed, all your cards will be deleted from your Yivi app. Do you wish to use Yivi again later? You will have to reload cards first.",
-            "delete_confirm": "Yes, delete everything",
-            "delete_deny": "Cancel",
-            "developer_mode": "Developer mode",
-            "enable_screenshots": "Enable screenshots",
-            "enable_screenshots_note": "When enabled, the app will not be blurred in the app switcher."
-        }
-    },
-    "change_pin": {
-        "dialog": {
-            "title": "Are you sure?",
-            "body": "Are you sure you want to reset the current password?",
-            "ok": "Change",
-            "cancel": "Cancel"
-        },
-        "toast": "The new PIN is active",
-        "enter_pin": {
-            "instruction": "Enter your current PIN",
-            "error_title": "PIN incorrect",
-            "error": "Enter your current PIN",
-            "error_action": "OK"
-        },
-        "confirm_pin": {
-            "instruction": "Enter your new PIN again"
-        }
-    },
-    "qr_scanner": {
-        "instruction": {
-            "title": "Start scanning",
-            "message": "Aim the camera of your mobile at the Yivi QR code",
-            "semantic": "Start scanning! Aim the camera of your mobile at the Yivi QR code."
-        },
-        "success": {
-            "title": "Success",
-            "message": "QR code scanned",
-            "semantic": "Success! QR code scanned."
-        },
-        "error": {
-            "title": "Sorry",
-            "message": "This is not an Yivi QR code",
-            "semantic": "Sorry! This is not an Yivi QR code."
-        }
-    },
-    "pin_common": {
-        "blocked_for": "Login is blocked for",
-        "second": {
-            "time-0": "{time} seconds",
-            "time-1": "{time} second",
-            "time-2": "{time} seconds"
-        },
-        "minute": {
-            "time-0": "{time} minutes",
-            "time-1": "{time} minute",
-            "time-2": "{time} minutes"
-        },
-        "hour": {
-            "time-0": "{time} hours",
-            "time-1": "{time} hour",
-            "time-2": "{time} hours"
-        },
-        "day": {
-            "time-0": "{time} days",
-            "time-1": "{time} day",
-            "time-2": "{time} days"
-        },
-        "invalid_title": "PIN incorrect",
-        "invalid_pin": {
-            "attempts-0": "This PIN is not correct. You have {attemps} attempts left before your Yivi app will be blocked temporarily.",
-            "attempts-1": "This PIN is not correct. You have {attemps} attempt left before your Yivi app will be blocked temporarily.",
-            "attempts-2": "This PIN is not correct. You have {attemps} attempts left before your Yivi app will be blocked temporarily."
-        },
-        "invalid_close": "Try again",
-        "blocked_title": "App blocked",
-        "blocked_pin": "Your app has been blocked for {blocked}. Please try again later.",
-        "blocked_close": "Try again",
-        "done": "Continue",
-        "view": "Show PIN",
-        "hide": "Hide PIN"
-    },
-    "pin": {
-        "subtitle": "Enter your PIN",
-        "button_forgot": "PIN forgotten",
-        "button_block": "Block Yivi"
-    },
-    "session_pin": {
-        "subtitle": "Enter your PIN"
-    },
-    "error": {
-        "title": "Something went wrong",
-        "blocked_title": "App blocked",
-        "button_ok": "OK",
-        "button_send_to_irma": "Send to the Yivi team",
-        "button_show_error": "Show technical details",
-        "button_retry": "Please try again",
-        "button_back": "Back",
-        "button_reset": "Start all over",
-        "details_title": "Error message",
-        "report": "If this happens again, please inform Yivi's technical team.",
-        "types": {
-            "general": "Something went wrong.",
-            "blocked": "Your Yivi app has been remotely blocked.\n\nThis has either been done via MyYivi for your app, or because you did not use Yivi on this device for more than a year. If you want to continue using Yivi on this device, you will need to start over.",
-            "expired": "The session has expired. Please start over.",
-            "pairing_rejected": "The session was rejected. Please start over.",
-            "no_internet": "Please make sure your device has an internet connection."
-        }
-    },
-    "wallet": {
-        "title": "Yivi cards",
-        "scan_qr_code": "Scan QR code",
-        "open_menu": "Open Menu",
-        "close_menu": "Close Menu",
-        "toggle": "Change display",
-        "issuer": "Issuer",
-        "expiration": "Card valid until",
-        "expired": "This card has expired",
-        "expired_on": "Card expired",
-        "expires_soon": {
-            "data-0": "This card expires in {data} days"
-        },
-        "revoked": "This card is no longer valid",
-        "not_valid": "Card not valid",
-        "refresh": "Refresh card",
-        "delete": "Remove card",
-        "cannot_be_refreshed": "This card cannot be refreshed anymore.",
-        "close": "Close",
-        "help": "Help",
-        "caption": "Your data securely on your mobile",
-        "pbdf_gemeente_personalData": {
-            "nudge": "Add your personal data"
-        },
-        "add_data": "Add more data",
-        "lock": "Log out"
-    },
-    "issuance": {
-        "title": "Add data",
-        "description": "Do you want to add this data to your Yivi app?",
-        "add": "Add data",
-        "cancel": "Cancel"
-    },
-    "session": {
-        "navigation_bar": {
-            "more": "More",
-            "yes": "Yes",
-            "no": "No",
-            "back": "Back",
-            "cancel": "Cancel"
-        },
-        "pairing": {
-            "title": "Extra safety check",
-            "instruction": "Enter this verification code on the website to secure your app"
-        },
-        "unknown_session_type": {
-            "title": "Cancelled",
-            "explanation": "The Yivi session that you started is not supported by the app."
-        }
-    },
-    "disclosure_permission": {
-        "title": "Data request",
-        "next": "Next",
-        "change_choice": "Change choice",
-        "choose": "Make a choice",
-        "obtain_new": "Obtain new data",
-        "next_step": "Next step",
-        "obtain_data": "Obtain data",
-        "optional_data": "Optional data",
-        "add_optional_data": "Add optional data",
-        "no_data_selected": "No data selected",
-        "introduction": {
-            "title": "Get going",
-            "header": "Share your data",
-            "explanation": "Collect the required data to be able to share it with the requesting party.",
-            "continue": "Get going"
-        },
-        "issue_wizard": {
-            "title": "Collect data",
-            "explanation": "Obtain your data step by step. You will be sharing these later.",
-            "header_incomplete": "We still need the following data from you:",
-            "header_complete": "All required data has been added."
-        },
-        "previously_added": {
-            "title": "Validate data",
-            "explanation": "Check if the following information is correct.",
-            "header": "This data has already been added to the app:"
-        },
-        "overview": {
-            "title": "Share your data",
-            "explanation": "Share your date with {requestorName}",
-            "header": "This is the data you are going to share:",
-            "confirm": "Share data"
-        },
-        "confirm_dialog": {
-            "title": "Share data",
-            "explanation": "You are about to share data with {requestorName}. Tap 'Share' to continue",
-            "confirm": "Share",
-            "decline": "Don't share"
-        },
-        "confirm_close_dialog": {
-            "title": "Cancel data sharing",
-            "explanation": "Are you sure you don't want to share your data?",
-            "confirm": "Close",
-            "decline": "Continue"
-        },
-        "wrong_credentials_added": {
-            "title": "Error",
-            "explanation": "Data has been added to the app, but they do not meet the criteria to share them. Please obtain the right data.",
-            "dismiss_action": "OK"
-        },
-        "call": {
-            "title": "Call via Yivi",
-            "disclosure_explanation": "Do you wish to disclose the following data to {otherParty} and call to {phoneNumber}?",
-            "disclosure_success": "Data has been shared with {otherParty}",
-            "explanation_header_ios": "Choose next to call",
-            "explanation_ios": "A pop-up will appear, with the option to place the call. The number is pre-filled, followed by a link-code. If you choose to call, you will hear a few beeps and you will be connected.",
-            "explanation_header_android": "1. Choose next",
-            "explanation_android": "Your phone app now opens automatically. The number is pre-filled, followed by a link-code.",
-            "extra_explanation_header_android": "2. Tap the call button in your phone app",
-            "extra_explanation_android": "You will hear a few beeps and you will be connected."
-        }
-    },
-    "disclosure": {
-        "title": "Data request",
-        "disclosure_header": "Do you wish to disclose the following data to {otherParty}?",
-        "disclosure_call_header": "Do you wish to diclose the following data to {otherParty} and call to {phoneNumber}?",
-        "signing_header": "{otherParty} asks you to sign a message",
-        "signing_call_header": "{otherParty} asks you to sign a message and call to {phoneNumber}",
-        "unsatisfiable_header": "You don't yet have all data that {otherParty} is asking for in your Yivi app.",
-        "issuer": "Issuer",
-        "logo_semantic": "Logo of {otherParty}",
-        "choices": "{choices} choices",
-        "next": "next choices",
-        "previous": "previous choices",
-        "not_present": "These data have not yet been added to Yivi.",
-        "not_present_have_other": "The requested data do not match with the data you already have.",
-        "you_have": "You have:",
-        "requested_for": "This is requested:",
-        "card_count": "{i} of {total}",
-        "among_others": "Among others",
-        "add_additional": "Want to show different information? Add an additional '{credential}' card.",
-        "expired": "These data are expired.",
-        "revoked": "These data have been revoked.",
-        "not_revokable": "These data have to be refreshed first.",
-        "obtain": "Add",
-        "refresh": "Refresh",
-        "nothing_selected": "Nothing selected",
-        "redirect": "You are being redirected back to the webpage...",
-        "feedback": {
-            "header": {
-                "success": "Success",
-                "canceled": "Cancelled",
-                "notSatisfiable": "Cancelled"
-            },
-            "text": {
-                "success": "Your data are disclosed to {otherParty}",
-                "canceled": "Your data are not disclosed to {otherParty}",
-                "notSatisfiable": "Your data are not disclosed because {otherParty} requests outdated data. Please contact this party."
-            }
-        }
-    },
-    "reset_pin": {
-        "title": "Lost PIN",
-        "message": "Lost your PIN? We're sorry but the Yivi organisation does not keep record of your PIN. If you wish to continue using Yivi, you will have to enter a new PIN and reload all data.",
-        "existing_data_title": "What happens with my old cards?",
-        "existing_data_message": "Your old cards will be deleted from your phone. If you like, you can collect new cards and start using Yivi again.",
-        "back": "Cancel",
-        "reset": "Start all over",
-        "existing_data_removed": "All cards in your Yivi app are deleted."
-    },
-    "arrow_back": {
-        "no_success": "Cancelled",
-        "disclosure_success": "Done, your data has been disclosed",
-        "issuance_success": "Done, the data has been added",
-        "safari": "Tap on the name of the application (such as Safari, Chrome, Firefox) in the top left corner to return to the application you came from."
-    },
-    "update": {
-        "title": "Update available",
-        "explanation": "To continue using the Yivi app, you must download the latest version.",
-        "update_app": "Update app"
-    },
-    "action_feedback": {
-        "ok": "OK"
-    },
-    "rooted_warning": {
-        "title": "Device unsafe",
-        "explanation": "The operating system on your device seems to be modified. Because of this, the safety of your data cannot be guaranteed.",
-        "accept_risk": "I accept the risk"
-    },
-    "issue_wizard": {
-        "back": "Cancel",
-        "done": "OK",
-        "add": "Add",
-        "add_cards": "Add cards",
-        "add_credential": "Add {credential}"
-    },
-    "home": {
-        "nav_bar": {
-            "home": "Home",
-            "data": "Data",
-            "activity": "Activity",
-            "more": "More",
-            "scan_qr": "Scan QR"
-        }
-    },
-    "home_tab": {
-        "title": "The Identity Wallet",
-        "recent_activity": "Recent activity",
-        "view_more": "View more",
-        "action_card": {
-            "fetch": {
-                "title": "Obtain personal data",
-                "subtitle": "To share it in the future with ease"
-            }
-        }
-    },
-    "data": {
-        "tab": {
-            "title": "Your data",
-            "obtain_data": "Obtain personal data"
-        },
-        "detail": {
-            "title": "Contact information"
-        },
-        "add": {
-            "title": "Adding data",
-            "choose": "Choose the data you wish to add.",
-            "details": {
-                "title": "Adding data",
-                "purpose_question": "What can you do with these data?",
-                "content_question": "Which data are added?",
-                "howto_question": "How does it work?",
-                "back_button": "Cancel",
-                "get_button": "Add"
-            }
-        },
-        "category_other": "Other"
-    },
-    "more_tab": {
-        "app_management": "App management",
-        "settings": "Settings",
-        "help": "Help",
-        "debugging": "Debugging",
-        "contact": "Contact us",
-        "share": "Share Yivi",
-        "share_text": "Check out the Yivi app: https://irma.app",
-        "website": "Yivi-website",
-        "meet_up": "Yivi-meetups",
-        "need_help": "Need help?",
-        "know_more": "More information",
-        "stay_informed": "Stay informed and join the conversation",
-        "slogan": "Everyone deserves privacy",
-        "meetups": "Yivi meetups",
-        "meetups_link": "https://privacybydesign.foundation/meetings/",
-        "twitter": "@irma_privacy",
-        "twitter_link": "https://twitter.com/irma_privacy",
-        "github": "GitHub",
-        "github_link": "https://github.com/privacybydesign",
-        "version": "Version {version}",
-        "developer_mode_enabled": "Developer mode enabled",
-        "irma_website": "Yivi-website",
-        "irma_website_link": "https://irma.app/?lang=en",
-        "privacy_policy": "Yivi's privacy policy",
-        "privacy_policy_link": "https://privacybydesign.foundation/privacy-policy-en/",
-        "app_id": "App ID {id}",
-        "log_out": "Log out"
-    },
-    "activity": {
-        "data_deleted": "Data deleted",
-        "data_received": "Data received",
-        "data_shared": "Data shared",
-        "signed_message": "Signed message",
-        "message_signed": "Message signed",
-        "shared_with": "Shared with",
-        "shared_data": "Shared data",
-        "received_data": "Received data",
-        "deleted_data": "Deleted data",
-        "empty_placeholder": "No activities were logged."
-    },
-    "credential": {
-        "no_data": "No data",
-        "valid_until": "Valid until: {date}",
-        "expires_on": "Expires on {date}",
-        "expired_on": "Expired on {date}",
-        "date_at_time": "{date} at {time}",
-        "options": {
-            "title": "Options",
-            "reobtain": "Reobtain",
-            "delete": "Delete data",
-            "confirm_delete": "Are you sure you want to delete this data?",
-            "delete_success": "Success! The data has been deleted."
-        },
-        "about_to_expire": "About to expire",
-        "expired": "Expired",
-        "revoked": "Revoked"
-    },
-    "secure_pin": {
-        "info_button": "PIN possibly not secure",
-        "title": "Choose PIN",
-        "subtitle": "A secure PIN has the following properties:",
-        "rules": {
-            "contains_3_unique": "Contains at least 3 unique numbers",
-            "must_not_asc_or_desc": "Must not contain ascending nor descending keyboard patterns, like: 12345",
-            "not_abcab_nor_abcba": "Must not contain the following keyboard patterns: abcba, abcab, like: 12312, 12321, 13331",
-            "must_contain_valid_subset": "Must contain 5 adjacent numbers, that comply with the rules mentioned above"
-        }
-    },
-    "choose_pin": {
-        "next": "Next",
-        "instruction": {
-            "long": "Choose a PIN",
-            "short": "Choose a 5-digit PIN"
-        },
-        "switch_pin_size": {
-            "long": "Prefer a longer PIN?",
-            "short": "Prefer a shorter PIN?"
-        }
+    "toast": "The new PIN is active",
+    "enter_pin": {
+      "instruction": "Enter your current PIN",
+      "error_title": "PIN incorrect",
+      "error": "Enter your current PIN",
+      "error_action": "OK"
     },
     "confirm_pin": {
-        "error": {
-            "title": "PIN incorrect",
-            "body": "PINs do not match. Choose a new PIN.",
-            "action": "OK"
-        }
-    },
-    "pin_accessibility": {
-        "show_pin": "Show PIN",
-        "hide_pin": "Hide PIN",
-        "backspace": "Backspace"
+      "instruction": "Enter your new PIN again"
     }
+  },
+  "choose_pin": {
+    "next": "Next",
+    "instruction": {
+      "long": "Choose a PIN",
+      "short": "Choose a 5-digit PIN"
+    },
+    "switch_pin_size": {
+      "long": "Prefer a longer PIN?",
+      "short": "Prefer a shorter PIN?"
+    }
+  },
+  "confirm_pin": {
+    "error": {
+      "title": "PIN incorrect",
+      "body": "PINs do not match. Choose a new PIN.",
+      "action": "OK"
+    }
+  },
+  "credential": {
+    "no_data": "No data",
+    "valid_until": "Valid until: {date}",
+    "expires_on": "Expires on {date}",
+    "expired_on": "Expired on {date}",
+    "date_at_time": "{date} at {time}",
+    "options": {
+      "title": "Options",
+      "reobtain": "Reobtain",
+      "delete": "Delete data",
+      "confirm_delete": "Are you sure you want to delete this data?",
+      "delete_success": "Success! The data has been deleted."
+    },
+    "about_to_expire": "About to expire",
+    "expired": "Expired",
+    "revoked": "Revoked"
+  },
+  "data": {
+    "tab": {
+      "title": "Your data",
+      "obtain_data": "Obtain personal data"
+    },
+    "detail": {
+      "title": "Contact information"
+    },
+    "add": {
+      "title": "Adding data",
+      "choose": "Choose the data you wish to add.",
+      "details": {
+        "title": "Adding data",
+        "purpose_question": "What can you do with this data?",
+        "content_question": "Which data is added?",
+        "howto_question": "How does it work?",
+        "back_button": "Cancel",
+        "get_button": "Add"
+      }
+    },
+    "category_other": "Other"
+  },
+  "disclosure": {
+    "title": "Data request",
+    "disclosure_header": "Do you wish to disclose the following data to {otherParty}?",
+    "disclosure_call_header": "Do you wish to diclose the following data to {otherParty} and call to {phoneNumber}?",
+    "signing_header": "{otherParty} asks you to sign a message",
+    "signing_call_header": "{otherParty} asks you to sign a message and call to {phoneNumber}",
+    "unsatisfiable_header": "You don't have all data that {otherParty} is asking for in your Yivi app.",
+    "issuer": "Issuer",
+    "logo_semantic": "Logo of {otherParty}",
+    "choices": "{choices} choices",
+    "next": "next choices",
+    "previous": "previous choices",
+    "not_present": "This data has not yet been added to Yivi.",
+    "not_present_have_other": "The requested data does not match the data you already have.",
+    "you_have": "You have:",
+    "requested_for": "This is requested:",
+    "card_count": "{i} of {total}",
+    "among_others": "Among others",
+    "add_additional": "Want to share different information? Add additional '{credential}' data.",
+    "expired": "This data is expired.",
+    "revoked": "This data has been revoked.",
+    "not_revokable": "This data has to be refreshed first.",
+    "obtain": "Add",
+    "refresh": "Refresh",
+    "nothing_selected": "Nothing selected",
+    "redirect": "You are being redirected to the webpage...",
+    "feedback": {
+      "header": {
+        "success": "Success",
+        "canceled": "Cancelled",
+        "notSatisfiable": "Cancelled"
+      },
+      "text": {
+        "success": "Your data is disclosed to {otherParty}",
+        "canceled": "Your data is not disclosed to {otherParty}",
+        "notSatisfiable": "Your data is not disclosed because {otherParty} requests outdated data. Please contact this party."
+      }
+    }
+  },
+  "disclosure_permission": {
+    "title": "Data request",
+    "next": "Next",
+    "change_choice": "Change choice",
+    "choose": "Make a choice",
+    "obtain_new": "Obtain new data",
+    "next_step": "Next step",
+    "obtain_data": "Obtain data",
+    "optional_data": "Optional data",
+    "add_optional_data": "Add optional data",
+    "no_data_selected": "No data selected",
+    "introduction": {
+      "title": "Get going",
+      "header": "Share your data",
+      "explanation": "Collect the required data to be able to share it with the requesting party.",
+      "continue": "Get going"
+    },
+    "issue_wizard": {
+      "title": "Collect data",
+      "explanation": "Obtain your data step by step. You will be sharing these later.",
+      "header_incomplete": "We still need the following data from you:",
+      "header_complete": "All required data has been added."
+    },
+    "previously_added": {
+      "title": "Validate data",
+      "explanation": "Check if the following information is correct.",
+      "header": "This data has already been added to the app:"
+    },
+    "overview": {
+      "title": "Share your data",
+      "explanation": "Share your date with {requestorName}",
+      "header": "This is the data you are going to share:",
+      "confirm": "Share data"
+    },
+    "confirm_dialog": {
+      "title": "Share data",
+      "explanation": "You are about to share data with {requestorName}. Tap 'Share' to continue",
+      "confirm": "Share",
+      "decline": "Don't share"
+    },
+    "confirm_close_dialog": {
+      "title": "Cancel data sharing",
+      "explanation": "Are you sure you don't want to share your data?",
+      "confirm": "Close",
+      "decline": "Continue"
+    },
+    "wrong_credentials_added": {
+      "title": "Error",
+      "explanation": "Data has been added to the app, but they do not meet the requested criteria. Please obtain the right data.",
+      "dismiss_action": "OK"
+    },
+    "call": {
+      "title": "Call via Yivi",
+      "disclosure_explanation": "Do you wish to disclose the following data to {otherParty} and call to {phoneNumber}?",
+      "disclosure_success": "Data has been shared with {otherParty}",
+      "explanation_header_ios": "Choose next to call",
+      "explanation_ios": "A pop-up will appear, with the option to place the call. The number is pre-filled, followed by a link-code. If you choose to call, you will hear a few beeps and you will be connected.",
+      "explanation_header_android": "1. Choose next",
+      "explanation_android": "Your phone app now opens automatically. The number is pre-filled, followed by a link-code.",
+      "extra_explanation_header_android": "2. Tap the call button in your phone app",
+      "extra_explanation_android": "You will hear a few beeps and you will be connected."
+    }
+  },
+  "enrollment": {
+    "introduction": {
+      "step_1": {
+        "title": "Take control off your online data with Yivi",
+        "explanation": "Yivi is an app that contains your personal data, allowing you to prove your identity in a digital world. Without sharing more than you need."
+      },
+      "step_2": {
+        "title": "You're in control",
+        "explanation": "Retrieve your personal data from trustworthy sources with Yivi. Then decide what to share, and with who."
+      },
+      "step_3": {
+        "title": "Protect your privacy with Yivi",
+        "explanation": "Your data is only stored in the Yivi app on your mobile phone. Only you have access. When sharing data nobody else can see your transaction, not even Yivi."
+      }
+    },
+    "confirm_pin": {
+      "instruction": "Enter your PIN again"
+    },
+    "email": {
+      "provide": {
+        "title": "Add e-mail address",
+        "header": "Link your e-mail address to your Yivi app",
+        "explanation": "An e-mail address allows you to disable your Yivi app when your mobile has been lost or stolen",
+        "input": {
+          "label": "E-mail address",
+          "invalid": "Please check your e-mail address, this doesn't seem to be a valid e-mail address"
+        },
+        "confirm_skip_dialog": {
+          "title": "Are you sure?",
+          "explanation": "Increase security: enter an e-mail address so you can remotely disable your Yivi app when your mobile has been lost or stolen.",
+          "decline": "Enter an e-mail address"
+        }
+      },
+      "confirm": {
+        "title": "Confirm your e-mail address",
+        "header": "Our e-mail has been sent to:",
+        "explanation": "It can take a few minutes until the e-mail arrives. Didn't receive our e-mail? Please check your spam folder.",
+        "explanation_extra_markdown": "You have received an e-mail from **noreply@sidn.nl**. Open the link in this message to link your e-mail address to your Yivi app."
+      }
+    },
+    "terms_and_conditions": {
+      "title": "Our terms and conditions",
+      "explanation": "With Yivi, you're taking back control over your online data and protecting your online privacy.",
+      "point_1": "You decide what data you store, and what you share.",
+      "point_2": "Your data only resides on your phone, safe and secure. Nowhere else.",
+      "point_3": "Nobody can see your data or your transactions, not even Yivi!",
+      "accept_markdown": "Yes, I accept the [terms and conditions](https://privacybydesign.foundation/privacy-policy-en/)"
+    },
+    "submit": {
+      "title": "Logging in",
+      "progress_enrollment": "You're being logged in"
+    }
+  },
+  "error": {
+    "title": "Something went wrong",
+    "blocked_title": "App blocked",
+    "button_ok": "OK",
+    "button_send_to_irma": "Send to the Yivi team",
+    "button_show_error": "Show technical details",
+    "button_retry": "Please try again",
+    "button_back": "Back",
+    "button_reset": "Start all over",
+    "details_title": "Error message",
+    "report": "If this happens again, please inform the Yivi team.",
+    "types": {
+      "general": "Something went wrong.",
+      "blocked": "Your Yivi app has been remotely blocked.\n\nThis has either been done via MyYivi for your app, or because you did not use Yivi on this device for more than a year. If you want to continue using Yivi on this device, you will need to start over.",
+      "expired": "The session has expired. Please start over.",
+      "pairing_rejected": "The session was rejected. Please start over.",
+      "no_internet": "Please make sure your device has a functional internet connection."
+    }
+  },
+  "help": {
+    "about_irma": "About Yivi",
+    "ask": "Ask a question",
+    "contact": "yivi.support@sidn.nl",
+    "device": "Mobile",
+    "email": "Send an e-mail",
+    "faq": "Frequently asked questions",
+    "login": "Login",
+    "mail_error": "Sorry, we can't open your e-mail app",
+    "mail_error_button": "OK",
+    "mail_error_title": "Sorry",
+    "mail_subject": "Assistance with the Yivi app",
+    "question_1": "What can I do with Yivi?",
+    "answer_1_markdown": "Yivi is a secure, privacy-friendly, and free mobile application. Yivi functions as a digital wallet that is filled with personal data. You can use it to log in to online services or to prove your identity. But always while sharing the minimum amount of personal data. Because Yivi empowers you to make that choice. What you store, what you share, and with whom. You're in control, always.\n\nYou don't have to remember account details and long passwords. Only your Yivi PIN code. And when sharing data you're only sharing the data that is needed, nothing more. Be it to order a package online or to make an appointment with your doctor. \n\nWant to order a ticket online? With Yivi, you can easily prove that you're older than 18. And not share more details. Protecting your privacy in the process. You can also digitally sign documents with Yivi, using your personal attributes as a signature. You can sign as a civilian, a doctor, or with another role. Check the current overview to see the list of organizations that are already using Yivi.",
+    "question_2": "Why does Yivi exist?",
+    "answer_2": "Giving people back control over their online data is the mission of Yivi. What are you storing? What do you share? And with whom? Yivi empowers you to make that choice. With our app, you can decide what others learn about you. This data is shared from your phone with the requesting party, nobody else is part of that transaction. Not even Yivi. \n\nEverything is stored securely on your phone, encrypted, and behind a PIN-code. There is no centralized data or cloud storage that contains your personal data. Lost your phone? Don't panic. Just remotely block your Yivi app. That prevents anyone from using your data without your knowledge.\n\nSelling your data isn't, and will never be, our revenue model. And still, Yivi is free to use. Is there a catch? No there isn't! Only the organizations using Yivi pay for the services, ensuring Yivi remains free for you. \n",
+    "question_3": "Who is behind the Yivi app?",
+    "answer_3_markdown": "SIDN is the non-profit organisation behind Yivi. You might not be familiar with that name, but you probably do know a website that ends with .nl. Well, every time you visit such a website, SIDN makes sure you end up in the right place. They’ve been doing this for more than 25 years, about 2 billion times a day. Backed by all this experience, they make sure Yivi works properly and securely. Anytime, anywhere.",
+    "question_4": "How to use Yivi for logging onto a mobile website?",
+    "answer_4": {
+      "step_1": "Open the website on your mobile and select logging in with Yivi.",
+      "step_2": "The Yivi app starts automatically.\nEnter your PIN.",
+      "step_3": "Agree (or disagree) to disclose your personal data.",
+      "step_4": "After disclosing you are logged in.\nYou can now use the website."
+    },
+    "question_5": "How to use Yivi for logging onto a website on my computer?",
+    "answer_5": {
+      "step_1": "Open the website on your computer and select 'login with Yivi'.",
+      "step_2": "Open the Yivi app on your mobile and enter your PIN.",
+      "step_3": "Start the QR code scanner in the Yivi app. Scan the QR code on the screen of your computer.",
+      "step_4": "Agree (or not) to disclose your personal data.",
+      "step_5": "After disclosing you are logged in.\nYou can now use the website."
+    },
+    "question_6": "What to do if I lose my mobile?",
+    "answer_6_markdown": "If you lose your phone nobody can access your Yivi app as it's secured with your PIN code. Want to increase security? Add a recovery e-mail address during installation. This will allow you to remotely block the application. Ensuring nothing will happen when you lose your phone. \n\nHaven't added a recovery address yet? Just go to MijnYivi to add it. ",
+    "question_7": "Can I install Yivi on multiple mobile devices?",
+    "answer_7": "Yes, we even recommend doing so! Just download the app on multiple devices and load it with your personal data. If you lost one device you always have a backup.",
+    "question_8": "Where is my Yivi data stored?",
+    "answer_8": "All data stored in the Yivi app is only stored locally. There is no centralized data (or cloud) storage. This means that you're the only one who can access your data. You're in control and giving permission to share your data with online organisations. Deleted your data from the app? That means they're all gone, permanently. You're in full control of your data. Only you decide what you're sharing, and with whom.",
+    "question_9": "What makes Yivi privacy-friendly and secure?",
+    "answer_9": "Giving people back control over their digital data is the mission of Yivi. What are you storing? What do you share? And with whom? Yivi empowers you to make that choice. With our app, you can decide what others learn about you. This data is shared from your phone with the requesting party, nobody else is part of that transaction. Not even Yivi. \n\nEverything is stored securely on your phone, encrypted and behind a PIN-code. There is no centralized data or cloud storage that contains your personal data. Lost your phone? Don't panic. Just remotely block your Yivi app. That prevents anyone from using your data without your knowledge.\n\nThe data that's loaded into Yivi is digitally signed by the supplier of the data. Proving its validity. This means that the requesting party can always be sure that the data you supplied is real.",
+    "question_10": "Why does the data in the Yivi app have limited validity?",
+    "answer_10": "The supplier of the data can determine what the validity period off the data is. So your data can expire. You will get a warning in the Yivi app if this happens. How long your data remains valid depends on the type of data. Your name and birthdate are valid for 5 years. Your address just one year. You can always refresh your data, whenever you want. For instance by refreshing your age after your 18th birthday. That way you can directly show that you're older than 18. ",
+    "question_11": "Yivi, privacy and safety",
+    "answer_11": "The Yivi app has been developed in such a way that you and only you can see and use your personal data. Your personal data is only stored on your phone and nowhere else. We don't store your data in the cloud.\n\nThe Yivi app enables a website or shop to (cryptographically) verify that the data you disclosed is genuine.\n\nThe Yivi app discloses your data directly from your phone to the website. No one else can see that you're identifying yourself. Not even the organization behind Yivi. \n\nWhen using Yivi, you agree with the [privacy policy](https://privacybydesign.foundation/privacy-policy-en/).",
+    "send": "Do you have other/more questions? Send an e-mail. It may take a couple of days before you get a reply.",
+    "security_and_privacy": "Security and privacy"
+  },
+  "home": {
+    "nav_bar": {
+      "home": "Home",
+      "data": "Data",
+      "activity": "Activity",
+      "more": "More",
+      "scan_qr": "Scan QR"
+    }
+  },
+  "home_tab": {
+    "title": "The Identity Wallet",
+    "recent_activity": "Recent activity",
+    "view_more": "View more",
+    "action_card": {
+      "fetch": {
+        "title": "Obtain personal data",
+        "subtitle": "To share it in the future with ease"
+      }
+    }
+  },
+  "issuance": {
+    "title": "Add data",
+    "description": "Do you want to add this data to your Yivi app?",
+    "add": "Add data",
+    "cancel": "Cancel"
+  },
+  "issue_wizard": {
+    "back": "Cancel",
+    "done": "OK",
+    "add": "Add",
+    "add_cards": "Add cards",
+    "add_credential": "Add {credential}"
+  },
+  "more_tab": {
+    "app_management": "App management",
+    "settings": "Settings",
+    "help": "Help",
+    "debugging": "Debugging",
+    "contact": "Contact us",
+    "share": "Share Yivi",
+    "share_text": "Check out the Yivi app: https://irma.app",
+    "website": "Yivi website",
+    "meet_up": "Yivi meetups",
+    "need_help": "Need help?",
+    "know_more": "More information",
+    "stay_informed": "Stay informed and join the conversation",
+    "slogan": "Everyone deserves privacy",
+    "meetups": "Yivi meetups",
+    "meetups_link": "https://privacybydesign.foundation/meetings/",
+    "twitter": "@irma_privacy",
+    "twitter_link": "https://twitter.com/irma_privacy",
+    "github": "GitHub",
+    "github_link": "https://github.com/privacybydesign",
+    "version": "Version {version}",
+    "developer_mode_enabled": "Developer mode enabled",
+    "irma_website": "Yivi website",
+    "irma_website_link": "https://irma.app/?lang=en",
+    "privacy_policy": "Yivi's privacy policy",
+    "privacy_policy_link": "https://privacybydesign.foundation/privacy-policy-en/",
+    "app_id": "App ID {id}",
+    "log_out": "Log out"
+  },
+  "pin": {
+    "subtitle": "Enter your PIN",
+    "button_forgot": "PIN forgotten",
+    "button_block": "Block Yivi"
+  },
+  "pin_accessibility": {
+    "show_pin": "Show PIN",
+    "hide_pin": "Hide PIN",
+    "backspace": "Backspace"
+  },
+  "pin_common": {
+    "blocked_for": "Login is blocked for",
+    "second": {
+      "time-0": "{time} seconds",
+      "time-1": "{time} second",
+      "time-2": "{time} seconds"
+    },
+    "minute": {
+      "time-0": "{time} minutes",
+      "time-1": "{time} minute",
+      "time-2": "{time} minutes"
+    },
+    "hour": {
+      "time-0": "{time} hours",
+      "time-1": "{time} hour",
+      "time-2": "{time} hours"
+    },
+    "day": {
+      "time-0": "{time} days",
+      "time-1": "{time} day",
+      "time-2": "{time} days"
+    },
+    "invalid_title": "PIN incorrect",
+    "invalid_pin": {
+      "attempts-0": "This PIN is not correct. You have {attemps} attempts left before your Yivi app will be blocked temporarily.",
+      "attempts-1": "This PIN is not correct. You have {attemps} attempt left before your Yivi app will be blocked temporarily.",
+      "attempts-2": "This PIN is not correct. You have {attemps} attempts left before your Yivi app will be blocked temporarily."
+    },
+    "invalid_close": "Try again",
+    "blocked_title": "App blocked",
+    "blocked_pin": "Your app has been blocked for {blocked}. Please try again later.",
+    "blocked_close": "Try again",
+    "done": "Continue",
+    "view": "Show PIN",
+    "hide": "Hide PIN"
+  },
+  "qr_scanner": {
+    "instruction": {
+      "title": "Start scanning",
+      "message": "Aim the camera of your mobile at the Yivi QR code",
+      "semantic": "Start scanning! Aim the camera of your mobile at the Yivi QR code."
+    },
+    "success": {
+      "title": "Success",
+      "message": "QR code scanned",
+      "semantic": "Success! QR code scanned."
+    },
+    "error": {
+      "title": "Sorry",
+      "message": "This is not an Yivi QR code",
+      "semantic": "Sorry! This is not an Yivi QR code."
+    }
+  },
+  "reset_pin": {
+    "title": "Lost PIN",
+    "message": "Lost your PIN? We're sorry but the Yivi organisation does not have a copy of your PIN. If you wish to continue using Yivi, you will have to enter a new PIN and reload all data.",
+    "existing_data_title": "What happens to my data",
+    "existing_data_message": "All existing data will be deleted from your Yivi app. After adding new data to the app you can start using Yivi again.",
+    "back": "Cancel",
+    "reset": "Start all over",
+    "existing_data_removed": "All data in your Yivi app will be deleted."
+  },
+  "rooted_warning": {
+    "title": "Device unsafe",
+    "explanation": "The operating system on your device seems to be modified (Rooted/Jailbreak). Because of this, the safety of your data cannot be guaranteed.",
+    "accept_risk": "I accept the risk"
+  },
+  "secure_pin": {
+    "info_button": "PIN possibly not secure",
+    "title": "Choose PIN",
+    "subtitle": "A secure PIN has the following properties:",
+    "rules": {
+      "contains_3_unique": "Contains at least 3 unique numbers",
+      "must_not_asc_or_desc": "Must not contain ascending nor descending keyboard patterns, like: 12345",
+      "not_abcab_nor_abcba": "Must not contain the following keyboard patterns: abcba, abcab, like: 12312, 12321, 13331",
+      "must_contain_valid_subset": "Must contain 5 adjacent numbers, that comply with the rules mentioned above"
+    }
+  },
+  "session": {
+    "navigation_bar": {
+      "more": "More",
+      "yes": "Yes",
+      "no": "No",
+      "back": "Back",
+      "cancel": "Cancel"
+    },
+    "pairing": {
+      "title": "Extra safety check",
+      "instruction": "Enter this verification code on the website for extra security."
+    },
+    "unknown_session_type": {
+      "title": "Cancelled",
+      "explanation": "The Yivi session that you started is not supported by the app."
+    }
+  },
+  "session_pin": {
+    "subtitle": "Enter your PIN"
+  },
+  "settings": {
+    "title": "Settings",
+    "start_qr": "Open QR scanner automatically after start-up",
+    "change_pin": "Change your PIN",
+    "advanced": {
+      "report_errors": "Send error reports to Yivi",
+      "delete": "Delete everything and start over",
+      "delete_title": "Are you sure?",
+      "delete_content": "If you proceed, all data will be deleted from your Yivi app. If you wish to continue using Yivi you will have to reload the data.",
+      "delete_confirm": "Yes, delete everything",
+      "delete_deny": "Cancel",
+      "developer_mode": "Developer mode",
+      "enable_screenshots": "Enable screenshots",
+      "enable_screenshots_note": "When enabled, the app will not be blurred in the app switcher."
+    }
+  },
+  "ui": {
+    "loading": "Loading…",
+    "step_of_steps": "Step {i} of {n}",
+    "step": "Step",
+    "done": "Done",
+    "next": "Next",
+    "previous": "Previous",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "skip": "Skip",
+    "continue": "Continue",
+    "retry": "Try again",
+    "error": "Something went wrong"
+  },
+  "update": {
+    "title": "Update available",
+    "explanation": "To continue using the Yivi app, you must download the latest version.",
+    "update_app": "Update app"
+  }
 }
