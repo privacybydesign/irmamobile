@@ -21,6 +21,7 @@ import 'filled_app_scenarios/filled_specific_attribute_values_match.dart';
 import 'filled_app_scenarios/filled_specific_attribute_values_no_match.dart';
 import 'special_scenarios/combined_session.dart';
 import 'special_scenarios/nullables.dart';
+import 'special_scenarios/revocation.dart';
 import 'special_scenarios/signing.dart';
 
 void main() {
@@ -159,6 +160,14 @@ void main() {
       testWidgets(
         'combined-session',
         (tester) => combinedSessionTest(
+          tester,
+          irmaBinding,
+        ),
+      );
+
+      testWidgets(
+        'revocation',
+        (tester) => revocationTest(
           tester,
           irmaBinding,
         ),
