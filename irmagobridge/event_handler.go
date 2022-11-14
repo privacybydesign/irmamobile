@@ -276,18 +276,20 @@ func (ah *eventHandler) getIssueWizardContents(event *getIssueWizardContentsEven
 
 func (ah *eventHandler) installScheme(event *installSchemeEvent) error {
 	err := client.Configuration.InstallScheme(event.URL, []byte(event.PublicKey))
-	if err == nil {
-		dispatchConfigurationEvent()
-		dispatchEnrollmentStatusEvent()
+	if err != nil {
+		return err
 	}
-	return err
+	dispatchConfigurationEvent()
+	dispatchEnrollmentStatusEvent()
+	return nil
 }
 
 func (ah *eventHandler) removeScheme(event *removeSchemeEvent) error {
 	err := client.RemoveScheme(event.SchemeID)
-	if err == nil {
-		dispatchConfigurationEvent()
-		dispatchEnrollmentStatusEvent()
+	if err != nil {
+		return err
 	}
-	return err
+	dispatchConfigurationEvent()
+	dispatchEnrollmentStatusEvent()
+	return nil
 }

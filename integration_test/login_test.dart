@@ -10,7 +10,7 @@ import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/screens/home/home_tab.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 
-import 'helpers.dart';
+import 'helpers/helpers.dart';
 import 'irma_binding.dart';
 import 'util.dart';
 
@@ -103,11 +103,11 @@ void main() {
       await tester.waitFor(find.byKey(const Key('irma_dialog')));
       // Check "Wrong PIN" dialog title text
       string = tester.getAllText(find.byKey(const Key('irma_dialog_title'))).first;
-      expect(string, 'Account blocked');
+      expect(string, 'App blocked');
       // Check dialog text
       string = tester.getAllText(find.byKey(const Key('irma_dialog_content'))).first;
 
-      expect(string, 'Your account has been blocked for 1 minute. Please try again later.');
+      expect(string, 'Your app has been blocked for 1 minute. Please try again later.');
       await tester.tapAndSettle(find.descendant(
         of: find.byKey(const Key('irma_dialog')),
         matching: find.byType(IrmaButton),

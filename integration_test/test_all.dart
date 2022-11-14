@@ -9,6 +9,7 @@ import 'more_tab_test.dart' as more_tab_test;
 import 'session_test.dart' as session_test;
 import 'settings_test.dart' as settings_test;
 import 'home_test.dart' as home_test;
+import 'disclosure_session/disclosure_session_test.dart' as disclosure_session;
 
 /// Wrapper to execute all tests at once.
 void main() {
@@ -20,4 +21,5 @@ void main() {
   activity_test.main();
   home_test.main();
   session_test.main();
+  disclosure_session.main();
 }

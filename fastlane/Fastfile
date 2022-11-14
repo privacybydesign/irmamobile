@@ -1,125 +1,186 @@
-lane :alpha_resign do
-  apks = Dir['../build/app/outputs/apk/alpha/release/*.apk']
+before_all do
+  skip_docs()
+  # Ensure that build and profiles directories are present in fastlane directory.
+  sh("mkdir -p ./build/ ./profiles/")
+end
+
+lane :lint do
+  Dir.chdir("..") do
+    sh("flutter", "format", "--line-length", "120", "--set-exit-if-changed", "lib/", "test/", "integration_test/")
+    sh("flutter", "analyze", "--no-fatal-infos")
+  end
+end
+
+lane :unit_test do
+  Dir.chdir("..") do
+    sh("flutter", "test")
+  end
+end
+
+lane :android_resign do |options|
+  apks = Dir["build/app-#{options[:flavor]}-*.apk"]
   apks.each do |apk|
     sh("apksigner", "sign",
-      "--ks", ENV["ANDROID_SIGN_KEYSTORE"],
-      "--ks-key-alias", ENV["ANDROID_SIGN_KEY_ALIAS"],
-      "--ks-pass", "pass:"+ENV["ANDROID_SIGN_STORE_PASSWORD"],
-      "--key-pass", "pass:"+ENV["ANDROID_SIGN_KEY_PASSWORD"],
+      "--ks", options[:keystore_path],
+      "--ks-key-alias", options[:key_alias],
+      "--ks-pass", "pass:"+options[:keystore_password],
+      "--key-pass", "pass:"+options[:key_password],
       apk)
   end
 end
 
-lane :beta_resign do
-  apks = Dir['../build/app/outputs/apk/beta/release/*.apk']
-  apks.each do |apk|
-    sh("apksigner", "sign",
-      "--ks", ENV["ANDROID_SIGN_KEYSTORE"],
-      "--ks-key-alias", ENV["ANDROID_SIGN_KEY_ALIAS"],
-      "--ks-pass", "pass:"+ENV["ANDROID_SIGN_STORE_PASSWORD"],
-      "--key-pass", "pass:"+ENV["ANDROID_SIGN_KEY_PASSWORD"],
-      apk)
-  end
+lane :android_build do |options|
+    android_build_irmagobridge()
+    android_build_app(flavor: options[:flavor], sentry_dsn: options[:sentry_dsn])
 end
 
-lane :alpha_build do
-  alpha_android_build()
-  alpha_ios_build()
-end
-
-lane :beta_build do
-  beta_android_build()
-  beta_ios_build()
-end
-
-lane :alpha_android_build do
-  update_schemes()
-  build_irmagobridge_android()
-  commit = last_git_commit()
-  write_sentrydata(
-    dsn: ENV["SENTRY_DSN_ALPHA"],
-    version: commit[:commit_hash]
-  )
-  Dir.chdir("..") do
-    sh("flutter", "build", "apk", "--split-per-abi", "--flavor", "alpha", "--release")
-  end
-end
-
-lane :beta_android_build do
-  update_schemes()
-  build_irmagobridge_android()
-  commit = last_git_commit()
-  write_sentrydata(
-    dsn: ENV["SENTRY_DSN_PROD"],
-    version: commit[:commit_hash]
-  )
-  Dir.chdir("..") do
-    sh("flutter", "build", "apk", "--split-per-abi", "--flavor", "beta", "--release")
-  end
-end
-
-lane :alpha_ios_build do
-  update_schemes()
-  build_irmagobridge_ios()
-  update_app_identifier(
-    xcodeproj: "ios/Runner.xcodeproj",
-    plist_path: "Runner/Info.plist",
-    app_identifier: "foundation.privacybydesign.irmamob.alpha"
-  )
-  update_info_plist(
-    xcodeproj: "ios/Runner.xcodeproj",
-    plist_path: "Runner/Info.plist",
-    display_name: "IRMA 2020"
-  )
-  commit = last_git_commit()
-  write_sentrydata(
-    dsn: ENV["SENTRY_DSN_ALPHA"],
-    version: commit[:commit_hash]
-  )
-  Dir.chdir("..") do
-    sh("flutter", "build", "ios", "--release", "--no-codesign")
-  end
-end
-
-lane :beta_ios_build do 
-  update_schemes()
-  build_irmagobridge_ios()
-  update_app_identifier(
-    xcodeproj: "ios/Runner.xcodeproj",
-    plist_path: "Runner/Info.plist",
-    app_identifier: "foundation.privacybydesign.irmamob"
-  )
-  update_info_plist(
-    xcodeproj: "ios/Runner.xcodeproj",
-    plist_path: "Runner/Info.plist",
-    display_name: "IRMA"
-  )
-  commit = last_git_commit()
-  write_sentrydata(
-    dsn: ENV["SENTRY_DSN_PROD"],
-    version: commit[:commit_hash]
-  )
-  Dir.chdir("..") do
-    sh("flutter", "build", "ios", "--release", "--no-codesign")
-    sh("xcodebuild", "-workspace", "./ios/Runner.xcworkspace", "-scheme", "Runner", "-sdk", "iphoneos", "-configuration", "Release", "archive", "-archivePath", "./ios/build/Runner.xcarchive")
-    sh("xcodebuild", "-exportArchive", "-archivePath", "./ios/build/Runner.xcarchive", "-exportOptionsPlist", "./ios/AppStoreExportOptions.plist", "-exportPath", "./ios/build/AppStore")
-    # xcrun altool --upload-app --type ios --file ./ios/build/AppStore/Runner.ipa --username "info@example.com"
-  end
-end
-
-lane :build_irmagobridge_android do
+lane :android_build_irmagobridge do
   Dir.chdir("..") do
     sh("gomobile", "bind", "-target", "android", "-o", "android/irmagobridge/irmagobridge.aar", "github.com/privacybydesign/irmamobile/irmagobridge")
   end
 end
 
-lane :build_irmagobridge_ios do
+lane :android_build_app do |options|
+  update_schemes()
+  commit = last_git_commit()
+  write_sentrydata(
+    dsn: options[:sentry_dsn],
+    version: commit[:commit_hash]
+  )
+
   Dir.chdir("..") do
-    sh("gomobile", "bind", "-target", "ios", "-o", "ios/Runner/Irmagobridge.xcframework", "github.com/privacybydesign/irmamobile/irmagobridge")
+    sh(
+      "flutter", "build", "apk",
+      "--split-per-abi",
+      "--flavor", options[:flavor],
+      "--release"
+    )
+    sh("cp ./build/app/outputs/apk/#{options[:flavor]}/release/*.apk ./fastlane/build/")
   end
 end
 
-lane :update_schemes do
+lane :android_build_integration_test do
+  update_schemes()
+  Dir.chdir("..") do
+    sh(
+      "flutter", "build", "apk",
+      "--flavor", "alpha",
+      "--debug",
+      "./integration_test/test_all.dart"
+    )
+    Dir.chdir("./android") do
+      sh("./gradlew", "app:assembleAndroidTest")
+    end
+    sh("cp ./build/app/outputs/apk/alpha/debug/*.apk ./fastlane/build/")
+    sh("cp ./build/app/outputs/apk/androidTest/alpha/debug/*.apk ./fastlane/build/")
+  end
+end
+
+lane :ios_build do |options|
+  ios_build_irmagobridge()
+  ios_build_app(
+    export: options[:export],
+    flavor: options[:flavor],
+    sentry_dsn: options[:sentry_dsn],
+    certificate_path: options[:certificate_path],
+    certificate_password: options[:certificate_password],
+    provisioning_profile_path: options[:provisioning_profile_path]
+  )
+end
+
+lane :ios_build_irmagobridge do
+  Dir.chdir("..") do
+    sh("gomobile", "bind", "-target", "ios", "-iosversion", "12.0", "-o", "ios/Runner/Irmagobridge.xcframework", "github.com/privacybydesign/irmamobile/irmagobridge")
+  end
+end
+
+lane :ios_build_app do |options|
+  display_name = ""
+  app_identifier = ""
+  export = options[:export]
+  export = true if export.nil?
+  export_method = ""
+  # For now, we assume that alpha builds are meant for ad hoc distribution and beta builds for app store distribution.
+  case options[:flavor]
+  when "alpha"
+    display_name = "IRMA 2020"
+    app_identifier = "foundation.privacybydesign.irmamob.alpha"
+    export_method = "ad-hoc"
+  when "beta"
+    display_name = "IRMA"
+    app_identifier = "foundation.privacybydesign.irmamob"
+    export_method = "app-store"
+  else
+    raise "Unsupported flavor"
+  end
+
+  update_schemes()
+  update_app_identifier(
+    xcodeproj: "ios/Runner.xcodeproj",
+    plist_path: "Runner/Info.plist",
+    app_identifier: app_identifier
+  )
+  update_info_plist(
+    xcodeproj: "ios/Runner.xcodeproj",
+    plist_path: "Runner/Info.plist",
+    display_name: display_name
+  )
+  commit = last_git_commit()
+  write_sentrydata(
+    dsn: options[:sentry_dsn],
+    version: commit[:commit_hash]
+  )
+
+  # When a certificate path is given, we ensure it is properly installed.
+  if options[:certificate_path]
+    keychain_path = File.absolute_path("profiles/apple_distribution.keychain")
+    certificate_password = options[:certificate_password] || ""
+    create_keychain(
+      path: keychain_path,
+      password: certificate_password,
+      unlock: true,
+      timeout: 600
+    )
+    import_certificate(
+      certificate_path: File.absolute_path(options[:certificate_path]),
+      certificate_password: certificate_password,
+      keychain_path: keychain_path,
+      keychain_password: certificate_password
+    )
+  end
+
+  # When a provisioning profile is given, we ensure it is installed and selected in the project.
+  # Otherwise, we use the profile that is currently selected in XCode.
+  if options[:provisioning_profile_path]
+    provisioning_profile_path = File.absolute_path(options[:provisioning_profile_path])
+    install_provisioning_profile(
+      path: provisioning_profile_path
+    )
+    update_project_provisioning(
+      xcodeproj: "ios/Runner.xcodeproj",
+      profile: provisioning_profile_path
+    )
+  end
+
+  # The 'flutter build ipa' command does not support changing the export method in Flutter 2.
+  # Therefore, we use 'flutter build ios' for now with the --no-codesign option
+  # and then we use Fastlane's build_ios_app action to sign and export the build.
+  Dir.chdir("..") do
+    sh("flutter", "build", "ios", "--release", "--no-codesign")
+  end
+
+  if export
+    build_ios_app(
+      scheme: "Runner",
+      workspace: "ios/Runner.xcworkspace",
+      output_directory: "fastlane/build",
+      output_name: "app-#{options[:flavor]}-ios-#{export_method}.ipa",
+      export_method: export_method
+    )
+  end
+end
+
+private_lane :update_schemes do
   Dir.chdir("../irma_configuration/pbdf") do
     sh("git", "checkout", "master")
     sh("git", "pull", "-f")
@@ -139,7 +200,7 @@ lane :update_schemes do
   end
 end
 
-lane :write_sentrydata do |options|
+private_lane :write_sentrydata do |options|
   erb(
     template: "fastlane/sentry_dsn.erb",
     destination: "lib/sentry_dsn.dart",
@@ -148,4 +209,13 @@ lane :write_sentrydata do |options|
       :version => options[:version]
     }
   )
+end
+
+private_lane :get_flutter_build_number do
+  Dir.chdir("..") do
+    file = File.open("pubspec.yaml")
+    file_data = file.read
+    file.close
+    file_data.match(/version:(.*)\+(\d+)/).captures[1].to_i
+  end
 end
