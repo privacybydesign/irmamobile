@@ -38,7 +38,7 @@ void main() {
         'Settings',
         'Frequently asked questions',
         'Debugging',
-        'Yivi-website',
+        'Yivi website',
         'Contact us',
         'Share Yivi',
         "Yivi's privacy policy",
