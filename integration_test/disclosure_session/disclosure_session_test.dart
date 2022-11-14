@@ -141,6 +141,7 @@ void main() {
     });
 
     group('special-scenarios', () {
+      // Session with an optional attribute that cannot be null
       testWidgets(
         'nullables',
         (tester) => nullablesTest(
@@ -149,6 +150,7 @@ void main() {
         ),
       );
 
+      // Disclosure session and signing a message
       testWidgets(
         'signing',
         (tester) => signingTest(
@@ -157,6 +159,7 @@ void main() {
         ),
       );
 
+      // Issuance and disclosure in one session
       testWidgets(
         'combined-session',
         (tester) => combinedSessionTest(
@@ -165,6 +168,7 @@ void main() {
         ),
       );
 
+      // Entering a session with a revoked credential
       testWidgets(
         'revocation',
         (tester) => revocationTest(
