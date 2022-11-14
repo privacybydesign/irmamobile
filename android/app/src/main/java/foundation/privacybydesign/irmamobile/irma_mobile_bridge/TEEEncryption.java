@@ -45,9 +45,8 @@ public class TEEEncryption {
                 .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
                 .setKeySize(256);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            spec.setUnlockedDeviceRequired(true);
-            if (packageManager.hasSystemFeature(PackageManager.FEATURE_STRONGBOX_KEYSTORE))
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && 
+        packageManager.hasSystemFeature(PackageManager.FEATURE_STRONGBOX_KEYSTORE)) {
                 spec.setIsStrongBoxBacked(true);
         }
 

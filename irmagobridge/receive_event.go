@@ -99,6 +99,16 @@ func DispatchFromNative(eventName, payloadString string) {
 		if err = json.Unmarshal(payloadBytes, &event); err == nil {
 			err = bridgeEventHandler.getIssueWizardContents(event)
 		}
+	case "InstallSchemeEvent":
+		event := &installSchemeEvent{}
+		if err = json.Unmarshal(payloadBytes, &event); err == nil {
+			err = bridgeEventHandler.installScheme(event)
+		}
+	case "RemoveSchemeEvent":
+		event := &removeSchemeEvent{}
+		if err = json.Unmarshal(payloadBytes, &event); err == nil {
+			err = bridgeEventHandler.removeScheme(event)
+		}
 	}
 
 	if err != nil {

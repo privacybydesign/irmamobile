@@ -1,6 +1,6 @@
 name: irmamobile
 description: IRMA Authentication
-version: 6.2.4+137
+version: 6.3.2+144
 
 environment:
   sdk: ">=2.13.0 <3.0.0"
@@ -50,8 +50,6 @@ flutter_native_splash:
   android_disable_fullscreen: true
 
 dev_dependencies:
-  flutter_driver:
-    sdk: flutter
   flutter_test:
     sdk: flutter
   integration_test:

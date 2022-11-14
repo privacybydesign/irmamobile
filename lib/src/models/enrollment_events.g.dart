@@ -23,6 +23,7 @@ EnrollEvent _$EnrollEventFromJson(Map<String, dynamic> json) {
     email: json['Email'] as String,
     pin: json['Pin'] as String,
     language: json['Language'] as String,
+    schemeId: json['SchemeID'] as String,
   );
 }
 
@@ -30,6 +31,7 @@ Map<String, dynamic> _$EnrollEventToJson(EnrollEvent instance) => <String, dynam
       'Email': instance.email,
       'Pin': instance.pin,
       'Language': instance.language,
+      'SchemeID': instance.schemeId,
     };
 
 EnrollmentFailureEvent _$EnrollmentFailureEventFromJson(Map<String, dynamic> json) {

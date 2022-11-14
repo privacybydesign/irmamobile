@@ -14,10 +14,12 @@ type enrollEvent struct {
 	Email    *string
 	Pin      string
 	Language string
+	SchemeID irma.SchemeManagerIdentifier
 }
 
 type authenticateEvent struct {
-	Pin string
+	Pin      string
+	SchemeID irma.SchemeManagerIdentifier
 }
 
 type changePinEvent struct {
@@ -67,6 +69,15 @@ type getIssueWizardContentsEvent struct {
 	ID irma.IssueWizardIdentifier
 }
 
+type installSchemeEvent struct {
+	URL       string
+	PublicKey string
+}
+
+type removeSchemeEvent struct {
+	SchemeID irma.SchemeManagerIdentifier
+}
+
 // //
 // Outgoing events
 // //
@@ -114,9 +125,7 @@ type changePinErrorEvent struct {
 	Error           *sessionError
 }
 
-type changePinSuccessEvent struct {
-	SchemeManagerID irma.SchemeManagerIdentifier
-}
+type changePinSuccessEvent struct{}
 
 type changePinFailedEvent struct {
 	SchemeManagerID   irma.SchemeManagerIdentifier

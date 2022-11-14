@@ -10,7 +10,7 @@ enum TEEError: Error {
 // Trusted Execution Environment (TEE) class
 public class TEE : NSObject, IrmagobridgeSignerProtocol {
     final let encryptionAlgorithm: SecKeyAlgorithm = .eciesEncryptionCofactorVariableIVX963SHA256AESGCM
-    
+
     public func sign(_ keyAlias: String?, msg msg: Data?) throws -> Data {
         guard let key = tryLoadKey(keyAlias!) else {
             throw TEEError.keyNotFound
@@ -37,7 +37,7 @@ public class TEE : NSObject, IrmagobridgeSignerProtocol {
         if key == nil {
             key = try generateKey(tag)
         }
-        
+
         var error: Unmanaged<CFError>?
         
         guard let pk = SecKeyCopyPublicKey(key!) else {
@@ -54,10 +54,10 @@ public class TEE : NSObject, IrmagobridgeSignerProtocol {
                                                          &error) as Data? else {
             throw error!.takeRetainedValue() as Error
         }
-        
+
         return ciphertext
     }
-    
+
     func decrypt(_ tag: String, _ ciphertext: Data) throws -> Data {
         var error: Unmanaged<CFError>?
 
@@ -73,7 +73,7 @@ public class TEE : NSObject, IrmagobridgeSignerProtocol {
                                                         &error) as Data? else {
             throw error!.takeRetainedValue() as Error
         }
-        
+
         return plaintext
     }
 
@@ -93,7 +93,7 @@ public class TEE : NSObject, IrmagobridgeSignerProtocol {
         ])
         return secp256r1Header + pkdata
     }
-    
+
     private func keyExists(_ tag: String) -> Bool {
         return tryLoadKey(tag) != nil
     }
@@ -105,17 +105,17 @@ public class TEE : NSObject, IrmagobridgeSignerProtocol {
             kSecAttrKeyType as String           : kSecAttrKeyTypeEC,
             kSecReturnRef as String             : true
         ]
-        
+
         var item: CFTypeRef?
         guard SecItemCopyMatching(query as CFDictionary, &item) == errSecSuccess else {
             return nil
         }
         return (item as! SecKey)
     }
-    
+
     private func generateKey(_ tag: String) throws -> SecKey {
         var error: Unmanaged<CFError>?
-        
+
         guard let access = SecAccessControlCreateWithFlags(
             kCFAllocatorDefault,
             kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
@@ -124,8 +124,8 @@ public class TEE : NSObject, IrmagobridgeSignerProtocol {
         ) else {
             throw error!.takeRetainedValue() as Error
         }
-        
-        let attributes: [String: Any] = [
+
+        var attributes: [String: Any] = [
                     kSecAttrKeyType as String           : kSecAttrKeyTypeEC,
                     kSecAttrTokenID as String           : kSecAttrTokenIDSecureEnclave,
                     kSecAttrKeySizeInBits as String     : 256,
@@ -136,12 +136,24 @@ public class TEE : NSObject, IrmagobridgeSignerProtocol {
                     ]
                 ]
 
+        // Try to generate key in Secure Enclave. If it succeeds, we return.
+        // Otherwise, we continue to look for a fallback.
         guard let key = SecKeyCreateRandomKey(attributes as CFDictionary, &error) else {
-            throw error!.takeRetainedValue() as Error
+            let retainedError = error!.takeRetainedValue() as CFError
+            if CFErrorGetCode(retainedError) != errSecUnimplemented {
+                throw retainedError
+            }
+            // Secure Enclave is not available. Falling back to a key stored in the iOS keychain.
+            attributes.removeValue(forKey: kSecAttrTokenID as String)
+            guard let key = SecKeyCreateRandomKey(attributes as CFDictionary, &error) else {
+                throw error!.takeRetainedValue() as CFError
+            }
+            return key
         }
+
         return key
     }
-    
+
     private func getKey(_ tag: String) throws -> SecKey {
         guard let key = tryLoadKey(tag) else {
             throw TEEError.keyNotFound

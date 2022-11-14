@@ -1,8 +1,7 @@
 package irmagobridge
 
 import (
-	"fmt"
-
+	"github.com/go-errors/errors"
 	irma "github.com/privacybydesign/irmago"
 	"github.com/privacybydesign/irmago/irmaclient"
 )
@@ -14,7 +13,11 @@ type clientHandler struct {
 }
 
 func (i *clientHandler) ReportError(err error) {
-	fmt.Println("irmaclient error: ", err.Error()) // TODO report with https://github.com/getsentry/sentry-go
+	wrappedErr, ok := err.(*errors.Error)
+	if !ok {
+	 wrappedErr = errors.Wrap(err, 0)
+	}
+	reportError(wrappedErr, false)
 }
 
 func (ch *clientHandler) Revoked(cred *irma.CredentialIdentifier) {
@@ -62,10 +65,8 @@ func (ch *clientHandler) ChangePinFailure(managerIdentifier irma.SchemeManagerId
 	})
 }
 
-func (ch *clientHandler) ChangePinSuccess(managerIdentifier irma.SchemeManagerIdentifier) {
-	dispatchEvent(&changePinSuccessEvent{
-		SchemeManagerID: managerIdentifier,
-	})
+func (ch *clientHandler) ChangePinSuccess() {
+	dispatchEvent(&changePinSuccessEvent{})
 }
 
 func (ch *clientHandler) ChangePinIncorrect(managerIdentifier irma.SchemeManagerIdentifier, remainingAttempts int) {

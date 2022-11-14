@@ -10,7 +10,7 @@ enum AESKeyError: Error {
     let tag = "storageKey"
     
     @objc func getKey() throws -> Data {
-        let tee: TEE = TEE.init()
+        let tee: TEE = TEE()
         var ciphertext: Data
         
         if FileManager.default.fileExists(atPath: path.path) {

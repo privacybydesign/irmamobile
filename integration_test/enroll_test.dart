@@ -1,6 +1,8 @@
 // We cannot test using null safety as long as there are widgets that are not migrated yet.
 // @dart=2.11
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -12,6 +14,7 @@ import 'irma_binding.dart';
 import 'util.dart';
 
 void main() {
+  final random = Random();
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
@@ -127,7 +130,8 @@ void main() {
         true,
       );
 
-      await tester.enterTextAtFocusedAndSettle('testing_irma_app@example.com');
+      final seed = random.nextInt(1000000).toString();
+      await tester.enterTextAtFocusedAndSettle('test$seed@example.com');
       await tester.tapAndSettle(find.byKey(const Key('enrollment_email_next')));
 
       // Wait for Email confirmation screen
