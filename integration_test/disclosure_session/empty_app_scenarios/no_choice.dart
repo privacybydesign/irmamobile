@@ -7,8 +7,9 @@ import 'package:irmamobile/src/screens/session/widgets/disclosure_feedback_scree
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 
-import '../../helpers.dart';
+import '../../helpers/helpers.dart';
 import '../../irma_binding.dart';
+import '../../helpers/issuance_helpers.dart';
 import '../../util.dart';
 
 Future<void> noChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
@@ -38,7 +39,7 @@ Future<void> noChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBi
   expect(find.text('Collect data'), findsOneWidget);
   expect(tester.widgetList(find.byType(IrmaCredentialCard)).length, 1);
 
-  await issueMunicipalityCards(tester, irmaBinding);
+  await issueMunicipalityPersonalData(tester, irmaBinding);
 
   // Issue wizard should be completed
   expect(find.text('All required data has been added.'), findsOneWidget);

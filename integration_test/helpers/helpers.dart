@@ -1,11 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'dart:ui';
-
-import 'package:flutter/foundation.dart';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:irmamobile/main.dart';
@@ -14,9 +13,12 @@ import 'package:irmamobile/src/screens/home/home_tab.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_permission.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_attribute_list.dart';
+import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_footer.dart';
+import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_header.dart';
+import 'package:irmamobile/src/widgets/irma_card.dart';
 
-import 'irma_binding.dart';
-import 'util.dart';
+import '../irma_binding.dart';
+import '../util.dart';
 
 /// Unlocks the IRMA app and waits until the wallet is displayed.
 Future<void> unlock(WidgetTester tester) async {
@@ -105,74 +107,6 @@ Future<void> issueCredentials(
   await tester.waitUntilDisappeared(issuancePageFinder);
 }
 
-Future<void> issueEmailAddress(
-  WidgetTester tester,
-  IntegrationTestIrmaBinding irmaBinding,
-) =>
-    issueCredentials(tester, irmaBinding, {
-      'irma-demo.sidn-pbdf.email.email': 'test@example.com',
-      'irma-demo.sidn-pbdf.email.domain': 'example.com',
-    });
-
-Future<void> issueMunicipalityCards(
-  WidgetTester tester,
-  IntegrationTestIrmaBinding irmaBinding, {
-  Locale locale = const Locale('en', 'EN'),
-}) async {
-  const credentialId = 'irma-demo.gemeente.personalData';
-
-  var attributes = {
-    '$credentialId.fullname': 'W.L. de Bruijn',
-    '$credentialId.initials': 'W.L.',
-    '$credentialId.firstnames': 'Willeke Liselotte',
-    '$credentialId.prefix': 'de',
-    '$credentialId.surname': 'de Bruijn',
-    '$credentialId.familyname': 'Bruijn',
-    '$credentialId.gender': 'V',
-    '$credentialId.dateofbirth': '10-04-1965',
-    '$credentialId.over12': 'Yes',
-    '$credentialId.over16': 'Yes',
-    '$credentialId.over18': 'Yes',
-    '$credentialId.over21': 'Yes',
-    '$credentialId.over65': 'No',
-    '$credentialId.nationality': 'Yes',
-    '$credentialId.cityofbirth': 'Arnhem',
-    '$credentialId.countryofbirth': 'Arnhem',
-    '$credentialId.bsn': '999999990',
-    '$credentialId.digidlevel': 'Substantieel',
-  };
-
-  if (locale.languageCode == 'nl') {
-    attributes = {
-      '$credentialId.fullname': 'W.L. de Bruijn',
-      '$credentialId.initials': 'W.L.',
-      '$credentialId.firstnames': 'Willeke Liselotte',
-      '$credentialId.prefix': 'de',
-      '$credentialId.surname': 'de Bruijn',
-      '$credentialId.familyname': 'Bruijn',
-      '$credentialId.gender': 'V',
-      '$credentialId.dateofbirth': '10-04-1965',
-      '$credentialId.over12': 'Ja',
-      '$credentialId.over16': 'Ja',
-      '$credentialId.over18': 'Ja',
-      '$credentialId.over21': 'Ja',
-      '$credentialId.over65': 'Nee',
-      '$credentialId.nationality': 'Ja',
-      '$credentialId.cityofbirth': 'Arnhem',
-      '$credentialId.countryofbirth': 'Arnhem',
-      '$credentialId.bsn': '999999990',
-      '$credentialId.digidlevel': 'Substantieel',
-    };
-  }
-
-  await issueCredentials(
-    tester,
-    irmaBinding,
-    attributes,
-    locale: locale,
-  );
-}
-
 /// Generates a revocation key that can be used for issueCredentials.
 String generateRevocationKey() {
   final r = Random();
@@ -196,5 +130,118 @@ Future<void> revokeCredential(String credId, String revocationKey) async {
   final response = await request.close();
   if (response.statusCode != 200) {
     throw Exception('Credential $credId could not be revoked: status code ${response.statusCode}');
+  }
+}
+
+Future<void> evaluateCredentialCard(
+  WidgetTester tester,
+  Finder credentialCardFinder, {
+  String? credentialName,
+  String? issuerName,
+  Map<String, String>? attributes,
+  Map<String, String>? attributesCompareTo,
+  String? footerText,
+  IrmaCardStyle? style,
+}) async {
+// Find one IrmaCredentialCard with the provided finder
+  expect(
+    find.descendant(
+      of: credentialCardFinder,
+      matching: find.byType(IrmaCredentialCard),
+      matchRoot: true,
+    ),
+    findsOneWidget,
+  );
+
+  if (style != null) {
+    expect(
+      (credentialCardFinder.evaluate().first.widget as IrmaCredentialCard).style,
+      style,
+    );
+  }
+
+  if (credentialName != null || issuerName != null) {
+    // Card should have a header
+    final cardHeaderFinder = find.descendant(
+      of: credentialCardFinder,
+      matching: find.byType(IrmaCredentialCardHeader),
+    );
+    expect(cardHeaderFinder, findsOneWidget);
+
+    // Get the text from the header
+    final cardHeaderText = tester.getAllText(cardHeaderFinder);
+
+    // Compare the expected credential name
+    if (credentialName != null) {
+      expect(cardHeaderText.first, credentialName);
+    }
+
+    // Compare the issuer credential name
+    if (issuerName != null) {
+      expect(cardHeaderText.elementAt(1), issuerName);
+    }
+  }
+
+  if (attributes != null) {
+    // Card should have an attribute list
+    final cardAttList = find.descendant(
+      of: credentialCardFinder,
+      matching: find.byType(IrmaCredentialCardAttributeList),
+    );
+
+    if (attributes.isNotEmpty) {
+      final cardAttListText = tester.getAllText(cardAttList).toList();
+
+      var mappedCardList = <String, String>{};
+      for (var i = 0; i < cardAttListText.length; i = i + 2) {
+        final attName = cardAttListText[i];
+        final attVal = cardAttListText[i + 1];
+        mappedCardList[attName] = attVal;
+      }
+
+      // Mapped card list should match the provided attributes
+      expect(mapEquals(mappedCardList, attributes), true);
+
+      if (attributesCompareTo != null) {
+        for (var compareAttEntry in attributesCompareTo.entries) {
+          // This key should be present in mappedCardList
+          expect(mappedCardList.containsKey(compareAttEntry.key), true);
+
+          // Expected the targeted attribute value to be in the list
+          final textFinder = find.descendant(
+            of: cardAttList,
+            matching: find.text(mappedCardList[compareAttEntry.key]!),
+          );
+          expect(textFinder, findsOneWidget);
+
+          Color expectedTextColor;
+          if (mappedCardList[compareAttEntry.key] == null ||
+              mappedCardList[compareAttEntry.key]! != compareAttEntry.value) {
+            expectedTextColor = const Color(0xffbd1919);
+          } else {
+            expectedTextColor = const Color(0xff33ad38);
+          }
+          expect(
+            (textFinder.evaluate().first.widget as Text).style?.color!,
+            expectedTextColor,
+          );
+        }
+      }
+    } else {
+      // Expect no attribute list
+      expect(cardAttList, findsNothing);
+    }
+  }
+
+  // Check the footer text
+  if (footerText != null) {
+    final footerFinder = find.byType(IrmaCredentialCardFooter);
+    expect(
+      find.descendant(
+        of: footerFinder,
+        matching: find.text(footerText),
+      ),
+      findsOneWidget,
+    );
   }
 }

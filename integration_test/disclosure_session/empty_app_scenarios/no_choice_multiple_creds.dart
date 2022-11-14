@@ -9,8 +9,9 @@ import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 
-import '../../helpers.dart';
+import '../../helpers/helpers.dart';
 import '../../irma_binding.dart';
+import '../../helpers/issuance_helpers.dart';
 import '../../util.dart';
 
 Future<void> noChoiceMultipleCredsTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
@@ -64,10 +65,7 @@ Future<void> noChoiceMultipleCredsTest(WidgetTester tester, IntegrationTestIrmaB
   expect((cardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
   expect((cardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.highlighted);
 
-  // Issue the mobile number credential
-  await issueCredentials(tester, irmaBinding, {
-    'irma-demo.sidn-pbdf.mobilenumber.mobilenumber': '0612345678',
-  });
+  await issueMobileNumber(tester, irmaBinding);
 
   // Issue wizard should be completed
   expect(find.text('All required data has been added.'), findsOneWidget);

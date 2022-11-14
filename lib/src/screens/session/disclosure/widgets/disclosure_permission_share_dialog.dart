@@ -29,11 +29,13 @@ class DisclosurePermissionConfirmDialog extends StatelessWidget {
       child: Column(
         children: [
           IrmaButton(
+            key: const Key('confirm_share_button'),
             size: IrmaButtonSize.small,
             onPressed: () => Navigator.of(context).pop(true),
             label: 'disclosure_permission.confirm_dialog.confirm',
           ),
           IrmaButton(
+            key: const Key('decline_share_button'),
             size: IrmaButtonSize.small,
             onPressed: () => Navigator.of(context).pop(false),
             label: 'disclosure_permission.confirm_dialog.decline',

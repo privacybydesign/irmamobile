@@ -10,8 +10,9 @@ import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 
-import '../../helpers.dart';
+import '../../helpers/helpers.dart';
 import '../../irma_binding.dart';
+import '../../helpers/issuance_helpers.dart';
 import '../../util.dart';
 
 Future<void> choiceMixedTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
@@ -61,8 +62,22 @@ Future<void> choiceMixedTest(WidgetTester tester, IntegrationTestIrmaBinding irm
   expect(choiceCardsFinder, findsNWidgets(2));
 
   // First card in the choice should be highlighted, second card should be outlined
-  expect((choiceCardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.highlighted);
-  expect((choiceCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.outlined);
+  await evaluateCredentialCard(
+    tester,
+    choiceCardsFinder.first,
+    credentialName: 'Demo Address',
+    issuerName: 'Demo Municipality',
+    attributes: {},
+    style: IrmaCardStyle.highlighted,
+  );
+  await evaluateCredentialCard(
+    tester,
+    choiceCardsFinder.at(1),
+    credentialName: 'Demo iDIN',
+    issuerName: 'Demo iDIN',
+    attributes: {},
+    style: IrmaCardStyle.outlined,
+  );
 
   // Select the iDIN option
   final iDinOptionFinder = find.text('Demo iDIN').first;
@@ -71,20 +86,24 @@ Future<void> choiceMixedTest(WidgetTester tester, IntegrationTestIrmaBinding irm
   await tester.tapAndSettle(iDinOptionFinder);
 
   // Now the second card in the choice should be highlighted, second card should be outlined
-  expect((choiceCardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.outlined);
-  expect((choiceCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.highlighted);
+  await evaluateCredentialCard(
+    tester,
+    choiceCardsFinder.first,
+    credentialName: 'Demo Address',
+    issuerName: 'Demo Municipality',
+    attributes: {},
+    style: IrmaCardStyle.outlined,
+  );
+  await evaluateCredentialCard(
+    tester,
+    choiceCardsFinder.at(1),
+    credentialName: 'Demo iDIN',
+    issuerName: 'Demo iDIN',
+    attributes: {},
+    style: IrmaCardStyle.highlighted,
+  );
 
-  // Obtain the data from iDIN
-  await issueCredentials(tester, irmaBinding, {
-    'irma-demo.idin.idin.initials': 'W.L.',
-    'irma-demo.idin.idin.familyname': 'Bruijn',
-    'irma-demo.idin.idin.dateofbirth': '10-04-1965',
-    'irma-demo.idin.idin.gender': 'V',
-    'irma-demo.idin.idin.address': 'Teststraat 12',
-    'irma-demo.idin.idin.zipcode': '1234 AB',
-    'irma-demo.idin.idin.city': 'Roermond',
-    'irma-demo.idin.idin.country': 'Netherlands',
-  });
+  await issueIdin(tester, irmaBinding);
 
   // The choice should have disappeared
   expect(choiceFinder, findsNothing);
@@ -97,8 +116,22 @@ Future<void> choiceMixedTest(WidgetTester tester, IntegrationTestIrmaBinding irm
   expect(disConCardsFinder, findsNWidgets(2));
 
   // Now only the second discon card should be highlighted
-  expect((disConCardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
-  expect((disConCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.highlighted);
+  await evaluateCredentialCard(
+    tester,
+    disConCardsFinder.first,
+    credentialName: 'Demo iDIN',
+    issuerName: 'Demo iDIN',
+    attributes: {},
+    style: IrmaCardStyle.normal,
+  );
+  await evaluateCredentialCard(
+    tester,
+    disConCardsFinder.at(1),
+    credentialName: 'Demo Vektis agb by Nuts',
+    issuerName: 'Demo Nuts',
+    attributes: {},
+    style: IrmaCardStyle.highlighted,
+  );
 
   // Obtain the data from Nuts
   await issueCredentials(tester, irmaBinding, {

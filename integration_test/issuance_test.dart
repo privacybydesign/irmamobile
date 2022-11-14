@@ -7,8 +7,9 @@ import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/src/screens/data/credentials_detail_screen.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 
-import 'helpers.dart';
+import 'helpers/helpers.dart';
 import 'irma_binding.dart';
+import 'helpers/issuance_helpers.dart';
 import 'util.dart';
 
 void main() {
@@ -31,7 +32,7 @@ void main() {
         locale,
       );
 
-      await issueMunicipalityCards(
+      await issueMunicipalityPersonalData(
         tester,
         irmaBinding,
         locale: locale,
