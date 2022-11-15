@@ -12,8 +12,9 @@ import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_attr
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 
-import '../../helpers.dart';
+import '../../helpers/helpers.dart';
 import '../../irma_binding.dart';
+import '../../helpers/issuance_helpers.dart';
 import '../../util.dart';
 
 Future<void> specificAttributeValuesTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
@@ -108,23 +109,15 @@ Future<void> specificAttributeValuesTest(WidgetTester tester, IntegrationTestIrm
     150,
     maxScrolls: 300,
   );
-  expect((secondCardFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
+
+  await evaluateCredentialCard(tester, secondCardFinder, style: IrmaCardStyle.normal);
 
   // Issue the right iDIN credential
-  await issueCredentials(tester, irmaBinding, {
-    'irma-demo.idin.idin.initials': 'J',
-    'irma-demo.idin.idin.familyname': 'Doe',
-    'irma-demo.idin.idin.dateofbirth': '01-01-1991',
-    'irma-demo.idin.idin.gender': 'M',
-    'irma-demo.idin.idin.address': 'Teststraat 12',
-    'irma-demo.idin.idin.zipcode': '1234 AB',
-    'irma-demo.idin.idin.city': 'Arnhem',
-    'irma-demo.idin.idin.country': 'Netherlands',
-  });
+  await issueIdin(tester, irmaBinding);
 
   // Tap it and the styling should change.
   await tester.tapAndSettle(secondCardFinder);
-  expect((secondCardFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.highlighted);
+  await evaluateCredentialCard(tester, secondCardFinder, style: IrmaCardStyle.highlighted);
 
   // Second card should also show an attribute list
   final secondCardAttListFinder = find.descendant(

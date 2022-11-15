@@ -9,8 +9,9 @@ import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_icon_button.dart';
 
-import '../../helpers.dart';
+import '../../helpers/helpers.dart';
 import '../../irma_binding.dart';
+import '../../helpers/issuance_helpers.dart';
 import '../../util.dart';
 
 Future<void> optionalsTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
@@ -48,12 +49,7 @@ Future<void> optionalsTest(WidgetTester tester, IntegrationTestIrmaBinding irmaB
   expect(disConStepperFinder, findsOneWidget);
 
   // Add one of the required credentials, in this case the address from municipality
-  await issueCredentials(tester, irmaBinding, {
-    'irma-demo.gemeente.address.street': 'Teststraat 12',
-    'irma-demo.gemeente.address.zipcode': '12345 AB',
-    'irma-demo.gemeente.address.city': 'Maastricht',
-    'irma-demo.gemeente.address.municipality': 'Maastricht',
-  });
+  await issueMunicipalityAddress(tester, irmaBinding);
 
   // Issue wizard should be completed
   expect(find.text('All required data has been added.'), findsOneWidget);
@@ -70,10 +66,7 @@ Future<void> optionalsTest(WidgetTester tester, IntegrationTestIrmaBinding irmaB
   expect(find.byType(DisclosurePermissionMakeChoiceScreen), findsOneWidget);
 
   // Issue the email
-  await issueCredentials(tester, irmaBinding, {
-    'irma-demo.sidn-pbdf.email.email': 'test@test.nl',
-    'irma-demo.sidn-pbdf.email.domain': 'test.nl',
-  });
+  await issueEmailAddress(tester, irmaBinding);
 
   // Press done
   await tester.tapAndSettle(find.text('Done'));
@@ -123,10 +116,7 @@ Future<void> optionalsTest(WidgetTester tester, IntegrationTestIrmaBinding irmaB
   await tester.pumpAndSettle();
   await tester.tapAndSettle(mobileNumberHeaderFinder);
 
-  // Issue the telephone number credential
-  await issueCredentials(tester, irmaBinding, {
-    'irma-demo.sidn-pbdf.mobilenumber.mobilenumber': '0612345678',
-  });
+  await issueMobileNumber(tester, irmaBinding);
 
   // Press done
   await tester.tapAndSettle(find.text('Done'));

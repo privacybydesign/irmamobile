@@ -17,7 +17,7 @@ import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
 
-import 'helpers.dart';
+import 'helpers/helpers.dart';
 import 'irma_binding.dart';
 import 'util.dart';
 
@@ -30,16 +30,16 @@ void main() {
   // The expected instruction text of the enrollment introduction
   const expectedInstructions = [
     [
-      'Yivi is your identity on your phone',
-      'Your official name, date of birth, address, and more. All securely stored in your Yivi app.'
+      'Take control off your online data with Yivi',
+      'Yivi is an app that contains your personal data, allowing you to prove your identity in a digital world. Without sharing more than you need.'
     ],
     [
-      'Make yourself known with Yivi',
-      'Easy, secure, and fast. It\'s all in your hands',
+      'You\'re in control',
+      'Retrieve your personal data from trustworthy sources with Yivi. Then decide what to share, and with who.',
     ],
     [
-      'Yivi provides certainty, to you and to others',
-      'Your data are stored solely within the Yivi app. Only you have access.'
+      'Protect your privacy with Yivi',
+      'Your data is only stored in the Yivi app on your mobile phone. Only you have access. When sharing data nobody else can see your transaction, not even Yivi.'
     ]
   ];
 
@@ -213,12 +213,13 @@ void main() {
           expect(dialogFinder, findsOneWidget);
           const expectedDialogText = [
             'Are you sure?',
-            'Protect your data. When you enter an email address, you can block your Yivi app when your mobile has been lost or stolen.',
-            'Enter an email address',
-            'Skip',
+            'Increase security: enter an e-mail address so you can remotely disable your Yivi app when your mobile has been lost or stolen.',
+            'Enter an e-mail address',
+            'Skip'
           ];
+
           final actualDialogText = tester.getAllText(dialogFinder);
-          expect(expectedDialogText, actualDialogText);
+          expect(actualDialogText, expectedDialogText);
 
           // Confirm skip
           await tester.tapAndSettle(find.byKey(const Key('dialog_confirm_button')));
@@ -239,7 +240,7 @@ void main() {
           var emailInputFinder = find.byKey(const Key('email_input_field'));
           var emailInvalidMessageFinder = find.descendant(
             of: emailInputFinder,
-            matching: find.text('This is not a valid email address'),
+            matching: find.text('Please check your e-mail address, this doesn\'t seem to be a valid e-mail address'),
           );
           expect(emailInvalidMessageFinder, findsNothing);
 

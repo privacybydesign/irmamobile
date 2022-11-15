@@ -12,7 +12,8 @@ import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 
-import '../../helpers.dart';
+import '../../helpers/helpers.dart';
+import '../../helpers/issuance_helpers.dart';
 import '../../irma_binding.dart';
 import '../../util.dart';
 
@@ -78,13 +79,13 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
   expect((templateCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
 
   // Issue the personal data
-  await issueMunicipalityCards(tester, irmaBinding);
+  await issueMunicipalityPersonalData(tester, irmaBinding);
 
   // The second card should now be highlighted
   expect((templateCardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
   expect((templateCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.highlighted);
 
-// Issue the email
+  // Issue the email
   await issueEmailAddress(tester, irmaBinding);
 
   // Both should be finished now

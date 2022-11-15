@@ -10,7 +10,7 @@ import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/screens/home/home_tab.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 
-import 'helpers.dart';
+import 'helpers/helpers.dart';
 import 'irma_binding.dart';
 import 'util.dart';
 
