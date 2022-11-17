@@ -27,7 +27,7 @@ class DisclosurePermissionProgressIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final showProgress = step != null && stepCount != null;
+    final showProgress = step != null && stepCount != null && stepCount != 1;
 
     return Padding(
       padding: EdgeInsets.symmetric(vertical: theme.mediumSpacing),
