@@ -9,14 +9,13 @@ import '../../../../widgets/credential_card/irma_credential_card.dart';
 import '../../../../widgets/irma_action_card.dart';
 import '../../../../widgets/irma_bottom_bar.dart';
 import '../../../../widgets/irma_icon_button.dart';
-import '../../../../widgets/irma_progress_indicator.dart';
-import '../../../../widgets/irma_quote.dart';
 import '../../../../widgets/issuer_verifier_header.dart';
 import '../../../../widgets/translated_text.dart';
 import '../../widgets/session_scaffold.dart';
 import '../bloc/disclosure_permission_event.dart';
 import '../bloc/disclosure_permission_state.dart';
 import '../models/choosable_disclosure_credential.dart';
+import 'disclosure_permission_progress_indicator.dart';
 import 'disclosure_permission_share_dialog.dart';
 
 class DisclosurePermissionChoicesScreen extends StatelessWidget {
@@ -99,6 +98,24 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
       Future.delayed(Duration.zero, () => _showConfirmationDialog(context));
     }
 
+    String contentTranslationKey;
+    Map<String, String>? contentTranslationsParams;
+
+    if (state is DisclosurePermissionPreviouslyAddedCredentialsOverview) {
+      contentTranslationKey = 'disclosure_permission.previously_added.explanation';
+    } else if (returnURL != null && returnURL!.isPhoneNumber) {
+      contentTranslationKey = 'disclosure_permission.call.disclosure_explanation';
+      contentTranslationsParams = {
+        'otherParty': requestor.name.translate(lang),
+        'phoneNumber': returnURL!.phoneNumber,
+      };
+    } else {
+      contentTranslationKey = 'disclosure_permission.overview.explanation';
+      contentTranslationsParams = {
+        'requestorName': requestor.name.translate(lang),
+      };
+    }
+
     return SessionScaffold(
       appBarTitle: state is DisclosurePermissionPreviouslyAddedCredentialsOverview
           ? 'disclosure_permission.previously_added.title'
@@ -110,44 +127,11 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             IssuerVerifierHeader(title: requestor.name.translate(lang)),
-            if (state.plannedSteps.length > 1)
-              IrmaProgressIndicator(
-                step: state.currentStepIndex + 1,
-                stepCount: state.plannedSteps.length,
-              ),
-            SizedBox(height: theme.defaultSpacing),
-            IrmaQuote(
-              richQuote: RichText(
-                text: TextSpan(
-                  children: [
-                    if (state.plannedSteps.length > 1)
-                      TextSpan(
-                        text: '${FlutterI18n.translate(context, 'ui.step')} ${state.currentStepIndex + 1}: ',
-                        style: theme.themeData.textTheme.caption!.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    TextSpan(
-                      text: state is DisclosurePermissionPreviouslyAddedCredentialsOverview
-                          ? FlutterI18n.translate(context, 'disclosure_permission.previously_added.explanation')
-                          : returnURL != null && returnURL!.isPhoneNumber
-                              ? FlutterI18n.translate(context, 'disclosure_permission.call.disclosure_explanation',
-                                  translationParams: {
-                                      'otherParty': requestor.name.translate(lang),
-                                      'phoneNumber': returnURL!.phoneNumber
-                                    })
-                              : FlutterI18n.translate(
-                                  context,
-                                  'disclosure_permission.overview.explanation',
-                                  translationParams: {
-                                    'requestorName': requestor.name.translate(lang),
-                                  },
-                                ),
-                      style: theme.themeData.textTheme.caption,
-                    ),
-                  ],
-                ),
-              ),
+            DisclosurePermissionProgressIndicator(
+              step: state.currentStepIndex + 1,
+              stepCount: state.plannedSteps.length,
+              contentTranslationKey: contentTranslationKey,
+              contentTranslationParams: contentTranslationsParams,
             ),
             SizedBox(height: theme.defaultSpacing),
             TranslatedText(
