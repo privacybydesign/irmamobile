@@ -1,10 +1,8 @@
-# Workflow to check whether changes to master fulfill all requirements.
+# Workflow to check whether changes in a pull request fulfill all requirements.
 # We execute build stages in separate jobs to prevent artifact duplication.
 name: Status checks
 
 on:
-  push:
-    branches: [ master ]
   pull_request:
 
 concurrency:
@@ -75,15 +73,14 @@ jobs:
         with:
           name: irmagobridge-ios
           path: ios/Runner/Irmagobridge.xcframework/
-      - run: bundle exec fastlane ios_build_app flavor:${{ matrix.flavor }}
-      # We don't run ios_export here, so we have no artifact to upload for now.
+      # We don't export here, because we don't have signing keys in this environment.
+      - run: bundle exec fastlane ios_build_app flavor:${{ matrix.flavor }} export:false
   build-app-android:
     runs-on: ubuntu-latest
     needs: build-irmagobridge-android
     strategy:
       matrix:
         flavor: [ alpha, beta ]
-        target-platform: [ android-arm, android-arm64, android-x64 ]
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
@@ -96,10 +93,10 @@ jobs:
         with:
           name: irmagobridge-android
           path: android/irmagobridge/
-      - run: bundle exec fastlane android_build_app flavor:${{ matrix.flavor }} target_platform:${{ matrix.target-platform }}
+      - run: bundle exec fastlane android_build_app flavor:${{ matrix.flavor }}
       - uses: actions/upload-artifact@v3
         with:
-          name: app-${{ matrix.flavor }}-${{ matrix.target-platform }}
+          name: app-${{ matrix.flavor }}-android
           path: ./fastlane/build/*.apk
   build-integration-test-ios:
     runs-on: macos-12 # MacOS version is pinned, because it determines which XCode version is used.
@@ -136,7 +133,7 @@ jobs:
         with:
           name: irmagobridge-android
           path: android/irmagobridge/
-      - run: bundle exec fastlane integration_test_android_build
+      - run: bundle exec fastlane android_build_integration_test
       - uses: actions/upload-artifact@v3
         with:
           name: integration-test-android
