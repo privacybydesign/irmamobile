@@ -91,11 +91,11 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final state = this.state;
     final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
-    if (state is DisclosurePermissionChoicesOverview &&
-        (state as DisclosurePermissionChoicesOverview).showConfirmationPopup) {
+    if (state is DisclosurePermissionChoicesOverview && state.showConfirmationPopup) {
       Future.delayed(Duration.zero, () => _showConfirmationDialog(context));
     }
 
@@ -150,8 +150,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: theme.defaultSpacing),
-            if (state is DisclosurePermissionChoicesOverview &&
-                (state as DisclosurePermissionChoicesOverview).isSignatureSession) ...[
+            if (state is DisclosurePermissionChoicesOverview && state.isSignatureSession) ...[
               TranslatedText(
                 'disclosure_permission.overview.sign',
                 style: theme.themeData.textTheme.headline4,
@@ -163,7 +162,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                 ),
                 child: IrmaQuote(
                   key: const Key('signature_message'),
-                  quote: (state as DisclosurePermissionChoicesOverview).signedMessage,
+                  quote: state.signedMessage,
                 ),
               ),
             ],
