@@ -13,7 +13,7 @@ import '../../helpers/issuance_helpers.dart';
 import '../../irma_binding.dart';
 import '../../util.dart';
 
-Future<void> combinedSessionTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> combinedDisclosureIssuanceSessionTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
   await issueEmailAddress(tester, irmaBinding);
 
