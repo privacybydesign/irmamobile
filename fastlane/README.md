@@ -168,7 +168,8 @@ More information on how to achieve app provisioning profiles can be found [above
 fastlane integration_test_ios_build
 ```
 
-Builds a ZIP containing an iOS XCTest build artifact to run the Flutter integration tests on iOS natively.
+Builds the iOS XCTests to run the Flutter integration tests on iOS natively.
+All files are bundled together in a ZIP.
 This action assumes the `ios_build_irmagobridge` action has been run first.
 The ZIP is written to the `build` directory (so `fastlane/build` from the repository's root).
 
