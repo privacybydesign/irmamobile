@@ -9,6 +9,7 @@ import '../../../../widgets/credential_card/irma_credential_card.dart';
 import '../../../../widgets/irma_action_card.dart';
 import '../../../../widgets/irma_bottom_bar.dart';
 import '../../../../widgets/irma_icon_button.dart';
+import '../../../../widgets/irma_quote.dart';
 import '../../../../widgets/issuer_verifier_header.dart';
 import '../../../../widgets/translated_text.dart';
 import '../../widgets/session_scaffold.dart';
