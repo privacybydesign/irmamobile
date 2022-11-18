@@ -183,7 +183,8 @@
       "title": "Deel je gegevens",
       "explanation": "Deel je gegevens met {requestorName}",
       "header": "Deze gegevens ga je delen:",
-      "confirm": "Gegevens delen"
+      "confirm": "Gegevens delen",
+      "sign": "Dit bericht ga je ondertekenen:"
     },
     "confirm_dialog": {
       "title": "Gegevens delen",
