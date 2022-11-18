@@ -39,8 +39,8 @@ remove devices. More information about adding and updating ad-hoc provisioning p
 
  1. Go to the ./fastlane directory in irmamobile
  2. Run `mkdir -p ./profiles && cd ./profiles`
- 3. Choose a name for your new certificate, i.e. `KEY_NAME=apple_distribution` or `KEY_NAME=apple_development`
- 4. Run `openssl req -nodes -newkey rsa:2048 -keyout $KEY_NAME.key -out $KEY_NAME.csr`
+ 3. Choose a name for your new certificate, i.e. `KEY_NAME=ios_distribution` or `KEY_NAME=ios_development`
+ 4. Run `openssl req -nodes -newkey rsa:2048 -keyout $KEY_NAME.key -out $KEY_NAME.csr` and follow the instructions
  5. Upload the CSR to Apple: go to https://developer.apple.com/account/resources/certificates/list, press the '+' sign
     and choose "iOS Distribution (App Store and Ad Hoc)" for a distribution certificate or "iOS App Development"
     for a development certificate.
@@ -49,10 +49,13 @@ remove devices. More information about adding and updating ad-hoc provisioning p
     `openssl x509 -in $KEY_NAME.cer -inform DER -out $KEY_NAME.pem -outform PEM`
  8. Convert the .pem to a .p12 and choose the certificate password:
     `openssl pkcs12 -export -inkey $KEY_NAME.key -in $KEY_NAME.pem -out $KEY_NAME.p12`
- 9. You can now create a provisioning profile: go to https://developer.apple.com/account/resources/profiles/list,
-    press the '+' sign and follow the instructions
- 10. When finished, download the provisioning profile and save it to the directory created in step 2
- 11. In case you need to upload the assets to a secret vault, then you need to encode the files with base64,
+ 9. Safely store the certificate password in a password manager or a secret vault for later use
+ 10. You can now create a provisioning profile: go to https://developer.apple.com/account/resources/profiles/list,
+     press the '+' sign and follow the instructions. This can only be done by users with the 'Admin' role or the
+     'App Manager' role with access to certificates, identifiers and profiles in Apple App Store Connect. If you only
+     have the 'Developer' role, then you need to ask someone else to create the provisioning profile for you.
+ 11. When finished, download the provisioning profile and save it to the directory created in step 2
+ 12. In case you need to upload the assets to a secret vault, then you need to encode the files you want to upload with base64,
      i.e. `cat $KEY_NAME.p12 | base64 > $KEY_NAME.p12.base64`
 
 When generating distribution certificates for CI platforms, it's recommended to protect the certificate bundle as a secret in
