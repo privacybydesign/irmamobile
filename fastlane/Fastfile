@@ -157,7 +157,7 @@ lane :ios_build_app do |options|
   end
 end
 
-lane :ios_build_integration_test do
+lane :ios_build_integration_test do |options|
   update_schemes()
   set_provisioning_profile(
     provisioning_profile_path: options[:provisioning_profile_path],
