@@ -149,6 +149,10 @@ You can make a build for this purpose using Fastlane:
 
 The generated `./fastlane/build/ios_tests.zip` can be uploaded to Google Firebase.
 
+## Fastlane
+For build automation we use Fastlane scripting. These scripts are used by our CI tooling (i.e. the GitHub Actions
+workflows in .github/workflows). Documentation about the Fastlane scripting can be found [here](/fastlane/README.md).
+
 ## Troubleshooting
 
 * Have you checked out the two submodules of this repository? If `find ./irma_configuration` is empty, this is the case.
