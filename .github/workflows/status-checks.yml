@@ -113,7 +113,19 @@ jobs:
         with:
           name: irmagobridge-ios
           path: ios/Runner/Irmagobridge.xcframework/
-      - run: bundle exec fastlane ios_build_integration_test
+      - name: Decode binary environment secrets
+        env:
+          APPLE_DEVELOPMENT_CERTIFICATE: ${{ secrets.APPLE_DEVELOPMENT_CERTIFICATE }}
+          APPLE_DEVELOPMENT_PROVISIONING_PROFILE: ${{ secrets.APPLE_DEVELOPMENT_PROVISIONING_PROFILE }}
+        run: |
+          mkdir -p ./fastlane/profiles
+          echo $APPLE_DEVELOPMENT_CERTIFICATE | base64 --decode > ./fastlane/profiles/ios_development.p12
+          echo $APPLE_DEVELOPMENT_PROVISIONING_PROFILE | base64 --decode > ./fastlane/profiles/development.mobileprovision
+      - run: >
+          bundle exec fastlane ios_build_integration_test
+          certificate_path:profiles/ios_development.p12
+          certificate_password:${{ secrets.APPLE_DEVELOPMENT_CERTIFICATE_PASSWORD }}
+          provisioning_profile_path:profiles/development.mobileprovision
       - uses: actions/upload-artifact@v3
         with:
           name: integration-test-ios
@@ -159,7 +171,7 @@ jobs:
       - name: Set Firebase project
         run: gcloud config set project yivimobile
       - name: Run integration tests
-        run: gcloud firebase test ios run --test ios_tests.zip --xcode-version $XCODE_VERSION --timeout 10m --device=model=iphone8
+        run: gcloud firebase test ios run --test ios_tests.zip --timeout 10m --device=model=iphone8
   integration-test-android:
     runs-on: ubuntu-latest
     container: google/cloud-sdk:latest
