@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../theme/theme.dart';
+import 'irma_linear_progresss_indicator.dart';
 import 'translated_text.dart';
 
-class IrmaProgressIndicator extends StatelessWidget {
+class IrmaLinearStepIndicator extends StatelessWidget {
   final int stepCount;
   final int step;
 
-  const IrmaProgressIndicator({
+  const IrmaLinearStepIndicator({
     Key? key,
     required this.step,
     required this.stepCount,
@@ -18,7 +19,7 @@ class IrmaProgressIndicator extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
+      padding: EdgeInsets.all(theme.defaultSpacing),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
@@ -34,19 +35,8 @@ class IrmaProgressIndicator extends StatelessWidget {
             ),
           ),
           SizedBox(height: theme.smallSpacing),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: LinearProgressIndicator(
-                    value: step / stepCount,
-                    color: theme.success,
-                    backgroundColor: Colors.grey.shade300,
-                  ),
-                )
-              ],
-            ),
+          IrmaLinearProgressIndicator(
+            filledPercentage: step / stepCount * 100,
           )
         ],
       ),
