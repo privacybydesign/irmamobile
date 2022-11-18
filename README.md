@@ -122,7 +122,7 @@ To natively run the integration tests on Android, you can use the command below.
 
 You can also manually build APKs for testing using Fastlane.
 
-      bundle exec fastlane integration_test_android_build
+      bundle exec fastlane android_build_integration_test
 
 The APKs can be found in `./fastlane/build`. They can be uploaded to services like [Google Firebase](https://flutter.dev/docs/testing/integration-tests#uploading-an-android-apk).
 You can also run them locally using the following commands:
@@ -146,6 +146,9 @@ The testing service of your choice needs to support XCTest (not to be confused w
 You can make a build for this purpose using Fastlane:
 
       bundle exec fastlane ios_build_integration_test
+
+The integration test build should be provisioned with at least a development provisioning profile. More information
+about how to set the provisioning profile can be found in the [Fastlane documentation](/fastlane/README.md#ios_build_integration_test).
 
 The generated `./fastlane/build/ios_tests.zip` can be uploaded to Google Firebase.
 
