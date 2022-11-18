@@ -15,7 +15,7 @@ Setup scripts for CI platforms can be found in the _ci_scripts_ directory.
 For _fastlane_ installation instructions, see [Installing _fastlane_](https://docs.fastlane.tools/#installing-fastlane)
 
 # Apple provisioning profiles
-The `ios_build_app` and the `integration_test_ios_build` actions needs the app's provisioning profile and the
+The `ios_build_app` and the `ios_build_integration_test` actions needs the app's provisioning profile and the
 corresponding PKCS#12 certificate bundle. Therefore, these actions require the parameters
 `provisioning_profile_path`, `certificate_path` and `certificate_password`.
 
@@ -207,16 +207,24 @@ The `flavor` parameter accepts the values `alpha` or `beta`.
 The `alpha` flavor expects an ad-hoc provisioning profile and the `beta` flavor an app-store provisioning profile.
 More information on how to achieve app provisioning profiles can be found [above](#apple-provisioning-profiles).
 
-### integration_test_ios_build
+### ios_build_integration_test
 
-```
-fastlane integration_test_ios_build
+```sh
+[bundle exec] fastlane ios_build_integration_test
 ```
 
 Builds the iOS XCTests to run the Flutter integration tests on iOS natively.
 All files are bundled together in a ZIP.
 This action assumes the `ios_build_irmagobridge` action has been run first.
 The ZIP is written to the `build` directory (so `fastlane/build` from the repository's root).
+
+Optionally, you can specify the paths to the app provisioning profile and the corresponding PKCS#12 certificate bundle
+that should be used to provision and sign the build. If the given path is relative, then it is evaluated using the
+fastlane directory as base (so `./fastlane` from the repository's root).
+
+```sh
+[bundle exec] fastlane ios_build_integration_test provisioning_profile_path:<VALUE> certificate_path:<VALUE> certificate_password:<VALUE>
+```
 
 ----
 

@@ -133,36 +133,11 @@ lane :ios_build_app do |options|
     version: commit[:commit_hash]
   )
 
-  # When a certificate path is given, we ensure it is properly installed.
-  if options[:certificate_path]
-    keychain_path = File.absolute_path("profiles/apple_distribution.keychain")
-    certificate_password = options[:certificate_password] || ""
-    create_keychain(
-      path: keychain_path,
-      password: certificate_password,
-      unlock: true,
-      timeout: 600
-    )
-    import_certificate(
-      certificate_path: File.absolute_path(options[:certificate_path]),
-      certificate_password: certificate_password,
-      keychain_path: keychain_path,
-      keychain_password: certificate_password
-    )
-  end
-
-  # When a provisioning profile is given, we ensure it is installed and selected in the project.
-  # Otherwise, we use the profile that is currently selected in XCode.
-  if options[:provisioning_profile_path]
-    provisioning_profile_path = File.absolute_path(options[:provisioning_profile_path])
-    install_provisioning_profile(
-      path: provisioning_profile_path
-    )
-    update_project_provisioning(
-      xcodeproj: "ios/Runner.xcodeproj",
-      profile: provisioning_profile_path
-    )
-  end
+  set_provisioning_profile(
+    provisioning_profile_path: options[:provisioning_profile_path],
+    certificate_path: options[:certificate_path],
+    certificate_password: options[:certificate_password]
+  )
 
   # The 'flutter build ipa' command does not support changing the export method in Flutter 2.
   # Therefore, we use 'flutter build ios' for now with the --no-codesign option
@@ -179,6 +154,38 @@ lane :ios_build_app do |options|
       output_name: "app-#{options[:flavor]}-ios-#{export_method}.ipa",
       export_method: export_method
     )
+  end
+end
+
+lane :ios_build_integration_test do
+  update_schemes()
+  set_provisioning_profile(
+    provisioning_profile_path: options[:provisioning_profile_path],
+    certificate_path: options[:certificate_path],
+    certificate_password: options[:certificate_password]
+  )
+  Dir.chdir("..") do
+    sh(
+      "flutter", "build", "ios",
+      "--release",
+      "--no-codesign",
+      "./integration_test/test_all.dart"
+    )
+    Dir.chdir("./ios") do
+      sh(
+        "xcodebuild",
+        "-workspace", "Runner.xcworkspace",
+        "-scheme", "Runner",
+        "-config", "Flutter/Release.xcconfig",
+        "-derivedDataPath", "../build/ios_integ",
+        "-sdk", "iphoneos",
+        "build-for-testing",
+      )
+    end
+    Dir.chdir("./build/ios_integ/Build/Products") do
+      sh("rm -f ../../../../fastlane/build/ios_tests.zip")
+      sh("zip -r ../../../../fastlane/build/ios_tests.zip *")
+    end
   end
 end
 
@@ -213,56 +220,35 @@ private_lane :write_sentrydata do |options|
   )
 end
 
-lane :integration_test_android_build do
-  update_schemes()
-  Dir.chdir("..") do
-    sh(
-      "flutter", "build", "apk",
-      "--flavor", "alpha",
-      "--debug",
-      "./integration_test/test_all.dart"
+private_lane :set_provisioning_profile do |options|
+  # When a certificate path is given, we ensure it is properly installed.
+  if options[:certificate_path]
+    keychain_path = File.absolute_path("profiles/fastlane.keychain")
+    certificate_password = options[:certificate_password] || ""
+    create_keychain(
+      path: keychain_path,
+      password: certificate_password,
+      unlock: true,
+      timeout: 600
     )
-    Dir.chdir("./android") do
-      sh("./gradlew", "app:assembleAndroidTest")
-    end
-    sh("cp ./build/app/outputs/apk/alpha/debug/*.apk ./fastlane/build/")
-    sh("cp ./build/app/outputs/apk/androidTest/alpha/debug/*.apk ./fastlane/build/")
-  end
-end
-
-lane :integration_test_ios_build do
-  update_schemes()
-  Dir.chdir("..") do
-    # TODO: code sign identity should be set.
-    sh(
-      "flutter", "build", "ios",
-      "--release",
-      "--no-codesign",
-      "./integration_test/test_all.dart"
+    import_certificate(
+      certificate_path: File.absolute_path(options[:certificate_path]),
+      certificate_password: certificate_password,
+      keychain_path: keychain_path,
+      keychain_password: certificate_password
     )
-    Dir.chdir("./ios") do
-      sh(
-        "xcodebuild",
-        "-workspace", "Runner.xcworkspace",
-        "-scheme", "Runner",
-        "-config", "Flutter/Release.xcconfig",
-        "-derivedDataPath", "../build/ios_integ",
-        "-sdk", "iphoneos",
-        "build-for-testing",
-      )
-    end
-    Dir.chdir("./build/ios_integ/Build/Products") do
-      sh("rm -f ../../../../fastlane/build/ios_tests.zip")
-      sh("zip -r ../../../../fastlane/build/ios_tests.zip *")
-    end
   end
-end
 
-private_lane :get_flutter_build_number do
-  Dir.chdir("..") do
-    file = File.open("pubspec.yaml")
-    file_data = file.read
-    file.close
-    file_data.match(/version:(.*)\+(\d+)/).captures[1].to_i
+  # When a provisioning profile is given, we ensure it is installed and selected in the project.
+  # Otherwise, we use the profile that is currently selected in XCode.
+  if options[:provisioning_profile_path]
+    provisioning_profile_path = File.absolute_path(options[:provisioning_profile_path])
+    install_provisioning_profile(
+      path: provisioning_profile_path
+    )
+    update_project_provisioning(
+      xcodeproj: "ios/Runner.xcodeproj",
+      profile: provisioning_profile_path
+    )
   end
 end

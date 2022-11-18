@@ -145,7 +145,7 @@ You can use testing services like [Google Firebase](https://docs.flutter.dev/tes
 The testing service of your choice needs to support XCTest (not to be confused with XCUITest).
 You can make a build for this purpose using Fastlane:
 
-      bundle exec fastlane integration_test_ios_build
+      bundle exec fastlane ios_build_integration_test
 
 The generated `./fastlane/build/ios_tests.zip` can be uploaded to Google Firebase.
 

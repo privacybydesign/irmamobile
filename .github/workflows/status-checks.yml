@@ -113,7 +113,7 @@ jobs:
         with:
           name: irmagobridge-ios
           path: ios/Runner/Irmagobridge.xcframework/
-      - run: bundle exec fastlane integration_test_ios_build
+      - run: bundle exec fastlane ios_build_integration_test
       - uses: actions/upload-artifact@v3
         with:
           name: integration-test-ios
