@@ -198,6 +198,12 @@ fastlane directory as base (so `./fastlane` from the repository's root).
 [bundle exec] fastlane ios_build_app flavor:<VALUE> provisioning_profile_path:<VALUE> certificate_path:<VALUE> certificate_password:<VALUE>
 ```
 
+If the certificate bundle contains a development certificate, then the code sign identity should explicitly be set to `iPhone Developer`.
+
+```sh
+[bundle exec] fastlane ios_build_integration_test code_signing_identity:"iPhone Developer" provisioning_profile_path:<VALUE> certificate_path:<VALUE> certificate_password:<VALUE>
+```
+
 Alternatively, you can run this action without an app provisioning profile by disabling the IPA export.
 This can be useful for testing purposes if you don't have access to the keys.
 
@@ -227,6 +233,12 @@ fastlane directory as base (so `./fastlane` from the repository's root).
 
 ```sh
 [bundle exec] fastlane ios_build_integration_test provisioning_profile_path:<VALUE> certificate_path:<VALUE> certificate_password:<VALUE>
+```
+
+If the certificate bundle contains a development certificate, then the code sign identity should explicitly be set to `iPhone Developer`.
+
+```sh
+[bundle exec] fastlane ios_build_integration_test code_signing_identity:"iPhone Developer" provisioning_profile_path:<VALUE> certificate_path:<VALUE> certificate_password:<VALUE>
 ```
 
 ----

@@ -247,7 +247,8 @@ private_lane :set_provisioning_profile do |options|
     )
     update_project_provisioning(
       xcodeproj: "ios/Runner.xcodeproj",
-      profile: provisioning_profile_path
+      profile: provisioning_profile_path,
+      code_signing_identity: options[:code_signing_identity] || "iPhone Distribution"
     )
   end
 end

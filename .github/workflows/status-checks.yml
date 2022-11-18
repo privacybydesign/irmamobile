@@ -126,6 +126,7 @@ jobs:
           certificate_path:profiles/ios_development.p12
           certificate_password:${{ secrets.APPLE_DEVELOPMENT_CERTIFICATE_PASSWORD }}
           provisioning_profile_path:profiles/development.mobileprovision
+          code_signing_identity:"iPhone Developer"
       - uses: actions/upload-artifact@v3
         with:
           name: integration-test-ios
