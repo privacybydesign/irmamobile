@@ -168,7 +168,6 @@ lane :ios_build_integration_test do |options|
     sh(
       "flutter", "build", "ios",
       "--release",
-      "--no-codesign",
       "./integration_test/test_all.dart"
     )
     Dir.chdir("./ios") do
