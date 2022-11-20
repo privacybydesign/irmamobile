@@ -86,7 +86,8 @@ lane :ios_build do |options|
     sentry_dsn: options[:sentry_dsn],
     certificate_path: options[:certificate_path],
     certificate_password: options[:certificate_password],
-    provisioning_profile_path: options[:provisioning_profile_path]
+    provisioning_profile_path: options[:provisioning_profile_path],
+    code_signing_identity: options[:code_signing_identity]
   )
 end
 
@@ -136,7 +137,8 @@ lane :ios_build_app do |options|
   set_provisioning_profile(
     provisioning_profile_path: options[:provisioning_profile_path],
     certificate_path: options[:certificate_path],
-    certificate_password: options[:certificate_password]
+    certificate_password: options[:certificate_password],
+    code_signing_identity: options[:code_signing_identity]
   )
 
   # The 'flutter build ipa' command does not support changing the export method in Flutter 2.
@@ -162,7 +164,8 @@ lane :ios_build_integration_test do |options|
   set_provisioning_profile(
     provisioning_profile_path: options[:provisioning_profile_path],
     certificate_path: options[:certificate_path],
-    certificate_password: options[:certificate_password]
+    certificate_password: options[:certificate_password],
+    code_signing_identity: options[:code_signing_identity]
   )
   Dir.chdir("..") do
     sh(
