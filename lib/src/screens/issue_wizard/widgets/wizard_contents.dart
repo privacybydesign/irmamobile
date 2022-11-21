@@ -7,8 +7,8 @@ import '../../../models/issue_wizard.dart';
 import '../../../theme/theme.dart';
 import '../../../widgets/irma_bottom_bar.dart';
 import '../../../widgets/irma_card.dart';
+import '../../../widgets/irma_linear_step_indicator.dart';
 import '../../../widgets/irma_markdown.dart';
-import '../../../widgets/irma_progress_indicator.dart';
 import '../../../widgets/irma_stepper.dart';
 import 'wizard_scaffold.dart';
 
@@ -94,17 +94,6 @@ class IssueWizardContents extends StatelessWidget {
               },
             ));
     final wizardContentSize = wizard.wizardContents.length;
-    final indicator = Padding(
-      padding: EdgeInsets.only(
-          top: theme.mediumSpacing,
-          bottom: theme.largeSpacing,
-          left: theme.defaultSpacing,
-          right: theme.defaultSpacing),
-      child: IrmaProgressIndicator(
-        step: wizard.activeItemIndex + 1,
-        stepCount: wizardContentSize,
-      ),
-    );
 
     return WizardScaffold(
       scrollviewKey: scrollviewKey,
@@ -120,7 +109,12 @@ class IssueWizardContents extends StatelessWidget {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          if (wizardContentSize > 1) indicator,
+          if (wizardContentSize > 1)
+            IrmaLinearStepIndicator(
+              step: wizard.activeItemIndex + 1,
+              stepCount: wizardContentSize,
+            ),
+          SizedBox(height: theme.smallSpacing),
           _buildWizard(context, lang, wizard),
         ],
       ),
