@@ -8,8 +8,10 @@ import '../../../../util/con_dis_con.dart';
 import '../../../../widgets/credential_card/irma_credential_card.dart';
 import '../../../../widgets/irma_action_card.dart';
 import '../../../../widgets/irma_bottom_bar.dart';
+import '../../../../widgets/irma_button.dart';
 import '../../../../widgets/irma_icon_button.dart';
 import '../../../../widgets/irma_quote.dart';
+import '../../../../widgets/irma_themed_button.dart';
 import '../../../../widgets/issuer_verifier_header.dart';
 import '../../../../widgets/translated_text.dart';
 import '../../widgets/session_scaffold.dart';
@@ -56,23 +58,25 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            GestureDetector(
-              onTap: () {
-                onEvent(
+            Flexible(
+              child: IrmaButton(
+                label: 'disclosure_permission.change_choice',
+                textStyle: theme.textTheme.bodyText1!.copyWith(
+                  color: theme.themeData.colorScheme.secondary,
+                  fontSize: 12,
+                ),
+                onPressed: () => onEvent(
                   DisclosurePermissionChangeChoicePressed(
                     disconIndex: choiceEntry.key,
                   ),
-                );
-                Feedback.forTap(context);
-              },
-              child: TranslatedText(
-                'disclosure_permission.change_choice',
-                style: theme.hyperlinkTextStyle,
+                ),
+                size: IrmaButtonSize.extraSmall,
+                isSecondary: true,
+                minWidth: 100,
               ),
-            )
+            ),
           ],
         ),
-        SizedBox(height: theme.smallSpacing),
         for (int i = 0; i < choiceEntry.value.length; i++)
           IrmaCredentialCard(
             credentialView: choiceEntry.value[i],
@@ -85,6 +89,9 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                     onTap: () => onEvent(DisclosurePermissionRemoveOptionalDataPressed(disconIndex: choiceEntry.key)))
                 : null,
           ),
+        SizedBox(
+          height: theme.defaultSpacing,
+        )
       ],
     );
   }
