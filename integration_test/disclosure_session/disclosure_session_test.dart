@@ -7,7 +7,6 @@ import 'package:integration_test/integration_test.dart';
 import '../irma_binding.dart';
 import 'empty_app_scenarios/choice.dart';
 import 'empty_app_scenarios/choice_mixed.dart';
-import 'empty_app_scenarios/choice_mixed_sources.dart';
 import 'empty_app_scenarios/completely_optional.dart';
 import 'empty_app_scenarios/no_choice.dart';
 import 'empty_app_scenarios/no_choice_multiple_creds.dart';
@@ -20,6 +19,7 @@ import 'filled_app_scenarios/filled_no_choice_multiple_creds.dart';
 import 'filled_app_scenarios/filled_optional_disjunction.dart';
 import 'filled_app_scenarios/filled_specific_attribute_values_match.dart';
 import 'filled_app_scenarios/filled_specific_attribute_values_no_match.dart';
+import 'special_scenarios/attribute_order.dart';
 import 'special_scenarios/combined_disclosure_issuance.dart';
 import 'special_scenarios/nullables.dart';
 import 'special_scenarios/revocation.dart';
@@ -182,6 +182,15 @@ void main() {
       testWidgets(
         'revocation',
         (tester) => revocationTest(
+          tester,
+          irmaBinding,
+        ),
+      );
+
+      // Address from municipality with different attribute order
+      testWidgets(
+        'attribute-order',
+        (tester) => attributeOrderTest(
           tester,
           irmaBinding,
         ),
