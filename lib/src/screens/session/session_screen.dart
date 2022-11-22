@@ -193,17 +193,17 @@ class _SessionScreenState extends State<SessionScreen> {
   }
 
   Widget _buildFinished(SessionState session) {
-    if (session.isIssuanceSession) {
-      if (widget.arguments.hasUnderlyingSession) {
-        // In case of issuance during disclosure, another session is open in a screen lower in the stack.
-        // Ignore clientReturnUrl in this case (issuance) and pop immediately.
-        WidgetsBinding.instance?.addPostFrameCallback((_) => Navigator.of(context).pop());
-        return _buildLoadingScreen(true);
-      } else {
-        return const IssuanceSuccessScreen(
-          onDismiss: popToHome,
-        );
-      }
+    if (session.isIssuanceSession && widget.arguments.hasUnderlyingSession) {
+      // In case of issuance during disclosure, another session is open in a screen lower in the stack.
+      // Ignore clientReturnUrl in this case (issuance) and pop immediately.
+      WidgetsBinding.instance?.addPostFrameCallback((_) => Navigator.of(context).pop());
+      return _buildLoadingScreen(true);
+    }
+
+    if (session.disclosuresCandidates == null || session.disclosuresCandidates!.isEmpty) {
+      return const IssuanceSuccessScreen(
+        onDismiss: popToHome,
+      );
     }
 
     if (session.continueOnSecondDevice && !(session.clientReturnURL?.isPhoneNumber ?? false)) {

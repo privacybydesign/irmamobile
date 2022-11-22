@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/src/screens/data/credentials_detail_screen.dart';
+import 'package:irmamobile/src/screens/session/widgets/issuance_success_screen.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 
 import 'helpers/helpers.dart';
@@ -37,6 +38,10 @@ void main() {
         irmaBinding,
         locale: locale,
       );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(IssuanceSuccessScreen), findsOneWidget);
+      await tester.tapAndSettle(find.text('OK'));
 
       // Go to data tab
       await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
