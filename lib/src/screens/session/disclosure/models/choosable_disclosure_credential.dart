@@ -1,3 +1,5 @@
+import 'package:collection/collection.dart';
+
 import '../../../../models/attribute.dart';
 import '../../../../models/credentials.dart';
 import 'disclosure_credential.dart';
@@ -12,7 +14,7 @@ class ChoosableDisclosureCredential extends DisclosureCredential {
 
   /// Specifies the identifiers that uniquely identify this DisclosureCredential. The identifier order is based on the
   /// order in the RequestVerificationPermission session event. irmago expects this exact order to be used in callbacks.
-  final List<AttributeIdentifier> identifiers;
+  final UnmodifiableListView<AttributeIdentifier> identifiers;
 
   ChoosableDisclosureCredential({
     required CredentialInfo info,
@@ -21,12 +23,10 @@ class ChoosableDisclosureCredential extends DisclosureCredential {
     required bool revoked,
     required this.credentialHash,
     required this.previouslyAdded,
-  })  : identifiers = attributes
-            .map((attr) => AttributeIdentifier(
-                  type: attr.attributeType.fullId,
-                  credentialHash: credentialHash,
-                ))
-            .toList(),
+  })  : identifiers = UnmodifiableListView(attributes.map((attr) => AttributeIdentifier(
+              type: attr.attributeType.fullId,
+              credentialHash: credentialHash,
+            ))),
         super(info: info, expired: expired, revoked: revoked, attributes: attributes);
 
   /// Converts the given credential to a ChoosableDisclosureCredential using the given template.
