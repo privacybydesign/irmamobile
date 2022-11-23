@@ -181,7 +181,7 @@
     },
     "overview": {
       "title": "Share your data",
-      "explanation": "Share your date with {requestorName}",
+      "explanation": "Share your data with {requestorName}",
       "header": "This is the data you are going to share:",
       "confirm": "Share data",
       "sign": "This is the message you are going to sign:"
