@@ -200,7 +200,8 @@ class _SessionScreenState extends State<SessionScreen> {
       return _buildLoadingScreen(true);
     }
 
-    if (session.disclosuresCandidates == null || session.disclosuresCandidates!.isEmpty) {
+    if (session.isIssuanceSession &&
+        (session.disclosuresCandidates == null || session.disclosuresCandidates!.isEmpty)) {
       return const IssuanceSuccessScreen(
         onDismiss: popToHome,
       );
