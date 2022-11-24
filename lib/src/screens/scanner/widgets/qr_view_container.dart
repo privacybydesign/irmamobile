@@ -1,16 +1,12 @@
-// This code is not null safe yet.
-// @dart=2.11
-
-import 'dart:async';
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:flutter/material.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:native_device_orientation/native_device_orientation.dart';
 
 class QRViewContainer extends StatefulWidget {
   final Function(String) onFound;
 
-  const QRViewContainer({Key key, this.onFound}) : super(key: key);
+  const QRViewContainer({Key? key, required this.onFound}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _QRViewContainerState();
@@ -18,32 +14,47 @@ class QRViewContainer extends StatefulWidget {
 
 class _QRViewContainerState extends State<QRViewContainer> {
   final GlobalKey _qrKey = GlobalKey(debugLabel: 'QR');
-
-  QRViewController _qrViewController;
-  StreamSubscription _qrViewSubscription;
+  final _controller = MobileScannerController(formats: [BarcodeFormat.qrCode]);
 
   @override
-  void dispose() {
-    _qrViewSubscription?.cancel();
-    // Due to an issue in the qr code scanner library, the camera is not always
-    // disabled properly on iOS. Therefore we pause it manually for now.
-    // https://github.com/juliuscanute/qr_code_scanner/issues/137
-    // TODO: Is this still necessary? (check CHANGELOG qr_code_scanner 0.0.14)
-    if (Platform.isIOS) {
-      _qrViewController?.pauseCamera();
-    }
-    _qrViewController?.dispose();
-    super.dispose();
-  }
-
-  void _onQRViewCreated(QRViewController controller) {
-    _qrViewController = controller;
-    _qrViewSubscription = controller.scannedDataStream.listen((qr) => widget.onFound(qr.code));
-  }
-
-  @override
-  Widget build(BuildContext context) => QRView(
-        key: _qrKey,
-        onQRViewCreated: _onQRViewCreated,
+  Widget build(BuildContext context) =>
+      // TODO: The mobile scanner package does not support landscape mode out of the box.(mobile_scanner: 1.0.0)
+      // The creator seems to be working on it.
+      // https://github.com/juliansteenbakker/mobile_scanner/discussions/17
+      // When this is supported remove orientation checks.
+      NativeDeviceOrientationReader(
+        builder: (context) {
+          final orientation = NativeDeviceOrientationReader.orientation(context);
+          late int quarterTurns;
+          switch (orientation) {
+            case NativeDeviceOrientation.landscapeLeft:
+              quarterTurns = 3;
+              break;
+            case NativeDeviceOrientation.portraitDown:
+              quarterTurns = 2;
+              break;
+            case NativeDeviceOrientation.landscapeRight:
+              quarterTurns = 1;
+              break;
+            case NativeDeviceOrientation.portraitUp:
+            case NativeDeviceOrientation.unknown:
+              quarterTurns = 0;
+              break;
+          }
+          return RotatedBox(
+            quarterTurns: quarterTurns,
+            child: SizedBox(
+              height: double.infinity,
+              child: MobileScanner(
+                  key: _qrKey,
+                  controller: _controller,
+                  onDetect: (barcode, args) {
+                    if (barcode.rawValue != null) {
+                      widget.onFound(barcode.rawValue!);
+                    }
+                  }),
+            ),
+          );
+        },
       );
 }

@@ -9,7 +9,6 @@ import 'package:irmamobile/src/data/irma_client_bridge.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/sentry/sentry.dart';
-import 'package:irmamobile/src/widgets/credential_nudge.dart';
 import 'package:irmamobile/src/widgets/irma_repository_provider.dart';
 
 Future<void> main() async {
@@ -39,11 +38,8 @@ class IrmaApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => IrmaRepositoryProvider(
         repository: repository,
-        child: CredentialNudgeProvider(
-          credentialNudge: null,
-          child: App(
-            forcedLocale: forcedLocale,
-          ),
+        child: App(
+          forcedLocale: forcedLocale,
         ),
       );
 }

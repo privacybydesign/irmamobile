@@ -1,12 +1,6 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/clear_all_data_event.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
@@ -15,31 +9,11 @@ import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 class ResetPinScreen extends StatelessWidget {
   static const String routeName = '/reset';
 
-  void cancel(BuildContext context) {
-    Navigator.of(context).pop();
-  }
-
-  void confirm(BuildContext context) {
-    IrmaRepository.get().dispatch(ClearAllDataEvent());
-  }
-
-  void _closeKeyboard(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      FocusScope.of(context).requestFocus(FocusNode());
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    _closeKeyboard(context);
     return Scaffold(
-      appBar: IrmaAppBar(
-        title: Text(
-          FlutterI18n.translate(
-            context,
-            'reset_pin.title',
-          ),
-        ),
+      appBar: const IrmaAppBar(
+        titleTranslationKey: 'reset_pin.title',
       ),
       bottomSheet: IrmaBottomBar(
         key: const Key('reset_pin_buttons'),
@@ -48,9 +22,7 @@ class ResetPinScreen extends StatelessWidget {
           openWalletResetDialog(context);
         },
         secondaryButtonLabel: FlutterI18n.translate(context, 'reset_pin.back'),
-        onSecondaryPressed: () {
-          Navigator.of(context).pop();
-        },
+        onSecondaryPressed: () => Navigator.of(context).pop(),
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -70,7 +42,7 @@ class ResetPinScreen extends StatelessWidget {
                         width: 94,
                         height: 113,
                         child: SvgPicture.asset(
-                          'assets/reset/prullenbak.svg',
+                          'assets/reset/forgot_pin_illustration.svg',
                           excludeFromSemantics: true,
                         ),
                       ),
@@ -82,12 +54,10 @@ class ResetPinScreen extends StatelessWidget {
                     SizedBox(height: IrmaTheme.of(context).defaultSpacing),
                     SizedBox(
                       width: double.infinity,
-                      child: Container(
-                        child: Text(
-                          FlutterI18n.translate(context, 'reset_pin.existing_data_title'),
-                          style: Theme.of(context).textTheme.bodyText1,
-                          textAlign: TextAlign.left,
-                        ),
+                      child: Text(
+                        FlutterI18n.translate(context, 'reset_pin.existing_data_title'),
+                        style: Theme.of(context).textTheme.bodyText1,
+                        textAlign: TextAlign.left,
                       ),
                     ),
                     SizedBox(height: IrmaTheme.of(context).smallSpacing),

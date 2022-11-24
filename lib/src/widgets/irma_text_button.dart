@@ -1,22 +1,18 @@
-// This code is not null safe yet.
-// @dart=2.11
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 
 class IrmaTextButton extends StatelessWidget {
-  final String label;
+  final String? label;
   final double minWidth;
-  final VoidCallback onPressed;
-  final TextStyle textStyle;
-  final IrmaButtonSize size;
+  final VoidCallback? onPressed;
+  final TextStyle? textStyle;
+  final IrmaButtonSize? size;
 
   const IrmaTextButton({
-    Key key,
-    @required this.label,
+    Key? key,
+    this.label,
     this.onPressed,
     this.textStyle,
     this.size,
@@ -25,11 +21,13 @@ class IrmaTextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
     final fixedHeight = size?.value ?? 45.0;
+
     return TextButton(
       onPressed: onPressed,
       style: TextButton.styleFrom(
-        primary: IrmaTheme.of(context).primaryBlue,
+        primary: theme.secondary,
         minimumSize: Size(minWidth, fixedHeight),
         maximumSize: Size.fromHeight(fixedHeight),
         padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
@@ -38,8 +36,8 @@ class IrmaTextButton extends StatelessWidget {
         ),
       ),
       child: Text(
-        FlutterI18n.translate(context, label),
-        style: textStyle,
+        label != null ? FlutterI18n.translate(context, label!) : '',
+        style: textStyle ?? theme.textTheme.button!.copyWith(color: theme.secondary),
         textAlign: TextAlign.center,
       ),
     );

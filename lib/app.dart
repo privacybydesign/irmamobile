@@ -5,35 +5,36 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_i18n/flutter_i18n_delegate.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_privacy_screen/flutter_privacy_screen.dart';
-import 'package:irmamobile/routing.dart';
-import 'package:irmamobile/src/data/irma_preferences.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/applifecycle_changed_event.dart';
-import 'package:irmamobile/src/models/clear_all_data_event.dart';
-import 'package:irmamobile/src/models/enrollment_status.dart';
-import 'package:irmamobile/src/models/event.dart';
-import 'package:irmamobile/src/models/native_events.dart';
-import 'package:irmamobile/src/models/session.dart';
-import 'package:irmamobile/src/models/update_schemes_event.dart';
-import 'package:irmamobile/src/models/version_information.dart';
-import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
-import 'package:irmamobile/src/screens/pin/pin_screen.dart';
-import 'package:irmamobile/src/screens/required_update/required_update_screen.dart';
-import 'package:irmamobile/src/screens/reset_pin/reset_pin_screen.dart';
-import 'package:irmamobile/src/screens/rooted_warning/repository.dart';
-import 'package:irmamobile/src/screens/rooted_warning/rooted_warning_screen.dart';
-import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
-import 'package:irmamobile/src/screens/splash_screen/splash_screen.dart';
-import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/util/combine.dart';
-import 'package:irmamobile/src/util/handle_pointer.dart';
-import 'package:irmamobile/src/util/hero_controller.dart';
 import 'package:rxdart/rxdart.dart';
+
+import '../../routing.dart';
+import '../../src/data/irma_preferences.dart';
+import '../../src/data/irma_repository.dart';
+import '../../src/models/applifecycle_changed_event.dart';
+import '../../src/models/clear_all_data_event.dart';
+import '../../src/models/enrollment_status.dart';
+import '../../src/models/event.dart';
+import '../../src/models/native_events.dart';
+import '../../src/models/session.dart';
+import '../../src/models/update_schemes_event.dart';
+import '../../src/models/version_information.dart';
+import '../../src/screens/enrollment/enrollment_screen.dart';
+import '../../src/screens/home/home_screen.dart';
+import '../../src/screens/pin/pin_screen.dart';
+import '../../src/screens/required_update/required_update_screen.dart';
+import '../../src/screens/reset_pin/reset_pin_screen.dart';
+import '../../src/screens/rooted_warning/repository.dart';
+import '../../src/screens/rooted_warning/rooted_warning_screen.dart';
+import '../../src/screens/scanner/scanner_screen.dart';
+import '../../src/screens/splash_screen/splash_screen.dart';
+import '../../src/theme/theme.dart';
+import '../../src/util/combine.dart';
+import '../../src/util/handle_pointer.dart';
+import '../../src/util/hero_controller.dart';
 
 const schemeUpdateIntervalHours = 3;
 
@@ -58,7 +59,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
 
   // We keep track of the last two life cycle states
   // to be able to determine the flow
-  List<AppLifecycleState> prevLifeCycleStates = List<AppLifecycleState>(2);
+  List<AppLifecycleState> prevLifeCycleStates = List.filled(2, AppLifecycleState.detached);
 
   AppState();
 
@@ -87,14 +88,14 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance?.addObserver(this);
     _listenForDataClear();
     _listenScreenshotPref();
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    WidgetsBinding.instance?.removeObserver(this);
     _pointerSubscription?.cancel();
     _dataClearSubscription?.cancel();
     _screenshotPrefSubscription?.cancel();
@@ -172,11 +173,11 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
 
   void _onScreenPushed(Route route) {
     switch (route.settings.name) {
-      case WalletScreen.routeName:
+      case HomeScreen.routeName:
         // We have to make sure that sessions can be started once the
-        //  wallet screen has been pushed to the navigator. Otherwise
-        //  the session screens have no wallet screen to pop back to.
-        //  The wallet screen is only pushed when the user is fully enrolled.
+        //  home screen has been pushed to the navigator. Otherwise
+        //  the session screens have no home screen to pop back to.
+        //  The home screen is only pushed when the user is fully enrolled.
         _listenToPendingSessionPointer();
         _maybeOpenQrScanner();
         break;
@@ -193,7 +194,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
 
   void _onScreenPopped(Route route) {
     switch (route.settings.name) {
-      case WalletScreen.routeName:
+      case HomeScreen.routeName:
         _pointerSubscription.cancel();
         break;
       case ScannerScreen.routeName:
@@ -206,7 +207,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   void _listenToPendingSessionPointer() {
     final repo = IrmaRepository.get();
 
-    // Listen for incoming SessionPointers as long as the wallet screen is there.
+    // Listen for incoming SessionPointers as long as the home screen is there.
     //  We can always act on these, because if the app is locked,
     //  their screens will simply be covered.
     _pointerSubscription = repo.getPendingPointer().listen((pointer) {
@@ -359,12 +360,12 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
 
   @override
   Widget build(BuildContext context) {
-    // Device orientation: force portrait mode
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
     ]);
-
     return IrmaTheme(
       builder: (BuildContext context) {
         return Stack(

@@ -1,10 +1,11 @@
 import 'package:flutter/cupertino.dart';
-import 'package:irmamobile/src/models/attributes.dart';
-import 'package:irmamobile/src/models/credentials.dart';
-import 'package:irmamobile/src/models/event.dart';
-import 'package:irmamobile/src/models/session.dart';
-import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+import 'attribute.dart';
+import 'credentials.dart';
+import 'event.dart';
+import 'session.dart';
+import 'translated_value.dart';
 
 part 'session_events.g.dart';
 
@@ -21,8 +22,8 @@ class NewSessionEvent extends SessionEvent {
   // We start at some arbitrary point above zero
   static int sessionIDCounter = 42;
 
-  NewSessionEvent({@visibleForTesting int? sessionId, required this.request, this.inAppCredential = ''})
-      : super(sessionId ?? sessionIDCounter++);
+  NewSessionEvent({@visibleForTesting int? sessionID, required this.request, this.inAppCredential = ''})
+      : super(sessionID ?? sessionIDCounter++);
 
   @JsonKey(name: 'Request')
   final SessionPointer request;
@@ -52,7 +53,9 @@ class RespondPermissionEvent extends SessionEvent {
 }
 
 class ContinueToIssuanceEvent extends SessionEvent {
-  ContinueToIssuanceEvent({required int sessionID}) : super(sessionID);
+  final List<List<AttributeIdentifier>> disclosureChoices;
+
+  ContinueToIssuanceEvent({required int sessionID, required this.disclosureChoices}) : super(sessionID);
 }
 
 @JsonSerializable()
@@ -67,17 +70,6 @@ class RespondPinEvent extends SessionEvent {
 
   factory RespondPinEvent.fromJson(Map<String, dynamic> json) => _$RespondPinEventFromJson(json);
   Map<String, dynamic> toJson() => _$RespondPinEventToJson(this);
-}
-
-class DisclosureChoiceUpdateSessionEvent extends SessionEvent {
-  final int disconIndex;
-  final int conIndex;
-
-  DisclosureChoiceUpdateSessionEvent({
-    required int sessionID,
-    required this.disconIndex,
-    required this.conIndex,
-  }) : super(sessionID);
 }
 
 @JsonSerializable()

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+
 import 'package:flutter_test/flutter_test.dart';
+
+import 'package:irmamobile/src/screens/home/home_tab.dart';
 
 extension WidgetTesterUtil on WidgetTester {
   /// Renders the given widget and waits until it settles.
@@ -9,10 +11,22 @@ extension WidgetTesterUtil on WidgetTester {
     await waitFor(find.byWidget(w));
   }
 
+  Future<void> unlock() async {
+    await enterPin('12345');
+    await waitFor(find.byType(HomeTab).hitTestable());
+  }
+
   /// Enters the given text in the EditableText that currently is in focus.
   Future<void> enterTextAtFocusedAndSettle(String text) async {
     await enterText(find.byWidgetPredicate((w) => w is EditableText && w.focusNode.hasFocus), text);
     await pumpAndSettle(const Duration(milliseconds: 500));
+  }
+
+  Future<void> enterPin(String text) async {
+    for (final digit in text.split('')) {
+      await tap(find.byKey(Key('number_pad_key_$digit')));
+      await pumpAndSettle();
+    }
   }
 
   /// Taps on the given widget, waits for a response, triggers a new frame sequence
@@ -27,6 +41,13 @@ extension WidgetTesterUtil on WidgetTester {
   Future<void> waitFor(Finder f, {Duration timeout = const Duration(minutes: 1)}) => Future.doWhile(() async {
         await pumpAndSettle();
         return !any(f);
+      }).timeout(timeout);
+
+  /// Waits for the given widget to disappear. When the timeout passes, an exception is given.
+  Future<void> waitUntilDisappeared(Finder f, {Duration timeout = const Duration(minutes: 1)}) =>
+      Future.doWhile(() async {
+        await pumpAndSettle();
+        return any(f);
       }).timeout(timeout);
 
   /// Returns the data strings of all populated Text widgets being descendant of the given widget. If the

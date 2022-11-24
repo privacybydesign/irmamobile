@@ -1,7 +1,3 @@
-// This code is not null safe yet.
-// @dart=2.11
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:irmamobile/src/theme/theme.dart';
 
@@ -10,8 +6,8 @@ class Link extends StatelessWidget {
   final VoidCallback onTap;
 
   const Link({
-    @required this.label,
-    @required this.onTap,
+    required this.label,
+    required this.onTap,
   });
 
   @override

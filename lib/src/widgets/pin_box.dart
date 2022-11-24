@@ -1,13 +1,9 @@
-// This code is not null safe yet.
-// @dart=2.11
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/theme/theme.dart';
+
+import '../theme/theme.dart';
 
 class PinBox extends StatelessWidget {
   final double height;
-  final EdgeInsets margin;
 
   final String char;
 
@@ -15,26 +11,25 @@ class PinBox extends StatelessWidget {
   final bool completed;
   final bool highlightBorder;
 
-  bool get filled => char != '';
+  final bool filled;
 
-  const PinBox({
-    @required this.margin,
-    @required this.char,
+  PinBox({
+    required this.char,
     this.height = 40.0,
     this.disabled = false,
     this.completed = false,
     this.highlightBorder = false,
-  });
+  }) : filled = char.isNotEmpty;
 
   Color getBorderColor(IrmaThemeData theme) {
-    if (filled) {
-      return theme.grayscale40; // filled boxes
-    } else if (highlightBorder) {
+    if (highlightBorder) {
       // the box that is currently highlighted
-      return theme.primaryBlue;
+      return theme.secondary;
+    } else if (filled) {
+      return Colors.grey.shade300; // filled boxes
     } else {
       // empty boxes that are not highlighted
-      return theme.grayscale60;
+      return Colors.grey;
     }
   }
 
@@ -43,7 +38,6 @@ class PinBox extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
-      margin: margin,
       width: height / 4 * 3,
       height: height,
       alignment: Alignment.center,
@@ -53,13 +47,13 @@ class PinBox extends StatelessWidget {
             color: getBorderColor(theme),
             width: highlightBorder ? 2 : 1,
           ),
-          color: disabled ? theme.disabled : theme.grayscaleWhite),
+          color: disabled ? Colors.grey : Colors.white),
       child: Text(
         char,
-        style: Theme.of(context).textTheme.headline3.copyWith(
+        style: Theme.of(context).textTheme.headline3?.copyWith(
               fontSize: height / 2 + 4,
               height: 22.0 / 18.0,
-              color: completed ? theme.primaryBlue : theme.grayscale40,
+              color: completed ? theme.secondary : Colors.grey,
             ),
       ),
     );

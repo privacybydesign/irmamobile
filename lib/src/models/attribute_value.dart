@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
+
 import 'package:irmamobile/src/models/irma_configuration.dart';
 import 'package:irmamobile/src/models/translated_value.dart';
 
@@ -68,6 +69,7 @@ class PhotoValue implements AttributeValue {
     return PhotoValue(
       image: Image.memory(
         const Base64Decoder().convert(textValue.raw),
+        fit: BoxFit.fitWidth,
       ),
       raw: textValue.raw,
     );

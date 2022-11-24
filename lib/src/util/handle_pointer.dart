@@ -7,39 +7,47 @@ import '../screens/error/error_screen.dart';
 import '../screens/issue_wizard/issue_wizard.dart';
 import '../screens/session/session.dart';
 import '../screens/session/session_screen.dart';
-import '../screens/wallet/wallet_screen.dart';
+import '../screens/session/unknown_session_screen.dart';
 import '../widgets/irma_repository_provider.dart';
 
 /// First handles the issue wizard if one is present, and subsequently the session is handled.
 /// If no wizard is specified, only the session will be performed.
-/// If no session is specified, the user will be returned to the WalletScreen after completing the wizard.
-Future<void> handlePointer(NavigatorState navigator, Pointer pointer) async {
+/// If no session is specified, the user will be returned to the HomeScreen after completing the wizard.
+/// If pushReplacement is true, then the current screen is being replaced with the handler screen.
+Future<void> handlePointer(NavigatorState navigator, Pointer pointer, {bool pushReplacement = false}) async {
   try {
     await pointer.validate(irmaRepository: IrmaRepositoryProvider.of(navigator.context));
   } catch (e) {
-    navigator.pushAndRemoveUntil(
-      MaterialPageRoute(
-        builder: (context) => ErrorScreen(
-          details: 'error starting session or wizard: ${e.toString()}',
-          onTapClose: () => navigator.pop(),
-        ),
+    final pageRoute = MaterialPageRoute(
+      builder: (context) => ErrorScreen(
+        details: 'error starting session or wizard: $e',
+        onTapClose: () => navigator.pop(),
       ),
-      ModalRoute.withName(WalletScreen.routeName),
     );
+    if (pushReplacement) {
+      await navigator.pushReplacement(pageRoute);
+    } else {
+      await navigator.push(pageRoute);
+    }
     return;
   }
 
   int? sessionID;
   if (pointer is SessionPointer) {
-    sessionID = await _startSessionAndNavigate(navigator, pointer);
+    sessionID = await _startSessionAndNavigate(navigator, pointer, pushReplacement);
   }
 
   if (pointer is IssueWizardPointer) {
-    _startIssueWizard(navigator, pointer, sessionID);
+    await _startIssueWizard(navigator, pointer, sessionID, pushReplacement);
   }
 }
 
-Future<void> _startIssueWizard(NavigatorState navigator, IssueWizardPointer wizardPointer, int? sessionID) async {
+Future<void> _startIssueWizard(
+  NavigatorState navigator,
+  IssueWizardPointer wizardPointer,
+  int? sessionID,
+  bool pushReplacement,
+) async {
   final repo = IrmaRepositoryProvider.of(navigator.context);
   repo.dispatch(
     GetIssueWizardContentsEvent(id: wizardPointer.wizard),
@@ -48,13 +56,25 @@ Future<void> _startIssueWizard(NavigatorState navigator, IssueWizardPointer wiza
 
   // Push wizard on top of session screen (if any). If the user cancels the wizard by going back
   // to the wallet, then the session screen is automatically dismissed, which cancels the session.
-  navigator.pushNamed(
-    IssueWizardScreen.routeName,
-    arguments: IssueWizardScreenArguments(wizardID: wizardPointer.wizard, sessionID: sessionID),
-  );
+  final args = IssueWizardScreenArguments(wizardID: wizardPointer.wizard, sessionID: sessionID);
+  if (pushReplacement) {
+    await navigator.pushReplacementNamed(
+      IssueWizardScreen.routeName,
+      arguments: args,
+    );
+  } else {
+    await navigator.pushNamed(
+      IssueWizardScreen.routeName,
+      arguments: args,
+    );
+  }
 }
 
-Future<int> _startSessionAndNavigate(NavigatorState navigator, SessionPointer sessionPointer) async {
+Future<int> _startSessionAndNavigate(
+  NavigatorState navigator,
+  SessionPointer sessionPointer,
+  bool pushReplacement,
+) async {
   final repo = IrmaRepositoryProvider.of(navigator.context);
   final event = NewSessionEvent(
     request: sessionPointer,
@@ -72,14 +92,22 @@ Future<int> _startSessionAndNavigate(NavigatorState navigator, SessionPointer se
     wizardActive: wizardActive,
     wizardCred: wizardActive ? (await repo.getIssueWizard().first)?.activeItem?.credential : null,
   );
-  if (hasActiveSessions || wizardActive) {
-    navigator.pushNamed(SessionScreen.routeName, arguments: args);
+
+  final routeName = () {
+    switch (args.sessionType) {
+      case 'issuing':
+      case 'disclosing':
+      case 'signing':
+      case 'redirect':
+        return SessionScreen.routeName;
+      default:
+        return UnknownSessionScreen.routeName;
+    }
+  }();
+  if (pushReplacement) {
+    await navigator.pushReplacementNamed(routeName, arguments: args);
   } else {
-    navigator.pushNamedAndRemoveUntil(
-      SessionScreen.routeName,
-      ModalRoute.withName(WalletScreen.routeName),
-      arguments: args,
-    );
+    await navigator.pushNamed(routeName, arguments: args);
   }
 
   return event.sessionID;

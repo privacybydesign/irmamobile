@@ -25,11 +25,12 @@ cache:
 lint:dart:
   script:
     - flutter format --line-length=120 --set-exit-if-changed lib/ test/ integration_test/
+    - flutter analyze --no-fatal-infos
   stage: lint
 
 unit_test:flutter:
   script:
-    - flutter test --no-sound-null-safety
+    - flutter test
   stage: unit_test
 
 build_bridge:
@@ -42,6 +43,18 @@ build_bridge:
     - gomobile bind -target android -o android/irmagobridge/irmagobridge.aar github.com/privacybydesign/irmamobile/irmagobridge
 
 # We can only build for Android, because we don't have an MacOS runner yet.
+build_prototypes:android:
+  stage: build_app
+  interruptible: true
+  only:
+    - master
+    - merge_requests
+  artifacts:
+    paths:
+      - build/app/outputs/apk/alpha/release/*.apk
+  script:
+    - flutter build apk --target-platform android-arm,android-arm64 --flavor alpha -t lib/main_prototypes.dart
+
 build_app:android_alpha:
   stage: build_app
   interruptible: true
@@ -49,7 +62,16 @@ build_app:android_alpha:
     paths:
       - build/app/outputs/apk/alpha/release/*.apk
   script:
-    - flutter build apk --target-platform android-arm,android-arm64 --split-per-abi --flavor alpha
+    - flutter build apk --target-platform android-arm,android-arm64 --flavor alpha
+
+build_app:android_beta:
+  stage: build_app
+  interruptible: true
+  artifacts:
+    paths:
+      - build/app/outputs/apk/beta/release/*.apk
+  script:
+    - flutter build apk --target-platform android-arm,android-arm64 --flavor beta
 
 build_app:android_test:
   stage: build_app
@@ -70,4 +92,4 @@ integration_test:
   script:
     - gcloud auth activate-service-account --key-file <(echo $GCLOUD_SERVICE_KEY)
     - gcloud config set project $GCLOUD_PROJECT_ID
-    - gcloud firebase test android run --app build/app/outputs/apk/alpha/debug/app-alpha-debug.apk --test build/app/outputs/apk/androidTest/alpha/debug/app-alpha-debug-androidTest.apk --timeout 10m --device=model=Pixel3,version=30
+    - gcloud firebase test android run --use-orchestrator --app build/app/outputs/apk/alpha/debug/app-alpha-debug.apk --test build/app/outputs/apk/androidTest/alpha/debug/app-alpha-debug-androidTest.apk --timeout 20m --device=model=Pixel3,version=30,orientation=portrait --device=model=Pixel3,version=30,orientation=landscape

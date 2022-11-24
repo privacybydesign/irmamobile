@@ -1,1 +1,5 @@
-include: package:lint/analysis_options.yaml
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    use_key_in_widget_constructors: false

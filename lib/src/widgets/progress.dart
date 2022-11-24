@@ -1,39 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/loading_indicator.dart';
+
+import '../theme/theme.dart';
+
+import 'loading_indicator.dart';
+import 'translated_text.dart';
 
 class IrmaProgress extends StatelessWidget {
-  final String description;
-
-  const IrmaProgress(this.description);
-
   @override
   Widget build(BuildContext context) {
-    return Center(
+    final theme = IrmaTheme.of(context);
+    return Container(
+      alignment: Alignment.center,
       child: Column(
-        children: <Widget>[
-          SizedBox(
-            height: IrmaTheme.of(context).hugeSpacing,
-          ),
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
           LoadingIndicator(),
           SizedBox(
-            height: IrmaTheme.of(context).defaultSpacing,
+            height: theme.defaultSpacing,
           ),
-          Text(
-            FlutterI18n.translate(
-              context,
-              "ui.loading",
-            ),
-            style: IrmaTheme.of(context).textTheme.headline3,
+          TranslatedText(
+            'ui.loading',
+            style: theme.textTheme.headline3,
+            textAlign: TextAlign.center,
           ),
-          SizedBox(
-            height: IrmaTheme.of(context).smallSpacing,
-          ),
-          Text(
-            description,
-            style: IrmaTheme.of(context).textTheme.bodyText2,
-          )
         ],
       ),
     );

@@ -1,78 +1,88 @@
-// This code is not null safe yet.
-// @dart=2.11
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/theme/theme.dart';
+
+import '../theme/theme.dart';
 
 class IrmaThemedButton extends StatelessWidget {
   final String label;
-  final VoidCallback onPressed;
-  final VoidCallback onPressedDisabled;
+  final VoidCallback? onPressed;
   final Color color;
-  final Color disabledColor;
-  final Color textColor;
+  final Color? disabledColor;
+  final Color? textColor;
   final OutlinedBorder shape;
-  final IrmaButtonSize size;
+  final IrmaButtonSize? size;
   final double minWidth;
-  final TextStyle textStyle;
-  final IconData icon;
+  final TextStyle? textStyle;
+  final IconData? icon;
+  final bool isSecondary;
 
   const IrmaThemedButton({
-    @required this.label,
-    @required this.onPressed,
-    this.onPressedDisabled,
-    @required this.color,
+    required this.label,
+    required this.onPressed,
+    required this.color,
     this.disabledColor,
-    @required this.textColor,
-    @required this.shape,
+    this.textColor,
+    required this.shape,
     this.size,
     this.minWidth = 232,
     this.textStyle,
     this.icon,
+    this.isSecondary = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final text = Text(
       FlutterI18n.translate(context, label),
-      style: textStyle,
+      style: textStyle ??
+          IrmaTheme.of(context).textTheme.button!.copyWith(
+                color: isSecondary ? color : Colors.white,
+              ),
     );
 
-    final fixedHeight = size?.value ?? IrmaButtonSize.medium.value;
-    return GestureDetector(
-      excludeFromSemantics: true,
-      onTapUp: (_) {
-        if (onPressed == null && onPressedDisabled != null) {
-          onPressedDisabled();
+    final fixedHeight = size != null ? size!.value : IrmaButtonSize.medium.value;
+
+    final style = ButtonStyle(
+      backgroundColor: MaterialStateProperty.resolveWith<Color?>((states) {
+        if (states.contains(MaterialState.disabled)) {
+          return disabledColor;
+        } else {
+          return isSecondary ? Colors.white : color;
         }
-      },
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          elevation: 0.0,
-          primary: color,
-          onPrimary: textColor,
-          onSurface: disabledColor ?? IrmaTheme.of(context).disabled,
-          shape: shape,
-          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
-          minimumSize: Size(minWidth, fixedHeight),
-          maximumSize: Size.fromHeight(fixedHeight),
+      }),
+      foregroundColor:
+          MaterialStateProperty.resolveWith<Color?>((_) => textColor ?? (isSecondary ? color : Colors.white)),
+      side: MaterialStateProperty.resolveWith<BorderSide?>((_) => isSecondary ? BorderSide(color: color) : null),
+      shape: MaterialStateProperty.resolveWith<OutlinedBorder?>((_) => shape),
+      padding: MaterialStateProperty.resolveWith<EdgeInsets>(
+        (_) => const EdgeInsets.symmetric(
+          vertical: 10.0,
+          horizontal: 20.0,
         ),
-        child: icon == null
-            ? text
-            : Row(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Icon(icon),
-                  const SizedBox(
-                    width: 10.0,
-                  ),
-                  text,
-                ],
-              ),
       ),
+      minimumSize: MaterialStateProperty.resolveWith<Size>(
+        (_) => Size(minWidth, fixedHeight),
+      ),
+      maximumSize: MaterialStateProperty.resolveWith<Size>(
+        (_) => Size.fromHeight(fixedHeight),
+      ),
+    );
+
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: style,
+      child: icon == null
+          ? text
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon),
+                const SizedBox(
+                  width: 10.0,
+                ),
+                text,
+              ],
+            ),
     );
   }
 }
@@ -85,4 +95,5 @@ class IrmaButtonSize {
   static const large = IrmaButtonSize._internal(54);
   static const medium = IrmaButtonSize._internal(48);
   static const small = IrmaButtonSize._internal(40);
+  static const extraSmall = IrmaButtonSize._internal(35);
 }
