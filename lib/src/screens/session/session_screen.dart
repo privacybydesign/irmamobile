@@ -25,7 +25,6 @@ import 'session.dart';
 import 'widgets/arrow_back_screen.dart';
 import 'widgets/disclosure_feedback_screen.dart';
 import 'widgets/issuance_permission.dart';
-import 'widgets/issuance_success_screen.dart';
 import 'widgets/pairing_required.dart';
 import 'widgets/session_scaffold.dart';
 
@@ -193,18 +192,11 @@ class _SessionScreenState extends State<SessionScreen> {
   }
 
   Widget _buildFinished(SessionState session) {
+    // In case of issuance during disclosure, another session is open in a screen lower in the stack.
+    // Ignore clientReturnUrl in this case (issuance) and pop immediately.
     if (session.isIssuanceSession && widget.arguments.hasUnderlyingSession) {
-      // In case of issuance during disclosure, another session is open in a screen lower in the stack.
-      // Ignore clientReturnUrl in this case (issuance) and pop immediately.
       WidgetsBinding.instance?.addPostFrameCallback((_) => Navigator.of(context).pop());
       return _buildLoadingScreen(true);
-    }
-
-    if (session.isIssuanceSession &&
-        (session.disclosuresCandidates == null || session.disclosuresCandidates!.isEmpty)) {
-      return const IssuanceSuccessScreen(
-        onDismiss: popToHome,
-      );
     }
 
     if (session.continueOnSecondDevice && !(session.clientReturnURL?.isPhoneNumber ?? false)) {
