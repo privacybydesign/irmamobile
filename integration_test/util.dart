@@ -1,32 +1,11 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:irmamobile/src/screens/home/home_tab.dart';
 
 extension WidgetTesterUtil on WidgetTester {
   /// Renders the given widget and waits until it settles.
   Future<void> pumpWidgetAndSettle(Widget w) async {
     await pumpWidget(w, const Duration(seconds: 2));
     await waitFor(find.byWidget(w));
-  }
-
-  Future<void> unlock() async {
-    await enterPin('12345');
-    await waitFor(find.byType(HomeTab).hitTestable());
-  }
-
-  /// Enters the given text in the EditableText that currently is in focus.
-  Future<void> enterTextAtFocusedAndSettle(String text) async {
-    await enterText(find.byWidgetPredicate((w) => w is EditableText && w.focusNode.hasFocus), text);
-    await pumpAndSettle(const Duration(milliseconds: 500));
-  }
-
-  Future<void> enterPin(String text) async {
-    for (final digit in text.split('')) {
-      await tap(find.byKey(Key('number_pad_key_$digit')));
-      await pumpAndSettle();
-    }
   }
 
   /// Taps on the given widget, waits for a response, triggers a new frame sequence
@@ -57,32 +36,4 @@ extension WidgetTesterUtil on WidgetTester {
           .cast<Text>()
           .where((w) => w.data != null)
           .map((w) => w.data!);
-
-  /// Returns the switch value of the SwitchListTile that contains the widget being found by the given finder.
-  bool getSwitchListTileValue(Finder f) => (widget(find.byWidgetPredicate((widget) =>
-          widget is SwitchListTile &&
-          any(find.descendant(
-            of: find.byWidget(widget),
-            matching: f,
-          )))) as SwitchListTile)
-      .value;
-
-  /// Looks for a Scrollable inside a widget with Key 'parentKey', scrolls through all items
-  /// to look for a Text widget with Key 'textKey' and checks whether its value equals to 'textValue'.
-  Future<void> scrollAndCheckText(String parentKey, String textKey, String textValue) async {
-    final parentWidget = find.byKey(Key(parentKey));
-    final textWidget = find.descendant(of: parentWidget, matching: find.byKey(Key(textKey)));
-    await scrollUntilVisible(textWidget, 30,
-        scrollable: find.descendant(
-          of: parentWidget,
-          matching: find.byWidgetPredicate((widget) => widget is Scrollable),
-          matchRoot: true,
-        ));
-    final string = getAllText(textWidget).first;
-    expect(string, textValue);
-  }
-
-  /// Returns a finder matching all widgets from a given type that contain the given content.
-  Finder findByTypeWithContent({required Type type, required Finder content}) => find.byWidgetPredicate(
-      (widget) => widget.runtimeType == type && any(find.descendant(of: find.byWidget(widget), matching: content)));
 }

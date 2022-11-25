@@ -2,10 +2,8 @@
 // @dart=2.11
 
 import 'package:flutter/foundation.dart';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-
 import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/screens/home/home_tab.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
@@ -38,7 +36,7 @@ void main() {
       await tester.tapAndSettle(logoutButtonFinder);
       // login using wrong pin
       await tester.waitFor(find.byKey(const Key('pin_screen')));
-      await tester.enterPin('54321');
+      await enterPin(tester, '54321');
       // Check error dialog
       await tester.waitFor(find.byKey(const Key('irma_dialog')));
       // Check "Wrong PIN" dialog title text
@@ -68,7 +66,7 @@ void main() {
       await tester.tapAndSettle(logoutButtonFinder);
       // login using wrong pin
       await tester.waitFor(find.byKey(const Key('pin_screen')));
-      await tester.enterPin('54321');
+      await enterPin(tester, '54321');
       // Check error dialog
       await tester.waitFor(find.byKey(const Key('irma_dialog')));
       // Check "Wrong PIN" dialog title text
@@ -83,7 +81,7 @@ void main() {
         matching: find.byType(IrmaButton),
       ));
       // login using wrong pin
-      await tester.enterPin('54321');
+      await enterPin(tester, '54321');
       // Check error dialog
       await tester.waitFor(find.byKey(const Key('irma_dialog')));
       // Check "Wrong PIN" dialog title text
@@ -98,7 +96,7 @@ void main() {
         matching: find.byType(IrmaButton),
       ));
       // login using wrong pin
-      await tester.enterPin('54321');
+      await enterPin(tester, '54321');
       // Check error dialog
       await tester.waitFor(find.byKey(const Key('irma_dialog')));
       // Check "Wrong PIN" dialog title text
@@ -114,7 +112,7 @@ void main() {
       ));
       // Wait 65 seconds and try again using the correct pin
       await tester.pumpAndSettle(const Duration(seconds: 65));
-      await tester.unlock();
+      await unlock(tester);
     }, timeout: const Timeout(Duration(minutes: 3)));
   });
 }
