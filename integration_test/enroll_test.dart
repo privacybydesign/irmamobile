@@ -3,6 +3,7 @@
 
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -232,45 +233,52 @@ void main() {
         ),
       );
 
-      testWidgets(
-        'provide',
-        (tester) async {
-          await _goToEmailScreen(tester);
+      // On physical iOS devices we run the integration test in release mode, as instructed.
+      // https://github.com/flutter/flutter/tree/main/packages/integration_test#ios-device-testing
+      // Flutter has a bug causing enterText to not work in release mode.
+      // https://github.com/flutter/flutter/issues/89749
+      // For now, we disable this test when running in release mode as a work-around.
+      if (kDebugMode) {
+        testWidgets(
+          'provide',
+          (tester) async {
+            await _goToEmailScreen(tester);
 
-          var emailInputFinder = find.byKey(const Key('email_input_field'));
-          var emailInvalidMessageFinder = find.descendant(
-            of: emailInputFinder,
-            matching: find.text('Please check your e-mail address, this doesn\'t seem to be a valid e-mail address'),
-          );
-          expect(emailInvalidMessageFinder, findsNothing);
+            var emailInputFinder = find.byKey(const Key('email_input_field'));
+            var emailInvalidMessageFinder = find.descendant(
+              of: emailInputFinder,
+              matching: find.text('Please check your e-mail address, this doesn\'t seem to be a valid e-mail address'),
+            );
+            expect(emailInvalidMessageFinder, findsNothing);
 
-          // Continue without entering email
-          await tester.tapAndSettle(find.text('Next'));
-          expect(emailInvalidMessageFinder, findsOneWidget);
+            // Continue without entering email
+            await tester.tapAndSettle(find.text('Next'));
+            expect(emailInvalidMessageFinder, findsOneWidget);
 
-          // Enter false e-mail
-          await tester.enterText(emailInputFinder, 'thisIsNotAnEmail');
-          await tester.tapAndSettle(find.text('Next'));
-          expect(emailInvalidMessageFinder, findsOneWidget);
+            // Enter false e-mail
+            await tester.enterText(emailInputFinder, 'thisIsNotAnEmail');
+            await tester.tapAndSettle(find.text('Next'));
+            expect(emailInvalidMessageFinder, findsOneWidget);
 
-          // Enter valid e-mail
-          final seed = random.nextInt(1000000).toString();
-          await tester.enterText(emailInputFinder, 'test$seed@example.com');
-          await tester.testTextInput.receiveAction(TextInputAction.done);
-          await tester.pumpAndSettle(const Duration(seconds: 1));
-          await tester.tapAndSettle(find.text('Next'));
+            // Enter valid e-mail
+            final seed = random.nextInt(1000000).toString();
+            await tester.enterText(emailInputFinder, 'test$seed@example.com');
+            await tester.testTextInput.receiveAction(TextInputAction.done);
+            await tester.pumpAndSettle(const Duration(seconds: 1));
+            await tester.tapAndSettle(find.text('Next'));
 
-          // Wait for email sent screen
-          await tester.waitFor(find.byKey(const Key('email_sent_screen')));
-          await tester.tapAndSettle(find.text('Next'));
+            // Wait for email sent screen
+            await tester.waitFor(find.byKey(const Key('email_sent_screen')));
+            await tester.tapAndSettle(find.text('Next'));
 
-          // Wait for home screen
-          await tester.waitFor(find.byType(HomeScreen));
-        },
-        timeout: const Timeout(
-          Duration(minutes: 1),
-        ),
-      );
+            // Wait for home screen
+            await tester.waitFor(find.byType(HomeScreen));
+          },
+          timeout: const Timeout(
+            Duration(minutes: 1),
+          ),
+        );
+      }
     });
   });
 }
