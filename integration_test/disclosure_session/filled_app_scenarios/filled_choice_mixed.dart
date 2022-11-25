@@ -63,6 +63,7 @@ Future<void> filledChoiceMixedTest(WidgetTester tester, IntegrationTestIrmaBindi
 
   // Change choice should be visible
   final changeChoiceFinder = find.text('Change choice');
+  await tester.scrollUntilVisible(changeChoiceFinder, 50);
   expect(changeChoiceFinder, findsOneWidget);
 
   // Press the change choice
