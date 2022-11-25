@@ -3,7 +3,6 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:package_info/package_info.dart';
 
@@ -23,9 +22,7 @@ void main() {
 
     testWidgets('screen-content', (tester) async {
       // Initialize the app for integration tests
-      await tester.pumpWidgetAndSettle(IrmaApp(repository: irmaBinding.repository));
-
-      await unlock(tester);
+      await pumpAndUnlockApp(tester, irmaBinding.repository);
 
       // Open menu
       await tester.tapAndSettle(find.text('More'));
@@ -58,9 +55,7 @@ void main() {
 
     testWidgets('developer-mode', (tester) async {
       // Initialize the app for integration tests
-      await tester.pumpWidgetAndSettle(IrmaApp(repository: irmaBinding.repository));
-
-      await unlock(tester);
+      await pumpAndUnlockApp(tester, irmaBinding.repository);
 
       // Open menu
       await tester.tapAndSettle(find.text('More'));
@@ -80,9 +75,7 @@ void main() {
 
     testWidgets('log-out', (tester) async {
       // Initialize the app for integration tests
-      await tester.pumpWidgetAndSettle(IrmaApp(repository: irmaBinding.repository));
-
-      await unlock(tester);
+      await pumpAndUnlockApp(tester, irmaBinding.repository);
 
       // Open menu
       await tester.tapAndSettle(find.text('More'));
@@ -97,9 +90,7 @@ void main() {
 
     testWidgets('faq', (tester) async {
       // Initialize the app for integration tests
-      await tester.pumpWidgetAndSettle(IrmaApp(repository: irmaBinding.repository));
-
-      await unlock(tester);
+      await pumpAndUnlockApp(tester, irmaBinding.repository);
 
       // Open menu
       await tester.tapAndSettle(find.text('More'));
