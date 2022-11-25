@@ -183,8 +183,11 @@ lane :ios_build_integration_test do |options|
       )
     end
     Dir.chdir("./build/ios_integ/Build/Products") do
+      # XCode does not clean left-over build artifacts created by earlier XCode versions.
+      # Therefore, we ensure only the xctestrun file for the latest iOS SDK is included.
+      test_run_name = sh("ls -r1 *.xctestrun | head -n 1")
       sh("rm -f ../../../../fastlane/build/ios_tests.zip")
-      sh("zip -r ../../../../fastlane/build/ios_tests.zip *")
+      sh("zip -r ../../../../fastlane/build/ios_tests.zip Release-iphoneos #{test_run_name}")
     end
   end
 end
