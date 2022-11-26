@@ -79,6 +79,7 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
 
   // Tap the first change choice
   final changeChoiceFinder = find.text('Change choice');
+  await tester.scrollUntilVisible(changeChoiceFinder.first, 50);
   await tester.tapAndSettle(changeChoiceFinder.first);
 
   // Expect two options to be present
