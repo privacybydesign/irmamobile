@@ -2,6 +2,7 @@
 // @dart=2.11
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
@@ -66,7 +67,9 @@ void main() {
       await irmaBinding.repository.getDeveloperMode().firstWhere((enabled) => !enabled);
 
       // Check enabling developer mode.
-      await tester.scrollUntilVisible(find.textContaining('Version').hitTestable(), 100);
+      await tester.scrollUntilVisible(find.textContaining('Version'), 100);
+      await tester.drag(find.byType(ListView), const Offset(0, -50)); // To prevent the 'Scan QR' button to overlap.
+      await tester.pumpAndSettle();
       for (int i = 0; i < 7; i++) {
         await tester.tapAndSettle(find.textContaining('Version'));
       }
