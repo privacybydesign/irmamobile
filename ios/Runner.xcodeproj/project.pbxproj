@@ -21,7 +21,6 @@
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		A8DCE10928F36478002BFD88 /* RunnerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A8DCE10828F36478002BFD88 /* RunnerTests.m */; };
-		D972BBC5D0CE89AB48CE8466 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		E2097A7FA54E2A1FE2B4244D /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7C230D6118D56895BA265A94 /* Pods_Runner.framework */; };
 /* End PBXBuildFile section */
 
@@ -90,7 +89,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				52A5D74023A24AD90030BD8B /* Irmagobridge.xcframework in Frameworks */,
-				D972BBC5D0CE89AB48CE8466 /* BuildFile in Frameworks */,
+				D972BBC5D0CE89AB48CE8466 /* (null) in Frameworks */,
 				E2097A7FA54E2A1FE2B4244D /* Pods_Runner.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
