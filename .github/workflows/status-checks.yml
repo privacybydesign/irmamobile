@@ -192,7 +192,7 @@ jobs:
       - name: Set Firebase project
         run: gcloud config set project yivimobile
       - name: Run integration tests
-        run: gcloud firebase test ios run --test ios_tests.zip --timeout 20m --device=model=iphone8
+        run: gcloud firebase test ios run --test ios_tests.zip --timeout 20m --device=model=iphone8,orientation=portrait --device=model=iphone8,orientation=landscape
   integration-test-android:
     runs-on: ubuntu-latest
     container: google/cloud-sdk:latest
