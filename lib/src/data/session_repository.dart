@@ -57,7 +57,7 @@ class SessionRepository {
       sessionID: event.sessionID,
       clientReturnURL: ReturnURL.parse(event.request.returnURL),
       continueOnSecondDevice: event.request.continueOnSecondDevice,
-      inAppCredential: event.inAppCredential,
+      credentialsLaunchedFromStore: event.credentialsLaunchedFromStore,
       status: SessionStatus.initialized,
       serverName: serverName,
       sessionType: event.request.irmaqr,

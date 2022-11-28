@@ -25,6 +25,7 @@ import 'session.dart';
 import 'widgets/arrow_back_screen.dart';
 import 'widgets/disclosure_feedback_screen.dart';
 import 'widgets/issuance_permission.dart';
+import 'widgets/issuance_success_screen.dart';
 import 'widgets/pairing_required.dart';
 import 'widgets/session_scaffold.dart';
 
@@ -79,25 +80,6 @@ class _SessionScreenState extends State<SessionScreen> {
     ));
   }
 
-  bool _isSpecialIssuanceSession(SessionState session) {
-    if (session.issuedCredentials == null) {
-      return false;
-    }
-    if (session.didIssueInappCredential) {
-      return true;
-    }
-
-    final creds = [
-      'pbdf.gemeente.personalData',
-      'pbdf.sidn-pbdf.email',
-      'pbdf.pbdf.email',
-      'pbdf.pbdf.mobilenumber',
-      'pbdf.pbdf.ideal',
-      'pbdf.pbdf.idin',
-    ];
-    return session.issuedCredentials!.any((credential) => creds.contains(credential.info.fullId));
-  }
-
   /// Opens the given clientReturnUrl in the in-app browser, if the url is suitable for the in-app browser, otherwise
   /// the URL is opened externally. In case the URL cannot be opened, a FailureSessionEvent is dispatched. In case
   /// of a silentFailure, only an error report is made for Sentry.
@@ -134,13 +116,11 @@ class _SessionScreenState extends State<SessionScreen> {
   }
 
   Widget _buildFinishedContinueSecondDevice(SessionState session) {
-    // In case of issuance, always return to the wallet screen.
     if (session.isIssuanceSession) {
-      WidgetsBinding.instance?.addPostFrameCallback((_) => popToHome(context));
-      return _buildLoadingScreen(true);
+      return const IssuanceSuccessScreen(
+        onDismiss: popToHome,
+      );
     }
-
-    // In case of a disclosure session, return to the wallet after showing a feedback screen.
     final serverName = session.serverName.name.translate(FlutterI18n.currentLocale(context)!.languageCode);
     final feedbackType =
         session.status == SessionStatus.success ? DisclosureFeedbackType.success : DisclosureFeedbackType.canceled;
@@ -199,7 +179,9 @@ class _SessionScreenState extends State<SessionScreen> {
       return _buildLoadingScreen(true);
     }
 
-    if (session.continueOnSecondDevice && !(session.clientReturnURL?.isPhoneNumber ?? false)) {
+    if (session.didIssueCredentialFromStore &&
+            (session.disclosuresCandidates == null || session.disclosuresCandidates!.isEmpty) ||
+        session.continueOnSecondDevice && !(session.clientReturnURL?.isPhoneNumber ?? false)) {
       return _buildFinishedContinueSecondDevice(session);
     }
 
@@ -222,9 +204,6 @@ class _SessionScreenState extends State<SessionScreen> {
           widget.arguments.hasUnderlyingSession && !widget.arguments.wizardActive
               ? Navigator.of(context).pop()
               : popToWizard(context);
-          if (session.inAppCredential != '') {
-            _repo.expectInactivationForCredentialType(session.inAppCredential);
-          }
           await _openClientReturnUrl(session.clientReturnURL!);
         } else {
           final hasOpened = await _openClientReturnUrl(session.clientReturnURL!);
@@ -234,7 +213,7 @@ class _SessionScreenState extends State<SessionScreen> {
               : popToWizard(context);
         }
       });
-    } else if (widget.arguments.wizardActive || _isSpecialIssuanceSession(session)) {
+    } else if (widget.arguments.wizardActive || session.didIssueCredentialFromStore) {
       WidgetsBinding.instance?.addPostFrameCallback(
         (_) => widget.arguments.wizardActive ? popToWizard(context) : Navigator.of(context).pop(),
       );

@@ -33,24 +33,14 @@ import 'package:package_info/package_info.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class _InAppCredentialState {
-  final int pendingInactivations;
-  final String credentialType;
+class _CredentialStoreState {
+  // List containing the ids of the credentials
+  // that the user tried to obtain via the credential store
+  final List<String> launchedCredentials;
 
-  _InAppCredentialState({
-    this.pendingInactivations = 0,
-    this.credentialType = '',
+  _CredentialStoreState({
+    this.launchedCredentials = const [],
   });
-
-  _InAppCredentialState copyWith({
-    int? pendingInactivations,
-    String? credentialType,
-  }) {
-    return _InAppCredentialState(
-      pendingInactivations: pendingInactivations ?? this.pendingInactivations,
-      credentialType: credentialType ?? this.credentialType,
-    );
-  }
 }
 
 class _ExternalBrowserCredtype {
@@ -101,7 +91,7 @@ class IrmaRepository {
   final _lastActiveTimeSubject = BehaviorSubject<DateTime>();
   final _pendingPointerSubject = BehaviorSubject<Pointer?>.seeded(null);
   final _preferencesSubject = BehaviorSubject<ClientPreferencesEvent>();
-  final _inAppCredentialSubject = BehaviorSubject<_InAppCredentialState>();
+  final _credentialStoreSubject = BehaviorSubject<_CredentialStoreState>();
   final _resumedWithURLSubject = BehaviorSubject<bool>.seeded(false);
   final _resumedFromBrowserSubject = BehaviorSubject<bool>.seeded(false);
   final _issueWizardSubject = BehaviorSubject<IssueWizardEvent?>.seeded(null);
@@ -116,7 +106,7 @@ class IrmaRepository {
     this.preferences,
     this.defaultKeyshareScheme,
   ) {
-    _inAppCredentialSubject.add(_InAppCredentialState());
+    _credentialStoreSubject.add(_CredentialStoreState());
     _eventSubject.listen(_eventListener);
     _sessionRepository = SessionRepository(
       repo: this,
@@ -150,7 +140,7 @@ class IrmaRepository {
       _lastActiveTimeSubject.close(),
       _pendingPointerSubject.close(),
       _preferencesSubject.close(),
-      _inAppCredentialSubject.close(),
+      _credentialStoreSubject.close(),
       _resumedWithURLSubject.close(),
       _resumedFromBrowserSubject.close(),
       _issueWizardSubject.close(),
@@ -505,41 +495,29 @@ class IrmaRepository {
 
   static const _iiabchannel = MethodChannel('irma.app/iiab');
 
-  Future<String> getInAppCredential() {
-    return _inAppCredentialSubject.first.then((state) => state.credentialType);
-  }
-
-  Future<void> processInactivation() async {
-    final curState = await _inAppCredentialSubject.first;
-    if (curState.pendingInactivations > 0) {
-      // If there are still inactivations to be ignored, we ignore
-      // and just decrement count
-      _inAppCredentialSubject.add(curState.copyWith(
-        pendingInactivations: curState.pendingInactivations - 1,
-      ));
-    } else {
-      // Forget about previous opening of browser
-      _inAppCredentialSubject.add(_InAppCredentialState());
-    }
-  }
-
-  // Remember that an inactivation of the app is coming due to opening the browser
-  // for issuance of the given credential type. Opening the browser inactivates the app
-  // (i.e. sets the AppLifecycleState to paused), so we must not react to that the way
-  // we normally do (e.g. go back to the previous app or show the big topleft arrow).
-  void expectInactivationForCredentialType(String type) {
-    _inAppCredentialSubject.add(_InAppCredentialState(pendingInactivations: 1, credentialType: type));
+  Future<List<String>> getCredentialsLaunchedFromStore() {
+    return _credentialStoreSubject.first.then(
+      (state) => state.launchedCredentials,
+    );
   }
 
   Future<void> openIssueURL(BuildContext context, String type) async {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final translated = await _irmaConfigurationSubject.first
-        .then((irmaConfiguration) => irmaConfiguration.credentialTypes[type]?.issueUrl);
-    final url = translated?.translate(lang, fallback: '') ?? '';
+
+    final irmaConfig = await _irmaConfigurationSubject.first;
+    final cred = irmaConfig.credentialTypes[type]!;
+    final url = cred.issueUrl.translate(lang, fallback: '');
     if (url.isEmpty) {
       throw UnsupportedError('Credential type $type does not have a suitable issue url for $lang');
     }
-    expectInactivationForCredentialType(type);
+
+    if (cred.isInCredentialStore) {
+      final state = await _credentialStoreSubject.first;
+      final updatedLaunchedCredentials = [...state.launchedCredentials, type];
+      _credentialStoreSubject.add(_CredentialStoreState(
+        launchedCredentials: updatedLaunchedCredentials,
+      ));
+    }
     return openURL(url);
   }
 

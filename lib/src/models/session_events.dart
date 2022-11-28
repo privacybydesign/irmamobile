@@ -22,14 +22,17 @@ class NewSessionEvent extends SessionEvent {
   // We start at some arbitrary point above zero
   static int sessionIDCounter = 42;
 
-  NewSessionEvent({@visibleForTesting int? sessionID, required this.request, this.inAppCredential = ''})
-      : super(sessionID ?? sessionIDCounter++);
+  NewSessionEvent({
+    @visibleForTesting int? sessionID,
+    required this.request,
+    this.credentialsLaunchedFromStore = const [],
+  }) : super(sessionID ?? sessionIDCounter++);
 
   @JsonKey(name: 'Request')
   final SessionPointer request;
 
-  // Which credential's issue page, if any relevant, was last opened with the in-app browser
-  final String inAppCredential;
+  // Id's of the credentials that the user tried to obtain from the credential store
+  final List<String> credentialsLaunchedFromStore;
 
   Map<String, dynamic> toJson() => _$NewSessionEventToJson(this);
 }

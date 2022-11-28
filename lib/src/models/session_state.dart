@@ -20,7 +20,7 @@ class SessionState {
   final bool? satisfiable;
   final bool? canBeFinished;
   final SessionError? error;
-  final String inAppCredential;
+  final List<String> credentialsLaunchedFromStore;
   final String sessionType;
   final String? pairingCode;
 
@@ -29,7 +29,7 @@ class SessionState {
     required this.continueOnSecondDevice,
     required this.status,
     required this.serverName,
-    required this.inAppCredential,
+    required this.credentialsLaunchedFromStore,
     required this.sessionType,
     this.disclosuresCandidates,
     this.clientReturnURL,
@@ -49,8 +49,11 @@ class SessionState {
   // mismatch between both values, so we can safely do this.
   bool get isIssuanceSession => issuedCredentials?.isNotEmpty ?? sessionType == 'issuing';
 
-  bool get didIssueInappCredential =>
-      issuedCredentials?.any((element) => element.info.fullId == inAppCredential) ?? false;
+  bool get didIssueCredentialFromStore =>
+      issuedCredentials?.any(
+        (cred) => credentialsLaunchedFromStore.contains(cred.info.fullId),
+      ) ??
+      false;
 
   bool get isFinished => [
         SessionStatus.success,
@@ -86,7 +89,7 @@ class SessionState {
       satisfiable: satisfiable ?? this.satisfiable,
       canBeFinished: canBeFinished ?? this.canBeFinished,
       error: error ?? this.error,
-      inAppCredential: inAppCredential,
+      credentialsLaunchedFromStore: credentialsLaunchedFromStore,
       sessionType: sessionType,
       pairingCode: pairingCode ?? this.pairingCode,
     );
