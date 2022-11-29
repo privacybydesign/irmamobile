@@ -61,10 +61,11 @@ runs:
         SEGMENT_DOWNLOAD_TIMEOUT_MINS: "1"
       with:
         path: ios/Pods
-        # Cocoapods depends on Ruby. Therefore, we also include Gemfile.lock.
-        key: ${{ runner.os }}-cocoapods-${{ hashFiles('Gemfile.lock', 'ios/Podfile.lock') }}
+        # Cocoapods depends on Ruby and our Podfile needs the Flutter dependencies to be present.
+        key: ${{ runner.os }}-cocoapods-${{ hashFiles('Gemfile.lock', 'pubspec.lock', 'ios/Podfile.lock') }}
     - name: Pre-install Cocoapods to fill cache
       if: runner.os == 'macOS'
-      working-directory: ios
-      run: pod install
+      run: |
+        flutter pub get
+        cd ios && pod install
       shell: bash
