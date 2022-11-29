@@ -20,7 +20,7 @@ runs:
         SEGMENT_DOWNLOAD_TIMEOUT_MINS: "1"
       with:
         path: rubyvendor/
-        key: ${{ runner.os }}-ruby-${{ hashFiles('Gemfile.lock') }}
+        key: ruby-${{ runner.os }}-${{ hashFiles('Gemfile.lock') }}
     - run: bundle install
       shell: bash
     - name: Set environment variables
@@ -43,7 +43,7 @@ runs:
         path: |
           ${{ env.ANDROID_HOME }}
           ${{ env.FLUTTER_HOME }}
-        key: ${{ runner.os }}-ci_scripts-${{ hashFiles('ci_scripts/*') }}
+        key: ci_scripts-${{ runner.os }}-${{ hashFiles('ci_scripts/*') }}
     - name: Ensure Android SDK is installed
       if: runner.os == 'Linux'
       run: ./ci_scripts/install_android_sdk.sh
@@ -62,7 +62,7 @@ runs:
       with:
         path: ios/Pods
         # Cocoapods depends on Ruby and our Podfile needs the Flutter dependencies to be present.
-        key: ${{ runner.os }}-cocoapods-${{ hashFiles('Gemfile.lock', 'pubspec.lock', 'ios/Podfile.lock') }}
+        key: cocoapods-${{ runner.os }}-${{ hashFiles('Gemfile.lock', 'pubspec.lock', 'ios/Podfile.lock') }}
     - name: Pre-install Cocoapods to fill cache
       if: runner.os == 'macOS'
       run: |
