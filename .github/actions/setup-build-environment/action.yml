@@ -14,12 +14,13 @@ runs:
     - uses: ruby/setup-ruby@v1
       with:
         ruby-version: 2.7
-    - uses: actions/cache@v3
+    - name: Check Ruby cache
+      uses: actions/cache@v3
       env:
         SEGMENT_DOWNLOAD_TIMEOUT_MINS: "1"
       with:
         path: rubyvendor/
-        key: ${{ runner.os }}-${{ hashFiles('Gemfile.lock') }}
+        key: ruby-${{ runner.os }}-${{ hashFiles('Gemfile.lock') }}
     - run: bundle install
       shell: bash
     - name: Set environment variables
@@ -32,7 +33,8 @@ runs:
         echo "$ANDROID_HOME/cmdline-tools/bin" >> $GITHUB_PATH
         echo "$FLUTTER_HOME/bin" >> $GITHUB_PATH
       shell: bash
-    - uses: actions/cache@v3
+    - name: Check ci_scripts cache
+      uses: actions/cache@v3
       # If we cannot download the cached content from GitHub within 5 minutes, then
       # we continue like there was no cache hit.
       env:
@@ -41,7 +43,7 @@ runs:
         path: |
           ${{ env.ANDROID_HOME }}
           ${{ env.FLUTTER_HOME }}
-        key: ${{ runner.os }}-${{ hashFiles('ci_scripts/*') }}
+        key: ci_scripts-${{ runner.os }}-${{ hashFiles('ci_scripts/*') }}
     - name: Ensure Android SDK is installed
       if: runner.os == 'Linux'
       run: ./ci_scripts/install_android_sdk.sh
@@ -51,4 +53,19 @@ runs:
       shell: bash
     - name: Ensure Go mobile is installed
       run: ./ci_scripts/install_gomobile.sh
+      shell: bash
+    - name: Check Cocoapods cache
+      if: runner.os == 'macOS'
+      uses: actions/cache@v3
+      env:
+        SEGMENT_DOWNLOAD_TIMEOUT_MINS: "1"
+      with:
+        path: ios/Pods
+        # Cocoapods depends on Ruby and our Podfile needs the Flutter dependencies to be present.
+        key: cocoapods-${{ runner.os }}-${{ hashFiles('Gemfile.lock', 'pubspec.lock', 'ios/Podfile.lock') }}
+    - name: Pre-install Cocoapods to fill cache
+      if: runner.os == 'macOS'
+      run: |
+        flutter pub get
+        cd ios && pod install
       shell: bash
