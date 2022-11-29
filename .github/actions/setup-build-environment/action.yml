@@ -63,3 +63,8 @@ runs:
         path: ios/Pods
         # Cocoapods depends on Ruby. Therefore, we also include Gemfile.lock.
         key: ${{ runner.os }}-cocoapods-${{ hashFiles('Gemfile.lock', 'ios/Podfile.lock') }}
+    - name: Pre-install Cocoapods to fill cache
+      if: runner.os == 'macOS'
+      working-directory: ios
+      run: pod install
+      shell: bash
