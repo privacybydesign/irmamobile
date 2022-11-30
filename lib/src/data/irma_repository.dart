@@ -505,7 +505,12 @@ class IrmaRepository {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     final irmaConfig = await _irmaConfigurationSubject.first;
-    final cred = irmaConfig.credentialTypes[type]!;
+    final cred = irmaConfig.credentialTypes[type];
+
+    if (cred == null) {
+      throw UnsupportedError('Credential type $type not found in irma config');
+    }
+
     final url = cred.issueUrl.translate(lang, fallback: '');
     if (url.isEmpty) {
       throw UnsupportedError('Credential type $type does not have a suitable issue url for $lang');
