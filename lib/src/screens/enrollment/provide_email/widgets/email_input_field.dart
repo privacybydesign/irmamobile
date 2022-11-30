@@ -23,6 +23,9 @@ class EmailInputField extends StatelessWidget {
       autofillHints: const [AutofillHints.email],
       cursorColor: theme.themeData.colorScheme.secondary,
       decoration: InputDecoration(
+        contentPadding: const EdgeInsets.only(
+          top: -5.0,
+        ),
         label: const TranslatedText(
           'enrollment.email.provide.input.label',
         ),
