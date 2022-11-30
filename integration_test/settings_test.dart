@@ -162,8 +162,8 @@ void main() {
       await tester.tapAndSettle(find.byKey(const Key('irma_app_bar_leading')));
 
       // Logout
-      final logoutButtonFinder = find.byKey(const Key('log_out_button'));
-      await tester.scrollUntilVisible(logoutButtonFinder, 200);
+      final logoutButtonFinder = find.byKey(const Key('log_out_button')).hitTestable();
+      await tester.scrollUntilVisible(logoutButtonFinder, 100);
       await tester.tapAndSettle(logoutButtonFinder);
 
       // Log back in with new pin
