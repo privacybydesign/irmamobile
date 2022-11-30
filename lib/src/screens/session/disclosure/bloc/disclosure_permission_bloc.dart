@@ -279,14 +279,9 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         // Disclosure permission is finished. We have to dispatch the choices to the IrmaRepository.
         final disclosureChoices = [
           for (int i = 0; i < session.disclosuresCandidates!.length; i++)
-            state.choices[i]
-                    ?.expand((cred) => cred.attributes.map((attr) => AttributeIdentifier(
-                          type: attr.attributeType.fullId,
-                          credentialHash: cred.credentialHash,
-                        )))
-                    .toList() ??
-                []
+            state.choices[i]?.expand((cred) => cred.identifiers).toList() ?? []
         ];
+
         if (session.isIssuanceSession) {
           _repo.dispatch(ContinueToIssuanceEvent(
             sessionID: sessionID,
