@@ -3,12 +3,12 @@
 
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
-import 'package:flutter/foundation.dart';
 
 import 'helpers/helpers.dart';
 import 'irma_binding.dart';
@@ -163,7 +163,7 @@ void main() {
 
       // Logout
       final logoutButtonFinder = find.byKey(const Key('log_out_button'));
-      await tester.scrollUntilVisible(logoutButtonFinder, 500);
+      await tester.scrollUntilVisible(logoutButtonFinder, 200);
       await tester.tapAndSettle(logoutButtonFinder);
 
       // Log back in with new pin
