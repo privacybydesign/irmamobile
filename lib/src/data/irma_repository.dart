@@ -33,13 +33,14 @@ import 'package:package_info/package_info.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class _CredentialStoreState {
+class _CredentialObtainState {
   // List containing the ids of the credentials
   // that the user tried to obtain via the credential store
-  final List<String> launchedCredentials;
+  // or by refreshing credentials on the data.
+  final Set<String> launchedCredentials;
 
-  _CredentialStoreState({
-    this.launchedCredentials = const [],
+  _CredentialObtainState({
+    this.launchedCredentials = const <String>{},
   });
 }
 
@@ -91,7 +92,7 @@ class IrmaRepository {
   final _lastActiveTimeSubject = BehaviorSubject<DateTime>();
   final _pendingPointerSubject = BehaviorSubject<Pointer?>.seeded(null);
   final _preferencesSubject = BehaviorSubject<ClientPreferencesEvent>();
-  final _credentialStoreSubject = BehaviorSubject<_CredentialStoreState>();
+  final _credentialObtainState = BehaviorSubject<_CredentialObtainState>();
   final _resumedWithURLSubject = BehaviorSubject<bool>.seeded(false);
   final _resumedFromBrowserSubject = BehaviorSubject<bool>.seeded(false);
   final _issueWizardSubject = BehaviorSubject<IssueWizardEvent?>.seeded(null);
@@ -106,7 +107,7 @@ class IrmaRepository {
     this.preferences,
     this.defaultKeyshareScheme,
   ) {
-    _credentialStoreSubject.add(_CredentialStoreState());
+    _credentialObtainState.add(_CredentialObtainState());
     _eventSubject.listen(_eventListener);
     _sessionRepository = SessionRepository(
       repo: this,
@@ -140,7 +141,7 @@ class IrmaRepository {
       _lastActiveTimeSubject.close(),
       _pendingPointerSubject.close(),
       _preferencesSubject.close(),
-      _credentialStoreSubject.close(),
+      _credentialObtainState.close(),
       _resumedWithURLSubject.close(),
       _resumedFromBrowserSubject.close(),
       _issueWizardSubject.close(),
@@ -495,13 +496,17 @@ class IrmaRepository {
 
   static const _iiabchannel = MethodChannel('irma.app/iiab');
 
-  Future<List<String>> getCredentialsLaunchedFromStore() {
-    return _credentialStoreSubject.first.then(
+  Future<Set<String>> getLaunchedCredentials() {
+    return _credentialObtainState.first.then(
       (state) => state.launchedCredentials,
     );
   }
 
-  Future<void> openIssueURL(BuildContext context, String type) async {
+  Future<void> openIssueURL(
+    BuildContext context,
+    String type, {
+    bool updateObtainState = true,
+  }) async {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     final irmaConfig = await _irmaConfigurationSubject.first;
@@ -516,13 +521,23 @@ class IrmaRepository {
       throw UnsupportedError('Credential type $type does not have a suitable issue url for $lang');
     }
 
-    if (cred.isInCredentialStore) {
-      final state = await _credentialStoreSubject.first;
-      final updatedLaunchedCredentials = [...state.launchedCredentials, type];
-      _credentialStoreSubject.add(_CredentialStoreState(
-        launchedCredentials: updatedLaunchedCredentials,
-      ));
+    if (updateObtainState) {
+      final inAppCredentials = await _credentialsSubject.first;
+      final inAppCredentialTypes = inAppCredentials.values.map((cred) => cred.credentialType.fullId);
+
+      if (cred.isInCredentialStore || inAppCredentialTypes.contains(type)) {
+        final state = await _credentialObtainState.first;
+        final updatedLaunchedCredentials = {
+          ...state.launchedCredentials,
+          type,
+        };
+
+        _credentialObtainState.add(_CredentialObtainState(
+          launchedCredentials: updatedLaunchedCredentials,
+        ));
+      }
     }
+
     return openURL(url);
   }
 

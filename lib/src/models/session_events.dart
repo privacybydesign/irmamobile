@@ -25,14 +25,15 @@ class NewSessionEvent extends SessionEvent {
   NewSessionEvent({
     @visibleForTesting int? sessionID,
     required this.request,
-    this.credentialsLaunchedFromStore = const [],
+    this.launchedCredentials = const <String>{},
   }) : super(sessionID ?? sessionIDCounter++);
 
   @JsonKey(name: 'Request')
   final SessionPointer request;
 
   // Id's of the credentials that the user tried to obtain from the credential store
-  final List<String> credentialsLaunchedFromStore;
+  // or by reobtaining credentials from the data tab
+  final Set<String> launchedCredentials;
 
   Map<String, dynamic> toJson() => _$NewSessionEventToJson(this);
 }

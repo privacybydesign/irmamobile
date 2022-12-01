@@ -78,7 +78,7 @@ Future<int> _startSessionAndNavigate(
   final repo = IrmaRepositoryProvider.of(navigator.context);
   final event = NewSessionEvent(
     request: sessionPointer,
-    credentialsLaunchedFromStore: await repo.getCredentialsLaunchedFromStore(),
+    launchedCredentials: await repo.getLaunchedCredentials(),
   );
 
   final hasActiveSessions = await repo.hasActiveSessions();

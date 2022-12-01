@@ -179,7 +179,7 @@ class _SessionScreenState extends State<SessionScreen> {
       return _buildLoadingScreen(true);
     }
 
-    if (session.didIssueCredentialFromStore &&
+    if (session.didIssueLaunchedCredential &&
             (session.disclosuresCandidates == null || session.disclosuresCandidates!.isEmpty) ||
         session.continueOnSecondDevice && !(session.clientReturnURL?.isPhoneNumber ?? false)) {
       return _buildFinishedContinueSecondDevice(session);
@@ -213,7 +213,7 @@ class _SessionScreenState extends State<SessionScreen> {
               : popToWizard(context);
         }
       });
-    } else if (widget.arguments.wizardActive || session.didIssueCredentialFromStore) {
+    } else if (widget.arguments.wizardActive || session.didIssueLaunchedCredential) {
       WidgetsBinding.instance?.addPostFrameCallback(
         (_) => widget.arguments.wizardActive ? popToWizard(context) : Navigator.of(context).pop(),
       );
