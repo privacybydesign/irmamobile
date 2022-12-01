@@ -9,8 +9,8 @@ import 'package:irmamobile/src/screens/activity/widgets/activity_detail_issuance
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 
 import 'helpers/helpers.dart';
-import 'irma_binding.dart';
 import 'helpers/issuance_helpers.dart';
+import 'irma_binding.dart';
 import 'util.dart';
 
 void main() {
@@ -82,9 +82,6 @@ void main() {
         await tester.scrollUntilVisible(timestampFinder, 50);
         expect(timestampFinder, findsOneWidget);
       },
-      timeout: const Timeout(
-        Duration(minutes: 1),
-      ),
     );
   });
 }

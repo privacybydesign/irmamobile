@@ -48,7 +48,7 @@ void main() {
         of: find.byKey(const Key('irma_dialog')),
         matching: find.byType(IrmaButton),
       ));
-    }, timeout: const Timeout(Duration(minutes: 1)));
+    });
 
     testWidgets('tc2', (tester) async {
       // Scenario 2 of login process: User is blocked after 3 failed attempts.
@@ -109,6 +109,6 @@ void main() {
       // Wait 65 seconds and try again using the correct pin
       await tester.pumpAndSettle(const Duration(seconds: 65));
       await unlock(tester);
-    }, timeout: const Timeout(Duration(minutes: 3)));
+    });
   });
 }
