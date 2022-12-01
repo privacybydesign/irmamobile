@@ -235,6 +235,16 @@ class IrmaRepository {
     }
   }
 
+  void removeLaunchedCredentials(Iterable<String> credentialTypeIds) async {
+    final state = await _credentialObtainState.first;
+    final updatedLaunchedCredentials = state.launchedCredentials;
+    updatedLaunchedCredentials.removeWhere((credType) => credentialTypeIds.contains(credType));
+
+    _credentialObtainState.add(_CredentialObtainState(
+      launchedCredentials: updatedLaunchedCredentials,
+    ));
+  }
+
   void bridgedDispatch(Event event) {
     dispatch(event, isBridgedEvent: true);
   }

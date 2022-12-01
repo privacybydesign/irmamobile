@@ -117,6 +117,9 @@ class _SessionScreenState extends State<SessionScreen> {
 
   Widget _buildFinishedContinueSecondDevice(SessionState session) {
     if (session.isIssuanceSession) {
+      final issuedCredentialTypeIds = session.issuedCredentials!.map((e) => e.credentialType.fullId);
+      _repo.removeLaunchedCredentials(issuedCredentialTypeIds);
+
       return const IssuanceSuccessScreen(
         onDismiss: popToHome,
       );
@@ -180,6 +183,7 @@ class _SessionScreenState extends State<SessionScreen> {
     }
 
     if (session.didIssueLaunchedCredential &&
+            // Check to rule out the combined issuance and disclosure session sessions
             (session.disclosuresCandidates == null || session.disclosuresCandidates!.isEmpty) ||
         session.continueOnSecondDevice && !(session.clientReturnURL?.isPhoneNumber ?? false)) {
       return _buildFinishedContinueSecondDevice(session);
