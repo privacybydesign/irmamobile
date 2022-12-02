@@ -57,6 +57,10 @@ class _SessionScreenState extends State<SessionScreen> {
       if (!session.isFinished) {
         _dismissSession();
       }
+      if (session.isIssuanceSession) {
+        final issuedCredentialTypeIds = session.issuedCredentials!.map((e) => e.credentialType.fullId);
+        _repo.removeLaunchedCredentials(issuedCredentialTypeIds);
+      }
     });
     super.dispose();
   }
@@ -117,12 +121,17 @@ class _SessionScreenState extends State<SessionScreen> {
 
   Widget _buildFinishedContinueSecondDevice(SessionState session) {
     if (session.isIssuanceSession) {
-      final issuedCredentialTypeIds = session.issuedCredentials!.map((e) => e.credentialType.fullId);
+      final issuedCredentialTypeIds = session.issuedCredentials!.map((e) => e.credentialType.fullId).toList();
       _repo.removeLaunchedCredentials(issuedCredentialTypeIds);
 
-      return const IssuanceSuccessScreen(
-        onDismiss: popToHome,
-      );
+      if (session.status == SessionStatus.success) {
+        return const IssuanceSuccessScreen(
+          onDismiss: popToHome,
+        );
+      } else {
+        WidgetsBinding.instance?.addPostFrameCallback((_) => popToHome(context));
+        return _buildLoadingScreen(true);
+      }
     }
     final serverName = session.serverName.name.translate(FlutterI18n.currentLocale(context)!.languageCode);
     final feedbackType =
@@ -182,15 +191,15 @@ class _SessionScreenState extends State<SessionScreen> {
       return _buildLoadingScreen(true);
     }
 
-    if (session.didIssueLaunchedCredential &&
-            // Check to rule out the combined issuance and disclosure session sessions
-            (session.disclosuresCandidates == null || session.disclosuresCandidates!.isEmpty) ||
-        session.continueOnSecondDevice && !(session.clientReturnURL?.isPhoneNumber ?? false)) {
-      return _buildFinishedContinueSecondDevice(session);
-    }
-
     if (session.clientReturnURL?.isPhoneNumber ?? false) {
       return _buildFinishedReturnPhoneNumber(session);
+    }
+
+    if (session.continueOnSecondDevice ||
+        session.didIssuePreviouslyLaunchedCredential &&
+            // Check to rule out the combined issuance and disclosure sessions
+            (session.disclosuresCandidates == null || session.disclosuresCandidates!.isEmpty)) {
+      return _buildFinishedContinueSecondDevice(session);
     }
 
     final issuedWizardCred = widget.arguments.wizardActive &&
@@ -217,7 +226,7 @@ class _SessionScreenState extends State<SessionScreen> {
               : popToWizard(context);
         }
       });
-    } else if (widget.arguments.wizardActive || session.didIssueLaunchedCredential) {
+    } else if (widget.arguments.wizardActive || session.didIssuePreviouslyLaunchedCredential) {
       WidgetsBinding.instance?.addPostFrameCallback(
         (_) => widget.arguments.wizardActive ? popToWizard(context) : Navigator.of(context).pop(),
       );

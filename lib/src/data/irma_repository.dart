@@ -37,10 +37,10 @@ class _CredentialObtainState {
   // List containing the ids of the credentials
   // that the user tried to obtain via the credential store
   // or by refreshing credentials on the data.
-  final Set<String> launchedCredentials;
+  final Set<String> previouslyLaunchedCredentials;
 
   _CredentialObtainState({
-    this.launchedCredentials = const <String>{},
+    this.previouslyLaunchedCredentials = const <String>{},
   });
 }
 
@@ -235,13 +235,16 @@ class IrmaRepository {
     }
   }
 
-  void removeLaunchedCredentials(Iterable<String> credentialTypeIds) async {
-    final state = await _credentialObtainState.first;
-    final updatedLaunchedCredentials = state.launchedCredentials;
-    updatedLaunchedCredentials.removeWhere((credType) => credentialTypeIds.contains(credType));
+  void removeLaunchedCredentials(Iterable<String> credentialTypeIds) {
+    final state = _credentialObtainState.value;
+    final updatedLaunchedCredentials = state.previouslyLaunchedCredentials
+        .where(
+          (credTypeId) => !credentialTypeIds.contains(credTypeId),
+        )
+        .toSet();
 
     _credentialObtainState.add(_CredentialObtainState(
-      launchedCredentials: updatedLaunchedCredentials,
+      previouslyLaunchedCredentials: updatedLaunchedCredentials,
     ));
   }
 
@@ -506,17 +509,16 @@ class IrmaRepository {
 
   static const _iiabchannel = MethodChannel('irma.app/iiab');
 
-  Future<Set<String>> getLaunchedCredentials() {
+  Future<Set<String>> getPreviouslyLaunchedCredentials() {
     return _credentialObtainState.first.then(
-      (state) => state.launchedCredentials,
+      (state) => state.previouslyLaunchedCredentials,
     );
   }
 
   Future<void> openIssueURL(
     BuildContext context,
-    String type, {
-    bool updateObtainState = true,
-  }) async {
+    String type,
+  ) async {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     final irmaConfig = await _irmaConfigurationSubject.first;
@@ -531,21 +533,19 @@ class IrmaRepository {
       throw UnsupportedError('Credential type $type does not have a suitable issue url for $lang');
     }
 
-    if (updateObtainState) {
-      final inAppCredentials = await _credentialsSubject.first;
-      final inAppCredentialTypes = inAppCredentials.values.map((cred) => cred.credentialType.fullId);
+    final inAppCredentials = await _credentialsSubject.first;
+    final inAppCredentialTypes = inAppCredentials.values.map((cred) => cred.credentialType.fullId);
 
-      if (cred.isInCredentialStore || inAppCredentialTypes.contains(type)) {
-        final state = await _credentialObtainState.first;
-        final updatedLaunchedCredentials = {
-          ...state.launchedCredentials,
-          type,
-        };
+    if (cred.isInCredentialStore || inAppCredentialTypes.contains(type)) {
+      final state = await _credentialObtainState.first;
+      final updatedLaunchedCredentials = {
+        ...state.previouslyLaunchedCredentials,
+        type,
+      };
 
-        _credentialObtainState.add(_CredentialObtainState(
-          launchedCredentials: updatedLaunchedCredentials,
-        ));
-      }
+      _credentialObtainState.add(_CredentialObtainState(
+        previouslyLaunchedCredentials: updatedLaunchedCredentials,
+      ));
     }
 
     return openURL(url);

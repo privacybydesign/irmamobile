@@ -20,7 +20,7 @@ class SessionState {
   final bool? satisfiable;
   final bool? canBeFinished;
   final SessionError? error;
-  final Set<String> launchedCredentials;
+  final Set<String> previouslyLaunchedCredentials;
   final String sessionType;
   final String? pairingCode;
 
@@ -29,7 +29,7 @@ class SessionState {
     required this.continueOnSecondDevice,
     required this.status,
     required this.serverName,
-    required this.launchedCredentials,
+    required this.previouslyLaunchedCredentials,
     required this.sessionType,
     this.disclosuresCandidates,
     this.clientReturnURL,
@@ -52,9 +52,9 @@ class SessionState {
   // Indicates that this session contains a credential that
   // the user previously tried to obtain via the credential store
   // or by reobtain a credential from the data tab.
-  bool get didIssueLaunchedCredential =>
+  bool get didIssuePreviouslyLaunchedCredential =>
       issuedCredentials?.any(
-        (cred) => launchedCredentials.contains(cred.info.fullId),
+        (cred) => previouslyLaunchedCredentials.contains(cred.info.fullId),
       ) ??
       false;
 
@@ -92,7 +92,7 @@ class SessionState {
       satisfiable: satisfiable ?? this.satisfiable,
       canBeFinished: canBeFinished ?? this.canBeFinished,
       error: error ?? this.error,
-      launchedCredentials: launchedCredentials,
+      previouslyLaunchedCredentials: previouslyLaunchedCredentials,
       sessionType: sessionType,
       pairingCode: pairingCode ?? this.pairingCode,
     );
