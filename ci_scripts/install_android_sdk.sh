@@ -59,8 +59,9 @@ sdkmanager --sdk_root="$ANDROID_HOME" \
   "platforms;android-29" \
   "platforms;android-30" \
   "platforms;android-31" \
-  "build-tools;28.0.3" \
-  "build-tools;30.0.2"
+  "platforms;android-32" \
+  "build-tools;30.0.2" \
+  "build-tools;32.0.0"
 
 # Ensure that right NDK version is selected.
 ln -s "$ANDROID_HOME/ndk/$ANDROID_NDK_VERSION" "$ANDROID_HOME/ndk-bundle"
