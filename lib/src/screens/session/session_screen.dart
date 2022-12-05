@@ -227,6 +227,7 @@ class _SessionScreenState extends State<SessionScreen> {
         }
       });
     } else if (widget.arguments.wizardActive || session.didIssuePreviouslyLaunchedCredential) {
+      // If the wizard is active or this concerns a combined session, pop accordingly.
       WidgetsBinding.instance?.addPostFrameCallback(
         (_) => widget.arguments.wizardActive ? popToWizard(context) : Navigator.of(context).pop(),
       );
