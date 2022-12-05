@@ -2,12 +2,8 @@
 // @dart=2.11
 
 import 'package:flutter/foundation.dart';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-
-import 'package:irmamobile/main.dart';
-import 'package:irmamobile/src/screens/home/home_tab.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 
 import 'helpers/helpers.dart';
@@ -27,18 +23,17 @@ void main() {
     testWidgets('tc1', (tester) async {
       // Scenario 1 of login process
       // Initialize the app for integration tests
-      await tester.pumpWidgetAndSettle(IrmaApp(repository: irmaBinding.repository));
-      await unlock(tester);
-      await tester.waitFor(find.byType(HomeTab));
+      await pumpAndUnlockApp(tester, irmaBinding.repository);
+
       // Open more tab
       await tester.tapAndSettle(find.byKey(const Key('nav_button_more')));
       // Logout
-      final logoutButtonFinder = find.byKey(const Key('log_out_button'));
-      await tester.scrollUntilVisible(logoutButtonFinder, 500);
+      final logoutButtonFinder = find.byKey(const Key('log_out_button')).hitTestable();
+      await tester.scrollUntilVisible(logoutButtonFinder, 100);
       await tester.tapAndSettle(logoutButtonFinder);
       // login using wrong pin
       await tester.waitFor(find.byKey(const Key('pin_screen')));
-      await tester.enterPin('54321');
+      await enterPin(tester, '54321');
       // Check error dialog
       await tester.waitFor(find.byKey(const Key('irma_dialog')));
       // Check "Wrong PIN" dialog title text
@@ -58,17 +53,16 @@ void main() {
     testWidgets('tc2', (tester) async {
       // Scenario 2 of login process: User is blocked after 3 failed attempts.
       // Initialize the app for integration tests
-      await tester.pumpWidgetAndSettle(IrmaApp(repository: irmaBinding.repository));
-      await unlock(tester);
+      await pumpAndUnlockApp(tester, irmaBinding.repository);
       // Open more tab
       await tester.tapAndSettle(find.byKey(const Key('nav_button_more')));
       // Logout
-      final logoutButtonFinder = find.byKey(const Key('log_out_button'));
-      await tester.scrollUntilVisible(logoutButtonFinder, 500);
+      final logoutButtonFinder = find.byKey(const Key('log_out_button')).hitTestable();
+      await tester.scrollUntilVisible(logoutButtonFinder, 100);
       await tester.tapAndSettle(logoutButtonFinder);
       // login using wrong pin
       await tester.waitFor(find.byKey(const Key('pin_screen')));
-      await tester.enterPin('54321');
+      await enterPin(tester, '54321');
       // Check error dialog
       await tester.waitFor(find.byKey(const Key('irma_dialog')));
       // Check "Wrong PIN" dialog title text
@@ -83,7 +77,7 @@ void main() {
         matching: find.byType(IrmaButton),
       ));
       // login using wrong pin
-      await tester.enterPin('54321');
+      await enterPin(tester, '54321');
       // Check error dialog
       await tester.waitFor(find.byKey(const Key('irma_dialog')));
       // Check "Wrong PIN" dialog title text
@@ -98,7 +92,7 @@ void main() {
         matching: find.byType(IrmaButton),
       ));
       // login using wrong pin
-      await tester.enterPin('54321');
+      await enterPin(tester, '54321');
       // Check error dialog
       await tester.waitFor(find.byKey(const Key('irma_dialog')));
       // Check "Wrong PIN" dialog title text
@@ -114,7 +108,7 @@ void main() {
       ));
       // Wait 65 seconds and try again using the correct pin
       await tester.pumpAndSettle(const Duration(seconds: 65));
-      await tester.unlock();
+      await unlock(tester);
     }, timeout: const Timeout(Duration(minutes: 3)));
   });
 }

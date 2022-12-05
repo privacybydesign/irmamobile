@@ -1,9 +1,10 @@
 // We cannot test using null safety as long as there are widgets that are not migrated yet.
 // @dart=2.11
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:package_info/package_info.dart';
 
@@ -23,9 +24,7 @@ void main() {
 
     testWidgets('screen-content', (tester) async {
       // Initialize the app for integration tests
-      await tester.pumpWidgetAndSettle(IrmaApp(repository: irmaBinding.repository));
-
-      await unlock(tester);
+      await pumpAndUnlockApp(tester, irmaBinding.repository);
 
       // Open menu
       await tester.tapAndSettle(find.text('More'));
@@ -37,7 +36,7 @@ void main() {
       const texts = [
         'Settings',
         'Frequently asked questions',
-        'Debugging',
+        if (kDebugMode) 'Debugging',
         'Yivi website',
         'Contact us',
         'Share Yivi',
@@ -58,9 +57,7 @@ void main() {
 
     testWidgets('developer-mode', (tester) async {
       // Initialize the app for integration tests
-      await tester.pumpWidgetAndSettle(IrmaApp(repository: irmaBinding.repository));
-
-      await unlock(tester);
+      await pumpAndUnlockApp(tester, irmaBinding.repository);
 
       // Open menu
       await tester.tapAndSettle(find.text('More'));
@@ -70,7 +67,9 @@ void main() {
       await irmaBinding.repository.getDeveloperMode().firstWhere((enabled) => !enabled);
 
       // Check enabling developer mode.
-      await tester.scrollUntilVisible(find.textContaining('Version').hitTestable(), 100);
+      await tester.scrollUntilVisible(find.textContaining('Version'), 100);
+      await tester.drag(find.byType(ListView), const Offset(0, -50)); // To prevent the 'Scan QR' button to overlap.
+      await tester.pumpAndSettle();
       for (int i = 0; i < 7; i++) {
         await tester.tapAndSettle(find.textContaining('Version'));
       }
@@ -80,9 +79,7 @@ void main() {
 
     testWidgets('log-out', (tester) async {
       // Initialize the app for integration tests
-      await tester.pumpWidgetAndSettle(IrmaApp(repository: irmaBinding.repository));
-
-      await unlock(tester);
+      await pumpAndUnlockApp(tester, irmaBinding.repository);
 
       // Open menu
       await tester.tapAndSettle(find.text('More'));
@@ -97,9 +94,7 @@ void main() {
 
     testWidgets('faq', (tester) async {
       // Initialize the app for integration tests
-      await tester.pumpWidgetAndSettle(IrmaApp(repository: irmaBinding.repository));
-
-      await unlock(tester);
+      await pumpAndUnlockApp(tester, irmaBinding.repository);
 
       // Open menu
       await tester.tapAndSettle(find.text('More'));
