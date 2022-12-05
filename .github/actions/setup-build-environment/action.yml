@@ -55,6 +55,7 @@ runs:
       run: ./ci_scripts/install_gomobile.sh
       shell: bash
     - name: Check Cocoapods cache
+      id: cocoapods-cache
       if: runner.os == 'macOS'
       uses: actions/cache@v3
       env:
@@ -64,7 +65,7 @@ runs:
         # Cocoapods depends on Ruby and our Podfile needs the Flutter dependencies to be present.
         key: cocoapods-${{ runner.os }}-${{ hashFiles('Gemfile.lock', 'pubspec.lock', 'ios/Podfile.lock') }}
     - name: Pre-install Cocoapods to fill cache
-      if: runner.os == 'macOS'
+      if: runner.os == 'macOS' && steps.cocoapods-cache.outputs.cache-hit != 'true'
       run: |
         flutter pub get
         cd ios && pod install
