@@ -49,7 +49,7 @@ set +o pipefail
 yes | sdkmanager --sdk_root="$ANDROID_HOME" --licenses > /dev/null
 set -o pipefail
 
-# Flutter 2 needs Android SDK platform 28, 29, 30 and 31 and build-tools 28 and 30. We pre-install them
+# Flutter 2 needs Android SDK platform 28 to 32 and build-tools 30 and 32. We pre-install them
 # to prevent that Flutter downloads them on every app build.
 sdkmanager --sdk_root="$ANDROID_HOME" \
   "platform-tools" \
@@ -59,8 +59,9 @@ sdkmanager --sdk_root="$ANDROID_HOME" \
   "platforms;android-29" \
   "platforms;android-30" \
   "platforms;android-31" \
-  "build-tools;28.0.3" \
-  "build-tools;30.0.2"
+  "platforms;android-32" \
+  "build-tools;30.0.2" \
+  "build-tools;32.0.0"
 
 # Ensure that right NDK version is selected.
 ln -s "$ANDROID_HOME/ndk/$ANDROID_NDK_VERSION" "$ANDROID_HOME/ndk-bundle"

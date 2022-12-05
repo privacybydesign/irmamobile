@@ -126,7 +126,6 @@ void main() {
           }
         }
       },
-      timeout: const Timeout(Duration(minutes: 1)),
     );
 
     testWidgets('choose-pin', (tester) async {
@@ -169,7 +168,7 @@ void main() {
       // Expect that we left the pin screens
       expect(find.byType(ChoosePinScreen), findsNothing);
       expect(find.byType(ConfirmPinScreen), findsNothing);
-    }, timeout: const Timeout(Duration(minutes: 1)));
+    });
 
     testWidgets(
       'terms',
@@ -195,9 +194,6 @@ void main() {
         // Expect that we left the terms screens
         expect(find.byType(AcceptTermsScreen), findsNothing);
       },
-      timeout: const Timeout(
-        Duration(minutes: 1),
-      ),
     );
 
     testWidgets(
@@ -227,9 +223,6 @@ void main() {
         // Wait for home screen
         await tester.waitFor(find.byType(HomeScreen));
       },
-      timeout: const Timeout(
-        Duration(minutes: 1),
-      ),
     );
 
     testWidgets(
@@ -273,9 +266,6 @@ void main() {
       // https://github.com/flutter/flutter/issues/89749
       // For now, we only run this test in debug mode as a work-around.
       skip: !kDebugMode,
-      timeout: const Timeout(
-        Duration(minutes: 1),
-      ),
     );
   });
 }

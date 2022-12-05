@@ -106,7 +106,6 @@ void main() {
           );
         }
       },
-      timeout: const Timeout(Duration(seconds: 30)),
     );
 
     testWidgets('change-pin', (tester) async {
@@ -186,6 +185,6 @@ void main() {
       await tester.tapAndSettle(find.text('Yes, delete everything'));
 
       // Check whether the enrollment screen is shown
-    }, timeout: const Timeout(Duration(seconds: 30)));
+    });
   });
 }
