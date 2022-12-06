@@ -310,6 +310,10 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         optionalChoices: state.optionalChoices,
         hasAdditionalOptionalChoices: state.hasAdditionalOptionalChoices,
       );
+    } else if (state is DisclosurePermissionCredentialInformation && event is DisclosurePermissionNextPressed) {
+      onObtainCredential(state.credentialType);
+    } else if (state is DisclosurePermissionCredentialInformation && event is DisclosurePermissionPreviousPressed) {
+      yield state.parentState;
     } else {
       throw UnsupportedError(
           'Event ${event.runtimeType.toString()} not supported in state ${state.runtimeType.toString()}');
@@ -354,6 +358,9 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         refreshedState.selectedCon.whereType<TemplateDisclosureCredential>(),
         refreshedState,
       );
+    } else if (state is DisclosurePermissionCredentialInformation) {
+      // Yield the parent state so the case above gets called
+      return state.parentState;
     } else if (state is DisclosurePermissionAddOptionalData) {
       return _generateAddOptionalDataState(
         session: session,
@@ -494,6 +501,10 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
   ) {
     final credentials = _newlyAddedCredentialHashes
         .expand((hash) => _repo.credentials.containsKey(hash) ? [_repo.credentials[hash]!] : <Credential>[]);
+
+    credentials.forEach((element) {
+      print(element.fullId);
+    });
 
     final List<TemplateDisclosureCredential> mismatchedTemplates = [];
     final List<ChoosableDisclosureCredential> obtainedCredentials = [];
@@ -773,7 +784,10 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     assert(selectedConTemplates.isNotEmpty);
     // If only one credential is involved, we can open the issue url immediately.
     if (selectedConTemplates.length == 1) {
-      onObtainCredential(selectedConTemplates.first.credentialType);
+      yield DisclosurePermissionCredentialInformation(
+        parentState: parentState,
+        credentialType: selectedConTemplates.first.credentialType,
+      );
     } else {
       yield DisclosurePermissionObtainCredentials(
         parentState: parentState,

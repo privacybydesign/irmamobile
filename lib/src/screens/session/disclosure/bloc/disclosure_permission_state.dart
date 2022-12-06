@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 
+import '../../../../models/irma_configuration.dart';
 import '../../../../util/con_dis_con.dart';
 import '../models/choosable_disclosure_credential.dart';
 import '../models/disclosure_credential.dart';
@@ -259,6 +260,16 @@ class DisclosurePermissionWrongCredentialsObtained implements DisclosurePermissi
     required List<ChoosableDisclosureCredential> obtainedCredentials,
   })  : templates = UnmodifiableListView(templates),
         obtainedCredentials = UnmodifiableListView(obtainedCredentials);
+}
+
+class DisclosurePermissionCredentialInformation implements DisclosurePermissionBlocState {
+  final DisclosurePermissionBlocState parentState;
+  final CredentialType credentialType;
+
+  DisclosurePermissionCredentialInformation({
+    required this.parentState,
+    required this.credentialType,
+  });
 }
 
 /// State to indicate that the requestDisclosurePermission phase has been finished.

@@ -5,13 +5,20 @@ import '../../theme/theme.dart';
 import '../../util/language.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_bottom_bar.dart';
-import '../../widgets/irma_repository_provider.dart';
 import 'widgets/add_data_questions.dart';
 
 class AddDataDetailsScreen extends StatefulWidget {
-  const AddDataDetailsScreen({required this.credentialType});
-
   final CredentialType credentialType;
+  final VoidCallback onObtain;
+  final VoidCallback onGoBack;
+  final VoidCallback? onDismiss;
+
+  const AddDataDetailsScreen({
+    required this.credentialType,
+    required this.onObtain,
+    required this.onGoBack,
+    this.onDismiss,
+  });
 
   @override
   _AddDataDetailsScreenState createState() => _AddDataDetailsScreenState();
@@ -67,9 +74,9 @@ class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: 'data.add.details.get_button',
-        onPrimaryPressed: () => IrmaRepositoryProvider.of(context).openIssueURL(context, widget.credentialType.fullId),
+        onPrimaryPressed: widget.onObtain,
         secondaryButtonLabel: 'data.add.details.back_button',
-        onSecondaryPressed: () => Navigator.of(context).pop(),
+        onSecondaryPressed: widget.onGoBack,
         alignment: IrmaBottomBarAlignment.horizontal,
       ),
     );
