@@ -5,13 +5,21 @@ import '../../theme/theme.dart';
 import '../../util/language.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_bottom_bar.dart';
-import '../../widgets/irma_repository_provider.dart';
+import '../../widgets/irma_close_button.dart';
 import 'widgets/add_data_questions.dart';
 
 class AddDataDetailsScreen extends StatefulWidget {
-  const AddDataDetailsScreen({required this.credentialType});
-
   final CredentialType credentialType;
+  final VoidCallback onAdd;
+  final VoidCallback onCancel;
+  final VoidCallback? onDismiss;
+
+  const AddDataDetailsScreen({
+    required this.credentialType,
+    required this.onAdd,
+    required this.onCancel,
+    this.onDismiss,
+  });
 
   @override
   _AddDataDetailsScreenState createState() => _AddDataDetailsScreenState();
@@ -37,8 +45,19 @@ class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
     );
 
     return Scaffold(
-      appBar: const IrmaAppBar(
+      appBar: IrmaAppBar(
         titleTranslationKey: 'data.add.details.title',
+        actions: [
+          if (widget.onDismiss != null)
+            Padding(
+              padding: EdgeInsets.only(
+                right: theme.defaultSpacing,
+              ),
+              child: IrmaCloseButton(
+                onTap: widget.onDismiss,
+              ),
+            ),
+        ],
       ),
       body: SingleChildScrollView(
         controller: _controller,
@@ -67,9 +86,9 @@ class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: 'data.add.details.get_button',
-        onPrimaryPressed: () => IrmaRepositoryProvider.of(context).openIssueURL(context, widget.credentialType.fullId),
+        onPrimaryPressed: widget.onAdd,
         secondaryButtonLabel: 'data.add.details.back_button',
-        onSecondaryPressed: () => Navigator.of(context).pop(),
+        onSecondaryPressed: widget.onCancel,
         alignment: IrmaBottomBarAlignment.horizontal,
       ),
     );

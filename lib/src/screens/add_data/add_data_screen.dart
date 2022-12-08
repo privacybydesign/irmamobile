@@ -40,7 +40,14 @@ class AddDataScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => AddDataDetailsScreen(credentialType: credType),
+          builder: (context) => AddDataDetailsScreen(
+            credentialType: credType,
+            onCancel: () => Navigator.of(context).pop(),
+            onAdd: () => IrmaRepositoryProvider.of(context).openIssueURL(
+              context,
+              credType.fullId,
+            ),
+          ),
         ),
       ),
       child: Row(
