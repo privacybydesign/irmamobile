@@ -4,7 +4,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-
 import 'package:irmamobile/src/screens/activity/activity_tab.dart';
 import 'package:irmamobile/src/screens/activity/widgets/recent_activity.dart';
 import 'package:irmamobile/src/screens/data/data_tab.dart';
@@ -74,7 +73,7 @@ void main() {
         await tester.tapAndSettle(find.byKey(const Key('nav_button_home')));
         expect(find.byType(MoreTab), findsNothing);
         expect(find.byType(HomeTab), findsOneWidget);
-      }, timeout: const Timeout(Duration(seconds: 15)));
+      });
 
       testWidgets('open-scanner', (tester) async {
         await pumpAndUnlockApp(tester, irmaBinding.repository);
@@ -86,7 +85,7 @@ void main() {
 
         //Make sure scanner screen is open;
         expect(find.byType(ScannerScreen), findsOneWidget);
-      }, timeout: const Timeout(Duration(seconds: 15)));
+      });
     });
   });
 }

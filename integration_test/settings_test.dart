@@ -3,12 +3,12 @@
 
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
-import 'package:flutter/foundation.dart';
 
 import 'helpers/helpers.dart';
 import 'irma_binding.dart';
@@ -106,7 +106,6 @@ void main() {
           );
         }
       },
-      timeout: const Timeout(Duration(seconds: 30)),
     );
 
     testWidgets('change-pin', (tester) async {
@@ -162,8 +161,8 @@ void main() {
       await tester.tapAndSettle(find.byKey(const Key('irma_app_bar_leading')));
 
       // Logout
-      final logoutButtonFinder = find.byKey(const Key('log_out_button'));
-      await tester.scrollUntilVisible(logoutButtonFinder, 500);
+      final logoutButtonFinder = find.byKey(const Key('log_out_button')).hitTestable();
+      await tester.scrollUntilVisible(logoutButtonFinder, 100);
       await tester.tapAndSettle(logoutButtonFinder);
 
       // Log back in with new pin
@@ -186,6 +185,6 @@ void main() {
       await tester.tapAndSettle(find.text('Yes, delete everything'));
 
       // Check whether the enrollment screen is shown
-    }, timeout: const Timeout(Duration(seconds: 30)));
+    });
   });
 }

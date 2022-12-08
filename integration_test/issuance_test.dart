@@ -9,8 +9,8 @@ import 'package:irmamobile/src/screens/session/widgets/issuance_success_screen.d
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 
 import 'helpers/helpers.dart';
-import 'irma_binding.dart';
 import 'helpers/issuance_helpers.dart';
+import 'irma_binding.dart';
 import 'util.dart';
 
 void main() {
@@ -62,17 +62,11 @@ void main() {
     testWidgets(
       'issue-municipality-en',
       (tester) => testIssueMunicipality(tester, const Locale('en', 'EN')),
-      timeout: const Timeout(
-        Duration(minutes: 1, seconds: 30),
-      ),
     );
 
     testWidgets(
       'issue-municipality-nl',
       (tester) => testIssueMunicipality(tester, const Locale('nl', 'NL')),
-      timeout: const Timeout(
-        Duration(minutes: 1, seconds: 30),
-      ),
     );
   });
 }

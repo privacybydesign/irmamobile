@@ -3,6 +3,7 @@
 
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -84,6 +85,13 @@ void main() {
       await tester.tapAndSettle(nextButtonFinder);
     }
 
+    Future<void> _goToEmailScreen(WidgetTester tester) async {
+      await _initEnrollment(tester);
+      await _goThroughIntroduction(tester);
+      await _goThroughTerms(tester);
+      await _goThroughChoosePin(tester);
+    }
+
     testWidgets(
       'introduction',
       (tester) async {
@@ -118,7 +126,6 @@ void main() {
           }
         }
       },
-      timeout: const Timeout(Duration(minutes: 1)),
     );
 
     testWidgets('choose-pin', (tester) async {
@@ -161,7 +168,7 @@ void main() {
       // Expect that we left the pin screens
       expect(find.byType(ChoosePinScreen), findsNothing);
       expect(find.byType(ConfirmPinScreen), findsNothing);
-    }, timeout: const Timeout(Duration(minutes: 1)));
+    });
 
     testWidgets(
       'terms',
@@ -187,90 +194,78 @@ void main() {
         // Expect that we left the terms screens
         expect(find.byType(AcceptTermsScreen), findsNothing);
       },
-      timeout: const Timeout(
-        Duration(minutes: 1),
-      ),
     );
 
-    group('email', () {
-      Future<void> _goToEmailScreen(WidgetTester tester) async {
-        await _initEnrollment(tester);
-        await _goThroughIntroduction(tester);
-        await _goThroughTerms(tester);
-        await _goThroughChoosePin(tester);
-      }
+    testWidgets(
+      'skip-email',
+      (tester) async {
+        await _goToEmailScreen(tester);
 
-      testWidgets(
-        'skip',
-        (tester) async {
-          await _goToEmailScreen(tester);
+        // Press skip on the enrollment nav bar
+        await tester.tapAndSettle(find.text('Skip'));
 
-          // Press skip on the enrollment nav bar
-          await tester.tapAndSettle(find.text('Skip'));
+        // Expect confirm skip email dialog
+        var dialogFinder = find.byType(IrmaDialog);
+        expect(dialogFinder, findsOneWidget);
+        const expectedDialogText = [
+          'Are you sure?',
+          'Increase security: enter an e-mail address so you can remotely disable your Yivi app when your mobile has been lost or stolen.',
+          'Enter an e-mail address',
+          'Skip'
+        ];
 
-          // Expect confirm skip email dialog
-          var dialogFinder = find.byType(IrmaDialog);
-          expect(dialogFinder, findsOneWidget);
-          const expectedDialogText = [
-            'Are you sure?',
-            'Increase security: enter an e-mail address so you can remotely disable your Yivi app when your mobile has been lost or stolen.',
-            'Enter an e-mail address',
-            'Skip'
-          ];
+        final actualDialogText = tester.getAllText(dialogFinder);
+        expect(actualDialogText, expectedDialogText);
 
-          final actualDialogText = tester.getAllText(dialogFinder);
-          expect(actualDialogText, expectedDialogText);
+        // Confirm skip
+        await tester.tapAndSettle(find.byKey(const Key('dialog_confirm_button')));
 
-          // Confirm skip
-          await tester.tapAndSettle(find.byKey(const Key('dialog_confirm_button')));
+        // Wait for home screen
+        await tester.waitFor(find.byType(HomeScreen));
+      },
+    );
 
-          // Wait for home screen
-          await tester.waitFor(find.byType(HomeScreen));
-        },
-        timeout: const Timeout(
-          Duration(minutes: 1),
-        ),
-      );
+    testWidgets(
+      'provide-email',
+      (tester) async {
+        await _goToEmailScreen(tester);
 
-      testWidgets(
-        'provide',
-        (tester) async {
-          await _goToEmailScreen(tester);
+        var emailInputFinder = find.byKey(const Key('email_input_field'));
+        var emailInvalidMessageFinder = find.descendant(
+          of: emailInputFinder,
+          matching: find.text('Please check your e-mail address, this doesn\'t seem to be a valid e-mail address'),
+        );
+        expect(emailInvalidMessageFinder, findsNothing);
 
-          var emailInputFinder = find.byKey(const Key('email_input_field'));
-          var emailInvalidMessageFinder = find.descendant(
-            of: emailInputFinder,
-            matching: find.text('Please check your e-mail address, this doesn\'t seem to be a valid e-mail address'),
-          );
-          expect(emailInvalidMessageFinder, findsNothing);
+        // Continue without entering email
+        await tester.tapAndSettle(find.text('Next'));
+        expect(emailInvalidMessageFinder, findsOneWidget);
 
-          // Continue without entering email
-          await tester.tapAndSettle(find.text('Next'));
-          expect(emailInvalidMessageFinder, findsOneWidget);
+        // Enter false e-mail
+        await tester.enterText(emailInputFinder, 'thisIsNotAnEmail');
+        await tester.tapAndSettle(find.text('Next'));
+        expect(emailInvalidMessageFinder, findsOneWidget);
 
-          // Enter false e-mail
-          await tester.enterText(emailInputFinder, 'thisIsNotAnEmail');
-          await tester.tapAndSettle(find.text('Next'));
-          expect(emailInvalidMessageFinder, findsOneWidget);
+        // Enter valid e-mail
+        final seed = random.nextInt(1000000).toString();
+        await tester.enterText(emailInputFinder, 'test$seed@example.com');
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle(const Duration(seconds: 1));
+        await tester.tapAndSettle(find.text('Next'));
 
-          // Enter valid e-mail
-          final seed = random.nextInt(1000000).toString();
-          await tester.enterText(emailInputFinder, 'test$seed@example.com');
-          await tester.testTextInput.receiveAction(TextInputAction.done);
-          await tester.pumpAndSettle(const Duration(seconds: 1));
-          await tester.tapAndSettle(find.text('Next'));
+        // Wait for email sent screen
+        await tester.waitFor(find.byKey(const Key('email_sent_screen')));
+        await tester.tapAndSettle(find.text('Next'));
 
-          // Wait for email sent screen
-          await tester.waitFor(find.byKey(const Key('email_sent_screen')));
-          await tester.tapAndSettle(find.text('Next'));
-
-          // Wait for home screen
-          await tester.waitFor(find.byType(HomeScreen));
-        },
-        timeout: const Timeout(
-          Duration(minutes: 1),
-        ),
-      );
-    });
+        // Wait for home screen
+        await tester.waitFor(find.byType(HomeScreen));
+      },
+      // On physical iOS devices we run the integration test in release mode, as instructed.
+      // https://github.com/flutter/flutter/tree/main/packages/integration_test#ios-device-testing
+      // Flutter has a bug causing enterText to not work in release mode.
+      // https://github.com/flutter/flutter/issues/89749
+      // For now, we only run this test in debug mode as a work-around.
+      skip: !kDebugMode,
+    );
   });
 }
