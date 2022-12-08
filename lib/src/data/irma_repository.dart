@@ -533,10 +533,10 @@ class IrmaRepository {
       throw UnsupportedError('Credential type $type does not have a suitable issue url for $lang');
     }
 
-    final inAppCredentials = await _credentialsSubject.first;
-    final inAppCredentialTypes = inAppCredentials.values.map((cred) => cred.credentialType.fullId);
+    final alreadyObtainedCredentials = await _credentialsSubject.first;
+    final alreadyObtainedCredentialsTypes = alreadyObtainedCredentials.values.map((cred) => cred.credentialType.fullId);
 
-    if (cred.isInCredentialStore || inAppCredentialTypes.contains(type)) {
+    if (cred.isInCredentialStore || alreadyObtainedCredentialsTypes.contains(type)) {
       final state = await _credentialObtainState.first;
       final updatedLaunchedCredentials = {
         ...state.previouslyLaunchedCredentials,
