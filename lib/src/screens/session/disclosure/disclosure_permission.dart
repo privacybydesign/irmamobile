@@ -7,6 +7,7 @@ import '../../../models/return_url.dart';
 import '../../../models/session.dart';
 import '../../../widgets/irma_repository_provider.dart';
 import '../../../widgets/loading_indicator.dart';
+import '../../add_data/add_data_details_screen.dart';
 import 'bloc/disclosure_permission_bloc.dart';
 import 'bloc/disclosure_permission_event.dart';
 import 'bloc/disclosure_permission_state.dart';
@@ -134,7 +135,15 @@ class ProvidedDisclosurePermission extends StatelessWidget {
                     onEvent: addEvent,
                     onDismiss: onDismiss,
                   );
+                } else if (state is DisclosurePermissionCredentialInformation) {
+                  return AddDataDetailsScreen(
+                    credentialType: state.credentialType,
+                    onDismiss: onDismiss,
+                    onAdd: () => addEvent(DisclosurePermissionNextPressed()),
+                    onCancel: () => addEvent(DisclosurePermissionPreviousPressed()),
+                  );
                 }
+
                 // If state is loading/initial show centered loading indicator
                 return Scaffold(
                   body: Center(
