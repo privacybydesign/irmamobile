@@ -305,6 +305,10 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         optionalChoices: state.optionalChoices,
         hasAdditionalOptionalChoices: state.hasAdditionalOptionalChoices,
       );
+    } else if (state is DisclosurePermissionCredentialInformation && event is DisclosurePermissionNextPressed) {
+      onObtainCredential(state.credentialType);
+    } else if (state is DisclosurePermissionCredentialInformation && event is DisclosurePermissionPreviousPressed) {
+      yield state.parentState;
     } else {
       throw UnsupportedError(
           'Event ${event.runtimeType.toString()} not supported in state ${state.runtimeType.toString()}');
@@ -768,7 +772,10 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     assert(selectedConTemplates.isNotEmpty);
     // If only one credential is involved, we can open the issue url immediately.
     if (selectedConTemplates.length == 1) {
-      onObtainCredential(selectedConTemplates.first.credentialType);
+      yield DisclosurePermissionCredentialInformation(
+        parentState: parentState,
+        credentialType: selectedConTemplates.first.credentialType,
+      );
     } else {
       yield DisclosurePermissionObtainCredentials(
         parentState: parentState,
