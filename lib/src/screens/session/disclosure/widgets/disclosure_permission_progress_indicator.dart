@@ -55,10 +55,17 @@ class DisclosurePermissionProgressIndicator extends StatelessWidget {
                     ),
                     SizedBox(height: theme.smallSpacing),
                   ],
-                  TranslatedText(
-                    contentTranslationKey,
-                    translationParams: contentTranslationParams,
-                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      Flexible(
+                        child: TranslatedText(
+                          contentTranslationKey,
+                          translationParams: contentTranslationParams,
+                        ),
+                      ),
+                    ],
+                  )
                 ],
               ),
             ),
