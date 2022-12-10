@@ -46,13 +46,13 @@ void main() {
         'GitHub',
       ];
       for (final text in texts) {
-        await tester.scrollUntilVisible(find.text(text), 30);
+        await tester.scrollUntilVisible(find.text(text).hitTestable(), 30);
       }
 
       // Check whether version information is shown.
       final PackageInfo packageInfo = await PackageInfo.fromPlatform();
       final versionFinder = find.text('Version ${packageInfo.version} (${packageInfo.buildNumber}, debugbuild)');
-      await tester.scrollUntilVisible(versionFinder, 30);
+      await tester.scrollUntilVisible(versionFinder.hitTestable(), 30);
     });
 
     testWidgets('developer-mode', (tester) async {

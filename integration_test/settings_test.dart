@@ -36,7 +36,7 @@ void main() {
 
     Future<void> _testToggle(WidgetTester tester, String key, bool defaultValue, Stream<bool> valueStream) async {
       var toggleFinder = find.byKey(Key(key));
-      await tester.scrollUntilVisible(toggleFinder, 50);
+      await tester.scrollUntilVisible(toggleFinder.hitTestable(), 50);
 
       // Find the actual SwitchListTile in the SettingsSwitchListTile
       var switchTileFinder = find.descendant(

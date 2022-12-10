@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_share_dialog.dart';
@@ -13,8 +12,8 @@ import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 
 import '../../helpers/helpers.dart';
-import '../../irma_binding.dart';
 import '../../helpers/issuance_helpers.dart';
+import '../../irma_binding.dart';
 import '../../util.dart';
 
 Future<void> specificAttributeValuesTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
@@ -105,7 +104,7 @@ Future<void> specificAttributeValuesTest(WidgetTester tester, IntegrationTestIrm
   // Find the second card and make sure its is not highlighted yet
   final secondCardFinder = choiceCardsFinder.at(1);
   await tester.scrollUntilVisible(
-    secondCardFinder,
+    secondCardFinder.hitTestable(),
     150,
     maxScrolls: 300,
   );
