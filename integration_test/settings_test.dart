@@ -178,7 +178,7 @@ void main() {
     testWidgets('erase', (tester) async {
       await _initAndNavToSettingsScreen(tester);
 
-      var deleteFinder = find.text('Delete everything and start over');
+      var deleteFinder = find.text('Delete everything and start over').hitTestable();
 
       // Tap on option to delete everything and start over
       await tester.scrollUntilVisible(deleteFinder, 75);
