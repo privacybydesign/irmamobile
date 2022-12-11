@@ -104,7 +104,7 @@ Future<void> specificAttributeValuesTest(WidgetTester tester, IntegrationTestIrm
   // Find the second card and make sure its is not highlighted yet
   final secondCardFinder = choiceCardsFinder.at(1);
   await tester.scrollUntilVisible(
-    secondCardFinder.hitTestable(),
+    secondCardFinder,
     150,
     maxScrolls: 300,
   );
