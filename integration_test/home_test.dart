@@ -1,6 +1,8 @@
 // We cannot test using null safety as long as there are widgets that are not migrated yet.
 // @dart=2.11
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -75,17 +77,22 @@ void main() {
         expect(find.byType(HomeTab), findsOneWidget);
       });
 
-      testWidgets('open-scanner', (tester) async {
-        await pumpAndUnlockApp(tester, irmaBinding.repository);
-        //Make sure nav bar is rendered
-        expect(find.byType(IrmaNavBar), findsOneWidget);
+      testWidgets(
+        'open-scanner',
+        (tester) async {
+          await pumpAndUnlockApp(tester, irmaBinding.repository);
+          //Make sure nav bar is rendered
+          expect(find.byType(IrmaNavBar), findsOneWidget);
 
-        // Tap open scanner button
-        await tester.tapAndSettle(find.byKey(const Key('nav_button_scanner')));
+          // Tap open scanner button
+          await tester.tapAndSettle(find.byKey(const Key('nav_button_scanner')));
 
-        //Make sure scanner screen is open;
-        expect(find.byType(ScannerScreen), findsOneWidget);
-      });
+          //Make sure scanner screen is open;
+          expect(find.byType(ScannerScreen), findsOneWidget);
+        },
+        // Skip this test on iOS, because we don't have a solution yet to grant camera permissions.
+        skip: Platform.isIOS,
+      );
     });
   });
 }
