@@ -324,8 +324,17 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         return DisclosurePermissionFinished();
       }
       return state;
-    } else if (state is DisclosurePermissionIssueWizard) {
-      final refreshedState = _refreshIssueWizard(state, session);
+    } else if (state is DisclosurePermissionIssueWizard ||
+        (state is DisclosurePermissionCredentialInformation && state.parentState is DisclosurePermissionIssueWizard)) {
+      final DisclosurePermissionIssueWizard issueWizardState;
+      if (state is DisclosurePermissionIssueWizard) {
+        issueWizardState = state;
+      } else {
+        issueWizardState =
+            (state as DisclosurePermissionCredentialInformation).parentState as DisclosurePermissionIssueWizard;
+      }
+
+      final refreshedState = _refreshIssueWizard(issueWizardState, session);
       // currentCon cannot be null when isCompleted is false.
       return refreshedState.isCompleted
           ? refreshedState
