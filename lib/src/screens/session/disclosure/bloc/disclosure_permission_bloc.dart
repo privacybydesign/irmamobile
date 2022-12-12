@@ -345,17 +345,26 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       return refreshedState.allObtained
           ? refreshedState
           : _validateCredentialsObtained([refreshedState.currentIssueWizardItem!], refreshedState);
-    } else if (state is DisclosurePermissionChangeChoice) {
-      final discon = _refreshDisCon(state.disconIndex, state.discon, session);
+    } else if (state is DisclosurePermissionChangeChoice ||
+        (state is DisclosurePermissionCredentialInformation && state.parentState is DisclosurePermissionChangeChoice)) {
+      final DisclosurePermissionChangeChoice changeChoiceState;
+      if (state is DisclosurePermissionChangeChoice) {
+        changeChoiceState = state;
+      } else {
+        changeChoiceState =
+            (state as DisclosurePermissionCredentialInformation).parentState as DisclosurePermissionChangeChoice;
+      }
+
+      final discon = _refreshDisCon(changeChoiceState.disconIndex, changeChoiceState.discon, session);
       final selectedConIndex = _findSelectedConIndex(
         discon,
-        prevDiscon: state.discon,
-        prevChoice: state.selectedCon,
+        prevDiscon: changeChoiceState.discon,
+        prevChoice: changeChoiceState.selectedCon,
       );
       final refreshedState = DisclosurePermissionChangeChoice(
-        parentState: state.parentState,
+        parentState: changeChoiceState.parentState,
         discon: discon,
-        disconIndex: state.disconIndex,
+        disconIndex: changeChoiceState.disconIndex,
         selectedConIndex: selectedConIndex,
       );
       return _validateCredentialsObtained(
