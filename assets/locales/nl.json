@@ -359,7 +359,11 @@
     "title": "Gegevens toevoegen",
     "description": "Wil je deze gegevens aan je Yivi-app toevoegen?",
     "add": "Gegevens toevoegen",
-    "cancel": "Annuleren"
+    "cancel": "Annuleren",
+    "success_feedback": {
+      "header": "Gelukt",
+      "text": "De gegevens zijn successvol aan je app toegevoegd."
+    }
   },
   "issue_wizard": {
     "back": "Annuleer",

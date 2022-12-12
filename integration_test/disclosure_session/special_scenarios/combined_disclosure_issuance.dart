@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_share_dialog.dart';
 import 'package:irmamobile/src/screens/session/session_screen.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_permission.dart';
+import 'package:irmamobile/src/screens/session/widgets/issuance_success_screen.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
@@ -71,6 +72,11 @@ Future<void> combinedDisclosureIssuanceSessionTest(WidgetTester tester, Integrat
 
   // Tap add data button
   await tester.tapAndSettle(find.byKey(const Key('bottom_bar_primary')));
+
+  final successScreenFinder = find.byType(IssuanceSuccessScreen);
+  expect(successScreenFinder, findsOneWidget);
+
+  await tester.tapAndSettle(find.text('OK'));
 
   expect(find.byType(SessionScreen), findsNothing);
 }
