@@ -28,7 +28,7 @@ class IntegrationTestIrmaBinding {
 
   factory IntegrationTestIrmaBinding.ensureInitialized() {
     _instance ??= IntegrationTestIrmaBinding._(
-      IrmaClientBridge(),
+      IrmaClientBridge(debugLogging: true),
     );
     return _instance!;
   }
