@@ -36,7 +36,7 @@ void main() {
 
     Future<void> _testToggle(WidgetTester tester, String key, bool defaultValue, Stream<bool> valueStream) async {
       var toggleFinder = find.byKey(Key(key));
-      await tester.scrollUntilVisible(toggleFinder, 50);
+      await tester.scrollUntilVisible(toggleFinder.hitTestable(), 50);
 
       // Find the actual SwitchListTile in the SettingsSwitchListTile
       var switchTileFinder = find.descendant(
@@ -110,7 +110,10 @@ void main() {
 
     testWidgets('change-pin', (tester) async {
       await _initAndNavToSettingsScreen(tester);
-      await tester.tapAndSettle(find.text('Change your PIN'));
+
+      final changePinButtonFinder = find.text('Change your PIN').hitTestable();
+      await tester.scrollUntilVisible(changePinButtonFinder, 50);
+      await tester.tapAndSettle(changePinButtonFinder);
 
       // Enter current pin  PIN
       await enterPin(tester, '12345');
@@ -175,7 +178,7 @@ void main() {
     testWidgets('erase', (tester) async {
       await _initAndNavToSettingsScreen(tester);
 
-      var deleteFinder = find.text('Delete everything and start over');
+      var deleteFinder = find.text('Delete everything and start over').hitTestable();
 
       // Tap on option to delete everything and start over
       await tester.scrollUntilVisible(deleteFinder, 75);
