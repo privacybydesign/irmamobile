@@ -46,7 +46,7 @@ void main() {
         'GitHub',
       ];
       for (final text in texts) {
-        await tester.scrollUntilVisible(find.text(text).hitTestable(), 30);
+        await tester.scrollUntilVisible(find.text(text), 30);
       }
 
       // Check whether version information is shown.
