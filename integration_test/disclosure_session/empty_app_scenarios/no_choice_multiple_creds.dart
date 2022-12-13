@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_share_dialog.dart';
@@ -57,6 +58,10 @@ Future<void> noChoiceMultipleCredsTest(WidgetTester tester, IntegrationTestIrmaB
   // First card should be highlighted, second card should be normal
   expect((cardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.highlighted);
   expect((cardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
+
+  // Continue and expect the AddDataDetailsScreen
+  await tester.tapAndSettle(find.text('Obtain data'));
+  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
 
   // Issue the email credential
   await issueEmailAddress(tester, irmaBinding);

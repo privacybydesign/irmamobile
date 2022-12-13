@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
@@ -44,10 +45,13 @@ Future<void> completelyOptionalTest(WidgetTester tester, IntegrationTestIrmaBind
 
   expect(find.text('Demo Email address'), findsOneWidget);
 
+  // Continue and expect the AddDataDetailsScreen
+  await tester.tapAndSettle(find.text('Obtain data'));
+  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
+
   // We cannot actually press the 'Obtain data' button, because we get redirected to an external flow then.
   // Therefore, we mock this behaviour using the helper below until we have a better solution.
   await issueEmailAddress(tester, irmaBinding);
-
   await tester.tapAndSettle(find.text('Done'));
 
   // Delete optional data from selection again.

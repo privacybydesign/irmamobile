@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choice.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
@@ -62,6 +63,10 @@ Future<void> choiceTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBind
 
   // First card should be highlighted.
   expect((cardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.highlighted);
+
+  // Continue and expect the AddDataDetailsScreen
+  await tester.tapAndSettle(find.text('Obtain data'));
+  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
 
   // We cannot actually press the 'Obtain data' button, because we get redirected to an external flow then.
   // Therefore, we mock this behavior using the helper below until we have a better solution.
