@@ -371,12 +371,22 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         refreshedState.selectedCon.whereType<TemplateDisclosureCredential>(),
         refreshedState,
       );
-    } else if (state is DisclosurePermissionAddOptionalData) {
+    } else if (state is DisclosurePermissionAddOptionalData ||
+        (state is DisclosurePermissionCredentialInformation &&
+            state.parentState is DisclosurePermissionAddOptionalData)) {
+      final DisclosurePermissionAddOptionalData optionalDataState;
+      if (state is DisclosurePermissionAddOptionalData) {
+        optionalDataState = state;
+      } else {
+        optionalDataState =
+            (state as DisclosurePermissionCredentialInformation).parentState as DisclosurePermissionAddOptionalData;
+      }
+
       return _generateAddOptionalDataState(
         session: session,
-        parentState: state.parentState,
-        alreadyAddedOptionalDisconIndices: state.parentState.optionalChoices.keys,
-        prevState: state,
+        parentState: optionalDataState.parentState,
+        alreadyAddedOptionalDisconIndices: optionalDataState.parentState.optionalChoices.keys,
+        prevState: optionalDataState,
       );
     } else if (state is DisclosurePermissionChoices) {
       final choices = state.choices.map((i, prevChoice) {
