@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../models/irma_configuration.dart';
 import '../../theme/theme.dart';
@@ -13,12 +14,14 @@ class AddDataDetailsScreen extends StatefulWidget {
   final VoidCallback onAdd;
   final VoidCallback onCancel;
   final VoidCallback? onDismiss;
+  final bool inDisclosure;
 
   const AddDataDetailsScreen({
     required this.credentialType,
     required this.onAdd,
     required this.onCancel,
     this.onDismiss,
+    this.inDisclosure = false,
   });
 
   @override
@@ -31,6 +34,8 @@ class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final lang = FlutterI18n.currentLocale(context)!.languageCode;
+
     final paddingText = EdgeInsets.fromLTRB(
       theme.defaultSpacing,
       theme.tinySpacing,
@@ -70,13 +75,24 @@ class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
               Padding(
                 padding: paddingText,
                 child: Text(
-                  getTranslation(context, widget.credentialType.faqIntro).replaceAll('\\n', '\n'),
+                  widget.credentialType.faqIntro.isEmpty
+                      ?
+                      // Fallback generic add credential text
+                      FlutterI18n.translate(
+                          context,
+                          'data.add.details.obtain',
+                          translationParams: {
+                            'credential': widget.credentialType.name.translate(lang),
+                          },
+                        )
+                      : getTranslation(context, widget.credentialType.faqIntro).replaceAll('\\n', '\n'),
                   style: theme.textTheme.bodyText2,
                 ),
               ),
             Padding(
               padding: paddingQuestions,
               child: AddDataQuestions(
+                inDisclosure: widget.inDisclosure,
                 credentialType: widget.credentialType,
                 parentScrollController: _controller,
               ),

@@ -137,6 +137,7 @@ class ProvidedDisclosurePermission extends StatelessWidget {
                   );
                 } else if (state is DisclosurePermissionCredentialInformation) {
                   return AddDataDetailsScreen(
+                    inDisclosure: true,
                     credentialType: state.credentialType,
                     onDismiss: onDismiss,
                     onAdd: () => addEvent(DisclosurePermissionNextPressed()),
