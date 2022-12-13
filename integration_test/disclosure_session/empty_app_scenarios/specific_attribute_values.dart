@@ -14,8 +14,8 @@ import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 
 import '../../helpers/helpers.dart';
-import '../../irma_binding.dart';
 import '../../helpers/issuance_helpers.dart';
+import '../../irma_binding.dart';
 import '../../util.dart';
 
 Future<void> specificAttributeValuesTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {

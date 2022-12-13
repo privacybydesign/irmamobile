@@ -183,7 +183,7 @@
     },
     "overview": {
       "title": "Share your data",
-      "explanation": "Share your date with {requestorName}",
+      "explanation": "Share your data with {requestorName}",
       "header": "This is the data you are going to share:",
       "confirm": "Share data",
       "sign": "This is the message you are going to sign:"
@@ -361,7 +361,11 @@
     "title": "Add data",
     "description": "Do you want to add this data to your Yivi app?",
     "add": "Add data",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "success_feedback": {
+      "header": "Success",
+      "text": "The data has been successfully added to your app."
+    }
   },
   "issue_wizard": {
     "back": "Cancel",
