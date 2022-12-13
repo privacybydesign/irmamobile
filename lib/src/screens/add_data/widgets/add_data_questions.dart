@@ -16,11 +16,17 @@ class AddDataQuestions extends StatelessWidget {
   final CredentialType credentialType;
   final ScrollController parentScrollController;
 
-  Widget _buildCollapsible(BuildContext context, String headerTranslationKey, TranslatedValue bodyText) {
+  Widget _buildCollapsible(
+    BuildContext context,
+    String headerTranslationKey,
+    TranslatedValue bodyText, {
+    bool initiallyExpanded = false,
+  }) {
     final theme = IrmaTheme.of(context);
     return Padding(
       padding: EdgeInsets.symmetric(vertical: theme.tinySpacing),
       child: Collapsible(
+        initiallyExpanded: initiallyExpanded,
         header: FlutterI18n.translate(context, headerTranslationKey),
         parentScrollController: parentScrollController,
         content: SizedBox(
@@ -42,11 +48,26 @@ class AddDataQuestions extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (credentialType.faqPurpose.isNotEmpty)
-          _buildCollapsible(context, 'data.add.details.purpose_question', credentialType.faqPurpose),
+          _buildCollapsible(
+            context,
+            'data.add.details.purpose_question',
+            credentialType.faqPurpose,
+            initiallyExpanded: true,
+          ),
         if (credentialType.faqContent.isNotEmpty)
-          _buildCollapsible(context, 'data.add.details.content_question', credentialType.faqContent),
+          _buildCollapsible(
+            context,
+            'data.add.details.content_question',
+            credentialType.faqContent,
+            initiallyExpanded: credentialType.faqPurpose.isEmpty,
+          ),
         if (credentialType.faqHowto.isNotEmpty)
-          _buildCollapsible(context, 'data.add.details.howto_question', credentialType.faqHowto),
+          _buildCollapsible(
+            context,
+            'data.add.details.howto_question',
+            credentialType.faqHowto,
+            initiallyExpanded: credentialType.faqPurpose.isEmpty && credentialType.faqContent.isEmpty,
+          ),
       ],
     );
   }
