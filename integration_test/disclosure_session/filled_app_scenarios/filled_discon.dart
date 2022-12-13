@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_share_dialog.dart';
@@ -129,6 +130,9 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     issuerName: 'Demo iDIN',
     style: IrmaCardStyle.highlighted,
   );
+
+  await tester.tapAndSettle(find.text('Obtain data'));
+  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
 
   await issueIdin(tester, irmaBinding);
 
