@@ -68,12 +68,13 @@ class AddDataTile extends StatelessWidget {
                 Text(
                   getTranslation(context, credType.name),
                   style: theme.textTheme.titleLarge,
-                  overflow: TextOverflow.ellipsis,
+                ),
+                SizedBox(
+                  height: theme.tinySpacing,
                 ),
                 Text(
                   getTranslation(context, issuer.name),
                   style: theme.textTheme.subtitle1,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
