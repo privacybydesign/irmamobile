@@ -19,12 +19,11 @@ class AddDataTile extends StatelessWidget {
     this.obtained = false,
   });
 
-  static const _logoContainerSize = 48.0;
-
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
+    const logoContainerSize = 48.0;
     final logoFile = File(credType.logo ?? '');
 
     return IrmaCard(
@@ -41,11 +40,11 @@ class AddDataTile extends StatelessWidget {
             children: [
               Container(
                 padding: EdgeInsets.all(theme.smallSpacing),
-                height: _logoContainerSize,
-                width: _logoContainerSize,
+                height: logoContainerSize,
+                width: logoContainerSize,
                 child: logoFile.existsSync()
                     ? SizedBox(
-                        height: _logoContainerSize / 2,
+                        height: logoContainerSize / 2,
                         child: Image.file(logoFile, excludeFromSemantics: true),
                       )
                     : null,
@@ -55,7 +54,7 @@ class AddDataTile extends StatelessWidget {
                 child: Icon(
                   Icons.check_circle,
                   color: theme.success,
-                  size: _logoContainerSize * 0.3,
+                  size: logoContainerSize * 0.3,
                 ),
               ),
             ],
@@ -83,7 +82,7 @@ class AddDataTile extends StatelessWidget {
           Icon(
             Icons.add_circle_outline,
             color: theme.themeData.colorScheme.secondary,
-            size: _logoContainerSize * 0.7,
+            size: logoContainerSize * 0.7,
           ),
         ],
       ),
