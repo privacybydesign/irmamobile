@@ -9,7 +9,7 @@ part of 'session_events.dart';
 Map<String, dynamic> _$NewSessionEventToJson(NewSessionEvent instance) => <String, dynamic>{
       'SessionID': instance.sessionID,
       'Request': instance.request,
-      'inAppCredential': instance.inAppCredential,
+      'previouslyLaunchedCredentials': instance.previouslyLaunchedCredentials.toList(),
     };
 
 RespondPermissionEvent _$RespondPermissionEventFromJson(Map<String, dynamic> json) {

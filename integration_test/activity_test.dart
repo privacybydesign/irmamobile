@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/src/screens/activity/activity_detail_screen.dart';
 import 'package:irmamobile/src/screens/activity/widgets/activity_detail_issuance.dart';
+import 'package:irmamobile/src/screens/session/widgets/issuance_success_screen.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 
 import 'helpers/helpers.dart';
@@ -34,6 +35,10 @@ void main() {
         expect(find.text('No activities were logged.'), findsOneWidget);
 
         await issueMunicipalityPersonalData(tester, irmaBinding);
+        await tester.pumpAndSettle();
+
+        expect(find.byType(IssuanceSuccessScreen), findsOneWidget);
+        await tester.tapAndSettle(find.text('OK'));
 
         await tester.tap(find.byKey(const Key('nav_button_activity')));
         await tester.pump(const Duration(seconds: 1));
@@ -79,7 +84,7 @@ void main() {
         );
         // Find the activity timestamp
         final timestampFinder = find.byKey(const Key('activity_timestamp'));
-        await tester.scrollUntilVisible(timestampFinder, 50);
+        await tester.scrollUntilVisible(timestampFinder.hitTestable(), 50);
         expect(timestampFinder, findsOneWidget);
       },
     );

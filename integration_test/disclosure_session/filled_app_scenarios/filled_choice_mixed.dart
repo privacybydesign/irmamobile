@@ -11,8 +11,8 @@ import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 
 import '../../helpers/helpers.dart';
-import '../../irma_binding.dart';
 import '../../helpers/issuance_helpers.dart';
+import '../../irma_binding.dart';
 import '../../util.dart';
 
 Future<void> filledChoiceMixedTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
@@ -64,7 +64,7 @@ Future<void> filledChoiceMixedTest(WidgetTester tester, IntegrationTestIrmaBindi
 
   // Change choice should be visible
   final changeChoiceFinder = find.text('Change choice');
-  await tester.scrollUntilVisible(changeChoiceFinder, 50);
+  await tester.scrollUntilVisible(changeChoiceFinder.hitTestable(), 50);
   expect(changeChoiceFinder, findsOneWidget);
 
   // Press the change choice
@@ -100,7 +100,7 @@ Future<void> filledChoiceMixedTest(WidgetTester tester, IntegrationTestIrmaBindi
 
   // Press iDin option
   await tester.scrollUntilVisible(
-    secondCardFinder,
+    secondCardFinder.hitTestable(),
     50,
   );
   await tester.tapAndSettle(secondCardFinder);
