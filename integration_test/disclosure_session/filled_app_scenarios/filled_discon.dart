@@ -163,7 +163,7 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
 
   // Check the second change choice
   await tester.scrollUntilVisible(
-    cardsFinder.at(1).hitTestable(),
+    changeChoiceFinder.at(1).hitTestable(),
     50,
   );
   await tester.tapAndSettle(changeChoiceFinder.at(1));
