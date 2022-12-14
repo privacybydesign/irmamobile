@@ -121,6 +121,11 @@ Future<void> specificAttributeValuesTest(WidgetTester tester, IntegrationTestIrm
   await issueIdin(tester, irmaBinding);
 
   // Tap it and the styling should change.
+  await tester.scrollUntilVisible(
+    secondCardFinder,
+    150,
+    maxScrolls: 300,
+  );
   await tester.tapAndSettle(secondCardFinder);
   await evaluateCredentialCard(tester, secondCardFinder, style: IrmaCardStyle.highlighted);
 

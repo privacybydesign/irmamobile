@@ -71,24 +71,23 @@ class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (widget.credentialType.faqIntro.isNotEmpty)
-              Padding(
-                padding: paddingText,
-                child: Text(
-                  widget.credentialType.faqIntro.isEmpty
-                      ?
-                      // Fallback generic add credential text
-                      FlutterI18n.translate(
-                          context,
-                          'data.add.details.obtain',
-                          translationParams: {
-                            'credential': widget.credentialType.name.translate(lang),
-                          },
-                        )
-                      : getTranslation(context, widget.credentialType.faqIntro).replaceAll('\\n', '\n'),
-                  style: theme.textTheme.bodyText2,
-                ),
+            Padding(
+              padding: paddingText,
+              child: Text(
+                widget.credentialType.faqIntro.isEmpty
+                    ?
+                    // Fallback generic add credential text
+                    FlutterI18n.translate(
+                        context,
+                        'data.add.details.obtain',
+                        translationParams: {
+                          'credential': widget.credentialType.name.translate(lang),
+                        },
+                      )
+                    : getTranslation(context, widget.credentialType.faqIntro).replaceAll('\\n', '\n'),
+                style: theme.textTheme.bodyText2,
               ),
+            ),
             Padding(
               padding: paddingQuestions,
               child: AddDataQuestions(
