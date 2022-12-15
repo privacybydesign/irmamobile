@@ -24,7 +24,8 @@ class IrmaPreferences {
         _startQRScan = preferences.getBool(_startQRScanKey, defaultValue: false),
         _showDisclosureDialog = preferences.getBool(_showDisclosureDialogKey, defaultValue: true),
         _developerModePrefVisible = preferences.getBool(_developerModePrefVisibleKey, defaultValue: false),
-        _acceptedRootedRisk = preferences.getBool(_acceptedRootedRiskKey, defaultValue: false);
+        _acceptedRootedRisk = preferences.getBool(_acceptedRootedRiskKey, defaultValue: false),
+        _showNameChangeNotification = preferences.getBool(_showNameChangeNotificationKey, defaultValue: true);
 
   static Future<IrmaPreferences> fromInstance() async => IrmaPreferences(await StreamingSharedPreferences.instance);
 
@@ -75,4 +76,10 @@ class IrmaPreferences {
 
   Stream<bool> getAcceptedRootedRisk() => _acceptedRootedRisk;
   Future<bool> setAcceptedRootedRisk(bool value) => _acceptedRootedRisk.setValue(value);
+
+  static const String _showNameChangeNotificationKey = "preference.show_name_change_notification";
+  final Preference<bool> _showNameChangeNotification;
+
+  Stream<bool> getShowNameChangeNotification() => _showNameChangeNotification;
+  Future<bool> setShowNameChangeNotification(bool value) => _showNameChangeNotification.setValue(value);
 }

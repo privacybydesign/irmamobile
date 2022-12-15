@@ -85,6 +85,7 @@ flutter:
     - assets/disclosure/
     - assets/splash/
     - assets/rooted_warning/
+    - assets/name_change/
 
   fonts:
     - family: Karla
