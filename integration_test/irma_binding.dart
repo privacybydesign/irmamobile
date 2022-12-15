@@ -61,6 +61,9 @@ class IntegrationTestIrmaBinding {
     // Prevent rooted warning to be shown on simulators.
     await _preferences!.setAcceptedRootedRisk(true);
 
+    // Prevent name change notification when testing.
+    await _preferences!.setShowNameChangeNotification(false);
+
     // Ensure enrollment status is set as expected.
     if (enrollmentStatus == EnrollmentStatus.enrolled) {
       _bridge.dispatch(EnrollEvent(
