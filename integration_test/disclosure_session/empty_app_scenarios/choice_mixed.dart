@@ -112,16 +112,12 @@ Future<void> choiceMixedTest(WidgetTester tester, IntegrationTestIrmaBinding irm
   // The choice should have disappeared
   expect(choiceFinder, findsNothing);
 
-  await Future.delayed(Duration(seconds: 10));
-
   // Now the discon stepper should consist of two cards
   final disConCardsFinder = find.descendant(
     of: disConStepperFinder,
     matching: find.byType(IrmaCredentialCard),
   );
   expect(disConCardsFinder, findsNWidgets(2));
-
-  await Future.delayed(Duration(seconds: 10));
 
   // Now only the second discon card should be highlighted
   await evaluateCredentialCard(
