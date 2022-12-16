@@ -12,7 +12,6 @@ import '../../../widgets/irma_repository_provider.dart';
 import '../../../widgets/irma_themed_button.dart';
 import '../../../widgets/translated_text.dart';
 import '../history_repository.dart';
-
 import 'activity_card.dart';
 
 class RecentActivity extends StatefulWidget {
@@ -81,9 +80,12 @@ class _RecentActivityState extends State<RecentActivity> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  child: TranslatedText(
-                    'home_tab.recent_activity',
-                    style: theme.textTheme.headline4,
+                  child: Semantics(
+                    header: true,
+                    child: TranslatedText(
+                      'home_tab.recent_activity',
+                      style: theme.textTheme.headline4,
+                    ),
                   ),
                 ),
                 Flexible(
