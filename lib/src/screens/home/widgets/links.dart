@@ -29,17 +29,20 @@ class Link extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: padding,
-      onTap: onTap,
-      title: TranslatedText(
-        translationKey,
-        textAlign: textAlign ?? TextAlign.start,
-        style: style ?? IrmaTheme.of(context).textTheme.bodyText2!.copyWith(decoration: TextDecoration.underline),
+    return Semantics(
+      link: true,
+      child: ListTile(
+        contentPadding: padding,
+        onTap: onTap,
+        title: TranslatedText(
+          translationKey,
+          textAlign: textAlign ?? TextAlign.start,
+          style: style ?? IrmaTheme.of(context).textTheme.bodyText2!.copyWith(decoration: TextDecoration.underline),
+        ),
+        leading: iconData != null
+            ? Icon(iconData, size: 30, color: IrmaTheme.of(context).themeData.colorScheme.secondary)
+            : null,
       ),
-      leading: iconData != null
-          ? Icon(iconData, size: 30, color: IrmaTheme.of(context).themeData.colorScheme.secondary)
-          : null,
     );
   }
 }

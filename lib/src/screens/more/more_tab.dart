@@ -22,9 +22,12 @@ class MoreTab extends StatelessWidget {
 
     Widget _buildHeaderText(String translationKey) => Padding(
           padding: EdgeInsets.all(theme.defaultSpacing),
-          child: TranslatedText(
-            translationKey,
-            style: theme.textTheme.headline3,
+          child: Semantics(
+            header: true,
+            child: TranslatedText(
+              translationKey,
+              style: theme.textTheme.headline3,
+            ),
           ),
         );
 
