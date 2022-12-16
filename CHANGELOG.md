@@ -4,7 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [6.3.2] - in beta 2022-09-20
+## [6.3.3] - in beta 2022-12-16
+### Added
+- Possibility to run integration tests on Android with JUnit using a test environment of the keyshare server
+
+### Changed
+- Updated irmago dependency
+- Moved active development and CI/CD workflows to GitHub
+
+### Fixed
+- Typo in English texts on 'About IRMA' screen
+
+## [6.3.2] - 2022-09-23 (in beta 2022-09-20)
 This release only includes iOS changes.
 
 ### Changed
@@ -190,6 +201,7 @@ This release only includes iOS changes.
 - Various bug fixes
 
 
+[6.3.3]: https://github.com/privacybydesign/irmamobile/compare/v6.3.2...v6.3.3
 [6.3.2]: https://github.com/privacybydesign/irmamobile/compare/v6.3.1...v6.3.2
 [6.3.1]: https://github.com/privacybydesign/irmamobile/compare/v6.3.0...v6.3.1
 [6.3.0]: https://github.com/privacybydesign/irmamobile/compare/v6.2.4...v6.3.0
