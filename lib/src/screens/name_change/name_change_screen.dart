@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
+import 'package:lottie/lottie.dart';
+
 import 'package:irmamobile/src/theme/theme.dart';
 import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
 import 'package:irmamobile/src/widgets/irma_markdown.dart';
@@ -34,40 +36,41 @@ class NameChangeScreen extends StatelessWidget {
           left: theme.defaultSpacing,
           right: theme.defaultSpacing,
         ),
-        child: SingleChildScrollView(
-          child: SafeArea(
-            child: Center(
-              child: Column(
-                children: [
-                  IrmaMarkdown(
-                    FlutterI18n.translate(
-                      context,
-                      'name_change.intro_markdown',
-                    ),
-                    styleSheet: markdownStyleSheet,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      vertical: theme.largeSpacing,
-                    ),
-                    child: const Image(
-                      image: AssetImage(
-                        'assets/name_change/name_change.png',
+        child: Center(
+          child: SingleChildScrollView(
+            child: SafeArea(
+              child: Center(
+                child: Column(
+                  children: [
+                    IrmaMarkdown(
+                      FlutterI18n.translate(
+                        context,
+                        'name_change.intro_markdown',
                       ),
+                      styleSheet: markdownStyleSheet,
                     ),
-                  ),
-                  const TranslatedText(
-                    'name_change.explanation',
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(
-                    height: theme.defaultSpacing,
-                  ),
-                  const TranslatedText(
-                    'name_change.release',
-                    textAlign: TextAlign.center,
-                  )
-                ],
+                    Padding(
+                        padding: EdgeInsets.symmetric(
+                          vertical: theme.largeSpacing,
+                        ),
+                        child: Lottie.asset(
+                          'assets/name_change/yivi.json',
+                          frameRate: FrameRate(60),
+                          repeat: false,
+                        )),
+                    const TranslatedText(
+                      'name_change.explanation',
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(
+                      height: theme.defaultSpacing,
+                    ),
+                    const TranslatedText(
+                      'name_change.release',
+                      textAlign: TextAlign.center,
+                    )
+                  ],
+                ),
               ),
             ),
           ),
