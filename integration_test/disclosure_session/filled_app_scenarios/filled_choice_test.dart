@@ -102,7 +102,7 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
   // The third card should show a template credential too
   final thirdCardFinder = cardFinder.at(2);
   await tester.scrollUntilVisible(
-    thirdCardFinder,
+    thirdCardFinder.hitTestable(),
     50,
   );
   await evaluateCredentialCard(

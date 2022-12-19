@@ -59,7 +59,10 @@ Future<void> completelyOptionalTest(WidgetTester tester, IntegrationTestIrmaBind
     of: find.byType(IrmaCredentialCard),
     matching: find.byIcon(Icons.close).hitTestable(),
   );
-  await tester.scrollUntilVisible(deleteOptionalDataButton, 50);
+  await tester.scrollUntilVisible(
+    deleteOptionalDataButton.hitTestable(),
+    50,
+  );
   await tester.tapAndSettle(deleteOptionalDataButton);
 
   // Finish session.

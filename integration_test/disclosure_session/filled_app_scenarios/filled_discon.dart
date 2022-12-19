@@ -109,7 +109,7 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     style: IrmaCardStyle.outlined,
   );
   await tester.scrollUntilVisible(
-    secondCardFinder,
+    secondCardFinder.hitTestable(),
     50,
   );
   // Tap iDIN option
