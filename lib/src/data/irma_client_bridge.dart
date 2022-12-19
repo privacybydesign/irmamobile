@@ -20,6 +20,7 @@ import 'package:irmamobile/src/sentry/sentry.dart';
 typedef EventUnmarshaller = Event Function(Map<String, dynamic>);
 
 class IrmaClientBridge extends IrmaBridge {
+  final bool debugLogging;
   final MethodChannel _methodChannel;
 
   static final Map<Type, EventUnmarshaller> _eventUnmarshallers = {
@@ -65,7 +66,9 @@ class IrmaClientBridge extends IrmaBridge {
   static final Map<String, EventUnmarshaller> _eventUnmarshallerLookup =
       _eventUnmarshallers.map((Type t, EventUnmarshaller u) => MapEntry<String, EventUnmarshaller>(t.toString(), u));
 
-  IrmaClientBridge() : _methodChannel = const MethodChannel('irma.app/irma_mobile_bridge') {
+  IrmaClientBridge({
+    this.debugLogging = false,
+  }) : _methodChannel = const MethodChannel('irma.app/irma_mobile_bridge') {
     // Start listening to method calls from the native side
     _methodChannel.setMethodCallHandler(_handleMethodCall);
   }
@@ -81,7 +84,7 @@ class IrmaClientBridge extends IrmaBridge {
         return;
       }
 
-      if (kDebugMode) {
+      if (debugLogging) {
         debugPrint('Received bridge event: ${call.method} with payload ${call.arguments}');
       }
 
@@ -97,7 +100,7 @@ class IrmaClientBridge extends IrmaBridge {
   @override
   void dispatch(Event event) {
     final encodedEvent = jsonEncode(event);
-    if (kDebugMode) {
+    if (debugLogging) {
       debugPrint('Sending ${event.runtimeType.toString()} to bridge: $encodedEvent');
     }
 

@@ -1,8 +1,5 @@
-import 'dart:io';
-
-import 'package:flutter/material.dart';
-
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../models/credentials.dart';
@@ -11,98 +8,38 @@ import '../../theme/theme.dart';
 import '../../util/combine.dart';
 import '../../util/language.dart';
 import '../../widgets/irma_app_bar.dart';
-import '../../widgets/irma_card.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/progress.dart';
 import '../../widgets/translated_text.dart';
-
-import 'add_data_details_screen.dart';
+import 'widgets/add_data_tile.dart';
 
 class AddDataScreen extends StatelessWidget {
   static const String routeName = '/add_data';
 
-  static const _logoContainerSize = 48.0;
+  List<AddDataTile> _buildCategoryAddDataTiles({
+    required IrmaConfiguration irmaConfig,
+    required List<CredentialType> categoryCredentialTypes,
+    required Credentials alreadyObtainedCredentials,
+  }) {
+    List<AddDataTile> addDataTiles = [];
 
-  Widget _buildAddedCredentialTypeItem(
-    BuildContext context,
-    Issuer issuer,
-    CredentialType credType,
-    Credentials credentials,
-  ) {
-    bool obtained = credentials.values.any((cred) => cred.info.fullId == credType.fullId);
-    if (credType.isSingleton && obtained) {
-      return const SizedBox();
+    for (var credType in categoryCredentialTypes) {
+      bool alreadyObtained = alreadyObtainedCredentials.values.any(
+        (cred) => cred.info.fullId == credType.fullId,
+      );
+
+      if (!credType.isSingleton || !alreadyObtained) {
+        addDataTiles.add(
+          AddDataTile(
+            issuer: irmaConfig.issuers[credType.fullIssuerId]!,
+            credType: credType,
+            obtained: alreadyObtained,
+          ),
+        );
+      }
     }
 
-    final logoFile = File(credType.logo ?? '');
-    final theme = IrmaTheme.of(context);
-    return IrmaCard(
-      padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
-      onTap: () => Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => AddDataDetailsScreen(
-            credentialType: credType,
-            onCancel: () => Navigator.of(context).pop(),
-            onAdd: () => IrmaRepositoryProvider.of(context).openIssueURL(
-              context,
-              credType.fullId,
-            ),
-          ),
-        ),
-      ),
-      child: Row(
-        children: [
-          Stack(
-            alignment: Alignment.topRight,
-            children: [
-              Container(
-                padding: EdgeInsets.all(theme.smallSpacing),
-                height: _logoContainerSize,
-                width: _logoContainerSize,
-                child: logoFile.existsSync()
-                    ? SizedBox(
-                        height: _logoContainerSize / 2,
-                        child: Image.file(logoFile, excludeFromSemantics: true),
-                      )
-                    : null,
-              ),
-              Visibility(
-                visible: obtained,
-                child: Icon(
-                  Icons.check_circle,
-                  color: theme.success,
-                  size: _logoContainerSize * 0.3,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(width: theme.smallSpacing),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  getTranslation(context, credType.name),
-                  style: theme.textTheme.titleLarge,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  getTranslation(context, issuer.name),
-                  style: theme.textTheme.subtitle1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-          SizedBox(width: theme.smallSpacing),
-          Icon(
-            Icons.add_circle_outline,
-            color: theme.themeData.colorScheme.secondary,
-            size: _logoContainerSize * 0.7,
-          ),
-        ],
-      ),
-    );
+    return addDataTiles;
   }
 
   @override
@@ -151,13 +88,11 @@ class AddDataScreen extends StatelessWidget {
                       category,
                       style: theme.textTheme.headline3,
                     ),
-                    for (final credType in credentialTypesByCategory[category]!)
-                      _buildAddedCredentialTypeItem(
-                        context,
-                        irmaConfiguration.issuers[credType.fullIssuerId]!,
-                        credType,
-                        credentials,
-                      ),
+                    ..._buildCategoryAddDataTiles(
+                      irmaConfig: irmaConfiguration,
+                      categoryCredentialTypes: credentialTypesByCategory[category]!,
+                      alreadyObtainedCredentials: credentials,
+                    ),
                     SizedBox(height: theme.defaultSpacing),
                   ]
                 ],
