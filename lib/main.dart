@@ -3,6 +3,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:irmamobile/app.dart';
 import 'package:irmamobile/src/data/irma_client_bridge.dart';
@@ -21,7 +22,7 @@ Future<void> main() async {
     final preferences = await IrmaPreferences.fromInstance();
     await initSentry(preferences: preferences);
     final repository = IrmaRepository(
-      client: IrmaClientBridge(),
+      client: IrmaClientBridge(debugLogging: kDebugMode),
       preferences: preferences,
     );
 
