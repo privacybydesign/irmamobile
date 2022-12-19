@@ -144,7 +144,10 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         yield state.parentState;
       } else {
         // currentIssueWizardItem cannot be null when allObtained returned false.
-        onObtainCredential(state.currentIssueWizardItem!.credentialType);
+        yield DisclosurePermissionCredentialInformation(
+          parentState: state,
+          credentialType: state.currentIssueWizardItem!.credentialType,
+        );
       }
     } else if (state is DisclosurePermissionPreviouslyAddedCredentialsOverview &&
         event is DisclosurePermissionNextPressed) {
@@ -339,8 +342,18 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       return refreshedState.isCompleted
           ? refreshedState
           : _validateCredentialsObtained(refreshedState.currentCon!, refreshedState);
-    } else if (state is DisclosurePermissionObtainCredentials) {
-      final refreshedState = _refreshObtainedCredentials(state, session);
+    } else if (state is DisclosurePermissionObtainCredentials ||
+        (state is DisclosurePermissionCredentialInformation &&
+            state.parentState is DisclosurePermissionObtainCredentials)) {
+      final DisclosurePermissionObtainCredentials obtainCredentialsState;
+      if (state is DisclosurePermissionObtainCredentials) {
+        obtainCredentialsState = state;
+      } else {
+        obtainCredentialsState =
+            (state as DisclosurePermissionCredentialInformation).parentState as DisclosurePermissionObtainCredentials;
+      }
+
+      final refreshedState = _refreshObtainedCredentials(obtainCredentialsState, session);
       // In case only one credential had to be obtained, we immediately go back to the parent step.
       return refreshedState.allObtained
           ? refreshedState
