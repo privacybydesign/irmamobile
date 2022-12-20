@@ -1400,7 +1400,9 @@ void main() {
     expect(obtainCredsBlocState.obtained[0], false);
     expect(obtainCredsBlocState.templates[1].fullId, 'pbdf.pbdf.mobilenumber');
     expect(obtainCredsBlocState.obtained[1], false);
+    bloc.add(DisclosurePermissionNextPressed());
 
+    expect(await bloc.stream.first, isA<DisclosurePermissionCredentialInformation>());
     bloc.add(DisclosurePermissionNextPressed());
 
     expect(await obtainCredentialsController.stream.first, 'pbdf.gemeente.address');
@@ -1421,7 +1423,9 @@ void main() {
     expect(obtainCredsBlocState.obtained[0], true);
     expect(obtainCredsBlocState.templates[1].fullId, 'pbdf.pbdf.mobilenumber');
     expect(obtainCredsBlocState.obtained[1], false);
+    bloc.add(DisclosurePermissionNextPressed());
 
+    expect(await bloc.stream.first, isA<DisclosurePermissionCredentialInformation>());
     bloc.add(DisclosurePermissionNextPressed());
 
     expect(await obtainCredentialsController.stream.first, 'pbdf.pbdf.mobilenumber');
