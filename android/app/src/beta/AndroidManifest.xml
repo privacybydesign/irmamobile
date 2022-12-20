@@ -2,5 +2,5 @@
     package="foundation.privacybydesign.irmamobile">
 
     <!-- Override label (this is what is displayed as the app's name)-->
-    <application android:label="IRMA"/>
+    <application android:label="Yivi"/>
 </manifest>
