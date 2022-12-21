@@ -104,11 +104,11 @@ lane :ios_build_app do |options|
   # For now, we assume that alpha builds are meant for ad hoc distribution and beta builds for app store distribution.
   case options[:flavor]
   when "alpha"
-    display_name = "IRMA 2020"
+    display_name = "Yivi 2023"
     app_identifier = "foundation.privacybydesign.irmamob.alpha"
     export_method = "ad-hoc"
   when "beta"
-    display_name = "IRMA"
+    display_name = "Yivi"
     app_identifier = "foundation.privacybydesign.irmamob"
     export_method = "app-store"
   else
