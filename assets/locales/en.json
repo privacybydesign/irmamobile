@@ -107,7 +107,9 @@
         "content_question": "Which data is added?",
         "howto_question": "How does it work?",
         "back_button": "Cancel",
-        "get_button": "Add"
+        "get_button": "Add",
+        "disclosure_info_markdown": "**Note:** All available data will be retrieved but only the necessary data will be shared",
+        "obtain": "Add {credential} to your Yivi app"
       }
     },
     "category_other": "Other"

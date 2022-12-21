@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_share_dialog.dart';
@@ -48,6 +49,10 @@ Future<void> optionalsTest(WidgetTester tester, IntegrationTestIrmaBinding irmaB
   final disConStepperFinder = find.byType(DisclosureDisconStepper);
   expect(disConStepperFinder, findsOneWidget);
 
+  // Continue and expect the AddDataDetailsScreen
+  await tester.tapAndSettle(find.text('Obtain data'));
+  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
+
   // Add one of the required credentials, in this case the address from municipality
   await issueMunicipalityAddress(tester, irmaBinding);
 
@@ -64,6 +69,10 @@ Future<void> optionalsTest(WidgetTester tester, IntegrationTestIrmaBinding irmaB
 
   // Expect the make choice screen
   expect(find.byType(DisclosurePermissionMakeChoiceScreen), findsOneWidget);
+
+  // Continue and expect the AddDataDetailsScreen
+  await tester.tapAndSettle(find.text('Obtain data'));
+  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
 
   // Issue the email
   await issueEmailAddress(tester, irmaBinding);
@@ -115,6 +124,10 @@ Future<void> optionalsTest(WidgetTester tester, IntegrationTestIrmaBinding irmaB
   await tester.ensureVisible(mobileNumberHeaderFinder);
   await tester.pumpAndSettle();
   await tester.tapAndSettle(mobileNumberHeaderFinder);
+
+  // Continue and expect the AddDataDetailsScreen
+  await tester.tapAndSettle(find.text('Obtain data'));
+  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
 
   await issueMobileNumber(tester, irmaBinding);
 
