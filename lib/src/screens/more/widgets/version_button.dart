@@ -48,48 +48,51 @@ class VersionButton extends StatelessWidget {
       }
     });
 
-    return Row(
-      children: [
-        Expanded(
-          child: InkWell(
-            onTap: () {
-              _developerModeTapStream.value = _developerModeTapStream.value + 1;
-            },
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                StreamBuilder<Credentials>(
-                  stream: repo.getCredentials(),
-                  builder: (context, credentials) {
-                    String? appId;
-                    if (credentials.hasData) {
-                      final keyShareCred =
-                          credentials.data?.values.firstWhereOrNull((cred) => cred.isKeyshareCredential);
-                      appId = keyShareCred?.attributes.first.value.raw;
-                    }
-                    return TranslatedText(
-                      'more_tab.app_id',
-                      translationParams: {
-                        'id': appId ?? '',
-                      },
-                    );
-                  },
-                ),
-                FutureBuilder<PackageInfo>(
-                  future: PackageInfo.fromPlatform(),
-                  builder: (BuildContext context, AsyncSnapshot<PackageInfo> info) => TranslatedText(
-                    'more_tab.version',
-                    translationParams: {
-                      'version': _buildVersionString(info),
+    return Semantics(
+      excludeSemantics: true,
+      child: Row(
+        children: [
+          Expanded(
+            child: InkWell(
+              onTap: () {
+                _developerModeTapStream.value = _developerModeTapStream.value + 1;
+              },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  StreamBuilder<Credentials>(
+                    stream: repo.getCredentials(),
+                    builder: (context, credentials) {
+                      String? appId;
+                      if (credentials.hasData) {
+                        final keyShareCred =
+                            credentials.data?.values.firstWhereOrNull((cred) => cred.isKeyshareCredential);
+                        appId = keyShareCred?.attributes.first.value.raw;
+                      }
+                      return TranslatedText(
+                        'more_tab.app_id',
+                        translationParams: {
+                          'id': appId ?? '',
+                        },
+                      );
                     },
-                    style: theme.textTheme.bodyText2,
                   ),
-                ),
-              ],
+                  FutureBuilder<PackageInfo>(
+                    future: PackageInfo.fromPlatform(),
+                    builder: (BuildContext context, AsyncSnapshot<PackageInfo> info) => TranslatedText(
+                      'more_tab.version',
+                      translationParams: {
+                        'version': _buildVersionString(info),
+                      },
+                      style: theme.textTheme.bodyText2,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
