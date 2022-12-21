@@ -324,6 +324,7 @@
   "pin": {
     "title": "Login",
     "subtitle": "Enter your PIN",
+    "seconds": "seconds",
     "button_forgot": "PIN forgotten",
     "button_block": "Block IRMA"
   },
@@ -532,5 +533,11 @@
     "add": "Add",
     "add_cards": "Add cards",
     "add_credential": "Add {credential}"
+  },
+  "name_change": {
+    "intro_markdown": "A new version of our app is coming! With big changes: **IRMA** becomes **Yivi!**",
+    "explanation": "The app is getting a makeover: a new name, design and we are making many improvements under the hood.",
+    "release": "Soon we will release this update. We are looking forward to it!",
+    "ok": "OK"
   }
 }
