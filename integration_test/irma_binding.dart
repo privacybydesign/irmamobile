@@ -9,6 +9,7 @@ import 'package:irmamobile/src/models/error_event.dart';
 import 'package:irmamobile/src/models/event.dart';
 import 'package:irmamobile/src/models/native_events.dart';
 import 'package:irmamobile/src/models/scheme_events.dart';
+import 'package:irmamobile/src/util/security_context_binding.dart';
 import 'package:rxdart/rxdart.dart';
 
 /// Binding to use the static IrmaClientBridge in integration tests.
@@ -27,6 +28,7 @@ class IntegrationTestIrmaBinding {
   IntegrationTestIrmaBinding._(this._bridge);
 
   factory IntegrationTestIrmaBinding.ensureInitialized() {
+    SecurityContextBinding.ensureInitialized();
     _instance ??= IntegrationTestIrmaBinding._(
       IrmaClientBridge(debugLogging: true),
     );
