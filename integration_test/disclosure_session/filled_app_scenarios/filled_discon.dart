@@ -1,4 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+
+import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_share_dialog.dart';
@@ -107,7 +109,7 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     style: IrmaCardStyle.outlined,
   );
   await tester.scrollUntilVisible(
-    secondCardFinder,
+    secondCardFinder.hitTestable(),
     50,
   );
   // Tap iDIN option
@@ -128,6 +130,9 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     issuerName: 'Demo iDIN',
     style: IrmaCardStyle.highlighted,
   );
+
+  await tester.tapAndSettle(find.text('Obtain data'));
+  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
 
   await issueIdin(tester, irmaBinding);
 
@@ -163,7 +168,7 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
 
   // Check the second change choice
   await tester.scrollUntilVisible(
-    cardsFinder.at(1).hitTestable(),
+    changeChoiceFinder.at(1).hitTestable(),
     50,
   );
   await tester.tapAndSettle(changeChoiceFinder.at(1));

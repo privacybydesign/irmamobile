@@ -144,7 +144,10 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         yield state.parentState;
       } else {
         // currentIssueWizardItem cannot be null when allObtained returned false.
-        onObtainCredential(state.currentIssueWizardItem!.credentialType);
+        yield DisclosurePermissionCredentialInformation(
+          parentState: state,
+          credentialType: state.currentIssueWizardItem!.credentialType,
+        );
       }
     } else if (state is DisclosurePermissionPreviouslyAddedCredentialsOverview &&
         event is DisclosurePermissionNextPressed) {
@@ -305,6 +308,10 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         optionalChoices: state.optionalChoices,
         hasAdditionalOptionalChoices: state.hasAdditionalOptionalChoices,
       );
+    } else if (state is DisclosurePermissionCredentialInformation && event is DisclosurePermissionNextPressed) {
+      onObtainCredential(state.credentialType);
+    } else if (state is DisclosurePermissionCredentialInformation && event is DisclosurePermissionPreviousPressed) {
+      yield state.parentState;
     } else {
       throw UnsupportedError(
           'Event ${event.runtimeType.toString()} not supported in state ${state.runtimeType.toString()}');
@@ -320,41 +327,79 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         return DisclosurePermissionFinished();
       }
       return state;
-    } else if (state is DisclosurePermissionIssueWizard) {
-      final refreshedState = _refreshIssueWizard(state, session);
+    } else if (state is DisclosurePermissionIssueWizard ||
+        (state is DisclosurePermissionCredentialInformation && state.parentState is DisclosurePermissionIssueWizard)) {
+      final DisclosurePermissionIssueWizard issueWizardState;
+      if (state is DisclosurePermissionIssueWizard) {
+        issueWizardState = state;
+      } else {
+        issueWizardState =
+            (state as DisclosurePermissionCredentialInformation).parentState as DisclosurePermissionIssueWizard;
+      }
+
+      final refreshedState = _refreshIssueWizard(issueWizardState, session);
       // currentCon cannot be null when isCompleted is false.
       return refreshedState.isCompleted
           ? refreshedState
           : _validateCredentialsObtained(refreshedState.currentCon!, refreshedState);
-    } else if (state is DisclosurePermissionObtainCredentials) {
-      final refreshedState = _refreshObtainedCredentials(state, session);
+    } else if (state is DisclosurePermissionObtainCredentials ||
+        (state is DisclosurePermissionCredentialInformation &&
+            state.parentState is DisclosurePermissionObtainCredentials)) {
+      final DisclosurePermissionObtainCredentials obtainCredentialsState;
+      if (state is DisclosurePermissionObtainCredentials) {
+        obtainCredentialsState = state;
+      } else {
+        obtainCredentialsState =
+            (state as DisclosurePermissionCredentialInformation).parentState as DisclosurePermissionObtainCredentials;
+      }
+
+      final refreshedState = _refreshObtainedCredentials(obtainCredentialsState, session);
       // In case only one credential had to be obtained, we immediately go back to the parent step.
       return refreshedState.allObtained
           ? refreshedState
           : _validateCredentialsObtained([refreshedState.currentIssueWizardItem!], refreshedState);
-    } else if (state is DisclosurePermissionChangeChoice) {
-      final discon = _refreshDisCon(state.disconIndex, state.discon, session);
+    } else if (state is DisclosurePermissionChangeChoice ||
+        (state is DisclosurePermissionCredentialInformation && state.parentState is DisclosurePermissionChangeChoice)) {
+      final DisclosurePermissionChangeChoice changeChoiceState;
+      if (state is DisclosurePermissionChangeChoice) {
+        changeChoiceState = state;
+      } else {
+        changeChoiceState =
+            (state as DisclosurePermissionCredentialInformation).parentState as DisclosurePermissionChangeChoice;
+      }
+
+      final discon = _refreshDisCon(changeChoiceState.disconIndex, changeChoiceState.discon, session);
       final selectedConIndex = _findSelectedConIndex(
         discon,
-        prevDiscon: state.discon,
-        prevChoice: state.selectedCon,
+        prevDiscon: changeChoiceState.discon,
+        prevChoice: changeChoiceState.selectedCon,
       );
       final refreshedState = DisclosurePermissionChangeChoice(
-        parentState: state.parentState,
+        parentState: changeChoiceState.parentState,
         discon: discon,
-        disconIndex: state.disconIndex,
+        disconIndex: changeChoiceState.disconIndex,
         selectedConIndex: selectedConIndex,
       );
       return _validateCredentialsObtained(
         refreshedState.selectedCon.whereType<TemplateDisclosureCredential>(),
         refreshedState,
       );
-    } else if (state is DisclosurePermissionAddOptionalData) {
+    } else if (state is DisclosurePermissionAddOptionalData ||
+        (state is DisclosurePermissionCredentialInformation &&
+            state.parentState is DisclosurePermissionAddOptionalData)) {
+      final DisclosurePermissionAddOptionalData optionalDataState;
+      if (state is DisclosurePermissionAddOptionalData) {
+        optionalDataState = state;
+      } else {
+        optionalDataState =
+            (state as DisclosurePermissionCredentialInformation).parentState as DisclosurePermissionAddOptionalData;
+      }
+
       return _generateAddOptionalDataState(
         session: session,
-        parentState: state.parentState,
-        alreadyAddedOptionalDisconIndices: state.parentState.optionalChoices.keys,
-        prevState: state,
+        parentState: optionalDataState.parentState,
+        alreadyAddedOptionalDisconIndices: optionalDataState.parentState.optionalChoices.keys,
+        prevState: optionalDataState,
       );
     } else if (state is DisclosurePermissionChoices) {
       final choices = state.choices.map((i, prevChoice) {
@@ -768,7 +813,10 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     assert(selectedConTemplates.isNotEmpty);
     // If only one credential is involved, we can open the issue url immediately.
     if (selectedConTemplates.length == 1) {
-      onObtainCredential(selectedConTemplates.first.credentialType);
+      yield DisclosurePermissionCredentialInformation(
+        parentState: parentState,
+        credentialType: selectedConTemplates.first.credentialType,
+      );
     } else {
       yield DisclosurePermissionObtainCredentials(
         parentState: parentState,

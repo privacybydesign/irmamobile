@@ -11,12 +11,14 @@ class Collapsible extends StatefulWidget {
   final String header;
   final Widget content;
   final ScrollController? parentScrollController;
+  final bool initiallyExpanded;
 
   const Collapsible({
     Key? key,
     required this.header,
     required this.content,
     this.parentScrollController,
+    this.initiallyExpanded = false,
   }) : super(key: key);
 
   @override
@@ -82,6 +84,7 @@ class _CollapsibleState extends State<Collapsible> {
     return ClipRRect(
       borderRadius: BorderRadius.circular(8),
       child: ConfigurableExpansionTile(
+        initiallyExpanded: widget.initiallyExpanded,
         onExpansionChanged: _onExpansionChanged,
         animatedWidgetFollowingHeader: const Padding(
           padding: EdgeInsets.all(4.0),

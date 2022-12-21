@@ -3,12 +3,14 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:irmamobile/app.dart';
 import 'package:irmamobile/src/data/irma_client_bridge.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
 import 'package:irmamobile/src/sentry/sentry.dart';
+import 'package:irmamobile/src/util/security_context_binding.dart';
 import 'package:irmamobile/src/widgets/irma_repository_provider.dart';
 
 Future<void> main() async {
@@ -20,8 +22,9 @@ Future<void> main() async {
     WidgetsFlutterBinding.ensureInitialized();
     final preferences = await IrmaPreferences.fromInstance();
     await initSentry(preferences: preferences);
+    SecurityContextBinding.ensureInitialized();
     final repository = IrmaRepository(
-      client: IrmaClientBridge(),
+      client: IrmaClientBridge(debugLogging: kDebugMode),
       preferences: preferences,
     );
 
