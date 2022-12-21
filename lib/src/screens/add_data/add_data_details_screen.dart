@@ -1,17 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../models/irma_configuration.dart';
 import '../../theme/theme.dart';
 import '../../util/language.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_bottom_bar.dart';
-import '../../widgets/irma_repository_provider.dart';
+import '../../widgets/irma_close_button.dart';
 import 'widgets/add_data_questions.dart';
 
 class AddDataDetailsScreen extends StatefulWidget {
-  const AddDataDetailsScreen({required this.credentialType});
-
   final CredentialType credentialType;
+  final VoidCallback onAdd;
+  final VoidCallback onCancel;
+  final VoidCallback? onDismiss;
+  final bool inDisclosure;
+
+  const AddDataDetailsScreen({
+    required this.credentialType,
+    required this.onAdd,
+    required this.onCancel,
+    this.onDismiss,
+    this.inDisclosure = false,
+  });
 
   @override
   _AddDataDetailsScreenState createState() => _AddDataDetailsScreenState();
@@ -23,6 +34,8 @@ class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final lang = FlutterI18n.currentLocale(context)!.languageCode;
+
     final paddingText = EdgeInsets.fromLTRB(
       theme.defaultSpacing,
       theme.tinySpacing,
@@ -37,8 +50,19 @@ class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
     );
 
     return Scaffold(
-      appBar: const IrmaAppBar(
+      appBar: IrmaAppBar(
         titleTranslationKey: 'data.add.details.title',
+        actions: [
+          if (widget.onDismiss != null)
+            Padding(
+              padding: EdgeInsets.only(
+                right: theme.defaultSpacing,
+              ),
+              child: IrmaCloseButton(
+                onTap: widget.onDismiss,
+              ),
+            ),
+        ],
       ),
       body: SingleChildScrollView(
         controller: _controller,
@@ -47,17 +71,27 @@ class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (widget.credentialType.faqIntro.isNotEmpty)
-              Padding(
-                padding: paddingText,
-                child: Text(
-                  getTranslation(context, widget.credentialType.faqIntro).replaceAll('\\n', '\n'),
-                  style: theme.textTheme.bodyText2,
-                ),
+            Padding(
+              padding: paddingText,
+              child: Text(
+                widget.credentialType.faqIntro.isEmpty
+                    ?
+                    // Fallback generic add credential text
+                    FlutterI18n.translate(
+                        context,
+                        'data.add.details.obtain',
+                        translationParams: {
+                          'credential': widget.credentialType.name.translate(lang),
+                        },
+                      )
+                    : getTranslation(context, widget.credentialType.faqIntro).replaceAll('\\n', '\n'),
+                style: theme.textTheme.bodyText2,
               ),
+            ),
             Padding(
               padding: paddingQuestions,
               child: AddDataQuestions(
+                inDisclosure: widget.inDisclosure,
                 credentialType: widget.credentialType,
                 parentScrollController: _controller,
               ),
@@ -67,9 +101,9 @@ class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: 'data.add.details.get_button',
-        onPrimaryPressed: () => IrmaRepositoryProvider.of(context).openIssueURL(context, widget.credentialType.fullId),
+        onPrimaryPressed: widget.onAdd,
         secondaryButtonLabel: 'data.add.details.back_button',
-        onSecondaryPressed: () => Navigator.of(context).pop(),
+        onSecondaryPressed: widget.onCancel,
         alignment: IrmaBottomBarAlignment.horizontal,
       ),
     );

@@ -30,9 +30,12 @@ class CredentialCategoryList extends StatelessWidget {
             horizontal: theme.defaultSpacing,
           ),
           sliver: SliverToBoxAdapter(
-            child: Text(
-              categoryName,
-              style: theme.textTheme.headline4,
+            child: Semantics(
+              header: true,
+              child: Text(
+                categoryName,
+                style: theme.textTheme.headline4,
+              ),
             ),
           ),
         ),
@@ -62,8 +65,11 @@ class CredentialCategoryList extends StatelessWidget {
                   );
                   Feedback.forTap(context);
                 },
-                child: CredentialTypeTile(
-                  credentialTypes[index],
+                child: Semantics(
+                  button: true,
+                  child: CredentialTypeTile(
+                    credentialTypes[index],
+                  ),
                 ),
               ),
               childCount: credentialTypes.length,

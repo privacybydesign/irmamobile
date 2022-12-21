@@ -113,9 +113,12 @@ class _ActivityTabState extends State<ActivityTab> {
                 right: theme.tinySpacing,
                 bottom: theme.tinySpacing,
               ),
-              child: Text(
-                DateFormat('MMMM', local).format(logEntry.time).toCapitalized(),
-                style: theme.themeData.textTheme.headline3,
+              child: Semantics(
+                header: true,
+                child: Text(
+                  DateFormat('MMMM', local).format(logEntry.time).toCapitalized(),
+                  style: theme.themeData.textTheme.headline3,
+                ),
               ),
             ),
           ActivityCard(

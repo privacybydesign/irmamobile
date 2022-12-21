@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_issue_wizard_screen.dart';
@@ -64,6 +66,14 @@ Future<void> filledNoChoiceMultipleCredsTest(WidgetTester tester, IntegrationTes
     attributes: {},
     style: IrmaCardStyle.highlighted,
   );
+
+  await tester.tapAndSettle(find.text('Obtain data'));
+  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
+
+  await issueMunicipalityPersonalData(tester, irmaBinding);
+
+  await tester.tapAndSettle(find.text('Obtain data'));
+  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
 
   await issueMobileNumber(tester, irmaBinding);
 

@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choice.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
@@ -78,14 +79,18 @@ Future<void> choiceMixedSourcesTest(WidgetTester tester, IntegrationTestIrmaBind
   expect((templateCardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.highlighted);
   expect((templateCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
 
-  // Issue the personal data
+  // Continue and expect the AddDataDetailsScreen
+  await tester.tapAndSettle(find.text('Obtain data'));
+  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
   await issueMunicipalityPersonalData(tester, irmaBinding);
 
   // The second card should now be highlighted
   expect((templateCardsFinder.evaluate().first.widget as IrmaCredentialCard).style, IrmaCardStyle.normal);
   expect((templateCardsFinder.evaluate().elementAt(1).widget as IrmaCredentialCard).style, IrmaCardStyle.highlighted);
 
-  // Issue the email
+  // Continue and expect the AddDataDetailsScreen
+  await tester.tapAndSettle(find.text('Obtain data'));
+  expect(find.byType(AddDataDetailsScreen), findsOneWidget);
   await issueEmailAddress(tester, irmaBinding);
 
   // Both should be finished now

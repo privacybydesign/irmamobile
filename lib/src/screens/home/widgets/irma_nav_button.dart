@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/screens/home/widgets/irma_nav_bar.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/translated_text.dart';
+
+import '../../../theme/theme.dart';
+import '../../../widgets/translated_text.dart';
+import 'irma_nav_bar.dart';
 
 final _navBarTabTranslationKeys = {
   IrmaNavBarTab.home: 'home.nav_bar.home',
@@ -28,28 +29,31 @@ class IrmaNavButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     return Expanded(
-      child: InkWell(
-        onTap: () => changeTab?.call(tab),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              iconData,
-              size: 28,
-              color: isSelected ? theme.themeData.colorScheme.secondary : Colors.grey.shade600,
-            ),
-            SizedBox(
-              height: theme.tinySpacing,
-            ),
-            TranslatedText(
-              _navBarTabTranslationKeys[tab]!,
-              style: theme.themeData.textTheme.caption!.copyWith(
-                fontSize: 12,
+      child: Semantics(
+        button: true,
+        child: InkWell(
+          onTap: () => changeTab?.call(tab),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                iconData,
+                size: 28,
                 color: isSelected ? theme.themeData.colorScheme.secondary : Colors.grey.shade600,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
-            )
-          ],
+              SizedBox(
+                height: theme.tinySpacing,
+              ),
+              TranslatedText(
+                _navBarTabTranslationKeys[tab]!,
+                style: theme.themeData.textTheme.caption!.copyWith(
+                  fontSize: 12,
+                  color: isSelected ? theme.themeData.colorScheme.secondary : Colors.grey.shade600,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

@@ -6,6 +6,7 @@ import '../../../models/irma_configuration.dart';
 import '../../../theme/theme.dart';
 import '../../../util/language.dart';
 import '../../../widgets/irma_card.dart';
+import '../../../widgets/irma_repository_provider.dart';
 import '../add_data_details_screen.dart';
 
 class AddDataTile extends StatelessWidget {
@@ -30,7 +31,14 @@ class AddDataTile extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => AddDataDetailsScreen(credentialType: credType),
+          builder: (context) => AddDataDetailsScreen(
+            credentialType: credType,
+            onCancel: () => Navigator.of(context).pop(),
+            onAdd: () => IrmaRepositoryProvider.of(context).openIssueURL(
+              context,
+              credType.fullId,
+            ),
+          ),
         ),
       ),
       child: Row(

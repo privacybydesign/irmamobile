@@ -34,7 +34,9 @@ class IrmaActionCard extends StatelessWidget {
     final textStyle = style ?? theme.textTheme.headline2 ?? const TextStyle();
     final captionStyle = theme.textTheme.caption ?? const TextStyle();
 
-    return IrmaCard(
+    return Semantics(
+      button: true,
+      child: IrmaCard(
         color: backgroundColor,
         padding: EdgeInsets.zero,
         margin: EdgeInsets.all(theme.defaultSpacing),
@@ -69,12 +71,17 @@ class IrmaActionCard extends StatelessWidget {
               SizedBox(
                 height: theme.tinySpacing,
               ),
-              TranslatedText(
-                subtitleKey!,
-                style: captionStyle.copyWith(color: textColor),
+              Semantics(
+                excludeSemantics: true,
+                child: TranslatedText(
+                  subtitleKey!,
+                  style: captionStyle.copyWith(color: textColor),
+                ),
               )
             ]
           ],
-        ));
+        ),
+      ),
+    );
   }
 }
