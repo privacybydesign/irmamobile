@@ -92,8 +92,8 @@
   },
   "data": {
     "tab": {
-      "title": "Jouw gegevens",
-      "obtain_data": "Haal persoonlijke gegevens op"
+      "title": "Mijn gegevens",
+      "obtain_data": "Haal mijn persoonlijke gegevens op"
     },
     "detail": {
       "title": "Contactgegevens"
@@ -103,13 +103,13 @@
       "choose": "Kies de gegevens die je wilt toevoegen.",
       "details": {
         "title": "Gegevens toevoegen",
-        "purpose_question": "Wat kun je met deze gegevens?",
-        "content_question": "Welke gegevens haal je op?",
+        "purpose_question": "Wat kan ik met deze gegevens?",
+        "content_question": "Welke gegevens haal ik op?",
         "howto_question": "Hoe werkt het?",
         "back_button": "Annuleer",
         "get_button": "Voeg toe",
-        "disclosure_info_markdown": "**Let op:** Alle beschikbare gegevens worden opgehaald maar alleen de benodige gegevens worden gedeeld",
-        "obtain": "Voeg {credential} toe aan jouw Yivi-app"
+        "disclosure_info_markdown": "**Let op:** Je haalt alle beschikbare gegevens op maar je deelt alleen de gegevens die nodig zijn.",
+        "obtain": "Voeg {credential} toe aan mijn Yivi-app"
       }
     },
     "category_other": "Overig"
@@ -127,15 +127,15 @@
     "next": "volgende kiezen",
     "previous": "vorige kiezen",
     "not_present": "Deze gegevens zijn nog niet aan Yivi toegevoegd.",
-    "not_present_have_other": "De gevraagde gegevens komen niet overeen met de gegevens die je al hebt.",
+    "not_present_have_other": "De gevraagde gegevens komen niet overeen met de gegevens in Yivi.",
     "you_have": "Je hebt:",
-    "requested_for": "Er wordt gevraagd om:",
+    "requested_for": "Ze vragen:",
     "card_count": "{i} van {total}",
     "among_others": "Onder andere",
     "add_additional": "Wil je andere gegevens doorgeven? Voeg dan extra '{credential}'-gegevens toe.",
     "expired": "Deze gegevens zijn verlopen.",
     "revoked": "Deze gegevens zijn ingetrokken.",
-    "not_revokable": "Deze gegevens moeten eerst ververst worden.",
+    "not_revokable": "Deze gegevens moeten ververst worden.",
     "obtain": "Toevoegen",
     "refresh": "Verversen",
     "nothing_selected": "Niets gekozen",
@@ -149,7 +149,7 @@
       "text": {
         "success": "Je gegevens zijn doorgegeven aan {otherParty}",
         "canceled": "Je gegevens zijn niet doorgegeven aan {otherParty}",
-        "notSatisfiable": "Je gegevens zijn niet doorgegeven, omdat {otherParty} om verouderde gegevens vraagt. Je kunt hier zelf niets aan doen. Je zou wel een bericht kunnen sturen naar deze partij."
+        "notSatisfiable": "Je gegevens zijn niet doorgegeven, omdat {otherParty} de verkeerde gegevens vraagt. Je kunt hier zelf niets aan doen. Neem contact op met de betreffende partij."
       }
     }
   },
@@ -166,15 +166,15 @@
     "no_data_selected": "Geen gegevens geselecteerd",
     "introduction": {
       "continue": "Aan de slag",
-      "explanation": "Verzamel de gegevens die nodig zijn om deze vervolgens te kunnen de delen met de instantie die daar om vraagt.",
-      "header": "Deel jouw gegevens",
+      "explanation": "Verzamel de gegevens die nodig zijn, zodat je deze kunt delen met de partij die daar om vraagt.",
+      "header": "Deel mijn gegevens",
       "title": "Aan de slag"
     },
     "issue_wizard": {
       "title": "Verzamel gegevens",
-      "explanation": "Haal stap voor stap je nieuwe gegevens op. Deze worden later gedeeld.",
+      "explanation": "Haal stap voor stap mijn nieuwe gegevens op. Daarna deel je ze met de partij die daarom vraagt.",
       "header_incomplete": "Deze gegevens hebben we nog van je nodig:",
-      "header_complete": "Alle nieuwe vereiste gegevens zijn toegevoegd."
+      "header_complete": "Alle nieuwe benodigde gegevens zijn toegevoegd."
     },
     "previously_added": {
       "title": "Controleer gegevens",
@@ -182,9 +182,9 @@
       "header": "Deze gegevens zijn al eerder door je toegevoegd aan de app:"
     },
     "overview": {
-      "title": "Deel je gegevens",
-      "explanation": "Deel je gegevens met {requestorName}",
-      "header": "Deze gegevens ga je delen:",
+      "title": "Deel mijn gegevens",
+      "explanation": "Deel mijn gegevens met {requestorName}",
+      "header": "Deze gegevens ga ik delen:",
       "confirm": "Gegevens delen",
       "sign": "Dit bericht ga je ondertekenen:"
     },
@@ -195,14 +195,14 @@
       "decline": "Niet delen"
     },
     "confirm_close_dialog": {
-      "title": "Data delen annuleren",
-      "explanation": "Weet je zeker dat je je data niet wilt delen?",
+      "title": "Gegevens delen stoppen",
+      "explanation": "Weet je zeker dat je je gegevens niet wilt delen?",
       "confirm": "Sluiten",
       "decline": "Doorgaan"
     },
     "wrong_credentials_added": {
       "title": "Foutmelding",
-      "explanation": "Gegevens zijn toegevoegd in de app, maar voldoen niet aan de criteria om te delen. Haal de juiste gegevens op.",
+      "explanation": "Gegevens zijn toegevoegd in de app, maar zijn niet de gevraagde gegevens. Haal de juiste gegevens op.",
       "dismiss_action": "OK"
     },
     "call": {
@@ -220,16 +220,16 @@
   "enrollment": {
     "introduction": {
       "step_1": {
-        "title": "Met Yivi pak jij de controle over jouw online gegevens",
-        "explanation": "Yivi is een app met persoonlijke gegevens, waarmee je inlogt en bewijst dat jij het bent, zonder onnodige gegevens te delen."
+        "title": "Yivi is een app voor jouw digitale identiteit",
+        "explanation": "Jouw officiële naam, geboortedatum, adres, BSN en meer. Veilig opgeslagen in jouw Yivi-app."
       },
       "step_2": {
-        "title": "Jij bepaalt wat je deelt en met wie",
-        "explanation": "Met Yivi verzamel je persoonlijke gegevens uit betrouwbare bronnen. Jij kiest wat je deelt, met welke organisatie."
+        "title": "Met Yivi heb je controle over jouw gegevens",
+        "explanation": "Makkelijk, veilig en snel. Jij kiest wat je deelt en met wie."
       },
       "step_3": {
-        "title": "Met Yivi is je privacy veilig",
-        "explanation": "Je gegevens staan alleen in de Yivi-app op jouw mobiel. Alleen jij kan erbij! Bij het delen van gegevens kijkt niemand mee. Ook Yivi niet."
+        "title": "Veilig op jouw mobiel",
+        "explanation": "Alleen jij hebt toegang tot de gegevens op jouw mobiel. Niemand kan meekijken, zelfs Yivi niet."
       }
     },
     "confirm_pin": {
@@ -239,30 +239,30 @@
       "provide": {
         "title": "E-mailadres toevoegen",
         "header": "Koppel je e-mailadres aan je Yivi-app",
-        "explanation": "Met jouw e-mailadres kun je de Yivi-app blokkeren bij verlies of diefstal van je mobiel.",
+        "explanation": "Met je e-mailadres kun je de Yivi-app op afstand blokkeren. Bijvoorbeeld bij verlies of diefstal van je mobiel.",
         "input": {
           "label": "E-mailadres",
           "invalid": "Controleer je e-mailadres, het lijkt niet helemaal goed."
         },
         "confirm_skip_dialog": {
           "title": "Weet je het zeker?",
-          "explanation": "Ga voor zekerheid: vul je e-mailadres in. Dan kun je je Yivi-app blokkeren bij verlies of diefstal van je mobiel.",
+          "explanation": "Een e-mailadres koppelen is veiliger.",
           "decline": "Voer e-mailadres in"
         }
       },
       "confirm": {
         "title": "Bevestig onze e-mail",
         "header": "Onze e-mail is gestuurd naar:",
-        "explanation": "Het kan even duren voordat onze e-mail verschijnt. Geen e-mail ontvangen? Controleer of onze e-mail in je spamfolder zit.",
-        "explanation_extra_markdown": "Je hebt een e-mail ontvangen van **noreply@sidn.nl**. Open de link in dit bericht om je e-mailadres aan je Yivi-app te koppelen."
+        "explanation": "Het kan even duren voordat onze e-mail verschijnt. Geen e-mail ontvangen? Controleer of hij in je spamfolder zit.",
+        "explanation_extra_markdown": "Je hebt een e-mail ontvangen van **noreply@sidn.nl**. Open de link in dat bericht om je e-mailadres aan de Yivi-app te koppelen."
       }
     },
     "terms_and_conditions": {
-      "title": "Onze voorwaarden",
+      "title": "Onze waarden",
       "explanation": "Met Yivi pak jij de controle over jouw online gegevens. Zo bescherm je jouw online privacy.",
       "point_1": "Jij bepaalt wat je opslaat, wat je deelt en met wie.",
       "point_2": "Jouw gegevens staan alleen op je mobiel, wel zo veilig.",
-      "point_3": "Niemand kijkt mee met wat je deelt en met wie, ook Yivi niet!",
+      "point_3": "Niemand kijkt mee, ook Yivi niet!",
       "accept_markdown": "Ja, ik ga akkoord met de [algemene voorwaarden](https://privacybydesign.foundation/privacy-policy/)"
     },
     "submit": {
@@ -274,19 +274,19 @@
     "title": "Sorry, er gaat iets fout",
     "blocked_title": "App geblokkeerd",
     "button_ok": "OK",
-    "button_send_to_irma": "Stuur naar het Yivi-team",
+    "button_send_to_irma": "Stuur deze melding naar Yivi",
     "button_show_error": "Technische details tonen",
     "button_retry": "Opnieuw proberen",
     "button_back": "Terug",
     "button_reset": "Begin opnieuw",
     "details_title": "Foutmelding",
-    "report": "Als het fout blijft gaan, laat het dan weten aan het Yivi-team.",
+    "report": "Als het fout blijft gaan, laat het dan weten aan ons weten.",
     "types": {
       "general": "Er is iets misgegaan.",
-      "blocked": "Je Yivi-app is op afstand geblokkeerd. Dat komt omdat via ‘MijnYivi’ je app hebt geblokkeerd. Of je hebt langer dan een jaar geen gebruik gemaakt van Yivi op dit apparaat. Als je op dit apparaat Yivi wilt blijven gebruiken moet je Yivi opnieuw installeren.",
+      "blocked": "Je Yivi-app is geblokkeerd. Het kan zijn dat via 'Mijn Yivi' een blokkering is aangevraagd. Het kan ook dat Yivi meer dan 2 jaar niet is gebruikt. Wil je Yivi toch gebruiken dan zul je de app opnieuw moeten instellen.",
       "expired": "Sorry, de sessie is verlopen. Start de sessie opnieuw.",
       "pairing_rejected": "Sorry, de sessie is geweigerd. Start de sessie opnieuw.",
-      "no_internet": "Controleer je internetverbinding. Deze app werkt niet zonder internet."
+      "no_internet": "Controleer je internetverbinding. Zonder verbinding werkt Yivi niet."
     }
   },
   "help": {
@@ -352,8 +352,8 @@
     "view_more": "Bekijk meer",
     "action_card": {
       "fetch": {
-        "title": "Haal persoonlijke gegevens op",
-        "subtitle": "Om ze in de toekomst direct te kunnen delen"
+        "title": "Haal mijn persoonlijke gegevens op",
+        "subtitle": "Zodat je ze later snel en makkelijk kunt delen"
       }
     }
   },
@@ -387,7 +387,7 @@
     "need_help": "Hulp nodig?",
     "know_more": "Meer weten",
     "stay_informed": "Blijf op de hoogte en praat mee",
-    "slogan": "Gun iedereen privacy",
+    "slogan": "Iedereen heeft recht op privacy",
     "meetups": "Yivi-meetups",
     "meetups_link": "https://privacybydesign.foundation/meetings/",
     "twitter": "@irma_privacy",
@@ -410,7 +410,7 @@
   },
   "pin_accessibility": {
     "show_pin": "Toon pincode",
-    "hide_pin": "Verberg pin",
+    "hide_pin": "Verberg pincode",
     "backspace": "Maak ongedaan"
   },
   "pin_common": {
@@ -437,9 +437,9 @@
     },
     "invalid_title": "Pincode is onjuist",
     "invalid_pin": {
-      "attempts-0": "Deze pincode is niet juist. Je hebt nog {attemps} pogingen voordat wij je Yivi-app tijdelijk blokkeren.",
-      "attempts-1": "Deze pincode is niet juist. Je hebt nog {attemps} pogingen voordat wij je Yivi-app tijdelijk blokkeren.",
-      "attempts-2": "Deze pincode is niet juist. Je hebt nog {attemps} pogingen voordat wij je Yivi-app tijdelijk blokkeren."
+      "attempts-0": "Deze pincode klopt niet. Je hebt nog {attemps} pogingen voordat wij je Yivi-app tijdelijk blokkeren.",
+      "attempts-1": "Deze pincode klopt niet. Je hebt nog {attemps} pogingen voordat wij je Yivi-app tijdelijk blokkeren.",
+      "attempts-2": "Deze pincode klopt niet. Je hebt nog {attemps} pogingen voordat wij je Yivi-app tijdelijk blokkeren."
     },
     "invalid_close": "Opnieuw proberen",
     "blocked_title": "App geblokkeerd",
