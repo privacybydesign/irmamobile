@@ -212,12 +212,3 @@ private_lane :write_sentrydata do |options|
     }
   )
 end
-
-private_lane :get_flutter_build_number do
-  Dir.chdir("..") do
-    file = File.open("pubspec.yaml")
-    file_data = file.read
-    file.close
-    file_data.match(/version:(.*)\+(\d+)/).captures[1].to_i
-  end
-end

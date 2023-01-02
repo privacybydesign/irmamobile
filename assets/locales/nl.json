@@ -533,5 +533,11 @@
     "add": "Ophalen",
     "add_cards": "Kaartjes ophalen",
     "add_credential": "Haal {credential} op"
+  },
+  "name_change": {
+    "intro_markdown": "Er komt een nieuwe versie van onze app aan! Met grote veranderingen: **IRMA** wordt **Yivi!**",
+    "explanation": "De app krijgt een make-over: een nieuwe naam, vormgeving en we voeren veel verbeteringen onder de motorkap door.",
+    "release": "Binnenkort is het zo ver, wij verheugen ons er op!",
+    "ok": "OK"
   }
 }
