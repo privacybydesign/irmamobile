@@ -37,7 +37,7 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
       byte[] aesKey = AESKey.getKey(context);
       PackageInfo pi = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
       Irmagobridge.start(this, pi.applicationInfo.dataDir, copier.destAssetsPath.toString(),
-          new ECDSA(context.getPackageManager()), aesKey);
+          new ECDSA(context), aesKey);
       this.debug = (pi.applicationInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
     } catch (GeneralSecurityException | IOException | PackageManager.NameNotFoundException e) {
       this.nativeError = String.format("{\"Exception\":\"%s\",\"Stack\":\"%s\",\"Fatal\":true}", e.toString(),
