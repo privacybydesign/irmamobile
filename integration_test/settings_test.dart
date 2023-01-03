@@ -149,7 +149,7 @@ void main() {
       expect(
         find.descendant(
           of: snackBarFinder,
-          matching: find.text('The new PIN is active'),
+          matching: find.text('Success! Your new PIN has been saved'),
         ),
         findsOneWidget,
       );

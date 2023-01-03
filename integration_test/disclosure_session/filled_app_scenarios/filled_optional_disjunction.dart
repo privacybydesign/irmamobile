@@ -67,7 +67,7 @@ Future<void> filledOptionalDisjunctionTest(
   // Complete issue wizard
   await tester.tapAndSettle(find.text('Next step'));
   expect(find.text('Validate data'), findsOneWidget);
-  expect(find.text('This data has already been added to the app:'), findsOneWidget);
+  expect(find.text('This data was previously added to the app:'), findsOneWidget);
   expect(find.text('No data selected'), findsOneWidget);
 
   // Try to add optional data.
@@ -109,7 +109,7 @@ Future<void> filledOptionalDisjunctionTest(
   // Select the mobile phone number that we added at the beginning of this test.
   await tester.tapAndSettle(find.text('Done'));
   expect(find.text('Validate data'), findsOneWidget);
-  expect(find.text('This data has already been added to the app:'), findsOneWidget);
+  expect(find.text('This data was previously added to the app:'), findsOneWidget);
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
@@ -124,7 +124,7 @@ Future<void> filledOptionalDisjunctionTest(
   // Continue to the disclosure permission overview screen.
   await tester.tapAndSettle(find.text('Next step'));
 
-  expect(find.text('Share your data'), findsOneWidget);
+  expect(find.text('Share my data'), findsOneWidget);
   expect(find.text('This is the data you are going to share:'), findsOneWidget);
   await evaluateCredentialCard(
     tester,

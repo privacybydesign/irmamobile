@@ -148,7 +148,7 @@
       },
       "text": {
         "success": "Your data is disclosed to {otherParty}",
-        "canceled": "Your data has nog been disclosed to {otherParty}",
+        "canceled": "Your data has not been disclosed to {otherParty}",
         "notSatisfiable": "Your data is not disclosed because {otherParty} requests outdated data. There is nothing you can do to remedy this. Please contact the requesting party."
       }
     }
