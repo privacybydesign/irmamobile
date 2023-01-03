@@ -104,7 +104,7 @@
       "details": {
         "title": "Adding data",
         "purpose_question": "What can I do with this data?",
-        "content_question": "Wich data do I retrieve?",
+        "content_question": "Which data do I retrieve?",
         "howto_question": "How does it work?",
         "back_button": "Cancel",
         "get_button": "Add",
