@@ -6,9 +6,7 @@ import '../theme/theme.dart';
 class IrmaThemedButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
-  final Color color;
-  final Color? disabledColor;
-  final Color? textColor;
+  final Color? color;
   final OutlinedBorder shape;
   final IrmaButtonSize? size;
   final double minWidth;
@@ -19,10 +17,8 @@ class IrmaThemedButton extends StatelessWidget {
   const IrmaThemedButton({
     required this.label,
     required this.onPressed,
-    required this.color,
-    this.disabledColor,
-    this.textColor,
     required this.shape,
+    this.color,
     this.size,
     this.minWidth = 232,
     this.textStyle,
@@ -32,27 +28,49 @@ class IrmaThemedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final text = Text(
+    final theme = IrmaTheme.of(context);
+
+    final Color baseColor = color ?? theme.themeData.colorScheme.secondary;
+
+    final Color textColor;
+    final Color backgroundColor;
+    Color? borderColor;
+
+    if (!isSecondary) {
+      if (onPressed != null) {
+        // Primary button colors
+        textColor = Colors.white;
+        backgroundColor = baseColor;
+      } else {
+        // Disabled Primary button colors
+        textColor = Colors.white;
+        backgroundColor = baseColor.withOpacity(0.5);
+      }
+    } else {
+      if (onPressed != null) {
+        //  Secondary button colors
+        textColor = baseColor;
+        backgroundColor = Colors.white;
+        borderColor = baseColor;
+      } else {
+        //  Disabled Secondary button colors
+        textColor = Colors.white;
+        backgroundColor = Colors.grey;
+      }
+    }
+
+    final textWidget = Text(
       FlutterI18n.translate(context, label),
-      style: textStyle ??
-          IrmaTheme.of(context).textTheme.button!.copyWith(
-                color: isSecondary ? color : Colors.white,
-              ),
+      style: textStyle ?? IrmaTheme.of(context).textTheme.button!.copyWith(color: textColor),
     );
 
     final fixedHeight = size != null ? size!.value : IrmaButtonSize.medium.value;
 
     final style = ButtonStyle(
-      backgroundColor: MaterialStateProperty.resolveWith<Color?>((states) {
-        if (states.contains(MaterialState.disabled)) {
-          return disabledColor;
-        } else {
-          return isSecondary ? Colors.white : color;
-        }
-      }),
-      foregroundColor:
-          MaterialStateProperty.resolveWith<Color?>((_) => textColor ?? (isSecondary ? color : Colors.white)),
-      side: MaterialStateProperty.resolveWith<BorderSide?>((_) => isSecondary ? BorderSide(color: color) : null),
+      backgroundColor: MaterialStateProperty.resolveWith<Color?>((_) => backgroundColor),
+      side: borderColor != null
+          ? MaterialStateProperty.resolveWith<BorderSide?>((_) => BorderSide(color: borderColor!))
+          : null,
       shape: MaterialStateProperty.resolveWith<OutlinedBorder?>((_) => shape),
       padding: MaterialStateProperty.resolveWith<EdgeInsets>(
         (_) => const EdgeInsets.symmetric(
@@ -72,7 +90,7 @@ class IrmaThemedButton extends StatelessWidget {
       onPressed: onPressed,
       style: style,
       child: icon == null
-          ? text
+          ? textWidget
           : Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -80,7 +98,7 @@ class IrmaThemedButton extends StatelessWidget {
                 const SizedBox(
                   width: 10.0,
                 ),
-                text,
+                textWidget,
               ],
             ),
     );
