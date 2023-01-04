@@ -91,7 +91,7 @@ Future<void> filledNoChoiceMultipleCredsTest(WidgetTester tester, IntegrationTes
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
 
   // With the correct header
-  expect(find.text('This data has already been added to the app:'), findsOneWidget);
+  expect(find.text('This data was previously added to the app:'), findsOneWidget);
 
   // One card should be visible here too
   expect(cardsFinder, findsOneWidget);

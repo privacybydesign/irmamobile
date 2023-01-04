@@ -43,7 +43,7 @@ Future<void> signingTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBin
 
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
 
-  expect(find.text('This is the message you are going to sign:'), findsOneWidget);
+  expect(find.text("This is the message you're signing:"), findsOneWidget);
   final quoteFinder = find.byKey(const Key('signature_message'));
   expect(quoteFinder, findsOneWidget);
   expect(

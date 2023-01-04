@@ -39,7 +39,7 @@ void main() {
       expect(
         find.descendant(
           of: actionCardFetchFinder,
-          matching: find.text('Obtain personal data'),
+          matching: find.text('Obtain my personal data'),
         ),
         findsOneWidget,
       );

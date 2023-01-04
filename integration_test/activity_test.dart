@@ -32,7 +32,7 @@ void main() {
         await tester.tap(find.byKey(const Key('nav_button_activity')));
         await tester.pump(const Duration(seconds: 1));
 
-        expect(find.text('No activities were logged.'), findsOneWidget);
+        expect(find.text('There are no logged activities yet.'), findsOneWidget);
 
         await issueMunicipalityPersonalData(tester, irmaBinding);
         await tester.pumpAndSettle();

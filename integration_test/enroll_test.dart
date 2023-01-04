@@ -31,16 +31,16 @@ void main() {
   // The expected instruction text of the enrollment introduction
   const expectedInstructions = [
     [
-      'Take control off your online data with Yivi',
-      'Yivi is an app that contains your personal data, allowing you to prove your identity in a digital world. Without sharing more than you need.'
+      'Yivi is an app for your digital identity',
+      'Your official name, birthdate, address, social security number and more. Safely stored in your Yivi-app'
     ],
     [
-      'You\'re in control',
-      'Retrieve your personal data from trustworthy sources with Yivi. Then decide what to share, and with who.',
+      'With Yivi you\'re in control over your data',
+      'Easy, secure and swift. You\'re in control of what you\'re sharing and with whom.',
     ],
     [
-      'Protect your privacy with Yivi',
-      'Your data is only stored in the Yivi app on your mobile phone. Only you have access. When sharing data nobody else can see your transaction, not even Yivi.'
+      'Securely on your phone',
+      'Only you have access to the data on your phone. Nobody has access to your transactions, not even Yivi.'
     ]
   ];
 
@@ -150,8 +150,8 @@ void main() {
       var dialogFinder = find.byType(IrmaDialog);
       expect(dialogFinder, findsOneWidget);
       var expectedDialogText = [
-        'PIN incorrect',
-        'PINs do not match. Choose a new PIN.',
+        'PIN entered incorrectly',
+        'PINs do not match. Choose a new PIN and try again.',
         'OK',
       ];
       final actualDialogText = tester.getAllText(dialogFinder);
@@ -209,7 +209,7 @@ void main() {
         expect(dialogFinder, findsOneWidget);
         const expectedDialogText = [
           'Are you sure?',
-          'Increase security: enter an e-mail address so you can remotely disable your Yivi app when your mobile has been lost or stolen.',
+          'Adding an e-mail address increases safety',
           'Enter an e-mail address',
           'Skip'
         ];
