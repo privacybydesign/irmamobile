@@ -76,7 +76,7 @@ Future<void> completelyOptionalTest(WidgetTester tester, IntegrationTestIrmaBind
 
   // Start session again to validate that now email is pre-selected.
   await irmaBinding.repository.startTestSession(sessionRequest);
-  await tester.waitFor(find.text('Share your data'));
+  await tester.waitFor(find.text('Share my data'));
   expect(find.text('This is the data you are going to share:'), findsOneWidget);
 
   await evaluateCredentialCard(

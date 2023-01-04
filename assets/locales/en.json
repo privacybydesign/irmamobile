@@ -29,11 +29,11 @@
     "shared_data": "Shared data",
     "received_data": "Received data",
     "deleted_data": "Deleted data",
-    "empty_placeholder": "No activities were logged."
+    "empty_placeholder": "There are no logged activities yet."
   },
   "arrow_back": {
     "no_success": "Cancelled",
-    "disclosure_success": "Success, your data has been disclosed",
+    "disclosure_success": "Success, your data has been shared",
     "issuance_success": "Success, the data has been added",
     "safari": "Tap on the name of the application (such as Safari, Chrome, Firefox) in the top left corner to return to the previous application."
   },
@@ -44,7 +44,7 @@
       "ok": "Change",
       "cancel": "Cancel"
     },
-    "toast": "The new PIN is active",
+    "toast": "Success! Your new PIN has been saved",
     "enter_pin": {
       "instruction": "Enter your current PIN",
       "error_title": "PIN incorrect",
@@ -68,8 +68,8 @@
   },
   "confirm_pin": {
     "error": {
-      "title": "PIN incorrect",
-      "body": "PINs do not match. Choose a new PIN.",
+      "title": "PIN entered incorrectly",
+      "body": "PINs do not match. Choose a new PIN and try again.",
       "action": "OK"
     }
   },
@@ -92,8 +92,8 @@
   },
   "data": {
     "tab": {
-      "title": "Your data",
-      "obtain_data": "Obtain personal data"
+      "title": "My data",
+      "obtain_data": "Retrieve my personal data"
     },
     "detail": {
       "title": "Contact information"
@@ -103,13 +103,13 @@
       "choose": "Choose the data you wish to add.",
       "details": {
         "title": "Adding data",
-        "purpose_question": "What can you do with this data?",
-        "content_question": "Which data is added?",
+        "purpose_question": "What can I do with this data?",
+        "content_question": "Which data do I retrieve?",
         "howto_question": "How does it work?",
         "back_button": "Cancel",
         "get_button": "Add",
-        "disclosure_info_markdown": "**Note:** All available data will be retrieved but only the necessary data will be shared",
-        "obtain": "Add {credential} to your Yivi app"
+        "disclosure_info_markdown": "**Note:** You will retrieve all available data, but you will only share the data needed in the request.",
+        "obtain": "Add {credential} to my Yivi-app"
       }
     },
     "category_other": "Other"
@@ -127,7 +127,7 @@
     "next": "next choices",
     "previous": "previous choices",
     "not_present": "This data has not yet been added to Yivi.",
-    "not_present_have_other": "The requested data does not match the data you already have.",
+    "not_present_have_other": "The requested data does not match the data you have available in Yivi.",
     "you_have": "You have:",
     "requested_for": "This is requested:",
     "card_count": "{i} of {total}",
@@ -148,8 +148,8 @@
       },
       "text": {
         "success": "Your data is disclosed to {otherParty}",
-        "canceled": "Your data is not disclosed to {otherParty}",
-        "notSatisfiable": "Your data is not disclosed because {otherParty} requests outdated data. Please contact this party."
+        "canceled": "Your data has not been disclosed to {otherParty}",
+        "notSatisfiable": "Your data is not disclosed because {otherParty} requests outdated data. There is nothing you can do to remedy this. Please contact the requesting party."
       }
     }
   },
@@ -167,7 +167,7 @@
     "introduction": {
       "title": "Get going",
       "header": "Share your data",
-      "explanation": "Collect the required data to be able to share it with the requesting party.",
+      "explanation": "Collect the required data to be able to share it with requesting parties.",
       "continue": "Get going"
     },
     "issue_wizard": {
@@ -179,14 +179,14 @@
     "previously_added": {
       "title": "Validate data",
       "explanation": "Check if the following information is correct.",
-      "header": "This data has already been added to the app:"
+      "header": "This data was previously added to the app:"
     },
     "overview": {
-      "title": "Share your data",
-      "explanation": "Share your data with {requestorName}",
+      "title": "Share my data",
+      "explanation": "Share my data with {requestorName}",
       "header": "This is the data you are going to share:",
       "confirm": "Share data",
-      "sign": "This is the message you are going to sign:"
+      "sign": "This is the message you're signing:"
     },
     "confirm_dialog": {
       "title": "Share data",
@@ -220,16 +220,16 @@
   "enrollment": {
     "introduction": {
       "step_1": {
-        "title": "Take control off your online data with Yivi",
-        "explanation": "Yivi is an app that contains your personal data, allowing you to prove your identity in a digital world. Without sharing more than you need."
+        "title": "Yivi is an app for your digital identity",
+        "explanation": "Your official name, birthdate, address, social security number and more. Safely stored in your Yivi-app"
       },
       "step_2": {
-        "title": "You're in control",
-        "explanation": "Retrieve your personal data from trustworthy sources with Yivi. Then decide what to share, and with who."
+        "title": "With Yivi you're in control over your data",
+        "explanation": "Easy, secure and swift. You're in control of what you're sharing and with whom."
       },
       "step_3": {
-        "title": "Protect your privacy with Yivi",
-        "explanation": "Your data is only stored in the Yivi app on your mobile phone. Only you have access. When sharing data nobody else can see your transaction, not even Yivi."
+        "title": "Securely on your phone",
+        "explanation": "Only you have access to the data on your phone. Nobody has access to your transactions, not even Yivi."
       }
     },
     "confirm_pin": {
@@ -239,14 +239,14 @@
       "provide": {
         "title": "Add e-mail address",
         "header": "Link your e-mail address to your Yivi app",
-        "explanation": "An e-mail address allows you to disable your Yivi app when your mobile has been lost or stolen",
+        "explanation": "An e-mail address allows you to remotely disable your Yivi app, in case your mobile has been lost or stolen",
         "input": {
           "label": "E-mail address",
           "invalid": "Please check your e-mail address, this doesn't seem to be a valid e-mail address"
         },
         "confirm_skip_dialog": {
           "title": "Are you sure?",
-          "explanation": "Increase security: enter an e-mail address so you can remotely disable your Yivi app when your mobile has been lost or stolen.",
+          "explanation": "Adding an e-mail address increases safety",
           "decline": "Enter an e-mail address"
         }
       },
@@ -258,7 +258,7 @@
       }
     },
     "terms_and_conditions": {
-      "title": "Our terms and conditions",
+      "title": "Our values",
       "explanation": "With Yivi, you're taking back control over your online data and protecting your online privacy.",
       "point_1": "You decide what data you store, and what you share.",
       "point_2": "Your data only resides on your phone, safe and secure. Nowhere else.",
@@ -267,14 +267,14 @@
     },
     "submit": {
       "title": "Logging in",
-      "progress_enrollment": "You're being logged in"
+      "progress_enrollment": "Welcome! Please wait a moment, we're signing you up."
     }
   },
   "error": {
-    "title": "Something went wrong",
+    "title": "Sorry, something went wrong",
     "blocked_title": "App blocked",
     "button_ok": "OK",
-    "button_send_to_irma": "Send to the Yivi team",
+    "button_send_to_irma": "Send this message to Yivi",
     "button_show_error": "Show technical details",
     "button_retry": "Please try again",
     "button_back": "Back",
@@ -283,7 +283,7 @@
     "report": "If this happens again, please inform the Yivi team.",
     "types": {
       "general": "Something went wrong.",
-      "blocked": "Your Yivi app has been remotely blocked.\n\nThis has either been done via MyYivi for your app, or because you did not use Yivi on this device for more than a year. If you want to continue using Yivi on this device, you will need to start over.",
+      "blocked": "Your Yivi app has been remotely blocked.\n\nThis has either been done via MyYivi, or because you did not use Yivi on this device for more than two years. If you want to continue using Yivi on this device, you will need to start over.",
       "expired": "The session has expired. Please start over.",
       "pairing_rejected": "The session was rejected. Please start over.",
       "no_internet": "Please make sure your device has a functional internet connection."
@@ -352,8 +352,8 @@
     "view_more": "View more",
     "action_card": {
       "fetch": {
-        "title": "Obtain personal data",
-        "subtitle": "To share it in the future with ease"
+        "title": "Obtain my personal data",
+        "subtitle": "So you can share it easier when needed"
       }
     }
   },
@@ -364,7 +364,7 @@
     "cancel": "Cancel",
     "success_feedback": {
       "header": "Success",
-      "text": "The data has been successfully added to your app."
+      "text": "The data has been successfully added to Yivi"
     }
   },
   "issue_wizard": {
