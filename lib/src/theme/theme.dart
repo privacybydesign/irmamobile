@@ -20,12 +20,16 @@ class IrmaThemeData {
   final Color background = const Color(0xFFFAFAFA); //Used on scaffolds and scrollable backgrounds
   Color get surfacePrimary => light; // Used on cards etc, to contrast with the background
   final Color surfaceSecondary = const Color(0xFFE9F4FF); // Used on cards that are active etc.
-  final Color dark = Colors.black; // Used as default, non headline, text color
-  final Color neutralDark = const Color(0xFF454545); //Represent a greyish color, between neutral and light
-  final Color neutral = const Color(0xFF646464); //Represent a greyish color, between light and dark
-  final Color neutralLight = const Color(0xFF999999);
-  final Color neutralExtraLight = const Color(0xFFE8E8E8);
-  final Color light = Colors.white; // Mainly used to represent white
+
+// Grey swatch
+  final Color dark = Colors.black;
+  final Color neutralExtraDark = const Color(0xFF484747);
+  final Color neutralDark = const Color(0xFF757375);
+  final Color neutral = const Color(0xFF9F9A9A);
+  final Color neutralLight = const Color(0xFFD7D2CD);
+  final Color neutralExtraLight = const Color(0xFFEAE5E2);
+  final Color light = Colors.white;
+
   final Color darkPurple = const Color(0xFF362C78);
 
   // Communicating colors
@@ -35,7 +39,8 @@ class IrmaThemeData {
   final Color link = const Color(0xFF0000EE);
 
   //Fonts
-  final String fontFamily = 'Open Sans';
+  final String primaryFontFamily = 'Alexandria';
+  final String secondaryFontFamily = 'Open Sans';
 
   //TODO: The values below are marked late and have to be initialized in the constructor body.
   //In the future these values should be phased out and be move into ThemeData.colorScheme.
@@ -74,12 +79,16 @@ class IrmaThemeData {
 
     //Init Text theme
     textTheme = TextTheme(
-      // headline1 is used for extremely large text
-      headline1: TextStyle(fontSize: 26.0, fontWeight: FontWeight.bold, color: secondary),
-      // headline2 is used for very, very large text
+      headline1: TextStyle(
+        fontFamily: primaryFontFamily,
+        fontSize: 26,
+        height: 36 / 26,
+        fontWeight: FontWeight.w700,
+        color: neutralExtraDark,
+      ),
       headline2: TextStyle(
-        fontSize: 24.0,
-        fontWeight: FontWeight.bold,
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
         color: secondary,
       ),
       // headline3 is used for very large text
@@ -110,7 +119,13 @@ class IrmaThemeData {
       // bodyText1 is used for emphasizing text
       bodyText1: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: dark),
       // bodyText2 is the default text style
-      bodyText2: TextStyle(fontSize: 16.0, height: 24.0 / 16.0, fontWeight: FontWeight.w400, color: dark),
+      bodyText2: TextStyle(
+        fontFamily: secondaryFontFamily,
+        fontSize: 16.0,
+        height: 24.0 / 16.0,
+        fontWeight: FontWeight.w400,
+        color: dark,
+      ),
       // overline is used for the smallest text
       overline: TextStyle(
         fontSize: 12.0,
@@ -217,7 +232,7 @@ class IrmaThemeData {
 
     // Init final ThemeData composed of all theme components.
     themeData = ThemeData(
-      fontFamily: fontFamily,
+      fontFamily: primaryFontFamily,
       scaffoldBackgroundColor: background,
       bottomSheetTheme: const BottomSheetThemeData(backgroundColor: Colors.transparent),
       colorScheme: colorScheme,

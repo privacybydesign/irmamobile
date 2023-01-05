@@ -18,7 +18,7 @@ class _NumberPadKey extends StatelessWidget {
 
     const heightFactor = 0.825;
     final bigNumberTextStyle = TextStyle(
-      fontFamily: theme.fontFamily,
+      fontFamily: theme.primaryFontFamily,
       color: theme.secondary,
       fontSize: 32,
       height: 32 / 40,
@@ -48,7 +48,7 @@ class _NumberPadKey extends StatelessWidget {
                     subtitle!,
                     heightFactor: 1 - heightFactor,
                     textStyle: TextStyle(
-                      fontFamily: theme.fontFamily,
+                      fontFamily: theme.primaryFontFamily,
                       color: theme.secondary,
                       fontWeight: FontWeight.w400,
                       height: 14.0 / 24.0,
