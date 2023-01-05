@@ -39,23 +39,23 @@ class IrmaThemedButton extends StatelessWidget {
     if (!isSecondary) {
       if (onPressed != null) {
         // Primary button colors
-        textColor = Colors.white;
+        textColor = theme.light;
         backgroundColor = baseColor;
       } else {
         // Disabled Primary button colors
-        textColor = Colors.white;
+        textColor = theme.light;
         backgroundColor = baseColor.withOpacity(0.5);
       }
     } else {
       if (onPressed != null) {
         //  Secondary button colors
         textColor = baseColor;
-        backgroundColor = Colors.white;
+        backgroundColor = theme.light;
         borderColor = baseColor;
       } else {
         //  Disabled Secondary button colors
-        textColor = Colors.white;
-        backgroundColor = Colors.grey;
+        textColor = theme.light;
+        backgroundColor = theme.neutralLight;
       }
     }
 
