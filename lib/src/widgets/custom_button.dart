@@ -1,0 +1,107 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+
+import '../theme/theme.dart';
+import 'translated_text.dart';
+
+enum CustomButtonStyle {
+  fancy,
+  outlined,
+  filled,
+}
+
+class CustomButton extends StatelessWidget {
+  final String label;
+  final VoidCallback? onPressed;
+  final CustomButtonStyle style;
+
+  const CustomButton({
+    Key? key,
+    required this.label,
+    this.onPressed,
+    this.style = CustomButtonStyle.fancy,
+  }) : super(key: key);
+
+  Widget _buildFancyButton(Widget child) => Stack(
+        children: [
+          Positioned.fill(
+            bottom: 0.0,
+            child: SvgPicture.asset(
+              'assets/ui/btn-bg.svg',
+              alignment: Alignment.center,
+              fit: BoxFit.fill,
+            ),
+          ),
+          child,
+          Positioned.fill(
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: onPressed,
+              ),
+            ),
+          ),
+        ],
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
+    const borderRadius = BorderRadius.all(
+      Radius.circular(8),
+    );
+
+    final centeredTextWidget = Center(
+      child: TranslatedText(
+        label,
+        style: theme.textTheme.button!.copyWith(
+          color: style == CustomButtonStyle.outlined ? theme.neutralExtraDark : theme.light,
+        ),
+      ),
+    );
+
+    Widget buttonWidget = ClipRRect(
+      borderRadius: borderRadius,
+      child: style == CustomButtonStyle.fancy
+          ? _buildFancyButton(centeredTextWidget)
+          : Material(
+              child: InkWell(
+                onTap: onPressed,
+                child: Ink(
+                  child: centeredTextWidget,
+                  decoration: style == CustomButtonStyle.filled
+                      // Filled button
+                      ? BoxDecoration(
+                          color: theme.neutralDark,
+                          borderRadius: borderRadius,
+                        )
+                      // Outlined button
+                      : BoxDecoration(
+                          color: theme.light,
+                          borderRadius: borderRadius,
+                          border: Border.all(
+                            width: 1.7,
+                            style: BorderStyle.solid,
+                            color: theme.neutralExtraDark,
+                          ),
+                        ),
+                ),
+              ),
+            ),
+    );
+
+    // Grey out button if it's disabled
+    if (onPressed == null) {
+      buttonWidget = ColorFiltered(
+        colorFilter: ColorFilter.mode(
+          Colors.white.withOpacity(0.5),
+          BlendMode.modulate,
+        ),
+        child: buttonWidget,
+      );
+    }
+
+    return buttonWidget;
+  }
+}

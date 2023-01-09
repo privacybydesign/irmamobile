@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../theme/theme.dart';
-import '../../../widgets/irma_button.dart';
-import '../../../widgets/irma_themed_button.dart';
+import '../../../widgets/custom_button.dart';
 
 class EnrollmentNavBar extends StatelessWidget {
   final VoidCallback? onPrevious;
@@ -33,23 +32,19 @@ class EnrollmentNavBar extends StatelessWidget {
                 ? Container()
                 : Padding(
                     padding: EdgeInsets.only(right: theme.smallSpacing),
-                    child: IrmaButton(
+                    child: CustomButton(
                       key: const Key('enrollment_previous_button'),
+                      style: CustomButtonStyle.outlined,
                       label: 'ui.previous',
                       onPressed: onPrevious,
-                      size: IrmaButtonSize.large,
-                      isSecondary: true,
                     ),
                   ),
           ),
-
           // Next button
           Flexible(
-            child: IrmaButton(
-              key: const Key('enrollment_next_button'),
+            child: CustomButton(
               label: 'ui.next',
               onPressed: onContinue,
-              size: IrmaButtonSize.large,
             ),
           ),
         ],
