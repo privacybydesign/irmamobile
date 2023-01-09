@@ -13,7 +13,7 @@ class IntroductionScreen extends StatelessWidget {
     (int stepIndex) {
       final step = stepIndex + 1;
       return IntroductionStep(
-        imagePath: 'assets/enrollment/introduction_$step.webp',
+        imagePath: 'assets/enrollment/introduction_$step.svg',
         titleTranslationKey: 'enrollment.introduction.step_$step.title',
         explanationTranslationKey: 'enrollment.introduction.step_$step.explanation',
       );

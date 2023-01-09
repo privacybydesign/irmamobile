@@ -13,8 +13,10 @@ class IrmaThemeData {
   final double hugeSpacing = _spaceBase * 4; // 64
 
   // Main colors
-  final Color primary = const Color(0xFFBA3354); // Used sparingly, but identifies with our brand
+  final Color primary = const Color(0xFFBA3354);
   final Color secondary = const Color(0xFF363E6A); // Used for buttons and headlines
+
+  // final Color primary = const Color(0xFFBA3354); // Used sparingly, but identifies with our brand
 
   // Background / contrast colors
   final Color background = const Color(0xFFFAFAFA); //Used on scaffolds and scrollable backgrounds
@@ -152,12 +154,19 @@ class IrmaThemeData {
       ),
 
       // caption is used for auxiliary text associated with images
-      caption: TextStyle(fontSize: 14.0, height: 24.0 / 14.0, fontWeight: FontWeight.normal, color: dark),
-      // button is used for text on ElevatedButton and TextButton
+      caption: TextStyle(
+        fontSize: 14.0,
+        height: 24.0 / 14.0,
+        fontWeight: FontWeight.normal,
+        color: dark,
+      ),
+
+      // button is used for text on CustomButton, ElevatedButton and TextButton
       button: TextStyle(
-        fontSize: 16.0,
-        height: 19.0 / 16.0,
-        fontWeight: FontWeight.bold,
+        fontFamily: primaryFontFamily,
+        fontSize: 16,
+        height: 24 / 16,
+        fontWeight: FontWeight.w700,
         color: light,
       ),
     );
