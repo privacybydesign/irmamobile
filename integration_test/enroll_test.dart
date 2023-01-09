@@ -15,7 +15,7 @@ import 'package:irmamobile/src/screens/enrollment/confirm_pin/confirm_pin_screen
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/enrollment_instruction.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
-import 'package:irmamobile/src/widgets/irma_button.dart';
+import 'package:irmamobile/src/widgets/custom_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
 
 import 'helpers/helpers.dart';
@@ -109,12 +109,7 @@ void main() {
           // Evaluate the content
           final instructionFinder = find.byType(EnrollmentInstruction);
           final actualCurrentInstructionTexts = tester.getAllText(instructionFinder);
-          final expectedCurrentInstructionTexts = [
-            '${(i + 1).toString()}/${expectedInstructions.length}',
-            ...expectedInstructions[i],
-            if (i != 0) 'Previous',
-            'Next'
-          ];
+          final expectedCurrentInstructionTexts = [...expectedInstructions[i], if (i != 0) 'Previous', 'Next'];
           expect(actualCurrentInstructionTexts, expectedCurrentInstructionTexts);
 
           // Go Next step
@@ -178,7 +173,7 @@ void main() {
         expect(find.byType(AcceptTermsScreen), findsOneWidget);
 
         // Next button should be disabled by default
-        expect(tester.widget<IrmaButton>(nextButtonFinder).onPressed, isNull);
+        expect(tester.widget<CustomButton>(nextButtonFinder).onPressed, isNull);
 
         // Tap checkbox
         final checkBoxFinder = find.byKey(const Key('accept_terms_checkbox'));
@@ -186,7 +181,7 @@ void main() {
         await tester.tapAndSettle(checkBoxFinder);
 
         // Next button should be enabled now
-        expect(tester.widget<IrmaButton>(nextButtonFinder).onPressed, isNotNull);
+        expect(tester.widget<CustomButton>(nextButtonFinder).onPressed, isNotNull);
 
         // Continue to next page
         await tester.tapAndSettle(nextButtonFinder);
