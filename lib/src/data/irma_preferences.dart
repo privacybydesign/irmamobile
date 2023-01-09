@@ -28,7 +28,10 @@ class IrmaPreferences {
         _developerModePrefVisible = preferences.getBool(_developerModePrefVisibleKey, defaultValue: false),
         _acceptedRootedRisk = preferences.getBool(_acceptedRootedRiskKey, defaultValue: false),
         _completedDisclosurePermissionIntro =
-            preferences.getBool(_completedDisclosurePermissionIntroKey, defaultValue: false);
+            preferences.getBool(_completedDisclosurePermissionIntroKey, defaultValue: false) {
+    // Remove unused IRMA -> Yivi name change notification key
+    preferences.remove(_showNameChangeNotificationKey);
+  }
 
   static Future<IrmaPreferences> fromInstance() async => IrmaPreferences(await StreamingSharedPreferences.instance);
 
@@ -79,6 +82,9 @@ class IrmaPreferences {
 
   Stream<bool> getAcceptedRootedRisk() => _acceptedRootedRisk;
   Future<bool> setAcceptedRootedRisk(bool value) => _acceptedRootedRisk.setValue(value);
+
+  /// Originates from the IRMA -> Yivi name change, only used for cleanup-purposes
+  static const String _showNameChangeNotificationKey = "preference.show_name_change_notification";
 
   static const String _completedDisclosurePermissionIntroKey = "preference.completed_disclosure_permission_intro";
   final Preference<bool> _completedDisclosurePermissionIntro;
