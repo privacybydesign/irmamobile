@@ -91,6 +91,7 @@ flutter:
     - assets/reset/
     - assets/non-free/
     - assets/disclosure/
+    - assets/ui/
   fonts:
     - family: Alexandria
       fonts:
