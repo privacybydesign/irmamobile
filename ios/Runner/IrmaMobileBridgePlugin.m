@@ -50,7 +50,7 @@
     return self;
   }
 
-  IrmagobridgeStart(self, libraryPath, bundlePath, aesKey);
+  IrmagobridgeStart(self, libraryPath, bundlePath, [[TEE alloc] init], aesKey);
   return self;
 }
 
