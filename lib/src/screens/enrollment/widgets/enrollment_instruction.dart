@@ -5,6 +5,7 @@ import '../../../theme/theme.dart';
 import '../../../widgets/translated_text.dart';
 
 import 'enrollment_nav_bar.dart';
+import 'enrollment_progress_indicator.dart';
 
 class EnrollmentInstruction extends StatelessWidget {
   final int? stepIndex;
@@ -41,9 +42,9 @@ class EnrollmentInstruction extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (stepIndex != null && stepCount != null)
-                  Text(
-                    (stepIndex! + 1).toString() + '/' + stepCount.toString(),
-                    style: theme.textTheme.caption,
+                  EnrollmentProgressIndicator(
+                    stepCount: stepCount!,
+                    stepIndex: stepIndex!,
                   ),
                 SizedBox(
                   height: theme.smallSpacing,
