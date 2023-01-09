@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../theme/theme.dart';
 import 'irma_themed_button.dart';
 
 class IrmaButton extends StatelessWidget {
@@ -27,8 +26,6 @@ class IrmaButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = IrmaTheme.of(context);
-
     return IrmaThemedButton(
       label: label,
       onPressed: onPressed,
@@ -36,12 +33,11 @@ class IrmaButton extends StatelessWidget {
       size: size,
       minWidth: minWidth,
       icon: icon,
-      color: color ?? theme.themeData.colorScheme.secondary,
-      disabledColor: color ?? theme.themeData.colorScheme.secondary.withOpacity(0.5),
+      color: color,
+      isSecondary: isSecondary,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(4.0),
       ),
-      isSecondary: isSecondary,
     );
   }
 }
