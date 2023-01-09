@@ -43,6 +43,7 @@ class EnrollmentNavBar extends StatelessWidget {
           // Next button
           Flexible(
             child: CustomButton(
+              key: const Key('enrollment_next_button'),
               label: 'ui.next',
               onPressed: onContinue,
             ),
