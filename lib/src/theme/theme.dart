@@ -14,9 +14,7 @@ class IrmaThemeData {
 
   // Main colors
   final Color primary = const Color(0xFFBA3354);
-  final Color secondary = const Color(0xFF363E6A); // Used for buttons and headlines
-
-  // final Color primary = const Color(0xFFBA3354); // Used sparingly, but identifies with our brand
+  final Color secondary = const Color(0xFF484747); // Used for buttons and headlines
 
   // Background / contrast colors
   final Color background = const Color(0xFFFAFAFA); //Used on scaffolds and scrollable backgrounds
@@ -38,7 +36,7 @@ class IrmaThemeData {
   final Color error = const Color(0xFFBD1919);
   final Color warning = const Color(0xFFEBA73B);
   final Color success = const Color(0xFF33AD38);
-  final Color link = const Color(0xFF0000EE);
+  final Color link = const Color(0xFF1D4E89);
 
   //Fonts
   final String primaryFontFamily = 'Alexandria';
@@ -95,9 +93,11 @@ class IrmaThemeData {
       ),
       // headline3 is used for very large text
       headline3: TextStyle(
-        fontSize: 18.0,
-        fontWeight: FontWeight.bold,
-        color: secondary,
+        fontFamily: primaryFontFamily,
+        fontSize: 18,
+        height: 36 / 18,
+        fontWeight: FontWeight.w600,
+        color: neutralExtraDark,
       ),
       // headline4 is used for large text
       headline4: TextStyle(
@@ -218,9 +218,10 @@ class IrmaThemeData {
       color: secondary,
     );
     hyperlinkTextStyle = TextStyle(
+      fontFamily: secondaryFontFamily,
       fontSize: 16.0,
       height: 24.0 / 16.0,
-      fontWeight: FontWeight.normal,
+      fontWeight: FontWeight.w700,
       color: link,
       decoration: TextDecoration.underline,
     );
