@@ -5,7 +5,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_privacy_screen/flutter_privacy_screen.dart';
@@ -305,12 +304,13 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
 
   Widget _buildAppOverlay(BuildContext context) {
     final repo = IrmaRepository.get();
-    return StreamBuilder<CombinedState3<bool, VersionInformation, bool>>(
-      stream: combine3(
+    return StreamBuilder<CombinedState4<bool, VersionInformation, bool, bool>>(
+      stream: combine4(
         _displayDeviceIsRootedWarning(),
-        // combine3 cannot handle empty streams, so we have to make sure always a value is present.
+        // combine4 cannot handle empty streams, so we have to make sure always a value is present.
         repo.getVersionInformation().defaultIfEmpty(null),
         repo.getLocked(),
+        repo.preferences.getShowNameChangeNotification(),
       ),
       builder: (context, snapshot) {
         if (!snapshot.hasData || !_privacyScreenLoaded) {
@@ -323,6 +323,13 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
             onAcceptRiskButtonPressed: () async {
               _detectRootedDeviceRepo.setHasAcceptedRootedDeviceRisk();
             },
+          );
+        }
+
+        final showNameChangeNotification = snapshot.data.d;
+        if (showNameChangeNotification) {
+          return NameChangeScreen(
+            onContinuePressed: () => repo.preferences.setShowNameChangeNotification(false),
           );
         }
 
