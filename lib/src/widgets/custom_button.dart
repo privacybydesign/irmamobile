@@ -14,12 +14,14 @@ class CustomButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
   final CustomButtonStyle style;
+  final CustomButtonSize size;
 
   const CustomButton({
     Key? key,
     required this.label,
     this.onPressed,
     this.style = CustomButtonStyle.fancy,
+    this.size = CustomButtonSize.medium,
   }) : super(key: key);
 
   Widget _buildFancyButton(Widget child) => Stack(
@@ -61,34 +63,37 @@ class CustomButton extends StatelessWidget {
       ),
     );
 
-    Widget buttonWidget = ClipRRect(
-      borderRadius: borderRadius,
-      child: style == CustomButtonStyle.fancy
-          ? _buildFancyButton(centeredTextWidget)
-          : Material(
-              child: InkWell(
-                onTap: onPressed,
-                child: Ink(
-                  child: centeredTextWidget,
-                  decoration: style == CustomButtonStyle.filled
-                      // Filled button
-                      ? BoxDecoration(
-                          color: theme.neutralDark,
-                          borderRadius: borderRadius,
-                        )
-                      // Outlined button
-                      : BoxDecoration(
-                          color: theme.light,
-                          borderRadius: borderRadius,
-                          border: Border.all(
-                            width: 1.7,
-                            style: BorderStyle.solid,
-                            color: theme.neutralExtraDark,
+    Widget buttonWidget = SizedBox(
+      height: size.value,
+      child: ClipRRect(
+        borderRadius: borderRadius,
+        child: style == CustomButtonStyle.fancy
+            ? _buildFancyButton(centeredTextWidget)
+            : Material(
+                child: InkWell(
+                  onTap: onPressed,
+                  child: Ink(
+                    child: centeredTextWidget,
+                    decoration: style == CustomButtonStyle.filled
+                        // Filled button
+                        ? BoxDecoration(
+                            color: theme.neutralDark,
+                            borderRadius: borderRadius,
+                          )
+                        // Outlined button
+                        : BoxDecoration(
+                            color: theme.light,
+                            borderRadius: borderRadius,
+                            border: Border.all(
+                              width: 1.7,
+                              style: BorderStyle.solid,
+                              color: theme.neutralExtraDark,
+                            ),
                           ),
-                        ),
+                  ),
                 ),
               ),
-            ),
+      ),
     );
 
     // Grey out button if it's disabled
@@ -104,4 +109,14 @@ class CustomButton extends StatelessWidget {
 
     return buttonWidget;
   }
+}
+
+class CustomButtonSize {
+  final double _value;
+  const CustomButtonSize._internal(this._value);
+  double get value => _value;
+
+  static const large = CustomButtonSize._internal(54);
+  static const medium = CustomButtonSize._internal(50);
+  static const small = CustomButtonSize._internal(55);
 }
