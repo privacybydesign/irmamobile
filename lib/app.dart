@@ -307,7 +307,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     return StreamBuilder<CombinedState3<bool, VersionInformation, bool>>(
       stream: combine3(
         _displayDeviceIsRootedWarning(),
-        // combine4 cannot handle empty streams, so we have to make sure always a value is present.
+        // combine3 cannot handle empty streams, so we have to make sure always a value is present.
         repo.getVersionInformation().defaultIfEmpty(null),
         repo.getLocked(),
       ),
