@@ -21,7 +21,7 @@ class IrmaThemeData {
   // Background / contrast colors
   final Color background = const Color(0xFFFAFAFA); //Used on scaffolds and scrollable backgrounds
   Color get surfacePrimary => light; // Used on cards etc, to contrast with the background
-  final Color surfaceSecondary = const Color(0xFFE9F4FF); // Used on cards that are active etc.
+  final Color surfaceSecondary = const Color(0xFFCEE3EE); // Used on cards that are active etc.
 
 // Grey swatch
   final Color dark = Colors.black;
