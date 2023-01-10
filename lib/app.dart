@@ -304,13 +304,12 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
 
   Widget _buildAppOverlay(BuildContext context) {
     final repo = IrmaRepository.get();
-    return StreamBuilder<CombinedState4<bool, VersionInformation, bool, bool>>(
-      stream: combine4(
+    return StreamBuilder<CombinedState3<bool, VersionInformation, bool>>(
+      stream: combine3(
         _displayDeviceIsRootedWarning(),
         // combine4 cannot handle empty streams, so we have to make sure always a value is present.
         repo.getVersionInformation().defaultIfEmpty(null),
         repo.getLocked(),
-        repo.preferences.getShowNameChangeNotification(),
       ),
       builder: (context, snapshot) {
         if (!snapshot.hasData || !_privacyScreenLoaded) {
@@ -323,13 +322,6 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
             onAcceptRiskButtonPressed: () async {
               _detectRootedDeviceRepo.setHasAcceptedRootedDeviceRisk();
             },
-          );
-        }
-
-        final showNameChangeNotification = snapshot.data.d;
-        if (showNameChangeNotification) {
-          return NameChangeScreen(
-            onContinuePressed: () => repo.preferences.setShowNameChangeNotification(false),
           );
         }
 
