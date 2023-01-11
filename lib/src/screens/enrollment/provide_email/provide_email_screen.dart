@@ -101,7 +101,7 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
                     if (!keyboardIsActive || !isLandscape) ...[
                       const Spacer(),
                       IrmaBottomBar(
-                        alignment: IrmaBottomBarAlignment.horizontal,
+                        alignment: isLandscape ? IrmaBottomBarAlignment.horizontal : IrmaBottomBarAlignment.vertical,
                         primaryButtonLabel: 'ui.next',
                         onPrimaryPressed: _onContinuePressed,
                         secondaryButtonLabel: 'ui.skip',

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../theme/theme.dart';
+import 'custom_button.dart';
 import 'irma_bottom_bar_base.dart';
-import 'irma_button.dart';
-import 'irma_themed_button.dart';
 
 enum IrmaBottomBarAlignment {
   horizontal,
@@ -32,27 +31,24 @@ class IrmaBottomBar extends StatelessWidget {
   Widget _buildPrimaryButton(BuildContext context) {
     return Expanded(
       child: Padding(
-        padding: EdgeInsets.symmetric(
-          vertical: IrmaTheme.of(context).tinySpacing,
-        ),
-        child: IrmaButton(
-          key: const Key('bottom_bar_primary'),
-          size: IrmaButtonSize.large,
-          onPressed: onPrimaryPressed,
-          label: primaryButtonLabel!,
-        ),
-      ),
+          padding: EdgeInsets.symmetric(
+            vertical: IrmaTheme.of(context).tinySpacing,
+          ),
+          child: CustomButton(
+            key: const Key('bottom_bar_primary'),
+            onPressed: onPrimaryPressed,
+            label: primaryButtonLabel!,
+          )),
     );
   }
 
   Widget _buildSecondaryButton(BuildContext context) {
     return Expanded(
-      child: IrmaButton(
+      child: CustomButton(
         key: const Key('bottom_bar_secondary'),
-        size: IrmaButtonSize.large,
         onPressed: onSecondaryPressed,
         label: secondaryButtonLabel!,
-        isSecondary: true,
+        style: CustomButtonStyle.outlined,
       ),
     );
   }
