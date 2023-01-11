@@ -33,7 +33,7 @@ class IrmaQuote extends StatelessWidget {
           color: color ?? theme.surfaceSecondary,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: theme.tertiaryDark,
+            color: theme.surfaceSecondary,
           )),
       child: Padding(
         padding: EdgeInsets.all(theme.defaultSpacing),

@@ -15,15 +15,14 @@ class IrmaThemeData {
   // Main colors
   final Color primary = const Color(0xFFBA3354);
   final Color secondary = const Color(0xFF484747); // Used for buttons and headlines
-  final Color tertiary = const Color(0xFFEAF3F9);
-  final Color tertiaryDark = const Color(0xFFCFE4EF);
+  final Color tertiary = const Color(0xFFCFE4EF);
 
   // Background / contrast colors
   Color get backgroundPrimary => light; //Used on scaffolds
   final Color backgroundSecondary = const Color(0xFFF7F5F3);
 
   Color get surfacePrimary => light; // Used on cards etc, to contrast with the background
-  Color get surfaceSecondary => tertiary; // Used on cards that are active etc.
+  Color get surfaceSecondary => const Color(0xFFEAF3F9); // Used on cards that are active etc.
 
 // Grey swatch
   final Color dark = Colors.black;

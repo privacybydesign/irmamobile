@@ -37,7 +37,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
       shape: hasBorder
           ? Border(
               bottom: BorderSide(
-                color: theme.tertiaryDark,
+                color: theme.tertiary,
               ),
             )
           : null,
