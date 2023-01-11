@@ -37,7 +37,7 @@ class _PinIndicator extends StatelessWidget {
     final scaledEdgeSize = edgeSize.scaleToDesignSize(context);
 
     final circleFilledDecoration = BoxDecoration(
-      color: isPinVisible ? Colors.transparent : theme.darkPurple,
+      color: isPinVisible ? Colors.transparent : theme.secondary,
       shape: BoxShape.circle,
 
       // prevent unnecessary resize
@@ -47,7 +47,7 @@ class _PinIndicator extends StatelessWidget {
     final circleOutlinedDecoration = BoxDecoration(
       color: Colors.transparent, // border color
       shape: BoxShape.circle,
-      border: Border.all(color: theme.darkPurple, width: 2.0),
+      border: Border.all(color: theme.secondary, width: 2.0),
     );
 
     final pinSize = pinState.pin.length;

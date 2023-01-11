@@ -17,9 +17,11 @@ class IrmaThemeData {
   final Color secondary = const Color(0xFF484747); // Used for buttons and headlines
 
   // Background / contrast colors
-  final Color background = const Color(0xFFFAFAFA); //Used on scaffolds and scrollable backgrounds
+  Color get backgroundPrimary => light; //Used on scaffolds
+  final Color backgroundSecondary = const Color(0xFFF7F5F3);
+
   Color get surfacePrimary => light; // Used on cards etc, to contrast with the background
-  final Color surfaceSecondary = const Color(0xFFCEE3EE); // Used on cards that are active etc.
+  final Color surfaceSecondary = const Color(0xFFF7F5F3); // Used on cards that are active etc.
 
 // Grey swatch
   final Color dark = Colors.black;
@@ -68,7 +70,7 @@ class IrmaThemeData {
       onSecondary: light,
       error: error,
       onError: light,
-      background: background,
+      background: backgroundPrimary,
       surface: surfacePrimary,
       onBackground: primary,
       onSurface: primary,
@@ -202,7 +204,7 @@ class IrmaThemeData {
     //Init App Bar Theme
     final appBarTheme = AppBarTheme(
       elevation: 0,
-      color: background,
+      color: backgroundPrimary,
       iconTheme: IconThemeData(
         color: dark,
       ),
@@ -243,7 +245,7 @@ class IrmaThemeData {
     // Init final ThemeData composed of all theme components.
     themeData = ThemeData(
       fontFamily: primaryFontFamily,
-      scaffoldBackgroundColor: background,
+      scaffoldBackgroundColor: backgroundPrimary,
       bottomSheetTheme: const BottomSheetThemeData(backgroundColor: Colors.transparent),
       colorScheme: colorScheme,
       textTheme: textTheme,

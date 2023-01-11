@@ -18,7 +18,7 @@ class IrmaBottomSheet extends StatelessWidget {
     return SingleChildScrollView(
       child: Container(
         decoration: BoxDecoration(
-          color: theme.background,
+          color: theme.backgroundPrimary,
           borderRadius: const BorderRadius.vertical(
             top: Radius.circular(30),
           ),

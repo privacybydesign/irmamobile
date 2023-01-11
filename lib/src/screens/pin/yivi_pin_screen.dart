@@ -206,7 +206,7 @@ class YiviPinScreen extends StatelessWidget {
               children: [
                 Divider(
                   height: 1.0,
-                  color: theme.darkPurple,
+                  color: theme.secondary,
                 ),
                 if (displayPinLength)
                   Align(
@@ -217,7 +217,7 @@ class YiviPinScreen extends StatelessWidget {
                         '${state.pin.length}/$maxPinSize',
                         style: theme.textTheme.caption?.copyWith(
                             fontWeight: FontWeight.w300,
-                            color: state.pin.isNotEmpty ? theme.darkPurple : Colors.transparent),
+                            color: state.pin.isNotEmpty ? theme.secondary : Colors.transparent),
                       ),
                     ),
                   )
