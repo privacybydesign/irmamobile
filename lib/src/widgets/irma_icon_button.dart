@@ -8,10 +8,12 @@ class IrmaIconButton extends StatelessWidget {
   final double size;
 
   const IrmaIconButton({
+    Key? key,
     required this.icon,
     required this.onTap,
     this.size = 24,
-  }) : assert(size >= 2);
+  })  : assert(size >= 2),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {

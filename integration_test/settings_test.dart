@@ -136,7 +136,9 @@ void main() {
       await enterPin(tester, '54321');
 
       // Press change
-      await tester.tapAndSettle(find.text('Change'));
+      await tester.tapAndSettle(find.byKey(
+        const Key('dialog_confirm_button'),
+      ));
 
       // Expect snack bar
       var snackBarFinder = find.byType(SnackBar);

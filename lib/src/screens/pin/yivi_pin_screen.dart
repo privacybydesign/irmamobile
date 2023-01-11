@@ -132,6 +132,7 @@ class YiviPinScreen extends StatelessWidget {
       final button = SizedBox(
         height: _nextButtonHeight,
         child: CustomButton(
+          key: const Key('pin_next'),
           label: 'choose_pin.next',
           onPressed: activate && enabled ? () => onSubmit(pinBloc.state.toString()) : null,
         ),
