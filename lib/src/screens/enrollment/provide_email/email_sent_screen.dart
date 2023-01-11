@@ -4,7 +4,6 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import '../../../theme/theme.dart';
 import '../../../widgets/irma_app_bar.dart';
 import '../../../widgets/irma_bottom_bar.dart';
-import '../../../widgets/irma_close_button.dart';
 import '../../../widgets/irma_quote.dart';
 import '../../../widgets/translated_text.dart';
 import '../../home/home_screen.dart';
@@ -33,14 +32,9 @@ class EmailSentScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: theme.backgroundSecondary,
       key: const Key('email_sent_screen'),
-      appBar: IrmaAppBar(
+      appBar: const IrmaAppBar(
         titleTranslationKey: 'enrollment.email.confirm.title',
         noLeading: true,
-        actions: [
-          IrmaCloseButton(
-            onTap: () => _navigateToHome(context),
-          )
-        ],
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: FlutterI18n.translate(context, 'ui.next'),

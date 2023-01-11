@@ -36,6 +36,7 @@ class YiviConfirmPinScaffold extends StatelessWidget {
         title: '',
         leadingAction: onBack,
         leadingTooltip: MaterialLocalizations.of(context).backButtonTooltip,
+        hasBorder: false,
       ),
       body: YiviPinScreen(
         scaffoldKey: _scaffoldKey,

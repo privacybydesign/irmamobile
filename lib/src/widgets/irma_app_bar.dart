@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/widgets/irma_icon_button.dart';
 
 import '../theme/theme.dart';
+import 'irma_icon_button.dart';
 import 'translated_text.dart';
 
 class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -13,6 +13,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? leadingTooltip;
   final List<Widget> actions;
   final bool noLeading;
+  final bool hasBorder;
 
   const IrmaAppBar({
     this.titleTranslationKey,
@@ -23,6 +24,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.leadingCancel,
     this.noLeading = false,
     this.actions = const [],
+    this.hasBorder = true,
   }) : assert((titleTranslationKey == null && title != null) || title == null && titleTranslationKey != null);
 
   @override
@@ -30,8 +32,15 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
     final theme = IrmaTheme.of(context);
 
     return AppBar(
-      backgroundColor: theme.light,
       key: const Key('irma_app_bar'),
+      backgroundColor: theme.light,
+      shape: hasBorder
+          ? Border(
+              bottom: BorderSide(
+                color: theme.tertiaryDark,
+              ),
+            )
+          : null,
       centerTitle: true,
       leading: noLeading
           ? null

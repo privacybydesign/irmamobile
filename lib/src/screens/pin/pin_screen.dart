@@ -118,6 +118,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
           appBar: const IrmaAppBar(
             noLeading: true,
             title: '',
+            hasBorder: false,
           ),
           body: StreamBuilder(
             stream: _pinBloc.getPinBlockedFor(),

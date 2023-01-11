@@ -32,6 +32,7 @@ class YiviChoosePinScaffold extends StatelessWidget {
         title: '',
         leadingAction: onBack,
         leadingTooltip: MaterialLocalizations.of(context).backButtonTooltip,
+        hasBorder: false,
       ),
       body: StreamBuilder<bool>(
         stream: prefs.getLongPin(),
