@@ -18,16 +18,19 @@ class IrmaIconButton extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     final borderRadius = BorderRadius.circular(25.0);
 
-    return Material(
-      color: Colors.transparent,
-      borderRadius: borderRadius,
-      child: InkWell(
-        onTap: onTap,
+    return Padding(
+      padding: const EdgeInsets.all(12),
+      child: Material(
+        color: Colors.transparent,
         borderRadius: borderRadius,
-        child: Icon(
-          icon,
-          size: size,
-          color: theme.neutralExtraDark,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: borderRadius,
+          child: Icon(
+            icon,
+            size: size,
+            color: theme.neutralExtraDark,
+          ),
         ),
       ),
     );

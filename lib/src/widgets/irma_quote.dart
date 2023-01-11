@@ -29,7 +29,12 @@ class IrmaQuote extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return Container(
-      color: color ?? theme.surfaceSecondary,
+      decoration: BoxDecoration(
+          color: color ?? theme.surfaceSecondary,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: theme.tertiaryDark,
+          )),
       child: Padding(
         padding: EdgeInsets.all(theme.defaultSpacing),
         child: Row(
@@ -41,11 +46,14 @@ class IrmaQuote extends StatelessWidget {
                       styleSheet: MarkdownStyleSheet.fromTheme(
                         ThemeData(
                           textTheme: TextTheme(
-                            //Set the default markdown text to the caption style in our theme.
-                            bodyText2: theme.textTheme.caption,
+                            bodyText2: theme.textTheme.bodyText2!.copyWith(
+                              fontSize: 14,
+                              height: 24 / 14,
+                            ),
                           ),
                         ),
-                      ))
+                      ),
+                    )
                   : richQuote!,
             )
           ],

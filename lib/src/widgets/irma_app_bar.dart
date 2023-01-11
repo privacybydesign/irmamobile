@@ -35,21 +35,19 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: true,
       leading: noLeading
           ? null
-          : Padding(
-              padding: const EdgeInsets.all(12),
-              child: IrmaIconButton(
-                icon: Icons.arrow_back_sharp,
-                onTap: () {
-                  if (leadingCancel != null) {
-                    leadingCancel!();
-                  }
-                  if (leadingAction == null) {
-                    Navigator.of(context).pop();
-                  } else {
-                    leadingAction!();
-                  }
-                },
-              )),
+          : IrmaIconButton(
+              icon: Icons.arrow_back_sharp,
+              onTap: () {
+                if (leadingCancel != null) {
+                  leadingCancel!();
+                }
+                if (leadingAction == null) {
+                  Navigator.of(context).pop();
+                } else {
+                  leadingAction!();
+                }
+              },
+            ),
       title: TranslatedText(
         titleTranslationKey ?? (title ?? ''),
         style: theme.textTheme.headline3,
