@@ -28,6 +28,8 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
   final _emailFormKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
 
+  bool emailFormIsValid = false;
+
   @override
   void initState() {
     _emailController.text = widget.email ?? '';
@@ -65,6 +67,7 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
     final isLandscape = mediaQuery.size.width > 450;
 
     return Scaffold(
+      backgroundColor: theme.backgroundSecondary,
       appBar: IrmaAppBar(
         titleTranslationKey: 'enrollment.email.provide.title',
         leadingAction: widget.onPrevious,
@@ -77,6 +80,9 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
             child: IntrinsicHeight(
               child: Form(
                 key: _emailFormKey,
+                onChanged: () => setState(
+                  () => emailFormIsValid = _emailFormKey.currentState!.validate(),
+                ),
                 child: Column(
                   children: [
                     Padding(
@@ -89,11 +95,9 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
                             'enrollment.email.provide.header',
                             style: theme.textTheme.headline3,
                           ),
-                          SizedBox(
-                            height: theme.defaultSpacing,
-                          ),
-                          const TranslatedText('enrollment.email.provide.explanation'),
                           SizedBox(height: theme.defaultSpacing),
+                          const TranslatedText('enrollment.email.provide.explanation'),
+                          SizedBox(height: theme.mediumSpacing),
                           EmailInputField(controller: _emailController),
                         ],
                       ),
@@ -102,8 +106,8 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
                       const Spacer(),
                       IrmaBottomBar(
                         alignment: isLandscape ? IrmaBottomBarAlignment.horizontal : IrmaBottomBarAlignment.vertical,
-                        primaryButtonLabel: 'ui.next',
-                        onPrimaryPressed: _onContinuePressed,
+                        primaryButtonLabel: 'ui.save',
+                        onPrimaryPressed: emailFormIsValid ? _onContinuePressed : null,
                         secondaryButtonLabel: 'ui.skip',
                         onSecondaryPressed: _onSkipPressed,
                       )

@@ -15,6 +15,7 @@ class EmailInputField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final baseTextStyle = theme.textTheme.bodyText2;
 
     return TextFormField(
       key: const Key('email_input_field'),
@@ -22,16 +23,22 @@ class EmailInputField extends StatelessWidget {
       keyboardType: TextInputType.emailAddress,
       autofillHints: const [AutofillHints.email],
       cursorColor: theme.themeData.colorScheme.secondary,
+      style: baseTextStyle,
       decoration: InputDecoration(
-        contentPadding: const EdgeInsets.only(
-          top: -5.0,
-        ),
-        label: const TranslatedText(
-          'enrollment.email.provide.input.label',
-        ),
-        floatingLabelAlignment: FloatingLabelAlignment.start,
-        floatingLabelStyle: theme.textTheme.bodyText2,
-      ),
+          contentPadding: const EdgeInsets.only(
+            top: -10.0,
+          ),
+          label: TranslatedText(
+            'enrollment.email.provide.input.label',
+            style: baseTextStyle,
+          ),
+          floatingLabelAlignment: FloatingLabelAlignment.start,
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          hintText: FlutterI18n.translate(
+            context,
+            'enrollment.email.provide.input.hint',
+          )),
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       validator: (email) => email != null && !EmailValidator.validate(email)
           ? FlutterI18n.translate(
               context,

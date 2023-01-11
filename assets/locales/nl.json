@@ -242,6 +242,7 @@
         "explanation": "Met je e-mailadres kun je de Yivi-app op afstand blokkeren. Bijvoorbeeld bij verlies of diefstal van je mobiel.",
         "input": {
           "label": "E-mailadres",
+          "hint": "Vul in",
           "invalid": "Controleer je e-mailadres, het lijkt niet helemaal goed."
         },
         "confirm_skip_dialog": {
@@ -540,7 +541,8 @@
     "skip": "Overslaan",
     "continue": "Doorgaan",
     "retry": "Opnieuw proberen",
-    "error": "Er is iets misgegaan"
+    "error": "Er is iets misgegaan",
+    "save": "Opslaan"
   },
   "update": {
     "title": "Update beschikbaar",

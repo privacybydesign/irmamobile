@@ -15,6 +15,7 @@
     "remove": "Remove",
     "expand": "Expand",
     "refresh": "Refresh"
+
   },
   "action_feedback": {
     "ok": "OK"
@@ -242,6 +243,7 @@
         "explanation": "An e-mail address allows you to remotely disable your Yivi app, in case your mobile has been lost or stolen",
         "input": {
           "label": "E-mail address",
+          "hint": "Fill in",
           "invalid": "Please check your e-mail address, this doesn't seem to be a valid e-mail address"
         },
         "confirm_skip_dialog": {
@@ -540,7 +542,8 @@
     "skip": "Skip",
     "continue": "Continue",
     "retry": "Try again",
-    "error": "Something went wrong"
+    "error": "Something went wrong",
+    "save": "Save"
   },
   "update": {
     "title": "Update available",
