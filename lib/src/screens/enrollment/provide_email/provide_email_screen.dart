@@ -106,7 +106,7 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
                       const Spacer(),
                       IrmaBottomBar(
                         alignment: isLandscape ? IrmaBottomBarAlignment.horizontal : IrmaBottomBarAlignment.vertical,
-                        primaryButtonLabel: 'ui.save',
+                        primaryButtonLabel: 'ui.next',
                         onPrimaryPressed: emailFormIsValid ? _onContinuePressed : null,
                         secondaryButtonLabel: 'ui.skip',
                         onSecondaryPressed: _onSkipPressed,

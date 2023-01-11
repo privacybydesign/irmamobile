@@ -243,7 +243,7 @@
         "input": {
           "label": "E-mailadres",
           "hint": "Vul in",
-          "invalid": "Controleer je e-mailadres, het lijkt niet helemaal goed."
+          "invalid": "Incorrect e-mailadres"
         },
         "confirm_skip_dialog": {
           "title": "Weet je het zeker?",
@@ -541,8 +541,7 @@
     "skip": "Overslaan",
     "continue": "Doorgaan",
     "retry": "Opnieuw proberen",
-    "error": "Er is iets misgegaan",
-    "save": "Opslaan"
+    "error": "Er is iets misgegaan"
   },
   "update": {
     "title": "Update beschikbaar",

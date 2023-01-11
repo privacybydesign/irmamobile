@@ -15,7 +15,6 @@
     "remove": "Remove",
     "expand": "Expand",
     "refresh": "Refresh"
-
   },
   "action_feedback": {
     "ok": "OK"
@@ -244,7 +243,7 @@
         "input": {
           "label": "E-mail address",
           "hint": "Fill in",
-          "invalid": "Please check your e-mail address, this doesn't seem to be a valid e-mail address"
+          "invalid": "Invalid e-mail address"
         },
         "confirm_skip_dialog": {
           "title": "Are you sure?",
@@ -542,8 +541,7 @@
     "skip": "Skip",
     "continue": "Continue",
     "retry": "Try again",
-    "error": "Something went wrong",
-    "save": "Save"
+    "error": "Something went wrong"
   },
   "update": {
     "title": "Update available",
