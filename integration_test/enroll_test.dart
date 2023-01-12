@@ -228,7 +228,7 @@ void main() {
         var emailInputFinder = find.byKey(const Key('email_input_field'));
         var emailInvalidMessageFinder = find.descendant(
           of: emailInputFinder,
-          matching: find.text('Please check your e-mail address, this doesn\'t seem to be a valid e-mail address'),
+          matching: find.text('Invalid e-mail address'),
         );
         expect(emailInvalidMessageFinder, findsNothing);
 
