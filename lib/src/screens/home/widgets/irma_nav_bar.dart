@@ -29,18 +29,20 @@ class IrmaNavBar extends StatelessWidget {
       // Reduce vertical padding for screens with limited height (i.e. landscape mode).
       height: MediaQuery.of(context).size.height > 450 ? 95 : 85,
       decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          top: BorderSide(
+            color: theme.tertiary,
+          ),
+        ),
         boxShadow: [
           BoxShadow(
-              color: Colors.grey.shade600.withOpacity(0.5),
-              blurRadius: 10.0,
-              spreadRadius: 1.0,
-              offset: const Offset(0, 7))
+            color: Colors.grey.shade600.withOpacity(0.5),
+            blurRadius: 10.0,
+            spreadRadius: 1.0,
+            offset: const Offset(0, 7),
+          )
         ],
-        color: Colors.white,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(30),
-          topRight: Radius.circular(30),
-        ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -54,7 +56,7 @@ class IrmaNavBar extends StatelessWidget {
           ),
           IrmaNavButton(
             key: const Key('nav_button_data'),
-            iconData: Icons.how_to_reg_outlined,
+            iconData: Icons.person_outline_rounded,
             tab: IrmaNavBarTab.data,
             changeTab: onChangeTab,
             isSelected: IrmaNavBarTab.data == selectedTab,

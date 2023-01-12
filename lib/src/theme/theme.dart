@@ -102,22 +102,24 @@ class IrmaThemeData {
       ),
       // headline4 is used for large text
       headline4: TextStyle(
+        fontFamily: primaryFontFamily,
         fontSize: 16.0,
         fontWeight: FontWeight.bold,
-        color: secondary,
+        color: neutralExtraDark,
       ),
       // headline5 is used for large text in dialogs
       headline5: TextStyle(
+        fontFamily: primaryFontFamily,
         fontSize: 14.0,
         fontWeight: FontWeight.bold,
-        color: dark,
+        color: neutralExtraDark,
       ),
       // headline6 is used for the primary text in app bars and dialogs
       headline6: TextStyle(
-        fontSize: 18.0,
-        height: 28.0 / 18.0,
-        fontWeight: FontWeight.bold,
-        color: dark,
+        fontSize: 10,
+        height: 16 / 10,
+        fontWeight: FontWeight.w500,
+        color: neutralExtraDark,
       ),
       // bodyText1 is used for emphasizing text
       bodyText1: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: dark),
