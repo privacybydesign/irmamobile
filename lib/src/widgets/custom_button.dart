@@ -34,11 +34,11 @@ class CustomButton extends StatelessWidget {
               fit: BoxFit.fill,
             ),
           ),
-          child,
           Positioned.fill(
             child: Material(
-              color: Colors.transparent,
+              type: MaterialType.transparency,
               child: InkWell(
+                child: child,
                 onTap: onPressed,
               ),
             ),
