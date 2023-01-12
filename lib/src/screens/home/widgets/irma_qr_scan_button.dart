@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
 
 import '../../../theme/theme.dart';
@@ -32,12 +33,16 @@ class IrmaQrScanButton extends StatelessWidget {
                   child: ClipOval(
                     child: Material(
                       type: MaterialType.transparency,
-                      child: InkWell(
-                        onTap: () => Navigator.pushNamed(context, ScannerScreen.routeName),
-                        child: Icon(
-                          Icons.qr_code_scanner_rounded,
-                          color: theme.light,
-                          size: 42,
+                      child: Semantics(
+                        button: true,
+                        label: FlutterI18n.translate(context, 'home.nav_bar.scan_qr'),
+                        child: InkWell(
+                          onTap: () => Navigator.pushNamed(context, ScannerScreen.routeName),
+                          child: Icon(
+                            Icons.qr_code_scanner_rounded,
+                            color: theme.light,
+                            size: 42,
+                          ),
                         ),
                       ),
                     ),
