@@ -128,20 +128,20 @@ void main() {
       await _goThroughIntroduction(tester);
       await _goThroughTerms(tester);
 
-      //Choose the pin
+      // Choose the pin
       expect(find.byType(ChoosePinScreen), findsOneWidget);
       const pin = '12345';
       await enterPin(tester, pin);
       await tester.tapAndSettle(find.text('Next'));
 
-      //Confirm pin
+      // Confirm pin
       expect(find.byType(ConfirmPinScreen), findsOneWidget);
 
       // Enter false pin
       const falsePin = '54321';
       await enterPin(tester, falsePin);
 
-      //Expect false pin dialog
+      // Expect false pin dialog
       var dialogFinder = find.byType(IrmaDialog);
       expect(dialogFinder, findsOneWidget);
       var expectedDialogText = [
@@ -232,25 +232,33 @@ void main() {
         );
         expect(emailInvalidMessageFinder, findsNothing);
 
-        // Continue without entering email
-        await tester.tapAndSettle(find.text('Next'));
-        expect(emailInvalidMessageFinder, findsOneWidget);
+        // Button should be disabled
+        final bottomBarPrimaryButtonFinder = find.byKey(const Key('bottom_bar_primary'));
+        expect(tester.widget<CustomButton>(bottomBarPrimaryButtonFinder).onPressed, isNull);
 
-        // Enter false e-mail
-        await tester.enterText(emailInputFinder, 'thisIsNotAnEmail');
-        await tester.tapAndSettle(find.text('Next'));
-        expect(emailInvalidMessageFinder, findsOneWidget);
+        // Enter first part of the email
+        await tester.enterText(emailInputFinder, 'notAnEmail');
 
-        // Enter valid e-mail
+        // Invalid email message should appear
+        expect(emailInvalidMessageFinder, findsNothing);
+
+        // Enter the rest of the email.
         final seed = random.nextInt(1000000).toString();
         await tester.enterText(emailInputFinder, 'test$seed@example.com');
         await tester.testTextInput.receiveAction(TextInputAction.done);
         await tester.pumpAndSettle(const Duration(seconds: 1));
-        await tester.tapAndSettle(find.text('Next'));
+
+        // Button should be enabled
+        expect(tester.widget<CustomButton>(bottomBarPrimaryButtonFinder).onPressed, isNotNull);
+
+        // Error message should be gone
+        expect(emailInvalidMessageFinder, findsNothing);
+
+        await tester.tapAndSettle(bottomBarPrimaryButtonFinder);
 
         // Wait for email sent screen
         await tester.waitFor(find.byKey(const Key('email_sent_screen')));
-        await tester.tapAndSettle(find.text('Next'));
+        await tester.tapAndSettle(bottomBarPrimaryButtonFinder);
 
         // Wait for home screen
         await tester.waitFor(find.byType(HomeScreen));
