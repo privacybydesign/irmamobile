@@ -19,7 +19,7 @@ import '../../irma_binding.dart';
 import '../../util.dart';
 
 Future<void> specificAttributeValuesTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
-  const defaultTextColor = Color(0xff454545);
+  const defaultTextColor = Color(0xff757375);
   const successColor = Color(0xff33ad38);
   const errorColor = Color(0xffbd1919);
 
