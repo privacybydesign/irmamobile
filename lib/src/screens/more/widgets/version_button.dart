@@ -71,6 +71,7 @@ class VersionButton extends StatelessWidget {
                       }
                       return TranslatedText(
                         'more_tab.app_id',
+                        style: theme.textTheme.headline6,
                         translationParams: {
                           'id': appId ?? '',
                         },
@@ -79,13 +80,12 @@ class VersionButton extends StatelessWidget {
                   ),
                   FutureBuilder<PackageInfo>(
                     future: PackageInfo.fromPlatform(),
-                    builder: (BuildContext context, AsyncSnapshot<PackageInfo> info) => TranslatedText(
-                      'more_tab.version',
-                      translationParams: {
-                        'version': _buildVersionString(info),
-                      },
-                      style: theme.textTheme.bodyText2,
-                    ),
+                    builder: (BuildContext context, AsyncSnapshot<PackageInfo> info) =>
+                        TranslatedText('more_tab.version',
+                            translationParams: {
+                              'version': _buildVersionString(info),
+                            },
+                            style: theme.textTheme.headline6),
                   ),
                 ],
               ),
