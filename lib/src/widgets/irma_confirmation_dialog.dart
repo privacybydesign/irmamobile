@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../theme/theme.dart';
-import 'custom_button.dart';
+import 'yivi_themed_button.dart';
 import 'irma_dialog.dart';
 
 class IrmaConfirmationDialog extends StatelessWidget {
@@ -24,18 +24,18 @@ class IrmaConfirmationDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    final confirmButton = CustomButton(
+    final confirmButton = YiviThemedButton(
       key: const Key('dialog_confirm_button'),
       onPressed: () => Navigator.of(context).pop(true),
       label: confirmTranslationKey ?? 'ui.confirm',
-      style: !nudgeCancel ? CustomButtonStyle.fancy : CustomButtonStyle.outlined,
+      style: !nudgeCancel ? YiviButtonStyle.fancy : YiviButtonStyle.outlined,
     );
 
-    final cancelButton = CustomButton(
+    final cancelButton = YiviThemedButton(
       key: const Key('dialog_cancel_button'),
       onPressed: () => Navigator.of(context).pop(false),
       label: cancelTranslationKey ?? 'ui.cancel',
-      style: nudgeCancel ? CustomButtonStyle.fancy : CustomButtonStyle.outlined,
+      style: nudgeCancel ? YiviButtonStyle.fancy : YiviButtonStyle.outlined,
     );
 
     final spacerWidget = SizedBox(

@@ -4,24 +4,34 @@ import 'package:flutter_svg/svg.dart';
 import '../theme/theme.dart';
 import 'translated_text.dart';
 
-enum CustomButtonStyle {
+enum YiviButtonStyle {
   fancy,
   outlined,
   filled,
 }
 
-class CustomButton extends StatelessWidget {
+class YiviButtonSize {
+  final double _value;
+  const YiviButtonSize._internal(this._value);
+  double get value => _value;
+
+  static const large = YiviButtonSize._internal(55);
+  static const medium = YiviButtonSize._internal(50);
+  static const small = YiviButtonSize._internal(45);
+}
+
+class YiviThemedButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
-  final CustomButtonStyle style;
-  final CustomButtonSize size;
+  final YiviButtonStyle style;
+  final YiviButtonSize size;
 
-  const CustomButton({
+  const YiviThemedButton({
     Key? key,
     required this.label,
     this.onPressed,
-    this.style = CustomButtonStyle.fancy,
-    this.size = CustomButtonSize.medium,
+    this.style = YiviButtonStyle.fancy,
+    this.size = YiviButtonSize.medium,
   }) : super(key: key);
 
   Widget _buildFancyButton(Widget child) => Stack(
@@ -58,7 +68,7 @@ class CustomButton extends StatelessWidget {
       child: TranslatedText(
         label,
         style: theme.textTheme.button!.copyWith(
-          color: style == CustomButtonStyle.outlined ? theme.neutralExtraDark : theme.light,
+          color: style == YiviButtonStyle.outlined ? theme.neutralExtraDark : theme.light,
         ),
       ),
     );
@@ -67,14 +77,14 @@ class CustomButton extends StatelessWidget {
       height: size.value,
       child: ClipRRect(
         borderRadius: borderRadius,
-        child: style == CustomButtonStyle.fancy
+        child: style == YiviButtonStyle.fancy
             ? _buildFancyButton(centeredTextWidget)
             : Material(
                 child: InkWell(
                   onTap: onPressed,
                   child: Ink(
                     child: centeredTextWidget,
-                    decoration: style == CustomButtonStyle.filled
+                    decoration: style == YiviButtonStyle.filled
                         // Filled button
                         ? BoxDecoration(
                             color: theme.neutralDark,
@@ -109,14 +119,4 @@ class CustomButton extends StatelessWidget {
 
     return buttonWidget;
   }
-}
-
-class CustomButtonSize {
-  final double _value;
-  const CustomButtonSize._internal(this._value);
-  double get value => _value;
-
-  static const large = CustomButtonSize._internal(54);
-  static const medium = CustomButtonSize._internal(50);
-  static const small = CustomButtonSize._internal(55);
 }
