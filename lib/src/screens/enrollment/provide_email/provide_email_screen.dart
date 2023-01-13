@@ -28,7 +28,7 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
   final _emailFormKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
 
-  bool emailFormIsValid = false;
+  bool _emailFormIsValid = false;
 
   @override
   void initState() {
@@ -81,7 +81,7 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
               child: Form(
                 key: _emailFormKey,
                 onChanged: () => setState(
-                  () => emailFormIsValid = _emailFormKey.currentState!.validate(),
+                  () => _emailFormIsValid = _emailFormKey.currentState!.validate(),
                 ),
                 child: Column(
                   children: [
@@ -107,7 +107,7 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
                       IrmaBottomBar(
                         alignment: isLandscape ? IrmaBottomBarAlignment.horizontal : IrmaBottomBarAlignment.vertical,
                         primaryButtonLabel: 'ui.next',
-                        onPrimaryPressed: emailFormIsValid ? _onContinuePressed : null,
+                        onPrimaryPressed: _emailFormIsValid ? _onContinuePressed : null,
                         secondaryButtonLabel: 'ui.skip',
                         onSecondaryPressed: _onSkipPressed,
                       )
