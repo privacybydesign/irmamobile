@@ -127,6 +127,9 @@ flutter:
         weight: 700
       - asset: fonts/open-sans/OpenSans-ExtraBold.ttf
         weight: 800
+    - family: IrmaIcons
+      fonts:
+        - asset: fonts/irma-icons/IrmaIcons.ttf
 
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
