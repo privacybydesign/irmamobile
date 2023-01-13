@@ -56,6 +56,37 @@ class YiviThemedButton extends StatelessWidget {
         ],
       );
 
+  Widget _buildNormalButton(
+    Widget child,
+    IrmaThemeData theme,
+    BorderRadiusGeometry borderRadius,
+  ) {
+    return Material(
+      child: InkWell(
+        onTap: onPressed,
+        child: Ink(
+          child: child,
+          decoration: style == YiviButtonStyle.filled
+              // Filled button
+              ? BoxDecoration(
+                  color: theme.neutralDark,
+                  borderRadius: borderRadius,
+                )
+              // Outlined button
+              : BoxDecoration(
+                  color: theme.light,
+                  borderRadius: borderRadius,
+                  border: Border.all(
+                    width: 1.7,
+                    style: BorderStyle.solid,
+                    color: theme.neutralExtraDark,
+                  ),
+                ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
@@ -79,29 +110,10 @@ class YiviThemedButton extends StatelessWidget {
         borderRadius: borderRadius,
         child: style == YiviButtonStyle.fancy
             ? _buildFancyButton(centeredTextWidget)
-            : Material(
-                child: InkWell(
-                  onTap: onPressed,
-                  child: Ink(
-                    child: centeredTextWidget,
-                    decoration: style == YiviButtonStyle.filled
-                        // Filled button
-                        ? BoxDecoration(
-                            color: theme.neutralDark,
-                            borderRadius: borderRadius,
-                          )
-                        // Outlined button
-                        : BoxDecoration(
-                            color: theme.light,
-                            borderRadius: borderRadius,
-                            border: Border.all(
-                              width: 1.7,
-                              style: BorderStyle.solid,
-                              color: theme.neutralExtraDark,
-                            ),
-                          ),
-                  ),
-                ),
+            : _buildNormalButton(
+                centeredTextWidget,
+                theme,
+                borderRadius,
               ),
       ),
     );
