@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:irmamobile/src/screens/home/home_screen.dart';
-import 'package:irmamobile/src/widgets/custom_button.dart';
+import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 
 import '../../helpers/helpers.dart';
@@ -49,10 +49,10 @@ Future<void> revocationTest(WidgetTester tester, IntegrationTestIrmaBinding irma
 
   expect(
     tester
-        .widget<CustomButton>(
+        .widget<YiviThemedButton>(
           find.ancestor(
             of: find.text('Share data'),
-            matching: find.byType(CustomButton),
+            matching: find.byType(YiviThemedButton),
           ),
         )
         .onPressed,

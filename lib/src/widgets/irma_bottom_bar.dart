@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/theme.dart';
-import 'custom_button.dart';
+import 'yivi_themed_button.dart';
 import 'irma_bottom_bar_base.dart';
 
 enum IrmaBottomBarAlignment {
@@ -34,7 +34,7 @@ class IrmaBottomBar extends StatelessWidget {
           padding: EdgeInsets.symmetric(
             vertical: IrmaTheme.of(context).tinySpacing,
           ),
-          child: CustomButton(
+          child: YiviThemedButton(
             key: const Key('bottom_bar_primary'),
             onPressed: onPrimaryPressed,
             label: primaryButtonLabel!,
@@ -44,11 +44,11 @@ class IrmaBottomBar extends StatelessWidget {
 
   Widget _buildSecondaryButton(BuildContext context) {
     return Expanded(
-      child: CustomButton(
+      child: YiviThemedButton(
         key: const Key('bottom_bar_secondary'),
         onPressed: onSecondaryPressed,
         label: secondaryButtonLabel!,
-        style: CustomButtonStyle.outlined,
+        style: YiviButtonStyle.outlined,
       ),
     );
   }

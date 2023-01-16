@@ -15,7 +15,7 @@ import 'package:irmamobile/src/screens/enrollment/confirm_pin/confirm_pin_screen
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/enrollment_instruction.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
-import 'package:irmamobile/src/widgets/custom_button.dart';
+import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
 
 import 'helpers/helpers.dart';
@@ -173,7 +173,7 @@ void main() {
         expect(find.byType(AcceptTermsScreen), findsOneWidget);
 
         // Next button should be disabled by default
-        expect(tester.widget<CustomButton>(nextButtonFinder).onPressed, isNull);
+        expect(tester.widget<YiviThemedButton>(nextButtonFinder).onPressed, isNull);
 
         // Tap checkbox
         final checkBoxFinder = find.byKey(const Key('accept_terms_checkbox'));
@@ -181,7 +181,7 @@ void main() {
         await tester.tapAndSettle(checkBoxFinder);
 
         // Next button should be enabled now
-        expect(tester.widget<CustomButton>(nextButtonFinder).onPressed, isNotNull);
+        expect(tester.widget<YiviThemedButton>(nextButtonFinder).onPressed, isNotNull);
 
         // Continue to next page
         await tester.tapAndSettle(nextButtonFinder);
@@ -234,7 +234,7 @@ void main() {
 
         // Button should be disabled
         final bottomBarPrimaryButtonFinder = find.byKey(const Key('bottom_bar_primary'));
-        expect(tester.widget<CustomButton>(bottomBarPrimaryButtonFinder).onPressed, isNull);
+        expect(tester.widget<YiviThemedButton>(bottomBarPrimaryButtonFinder).onPressed, isNull);
 
         // Enter first part of the email
         await tester.enterText(emailInputFinder, 'notAnEmail');
@@ -249,7 +249,7 @@ void main() {
         await tester.pumpAndSettle(const Duration(seconds: 1));
 
         // Button should be enabled
-        expect(tester.widget<CustomButton>(bottomBarPrimaryButtonFinder).onPressed, isNotNull);
+        expect(tester.widget<YiviThemedButton>(bottomBarPrimaryButtonFinder).onPressed, isNotNull);
 
         // Error message should be gone
         expect(emailInvalidMessageFinder, findsNothing);

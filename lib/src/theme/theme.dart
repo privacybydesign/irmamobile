@@ -19,7 +19,7 @@ class IrmaThemeData {
 
   // Background / contrast colors
   Color get backgroundPrimary => light; //Used on scaffolds
-  final Color backgroundSecondary = const Color(0xFFF7F5F3);
+  final Color backgroundSecondary = const Color(0xFFFAFAFA);
   Color backgroundTertiary = const Color(0xFFEAF3F9);
 
   Color get surfacePrimary => light; // Used on cards etc, to contrast with the background

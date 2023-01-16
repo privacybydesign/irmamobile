@@ -24,6 +24,8 @@ type IrmaMobileBridge interface {
 	DebugLog(message string)
 }
 
+type Signer irmaclient.Signer
+
 var bridge IrmaMobileBridge
 var client *irmaclient.Client
 var appDataVersion = "v2"
@@ -56,7 +58,7 @@ func (p writer) Write(b []byte) (int, error) {
 }
 
 // Start is invoked from the native side, when the app starts
-func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, aesKey []byte) {
+func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, signer Signer, aesKey []byte) {
 	defer recoverFromPanic("Starting of bridge panicked")
 
 	// Copy the byte slice to a byte array. This enforces the correct key size and prevents that the
@@ -147,7 +149,7 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 
 	// Initialize the client
 	configurationPath := filepath.Join(assetsPath, "irma_configuration")
-	client, err = irmaclient.New(appVersionDataPath, configurationPath, bridgeClientHandler, aesKeyCopy)
+	client, err = irmaclient.New(appVersionDataPath, configurationPath, bridgeClientHandler, signer, aesKeyCopy)
 	if err != nil {
 		clientErr = errors.WrapPrefix(err, "Cannot initialize client", 0)
 		return
