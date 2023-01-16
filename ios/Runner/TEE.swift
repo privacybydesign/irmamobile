@@ -8,26 +8,39 @@ enum TEEError: Error {
     case keyNotFound
 }
 // Trusted Execution Environment (TEE) class
-public class TEE {
+public class TEE : NSObject, IrmagobridgeSignerProtocol {
     final let encryptionAlgorithm: SecKeyAlgorithm = .eciesEncryptionCofactorVariableIVX963SHA256AESGCM
-    let tag: Data
-    var key: SecKey?
 
-    init(_ name: String) throws {
-        tag = name.data(using: .utf8)!
-
-        if (!keyExists()) {
-            try generateKey()
+    public func sign(_ keyAlias: String?, msg msg: Data?) throws -> Data {
+        guard let key = tryLoadKey(keyAlias!) else {
+            throw TEEError.keyNotFound
         }
 
-        key = try getKey()
+        var error: Unmanaged<CFError>?
+        let signature = SecKeyCreateSignature(key, .ecdsaSignatureMessageX962SHA256, msg! as CFData, &error) as Data?
+        guard signature != nil else {
+            throw error!.takeRetainedValue() as Error
+        }
+        return signature!
     }
 
-    func encrypt(_ plaintext: Data) throws -> Data {
-        var error: Unmanaged<CFError>?
-        let key: SecKey = try getKey()
+    public func publicKey(_ keyAlias: String?) throws -> Data {
+        var privateKey = tryLoadKey(keyAlias!)
+        if privateKey == nil {
+            privateKey = try generateKey(keyAlias!)
+        }
+        return try keyToData(SecKeyCopyPublicKey(privateKey!)!)
+    }
 
-        guard let pk = SecKeyCopyPublicKey(key) else {
+    func encrypt(_ tag: String, _ plaintext: Data) throws -> Data {
+        var key = tryLoadKey(tag)
+        if key == nil {
+            key = try generateKey(tag)
+        }
+
+        var error: Unmanaged<CFError>?
+        
+        guard let pk = SecKeyCopyPublicKey(key!) else {
             throw TEEError.unavailablePublicKey
         }
 
@@ -45,10 +58,10 @@ public class TEE {
         return ciphertext
     }
 
-    func decrypt(_ ciphertext: Data) throws -> Data {
+    func decrypt(_ tag: String, _ ciphertext: Data) throws -> Data {
         var error: Unmanaged<CFError>?
 
-        let key: SecKey = try getKey()
+        let key: SecKey = try getKey(tag)
 
         guard SecKeyIsAlgorithmSupported(key, .decrypt, encryptionAlgorithm) else {
             throw TEEError.unsupportedAlgorithm
@@ -64,14 +77,31 @@ public class TEE {
         return plaintext
     }
 
-    private func keyExists() -> Bool {
-        return tryLoadKey() != nil
+    private func keyToData(_ pk: SecKey) throws -> Data {
+        var error: Unmanaged<CFError>?
+        guard let pkdata = SecKeyCopyExternalRepresentation(pk, &error) as Data? else {
+            throw error!.takeRetainedValue() as Error
+        }
+
+        // We want to return a key in PKIX, ASN.1 DER form, but SecKeyCopyExternalRepresentation
+        // returns the coordinates X and Y of the public key as follows: 04 || X || Y. We convert
+        // that to a valid PKIX key by prepending the SPKI of secp256r1 in DER format.
+        // Based on https://stackoverflow.com/a/45188232.
+        let secp256r1Header = Data([
+            0x30, 0x59, 0x30, 0x13, 0x06, 0x07, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x02, 0x01,
+            0x06, 0x08, 0x2a, 0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07, 0x03, 0x42, 0x00
+        ])
+        return secp256r1Header + pkdata
     }
 
-    private func tryLoadKey() -> SecKey? {
+    private func keyExists(_ tag: String) -> Bool {
+        return tryLoadKey(tag) != nil
+    }
+    
+    private func tryLoadKey(_ tag: String) -> SecKey? {
         let query: [String: Any] = [
             kSecClass as String                 : kSecClassKey,
-            kSecAttrApplicationTag as String    : tag,
+            kSecAttrApplicationTag as String    : tag.data(using: .utf8)!,
             kSecAttrKeyType as String           : kSecAttrKeyTypeEC,
             kSecReturnRef as String             : true
         ]
@@ -83,7 +113,7 @@ public class TEE {
         return (item as! SecKey)
     }
 
-    private func generateKey() throws {
+    private func generateKey(_ tag: String) throws -> SecKey {
         var error: Unmanaged<CFError>?
 
         guard let access = SecAccessControlCreateWithFlags(
@@ -101,31 +131,31 @@ public class TEE {
                     kSecAttrKeySizeInBits as String     : 256,
                     kSecPrivateKeyAttrs as String : [
                         kSecAttrIsPermanent as String       : true,
-                        kSecAttrApplicationTag as String    : tag,
+                        kSecAttrApplicationTag as String    : tag.data(using: .utf8)!,
                         kSecAttrAccessControl as String     : access
                     ]
                 ]
 
         // Try to generate key in Secure Enclave. If it succeeds, we return.
         // Otherwise, we continue to look for a fallback.
-        guard SecKeyCreateRandomKey(attributes as CFDictionary, &error) == nil else {
-            return
-        }
-
-        let retainedError = error!.takeRetainedValue() as CFError
-        if CFErrorGetCode(retainedError) == errSecUnimplemented {
+        guard let key = SecKeyCreateRandomKey(attributes as CFDictionary, &error) else {
+            let retainedError = error!.takeRetainedValue() as CFError
+            if CFErrorGetCode(retainedError) != errSecUnimplemented {
+                throw retainedError
+            }
             // Secure Enclave is not available. Falling back to a key stored in the iOS keychain.
             attributes.removeValue(forKey: kSecAttrTokenID as String)
-            guard SecKeyCreateRandomKey(attributes as CFDictionary, &error) != nil else {
+            guard let key = SecKeyCreateRandomKey(attributes as CFDictionary, &error) else {
                 throw error!.takeRetainedValue() as CFError
             }
-        } else {
-            throw retainedError
+            return key
         }
+
+        return key
     }
 
-    private func getKey() throws -> SecKey {
-        guard let key = tryLoadKey() else {
+    private func getKey(_ tag: String) throws -> SecKey {
+        guard let key = tryLoadKey(tag) else {
             throw TEEError.keyNotFound
         }
         return key
