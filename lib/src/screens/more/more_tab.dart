@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-
 import '../../theme/irma_icons.dart';
 import '../../theme/theme.dart';
 import '../../widgets/irma_repository_provider.dart';
@@ -72,7 +71,6 @@ class MoreTab extends StatelessWidget {
             ],
           ),
           _buildHeaderText('more_tab.slogan'),
-
           const GroupedLinks(
             children: [
               ShareLinkTile(
@@ -87,11 +85,7 @@ class MoreTab extends StatelessWidget {
               ),
             ],
           ),
-
-    
- 
           _buildHeaderText('more_tab.stay_informed'),
-
           const GroupedLinks(children: [
             ExternalLinkTile(
               iconData: Icons.groups_outlined,
@@ -109,7 +103,6 @@ class MoreTab extends StatelessWidget {
               urlLinkKey: 'more_tab.github_link',
             )
           ]),
-
           Padding(
             padding: EdgeInsets.all(theme.defaultSpacing),
             child: YiviThemedButton(
