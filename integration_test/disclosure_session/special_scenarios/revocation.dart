@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:irmamobile/src/screens/home/home_screen.dart';
+import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
 
 import '../../helpers/helpers.dart';
@@ -46,11 +46,17 @@ Future<void> revocationTest(WidgetTester tester, IntegrationTestIrmaBinding irma
   expect(find.text('Demo MijnOverheid.nl'), findsOneWidget);
   expect(find.text('12345'), findsOneWidget);
   expect(find.text('Revoked'), findsOneWidget);
+
   expect(
     tester
-        .widget<ElevatedButton>(find.ancestor(of: find.text('Share data'), matching: find.byType(ElevatedButton)))
-        .enabled,
-    false,
+        .widget<YiviThemedButton>(
+          find.ancestor(
+            of: find.text('Share data'),
+            matching: find.byType(YiviThemedButton),
+          ),
+        )
+        .onPressed,
+    isNull,
   );
 
   await issueCredentials(

@@ -13,6 +13,7 @@ import '../..//util/tablet.dart';
 import '../../theme/theme.dart';
 import '../../util/haptics.dart';
 import '../../util/scale.dart';
+import '../../widgets/yivi_themed_button.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/link.dart';
 import '../../widgets/yivi_bottom_sheet.dart';
@@ -128,29 +129,12 @@ class YiviPinScreen extends StatelessWidget {
         );
 
     Widget activateNext(bool activate, WidgetVisibility visibility) {
-      final button = ElevatedButton(
-        key: const Key('pin_next'),
-        style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.resolveWith<Color>(
-            (Set<MaterialState> states) {
-              final secondary = theme.secondary;
-              if (states.contains(MaterialState.pressed)) {
-                return secondary.withOpacity(0.8);
-              } else if (states.contains(MaterialState.disabled)) {
-                return secondary.withOpacity(0.5);
-              }
-              return secondary;
-            },
-          ),
-          minimumSize: MaterialStateProperty.resolveWith<Size>((s) => const Size.fromHeight(_nextButtonHeight)),
-          shape: MaterialStateProperty.resolveWith<OutlinedBorder>(
-            (s) => RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-          ),
-        ),
-        onPressed: activate && enabled ? () => onSubmit(pinBloc.state.toString()) : null,
-        child: Text(
-          FlutterI18n.translate(context, 'choose_pin.next'),
-          style: theme.textTheme.button?.copyWith(fontWeight: FontWeight.w700),
+      final button = SizedBox(
+        height: _nextButtonHeight,
+        child: YiviThemedButton(
+          key: const Key('pin_next'),
+          label: 'choose_pin.next',
+          onPressed: activate && enabled ? () => onSubmit(pinBloc.state.toString()) : null,
         ),
       );
 
@@ -176,7 +160,7 @@ class YiviPinScreen extends StatelessWidget {
     Widget pinVisibility = ValueListenableBuilder<bool>(
       valueListenable: pinVisibilityValue,
       builder: (context, visible, _) => pinVisibilityButton(
-        visible ? Icons.visibility_off : Icons.visibility,
+        visible ? Icons.visibility_off_outlined : Icons.visibility_outlined,
         'pin_accessibility.${visible ? 'hide' : 'show'}_pin',
         () => pinVisibilityValue.value = !visible,
       ),
@@ -186,7 +170,7 @@ class YiviPinScreen extends StatelessWidget {
       child: Text(
         instruction ?? FlutterI18n.translate(context, instructionKey!),
         textAlign: TextAlign.center,
-        style: theme.textTheme.headline3?.copyWith(fontWeight: FontWeight.w700),
+        style: theme.textTheme.headline3,
       ),
     );
 
@@ -223,7 +207,7 @@ class YiviPinScreen extends StatelessWidget {
               children: [
                 Divider(
                   height: 1.0,
-                  color: theme.darkPurple,
+                  color: theme.secondary,
                 ),
                 if (displayPinLength)
                   Align(
@@ -234,7 +218,7 @@ class YiviPinScreen extends StatelessWidget {
                         '${state.pin.length}/$maxPinSize',
                         style: theme.textTheme.caption?.copyWith(
                             fontWeight: FontWeight.w300,
-                            color: state.pin.isNotEmpty ? theme.darkPurple : Colors.transparent),
+                            color: state.pin.isNotEmpty ? theme.secondary : Colors.transparent),
                       ),
                     ),
                   )

@@ -24,7 +24,7 @@ class SessionScaffold extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return Scaffold(
-      backgroundColor: theme.background,
+      backgroundColor: theme.backgroundPrimary,
       bottomNavigationBar: bottomNavigationBar,
       body: body,
       appBar: IrmaAppBar(

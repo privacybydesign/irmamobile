@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../theme/theme.dart';
+import 'irma_icon_button.dart';
 import 'translated_text.dart';
 
 class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -13,6 +13,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? leadingTooltip;
   final List<Widget> actions;
   final bool noLeading;
+  final bool hasBorder;
 
   const IrmaAppBar({
     this.titleTranslationKey,
@@ -23,6 +24,7 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.leadingCancel,
     this.noLeading = false,
     this.actions = const [],
+    this.hasBorder = true,
   }) : assert((titleTranslationKey == null && title != null) || title == null && titleTranslationKey != null);
 
   @override
@@ -30,37 +32,31 @@ class IrmaAppBar extends StatelessWidget implements PreferredSizeWidget {
     final theme = IrmaTheme.of(context);
 
     return AppBar(
-      backgroundColor: theme.themeData.colorScheme.background,
       key: const Key('irma_app_bar'),
+      backgroundColor: theme.light,
+      shape: hasBorder
+          ? Border(
+              bottom: BorderSide(
+                color: theme.tertiary,
+              ),
+            )
+          : null,
       centerTitle: true,
       leading: noLeading
           ? null
-          : Padding(
-              padding: const EdgeInsets.all(12),
-              child: CircleAvatar(
-                backgroundColor: Colors.grey.shade300,
-                child: IconButton(
-                  key: const Key('irma_app_bar_leading'),
-                  icon: leadingIcon ??
-                      Icon(
-                        Icons.arrow_back_ios_new,
-                        semanticLabel: FlutterI18n.translate(context, 'accessibility.back'),
-                        size: 16.0,
-                        color: Colors.grey.shade800,
-                      ),
-                  tooltip: leadingTooltip,
-                  onPressed: () {
-                    if (leadingCancel != null) {
-                      leadingCancel!();
-                    }
-                    if (leadingAction == null) {
-                      Navigator.of(context).pop();
-                    } else {
-                      leadingAction!();
-                    }
-                  },
-                ),
-              ),
+          : IrmaIconButton(
+              key: const Key('irma_app_bar_leading'),
+              icon: Icons.arrow_back_sharp,
+              onTap: () {
+                if (leadingCancel != null) {
+                  leadingCancel!();
+                }
+                if (leadingAction == null) {
+                  Navigator.of(context).pop();
+                } else {
+                  leadingAction!();
+                }
+              },
             ),
       title: TranslatedText(
         titleTranslationKey ?? (title ?? ''),

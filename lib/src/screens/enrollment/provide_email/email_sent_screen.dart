@@ -20,11 +20,17 @@ class EmailSentScreen extends StatelessWidget {
     required this.onContinue,
   }) : super(key: key);
 
+  _navigateToHome(BuildContext context) => Navigator.of(
+        context,
+        rootNavigator: true,
+      ).pushReplacementNamed(HomeScreen.routeName);
+
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
     return Scaffold(
+      backgroundColor: theme.backgroundSecondary,
       key: const Key('email_sent_screen'),
       appBar: const IrmaAppBar(
         titleTranslationKey: 'enrollment.email.confirm.title',
@@ -32,14 +38,11 @@ class EmailSentScreen extends StatelessWidget {
       ),
       bottomNavigationBar: IrmaBottomBar(
         primaryButtonLabel: FlutterI18n.translate(context, 'ui.next'),
-        onPrimaryPressed: () => Navigator.of(
-          context,
-          rootNavigator: true,
-        ).pushReplacementNamed(HomeScreen.routeName),
+        onPrimaryPressed: () => _navigateToHome(context),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
+          padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing, vertical: theme.defaultSpacing),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

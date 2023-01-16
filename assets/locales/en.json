@@ -242,7 +242,8 @@
         "explanation": "An e-mail address allows you to remotely disable your Yivi app, in case your mobile has been lost or stolen",
         "input": {
           "label": "E-mail address",
-          "invalid": "Please check your e-mail address, this doesn't seem to be a valid e-mail address"
+          "hint": "Fill in",
+          "invalid": "Invalid e-mail address"
         },
         "confirm_skip_dialog": {
           "title": "Are you sure?",

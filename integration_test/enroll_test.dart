@@ -15,7 +15,7 @@ import 'package:irmamobile/src/screens/enrollment/confirm_pin/confirm_pin_screen
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/enrollment_instruction.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
-import 'package:irmamobile/src/widgets/irma_button.dart';
+import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
 
 import 'helpers/helpers.dart';
@@ -109,12 +109,7 @@ void main() {
           // Evaluate the content
           final instructionFinder = find.byType(EnrollmentInstruction);
           final actualCurrentInstructionTexts = tester.getAllText(instructionFinder);
-          final expectedCurrentInstructionTexts = [
-            '${(i + 1).toString()}/${expectedInstructions.length}',
-            ...expectedInstructions[i],
-            if (i != 0) 'Previous',
-            'Next'
-          ];
+          final expectedCurrentInstructionTexts = [...expectedInstructions[i], if (i != 0) 'Previous', 'Next'];
           expect(actualCurrentInstructionTexts, expectedCurrentInstructionTexts);
 
           // Go Next step
@@ -133,20 +128,20 @@ void main() {
       await _goThroughIntroduction(tester);
       await _goThroughTerms(tester);
 
-      //Choose the pin
+      // Choose the pin
       expect(find.byType(ChoosePinScreen), findsOneWidget);
       const pin = '12345';
       await enterPin(tester, pin);
       await tester.tapAndSettle(find.text('Next'));
 
-      //Confirm pin
+      // Confirm pin
       expect(find.byType(ConfirmPinScreen), findsOneWidget);
 
       // Enter false pin
       const falsePin = '54321';
       await enterPin(tester, falsePin);
 
-      //Expect false pin dialog
+      // Expect false pin dialog
       var dialogFinder = find.byType(IrmaDialog);
       expect(dialogFinder, findsOneWidget);
       var expectedDialogText = [
@@ -178,7 +173,7 @@ void main() {
         expect(find.byType(AcceptTermsScreen), findsOneWidget);
 
         // Next button should be disabled by default
-        expect(tester.widget<IrmaButton>(nextButtonFinder).onPressed, isNull);
+        expect(tester.widget<YiviThemedButton>(nextButtonFinder).onPressed, isNull);
 
         // Tap checkbox
         final checkBoxFinder = find.byKey(const Key('accept_terms_checkbox'));
@@ -186,7 +181,7 @@ void main() {
         await tester.tapAndSettle(checkBoxFinder);
 
         // Next button should be enabled now
-        expect(tester.widget<IrmaButton>(nextButtonFinder).onPressed, isNotNull);
+        expect(tester.widget<YiviThemedButton>(nextButtonFinder).onPressed, isNotNull);
 
         // Continue to next page
         await tester.tapAndSettle(nextButtonFinder);
@@ -233,29 +228,37 @@ void main() {
         var emailInputFinder = find.byKey(const Key('email_input_field'));
         var emailInvalidMessageFinder = find.descendant(
           of: emailInputFinder,
-          matching: find.text('Please check your e-mail address, this doesn\'t seem to be a valid e-mail address'),
+          matching: find.text('Invalid e-mail address'),
         );
         expect(emailInvalidMessageFinder, findsNothing);
 
-        // Continue without entering email
-        await tester.tapAndSettle(find.text('Next'));
-        expect(emailInvalidMessageFinder, findsOneWidget);
+        // Button should be disabled
+        final bottomBarPrimaryButtonFinder = find.byKey(const Key('bottom_bar_primary'));
+        expect(tester.widget<YiviThemedButton>(bottomBarPrimaryButtonFinder).onPressed, isNull);
 
-        // Enter false e-mail
-        await tester.enterText(emailInputFinder, 'thisIsNotAnEmail');
-        await tester.tapAndSettle(find.text('Next'));
-        expect(emailInvalidMessageFinder, findsOneWidget);
+        // Enter first part of the email
+        await tester.enterText(emailInputFinder, 'notAnEmail');
 
-        // Enter valid e-mail
+        // Invalid email message should appear
+        expect(emailInvalidMessageFinder, findsNothing);
+
+        // Enter the rest of the email.
         final seed = random.nextInt(1000000).toString();
         await tester.enterText(emailInputFinder, 'test$seed@example.com');
         await tester.testTextInput.receiveAction(TextInputAction.done);
         await tester.pumpAndSettle(const Duration(seconds: 1));
-        await tester.tapAndSettle(find.text('Next'));
+
+        // Button should be enabled
+        expect(tester.widget<YiviThemedButton>(bottomBarPrimaryButtonFinder).onPressed, isNotNull);
+
+        // Error message should be gone
+        expect(emailInvalidMessageFinder, findsNothing);
+
+        await tester.tapAndSettle(bottomBarPrimaryButtonFinder);
 
         // Wait for email sent screen
         await tester.waitFor(find.byKey(const Key('email_sent_screen')));
-        await tester.tapAndSettle(find.text('Next'));
+        await tester.tapAndSettle(bottomBarPrimaryButtonFinder);
 
         // Wait for home screen
         await tester.waitFor(find.byType(HomeScreen));

@@ -29,7 +29,7 @@ class YiviPinScaffold extends StatelessWidget {
 
     return Scaffold(
       appBar: appBar,
-      backgroundColor: theme.background,
+      backgroundColor: theme.backgroundPrimary,
       body: SafeArea(
         child: Container(
           alignment: Alignment.center,

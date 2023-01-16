@@ -14,6 +14,7 @@ class _UnsecurePinFullScreen extends StatelessWidget {
       appBar: IrmaAppBar(
         titleTranslationKey: 'secure_pin.title',
         leadingAction: () => Navigator.of(context).pop(),
+        hasBorder: false,
       ),
       body: ListView(
         padding: const EdgeInsets.all(8),

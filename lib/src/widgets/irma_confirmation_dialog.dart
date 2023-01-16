@@ -1,9 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
-import 'irma_button.dart';
+import '../theme/theme.dart';
+import 'yivi_themed_button.dart';
 import 'irma_dialog.dart';
-import 'irma_themed_button.dart';
 
 class IrmaConfirmationDialog extends StatelessWidget {
   final String titleTranslationKey;
@@ -22,21 +22,35 @@ class IrmaConfirmationDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final confirmButton = IrmaButton(
+    final theme = IrmaTheme.of(context);
+
+    final confirmButton = YiviThemedButton(
       key: const Key('dialog_confirm_button'),
-      size: IrmaButtonSize.small,
       onPressed: () => Navigator.of(context).pop(true),
       label: confirmTranslationKey ?? 'ui.confirm',
-      isSecondary: nudgeCancel,
+      style: !nudgeCancel ? YiviButtonStyle.fancy : YiviButtonStyle.outlined,
     );
 
-    final cancelButton = IrmaButton(
+    final cancelButton = YiviThemedButton(
       key: const Key('dialog_cancel_button'),
-      size: IrmaButtonSize.small,
       onPressed: () => Navigator.of(context).pop(false),
       label: cancelTranslationKey ?? 'ui.cancel',
-      isSecondary: !nudgeCancel,
+      style: nudgeCancel ? YiviButtonStyle.fancy : YiviButtonStyle.outlined,
     );
+
+    final spacerWidget = SizedBox(
+      height: theme.smallSpacing,
+    );
+
+    var buttonWidgets = [
+      confirmButton,
+      spacerWidget,
+      cancelButton,
+    ];
+
+    if (nudgeCancel) {
+      buttonWidgets = buttonWidgets.reversed.toList();
+    }
 
     return IrmaDialog(
       title: FlutterI18n.translate(context, titleTranslationKey),
@@ -45,7 +59,7 @@ class IrmaConfirmationDialog extends StatelessWidget {
         contentTranslationKey,
       ),
       child: Column(
-        children: nudgeCancel ? [cancelButton, confirmButton] : [confirmButton, cancelButton],
+        children: buttonWidgets,
       ),
     );
   }

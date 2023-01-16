@@ -8,24 +8,31 @@ class IrmaIconButton extends StatelessWidget {
   final double size;
 
   const IrmaIconButton({
+    Key? key,
     required this.icon,
     required this.onTap,
-    this.size = 20,
-  }) : assert(size >= 2);
+    this.size = 24,
+  })  : assert(size >= 2),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final borderRadius = BorderRadius.circular(25.0);
 
-    return GestureDetector(
-      onTap: onTap,
-      child: CircleAvatar(
-        backgroundColor: theme.neutralExtraLight,
-        radius: size - 2,
-        child: Icon(
-          icon,
-          size: size,
-          color: theme.neutral,
+    return Padding(
+      padding: const EdgeInsets.all(12),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: borderRadius,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: borderRadius,
+          child: Icon(
+            icon,
+            size: size,
+            color: theme.neutralExtraDark,
+          ),
         ),
       ),
     );
