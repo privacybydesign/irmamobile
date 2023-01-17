@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../../theme/theme.dart';
 
-class EnrollmentProgressIndicatorElement extends StatelessWidget {
+class _EnrollmentProgressIndicatorElement extends StatelessWidget {
   final bool isActive;
 
-  const EnrollmentProgressIndicatorElement({
+  const _EnrollmentProgressIndicatorElement({
     required this.isActive,
   });
 
@@ -41,7 +41,7 @@ class EnrollmentProgressIndicator extends StatelessWidget {
         stepCount,
         (int index) => Padding(
           padding: const EdgeInsets.only(right: 6),
-          child: EnrollmentProgressIndicatorElement(
+          child: _EnrollmentProgressIndicatorElement(
             isActive: index == stepIndex,
           ),
         ),

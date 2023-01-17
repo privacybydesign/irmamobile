@@ -142,6 +142,7 @@ lane :ios_build_app do |options|
   # The 'flutter build ipa' command does not support changing the export method in Flutter 2.
   # Therefore, we use 'flutter build ios' for now with the --no-codesign option
   # and then we use Fastlane's build_ios_app action to sign and export the build.
+  # This work-around causes the lane to get stuck indefinitely sometimes.
   Dir.chdir("..") do
     sh("flutter", "build", "ios", "--release", "--no-codesign")
   end

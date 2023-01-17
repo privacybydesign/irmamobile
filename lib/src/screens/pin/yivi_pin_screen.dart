@@ -13,7 +13,7 @@ import '../..//util/tablet.dart';
 import '../../theme/theme.dart';
 import '../../util/haptics.dart';
 import '../../util/scale.dart';
-import '../../widgets/custom_button.dart';
+import '../../widgets/yivi_themed_button.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/link.dart';
 import '../../widgets/yivi_bottom_sheet.dart';
@@ -131,7 +131,7 @@ class YiviPinScreen extends StatelessWidget {
     Widget activateNext(bool activate, WidgetVisibility visibility) {
       final button = SizedBox(
         height: _nextButtonHeight,
-        child: CustomButton(
+        child: YiviThemedButton(
           key: const Key('pin_next'),
           label: 'choose_pin.next',
           onPressed: activate && enabled ? () => onSubmit(pinBloc.state.toString()) : null,
