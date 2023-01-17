@@ -114,6 +114,7 @@ class InternalLinkTile extends StatelessWidget {
   final String routeName;
 
   const InternalLinkTile({
+    Key? key,
     required this.iconData,
     required this.labelTranslationKey,
     required this.routeName,
@@ -135,10 +136,11 @@ class _LinkTile extends StatelessWidget {
   final Function() onTap;
 
   const _LinkTile({
+    Key? key,
     required this.iconData,
     required this.labelTranslationKey,
     required this.onTap,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

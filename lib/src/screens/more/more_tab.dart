@@ -45,6 +45,7 @@ class MoreTab extends StatelessWidget {
           const LinkTilesCard(
             children: [
               InternalLinkTile(
+                key: Key('open_settings_screen_button'),
                 labelTranslationKey: 'more_tab.settings',
                 iconData: Icons.settings_outlined,
                 routeName: '/settings',
@@ -116,6 +117,7 @@ class MoreTab extends StatelessWidget {
           Padding(
             padding: EdgeInsets.all(theme.defaultSpacing),
             child: YiviThemedButton(
+              key: const Key('log_out_button'),
               style: YiviButtonStyle.filled,
               label: 'more_tab.log_out',
               onPressed: () {
