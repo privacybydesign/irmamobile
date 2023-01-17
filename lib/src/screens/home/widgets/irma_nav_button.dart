@@ -28,6 +28,10 @@ class IrmaNavButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+
+    final activeColor = theme.themeData.colorScheme.primary;
+    final inactiveColor = theme.neutralExtraDark;
+
     return Expanded(
       child: Semantics(
         button: true,
@@ -39,17 +43,15 @@ class IrmaNavButton extends StatelessWidget {
               Icon(
                 iconData,
                 size: 28,
-                color: isSelected ? theme.themeData.colorScheme.secondary : Colors.grey.shade600,
+                color: isSelected ? activeColor : inactiveColor,
               ),
               SizedBox(
                 height: theme.tinySpacing,
               ),
               TranslatedText(
                 _navBarTabTranslationKeys[tab]!,
-                style: theme.themeData.textTheme.caption!.copyWith(
-                  fontSize: 12,
-                  color: isSelected ? theme.themeData.colorScheme.secondary : Colors.grey.shade600,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                style: theme.themeData.textTheme.headline6!.copyWith(
+                  color: isSelected ? activeColor : inactiveColor,
                 ),
               )
             ],
