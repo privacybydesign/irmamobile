@@ -68,7 +68,8 @@ void main() {
 
       // Check enabling developer mode.
       await tester.scrollUntilVisible(find.textContaining('Version'), 100);
-      await tester.drag(find.byType(ListView), const Offset(0, -50)); // To prevent the 'Scan QR' button to overlap.
+      await tester.drag(
+          find.byType(SingleChildScrollView), const Offset(0, -50)); // To prevent the 'Scan QR' button to overlap.
       await tester.pumpAndSettle();
       for (int i = 0; i < 7; i++) {
         await tester.tapAndSettle(find.textContaining('Version'));
