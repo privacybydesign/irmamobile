@@ -8,7 +8,8 @@ import '../../widgets/translated_text.dart';
 import '../../widgets/yivi_themed_button.dart';
 import '../home/widgets/irma_nav_bar.dart';
 
-import 'widgets/grouped_links.dart';
+import 'widgets/link_tiles.dart';
+import 'widgets/link_tiles_card.dart';
 import 'widgets/version_button.dart';
 
 class MoreTab extends StatelessWidget {
@@ -19,6 +20,10 @@ class MoreTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+
+    final spacerWidget = SizedBox(
+      height: theme.defaultSpacing,
+    );
 
     Widget _buildHeaderText(String translationKey) => Padding(
           padding: EdgeInsets.all(theme.defaultSpacing),
@@ -32,11 +37,12 @@ class MoreTab extends StatelessWidget {
         );
 
     return SingleChildScrollView(
+      padding: EdgeInsets.symmetric(horizontal: theme.smallSpacing),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeaderText('more_tab.app_management'),
-          const GroupedLinks(
+          const LinkTilesCard(
             children: [
               InternalLinkTile(
                 labelTranslationKey: 'more_tab.settings',
@@ -56,8 +62,9 @@ class MoreTab extends StatelessWidget {
                 ),
             ],
           ),
+          spacerWidget,
           _buildHeaderText('help.about_irma'),
-          const GroupedLinks(
+          const LinkTilesCard(
             children: [
               ExternalLinkTile(
                 labelTranslationKey: 'more_tab.website',
@@ -66,15 +73,16 @@ class MoreTab extends StatelessWidget {
               ),
               ContactLinkTile(
                 labelTranslationKey: 'more_tab.contact',
-                iconData: Icons.mail_outline,
+                iconData: Icons.mail_outline_rounded,
               )
             ],
           ),
+          spacerWidget,
           _buildHeaderText('more_tab.slogan'),
-          const GroupedLinks(
+          const LinkTilesCard(
             children: [
               ShareLinkTile(
-                iconData: Icons.share,
+                iconData: Icons.share_outlined,
                 labelTranslationKey: 'more_tab.share',
                 shareTextKey: 'more_tab.share_text',
               ),
@@ -85,8 +93,9 @@ class MoreTab extends StatelessWidget {
               ),
             ],
           ),
+          spacerWidget,
           _buildHeaderText('more_tab.stay_informed'),
-          const GroupedLinks(children: [
+          const LinkTilesCard(children: [
             ExternalLinkTile(
               iconData: Icons.groups_outlined,
               labelTranslationKey: 'more_tab.meetups',
@@ -98,11 +107,12 @@ class MoreTab extends StatelessWidget {
               urlLinkKey: 'more_tab.twitter_link',
             ),
             ExternalLinkTile(
-              iconData: IrmaIcons.twitter,
+              iconData: IrmaIcons.github,
               labelTranslationKey: 'more_tab.github',
               urlLinkKey: 'more_tab.github_link',
             )
           ]),
+          spacerWidget,
           Padding(
             padding: EdgeInsets.all(theme.defaultSpacing),
             child: YiviThemedButton(

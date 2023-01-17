@@ -4,8 +4,8 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import '../../theme/theme.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_markdown.dart';
+import '../../widgets/link.dart';
 import '../../widgets/translated_text.dart';
-import '../home/widgets/links.dart';
 import 'widgets/help_item.dart';
 import 'widgets/help_item_carousel.dart';
 
@@ -141,6 +141,7 @@ class _HelpScreenState extends State<HelpScreen> {
             'help.send',
             style: theme.textTheme.bodyText2,
           ),
+          SizedBox(height: theme.smallSpacing),
           ContactLink(
             translationKey: 'help.email',
             textAlign: TextAlign.start,

@@ -2,71 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:share/share.dart';
 
-import '../../../data/irma_repository.dart';
 import '../../../sentry/sentry.dart';
+import '../../../theme/theme.dart';
 import '../../../widgets/irma_button.dart';
 import '../../../widgets/irma_dialog.dart';
+import '../../../widgets/irma_repository_provider.dart';
 import '../../../widgets/irma_themed_button.dart';
 import '../../../widgets/translated_text.dart';
-
-// class LinkTile extends StatelessWidget {
-//   final IconData iconData;
-//   final String labelTranslationKey;
-//   final String? routeName;
-
-//   const LinkTile({
-//     required this.iconData,
-//     required this.labelTranslationKey,
-//      this.routeName,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return ListTile(
-//       onTap: () => Navigator.pushNamed(context, routeName!),
-//       leading: Icon(
-//         iconData,
-//         size: 32,
-//       ),
-//       title: TranslatedText(
-//         labelTranslationKey,
-//       ),
-//       trailing: const Icon(
-//         Icons.chevron_right_rounded,
-//         size: 30,
-//       ),
-//     );
-//   }
-// }
-
-class GroupedLinks extends StatelessWidget {
-  final List<Widget> children;
-
-  const GroupedLinks({
-    required this.children,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          children: [
-            for (var linkTile in children) ...[
-              linkTile,
-              if (children.last != linkTile) const Divider(),
-            ]
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class ContactLinkTile extends StatelessWidget {
   final IconData iconData;
@@ -79,7 +21,7 @@ class ContactLinkTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LinkTile(
+    return _LinkTile(
       iconData: iconData,
       labelTranslationKey: labelTranslationKey,
       onTap: () async {
@@ -87,7 +29,7 @@ class ContactLinkTile extends StatelessWidget {
         final String subject = Uri.encodeComponent(FlutterI18n.translate(context, 'help.mail_subject'));
         final mail = 'mailto:$address?subject=$subject';
         try {
-          await IrmaRepository.get().openURLExternally(mail);
+          await IrmaRepositoryProvider.of(context).openURLExternally(mail);
         } catch (_) {
           showDialog(
             context: context,
@@ -124,7 +66,7 @@ class ShareLinkTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LinkTile(
+    return _LinkTile(
       iconData: iconData,
       labelTranslationKey: labelTranslationKey,
       onTap: () {
@@ -149,12 +91,12 @@ class ExternalLinkTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LinkTile(
+    return _LinkTile(
       iconData: iconData,
       labelTranslationKey: labelTranslationKey,
       onTap: () {
         try {
-          IrmaRepository.get().openURL(
+          IrmaRepositoryProvider.of(context).openURL(
             FlutterI18n.translate(context, urlLinkKey),
           );
         } catch (e, stacktrace) {
@@ -179,7 +121,7 @@ class InternalLinkTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LinkTile(
+    return _LinkTile(
       iconData: iconData,
       labelTranslationKey: labelTranslationKey,
       onTap: () => Navigator.pushNamed(context, routeName),
@@ -187,12 +129,12 @@ class InternalLinkTile extends StatelessWidget {
   }
 }
 
-class LinkTile extends StatelessWidget {
+class _LinkTile extends StatelessWidget {
   final IconData iconData;
   final String labelTranslationKey;
   final Function() onTap;
 
-  const LinkTile({
+  const _LinkTile({
     required this.iconData,
     required this.labelTranslationKey,
     required this.onTap,
@@ -200,18 +142,27 @@ class LinkTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      onTap: onTap,
-      leading: Icon(
-        iconData,
-        size: 32,
-      ),
-      title: TranslatedText(
-        labelTranslationKey,
-      ),
-      trailing: const Icon(
-        Icons.chevron_right_rounded,
-        size: 30,
+    final theme = IrmaTheme.of(context);
+    final iconColor = theme.secondary;
+
+    return Semantics(
+      link: true,
+      child: ListTile(
+        onTap: onTap,
+        minLeadingWidth: theme.mediumSpacing,
+        leading: Icon(
+          iconData,
+          size: 32,
+          color: iconColor,
+        ),
+        title: TranslatedText(
+          labelTranslationKey,
+        ),
+        trailing: Icon(
+          Icons.chevron_right,
+          size: 28,
+          color: iconColor,
+        ),
       ),
     );
   }
