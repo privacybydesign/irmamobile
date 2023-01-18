@@ -366,7 +366,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
           children: <Widget>[
             MaterialApp(
               key: const Key("app"),
-              title: 'IRMA',
+              title: 'Yivi',
               theme: IrmaTheme.of(context).themeData,
               localizationsDelegates: defaultLocalizationsDelegates(),
               supportedLocales: widget.forcedLocale == null ? defaultSupportedLocales() : [widget.forcedLocale],
