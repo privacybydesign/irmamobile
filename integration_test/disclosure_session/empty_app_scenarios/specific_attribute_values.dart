@@ -20,7 +20,7 @@ import '../../util.dart';
 
 Future<void> specificAttributeValuesTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
   const defaultTextColor = Color(0xff757375);
-  const successColor = Color(0xff33ad38);
+  const successColor = Color(0xff00973a);
   const errorColor = Color(0xffbd1919);
 
   await pumpAndUnlockApp(tester, irmaBinding.repository);
