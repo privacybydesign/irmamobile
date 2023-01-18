@@ -116,16 +116,25 @@ class ActivityCard extends StatelessWidget {
                           'date': DateFormat.yMMMMd(lang).format(logEntry.time),
                           'time': DateFormat.jm(lang).format(logEntry.time),
                         },
-                        style: theme.themeData.textTheme.caption!.copyWith(color: theme.neutral),
+                        style: theme.textTheme.bodyText2!.copyWith(
+                          fontSize: 14,
+                          fontFamily: theme.secondaryFontFamily,
+                          color: theme.neutralExtraDark,
+                        ),
                       ),
                       Text(
                         title,
                         overflow: TextOverflow.ellipsis,
-                        style: theme.themeData.textTheme.caption!.copyWith(fontWeight: FontWeight.bold),
+                        style: theme.themeData.textTheme.headline4!.copyWith(
+                          color: theme.dark,
+                        ),
                       ),
                       TranslatedText(
                         subtitleTranslationKey,
-                        style: theme.themeData.textTheme.caption,
+                        style: theme.themeData.textTheme.bodyText2!.copyWith(
+                          fontSize: 14,
+                          color: theme.dark,
+                        ),
                       )
                     ],
                   ),

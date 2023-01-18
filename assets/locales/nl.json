@@ -541,7 +541,8 @@
     "skip": "Overslaan",
     "continue": "Doorgaan",
     "retry": "Opnieuw proberen",
-    "error": "Er is iets misgegaan"
+    "error": "Er is iets misgegaan",
+    "end_of_list" : "Je bent aan het einde van de lijst gekomen"
   },
   "update": {
     "title": "Update beschikbaar",

@@ -541,7 +541,8 @@
     "skip": "Skip",
     "continue": "Continue",
     "retry": "Try again",
-    "error": "Something went wrong"
+    "error": "Something went wrong",
+    "end_of_list": "You have reached the end of the list"
   },
   "update": {
     "title": "Update available",

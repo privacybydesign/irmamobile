@@ -4,9 +4,11 @@ import '../theme/theme.dart';
 
 class IrmaDivider extends StatelessWidget {
   final bool isDisabled;
+  final Color? color;
 
   const IrmaDivider({
     this.isDisabled = false,
+    this.color,
   });
 
   @override
@@ -18,7 +20,7 @@ class IrmaDivider extends StatelessWidget {
       child: Container(
         height: 1,
         decoration: BoxDecoration(
-          color: isDisabled ? theme.light : theme.neutralExtraLight,
+          color: color ?? (isDisabled ? theme.light : theme.neutralExtraLight),
         ),
       ),
     );

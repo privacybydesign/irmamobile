@@ -14,7 +14,7 @@ class IrmaThemeData {
 
   // Main colors
   final Color primary = const Color(0xFFBA3354);
-  final Color secondary = const Color(0xFF484747); // Used for buttons and headlines
+  Color get secondary => neutralExtraDark; // Used for buttons and headlines
   final Color tertiary = const Color(0xFFCFE4EF);
 
   // Background / contrast colors
@@ -37,7 +37,7 @@ class IrmaThemeData {
   // Communicating colors
   final Color error = const Color(0xFFBD1919);
   final Color warning = const Color(0xFFEBA73B);
-  final Color success = const Color(0xFF33AD38);
+  final Color success = const Color(0xFF00973A);
   final Color link = const Color(0xFF1D4E89);
 
   //Fonts
@@ -105,6 +105,7 @@ class IrmaThemeData {
       headline4: TextStyle(
         fontFamily: primaryFontFamily,
         fontSize: 16.0,
+        height: 24 / 16,
         fontWeight: FontWeight.w600,
         color: neutralExtraDark,
       ),
@@ -123,7 +124,11 @@ class IrmaThemeData {
         color: neutralExtraDark,
       ),
       // bodyText1 is used for emphasizing text
-      bodyText1: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold, color: dark),
+      bodyText1: TextStyle(
+        fontSize: 16.0,
+        fontWeight: FontWeight.bold,
+        color: dark,
+      ),
       // bodyText2 is the default text style
       bodyText2: TextStyle(
         fontFamily: secondaryFontFamily,

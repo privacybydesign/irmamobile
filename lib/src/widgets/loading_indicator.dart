@@ -6,6 +6,6 @@ class LoadingIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) => CircularProgressIndicator(
         color: IrmaTheme.of(context).secondary,
-        strokeWidth: 5,
+        strokeWidth: 3.5,
       );
 }
