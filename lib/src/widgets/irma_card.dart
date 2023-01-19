@@ -37,7 +37,7 @@ class IrmaCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final borderRadius = BorderRadius.circular(4);
+    final borderRadius = BorderRadius.circular(8);
     final shadow = [
       BoxShadow(
         color: Colors.grey.shade300,
