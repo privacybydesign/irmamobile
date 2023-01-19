@@ -142,14 +142,8 @@ class _HelpScreenState extends State<HelpScreen> {
             style: theme.textTheme.bodyText2,
           ),
           SizedBox(height: theme.smallSpacing),
-          ContactLink(
+          const ContactLink(
             translationKey: 'help.email',
-            textAlign: TextAlign.start,
-            hasPadding: false,
-            style: theme.textTheme.bodyText2!.copyWith(
-              color: theme.themeData.colorScheme.secondary,
-              decoration: TextDecoration.underline,
-            ),
           ),
         ],
       ),

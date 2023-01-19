@@ -26,7 +26,7 @@ class TestingApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           key: const Key("app"),
-          title: 'IRMA',
+          title: 'Yivi',
           theme: IrmaTheme.of(context).themeData,
           localizationsDelegates: AppState.defaultLocalizationsDelegates(forcedLocale),
           supportedLocales: AppState.defaultSupportedLocales(),
