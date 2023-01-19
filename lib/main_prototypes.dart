@@ -37,7 +37,7 @@ class PrototypesApp extends StatelessWidget {
           builder: (context) {
             return MaterialApp(
               key: const Key('app'),
-              title: 'IRMA',
+              title: 'Yivi',
               theme: IrmaTheme.of(context).themeData,
               localizationsDelegates: AppState.defaultLocalizationsDelegates(),
               supportedLocales: AppState.defaultSupportedLocales(),
