@@ -69,7 +69,7 @@ class YiviThemedButton extends StatelessWidget {
           decoration: style == YiviButtonStyle.filled
               // Filled button
               ? BoxDecoration(
-                  color: theme.neutralDark,
+                  color: theme.secondary,
                   borderRadius: borderRadius,
                 )
               // Outlined button

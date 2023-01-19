@@ -20,6 +20,7 @@ class IrmaThemeData {
   // Background / contrast colors
   Color get backgroundPrimary => light; //Used on scaffolds
   final Color backgroundSecondary = const Color(0xFFFAFAFA);
+  Color backgroundTertiary = const Color(0xFFEAF3F9);
 
   Color get surfacePrimary => light; // Used on cards etc, to contrast with the background
   Color get surfaceSecondary => const Color(0xFFEAF3F9); // Used on cards that are active etc.
@@ -104,7 +105,7 @@ class IrmaThemeData {
       headline4: TextStyle(
         fontFamily: primaryFontFamily,
         fontSize: 16.0,
-        fontWeight: FontWeight.bold,
+        fontWeight: FontWeight.w600,
         color: neutralExtraDark,
       ),
       // headline5 is used for large text in dialogs

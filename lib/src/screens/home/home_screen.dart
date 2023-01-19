@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 
 import '../../models/native_events.dart';
+import '../../theme/theme.dart';
+import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../activity/activity_tab.dart';
 import '../data/data_tab.dart';
@@ -42,6 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
         return false;
       },
       child: Scaffold(
+        backgroundColor: IrmaTheme.of(context).backgroundTertiary,
         appBar: IrmaAppBar(
           titleTranslationKey:
               selectedTab == IrmaNavBarTab.home ? 'home_tab.title' : 'home.nav_bar.${selectedTab.name}',

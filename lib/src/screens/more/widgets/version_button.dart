@@ -26,6 +26,10 @@ class VersionButton extends StatelessWidget {
     final repo = IrmaRepositoryProvider.of(context);
     final theme = IrmaTheme.of(context);
 
+    final textStyle = theme.textTheme.headline6!.copyWith(
+      fontWeight: FontWeight.w600,
+    );
+
     void showDeveloperMode() {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -71,6 +75,7 @@ class VersionButton extends StatelessWidget {
                       }
                       return TranslatedText(
                         'more_tab.app_id',
+                        style: textStyle,
                         translationParams: {
                           'id': appId ?? '',
                         },
@@ -84,7 +89,7 @@ class VersionButton extends StatelessWidget {
                       translationParams: {
                         'version': _buildVersionString(info),
                       },
-                      style: theme.textTheme.bodyText2,
+                      style: textStyle,
                     ),
                   ),
                 ],
