@@ -29,7 +29,7 @@
     "shared_data": "Shared data",
     "received_data": "Received data",
     "deleted_data": "Deleted data",
-    "empty_placeholder": "There are no logged activities yet."
+    "empty_placeholder": "There are no logged activities yet"
   },
   "arrow_back": {
     "no_success": "Cancelled",
