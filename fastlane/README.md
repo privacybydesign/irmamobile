@@ -16,27 +16,35 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 # Apple provisioning profiles
 The `ios_build_app` action needs the app's provisioning profile and the corresponding PKCS#12 certificate bundle.
-Therefore, these actions require the parameters `provisioning_profile_path`, `certificate_path` and `certificate_password`.
+Therefore, these actions require the parameters `certificate_path`, `certificate_password` and either
+`api_key_filepath`, `api_key_id` and `api_key_issuer_id` (to download the provisioning
+profile automatically using the App Store Connect API) or `provisioning_profile_path` (to manually pass it).
+In the latter case, if you later edit the provisioning profile in App Store Connect, then you need to update
+the provisioning profile manually.
 
 Below we describe how to generate these assets. This can only be done by users with the 'Admin' role or
 the 'App Manager' role with access to certificates, identifiers and profiles in Apple App Store Connect.
-Generated provisioning profiles are valid for one year.
+Generated provisioning profiles are valid for one year. If you already have a valid certificate bundle, and you only
+want to generate a new provisioning profile, you can skip step 1 through 7.
 
- 1. Go to the ./fastlane directory in irmamobile
+ 1. Go to the ./fastlane directory in irmamobile.
  2. Run `mkdir -p ./profiles && cd ./profiles`
- 3. Run `openssl req -nodes -newkey rsa:2048 -keyout apple_distribution.key -out apple_distribution.csr`
+ 3. Run `openssl req -nodes -newkey rsa:2048 -keyout apple_distribution.key -out apple_distribution.csr`.
  4. Upload the CSR to Apple: go to https://developer.apple.com/account/resources/certificates/list, press the '+' sign
-    and choose "iOS Distribution (App Store and Ad Hoc)"
+    and choose "iOS Distribution (App Store and Ad Hoc)".
  5. When finished, download the .cer file and save it to the directory created in step 2 as `apple_distribution.cer`
  6. Convert the .cer file to a .pem file:
-    `openssl x509 -in apple_distribution.cer -inform DER -out apple_distribution.pem -outform PEM`
+    `openssl x509 -in apple_distribution.cer -inform DER -out apple_distribution.pem -outform PEM`.
  7. Convert the .pem to a .p12 and choose the certificate password:
-    `openssl pkcs12 -export -inkey apple_distribution.key -in apple_distribution.pem -out apple_distribution.p12`
+    `openssl pkcs12 -export -inkey apple_distribution.key -in apple_distribution.pem -out apple_distribution.p12`.
+    The generated `.p12` file and the corresponding password are the input values for the
+    `certificate_path` and `certificate_password` parameters.
  8. You can now create a provisioning profile: go to https://developer.apple.com/account/resources/profiles/list,
-    press the '+' sign and follow the instructions
- 9. When finished, download the provisioning profile and save it to the directory created in step 2
+    press the '+' sign and follow the instructions.
+ 9. In case you want to use the `provisioning_profile_path` parameter, download the provisioning profile and save it
+    to the directory created in step 2. If you want to use the `api_key_filepath` parameter, you can skip this step.
  10. In case you need to upload the assets to a secret vault, then you need to encode the files with base64,
-     i.e. `cat apple_distribution.p12 | base64 > apple_distribution.p12.base64`
+     i.e. `cat apple_distribution.p12 | base64 > apple_distribution.p12.base64`.
 
 When generating keys for CI platforms, it's recommended to protect the certificate bundle as a secret in
 protected deployment environments. In this way, you prevent that development builds get signed.
@@ -142,11 +150,26 @@ Builds an iOS IPA file for requested flavor. This action
 assumes the `ios_build_irmagobridge` action has been run first.
 The signed iOS IPA file is written to the `build` directory (so `fastlane/build` from the repository's root).
 
-Optionally, you can specify the paths to the app provisioning profile and the corresponding PKCS#12 certificate bundle
-that should be used to provision and sign the build. If the given path is relative, then it is evaluated using the
+Optionally, you can specify the following for extra functionality:
+
+ - You can specify which iOS distribution certificate should be used to sign the build.
+   The path to the PKCS#12 certificate bundle of the iOS distribution key can be specified using the `certificate_path`
+   parameter. The certificate bundle's password can be specified using the `certificate_password` parameter.
+
+ - You can specify which provisioning profile should be used to provision the app. To automatically fetch
+   the right provisioning profile from the App Store Connect API based on the requested flavor and iOS distribution certificate,
+   you can use the `api_key_filepath`, `api_key_id` and `api_key_issuer_id` parameters. More information about this
+   mechanism can be found [here](https://developer.apple.com/documentation/appstoreconnectapi/creating_api_keys_for_app_store_connect_api).
+   You can also supply a provisioning profile manually by using the `provisioning_profile_path` parameter.
+   The `alpha` flavor expects an ad-hoc provisioning profile and the `beta` flavor an app-store provisioning profile.
+
+If file path are relative, then it is evaluated using the
 fastlane directory as base (so `./fastlane` from the repository's root).
 
+More information on how to generate distribution certificates and provisioning profiles can be found [above](#apple-provisioning-profiles).
+
 ```sh
+[bundle exec] fastlane ios_build_app flavor:<VALUE> api_key_filepath:<VALUE> api_key_id:<VALUE> api_key_issuer_id:<VALUE> certificate_path:<VALUE> certificate_password:<VALUE>
 [bundle exec] fastlane ios_build_app flavor:<VALUE> provisioning_profile_path:<VALUE> certificate_path:<VALUE> certificate_password:<VALUE>
 ```
 
@@ -158,9 +181,6 @@ This can be useful for testing purposes if you don't have access to the keys.
 ```
 
 The `flavor` parameter accepts the values `alpha` or `beta`.
-
-The `alpha` flavor expects an ad-hoc provisioning profile and the `beta` flavor an app-store provisioning profile.
-More information on how to achieve app provisioning profiles can be found [above](#apple-provisioning-profiles).
 
 ----
 

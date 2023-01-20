@@ -152,6 +152,7 @@ lane :ios_build_app do |options|
   end
 
   # When a provisioning profile is given, we ensure it is installed and selected in the project.
+  # If none is specified, we try to fetch the right provisioning profile using the Apple App Store Connect API.
   # Otherwise, we use the profile that is currently selected in XCode.
   if options[:provisioning_profile_path]
     provisioning_profile_path = File.absolute_path(options[:provisioning_profile_path])
@@ -161,6 +162,21 @@ lane :ios_build_app do |options|
     update_project_provisioning(
       xcodeproj: "ios/Runner.xcodeproj",
       profile: provisioning_profile_path
+    )
+  elsif options[:api_key_filepath]
+    api_key_filepath = File.absolute_path(options[:api_key_filepath])
+    api_key = app_store_connect_api_key(
+      key_id: options[:api_key_id],
+      issuer_id: options[:api_key_issuer_id],
+      key_filepath: api_key_filepath,
+      duration: 60
+    )
+    # Automatically fetch the provisioning profile matching the current distribution certificate and app identifier.
+    get_provisioning_profile(
+      adhoc: export_method == "ad-hoc",
+      app_identifier: app_identifier,
+      api_key: api_key,
+      readonly: true
     )
   end
 
