@@ -219,7 +219,7 @@ Future<void> evaluateCredentialCard(
               mappedCardList[compareAttEntry.key]! != compareAttEntry.value) {
             expectedTextColor = const Color(0xffbd1919);
           } else {
-            expectedTextColor = const Color(0xff33ad38);
+            expectedTextColor = const Color(0xff00973a);
           }
           expect(
             (textFinder.evaluate().first.widget as Text).style?.color!,

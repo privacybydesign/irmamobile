@@ -29,7 +29,7 @@
     "shared_data": "Gedeelde gegevens",
     "received_data": "Ontvangen gegevens",
     "deleted_data": "Verwijderde gegevens",
-    "empty_placeholder": "Er zijn momenteel geen activiteiten."
+    "empty_placeholder": "Er zijn momenteel geen activiteiten"
   },
   "arrow_back": {
     "no_success": "Afgebroken",
@@ -541,7 +541,8 @@
     "skip": "Overslaan",
     "continue": "Doorgaan",
     "retry": "Opnieuw proberen",
-    "error": "Er is iets misgegaan"
+    "error": "Er is iets misgegaan",
+    "end_of_list" : "Je bent aan het einde van de lijst gekomen"
   },
   "update": {
     "title": "Update beschikbaar",

@@ -8,7 +8,6 @@ import 'package:intl/intl.dart';
 import '../../models/irma_configuration.dart';
 import '../../models/log_entry.dart';
 import '../../models/session_events.dart';
-import '../../theme/irma_icons.dart';
 import '../../theme/theme.dart';
 import '../../util/capitalize.dart';
 import '../../util/combine.dart';
@@ -18,6 +17,7 @@ import '../../widgets/translated_text.dart';
 
 import 'history_repository.dart';
 import 'widgets/activity_card.dart';
+import '../../widgets/end_of_list_indicator.dart';
 
 class ActivityTab extends StatefulWidget {
   @override
@@ -85,19 +85,6 @@ class _ActivityTabState extends State<ActivityTab> {
     final local = FlutterI18n.currentLocale(context).toString();
     final theme = IrmaTheme.of(context);
 
-    Widget _listStateIndicator() {
-      if (logEntries.isEmpty) {
-        return const TranslatedText('activity.empty_placeholder');
-      } else if (moreLogsAvailable) {
-        return SizedBox(
-          height: 36,
-          child: LoadingIndicator(),
-        );
-      } else {
-        return Icon(IrmaIcons.valid, color: theme.success);
-      }
-    }
-
     final groupedItems = List.generate(
       logEntries.length,
       (index) {
@@ -136,13 +123,22 @@ class _ActivityTabState extends State<ActivityTab> {
         horizontal: theme.defaultSpacing,
       ),
       children: [
-        ...groupedItems,
-        Padding(
-          padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
-          child: Center(
-            child: _listStateIndicator(),
+        if (groupedItems.isEmpty)
+          const Center(
+            child: TranslatedText('activity.empty_placeholder'),
+          )
+        else ...[
+          ...groupedItems,
+          Padding(
+            padding: EdgeInsets.only(
+              top: theme.defaultSpacing,
+              bottom: theme.mediumSpacing,
+            ),
+            child: EndOfListIndicator(
+              isLoading: moreLogsAvailable,
+            ),
           ),
-        ),
+        ]
       ],
     );
   }

@@ -29,7 +29,7 @@
     "shared_data": "Shared data",
     "received_data": "Received data",
     "deleted_data": "Deleted data",
-    "empty_placeholder": "There are no logged activities yet."
+    "empty_placeholder": "There are no logged activities yet"
   },
   "arrow_back": {
     "no_success": "Cancelled",
@@ -541,7 +541,8 @@
     "skip": "Skip",
     "continue": "Continue",
     "retry": "Try again",
-    "error": "Something went wrong"
+    "error": "Something went wrong",
+    "end_of_list": "You have reached the end of the list"
   },
   "update": {
     "title": "Update available",
