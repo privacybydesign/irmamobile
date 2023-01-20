@@ -18,20 +18,18 @@ class HomeTab extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     return SingleChildScrollView(
-      padding: EdgeInsets.symmetric(
-        horizontal: theme.defaultSpacing,
+      padding: EdgeInsets.all(
+        theme.defaultSpacing,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           IrmaActionCard(
-            key: const Key('home_action_fetch'),
-            titleKey: 'home_tab.action_card.fetch.title',
-            subtitleKey: 'home_tab.action_card.fetch.subtitle',
-            onTap: () => Navigator.of(context).pushNamed(AddDataScreen.routeName),
-            icon: Icons.add_circle_outline,
-            color: theme.themeData.colorScheme.primary,
-          ),
+              key: const Key('home_action_fetch'),
+              titleKey: 'home_tab.action_card.fetch.title',
+              subtitleKey: 'home_tab.action_card.fetch.subtitle',
+              onTap: () => Navigator.of(context).pushNamed(AddDataScreen.routeName),
+              icon: Icons.add_circle_sharp),
           SizedBox(height: theme.largeSpacing),
 
           //Recent activity

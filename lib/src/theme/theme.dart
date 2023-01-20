@@ -89,9 +89,11 @@ class IrmaThemeData {
         color: neutralExtraDark,
       ),
       headline2: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
-        color: secondary,
+        fontFamily: primaryFontFamily,
+        fontSize: 24,
+        height: 30 / 24,
+        fontWeight: FontWeight.w700,
+        color: neutralExtraDark,
       ),
       // headline3 is used for very large text
       headline3: TextStyle(
