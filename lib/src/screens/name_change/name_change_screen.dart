@@ -54,7 +54,7 @@ class NameChangeScreen extends StatelessWidget {
                           vertical: theme.largeSpacing,
                         ),
                         child: Lottie.asset(
-                          'assets/name_change/yivi.json',
+                          'assets/non-free/yivi_name_change.json',
                           frameRate: FrameRate(60),
                           repeat: false,
                         )),
