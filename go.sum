@@ -118,6 +118,8 @@ github.com/privacybydesign/gabi v0.0.0-20221012093643-8e978bfbb252 h1:q5BP7Eh/x1
 github.com/privacybydesign/gabi v0.0.0-20221012093643-8e978bfbb252/go.mod h1:HQ6L5rKBY7qaqcheK6zpaVf7fhGWD0PvUAXJTDws+0M=
 github.com/privacybydesign/irmago v0.11.0 h1:Cd/iiJjxwR3n0mWzLWOfreR/QJoVoJnuPAxzQT/Iwkg=
 github.com/privacybydesign/irmago v0.11.0/go.mod h1:c5icl8awc9rMZQE2amEquYn0BRxT84EPFSnk11F9IHk=
+github.com/privacybydesign/irmago v0.11.1 h1:r4IYv+ydwRYr+fYnKml9+tvdHbFKKRGeFLyLKuG/2pw=
+github.com/privacybydesign/irmago v0.11.1/go.mod h1:c5icl8awc9rMZQE2amEquYn0BRxT84EPFSnk11F9IHk=
 github.com/robfig/cron/v3 v3.0.1 h1:WdRxkvbJztn8LMz/QEvLN5sBU+xKpSqwwUO1Pjr4qDs=
 github.com/robfig/cron/v3 v3.0.1/go.mod h1:eQICP3HwyT7UooqI/z+Ov+PtYAWygg1TEWWzGIFLtro=
 github.com/sietseringers/go-sse v0.0.0-20200801161811-e2cf2c63ca50 h1:vgWWQM2SnMoO9BiUZ2WFAYuYF6U0jNss9Vn/PZoi+tU=
