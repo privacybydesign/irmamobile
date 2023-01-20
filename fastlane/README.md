@@ -17,7 +17,7 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 # Apple provisioning profiles
 The `ios_build_app` action needs the app's provisioning profile and the corresponding PKCS#12 certificate bundle.
 Therefore, these actions require the parameters `certificate_path`, `certificate_password` and either
-`api_key_filepath`, `api_key_id` and `api_key_issuer_id` (to download the provisioning
+`api_key_filepath`, `api_key_id` and `api_issuer_id` (to download the provisioning
 profile automatically using the App Store Connect API) or `provisioning_profile_path` (to manually pass it).
 In the latter case, if you later edit the provisioning profile in App Store Connect, then you need to update
 the provisioning profile manually.
@@ -158,7 +158,7 @@ Optionally, you can specify the following for extra functionality:
 
  - You can specify which provisioning profile should be used to provision the app. To automatically fetch
    the right provisioning profile from the App Store Connect API based on the requested flavor and iOS distribution certificate,
-   you can use the `api_key_filepath`, `api_key_id` and `api_key_issuer_id` parameters. More information about this
+   you can use the `api_key_filepath`, `api_key_id` and `api_issuer_id` parameters. More information about this
    mechanism can be found [here](https://developer.apple.com/documentation/appstoreconnectapi/creating_api_keys_for_app_store_connect_api).
    You can also supply a provisioning profile manually by using the `provisioning_profile_path` parameter.
    The `alpha` flavor expects an ad-hoc provisioning profile and the `beta` flavor an app-store provisioning profile.
@@ -169,7 +169,7 @@ fastlane directory as base (so `./fastlane` from the repository's root).
 More information on how to generate distribution certificates and provisioning profiles can be found [above](#apple-provisioning-profiles).
 
 ```sh
-[bundle exec] fastlane ios_build_app flavor:<VALUE> api_key_filepath:<VALUE> api_key_id:<VALUE> api_key_issuer_id:<VALUE> certificate_path:<VALUE> certificate_password:<VALUE>
+[bundle exec] fastlane ios_build_app flavor:<VALUE> api_key_filepath:<VALUE> api_key_id:<VALUE> api_issuer_id:<VALUE> certificate_path:<VALUE> certificate_password:<VALUE>
 [bundle exec] fastlane ios_build_app flavor:<VALUE> provisioning_profile_path:<VALUE> certificate_path:<VALUE> certificate_password:<VALUE>
 ```
 
