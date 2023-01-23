@@ -9,29 +9,16 @@ import 'irma_themed_button.dart';
 import 'translated_text.dart';
 
 class ContactLink extends StatelessWidget {
-  final IconData? iconData;
   final String translationKey;
-  final TextStyle? style;
-  final TextAlign? textAlign;
-  final bool hasPadding;
 
   const ContactLink({
-    this.iconData,
     required this.translationKey,
-    this.style,
-    this.textAlign,
-    this.hasPadding = true,
   });
 
   @override
   Widget build(BuildContext context) {
     return Link(
       label: translationKey,
-      // padding: hasPadding ? null : EdgeInsets.zero, //If has padding use default ListTile padding.
-      // translationKey: translationKey,
-      // iconData: iconData,
-      // style: style,
-      // textAlign: textAlign,
       onTap: () async {
         final String address = FlutterI18n.translate(context, 'help.contact');
         final String subject = Uri.encodeComponent(FlutterI18n.translate(context, 'help.mail_subject'));
