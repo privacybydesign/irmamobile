@@ -25,7 +25,7 @@ class YiviThemedButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final YiviButtonStyle style;
   final YiviButtonSize size;
-  final bool? isTransparent;
+  final bool isTransparent;
 
   const YiviThemedButton({
     Key? key,
@@ -33,9 +33,9 @@ class YiviThemedButton extends StatelessWidget {
     this.onPressed,
     this.style = YiviButtonStyle.fancy,
     this.size = YiviButtonSize.medium,
-    this.isTransparent,
+    this.isTransparent = false,
   })  : assert(
-          isTransparent == null || style != YiviButtonStyle.fancy,
+          isTransparent != true || style != YiviButtonStyle.fancy,
           'Fancy button cannot be transparent',
         ),
         super(key: key);
@@ -67,10 +67,8 @@ class YiviThemedButton extends StatelessWidget {
     IrmaThemeData theme,
     BorderRadiusGeometry borderRadius,
   ) {
-    bool hasTransparentBackground = isTransparent != null && isTransparent!;
-
     return Material(
-      color: hasTransparentBackground ? Colors.transparent : theme.light,
+      color: isTransparent ? Colors.transparent : theme.light,
       child: InkWell(
         onTap: onPressed,
         child: Ink(
@@ -78,7 +76,7 @@ class YiviThemedButton extends StatelessWidget {
           decoration: style == YiviButtonStyle.filled
               // Filled button
               ? BoxDecoration(
-                  color: hasTransparentBackground ? null : theme.secondary,
+                  color: isTransparent ? null : theme.secondary,
                   borderRadius: borderRadius,
                 )
               // Outlined button
