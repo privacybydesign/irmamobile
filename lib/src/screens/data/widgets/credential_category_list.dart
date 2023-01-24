@@ -47,7 +47,7 @@ class CredentialCategoryList extends StatelessWidget {
           sliver: SliverGrid(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: isLandscape ? 4 : 2,
-              childAspectRatio: isLandscape ? 1.10 : 1.20,
+              childAspectRatio: isLandscape ? 1.05 : 1.15,
               mainAxisSpacing: 2.50,
               crossAxisSpacing: 2.50,
             ),

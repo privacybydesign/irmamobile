@@ -127,6 +127,7 @@ class IrmaThemeData {
       ),
       // bodyText1 is used for emphasizing text
       bodyText1: TextStyle(
+        fontFamily: secondaryFontFamily,
         fontSize: 16.0,
         fontWeight: FontWeight.bold,
         color: dark,
