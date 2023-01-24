@@ -35,7 +35,7 @@ class YiviThemedButton extends StatelessWidget {
     this.size = YiviButtonSize.medium,
     this.isTransparent = false,
   })  : assert(
-          isTransparent != true || style != YiviButtonStyle.fancy,
+          !isTransparent || style != YiviButtonStyle.fancy,
           'Fancy button cannot be transparent',
         ),
         super(key: key);
