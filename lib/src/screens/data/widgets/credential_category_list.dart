@@ -47,9 +47,9 @@ class CredentialCategoryList extends StatelessWidget {
           sliver: SliverGrid(
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: isLandscape ? 4 : 2,
-              childAspectRatio: 1.0,
-              mainAxisSpacing: 10.0,
-              crossAxisSpacing: 10.0,
+              childAspectRatio: isLandscape ? 1.10 : 1.20,
+              mainAxisSpacing: 2.50,
+              crossAxisSpacing: 2.50,
             ),
             delegate: SliverChildBuilderDelegate(
               (context, index) => GestureDetector(
