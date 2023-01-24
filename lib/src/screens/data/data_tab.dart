@@ -32,10 +32,8 @@ class DataTab extends StatelessWidget {
     return CustomScrollView(
       slivers: [
         SliverPadding(
-          padding: EdgeInsets.only(
-            left: theme.defaultSpacing,
-            right: theme.defaultSpacing,
-            bottom: theme.defaultSpacing,
+          padding: EdgeInsets.all(
+            theme.defaultSpacing,
           ),
           sliver: SliverToBoxAdapter(
             child: Column(
@@ -44,9 +42,7 @@ class DataTab extends StatelessWidget {
                 IrmaActionCard(
                   titleKey: 'data.tab.obtain_data',
                   onTap: () => Navigator.of(context).pushNamed(AddDataScreen.routeName),
-                  icon: Icons.add_circle_outline,
-                  color: theme.themeData.colorScheme.primary,
-                  style: theme.textTheme.headline3,
+                  icon: Icons.add_circle_sharp,
                 ),
               ],
             ),

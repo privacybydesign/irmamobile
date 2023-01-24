@@ -7,10 +7,9 @@ import '../../../models/log_entry.dart';
 import '../../../models/session_events.dart';
 import '../../../theme/theme.dart';
 import '../../../util/combine.dart';
-import '../../../widgets/irma_button.dart';
 import '../../../widgets/irma_repository_provider.dart';
-import '../../../widgets/irma_themed_button.dart';
 import '../../../widgets/translated_text.dart';
+import '../../../widgets/yivi_themed_button.dart';
 import '../history_repository.dart';
 import 'activity_card.dart';
 
@@ -89,18 +88,14 @@ class _RecentActivityState extends State<RecentActivity> {
                   ),
                 ),
                 Flexible(
-                  child: IrmaButton(
+                  child: YiviThemedButton(
                     label: 'home_tab.view_more',
-                    textStyle: theme.textTheme.bodyText1!.copyWith(
-                      color: theme.themeData.colorScheme.secondary,
-                      fontSize: 12,
-                    ),
+                    size: YiviButtonSize.small,
+                    style: YiviButtonStyle.outlined,
+                    isTransparent: true,
                     onPressed: widget.onTap,
-                    size: IrmaButtonSize.extraSmall,
-                    isSecondary: true,
-                    minWidth: 130,
                   ),
-                ),
+                )
               ],
             ),
             SizedBox(height: theme.defaultSpacing),

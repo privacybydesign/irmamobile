@@ -174,14 +174,12 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
               TranslatedText('disclosure_permission.no_data_selected', style: theme.textTheme.caption),
             if (state.hasAdditionalOptionalChoices) ...[
               SizedBox(height: theme.defaultSpacing),
+              //TODO Fix the styling here again
               IrmaActionCard(
                 titleKey: 'disclosure_permission.add_optional_data',
                 onTap: () => onEvent(DisclosurePermissionAddOptionalDataPressed()),
                 icon: Icons.add_circle_outline,
                 color: theme.textTheme.headline1?.color ?? Colors.black,
-                invertColors: true,
-                style: theme.textTheme.button,
-                centerText: true,
               ),
             ],
           ],
