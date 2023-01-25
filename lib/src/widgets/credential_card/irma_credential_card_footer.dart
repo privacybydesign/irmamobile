@@ -27,9 +27,7 @@ class IrmaCredentialCardFooter extends StatelessWidget {
         if (text != null)
           Text(
             text!,
-            style: theme.textTheme.caption!.copyWith(
-              color: theme.neutral,
-            ),
+            style: theme.textTheme.bodyText2!.copyWith(color: theme.dark),
           ),
         if (isObtainable)
           Padding(

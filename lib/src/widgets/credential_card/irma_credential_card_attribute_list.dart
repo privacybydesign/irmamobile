@@ -33,9 +33,7 @@ class IrmaCredentialCardAttributeList extends StatelessWidget {
 
     Text buildLabel(Attribute a) => Text(
           a.attributeType.name.translate(lang),
-          style: theme.themeData.textTheme.caption!.copyWith(
-            color: theme.neutralDark,
-          ),
+          style: theme.themeData.textTheme.bodyText2,
         );
 
     TranslatedText buildTextContent(Attribute attribute, TextValue attrValue) {

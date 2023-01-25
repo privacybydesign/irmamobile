@@ -79,6 +79,7 @@
     "expires_on": "Verloopt op: {date}",
     "expired_on": "Verlopen op {date}",
     "date_at_time": "{date} om {time}",
+    "issued_by": "Uitgegeven door:",
     "options": {
       "title": "Opties",
       "reobtain": "Opnieuw ophalen",
@@ -542,7 +543,7 @@
     "continue": "Doorgaan",
     "retry": "Opnieuw proberen",
     "error": "Er is iets misgegaan",
-    "end_of_list" : "Je bent aan het einde van de lijst gekomen"
+    "end_of_list": "Je bent aan het einde van de lijst gekomen"
   },
   "update": {
     "title": "Update beschikbaar",

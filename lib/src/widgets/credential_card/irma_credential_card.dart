@@ -68,8 +68,8 @@ class IrmaCredentialCard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           IrmaCredentialCardHeader(
-            title: getTranslation(context, credentialView.credentialType.name),
-            subtitle: getTranslation(context, credentialView.issuer.name),
+            credentialName: getTranslation(context, credentialView.credentialType.name),
+            issuerName: getTranslation(context, credentialView.issuer.name),
             logo: credentialView.credentialType.logo,
             trailing: headerTrailing,
             isExpired: credentialView.expired,
@@ -85,11 +85,8 @@ class IrmaCredentialCard extends StatelessWidget {
             ),
           ],
           if (!hideFooter) ...[
-            IrmaDivider(
-              isDisabled: isInvalid,
-            ),
             SizedBox(
-              height: IrmaTheme.of(context).tinySpacing,
+              height: IrmaTheme.of(context).smallSpacing,
             ),
             IrmaCredentialCardFooter(
               credentialType: credentialView.credentialType,

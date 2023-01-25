@@ -6,18 +6,18 @@ import '../../theme/theme.dart';
 import '../translated_text.dart';
 
 class IrmaCredentialCardHeader extends StatelessWidget {
-  final String title;
+  final String credentialName;
   final String? logo;
-  final String? subtitle;
+  final String? issuerName;
   final Widget? trailing;
   final bool isExpired;
   final bool isExpiringSoon;
   final bool isRevoked;
 
   const IrmaCredentialCardHeader({
-    required this.title,
+    required this.credentialName,
     this.logo,
-    this.subtitle,
+    this.issuerName,
     this.trailing,
     this.isExpiringSoon = false,
     this.isExpired = false,
@@ -44,9 +44,7 @@ class IrmaCredentialCardHeader extends StatelessWidget {
                 )
               : Container(),
         ),
-        SizedBox(
-          width: theme.smallSpacing,
-        ),
+        SizedBox(width: theme.tinySpacing + theme.smallSpacing),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,15 +71,28 @@ class IrmaCredentialCardHeader extends StatelessWidget {
                   ),
                 ),
               Text(
-                title,
-                style: theme.themeData.textTheme.bodyText1,
+                credentialName,
+                style: theme.themeData.textTheme.headline4!.copyWith(color: theme.dark),
               ),
-              Text(
-                subtitle ?? '',
-                style: theme.themeData.textTheme.caption!.copyWith(
-                  color: theme.neutralDark,
-                ),
-              )
+              if (issuerName != null)
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    vertical: theme.smallSpacing,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TranslatedText(
+                        'credential.issued_by',
+                        style: theme.themeData.textTheme.bodyText2,
+                      ),
+                      Text(
+                        issuerName!,
+                        style: theme.themeData.textTheme.bodyText1,
+                      ),
+                    ],
+                  ),
+                )
             ],
           ),
         ),
