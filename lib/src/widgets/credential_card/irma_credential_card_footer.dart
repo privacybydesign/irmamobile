@@ -2,8 +2,8 @@ import 'package:flutter/widgets.dart';
 
 import '../../models/irma_configuration.dart';
 import '../../theme/theme.dart';
-import '../irma_button.dart';
 import '../irma_repository_provider.dart';
+import '../yivi_themed_button.dart';
 
 class IrmaCredentialCardFooter extends StatelessWidget {
   final String? text;
@@ -32,13 +32,13 @@ class IrmaCredentialCardFooter extends StatelessWidget {
         if (isObtainable)
           Padding(
             padding: EdgeInsets.only(top: theme.smallSpacing),
-            child: IrmaButton(
+            child: YiviThemedButton(
               label: 'credential.options.reobtain',
+              style: YiviButtonStyle.filled,
               onPressed: () => IrmaRepositoryProvider.of(context).openIssueURL(
                 context,
                 credentialType.fullId,
               ),
-              minWidth: double.infinity,
             ),
           )
       ],
