@@ -183,13 +183,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.3"
-  dotted_decoration:
-    dependency: "direct main"
-    description:
-      name: dotted_decoration
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.0.0"
   email_validator:
     dependency: "direct main"
     description:

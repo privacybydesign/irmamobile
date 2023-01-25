@@ -1,4 +1,3 @@
-import 'package:dotted_decoration/dotted_decoration.dart';
 import 'package:flutter/material.dart';
 
 import '../theme/theme.dart';
@@ -7,7 +6,6 @@ enum IrmaCardStyle {
   normal,
   outlined,
   highlighted,
-  template,
   danger,
 }
 
@@ -17,7 +15,6 @@ class IrmaCard extends StatelessWidget {
   final Widget? child;
   final EdgeInsetsGeometry? padding;
   final IrmaCardStyle style;
-  final Color? color;
   final EdgeInsetsGeometry? margin;
 
   const IrmaCard({
@@ -26,13 +23,8 @@ class IrmaCard extends StatelessWidget {
     this.child,
     this.padding,
     this.style = IrmaCardStyle.normal,
-    this.color,
     this.margin,
-  })  : assert(
-          color == null || style == IrmaCardStyle.normal,
-          'Color can only be overwritten if IrmaCardStyle is normal',
-        ),
-        super(key: key);
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -52,8 +44,8 @@ class IrmaCard extends StatelessWidget {
         boxDecoration = BoxDecoration(
           borderRadius: borderRadius,
           border: Border.all(color: Colors.transparent),
-          color: color ?? Colors.white,
           boxShadow: shadow,
+          color: theme.light,
         );
         break;
       case IrmaCardStyle.outlined:
@@ -78,13 +70,6 @@ class IrmaCard extends StatelessWidget {
           boxShadow: shadow,
         );
         break;
-      case IrmaCardStyle.template:
-        boxDecoration = DottedDecoration(
-          shape: Shape.box,
-          borderRadius: borderRadius,
-          color: Colors.grey.shade300,
-        );
-        break;
       case IrmaCardStyle.danger:
         boxDecoration = BoxDecoration(
           borderRadius: borderRadius,
@@ -107,7 +92,6 @@ class IrmaCard extends StatelessWidget {
           //In this context the "margin" is set on the container padding.
           padding: margin ?? EdgeInsets.all(theme.defaultSpacing),
           decoration: boxDecoration,
-
           child: child,
         ),
       ),
