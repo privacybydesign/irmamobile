@@ -23,7 +23,8 @@ class IrmaThemeData {
   Color backgroundTertiary = const Color(0xFFEAF3F9);
 
   Color get surfacePrimary => light; // Used on cards etc, to contrast with the background
-  Color get surfaceSecondary => const Color(0xFFEAF3F9); // Used on cards that are active etc.
+  final Color surfaceSecondary = const Color(0xFFEAF3F9); // Used on cards that are active etc.
+  Color surfaceTertiary = const Color(0xffF0DEDE); // Used on cards that expired
 
 // Grey swatch
   final Color dark = Colors.black;
@@ -39,6 +40,7 @@ class IrmaThemeData {
   final Color warning = const Color(0xFFEBA73B);
   final Color success = const Color(0xFF00973A);
   final Color link = const Color(0xFF1D4E89);
+  final Color danger = const Color(0xffEABEBE);
 
   //Fonts
   final String primaryFontFamily = 'Alexandria';
