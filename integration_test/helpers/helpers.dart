@@ -178,7 +178,8 @@ Future<void> evaluateCredentialCard(
 
     // Compare the issuer credential name
     if (issuerName != null) {
-      expect(cardHeaderText.elementAt(1), issuerName);
+      expect(cardHeaderText.elementAt(1), 'Issued by:');
+      expect(cardHeaderText.elementAt(2), issuerName);
     }
   }
 
