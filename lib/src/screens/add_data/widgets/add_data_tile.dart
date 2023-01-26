@@ -1,10 +1,9 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 import '../../../models/irma_configuration.dart';
 import '../../../theme/theme.dart';
 import '../../../util/language.dart';
+import '../../../widgets/credential_card/irma_credential_avatar.dart';
 import '../../../widgets/irma_card.dart';
 import '../../../widgets/irma_repository_provider.dart';
 import '../add_data_details_screen.dart';
@@ -23,9 +22,7 @@ class AddDataTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-
-    const logoContainerSize = 48.0;
-    final logoFile = File(credType.logo ?? '');
+    const logoContainerSize = 52.0;
 
     return IrmaCard(
       onTap: () => Navigator.of(context).push(
@@ -45,26 +42,9 @@ class AddDataTile extends StatelessWidget {
           Stack(
             alignment: Alignment.topRight,
             children: [
-              Container(
-                height: logoContainerSize,
-                width: logoContainerSize,
-                padding: EdgeInsets.all(theme.smallSpacing),
-                decoration: BoxDecoration(
-                  color: theme.dark.withOpacity(0.05),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: theme.neutralExtraLight,
-                  ),
-                ),
-                child: logoFile.existsSync()
-                    ? SizedBox(
-                        height: logoContainerSize / 2,
-                        child: Image.file(
-                          logoFile,
-                          excludeFromSemantics: true,
-                        ),
-                      )
-                    : null,
+              IrmaCredentialAvatar(
+                size: logoContainerSize,
+                logo: credType.logo!,
               ),
               Visibility(
                 visible: obtained,
