@@ -45,7 +45,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
       children: [
         TranslatedText(
           'activity.data_shared',
-          style: theme.themeData.textTheme.headline3,
+          style: theme.themeData.textTheme.headline4,
         ),
         SizedBox(height: theme.smallSpacing),
         for (var disclosedAttributes in logEntry.disclosedAttributes)

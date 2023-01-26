@@ -28,6 +28,7 @@ class ActivityDetailScreen extends StatelessWidget {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     return Scaffold(
+      backgroundColor: theme.backgroundSecondary,
       appBar: const IrmaAppBar(
         titleTranslationKey: 'home.nav_bar.activity',
       ),
@@ -68,7 +69,7 @@ class ActivityDetailScreen extends StatelessWidget {
                   'date': DateFormat.yMMMMd(lang).format(logEntry.time),
                   'time': DateFormat.jm(lang).format(logEntry.time),
                 },
-                style: theme.themeData.textTheme.caption,
+                style: theme.themeData.textTheme.bodyText2,
               ),
             ),
           ],
