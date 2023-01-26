@@ -28,7 +28,6 @@ class AddDataTile extends StatelessWidget {
     final logoFile = File(credType.logo ?? '');
 
     return IrmaCard(
-      padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => AddDataDetailsScreen(
@@ -47,13 +46,23 @@ class AddDataTile extends StatelessWidget {
             alignment: Alignment.topRight,
             children: [
               Container(
-                padding: EdgeInsets.all(theme.smallSpacing),
                 height: logoContainerSize,
                 width: logoContainerSize,
+                padding: EdgeInsets.all(theme.smallSpacing),
+                decoration: BoxDecoration(
+                  color: theme.dark.withOpacity(0.05),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: theme.neutralExtraLight,
+                  ),
+                ),
                 child: logoFile.existsSync()
                     ? SizedBox(
                         height: logoContainerSize / 2,
-                        child: Image.file(logoFile, excludeFromSemantics: true),
+                        child: Image.file(
+                          logoFile,
+                          excludeFromSemantics: true,
+                        ),
                       )
                     : null,
               ),
@@ -67,30 +76,36 @@ class AddDataTile extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(width: theme.smallSpacing),
+          SizedBox(
+            width: theme.defaultSpacing - theme.tinySpacing,
+          ),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   getTranslation(context, credType.name),
-                  style: theme.textTheme.titleLarge,
+                  style: theme.textTheme.headline4!.copyWith(
+                    color: theme.dark,
+                  ),
                 ),
                 SizedBox(
                   height: theme.tinySpacing,
                 ),
                 Text(
                   getTranslation(context, issuer.name),
-                  style: theme.textTheme.subtitle1,
+                  style: theme.textTheme.bodyText2!.copyWith(
+                    fontSize: 14,
+                  ),
                 ),
               ],
             ),
           ),
           SizedBox(width: theme.smallSpacing),
           Icon(
-            Icons.add_circle_outline,
-            color: theme.themeData.colorScheme.secondary,
-            size: logoContainerSize * 0.7,
+            Icons.chevron_right,
+            size: 24,
+            color: theme.neutralExtraDark,
           ),
         ],
       ),
