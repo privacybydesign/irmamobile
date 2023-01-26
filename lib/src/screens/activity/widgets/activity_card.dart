@@ -7,11 +7,10 @@ import '../../../models/credentials.dart';
 import '../../../models/irma_configuration.dart';
 import '../../../models/log_entry.dart';
 import '../../../theme/theme.dart';
-import '../../../widgets/credential_card/irma_credential_avatar.dart';
+import '../../../widgets/irma_avatar.dart';
 import '../../../widgets/irma_card.dart';
 import '../../../widgets/translated_text.dart';
 import '../activity_detail_screen.dart';
-import 'title_initial_uppercased.dart';
 
 class ActivityCard extends StatelessWidget {
   final LogEntry logEntry;
@@ -82,13 +81,11 @@ class ActivityCard extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                if (logo != null)
-                  IrmaCredentialAvatar(
-                    size: 52,
-                    logo: logo,
-                  )
-                else
-                  TitleInitialUpperCased(title),
+                IrmaAvatar(
+                  size: 52,
+                  logoPath: logo,
+                  initials: title[0],
+                ),
                 SizedBox(
                   width: theme.smallSpacing,
                 ),
