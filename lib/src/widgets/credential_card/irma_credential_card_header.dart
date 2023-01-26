@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../theme/theme.dart';
 import '../translated_text.dart';
-import 'irma_credential_avatar.dart';
+import '../irma_avatar.dart';
 
 class IrmaCredentialCardHeader extends StatelessWidget {
   final String credentialName;
@@ -30,7 +30,7 @@ class IrmaCredentialCardHeader extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        IrmaCredentialAvatar(logo: logo),
+        IrmaAvatar(logoPath: logo),
         SizedBox(width: theme.tinySpacing + theme.smallSpacing),
         Expanded(
           child: Column(

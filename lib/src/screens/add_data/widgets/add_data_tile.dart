@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../models/irma_configuration.dart';
 import '../../../theme/theme.dart';
 import '../../../util/language.dart';
-import '../../../widgets/credential_card/irma_credential_avatar.dart';
+import '../../../widgets/irma_avatar.dart';
 import '../../../widgets/irma_card.dart';
 import '../../../widgets/irma_repository_provider.dart';
 import '../add_data_details_screen.dart';
@@ -42,9 +42,9 @@ class AddDataTile extends StatelessWidget {
           Stack(
             alignment: Alignment.topRight,
             children: [
-              IrmaCredentialAvatar(
+              IrmaAvatar(
                 size: logoContainerSize,
-                logo: credType.logo!,
+                logoPath: credType.logo!,
               ),
               Visibility(
                 visible: obtained,

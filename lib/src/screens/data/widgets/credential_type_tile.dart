@@ -3,7 +3,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../models/irma_configuration.dart';
 import '../../../theme/theme.dart';
-import '../../../widgets/credential_card/irma_credential_avatar.dart';
+import '../../../widgets/irma_avatar.dart';
 import '../../../widgets/irma_card.dart';
 
 class CredentialTypeTile extends StatelessWidget {
@@ -22,9 +22,9 @@ class CredentialTypeTile extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          IrmaCredentialAvatar(
+          IrmaAvatar(
             size: 52,
-            logo: credentialType.logo,
+            logoPath: credentialType.logo,
           ),
           SizedBox(
             height: theme.smallSpacing,
