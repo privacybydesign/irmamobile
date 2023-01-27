@@ -58,7 +58,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
             padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
             child: TranslatedText(
               'activity.signed_message',
-              style: theme.themeData.textTheme.headline3,
+              style: theme.themeData.textTheme.headline4,
             ),
           ),
           IrmaQuote(quote: logEntry.signedMessage?.message),
@@ -66,7 +66,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
         SizedBox(height: theme.defaultSpacing),
         TranslatedText(
           'activity.shared_with',
-          style: theme.themeData.textTheme.headline3,
+          style: theme.themeData.textTheme.headline4,
         ),
         SizedBox(height: theme.smallSpacing),
         ActivityVerifierHeader(requestorInfo: logEntry.serverName!),

@@ -20,7 +20,9 @@ class ActivityVerifierHeader extends StatelessWidget {
         title: requestorInfo.name.translate(
           FlutterI18n.currentLocale(context)!.languageCode,
         ),
-        titleTextStyle: IrmaTheme.of(context).textTheme.headline5,
+        titleTextStyle: IrmaTheme.of(context).textTheme.headline5!.copyWith(
+              fontWeight: FontWeight.w600,
+            ),
       ),
     );
   }
