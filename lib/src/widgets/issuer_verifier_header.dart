@@ -24,7 +24,7 @@ class IssuerVerifierHeader extends StatelessWidget {
         IrmaAvatar(
           size: 46,
           logoImage: image,
-          initials: title[0],
+          initials: title != '' ? title[0] : null,
         ),
         SizedBox(
           width: theme.smallSpacing,
