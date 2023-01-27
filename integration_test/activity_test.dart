@@ -44,7 +44,7 @@ void main() {
         await tester.pump(const Duration(seconds: 1));
 
         // Tap on the Demo Municipality card
-        await tester.tapAndSettle(find.text('Demo Municipality'));
+        await tester.tapAndSettle(find.text('demo.privacybydesign.foundation'));
 
         // Check if the correct detail screen is rendered
         expect(find.byType(ActivityDetailScreen), findsOneWidget);
