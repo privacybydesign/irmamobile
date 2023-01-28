@@ -56,11 +56,13 @@ class IrmaCredentialCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
+    final theme = IrmaTheme.of(context);
+
     final isInvalid = credentialView.expired || credentialView.revoked;
     final isExpiringSoon = expiryDate?.expiresSoon ?? false;
 
     return IrmaCard(
-      style: isInvalid ? IrmaCardStyle.disabled : style,
+      style: isInvalid ? IrmaCardStyle.danger : style,
       onTap: onTap,
       padding: padding,
       child: Column(
@@ -68,8 +70,8 @@ class IrmaCredentialCard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           IrmaCredentialCardHeader(
-            title: getTranslation(context, credentialView.credentialType.name),
-            subtitle: getTranslation(context, credentialView.issuer.name),
+            credentialName: getTranslation(context, credentialView.credentialType.name),
+            issuerName: getTranslation(context, credentialView.issuer.name),
             logo: credentialView.credentialType.logo,
             trailing: headerTrailing,
             isExpired: credentialView.expired,
@@ -78,18 +80,15 @@ class IrmaCredentialCard extends StatelessWidget {
           ),
           // If there are attributes in this credential, then we show the attribute list
           if (credentialView.attributesWithValue.isNotEmpty && !hideAttributes) ...[
-            IrmaDivider(isDisabled: isInvalid),
+            IrmaDivider(color: isInvalid ? theme.danger : null),
             IrmaCredentialCardAttributeList(
               credentialView.attributes,
               compareTo: compareTo,
             ),
           ],
           if (!hideFooter) ...[
-            IrmaDivider(
-              isDisabled: isInvalid,
-            ),
             SizedBox(
-              height: IrmaTheme.of(context).tinySpacing,
+              height: IrmaTheme.of(context).smallSpacing,
             ),
             IrmaCredentialCardFooter(
               credentialType: credentialView.credentialType,

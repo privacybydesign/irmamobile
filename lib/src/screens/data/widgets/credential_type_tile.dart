@@ -20,13 +20,14 @@ class CredentialTypeTile extends StatelessWidget {
 
     return IrmaCard(
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircleAvatar(
             backgroundColor: Colors.grey.shade100,
-            radius: 24,
+            radius: 26,
             child: SizedBox(
-              height: 26,
+              height: 28,
               child: credentialType.logo != null && credentialType.logo != ''
                   ? Image.file(
                       File(credentialType.logo!),
@@ -38,12 +39,14 @@ class CredentialTypeTile extends StatelessWidget {
           SizedBox(
             height: theme.smallSpacing,
           ),
-          Text(
-            credentialType.name.translate(FlutterI18n.currentLocale(context)!.languageCode),
-            style: theme.textTheme.caption!.copyWith(fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-            overflow: TextOverflow.ellipsis,
-            maxLines: 2,
+          Flexible(
+            child: Text(
+              credentialType.name.translate(FlutterI18n.currentLocale(context)!.languageCode),
+              style: theme.textTheme.bodyText1,
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 2,
+            ),
           )
         ],
       ),
