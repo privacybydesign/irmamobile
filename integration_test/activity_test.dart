@@ -84,7 +84,11 @@ void main() {
         );
         // Find the activity timestamp
         final timestampFinder = find.byKey(const Key('activity_timestamp'));
-        await tester.scrollUntilVisible(timestampFinder.hitTestable(), 50);
+        await tester.scrollUntilVisible(
+          timestampFinder.hitTestable(),
+          150,
+          maxScrolls: 20,
+        );
         expect(timestampFinder, findsOneWidget);
       },
     );
