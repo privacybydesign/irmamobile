@@ -1,10 +1,9 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 import '../../../models/irma_configuration.dart';
 import '../../../theme/theme.dart';
 import '../../../util/language.dart';
+import '../../../widgets/irma_avatar.dart';
 import '../../../widgets/irma_card.dart';
 import '../../../widgets/irma_repository_provider.dart';
 import '../add_data_details_screen.dart';
@@ -23,12 +22,9 @@ class AddDataTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-
-    const logoContainerSize = 48.0;
-    final logoFile = File(credType.logo ?? '');
+    const logoContainerSize = 52.0;
 
     return IrmaCard(
-      padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => AddDataDetailsScreen(
@@ -46,16 +42,9 @@ class AddDataTile extends StatelessWidget {
           Stack(
             alignment: Alignment.topRight,
             children: [
-              Container(
-                padding: EdgeInsets.all(theme.smallSpacing),
-                height: logoContainerSize,
-                width: logoContainerSize,
-                child: logoFile.existsSync()
-                    ? SizedBox(
-                        height: logoContainerSize / 2,
-                        child: Image.file(logoFile, excludeFromSemantics: true),
-                      )
-                    : null,
+              IrmaAvatar(
+                size: logoContainerSize,
+                logoPath: credType.logo,
               ),
               Visibility(
                 visible: obtained,
@@ -67,30 +56,36 @@ class AddDataTile extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(width: theme.smallSpacing),
+          SizedBox(
+            width: theme.defaultSpacing - theme.tinySpacing,
+          ),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   getTranslation(context, credType.name),
-                  style: theme.textTheme.titleLarge,
+                  style: theme.textTheme.headline4!.copyWith(
+                    color: theme.dark,
+                  ),
                 ),
                 SizedBox(
                   height: theme.tinySpacing,
                 ),
                 Text(
                   getTranslation(context, issuer.name),
-                  style: theme.textTheme.subtitle1,
+                  style: theme.textTheme.bodyText2!.copyWith(
+                    fontSize: 14,
+                  ),
                 ),
               ],
             ),
           ),
           SizedBox(width: theme.smallSpacing),
           Icon(
-            Icons.add_circle_outline,
-            color: theme.themeData.colorScheme.secondary,
-            size: logoContainerSize * 0.7,
+            Icons.chevron_right,
+            size: 24,
+            color: theme.neutralExtraDark,
           ),
         ],
       ),

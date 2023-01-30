@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 import 'package:flutter_i18n/flutter_i18n.dart';
@@ -9,11 +7,10 @@ import '../../../models/credentials.dart';
 import '../../../models/irma_configuration.dart';
 import '../../../models/log_entry.dart';
 import '../../../theme/theme.dart';
+import '../../../widgets/irma_avatar.dart';
 import '../../../widgets/irma_card.dart';
 import '../../../widgets/translated_text.dart';
 import '../activity_detail_screen.dart';
-
-import 'title_initial_uppercased.dart';
 
 class ActivityCard extends StatelessWidget {
   final LogEntry logEntry;
@@ -31,7 +28,7 @@ class ActivityCard extends StatelessWidget {
 
     String title = '';
     String subtitleTranslationKey = '';
-    File logoFile = File('');
+    String? logo;
 
     switch (logEntry.type) {
       case LogEntryType.disclosing:
@@ -39,7 +36,7 @@ class ActivityCard extends StatelessWidget {
         if (logEntry.serverName != null) {
           title = logEntry.serverName!.name.translate(lang);
           if (logEntry.serverName!.logo != null) {
-            logoFile = File(logEntry.serverName!.logo!);
+            logo = logEntry.serverName!.logo;
           }
         }
         subtitleTranslationKey =
@@ -55,9 +52,7 @@ class ActivityCard extends StatelessWidget {
         }
         subtitleTranslationKey = 'activity.data_received';
         if (cred.info.credentialType.logo != null) {
-          logoFile = File(
-            cred.info.credentialType.logo!,
-          );
+          logo = cred.info.credentialType.logo;
         }
         break;
       case LogEntryType.removal:
@@ -65,9 +60,7 @@ class ActivityCard extends StatelessWidget {
         title = irmaConfiguration.issuers[credType.fullIssuerId]!.name.translate(lang);
         subtitleTranslationKey = 'activity.data_deleted';
         if (credType.logo != null) {
-          logoFile = File(
-            credType.logo!,
-          );
+          logo = credType.logo;
         }
         break;
     }
@@ -86,25 +79,15 @@ class ActivityCard extends StatelessWidget {
         children: [
           Flexible(
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Container(
-                  margin: EdgeInsets.only(
-                    right: theme.smallSpacing,
-                    top: theme.smallSpacing,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Container(
-                    padding: EdgeInsets.all(theme.smallSpacing),
-                    height: 56,
-                    width: 56,
-                    child: logoFile.existsSync()
-                        ? SizedBox(height: 24, child: Image.file(logoFile, excludeFromSemantics: true))
-                        : TitleInitialUpperCased(title),
-                  ),
+                IrmaAvatar(
+                  size: 52,
+                  logoPath: logo,
+                  initials: title != '' ? title[0] : null,
+                ),
+                SizedBox(
+                  width: theme.smallSpacing,
                 ),
                 Flexible(
                   child: Column(

@@ -43,11 +43,16 @@ class AddDataScreen extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: const IrmaAppBar(
-          titleTranslationKey: 'data.add.title',
-        ),
-        body: StreamBuilder<CombinedState2<IrmaConfiguration, Credentials>>(
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
+    return Scaffold(
+      backgroundColor: theme.backgroundTertiary,
+      appBar: const IrmaAppBar(
+        titleTranslationKey: 'data.add.title',
+      ),
+      body: SafeArea(
+        child: StreamBuilder<CombinedState2<IrmaConfiguration, Credentials>>(
           stream: combine2(
             IrmaRepositoryProvider.of(context).getIrmaConfiguration(),
             IrmaRepositoryProvider.of(context).getCredentials(),
@@ -57,8 +62,6 @@ class AddDataScreen extends StatelessWidget {
 
             final irmaConfiguration = snapshot.data!.a;
             final credentials = snapshot.data!.b;
-
-            final theme = IrmaTheme.of(context);
 
             final credentialTypes = irmaConfiguration.credentialTypes.values.where(
               (ct) => ct.isInCredentialStore,
@@ -80,14 +83,17 @@ class AddDataScreen extends StatelessWidget {
                 children: [
                   TranslatedText(
                     'data.add.choose',
-                    style: IrmaTheme.of(context).textTheme.bodyText2,
+                    style: theme.textTheme.bodyText2,
                   ),
                   SizedBox(height: theme.mediumSpacing),
                   for (final category in categories) ...[
                     Text(
                       category,
-                      style: theme.textTheme.headline3,
+                      style: theme.textTheme.headline4!.copyWith(
+                        color: theme.neutralExtraDark,
+                      ),
                     ),
+                    SizedBox(height: theme.smallSpacing),
                     ..._buildCategoryAddDataTiles(
                       irmaConfig: irmaConfiguration,
                       categoryCredentialTypes: credentialTypesByCategory[category]!,
@@ -100,5 +106,7 @@ class AddDataScreen extends StatelessWidget {
             );
           },
         ),
-      );
+      ),
+    );
+  }
 }

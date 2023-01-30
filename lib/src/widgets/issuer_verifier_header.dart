@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../screens/activity/widgets/title_initial_uppercased.dart';
 import '../theme/theme.dart';
+import 'irma_avatar.dart';
 
 class IssuerVerifierHeader extends StatelessWidget {
   final String title;
@@ -21,10 +21,10 @@ class IssuerVerifierHeader extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        CircleAvatar(
-          backgroundColor: Colors.grey.shade300,
-          radius: 24,
-          child: image ?? TitleInitialUpperCased(title),
+        IrmaAvatar(
+          size: 46,
+          logoImage: image,
+          initials: title != '' ? title[0] : null,
         ),
         SizedBox(
           width: theme.smallSpacing,
