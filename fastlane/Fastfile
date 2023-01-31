@@ -19,21 +19,16 @@ lane :unit_test do
   end
 end
 
-lane :android_resign do |options|
-  apks = Dir["build/app-#{options[:flavor]}-*.apk"]
-  apks.each do |apk|
-    sh("apksigner", "sign",
-      "--ks", options[:keystore_path],
-      "--ks-key-alias", options[:key_alias],
-      "--ks-pass", "pass:"+options[:keystore_password],
-      "--key-pass", "pass:"+options[:key_password],
-      apk)
-  end
-end
-
 lane :android_build do |options|
-    android_build_irmagobridge()
-    android_build_app(flavor: options[:flavor], sentry_dsn: options[:sentry_dsn])
+  android_build_irmagobridge()
+  android_build_appbundle(
+    flavor: options[:flavor],
+    sentry_dsn: options[:sentry_dsn],
+    keystore_path: options[:keystore_path],
+    keystore_password: options[:keystore_password],
+    key_alias: options[:key_alias],
+    key_password: options[:key_password]
+  )
 end
 
 lane :android_build_irmagobridge do
@@ -42,7 +37,37 @@ lane :android_build_irmagobridge do
   end
 end
 
-lane :android_build_app do |options|
+lane :android_build_universal_apk do |options|
+  android_build_app(
+    build_type: "apk",
+    flavor: options[:flavor],
+    sentry_dsn: options[:sentry_dsn],
+    keystore_path: options[:keystore_path],
+    keystore_password: options[:keystore_password],
+    key_alias: options[:key_alias],
+    key_password: options[:key_password]
+  )
+  Dir.chdir("..") do
+    sh("cp ./build/app/outputs/apk/#{options[:flavor]}/release/*.apk ./fastlane/build/")
+  end
+end
+
+lane :android_build_appbundle do |options|
+  android_build_app(
+    build_type: "appbundle",
+    flavor: options[:flavor],
+    sentry_dsn: options[:sentry_dsn],
+    keystore_path: options[:keystore_path],
+    keystore_password: options[:keystore_password],
+    key_alias: options[:key_alias],
+    key_password: options[:key_password]
+  )
+  Dir.chdir("..") do
+    sh("cp ./build/app/outputs/bundle/#{options[:flavor]}Release/*.aab ./fastlane/build/")
+  end
+end
+
+private_lane :android_build_app do |options|
   update_schemes()
   commit = last_git_commit()
   write_sentrydata(
@@ -50,14 +75,24 @@ lane :android_build_app do |options|
     version: commit[:commit_hash]
   )
 
+  command = [
+    "flutter", "build", options[:build_type],
+    "--flavor", options[:flavor],
+    "--release"
+  ]
+  if options[:keystore_path]
+    keystore_path = File.absolute_path(options[:keystore_path])
+    command += [
+      "-PkeyStoreFile=#{keystore_path}",
+      "-PkeyStorePassword=#{options[:keystore_password]}",
+      "-PkeyAlias=#{options[:key_alias]}",
+      "-PkeyPassword=#{options[:key_password]}"
+    ]
+  end
+
   Dir.chdir("..") do
-    sh(
-      "flutter", "build", "apk",
-      "--split-per-abi",
-      "--flavor", options[:flavor],
-      "--release"
-    )
-    sh("cp ./build/app/outputs/apk/#{options[:flavor]}/release/*.apk ./fastlane/build/")
+    # Hide logging to mask passwords
+    sh(*command, log: false)
   end
 end
 
