@@ -103,7 +103,7 @@ class DynamicLayout extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   hero,
-                  SizedBox(height: theme.defaultSpacing),
+                  SizedBox(height: theme.mediumSpacing),
                   content,
                   if (actions != null) const SizedBox(height: 100)
                 ],
