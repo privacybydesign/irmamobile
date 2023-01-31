@@ -91,10 +91,10 @@ The `flavor` parameter accepts the values `alpha` or `beta`.
 
 Builds the irmagobridge for Android.
 
-### android_build_universal_apk
+### android_build_apk
 
 ```sh
-[bundle exec] fastlane android_build_universal_apk flavor:<VALUE> sentry_dsn:<VALUE>
+[bundle exec] fastlane android_build_apk flavor:<VALUE> sentry_dsn:<VALUE>
 ```
 
 Builds the Android APK for the requested flavor. Only a universal build is included. Check the `android_build`
@@ -105,7 +105,7 @@ The Android APK is written to the `build` directory (so `fastlane/build` from th
 Optionally, you can specify the key properties of the signing key that should be used.
 
 ```sh
-[bundle exec] fastlane android_build_universal_apk flavor:<VALUE> sentry_dsn:<VALUE> keystore_path:<VALUE> key_alias:<VALUE> keystore_password:<VALUE> key_password:<VALUE>
+[bundle exec] fastlane android_build_apk flavor:<VALUE> sentry_dsn:<VALUE> keystore_path:<VALUE> key_alias:<VALUE> keystore_password:<VALUE> key_password:<VALUE>
 ```
 
 The `flavor` parameter accepts the values `alpha` or `beta`.

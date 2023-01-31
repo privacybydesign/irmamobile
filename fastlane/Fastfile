@@ -37,7 +37,7 @@ lane :android_build_irmagobridge do
   end
 end
 
-lane :android_build_universal_apk do |options|
+lane :android_build_apk do |options|
   android_build_app(
     build_type: "apk",
     flavor: options[:flavor],

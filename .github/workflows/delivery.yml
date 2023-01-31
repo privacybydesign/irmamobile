@@ -105,6 +105,7 @@ jobs:
     strategy:
       matrix:
         flavor: [ alpha, beta ]
+        type: [ apk, appbundle ]
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
@@ -119,12 +120,12 @@ jobs:
           path: android/irmagobridge/
       - name: Build app
         run: >
-          bundle exec fastlane android_build_app
+          bundle exec fastlane android_build_${{ matrix.type }}
           flavor:${{ matrix.flavor }}
           sentry_dsn:${{ secrets.SENTRY_DSN }}
       - uses: actions/upload-artifact@v3
         with:
-          name: app-alpha-android-${{ matrix.flavor }}
+          name: app-alpha-android-${{ matrix.flavor }}-${{ matrix.type }}
           path: ./fastlane/build/*.apk
   bundle-app-alpha:
     runs-on: ubuntu-latest
@@ -137,14 +138,22 @@ jobs:
         with:
           name: app-alpha-ios
       # Check the comment above in the build-app-android-alpha job spec why the beta is also present here.
-      - name: Download app-alpha-android-alpha artifact
+      - name: Download app-alpha-android-alpha-apk artifact
         uses: actions/download-artifact@v3
         with:
-          name: app-alpha-android-alpha
-      - name: Download app-alpha-android-beta artifact
+          name: app-alpha-android-alpha-apk
+      - name: Download app-alpha-android-alpha-appbundle artifact
         uses: actions/download-artifact@v3
         with:
-          name: app-alpha-android-beta
+          name: app-alpha-android-alpha-appbundle
+      - name: Download app-alpha-android-beta-apk artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: app-alpha-android-beta-apk
+      - name: Download app-alpha-android-beta-appbundle artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: app-alpha-android-beta-appbundle
       - name: Bundle all artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -223,7 +232,7 @@ jobs:
           path: android/irmagobridge/
       - name: Build app
         run: >
-          bundle exec fastlane android_build_app
+          bundle exec fastlane android_build_appbundle
           flavor:beta
           sentry_dsn:${{ secrets.SENTRY_DSN }}
       - uses: actions/upload-artifact@v3
