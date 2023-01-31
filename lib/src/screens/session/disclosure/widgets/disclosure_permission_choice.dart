@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../../../theme/theme.dart';
 import '../../../../util/con_dis_con.dart';
 import '../../../../widgets/credential_card/irma_credential_card.dart';
-import '../../../../widgets/irma_card.dart';
 import '../models/disclosure_credential.dart';
 import '../models/template_disclosure_credential.dart';
 
