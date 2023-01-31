@@ -60,11 +60,6 @@ class DisclosurePermissionChoice extends StatelessWidget {
                                 ),
                               )
                             : null,
-                        style: isActive
-                            ? i == selectedConIndex
-                                ? IrmaCardStyle.highlighted
-                                : IrmaCardStyle.outlined
-                            : IrmaCardStyle.normal,
                       ),
                     ),
                   )
