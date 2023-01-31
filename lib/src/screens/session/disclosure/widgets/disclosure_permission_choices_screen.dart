@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
 
 import '../../../../models/return_url.dart';
 import '../../../../models/session.dart';
@@ -59,24 +60,20 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             Flexible(
-              child: IrmaButton(
+              child: YiviThemedButton(
                 label: 'disclosure_permission.change_choice',
-                textStyle: theme.textTheme.bodyText1!.copyWith(
-                  color: theme.themeData.colorScheme.secondary,
-                  fontSize: 12,
-                ),
+                style: YiviButtonStyle.outlined,
+                size: YiviButtonSize.small,
                 onPressed: () => onEvent(
                   DisclosurePermissionChangeChoicePressed(
                     disconIndex: choiceEntry.key,
                   ),
                 ),
-                size: IrmaButtonSize.extraSmall,
-                isSecondary: true,
-                minWidth: 100,
               ),
-            ),
+            )
           ],
         ),
+        SizedBox(height: theme.smallSpacing),
         for (int i = 0; i < choiceEntry.value.length; i++)
           IrmaCredentialCard(
             credentialView: choiceEntry.value[i],
@@ -131,58 +128,61 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
       onDismiss: onDismiss,
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            IssuerVerifierHeader(title: requestor.name.translate(lang)),
-            DisclosurePermissionProgressIndicator(
-              step: state.currentStepIndex + 1,
-              stepCount: state.plannedSteps.length,
-              contentTranslationKey: contentTranslationKey,
-              contentTranslationParams: contentTranslationsParams,
-            ),
-            SizedBox(height: theme.defaultSpacing),
-            if (state is DisclosurePermissionChoicesOverview && state.isSignatureSession) ...[
-              TranslatedText(
-                'disclosure_permission.overview.sign',
-                style: theme.themeData.textTheme.headline4,
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              IssuerVerifierHeader(title: requestor.name.translate(lang)),
+              DisclosurePermissionProgressIndicator(
+                step: state.currentStepIndex + 1,
+                stepCount: state.plannedSteps.length,
+                contentTranslationKey: contentTranslationKey,
+                contentTranslationParams: contentTranslationsParams,
               ),
-              Padding(
-                padding: EdgeInsets.only(
-                  top: theme.smallSpacing,
-                  bottom: theme.defaultSpacing,
-                ),
-                child: IrmaQuote(
-                  key: const Key('signature_message'),
-                  quote: state.signedMessage,
-                ),
-              ),
-            ],
-            TranslatedText(
-              state is DisclosurePermissionPreviouslyAddedCredentialsOverview
-                  ? 'disclosure_permission.previously_added.header'
-                  : 'disclosure_permission.overview.header',
-              style: theme.themeData.textTheme.headline4,
-            ),
-            SizedBox(height: theme.smallSpacing),
-            ...state.requiredChoices.entries.map((choiceEntry) => _buildChoiceEntry(context, choiceEntry, false)),
-            if (state.optionalChoices.isNotEmpty) ...[
-              TranslatedText('disclosure_permission.optional_data', style: theme.themeData.textTheme.headline4),
-              ...state.optionalChoices.entries.map((choiceEntry) => _buildChoiceEntry(context, choiceEntry, true)),
-            ],
-            if (state.requiredChoices.isEmpty && state.optionalChoices.isEmpty)
-              TranslatedText('disclosure_permission.no_data_selected', style: theme.textTheme.caption),
-            if (state.hasAdditionalOptionalChoices) ...[
               SizedBox(height: theme.defaultSpacing),
-              //TODO Fix the styling here again
-              IrmaActionCard(
-                titleKey: 'disclosure_permission.add_optional_data',
-                onTap: () => onEvent(DisclosurePermissionAddOptionalDataPressed()),
-                icon: Icons.add_circle_outline,
-                color: theme.textTheme.headline1?.color ?? Colors.black,
-              ),
+              if (state is DisclosurePermissionChoicesOverview && state.isSignatureSession) ...[
+                TranslatedText(
+                  'disclosure_permission.overview.sign',
+                  style: theme.themeData.textTheme.headline4,
+                ),
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: theme.smallSpacing,
+                    bottom: theme.defaultSpacing,
+                  ),
+                  child: IrmaQuote(
+                    key: const Key('signature_message'),
+                    quote: state.signedMessage,
+                  ),
+                ),
+              ],
+              // TODO Remove this
+              // TranslatedText(
+              //   state is DisclosurePermissionPreviouslyAddedCredentialsOverview
+              //       ? 'disclosure_permission.previously_added.header'
+              //       : 'disclosure_permission.overview.header',
+              //   style: theme.themeData.textTheme.headline4,
+              // ),
+              SizedBox(height: theme.smallSpacing),
+              ...state.requiredChoices.entries.map((choiceEntry) => _buildChoiceEntry(context, choiceEntry, false)),
+              if (state.optionalChoices.isNotEmpty) ...[
+                TranslatedText('disclosure_permission.optional_data', style: theme.themeData.textTheme.headline4),
+                ...state.optionalChoices.entries.map((choiceEntry) => _buildChoiceEntry(context, choiceEntry, true)),
+              ],
+              if (state.requiredChoices.isEmpty && state.optionalChoices.isEmpty)
+                TranslatedText('disclosure_permission.no_data_selected', style: theme.textTheme.caption),
+              if (state.hasAdditionalOptionalChoices) ...[
+                SizedBox(height: theme.defaultSpacing),
+                //TODO Fix the styling here again
+                IrmaActionCard(
+                  titleKey: 'disclosure_permission.add_optional_data',
+                  onTap: () => onEvent(DisclosurePermissionAddOptionalDataPressed()),
+                  icon: Icons.add_circle_outline,
+                  color: theme.textTheme.headline1?.color ?? Colors.black,
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
