@@ -29,7 +29,11 @@ class IrmaStepper extends StatelessWidget {
     }
 
     return TimelineTile(
+      isFirst: index == 0,
+      isLast: index == children.length - 1,
       indicatorStyle: IndicatorStyle(
+        height: 24,
+        width: 24,
         indicator: IrmaStepIndicator(
           step: index + 1,
           //If item is current show filled indicator
@@ -42,7 +46,11 @@ class IrmaStepper extends StatelessWidget {
                   //If item has already been completed show success indicator
                   : IrmaStepIndicatorStyle.success,
         ),
-        padding: EdgeInsets.only(right: theme.smallSpacing),
+        padding: EdgeInsets.only(
+          right: theme.smallSpacing,
+          top: theme.tinySpacing,
+          bottom: theme.tinySpacing,
+        ),
       ),
       endChild: child,
       beforeLineStyle: LineStyle(

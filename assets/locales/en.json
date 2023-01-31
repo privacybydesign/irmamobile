@@ -173,9 +173,7 @@
     },
     "issue_wizard": {
       "title": "Collect data",
-      "explanation": "Obtain your data step by step. You will be sharing these later.",
-      "header_incomplete": "We still need the following data from you:",
-      "header_complete": "All required data has been added."
+      "explanation": "Obtain your data step by step"
     },
     "previously_added": {
       "title": "Validate data",

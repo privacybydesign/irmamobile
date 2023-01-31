@@ -11,7 +11,7 @@ class IrmaAvatar extends StatelessWidget {
   final String? initials;
 
   const IrmaAvatar({
-    this.size = 40,
+    this.size = 48,
     this.logoImage,
     this.logoPath,
     this.initials,

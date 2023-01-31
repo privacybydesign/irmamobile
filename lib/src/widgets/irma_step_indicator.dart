@@ -35,7 +35,7 @@ class IrmaStepIndicator extends StatelessWidget {
                 : Colors.white,
         border: Border.all(
           color: style == IrmaStepIndicatorStyle.success ? theme.success : theme.themeData.colorScheme.secondary,
-          width: 2,
+          width: 1,
         ),
       ),
       child: FittedBox(

@@ -173,9 +173,7 @@
     },
     "issue_wizard": {
       "title": "Verzamel gegevens",
-      "explanation": "Haal stap voor stap mijn nieuwe gegevens op. Daarna deel je ze met de partij die daarom vraagt.",
-      "header_incomplete": "Deze gegevens hebben we nog van je nodig:",
-      "header_complete": "Alle nieuwe benodigde gegevens zijn toegevoegd."
+      "explanation": "Haal stap voor stap mijn nieuwe gegevens op"
     },
     "previously_added": {
       "title": "Controleer gegevens",

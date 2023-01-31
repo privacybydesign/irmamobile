@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/theme.dart';
 import 'irma_avatar.dart';
+import 'irma_card.dart';
 
 class IssuerVerifierHeader extends StatelessWidget {
   final String title;
@@ -18,25 +19,35 @@ class IssuerVerifierHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        IrmaAvatar(
-          size: 46,
-          logoImage: image,
-          initials: title != '' ? title[0] : null,
-        ),
-        SizedBox(
-          width: theme.smallSpacing,
-        ),
-        Flexible(
-          child: Text(
-            title,
-            style: titleTextStyle ?? theme.textTheme.bodyText1,
-            overflow: TextOverflow.ellipsis,
+    return IrmaCard(
+      style: IrmaCardStyle.flat,
+      padding: EdgeInsets.zero,
+      margin: EdgeInsets.all(
+        theme.smallSpacing,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          IrmaAvatar(
+            size: 52,
+            logoImage: image,
+            initials: title != '' ? title[0] : null,
           ),
-        ),
-      ],
+          SizedBox(
+            width: theme.smallSpacing,
+          ),
+          Flexible(
+            child: Text(
+              title,
+              style: titleTextStyle ??
+                  theme.textTheme.bodyText1!.copyWith(
+                    color: theme.neutralExtraDark,
+                  ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
