@@ -72,7 +72,7 @@ class ActivityCard extends StatelessWidget {
                 IrmaAvatar(
                   size: 52,
                   logoPath: logo,
-                  initials: title[0],
+                  initials: title != '' ? title[0] : null,
                 ),
                 SizedBox(
                   width: theme.smallSpacing,

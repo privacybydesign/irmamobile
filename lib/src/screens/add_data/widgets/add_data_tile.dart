@@ -44,7 +44,7 @@ class AddDataTile extends StatelessWidget {
             children: [
               IrmaAvatar(
                 size: logoContainerSize,
-                logoPath: credType.logo!,
+                logoPath: credType.logo,
               ),
               Visibility(
                 visible: obtained,
