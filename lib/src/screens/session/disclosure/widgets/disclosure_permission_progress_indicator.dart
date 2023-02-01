@@ -58,12 +58,18 @@ class DisclosurePermissionProgressIndicator extends StatelessWidget {
               ),
             ),
           ],
-          TranslatedText(
-            contentTranslationKey,
-            translationParams: contentTranslationParams,
-            style: theme.themeData.textTheme.headline4!.copyWith(
-              color: theme.dark,
-            ),
+          Row(
+            children: [
+              Flexible(
+                child: TranslatedText(
+                  contentTranslationKey,
+                  translationParams: contentTranslationParams,
+                  style: theme.themeData.textTheme.headline4!.copyWith(
+                    color: theme.dark,
+                  ),
+                ),
+              )
+            ],
           )
         ],
       ),
