@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:intl/intl.dart';
 
-import '../../../models/credentials.dart';
 import '../../../models/irma_configuration.dart';
 import '../../../models/log_entry.dart';
 import '../../../theme/theme.dart';
@@ -30,39 +29,28 @@ class ActivityCard extends StatelessWidget {
     String subtitleTranslationKey = '';
     String? logo;
 
-    switch (logEntry.type) {
-      case LogEntryType.disclosing:
-      case LogEntryType.signing:
-        if (logEntry.serverName != null) {
-          title = logEntry.serverName!.name.translate(lang);
-          if (logEntry.serverName!.logo != null) {
-            logo = logEntry.serverName!.logo;
-          }
+    if (logEntry.type == LogEntryType.removal) {
+      final credType = irmaConfiguration.credentialTypes[logEntry.removedCredentials.keys.first]!;
+      title = irmaConfiguration.issuers[credType.fullIssuerId]!.name.translate(lang);
+      subtitleTranslationKey = 'activity.data_deleted';
+      if (credType.logo != null) {
+        logo = credType.logo;
+      }
+    } else {
+      if (logEntry.serverName != null) {
+        title = logEntry.serverName!.name.translate(lang);
+        if (logEntry.serverName!.logo != null) {
+          logo = logEntry.serverName!.logo;
         }
-        subtitleTranslationKey =
-            logEntry.type == LogEntryType.disclosing ? 'activity.data_shared' : 'activity.message_signed';
-        break;
-      case LogEntryType.issuing:
-        final cred = Credential.fromRaw(
-          irmaConfiguration: irmaConfiguration,
-          rawCredential: logEntry.issuedCredentials.first,
-        );
-        if (irmaConfiguration.issuers[cred.info.issuer.fullId] != null) {
-          title = irmaConfiguration.issuers[cred.info.issuer.fullId]!.name.translate(lang);
-        }
+      }
+
+      if (logEntry.type == LogEntryType.issuing) {
         subtitleTranslationKey = 'activity.data_received';
-        if (cred.info.credentialType.logo != null) {
-          logo = cred.info.credentialType.logo;
-        }
-        break;
-      case LogEntryType.removal:
-        final credType = irmaConfiguration.credentialTypes[logEntry.removedCredentials.keys.first]!;
-        title = irmaConfiguration.issuers[credType.fullIssuerId]!.name.translate(lang);
-        subtitleTranslationKey = 'activity.data_deleted';
-        if (credType.logo != null) {
-          logo = credType.logo;
-        }
-        break;
+      } else if (logEntry.type == LogEntryType.disclosing) {
+        subtitleTranslationKey = 'activity.data_shared';
+      } else if (logEntry.type == LogEntryType.signing) {
+        subtitleTranslationKey = 'activity.message_signed';
+      }
     }
 
     return IrmaCard(
