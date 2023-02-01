@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
 
 import '../../../../models/return_url.dart';
 import '../../../../models/session.dart';
@@ -9,12 +8,11 @@ import '../../../../util/con_dis_con.dart';
 import '../../../../widgets/credential_card/irma_credential_card.dart';
 import '../../../../widgets/irma_action_card.dart';
 import '../../../../widgets/irma_bottom_bar.dart';
-import '../../../../widgets/irma_button.dart';
 import '../../../../widgets/irma_icon_button.dart';
 import '../../../../widgets/irma_quote.dart';
-import '../../../../widgets/irma_themed_button.dart';
 import '../../../../widgets/issuer_verifier_header.dart';
 import '../../../../widgets/translated_text.dart';
+import '../../../../widgets/yivi_themed_button.dart';
 import '../../widgets/session_scaffold.dart';
 import '../bloc/disclosure_permission_event.dart';
 import '../bloc/disclosure_permission_state.dart';
@@ -156,13 +154,6 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                   ),
                 ),
               ],
-              // TODO Remove this
-              // TranslatedText(
-              //   state is DisclosurePermissionPreviouslyAddedCredentialsOverview
-              //       ? 'disclosure_permission.previously_added.header'
-              //       : 'disclosure_permission.overview.header',
-              //   style: theme.themeData.textTheme.headline4,
-              // ),
               SizedBox(height: theme.smallSpacing),
               ...state.requiredChoices.entries.map((choiceEntry) => _buildChoiceEntry(context, choiceEntry, false)),
               if (state.optionalChoices.isNotEmpty) ...[
@@ -173,12 +164,11 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                 TranslatedText('disclosure_permission.no_data_selected', style: theme.textTheme.caption),
               if (state.hasAdditionalOptionalChoices) ...[
                 SizedBox(height: theme.defaultSpacing),
-                //TODO Fix the styling here again
                 IrmaActionCard(
                   titleKey: 'disclosure_permission.add_optional_data',
                   onTap: () => onEvent(DisclosurePermissionAddOptionalDataPressed()),
                   icon: Icons.add_circle_outline,
-                  color: theme.textTheme.headline1?.color ?? Colors.black,
+                  isFancy: false,
                 ),
               ],
             ],

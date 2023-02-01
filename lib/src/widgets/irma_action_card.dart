@@ -8,17 +8,16 @@ class IrmaActionCard extends StatelessWidget {
   final String titleKey;
   final String? subtitleKey;
   final IconData icon;
-
-  final Color? color;
   final Function()? onTap;
+  final bool isFancy;
 
   const IrmaActionCard({
     Key? key,
     required this.titleKey,
     required this.icon,
-    this.color,
     this.subtitleKey,
     this.onTap,
+    this.isFancy = true,
   }) : super(key: key);
 
   @override
@@ -27,14 +26,18 @@ class IrmaActionCard extends StatelessWidget {
     final isLandscape = MediaQuery.of(context).size.width > 450;
 
     final centeredLayout = subtitleKey == null || isLandscape;
-    final contentColor = color ?? theme.light;
+    final contentColor = isFancy ? theme.light : theme.neutralExtraDark;
 
     Widget flexibleTitleTextWidget = Flexible(
       child: TranslatedText(
         titleKey,
-        style: theme.textTheme.headline2!.copyWith(
-          color: contentColor,
-        ),
+        style: isFancy
+            ? theme.textTheme.headline2!.copyWith(
+                color: contentColor,
+              )
+            : theme.textTheme.headline5!.copyWith(
+                color: contentColor,
+              ),
       ),
     );
 
@@ -43,14 +46,18 @@ class IrmaActionCard extends StatelessWidget {
       flexibleSubtitleTextWidget = Flexible(
         child: TranslatedText(
           subtitleKey!,
-          style: theme.textTheme.bodyText2!.copyWith(fontSize: 14, color: contentColor, fontWeight: FontWeight.w600),
+          style: theme.textTheme.bodyText2!.copyWith(
+            fontSize: 14,
+            color: contentColor,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       );
     }
 
     final iconWidget = Icon(
       icon,
-      size: 62,
+      size: isFancy ? 62 : 48,
       color: contentColor,
     );
 
@@ -62,11 +69,15 @@ class IrmaActionCard extends StatelessWidget {
         children: [
           // Background
           Positioned.fill(
-            child: SvgPicture.asset(
-              'assets/ui/btn-bg.svg',
-              alignment: Alignment.center,
-              fit: BoxFit.fill,
-            ),
+            child: isFancy
+                ? SvgPicture.asset(
+                    'assets/ui/btn-bg.svg',
+                    alignment: Alignment.center,
+                    fit: BoxFit.fill,
+                  )
+                : Container(
+                    color: theme.light,
+                  ),
           ),
 
           // Content
@@ -75,7 +86,9 @@ class IrmaActionCard extends StatelessWidget {
             child: InkWell(
               onTap: onTap,
               child: Padding(
-                padding: EdgeInsets.all(theme.defaultSpacing),
+                padding: EdgeInsets.all(
+                  isFancy ? theme.defaultSpacing : theme.smallSpacing,
+                ),
                 child: centeredLayout
                     // Layout where the text is centrally aligned with the icon
                     ? Row(
