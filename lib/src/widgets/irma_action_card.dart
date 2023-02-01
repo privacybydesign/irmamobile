@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 import '../theme/theme.dart';
+import 'irma_card.dart';
 import 'translated_text.dart';
 
 class IrmaActionCard extends StatelessWidget {
@@ -35,8 +36,8 @@ class IrmaActionCard extends StatelessWidget {
             ? theme.textTheme.headline2!.copyWith(
                 color: contentColor,
               )
-            : theme.textTheme.headline5!.copyWith(
-                color: contentColor,
+            : theme.textTheme.headline4!.copyWith(
+                color: theme.dark,
               ),
       ),
     );
@@ -57,7 +58,7 @@ class IrmaActionCard extends StatelessWidget {
 
     final iconWidget = Icon(
       icon,
-      size: isFancy ? 62 : 48,
+      size: isFancy ? 62 : 36,
       color: contentColor,
     );
 
@@ -75,9 +76,7 @@ class IrmaActionCard extends StatelessWidget {
                     alignment: Alignment.center,
                     fit: BoxFit.fill,
                   )
-                : Container(
-                    color: theme.light,
-                  ),
+                : const IrmaCard(),
           ),
 
           // Content
@@ -86,9 +85,7 @@ class IrmaActionCard extends StatelessWidget {
             child: InkWell(
               onTap: onTap,
               child: Padding(
-                padding: EdgeInsets.all(
-                  isFancy ? theme.defaultSpacing : theme.smallSpacing,
-                ),
+                padding: EdgeInsets.all(theme.defaultSpacing),
                 child: centeredLayout
                     // Layout where the text is centrally aligned with the icon
                     ? Row(

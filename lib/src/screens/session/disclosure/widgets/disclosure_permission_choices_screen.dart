@@ -167,7 +167,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                 IrmaActionCard(
                   titleKey: 'disclosure_permission.add_optional_data',
                   onTap: () => onEvent(DisclosurePermissionAddOptionalDataPressed()),
-                  icon: Icons.add_circle_outline,
+                  icon: Icons.add_circle,
                   isFancy: false,
                 ),
               ],
