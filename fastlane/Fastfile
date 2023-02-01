@@ -75,24 +75,23 @@ private_lane :android_build_app do |options|
     version: commit[:commit_hash]
   )
 
-  command = [
-    "flutter", "build", options[:build_type],
-    "--flavor", options[:flavor],
-    "--release"
-  ]
+  # In Fastlane it's not possible to mask secrets in the command, while showing the shell output of the command.
+  # Therefore, we use environment variables to hide parameter values.
+  puts "In the following command, parameter values are hidden using environment variables."
+  cmd = "flutter build $FASTLANE_BUILD_TYPE --flavor $FASTLANE_FLAVOR --release"
+  ENV["FASTLANE_BUILD_TYPE"] = options[:build_type]
+  ENV["FASTLANE_FLAVOR"] = options[:flavor]
   if options[:keystore_path]
-    keystore_path = File.absolute_path(options[:keystore_path])
-    command += [
-      "-PkeyStoreFile=#{keystore_path}",
-      "-PkeyStorePassword=#{options[:keystore_password]}",
-      "-PkeyAlias=#{options[:key_alias]}",
-      "-PkeyPassword=#{options[:key_password]}"
-    ]
+    ENV["FASTLANE_KEYSTORE_PATH"] = File.absolute_path(options[:keystore_path])
+    ENV["FASTLANE_KEYSTORE_PASSWORD"] = options[:keystore_password]
+    ENV["FASTLANE_KEY_ALIAS"] = options[:key_alias]
+    ENV["FASTLANE_KEY_PASSWORD"] = options[:key_password]
+    cmd += " -PkeyStoreFile=$FASTLANE_KEYSTORE_PATH -PkeyStorePassword=$FASTLANE_KEYSTORE_PASSWORD"
+    cmd += " -PkeyAlias=$FASTLANE_KEY_ALIAS -PkeyPassword=$FASTLANE_KEY_PASSWORD"
   end
 
   Dir.chdir("..") do
-    # Hide logging to mask passwords
-    sh(*command, log: false)
+    sh(cmd)
   end
 end
 
