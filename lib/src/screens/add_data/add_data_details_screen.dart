@@ -50,6 +50,7 @@ class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
     );
 
     return Scaffold(
+      backgroundColor: theme.backgroundSecondary,
       appBar: IrmaAppBar(
         titleTranslationKey: 'data.add.details.title',
         actions: [
@@ -66,37 +67,42 @@ class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
       ),
       body: SingleChildScrollView(
         controller: _controller,
-        padding: EdgeInsets.all(theme.tinySpacing),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: paddingText,
-              child: Text(
-                widget.credentialType.faqIntro.isEmpty
-                    ?
-                    // Fallback generic add credential text
-                    FlutterI18n.translate(
-                        context,
-                        'data.add.details.obtain',
-                        translationParams: {
-                          'credential': widget.credentialType.name.translate(lang),
-                        },
-                      )
-                    : getTranslation(context, widget.credentialType.faqIntro).replaceAll('\\n', '\n'),
-                style: theme.textTheme.bodyText2,
+        padding: EdgeInsets.symmetric(
+          vertical: theme.defaultSpacing,
+          horizontal: theme.smallSpacing,
+        ),
+        child: SafeArea(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: paddingText,
+                child: Text(
+                  widget.credentialType.faqIntro.isEmpty
+                      ?
+                      // Fallback generic add credential text
+                      FlutterI18n.translate(
+                          context,
+                          'data.add.details.obtain',
+                          translationParams: {
+                            'credential': widget.credentialType.name.translate(lang),
+                          },
+                        )
+                      : getTranslation(context, widget.credentialType.faqIntro).replaceAll('\\n', '\n'),
+                  style: theme.textTheme.bodyText2,
+                ),
               ),
-            ),
-            Padding(
-              padding: paddingQuestions,
-              child: AddDataQuestions(
-                inDisclosure: widget.inDisclosure,
-                credentialType: widget.credentialType,
-                parentScrollController: _controller,
-              ),
-            )
-          ],
+              Padding(
+                padding: paddingQuestions,
+                child: AddDataQuestions(
+                  inDisclosure: widget.inDisclosure,
+                  credentialType: widget.credentialType,
+                  parentScrollController: _controller,
+                ),
+              )
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
