@@ -178,8 +178,7 @@
     },
     "previously_added": {
       "title": "Controleer gegevens",
-      "explanation": "Controleer of de volgende gegevens kloppen",
-      "header": "Deze gegevens zijn al eerder door je toegevoegd aan de app:"
+      "explanation": "Deze gegevens zijn al eerder door je toegevoegd aan de app. Controleer of de volgende gegevens kloppen."
     },
     "overview": {
       "title": "Deel mijn gegevens",
