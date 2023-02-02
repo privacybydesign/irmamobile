@@ -62,6 +62,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                 label: 'disclosure_permission.change_choice',
                 style: YiviButtonStyle.outlined,
                 size: YiviButtonSize.small,
+                isTransparent: true,
                 onPressed: () => onEvent(
                   DisclosurePermissionChangeChoicePressed(
                     disconIndex: choiceEntry.key,
