@@ -43,7 +43,6 @@ class IssuerVerifierHeader extends StatelessWidget {
                   theme.textTheme.bodyText1!.copyWith(
                     color: theme.neutralExtraDark,
                   ),
-              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],

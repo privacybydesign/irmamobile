@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../models/attribute.dart';
 import '../../../models/credentials.dart';
@@ -7,8 +8,8 @@ import '../../../models/log_entry.dart';
 import '../../../theme/theme.dart';
 import '../../../widgets/credential_card/irma_credential_card.dart';
 import '../../../widgets/irma_quote.dart';
+import '../../../widgets/issuer_verifier_header.dart';
 import '../../../widgets/translated_text.dart';
-import 'activity_verifier_card.dart';
 
 class ActivityDetailDisclosure extends StatelessWidget {
   final LogEntry logEntry;
@@ -69,7 +70,14 @@ class ActivityDetailDisclosure extends StatelessWidget {
           style: theme.themeData.textTheme.headline4,
         ),
         SizedBox(height: theme.smallSpacing),
-        ActivityVerifierHeader(requestorInfo: logEntry.serverName!),
+        IssuerVerifierHeader(
+          title: logEntry.serverName!.name.translate(
+            FlutterI18n.currentLocale(context)!.languageCode,
+          ),
+          titleTextStyle: IrmaTheme.of(context).textTheme.headline5!.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+        )
       ],
     );
   }
