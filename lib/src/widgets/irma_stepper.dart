@@ -13,52 +13,40 @@ class IrmaStepper extends StatelessWidget {
     this.currentIndex,
   });
 
-  Widget _buildItem(IrmaThemeData theme, int index) {
-    Widget child = children[index];
-
-    // If this child has yet to be completed
-    // wrap it in a color filter to make it look greyed out.
-    if (currentIndex != null && index > currentIndex!) {
-      child = ColorFiltered(
-        colorFilter: ColorFilter.mode(
-          Colors.white.withOpacity(0.5),
-          BlendMode.modulate,
+  Widget _buildItem(
+    IrmaThemeData theme,
+    int index,
+  ) =>
+      TimelineTile(
+        isFirst: index == 0,
+        isLast: index == children.length - 1,
+        indicatorStyle: IndicatorStyle(
+          height: 24,
+          width: 24,
+          indicator: IrmaStepIndicator(
+            step: index + 1,
+            //If item is current show filled indicator
+            style: currentIndex == index
+                ? IrmaStepIndicatorStyle.filled
+                // If this item is not active or currentIndex is null
+                // show default outline indicator
+                : currentIndex != null && currentIndex! < index
+                    ? IrmaStepIndicatorStyle.outlined
+                    //If item has already been completed show success indicator
+                    : IrmaStepIndicatorStyle.success,
+          ),
+          padding: EdgeInsets.only(
+            right: theme.smallSpacing,
+            top: theme.tinySpacing,
+            bottom: theme.tinySpacing,
+          ),
         ),
-        child: child,
+        endChild: children[index],
+        beforeLineStyle: LineStyle(
+          thickness: 1,
+          color: theme.themeData.colorScheme.secondary,
+        ),
       );
-    }
-
-    return TimelineTile(
-      isFirst: index == 0,
-      isLast: index == children.length - 1,
-      indicatorStyle: IndicatorStyle(
-        height: 24,
-        width: 24,
-        indicator: IrmaStepIndicator(
-          step: index + 1,
-          //If item is current show filled indicator
-          style: currentIndex == index
-              ? IrmaStepIndicatorStyle.filled
-              // If this item is not active or currentIndex is null
-              // show default outline indicator
-              : currentIndex != null && currentIndex! < index
-                  ? IrmaStepIndicatorStyle.outlined
-                  //If item has already been completed show success indicator
-                  : IrmaStepIndicatorStyle.success,
-        ),
-        padding: EdgeInsets.only(
-          right: theme.smallSpacing,
-          top: theme.tinySpacing,
-          bottom: theme.tinySpacing,
-        ),
-      ),
-      endChild: child,
-      beforeLineStyle: LineStyle(
-        thickness: 1,
-        color: theme.themeData.colorScheme.secondary,
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
