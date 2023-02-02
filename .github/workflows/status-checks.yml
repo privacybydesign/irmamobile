@@ -110,8 +110,7 @@ jobs:
           key_alias:android-signing-development
           keystore_password:$ANDROID_DEVELOPMENT_SIGNING_KEYSTORE_PASSWORD
           key_password:$ANDROID_DEVELOPMENT_SIGNING_KEYSTORE_PASSWORD
-      - name:
-        uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v3
         with:
           name: app-${{ matrix.flavor }}-android-${{ matrix.type }}
           path: ./fastlane/build/*
