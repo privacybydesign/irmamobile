@@ -61,7 +61,7 @@ Below we describe how you can generate a Java Keystore for signing.
  1. Specify a key name, i.e. `KEY_ALIAS=upload-key`
  2. Run `keytool -genkey -alias $KEY_ALIAS -keyalg RSA -keystore $KEY_ALIAS.jks -keysize 4096`
  3. If you need the certificate to upload to Google, you can generate one in the following way:
-    `keytool -export -rfc -keystore $KEY_ALIAS.jks -alias $KEY_ALIAS -file $KEYNAME.pem`
+    `keytool -export -rfc -keystore $KEY_ALIAS.jks -alias $KEY_ALIAS -file $KEY_ALIAS.pem`
  4. In case you need to upload the assets to a secret vault, then you need to encode the files with base64,
     i.e. `cat $KEY_ALIAS.jks | base64 > $KEY_ALIAS.jks.base64`
 
