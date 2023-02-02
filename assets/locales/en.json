@@ -173,7 +173,8 @@
     },
     "issue_wizard": {
       "title": "Collect data",
-      "explanation": "Obtain your data step by step"
+      "explanation_incomplete": "Obtain my data step by step",
+      "explanation_complete": "All required data has been added"
     },
     "previously_added": {
       "title": "Validate data",

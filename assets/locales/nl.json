@@ -173,7 +173,8 @@
     },
     "issue_wizard": {
       "title": "Verzamel gegevens",
-      "explanation": "Haal stap voor stap mijn nieuwe gegevens op"
+      "explanation_incomplete": "Haal stap voor stap mijn nieuwe gegevens op",
+      "explanation_complete": "Alle nieuwe benodigde gegevens zijn toegevoegd"
     },
     "previously_added": {
       "title": "Controleer gegevens",
