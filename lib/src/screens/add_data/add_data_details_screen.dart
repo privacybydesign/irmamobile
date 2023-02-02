@@ -53,6 +53,7 @@ class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
       backgroundColor: theme.backgroundSecondary,
       appBar: IrmaAppBar(
         titleTranslationKey: 'data.add.details.title',
+        leadingAction: widget.inDisclosure ? widget.onCancel : null,
         actions: [
           if (widget.onDismiss != null)
             Padding(
