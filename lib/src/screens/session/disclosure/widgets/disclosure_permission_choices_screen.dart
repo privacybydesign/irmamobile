@@ -81,8 +81,14 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
             headerTrailing: isOptional && i == 0
                 ? IrmaIconButton(
                     icon: Icons.close,
-                    size: 12,
-                    onTap: () => onEvent(DisclosurePermissionRemoveOptionalDataPressed(disconIndex: choiceEntry.key)))
+                    size: 22,
+                    padding: EdgeInsets.zero,
+                    onTap: () => onEvent(
+                      DisclosurePermissionRemoveOptionalDataPressed(
+                        disconIndex: choiceEntry.key,
+                      ),
+                    ),
+                  )
                 : null,
           ),
         SizedBox(
@@ -162,7 +168,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                 ...state.optionalChoices.entries.map((choiceEntry) => _buildChoiceEntry(context, choiceEntry, true)),
               ],
               if (state.requiredChoices.isEmpty && state.optionalChoices.isEmpty)
-                TranslatedText('disclosure_permission.no_data_selected', style: theme.textTheme.caption),
+                TranslatedText('disclosure_permission.no_data_selected', style: theme.textTheme.headline4),
               if (state.hasAdditionalOptionalChoices) ...[
                 SizedBox(height: theme.defaultSpacing),
                 IrmaActionCard(
