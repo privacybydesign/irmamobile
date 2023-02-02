@@ -28,50 +28,53 @@ class ActivityDetailScreen extends StatelessWidget {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     return Scaffold(
+      backgroundColor: theme.backgroundSecondary,
       appBar: const IrmaAppBar(
         titleTranslationKey: 'home.nav_bar.activity',
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Builder(
-              builder: (context) {
-                switch (logEntry.type) {
-                  case LogEntryType.signing:
-                  case LogEntryType.disclosing:
-                    return ActivityDetailDisclosure(
-                      logEntry: logEntry,
-                      irmaConfiguration: irmaConfiguration,
-                    );
-                  case LogEntryType.issuing:
-                    return ActivityDetailIssuance(
-                      logEntry: logEntry,
-                      irmaConfiguration: irmaConfiguration,
-                    );
-                  case LogEntryType.removal:
-                    return ActivityDetailRemoval(
-                      logEntry: logEntry,
-                      irmaConfiguration: irmaConfiguration,
-                    );
-                }
-              },
-            ),
-            //Always add the timestamp of the activity on the bottom
-            SizedBox(height: theme.smallSpacing),
-            Center(
-              child: TranslatedText(
-                'credential.date_at_time',
-                key: const Key('activity_timestamp'),
-                translationParams: {
-                  'date': DateFormat.yMMMMd(lang).format(logEntry.time),
-                  'time': DateFormat.jm(lang).format(logEntry.time),
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Builder(
+                builder: (context) {
+                  switch (logEntry.type) {
+                    case LogEntryType.signing:
+                    case LogEntryType.disclosing:
+                      return ActivityDetailDisclosure(
+                        logEntry: logEntry,
+                        irmaConfiguration: irmaConfiguration,
+                      );
+                    case LogEntryType.issuing:
+                      return ActivityDetailIssuance(
+                        logEntry: logEntry,
+                        irmaConfiguration: irmaConfiguration,
+                      );
+                    case LogEntryType.removal:
+                      return ActivityDetailRemoval(
+                        logEntry: logEntry,
+                        irmaConfiguration: irmaConfiguration,
+                      );
+                  }
                 },
-                style: theme.themeData.textTheme.caption,
               ),
-            ),
-          ],
+              //Always add the timestamp of the activity on the bottom
+              SizedBox(height: theme.smallSpacing),
+              Center(
+                child: TranslatedText(
+                  'credential.date_at_time',
+                  key: const Key('activity_timestamp'),
+                  translationParams: {
+                    'date': DateFormat.yMMMMd(lang).format(logEntry.time),
+                    'time': DateFormat.jm(lang).format(logEntry.time),
+                  },
+                  style: theme.themeData.textTheme.bodyText2,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

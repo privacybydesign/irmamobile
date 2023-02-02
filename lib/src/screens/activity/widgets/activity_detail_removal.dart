@@ -31,7 +31,7 @@ class ActivityDetailRemoval extends StatelessWidget {
       children: [
         TranslatedText(
           'activity.deleted_data',
-          style: theme.themeData.textTheme.headline3,
+          style: theme.themeData.textTheme.headline4,
         ),
         SizedBox(height: theme.smallSpacing),
         for (var removedCredential in removedCredentials)

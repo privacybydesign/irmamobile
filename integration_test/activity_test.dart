@@ -44,7 +44,7 @@ void main() {
         await tester.pump(const Duration(seconds: 1));
 
         // Tap on the Demo Municipality card
-        await tester.tapAndSettle(find.text('Demo Municipality'));
+        await tester.tapAndSettle(find.text('demo.privacybydesign.foundation'));
 
         // Check if the correct detail screen is rendered
         expect(find.byType(ActivityDetailScreen), findsOneWidget);
@@ -84,7 +84,11 @@ void main() {
         );
         // Find the activity timestamp
         final timestampFinder = find.byKey(const Key('activity_timestamp'));
-        await tester.scrollUntilVisible(timestampFinder.hitTestable(), 50);
+        await tester.scrollUntilVisible(
+          timestampFinder.hitTestable(),
+          150,
+          maxScrolls: 20,
+        );
         expect(timestampFinder, findsOneWidget);
       },
     );
