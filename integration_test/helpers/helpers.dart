@@ -16,6 +16,7 @@ import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_attr
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_footer.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_header.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
+import 'package:irmamobile/src/widgets/radio_indicator.dart';
 
 import '../irma_binding.dart';
 import '../util.dart';
@@ -140,6 +141,7 @@ Future<void> evaluateCredentialCard(
   String? issuerName,
   Map<String, String>? attributes,
   Map<String, String>? attributesCompareTo,
+  bool? isSelected,
   String? footerText,
   IrmaCardStyle? style,
 }) async {
@@ -232,6 +234,21 @@ Future<void> evaluateCredentialCard(
       // Expect no attribute list
       expect(cardAttList, findsNothing);
     }
+  }
+
+  if (isSelected != null) {
+    final radioIndicatorFinder = find.descendant(
+      of: credentialCardFinder,
+      matching: find.byType(RadioIndicator),
+    );
+
+    expect(radioIndicatorFinder, findsOneWidget);
+    final radioIndicatorWidget = radioIndicatorFinder.evaluate().single.widget as RadioIndicator;
+
+    expect(
+      radioIndicatorWidget.isSelected,
+      isSelected,
+    );
   }
 
   // Check the footer text

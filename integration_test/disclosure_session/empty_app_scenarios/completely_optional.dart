@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
-import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
-import 'package:irmamobile/src/widgets/irma_button.dart';
 
 import '../../helpers/helpers.dart';
 import '../../irma_binding.dart';
 import '../../helpers/issuance_helpers.dart';
 import '../../util.dart';
+import '../disclosure_helpers.dart';
 
 Future<void> completelyOptionalTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
@@ -30,12 +29,8 @@ Future<void> completelyOptionalTest(WidgetTester tester, IntegrationTestIrmaBind
 
   // Start session without the credential being present.
   await irmaBinding.repository.startTestSession(sessionRequest);
+  await evaluateIntroduction(tester);
 
-  // Dismiss introduction screen.
-  await tester.waitFor(find.text('Share your data'));
-  await tester.tapAndSettle(find.descendant(of: find.byType(IrmaButton), matching: find.text('Get going')));
-
-  expect(find.text('This is the data you are going to share:'), findsOneWidget);
   expect(find.text('No data selected'), findsOneWidget);
 
   // Try to add optional data.
@@ -65,19 +60,12 @@ Future<void> completelyOptionalTest(WidgetTester tester, IntegrationTestIrmaBind
   );
   await tester.tapAndSettle(deleteOptionalDataButton);
 
-  // Finish session.
-  await tester.tapAndSettle(find.text('Share data'));
-  await tester.tapAndSettle(find.text('Share'));
-
-  await tester.waitFor(find.text('Success'));
-  await tester.tapAndSettle(find.text('OK'));
-
-  expect(find.byType(HomeScreen).hitTestable(), findsOneWidget);
-
   // Start session again to validate that now email is pre-selected.
   await irmaBinding.repository.startTestSession(sessionRequest);
+  await evaluateIntroduction(tester);
+
   await tester.waitFor(find.text('Share my data'));
-  expect(find.text('This is the data you are going to share:'), findsOneWidget);
+  expect(find.text('Optional data'), findsOneWidget);
 
   await evaluateCredentialCard(
     tester,
@@ -88,13 +76,10 @@ Future<void> completelyOptionalTest(WidgetTester tester, IntegrationTestIrmaBind
       'Email address': 'test@example.com',
     },
   );
+  await tester.tapAndSettle(
+    find.text('Share data'),
+  );
 
-  // Finish session.
-  await tester.tapAndSettle(find.text('Share data'));
-  await tester.tapAndSettle(find.text('Share'));
-
-  await tester.waitFor(find.text('Success'));
-  await tester.tapAndSettle(find.text('OK'));
-
-  expect(find.byType(HomeScreen).hitTestable(), findsOneWidget);
+  await evaluateShareDialog(tester);
+  await evaluateFeedback(tester);
 }
