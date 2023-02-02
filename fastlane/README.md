@@ -47,6 +47,24 @@ Note: provisioning profiles can only be used to sign app builds. To upload the b
 you additionally need your personal App Store Connect account with the right permissions.
 Uploading can be done using [Transporter for MacOS](https://apps.apple.com/us/app/transporter/id1450874784?mt=12).
 
+# Android signing/upload keys
+The artifacts produced by the `android_build_apk` and the `android_build_appbundle` actions need to be signed in order
+to distribute them. For the Google Play Store, you need an app bundle signed with the right upload key.
+The corresponding certificate needs to be registered with Google. This upload key is also used as signing key for
+Android Code Transparency. For ad-hoc APKs, artifact are signed using regular APK signing.
+The `android_build_apk` and the `android_build_appbundle` actions have built-in support for signing.
+The key should be given as Java Keystore and can be passed using the `keystore_path`, `key_alias`, `keystore_password`
+and `key_password` parameters.
+
+Below we describe how you can generate a Java Keystore for signing.
+
+ 1. Specify a key name, i.e. `KEY_ALIAS=upload-key`
+ 2. Run `keytool -genkey -alias $KEY_ALIAS -keyalg RSA -keystore $KEY_ALIAS.jks -keysize 4096`
+ 3. If you need the certificate to upload to Google, you can generate one in the following way:
+    `keytool -export -rfc -keystore $KEY_ALIAS.jks -alias $KEY_ALIAS -file $KEYNAME.pem`
+ 4. In case you need to upload the assets to a secret vault, then you need to encode the files with base64,
+    i.e. `cat $KEY_ALIAS.jks | base64 > $KEY_ALIAS.jks.base64`
+
 # Available Actions
 
 ### lint

@@ -94,7 +94,22 @@ jobs:
         with:
           name: irmagobridge-android
           path: android/irmagobridge/
-      - run: bundle exec fastlane android_build_${{ matrix.type }} flavor:${{ matrix.flavor }}
+      - name: Decode binary environment secrets
+        env:
+          ANDROID_DEVELOPMENT_SIGNING_KEYSTORE: ${{ secrets.ANDROID_DEVELOPMENT_SIGNING_KEYSTORE }}
+        run: |
+          mkdir -p ./fastlane/profiles
+          echo $ANDROID_DEVELOPMENT_SIGNING_KEYSTORE | base64 --decode > ./fastlane/profiles/keystore.jks
+      - name: Build
+        env:
+          ANDROID_DEVELOPMENT_SIGNING_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_DEVELOPMENT_SIGNING_KEYSTORE_PASSWORD }}
+        run: >
+          bundle exec fastlane android_build_${{ matrix.type }}
+          flavor:${{ matrix.flavor }}
+          keystore_path:profiles/keystore.jks
+          key_alias:android-signing-development
+          keystore_password:$ANDROID_DEVELOPMENT_SIGNING_KEYSTORE_PASSWORD
+          key_password:$ANDROID_DEVELOPMENT_SIGNING_KEYSTORE_PASSWORD
       - name:
         uses: actions/upload-artifact@v3
         with:

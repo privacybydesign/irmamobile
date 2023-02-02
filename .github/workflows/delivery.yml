@@ -98,7 +98,7 @@ jobs:
     needs:
       - unit-test
       - build-irmagobridge-android
-    environment: ad-hoc-alpha
+    environment: android-alpha
     # For now, we also build the beta flavor using the alpha secrets to enable ad-hoc distribution of the
     # beta flavor Android app. This is needed, because the irma-frontend-packages use the app identifier of the
     # beta flavor Android app in the intent:// links.
@@ -118,11 +118,23 @@ jobs:
         with:
           name: irmagobridge-android
           path: android/irmagobridge/
+      - name: Decode binary environment secrets
+        env:
+          ANDROID_SIGNING_KEYSTORE: ${{ secrets.ANDROID_SIGNING_KEYSTORE }}
+        run: |
+          mkdir -p ./fastlane/profiles
+          echo $ANDROID_SIGNING_KEYSTORE | base64 --decode > ./fastlane/profiles/keystore.jks
       - name: Build app
+        env:
+          ANDROID_SIGNING_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEYSTORE_PASSWORD }}
         run: >
           bundle exec fastlane android_build_${{ matrix.type }}
           flavor:${{ matrix.flavor }}
           sentry_dsn:${{ secrets.SENTRY_DSN }}
+          keystore_path:profiles/keystore.jks
+          key_alias:android-signing-alpha
+          keystore_password:$ANDROID_SIGNING_KEYSTORE_PASSWORD
+          key_password:$ANDROID_SIGNING_KEYSTORE_PASSWORD
       - uses: actions/upload-artifact@v3
         with:
           name: app-alpha-android-${{ matrix.flavor }}-${{ matrix.type }}
@@ -217,7 +229,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: version-check
     if: needs.version-check.outputs.version-changed == 'true'
-    environment: app-store-beta
+    environment: android-beta
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
@@ -230,11 +242,23 @@ jobs:
         with:
           name: irmagobridge-android
           path: android/irmagobridge/
+      - name: Decode binary environment secrets
+        env:
+          ANDROID_SIGNING_KEYSTORE: ${{ secrets.ANDROID_SIGNING_KEYSTORE }}
+        run: |
+          mkdir -p ./fastlane/profiles
+          echo $ANDROID_SIGNING_KEYSTORE | base64 --decode > ./fastlane/profiles/keystore.jks
       - name: Build app
+        env:
+          ANDROID_SIGNING_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_SIGNING_KEYSTORE_PASSWORD }}
         run: >
           bundle exec fastlane android_build_appbundle
           flavor:beta
           sentry_dsn:${{ secrets.SENTRY_DSN }}
+          keystore_path:profiles/keystore.jks
+          key_alias:android-play-store-upload-key
+          keystore_password:$ANDROID_SIGNING_KEYSTORE_PASSWORD
+          key_password:$ANDROID_SIGNING_KEYSTORE_PASSWORD
       - uses: actions/upload-artifact@v3
         with:
           name: app-beta-android
