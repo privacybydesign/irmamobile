@@ -50,7 +50,7 @@ yes | sdkmanager --sdk_root="$ANDROID_HOME" --licenses > /dev/null
 set -o pipefail
 
 # We pre-install some Android SDKs to prevent that Flutter downloads them on every app build.
-# Which versions we need is dependent on the our target Android SDK and the target Android SDK of our dependencies.
+# Which versions we need is dependent on our target Android SDK and the target Android SDK of our dependencies.
 # There is no convenient way to determine this in Flutter yet. Therefore, we hardcode some versions here.
 # Issue: https://github.com/flutter/flutter/issues/63533
 sdkmanager --sdk_root="$ANDROID_HOME" \
