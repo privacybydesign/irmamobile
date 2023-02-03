@@ -33,7 +33,6 @@ Future<void> noChoiceMultipleCredsTest(WidgetTester tester, IntegrationTestIrmaB
 
   // Start session without the credential being present.
   await irmaBinding.repository.startTestSession(sessionRequest);
-
   await evaluateIntroduction(tester);
 
   // First, the missing credentials should be obtainable

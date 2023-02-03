@@ -1,15 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
-import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
-import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 
 import '../../helpers/helpers.dart';
 import '../../helpers/issuance_helpers.dart';
 import '../../irma_binding.dart';
 import '../../util.dart';
+import '../disclosure_helpers.dart';
 
 Future<void> filledOptionalDisjunctionTest(
   WidgetTester tester,
@@ -37,9 +36,7 @@ Future<void> filledOptionalDisjunctionTest(
         }
       ''');
 
-  // Dismiss introduction screen.
-  await tester.waitFor(find.text('Share your data'));
-  await tester.tapAndSettle(find.descendant(of: find.byType(IrmaButton), matching: find.text('Get going')));
+  await evaluateIntroduction(tester);
 
   // First, the missing required disjunctions should be obtained using an issue wizard.
   expect(find.text('Collect data'), findsOneWidget);
@@ -62,12 +59,14 @@ Future<void> filledOptionalDisjunctionTest(
   // Therefore, we mock this behaviour using the helper below until we have a better solution.
   await issueEmailAddress(tester, irmaBinding);
 
-  expect(find.text('All required data has been added.'), findsOneWidget);
+  expect(find.text('All required data has been added'), findsOneWidget);
 
   // Complete issue wizard
   await tester.tapAndSettle(find.text('Next step'));
-  expect(find.text('Validate data'), findsOneWidget);
-  expect(find.text('This data was previously added to the app:'), findsOneWidget);
+  expect(
+    find.text('This data has already added to your app. Verify that the data is still correct.'),
+    findsOneWidget,
+  );
   expect(find.text('No data selected'), findsOneWidget);
 
   // Try to add optional data.
@@ -87,7 +86,7 @@ Future<void> filledOptionalDisjunctionTest(
     attributes: {
       'Mobile phone number': '0612345678',
     },
-    style: IrmaCardStyle.highlighted,
+    isSelected: true,
   );
   await evaluateCredentialCard(
     tester,
@@ -95,7 +94,7 @@ Future<void> filledOptionalDisjunctionTest(
     credentialName: 'Demo Mobile phone number',
     issuerName: 'Demo Privacy by Design Foundation',
     attributes: {},
-    style: IrmaCardStyle.outlined,
+    isSelected: false,
   );
   await evaluateCredentialCard(
     tester,
@@ -103,13 +102,16 @@ Future<void> filledOptionalDisjunctionTest(
     credentialName: 'Demo Mobile phone number',
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
     attributes: {},
-    style: IrmaCardStyle.outlined,
+    isSelected: false,
   );
 
   // Select the mobile phone number that we added at the beginning of this test.
   await tester.tapAndSettle(find.text('Done'));
-  expect(find.text('Validate data'), findsOneWidget);
-  expect(find.text('This data was previously added to the app:'), findsOneWidget);
+  expect(
+    find.text('This data has already added to your app. Verify that the data is still correct.'),
+    findsOneWidget,
+  );
+
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
@@ -125,7 +127,11 @@ Future<void> filledOptionalDisjunctionTest(
   await tester.tapAndSettle(find.text('Next step'));
 
   expect(find.text('Share my data'), findsOneWidget);
-  expect(find.text('This is the data you are going to share:'), findsOneWidget);
+  expect(
+    find.text('Share my data with demo.privacybydesign.foundation'),
+    findsOneWidget,
+  );
+
   await evaluateCredentialCard(
     tester,
     cardsFinder.first,
@@ -148,12 +154,7 @@ Future<void> filledOptionalDisjunctionTest(
     style: IrmaCardStyle.normal,
   );
 
-  // Finish session.
   await tester.tapAndSettle(find.text('Share data'));
-  await tester.tapAndSettle(find.text('Share'));
-
-  await tester.waitFor(find.text('Success'));
-  await tester.tapAndSettle(find.text('OK'));
-
-  expect(find.byType(HomeScreen).hitTestable(), findsOneWidget);
+  await evaluateShareDialog(tester);
+  await evaluateFeedback(tester);
 }

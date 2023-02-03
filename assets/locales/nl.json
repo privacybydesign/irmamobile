@@ -173,7 +173,7 @@
     },
     "issue_wizard": {
       "title": "Verzamel gegevens",
-      "explanation_incomplete": "Haal stap voor stap mijn nieuwe gegevens op",
+      "explanation_incomplete": "Haal stap voor stap mijn gegevens op en deel ze daarna met de partij die daarom vraagt.",
       "explanation_complete": "Alle nieuwe benodigde gegevens zijn toegevoegd"
     },
     "previously_added": {
@@ -183,7 +183,6 @@
     "overview": {
       "title": "Deel mijn gegevens",
       "explanation": "Deel mijn gegevens met {requestorName}",
-      "header": "Deze gegevens ga ik delen:",
       "confirm": "Gegevens delen",
       "sign": "Dit bericht ga je ondertekenen:"
     },

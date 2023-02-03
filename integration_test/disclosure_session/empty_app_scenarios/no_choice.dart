@@ -28,7 +28,6 @@ Future<void> noChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBi
 
   // Start session without the credential being present.
   await irmaBinding.repository.startTestSession(sessionRequest);
-
   await evaluateIntroduction(tester);
 
   // First, the missing required disjunctions should be obtained using an issue wizard.

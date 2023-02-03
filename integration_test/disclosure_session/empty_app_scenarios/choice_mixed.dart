@@ -36,7 +36,6 @@ Future<void> choiceMixedTest(WidgetTester tester, IntegrationTestIrmaBinding irm
 
   // Start session without the credential being present.
   await irmaBinding.repository.startTestSession(sessionRequest);
-
   await evaluateIntroduction(tester);
 
   // Expect a disclose stepper
