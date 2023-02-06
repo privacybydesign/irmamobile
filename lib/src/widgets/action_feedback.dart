@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
 
 import '../screens/session/widgets/dynamic_layout.dart';
+import '../screens/session/widgets/session_scaffold.dart';
 import '../theme/theme.dart';
-import 'irma_button.dart';
-import 'irma_themed_button.dart';
 import 'translated_text.dart';
+import 'yivi_themed_button.dart';
 
 class ActionFeedback extends StatelessWidget {
   final Function() onDismiss;
@@ -39,56 +38,37 @@ class ActionFeedback extends StatelessWidget {
         dismiss(context);
         return false;
       },
-      child: Scaffold(
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          actions: [
-            Padding(
-              padding: const EdgeInsets.all(12),
-              child: CircleAvatar(
-                backgroundColor: Colors.grey.shade300,
-                child: IconButton(
-                  onPressed: () => dismiss(context),
-                  icon: Icon(
-                    Icons.close_outlined,
-                    semanticLabel: FlutterI18n.translate(context, 'accessibility.close'),
-                    size: 16.0,
-                    color: Colors.grey.shade800,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+      child: SessionScaffold(
+        appBarTitle: success ? 'disclosure.feedback.header.success' : 'ui.error',
+        onDismiss: onDismiss,
         body: DynamicLayout(
           hero: SvgPicture.asset(
-            success
-                ? 'assets/disclosure/disclosure_happy_illustration.svg'
-                : 'assets/error/general_error_illustration.svg',
+            success ? 'assets/disclosure/disclosure_success.svg' : 'assets/error/general_error_illustration.svg',
           ),
           content: Column(
             children: [
               TranslatedText(
                 titleTranslationKey,
-                translationParams: titleTranslationParams,
-                style: theme.textTheme.headline1,
-                textAlign: TextAlign.center,
+                style: theme.themeData.textTheme.headline3!.copyWith(
+                  color: theme.dark,
+                ),
               ),
-              SizedBox(height: theme.defaultSpacing),
+              SizedBox(
+                height: theme.tinySpacing,
+              ),
               TranslatedText(
                 explanationTranslationKey,
                 translationParams: explanationTranslationParams,
-                style: theme.textTheme.bodyText2,
+                style: theme.themeData.textTheme.bodyText2,
                 textAlign: TextAlign.center,
               ),
             ],
           ),
           actions: [
-            IrmaButton(
+            YiviThemedButton(
               label: 'action_feedback.ok',
-              size: IrmaButtonSize.large,
               onPressed: () => dismiss(context),
-            )
+            ),
           ],
         ),
       ),

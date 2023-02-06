@@ -4,6 +4,7 @@ import '../theme/theme.dart';
 
 enum IrmaCardStyle {
   normal,
+  flat,
   outlined,
   highlighted,
   danger,
@@ -48,6 +49,13 @@ class IrmaCard extends StatelessWidget {
           color: theme.light,
         );
         break;
+      case IrmaCardStyle.flat:
+        boxDecoration = BoxDecoration(
+          borderRadius: borderRadius,
+          border: Border.all(color: Colors.transparent),
+          color: theme.light,
+        );
+        break;
       case IrmaCardStyle.outlined:
         boxDecoration = BoxDecoration(
           borderRadius: borderRadius,
@@ -63,11 +71,10 @@ class IrmaCard extends StatelessWidget {
         boxDecoration = BoxDecoration(
           borderRadius: borderRadius,
           border: Border.all(
-            color: theme.themeData.colorScheme.secondary,
+            color: theme.tertiary,
             width: 1,
           ),
           color: theme.surfaceSecondary,
-          boxShadow: shadow,
         );
         break;
       case IrmaCardStyle.danger:

@@ -1,12 +1,12 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/models/credentials.dart';
-import 'package:irmamobile/src/screens/session/widgets/session_scaffold.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
-import 'package:irmamobile/src/widgets/issuing_detail.dart';
-import 'package:irmamobile/src/widgets/translated_text.dart';
+
+import '../../../models/credentials.dart';
+import '../../../theme/theme.dart';
+import '../../../widgets/irma_bottom_bar.dart';
+import '../../../widgets/irma_quote.dart';
+import '../../../widgets/issuing_detail.dart';
+import 'session_scaffold.dart';
 
 class IssuancePermission extends StatelessWidget {
   final Function()? onDismiss;
@@ -45,12 +45,10 @@ class IssuancePermission extends StatelessWidget {
       children: [
         Padding(
           padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
-          child: Container(
-            color: theme.surfaceSecondary,
-            padding: EdgeInsets.all(theme.defaultSpacing),
-            child: TranslatedText(
+          child: IrmaQuote(
+            quote: FlutterI18n.translate(
+              context,
               'issuance.description',
-              style: theme.textTheme.caption,
             ),
           ),
         ),

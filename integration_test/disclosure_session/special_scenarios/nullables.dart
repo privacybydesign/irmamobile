@@ -1,14 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_discon_stepper.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_issue_wizard_screen.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
-import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 
 import '../../helpers/helpers.dart';
 import '../../irma_binding.dart';
 import '../../util.dart';
+import '../disclosure_helpers.dart';
 
 Future<void> nullablesTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
@@ -25,17 +24,11 @@ Future<void> nullablesTest(WidgetTester tester, IntegrationTestIrmaBinding irmaB
       ''';
 
   await irmaBinding.repository.startTestSession(sessionRequest);
-
-  // Dismiss introduction screen.
-  await tester.waitFor(find.text('Share your data'));
-  await tester.tapAndSettle(find.descendant(
-    of: find.byType(IrmaButton),
-    matching: find.text('Get going'),
-  ));
+  await evaluateIntroduction(tester);
 
   // Expect obtain credential screen
   expect(find.byType(DisclosurePermissionIssueWizardScreen), findsOneWidget);
-  expect(find.text('We still need the following data from you:'), findsOneWidget);
+  expect(find.text('Obtain my data step by step and share it with the requesting party thereafter'), findsOneWidget);
 
   // One stepper should be visible
   expect(find.byType(DisclosureDisconStepper), findsOneWidget);

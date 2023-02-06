@@ -3,17 +3,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart';
-import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_share_dialog.dart';
-import 'package:irmamobile/src/screens/session/session_screen.dart';
-import 'package:irmamobile/src/screens/session/widgets/disclosure_feedback_screen.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
-import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 
 import '../../helpers/helpers.dart';
 import '../../helpers/issuance_helpers.dart';
 import '../../irma_binding.dart';
 import '../../util.dart';
+import '../disclosure_helpers.dart';
 
 Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
@@ -39,13 +36,7 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
 
   // Start session without the credential being present
   await irmaBinding.repository.startTestSession(sessionRequest);
-
-  // Dismiss introduction screen.
-  await tester.waitFor(find.text('Share your data'));
-  await tester.tapAndSettle(find.descendant(
-    of: find.byType(IrmaButton),
-    matching: find.text('Get going'),
-  ));
+  await evaluateIntroduction(tester);
 
   // Both cards are already obtained
   // Expect choices screen.
@@ -95,7 +86,7 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
       'House number': '501',
       'City': 'Arnhem',
     },
-    style: IrmaCardStyle.highlighted,
+    isSelected: true,
   );
 
   // Second card should show the option to add iDIN
@@ -106,7 +97,7 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     credentialName: 'Demo iDIN',
     issuerName: 'Demo iDIN',
     attributes: {},
-    style: IrmaCardStyle.outlined,
+    isSelected: false,
   );
   await tester.scrollUntilVisible(
     secondCardFinder.hitTestable(),
@@ -121,14 +112,14 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     cardsFinder.first,
     credentialName: 'Demo Address',
     issuerName: 'Demo Municipality',
-    style: IrmaCardStyle.outlined,
+    isSelected: false,
   );
   await evaluateCredentialCard(
     tester,
     cardsFinder.at(1),
     credentialName: 'Demo iDIN',
     issuerName: 'Demo iDIN',
-    style: IrmaCardStyle.highlighted,
+    isSelected: true,
   );
 
   await tester.tapAndSettle(find.text('Obtain data'));
@@ -147,7 +138,7 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
       'House number': '501',
       'City': 'Arnhem',
     },
-    style: IrmaCardStyle.outlined,
+    isSelected: false,
   );
 
   // Second card should show the option to add iDIN
@@ -160,7 +151,7 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
       'Address': 'Meander 501',
       'City': 'Arnhem',
     },
-    style: IrmaCardStyle.highlighted,
+    isSelected: true,
   );
 
   await tester.tapAndSettle(find.text('Done'));
@@ -183,7 +174,7 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     attributes: {
       'Email address': 'test@example.com',
     },
-    style: IrmaCardStyle.highlighted,
+    isSelected: true,
   );
   await evaluateCredentialCard(
     tester,
@@ -191,13 +182,13 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     credentialName: 'Demo Email address',
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
     attributes: {},
-    style: IrmaCardStyle.outlined,
+    isSelected: false,
   );
 
   // Leave the choices as they are
   await tester.tapAndSettle(find.text('Done'));
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
-  expect(find.text('This is the data you are going to share:'), findsOneWidget);
+  expect(find.text('Share my data with demo.privacybydesign.foundation'), findsOneWidget);
 
   await evaluateCredentialCard(
     tester,
@@ -223,19 +214,6 @@ Future<void> filledDisconTest(WidgetTester tester, IntegrationTestIrmaBinding ir
 
   await tester.tapAndSettle(find.text('Share data'));
 
-  // Confirm the dialog
-  expect(find.byType(DisclosurePermissionConfirmDialog), findsOneWidget);
-  await tester.tapAndSettle(find.text('Share'));
-
-  // Expect the success screen
-  final feedbackScreenFinder = find.byType(DisclosureFeedbackScreen);
-  expect(feedbackScreenFinder, findsOneWidget);
-  expect(
-    (feedbackScreenFinder.evaluate().single.widget as DisclosureFeedbackScreen).feedbackType,
-    DisclosureFeedbackType.success,
-  );
-  await tester.tapAndSettle(find.text('OK'));
-
-  // Session flow should be over now
-  expect(find.byType(SessionScreen), findsNothing);
+  await evaluateShareDialog(tester);
+  await evaluateFeedback(tester);
 }

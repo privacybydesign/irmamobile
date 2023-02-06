@@ -31,29 +31,31 @@ class DisclosurePermissionMakeChoiceScreen extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            DisclosurePermissionChoice(
-              choice: state.choosableCons,
-              selectedConIndex: state.selectedConIndex,
-              onChoiceUpdated: (int conIndex) => onEvent(DisclosurePermissionChoiceUpdated(conIndex: conIndex)),
-            ),
-            if (state.templateCons.isNotEmpty) ...[
-              Padding(
-                padding: EdgeInsets.all(theme.smallSpacing),
-                child: TranslatedText(
-                  'disclosure_permission.obtain_new',
-                  style: theme.themeData.textTheme.headline5,
-                ),
-              ),
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               DisclosurePermissionChoice(
-                choice: state.templateCons,
+                choice: state.choosableCons,
                 selectedConIndex: state.selectedConIndex,
                 onChoiceUpdated: (int conIndex) => onEvent(DisclosurePermissionChoiceUpdated(conIndex: conIndex)),
               ),
+              if (state.templateCons.isNotEmpty) ...[
+                Padding(
+                  padding: EdgeInsets.all(theme.smallSpacing),
+                  child: TranslatedText(
+                    'disclosure_permission.obtain_new',
+                    style: theme.themeData.textTheme.headline4,
+                  ),
+                ),
+                DisclosurePermissionChoice(
+                  choice: state.templateCons,
+                  selectedConIndex: state.selectedConIndex,
+                  onChoiceUpdated: (int conIndex) => onEvent(DisclosurePermissionChoiceUpdated(conIndex: conIndex)),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(

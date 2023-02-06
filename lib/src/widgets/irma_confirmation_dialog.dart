@@ -8,6 +8,7 @@ import 'irma_dialog.dart';
 class IrmaConfirmationDialog extends StatelessWidget {
   final String titleTranslationKey;
   final String contentTranslationKey;
+  final Map<String, String>? contentTranslationParams;
   final String? cancelTranslationKey;
   final String? confirmTranslationKey;
   final bool nudgeCancel;
@@ -15,6 +16,7 @@ class IrmaConfirmationDialog extends StatelessWidget {
   const IrmaConfirmationDialog({
     required this.titleTranslationKey,
     required this.contentTranslationKey,
+    this.contentTranslationParams,
     this.cancelTranslationKey,
     this.confirmTranslationKey,
     this.nudgeCancel = false,
@@ -57,6 +59,7 @@ class IrmaConfirmationDialog extends StatelessWidget {
       content: FlutterI18n.translate(
         context,
         contentTranslationKey,
+        translationParams: contentTranslationParams,
       ),
       child: Column(
         children: buttonWidgets,

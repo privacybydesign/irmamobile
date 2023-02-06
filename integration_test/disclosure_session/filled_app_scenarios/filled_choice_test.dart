@@ -3,17 +3,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_make_choice_screen.dart';
-import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_share_dialog.dart';
-import 'package:irmamobile/src/screens/session/session_screen.dart';
-import 'package:irmamobile/src/screens/session/widgets/disclosure_feedback_screen.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
-import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 
 import '../../helpers/helpers.dart';
 import '../../helpers/issuance_helpers.dart';
 import '../../irma_binding.dart';
 import '../../util.dart';
+import '../disclosure_helpers.dart';
 
 Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
@@ -36,13 +33,7 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
 
   // Start session without the credential being present.
   await irmaBinding.repository.startTestSession(sessionRequest);
-
-  // Dismiss introduction screen.
-  await tester.waitFor(find.text('Share your data'));
-  await tester.tapAndSettle(find.descendant(
-    of: find.byType(IrmaButton),
-    matching: find.text('Get going'),
-  ));
+  await evaluateIntroduction(tester);
 
   // Expect the choices screen
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
@@ -86,7 +77,7 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     attributes: {
       'Email address': 'test@example.com',
     },
-    style: IrmaCardStyle.highlighted,
+    isSelected: true,
   );
 
   // The second card should show a template credential
@@ -96,7 +87,7 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     credentialName: 'Demo Email address',
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
     attributes: {},
-    style: IrmaCardStyle.outlined,
+    isSelected: false,
   );
 
   // The third card should show a template credential too
@@ -111,26 +102,26 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     credentialName: 'Demo Mobile phone number',
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
     attributes: {},
-    style: IrmaCardStyle.outlined,
+    isSelected: false,
   );
 
   // Select the obtain mobile number
   await tester.tapAndSettle(thirdCardFinder);
 
-  // Card should be highlighted now
+  // Card should be selected now
   await evaluateCredentialCard(
     tester,
     thirdCardFinder,
-    style: IrmaCardStyle.highlighted,
+    isSelected: true,
   );
 
   await tester.tapAndSettle(find.text('Obtain data'));
   expect(find.byType(AddDataDetailsScreen), findsOneWidget);
-  await issueMunicipalityPersonalData(tester, irmaBinding);
 
+  await issueMunicipalityPersonalData(tester, irmaBinding);
   await issueMobileNumber(tester, irmaBinding);
 
-  // Now four cards should   be visible
+  // Now four cards should be visible
   expect(cardFinder, findsNWidgets(4));
 
   // Check if all cards display the correct
@@ -142,7 +133,7 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     attributes: {
       'Email address': 'test@example.com',
     },
-    style: IrmaCardStyle.outlined,
+    isSelected: false,
   );
   await evaluateCredentialCard(
     tester,
@@ -152,7 +143,7 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     attributes: {
       'Mobile phone number': '0612345678',
     },
-    style: IrmaCardStyle.highlighted,
+    isSelected: true,
   );
 
   await evaluateCredentialCard(
@@ -161,7 +152,7 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     credentialName: 'Demo Email address',
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
     attributes: {},
-    style: IrmaCardStyle.outlined,
+    isSelected: false,
   );
   await evaluateCredentialCard(
     tester,
@@ -169,7 +160,7 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
     credentialName: 'Demo Mobile phone number',
     issuerName: 'Demo Privacy by Design Foundation via SIDN',
     attributes: {},
-    style: IrmaCardStyle.outlined,
+    isSelected: false,
   );
 
   // Confirm choice
@@ -189,20 +180,6 @@ Future<void> filledChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding ir
   );
 
   await tester.tapAndSettle(find.text('Share data'));
-
-  // Confirm the dialog
-  expect(find.byType(DisclosurePermissionConfirmDialog), findsOneWidget);
-  await tester.tapAndSettle(find.text('Share'));
-
-  // Expect the success screen
-  final feedbackScreenFinder = find.byType(DisclosureFeedbackScreen);
-  expect(feedbackScreenFinder, findsOneWidget);
-  expect(
-    (feedbackScreenFinder.evaluate().single.widget as DisclosureFeedbackScreen).feedbackType,
-    DisclosureFeedbackType.success,
-  );
-  await tester.tapAndSettle(find.text('OK'));
-
-  // Session flow should be over now
-  expect(find.byType(SessionScreen), findsNothing);
+  await evaluateShareDialog(tester);
+  await evaluateFeedback(tester);
 }

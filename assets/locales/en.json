@@ -173,19 +173,16 @@
     },
     "issue_wizard": {
       "title": "Collect data",
-      "explanation": "Obtain your data step by step. You will be sharing these later.",
-      "header_incomplete": "We still need the following data from you:",
-      "header_complete": "All required data has been added."
+      "explanation_incomplete": "Obtain my data step by step and share it with the requesting party thereafter",
+      "explanation_complete": "All required data has been added"
     },
     "previously_added": {
       "title": "Validate data",
-      "explanation": "Check if the following information is correct.",
-      "header": "This data was previously added to the app:"
+      "explanation": "This data has already been added to your app. Verify that the data is still correct."
     },
     "overview": {
       "title": "Share my data",
       "explanation": "Share my data with {requestorName}",
-      "header": "This is the data you are going to share:",
       "confirm": "Share data",
       "sign": "This is the message you're signing:"
     },
@@ -543,7 +540,8 @@
     "continue": "Continue",
     "retry": "Try again",
     "error": "Something went wrong",
-    "end_of_list": "You have reached the end of the list"
+    "end_of_list": "You have reached the end of the list",
+    "unknown": "Unknown"
   },
   "update": {
     "title": "Update available",

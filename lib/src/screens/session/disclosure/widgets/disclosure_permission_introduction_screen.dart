@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../../theme/theme.dart';
-import '../../../../widgets/irma_button.dart';
-import '../../../../widgets/irma_themed_button.dart';
 import '../../../../widgets/translated_text.dart';
+import '../../../../widgets/yivi_themed_button.dart';
 import '../../widgets/dynamic_layout.dart';
 import '../../widgets/session_scaffold.dart';
 import '../bloc/disclosure_permission_event.dart';
@@ -33,10 +32,12 @@ class DisclosurePermissionIntroductionScreen extends StatelessWidget {
           children: [
             TranslatedText(
               'disclosure_permission.introduction.header',
-              style: theme.themeData.textTheme.headline3,
+              style: theme.themeData.textTheme.headline3!.copyWith(
+                color: theme.dark,
+              ),
             ),
             SizedBox(
-              height: theme.defaultSpacing,
+              height: theme.tinySpacing,
             ),
             TranslatedText(
               'disclosure_permission.introduction.explanation',
@@ -46,13 +47,12 @@ class DisclosurePermissionIntroductionScreen extends StatelessWidget {
           ],
         ),
         actions: [
-          IrmaButton(
+          YiviThemedButton(
             label: 'disclosure_permission.introduction.continue',
-            size: IrmaButtonSize.large,
             onPressed: () => onEvent(
               DisclosurePermissionNextPressed(),
             ),
-          ),
+          )
         ],
       ),
     );

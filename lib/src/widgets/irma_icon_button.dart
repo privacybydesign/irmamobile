@@ -6,12 +6,14 @@ class IrmaIconButton extends StatelessWidget {
   final IconData icon;
   final Function() onTap;
   final double size;
+  final EdgeInsets? padding;
 
   const IrmaIconButton({
     Key? key,
     required this.icon,
     required this.onTap,
     this.size = 24,
+    this.padding,
   })  : assert(size >= 2),
         super(key: key);
 
@@ -21,7 +23,7 @@ class IrmaIconButton extends StatelessWidget {
     final borderRadius = BorderRadius.circular(25.0);
 
     return Padding(
-      padding: const EdgeInsets.all(12),
+      padding: padding ?? const EdgeInsets.all(12),
       child: Material(
         color: Colors.transparent,
         borderRadius: borderRadius,

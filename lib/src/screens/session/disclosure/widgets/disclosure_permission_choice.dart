@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../theme/theme.dart';
 import '../../../../util/con_dis_con.dart';
 import '../../../../widgets/credential_card/irma_credential_card.dart';
-import '../../../../widgets/irma_card.dart';
+import '../../../../widgets/radio_indicator.dart';
 import '../models/disclosure_credential.dart';
 import '../models/template_disclosure_credential.dart';
 
@@ -45,26 +45,10 @@ class DisclosurePermissionChoice extends StatelessWidget {
                         compareTo: credential is TemplateDisclosureCredential ? credential.attributes : null,
                         hideFooter: true,
                         headerTrailing: credential == choice[i]!.first
-                            ? IgnorePointer(
-                                child: Radio(
-                                  value: i,
-                                  groupValue: selectedConIndex,
-                                  onChanged: null, // We use the onTap wrapping GestureDetector
-                                  fillColor: MaterialStateColor.resolveWith(
-                                    (_) => theme.themeData.colorScheme.secondary,
-                                  ),
-                                  visualDensity: const VisualDensity(
-                                    horizontal: VisualDensity.minimumDensity,
-                                    vertical: VisualDensity.minimumDensity,
-                                  ),
-                                ),
+                            ? RadioIndicator(
+                                isSelected: i == selectedConIndex,
                               )
                             : null,
-                        style: isActive
-                            ? i == selectedConIndex
-                                ? IrmaCardStyle.highlighted
-                                : IrmaCardStyle.outlined
-                            : IrmaCardStyle.normal,
                       ),
                     ),
                   )

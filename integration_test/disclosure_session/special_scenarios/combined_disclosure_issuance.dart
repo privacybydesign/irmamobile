@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_share_dialog.dart';
 import 'package:irmamobile/src/screens/session/session_screen.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_permission.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_success_screen.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
-import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 
 import '../../helpers/helpers.dart';
 import '../../helpers/issuance_helpers.dart';
 import '../../irma_binding.dart';
 import '../../util.dart';
+import '../disclosure_helpers.dart';
 
 Future<void> combinedDisclosureIssuanceSessionTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
@@ -39,19 +38,10 @@ Future<void> combinedDisclosureIssuanceSessionTest(WidgetTester tester, Integrat
       ''';
 
   await irmaBinding.repository.startTestSession(sessionRequest);
-
-  // Dismiss introduction screen.
-  await tester.waitFor(find.text('Share your data'));
-  await tester.tapAndSettle(find.descendant(
-    of: find.byType(IrmaButton),
-    matching: find.text('Get going'),
-  ));
+  await evaluateIntroduction(tester);
 
   await tester.tapAndSettle(find.text('Share data'));
-
-  // Confirm the dialog
-  expect(find.byType(DisclosurePermissionConfirmDialog), findsOneWidget);
-  await tester.tapAndSettle(find.text('Share'));
+  await evaluateShareDialog(tester);
 
   // Expect add data screen
   expect(find.byType(IssuancePermission), findsOneWidget);

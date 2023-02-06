@@ -173,19 +173,16 @@
     },
     "issue_wizard": {
       "title": "Verzamel gegevens",
-      "explanation": "Haal stap voor stap mijn nieuwe gegevens op. Daarna deel je ze met de partij die daarom vraagt.",
-      "header_incomplete": "Deze gegevens hebben we nog van je nodig:",
-      "header_complete": "Alle nieuwe benodigde gegevens zijn toegevoegd."
+      "explanation_incomplete": "Haal stap voor stap mijn gegevens op en deel ze daarna met de partij die daarom vraagt.",
+      "explanation_complete": "Alle nieuwe benodigde gegevens zijn toegevoegd"
     },
     "previously_added": {
       "title": "Controleer gegevens",
-      "explanation": "Controleer of de volgende gegevens kloppen",
-      "header": "Deze gegevens zijn al eerder door je toegevoegd aan de app:"
+      "explanation": "Deze gegevens zijn al eerder door je toegevoegd aan de app. Controleer of de volgende gegevens kloppen."
     },
     "overview": {
       "title": "Deel mijn gegevens",
       "explanation": "Deel mijn gegevens met {requestorName}",
-      "header": "Deze gegevens ga ik delen:",
       "confirm": "Gegevens delen",
       "sign": "Dit bericht ga je ondertekenen:"
     },
@@ -543,7 +540,8 @@
     "continue": "Doorgaan",
     "retry": "Opnieuw proberen",
     "error": "Er is iets misgegaan",
-    "end_of_list": "Je bent aan het einde van de lijst gekomen"
+    "end_of_list": "Je bent aan het einde van de lijst gekomen",
+    "unknown": "Onbekend"
   },
   "update": {
     "title": "Update beschikbaar",

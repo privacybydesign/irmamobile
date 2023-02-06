@@ -1,11 +1,11 @@
 import 'package:collection/collection.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../../theme/theme.dart';
 import '../../../../widgets/credential_card/irma_credential_card.dart';
-import '../../../../widgets/irma_button.dart';
 import '../../../../widgets/irma_dialog.dart';
+import '../../../../widgets/yivi_themed_button.dart';
 import '../bloc/disclosure_permission_state.dart';
 
 class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
@@ -39,9 +39,8 @@ class DisclosurePermissionWrongCredentialsAddedDialog extends StatelessWidget {
             ),
           ),
           SizedBox(height: theme.defaultSpacing),
-          IrmaButton(
+          YiviThemedButton(
             label: 'disclosure_permission.wrong_credentials_added.dismiss_action',
-            minWidth: double.infinity,
             onPressed: () => Navigator.of(context).pop(),
           )
         ],

@@ -6,6 +6,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../theme/theme.dart';
 import 'configurable_expansion_tile.dart';
+import 'irma_card.dart';
 
 class Collapsible extends StatefulWidget {
   final String header;
@@ -81,16 +82,16 @@ class _CollapsibleState extends State<Collapsible> {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
+    return IrmaCard(
+      margin: EdgeInsets.zero,
       child: ConfigurableExpansionTile(
         initiallyExpanded: widget.initiallyExpanded,
         onExpansionChanged: _onExpansionChanged,
-        animatedWidgetFollowingHeader: const Padding(
-          padding: EdgeInsets.all(4.0),
+        animatedWidgetFollowingHeader: Padding(
+          padding: EdgeInsets.all(theme.tinySpacing),
           child: Icon(
             Icons.expand_more,
-            color: Colors.black,
+            color: theme.neutralExtraDark,
           ),
         ),
         header: Expanded(
@@ -100,21 +101,18 @@ class _CollapsibleState extends State<Collapsible> {
                 : FlutterI18n.translate(context, 'accessibility.collapsed'),
             child: Padding(
               padding: EdgeInsets.only(
-                  top: theme.tinySpacing * 3,
-                  bottom: theme.tinySpacing * 3,
-                  left: theme.defaultSpacing,
-                  right: theme.defaultSpacing),
+                top: theme.tinySpacing * 3,
+                bottom: theme.tinySpacing * 3,
+                left: theme.defaultSpacing,
+                right: theme.defaultSpacing,
+              ),
               child: Text(
                 widget.header,
-                style: theme.textTheme.headline5!.copyWith(
-                  color: theme.neutralDark,
-                ),
+                style: theme.textTheme.headline5,
               ),
             ),
           ),
         ),
-        headerBackgroundColorStart: theme.surfaceSecondary,
-        expandedBackgroundColor: theme.surfaceSecondary,
         children: [
           Padding(
             padding: EdgeInsets.symmetric(
