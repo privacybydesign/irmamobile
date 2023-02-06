@@ -136,7 +136,7 @@ void main() {
       expect(find.textContaining('That way you can directly show that you\'re older than 18.').hitTestable(),
           findsOneWidget);
 
-      // Check whether the button to send an support email.
+      // Check if the contact link is present
       await tester.scrollUntilVisible(
         find.descendant(
           of: find.byType(ContactLink),
