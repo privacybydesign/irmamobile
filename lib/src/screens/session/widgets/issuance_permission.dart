@@ -44,13 +44,14 @@ class IssuancePermission extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
       children: [
         Padding(
-            padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
-            child: IrmaQuote(
-              quote: FlutterI18n.translate(
-                context,
-                'issuance.description',
-              ),
-            )),
+          padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
+          child: IrmaQuote(
+            quote: FlutterI18n.translate(
+              context,
+              'issuance.description',
+            ),
+          ),
+        ),
         IssuingDetail(issuedCredentials),
       ],
     );
