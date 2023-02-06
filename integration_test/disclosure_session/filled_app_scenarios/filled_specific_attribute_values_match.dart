@@ -134,7 +134,10 @@ Future<void> filledSpecificAttributeValuesMatchTest(WidgetTester tester, Integra
 
   // Expect the choices screen
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
-  expect(find.text('This data has already added to your app. Verify that the data is still correct.'), findsOneWidget);
+  expect(
+    find.text('This data has already been added to your app. Verify that the data is still correct.'),
+    findsOneWidget,
+  );
 
   // The already added municipality should appear now
   await evaluateCredentialCard(

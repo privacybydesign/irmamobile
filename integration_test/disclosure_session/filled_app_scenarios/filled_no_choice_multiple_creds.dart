@@ -81,7 +81,10 @@ Future<void> filledNoChoiceMultipleCredsTest(WidgetTester tester, IntegrationTes
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
 
   // With the correct header
-  expect(find.text('This data has already added to your app. Verify that the data is still correct.'), findsOneWidget);
+  expect(
+    find.text('This data has already been added to your app. Verify that the data is still correct.'),
+    findsOneWidget,
+  );
 
   // One card should be visible here too
   expect(cardsFinder, findsOneWidget);

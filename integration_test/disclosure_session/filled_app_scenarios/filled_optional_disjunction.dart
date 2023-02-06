@@ -64,7 +64,7 @@ Future<void> filledOptionalDisjunctionTest(
   // Complete issue wizard
   await tester.tapAndSettle(find.text('Next step'));
   expect(
-    find.text('This data has already added to your app. Verify that the data is still correct.'),
+    find.text('This data has already been added to your app. Verify that the data is still correct.'),
     findsOneWidget,
   );
   expect(find.text('No data selected'), findsOneWidget);
@@ -108,7 +108,7 @@ Future<void> filledOptionalDisjunctionTest(
   // Select the mobile phone number that we added at the beginning of this test.
   await tester.tapAndSettle(find.text('Done'));
   expect(
-    find.text('This data has already added to your app. Verify that the data is still correct.'),
+    find.text('This data has already been added to your app. Verify that the data is still correct.'),
     findsOneWidget,
   );
 

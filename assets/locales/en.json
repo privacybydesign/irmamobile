@@ -178,7 +178,7 @@
     },
     "previously_added": {
       "title": "Validate data",
-      "explanation": "This data has already added to your app. Verify that the data is still correct."
+      "explanation": "This data has already been added to your app. Verify that the data is still correct."
     },
     "overview": {
       "title": "Share my data",
