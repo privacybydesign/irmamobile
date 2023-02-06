@@ -540,7 +540,8 @@
     "continue": "Doorgaan",
     "retry": "Opnieuw proberen",
     "error": "Er is iets misgegaan",
-    "end_of_list": "Je bent aan het einde van de lijst gekomen"
+    "end_of_list": "Je bent aan het einde van de lijst gekomen",
+    "unknown": "Onbekend"
   },
   "update": {
     "title": "Update beschikbaar",

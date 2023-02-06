@@ -71,7 +71,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
         ),
         SizedBox(height: theme.smallSpacing),
         IssuerVerifierHeader(
-          title: logEntry.serverName!.name.translate(
+          title: logEntry.serverName?.name.translate(
             FlutterI18n.currentLocale(context)!.languageCode,
           ),
           titleTextStyle: IrmaTheme.of(context).textTheme.headline5!.copyWith(

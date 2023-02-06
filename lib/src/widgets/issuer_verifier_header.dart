@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../theme/theme.dart';
 import 'irma_avatar.dart';
 import 'irma_card.dart';
 
 class IssuerVerifierHeader extends StatelessWidget {
-  final String title;
+  final String? title;
   final TextStyle? titleTextStyle;
   final Image? image;
 
   const IssuerVerifierHeader({
-    required this.title,
+    this.title,
     this.titleTextStyle,
     this.image,
   });
@@ -18,6 +19,12 @@ class IssuerVerifierHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+
+    final title = this.title ??
+        FlutterI18n.translate(
+          context,
+          'ui.unknown',
+        );
 
     return IrmaCard(
       style: IrmaCardStyle.flat,

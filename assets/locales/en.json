@@ -540,7 +540,8 @@
     "continue": "Continue",
     "retry": "Try again",
     "error": "Something went wrong",
-    "end_of_list": "You have reached the end of the list"
+    "end_of_list": "You have reached the end of the list",
+    "unknown": "Unknown"
   },
   "update": {
     "title": "Update available",
