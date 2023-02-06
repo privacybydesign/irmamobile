@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
+import 'package:irmamobile/src/widgets/link.dart';
 import 'package:package_info/package_info.dart';
 
 import 'helpers/helpers.dart';
@@ -135,8 +136,14 @@ void main() {
       expect(find.textContaining('That way you can directly show that you\'re older than 18.').hitTestable(),
           findsOneWidget);
 
-      // Check whether the button to send an support email is tappable.
-      await tester.scrollUntilVisible(find.text('Send an e-mail').hitTestable(), 50);
+      // Check whether the button to send an support email.
+      await tester.scrollUntilVisible(
+        find.descendant(
+          of: find.byType(ContactLink),
+          matching: find.text('Send an e-mail'),
+        ),
+        75,
+      );
     });
   });
 }
