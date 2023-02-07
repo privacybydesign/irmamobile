@@ -1,16 +1,11 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'src/data/irma_repository.dart';
 import 'src/models/native_events.dart';
 import 'src/screens/add_data/add_data_screen.dart';
 import 'src/screens/change_pin/change_pin_screen.dart';
 import 'src/screens/debug/debug_screen.dart';
 import 'src/screens/enrollment/enrollment_screen.dart';
-import 'src/screens/enrollment/provide_email/email_sent_screen.dart';
 import 'src/screens/help/help_screen.dart';
 import 'src/screens/home/home_screen.dart';
 import 'src/screens/issue_wizard/issue_wizard.dart';
@@ -21,6 +16,7 @@ import 'src/screens/session/session.dart';
 import 'src/screens/session/session_screen.dart';
 import 'src/screens/session/unknown_session_screen.dart';
 import 'src/screens/settings/settings_screen.dart';
+import 'src/widgets/irma_repository_provider.dart';
 
 class Routing {
   static Map<String, WidgetBuilder> simpleRoutes = {
@@ -39,14 +35,12 @@ class Routing {
   // This function returns a `WidgetBuilder` of the screen found by `routeName`
   // It returns `null` if the screen is not found
   // It throws `ValueError` is it cannot properly cast the arguments
-  static WidgetBuilder _screenBuilder(String routeName, Object arguments) {
+  static WidgetBuilder? _screenBuilder(String routeName, Object? arguments) {
     switch (routeName) {
       case SessionScreen.routeName:
         return (context) => SessionScreen(arguments: arguments as SessionScreenArguments);
       case UnknownSessionScreen.routeName:
         return (context) => UnknownSessionScreen(arguments: arguments as SessionScreenArguments);
-      case EmailSentScreen.routeName:
-        return (context) => EmailSentScreen(email: arguments as String);
       case IssueWizardScreen.routeName:
         return (context) => IssueWizardScreen(arguments: arguments as IssueWizardScreenArguments);
 
@@ -69,7 +63,7 @@ class Routing {
     // Try to find the appropriate screen, but keep `RouteNotFoundScreen` as default
     WidgetBuilder screenBuilder = (context) => const RouteNotFoundScreen();
     try {
-      screenBuilder = _screenBuilder(settings.name, settings.arguments);
+      if (settings.name != null) screenBuilder = _screenBuilder(settings.name!, settings.arguments) ?? screenBuilder;
     } catch (_) {
       // pass
     }
@@ -93,7 +87,7 @@ class Routing {
                 // Defer to home_screen.dart
                 return true;
               }
-              IrmaRepository.get().bridgedDispatch(AndroidSendToBackgroundEvent());
+              IrmaRepositoryProvider.of(context).bridgedDispatch(AndroidSendToBackgroundEvent());
               return false;
             }
 

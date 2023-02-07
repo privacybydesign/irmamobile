@@ -1,6 +1,3 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -15,7 +12,7 @@ import 'package:irmamobile/src/widgets/irma_repository_provider.dart';
 
 Future<void> main() async {
   FlutterError.onError = (FlutterErrorDetails details) {
-    Zone.current.handleUncaughtError(details.exception, details.stack);
+    Zone.current.handleUncaughtError(details.exception, details.stack ?? StackTrace.empty);
   };
 
   runZonedGuarded<Future<void>>(() async {
@@ -33,15 +30,16 @@ Future<void> main() async {
 }
 
 class IrmaApp extends StatelessWidget {
-  final Locale forcedLocale;
+  final Locale? forcedLocale;
   final IrmaRepository repository;
 
-  const IrmaApp({Key key, this.forcedLocale, this.repository}) : super(key: key);
+  const IrmaApp({Key? key, this.forcedLocale, required this.repository}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => IrmaRepositoryProvider(
         repository: repository,
         child: App(
+          irmaRepository: repository,
           forcedLocale: forcedLocale,
         ),
       );

@@ -1,6 +1,3 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/widgets/irma_button.dart';
@@ -9,13 +6,13 @@ import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 import 'package:irmamobile/src/widgets/pin_common/format_blocked_for.dart';
 
 class PinWrongBlockedDialog extends StatelessWidget {
-  final void Function() onClose;
+  final void Function()? onClose;
   final int blocked;
 
   const PinWrongBlockedDialog({
-    @required this.blocked,
+    required this.blocked,
     this.onClose,
-  });
+  }) : assert(blocked > 0);
 
   @override
   Widget build(BuildContext context) {

@@ -36,7 +36,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
   final _pinBloc = PinBloc();
   final _navigatorKey = GlobalKey();
 
-  late final StreamSubscription _pinBlocSubscription;
+  StreamSubscription? _pinBlocSubscription;
 
   @override
   void initState() {
@@ -61,7 +61,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
 
   @override
   void dispose() {
-    _pinBlocSubscription.cancel();
+    _pinBlocSubscription?.cancel();
     _pinBloc.close();
     WidgetsBinding.instance?.removeObserver(this);
     super.dispose();
@@ -76,12 +76,12 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
 
   void _handleInvalidPin(PinState state) {
     final navigatorContext = _navigatorKey.currentContext;
-    if (state.remainingAttempts != 0 && navigatorContext != null) {
+    if (navigatorContext != null && state.remainingAttempts != null && state.remainingAttempts! > 0) {
       showDialog(
         context: navigatorContext,
         useRootNavigator: false,
         builder: (BuildContext context) => PinWrongAttemptsDialog(
-          attemptsRemaining: state.remainingAttempts,
+          attemptsRemaining: state.remainingAttempts!,
           onClose: Navigator.of(navigatorContext).pop,
         ),
       );

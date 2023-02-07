@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/irma_repository.dart';
 import '../../models/session.dart';
 import '../../theme/theme.dart';
-import '../../util/hero_controller.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/pin_common/pin_wrong_attempts.dart';
 import '../../widgets/translated_text.dart';
@@ -219,7 +218,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
         ),
       ],
       child: HeroControllerScope(
-        controller: createHeroController(),
+        controller: MaterialApp.createMaterialHeroController(),
         child: Navigator(
           key: navigatorKey,
           initialRoute: EnterPin.routeName,

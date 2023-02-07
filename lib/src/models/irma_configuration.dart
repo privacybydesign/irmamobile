@@ -161,7 +161,7 @@ class Issuer {
   @JsonKey(name: 'ContactAddress')
   final String contactAddress;
 
-  @JsonKey(name: 'ContactEmail')
+  @JsonKey(name: 'ContactEMail')
   final String contactEmail;
 
   factory Issuer.fromJson(Map<String, dynamic> json) => _$IssuerFromJson(json);

@@ -1,6 +1,3 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:irmamobile/src/theme/irma_icons.dart';
@@ -12,16 +9,15 @@ class Illustrator extends StatefulWidget {
   final double height;
   final double width;
 
-  const Illustrator({@required this.imageSet, @required this.textSet, @required this.height, @required this.width});
+  const Illustrator({required this.imageSet, required this.textSet, required this.height, required this.width});
 
   @override
   _IllustratorState createState() => _IllustratorState();
 }
 
 class _IllustratorState extends State<Illustrator> with SingleTickerProviderStateMixin {
-  final _animationDuration = 250;
+  static const _animationDuration = 250;
 
-  double height;
   int currentPage = 0;
 
   final _controller = PageController();
@@ -35,7 +31,7 @@ class _IllustratorState extends State<Illustrator> with SingleTickerProviderStat
   }
 
   Widget navBar() {
-    return Container(
+    return SizedBox(
       height: widget.height,
       child: Stack(
         alignment: AlignmentDirectional.center,
@@ -73,7 +69,7 @@ class _IllustratorState extends State<Illustrator> with SingleTickerProviderStat
                   if (_controller.hasClients) {
                     _controller.animateToPage(
                       currentPage,
-                      duration: Duration(milliseconds: _animationDuration),
+                      duration: const Duration(milliseconds: _animationDuration),
                       curve: Curves.easeInOut,
                     );
                   }
@@ -85,9 +81,9 @@ class _IllustratorState extends State<Illustrator> with SingleTickerProviderStat
     );
   }
 
-  Widget dotsIndicator({bool isActive}) {
+  Widget dotsIndicator({required bool isActive}) {
     return AnimatedContainer(
-      duration: Duration(milliseconds: _animationDuration ~/ 2),
+      duration: const Duration(milliseconds: _animationDuration ~/ 2),
       margin: const EdgeInsets.symmetric(horizontal: 8.0),
       height: 11,
       width: 11,
@@ -141,7 +137,7 @@ class _IllustratorState extends State<Illustrator> with SingleTickerProviderStat
           Stack(
             children: <Widget>[
               Center(
-                child: Container(
+                child: SizedBox(
                   height: widget.height,
                   width: widget.width,
                   child: PageView.builder(
@@ -163,17 +159,14 @@ class _IllustratorState extends State<Illustrator> with SingleTickerProviderStat
           SizedBox(
             height: IrmaTheme.of(context).defaultSpacing,
           ),
-          Container(
-            child: AnimatedSize(
-              duration: const Duration(milliseconds: 300),
-              vsync: this,
-              child: Container(
-                width: widget.width,
-                child: Text(
-                  widget.textSet[currentPage],
-                  key: ValueKey<int>(currentPage),
-                  textAlign: TextAlign.center,
-                ),
+          AnimatedSize(
+            duration: const Duration(milliseconds: 300),
+            child: SizedBox(
+              width: widget.width,
+              child: Text(
+                widget.textSet[currentPage],
+                key: ValueKey<int>(currentPage),
+                textAlign: TextAlign.center,
               ),
             ),
           ),
