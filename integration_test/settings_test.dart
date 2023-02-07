@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
 
@@ -180,7 +181,7 @@ void main() {
     testWidgets('erase', (tester) async {
       await _initAndNavToSettingsScreen(tester);
 
-      var deleteFinder = find.text('Delete everything and start over').hitTestable();
+      var deleteFinder = find.text('Delete data').hitTestable();
 
       // Tap on option to delete everything and start over
       await tester.scrollUntilVisible(deleteFinder, 75);
@@ -190,6 +191,7 @@ void main() {
       await tester.tapAndSettle(find.text('Yes, delete everything'));
 
       // Check whether the enrollment screen is shown
+      expect(find.byType(EnrollmentScreen), findsOneWidget);
     });
   });
 }
