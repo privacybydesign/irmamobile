@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:irmamobile/src/widgets/irma_app_bar.dart';
+
+import '../widgets/irma_app_bar.dart';
 
 class _Haptic {
   final String description;

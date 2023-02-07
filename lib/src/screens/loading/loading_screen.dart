@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/models/enrollment_status.dart';
-import 'package:irmamobile/src/models/error_event.dart';
-import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
-import 'package:irmamobile/src/screens/error/error_screen.dart';
-import 'package:irmamobile/src/screens/home/home_screen.dart';
-import 'package:irmamobile/src/screens/splash_screen/splash_screen.dart';
-import 'package:irmamobile/src/widgets/irma_repository_provider.dart';
+
+import '../../models/enrollment_status.dart';
+import '../../models/error_event.dart';
+import '../../widgets/irma_repository_provider.dart';
+import '../enrollment/enrollment_screen.dart';
+import '../error/error_screen.dart';
+import '../home/home_screen.dart';
+import '../splash_screen/splash_screen.dart';
 
 class LoadingScreen extends StatelessWidget {
   static const routeName = "/";

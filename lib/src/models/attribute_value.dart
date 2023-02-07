@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
 
-import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'package:irmamobile/src/models/translated_value.dart';
+import 'irma_configuration.dart';
+import 'translated_value.dart';
 
 abstract class AttributeValue {
   String? get raw;

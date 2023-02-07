@@ -1,6 +1,7 @@
-import 'package:irmamobile/src/models/session.dart';
-import 'package:irmamobile/src/screens/change_pin/models/validation_state.dart';
 import 'package:meta/meta.dart';
+
+import '../../../models/session.dart';
+import 'validation_state.dart';
 
 @immutable
 class OldPinVerificationState {

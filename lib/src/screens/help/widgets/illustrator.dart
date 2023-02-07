@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/theme/irma_icons.dart';
-import 'package:irmamobile/src/theme/theme.dart';
+
+import '../../../theme/irma_icons.dart';
+import '../../../theme/theme.dart';
 
 class Illustrator extends StatefulWidget {
   final List<Widget> imageSet;

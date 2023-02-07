@@ -1,8 +1,9 @@
 import 'dart:convert';
 
-import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+import '../data/irma_repository.dart';
+import 'translated_value.dart';
 
 part 'session.g.dart';
 
