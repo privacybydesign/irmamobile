@@ -112,7 +112,7 @@ void main() {
     testWidgets('change-pin', (tester) async {
       await _initAndNavToSettingsScreen(tester);
 
-      final changePinButtonFinder = find.text('Change your PIN').hitTestable();
+      final changePinButtonFinder = find.text('Change PIN').hitTestable();
       await tester.scrollUntilVisible(changePinButtonFinder, 50);
       await tester.tapAndSettle(changePinButtonFinder);
 
