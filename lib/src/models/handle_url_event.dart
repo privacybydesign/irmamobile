@@ -4,7 +4,7 @@ import 'event.dart';
 
 part 'handle_url_event.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(createToJson: false)
 class HandleURLEvent extends Event {
   HandleURLEvent({required this.url, this.isInitialUrl = false});
 
