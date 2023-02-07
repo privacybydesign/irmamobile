@@ -2,8 +2,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../theme/theme.dart';
-import 'yivi_themed_button.dart';
 import 'irma_dialog.dart';
+import 'yivi_themed_button.dart';
 
 class IrmaConfirmationDialog extends StatelessWidget {
   final String titleTranslationKey;

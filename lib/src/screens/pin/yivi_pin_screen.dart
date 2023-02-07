@@ -4,7 +4,6 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -13,10 +12,10 @@ import '../..//util/tablet.dart';
 import '../../theme/theme.dart';
 import '../../util/haptics.dart';
 import '../../util/scale.dart';
-import '../../widgets/yivi_themed_button.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/link.dart';
 import '../../widgets/yivi_bottom_sheet.dart';
+import '../../widgets/yivi_themed_button.dart';
 
 part 'bloc/enter_pin_state.dart';
 part 'circle_clip.dart';

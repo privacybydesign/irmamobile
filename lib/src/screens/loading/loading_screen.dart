@@ -9,7 +9,7 @@ import '../home/home_screen.dart';
 import '../splash_screen/splash_screen.dart';
 
 class LoadingScreen extends StatelessWidget {
-  static const routeName = "/";
+  static const routeName = '/';
 
   @override
   Widget build(BuildContext context) {

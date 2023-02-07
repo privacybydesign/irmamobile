@@ -6,13 +6,13 @@ part 'error_event.g.dart';
 
 @JsonSerializable()
 class ErrorEvent extends Event {
-  @JsonKey(name: "Exception")
+  @JsonKey(name: 'Exception')
   final String exception;
 
-  @JsonKey(name: "Stack")
+  @JsonKey(name: 'Stack')
   final String stack;
 
-  @JsonKey(name: "Fatal")
+  @JsonKey(name: 'Fatal')
   final bool fatal;
 
   ErrorEvent({required this.exception, required this.stack, required this.fatal});
@@ -21,7 +21,7 @@ class ErrorEvent extends Event {
 
   @override
   String toString() => [
-        "$exception\n",
+        '$exception\n',
         stack,
       ].join();
 }

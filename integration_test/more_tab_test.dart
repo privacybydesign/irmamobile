@@ -130,7 +130,7 @@ void main() {
       final questionFinder = find.text('Why does the data in the Yivi app have limited validity?').hitTestable();
       await tester.scrollUntilVisible(questionFinder, -50);
       await tester.tapAndSettle(questionFinder);
-      expect(find.textContaining('That way you can directly show that you\'re older than 18.').hitTestable(),
+      expect(find.textContaining("That way you can directly show that you're older than 18.").hitTestable(),
           findsOneWidget);
 
       // Check if the contact link is present

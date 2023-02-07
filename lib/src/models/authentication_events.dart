@@ -9,10 +9,10 @@ abstract class AuthenticationEvent extends Event {}
 
 @JsonSerializable()
 class AuthenticateEvent extends AuthenticationEvent {
-  @JsonKey(name: "Pin")
+  @JsonKey(name: 'Pin')
   final String pin;
 
-  @JsonKey(name: "SchemeID")
+  @JsonKey(name: 'SchemeID')
   final String schemeId;
 
   AuthenticateEvent({required this.pin, required this.schemeId});
@@ -30,10 +30,10 @@ class AuthenticationSuccessEvent extends AuthenticationEvent {
 
 @JsonSerializable()
 class AuthenticationFailedEvent extends AuthenticationEvent {
-  @JsonKey(name: "RemainingAttempts")
+  @JsonKey(name: 'RemainingAttempts')
   final int remainingAttempts;
 
-  @JsonKey(name: "BlockedDuration")
+  @JsonKey(name: 'BlockedDuration')
   final int blockedDuration;
 
   AuthenticationFailedEvent({required this.remainingAttempts, required this.blockedDuration});
@@ -43,7 +43,7 @@ class AuthenticationFailedEvent extends AuthenticationEvent {
 
 @JsonSerializable()
 class AuthenticationErrorEvent extends AuthenticationEvent {
-  @JsonKey(name: "Error")
+  @JsonKey(name: 'Error')
   final SessionError error;
 
   AuthenticationErrorEvent({required this.error});

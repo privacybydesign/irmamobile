@@ -23,7 +23,7 @@ import 'models/validation_state.dart';
 import 'models/verify_old_pin_bloc.dart';
 
 class ChangePinScreen extends StatelessWidget {
-  static const routeName = "/change_pin";
+  static const routeName = '/change_pin';
 
   @override
   Widget build(BuildContext context) {

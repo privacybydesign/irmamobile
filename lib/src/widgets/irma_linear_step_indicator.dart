@@ -26,8 +26,8 @@ class IrmaLinearStepIndicator extends StatelessWidget {
           TranslatedText(
             'ui.step_of_steps',
             translationParams: {
-              "i": step.toString(),
-              "n": stepCount.toString(),
+              'i': step.toString(),
+              'n': stepCount.toString(),
             },
             style: TextStyle(
               fontSize: 12,

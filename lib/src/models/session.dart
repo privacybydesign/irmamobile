@@ -24,12 +24,12 @@ abstract class Pointer {
   factory Pointer.fromString(String content) {
     // Use lookahead and lookbehinds to block out the non-JSON part of the string
     final regexps = [
-      RegExp("(?<=^irma:\/\/qr\/json\/).*"),
-      RegExp("(?<=^cardemu:\/\/qr\/json\/).*"),
-      RegExp("(?<=^intent:\/\/qr\/json\/).*(?=#)"),
-      RegExp("(?<=^https:\/\/irma\.app\/-\/session#).*"),
-      RegExp("(?<=^https:\/\/irma\.app\/-pilot\/session#).*"),
-      RegExp(".*", multiLine: true, dotAll: true),
+      RegExp('(?<=^irma://qr/json/).*'),
+      RegExp('(?<=^cardemu://qr/json/).*'),
+      RegExp('(?<=^intent://qr/json/).*(?=#)'),
+      RegExp('(?<=^https://irma.app/-/session#).*'),
+      RegExp('(?<=^https://irma.app/-pilot/session#).*'),
+      RegExp('.*', multiLine: true, dotAll: true),
     ];
 
     final Map<String, dynamic> json;

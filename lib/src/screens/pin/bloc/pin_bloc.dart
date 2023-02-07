@@ -71,7 +71,7 @@ class PinBloc extends Bloc<PinEvent, PinState> {
           error: authenticationEvent.error,
         );
       } else {
-        throw Exception("Unexpected subtype of AuthenticationResult");
+        throw Exception('Unexpected subtype of AuthenticationResult');
       }
     } else if (event is Locked) {
       yield PinState();

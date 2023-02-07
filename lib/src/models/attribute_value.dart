@@ -91,15 +91,15 @@ class YesNoValue implements TextValue {
     // but for now we do it here. We have hardcoded strings here because
     // flutter_i18n does not provide access to its strings directly, and we
     // don't have a buildcontext here, so this is the least worst option.
-    if (raw.toLowerCase() == "yes" || raw.toLowerCase() == "ja") {
+    if (raw.toLowerCase() == 'yes' || raw.toLowerCase() == 'ja') {
       return const TranslatedValue({
-        "en": "Yes",
-        "nl": "Ja",
+        'en': 'Yes',
+        'nl': 'Ja',
       });
-    } else if (raw.toLowerCase() == "no" || raw.toLowerCase() == "nee") {
+    } else if (raw.toLowerCase() == 'no' || raw.toLowerCase() == 'nee') {
       return const TranslatedValue({
-        "en": "No",
-        "nl": "Nee",
+        'en': 'No',
+        'nl': 'Nee',
       });
     } else {
       return textValue.translated;

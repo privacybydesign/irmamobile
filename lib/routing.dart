@@ -108,16 +108,16 @@ class RouteNotFoundScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     if (kDebugMode) {
       throw Exception(
-        "Route not found. Invalid route or invalid arguments were specified.",
+        'Route not found. Invalid route or invalid arguments were specified.',
       );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Page not found"),
+        title: const Text('Page not found'),
       ),
       body: const Center(
-        child: Text(""),
+        child: Text(''),
       ),
     );
   }

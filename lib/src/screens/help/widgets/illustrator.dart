@@ -42,7 +42,7 @@ class _IllustratorState extends State<Illustrator> with SingleTickerProviderStat
               left: 0,
               child: IconButton(
                 icon: Icon(IrmaIcons.chevronLeft,
-                    semanticLabel: FlutterI18n.translate(context, "disclosure.previous"),
+                    semanticLabel: FlutterI18n.translate(context, 'disclosure.previous'),
                     color: IrmaTheme.of(context).success),
                 iconSize: 20.0,
                 onPressed: () {
@@ -62,7 +62,7 @@ class _IllustratorState extends State<Illustrator> with SingleTickerProviderStat
               right: 0,
               child: IconButton(
                 icon: Icon(IrmaIcons.chevronRight,
-                    semanticLabel: FlutterI18n.translate(context, "disclosure.next"),
+                    semanticLabel: FlutterI18n.translate(context, 'disclosure.next'),
                     color: IrmaTheme.of(context).success),
                 iconSize: 20.0,
                 onPressed: () {
@@ -96,9 +96,9 @@ class _IllustratorState extends State<Illustrator> with SingleTickerProviderStat
 
   String slideshowAccessibilityDescription(int page) {
     return FlutterI18n.translate(context, 'accessibility.slideshow', translationParams: {
-      "i": (page + 1).toString(),
-      "n": widget.imageSet.length.toString(),
-      "description": widget.textSet[page],
+      'i': (page + 1).toString(),
+      'n': widget.imageSet.length.toString(),
+      'description': widget.textSet[page],
     });
   }
 

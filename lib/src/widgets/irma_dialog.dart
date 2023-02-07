@@ -64,7 +64,7 @@ class IrmaDialog extends StatelessWidget {
                               children: [
                                 Semantics(
                                   namesRoute: !Platform.isIOS, // Set to false on iOS to prevent double read
-                                  label: FlutterI18n.translate(context, "accessibility.alert"),
+                                  label: FlutterI18n.translate(context, 'accessibility.alert'),
                                   child: Text(
                                     title,
                                     key: const Key('irma_dialog_title'),

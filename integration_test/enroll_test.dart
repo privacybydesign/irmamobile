@@ -12,8 +12,8 @@ import 'package:irmamobile/src/screens/enrollment/confirm_pin/confirm_pin_screen
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/enrollment_instruction.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
-import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
+import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
 
 import 'helpers/helpers.dart';
 import 'irma_binding.dart';
@@ -32,8 +32,8 @@ void main() {
       'Your official name, birthdate, address, social security number and more. Safely stored in your Yivi-app'
     ],
     [
-      'With Yivi you\'re in control over your data',
-      'Easy, secure and swift. You\'re in control of what you\'re sharing and with whom.',
+      "With Yivi you're in control over your data",
+      "Easy, secure and swift. You're in control of what you're sharing and with whom.",
     ],
     [
       'Securely on your phone',
