@@ -1,6 +1,3 @@
-// We cannot test using null safety as long as there are widgets that are not migrated yet.
-// @dart=2.11
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
