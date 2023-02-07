@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:share/share.dart';
@@ -11,18 +12,18 @@ import '../../../widgets/irma_themed_button.dart';
 import '../../../widgets/translated_text.dart';
 
 class ContactLinkTile extends StatelessWidget {
-  final IconData iconData;
+  final IconData? iconData;
   final String labelTranslationKey;
 
   const ContactLinkTile({
     Key? key,
-    required this.iconData,
+    this.iconData,
     required this.labelTranslationKey,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return _LinkTile(
+    return Tile(
       iconData: iconData,
       labelTranslationKey: labelTranslationKey,
       onTap: () async {
@@ -68,7 +69,7 @@ class ShareLinkTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _LinkTile(
+    return Tile(
       iconData: iconData,
       labelTranslationKey: labelTranslationKey,
       onTap: () {
@@ -81,20 +82,20 @@ class ShareLinkTile extends StatelessWidget {
 }
 
 class ExternalLinkTile extends StatelessWidget {
-  final IconData iconData;
+  final IconData? iconData;
   final String labelTranslationKey;
   final String urlLinkKey;
 
   const ExternalLinkTile({
     Key? key,
-    required this.iconData,
+    this.iconData,
     required this.labelTranslationKey,
     required this.urlLinkKey,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return _LinkTile(
+    return Tile(
       iconData: iconData,
       labelTranslationKey: labelTranslationKey,
       onTap: () {
@@ -112,20 +113,20 @@ class ExternalLinkTile extends StatelessWidget {
 }
 
 class InternalLinkTile extends StatelessWidget {
-  final IconData iconData;
+  final IconData? iconData;
   final String labelTranslationKey;
   final String routeName;
 
   const InternalLinkTile({
     Key? key,
-    required this.iconData,
+    this.iconData,
     required this.labelTranslationKey,
     required this.routeName,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return _LinkTile(
+    return Tile(
       iconData: iconData,
       labelTranslationKey: labelTranslationKey,
       onTap: () => Navigator.pushNamed(context, routeName),
@@ -133,16 +134,57 @@ class InternalLinkTile extends StatelessWidget {
   }
 }
 
-class _LinkTile extends StatelessWidget {
-  final IconData iconData;
+class ToggleTile extends StatelessWidget {
+  final IconData? iconData;
+  final String labelTranslationKey;
+  final void Function(bool) onChanged;
+  final Stream<bool> stream;
+
+  const ToggleTile({
+    Key? key,
+    this.iconData,
+    required this.labelTranslationKey,
+    required this.onChanged,
+    required this.stream,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
+    return StreamBuilder(
+      stream: stream,
+      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+        final value = snapshot.hasData && snapshot.data!;
+
+        return Tile(
+          iconData: iconData,
+          labelTranslationKey: labelTranslationKey,
+          onTap: () => onChanged(!value),
+          trailing: CupertinoSwitch(
+            value: value,
+            onChanged: null, // We use the onTap on the Tile
+            activeColor: theme.secondary,
+          ),
+        );
+      },
+    );
+  }
+}
+
+class Tile extends StatelessWidget {
+  final IconData? iconData;
   final String labelTranslationKey;
   final Function() onTap;
+  final Widget? trailing;
 
-  const _LinkTile({
-    required this.iconData,
+  const Tile({
+    Key? key,
+    this.iconData,
     required this.labelTranslationKey,
     required this.onTap,
-  });
+    this.trailing,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -154,19 +196,22 @@ class _LinkTile extends StatelessWidget {
       child: ListTile(
         onTap: onTap,
         minLeadingWidth: theme.mediumSpacing,
-        leading: Icon(
-          iconData,
-          size: 32,
-          color: iconColor,
-        ),
+        leading: iconData != null
+            ? Icon(
+                iconData,
+                size: 32,
+                color: iconColor,
+              )
+            : null,
         title: TranslatedText(
           labelTranslationKey,
         ),
-        trailing: Icon(
-          Icons.chevron_right,
-          size: 28,
-          color: iconColor,
-        ),
+        trailing: trailing ??
+            Icon(
+              Icons.chevron_right,
+              size: 28,
+              color: iconColor,
+            ),
       ),
     );
   }
