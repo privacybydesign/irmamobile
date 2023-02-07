@@ -11,6 +11,7 @@ linter:
 # Enforce that some rules cause the linter to fail.
 analyzer:
   errors:
+    unused_element: warning
     prefer_relative_imports: warning
     directives_ordering: warning
     prefer_single_quotes: warning
