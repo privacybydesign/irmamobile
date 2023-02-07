@@ -522,11 +522,11 @@
     "other": "Other",
     "change_pin": "Change PIN",
     "delete": "Delete data",
-    "advanced": {
-      "delete_title": "Are you sure?",
-      "delete_content": "If you proceed, all data will be deleted from your Yivi app. If you wish to continue using Yivi you will have to reload the data.",
-      "delete_confirm": "Yes, delete everything",
-      "delete_deny": "Cancel"
+    "confirm_delete_dialog": {
+      "title": "Delete data",
+      "explanation": "If you proceed, all data will be deleted from your Yivi app. If you wish to continue using Yivi you will have to reload the data.",
+      "confirm": "Yes, delete everything",
+      "deny": "Cancel"
     }
   },
   "ui": {

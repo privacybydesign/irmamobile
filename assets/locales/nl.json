@@ -522,11 +522,11 @@
     "other": "Overig",
     "change_pin": "Pincode veranderen",
     "delete": "Verwijder gegevens",
-    "advanced": {
-      "delete_title": "Weet je het zeker?",
-      "delete_content": "Als je doorgaat, verwijder je al je gegevens en je toegang tot de Yivi-app. Wil je de Yivi-app opnieuw gebruiken? Kies een nieuwe pincode en haal je gegevens opnieuw op.",
-      "delete_confirm": "Verwijder alles",
-      "delete_deny": "Annuleer"
+    "confirm_delete_dialog": {
+      "title": "Gegevens verwijderen",
+      "explanation": "Als je doorgaat, verwijder je al je gegevens en je toegang tot de Yivi-app. Wil je de Yivi-app opnieuw gebruiken? Kies een nieuwe pincode en haal je gegevens opnieuw op.",
+      "confirm": "Verwijder alles",
+      "deny": "Annuleer"
     }
   },
   "ui": {

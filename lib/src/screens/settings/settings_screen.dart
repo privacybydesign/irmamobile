@@ -1,20 +1,16 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../models/clear_all_data_event.dart';
 import '../../theme/theme.dart';
 import '../../widgets/irma_app_bar.dart';
-import '../../widgets/irma_button.dart';
-import '../../widgets/irma_dialog.dart';
 import '../../widgets/irma_repository_provider.dart';
-import '../../widgets/irma_text_button.dart';
-import '../../widgets/irma_themed_button.dart';
 import '../../widgets/translated_text.dart';
 import '../change_pin/change_pin_screen.dart';
 import '../more/widgets/tiles.dart';
 import '../more/widgets/tiles_card.dart';
+import 'widgets/delete_data_confirmation_dialog.dart';
 
 class SettingsScreen extends StatelessWidget {
   static const routeName = '/settings';
@@ -126,55 +122,28 @@ class SettingsScreen extends StatelessWidget {
                   Tile(
                     key: const Key('delete_link'),
                     labelTranslationKey: 'settings.delete',
-                    onTap: () => openWalletResetDialog(context),
+                    onTap: () => showConfirmDeleteDialog(context),
                   ),
                 ],
               ),
             ],
           ),
         ),
-
-        // children: [
-
-        // ],
       ),
     );
   }
 }
 
-// openWalletResetDialog opens a dialog which gives the user the possibility to
-// reset all the data. This function is public and is used in at least one other
-// location (pin forgotten / reset).
-Future<void> openWalletResetDialog(BuildContext context) async {
-  await showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (BuildContext context) => IrmaDialog(
-      title: FlutterI18n.translate(context, 'settings.advanced.delete_title'),
-      content: FlutterI18n.translate(context, 'settings.advanced.delete_content'),
-      child: Wrap(
-        verticalDirection: VerticalDirection.up,
-        alignment: WrapAlignment.spaceEvenly,
-        children: [
-          IrmaTextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            minWidth: 0.0,
-            label: 'settings.advanced.delete_deny',
-          ),
-          IrmaButton(
-            size: IrmaButtonSize.small,
-            minWidth: 0.0,
-            onPressed: () {
-              IrmaRepositoryProvider.of(context).bridgedDispatch(
-                ClearAllDataEvent(),
-              );
-            },
-            label: 'settings.advanced.delete_confirm',
-          ),
-        ],
-      ),
-    ),
-  );
+Future<void> showConfirmDeleteDialog(BuildContext context) async {
+  final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => DeleteDataConfirmationDialog(),
+      ) ??
+      false;
+
+  if (confirmed) {
+    IrmaRepositoryProvider.of(context).bridgedDispatch(
+      ClearAllDataEvent(),
+    );
+  }
 }
