@@ -86,8 +86,9 @@ class SettingsScreen extends StatelessWidget {
                 ],
               ),
               _buildExplanationText('settings.report_errors_explanation'),
-              spacerWidget,
+
               if (Platform.isAndroid) ...[
+                spacerWidget,
                 TilesCard(
                   children: [
                     ToggleTile(
@@ -113,15 +114,18 @@ class SettingsScreen extends StatelessWidget {
                 ) =>
                     !devModeVisible.hasData || !devModeVisible.data!
                         ? Container()
-                        : TilesCard(
-                            children: [
-                              ToggleTile(
-                                key: const Key('dev_mode_toggle'),
-                                labelTranslationKey: 'settings.developer_mode',
-                                onChanged: repo.setDeveloperMode,
-                                stream: repo.getDeveloperMode(),
-                              ),
-                            ],
+                        : Padding(
+                            padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
+                            child: TilesCard(
+                              children: [
+                                ToggleTile(
+                                  key: const Key('dev_mode_toggle'),
+                                  labelTranslationKey: 'settings.developer_mode',
+                                  onChanged: repo.setDeveloperMode,
+                                  stream: repo.getDeveloperMode(),
+                                ),
+                              ],
+                            ),
                           ),
               ),
 
