@@ -179,7 +179,7 @@ void main() {
     testWidgets('erase', (tester) async {
       await _initAndNavToSettingsScreen(tester);
 
-      var deleteFinder = find.text('Delete data').hitTestable();
+      var deleteFinder = find.byKey(const Key('delete_link'));
 
       // Tap on option to delete everything and start over
       await tester.scrollUntilVisible(deleteFinder, 75);
