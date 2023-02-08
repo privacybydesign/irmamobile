@@ -3,6 +3,7 @@
 
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -35,19 +36,24 @@ void main() {
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
 
-    Future<void> _testToggle(WidgetTester tester, String key, bool defaultValue, Stream<bool> valueStream) async {
+    Future<void> _testToggle(
+      WidgetTester tester,
+      String key,
+      bool defaultValue,
+      Stream<bool> valueStream,
+    ) async {
       var toggleFinder = find.byKey(Key(key));
       await tester.scrollUntilVisible(toggleFinder.hitTestable(), 50);
 
-      // Find the actual SwitchListTile in the SettingsSwitchListTile
-      var switchTileFinder = find.descendant(
+      // Find the actual Switch in the ToggleTile
+      var switchFinder = find.descendant(
         of: toggleFinder,
-        matching: find.byType(SwitchListTile),
+        matching: find.byType(CupertinoSwitch),
       );
 
       // Check default value
       expect(
-        (switchTileFinder.evaluate().single.widget as SwitchListTile).value,
+        (switchFinder.evaluate().single.widget as CupertinoSwitch).value,
         defaultValue,
       );
 
@@ -56,7 +62,7 @@ void main() {
 
       // Check switch tile is toggled
       expect(
-        (switchTileFinder.evaluate().single.widget as SwitchListTile).value,
+        (switchFinder.evaluate().single.widget as CupertinoSwitch).value,
         !defaultValue,
       );
 
@@ -90,14 +96,6 @@ void main() {
           false,
           repo.preferences.getReportErrors(),
         );
-        if (kDebugMode) {
-          await _testToggle(
-            tester,
-            'dev_mode_toggle',
-            true,
-            repo.getDeveloperMode(),
-          );
-        }
         if (Platform.isAndroid) {
           await _testToggle(
             tester,

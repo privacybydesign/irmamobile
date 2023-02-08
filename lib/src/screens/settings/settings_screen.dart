@@ -101,16 +101,30 @@ class SettingsScreen extends StatelessWidget {
                 _buildExplanationText('settings.enable_screenshots_explanation'),
                 spacerWidget,
               ],
-              TilesCard(
-                children: [
-                  ToggleTile(
-                    key: const Key('dev_mode_toggle'),
-                    labelTranslationKey: 'settings.developer_mode',
-                    onChanged: repo.preferences.setDeveloperModeVisible,
-                    stream: repo.preferences.getDeveloperModeVisible(),
-                  ),
-                ],
+
+              // Developer mode toggle should only be visible
+              // when the user tapped the build number multiple times and
+              // developerModeVisible becomes true
+              StreamBuilder(
+                stream: repo.preferences.getDeveloperModeVisible(),
+                builder: (
+                  BuildContext context,
+                  AsyncSnapshot<bool> devModeVisible,
+                ) =>
+                    !devModeVisible.hasData || !devModeVisible.data!
+                        ? Container()
+                        : TilesCard(
+                            children: [
+                              ToggleTile(
+                                key: const Key('dev_mode_toggle'),
+                                labelTranslationKey: 'settings.developer_mode',
+                                onChanged: repo.setDeveloperMode,
+                                stream: repo.getDeveloperMode(),
+                              ),
+                            ],
+                          ),
               ),
+
               _buildHeaderText('settings.other'),
               TilesCard(
                 children: [
