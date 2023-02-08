@@ -8,8 +8,8 @@ import '../../widgets/translated_text.dart';
 import '../../widgets/yivi_themed_button.dart';
 import '../home/widgets/irma_nav_bar.dart';
 
-import 'widgets/link_tiles.dart';
-import 'widgets/link_tiles_card.dart';
+import 'widgets/tiles.dart';
+import 'widgets/tiles_card.dart';
 import 'widgets/version_button.dart';
 
 class MoreTab extends StatelessWidget {
@@ -42,7 +42,7 @@ class MoreTab extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeaderText('more_tab.app_management'),
-          const LinkTilesCard(
+          const TilesCard(
             children: [
               InternalLinkTile(
                 key: Key('open_settings_screen_button'),
@@ -65,7 +65,7 @@ class MoreTab extends StatelessWidget {
           ),
           spacerWidget,
           _buildHeaderText('help.about_irma'),
-          const LinkTilesCard(
+          const TilesCard(
             children: [
               ExternalLinkTile(
                 labelTranslationKey: 'more_tab.website',
@@ -80,7 +80,7 @@ class MoreTab extends StatelessWidget {
           ),
           spacerWidget,
           _buildHeaderText('more_tab.slogan'),
-          const LinkTilesCard(
+          const TilesCard(
             children: [
               ShareLinkTile(
                 iconData: Icons.share_outlined,
@@ -96,7 +96,7 @@ class MoreTab extends StatelessWidget {
           ),
           spacerWidget,
           _buildHeaderText('more_tab.stay_informed'),
-          const LinkTilesCard(children: [
+          const TilesCard(children: [
             ExternalLinkTile(
               iconData: Icons.groups_outlined,
               labelTranslationKey: 'more_tab.meetups',

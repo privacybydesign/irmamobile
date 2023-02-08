@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:irmamobile/src/screens/settings/settings_screen.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/irma_app_bar.dart';
-import 'package:irmamobile/src/widgets/irma_bottom_bar.dart';
+
+import '../../theme/theme.dart';
+import '../../widgets/irma_app_bar.dart';
+import '../../widgets/irma_bottom_bar.dart';
+import '../settings/settings_screen.dart';
 
 class ResetPinScreen extends StatelessWidget {
   static const String routeName = '/reset';
 
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
     return Scaffold(
       appBar: const IrmaAppBar(
         titleTranslationKey: 'reset_pin.title',
@@ -18,9 +21,7 @@ class ResetPinScreen extends StatelessWidget {
       bottomSheet: IrmaBottomBar(
         key: const Key('reset_pin_buttons'),
         primaryButtonLabel: FlutterI18n.translate(context, 'reset_pin.reset'),
-        onPrimaryPressed: () {
-          openWalletResetDialog(context);
-        },
+        onPrimaryPressed: () => showConfirmDeleteDialog(context),
         secondaryButtonLabel: FlutterI18n.translate(context, 'reset_pin.back'),
         onSecondaryPressed: () => Navigator.of(context).pop(),
       ),
@@ -32,11 +33,11 @@ class ResetPinScreen extends StatelessWidget {
           Expanded(
             child: SingleChildScrollView(
               child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).defaultSpacing),
+                padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+                  children: [
+                    SizedBox(height: theme.defaultSpacing),
                     Center(
                       child: SizedBox(
                         width: 94,
@@ -47,11 +48,11 @@ class ResetPinScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(height: IrmaTheme.of(context).largeSpacing),
+                    SizedBox(height: theme.largeSpacing),
                     Text(
                       FlutterI18n.translate(context, 'reset_pin.message'),
                     ),
-                    SizedBox(height: IrmaTheme.of(context).defaultSpacing),
+                    SizedBox(height: theme.defaultSpacing),
                     SizedBox(
                       width: double.infinity,
                       child: Text(
@@ -60,11 +61,11 @@ class ResetPinScreen extends StatelessWidget {
                         textAlign: TextAlign.left,
                       ),
                     ),
-                    SizedBox(height: IrmaTheme.of(context).smallSpacing),
+                    SizedBox(height: theme.smallSpacing),
                     Text(
                       FlutterI18n.translate(context, 'reset_pin.existing_data_message'),
                     ),
-                    SizedBox(height: IrmaTheme.of(context).defaultSpacing)
+                    SizedBox(height: theme.defaultSpacing)
                   ],
                 ),
               ),

@@ -4,10 +4,10 @@ import '../../../theme/theme.dart';
 import '../../../widgets/irma_card.dart';
 import '../../../widgets/irma_divider.dart';
 
-class LinkTilesCard extends StatelessWidget {
+class TilesCard extends StatelessWidget {
   final List<Widget> children;
 
-  const LinkTilesCard({
+  const TilesCard({
     required this.children,
   });
 
