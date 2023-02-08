@@ -103,6 +103,15 @@ void main() {
             repo.preferences.getScreenshotsEnabled(),
           );
         }
+
+        // Dev mode is enabled by default in the test binding
+        // so the toggle should be visible.
+        await _testToggle(
+          tester,
+          'dev_mode_toggle',
+          true,
+          repo.getDeveloperMode(),
+        );
       },
     );
 
