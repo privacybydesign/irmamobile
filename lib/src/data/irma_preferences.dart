@@ -25,7 +25,6 @@ class IrmaPreferences {
         _reportErrors = preferences.getBool(_reportErrorsKey, defaultValue: false),
         _startQRScan = preferences.getBool(_startQRScanKey, defaultValue: false),
         _showDisclosureDialog = preferences.getBool(_showDisclosureDialogKey, defaultValue: true),
-        _developerModePrefVisible = preferences.getBool(_developerModePrefVisibleKey, defaultValue: false),
         _acceptedRootedRisk = preferences.getBool(_acceptedRootedRiskKey, defaultValue: false),
         _completedDisclosurePermissionIntro =
             preferences.getBool(_completedDisclosurePermissionIntroKey, defaultValue: false) {
@@ -70,12 +69,6 @@ class IrmaPreferences {
 
   Stream<bool> getShowDisclosureDialog() => _showDisclosureDialog;
   Future<bool> setShowDisclosureDialog(bool value) => _showDisclosureDialog.setValue(value);
-
-  static const String _developerModePrefVisibleKey = "preference.devmode_visible";
-  final Preference<bool> _developerModePrefVisible;
-
-  Stream<bool> getDeveloperModeVisible() => _developerModePrefVisible;
-  Future<bool> setDeveloperModeVisible(bool value) => _developerModePrefVisible.setValue(value);
 
   static const String _acceptedRootedRiskKey = "preference.accepted_rooted_risk";
   final Preference<bool> _acceptedRootedRisk;

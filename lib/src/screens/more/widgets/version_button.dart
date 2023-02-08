@@ -38,7 +38,6 @@ class VersionButton extends StatelessWidget {
           behavior: SnackBarBehavior.floating,
         ),
       );
-      repo.preferences.setDeveloperModeVisible(true);
       repo.setDeveloperMode(true);
     }
 
