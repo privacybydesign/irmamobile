@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../../theme/theme.dart';
+import '../theme/theme.dart';
 
-class _EnrollmentProgressIndicatorElement extends StatelessWidget {
+class _YiviProgressIndicatorElement extends StatelessWidget {
   final bool isActive;
 
-  const _EnrollmentProgressIndicatorElement({
+  const _YiviProgressIndicatorElement({
     required this.isActive,
   });
 
@@ -25,11 +25,11 @@ class _EnrollmentProgressIndicatorElement extends StatelessWidget {
   }
 }
 
-class EnrollmentProgressIndicator extends StatelessWidget {
+class YiviProgressIndicator extends StatelessWidget {
   final int stepIndex;
   final int stepCount;
 
-  const EnrollmentProgressIndicator({
+  const YiviProgressIndicator({
     required this.stepIndex,
     required this.stepCount,
   });
@@ -41,7 +41,7 @@ class EnrollmentProgressIndicator extends StatelessWidget {
         stepCount,
         (int index) => Padding(
           padding: const EdgeInsets.only(right: 6),
-          child: _EnrollmentProgressIndicatorElement(
+          child: _YiviProgressIndicatorElement(
             isActive: index == stepIndex,
           ),
         ),

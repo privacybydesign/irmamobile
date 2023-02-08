@@ -21,12 +21,13 @@ class _HelpScreenState extends State<HelpScreen> {
 
   Widget _buildHeader(
     IrmaThemeData theme,
-    String translationKey, {
-    TextStyle? style,
-  }) =>
+    String translationKey,
+  ) =>
       TranslatedText(
         translationKey,
-        style: style ?? theme.textTheme.bodyText1!.copyWith(color: theme.neutralDark),
+        style: theme.textTheme.bodyText1!.copyWith(
+          color: theme.neutralExtraDark,
+        ),
       );
 
   @override
@@ -34,6 +35,7 @@ class _HelpScreenState extends State<HelpScreen> {
     final theme = IrmaTheme.of(context);
 
     return Scaffold(
+      backgroundColor: theme.backgroundSecondary,
       appBar: const IrmaAppBar(
         titleTranslationKey: 'help.faq',
       ),
@@ -134,7 +136,6 @@ class _HelpScreenState extends State<HelpScreen> {
           _buildHeader(
             theme,
             'help.ask',
-            style: theme.textTheme.headline3,
           ),
           SizedBox(height: theme.defaultSpacing),
           TranslatedText(
