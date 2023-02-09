@@ -112,6 +112,13 @@ void main() {
           true,
           repo.getDeveloperMode(),
         );
+
+        // Now go back and return to settings again
+        await tester.tapAndSettle(find.byKey(const Key('irma_app_bar_leading')));
+        await tester.tapAndSettle(find.byKey(const Key('open_settings_screen_button')));
+
+        // Dev mode toggle should be gone now
+        expect(find.byKey(const Key('dev_mode_toggle')), findsNothing);
       },
     );
 
@@ -122,7 +129,7 @@ void main() {
       await tester.scrollUntilVisible(changePinButtonFinder, 50);
       await tester.tapAndSettle(changePinButtonFinder);
 
-      // Enter current pin  PIN
+      // Enter current pin PIN
       await enterPin(tester, '12345');
 
       // Enter new PIN
