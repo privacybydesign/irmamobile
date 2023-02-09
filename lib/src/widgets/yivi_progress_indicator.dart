@@ -16,7 +16,7 @@ class _YiviProgressIndicatorElement extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: isActive ? theme.primary : theme.surfaceSecondary,
+        color: isActive ? theme.primary : theme.tertiary,
         borderRadius: BorderRadius.circular(20),
       ),
       height: size,
