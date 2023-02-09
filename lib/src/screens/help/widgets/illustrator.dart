@@ -22,8 +22,6 @@ class Illustrator extends StatefulWidget {
 }
 
 class _IllustratorState extends State<Illustrator> with SingleTickerProviderStateMixin {
-  final _animationDuration = 250;
-
   late double height;
   int currentPage = 0;
 
