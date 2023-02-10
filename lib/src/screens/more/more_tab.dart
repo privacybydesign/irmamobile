@@ -22,22 +22,24 @@ class MoreTab extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     final spacerWidget = SizedBox(
-      height: theme.defaultSpacing,
+      height: theme.mediumSpacing,
     );
 
-    Widget _buildHeaderText(String translationKey) => Padding(
-          padding: EdgeInsets.all(theme.defaultSpacing),
-          child: Semantics(
-            header: true,
-            child: TranslatedText(
-              translationKey,
-              style: theme.textTheme.headline4,
+    Widget _buildHeaderText(
+      String translationKey,
+    ) =>
+        Padding(
+          padding: EdgeInsets.only(bottom: theme.defaultSpacing),
+          child: TranslatedText(
+            translationKey,
+            style: theme.textTheme.bodyText1!.copyWith(
+              color: theme.neutralExtraDark,
             ),
           ),
         );
 
     return SingleChildScrollView(
-      padding: EdgeInsets.symmetric(horizontal: theme.smallSpacing),
+      padding: EdgeInsets.all(theme.defaultSpacing),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -114,22 +116,17 @@ class MoreTab extends StatelessWidget {
             )
           ]),
           spacerWidget,
-          Padding(
-            padding: EdgeInsets.all(theme.defaultSpacing),
-            child: YiviThemedButton(
-              key: const Key('log_out_button'),
-              style: YiviButtonStyle.filled,
-              label: 'more_tab.log_out',
-              onPressed: () {
-                IrmaRepositoryProvider.of(context).lock();
-                onChangeTab(IrmaNavBarTab.home);
-              },
-            ),
+          YiviThemedButton(
+            key: const Key('log_out_button'),
+            style: YiviButtonStyle.filled,
+            label: 'more_tab.log_out',
+            onPressed: () {
+              IrmaRepositoryProvider.of(context).lock();
+              onChangeTab(IrmaNavBarTab.home);
+            },
           ),
-          Padding(
-            padding: EdgeInsets.all(theme.defaultSpacing),
-            child: VersionButton(),
-          )
+          spacerWidget,
+          VersionButton(),
         ],
       ),
     );

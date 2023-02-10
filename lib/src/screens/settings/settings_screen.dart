@@ -46,7 +46,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final repo = IrmaRepositoryProvider.of(context);
 
     Widget _buildHeaderText(String translationKey) => Padding(
-          padding: EdgeInsets.all(theme.defaultSpacing),
+          padding: EdgeInsets.only(bottom: theme.defaultSpacing),
           child: Semantics(
             header: true,
             child: TranslatedText(
@@ -59,7 +59,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     Widget _buildExplanationText(String translationKey) => Padding(
           padding: EdgeInsets.symmetric(
             vertical: theme.smallSpacing,
-            horizontal: theme.defaultSpacing + theme.smallSpacing,
+            horizontal: theme.defaultSpacing,
           ),
           child: TranslatedText(
             translationKey,
@@ -80,9 +80,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         titleTranslationKey: 'settings.title',
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(
-          horizontal: theme.defaultSpacing,
-          vertical: theme.defaultSpacing,
+        padding: EdgeInsets.all(
+          theme.defaultSpacing,
         ),
         child: SafeArea(
           child: Column(
