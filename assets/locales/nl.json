@@ -515,7 +515,7 @@
     "start_qr": "QR-scanner direct openen",
     "start_qr_explanation": "QR-scanner automatisch openen na het opstarten van de app.",
     "report_errors": "Fouten naar Yivi sturen",
-    "report_errors_explanation": "Door de systeem fouten naar ons op te sturen kunnen wij de gebruikerservaring verbeteren.",
+    "report_errors_explanation": "Door foutrapportage in te schakelen, help je ons de gebruikerservaring te verbeteren.",
     "enable_screenshots": "Screenshots toestaan",
     "enable_screenshots_explanation": "Als dit is ingeschakeld, wordt de app niet vervaagd in de app-switcher.",
     "developer_mode": "Developer modus",
