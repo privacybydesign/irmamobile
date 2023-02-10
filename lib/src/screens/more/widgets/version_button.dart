@@ -1,7 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info/package_info.dart';
-import 'package:rxdart/rxdart.dart';
 
 import '../../../../sentry_dsn.dart';
 import '../../../models/credentials.dart';
@@ -9,8 +8,17 @@ import '../../../theme/theme.dart';
 import '../../../widgets/irma_repository_provider.dart';
 import '../../../widgets/translated_text.dart';
 
-class VersionButton extends StatelessWidget {
-  final _developerModeTapStream = BehaviorSubject.seeded(0);
+class VersionButton extends StatefulWidget {
+  const VersionButton({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  _VersionButtonState createState() => _VersionButtonState();
+}
+
+class _VersionButtonState extends State<VersionButton> {
+  int _tapCounter = 0;
 
   String _buildVersionString(AsyncSnapshot<PackageInfo> info) {
     final String buildHash = version.substring(0, version != 'debugbuild' && 8 < version.length ? 8 : version.length);
@@ -30,26 +38,29 @@ class VersionButton extends StatelessWidget {
       fontWeight: FontWeight.w600,
     );
 
-    void showDeveloperMode() {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: theme.success,
-          content: const TranslatedText('more_tab.developer_mode_enabled'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      repo.setDeveloperMode(true);
-    }
+    void _showSnackbar(String translationKey) => ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: theme.success,
+            content: TranslatedText(translationKey),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
 
-    // throttle prevents multiple invocations of the dialog
-    // when tapping furiously
-    const throttleTime = Duration(milliseconds: 100);
+    void _onTap() async {
+      _tapCounter++;
 
-    _developerModeTapStream.throttleTime(throttleTime).listen((i) {
-      if (i == 7) {
-        showDeveloperMode();
+      if (_tapCounter == 7) {
+        _tapCounter = 0;
+
+        final inDeveloperMode = await repo.getDeveloperMode().first;
+        if (inDeveloperMode) {
+          _showSnackbar('more_tab.developer_mode_already_enabled');
+        } else {
+          _showSnackbar('more_tab.developer_mode_enabled');
+          repo.setDeveloperMode(true);
+        }
       }
-    });
+    }
 
     return Semantics(
       excludeSemantics: true,
@@ -57,9 +68,7 @@ class VersionButton extends StatelessWidget {
         children: [
           Expanded(
             child: InkWell(
-              onTap: () {
-                _developerModeTapStream.value = _developerModeTapStream.value + 1;
-              },
+              onTap: _onTap,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
