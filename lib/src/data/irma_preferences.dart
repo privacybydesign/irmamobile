@@ -30,6 +30,8 @@ class IrmaPreferences {
             preferences.getBool(_completedDisclosurePermissionIntroKey, defaultValue: false) {
     // Remove unused IRMA -> Yivi name change notification key
     preferences.remove(_showNameChangeNotificationKey);
+    // Remove old value for displaying the dev mode toggle
+    preferences.remove(_developerModePrefVisibleKey);
   }
 
   static Future<IrmaPreferences> fromInstance() async => IrmaPreferences(await StreamingSharedPreferences.instance);
@@ -78,6 +80,10 @@ class IrmaPreferences {
 
   /// Originates from the IRMA -> Yivi name change, only used for cleanup-purposes
   static const String _showNameChangeNotificationKey = "preference.show_name_change_notification";
+
+  /// Old value that was used for displaying the dev mode toggle,
+  /// now it's only used for cleanup-purposes
+  static const String _developerModePrefVisibleKey = "preference.devmode_visible";
 
   static const String _completedDisclosurePermissionIntroKey = "preference.completed_disclosure_permission_intro";
   final Preference<bool> _completedDisclosurePermissionIntro;
