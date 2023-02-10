@@ -44,7 +44,7 @@ class _HelpCarouselState extends State<HelpCarousel> {
           textSet: [
             for (var item in widget.items) FlutterI18n.translate(context, item.translationKey),
           ],
-          width: 280.0,
+          width: 300.0,
           height: 220.0,
         ),
       ],
