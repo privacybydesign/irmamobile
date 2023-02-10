@@ -57,6 +57,12 @@ void main() {
     });
 
     testWidgets('developer-mode', (tester) async {
+      Future<void> tapVersionButton7Times() async {
+        for (int i = 0; i < 7; i++) {
+          await tester.tapAndSettle(find.textContaining('Version'));
+        }
+      }
+
       // Initialize the app for integration tests
       await pumpAndUnlockApp(tester, irmaBinding.repository);
 
@@ -72,11 +78,25 @@ void main() {
       await tester.drag(
           find.byType(SingleChildScrollView), const Offset(0, -50)); // To prevent the 'Scan QR' button to overlap.
       await tester.pumpAndSettle();
-      for (int i = 0; i < 7; i++) {
-        await tester.tapAndSettle(find.textContaining('Version'));
-      }
-      await tester.ensureVisible(find.text('Developer mode enabled'));
+
+      await tapVersionButton7Times();
+      const devModeEnabledText = 'Developer mode enabled';
+      expect(find.text(devModeEnabledText), findsOneWidget);
       expect(await irmaBinding.repository.getDeveloperMode().first, true);
+
+      //Wait until snackbar is gone.
+      await tester.pumpAndSettle(const Duration(milliseconds: 4000));
+      expect(find.text(devModeEnabledText), findsNothing);
+
+      await tapVersionButton7Times();
+      await tester.ensureVisible(find.text('Developer mode already enabled'));
+      expect(await irmaBinding.repository.getDeveloperMode().first, true);
+
+      // Go to settings and the dev mode toggle should be visible
+      final settingsScreenButtonFinder = find.byKey(const Key('open_settings_screen_button'));
+      await tester.scrollUntilVisible(settingsScreenButtonFinder, 100);
+      await tester.tapAndSettle(settingsScreenButtonFinder);
+      expect(find.byKey(const Key('dev_mode_toggle')), findsOneWidget);
     });
 
     testWidgets('log-out', (tester) async {

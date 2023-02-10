@@ -25,12 +25,13 @@ class IrmaPreferences {
         _reportErrors = preferences.getBool(_reportErrorsKey, defaultValue: false),
         _startQRScan = preferences.getBool(_startQRScanKey, defaultValue: false),
         _showDisclosureDialog = preferences.getBool(_showDisclosureDialogKey, defaultValue: true),
-        _developerModePrefVisible = preferences.getBool(_developerModePrefVisibleKey, defaultValue: false),
         _acceptedRootedRisk = preferences.getBool(_acceptedRootedRiskKey, defaultValue: false),
         _completedDisclosurePermissionIntro =
             preferences.getBool(_completedDisclosurePermissionIntroKey, defaultValue: false) {
     // Remove unused IRMA -> Yivi name change notification key
     preferences.remove(_showNameChangeNotificationKey);
+    // Remove old value for displaying the dev mode toggle
+    preferences.remove(_developerModePrefVisibleKey);
   }
 
   static Future<IrmaPreferences> fromInstance() async => IrmaPreferences(await StreamingSharedPreferences.instance);
@@ -71,12 +72,6 @@ class IrmaPreferences {
   Stream<bool> getShowDisclosureDialog() => _showDisclosureDialog;
   Future<bool> setShowDisclosureDialog(bool value) => _showDisclosureDialog.setValue(value);
 
-  static const String _developerModePrefVisibleKey = "preference.devmode_visible";
-  final Preference<bool> _developerModePrefVisible;
-
-  Stream<bool> getDeveloperModeVisible() => _developerModePrefVisible;
-  Future<bool> setDeveloperModeVisible(bool value) => _developerModePrefVisible.setValue(value);
-
   static const String _acceptedRootedRiskKey = "preference.accepted_rooted_risk";
   final Preference<bool> _acceptedRootedRisk;
 
@@ -85,6 +80,10 @@ class IrmaPreferences {
 
   /// Originates from the IRMA -> Yivi name change, only used for cleanup-purposes
   static const String _showNameChangeNotificationKey = "preference.show_name_change_notification";
+
+  /// Old value that was used for displaying the dev mode toggle,
+  /// now it's only used for cleanup-purposes
+  static const String _developerModePrefVisibleKey = "preference.devmode_visible";
 
   static const String _completedDisclosurePermissionIntroKey = "preference.completed_disclosure_permission_intro";
   final Preference<bool> _completedDisclosurePermissionIntro;
