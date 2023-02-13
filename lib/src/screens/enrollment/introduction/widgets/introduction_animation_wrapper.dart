@@ -18,6 +18,7 @@ class _IntroductionAnimationWrapperState extends State<IntroductionAnimationWrap
   late final AnimationController _lottieController;
   bool lottieIsCompleted = false;
   bool alignIsCompleted = false;
+  bool animationFullyCompleted = false;
 
   @override
   void initState() {
@@ -40,6 +41,9 @@ class _IntroductionAnimationWrapperState extends State<IntroductionAnimationWrap
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
 
+    const crossFadeDuration = Duration(seconds: 1);
+    const alignDuration = Duration(seconds: 1);
+
     final lottieWidget = Lottie.asset(
       'assets/non-free/onboarding.json',
       frameRate: FrameRate(60),
@@ -52,20 +56,34 @@ class _IntroductionAnimationWrapperState extends State<IntroductionAnimationWrap
     );
 
     final aligningLottieWidget = AnimatedAlign(
-      duration: const Duration(seconds: 1),
-      curve: Curves.fastOutSlowIn,
-      alignment: lottieIsCompleted ? Alignment.topCenter : Alignment.center,
-      child: Padding(
-        padding: EdgeInsets.only(top: screenSize.height * 0.075),
-        child: lottieWidget,
-      ),
-      onEnd: () => setState(
-        () => alignIsCompleted = true,
-      ),
-    );
+        duration: alignDuration,
+        curve: Curves.fastOutSlowIn,
+        alignment: lottieIsCompleted ? Alignment.topCenter : Alignment.center,
+        child: Padding(
+          padding: EdgeInsets.only(top: screenSize.height * 0.075),
+          child: lottieWidget,
+        ),
+        onEnd: () {
+          setState(
+            () => alignIsCompleted = true,
+          );
+
+          // By adding a callback for the duration of the
+          // last part of the animation we know when we are fully done
+          Future.delayed(crossFadeDuration, () {
+            animationFullyCompleted = true;
+          });
+        });
 
     return AnimatedCrossFade(
-      duration: const Duration(seconds: 1),
+      duration: animationFullyCompleted
+          ?
+          // When the animation is fully done we shorten the duration
+          // so that rebuilding (e.g changing device orientation) doesn't
+          // animate in a weird way
+          const Duration(milliseconds: 50)
+          : crossFadeDuration,
+      reverseDuration: const Duration(seconds: 10),
       crossFadeState: alignIsCompleted ? CrossFadeState.showSecond : CrossFadeState.showFirst,
       firstChild: aligningLottieWidget,
       secondChild: SizedBox(
