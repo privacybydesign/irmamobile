@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:irmamobile/src/screens/enrollment/introduction/widgets/introduction_animation_wrapper.dart';
 
 import '../widgets/enrollment_graphic.dart';
 import '../widgets/enrollment_instruction.dart';
@@ -34,17 +35,19 @@ class IntroductionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: EnrollmentLayout(
-        graphic: EnrollmentGraphic(
-          introductionSteps[currentStepIndex].imagePath,
-        ),
-        instruction: EnrollmentInstruction(
-          stepIndex: currentStepIndex,
-          stepCount: introductionSteps.length,
-          titleTranslationKey: introductionSteps[currentStepIndex].titleTranslationKey,
-          explanationTranslationKey: introductionSteps[currentStepIndex].explanationTranslationKey,
-          onContinue: onContinue,
-          onPrevious: currentStepIndex != 0 ? onPrevious : null,
+      body: IntroductionAnimationWrapper(
+        child: EnrollmentLayout(
+          graphic: EnrollmentGraphic(
+            introductionSteps[currentStepIndex].imagePath,
+          ),
+          instruction: EnrollmentInstruction(
+            stepIndex: currentStepIndex,
+            stepCount: introductionSteps.length,
+            titleTranslationKey: introductionSteps[currentStepIndex].titleTranslationKey,
+            explanationTranslationKey: introductionSteps[currentStepIndex].explanationTranslationKey,
+            onContinue: onContinue,
+            onPrevious: currentStepIndex != 0 ? onPrevious : null,
+          ),
         ),
       ),
     );

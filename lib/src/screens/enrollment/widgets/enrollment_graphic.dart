@@ -11,11 +11,9 @@ class EnrollmentGraphic extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: SvgPicture.asset(
-        imagePath,
-        fit: BoxFit.contain,
-      ),
+    return SvgPicture.asset(
+      imagePath,
+      fit: BoxFit.contain,
     );
   }
 }
