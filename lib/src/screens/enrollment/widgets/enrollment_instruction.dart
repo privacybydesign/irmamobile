@@ -29,52 +29,48 @@ class EnrollmentInstruction extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
 
-    return SafeArea(
-      top: isLandscape,
-      bottom: isLandscape,
-      child: Stack(
-        children: [
-          // Instruction content
-          SingleChildScrollView(
-            padding: EdgeInsets.all(theme.defaultSpacing),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (stepIndex != null && stepCount != null)
-                  EnrollmentProgressIndicator(
-                    stepCount: stepCount!,
-                    stepIndex: stepIndex!,
-                  ),
-                SizedBox(
-                  height: theme.smallSpacing,
+    return Stack(
+      children: [
+        // Instruction content
+        SingleChildScrollView(
+          padding: EdgeInsets.all(theme.defaultSpacing),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (isLandscape) SizedBox(height: theme.defaultSpacing),
+              if (stepIndex != null && stepCount != null)
+                EnrollmentProgressIndicator(
+                  stepCount: stepCount!,
+                  stepIndex: stepIndex!,
                 ),
-                TranslatedText(
-                  titleTranslationKey,
-                  style: theme.textTheme.headline1,
-                ),
-                SizedBox(
-                  height: theme.defaultSpacing,
-                ),
-                TranslatedText(explanationTranslationKey),
-                // Extra white space so the content above always stays visible
-                SizedBox(
-                  height: theme.defaultSpacing + theme.hugeSpacing,
-                ),
-              ],
-            ),
+              SizedBox(
+                height: theme.smallSpacing,
+              ),
+              TranslatedText(
+                titleTranslationKey,
+                style: theme.textTheme.headline1,
+              ),
+              SizedBox(
+                height: theme.defaultSpacing,
+              ),
+              TranslatedText(explanationTranslationKey),
+              // Extra white space so the content above always stays visible
+              SizedBox(
+                height: theme.defaultSpacing + theme.hugeSpacing,
+              ),
+            ],
           ),
+        ),
 
-          // Bottom continue/previous bar
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: EnrollmentNavBar(
-              onPrevious: onPrevious,
-              onContinue: onContinue,
-            ),
+        // Bottom continue/previous bar
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: EnrollmentNavBar(
+            onPrevious: onPrevious,
+            onContinue: onContinue,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

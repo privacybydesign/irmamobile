@@ -60,7 +60,7 @@ class _IntroductionAnimationWrapperState extends State<IntroductionAnimationWrap
         curve: Curves.fastOutSlowIn,
         alignment: lottieIsCompleted ? Alignment.topCenter : Alignment.center,
         child: Padding(
-          padding: EdgeInsets.only(top: screenSize.height * 0.075),
+          padding: EdgeInsets.only(top: screenSize.height * 0.05),
           child: lottieWidget,
         ),
         onEnd: () {

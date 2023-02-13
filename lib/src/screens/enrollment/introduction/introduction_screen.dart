@@ -51,6 +51,8 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+
     Widget contentWidget = EnrollmentLayout(
       graphic: EnrollmentGraphic(
         IntroductionScreen.introductionSteps[widget.currentStepIndex].imagePath,
@@ -73,7 +75,11 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
     }
 
     return Scaffold(
-      body: contentWidget,
+      body: SafeArea(
+        top: isLandscape,
+        bottom: isLandscape,
+        child: contentWidget,
+      ),
     );
   }
 }
