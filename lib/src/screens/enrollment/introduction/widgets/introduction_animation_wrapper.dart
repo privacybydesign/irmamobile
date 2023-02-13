@@ -76,13 +76,11 @@ class _IntroductionAnimationWrapperState extends State<IntroductionAnimationWrap
         });
 
     return AnimatedCrossFade(
-      duration: animationFullyCompleted
-          ?
+      duration:
           // When the animation is fully done we shorten the duration
           // so that rebuilding (e.g changing device orientation) doesn't
           // animate in a weird way
-          const Duration(milliseconds: 50)
-          : crossFadeDuration,
+          animationFullyCompleted ? const Duration(milliseconds: 50) : crossFadeDuration,
       reverseDuration: const Duration(seconds: 10),
       crossFadeState: alignIsCompleted ? CrossFadeState.showSecond : CrossFadeState.showFirst,
       firstChild: aligningLottieWidget,
