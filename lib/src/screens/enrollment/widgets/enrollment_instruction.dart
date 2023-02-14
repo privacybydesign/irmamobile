@@ -38,7 +38,7 @@ class EnrollmentInstruction extends StatelessWidget {
             children: [
               if (isLandscape) SizedBox(height: theme.defaultSpacing),
               if (stepIndex != null && stepCount != null)
-                EnrollmentProgressIndicator(
+                YiviProgressIndicator(
                   stepCount: stepCount!,
                   stepIndex: stepIndex!,
                 ),
