@@ -395,6 +395,7 @@
     "github_link": "https://github.com/privacybydesign",
     "version": "Versie {version}",
     "developer_mode_enabled": "Developer modus ingeschakeld",
+    "developer_mode_already_enabled": "Developer modus is al ingeschakeld",
     "irma_website": "Yivi-website",
     "irma_website_link": "https://irma.app/?lang=nl",
     "privacy_policy": "Yivi's privacyregels",
@@ -512,18 +513,21 @@
   },
   "settings": {
     "title": "Instellingen",
-    "start_qr": "QR-scanner automatisch openen na opstarten",
-    "change_pin": "Je pincode veranderen",
-    "advanced": {
-      "delete": "Verwijder alles en begin opnieuw",
-      "delete_title": "Weet je het zeker?",
-      "delete_content": "Als je doorgaat, verwijder je al je gegevens en je toegang tot de Yivi-app. Wil je de Yivi-app opnieuw gebruiken? Kies een nieuwe pincode en haal je gegevens opnieuw op.",
-      "report_errors": "Fouten naar Yivi sturen",
-      "delete_confirm": "Verwijder alles",
-      "delete_deny": "Annuleer",
-      "developer_mode": "Developer modus",
-      "enable_screenshots": "Sta screenshots toe",
-      "enable_screenshots_note": "Als dit is ingeschakeld, wordt de app niet vervaagd in de app-switcher."
+    "start_qr": "QR-scanner direct openen",
+    "start_qr_explanation": "QR-scanner automatisch openen na het opstarten van de app.",
+    "report_errors": "Fouten naar Yivi sturen",
+    "report_errors_explanation": "Door foutrapportage in te schakelen, help je ons de gebruikerservaring te verbeteren.",
+    "enable_screenshots": "Screenshots toestaan",
+    "enable_screenshots_explanation": "Als dit is ingeschakeld, wordt de app niet vervaagd in de app-switcher.",
+    "developer_mode": "Developer modus",
+    "other": "Overig",
+    "change_pin": "Pincode veranderen",
+    "delete": "Verwijder gegevens",
+    "confirm_delete_dialog": {
+      "title": "Gegevens verwijderen",
+      "explanation": "Als je doorgaat, verwijder je al je gegevens en je toegang tot de Yivi-app. Wil je de Yivi-app opnieuw gebruiken? Kies een nieuwe pincode en haal je gegevens opnieuw op.",
+      "confirm": "Verwijder alles",
+      "deny": "Annuleer"
     }
   },
   "ui": {

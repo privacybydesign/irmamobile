@@ -29,6 +29,7 @@ class YiviBasicPinScaffold extends StatelessWidget {
                 }
               }
             : null,
+        hasBorder: false,
       ),
       body: StreamBuilder<bool>(
         stream: prefs.getLongPin(),

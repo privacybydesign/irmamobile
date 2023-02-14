@@ -8,8 +8,8 @@ import '../../widgets/translated_text.dart';
 import '../../widgets/yivi_themed_button.dart';
 import '../home/widgets/irma_nav_bar.dart';
 
-import 'widgets/link_tiles.dart';
-import 'widgets/link_tiles_card.dart';
+import 'widgets/tiles.dart';
+import 'widgets/tiles_card.dart';
 import 'widgets/version_button.dart';
 
 class MoreTab extends StatelessWidget {
@@ -22,27 +22,29 @@ class MoreTab extends StatelessWidget {
     final theme = IrmaTheme.of(context);
 
     final spacerWidget = SizedBox(
-      height: theme.defaultSpacing,
+      height: theme.mediumSpacing,
     );
 
-    Widget _buildHeaderText(String translationKey) => Padding(
-          padding: EdgeInsets.all(theme.defaultSpacing),
-          child: Semantics(
-            header: true,
-            child: TranslatedText(
-              translationKey,
-              style: theme.textTheme.headline4,
+    Widget _buildHeaderText(
+      String translationKey,
+    ) =>
+        Padding(
+          padding: EdgeInsets.only(bottom: theme.defaultSpacing),
+          child: TranslatedText(
+            translationKey,
+            style: theme.textTheme.bodyText1!.copyWith(
+              color: theme.neutralExtraDark,
             ),
           ),
         );
 
     return SingleChildScrollView(
-      padding: EdgeInsets.symmetric(horizontal: theme.smallSpacing),
+      padding: EdgeInsets.all(theme.defaultSpacing),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeaderText('more_tab.app_management'),
-          const LinkTilesCard(
+          const TilesCard(
             children: [
               InternalLinkTile(
                 key: Key('open_settings_screen_button'),
@@ -65,7 +67,7 @@ class MoreTab extends StatelessWidget {
           ),
           spacerWidget,
           _buildHeaderText('help.about_irma'),
-          const LinkTilesCard(
+          const TilesCard(
             children: [
               ExternalLinkTile(
                 labelTranslationKey: 'more_tab.website',
@@ -80,7 +82,7 @@ class MoreTab extends StatelessWidget {
           ),
           spacerWidget,
           _buildHeaderText('more_tab.slogan'),
-          const LinkTilesCard(
+          const TilesCard(
             children: [
               ShareLinkTile(
                 iconData: Icons.share_outlined,
@@ -96,7 +98,7 @@ class MoreTab extends StatelessWidget {
           ),
           spacerWidget,
           _buildHeaderText('more_tab.stay_informed'),
-          const LinkTilesCard(children: [
+          const TilesCard(children: [
             ExternalLinkTile(
               iconData: Icons.groups_outlined,
               labelTranslationKey: 'more_tab.meetups',
@@ -114,22 +116,17 @@ class MoreTab extends StatelessWidget {
             )
           ]),
           spacerWidget,
-          Padding(
-            padding: EdgeInsets.all(theme.defaultSpacing),
-            child: YiviThemedButton(
-              key: const Key('log_out_button'),
-              style: YiviButtonStyle.filled,
-              label: 'more_tab.log_out',
-              onPressed: () {
-                IrmaRepositoryProvider.of(context).lock();
-                onChangeTab(IrmaNavBarTab.home);
-              },
-            ),
+          YiviThemedButton(
+            key: const Key('log_out_button'),
+            style: YiviButtonStyle.filled,
+            label: 'more_tab.log_out',
+            onPressed: () {
+              IrmaRepositoryProvider.of(context).lock();
+              onChangeTab(IrmaNavBarTab.home);
+            },
           ),
-          Padding(
-            padding: EdgeInsets.all(theme.defaultSpacing),
-            child: VersionButton(),
-          )
+          spacerWidget,
+          VersionButton(),
         ],
       ),
     );

@@ -79,7 +79,7 @@
     "expires_on": "Expires on {date}",
     "expired_on": "Expired on {date}",
     "date_at_time": "{date} at {time}",
-    "issued_by" : "Issued by:",
+    "issued_by": "Issued by:",
     "options": {
       "title": "Options",
       "reobtain": "Reobtain",
@@ -395,6 +395,7 @@
     "github_link": "https://github.com/privacybydesign",
     "version": "Version {version}",
     "developer_mode_enabled": "Developer mode enabled",
+    "developer_mode_already_enabled": "Developer mode already enabled",
     "irma_website": "Yivi website",
     "irma_website_link": "https://irma.app/?lang=en",
     "privacy_policy": "Yivi's privacy policy",
@@ -512,18 +513,21 @@
   },
   "settings": {
     "title": "Settings",
-    "start_qr": "Open QR scanner automatically after start-up",
-    "change_pin": "Change your PIN",
-    "advanced": {
-      "report_errors": "Send error reports to Yivi",
-      "delete": "Delete everything and start over",
-      "delete_title": "Are you sure?",
-      "delete_content": "If you proceed, all data will be deleted from your Yivi app. If you wish to continue using Yivi you will have to reload the data.",
-      "delete_confirm": "Yes, delete everything",
-      "delete_deny": "Cancel",
-      "developer_mode": "Developer mode",
-      "enable_screenshots": "Enable screenshots",
-      "enable_screenshots_note": "When enabled, the app will not be blurred in the app switcher."
+    "start_qr": "Open QR scanner on launch",
+    "start_qr_explanation": "Open QR scanner automatically after start-up",
+    "report_errors": "Send error reports to Yivi",
+    "report_errors_explanation": "By enabling error reporting you help us improve the user experience.",
+    "enable_screenshots": "Enable screenshots",
+    "enable_screenshots_explanation": "When enabled, the app will not be blurred in the app switcher.",
+    "developer_mode": "Developer mode",
+    "other": "Other",
+    "change_pin": "Change PIN",
+    "delete": "Delete data",
+    "confirm_delete_dialog": {
+      "title": "Delete data",
+      "explanation": "If you proceed, all data will be deleted from your Yivi app. If you wish to continue using Yivi you will have to reload the data.",
+      "confirm": "Yes, delete everything",
+      "deny": "Cancel"
     }
   },
   "ui": {

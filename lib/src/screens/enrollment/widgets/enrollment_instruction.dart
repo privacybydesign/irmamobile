@@ -3,9 +3,8 @@ import 'package:flutter/widgets.dart';
 
 import '../../../theme/theme.dart';
 import '../../../widgets/translated_text.dart';
-
 import 'enrollment_nav_bar.dart';
-import 'enrollment_progress_indicator.dart';
+import '../../../widgets/yivi_progress_indicator.dart';
 
 class EnrollmentInstruction extends StatelessWidget {
   final int? stepIndex;
@@ -42,7 +41,7 @@ class EnrollmentInstruction extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (stepIndex != null && stepCount != null)
-                  EnrollmentProgressIndicator(
+                  YiviProgressIndicator(
                     stepCount: stepCount!,
                     stepIndex: stepIndex!,
                   ),

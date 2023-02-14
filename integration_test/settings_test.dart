@@ -1,9 +1,10 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/screens/settings/settings_screen.dart';
 
@@ -31,19 +32,24 @@ void main() {
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
 
-    Future<void> _testToggle(WidgetTester tester, String key, bool defaultValue, Stream<bool> valueStream) async {
+    Future<void> _testToggle(
+      WidgetTester tester,
+      String key,
+      bool defaultValue,
+      Stream<bool> valueStream,
+    ) async {
       var toggleFinder = find.byKey(Key(key));
       await tester.scrollUntilVisible(toggleFinder.hitTestable(), 50);
 
-      // Find the actual SwitchListTile in the SettingsSwitchListTile
-      var switchTileFinder = find.descendant(
+      // Find the actual Switch in the ToggleTile
+      var switchFinder = find.descendant(
         of: toggleFinder,
-        matching: find.byType(SwitchListTile),
+        matching: find.byType(CupertinoSwitch),
       );
 
       // Check default value
       expect(
-        (switchTileFinder.evaluate().single.widget as SwitchListTile).value,
+        (switchFinder.evaluate().single.widget as CupertinoSwitch).value,
         defaultValue,
       );
 
@@ -52,7 +58,7 @@ void main() {
 
       // Check switch tile is toggled
       expect(
-        (switchTileFinder.evaluate().single.widget as SwitchListTile).value,
+        (switchFinder.evaluate().single.widget as CupertinoSwitch).value,
         !defaultValue,
       );
 
@@ -86,14 +92,6 @@ void main() {
           false,
           repo.preferences.getReportErrors(),
         );
-        if (kDebugMode) {
-          await _testToggle(
-            tester,
-            'dev_mode_toggle',
-            true,
-            repo.getDeveloperMode(),
-          );
-        }
         if (Platform.isAndroid) {
           await _testToggle(
             tester,
@@ -102,17 +100,33 @@ void main() {
             repo.preferences.getScreenshotsEnabled(),
           );
         }
+
+        // Dev mode is enabled by default in the test binding
+        // so the toggle should be visible.
+        await _testToggle(
+          tester,
+          'dev_mode_toggle',
+          true,
+          repo.getDeveloperMode(),
+        );
+
+        // Now go back and return to settings again
+        await tester.tapAndSettle(find.byKey(const Key('irma_app_bar_leading')));
+        await tester.tapAndSettle(find.byKey(const Key('open_settings_screen_button')));
+
+        // Dev mode toggle should be gone now
+        expect(find.byKey(const Key('dev_mode_toggle')), findsNothing);
       },
     );
 
     testWidgets('change-pin', (tester) async {
       await _initAndNavToSettingsScreen(tester);
 
-      final changePinButtonFinder = find.text('Change your PIN').hitTestable();
+      final changePinButtonFinder = find.text('Change PIN').hitTestable();
       await tester.scrollUntilVisible(changePinButtonFinder, 50);
       await tester.tapAndSettle(changePinButtonFinder);
 
-      // Enter current pin  PIN
+      // Enter current pin PIN
       await enterPin(tester, '12345');
 
       // Enter new PIN
@@ -177,7 +191,7 @@ void main() {
     testWidgets('erase', (tester) async {
       await _initAndNavToSettingsScreen(tester);
 
-      var deleteFinder = find.text('Delete everything and start over').hitTestable();
+      var deleteFinder = find.byKey(const Key('delete_link'));
 
       // Tap on option to delete everything and start over
       await tester.scrollUntilVisible(deleteFinder, 75);
@@ -187,6 +201,7 @@ void main() {
       await tester.tapAndSettle(find.text('Yes, delete everything'));
 
       // Check whether the enrollment screen is shown
+      expect(find.byType(EnrollmentScreen), findsOneWidget);
     });
   });
 }

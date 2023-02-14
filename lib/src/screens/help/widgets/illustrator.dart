@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
-import '../../../theme/irma_icons.dart';
 import '../../../theme/theme.dart';
+import '../../../widgets/yivi_progress_indicator.dart';
 
 class Illustrator extends StatefulWidget {
   final List<Widget> imageSet;
@@ -10,88 +10,29 @@ class Illustrator extends StatefulWidget {
   final double height;
   final double width;
 
-  const Illustrator({required this.imageSet, required this.textSet, required this.height, required this.width});
+  const Illustrator({
+    required this.imageSet,
+    required this.textSet,
+    required this.height,
+    required this.width,
+  });
 
   @override
   _IllustratorState createState() => _IllustratorState();
 }
 
 class _IllustratorState extends State<Illustrator> with SingleTickerProviderStateMixin {
-  static const _animationDuration = 250;
-
+  late double height;
   int currentPage = 0;
 
   final _controller = PageController();
 
-  // getChangedPageAndMoveBar and dotsIndicator from
+  // getChangedPageAndMoveBar from
   // https://medium.com/aubergine-solutions/create-an-onboarding-page-indicator-in-3-minutes-in-flutter-a2bd97ceeaff
   void getChangedPageAndMoveBar(int page) {
     setState(() {
       currentPage = page % widget.imageSet.length;
     });
-  }
-
-  Widget navBar() {
-    return SizedBox(
-      height: widget.height,
-      child: Stack(
-        alignment: AlignmentDirectional.center,
-        children: <Widget>[
-          if (currentPage > 0)
-            Positioned(
-              left: 0,
-              child: IconButton(
-                icon: Icon(IrmaIcons.chevronLeft,
-                    semanticLabel: FlutterI18n.translate(context, 'disclosure.previous'),
-                    color: IrmaTheme.of(context).success),
-                iconSize: 20.0,
-                onPressed: () {
-                  currentPage--;
-                  if (_controller.hasClients) {
-                    _controller.animateToPage(
-                      currentPage,
-                      duration: const Duration(milliseconds: 400),
-                      curve: Curves.easeInOut,
-                    );
-                  }
-                },
-              ),
-            ),
-          if (currentPage < widget.imageSet.length - 1)
-            Positioned(
-              right: 0,
-              child: IconButton(
-                icon: Icon(IrmaIcons.chevronRight,
-                    semanticLabel: FlutterI18n.translate(context, 'disclosure.next'),
-                    color: IrmaTheme.of(context).success),
-                iconSize: 20.0,
-                onPressed: () {
-                  currentPage++;
-                  if (_controller.hasClients) {
-                    _controller.animateToPage(
-                      currentPage,
-                      duration: const Duration(milliseconds: _animationDuration),
-                      curve: Curves.easeInOut,
-                    );
-                  }
-                },
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget dotsIndicator({required bool isActive}) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: _animationDuration ~/ 2),
-      margin: const EdgeInsets.symmetric(horizontal: 8.0),
-      height: 11,
-      width: 11,
-      decoration: BoxDecoration(
-          color: isActive ? IrmaTheme.of(context).secondary : Colors.grey,
-          borderRadius: const BorderRadius.all(Radius.circular(11))),
-    );
   }
 
   String slideshowAccessibilityDescription(int page) {
@@ -104,6 +45,8 @@ class _IllustratorState extends State<Illustrator> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
     return Semantics(
       excludeSemantics: true,
       container: true,
@@ -134,31 +77,27 @@ class _IllustratorState extends State<Illustrator> with SingleTickerProviderStat
             }
           : null,
       child: Column(
-        children: <Widget>[
-          Stack(
-            children: <Widget>[
-              Center(
-                child: SizedBox(
-                  height: widget.height,
-                  width: widget.width,
-                  child: PageView.builder(
-                    itemCount: widget.imageSet.length,
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    controller: _controller,
-                    onPageChanged: (int page) {
-                      getChangedPageAndMoveBar(page);
-                    },
-                    itemBuilder: (BuildContext context, int index) {
-                      return widget.imageSet[index % widget.imageSet.length];
-                    },
-                  ),
-                ),
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Center(
+            child: SizedBox(
+              height: widget.height,
+              width: widget.width,
+              child: PageView.builder(
+                itemCount: widget.imageSet.length,
+                physics: const AlwaysScrollableScrollPhysics(),
+                controller: _controller,
+                onPageChanged: (int page) {
+                  getChangedPageAndMoveBar(page);
+                },
+                itemBuilder: (BuildContext context, int index) {
+                  return widget.imageSet[index % widget.imageSet.length];
+                },
               ),
-              if (widget.imageSet.length > 1) navBar(),
-            ],
+            ),
           ),
           SizedBox(
-            height: IrmaTheme.of(context).defaultSpacing,
+            height: theme.defaultSpacing,
           ),
           AnimatedSize(
             duration: const Duration(milliseconds: 300),
@@ -171,19 +110,22 @@ class _IllustratorState extends State<Illustrator> with SingleTickerProviderStat
               ),
             ),
           ),
+          if (widget.imageSet.length > 1) ...[
+            SizedBox(
+              height: theme.defaultSpacing,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                YiviProgressIndicator(
+                  stepCount: widget.imageSet.length,
+                  stepIndex: currentPage,
+                ),
+              ],
+            ),
+          ],
           SizedBox(
-            height: IrmaTheme.of(context).defaultSpacing,
-          ),
-          Row(
-            children: <Widget>[
-              const Spacer(),
-              for (int i = 0; i < widget.imageSet.length; i++)
-                if (i == currentPage) ...[dotsIndicator(isActive: true)] else dotsIndicator(isActive: false),
-              const Spacer(),
-            ],
-          ),
-          SizedBox(
-            height: IrmaTheme.of(context).defaultSpacing,
+            height: theme.smallSpacing,
           ),
         ],
       ),
