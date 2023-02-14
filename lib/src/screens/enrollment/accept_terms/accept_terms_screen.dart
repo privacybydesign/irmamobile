@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../theme/theme.dart';
-import '../../../widgets/irma_markdown.dart';
 import '../../../widgets/translated_text.dart';
 import '../widgets/enrollment_nav_bar.dart';
 import 'widgets/terms_bullet_list.dart';

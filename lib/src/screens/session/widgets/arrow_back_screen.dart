@@ -3,9 +3,8 @@ import 'package:flutter/services.dart';
 
 import 'package:native_device_orientation/native_device_orientation.dart';
 
-import 'package:irmamobile/src/screens/home/home_screen.dart';
-
 import '../../../widgets/irma_info_scaffold_body.dart';
+import '../../home/home_screen.dart';
 
 class ArrowBack extends StatefulWidget {
   final bool success;

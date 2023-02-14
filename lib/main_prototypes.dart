@@ -1,6 +1,3 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
 
 import '../app.dart';
@@ -28,7 +25,7 @@ class PrototypesApp extends StatelessWidget {
 
   final IrmaRepository repository;
 
-  PrototypesApp({this.repository});
+  PrototypesApp({required this.repository});
 
   @override
   Widget build(BuildContext context) => IrmaRepositoryProvider(

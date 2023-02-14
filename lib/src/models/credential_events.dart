@@ -1,6 +1,7 @@
-import 'package:irmamobile/src/models/credentials.dart';
-import 'package:irmamobile/src/models/event.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+import 'credentials.dart';
+import 'event.dart';
 
 part 'credential_events.g.dart';
 

@@ -9,8 +9,6 @@ import '../../../widgets/translated_text.dart';
 import '../../home/home_screen.dart';
 
 class EmailSentScreen extends StatelessWidget {
-  static const String routeName = 'email_sent_screen';
-
   final String email;
   final VoidCallback onContinue;
 

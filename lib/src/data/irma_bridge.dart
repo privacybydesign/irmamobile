@@ -1,9 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
-import 'package:irmamobile/src/models/error_event.dart';
-import 'package:irmamobile/src/models/event.dart';
-import 'package:irmamobile/src/sentry/sentry.dart';
+
+import '../models/error_event.dart';
+import '../models/event.dart';
+import '../sentry/sentry.dart';
 
 abstract class IrmaBridge {
   final _eventSubject = StreamController<Event>.broadcast();

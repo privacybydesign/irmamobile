@@ -1,6 +1,5 @@
-import 'package:irmamobile/src/models/attribute_value.dart';
-
 import '../../../../models/attribute.dart';
+import '../../../../models/attribute_value.dart';
 import '../../../../models/credentials.dart';
 import 'disclosure_credential.dart';
 

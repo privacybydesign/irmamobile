@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/theme/theme.dart';
+
+import '../../../theme/theme.dart';
 
 class QRInstruction extends StatelessWidget {
   // QR code found

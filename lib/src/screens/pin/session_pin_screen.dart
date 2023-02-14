@@ -5,20 +5,19 @@ import 'package:flutter/services.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/session_events.dart';
-import 'package:irmamobile/src/screens/error/session_error_screen.dart';
-import 'package:irmamobile/src/screens/home/home_screen.dart';
-import 'package:irmamobile/src/screens/pin/bloc/pin_bloc.dart';
-import 'package:irmamobile/src/screens/pin/bloc/pin_state.dart';
-import 'package:irmamobile/src/widgets/irma_app_bar.dart';
-import 'package:irmamobile/src/widgets/loading_indicator.dart';
-import 'package:irmamobile/src/widgets/pin_common/pin_wrong_attempts.dart';
-
+import '../../data/irma_repository.dart';
+import '../../models/session_events.dart';
 import '../../theme/theme.dart';
+import '../../widgets/irma_app_bar.dart';
+import '../../widgets/loading_indicator.dart';
+import '../../widgets/pin_common/pin_wrong_attempts.dart';
+import '../error/session_error_screen.dart';
+import '../home/home_screen.dart';
 import '../reset_pin/reset_pin_screen.dart';
 
+import 'bloc/pin_bloc.dart';
 import 'bloc/pin_event.dart';
+import 'bloc/pin_state.dart';
 import 'yivi_pin_screen.dart';
 
 class SessionPinScreen extends StatefulWidget {
@@ -36,7 +35,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
   final _pinBloc = PinBloc();
   final _navigatorKey = GlobalKey();
 
-  late final StreamSubscription _pinBlocSubscription;
+  StreamSubscription? _pinBlocSubscription;
 
   @override
   void initState() {
@@ -61,7 +60,7 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
 
   @override
   void dispose() {
-    _pinBlocSubscription.cancel();
+    _pinBlocSubscription?.cancel();
     _pinBloc.close();
     WidgetsBinding.instance?.removeObserver(this);
     super.dispose();
@@ -76,12 +75,12 @@ class _SessionPinScreenState extends State<SessionPinScreen> with WidgetsBinding
 
   void _handleInvalidPin(PinState state) {
     final navigatorContext = _navigatorKey.currentContext;
-    if (state.remainingAttempts != 0 && navigatorContext != null) {
+    if (navigatorContext != null && state.remainingAttempts != null && state.remainingAttempts! > 0) {
       showDialog(
         context: navigatorContext,
         useRootNavigator: false,
         builder: (BuildContext context) => PinWrongAttemptsDialog(
-          attemptsRemaining: state.remainingAttempts,
+          attemptsRemaining: state.remainingAttempts!,
           onClose: Navigator.of(navigatorContext).pop,
         ),
       );

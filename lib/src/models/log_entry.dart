@@ -8,7 +8,7 @@ import 'translated_value.dart';
 
 part 'log_entry.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(createToJson: false)
 class LogsEvent extends Event {
   LogsEvent({required this.logEntries});
 
@@ -18,7 +18,7 @@ class LogsEvent extends Event {
   factory LogsEvent.fromJson(Map<String, dynamic> json) => _$LogsEventFromJson(json);
 }
 
-@JsonSerializable()
+@JsonSerializable(createFactory: false)
 class LoadLogsEvent extends Event {
   LoadLogsEvent({required this.max, this.before});
 
@@ -47,7 +47,7 @@ LogEntryType _toLogEntryType(String type) {
 DateTime _epochSecondsToDateTime(int secondsSinceEpoch) =>
     DateTime.fromMillisecondsSinceEpoch(secondsSinceEpoch * 1000);
 
-@JsonSerializable()
+@JsonSerializable(createToJson: false)
 class LogEntry {
   const LogEntry({
     required this.id,

@@ -3,3 +3,16 @@ include: package:flutter_lints/flutter.yaml
 linter:
   rules:
     use_key_in_widget_constructors: false
+    prefer_relative_imports: true
+    directives_ordering: true
+    prefer_single_quotes: true
+    avoid_escaping_inner_quotes: true
+
+# Enforce that some rules cause the linter to fail.
+analyzer:
+  errors:
+    unused_element: warning
+    prefer_relative_imports: warning
+    directives_ordering: warning
+    prefer_single_quotes: warning
+    avoid_escaping_inner_quotes: warning

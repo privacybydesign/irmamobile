@@ -1,20 +1,19 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/authentication_events.dart';
-import 'package:irmamobile/src/screens/pin/bloc/pin_event.dart';
-import 'package:irmamobile/src/screens/pin/bloc/pin_state.dart';
 import 'package:quiver/async.dart';
 import 'package:rxdart/subjects.dart';
 
+import '../../../data/irma_repository.dart';
+import '../../../models/authentication_events.dart';
+import 'pin_event.dart';
+import 'pin_state.dart';
+
 class PinBloc extends Bloc<PinEvent, PinState> {
-  StreamSubscription _lockedStreamSubscription;
-  CountdownTimer _pinBlockedCountdown;
   final BehaviorSubject<Duration> _pinBlockedFor = BehaviorSubject<Duration>();
+
+  late final StreamSubscription? _lockedStreamSubscription;
+  CountdownTimer? _pinBlockedCountdown;
 
   PinBloc() : super(PinBloc._initialState) {
     _lockedStreamSubscription = IrmaRepository.get().getLocked().listen((isLocked) {
@@ -26,27 +25,27 @@ class PinBloc extends Bloc<PinEvent, PinState> {
 
   @override
   Future<void> close() async {
-    _lockedStreamSubscription.cancel();
+    _lockedStreamSubscription?.cancel();
     return super.close();
   }
 
   static PinState get _initialState => PinState();
 
   @override
-  Stream<PinState> mapEventToState(PinEvent pinEvent) async* {
-    if (pinEvent is Blocked) {
-      setPinBlockedUntil(pinEvent.blockedUntil);
+  Stream<PinState> mapEventToState(PinEvent event) async* {
+    if (event is Blocked) {
+      setPinBlockedUntil(event.blockedUntil);
       yield PinState(
         pinInvalid: true,
-        blockedUntil: pinEvent.blockedUntil,
+        blockedUntil: event.blockedUntil,
         remainingAttempts: 0,
       );
-    } else if (pinEvent is Authenticate) {
+    } else if (event is Authenticate) {
       yield PinState(
         authenticateInProgress: true,
       );
 
-      final authenticationEvent = await pinEvent.dispatch();
+      final authenticationEvent = await event.dispatch();
       if (authenticationEvent is AuthenticationSuccessEvent) {
         yield PinState(
           authenticated: true,
@@ -72,9 +71,9 @@ class PinBloc extends Bloc<PinEvent, PinState> {
           error: authenticationEvent.error,
         );
       } else {
-        throw Exception("Unexpected subtype of AuthenticationResult");
+        throw Exception('Unexpected subtype of AuthenticationResult');
       }
-    } else if (pinEvent is Locked) {
+    } else if (event is Locked) {
       yield PinState();
     }
   }
@@ -82,14 +81,14 @@ class PinBloc extends Bloc<PinEvent, PinState> {
   // Create derived stream that counts the seconds until pin can be used again.
   void setPinBlockedUntil(DateTime blockedUntil) {
     if (_pinBlockedCountdown != null) {
-      _pinBlockedCountdown.cancel();
+      _pinBlockedCountdown?.cancel();
       _pinBlockedCountdown = null;
     }
 
-    final delta = blockedUntil != null ? blockedUntil.difference(DateTime.now()) : Duration.zero;
+    final delta = blockedUntil.difference(DateTime.now());
     if (delta.inSeconds > 2) {
       _pinBlockedCountdown = CountdownTimer(delta, const Duration(seconds: 1));
-      _pinBlockedCountdown.map((cd) => cd.remaining).listen(_pinBlockedFor.add);
+      _pinBlockedCountdown!.map((cd) => cd.remaining).listen(_pinBlockedFor.add);
     } else {
       _pinBlockedFor.add(Duration.zero);
     }

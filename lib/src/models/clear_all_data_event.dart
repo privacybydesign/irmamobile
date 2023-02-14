@@ -1,5 +1,6 @@
-import 'package:irmamobile/src/models/event.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+import 'event.dart';
 
 part 'clear_all_data_event.g.dart';
 
