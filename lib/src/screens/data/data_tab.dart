@@ -1,4 +1,4 @@
-import "package:collection/collection.dart";
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:sliver_tools/sliver_tools.dart';

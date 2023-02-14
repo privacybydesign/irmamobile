@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/prototypes/haptic_screen.dart';
 
 import '../screens/error/blocked_screen.dart';
 import '../screens/error/error_screen.dart';
@@ -14,6 +13,7 @@ import '../screens/session/widgets/disclosure_feedback_screen.dart';
 import '../screens/session/widgets/pairing_required.dart';
 import '../screens/splash_screen/splash_screen.dart';
 import '../widgets/irma_error_scaffold_body.dart';
+import 'haptic_screen.dart';
 import 'prototype_pin_screen.dart';
 
 class PrototypesScreen extends StatelessWidget {

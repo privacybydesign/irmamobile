@@ -1,7 +1,8 @@
 import 'package:collection/collection.dart';
-import 'package:irmamobile/src/models/event.dart';
-import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+import 'event.dart';
+import 'translated_value.dart';
 
 part 'issue_wizard.g.dart';
 

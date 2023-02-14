@@ -1,6 +1,3 @@
-// We cannot test using null safety as long as there are widgets that are not migrated yet.
-// @dart=2.11
-
 import 'dart:io';
 
 import 'package:flutter/material.dart';

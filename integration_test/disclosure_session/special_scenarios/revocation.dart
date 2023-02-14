@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
-import 'package:irmamobile/src/widgets/irma_button.dart';
 import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
 
 import '../../helpers/helpers.dart';

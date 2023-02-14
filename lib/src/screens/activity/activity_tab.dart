@@ -11,13 +11,12 @@ import '../../models/session_events.dart';
 import '../../theme/theme.dart';
 import '../../util/capitalize.dart';
 import '../../util/combine.dart';
+import '../../widgets/end_of_list_indicator.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/loading_indicator.dart';
 import '../../widgets/translated_text.dart';
-
 import 'history_repository.dart';
 import 'widgets/activity_card.dart';
-import '../../widgets/end_of_list_indicator.dart';
 
 class ActivityTab extends StatefulWidget {
   @override

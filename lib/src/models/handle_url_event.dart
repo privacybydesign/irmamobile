@@ -1,9 +1,10 @@
-import 'package:irmamobile/src/models/event.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+import 'event.dart';
 
 part 'handle_url_event.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(createToJson: false)
 class HandleURLEvent extends Event {
   HandleURLEvent({required this.url, this.isInitialUrl = false});
 

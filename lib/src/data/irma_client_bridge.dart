@@ -2,20 +2,21 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:irmamobile/src/data/irma_bridge.dart';
-import 'package:irmamobile/src/models/authentication_events.dart';
-import 'package:irmamobile/src/models/change_pin_events.dart';
-import 'package:irmamobile/src/models/client_preferences.dart';
-import 'package:irmamobile/src/models/credential_events.dart';
-import 'package:irmamobile/src/models/enrollment_events.dart';
-import 'package:irmamobile/src/models/error_event.dart';
-import 'package:irmamobile/src/models/event.dart';
-import 'package:irmamobile/src/models/handle_url_event.dart';
-import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'package:irmamobile/src/models/issue_wizard.dart';
-import 'package:irmamobile/src/models/log_entry.dart';
-import 'package:irmamobile/src/models/session_events.dart';
-import 'package:irmamobile/src/sentry/sentry.dart';
+
+import '../models/authentication_events.dart';
+import '../models/change_pin_events.dart';
+import '../models/client_preferences.dart';
+import '../models/credential_events.dart';
+import '../models/enrollment_events.dart';
+import '../models/error_event.dart';
+import '../models/event.dart';
+import '../models/handle_url_event.dart';
+import '../models/irma_configuration.dart';
+import '../models/issue_wizard.dart';
+import '../models/log_entry.dart';
+import '../models/session_events.dart';
+import '../sentry/sentry.dart';
+import 'irma_bridge.dart';
 
 typedef EventUnmarshaller = Event Function(Map<String, dynamic>);
 

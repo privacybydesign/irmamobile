@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../theme/theme.dart';
-import '../translated_text.dart';
 import '../irma_avatar.dart';
+import '../translated_text.dart';
 
 class IrmaCredentialCardHeader extends StatelessWidget {
   final String credentialName;

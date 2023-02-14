@@ -1,8 +1,9 @@
-import 'package:irmamobile/src/models/event.dart';
-import 'package:irmamobile/src/models/issue_wizard.dart';
-import 'package:irmamobile/src/models/session.dart';
-import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+import 'event.dart';
+import 'issue_wizard.dart';
+import 'session.dart';
+import 'translated_value.dart';
 
 part 'irma_configuration.g.dart';
 
@@ -161,7 +162,7 @@ class Issuer {
   @JsonKey(name: 'ContactAddress')
   final String contactAddress;
 
-  @JsonKey(name: 'ContactEmail')
+  @JsonKey(name: 'ContactEMail')
   final String contactEmail;
 
   factory Issuer.fromJson(Map<String, dynamic> json) => _$IssuerFromJson(json);

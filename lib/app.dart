@@ -1,6 +1,3 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -11,7 +8,6 @@ import 'package:flutter_privacy_screen/flutter_privacy_screen.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../../routing.dart';
-import '../../src/data/irma_preferences.dart';
 import '../../src/data/irma_repository.dart';
 import '../../src/models/applifecycle_changed_event.dart';
 import '../../src/models/clear_all_data_event.dart';
@@ -33,14 +29,14 @@ import '../../src/screens/splash_screen/splash_screen.dart';
 import '../../src/theme/theme.dart';
 import '../../src/util/combine.dart';
 import '../../src/util/handle_pointer.dart';
-import '../../src/util/hero_controller.dart';
 
 const schemeUpdateIntervalHours = 3;
 
 class App extends StatefulWidget {
-  final Locale forcedLocale;
+  final IrmaRepository irmaRepository;
+  final Locale? forcedLocale;
 
-  const App({Key key, this.forcedLocale}) : super(key: key);
+  const App({Key? key, required this.irmaRepository, this.forcedLocale}) : super(key: key);
 
   @override
   AppState createState() => AppState();
@@ -49,12 +45,13 @@ class App extends StatefulWidget {
 class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   final _detectRootedDeviceRepo = DetectRootedDeviceIrmaPrefsRepository();
-  StreamSubscription<Pointer> _pointerSubscription;
-  StreamSubscription<Event> _dataClearSubscription;
-  StreamSubscription<bool> _screenshotPrefSubscription;
+
+  StreamSubscription<Pointer?>? _pointerSubscription;
+  StreamSubscription<Event>? _dataClearSubscription;
+  StreamSubscription<bool>? _screenshotPrefSubscription;
   bool _qrScannerActive = false;
   bool _privacyScreenLoaded = false;
-  DateTime lastSchemeUpdate;
+  DateTime? lastSchemeUpdate;
 
   // We keep track of the last two life cycle states
   // to be able to determine the flow
@@ -62,7 +59,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
 
   AppState();
 
-  static List<LocalizationsDelegate> defaultLocalizationsDelegates([Locale forcedLocale]) {
+  static List<LocalizationsDelegate> defaultLocalizationsDelegates([Locale? forcedLocale]) {
     return [
       FlutterI18nDelegate(
         translationLoader: FileTranslationLoader(
@@ -103,13 +100,13 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
 
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
-    final repo = IrmaRepository.get();
-    repo.dispatch(AppLifecycleChangedEvent(state));
+    widget.irmaRepository.dispatch(AppLifecycleChangedEvent(state));
 
     if (state == AppLifecycleState.resumed &&
-        (lastSchemeUpdate == null || DateTime.now().difference(lastSchemeUpdate).inHours > schemeUpdateIntervalHours)) {
+        (lastSchemeUpdate == null ||
+            DateTime.now().difference(lastSchemeUpdate!).inHours > schemeUpdateIntervalHours)) {
       lastSchemeUpdate = DateTime.now();
-      repo.bridgedDispatch(UpdateSchemesEvent());
+      widget.irmaRepository.bridgedDispatch(UpdateSchemesEvent());
     }
 
     // We check the transition goes from paused -> inactive -> resumed
@@ -125,12 +122,14 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
         prevLifeCycleStates.contains(AppLifecycleState.inactive) &&
         state == AppLifecycleState.resumed) {
       // First check whether we should redo pin verification
-      final lastActive = await repo.getLastActiveTime().first;
-      final status = await repo.getEnrollmentStatus().firstWhere((status) => status != EnrollmentStatus.undetermined);
-      final locked = await repo.getLocked().first;
+      final lastActive = await widget.irmaRepository.getLastActiveTime().first;
+      final status = await widget.irmaRepository
+          .getEnrollmentStatus()
+          .firstWhere((status) => status != EnrollmentStatus.undetermined);
+      final locked = await widget.irmaRepository.getLocked().first;
       if (status == EnrollmentStatus.enrolled) {
         if (!locked && lastActive.isBefore(DateTime.now().subtract(const Duration(minutes: 5)))) {
-          repo.lock();
+          widget.irmaRepository.lock();
         } else {
           _maybeOpenQrScanner();
         }
@@ -144,23 +143,23 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   }
 
   @override
-  void didPush(Route route, Route previousRoute) {
+  void didPush(Route route, Route? previousRoute) {
     _onScreenPushed(route);
   }
 
   @override
-  void didReplace({Route newRoute, Route oldRoute}) {
-    _onScreenPopped(oldRoute);
-    _onScreenPushed(newRoute);
+  void didReplace({Route? newRoute, Route? oldRoute}) {
+    if (oldRoute != null) _onScreenPopped(oldRoute);
+    if (newRoute != null) _onScreenPushed(newRoute);
   }
 
   @override
-  void didPop(Route route, Route previousRoute) {
+  void didPop(Route route, Route? previousRoute) {
     _onScreenPopped(route);
   }
 
   @override
-  void didRemove(Route route, Route previousRoute) {
+  void didRemove(Route route, Route? previousRoute) {
     _onScreenPopped(route);
   }
 
@@ -188,7 +187,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   void _onScreenPopped(Route route) {
     switch (route.settings.name) {
       case HomeScreen.routeName:
-        _pointerSubscription.cancel();
+        _pointerSubscription?.cancel();
         break;
       case ScannerScreen.routeName:
         _qrScannerActive = false;
@@ -198,17 +197,16 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   }
 
   void _listenToPendingSessionPointer() {
-    final repo = IrmaRepository.get();
-
     // Listen for incoming SessionPointers as long as the home screen is there.
     //  We can always act on these, because if the app is locked,
     //  their screens will simply be covered.
-    _pointerSubscription = repo.getPendingPointer().listen((pointer) {
+    _pointerSubscription = widget.irmaRepository.getPendingPointer().listen((pointer) {
       if (pointer == null) {
         return;
       }
 
-      handlePointer(_navigatorKey.currentState, pointer);
+      final navigatorState = _navigatorKey.currentState;
+      if (navigatorState != null) handlePointer(navigatorState, pointer);
     });
   }
 
@@ -218,19 +216,19 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     // we cannot there manipulate the desired navigation stack for the enrollment
     // screen. Hence, we do that here, pushing the enrollment screen on the main
     // stack whenever the user clears all of his/her data.
-    _dataClearSubscription = IrmaRepository.get().getEvents().where((event) => event is ClearAllDataEvent).listen((_) {
-      _navigatorKey.currentState.pushNamedAndRemoveUntil(EnrollmentScreen.routeName, (_) => false);
+    _dataClearSubscription = widget.irmaRepository.getEvents().where((event) => event is ClearAllDataEvent).listen((_) {
+      _navigatorKey.currentState?.pushNamedAndRemoveUntil(EnrollmentScreen.routeName, (_) => false);
     });
   }
 
   Future<void> _maybeOpenQrScanner() async {
     // Push the QR scanner screen if the preference is enabled
-    final startQrScanner = await IrmaPreferences.get().getStartQRScan().first;
+    final startQrScanner = await widget.irmaRepository.preferences.getStartQRScan().first;
     // Check if the app was started with a HandleURLEvent or resumed when returning from in-app browser.
     // If so, do not open the QR scanner.
-    final appResumedAutomatically = await IrmaRepository.get().appResumedAutomatically();
+    final appResumedAutomatically = await widget.irmaRepository.appResumedAutomatically();
     if (startQrScanner && !appResumedAutomatically && !_qrScannerActive) {
-      _navigatorKey.currentState.pushNamed(ScannerScreen.routeName);
+      _navigatorKey.currentState?.pushNamed(ScannerScreen.routeName);
     }
   }
 
@@ -238,7 +236,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     // We use a navigator here, instead of just rendering the pin screen
     //  to give error screens a place to go.
     return HeroControllerScope(
-      controller: createHeroController(),
+      controller: MaterialApp.createMaterialHeroController(),
       child: Navigator(
         initialRoute: PinScreen.routeName,
         onGenerateRoute: (settings) {
@@ -258,7 +256,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
                 onWillPop: () async {
                   // On the pinscreen, background instead of pop
                   if (settings.name == PinScreen.routeName) {
-                    IrmaRepository.get().bridgedDispatch(AndroidSendToBackgroundEvent());
+                    widget.irmaRepository.bridgedDispatch(AndroidSendToBackgroundEvent());
                     return false;
                   } else {
                     return true;
@@ -277,7 +275,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   void _listenScreenshotPref() {
     // We only wait for the privacy screen to be loaded on start-up.
     _privacyScreenLoaded = false;
-    _screenshotPrefSubscription = IrmaPreferences.get().getScreenshotsEnabled().listen((enabled) async {
+    _screenshotPrefSubscription = widget.irmaRepository.preferences.getScreenshotsEnabled().listen((enabled) async {
       if (enabled) {
         await FlutterPrivacyScreen.disablePrivacyScreen();
       } else {
@@ -303,20 +301,22 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   }
 
   Widget _buildAppOverlay(BuildContext context) {
-    final repo = IrmaRepository.get();
-    return StreamBuilder<CombinedState3<bool, VersionInformation, bool>>(
+    return StreamBuilder<CombinedState3<bool, VersionInformation?, bool>>(
       stream: combine3(
         _displayDeviceIsRootedWarning(),
         // combine3 cannot handle empty streams, so we have to make sure always a value is present.
-        repo.getVersionInformation().defaultIfEmpty(null),
-        repo.getLocked(),
+        widget.irmaRepository
+            .getVersionInformation()
+            .map<VersionInformation?>((version) => version)
+            .defaultIfEmpty(null),
+        widget.irmaRepository.getLocked(),
       ),
       builder: (context, snapshot) {
         if (!snapshot.hasData || !_privacyScreenLoaded) {
           return const SplashScreen();
         }
 
-        final displayRootedWarning = snapshot.data.a;
+        final displayRootedWarning = snapshot.data!.a;
         if (displayRootedWarning) {
           return RootedWarningScreen(
             onAcceptRiskButtonPressed: () async {
@@ -325,12 +325,12 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
           );
         }
 
-        final versionInformation = snapshot.data.b;
+        final versionInformation = snapshot.data!.b;
         if (versionInformation != null && versionInformation.updateRequired()) {
           return RequiredUpdateScreen();
         }
 
-        final isLocked = snapshot.data.c;
+        final isLocked = snapshot.data!.c;
         if (isLocked) {
           return _buildPinScreen();
         }
@@ -365,11 +365,11 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
           textDirection: TextDirection.ltr,
           children: <Widget>[
             MaterialApp(
-              key: const Key("app"),
+              key: const Key('app'),
               title: 'Yivi',
               theme: IrmaTheme.of(context).themeData,
               localizationsDelegates: defaultLocalizationsDelegates(),
-              supportedLocales: widget.forcedLocale == null ? defaultSupportedLocales() : [widget.forcedLocale],
+              supportedLocales: widget.forcedLocale == null ? defaultSupportedLocales() : [widget.forcedLocale!],
               navigatorKey: _navigatorKey,
               navigatorObservers: [this],
               onGenerateRoute: Routing.generateRoute,
@@ -378,6 +378,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
               showSemanticsDebugger: false,
 
               builder: (context, child) {
+                if (child == null) return const SplashScreen(); // Fallback value, should never happen.
                 return _buildAppStack(context, child);
               },
             ),
