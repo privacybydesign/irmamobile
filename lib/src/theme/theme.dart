@@ -118,7 +118,7 @@ class IrmaThemeData {
         fontFamily: primaryFontFamily,
         fontSize: 16.0,
         height: 24 / 16,
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.w400,
         color: neutralExtraDark,
       ),
       // headline6 is used for the primary text in app bars and dialogs

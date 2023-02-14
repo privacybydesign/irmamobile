@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -12,8 +13,32 @@ import '../more/widgets/tiles.dart';
 import '../more/widgets/tiles_card.dart';
 import 'widgets/delete_data_confirmation_dialog.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   static const routeName = '/settings';
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  bool showDeveloperModeToggle = false;
+
+  @override
+  void initState() {
+    super.initState();
+    //Delay to make build context available
+    Future.delayed(Duration.zero).then((_) async {
+      // If developer mode is initially true the developer mode toggle
+      // should be visible for the lifecycle of this widget.
+      final inDeveloperMode = await IrmaRepositoryProvider.of(context).getDeveloperMode().first;
+
+      if (inDeveloperMode) {
+        setState(() {
+          showDeveloperModeToggle = true;
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +46,7 @@ class SettingsScreen extends StatelessWidget {
     final repo = IrmaRepositoryProvider.of(context);
 
     Widget _buildHeaderText(String translationKey) => Padding(
-          padding: EdgeInsets.all(theme.defaultSpacing),
+          padding: EdgeInsets.only(bottom: theme.defaultSpacing),
           child: Semantics(
             header: true,
             child: TranslatedText(
@@ -34,7 +59,7 @@ class SettingsScreen extends StatelessWidget {
     Widget _buildExplanationText(String translationKey) => Padding(
           padding: EdgeInsets.symmetric(
             vertical: theme.smallSpacing,
-            horizontal: theme.defaultSpacing + theme.smallSpacing,
+            horizontal: theme.defaultSpacing,
           ),
           child: TranslatedText(
             translationKey,
@@ -55,9 +80,8 @@ class SettingsScreen extends StatelessWidget {
         titleTranslationKey: 'settings.title',
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(
-          horizontal: theme.defaultSpacing,
-          vertical: theme.defaultSpacing,
+        padding: EdgeInsets.all(
+          theme.defaultSpacing,
         ),
         child: SafeArea(
           child: Column(
@@ -86,7 +110,6 @@ class SettingsScreen extends StatelessWidget {
                 ],
               ),
               _buildExplanationText('settings.report_errors_explanation'),
-
               if (Platform.isAndroid) ...[
                 spacerWidget,
                 TilesCard(
@@ -102,33 +125,20 @@ class SettingsScreen extends StatelessWidget {
                 _buildExplanationText('settings.enable_screenshots_explanation'),
                 spacerWidget,
               ],
-
-              // Developer mode toggle should only be visible
-              // when the user tapped the build number multiple times and
-              // developerModeVisible becomes true
-              StreamBuilder(
-                stream: repo.preferences.getDeveloperModeVisible(),
-                builder: (
-                  BuildContext context,
-                  AsyncSnapshot<bool> devModeVisible,
-                ) =>
-                    !devModeVisible.hasData || !devModeVisible.data!
-                        ? Container()
-                        : Padding(
-                            padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
-                            child: TilesCard(
-                              children: [
-                                ToggleTile(
-                                  key: const Key('dev_mode_toggle'),
-                                  labelTranslationKey: 'settings.developer_mode',
-                                  onChanged: repo.setDeveloperMode,
-                                  stream: repo.getDeveloperMode(),
-                                ),
-                              ],
-                            ),
-                          ),
-              ),
-
+              if (showDeveloperModeToggle)
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
+                  child: TilesCard(
+                    children: [
+                      ToggleTile(
+                        key: const Key('dev_mode_toggle'),
+                        labelTranslationKey: 'settings.developer_mode',
+                        onChanged: repo.setDeveloperMode,
+                        stream: repo.getDeveloperMode(),
+                      ),
+                    ],
+                  ),
+                ),
               _buildHeaderText('settings.other'),
               TilesCard(
                 children: [

@@ -395,6 +395,7 @@
     "github_link": "https://github.com/privacybydesign",
     "version": "Version {version}",
     "developer_mode_enabled": "Developer mode enabled",
+    "developer_mode_already_enabled": "Developer mode already enabled",
     "irma_website": "Yivi website",
     "irma_website_link": "https://irma.app/?lang=en",
     "privacy_policy": "Yivi's privacy policy",

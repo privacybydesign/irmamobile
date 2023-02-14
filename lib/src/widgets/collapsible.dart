@@ -83,6 +83,7 @@ class _CollapsibleState extends State<Collapsible> {
     final theme = IrmaTheme.of(context);
 
     return IrmaCard(
+      padding: EdgeInsets.zero,
       margin: EdgeInsets.zero,
       child: ConfigurableExpansionTile(
         initiallyExpanded: widget.initiallyExpanded,
