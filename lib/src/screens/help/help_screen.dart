@@ -74,7 +74,7 @@ class _HelpScreenState extends State<HelpScreen> {
                 headerTranslationKey: 'help.question_4',
                 body: HelpCarousel(items: [
                   HelpCarouselItem('assets/help/mobile_login/app.svg', 'help.answer_4.step_1'),
-                  HelpCarouselItem('assets/help/mobile_login/app.svg', 'help.answer_4.step_2'),
+                  HelpCarouselItem('assets/help/mobile_login/pin.svg', 'help.answer_4.step_2'),
                   HelpCarouselItem('assets/help/mobile_login/disclosure.svg', 'help.answer_4.step_3'),
                   HelpCarouselItem('assets/help/mobile_login/success.svg', 'help.answer_4.step_4'),
                 ]),
@@ -85,7 +85,7 @@ class _HelpScreenState extends State<HelpScreen> {
                 headerTranslationKey: 'help.question_5',
                 body: HelpCarousel(items: [
                   HelpCarouselItem('assets/help/computer_login/app.svg', 'help.answer_5.step_1'),
-                  HelpCarouselItem('assets/help/computer_login/app.svg', 'help.answer_5.step_2'),
+                  HelpCarouselItem('assets/help/computer_login/pin.svg', 'help.answer_5.step_2'),
                   HelpCarouselItem('assets/help/computer_login/scan.svg', 'help.answer_5.step_3'),
                   HelpCarouselItem('assets/help/computer_login/disclosure.svg', 'help.answer_5.step_4'),
                   HelpCarouselItem('assets/help/computer_login/success.svg', 'help.answer_5.step_5'),
