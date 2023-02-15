@@ -37,9 +37,9 @@ class _IllustratorState extends State<Illustrator> with SingleTickerProviderStat
 
   String slideshowAccessibilityDescription(int page) {
     return FlutterI18n.translate(context, 'accessibility.slideshow', translationParams: {
-      "i": (page + 1).toString(),
-      "n": widget.imageSet.length.toString(),
-      "description": widget.textSet[page],
+      'i': (page + 1).toString(),
+      'n': widget.imageSet.length.toString(),
+      'description': widget.textSet[page],
     });
   }
 
@@ -101,7 +101,6 @@ class _IllustratorState extends State<Illustrator> with SingleTickerProviderStat
           ),
           AnimatedSize(
             duration: const Duration(milliseconds: 300),
-            vsync: this,
             child: SizedBox(
               width: widget.width,
               child: Text(

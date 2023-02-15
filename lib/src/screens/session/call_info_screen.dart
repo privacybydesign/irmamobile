@@ -21,7 +21,7 @@ class CallInfoScreen extends StatelessWidget {
   });
 
   String _appendPlatformToTranslationKey(String translationKey) =>
-      translationKey + "_" + (Platform.isAndroid ? 'android' : 'ios');
+      translationKey + '_' + (Platform.isAndroid ? 'android' : 'ios');
 
   @override
   Widget build(BuildContext context) {

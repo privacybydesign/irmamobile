@@ -6,7 +6,6 @@ import 'package:irmamobile/src/widgets/irma_card.dart';
 
 import '../../helpers/helpers.dart';
 import '../../irma_binding.dart';
-import '../../util.dart';
 import '../disclosure_helpers.dart';
 
 Future<void> nullablesTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {

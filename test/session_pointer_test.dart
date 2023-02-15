@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:irmamobile/src/models/session.dart';
-import 'package:matcher/matcher.dart';
 
 void main() {
   test('Create session pointer from URI', () {

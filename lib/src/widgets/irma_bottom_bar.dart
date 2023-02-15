@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../theme/theme.dart';
-import 'yivi_themed_button.dart';
 import 'irma_bottom_bar_base.dart';
+import 'yivi_themed_button.dart';
 
 enum IrmaBottomBarAlignment {
   horizontal,

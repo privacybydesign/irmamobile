@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/change_pin_events.dart';
-import 'package:irmamobile/src/screens/change_pin/models/change_pin_event.dart';
-import 'package:irmamobile/src/screens/change_pin/models/change_pin_state.dart';
-import 'package:irmamobile/src/screens/change_pin/models/validation_state.dart';
 
+import '../../../data/irma_repository.dart';
+import '../../../models/change_pin_events.dart';
 import '../../../models/session.dart';
+import 'change_pin_event.dart';
+import 'change_pin_state.dart';
+import 'validation_state.dart';
 
 class ChangePinBloc extends Bloc<PinEvent, ChangePinState> {
   final IrmaRepository repo;

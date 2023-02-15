@@ -1,8 +1,9 @@
 import 'dart:convert';
 
-import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+import '../data/irma_repository.dart';
+import 'translated_value.dart';
 
 part 'session.g.dart';
 
@@ -23,12 +24,12 @@ abstract class Pointer {
   factory Pointer.fromString(String content) {
     // Use lookahead and lookbehinds to block out the non-JSON part of the string
     final regexps = [
-      RegExp("(?<=^irma:\/\/qr\/json\/).*"),
-      RegExp("(?<=^cardemu:\/\/qr\/json\/).*"),
-      RegExp("(?<=^intent:\/\/qr\/json\/).*(?=#)"),
-      RegExp("(?<=^https:\/\/irma\.app\/-\/session#).*"),
-      RegExp("(?<=^https:\/\/irma\.app\/-pilot\/session#).*"),
-      RegExp(".*", multiLine: true, dotAll: true),
+      RegExp('(?<=^irma://qr/json/).*'),
+      RegExp('(?<=^cardemu://qr/json/).*'),
+      RegExp('(?<=^intent://qr/json/).*(?=#)'),
+      RegExp('(?<=^https://irma.app/-/session#).*'),
+      RegExp('(?<=^https://irma.app/-pilot/session#).*'),
+      RegExp('.*', multiLine: true, dotAll: true),
     ];
 
     final Map<String, dynamic> json;

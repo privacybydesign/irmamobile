@@ -2,8 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'helpers.dart';
 import '../irma_binding.dart';
+import 'helpers.dart';
 
 Future<void> issueEmailAddress(
   WidgetTester tester,
@@ -27,11 +27,11 @@ Future<void> issueMunicipalityAddress(
   IntegrationTestIrmaBinding irmaBinding,
 ) =>
     issueCredentials(tester, irmaBinding, {
-      "irma-demo.gemeente.address.street": "Meander",
-      "irma-demo.gemeente.address.houseNumber": "501",
-      "irma-demo.gemeente.address.zipcode": "1234AB",
-      "irma-demo.gemeente.address.city": "Arnhem",
-      "irma-demo.gemeente.address.municipality": "Arnhem"
+      'irma-demo.gemeente.address.street': 'Meander',
+      'irma-demo.gemeente.address.houseNumber': '501',
+      'irma-demo.gemeente.address.zipcode': '1234AB',
+      'irma-demo.gemeente.address.city': 'Arnhem',
+      'irma-demo.gemeente.address.municipality': 'Arnhem'
     });
 
 Future<void> issueIdin(

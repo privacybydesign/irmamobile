@@ -32,7 +32,8 @@ class PinScreen extends StatefulWidget {
 
 class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
   final _pinBloc = PinBloc();
-  late StreamSubscription _pinBlocSubscription;
+
+  StreamSubscription? _pinBlocSubscription;
 
   @override
   void initState() {
@@ -40,7 +41,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
     WidgetsBinding.instance?.addObserver(this);
 
     if (widget.initialEvent != null) {
-      _pinBloc.add(widget.initialEvent);
+      _pinBloc.add(widget.initialEvent!);
     }
 
     IrmaRepository.get().getBlockTime().first.then((blockedUntil) {
@@ -51,21 +52,22 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
 
     _pinBlocSubscription = _pinBloc.stream.listen((pinState) async {
       if (pinState.authenticated) {
-        _pinBlocSubscription.cancel();
+        _pinBlocSubscription?.cancel();
       } else if (pinState.pinInvalid) {
-        if (pinState.remainingAttempts != 0) {
+        final secondsBlocked = pinState.blockedUntil?.difference(DateTime.now()).inSeconds ?? 0;
+        if (pinState.remainingAttempts != null && pinState.remainingAttempts! > 0) {
           showDialog(
             context: context,
             builder: (context) => PinWrongAttemptsDialog(
-              attemptsRemaining: pinState.remainingAttempts,
+              attemptsRemaining: pinState.remainingAttempts!,
               onClose: Navigator.of(context).pop,
             ),
           );
-        } else {
+        } else if (secondsBlocked > 0) {
           showDialog(
             context: context,
             builder: (context) => PinWrongBlockedDialog(
-              blocked: pinState.blockedUntil.difference(DateTime.now()).inSeconds,
+              blocked: secondsBlocked,
             ),
           );
         }
@@ -126,7 +128,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
               var subtitle = FlutterI18n.translate(context, 'pin.subtitle');
               if (blockedFor.hasData && (blockedFor.data?.inSeconds ?? 0) > 0) {
                 final blockedText = FlutterI18n.translate(context, 'pin_common.blocked_for');
-                final blockedForTime = formatBlockedFor(context, blockedFor.data);
+                final blockedForTime = formatBlockedFor(context, blockedFor.data!);
                 subtitle = '$blockedText $blockedForTime';
               }
 

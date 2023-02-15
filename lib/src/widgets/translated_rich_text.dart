@@ -1,15 +1,12 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 // Markdown translations are not supported by this class.
 class TranslatedRichText extends StatelessWidget {
   final String _key;
-  final String fallbackKey;
-  final TextStyle style;
-  final TextAlign textAlign;
+  final String? fallbackKey;
+  final TextStyle? style;
+  final TextAlign? textAlign;
 
   // For every item in translationParams, also a corresponding item in semanticsParams has to be specified.
   final Map<String, InlineSpan> translationParams;
@@ -20,9 +17,9 @@ class TranslatedRichText extends StatelessWidget {
 
   TranslatedRichText(
     this._key, {
+    required this.translationParams,
+    required this.semanticsParams,
     this.fallbackKey,
-    this.translationParams,
-    this.semanticsParams,
     this.style,
     this.textAlign,
   }) : assert(translationParams.keys.every((k) => semanticsParams.keys.contains(k)));
@@ -55,7 +52,7 @@ class TranslatedRichText extends StatelessWidget {
         // The recursive calls above guarantee that all spans are found, so we can immediately return.
         return [
           ...spansBefore,
-          translationParams[paramKey],
+          translationParams[paramKey]!,
           ...spansAfter,
         ];
       }

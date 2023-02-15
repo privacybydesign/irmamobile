@@ -3,13 +3,14 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/models/credential_events.dart';
-import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'package:irmamobile/src/models/session.dart';
-import 'package:irmamobile/src/screens/debug/portrait_photo_mock.dart';
-import 'package:irmamobile/src/util/handle_pointer.dart';
-import 'package:irmamobile/src/widgets/irma_app_bar.dart';
-import 'package:irmamobile/src/widgets/irma_repository_provider.dart';
+
+import '../../models/credential_events.dart';
+import '../../models/irma_configuration.dart';
+import '../../models/session.dart';
+import '../../util/handle_pointer.dart';
+import '../../widgets/irma_app_bar.dart';
+import '../../widgets/irma_repository_provider.dart';
+import 'portrait_photo_mock.dart';
 
 // ignore: avoid_classes_with_only_static_members
 class DemoSessionHelper {

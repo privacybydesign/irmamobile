@@ -79,7 +79,7 @@ Issuer _$IssuerFromJson(Map<String, dynamic> json) {
     name: TranslatedValue.fromJson(json['Name'] as Map<String, dynamic>?),
     schemeManagerId: json['SchemeManagerID'] as String,
     contactAddress: json['ContactAddress'] as String,
-    contactEmail: json['ContactEmail'] as String,
+    contactEmail: json['ContactEMail'] as String,
   );
 }
 

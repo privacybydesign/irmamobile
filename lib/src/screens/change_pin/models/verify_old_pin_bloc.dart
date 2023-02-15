@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/authentication_events.dart';
-import 'package:irmamobile/src/screens/change_pin/models/validation_state.dart';
 
+import '../../../data/irma_repository.dart';
+import '../../../models/authentication_events.dart';
 import 'old_pin_verification_state.dart';
+import 'validation_state.dart';
 
 class VerifyOldPinBloc extends Bloc<String, OldPinVerificationState> {
   final IrmaRepository repo;

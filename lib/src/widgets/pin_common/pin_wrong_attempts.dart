@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/widgets/irma_button.dart';
-import 'package:irmamobile/src/widgets/irma_dialog.dart';
-import 'package:irmamobile/src/widgets/irma_themed_button.dart';
+
+import '../irma_button.dart';
+import '../irma_dialog.dart';
+import '../irma_themed_button.dart';
 
 class PinWrongAttemptsDialog extends StatelessWidget {
   final void Function() onClose;

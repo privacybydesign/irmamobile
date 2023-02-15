@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/theme/theme.dart';
+
+import '../../../theme/theme.dart';
 
 class QROverlay extends CustomPainter {
   // the width of the view box as a ratio of the screen width
