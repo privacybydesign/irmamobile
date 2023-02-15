@@ -7,7 +7,7 @@ import '../../../models/irma_configuration.dart';
 import '../../../models/log_entry.dart';
 import '../../../theme/theme.dart';
 import '../../../widgets/credential_card/irma_credential_card.dart';
-import '../../../widgets/irma_card.dart';
+import '../../../widgets/credential_card/irma_empty_credential_card.dart';
 import '../../../widgets/irma_quote.dart';
 import '../../../widgets/issuer_verifier_header.dart';
 import '../../../widgets/translated_text.dart';
@@ -55,16 +55,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
         if (groupedDisclosedAttributes.every(
           (disclosedAttributes) => disclosedAttributes.isEmpty,
         ))
-          IrmaCard(
-            child: Center(
-              child: TranslatedText(
-                'credential.no_data',
-                style: theme.themeData.textTheme.headline4!.copyWith(
-                  color: theme.dark,
-                ),
-              ),
-            ),
-          )
+          IrmaEmptyCredentialCard()
         // Else build credential cards for  all the
         // disclosedAttributes that are not empty
         else

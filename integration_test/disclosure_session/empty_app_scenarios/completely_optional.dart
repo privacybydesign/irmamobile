@@ -5,7 +5,7 @@ import 'package:irmamobile/src/screens/activity/widgets/activity_card.dart';
 import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
-import 'package:irmamobile/src/widgets/irma_card.dart';
+import 'package:irmamobile/src/widgets/credential_card/irma_empty_credential_card.dart';
 
 import '../../helpers/helpers.dart';
 import '../../helpers/issuance_helpers.dart';
@@ -105,10 +105,7 @@ Future<void> completelyOptionalTest(WidgetTester tester, IntegrationTestIrmaBind
 
   // Expect the No data card
   expect(
-    find.descendant(
-      of: find.byType(IrmaCard),
-      matching: find.text('No data'),
-    ),
+    find.byType(IrmaEmptyCredentialCard),
     findsOneWidget,
   );
 }
