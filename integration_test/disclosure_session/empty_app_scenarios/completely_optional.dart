@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:irmamobile/src/screens/activity/activity_tab.dart';
+import 'package:irmamobile/src/screens/activity/widgets/activity_card.dart';
 import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
+import 'package:irmamobile/src/screens/home/home_screen.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
+import 'package:irmamobile/src/widgets/irma_card.dart';
 
 import '../../helpers/helpers.dart';
 import '../../helpers/issuance_helpers.dart';
@@ -59,9 +63,15 @@ Future<void> completelyOptionalTest(WidgetTester tester, IntegrationTestIrmaBind
   );
   await tester.tapAndSettle(deleteOptionalDataButton);
 
+  await tester.tapAndSettle(
+    find.text('Share data'),
+  );
+
+  await evaluateShareDialog(tester);
+  await evaluateFeedback(tester);
+
   // Start session again to validate that now email is pre-selected.
   await irmaBinding.repository.startTestSession(sessionRequest);
-  await evaluateIntroduction(tester);
 
   await tester.waitFor(find.text('Share my data'));
   expect(find.text('Optional data'), findsOneWidget);
@@ -81,4 +91,24 @@ Future<void> completelyOptionalTest(WidgetTester tester, IntegrationTestIrmaBind
 
   await evaluateShareDialog(tester);
   await evaluateFeedback(tester);
+
+  // Navigate to to activity tab
+  expect(find.byType(HomeScreen), findsOneWidget);
+  await tester.tapAndSettle(find.byKey(const Key('nav_button_activity')));
+  expect(find.byType(ActivityTab), findsOneWidget);
+
+  // Tap the second activity card.
+  // That is the session thats completely empty.
+  await tester.tapAndSettle(
+    find.byType(ActivityCard).at(1).hitTestable(),
+  );
+
+  // Expect the No data card
+  expect(
+    find.descendant(
+      of: find.byType(IrmaCard),
+      matching: find.text('No data'),
+    ),
+    findsOneWidget,
+  );
 }
