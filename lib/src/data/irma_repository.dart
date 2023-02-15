@@ -351,15 +351,12 @@ class IrmaRepository {
   }
 
   // -- Version information
-  Stream<VersionInformation> getVersionInformation() {
-    // Get two Streams before waiting on them to allow for asynchronicity.
-    final packageInfoStream = PackageInfo.fromPlatform().asStream();
-    final irmaVersionInfoStream = _irmaConfigurationSubject.stream; // TODO: add filtering
+  Stream<VersionInformation> getVersionInformation() async* {
+    final packageInfo = await PackageInfo.fromPlatform();
 
-    return Rx.combineLatest2(packageInfoStream, irmaVersionInfoStream,
-            (PackageInfo packageInfo, IrmaConfiguration irmaVersionInfo) {
+    yield* _irmaConfigurationSubject.map((irmaConfiguration) {
       int minimumBuild = 0;
-      irmaVersionInfo.schemeManagers.forEach((_, scheme) {
+      for (final scheme in irmaConfiguration.schemeManagers.values) {
         int thisRequirement = 0;
         switch (Platform.operatingSystem) {
           case 'android':
@@ -374,15 +371,10 @@ class IrmaRepository {
         if (thisRequirement > minimumBuild) {
           minimumBuild = thisRequirement;
         }
-      });
-
-      int currentBuild = int.tryParse(packageInfo.buildNumber) ?? minimumBuild;
-
-      if (Platform.operatingSystem == 'android') {
-        while (currentBuild > 1024 * 1024) {
-          currentBuild -= 1024 * 1024;
-        }
       }
+
+      final currentBuild = int.tryParse(packageInfo.buildNumber) ?? minimumBuild;
+
       return VersionInformation(
         availableVersion: minimumBuild,
         requiredVersion: minimumBuild,
