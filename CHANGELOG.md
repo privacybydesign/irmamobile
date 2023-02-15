@@ -4,7 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [6.4.0] - in beta 2023-01-23
+## [6.4.1] - in beta 2023-02-14
+### Fixed
+- Leftover 'oldscheme...' and 'tempscheme...' directories cause issues when parsing IrmaConfiguration ([privacybydesign/irmago#284](https://github.com/privacybydesign/irmago/issues/284))
+
+## [6.4.0] - 2023-02-09 (in beta 2023-01-23)
 ### Added
 - Use the device's Trusted Execution Environment / Secure Enclave as additional security factor for the PIN authentication
 - 'IRMA becomes Yivi' announcement
@@ -211,6 +215,7 @@ This release only includes iOS changes.
 - Various bug fixes
 
 
+[6.4.1]: https://github.com/privacybydesign/irmamobile/compare/v6.4.0...v6.4.1
 [6.4.0]: https://github.com/privacybydesign/irmamobile/compare/v6.3.3...v6.4.0
 [6.3.3]: https://github.com/privacybydesign/irmamobile/compare/v6.3.2...v6.3.3
 [6.3.2]: https://github.com/privacybydesign/irmamobile/compare/v6.3.1...v6.3.2
