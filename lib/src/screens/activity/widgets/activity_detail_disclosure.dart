@@ -56,7 +56,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
           (disclosedAttributes) => disclosedAttributes.isEmpty,
         ))
           IrmaEmptyCredentialCard()
-        // Else build credential cards for  all the
+        // Else build credential cards for all the
         // disclosedAttributes that are not empty
         else
           for (var disclosedAttributes in groupedDisclosedAttributes.where(
