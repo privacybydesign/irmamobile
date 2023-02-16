@@ -173,6 +173,7 @@ class IssueWizardItem {
   @JsonKey(name: 'inapp', defaultValue: false)
   final bool inApp;
 
+  @JsonKey(name: 'completed', defaultValue: false)
   final bool completed;
 
   IssueWizardItem copyWith({

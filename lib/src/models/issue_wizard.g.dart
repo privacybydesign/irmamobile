@@ -88,7 +88,7 @@ IssueWizardItem _$IssueWizardItemFromJson(Map<String, dynamic> json) {
     sessionURL: json['sessionUrl'] as String?,
     url: TranslatedValue.fromJson(json['url'] as Map<String, dynamic>?),
     inApp: json['inapp'] as bool? ?? false,
-    completed: json['completed'] as bool,
+    completed: json['completed'] as bool? ?? false,
   );
 }
 
