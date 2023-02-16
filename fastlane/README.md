@@ -51,7 +51,7 @@ Uploading can be done using [Transporter for MacOS](https://apps.apple.com/us/ap
 The artifacts produced by the `android_build_apk` and the `android_build_appbundle` actions need to be signed in order
 to distribute them. For the Google Play Store, you need an app bundle signed with the right upload key.
 The corresponding certificate needs to be registered with Google. This upload key is also used as signing key for
-Android Code Transparency. For ad-hoc APKs, artifact are signed using regular APK signing.
+Android Code Transparency. For ad-hoc APKs, artifacts are signed using regular APK signing.
 The `android_build_apk` and the `android_build_appbundle` actions have built-in support for signing.
 The key should be given as Java Keystore and can be passed using the `keystore_path`, `key_alias`, `keystore_password`
 and `key_password` parameters.
@@ -60,7 +60,7 @@ Below we describe how you can generate a Java Keystore for signing.
 
  1. Specify a key name, i.e. `KEY_ALIAS=upload-key`
  2. Run `keytool -genkey -alias $KEY_ALIAS -keyalg RSA -keystore $KEY_ALIAS.jks -keysize 4096 -validity 10000`
- 3. If you need the certificate to upload to Google, you can generate one in the following way:
+ 3. If you need to register the key as upload key to Google Play, you can generate the certificate in the following way:
     `keytool -export -rfc -keystore $KEY_ALIAS.jks -alias $KEY_ALIAS -file $KEY_ALIAS.pem`
  4. In case you need to upload the assets to a secret vault, then you need to encode the files with base64,
     i.e. `cat $KEY_ALIAS.jks | base64 > $KEY_ALIAS.jks.base64`
