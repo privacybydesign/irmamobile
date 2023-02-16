@@ -7,6 +7,7 @@ import '../../../models/irma_configuration.dart';
 import '../../../models/log_entry.dart';
 import '../../../theme/theme.dart';
 import '../../../widgets/credential_card/irma_credential_card.dart';
+import '../../../widgets/credential_card/irma_empty_credential_card.dart';
 import '../../../widgets/irma_quote.dart';
 import '../../../widgets/issuer_verifier_header.dart';
 import '../../../widgets/translated_text.dart';
@@ -40,6 +41,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
+    final groupedDisclosedAttributes = logEntry.disclosedAttributes;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,11 +51,21 @@ class ActivityDetailDisclosure extends StatelessWidget {
           style: theme.themeData.textTheme.headline4,
         ),
         SizedBox(height: theme.smallSpacing),
-        for (var disclosedAttributes in logEntry.disclosedAttributes)
-          _buildCredentialCard(
-            context,
-            disclosedAttributes,
-          ),
+        // If all disclosed attributes are empty render one empty data card
+        if (groupedDisclosedAttributes.every(
+          (disclosedAttributes) => disclosedAttributes.isEmpty,
+        ))
+          IrmaEmptyCredentialCard()
+        // Else build credential cards for all the
+        // disclosedAttributes that are not empty
+        else
+          for (var disclosedAttributes in groupedDisclosedAttributes.where(
+            (disclosedAttributes) => disclosedAttributes.isNotEmpty,
+          ))
+            _buildCredentialCard(
+              context,
+              disclosedAttributes,
+            ),
         if (logEntry.type == LogEntryType.signing) ...[
           Padding(
             padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),
