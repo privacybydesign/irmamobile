@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+
 import 'package:irmamobile/src/screens/activity/activity_tab.dart';
 import 'package:irmamobile/src/screens/activity/widgets/activity_card.dart';
 import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
@@ -98,12 +99,14 @@ Future<void> completelyOptionalTest(WidgetTester tester, IntegrationTestIrmaBind
   expect(find.byType(ActivityTab), findsOneWidget);
 
   // Tap the second activity card.
-  // That is the session thats completely empty.
+  // That's the session that is completely empty.
+  final secondActivityCardFinder = find.byType(ActivityCard).at(1).hitTestable();
+  await tester.scrollUntilVisible(secondActivityCardFinder, 50);
   await tester.tapAndSettle(
-    find.byType(ActivityCard).at(1).hitTestable(),
+    secondActivityCardFinder,
   );
 
-  // Expect the No data card
+  // Expect the no data card
   expect(
     find.byType(IrmaEmptyCredentialCard),
     findsOneWidget,
