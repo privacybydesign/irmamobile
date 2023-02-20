@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:irmamobile/sentry_dsn.dart';
 import 'package:irmamobile/src/data/irma_preferences.dart';
+import 'package:irmamobile/src/sentry/stub_platform_checker.dart';
 import 'package:package_info/package_info.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -19,11 +21,13 @@ Future<void> initSentry({required IrmaPreferences preferences}) async {
           options.release = release;
           options.dsn = dsn;
           options.enableNativeCrashHandling = reportErrors;
+          // As noted in the docs of enableNativeCrashHandling, platform checking does not work on iOS when
+          // native crash handling is disabled. Therefore, we add a fallback implementation.
+          if (!options.enableNativeCrashHandling && Platform.isIOS) options.platformChecker = StubPlatformChecker();
           // In the privacy policy we only mention error events, so we don't send the session health information.
           options.enableAutoSessionTracking = false;
         },
       );
-      Sentry.configureScope((scope) => scope.setTag('git', version));
       if (!completer.isCompleted) completer.complete();
     });
     await completer.future;

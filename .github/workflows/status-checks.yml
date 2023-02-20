@@ -81,6 +81,7 @@ jobs:
     strategy:
       matrix:
         flavor: [ alpha, beta ]
+        type: [ apk, appbundle ]
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
@@ -93,11 +94,24 @@ jobs:
         with:
           name: irmagobridge-android
           path: android/irmagobridge/
-      - run: bundle exec fastlane android_build_app flavor:${{ matrix.flavor }}
+      - name: Decode binary environment secrets
+        env:
+          ANDROID_DEVELOPMENT_SIGNING_KEYSTORE: ${{ secrets.ANDROID_DEVELOPMENT_SIGNING_KEYSTORE }}
+        run: |
+          mkdir -p ./fastlane/profiles
+          echo $ANDROID_DEVELOPMENT_SIGNING_KEYSTORE | base64 --decode > ./fastlane/profiles/keystore.jks
+      - name: Build
+        run: >
+          bundle exec fastlane android_build_${{ matrix.type }}
+          flavor:${{ matrix.flavor }}
+          keystore_path:profiles/keystore.jks
+          key_alias:android-signing-development
+          keystore_password:${{ secrets.ANDROID_DEVELOPMENT_SIGNING_KEYSTORE_PASSWORD }}
+          key_password:${{ secrets.ANDROID_DEVELOPMENT_SIGNING_KEYSTORE_PASSWORD }}
       - uses: actions/upload-artifact@v3
         with:
-          name: app-${{ matrix.flavor }}-android
-          path: ./fastlane/build/*.apk
+          name: app-${{ matrix.flavor }}-android-${{ matrix.type }}
+          path: ./fastlane/build/*
   build-integration-test-android:
     runs-on: ubuntu-latest
     needs: build-irmagobridge-android
