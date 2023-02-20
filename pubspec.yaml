@@ -2,7 +2,7 @@ name: irmamobile
 description: IRMA Authentication
 
 # A build number cannot be reused once a build is in use on Android.
-version: 7.0.0-rc.1+145
+version: 7.0.0+4194454
 
 environment:
   sdk: ">=2.13.0 <3.0.0"
@@ -13,7 +13,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  sentry_flutter: ^6.0.0
+  sentry_flutter: ^6.19.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -37,7 +37,7 @@ dependencies:
   async: ^2.6.1
   streaming_shared_preferences: ^2.0.0
   path_drawing: ^0.5.1
-  flutter_jailbreak_detection: ^1.8.0
+  flutter_jailbreak_detection: ^1.10.0
   visibility_detector: ^0.2.2
   quiver: ^3.0.1
   flutter_privacy_screen: ^1.2.0
@@ -53,7 +53,7 @@ dev_dependencies:
   json_serializable: ^4.1.4
   flutter_lints: ^1.0.4
   flutter_native_splash: ^1.2.1
-  build_runner: ^2.1.2 
+  build_runner: ^2.1.2
   flutter_launcher_icons: ^0.9.0
 
 flutter_native_splash:
@@ -61,7 +61,7 @@ flutter_native_splash:
   color: "F7F7F7"
   android_disable_fullscreen: true
 
-flutter_icons: 
+flutter_icons:
   android: true
   ios: true
   image_path: "assets/non-free/app_icon.png"
@@ -92,6 +92,7 @@ flutter:
     - assets/non-free/
     - assets/disclosure/
     - assets/ui/
+
   fonts:
     - family: Alexandria
       fonts:

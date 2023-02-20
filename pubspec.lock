@@ -255,7 +255,7 @@ packages:
       name: flutter_jailbreak_detection
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.8.0"
+    version: "1.10.0"
   flutter_launcher_icons:
     dependency: "direct dev"
     description:
@@ -665,14 +665,14 @@ packages:
       name: sentry
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "6.0.0"
+    version: "6.19.0"
   sentry_flutter:
     dependency: "direct main"
     description:
       name: sentry_flutter
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "6.0.0"
+    version: "6.19.0"
   share:
     dependency: "direct main"
     description:
