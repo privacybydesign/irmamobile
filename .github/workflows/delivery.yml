@@ -137,7 +137,9 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: app-alpha-android-${{ matrix.flavor }}-${{ matrix.type }}
-          path: ./fastlane/build/*.apk
+          path: |
+            ./fastlane/build/*.apk
+            ./fastlane/build/*.aab
   bundle-app-alpha:
     runs-on: ubuntu-latest
     needs:
@@ -261,7 +263,9 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: app-beta-android
-          path: ./fastlane/build/*.apk
+          path: |
+            ./fastlane/build/*.apk
+            ./fastlane/build/*.aab
   bundle-app-beta:
     runs-on: ubuntu-latest
     needs:
