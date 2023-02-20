@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 
-import '../../../../theme/theme.dart';
-import '../../../../widgets/irma_card.dart';
-import '../../../../widgets/irma_linear_progresss_indicator.dart';
-import '../../../../widgets/translated_text.dart';
+import '../theme/theme.dart';
+import 'irma_card.dart';
+import 'irma_linear_progresss_indicator.dart';
+import 'translated_text.dart';
 
-class DisclosurePermissionProgressIndicator extends StatelessWidget {
+class SessionProgressIndicator extends StatelessWidget {
   final int? step;
   final int? stepCount;
-  final String contentTranslationKey;
+  final String? contentTranslationKey;
   final Map<String, String>? contentTranslationParams;
 
-  const DisclosurePermissionProgressIndicator({
+  const SessionProgressIndicator({
     this.step,
     this.stepCount,
-    required this.contentTranslationKey,
+    this.contentTranslationKey,
     this.contentTranslationParams,
   })  : assert(
           step == null || stepCount != null,
@@ -58,19 +58,20 @@ class DisclosurePermissionProgressIndicator extends StatelessWidget {
               ),
             ),
           ],
-          Row(
-            children: [
-              Flexible(
-                child: TranslatedText(
-                  contentTranslationKey,
-                  translationParams: contentTranslationParams,
-                  style: theme.themeData.textTheme.headline4!.copyWith(
-                    color: theme.dark,
+          if (contentTranslationKey != null)
+            Row(
+              children: [
+                Flexible(
+                  child: TranslatedText(
+                    contentTranslationKey!,
+                    translationParams: contentTranslationParams,
+                    style: theme.themeData.textTheme.headline4!.copyWith(
+                      color: theme.dark,
+                    ),
                   ),
-                ),
-              )
-            ],
-          )
+                )
+              ],
+            )
         ],
       ),
     );

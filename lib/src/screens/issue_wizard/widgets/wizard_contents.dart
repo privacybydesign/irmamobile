@@ -5,11 +5,12 @@ import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../../models/issue_wizard.dart';
 import '../../../theme/theme.dart';
+import '../../../util/color_from_code.dart';
 import '../../../widgets/irma_bottom_bar.dart';
 import '../../../widgets/irma_card.dart';
-import '../../../widgets/irma_linear_step_indicator.dart';
 import '../../../widgets/irma_markdown.dart';
 import '../../../widgets/irma_stepper.dart';
+import '../../../widgets/session_progress_indicator.dart';
 import 'wizard_scaffold.dart';
 
 class IssueWizardContents extends StatelessWidget {
@@ -39,41 +40,37 @@ class IssueWizardContents extends StatelessWidget {
     return VisibilityDetector(
       key: const Key('wizard_key'),
       onVisibilityChanged: (v) => onVisibilityChanged(v, wizard),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (intro.isNotEmpty)
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: theme.defaultSpacing),
-                child: IrmaMarkdown(intro.translate(lang)),
-              ),
-            IrmaStepper(
-              children: wizard.wizardContents
-                  .mapIndexed(
-                    (i, item) => IrmaCard(
-                      style: i == firstIncomplete ? IrmaCardStyle.highlighted : IrmaCardStyle.normal,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            item.header.translate(lang),
-                            style: theme.textTheme.bodyText1,
-                          ),
-                          Text(
-                            item.text.translate(lang),
-                            style: theme.textTheme.bodyText2,
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                  .toList(growable: false),
-              currentIndex: wizard.activeItemIndex >= 0 ? wizard.activeItemIndex : null,
-            ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (intro.isNotEmpty) ...[
+            IrmaMarkdown(intro.translate(lang)),
+            SizedBox(height: theme.defaultSpacing),
           ],
-        ),
+          IrmaStepper(
+            children: wizard.wizardContents
+                .mapIndexed(
+                  (i, item) => IrmaCard(
+                    style: i == firstIncomplete ? IrmaCardStyle.highlighted : IrmaCardStyle.normal,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          item.header.translate(lang),
+                          style: theme.textTheme.bodyText1,
+                        ),
+                        Text(
+                          item.text.translate(lang),
+                          style: theme.textTheme.bodyText2,
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+                .toList(growable: false),
+            currentIndex: wizard.activeItemIndex >= 0 ? wizard.activeItemIndex : null,
+          ),
+        ],
       ),
     );
   }
@@ -101,6 +98,8 @@ class IssueWizardContents extends StatelessWidget {
       header: wizard.wizardData.title.translate(lang),
       image: logo,
       onBack: onBack,
+      headerBackgroundColor: colorFromCode(wizard.wizardData.color),
+      headerTextColor: wizard.wizardData.color == null ? null : colorFromCode(wizard.wizardData.textColor),
       bottomBar: IrmaBottomBar(
         primaryButtonLabel: buttonLabel,
         onPrimaryPressed: () => onNext(context, wizard),
@@ -110,7 +109,7 @@ class IssueWizardContents extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           if (wizardContentSize > 1)
-            IrmaLinearStepIndicator(
+            SessionProgressIndicator(
               step: wizard.activeItemIndex + 1,
               stepCount: wizardContentSize,
             ),

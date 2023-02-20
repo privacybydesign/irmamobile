@@ -17,6 +17,7 @@ class IrmaCard extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
   final IrmaCardStyle style;
   final EdgeInsetsGeometry? margin;
+  final Color? color;
 
   const IrmaCard({
     Key? key,
@@ -25,6 +26,7 @@ class IrmaCard extends StatelessWidget {
     this.padding,
     this.style = IrmaCardStyle.normal,
     this.margin,
+    this.color,
   }) : super(key: key);
 
   @override
@@ -39,7 +41,7 @@ class IrmaCard extends StatelessWidget {
       )
     ];
 
-    final Decoration boxDecoration;
+    BoxDecoration boxDecoration;
     switch (style) {
       case IrmaCardStyle.normal:
         boxDecoration = BoxDecoration(
@@ -88,6 +90,11 @@ class IrmaCard extends StatelessWidget {
           boxShadow: shadow,
         );
         break;
+    }
+
+    // Overwrite card color if a color is provided
+    if (color != null) {
+      boxDecoration = boxDecoration.copyWith(color: color);
     }
 
     return Padding(

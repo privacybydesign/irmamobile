@@ -9,11 +9,15 @@ class IssuerVerifierHeader extends StatelessWidget {
   final String? title;
   final TextStyle? titleTextStyle;
   final Image? image;
+  final Color? backgroundColor;
+  final Color? textColor;
 
   const IssuerVerifierHeader({
     this.title,
     this.titleTextStyle,
     this.image,
+    this.backgroundColor,
+    this.textColor,
   });
 
   @override
@@ -27,6 +31,7 @@ class IssuerVerifierHeader extends StatelessWidget {
         );
 
     return IrmaCard(
+      color: backgroundColor,
       style: IrmaCardStyle.flat,
       padding: EdgeInsets.zero,
       margin: EdgeInsets.all(
@@ -48,7 +53,7 @@ class IssuerVerifierHeader extends StatelessWidget {
               title,
               style: titleTextStyle ??
                   theme.textTheme.bodyText1!.copyWith(
-                    color: theme.neutralExtraDark,
+                    color: textColor ?? theme.neutralExtraDark,
                   ),
             ),
           ),
