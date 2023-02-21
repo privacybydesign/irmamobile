@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:irmamobile/src/screens/issue_wizard/issue_wizard.dart';
-import 'package:irmamobile/src/screens/wallet/wallet_screen.dart';
 
-void popToWallet(BuildContext context) {
+import '../screens/home/home_screen.dart';
+import '../screens/issue_wizard/issue_wizard.dart';
+
+void popToHome(BuildContext context) {
   Navigator.of(context).popUntil(
     ModalRoute.withName(
-      WalletScreen.routeName,
+      HomeScreen.routeName,
     ),
   );
 }

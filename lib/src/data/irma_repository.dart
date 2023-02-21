@@ -6,51 +6,43 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/data/irma_bridge.dart';
-import 'package:irmamobile/src/data/irma_preferences.dart';
-import 'package:irmamobile/src/data/session_repository.dart';
-import 'package:irmamobile/src/models/applifecycle_changed_event.dart';
-import 'package:irmamobile/src/models/authentication_events.dart';
-import 'package:irmamobile/src/models/change_pin_events.dart';
-import 'package:irmamobile/src/models/clear_all_data_event.dart';
-import 'package:irmamobile/src/models/client_preferences.dart';
-import 'package:irmamobile/src/models/credential_events.dart';
-import 'package:irmamobile/src/models/credentials.dart';
-import 'package:irmamobile/src/models/enrollment_events.dart';
-import 'package:irmamobile/src/models/enrollment_status.dart';
-import 'package:irmamobile/src/models/error_event.dart';
-import 'package:irmamobile/src/models/event.dart';
-import 'package:irmamobile/src/models/handle_url_event.dart';
-import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'package:irmamobile/src/models/issue_wizard.dart';
-import 'package:irmamobile/src/models/native_events.dart';
-import 'package:irmamobile/src/models/session.dart';
-import 'package:irmamobile/src/models/session_events.dart';
-import 'package:irmamobile/src/models/session_state.dart';
-import 'package:irmamobile/src/models/version_information.dart';
-import 'package:irmamobile/src/sentry/sentry.dart';
 import 'package:package_info/package_info.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class _InAppCredentialState {
-  final int pendingInactivations;
-  final String credentialType;
+import '../models/applifecycle_changed_event.dart';
+import '../models/authentication_events.dart';
+import '../models/change_pin_events.dart';
+import '../models/clear_all_data_event.dart';
+import '../models/client_preferences.dart';
+import '../models/credential_events.dart';
+import '../models/credentials.dart';
+import '../models/enrollment_events.dart';
+import '../models/enrollment_status.dart';
+import '../models/error_event.dart';
+import '../models/event.dart';
+import '../models/handle_url_event.dart';
+import '../models/irma_configuration.dart';
+import '../models/issue_wizard.dart';
+import '../models/native_events.dart';
+import '../models/session.dart';
+import '../models/session_events.dart';
+import '../models/session_state.dart';
+import '../models/version_information.dart';
+import '../sentry/sentry.dart';
+import 'irma_bridge.dart';
+import 'irma_preferences.dart';
+import 'session_repository.dart';
 
-  _InAppCredentialState({
-    this.pendingInactivations = 0,
-    this.credentialType = '',
+class _CredentialObtainState {
+  // List containing the ids of the credentials
+  // that the user tried to obtain via the credential store
+  // or by refreshing credentials on the data.
+  final Set<String> previouslyLaunchedCredentials;
+
+  _CredentialObtainState({
+    this.previouslyLaunchedCredentials = const <String>{},
   });
-
-  _InAppCredentialState copyWith({
-    int? pendingInactivations,
-    String? credentialType,
-  }) {
-    return _InAppCredentialState(
-      pendingInactivations: pendingInactivations ?? this.pendingInactivations,
-      credentialType: credentialType ?? this.credentialType,
-    );
-  }
 }
 
 class _ExternalBrowserCredtype {
@@ -101,7 +93,7 @@ class IrmaRepository {
   final _lastActiveTimeSubject = BehaviorSubject<DateTime>();
   final _pendingPointerSubject = BehaviorSubject<Pointer?>.seeded(null);
   final _preferencesSubject = BehaviorSubject<ClientPreferencesEvent>();
-  final _inAppCredentialSubject = BehaviorSubject<_InAppCredentialState>();
+  final _credentialObtainState = BehaviorSubject<_CredentialObtainState>();
   final _resumedWithURLSubject = BehaviorSubject<bool>.seeded(false);
   final _resumedFromBrowserSubject = BehaviorSubject<bool>.seeded(false);
   final _issueWizardSubject = BehaviorSubject<IssueWizardEvent?>.seeded(null);
@@ -116,7 +108,7 @@ class IrmaRepository {
     this.preferences,
     this.defaultKeyshareScheme,
   ) {
-    _inAppCredentialSubject.add(_InAppCredentialState());
+    _credentialObtainState.add(_CredentialObtainState());
     _eventSubject.listen(_eventListener);
     _sessionRepository = SessionRepository(
       repo: this,
@@ -150,7 +142,7 @@ class IrmaRepository {
       _lastActiveTimeSubject.close(),
       _pendingPointerSubject.close(),
       _preferencesSubject.close(),
-      _inAppCredentialSubject.close(),
+      _credentialObtainState.close(),
       _resumedWithURLSubject.close(),
       _resumedFromBrowserSubject.close(),
       _issueWizardSubject.close(),
@@ -244,11 +236,26 @@ class IrmaRepository {
     }
   }
 
+  void removeLaunchedCredentials(Iterable<String> credentialTypeIds) {
+    final state = _credentialObtainState.value;
+    final updatedLaunchedCredentials = state.previouslyLaunchedCredentials
+        .where(
+          (credTypeId) => !credentialTypeIds.contains(credTypeId),
+        )
+        .toSet();
+
+    _credentialObtainState.add(_CredentialObtainState(
+      previouslyLaunchedCredentials: updatedLaunchedCredentials,
+    ));
+  }
+
   void bridgedDispatch(Event event) {
     dispatch(event, isBridgedEvent: true);
   }
 
   // -- Scheme manager, issuer, credential and attribute definitions
+  IrmaConfiguration get irmaConfiguration => _irmaConfigurationSubject.value;
+
   Stream<IrmaConfiguration> getIrmaConfiguration() {
     return _irmaConfigurationSubject.stream;
   }
@@ -260,6 +267,8 @@ class IrmaRepository {
   }
 
   // -- Credential instances
+  Credentials get credentials => _credentialsSubject.value;
+
   Stream<Credentials> getCredentials() {
     return _credentialsSubject.stream;
   }
@@ -386,8 +395,11 @@ class IrmaRepository {
   }
 
   // -- Session
+  SessionState? getCurrentSessionState(int sessionID) => _sessionRepository.getCurrentSessionState(sessionID);
+
   Stream<SessionState> getSessionState(int sessionID) {
-    return _sessionRepository.getSessionState(sessionID);
+    // Prevent states to be emitted twice when multiple sessions run in parallel.
+    return _sessionRepository.getSessionState(sessionID).distinct();
   }
 
   Future<bool> hasActiveSessions() {
@@ -490,41 +502,45 @@ class IrmaRepository {
 
   static const _iiabchannel = MethodChannel('irma.app/iiab');
 
-  Future<String> getInAppCredential() {
-    return _inAppCredentialSubject.first.then((state) => state.credentialType);
+  Future<Set<String>> getPreviouslyLaunchedCredentials() {
+    return _credentialObtainState.first.then(
+      (state) => state.previouslyLaunchedCredentials,
+    );
   }
 
-  Future<void> processInactivation() async {
-    final curState = await _inAppCredentialSubject.first;
-    if (curState.pendingInactivations > 0) {
-      // If there are still inactivations to be ignored, we ignore
-      // and just decrement count
-      _inAppCredentialSubject.add(curState.copyWith(
-        pendingInactivations: curState.pendingInactivations - 1,
-      ));
-    } else {
-      // Forget about previous opening of browser
-      _inAppCredentialSubject.add(_InAppCredentialState());
-    }
-  }
-
-  // Remember that an inactivation of the app is coming due to opening the browser
-  // for issuance of the given credential type. Opening the browser inactivates the app
-  // (i.e. sets the AppLifecycleState to paused), so we must not react to that the way
-  // we normally do (e.g. go back to the previous app or show the big topleft arrow).
-  void expectInactivationForCredentialType(String type) {
-    _inAppCredentialSubject.add(_InAppCredentialState(pendingInactivations: 1, credentialType: type));
-  }
-
-  Future<void> openIssueURL(BuildContext context, String type) async {
+  Future<void> openIssueURL(
+    BuildContext context,
+    String type,
+  ) async {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
-    final translated = await _irmaConfigurationSubject.first
-        .then((irmaConfiguration) => irmaConfiguration.credentialTypes[type]?.issueUrl);
-    final url = translated?.translate(lang, fallback: '') ?? '';
+
+    final irmaConfig = await _irmaConfigurationSubject.first;
+    final cred = irmaConfig.credentialTypes[type];
+
+    if (cred == null) {
+      throw UnsupportedError('Credential type $type not found in irma config');
+    }
+
+    final url = cred.issueUrl.translate(lang, fallback: '');
     if (url.isEmpty) {
       throw UnsupportedError('Credential type $type does not have a suitable issue url for $lang');
     }
-    expectInactivationForCredentialType(type);
+
+    final alreadyObtainedCredentials = await _credentialsSubject.first;
+    final alreadyObtainedCredentialsTypes = alreadyObtainedCredentials.values.map((cred) => cred.credentialType.fullId);
+
+    if (cred.isInCredentialStore || alreadyObtainedCredentialsTypes.contains(type)) {
+      final state = await _credentialObtainState.first;
+      final updatedLaunchedCredentials = {
+        ...state.previouslyLaunchedCredentials,
+        type,
+      };
+
+      _credentialObtainState.add(_CredentialObtainState(
+        previouslyLaunchedCredentials: updatedLaunchedCredentials,
+      ));
+    }
+
     return openURL(url);
   }
 

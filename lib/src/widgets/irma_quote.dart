@@ -1,83 +1,58 @@
-// This code is not null safe yet.
-// @dart=2.11
-
-import 'dart:math' as math;
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/theme/theme.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+
+import '../theme/theme.dart';
+import 'irma_card.dart';
 
 class IrmaQuote extends StatelessWidget {
-  final String quote;
-  final TextStyle textStyle;
+  final String? quote;
+  final RichText? richQuote;
+  final Color? color;
 
   const IrmaQuote({
-    @required this.quote,
-    this.textStyle = const TextStyle(fontStyle: FontStyle.italic),
-  });
+    Key? key,
+    this.quote,
+    this.richQuote,
+    this.color,
+  })  : assert(
+          quote != null || richQuote != null,
+          'No quote given. Set quote or richQuote.',
+        ),
+        assert(
+          quote == null || richQuote == null,
+          'Either set quote or richQuote, not both.',
+        ),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        Row(
-          children: <Widget>[
-            Transform(
-              alignment: Alignment.center,
-              transform: Matrix4.rotationZ(1 * math.pi),
-              child: Icon(
-                Icons.format_quote,
-                color: IrmaTheme.of(context).primaryBlue,
-                size: 14.0,
-              ),
-            )
-          ],
-        ),
-        Row(
-          children: <Widget>[
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 5.0,
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border(
-                      left: BorderSide(
-                        width: 4.0,
-                        color: IrmaTheme.of(context).grayscale85,
+    final theme = IrmaTheme.of(context);
+
+    return IrmaCard(
+      padding: EdgeInsets.zero,
+      style: IrmaCardStyle.highlighted,
+      child: Row(
+        children: [
+          Flexible(
+            child: quote != null
+                ? MarkdownBody(
+                    data: FlutterI18n.translate(context, quote!),
+                    styleSheet: MarkdownStyleSheet.fromTheme(
+                      ThemeData(
+                        textTheme: TextTheme(
+                          bodyText2: theme.textTheme.bodyText2!.copyWith(
+                            fontSize: 14,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      left: IrmaTheme.of(context).tinySpacing * 1.5,
-                      bottom: IrmaTheme.of(context).tinySpacing,
-                    ),
-                    child: Text(
-                      quote,
-                      style: textStyle,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        Row(
-          children: <Widget>[
-            Transform(
-              alignment: Alignment.center,
-              transform: Matrix4.rotationY(math.pi),
-              child: Icon(
-                Icons.format_quote,
-                color: IrmaTheme.of(context).primaryBlue,
-                size: 14.0,
-              ),
-            )
-          ],
-        ),
-      ],
+                  )
+                : richQuote!,
+          )
+        ],
+      ),
     );
   }
 }

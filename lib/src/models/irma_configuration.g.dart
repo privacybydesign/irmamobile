@@ -79,7 +79,7 @@ Issuer _$IssuerFromJson(Map<String, dynamic> json) {
     name: TranslatedValue.fromJson(json['Name'] as Map<String, dynamic>?),
     schemeManagerId: json['SchemeManagerID'] as String,
     contactAddress: json['ContactAddress'] as String,
-    contactEmail: json['ContactEmail'] as String,
+    contactEmail: json['ContactEMail'] as String,
   );
 }
 
@@ -92,11 +92,8 @@ CredentialType _$CredentialTypeFromJson(Map<String, dynamic> json) {
     isSingleton: json['IsSingleton'] as bool,
     description: TranslatedValue.fromJson(json['Description'] as Map<String, dynamic>?),
     issueUrl: TranslatedValue.fromJson(json['IssueURL'] as Map<String, dynamic>?),
-    isULIssueUrl: json['IsULIssueURL'] as bool,
+    isULIssueUrl: json['IsULIssueURL'] as bool? ?? false,
     disallowDelete: json['DisallowDelete'] as bool? ?? false,
-    foregroundColor: colorFromCode(json['ForegroundColor'] as String?),
-    backgroundGradientStart: colorFromCode(json['BackgroundGradientStart'] as String?),
-    backgroundGradientEnd: colorFromCode(json['BackgroundGradientEnd'] as String?),
     isInCredentialStore: json['IsInCredentialStore'] as bool? ?? false,
     category: TranslatedValue.fromJson(json['Category'] as Map<String, dynamic>?),
     faqIntro: TranslatedValue.fromJson(json['FAQIntro'] as Map<String, dynamic>?),

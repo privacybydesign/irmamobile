@@ -30,7 +30,7 @@ jobs:
         uses: ./.github/actions/setup-build-environment
       - run: bundle exec fastlane unit_test
   build-irmagobridge-ios:
-    runs-on: macos-12
+    runs-on: macos-12 # MacOS version is pinned, because it determines which XCode version is used.
     needs: lint
     steps:
       - name: Check out repository
@@ -55,8 +55,28 @@ jobs:
         with:
           name: irmagobridge-android
           path: android/irmagobridge/irmagobridge.aar
+  build-prototypes-android:
+    runs-on: ubuntu-latest
+    needs: build-irmagobridge-android
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Setup build environment
+        uses: ./.github/actions/setup-build-environment
+      - name: Download irmagobridge artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: irmagobridge-android
+          path: android/irmagobridge/
+      - run: flutter build apk --flavor alpha -t lib/main_prototypes.dart
+      - uses: actions/upload-artifact@v3
+        with:
+          name: prototypes-alpha-android
+          path: ./build/app/outputs/apk/alpha/release/*.apk
   build-app-ios:
-    runs-on: macos-12
+    runs-on: macos-12 # MacOS version is pinned, because it determines which XCode version is used.
     needs: build-irmagobridge-ios
     strategy:
       matrix:
@@ -112,6 +132,39 @@ jobs:
         with:
           name: app-${{ matrix.flavor }}-android-${{ matrix.type }}
           path: ./fastlane/build/*
+  build-integration-test-ios:
+    runs-on: macos-12 # MacOS version is pinned, because it determines which XCode version is used.
+    needs: build-irmagobridge-ios
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Setup build environment
+        uses: ./.github/actions/setup-build-environment
+      - name: Download irmagobridge artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: irmagobridge-ios
+          path: ios/Runner/Irmagobridge.xcframework/
+      - name: Decode binary environment secrets
+        env:
+          APPLE_DEVELOPMENT_CERTIFICATE: ${{ secrets.APPLE_DEVELOPMENT_CERTIFICATE }}
+          APPLE_DEVELOPMENT_PROVISIONING_PROFILE: ${{ secrets.APPLE_DEVELOPMENT_PROVISIONING_PROFILE }}
+        run: |
+          mkdir -p ./fastlane/profiles
+          echo $APPLE_DEVELOPMENT_CERTIFICATE | base64 --decode > ./fastlane/profiles/ios_development.p12
+          echo $APPLE_DEVELOPMENT_PROVISIONING_PROFILE | base64 --decode > ./fastlane/profiles/development.mobileprovision
+      - run: >
+          bundle exec fastlane ios_build_integration_test
+          certificate_path:profiles/ios_development.p12
+          certificate_password:${{ secrets.APPLE_DEVELOPMENT_CERTIFICATE_PASSWORD }}
+          provisioning_profile_path:profiles/development.mobileprovision
+          code_signing_identity:"iPhone Developer"
+      - uses: actions/upload-artifact@v3
+        with:
+          name: integration-test-ios
+          path: ./fastlane/build/*.zip
   build-integration-test-android:
     runs-on: ubuntu-latest
     needs: build-irmagobridge-android
@@ -132,6 +185,28 @@ jobs:
         with:
           name: integration-test-android
           path: ./fastlane/build/*.apk
+  integration-test-ios:
+    runs-on: ubuntu-latest
+    container: google/cloud-sdk:latest
+    needs:
+      - build-integration-test-ios
+      - unit-test # To prevent that test resources are used when we already know there is an issue.
+    concurrency: integration-test-ios # To prevent that we use too much test resources at the same time.
+    steps:
+      - name: Download test artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: integration-test-ios
+          path: .
+      - name: Authenticate to Firebase
+        env:
+          GCLOUD_SERVICE_KEY: ${{ secrets.GCLOUD_SERVICE_KEY }}
+        run: gcloud auth activate-service-account --key-file <(echo $GCLOUD_SERVICE_KEY)
+        shell: bash
+      - name: Set Firebase project
+        run: gcloud config set project yivimobile
+      - name: Run integration tests
+        run: gcloud firebase test ios run --test ios_tests.zip --timeout 20m --device=model=iphone8,orientation=portrait --device=model=iphone8,orientation=landscape
   integration-test-android:
     runs-on: ubuntu-latest
     container: google/cloud-sdk:latest
@@ -153,4 +228,4 @@ jobs:
       - name: Set Firebase project
         run: gcloud config set project yivimobile
       - name: Run integration tests
-        run: gcloud firebase test android run --app app-alpha-debug.apk --test app-alpha-debug-androidTest.apk --timeout 10m --device=model=Pixel3,version=30
+        run: gcloud firebase test android run --use-orchestrator --app app-alpha-debug.apk --test app-alpha-debug-androidTest.apk --timeout 20m --device=model=Pixel2,version=28,orientation=portrait --device=model=Pixel2,version=28,orientation=landscape

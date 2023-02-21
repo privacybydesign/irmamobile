@@ -115,24 +115,46 @@ However, a new build is made for every test file. Running multiple tests in this
 
 ### Run on Android natively
 
-To natively run the integration tests on Android, you can use the command below. It uses the configuration from the `irma_configuration` directory.
-You have to manually set the `irma_configuration` for testing. When using the default set-up, the tests will fail because the `pbdf` production scheme cannot be used.
+To natively run the integration tests on Android, you can use the command below.
 
       flutter pub get
       (cd android && ./gradlew app:connectedAlphaDebugAndroidTest -Ptarget=`pwd`/../integration_test/test_all.dart)
 
-You can also manually build APKs for testing.
+You can also manually build APKs for testing using Fastlane.
 
-      flutter pub get
-      (cd android && ./gradlew app:assembleAndroidTest)
-      (cd android && ./gradlew app:assembleAlphaDebug -Ptarget=`pwd`/../integration_test/test_all.dart)
+      bundle exec fastlane android_build_integration_test
 
-You can use those APKs for testing with services like [Google Firebase](https://flutter.dev/docs/testing/integration-tests#uploading-an-android-apk).
+The APKs can be found in `./fastlane/build`. They can be uploaded to services like [Google Firebase](https://flutter.dev/docs/testing/integration-tests#uploading-an-android-apk).
 You can also run them locally using the following commands:
 
-      adb install build/app/outputs/apk/alpha/debug/app-alpha-debug.apk
-      adb install build/app/outputs/apk/androidTest/alpha/debug/app-alpha-debug-androidTest.apk
+      adb install ./fastlane/build/app-alpha-debug.apk
+      adb install ./fastlane/build/app-alpha-debug-androidTest.apk
       adb shell am instrument -w -r foundation.privacybydesign.irmamobile.alpha.test/androidx.test.runner.AndroidJUnitRunner
+
+### Run on iOS natively
+
+To natively run the integration tests as XCTests on iOS, you can do this using XCode.
+
+At first, you need to choose which test you want to run. For example, to run the tests in `issuance_test.dart` you execute:
+
+      flutter build ios integration_test/issuance_test.dart --config-only
+
+The tests can be started by opening the `ios/Runner.xcworkspace` in XCode and then start the tests via Product > Test.
+
+You can use testing services like [Google Firebase](https://docs.flutter.dev/testing/integration-tests#uploading-xcode-tests) to easily run your tests on physical devices.
+The testing service of your choice needs to support XCTest (not to be confused with XCUITest).
+You can make a build for this purpose using Fastlane:
+
+      bundle exec fastlane ios_build_integration_test
+
+The integration test build should be provisioned with at least a development provisioning profile. More information
+about how to set the provisioning profile can be found in the [Fastlane documentation](/fastlane/README.md#ios_build_integration_test).
+
+The generated `./fastlane/build/ios_tests.zip` can be uploaded to Google Firebase.
+
+## Fastlane
+For build automation we use Fastlane scripting. These scripts are used by our CI tooling (i.e. the GitHub Actions
+workflows in .github/workflows). Documentation about the Fastlane scripting can be found [here](/fastlane/README.md).
 
 ## Troubleshooting
 

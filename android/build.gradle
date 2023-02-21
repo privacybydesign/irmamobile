@@ -1,4 +1,9 @@
 buildscript {
+    /*
+    Because we depend on the packages flutter_privacy_screen and mobile_scanner
+    that do not specify the correct Kotlin versions themselves we have to include it here.
+    */
+    ext.kotlin_version = '1.6.20'
     repositories {
         google()
         mavenCentral()
@@ -6,6 +11,7 @@ buildscript {
 
     dependencies {
         classpath 'com.android.tools.build:gradle:7.4.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 

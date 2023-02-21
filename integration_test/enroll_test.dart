@@ -1,15 +1,21 @@
-// We cannot test using null safety as long as there are widgets that are not migrated yet.
-// @dart=2.11
-
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/models/enrollment_status.dart';
-import 'package:irmamobile/src/widgets/irma_button.dart';
+import 'package:irmamobile/src/screens/enrollment/accept_terms/accept_terms_screen.dart';
+import 'package:irmamobile/src/screens/enrollment/choose_pin/choose_pin_screen.dart';
+import 'package:irmamobile/src/screens/enrollment/confirm_pin/confirm_pin_screen.dart';
+import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
+import 'package:irmamobile/src/screens/enrollment/widgets/enrollment_instruction.dart';
+import 'package:irmamobile/src/screens/home/home_screen.dart';
+import 'package:irmamobile/src/widgets/irma_dialog.dart';
+import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
 
+import 'helpers/helpers.dart';
 import 'irma_binding.dart';
 import 'util.dart';
 
@@ -19,218 +25,247 @@ void main() {
   final irmaBinding = IntegrationTestIrmaBinding.ensureInitialized();
   WidgetController.hitTestWarningShouldBeFatal = true;
 
-  group('irma-enroll', () {
+  // The expected instruction text of the enrollment introduction
+  const expectedInstructions = [
+    [
+      'Yivi is an app for your digital identity',
+      'Your official name, birthdate, address, social security number and more. Safely stored in your Yivi-app'
+    ],
+    [
+      "With Yivi you're in control over your data",
+      "Easy, secure and swift. You're in control of what you're sharing and with whom.",
+    ],
+    [
+      'Securely on your phone',
+      'Only you have access to the data on your phone. Nobody has access to your transactions, not even Yivi.'
+    ]
+  ];
+
+  group('enrollment', () {
     // Initialize the app's repository for integration tests (enable developer mode, etc.)
-    setUp(() => irmaBinding.setUp(enrollmentStatus: EnrollmentStatus.unenrolled));
+    setUp(() => irmaBinding.setUp(
+          enrollmentStatus: EnrollmentStatus.unenrolled,
+        ));
     tearDown(() => irmaBinding.tearDown());
 
-    testWidgets('screens', (tester) async {
-      // Screens test of enrollment process
-      await tester.pumpWidgetAndSettle(IrmaApp(repository: irmaBinding.repository));
+    // Reusable finders
+    final nextButtonFinder = find.byKey(const Key('enrollment_next_button'));
+    final previousButtonFinder = find.byKey(const Key('enrollment_previous_button'));
 
-      // Check first screen
-      // Check intro heading
-      String string = tester.getAllText(find.byKey(const Key('intro_heading'))).first;
-      expect(string, 'IRMA is your identity on your mobile');
-      // Check intro text
-      string = tester.getAllText(find.byKey(const Key('intro_body'))).first;
-      expect(string, 'Your official name, date of birth, address, and more. All securely stored in your IRMA app.');
+    // Pumps an unenrolled app with english locale
+    Future<void> _initEnrollment(WidgetTester tester) async {
+      await tester.pumpWidgetAndSettle(IrmaApp(
+        repository: irmaBinding.repository,
+        forcedLocale: const Locale('en', 'EN'),
+      ));
+      expect(find.byType(EnrollmentScreen), findsOneWidget);
+    }
 
-      // Tap through enrollment info screens
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p1')), matching: find.byKey(const Key('next'))));
+    Future<void> _goThroughIntroduction(WidgetTester tester) async {
+      for (var i = 0; i < expectedInstructions.length; i++) {
+        await tester.tapAndSettle(nextButtonFinder);
+      }
+    }
 
-      // Check second screen
-      // Check intro heading
-      string = tester.getAllText(find.byKey(const Key('intro_heading'))).first;
-      expect(string, 'Make yourself known with IRMA');
-      // Check intro text
-      string = tester.getAllText(find.byKey(const Key('intro_body'))).first;
-      expect(string, "Easy, secure, and fast. It's all in your hands.");
+    Future<void> _goThroughChoosePin(WidgetTester tester, [String pin = '12345']) async {
+      expect(find.byType(ChoosePinScreen), findsOneWidget);
+      await enterPin(tester, pin);
+      await tester.tapAndSettle(find.text('Next'));
+      await enterPin(tester, pin);
+    }
 
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p2')), matching: find.byKey(const Key('next'))));
+    Future<void> _goThroughTerms(WidgetTester tester) async {
+      expect(find.byType(AcceptTermsScreen), findsOneWidget);
+      final checkBoxFinder = find.byKey(const Key('accept_terms_checkbox'));
+      await tester.scrollUntilVisible(checkBoxFinder.hitTestable(), 50);
+      await tester.tapAndSettle(checkBoxFinder);
+      await tester.tapAndSettle(nextButtonFinder);
+    }
 
-      // Check third screen
-      // Check intro heading
-      string = tester.getAllText(find.byKey(const Key('intro_heading'))).first;
-      expect(string, 'IRMA provides certainty, to you and to others');
-      // Check intro text
-      string = tester.getAllText(find.byKey(const Key('intro_body'))).first;
-      expect(string, "Your data are stored solely within the IRMA app. Only you have access.");
-      string = tester.getAllText(find.byKey(const Key('intro_body_link'))).first;
+    Future<void> _goToEmailScreen(WidgetTester tester) async {
+      await _initEnrollment(tester);
+      await _goThroughIntroduction(tester);
+      await _goThroughTerms(tester);
+      await _goThroughChoosePin(tester);
+    }
 
-      expect(string, "Please read the privacy rules");
+    testWidgets(
+      'introduction',
+      (tester) async {
+        await _initEnrollment(tester);
 
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p3')), matching: find.byKey(const Key('next'))));
+        for (var i = 0; i < expectedInstructions.length; i++) {
+          // Try going back, if this is not the first instruction;
+          if (i == 0) {
+            expect(previousButtonFinder, findsNothing);
+          } else {
+            await tester.tapAndSettle(previousButtonFinder);
+            await tester.tapAndSettle(nextButtonFinder);
+          }
 
-      // Choose new pin screen
-      expect(tester.any(find.byKey(const Key('enrollment_choose_pin'))), true);
-    }, timeout: const Timeout(Duration(minutes: 1)));
+          // Evaluate the content
+          final instructionFinder = find.byType(EnrollmentInstruction);
+          final actualCurrentInstructionTexts = tester.getAllText(instructionFinder);
+          final expectedCurrentInstructionTexts = [...expectedInstructions[i], if (i != 0) 'Previous', 'Next'];
+          expect(actualCurrentInstructionTexts, expectedCurrentInstructionTexts);
 
-    testWidgets('tc1', (tester) async {
-      // Scenario 1 of enrollment process
-      // Initialize the app for integration tests
-      await tester.pumpWidgetAndSettle(IrmaApp(repository: irmaBinding.repository));
+          // Go Next step
+          await tester.tapAndSettle(nextButtonFinder);
 
-      // Tap through enrollment info screens
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p1')), matching: find.byKey(const Key('next'))));
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p2')), matching: find.byKey(const Key('next'))));
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p3')), matching: find.byKey(const Key('next'))));
+          // If we go next on the last step, expect that we left the enrollment introduction.
+          if (i == expectedInstructions.length) {
+            expect(instructionFinder, findsNothing);
+          }
+        }
+      },
+    );
 
-      // Enter Pin
-      await tester.enterTextAtFocusedAndSettle('12345');
-      // Enter wrong pin
-      await tester.enterTextAtFocusedAndSettle('67890');
+    testWidgets('choose-pin', (tester) async {
+      await _initEnrollment(tester);
+      await _goThroughIntroduction(tester);
+      await _goThroughTerms(tester);
 
-      await tester.waitFor(find.byKey(const Key('irma_dialog')));
-
-      // Check "Wrong PIN" dialog title text
-      String string = tester.getAllText(find.byKey(const Key('irma_dialog_title'))).first;
-      expect(string, 'PIN incorrect');
-      // Check dialog text
-      string = tester.getAllText(find.byKey(const Key('irma_dialog_content'))).first;
-      expect(string, 'PINs do not match. Choose a new PIN.');
-
-      await tester
-          .tapAndSettle(find.descendant(of: find.byKey(const Key('irma_dialog')), matching: find.byType(IrmaButton)));
-
-      // Enter pin
-      await tester.enterTextAtFocusedAndSettle('12345');
-      // Confirm pin
-      await tester.enterTextAtFocusedAndSettle('12345');
-
-      // Check error message is not displayed
-      expect(
-        tester.any(find.descendant(
-            of: find.byKey(const Key('enrollment_provide_email_textfield')),
-            matching: find.text('This is not a valid email address'))),
-        false,
-      );
-
-      await tester.enterTextAtFocusedAndSettle('Wrong_syntax');
-      await tester.tapAndSettle(find.byKey(const Key('enrollment_email_next')));
-
-      // Check error message
-      expect(
-        tester.any(find.descendant(
-            of: find.byKey(const Key('enrollment_provide_email_textfield')),
-            matching: find.text('This is not a valid email address'))),
-        true,
-      );
-
-      // Check textfield is still present
-      expect(
-        tester.any(
-            find.descendant(of: find.byKey(const Key('enrollment_provide_email')), matching: find.byType(TextField))),
-        true,
-      );
-
-      final seed = random.nextInt(1000000).toString();
-      await tester.enterTextAtFocusedAndSettle('test$seed@example.com');
-      await tester.tapAndSettle(find.byKey(const Key('enrollment_email_next')));
-
-      // Wait for Email confirmation screen
-      await tester.waitFor(find.byKey(const Key('email_sent_screen')));
-      // Check screen title
-      string = tester.getAllText(find.byKey(const Key('irma_app_bar'))).first;
-      expect(string, 'Secure your IRMA app');
-
-      // Check text
-      string = tester
-          .getAllText(find.descendant(of: find.byKey(const Key('email_sent_screen')), matching: find.byType(Text)))
-          .first;
-      expect(string, 'Confirm your email address');
-
-      // Click continue
-      await tester.tapAndSettle(find.descendant(
-          of: find.byKey(const Key('email_sent_screen_continue')), matching: find.byKey(const Key('primary'))));
-
-      // Wait until wallet displayed
-      await tester.waitFor(find.byKey(const Key('wallet_present')));
-      // No cards should be available in the wallet
-      expect(tester.any(find.byKey(const Key('wallet_card_0'))), false);
-    }, timeout: const Timeout(Duration(minutes: 1)));
-
-    testWidgets('tc2', (tester) async {
-      // Scenario 2 of enrollment process
-      // Initialize the app for integration tests
-      await tester.pumpWidgetAndSettle(IrmaApp(repository: irmaBinding.repository));
-
-      // Tap through enrollment info screens
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p1')), matching: find.byKey(const Key('next'))));
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p2')), matching: find.byKey(const Key('next'))));
-      await tester.tapAndSettle(
-          find.descendant(of: find.byKey(const Key('enrollment_p3')), matching: find.byKey(const Key('next'))));
-
-      // Check screen title
-      String string = tester.getAllText(find.byKey(const Key('irma_app_bar'))).first;
-      expect(string, 'Secure your IRMA app');
-
-      // Check text
-      string = tester
-          .getAllText(find.descendant(of: find.byKey(const Key('enrollment_choose_pin')), matching: find.byType(Text)))
-          .first;
-      expect(string, 'Choose a 5-digit PIN');
-
-      // Enter Pin
-      await tester.enterTextAtFocusedAndSettle('12345');
-
-      // Check screen title
-      string = tester.getAllText(find.byKey(const Key('irma_app_bar'))).first;
-      expect(string, 'Secure your IRMA app');
-
-      // Check text
-      string = tester.getAllText(find.byKey(const Key('enrollment_confirm_pin'))).first;
-      expect(string, 'Enter your PIN again');
+      // Choose the pin
+      expect(find.byType(ChoosePinScreen), findsOneWidget);
+      const pin = '12345';
+      await enterPin(tester, pin);
+      await tester.tapAndSettle(find.text('Next'));
 
       // Confirm pin
-      await tester.enterTextAtFocusedAndSettle('12345');
+      expect(find.byType(ConfirmPinScreen), findsOneWidget);
 
-      // Check screen title
-      string = tester.getAllText(find.byKey(const Key('irma_app_bar'))).first;
-      expect(string, 'Secure your IRMA app');
+      // Enter false pin
+      const falsePin = '54321';
+      await enterPin(tester, falsePin);
 
-      // Check text
-      string = tester.getAllText(find.byKey(const Key('enrollment_provide_email'))).first;
-      expect(string, 'An email address allows you to disable your IRMA app when your mobile has been lost or stolen.');
+      // Expect false pin dialog
+      var dialogFinder = find.byType(IrmaDialog);
+      expect(dialogFinder, findsOneWidget);
+      var expectedDialogText = [
+        'PIN entered incorrectly',
+        'PINs do not match. Choose a new PIN and try again.',
+        'OK',
+      ];
+      final actualDialogText = tester.getAllText(dialogFinder);
+      expect(expectedDialogText, actualDialogText);
+      await tester.tapAndSettle(find.text('OK'));
 
-      // Check textfield
-      expect(
-        tester.any(
-            find.descendant(of: find.byKey(const Key('enrollment_provide_email')), matching: find.byType(TextField))),
-        true,
-      );
+      // Enter correct pin
+      await enterPin(tester, pin);
+      await tester.tapAndSettle(find.text('Next'));
 
-      // Check buttons Skip & Next
-      expect(tester.any(find.byKey(const Key('enrollment_skip_email'))), true);
-      expect(tester.any(find.byKey(const Key('enrollment_email_next'))), true);
+      // Confirm pin
+      await enterPin(tester, pin);
 
-      // Click Skip
-      await tester.tapAndSettle(find.byKey(const Key('enrollment_skip_email')));
-      // Wait until irma dialog is displayed
-      await tester.waitFor(find.byKey(const Key('irma_dialog')));
-      // Check dialog title text
-      string = tester.getAllText(find.byKey(const Key('irma_dialog_title'))).first;
-      expect(string, 'Are you sure?');
-      // Check dialog text
-      string = tester.getAllText(find.byKey(const Key('irma_dialog_content'))).first;
-      expect(string,
-          'Protect your data. When you enter an email address, you can block your IRMA app when your mobile has been lost or stolen.');
+      // Expect that we left the pin screens
+      expect(find.byType(ChoosePinScreen), findsNothing);
+      expect(find.byType(ConfirmPinScreen), findsNothing);
+    });
 
-      // Confirm Skip
-      await tester.tap(find.byKey(const Key('enrollment_skip_confirm')));
+    testWidgets(
+      'terms',
+      (tester) async {
+        await _initEnrollment(tester);
+        await _goThroughIntroduction(tester);
+        expect(find.byType(AcceptTermsScreen), findsOneWidget);
 
-      // Wait until wallet displayed
-      await tester.waitFor(find.byKey(const Key('wallet_present')));
-      // No cards should be available in the wallet
-      expect(tester.any(find.byKey(const Key('wallet_card_0'))), false);
-    }, timeout: const Timeout(Duration(minutes: 1)));
+        // Next button should be disabled by default
+        expect(tester.widget<YiviThemedButton>(nextButtonFinder).onPressed, isNull);
+
+        // Tap checkbox
+        final checkBoxFinder = find.byKey(const Key('accept_terms_checkbox'));
+        await tester.scrollUntilVisible(checkBoxFinder.hitTestable(), 50);
+        await tester.tapAndSettle(checkBoxFinder);
+
+        // Next button should be enabled now
+        expect(tester.widget<YiviThemedButton>(nextButtonFinder).onPressed, isNotNull);
+
+        // Continue to next page
+        await tester.tapAndSettle(nextButtonFinder);
+
+        // Expect that we left the terms screens
+        expect(find.byType(AcceptTermsScreen), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'skip-email',
+      (tester) async {
+        await _goToEmailScreen(tester);
+
+        // Press skip on the enrollment nav bar
+        await tester.tapAndSettle(find.text('Skip'));
+
+        // Expect confirm skip email dialog
+        var dialogFinder = find.byType(IrmaDialog);
+        expect(dialogFinder, findsOneWidget);
+        const expectedDialogText = [
+          'Are you sure?',
+          'Adding an e-mail address increases safety',
+          'Enter an e-mail address',
+          'Skip'
+        ];
+
+        final actualDialogText = tester.getAllText(dialogFinder);
+        expect(actualDialogText, expectedDialogText);
+
+        // Confirm skip
+        await tester.tapAndSettle(find.byKey(const Key('dialog_confirm_button')));
+
+        // Wait for home screen
+        await tester.waitFor(find.byType(HomeScreen));
+      },
+    );
+
+    testWidgets(
+      'provide-email',
+      (tester) async {
+        await _goToEmailScreen(tester);
+
+        var emailInputFinder = find.byKey(const Key('email_input_field'));
+        var emailInvalidMessageFinder = find.descendant(
+          of: emailInputFinder,
+          matching: find.text('Invalid e-mail address'),
+        );
+        expect(emailInvalidMessageFinder, findsNothing);
+
+        // Button should be disabled
+        final bottomBarPrimaryButtonFinder = find.byKey(const Key('bottom_bar_primary'));
+        expect(tester.widget<YiviThemedButton>(bottomBarPrimaryButtonFinder).onPressed, isNull);
+
+        // Enter first part of the email
+        await tester.enterText(emailInputFinder, 'notAnEmail');
+
+        // Invalid email message should appear
+        expect(emailInvalidMessageFinder, findsNothing);
+
+        // Enter the rest of the email.
+        final seed = random.nextInt(1000000).toString();
+        await tester.enterText(emailInputFinder, 'test$seed@example.com');
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pumpAndSettle(const Duration(seconds: 1));
+
+        // Button should be enabled
+        expect(tester.widget<YiviThemedButton>(bottomBarPrimaryButtonFinder).onPressed, isNotNull);
+
+        // Error message should be gone
+        expect(emailInvalidMessageFinder, findsNothing);
+
+        await tester.tapAndSettle(bottomBarPrimaryButtonFinder);
+
+        // Wait for email sent screen
+        await tester.waitFor(find.byKey(const Key('email_sent_screen')));
+        await tester.tapAndSettle(bottomBarPrimaryButtonFinder);
+
+        // Wait for home screen
+        await tester.waitFor(find.byType(HomeScreen));
+      },
+      // On physical iOS devices we run the integration test in release mode, as instructed.
+      // https://github.com/flutter/flutter/tree/main/packages/integration_test#ios-device-testing
+      // Flutter has a bug causing enterText to not work in release mode.
+      // https://github.com/flutter/flutter/issues/89749
+      // For now, we only run this test in debug mode as a work-around.
+      skip: !kDebugMode,
+    );
   });
 }

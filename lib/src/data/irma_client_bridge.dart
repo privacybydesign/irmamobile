@@ -2,24 +2,26 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:irmamobile/src/data/irma_bridge.dart';
-import 'package:irmamobile/src/models/authentication_events.dart';
-import 'package:irmamobile/src/models/change_pin_events.dart';
-import 'package:irmamobile/src/models/client_preferences.dart';
-import 'package:irmamobile/src/models/credential_events.dart';
-import 'package:irmamobile/src/models/enrollment_events.dart';
-import 'package:irmamobile/src/models/error_event.dart';
-import 'package:irmamobile/src/models/event.dart';
-import 'package:irmamobile/src/models/handle_url_event.dart';
-import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'package:irmamobile/src/models/issue_wizard.dart';
-import 'package:irmamobile/src/models/log_entry.dart';
-import 'package:irmamobile/src/models/session_events.dart';
-import 'package:irmamobile/src/sentry/sentry.dart';
+
+import '../models/authentication_events.dart';
+import '../models/change_pin_events.dart';
+import '../models/client_preferences.dart';
+import '../models/credential_events.dart';
+import '../models/enrollment_events.dart';
+import '../models/error_event.dart';
+import '../models/event.dart';
+import '../models/handle_url_event.dart';
+import '../models/irma_configuration.dart';
+import '../models/issue_wizard.dart';
+import '../models/log_entry.dart';
+import '../models/session_events.dart';
+import '../sentry/sentry.dart';
+import 'irma_bridge.dart';
 
 typedef EventUnmarshaller = Event Function(Map<String, dynamic>);
 
 class IrmaClientBridge extends IrmaBridge {
+  final bool debugLogging;
   final MethodChannel _methodChannel;
 
   static final Map<Type, EventUnmarshaller> _eventUnmarshallers = {
@@ -65,7 +67,9 @@ class IrmaClientBridge extends IrmaBridge {
   static final Map<String, EventUnmarshaller> _eventUnmarshallerLookup =
       _eventUnmarshallers.map((Type t, EventUnmarshaller u) => MapEntry<String, EventUnmarshaller>(t.toString(), u));
 
-  IrmaClientBridge() : _methodChannel = const MethodChannel('irma.app/irma_mobile_bridge') {
+  IrmaClientBridge({
+    this.debugLogging = false,
+  }) : _methodChannel = const MethodChannel('irma.app/irma_mobile_bridge') {
     // Start listening to method calls from the native side
     _methodChannel.setMethodCallHandler(_handleMethodCall);
   }
@@ -81,7 +85,7 @@ class IrmaClientBridge extends IrmaBridge {
         return;
       }
 
-      if (kDebugMode) {
+      if (debugLogging) {
         debugPrint('Received bridge event: ${call.method} with payload ${call.arguments}');
       }
 
@@ -97,7 +101,7 @@ class IrmaClientBridge extends IrmaBridge {
   @override
   void dispatch(Event event) {
     final encodedEvent = jsonEncode(event);
-    if (kDebugMode) {
+    if (debugLogging) {
       debugPrint('Sending ${event.runtimeType.toString()} to bridge: $encodedEvent');
     }
 

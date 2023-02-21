@@ -1,12 +1,9 @@
-import 'dart:ui';
-
-import 'package:flutter/cupertino.dart';
-import 'package:irmamobile/src/models/event.dart';
-import 'package:irmamobile/src/models/issue_wizard.dart';
-import 'package:irmamobile/src/models/session.dart';
-import 'package:irmamobile/src/models/translated_value.dart';
-import 'package:irmamobile/src/util/color_from_code.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+import 'event.dart';
+import 'issue_wizard.dart';
+import 'session.dart';
+import 'translated_value.dart';
 
 part 'irma_configuration.g.dart';
 
@@ -165,7 +162,7 @@ class Issuer {
   @JsonKey(name: 'ContactAddress')
   final String contactAddress;
 
-  @JsonKey(name: 'ContactEmail')
+  @JsonKey(name: 'ContactEMail')
   final String contactEmail;
 
   factory Issuer.fromJson(Map<String, dynamic> json) => _$IssuerFromJson(json);
@@ -185,9 +182,6 @@ class CredentialType {
     this.issueUrl = const TranslatedValue.empty(),
     this.isULIssueUrl = false,
     this.disallowDelete = false,
-    this.foregroundColor,
-    this.backgroundGradientStart,
-    this.backgroundGradientEnd,
     this.isInCredentialStore = false,
     this.category = const TranslatedValue.empty(),
     this.faqIntro = const TranslatedValue.empty(),
@@ -219,20 +213,11 @@ class CredentialType {
   @JsonKey(name: 'IssueURL') // Default value is set by fromJson of TranslatedValue
   final TranslatedValue issueUrl;
 
-  @JsonKey(name: 'IsULIssueURL')
+  @JsonKey(name: 'IsULIssueURL', defaultValue: false)
   final bool isULIssueUrl;
 
   @JsonKey(name: 'DisallowDelete', defaultValue: false)
   final bool disallowDelete;
-
-  @JsonKey(name: 'ForegroundColor', fromJson: colorFromCode)
-  final Color? foregroundColor;
-
-  @JsonKey(name: 'BackgroundGradientStart', fromJson: colorFromCode)
-  final Color? backgroundGradientStart;
-
-  @JsonKey(name: 'BackgroundGradientEnd', fromJson: colorFromCode)
-  final Color? backgroundGradientEnd;
 
   @JsonKey(name: 'IsInCredentialStore', defaultValue: false)
   final bool isInCredentialStore;
@@ -262,6 +247,7 @@ class CredentialType {
 
   String get fullId => '$schemeManagerId.$issuerId.$id';
   String get fullIssuerId => '$schemeManagerId.$issuerId';
+  bool get obtainable => issueUrl.isNotEmpty;
 }
 
 @JsonSerializable(createToJson: false)

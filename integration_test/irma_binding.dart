@@ -5,8 +5,11 @@ import 'package:irmamobile/src/models/clear_all_data_event.dart';
 import 'package:irmamobile/src/models/client_preferences.dart';
 import 'package:irmamobile/src/models/enrollment_events.dart';
 import 'package:irmamobile/src/models/enrollment_status.dart';
+import 'package:irmamobile/src/models/error_event.dart';
+import 'package:irmamobile/src/models/event.dart';
 import 'package:irmamobile/src/models/native_events.dart';
 import 'package:irmamobile/src/models/scheme_events.dart';
+import 'package:irmamobile/src/util/security_context_binding.dart';
 import 'package:rxdart/rxdart.dart';
 
 /// Binding to use the static IrmaClientBridge in integration tests.
@@ -25,8 +28,9 @@ class IntegrationTestIrmaBinding {
   IntegrationTestIrmaBinding._(this._bridge);
 
   factory IntegrationTestIrmaBinding.ensureInitialized() {
+    SecurityContextBinding.ensureInitialized();
     _instance ??= IntegrationTestIrmaBinding._(
-      IrmaClientBridge(),
+      IrmaClientBridge(debugLogging: true),
     );
     return _instance!;
   }
@@ -35,18 +39,22 @@ class IntegrationTestIrmaBinding {
     assert(enrollmentStatus != EnrollmentStatus.undetermined);
     _preferences ??= await IrmaPreferences.fromInstance();
 
-    // Ensure test scheme is available and the app is not enrolled to its keyshare server yet.
     _bridge.dispatch(AppReadyEvent());
-    EnrollmentStatusEvent currEnrollmentStatus = await _bridge.events.whereType<EnrollmentStatusEvent>().first;
-    if (currEnrollmentStatus.enrolledSchemeManagerIds.contains('test')) {
+    EnrollmentStatusEvent currEnrollmentStatus = await _expectBridgeEventGuarded<EnrollmentStatusEvent>();
+
+    // Ensure the app is not enrolled to its keyshare server yet.
+    if (currEnrollmentStatus.enrolledSchemeManagerIds.isNotEmpty) {
       await tearDown();
-    } else if (!currEnrollmentStatus.unenrolledSchemeManagerIds.contains('test')) {
+    }
+
+    // Ensure test scheme is available.
+    if (!currEnrollmentStatus.unenrolledSchemeManagerIds.contains('test')) {
       _bridge.dispatch(InstallSchemeEvent(
         url: 'https://drksn.nl/irma_configuration/test',
         publicKey:
             '-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAErWv2+LXHsFQvLZ7udfpatUebiQV3\nAKJq92/3Qv8GErrRWuNkLd3D/LBZZrpuZ95xAb/GfoCCXrT0cUGESQ9JIA==\n-----END PUBLIC KEY-----',
       ));
-      currEnrollmentStatus = await _bridge.events.whereType<EnrollmentStatusEvent>().first;
+      currEnrollmentStatus = await _expectBridgeEventGuarded<EnrollmentStatusEvent>();
       if (!currEnrollmentStatus.unenrolledSchemeManagerIds.contains('test')) {
         throw Exception('No test scheme installed');
       }
@@ -61,9 +69,6 @@ class IntegrationTestIrmaBinding {
     // Prevent rooted warning to be shown on simulators.
     await _preferences!.setAcceptedRootedRisk(true);
 
-    // Prevent name change notification when testing.
-    await _preferences!.setShowNameChangeNotification(false);
-
     // Ensure enrollment status is set as expected.
     if (enrollmentStatus == EnrollmentStatus.enrolled) {
       _bridge.dispatch(EnrollEvent(
@@ -73,7 +78,7 @@ class IntegrationTestIrmaBinding {
         schemeId: 'test',
       ));
       await _preferences!.setLongPin(false);
-      await _bridge.events.firstWhere((event) => event is EnrollmentSuccessEvent);
+      await _expectBridgeEventGuarded((event) => event is EnrollmentSuccessEvent);
     }
 
     await _preferences!.setAcceptedRootedRisk(true);
@@ -90,9 +95,21 @@ class IntegrationTestIrmaBinding {
     _repository = null;
     // Make sure there is a listener for the bridge events.
     final dataClearedFuture =
-        _bridge.events.firstWhere((event) => event is EnrollmentStatusEvent && event.enrolledSchemeManagerIds.isEmpty);
+        _expectBridgeEventGuarded<EnrollmentStatusEvent>((event) => event.enrolledSchemeManagerIds.isEmpty);
     _bridge.dispatch(ClearAllDataEvent());
     await _preferences?.clearAll();
     await dataClearedFuture;
   }
+
+  /// Returns the first bridge event that matches the given event type and test conditions.
+  /// The bridge event stream is guarded while waiting to detect relevant errors.
+  Future<T> _expectBridgeEventGuarded<T extends Event>([bool Function(T)? test]) => _bridge.events
+      .where((event) {
+        if (event is ErrorEvent) throw Exception(event.toString());
+        if (event is EnrollmentFailureEvent) throw Exception(event.error);
+        return event is T;
+      })
+      .whereType<T>()
+      .where(test ?? (_) => true)
+      .first;
 }

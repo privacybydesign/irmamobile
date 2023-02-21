@@ -1,8 +1,4 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class IrmaThemeData {
   static const double _spaceBase = 16.0;
@@ -16,322 +12,267 @@ class IrmaThemeData {
   final double largeSpacing = _spaceBase * 2; // 32
   final double hugeSpacing = _spaceBase * 4; // 64
 
-  // Primary colors
-  final Color primaryBlue = const Color(0xFF004C92);
-  final Color primaryDark = const Color(0xFF15222E);
-  final Color primaryLight = const Color(0xFFF2F5F8);
+  // Main colors
+  final Color primary = const Color(0xFFBA3354);
+  Color get secondary => neutralExtraDark; // Used for buttons and headlines
+  final Color tertiary = const Color(0xFFCFE4EF);
 
-  // Grayscale colors (used for text, background colors, lines and icons)
-  final Color grayscaleWhite = const Color(0xFFFFFFFF);
-  final Color grayscale95 = const Color(0xFFF2F5F8);
-  final Color grayscale90 = const Color(0xFFE8ECF0);
-  final Color grayscale85 = const Color(0xFFE3E9F0);
-  final Color grayscale80 = const Color(0xFFB7C2CC);
-  final Color grayscale60 = const Color(0xFF71808F);
-  final Color grayscale40 = const Color(0xFF3C4B5A);
+  // Background / contrast colors
+  Color get backgroundPrimary => light; //Used on scaffolds
+  final Color backgroundSecondary = const Color(0xFFFAFAFA);
+  Color backgroundTertiary = const Color(0xFFEAF3F9);
 
-  final Color disabled = const Color(0xFFE8ECF0);
+  Color get surfacePrimary => light; // Used on cards etc, to contrast with the background
+  final Color surfaceSecondary = const Color(0xFFEAF3F9); // Used on cards that are active etc.
+  Color surfaceTertiary = const Color(0xffF0DEDE); // Used on cards that expired
 
-  // Supplementary colors (for card backgrounds)
-  final Color cardRed = const Color(0xFFD44454);
-  final Color cardBlue = const Color(0xFF00B1E6);
-  final Color cardOrange = const Color(0xFFFFBB58);
-  final Color cardGreen = const Color(0xFF2BC194);
+// Grey swatch
+  final Color dark = Colors.black;
+  final Color neutralExtraDark = const Color(0xFF484747);
+  final Color neutralDark = const Color(0xFF757375);
+  final Color neutral = const Color(0xFF9F9A9A);
+  final Color neutralLight = const Color(0xFFD7D2CD);
+  final Color neutralExtraLight = const Color(0xFFEAE5E2);
+  final Color light = Colors.white;
 
-  // Support colors (for alerts and feedback on form elements)
-  final Color interactionValid = const Color(0xFF079268);
-  final Color interactionInvalid = const Color(0xFFD44454);
-  final Color interactionAlert = const Color(0xFFF97D08);
-  final Color interactionInformation = const Color(0xFF004C92);
-  final Color interactionInvalidTransparant = const Color(0x22D44454);
-  final Color interactionCompleted = const Color(0xFF8BBEAF);
+  // Communicating colors
+  final Color error = const Color(0xFFBD1919);
+  final Color warning = const Color(0xFFEBA73B);
+  final Color success = const Color(0xFF00973A);
+  final Color link = const Color(0xFF1D4E89);
+  final Color danger = const Color(0xffEABEBE);
 
-  final Color notificationSuccess = const Color(0xFF029B17);
-  final Color notificationSuccessBg = const Color(0xFFAADACE);
-  final Color notificationError = const Color(0xFFC8192C);
-  final Color notificationErrorBg = const Color(0xFFEDB6BF);
-  final Color notificationWarning = const Color(0xFFDB6E07);
-  final Color notificationWarningBg = const Color(0xFFFAD8B6);
-  final Color notificationInfo = const Color(0xFF004C92);
-  final Color notificationInfoBg = const Color(0xFFB1CDE5);
+  //Fonts
+  final String primaryFontFamily = 'Alexandria';
+  final String secondaryFontFamily = 'Open Sans';
 
-  // Support colors (qr scanner)
-  final Color overlayValid = const Color(0xFF007E4C);
-  final Color overlayInvalid = const Color(0xFFC8192C);
+  //TODO: The values below are marked late and have to be initialized in the constructor body.
+  //In the future these values should be phased out and be move into ThemeData.colorScheme.
 
-  // Link colors
-  final Color linkColor = const Color(0xFF004C92);
-  final Color linkVisitedColor = const Color(0xFF71808F);
+  // Spacing etc.
+  late final double screenPadding;
 
-  // Overlay color
-  final Color overlay50 = const Color(0xFF3C4B5A);
+  // Main theme components
+  late final TextTheme textTheme;
+  late final ThemeData themeData;
 
-  // background color
-  final Color backgroundBlue = const Color(0xFFDFE6EE);
-
-  final String fontFamilyKarla = "Karla";
-  final String fontFamilyMontserrat = "Montserrat";
-
-  TextTheme textTheme;
-  TextStyle collapseTextStyle;
-  TextStyle textButtonTextStyle;
-  TextStyle issuerNameTextStyle;
-  TextStyle newCardButtonTextStyle;
-  TextStyle hyperlinkTextStyle;
-  TextStyle hyperlinkVisitedTextStyle;
-  TextStyle boldBody;
-  TextStyle highlightedTextStyle;
-
-  ThemeData themeData;
+  // Other textstyles that cannot be included in TextTheme
+  late final TextStyle textButtonTextStyle;
+  late final TextStyle hyperlinkTextStyle;
+  late final TextStyle boldBody;
+  late final TextStyle highlightedTextStyle;
 
   IrmaThemeData() {
+    //Init color scheme
+    final colorScheme = ColorScheme(
+      brightness: Brightness.light,
+      primary: primary,
+      onPrimary: light,
+      secondary: secondary,
+      onSecondary: light,
+      error: error,
+      onError: light,
+      background: backgroundPrimary,
+      surface: surfacePrimary,
+      onBackground: primary,
+      onSurface: primary,
+    );
+
+    //Init spacing
+    screenPadding = defaultSpacing;
+
+    //Init Text theme
     textTheme = TextTheme(
-      // Headings
-
-      // headline1 is used for extremely large text
       headline1: TextStyle(
-        fontFamily: fontFamilyKarla,
-        fontSize: 18.0,
-        height: 28.0 / 18.0,
-        fontWeight: FontWeight.bold,
-        color: grayscale40,
+        fontFamily: primaryFontFamily,
+        fontSize: 26,
+        height: 36 / 26,
+        fontWeight: FontWeight.w700,
+        color: neutralExtraDark,
       ),
-
-      // headline2 is used for very, very large text
       headline2: TextStyle(
-        fontFamily: fontFamilyKarla,
-        fontSize: 24.0,
-        height: 28.0 / 24.0,
-        fontWeight: FontWeight.bold,
-        color: grayscale40,
+        fontFamily: primaryFontFamily,
+        fontSize: 24,
+        height: 30 / 24,
+        fontWeight: FontWeight.w700,
+        color: neutralExtraDark,
       ),
-
       // headline3 is used for very large text
       headline3: TextStyle(
-        fontFamily: fontFamilyKarla,
-        fontSize: 18.0,
-        height: 24.0 / 18.0,
-        fontWeight: FontWeight.bold,
-        color: grayscale40,
+        fontFamily: primaryFontFamily,
+        fontSize: 18,
+        height: 36 / 18,
+        fontWeight: FontWeight.w600,
+        color: neutralExtraDark,
       ),
-
       // headline4 is used for large text
       headline4: TextStyle(
-        fontFamily: fontFamilyKarla,
+        fontFamily: primaryFontFamily,
         fontSize: 16.0,
-        height: 24.0 / 16.0,
-        fontWeight: FontWeight.bold,
-        color: grayscale40,
+        height: 24 / 16,
+        fontWeight: FontWeight.w600,
+        color: neutralExtraDark,
       ),
-
-      // Paragraph text
-
-      // bodyText1 is used for emphasizing text that would otherwise be body1
-      bodyText1: TextStyle(
-        fontFamily: fontFamilyMontserrat,
-        fontSize: 16.0,
-        height: 24.0 / 16.0,
-        fontWeight: FontWeight.w500, // medium
-        color: primaryDark,
-      ),
-
-      // bodyText2 is the default text style
-      bodyText2: TextStyle(
-        fontFamily: fontFamilyMontserrat,
-        fontSize: 16.0,
-        height: 24.0 / 16.0,
-        fontWeight: FontWeight.normal,
-        color: primaryDark,
-      ),
-
-      // Specific styles
-
       // headline5 is used for large text in dialogs
       headline5: TextStyle(
-        // TODO: Missing in designs
-        fontFamily: fontFamilyKarla,
-        fontSize: 24.0,
-        height: 28.0 / 24.0,
-        fontWeight: FontWeight.bold,
-        color: grayscale40,
+        fontFamily: primaryFontFamily,
+        fontSize: 16.0,
+        height: 24 / 16,
+        fontWeight: FontWeight.w400,
+        color: neutralExtraDark,
       ),
-
       // headline6 is used for the primary text in app bars and dialogs
       headline6: TextStyle(
-        fontFamily: fontFamilyKarla,
-        fontSize: 18.0,
-        height: 28.0 / 18.0,
+        fontSize: 10,
+        height: 16 / 10,
+        fontWeight: FontWeight.w500,
+        color: neutralExtraDark,
+      ),
+      // bodyText1 is used for emphasizing text
+      bodyText1: TextStyle(
+        fontFamily: secondaryFontFamily,
+        fontSize: 16.0,
         fontWeight: FontWeight.bold,
-        color: grayscale40,
+        color: dark,
+      ),
+      // bodyText2 is the default text style
+      bodyText2: TextStyle(
+        fontFamily: secondaryFontFamily,
+        fontSize: 16.0,
+        height: 24.0 / 16.0,
+        fontWeight: FontWeight.w400,
+        color: dark,
+      ),
+      // overline is used for the smallest text
+      overline: TextStyle(
+        fontSize: 12.0,
+        height: 16.0 / 12.0,
+        fontWeight: FontWeight.w600,
+        color: dark,
       ),
 
       // subtitle1 is used for the primary text in lists
       // also used in textfield inputs' text style
       subtitle1: TextStyle(
-        fontFamily: fontFamilyMontserrat,
         fontSize: 16.0,
         height: 22.0 / 18.0,
         fontWeight: FontWeight.normal,
-        color: primaryDark,
+        color: dark,
       ),
 
       // subtitle2 is used for medium emphasis text that's a little smaller than subhead.
       subtitle2: TextStyle(
-        fontFamily: fontFamilyMontserrat,
         fontSize: 16.0,
         height: 22.0 / 16.0,
         fontWeight: FontWeight.w500,
-        color: grayscale40,
+        color: dark,
       ),
 
       // caption is used for auxiliary text associated with images
       caption: TextStyle(
-        fontFamily: fontFamilyMontserrat,
         fontSize: 14.0,
-        height: 20.0 / 14.0,
+        height: 24.0 / 14.0,
         fontWeight: FontWeight.normal,
-        color: primaryDark,
+        color: dark,
       ),
 
-      // button is used for text on RaisedButton and FlatButton
+      // button is used for text on CustomButton, ElevatedButton and TextButton
       button: TextStyle(
-        fontFamily: fontFamilyMontserrat,
-        fontSize: 16.0,
-        height: 19.0 / 16.0,
-        fontWeight: FontWeight.w600,
-        color: Colors.white,
-      ),
-
-      // overline is used for the smallest text
-      overline: TextStyle(
-        fontFamily: fontFamilyMontserrat,
-        fontSize: 12.0,
-        height: 16.0 / 12.0,
-        fontWeight: FontWeight.w600,
-        color: grayscale40,
+        fontFamily: primaryFontFamily,
+        fontSize: 16,
+        height: 24 / 16,
+        fontWeight: FontWeight.w700,
+        color: light,
       ),
     );
 
-    // Additional text styles that are not defined by Material Design
-    issuerNameTextStyle = TextStyle(
-      fontFamily: fontFamilyMontserrat,
-      fontSize: 16.0,
-      height: 19.0 / 16.0,
-      fontWeight: FontWeight.normal,
-      color: Colors.white,
+    //Init Input Decoration Theme
+    final inputDecorationTheme = InputDecorationTheme(
+      labelStyle: textTheme.overline,
+      enabledBorder: const UnderlineInputBorder(
+        borderSide: BorderSide(
+          color: Colors.grey,
+        ),
+      ),
+      focusedBorder: UnderlineInputBorder(
+        borderSide: BorderSide(
+          color: secondary,
+          width: 2.0,
+        ),
+      ),
+      errorBorder: UnderlineInputBorder(
+        borderSide: BorderSide(
+          color: error,
+          width: 2.0,
+        ),
+      ),
+      disabledBorder: const UnderlineInputBorder(
+        borderSide: BorderSide(
+          color: Colors.grey,
+        ),
+      ),
+      errorStyle: textTheme.bodyText2?.copyWith(color: error),
     );
 
-    collapseTextStyle = TextStyle(
-      fontFamily: fontFamilyKarla,
-      fontSize: 18.0,
-      height: 22.0 / 18.0,
-      fontWeight: FontWeight.normal,
-      color: grayscale40,
+    //Init App Bar Theme
+    final appBarTheme = AppBarTheme(
+      elevation: 0,
+      color: backgroundPrimary,
+      iconTheme: IconThemeData(
+        color: dark,
+      ),
+      toolbarTextStyle: textTheme.bodyText2,
+      titleTextStyle: textTheme.headline6,
     );
 
+    //Init extra textstyles
     textButtonTextStyle = TextStyle(
-      fontFamily: fontFamilyMontserrat,
       fontSize: 16.0,
       height: 19.0 / 16.0,
       fontWeight: FontWeight.w600,
-      color: primaryBlue,
+      color: secondary,
     );
-
-    newCardButtonTextStyle = TextStyle(
-      fontFamily: fontFamilyMontserrat,
-      fontSize: 18.0,
-      height: 22.0 / 18.0,
-      fontWeight: FontWeight.w500,
-      color: grayscale40,
-    );
-
     hyperlinkTextStyle = TextStyle(
-      fontFamily: fontFamilyMontserrat,
+      fontFamily: secondaryFontFamily,
       fontSize: 16.0,
       height: 24.0 / 16.0,
-      fontWeight: FontWeight.normal,
-      color: primaryBlue,
+      fontWeight: FontWeight.w700,
+      color: link,
       decoration: TextDecoration.underline,
     );
 
-    hyperlinkVisitedTextStyle = TextStyle(
-      fontFamily: fontFamilyMontserrat,
-      fontSize: 16.0,
-      height: 19.0 / 16.0,
-      fontWeight: FontWeight.normal,
-      color: grayscale60,
-    );
-
     boldBody = TextStyle(
-      fontFamily: fontFamilyMontserrat,
       fontSize: 16.0,
       height: 24.0 / 16.0,
       fontWeight: FontWeight.w600,
-      color: primaryDark,
+      color: dark,
     );
 
     highlightedTextStyle = TextStyle(
-      fontFamily: fontFamilyMontserrat,
       fontSize: 16.0,
       height: 19.0 / 16.0,
       fontWeight: FontWeight.w600,
-      color: primaryBlue,
+      color: primary,
     );
 
-    // Final ThemeData composed of all individual theme components.
+    // Init final ThemeData composed of all theme components.
     themeData = ThemeData(
-        brightness: Brightness.light,
-        primaryColor: primaryBlue,
-        disabledColor: disabled,
-        scaffoldBackgroundColor: primaryLight,
-        fontFamily: fontFamilyKarla,
-        textTheme: textTheme,
-        appBarTheme: AppBarTheme(
-          elevation: 0,
-          color: grayscale85,
-          iconTheme: IconThemeData(
-            color: primaryDark,
-          ),
-          systemOverlayStyle: SystemUiOverlayStyle.dark,
-          toolbarTextStyle: textTheme.bodyText2,
-          titleTextStyle: textTheme.headline6,
-        ),
-        inputDecorationTheme: InputDecorationTheme(
-          labelStyle: textTheme.overline,
-          enabledBorder: UnderlineInputBorder(
-            borderSide: BorderSide(
-              color: grayscale60,
-            ),
-          ),
-          focusedBorder: UnderlineInputBorder(
-            borderSide: BorderSide(
-              color: primaryBlue,
-              width: 2.0,
-            ),
-          ),
-          errorBorder: UnderlineInputBorder(
-            borderSide: BorderSide(
-              color: interactionInvalid,
-              width: 2.0,
-            ),
-          ),
-          disabledBorder: UnderlineInputBorder(
-            borderSide: BorderSide(
-              color: grayscale80,
-            ),
-          ),
-          errorStyle: textTheme.bodyText2.copyWith(color: interactionInvalid),
-        ),
-        colorScheme: ColorScheme.fromSwatch().copyWith(secondary: cardRed));
+      fontFamily: primaryFontFamily,
+      scaffoldBackgroundColor: backgroundPrimary,
+      bottomSheetTheme: const BottomSheetThemeData(backgroundColor: Colors.transparent),
+      colorScheme: colorScheme,
+      textTheme: textTheme,
+      appBarTheme: appBarTheme,
+      inputDecorationTheme: inputDecorationTheme,
+    );
   }
 }
 
 class IrmaTheme extends InheritedWidget {
   final IrmaThemeData data = IrmaThemeData();
-
   // IrmaTheme provides the IRMA ThemeData to descendents. Therefore descendents
   // must be wrapped in a Builder.
-  IrmaTheme({Key key, WidgetBuilder builder})
+  IrmaTheme({Key? key, required WidgetBuilder builder})
       : super(
           key: key,
           child: Builder(builder: builder),
@@ -343,6 +284,6 @@ class IrmaTheme extends InheritedWidget {
   }
 
   static IrmaThemeData of(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<IrmaTheme>().data;
+    return context.dependOnInheritedWidgetOfExactType<IrmaTheme>()!.data;
   }
 }
