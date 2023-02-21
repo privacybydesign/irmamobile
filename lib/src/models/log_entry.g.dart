@@ -12,17 +12,6 @@ LogsEvent _$LogsEventFromJson(Map<String, dynamic> json) {
   );
 }
 
-Map<String, dynamic> _$LogsEventToJson(LogsEvent instance) => <String, dynamic>{
-      'LogEntries': instance.logEntries,
-    };
-
-LoadLogsEvent _$LoadLogsEventFromJson(Map<String, dynamic> json) {
-  return LoadLogsEvent(
-    max: json['Max'] as int,
-    before: json['Before'] as int?,
-  );
-}
-
 Map<String, dynamic> _$LoadLogsEventToJson(LoadLogsEvent instance) => <String, dynamic>{
       'Before': instance.before,
       'Max': instance.max,
@@ -51,24 +40,6 @@ LogEntry _$LogEntryFromJson(Map<String, dynamic> json) {
         json['SignedMessage'] == null ? null : SignedMessage.fromJson(json['SignedMessage'] as Map<String, dynamic>),
   );
 }
-
-Map<String, dynamic> _$LogEntryToJson(LogEntry instance) => <String, dynamic>{
-      'ID': instance.id,
-      'Type': _$LogEntryTypeEnumMap[instance.type],
-      'Time': instance.time.toIso8601String(),
-      'ServerName': instance.serverName,
-      'IssuedCredentials': instance.issuedCredentials,
-      'DisclosedCredentials': instance.disclosedAttributes,
-      'RemovedCredentials': instance.removedCredentials,
-      'SignedMessage': instance.signedMessage,
-    };
-
-const _$LogEntryTypeEnumMap = {
-  LogEntryType.disclosing: 'disclosing',
-  LogEntryType.signing: 'signing',
-  LogEntryType.issuing: 'issuing',
-  LogEntryType.removal: 'removal',
-};
 
 SignedMessage _$SignedMessageFromJson(Map<String, dynamic> json) {
   return SignedMessage(

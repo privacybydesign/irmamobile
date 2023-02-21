@@ -1,92 +1,49 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/authentication_events.dart';
-import 'package:irmamobile/src/models/change_pin_events.dart';
-import 'package:irmamobile/src/screens/change_pin/models/change_pin_event.dart';
-import 'package:irmamobile/src/screens/change_pin/models/change_pin_state.dart';
 
-class ChangePinBloc extends Bloc<Object, ChangePinState> {
-  ChangePinBloc() : super(ChangePinState());
+import '../../../data/irma_repository.dart';
+import '../../../models/change_pin_events.dart';
+import '../../../models/session.dart';
+import 'change_pin_event.dart';
+import 'change_pin_state.dart';
+import 'validation_state.dart';
 
-  ChangePinBloc.test(ChangePinState initialState) : super(initialState);
+class ChangePinBloc extends Bloc<PinEvent, ChangePinState> {
+  final IrmaRepository repo;
+  ChangePinBloc(this.repo) : super(const ChangePinState());
 
   @override
-  Stream<ChangePinState> mapEventToState(Object event) async* {
-    if (event is ChangePinCanceled) {
-      yield ChangePinState();
-    } else if (event is OldPinEntered) {
-      yield state.copyWith(
-        validatingPin: true,
-      );
-
-      final authenticationEvent = await IrmaRepository.get().unlock(event.pin);
-      if (authenticationEvent is AuthenticationSuccessEvent) {
+  Stream<ChangePinState> mapEventToState(PinEvent event) async* {
+    switch (event.type) {
+      case PinEventType.oldPinEntered:
         yield state.copyWith(
-          validatingPin: false,
           oldPin: event.pin,
-          oldPinVerified: ValidationState.valid,
         );
-      } else if (authenticationEvent is AuthenticationFailedEvent) {
+        break;
+      case PinEventType.newPinChosen:
         yield state.copyWith(
-          validatingPin: false,
-          oldPinVerified: ValidationState.invalid,
-          attemptsRemaining: authenticationEvent.remainingAttempts,
-          blockedUntil: DateTime.now().add(Duration(seconds: authenticationEvent.blockedDuration)),
+          newPin: event.pin,
         );
-      } else if (authenticationEvent is AuthenticationErrorEvent) {
-        yield state.copyWith(
-          validatingPin: false,
-          oldPinVerified: ValidationState.error,
-          error: authenticationEvent.error,
-        );
-      } else {
-        throw Exception("Unexpected subtype of AuthenticationResult");
-      }
-    } else if (event is ToggleLongPin) {
-      yield state.copyWith(
-        longPin: !state.longPin,
-        newPin: '',
-        newPinConfirmed: ValidationState.initial,
-      );
-    } else if (event is NewPinChosen) {
-      yield state.copyWith(
-        newPin: event.pin,
-        newPinConfirmed: ValidationState.initial,
-      );
-    } else if (event is NewPinConfirmed) {
-      if (event.pin != state.newPin) {
-        yield state.copyWith(
-          newPinConfirmed: ValidationState.invalid,
-        );
-      } else {
-        yield state.copyWith(
-          updatingPin: true,
-        );
-
-        final changePinEvent = await IrmaRepository.get().changePin(state.oldPin, state.newPin);
+        break;
+      case PinEventType.newPinConfirmed:
+        final changePinEvent = await repo.changePin(state.oldPin, state.newPin);
         if (changePinEvent is ChangePinSuccessEvent) {
           yield state.copyWith(
-            updatingPin: false,
             newPinConfirmed: ValidationState.valid,
           );
         } else if (changePinEvent is ChangePinErrorEvent) {
           yield state.copyWith(
-            updatingPin: false,
             newPinConfirmed: ValidationState.error,
             error: changePinEvent.error,
           );
         } else if (changePinEvent is ChangePinFailedEvent) {
           yield state.copyWith(
-            updatingPin: false,
             newPinConfirmed: ValidationState.error,
-            errorMessage: "Unexpected old pin rejection by server", //TODO: improve error handling
+            error: SessionError(errorType: 'Unexpected Error', info: 'Unexpected old pin rejection by server'),
           );
-        } else {
-          throw Exception("Unexpected subtype of changePinResult");
         }
-      }
+        break;
     }
   }
 }

@@ -2,11 +2,12 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:irmamobile/sentry_dsn.dart';
-import 'package:irmamobile/src/data/irma_preferences.dart';
-import 'package:irmamobile/src/sentry/stub_platform_checker.dart';
 import 'package:package_info/package_info.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+
+import '../../sentry_dsn.dart';
+import '../data/irma_preferences.dart';
+import 'stub_platform_checker.dart';
 
 Future<void> initSentry({required IrmaPreferences preferences}) async {
   if (dsn != '') {
@@ -35,11 +36,14 @@ Future<void> initSentry({required IrmaPreferences preferences}) async {
 }
 
 Future<void> reportError(dynamic error, dynamic stackTrace, {bool userInitiated = false}) async {
-  // Print the exception to the console.
+  // If Sentry is not configured, we report the error to Flutter such that the test framework can detect it.
   if (dsn == '') {
-    // Print the full stacktrace when not provided with dsn
-    debugPrint(error.toString());
-    if (stackTrace != null) debugPrint(stackTrace.toString());
+    final supportsDefaultStackFilter = stackTrace == null || stackTrace is StackTrace;
+    FlutterError.reportError(FlutterErrorDetails(
+      exception: error,
+      stack: supportsDefaultStackFilter ? stackTrace : StackTrace.fromString(stackTrace.toString()),
+      stackFilter: supportsDefaultStackFilter ? FlutterError.defaultStackFilter : (frames) => frames,
+    ));
   } else {
     final enabled = await IrmaPreferences.get().getReportErrors().first;
     // Send the Exception and Stacktrace to Sentry when enabled

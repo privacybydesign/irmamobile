@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
+
+import '../data/irma_repository.dart';
 
 class IrmaRepositoryProvider extends InheritedWidget {
   final IrmaRepository repository;

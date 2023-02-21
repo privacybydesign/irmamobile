@@ -1,6 +1,6 @@
-import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/authentication_events.dart';
-import 'package:irmamobile/src/models/session_events.dart';
+import '../../../data/irma_repository.dart';
+import '../../../models/authentication_events.dart';
+import '../../../models/session_events.dart';
 
 class PinEvent {}
 

@@ -4,7 +4,7 @@ name: Delivery
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, ux-2.0 ]
 
 concurrency: ${{ github.ref }}
 
@@ -61,6 +61,7 @@ jobs:
       - unit-test
       - build-irmagobridge-ios
     environment: ad-hoc-alpha
+    timeout-minutes: 20 # To prevent job runs to hang indefinitely. See comment in ios_build_app lane in the Fastfile.
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
@@ -136,7 +137,9 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: app-alpha-android-${{ matrix.flavor }}-${{ matrix.type }}
-          path: ./fastlane/build/*.apk
+          path: |
+            ./fastlane/build/*.apk
+            ./fastlane/build/*.aab
   bundle-app-alpha:
     runs-on: ubuntu-latest
     needs:
@@ -172,6 +175,7 @@ jobs:
   version-check:
     runs-on: ubuntu-latest
     needs: bundle-app-alpha
+    if: github.ref_name == 'master'
     outputs:
       version-changed: ${{ steps.detection.outcome == 'success' }}
     steps:
@@ -190,6 +194,7 @@ jobs:
     needs: version-check
     if: needs.version-check.outputs.version-changed == 'true'
     environment: app-store-beta
+    timeout-minutes: 20 # To prevent job runs to hang indefinitely. See comment in ios_build_app lane in the Fastfile.
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
@@ -258,7 +263,9 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: app-beta-android
-          path: ./fastlane/build/*.apk
+          path: |
+            ./fastlane/build/*.apk
+            ./fastlane/build/*.aab
   bundle-app-beta:
     runs-on: ubuntu-latest
     needs:

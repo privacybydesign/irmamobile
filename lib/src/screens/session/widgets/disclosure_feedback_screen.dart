@@ -1,10 +1,6 @@
-// This code is not null safe yet.
-// @dart=2.11
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/widgets/action_feedback.dart';
-import 'package:irmamobile/src/widgets/translated_text.dart';
+
+import '../../../widgets/action_feedback.dart';
 
 enum DisclosureFeedbackType {
   success,
@@ -14,20 +10,22 @@ enum DisclosureFeedbackType {
 
 class DisclosureFeedbackScreen extends StatefulWidget {
   static const _translationKeys = {
-    DisclosureFeedbackType.success: "success",
-    DisclosureFeedbackType.canceled: "canceled",
-    DisclosureFeedbackType.notSatisfiable: "notSatisfiable",
+    DisclosureFeedbackType.success: 'success',
+    DisclosureFeedbackType.canceled: 'canceled',
+    DisclosureFeedbackType.notSatisfiable: 'notSatisfiable',
   };
 
   final DisclosureFeedbackType feedbackType;
   final String otherParty;
-  final Function(BuildContext) popToWallet;
+  final Function(BuildContext) onDismiss;
 
-  final String _translationKey;
+  final String? _translationKey;
 
-  DisclosureFeedbackScreen({this.feedbackType, this.otherParty, this.popToWallet, Key key})
-      : _translationKey = _translationKeys[feedbackType],
-        super(key: key);
+  DisclosureFeedbackScreen({
+    required this.feedbackType,
+    required this.otherParty,
+    required this.onDismiss,
+  }) : _translationKey = _translationKeys[feedbackType];
 
   @override
   State<StatefulWidget> createState() {
@@ -38,31 +36,27 @@ class DisclosureFeedbackScreen extends StatefulWidget {
 class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen> with WidgetsBindingObserver {
   @override
   void initState() {
-    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance?.addObserver(this);
     super.initState();
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    WidgetsBinding.instance?.removeObserver(this);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final otherPartyTranslationParam = {'otherParty': widget.otherParty};
+
     return ActionFeedback(
       success: widget.feedbackType == DisclosureFeedbackType.success,
-      title: TranslatedText(
-        "disclosure.feedback.header.${widget._translationKey}",
-        translationParams: {"otherParty": widget.otherParty},
-        style: Theme.of(context).textTheme.headline2,
-      ),
-      explanation: TranslatedText(
-        "disclosure.feedback.text.${widget._translationKey}",
-        translationParams: {"otherParty": widget.otherParty},
-        textAlign: TextAlign.center,
-      ),
-      onDismiss: () => widget.popToWallet(context),
+      titleTranslationKey: 'disclosure.feedback.header.${widget._translationKey}',
+      titleTranslationParams: otherPartyTranslationParam,
+      explanationTranslationKey: 'disclosure.feedback.text.${widget._translationKey}',
+      explanationTranslationParams: otherPartyTranslationParam,
+      onDismiss: () => widget.onDismiss(context),
     );
   }
 
@@ -70,7 +64,7 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen> with
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     // If the app is resumed remove the route with this screen from the stack.
     if (state == AppLifecycleState.resumed) {
-      widget.popToWallet(context);
+      widget.onDismiss(context);
     }
   }
 }

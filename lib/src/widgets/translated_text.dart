@@ -1,29 +1,30 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:flutter_i18n/utils/simple_translator.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:irmamobile/src/widgets/irma_markdown.dart';
+
+import 'irma_markdown.dart';
 
 class TranslatedText extends StatelessWidget {
   // Shared between Text and IrmaMarkdown
   final String _key;
-  final String fallbackKey;
-  final Map<String, String> translationParams;
-  final TextStyle style;
+  final String? fallbackKey;
+  final Map<String, String>? translationParams;
+  final TextStyle? style;
+  final int? maxLines;
 
   // Text only
-  final TextAlign textAlign;
+  final TextAlign? textAlign;
 
   const TranslatedText(
     this._key, {
+    // Translation key
+    Key? key, // Widget key
     this.fallbackKey,
     this.translationParams,
     this.style,
     this.textAlign,
-  });
+    this.maxLines,
+  }) : super(key: key);
 
   Widget _buildMarkdown(String translation, BuildContext context) {
     return IrmaMarkdown(
@@ -39,6 +40,7 @@ class TranslatedText extends StatelessWidget {
       translation,
       style: style,
       textAlign: textAlign,
+      maxLines: maxLines,
     );
   }
 
@@ -53,16 +55,11 @@ class TranslatedText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final flutterI18n = Localizations.of<FlutterI18n>(context, FlutterI18n);
+    final splitKey = _key.split('.');
 
-    // Check if there's a translation with the same key suffixed with _markdown
-    final probeTranslator = SimpleTranslator(flutterI18n.decodedMap, 'dummy', '.');
-    final submap = probeTranslator.calculateSubmap(_key);
-    final lastSubkey = _key.split(probeTranslator.keySeparator).last;
-
-    if (submap.containsKey('${lastSubkey}_markdown')) {
+    if (splitKey.isNotEmpty && splitKey.last.contains('_markdown')) {
       return _buildMarkdown(
-        _translate(context, '${_key}_markdown'),
+        _translate(context, _key),
         context,
       );
     }

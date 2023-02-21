@@ -1,31 +1,27 @@
-// This code is not null safe yet.
-// @dart=2.11
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/irma_themed_button.dart';
+
+import 'irma_themed_button.dart';
 
 class IrmaButton extends StatelessWidget {
   final String label;
-  final VoidCallback onPressed;
-  final VoidCallback onPressedDisabled;
-  final TextStyle textStyle;
-  final IrmaButtonSize size;
+  final VoidCallback? onPressed;
+  final TextStyle? textStyle;
+  final IrmaButtonSize? size;
   final double minWidth;
-  final IconData icon;
-  final Color color;
+  final IconData? icon;
+  final Color? color;
+  final bool isSecondary;
 
   const IrmaButton({
-    Key key,
-    @required this.label,
-    @required this.onPressed,
-    this.onPressedDisabled,
+    Key? key,
+    required this.label,
+    required this.onPressed,
     this.textStyle,
     this.size,
     this.minWidth = 232,
     this.icon,
     this.color,
+    this.isSecondary = false,
   }) : super(key: key);
 
   @override
@@ -33,16 +29,14 @@ class IrmaButton extends StatelessWidget {
     return IrmaThemedButton(
       label: label,
       onPressed: onPressed,
-      onPressedDisabled: onPressedDisabled,
       textStyle: textStyle,
       size: size,
       minWidth: minWidth,
       icon: icon,
-      color: color ?? IrmaTheme.of(context).primaryBlue,
-      disabledColor: IrmaTheme.of(context).disabled,
-      textColor: IrmaTheme.of(context).grayscaleWhite,
+      color: color,
+      isSecondary: isSecondary,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(30.0),
+        borderRadius: BorderRadius.circular(4.0),
       ),
     );
   }

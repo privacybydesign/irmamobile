@@ -1,19 +1,17 @@
-// This code is not null safe yet.
-// @dart=2.11
-
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/widgets/irma_button.dart';
-import 'package:irmamobile/src/widgets/irma_dialog.dart';
-import 'package:irmamobile/src/widgets/irma_themed_button.dart';
+
+import '../irma_button.dart';
+import '../irma_dialog.dart';
+import '../irma_themed_button.dart';
 
 class PinWrongAttemptsDialog extends StatelessWidget {
   final void Function() onClose;
   final int attemptsRemaining;
 
   const PinWrongAttemptsDialog({
-    @required this.attemptsRemaining,
-    this.onClose,
+    required this.attemptsRemaining,
+    required this.onClose,
   });
 
   @override
@@ -23,7 +21,7 @@ class PinWrongAttemptsDialog extends StatelessWidget {
       content: FlutterI18n.plural(context, 'pin_common.invalid_pin.attempts', attemptsRemaining),
       child: IrmaButton(
         size: IrmaButtonSize.small,
-        onPressed: onClose ?? () => Navigator.of(context).pop(),
+        onPressed: onClose,
         label: 'pin_common.invalid_close',
       ),
     );

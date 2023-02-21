@@ -1,5 +1,6 @@
 import 'package:flutter_jailbreak_detection/flutter_jailbreak_detection.dart';
-import 'package:irmamobile/src/data/irma_preferences.dart';
+
+import '../../data/irma_preferences.dart';
 
 abstract class DetectRootedDeviceRepository {
   Stream<bool> hasAcceptedRootedDeviceRisk();

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../theme/theme.dart';
+
 class LoadingIndicator extends StatelessWidget {
   @override
-  Widget build(BuildContext context) => Image.asset(
-        "assets/generic/loading_indicator.webp",
-        width: 120,
-        height: 120,
+  Widget build(BuildContext context) => CircularProgressIndicator(
+        color: IrmaTheme.of(context).secondary,
+        strokeWidth: 3.5,
       );
 }

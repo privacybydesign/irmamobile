@@ -1,8 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/widgets.dart';
-import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'package:irmamobile/src/models/translated_value.dart';
+
+import 'irma_configuration.dart';
+import 'translated_value.dart';
 
 abstract class AttributeValue {
   String? get raw;
@@ -68,6 +69,7 @@ class PhotoValue implements AttributeValue {
     return PhotoValue(
       image: Image.memory(
         const Base64Decoder().convert(textValue.raw),
+        fit: BoxFit.fitWidth,
       ),
       raw: textValue.raw,
     );
@@ -89,15 +91,15 @@ class YesNoValue implements TextValue {
     // but for now we do it here. We have hardcoded strings here because
     // flutter_i18n does not provide access to its strings directly, and we
     // don't have a buildcontext here, so this is the least worst option.
-    if (raw.toLowerCase() == "yes" || raw.toLowerCase() == "ja") {
+    if (raw.toLowerCase() == 'yes' || raw.toLowerCase() == 'ja') {
       return const TranslatedValue({
-        "en": "Yes",
-        "nl": "Ja",
+        'en': 'Yes',
+        'nl': 'Ja',
       });
-    } else if (raw.toLowerCase() == "no" || raw.toLowerCase() == "nee") {
+    } else if (raw.toLowerCase() == 'no' || raw.toLowerCase() == 'nee') {
       return const TranslatedValue({
-        "en": "No",
-        "nl": "Nee",
+        'en': 'No',
+        'nl': 'Nee',
       });
     } else {
       return textValue.translated;

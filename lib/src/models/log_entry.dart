@@ -1,13 +1,14 @@
-import 'package:irmamobile/src/models/attributes.dart';
-import 'package:irmamobile/src/models/credentials.dart';
-import 'package:irmamobile/src/models/event.dart';
-import 'package:irmamobile/src/models/session.dart';
-import 'package:irmamobile/src/models/translated_value.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+import 'attribute.dart';
+import 'credentials.dart';
+import 'event.dart';
+import 'session.dart';
+import 'translated_value.dart';
 
 part 'log_entry.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(createToJson: false)
 class LogsEvent extends Event {
   LogsEvent({required this.logEntries});
 
@@ -17,7 +18,7 @@ class LogsEvent extends Event {
   factory LogsEvent.fromJson(Map<String, dynamic> json) => _$LogsEventFromJson(json);
 }
 
-@JsonSerializable()
+@JsonSerializable(createFactory: false)
 class LoadLogsEvent extends Event {
   LoadLogsEvent({required this.max, this.before});
 
@@ -46,7 +47,7 @@ LogEntryType _toLogEntryType(String type) {
 DateTime _epochSecondsToDateTime(int secondsSinceEpoch) =>
     DateTime.fromMillisecondsSinceEpoch(secondsSinceEpoch * 1000);
 
-@JsonSerializable()
+@JsonSerializable(createToJson: false)
 class LogEntry {
   const LogEntry({
     required this.id,

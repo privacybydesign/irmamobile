@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
-import 'package:irmamobile/src/models/event.dart';
 import 'package:json_annotation/json_annotation.dart';
+
+import 'event.dart';
 
 part 'applifecycle_changed_event.g.dart';
 

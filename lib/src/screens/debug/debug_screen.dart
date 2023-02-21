@@ -3,13 +3,14 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/models/credential_events.dart';
-import 'package:irmamobile/src/models/irma_configuration.dart';
-import 'package:irmamobile/src/models/session.dart';
-import 'package:irmamobile/src/screens/debug/portrait_photo_mock.dart';
-import 'package:irmamobile/src/util/handle_pointer.dart';
-import 'package:irmamobile/src/widgets/irma_app_bar.dart';
-import 'package:irmamobile/src/widgets/irma_repository_provider.dart';
+
+import '../../models/credential_events.dart';
+import '../../models/irma_configuration.dart';
+import '../../models/session.dart';
+import '../../util/handle_pointer.dart';
+import '../../widgets/irma_app_bar.dart';
+import '../../widgets/irma_repository_provider.dart';
+import 'portrait_photo_mock.dart';
 
 // ignore: avoid_classes_with_only_static_members
 class DemoSessionHelper {
@@ -22,13 +23,13 @@ class DemoSessionHelper {
         "disclose": [
           [
             [
+              "irma-demo.gemeente.personalData.fullname",
+              "irma-demo.gemeente.personalData.initials"
+            ],
+            [
               "irma-demo.digidproef.personalData.fullname",
               "irma-demo.digidproef.personalData.initials",
               "irma-demo.digidproef.personalData.photo"
-            ],
-            [
-              "irma-demo.gemeente.personalData.fullname",
-              "irma-demo.gemeente.personalData.initials"
             ]
           ]
         ],
@@ -118,15 +119,19 @@ class DemoSessionHelper {
   }
 }
 
-class DebugScreen extends StatelessWidget {
+class DebugScreen extends StatefulWidget {
   static const routeName = '/debug';
+
+  @override
+  State<StatefulWidget> createState() => _DebugScreenState();
+}
+
+class _DebugScreenState extends State<DebugScreen> {
+  final _controller = TextEditingController(text: DemoSessionHelper.disclosureSessionRequest());
 
   void _onClose(BuildContext context) {
     Navigator.of(context).pop();
   }
-
-  Future<void> _startDisclosureSession(BuildContext context) =>
-      IrmaRepositoryProvider.of(context).startTestSession(DemoSessionHelper.disclosureSessionRequest());
 
   Future<void> _getCards(BuildContext context, Future<String> issuanceRequest) async =>
       IrmaRepositoryProvider.of(context).startTestSession(await issuanceRequest);
@@ -150,7 +155,7 @@ class DebugScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: IrmaAppBar(
-        title: const Text('Debugger'),
+        titleTranslationKey: 'Debugger',
         leadingAction: () => _onClose(context),
         leadingIcon: Icon(Icons.arrow_back, semanticLabel: FlutterI18n.translate(context, 'accessibility.back')),
         actions: <Widget>[
@@ -160,10 +165,6 @@ class DebugScreen extends StatelessWidget {
               context,
               DemoSessionHelper.digidProefIssuanceRequest(irmaConfigurationFuture),
             ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.share),
-            onPressed: () => _startDisclosureSession(context),
           ),
           IconButton(
             icon: const Icon(Icons.exposure_plus_2),
@@ -183,10 +184,17 @@ class DebugScreen extends StatelessWidget {
             icon: const Icon(Icons.delete),
             onPressed: () => _deleteAllDeletableCards(context),
           ),
+          IconButton(
+            icon: const Icon(Icons.send),
+            onPressed: () => IrmaRepositoryProvider.of(context).startTestSession(_controller.text),
+          ),
         ],
       ),
-      body: Stack(
-        children: <Widget>[Container()],
+      body: TextField(
+        controller: _controller,
+        keyboardType: TextInputType.multiline,
+        maxLines: null,
+        expands: true,
       ),
     );
   }

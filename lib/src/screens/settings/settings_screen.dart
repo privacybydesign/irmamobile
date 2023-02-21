@@ -1,177 +1,177 @@
-// This code is not null safe yet.
-// @dart=2.11
-
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
-import 'package:irmamobile/src/data/irma_preferences.dart';
-import 'package:irmamobile/src/data/irma_repository.dart';
-import 'package:irmamobile/src/models/clear_all_data_event.dart';
-import 'package:irmamobile/src/screens/change_pin/change_pin_screen.dart';
-import 'package:irmamobile/src/screens/settings/widgets/settings_header.dart';
-import 'package:irmamobile/src/theme/irma_icons.dart';
-import 'package:irmamobile/src/theme/theme.dart';
-import 'package:irmamobile/src/widgets/irma_app_bar.dart';
-import 'package:irmamobile/src/widgets/irma_button.dart';
-import 'package:irmamobile/src/widgets/irma_dialog.dart';
-import 'package:irmamobile/src/widgets/irma_text_button.dart';
-import 'package:irmamobile/src/widgets/irma_themed_button.dart';
 
-class SettingsScreen extends StatelessWidget {
-  static const routeName = "/settings";
+import '../../models/clear_all_data_event.dart';
+import '../../theme/theme.dart';
+import '../../widgets/irma_app_bar.dart';
+import '../../widgets/irma_repository_provider.dart';
+import '../../widgets/translated_text.dart';
+import '../change_pin/change_pin_screen.dart';
+import '../more/widgets/tiles.dart';
+import '../more/widgets/tiles_card.dart';
+import 'widgets/delete_data_confirmation_dialog.dart';
+
+class SettingsScreen extends StatefulWidget {
+  static const routeName = '/settings';
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  bool showDeveloperModeToggle = false;
+
+  @override
+  void initState() {
+    super.initState();
+    //Delay to make build context available
+    Future.delayed(Duration.zero).then((_) async {
+      // If developer mode is initially true the developer mode toggle
+      // should be visible for the lifecycle of this widget.
+      final inDeveloperMode = await IrmaRepositoryProvider.of(context).getDeveloperMode().first;
+
+      if (inDeveloperMode) {
+        setState(() {
+          showDeveloperModeToggle = true;
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final irmaPrefs = IrmaPreferences.get();
-    final irmaRepo = IrmaRepository.get();
+    final theme = IrmaTheme.of(context);
+    final repo = IrmaRepositoryProvider.of(context);
+
+    Widget _buildHeaderText(String translationKey) => Padding(
+          padding: EdgeInsets.only(bottom: theme.defaultSpacing),
+          child: Semantics(
+            header: true,
+            child: TranslatedText(
+              translationKey,
+              style: theme.textTheme.headline4,
+            ),
+          ),
+        );
+
+    Widget _buildExplanationText(String translationKey) => Padding(
+          padding: EdgeInsets.symmetric(
+            vertical: theme.smallSpacing,
+            horizontal: theme.defaultSpacing,
+          ),
+          child: TranslatedText(
+            translationKey,
+            style: theme.textTheme.bodyText2!.copyWith(
+              fontSize: 14,
+              color: theme.neutral,
+            ),
+          ),
+        );
+
+    final spacerWidget = SizedBox(
+      height: theme.defaultSpacing,
+    );
 
     return Scaffold(
-      appBar: IrmaAppBar(
-        title: Text(FlutterI18n.translate(context, 'settings.title')),
+      backgroundColor: theme.backgroundSecondary,
+      appBar: const IrmaAppBar(
+        titleTranslationKey: 'settings.title',
       ),
-      body: Container(
-        padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).tinySpacing),
-        color: Theme.of(context).canvasColor,
-        child: ListView(children: <Widget>[
-          SizedBox(height: IrmaTheme.of(context).largeSpacing),
-          StreamBuilder(
-            stream: irmaPrefs.getStartQRScan(),
-            builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-              return SwitchListTile.adaptive(
-                title: Text(
-                  FlutterI18n.translate(context, 'settings.start_qr'),
-                  style: IrmaTheme.of(context).textTheme.bodyText2,
-                ),
-                activeColor: IrmaTheme.of(context).interactionValid,
-                value: snapshot.hasData && snapshot.data,
-                onChanged: irmaPrefs.setStartQRScan,
-                secondary: Icon(IrmaIcons.scanQrcode, color: IrmaTheme.of(context).textTheme.bodyText2.color),
-              );
-            },
-          ),
-          ListTile(
-            onTap: () {
-              Navigator.of(context).pushNamed(ChangePinScreen.routeName);
-            },
-            title: Text(
-              FlutterI18n.translate(context, 'settings.change_pin'),
-              style: IrmaTheme.of(context).textTheme.bodyText2,
-            ),
-            leading: Icon(IrmaIcons.edit, color: IrmaTheme.of(context).textTheme.bodyText2.color),
-            trailing: Icon(IrmaIcons.chevronRight, color: IrmaTheme.of(context).textTheme.bodyText2.color),
-          ),
-          const Divider(),
-          SettingsHeader(
-            headerText: FlutterI18n.translate(context, 'settings.advanced.header'),
-          ),
-          StreamBuilder(
-            stream: irmaPrefs.getReportErrors(),
-            builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-              return SwitchListTile.adaptive(
-                title: Text(
-                  FlutterI18n.translate(context, 'settings.advanced.report_errors'),
-                  style: IrmaTheme.of(context).textTheme.bodyText2,
-                ),
-                activeColor: IrmaTheme.of(context).interactionValid,
-                value: snapshot.data != null && snapshot.data,
-                onChanged: irmaPrefs.setReportErrors,
-                secondary: Icon(IrmaIcons.invalid, color: IrmaTheme.of(context).textTheme.bodyText2.color),
-              );
-            },
-          ),
-          ListTile(
-            title: Text(
-              FlutterI18n.translate(context, 'settings.advanced.delete'),
-              style: IrmaTheme.of(context).textTheme.bodyText2,
-            ),
-            onTap: () {
-              openWalletResetDialog(context);
-            },
-            leading: Icon(IrmaIcons.delete, color: IrmaTheme.of(context).textTheme.bodyText2.color),
-          ),
-          if (Platform.isAndroid)
-            StreamBuilder(
-              stream: irmaPrefs.getScreenshotsEnabled(),
-              builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-                return SwitchListTile.adaptive(
-                  title: Text(
-                    FlutterI18n.translate(context, 'settings.advanced.enable_screenshots'),
-                    style: IrmaTheme.of(context).textTheme.bodyText2,
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(
+          theme.defaultSpacing,
+        ),
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TilesCard(
+                children: [
+                  ToggleTile(
+                    key: const Key('qr_toggle'),
+                    labelTranslationKey: 'settings.start_qr',
+                    onChanged: repo.preferences.setStartQRScan,
+                    stream: repo.preferences.getStartQRScan(),
                   ),
-                  subtitle: Text(
-                    FlutterI18n.translate(context, 'settings.advanced.enable_screenshots_note'),
-                    style: IrmaTheme.of(context).textTheme.caption.copyWith(color: IrmaTheme.of(context).grayscale40),
+                ],
+              ),
+              _buildExplanationText('settings.start_qr_explanation'),
+              spacerWidget,
+              TilesCard(
+                children: [
+                  ToggleTile(
+                    key: const Key('report_toggle'),
+                    labelTranslationKey: 'settings.report_errors',
+                    onChanged: repo.preferences.setReportErrors,
+                    stream: repo.preferences.getReportErrors(),
                   ),
-                  activeColor: IrmaTheme.of(context).interactionValid,
-                  value: snapshot.data != null && snapshot.data,
-                  onChanged: irmaPrefs.setScreenshotsEnabled,
-                  secondary: Icon(IrmaIcons.phone, color: IrmaTheme.of(context).textTheme.bodyText2.color),
-                );
-              },
-            ),
-          StreamBuilder(
-            stream: irmaPrefs.getDeveloperModeVisible(),
-            builder: (BuildContext context, AsyncSnapshot<bool> visible) {
-              return !visible.hasData || !visible.data
-                  ? Container()
-                  : StreamBuilder(
-                      stream: irmaRepo.getDeveloperMode(),
-                      builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-                        return SwitchListTile.adaptive(
-                          title: Text(
-                            FlutterI18n.translate(context, 'settings.advanced.developer_mode'),
-                            style: IrmaTheme.of(context).textTheme.bodyText2,
-                          ),
-                          activeColor: IrmaTheme.of(context).interactionValid,
-                          value: snapshot.data != null && snapshot.data,
-                          onChanged: (enabled) => irmaRepo.setDeveloperMode(enabled),
-                          secondary: Icon(IrmaIcons.settings, color: IrmaTheme.of(context).textTheme.bodyText2.color),
-                        );
-                      },
-                    );
-            },
-          )
-        ]),
+                ],
+              ),
+              _buildExplanationText('settings.report_errors_explanation'),
+              if (Platform.isAndroid) ...[
+                spacerWidget,
+                TilesCard(
+                  children: [
+                    ToggleTile(
+                      key: const Key('screenshot_toggle'),
+                      labelTranslationKey: 'settings.enable_screenshots',
+                      onChanged: repo.preferences.setScreenshotsEnabled,
+                      stream: repo.preferences.getScreenshotsEnabled(),
+                    ),
+                  ],
+                ),
+                _buildExplanationText('settings.enable_screenshots_explanation'),
+                spacerWidget,
+              ],
+              if (showDeveloperModeToggle)
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
+                  child: TilesCard(
+                    children: [
+                      ToggleTile(
+                        key: const Key('dev_mode_toggle'),
+                        labelTranslationKey: 'settings.developer_mode',
+                        onChanged: repo.setDeveloperMode,
+                        stream: repo.getDeveloperMode(),
+                      ),
+                    ],
+                  ),
+                ),
+              _buildHeaderText('settings.other'),
+              TilesCard(
+                children: [
+                  const InternalLinkTile(
+                    key: Key('change_pin_link'),
+                    labelTranslationKey: 'settings.change_pin',
+                    routeName: ChangePinScreen.routeName,
+                  ),
+                  Tile(
+                    key: const Key('delete_link'),
+                    labelTranslationKey: 'settings.delete',
+                    onTap: () => showConfirmDeleteDialog(context),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 }
 
-// openWalletResetDialog opens a dialog which gives the user the possiblity to
-// reset all the data. This function is public and is used in at least one other
-// location (pin forgotten / reset).
-Future<void> openWalletResetDialog(BuildContext context) async {
-  await showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (BuildContext context) => IrmaDialog(
-      title: FlutterI18n.translate(context, 'settings.advanced.delete_title'),
-      content: FlutterI18n.translate(context, 'settings.advanced.delete_content'),
-      child: Wrap(
-        direction: Axis.horizontal,
-        verticalDirection: VerticalDirection.up,
-        alignment: WrapAlignment.spaceEvenly,
-        children: <Widget>[
-          IrmaTextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            minWidth: 0.0,
-            label: 'settings.advanced.delete_deny',
-          ),
-          IrmaButton(
-            size: IrmaButtonSize.small,
-            minWidth: 0.0,
-            onPressed: () {
-              IrmaRepository.get().bridgedDispatch(
-                ClearAllDataEvent(),
-              );
-            },
-            label: 'settings.advanced.delete_confirm',
-          ),
-        ],
-      ),
-    ),
-  );
+Future<void> showConfirmDeleteDialog(BuildContext context) async {
+  final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => DeleteDataConfirmationDialog(),
+      ) ??
+      false;
+
+  if (confirmed) {
+    IrmaRepositoryProvider.of(context).bridgedDispatch(
+      ClearAllDataEvent(),
+    );
+  }
 }

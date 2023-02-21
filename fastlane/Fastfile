@@ -7,15 +7,13 @@ end
 lane :lint do
   Dir.chdir("..") do
     sh("flutter", "format", "--line-length", "120", "--set-exit-if-changed", "lib/", "test/", "integration_test/")
-    # TODO: Remove --no-fatal-warnings option when all warnings are resolved.
-    sh("flutter", "analyze", "--no-fatal-infos", "--no-fatal-warnings")
+    sh("flutter", "analyze", "--no-fatal-infos")
   end
 end
 
 lane :unit_test do
   Dir.chdir("..") do
-    # TODO: remove --no-sound-null-safety option when all unit tests use null-safely
-    sh("flutter", "test", "--no-sound-null-safety")
+    sh("flutter", "test")
   end
 end
 
@@ -120,7 +118,8 @@ lane :ios_build do |options|
     sentry_dsn: options[:sentry_dsn],
     certificate_path: options[:certificate_path],
     certificate_password: options[:certificate_password],
-    provisioning_profile_path: options[:provisioning_profile_path]
+    provisioning_profile_path: options[:provisioning_profile_path],
+    code_signing_identity: options[:code_signing_identity]
   )
 end
 
@@ -139,11 +138,11 @@ lane :ios_build_app do |options|
   # For now, we assume that alpha builds are meant for ad hoc distribution and beta builds for app store distribution.
   case options[:flavor]
   when "alpha"
-    display_name = "IRMA 2020"
+    display_name = "Yivi 2023"
     app_identifier = "foundation.privacybydesign.irmamob.alpha"
     export_method = "ad-hoc"
   when "beta"
-    display_name = "IRMA"
+    display_name = "Yivi"
     app_identifier = "foundation.privacybydesign.irmamob"
     export_method = "app-store"
   else
@@ -167,40 +166,17 @@ lane :ios_build_app do |options|
     version: commit[:commit_hash]
   )
 
-  # When a certificate path is given, we ensure it is properly installed.
-  if options[:certificate_path]
-    keychain_path = File.absolute_path("profiles/apple_distribution.keychain")
-    certificate_password = options[:certificate_password] || ""
-    create_keychain(
-      path: keychain_path,
-      password: certificate_password,
-      unlock: true,
-      timeout: 600
-    )
-    import_certificate(
-      certificate_path: File.absolute_path(options[:certificate_path]),
-      certificate_password: certificate_password,
-      keychain_path: keychain_path,
-      keychain_password: certificate_password
-    )
-  end
-
-  # When a provisioning profile is given, we ensure it is installed and selected in the project.
-  # Otherwise, we use the profile that is currently selected in XCode.
-  if options[:provisioning_profile_path]
-    provisioning_profile_path = File.absolute_path(options[:provisioning_profile_path])
-    install_provisioning_profile(
-      path: provisioning_profile_path
-    )
-    update_project_provisioning(
-      xcodeproj: "ios/Runner.xcodeproj",
-      profile: provisioning_profile_path
-    )
-  end
+  set_provisioning_profile(
+    provisioning_profile_path: options[:provisioning_profile_path],
+    certificate_path: options[:certificate_path],
+    certificate_password: options[:certificate_password],
+    code_signing_identity: options[:code_signing_identity]
+  )
 
   # The 'flutter build ipa' command does not support changing the export method in Flutter 2.
   # Therefore, we use 'flutter build ios' for now with the --no-codesign option
   # and then we use Fastlane's build_ios_app action to sign and export the build.
+  # This work-around causes the lane to get stuck indefinitely sometimes.
   Dir.chdir("..") do
     sh("flutter", "build", "ios", "--release", "--no-codesign")
   end
@@ -213,6 +189,41 @@ lane :ios_build_app do |options|
       output_name: "app-#{options[:flavor]}-ios-#{export_method}.ipa",
       export_method: export_method
     )
+  end
+end
+
+lane :ios_build_integration_test do |options|
+  update_schemes()
+  set_provisioning_profile(
+    provisioning_profile_path: options[:provisioning_profile_path],
+    certificate_path: options[:certificate_path],
+    certificate_password: options[:certificate_password],
+    code_signing_identity: options[:code_signing_identity]
+  )
+  Dir.chdir("..") do
+    sh(
+      "flutter", "build", "ios",
+      "--release",
+      "./integration_test/test_all.dart"
+    )
+    Dir.chdir("./ios") do
+      sh(
+        "xcodebuild",
+        "-workspace", "Runner.xcworkspace",
+        "-scheme", "Runner",
+        "-config", "Flutter/Release.xcconfig",
+        "-derivedDataPath", "../build/ios_integ",
+        "-sdk", "iphoneos",
+        "build-for-testing",
+      )
+    end
+    Dir.chdir("./build/ios_integ/Build/Products") do
+      # XCode does not clean left-over build artifacts created by earlier XCode versions.
+      # Therefore, we ensure only the xctestrun file for the latest iOS SDK is included.
+      test_run_name = sh("ls -r1 *.xctestrun | head -n 1")
+      sh("rm -f ../../../../fastlane/build/ios_tests.zip")
+      sh("zip -r ../../../../fastlane/build/ios_tests.zip Release-iphoneos #{test_run_name}")
+    end
   end
 end
 
@@ -245,4 +256,39 @@ private_lane :write_sentrydata do |options|
       :version => options[:version]
     }
   )
+end
+
+private_lane :set_provisioning_profile do |options|
+  # When a certificate path is given, we ensure it is properly installed.
+  if options[:certificate_path]
+    keychain_path = File.absolute_path("profiles/fastlane.keychain")
+    certificate_password = options[:certificate_password] || ""
+    create_keychain(
+      path: keychain_path,
+      password: certificate_password,
+      unlock: true,
+      timeout: 600
+    )
+    import_certificate(
+      certificate_path: File.absolute_path(options[:certificate_path]),
+      certificate_password: certificate_password,
+      keychain_path: keychain_path,
+      keychain_password: certificate_password
+    )
+  end
+
+  # When a provisioning profile is given, we ensure it is installed and selected in the project.
+  # Otherwise, we use the profile that is currently selected in XCode.
+  if options[:provisioning_profile_path]
+    provisioning_profile_path = File.absolute_path(options[:provisioning_profile_path])
+    install_provisioning_profile(
+      path: provisioning_profile_path
+    )
+    update_project_provisioning(
+      xcodeproj: "ios/Runner.xcodeproj",
+      profile: provisioning_profile_path,
+      target_filter: "^Runner$",
+      code_signing_identity: options[:code_signing_identity] || "iPhone Distribution"
+    )
+  end
 end

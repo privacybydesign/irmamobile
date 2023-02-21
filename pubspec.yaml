@@ -1,6 +1,8 @@
 name: irmamobile
 description: IRMA Authentication
-version: 6.4.0+4194453
+
+# A build number cannot be reused once a build is in use on Android.
+version: 7.0.0+4194454
 
 environment:
   sdk: ">=2.13.0 <3.0.0"
@@ -17,18 +19,17 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.3
   flutter_svg: ^0.22.0
-  flutter_i18n: ^0.30.0
+  flutter_i18n: ^0.32.3
   flutter_bloc: ^7.2.0
   equatable: ^2.0.3
-
   email_validator: ^2.0.1
   url_launcher: ^6.0.10
   json_annotation: ^4.0.1
   rxdart: ^0.27.2
   package_info: ^2.0.2
   collection: ^1.15.0
-  qr_code_scanner: ^0.6.1
-  font_awesome_flutter: ^9.1.0 # TODO remove once this package is no longer used
+  mobile_scanner: ^1.1.2
+  native_device_orientation: ^1.0.0 # TODO: Remove this package once mobile_scanner supports landscape
   share: ^2.0.4
   intl: ^0.17.0
   flutter_markdown: ^0.6.6
@@ -39,16 +40,10 @@ dependencies:
   flutter_jailbreak_detection: ^1.10.0
   visibility_detector: ^0.2.2
   quiver: ^3.0.1
-  flutter_privacy_screen:
-    # Remove link to fork when change is merged and released.
-    # https://github.com/jeroentrappers/flutter_privacy_screen/pull/2
-    git: https://github.com/ivard/flutter_privacy_screen.git
+  flutter_privacy_screen: 1.3.0
+  timeline_tile: ^2.0.0
+  sliver_tools: ^0.2.7
   lottie: ^1.4.2
-
-flutter_native_splash:
-  image: assets/splash/startup.png
-  color: "F2F5F8"
-  android_disable_fullscreen: true
 
 dev_dependencies:
   flutter_test:
@@ -56,10 +51,22 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   json_serializable: ^4.1.4
-  lint: ^1.6.0
+  flutter_lints: ^1.0.4
   flutter_native_splash: ^1.2.1
   build_runner: ^2.1.2
+  flutter_launcher_icons: ^0.9.0
 
+flutter_native_splash:
+  image: assets/non-free/logo_payoff.png
+  color: "F7F7F7"
+  android_disable_fullscreen: true
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/non-free/app_icon.png"
+  adaptive_icon_foreground: "assets/non-free/app_icon_foreground.png"
+  adaptive_icon_background: "#FFFFFF"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -75,54 +82,56 @@ flutter:
   assets:
     - assets/
     - assets/locales/
+    - assets/arrow_back/
     - assets/enrollment/
-    - assets/history/
-    - assets/wallet/
-    - assets/generic/
     - assets/error/
     - assets/help/
+    - assets/help/mobile_login/
+    - assets/help/computer_login/
     - assets/reset/
     - assets/non-free/
     - assets/disclosure/
-    - assets/splash/
-    - assets/rooted_warning/
+    - assets/ui/
 
   fonts:
-    - family: Karla
+    - family: Alexandria
       fonts:
-        - asset: fonts/karla/Karla-Regular.ttf
-        - asset: fonts/karla/Karla-RegularItalic.ttf
-          style: italic
-        - asset: fonts/karla/Karla-Bold.ttf
-          weight: 700
-        - asset: fonts/karla/Karla-BoldItalic.ttf
-          style: italic
-          weight: 700
-    - family: Montserrat
+      - asset: fonts/alexandria/Alexandria-Thin.ttf
+        weight: 100
+      - asset: fonts/alexandria/Alexandria-ExtraLight.ttf
+        weight: 200
+      - asset: fonts/alexandria/Alexandria-Light.ttf
+        weight: 300
+      - asset: fonts/alexandria/Alexandria-Regular.ttf
+        weight: 400
+      - asset: fonts/alexandria/Alexandria-Medium.ttf
+        weight: 500
+      - asset: fonts/alexandria/Alexandria-SemiBold.ttf
+        weight: 600
+      - asset: fonts/alexandria/Alexandria-Bold.ttf
+        weight: 700
+      - asset: fonts/alexandria/Alexandria-ExtraBold.ttf
+        weight: 800
+      - asset: fonts/alexandria/Alexandria-Black.ttf
+        weight: 900
+    - family: Open Sans
       fonts:
-        - asset: fonts/montserrat/Montserrat-Regular.ttf
-          weight: 400
-        - asset: fonts/montserrat/Montserrat-RegularItalic.ttf
-          weight: 400
-          style: italic
-        - asset: fonts/montserrat/Montserrat-Medium.ttf
-          weight: 500
-        - asset: fonts/montserrat/Montserrat-MediumItalic.ttf
-          weight: 500
-          style: italic
-        - asset: fonts/montserrat/Montserrat-SemiBold.ttf
-          weight: 600
-        - asset: fonts/montserrat/Montserrat-SemiBoldItalic.ttf
-          weight: 600
-          style: italic
-        - asset: fonts/montserrat/Montserrat-Bold.ttf
-          weight: 700
-        - asset: fonts/montserrat/Montserrat-BoldItalic.ttf
-          weight: 700
-          style: italic
+      - asset: fonts/open-sans/OpenSans-Light.ttf
+        weight: 300
+      - asset: fonts/open-sans/OpenSans-Regular.ttf
+        weight: 400
+      - asset: fonts/open-sans/OpenSans-Medium.ttf
+        weight: 500
+      - asset: fonts/open-sans/OpenSans-SemiBold.ttf
+        weight: 600
+      - asset: fonts/open-sans/OpenSans-Bold.ttf
+        weight: 700
+      - asset: fonts/open-sans/OpenSans-ExtraBold.ttf
+        weight: 800
     - family: IrmaIcons
       fonts:
         - asset: fonts/irma-icons/IrmaIcons.ttf
+
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
   # An image asset can refer to one or more resolution-specific "variants", see
