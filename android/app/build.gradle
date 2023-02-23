@@ -25,7 +25,7 @@ apply plugin: 'com.android.application'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
-    compileSdkVersion 32
+    compileSdkVersion 33
 
     lintOptions {
         disable 'InvalidPackage'
@@ -52,29 +52,43 @@ android {
         }
     }
 
-    buildTypes {
-        release {
-            // Sign here with dummy credentials, fastlane will do the actual
-            // signing using a resign
-            signingConfig signingConfigs.debug
-        }
-    }
-
-    // We use the React Native build numbering (with base 0x100000 and different multipliers per target platform)
-    android.applicationVariants.all { variant ->
-        variant.outputs.each { output ->
-            def versionCodes = ["armeabi-v7a": 1, "x86": 2, "arm64-v8a": 3, "x86_64": 4]
-            def abi = output.getFilter(com.android.build.OutputFile.ABI)
-            if (abi != null) {  // null for the universal-debug and universal-release variants
-                output.versionCodeOverride = versionCodes.get(abi) * 0x100000 + defaultConfig.versionCode
+    signingConfigs {
+        if (project.hasProperty("keyStoreFile")) {
+            release {
+                storeFile file(project.property("keyStoreFile"))
+                storePassword project.property("keyStorePassword")
+                keyAlias project.property("keyAlias")
+                keyPassword project.property("keyPassword")
             }
         }
     }
 
-    // We also include the universal APK for ad-hoc app test distribution.
-    splits {
-        abi {
-            universalApk true
+    buildTypes {
+        release {
+            if (project.hasProperty("keyStoreFile")) {
+                signingConfig signingConfigs.release
+            } else {
+                // For testing purposes we sign with dummy credentials if no key properties are given.
+                signingConfig signingConfigs.debug
+            }
+        }
+    }
+
+    bundle {
+        // Store archive and code transparency cannot be combined yet.
+        // https://stackoverflow.com/questions/74275816/code-verification-error-when-uploading-aab-files-added-after-transparency-meta
+        storeArchive {
+            enable = false
+        }
+        if (project.hasProperty("keyStoreFile")) {
+            codeTransparency {
+                signing {
+                    storeFile file(project.property("keyStoreFile"))
+                    storePassword project.property("keyStorePassword")
+                    keyAlias project.property("keyAlias")
+                    keyPassword project.property("keyPassword")
+                }
+            }
         }
     }
 }

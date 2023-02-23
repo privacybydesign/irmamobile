@@ -95,6 +95,24 @@ Below we describe how you can (re)new ad-hoc provisioning profiles.
     be downloaded and installed again on all relevant places. When you use the provisioning profile in CI platforms,
     then you should update the corresponding secret in your CI's secret vault.
 
+# Android signing/upload keys
+The artifacts produced by the `android_build_apk` and the `android_build_appbundle` actions need to be signed in order
+to distribute them. For the Google Play Store, you need an app bundle signed with the right upload key.
+The corresponding certificate needs to be registered with Google. This upload key is also used as signing key for
+Android Code Transparency. For ad-hoc APKs, artifacts are signed using regular APK signing.
+The `android_build_apk` and the `android_build_appbundle` actions have built-in support for signing.
+The key should be given as Java Keystore and can be passed using the `keystore_path`, `key_alias`, `keystore_password`
+and `key_password` parameters.
+
+Below we describe how you can generate a Java Keystore for signing.
+
+ 1. Specify a key name, i.e. `KEY_ALIAS=upload-key`
+ 2. Run `keytool -genkey -alias $KEY_ALIAS -keyalg RSA -keystore $KEY_ALIAS.jks -keysize 4096 -validity 10000`
+ 3. If you need to register the key as upload key to Google Play, you can generate the certificate in the following way:
+    `keytool -export -rfc -keystore $KEY_ALIAS.jks -alias $KEY_ALIAS -file $KEY_ALIAS.pem`
+ 4. In case you need to upload the assets to a secret vault, then you need to encode the files with base64,
+    i.e. `cat $KEY_ALIAS.jks | base64 > $KEY_ALIAS.jks.base64`
+
 # Available Actions
 
 ### lint
@@ -113,22 +131,21 @@ Checks the code quality of the project.
 
 Checks whether all unit tests pass.
 
-### android_resign
-
-```sh
-[bundle exec] fastlane android_resign flavor:<VALUE> keystore_path:<VALUE> key_alias:<VALUE> keystore_password:<VALUE> key_password:<VALUE>
-```
-
-Resigns the APKs in the `build` directory (so `fastlane/build` from the repository's root) for the requested flavor.
-
 ### android_build
 
 ```sh
 [bundle exec] fastlane android_build flavor:<VALUE> sentry_dsn:<VALUE>
 ```
 
-Builds the Android APKs for the requested flavor. The APKs are split on target platform and a universal build is included.
-The unsigned Android APKs are written to the `build` directory (so `fastlane/build` from the repository's root).
+Builds the Android AAB for the requested flavor.
+The AAB is written to the `build` directory (so `fastlane/build` from the repository's root).
+
+Optionally, you can specify the key properties of the upload key that should be used to sign the build.
+This key is also used to sign the app bundle's code transparency file.
+
+```sh
+[bundle exec] fastlane android_build flavor:<VALUE> sentry_dsn:<VALUE> keystore_path:<VALUE> key_alias:<VALUE> keystore_password:<VALUE> key_password:<VALUE>
+```
 
 The `flavor` parameter accepts the values `alpha` or `beta`.
 
@@ -140,15 +157,42 @@ The `flavor` parameter accepts the values `alpha` or `beta`.
 
 Builds the irmagobridge for Android.
 
-### android_build_app
+### android_build_apk
 
 ```sh
-[bundle exec] fastlane android_build_app flavor:<VALUE> sentry_dsn:<VALUE>
+[bundle exec] fastlane android_build_apk flavor:<VALUE> sentry_dsn:<VALUE>
 ```
 
-Builds the Android APK for the requested flavor. The APKs are split on target platform and a universal build is included.
+Builds the Android APK for the requested flavor. Only a universal build is included. Check the `android_build`
+or the `android_build_appbundle` action if you want to build for the Google Play Store.
 This action assumes the `android_build_irmagobridge` action has been run first.
-The unsigned Android APKs are written to the `build` directory (so `fastlane/build` from the repository's root).
+The Android APK is written to the `build` directory (so `fastlane/build` from the repository's root).
+
+Optionally, you can specify the key properties of the signing key that should be used.
+
+```sh
+[bundle exec] fastlane android_build_apk flavor:<VALUE> sentry_dsn:<VALUE> keystore_path:<VALUE> key_alias:<VALUE> keystore_password:<VALUE> key_password:<VALUE>
+```
+
+The `flavor` parameter accepts the values `alpha` or `beta`.
+
+### android_build_appbundle
+
+```sh
+[bundle exec] fastlane android_build_appbundle flavor:<VALUE> sentry_dsn:<VALUE>
+```
+
+Builds the Android AAB for the requested flavor.
+This action assumes the `android_build_irmagobridge` action has been run first.
+Check the `android_build` action if you want to do a full build.
+The AAB is written to the `build` directory (so `fastlane/build` from the repository's root).
+
+Optionally, you can specify the key properties of the upload key that should be used to sign the build.
+This key is also used to sign the app bundle's code transparency file.
+
+```sh
+[bundle exec] fastlane android_build_appbundle flavor:<VALUE> sentry_dsn:<VALUE> keystore_path:<VALUE> key_alias:<VALUE> keystore_password:<VALUE> key_password:<VALUE>
+```
 
 The `flavor` parameter accepts the values `alpha` or `beta`.
 

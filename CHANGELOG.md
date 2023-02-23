@@ -4,7 +4,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [6.3.3] - in beta 2022-12-16
+## [7.0.0] - in beta 2023-02-20
+### Added
+- First public release styled with new Yivi brand
+- New user interface and usability improvements
+- Improved attribute request flow
+- Secure PIN logic (warns when users select an insecure PIN)
+
+Please note: Some graphics are linked to the IRMA scheme and will show placeholder icons until this version is released to production. The release date is 2023-04-04.
+
+## [6.4.1] - 2023-02-16 (in beta 2023-02-14)
+### Fixed
+- Leftover 'oldscheme...' and 'tempscheme...' directories cause issues when parsing IrmaConfiguration ([privacybydesign/irmago#284](https://github.com/privacybydesign/irmago/issues/284))
+
+## [6.4.0] - 2023-02-09 (in beta 2023-01-23)
+### Added
+- Use the device's Trusted Execution Environment / Secure Enclave as additional security factor for the PIN authentication
+- 'IRMA becomes Yivi' announcement
+
+### Fixed
+- Bug in error message parsing causes panics ([#28](https://github.com/privacybydesign/irmamobile/issues/28))
+- Issuer schemes can get out-of-sync after interrupted scheme update ([#66](https://github.com/privacybydesign/irmamobile/issues/66))
+- Avoid gocron panics in revocation code during irmaclient startup ([privacybydesign/irmago#249](https://github.com/privacybydesign/irmago/pull/249))
+
+## [6.3.3] - 2023-01-23 (in beta 2022-12-16)
 ### Added
 - Possibility to run integration tests on Android with JUnit using a test environment of the keyshare server
 
@@ -201,6 +224,9 @@ This release only includes iOS changes.
 - Various bug fixes
 
 
+[7.0.0]: https://github.com/privacybydesign/irmamobile/compare/v6.4.1...v7.0.0
+[6.4.1]: https://github.com/privacybydesign/irmamobile/compare/v6.4.0...v6.4.1
+[6.4.0]: https://github.com/privacybydesign/irmamobile/compare/v6.3.3...v6.4.0
 [6.3.3]: https://github.com/privacybydesign/irmamobile/compare/v6.3.2...v6.3.3
 [6.3.2]: https://github.com/privacybydesign/irmamobile/compare/v6.3.1...v6.3.2
 [6.3.1]: https://github.com/privacybydesign/irmamobile/compare/v6.3.0...v6.3.1
