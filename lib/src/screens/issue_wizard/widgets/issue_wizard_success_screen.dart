@@ -7,10 +7,12 @@ import '../../../widgets/action_feedback.dart';
 class IssueWizardSuccessScreen extends StatelessWidget {
   final TranslatedValue? headerTranslation;
   final TranslatedValue? contentTranslation;
+  final VoidCallback onDismiss;
 
   const IssueWizardSuccessScreen({
     this.headerTranslation,
     this.contentTranslation,
+    required this.onDismiss,
   });
 
   @override
@@ -23,7 +25,7 @@ class IssueWizardSuccessScreen extends StatelessWidget {
           headerTranslation != null ? headerTranslation!.translate(lang) : 'issue_wizard.success.header',
       explanationTranslationKey:
           contentTranslation != null ? contentTranslation!.translate(lang) : 'issue_wizard.success.content',
-      onDismiss: () => Navigator.of(context).pop(),
+      onDismiss: onDismiss,
     );
   }
 }

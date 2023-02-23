@@ -101,6 +101,7 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
           builder: (context) => IssueWizardSuccessScreen(
             headerTranslation: successHeaderTranslation,
             contentTranslation: successContentTranslation,
+            onDismiss: () => popToHome(context),
           ),
         ),
       );
