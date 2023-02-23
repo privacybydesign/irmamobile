@@ -15,6 +15,7 @@ import '../../screens/issue_wizard/widgets/wizard_info.dart';
 import '../../util/handle_pointer.dart';
 import '../../util/language.dart';
 import '../../util/navigation.dart';
+import 'widgets/issue_wizard_success_screen.dart';
 
 class IssueWizardScreen extends StatefulWidget {
   static const routeName = '/issuewizard';
@@ -75,16 +76,34 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
     super.dispose();
   }
 
-  Future<void> _finish() async {
+  Future<void> _finish(IssueWizardEvent wizard) async {
     final activeSessions = await _repo.hasActiveSessions();
     if (!mounted) {
       return; // can't do anything if our context vanished while awaiting
     }
+
+    final navigator = Navigator.of(context);
     if (activeSessions) {
       // Pop to underlying session screen
-      Navigator.of(context).pop();
+      navigator.pop();
     } else {
-      popToHome(context);
+      // Show the success screen with success text if there is one.
+      TranslatedValue? successHeaderTranslation;
+      TranslatedValue? successContentTranslation;
+
+      if (wizard.showSuccess) {
+        successHeaderTranslation = wizard.wizardData.successHeader;
+        successContentTranslation = wizard.wizardData.successText;
+      }
+
+      await navigator.pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => IssueWizardSuccessScreen(
+            headerTranslation: successHeaderTranslation,
+            contentTranslation: successContentTranslation,
+          ),
+        ),
+      );
     }
   }
 
@@ -105,13 +124,13 @@ class _IssueWizardScreenState extends State<IssueWizardScreen> with WidgetsBindi
     _repo.getIssueWizard().add(nextEvent);
 
     if (!nextEvent.showSuccess && nextEvent.completed) {
-      await _finish();
+      await _finish(wizard);
     }
   }
 
   void _onButtonPress(BuildContext context, IssueWizardEvent wizard) {
     if (wizard.completed) {
-      _finish();
+      _finish(wizard);
       return;
     }
 

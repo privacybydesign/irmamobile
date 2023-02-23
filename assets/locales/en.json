@@ -371,7 +371,11 @@
     "done": "OK",
     "add": "Add",
     "add_cards": "Add cards",
-    "add_credential": "Add {credential}"
+    "add_credential": "Add {credential}",
+    "success": {
+      "header": "Success",
+      "content": "You have successfully completed all steps"
+    }
   },
   "more_tab": {
     "app_management": "App management",
