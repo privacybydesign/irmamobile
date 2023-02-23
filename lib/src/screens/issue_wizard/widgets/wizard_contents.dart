@@ -108,7 +108,7 @@ class IssueWizardContents extends StatelessWidget {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          if (wizardContentSize > 1)
+          if (wizardContentSize > 1 && wizard.activeItemIndex > -1)
             SessionProgressIndicator(
               step: wizard.activeItemIndex + 1,
               stepCount: wizardContentSize,
