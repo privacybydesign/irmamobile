@@ -49,10 +49,25 @@ Future<void> issueIdin(
       'irma-demo.idin.idin.country': 'Netherlands',
     });
 
+Future<void> issueDemoIvidoLogin(
+  WidgetTester tester,
+  IntegrationTestIrmaBinding irmaBinding, {
+  bool continueOnSecondDevice = true,
+}) =>
+    issueCredentials(
+      tester,
+      irmaBinding,
+      {
+        'irma-demo.ivido.login.identifier': 'ea0cdf95-a412-41f1-9e8d-56c2af310af9',
+      },
+      continueOnSecondDevice: continueOnSecondDevice,
+    );
+
 Future<void> issueMunicipalityPersonalData(
   WidgetTester tester,
   IntegrationTestIrmaBinding irmaBinding, {
   Locale locale = const Locale('en', 'EN'),
+  bool continueOnSecondDevice = true,
 }) async {
   const credentialId = 'irma-demo.gemeente.personalData';
 
@@ -105,6 +120,7 @@ Future<void> issueMunicipalityPersonalData(
     irmaBinding,
     attributes,
     locale: locale,
+    continueOnSecondDevice: false,
   );
 }
 
