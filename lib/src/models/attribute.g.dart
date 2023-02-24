@@ -6,27 +6,25 @@ part of 'attribute.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-AttributeIdentifier _$AttributeIdentifierFromJson(Map<String, dynamic> json) {
-  return AttributeIdentifier(
-    type: json['Type'] as String,
-    credentialHash: json['CredentialHash'] as String,
-  );
-}
+AttributeIdentifier _$AttributeIdentifierFromJson(Map<String, dynamic> json) => AttributeIdentifier(
+      type: json['Type'] as String,
+      credentialHash: json['CredentialHash'] as String,
+    );
 
 Map<String, dynamic> _$AttributeIdentifierToJson(AttributeIdentifier instance) => <String, dynamic>{
       'Type': instance.type,
       'CredentialHash': instance.credentialHash,
     };
 
-DisclosedAttribute _$DisclosedAttributeFromJson(Map<String, dynamic> json) {
-  return DisclosedAttribute(
-    identifier: json['id'] as String,
-    status: json['status'] as String,
-    issuanceTime: json['issuancetime'] as int,
-    value: TranslatedValue.fromJson(json['value'] as Map<String, dynamic>?),
-    rawValue: json['rawValue'] as String?,
-  );
-}
+DisclosedAttribute _$DisclosedAttributeFromJson(Map<String, dynamic> json) => DisclosedAttribute(
+      identifier: json['id'] as String,
+      status: json['status'] as String,
+      issuanceTime: json['issuancetime'] as int,
+      value: json['value'] == null
+          ? const TranslatedValue.empty()
+          : TranslatedValue.fromJson(json['value'] as Map<String, dynamic>?),
+      rawValue: json['rawValue'] as String?,
+    );
 
 Map<String, dynamic> _$DisclosedAttributeToJson(DisclosedAttribute instance) => <String, dynamic>{
       'rawValue': instance.rawValue,
@@ -36,14 +34,14 @@ Map<String, dynamic> _$DisclosedAttributeToJson(DisclosedAttribute instance) => 
       'issuancetime': instance.issuanceTime,
     };
 
-DisclosureCandidate _$DisclosureCandidateFromJson(Map<String, dynamic> json) {
-  return DisclosureCandidate(
-    type: json['Type'] as String,
-    notRevokable: json['NotRevokable'] as bool,
-    value: TranslatedValue.fromJson(json['Value'] as Map<String, dynamic>?),
-    credentialHash: json['CredentialHash'] as String,
-  );
-}
+DisclosureCandidate _$DisclosureCandidateFromJson(Map<String, dynamic> json) => DisclosureCandidate(
+      type: json['Type'] as String,
+      notRevokable: json['NotRevokable'] as bool? ?? false,
+      value: json['Value'] == null
+          ? const TranslatedValue.empty()
+          : TranslatedValue.fromJson(json['Value'] as Map<String, dynamic>?),
+      credentialHash: json['CredentialHash'] as String? ?? '',
+    );
 
 Map<String, dynamic> _$DisclosureCandidateToJson(DisclosureCandidate instance) => <String, dynamic>{
       'Type': instance.type,
