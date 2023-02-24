@@ -29,7 +29,9 @@ Future<void> ividoDemoClientTest(WidgetTester tester, IntegrationTestIrmaBinding
   final qrScannerFinder = find.byType(QRScanner);
   final qrScannerWidget = qrScannerFinder.evaluate().first.widget as QRScanner;
   qrScannerWidget.onFound(ividoIssueWizardPointer);
-  await tester.pumpAndSettle(const Duration(seconds: 2));
+
+  // This takes quite some time
+  await tester.pumpAndSettle(const Duration(seconds: 3));
 
   // Expect the issue wizard
   expect(find.byType(WizardScaffold), findsOneWidget);
@@ -103,7 +105,10 @@ Future<void> ividoDemoClientTest(WidgetTester tester, IntegrationTestIrmaBinding
     expect(markdownWidget.data, answer);
 
     // Fold answer again.
-    await tester.tapAndSettle(questionFinder);
+    await tester.tapAndSettle(
+      questionFinder,
+      duration: const Duration(seconds: 1),
+    );
   }
 
   // Go to the actual issue wizard
