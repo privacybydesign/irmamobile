@@ -3,9 +3,9 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../../models/session.dart';
 import '../../../../theme/theme.dart';
-import '../../../../widgets/session_progress_indicator.dart';
 import '../../../../widgets/irma_bottom_bar.dart';
 import '../../../../widgets/issuer_verifier_header.dart';
+import '../../../../widgets/session_progress_indicator.dart';
 import '../../widgets/session_scaffold.dart';
 import '../bloc/disclosure_permission_event.dart';
 import '../bloc/disclosure_permission_state.dart';
