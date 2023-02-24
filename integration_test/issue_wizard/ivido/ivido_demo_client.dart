@@ -10,6 +10,7 @@ import 'package:irmamobile/src/widgets/irma_card.dart';
 import 'package:irmamobile/src/widgets/irma_markdown.dart';
 import 'package:irmamobile/src/widgets/irma_stepper.dart';
 import 'package:irmamobile/src/widgets/issuer_verifier_header.dart';
+import 'package:irmamobile/src/widgets/session_progress_indicator.dart';
 
 import '../../helpers/helpers.dart';
 import '../../helpers/issuance_helpers.dart';
@@ -111,7 +112,15 @@ Future<void> ividoDemoClientTest(WidgetTester tester, IntegrationTestIrmaBinding
   // Go to the actual issue wizard
   await tester.tapAndSettle(find.text('Add'));
 
-  // TODO Check the progress indicator
+  // Check the progress indicator
+  final progressIndicatorFinder = find.byType(SessionProgressIndicator);
+  expect(
+    find.descendant(
+      of: progressIndicatorFinder,
+      matching: find.text('Step 1 of 2'),
+    ),
+    findsOneWidget,
+  );
 
   // Expect stepper with two cards
   final stepperFinder = find.byType(IrmaStepper);
@@ -146,6 +155,15 @@ Future<void> ividoDemoClientTest(WidgetTester tester, IntegrationTestIrmaBinding
     tester,
     irmaBinding,
     continueOnSecondDevice: false,
+  );
+
+  // Check the progress indicator again
+  expect(
+    find.descendant(
+      of: progressIndicatorFinder,
+      matching: find.text('Step 2 of 2'),
+    ),
+    findsOneWidget,
   );
 
   // Issue the Ivido login card.
