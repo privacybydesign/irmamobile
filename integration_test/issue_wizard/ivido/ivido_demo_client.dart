@@ -105,10 +105,7 @@ Future<void> ividoDemoClientTest(WidgetTester tester, IntegrationTestIrmaBinding
     expect(markdownWidget.data, answer);
 
     // Fold answer again.
-    await tester.tapAndSettle(
-      questionFinder,
-      duration: const Duration(seconds: 1),
-    );
+    await tester.tapAndSettle(questionFinder);
   }
 
   // Go to the actual issue wizard
