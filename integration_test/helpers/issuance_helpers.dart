@@ -120,7 +120,7 @@ Future<void> issueMunicipalityPersonalData(
     irmaBinding,
     attributes,
     locale: locale,
-    continueOnSecondDevice: false,
+    continueOnSecondDevice: continueOnSecondDevice,
   );
 }
 
