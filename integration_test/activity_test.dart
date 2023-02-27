@@ -83,7 +83,7 @@ void main() {
         final timestampFinder = find.byKey(const Key('activity_timestamp'));
         await tester.scrollUntilVisible(
           timestampFinder.hitTestable(),
-          150,
+          100,
           maxScrolls: 20,
         );
         expect(timestampFinder, findsOneWidget);
