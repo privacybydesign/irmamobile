@@ -213,13 +213,13 @@ class CredentialType {
   @JsonKey(name: 'IssueURL') // Default value is set by fromJson of TranslatedValue
   final TranslatedValue issueUrl;
 
-  @JsonKey(name: 'IsULIssueURL', defaultValue: false)
+  @JsonKey(name: 'IsULIssueURL')
   final bool isULIssueUrl;
 
-  @JsonKey(name: 'DisallowDelete', defaultValue: false)
+  @JsonKey(name: 'DisallowDelete')
   final bool disallowDelete;
 
-  @JsonKey(name: 'IsInCredentialStore', defaultValue: false)
+  @JsonKey(name: 'IsInCredentialStore')
   final bool isInCredentialStore;
 
   @JsonKey(name: 'Category') // Default value is set by fromJson of TranslatedValue

@@ -6,8 +6,6 @@ part of 'update_schemes_event.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-UpdateSchemesEvent _$UpdateSchemesEventFromJson(Map<String, dynamic> json) {
-  return UpdateSchemesEvent();
-}
+UpdateSchemesEvent _$UpdateSchemesEventFromJson(Map<String, dynamic> json) => UpdateSchemesEvent();
 
 Map<String, dynamic> _$UpdateSchemesEventToJson(UpdateSchemesEvent instance) => <String, dynamic>{};
