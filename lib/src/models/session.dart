@@ -132,7 +132,7 @@ class SessionPointer implements Pointer {
   SessionPointer({
     required this.u,
     required this.irmaqr,
-    this.continueOnSecondDevice = true,
+    this.continueOnSecondDevice = false,
     @Deprecated('This parameter is deprecated.') this.returnURL,
   });
 
