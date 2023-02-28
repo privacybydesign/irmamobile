@@ -83,8 +83,9 @@ void main() {
         final timestampFinder = find.byKey(const Key('activity_timestamp'));
         await tester.scrollUntilVisible(
           timestampFinder.hitTestable(),
-          100,
+          150,
           maxScrolls: 20,
+          duration: const Duration(milliseconds: 500), // Wait for the scrollbar to flex back at the end of the list on iOS.
         );
         expect(timestampFinder, findsOneWidget);
       },
