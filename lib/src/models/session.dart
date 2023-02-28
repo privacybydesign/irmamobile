@@ -122,7 +122,7 @@ class SessionPointer implements Pointer {
   /// or on the device which has displayed a QR code.
   /// Field is not always specified in QRs now.
   /// To make sure we can override its value if necessary, the field is not final fow now.
-  @JsonKey(name: 'continueOnSecondDevice', defaultValue: false)
+  @JsonKey(name: 'continueOnSecondDevice')
   bool continueOnSecondDevice;
 
   @Deprecated('This parameter is deprecated and will be removed at the end of 2020. Use clientReturnURL instead.')

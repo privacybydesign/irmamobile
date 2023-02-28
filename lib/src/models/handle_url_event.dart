@@ -8,7 +8,7 @@ part 'handle_url_event.g.dart';
 class HandleURLEvent extends Event {
   HandleURLEvent({required this.url, this.isInitialUrl = false});
 
-  @JsonKey(name: 'isInitialURL', defaultValue: false)
+  @JsonKey(name: 'isInitialURL')
   final bool isInitialUrl;
 
   @JsonKey(name: 'url')
