@@ -6,11 +6,10 @@ part of 'set_crash_reporting_preference.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-SetCrashReportingPreferenceEvent _$SetCrashReportingPreferenceEventFromJson(Map<String, dynamic> json) {
-  return SetCrashReportingPreferenceEvent(
-    enableCrashReporting: json['EnableCrashReporting'] as bool,
-  );
-}
+SetCrashReportingPreferenceEvent _$SetCrashReportingPreferenceEventFromJson(Map<String, dynamic> json) =>
+    SetCrashReportingPreferenceEvent(
+      enableCrashReporting: json['EnableCrashReporting'] as bool,
+    );
 
 Map<String, dynamic> _$SetCrashReportingPreferenceEventToJson(SetCrashReportingPreferenceEvent instance) =>
     <String, dynamic>{

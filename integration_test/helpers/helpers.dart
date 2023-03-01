@@ -54,6 +54,7 @@ Future<void> issueCredentials(
   Map<String, String> attributes, {
   Locale locale = const Locale('en', 'EN'),
   Map<String, String> revocationKeys = const {},
+  bool continueOnSecondDevice = true,
 }) async {
   final groupedAttributes = groupBy<MapEntry<String, String>, String>(
     attributes.entries,
@@ -70,12 +71,15 @@ Future<void> issueCredentials(
       .toList());
 
   // Start session
-  await irmaBinding.repository.startTestSession('''
+  await irmaBinding.repository.startTestSession(
+    '''
     {
       "@context": "https://irma.app/ld/request/issuance/v2",
       "credentials": $credentialsJson
     }
-  ''');
+  ''',
+    continueOnSecondDevice: continueOnSecondDevice,
+  );
 
   var issuancePageFinder = find.byType(IssuancePermission);
   await tester.waitFor(issuancePageFinder);

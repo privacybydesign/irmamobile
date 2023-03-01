@@ -12,6 +12,8 @@ class WizardScaffold extends StatelessWidget {
   final void Function() onBack;
   final GlobalKey scrollviewKey;
   final ScrollController controller;
+  final Color? headerBackgroundColor;
+  final Color? headerTextColor;
 
   const WizardScaffold({
     required this.image,
@@ -21,31 +23,37 @@ class WizardScaffold extends StatelessWidget {
     required this.scrollviewKey,
     required this.controller,
     required this.onBack,
+    this.headerBackgroundColor,
+    this.headerTextColor,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     return Scaffold(
+      backgroundColor: theme.backgroundSecondary,
       appBar: IrmaAppBar(
         titleTranslationKey: 'issue_wizard.add_cards',
         leadingAction: onBack,
       ),
       bottomNavigationBar: bottomBar,
       body: SingleChildScrollView(
+        padding: EdgeInsets.all(theme.defaultSpacing),
         controller: controller,
         key: scrollviewKey,
-        child: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.all(theme.defaultSpacing),
-              child: IssuerVerifierHeader(
+        child: SafeArea(
+          child: Column(
+            children: [
+              IssuerVerifierHeader(
                 title: header,
                 image: image,
+                textColor: headerTextColor,
+                backgroundColor: headerBackgroundColor,
               ),
-            ),
-            body,
-          ],
+              SizedBox(height: theme.smallSpacing),
+              body,
+            ],
+          ),
         ),
       ),
     );

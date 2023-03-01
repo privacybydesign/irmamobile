@@ -8,10 +8,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import '../..//util/tablet.dart';
 import '../../theme/theme.dart';
 import '../../util/haptics.dart';
 import '../../util/scale.dart';
+import '../../util/tablet.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/link.dart';
 import '../../widgets/yivi_bottom_sheet.dart';

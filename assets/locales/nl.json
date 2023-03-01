@@ -371,7 +371,11 @@
     "done": "OK",
     "add": "Ophalen",
     "add_cards": "Gegevens ophalen",
-    "add_credential": "Haal {credential} op"
+    "add_credential": "Haal {credential} op",
+    "success": {
+      "header": "Gelukt",
+      "content": "Je hebt alle stappen succesvol doorlopen"
+    }
   },
   "more_tab": {
     "app_management": "App-beheer",

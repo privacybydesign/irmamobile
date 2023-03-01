@@ -3,6 +3,7 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../models/issue_wizard.dart';
 import '../../../theme/theme.dart';
+import '../../../util/color_from_code.dart';
 import '../../../widgets/collapsible.dart';
 import '../../../widgets/irma_bottom_bar.dart';
 import '../../../widgets/irma_markdown.dart';
@@ -25,49 +26,38 @@ class IssueWizardInfo extends StatelessWidget {
     required this.onBack,
   });
 
-  Widget _buildCollapsible(BuildContext context, GlobalKey key, String header, String body) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: IrmaTheme.of(context).smallSpacing),
-      child: Collapsible(
-        header: header,
-        parentScrollController: controller,
-        content: SizedBox(width: double.infinity, child: IrmaMarkdown(body)),
-        key: key,
-      ),
-    );
-  }
-
   Widget _buildIntro(BuildContext context, String lang, IssueWizard wizardData) {
+    final theme = IrmaTheme.of(context);
+
     final _collapsableKeys = List<GlobalKey>.generate(wizardData.faq.length, (int index) => GlobalKey());
     final items = wizardData.faq
         .asMap()
         .entries
         .map(
-          (q) => _buildCollapsible(
-            context,
-            _collapsableKeys[q.key],
-            q.value.question.translate(lang),
-            q.value.answer.translate(lang),
+          (q) => Collapsible(
+            key: _collapsableKeys[q.key],
+            header: q.value.question.translate(lang),
+            parentScrollController: controller,
+            content: SizedBox(
+              width: double.infinity,
+              child: IrmaMarkdown(
+                q.value.answer.translate(lang),
+              ),
+            ),
           ),
         )
         .toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: EdgeInsets.fromLTRB(
-            IrmaTheme.of(context).defaultSpacing,
-            IrmaTheme.of(context).defaultSpacing,
-            IrmaTheme.of(context).defaultSpacing,
-            24,
-          ),
-          child: IrmaMarkdown(wizardData.info.translate(lang)),
-        ),
+        IrmaMarkdown(wizardData.info.translate(lang)),
+        SizedBox(height: theme.mediumSpacing),
         ListView.separated(
           physics: const NeverScrollableScrollPhysics(),
           shrinkWrap: true,
           itemBuilder: (context, i) => items.elementAt(i),
-          separatorBuilder: (_, i) => const SizedBox(height: 8),
+          separatorBuilder: (_, i) => SizedBox(height: theme.smallSpacing),
           itemCount: items.length,
         ),
       ],
@@ -83,6 +73,8 @@ class IssueWizardInfo extends StatelessWidget {
       header: wizardData.title.translate(lang),
       image: logo,
       onBack: onBack,
+      headerBackgroundColor: colorFromCode(wizardData.color),
+      headerTextColor: wizardData.color == null ? null : colorFromCode(wizardData.textColor),
       bottomBar: IrmaBottomBar(
         primaryButtonLabel: 'issue_wizard.add',
         onPrimaryPressed: onNext,
