@@ -4,13 +4,12 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import '../../../../models/session.dart';
 import '../../../../theme/theme.dart';
 import '../../../../widgets/irma_bottom_bar.dart';
-
 import '../../../../widgets/issuer_verifier_header.dart';
+import '../../../../widgets/session_progress_indicator.dart';
 import '../../widgets/session_scaffold.dart';
 import '../bloc/disclosure_permission_event.dart';
 import '../bloc/disclosure_permission_state.dart';
 import 'disclosure_discon_stepper.dart';
-import 'disclosure_permission_progress_indicator.dart';
 
 class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
   final RequestorInfo requestor;
@@ -42,7 +41,7 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               IssuerVerifierHeader(title: requestor.name.translate(lang)),
-              DisclosurePermissionProgressIndicator(
+              SessionProgressIndicator(
                 step: state.currentStepIndex + 1,
                 stepCount: state.plannedSteps.length,
                 contentTranslationKey:

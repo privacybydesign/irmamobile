@@ -578,7 +578,7 @@ class IrmaRepository {
   }
 
   /// Only meant for testing and debug purposes.
-  Future<void> startTestSession(String requestBody) async {
+  Future<void> startTestSession(String requestBody, {continueOnSecondDevice = true}) async {
     final Uri uri = Uri.parse('https://demo.privacybydesign.foundation/backend/session');
 
     final request = await HttpClient().postUrl(uri);
@@ -596,9 +596,7 @@ class IrmaRepository {
     final responseObject = jsonDecode(responseBody) as Map<String, dynamic>;
     final sessionPtr = SessionPointer.fromJson(responseObject['sessionPtr'] as Map<String, dynamic>);
 
-    // A debug session is not a regular mobile session, because there is no initiating app.
-    // Therefore treat this session like it was started by scanning a QR.
-    sessionPtr.continueOnSecondDevice = true;
+    sessionPtr.continueOnSecondDevice = continueOnSecondDevice;
     _pendingPointerSubject.add(sessionPtr);
   }
 }
