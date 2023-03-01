@@ -374,7 +374,7 @@
     "add_credential": "Haal {credential} op",
     "success": {
       "header": "Gelukt",
-      "content": "Je hebt alle stappen successvol doorlopen"
+      "content": "Je hebt alle stappen succesvol doorlopen"
     }
   },
   "more_tab": {

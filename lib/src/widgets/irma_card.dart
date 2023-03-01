@@ -92,7 +92,7 @@ class IrmaCard extends StatelessWidget {
         break;
     }
 
-    // Overwrite card color if a color is provided
+    // Override card color if a color is provided
     if (color != null) {
       boxDecoration = boxDecoration.copyWith(color: color);
     }
