@@ -50,7 +50,7 @@ dev_dependencies:
     sdk: flutter
   integration_test:
     sdk: flutter
-  json_serializable: ^4.1.4
+  json_serializable: ^5.0.2
   flutter_lints: ^1.0.4
   flutter_native_splash: ^1.2.1
   build_runner: ^2.1.2
@@ -64,6 +64,7 @@ flutter_native_splash:
 flutter_icons:
   android: true
   ios: true
+  remove_alpha_ios: true
   image_path: "assets/non-free/app_icon.png"
   adaptive_icon_foreground: "assets/non-free/app_icon_foreground.png"
   adaptive_icon_background: "#FFFFFF"

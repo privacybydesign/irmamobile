@@ -102,7 +102,7 @@ class IssueWizard {
   @JsonKey(name: 'info') // Default value is set by fromJson of TranslatedValue
   final TranslatedValue info;
 
-  @JsonKey(name: 'faq', defaultValue: [])
+  @JsonKey(name: 'faq')
   final List<IssueWizardQA> faq;
 
   @JsonKey(name: 'intro') // Default value is set by fromJson of TranslatedValue
@@ -114,7 +114,7 @@ class IssueWizard {
   @JsonKey(name: 'successText') // Default value is set by fromJson of TranslatedValue
   final TranslatedValue successText;
 
-  @JsonKey(name: 'expandDependencies', defaultValue: false)
+  @JsonKey(name: 'expandDependencies')
   final bool expandDependencies;
 
   factory IssueWizard.fromJson(Map<String, dynamic> json) => _$IssueWizardFromJson(json);
@@ -170,7 +170,7 @@ class IssueWizardItem {
   @JsonKey(name: 'url') // Default value is set by fromJson of TranslatedValue
   final TranslatedValue url;
 
-  @JsonKey(name: 'inapp', defaultValue: false)
+  @JsonKey(name: 'inapp')
   final bool inApp;
 
   final bool completed;
