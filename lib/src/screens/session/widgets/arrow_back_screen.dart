@@ -96,8 +96,8 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
 
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
-    // If the app is resumed remove the route with this screen from the stack.
-    if (state == AppLifecycleState.resumed) {
+    // Pop back to home screen when leaving the app (for example going back to the browser)
+    if (state == AppLifecycleState.paused) {
       Navigator.of(context).popUntil(ModalRoute.withName(HomeScreen.routeName));
     }
   }
