@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/src/screens/activity/activity_tab.dart';
@@ -9,7 +8,6 @@ import 'package:irmamobile/src/screens/data/data_tab.dart';
 import 'package:irmamobile/src/screens/home/home_tab.dart';
 import 'package:irmamobile/src/screens/home/widgets/irma_nav_bar.dart';
 import 'package:irmamobile/src/screens/more/more_tab.dart';
-import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 
 import 'helpers/helpers.dart';
 import 'irma_binding.dart';
