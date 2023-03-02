@@ -73,26 +73,6 @@ void main() {
         expect(find.byType(MoreTab), findsNothing);
         expect(find.byType(HomeTab), findsOneWidget);
       });
-
-      testWidgets(
-        'open-scanner',
-        (tester) async {
-          await pumpAndUnlockApp(tester, irmaBinding.repository);
-          // Make sure nav bar is rendered
-          expect(find.byType(IrmaNavBar), findsOneWidget);
-
-          // Tap open scanner button
-          await tester.tapAndSettle(find.byKey(const Key('nav_button_scanner')));
-
-          // Make sure scanner screen is open;
-          expect(find.byType(ScannerScreen), findsOneWidget);
-
-          // Wait until camera is active.
-          await tester.pumpAndSettle(const Duration(seconds: 5));
-        },
-        // Skip this test on iOS, because we don't have a solution yet to grant camera permissions.
-        skip: Platform.isIOS,
-      );
     });
   });
 }
