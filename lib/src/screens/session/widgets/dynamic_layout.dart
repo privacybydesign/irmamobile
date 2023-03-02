@@ -104,7 +104,11 @@ class DynamicLayout extends StatelessWidget {
                 children: [
                   hero,
                   SizedBox(height: theme.mediumSpacing),
-                  content,
+                  Row(
+                    children: [
+                      Expanded(child: content),
+                    ],
+                  ),
                   if (actions != null) const SizedBox(height: 100)
                 ],
               ),

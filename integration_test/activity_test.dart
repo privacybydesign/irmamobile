@@ -85,6 +85,7 @@ void main() {
           timestampFinder.hitTestable(),
           150,
           maxScrolls: 20,
+          duration: const Duration(milliseconds: 500), // Wait for scrollbar to flex back at the end of the list on iOS.
         );
         expect(timestampFinder, findsOneWidget);
       },
