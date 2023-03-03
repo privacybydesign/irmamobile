@@ -4,7 +4,7 @@ name: Delivery
 
 on:
   push:
-    branches: [ master, ux-2.0 ]
+    branches: [ master ]
 
 concurrency: ${{ github.ref }}
 
@@ -175,7 +175,6 @@ jobs:
   version-check:
     runs-on: ubuntu-latest
     needs: bundle-app-alpha
-    if: github.ref_name == 'master'
     outputs:
       version-changed: ${{ steps.detection.outcome == 'success' }}
     steps:

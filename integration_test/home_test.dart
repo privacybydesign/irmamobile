@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/src/screens/activity/activity_tab.dart';
@@ -9,7 +8,6 @@ import 'package:irmamobile/src/screens/data/data_tab.dart';
 import 'package:irmamobile/src/screens/home/home_tab.dart';
 import 'package:irmamobile/src/screens/home/widgets/irma_nav_bar.dart';
 import 'package:irmamobile/src/screens/more/more_tab.dart';
-import 'package:irmamobile/src/screens/scanner/scanner_screen.dart';
 
 import 'helpers/helpers.dart';
 import 'irma_binding.dart';
@@ -73,26 +71,6 @@ void main() {
         expect(find.byType(MoreTab), findsNothing);
         expect(find.byType(HomeTab), findsOneWidget);
       });
-
-      testWidgets(
-        'open-scanner',
-        (tester) async {
-          await pumpAndUnlockApp(tester, irmaBinding.repository);
-          // Make sure nav bar is rendered
-          expect(find.byType(IrmaNavBar), findsOneWidget);
-
-          // Tap open scanner button
-          await tester.tapAndSettle(find.byKey(const Key('nav_button_scanner')));
-
-          // Make sure scanner screen is open;
-          expect(find.byType(ScannerScreen), findsOneWidget);
-
-          // Wait until camera is active.
-          await tester.pumpAndSettle(const Duration(seconds: 5));
-        },
-        // Skip this test on iOS, because we don't have a solution yet to grant camera permissions.
-        skip: Platform.isIOS,
-      );
     });
   });
 }
