@@ -40,7 +40,10 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              IssuerVerifierHeader(title: requestor.name.translate(lang)),
+              IssuerVerifierHeader(
+                title: requestor.name.translate(lang),
+                imagePath: requestor.logoPath,
+              ),
               SessionProgressIndicator(
                 step: state.currentStepIndex + 1,
                 stepCount: state.plannedSteps.length,
