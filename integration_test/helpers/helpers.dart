@@ -17,6 +17,7 @@ import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_foot
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card_header.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 import 'package:irmamobile/src/widgets/radio_indicator.dart';
+import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
 
 import '../irma_binding.dart';
 import '../util.dart';
@@ -148,6 +149,9 @@ Future<void> evaluateCredentialCard(
   bool? isSelected,
   String? footerText,
   IrmaCardStyle? style,
+  bool? isRevoked,
+  bool? isExpired,
+  bool? isExpiringSoon,
 }) async {
 // Find one IrmaCredentialCard with the provided finder
   expect(
@@ -166,7 +170,10 @@ Future<void> evaluateCredentialCard(
     );
   }
 
-  if (credentialName != null || issuerName != null) {
+  final shouldCheckCardStatus = isRevoked != null || isExpired != null || isExpiringSoon != null;
+  final shouldCheckHeaderInfo = credentialName != null || issuerName != null;
+
+  if (shouldCheckHeaderInfo || shouldCheckCardStatus) {
     // Card should have a header
     final cardHeaderFinder = find.descendant(
       of: credentialCardFinder,
@@ -175,17 +182,52 @@ Future<void> evaluateCredentialCard(
     expect(cardHeaderFinder, findsOneWidget);
 
     // Get the text from the header
-    final cardHeaderText = tester.getAllText(cardHeaderFinder);
+    var cardHeaderText = tester.getAllText(cardHeaderFinder);
+    final credentialStatusTexts = {
+      'revoked': 'Revoked',
+      'expired': 'Expired',
+      'expiring': 'Expiring soon',
+    };
 
-    // Compare the expected credential name
-    if (credentialName != null) {
-      expect(cardHeaderText.first, credentialName);
+    if (shouldCheckCardStatus && credentialStatusTexts.values.contains(cardHeaderText.first)) {
+      final credentialStatus = cardHeaderText.first;
+
+      if (isRevoked != null) {
+        expect(
+          credentialStatus == credentialStatusTexts['revoked'],
+          isRevoked,
+        );
+      }
+
+      if (isExpired != null) {
+        expect(
+          credentialStatus == credentialStatusTexts['expired'],
+          isExpired,
+        );
+      }
+
+      if (isExpiringSoon != null) {
+        expect(
+          credentialStatus == credentialStatusTexts['expiring'],
+          isExpiringSoon,
+        );
+      }
     }
 
-    // Compare the issuer credential name
-    if (issuerName != null) {
-      expect(cardHeaderText.elementAt(1), 'Issued by:');
-      expect(cardHeaderText.elementAt(2), issuerName);
+    if (shouldCheckHeaderInfo) {
+      // Filter the status texts from the list, so we can test the rest.
+      cardHeaderText = cardHeaderText.whereNot((text) => credentialStatusTexts.values.contains(text));
+
+      // Compare the expected credential name
+      if (credentialName != null) {
+        expect(cardHeaderText.first, credentialName);
+      }
+
+      // Compare the issuer credential name
+      if (issuerName != null) {
+        expect(cardHeaderText.elementAt(1), 'Issued by:');
+        expect(cardHeaderText.elementAt(2), issuerName);
+      }
     }
   }
 
@@ -255,15 +297,33 @@ Future<void> evaluateCredentialCard(
     );
   }
 
-  // Check the footer text
-  if (footerText != null) {
+  // Check the footer
+  if (footerText != null || shouldCheckCardStatus) {
     final footerFinder = find.byType(IrmaCredentialCardFooter);
-    expect(
-      find.descendant(
-        of: footerFinder,
-        matching: find.text(footerText),
-      ),
-      findsOneWidget,
-    );
+
+    if (shouldCheckCardStatus) {
+      final isReobtainable = isExpired != null && isExpired || isRevoked != null && isRevoked;
+
+      // Find reobtainable button
+      final reobtainButtonFinder = find.descendant(
+        of: find.byType(YiviThemedButton),
+        matching: find.text('Reobtain'),
+      );
+
+      expect(
+        reobtainButtonFinder,
+        isReobtainable ? findsOneWidget : findsNothing,
+      );
+    }
+
+    if (footerText != null) {
+      expect(
+        find.descendant(
+          of: footerFinder,
+          matching: find.text(footerText),
+        ),
+        findsOneWidget,
+      );
+    }
   }
 }

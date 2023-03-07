@@ -1,5 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:irmamobile/src/screens/home/home_screen.dart';
+
+import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
+import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
 
 import '../../helpers/helpers.dart';
@@ -7,17 +10,29 @@ import '../../irma_binding.dart';
 import '../../util.dart';
 import '../disclosure_helpers.dart';
 
+Future<void> _evaluateDemoCredentialCard(
+  WidgetTester tester,
+  Finder revokedCardFinder, {
+  required bool isRevoked,
+}) =>
+    evaluateCredentialCard(
+      tester,
+      revokedCardFinder,
+      credentialName: 'Demo Root',
+      issuerName: 'Demo MijnOverheid.nl',
+      attributes: {'BSN': '12345'},
+      isRevoked: isRevoked,
+    );
+
 Future<void> revocationTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
 
-  // Make sure a revoked credential is present.
+  // Make sure a revoked credential is present
   final revocationKey = generateRevocationKey();
   await issueCredentials(
     tester,
     irmaBinding,
-    {
-      'irma-demo.MijnOverheid.root.BSN': '12345',
-    },
+    {'irma-demo.MijnOverheid.root.BSN': '12345'},
     revocationKeys: {'irma-demo.MijnOverheid.root': revocationKey},
   );
   await revokeCredential('irma-demo.MijnOverheid.root', revocationKey);
@@ -38,39 +53,69 @@ Future<void> revocationTest(WidgetTester tester, IntegrationTestIrmaBinding irma
   await evaluateIntroduction(tester);
 
   // The disclosure permission overview screen should be visible.
+  expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
   expect(find.text('Share my data'), findsOneWidget);
   expect(find.text('Share my data with demo.privacybydesign.foundation'), findsOneWidget);
-  expect(find.text('Demo MijnOverheid.nl'), findsOneWidget);
-  expect(find.text('12345'), findsOneWidget);
-  expect(find.text('Revoked'), findsOneWidget);
 
+// Find all credential cards
+  final cardsFinder = find.byType(IrmaCredentialCard);
+  expect(cardsFinder, findsOneWidget);
+
+  // Find the revoked credential card and evaluate it
+  final demoCredentialCardFinder = cardsFinder.first;
+  await _evaluateDemoCredentialCard(
+    tester,
+    demoCredentialCardFinder,
+    isRevoked: true,
+  );
+
+  // Share data button should be disabled
+  final shareDataButtonFinder = find.ancestor(
+    of: find.text('Share data'),
+    matching: find.byType(YiviThemedButton),
+  );
   expect(
-    tester
-        .widget<YiviThemedButton>(
-          find.ancestor(
-            of: find.text('Share data'),
-            matching: find.byType(YiviThemedButton),
-          ),
-        )
-        .onPressed,
+    tester.widget<YiviThemedButton>(shareDataButtonFinder).onPressed,
     isNull,
   );
 
+  // Press change choice
+  await tester.tapAndSettle(find.text('Change choice'));
+
+  // Revoked (but obtainable) card should be visible here too.
+  await _evaluateDemoCredentialCard(
+    tester,
+    demoCredentialCardFinder,
+    isRevoked: true,
+  );
+
+  // Navigate to back to choices overview
+  await tester.tapAndSettle(find.byKey(const Key('irma_app_bar_leading')));
+
+  // Now reobtain the card.
   await issueCredentials(
     tester,
     irmaBinding,
-    {
-      'irma-demo.MijnOverheid.root.BSN': '12345',
+    {'irma-demo.MijnOverheid.root.BSN': '12345'},
+    revocationKeys: {
+      'irma-demo.MijnOverheid.root': generateRevocationKey(),
     },
-    revocationKeys: {'irma-demo.MijnOverheid.root': generateRevocationKey()},
   );
 
-  expect(find.text('Revoked'), findsNothing);
+  // Revoked card should be visible here too.
+  await _evaluateDemoCredentialCard(
+    tester,
+    demoCredentialCardFinder,
+    isRevoked: false,
+  );
 
-  // Finish session.
+  // Share data button should be enabled now
+  expect(
+    tester.widget<YiviThemedButton>(shareDataButtonFinder).onPressed,
+    isNotNull,
+  );
+
   await tester.tapAndSettle(find.text('Share data'));
-  await tester.tapAndSettle(find.text('Share'));
-
+  await evaluateShareDialog(tester);
   await evaluateFeedback(tester);
-  expect(find.byType(HomeScreen).hitTestable(), findsOneWidget);
 }
