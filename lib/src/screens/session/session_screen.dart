@@ -58,7 +58,7 @@ class _SessionScreenState extends State<SessionScreen> {
         _dismissSession();
       }
       if (session.isIssuanceSession) {
-        final issuedCredentialTypeIds = session.issuedCredentials!.map((e) => e.credentialType.fullId);
+        final issuedCredentialTypeIds = session.issuedCredentials?.map((e) => e.credentialType.fullId) ?? [];
         _repo.removeLaunchedCredentials(issuedCredentialTypeIds);
       }
     });
