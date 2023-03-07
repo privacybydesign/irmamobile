@@ -76,7 +76,6 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
         for (int i = 0; i < choiceEntry.value.length; i++)
           IrmaCredentialCard(
             credentialView: choiceEntry.value[i],
-            hideFooter: true,
             padding: EdgeInsets.symmetric(horizontal: theme.tinySpacing),
             headerTrailing: isOptional && i == 0
                 ? IrmaIconButton(
@@ -137,7 +136,10 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              IssuerVerifierHeader(title: requestor.name.translate(lang)),
+              IssuerVerifierHeader(
+                title: requestor.name.translate(lang),
+                imagePath: requestor.logoPath,
+              ),
               SessionProgressIndicator(
                 step: state.currentStepIndex + 1,
                 stepCount: state.plannedSteps.length,

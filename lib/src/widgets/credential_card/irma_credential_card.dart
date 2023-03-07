@@ -60,6 +60,25 @@ class IrmaCredentialCard extends StatelessWidget {
 
     final isInvalid = credentialView.expired || credentialView.revoked;
     final isExpiringSoon = expiryDate?.expiresSoon ?? false;
+    final isObtainable = (isInvalid || isExpiringSoon) && credentialView.credentialType.issueUrl.isNotEmpty;
+
+    String? footerText;
+    if (!credentialView.revoked && (expiryDate != null || expiryDate?.dateTime != null)) {
+      footerText = FlutterI18n.translate(
+        context,
+        credentialView.expired
+            ? 'credential.expired_on'
+            : isExpiringSoon
+                ? 'credential.expires_on'
+                : 'credential.valid_until',
+        translationParams: {
+          'date': printableDate(
+            expiryDate!.dateTime!,
+            lang,
+          ),
+        },
+      );
+    }
 
     return IrmaCard(
       style: isInvalid ? IrmaCardStyle.danger : style,
@@ -86,29 +105,14 @@ class IrmaCredentialCard extends StatelessWidget {
               compareTo: compareTo,
             ),
           ],
-          if (!hideFooter) ...[
+          if (!hideFooter && (isObtainable || footerText != null)) ...[
             SizedBox(
               height: IrmaTheme.of(context).smallSpacing,
             ),
             IrmaCredentialCardFooter(
               credentialType: credentialView.credentialType,
-              text: credentialView.revoked || expiryDate == null || expiryDate!.dateTime == null
-                  ? null
-                  : FlutterI18n.translate(
-                      context,
-                      credentialView.expired
-                          ? 'credential.expired_on'
-                          : isExpiringSoon
-                              ? 'credential.expires_on'
-                              : 'credential.valid_until',
-                      translationParams: {
-                        'date': printableDate(
-                          expiryDate!.dateTime!,
-                          lang,
-                        ),
-                      },
-                    ),
-              isObtainable: (isInvalid || isExpiringSoon) && credentialView.credentialType.issueUrl.isNotEmpty,
+              text: footerText,
+              isObtainable: isObtainable,
             )
           ]
         ],
