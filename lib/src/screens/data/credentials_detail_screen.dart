@@ -122,14 +122,8 @@ class _CredentialsDetailScreenState extends State<CredentialsDetailScreen> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
-                    child: Text(
-                      filteredCredentials.isNotEmpty
-                          ? getTranslation(context, filteredCredentials.first.info.credentialType.name)
-                          : '',
-                      style: theme.textTheme.headline4,
-                    ),
+                  SizedBox(
+                    height: theme.mediumSpacing,
                   ),
                   ...filteredCredentials
                       .map(
@@ -153,7 +147,7 @@ class _CredentialsDetailScreenState extends State<CredentialsDetailScreen> {
                       .toList(),
                   SizedBox(
                     height: theme.mediumSpacing,
-                  )
+                  ),
                 ],
               );
             },
