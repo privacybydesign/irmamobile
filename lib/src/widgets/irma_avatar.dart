@@ -31,7 +31,10 @@ class IrmaAvatar extends StatelessWidget {
     Image? image = logoImage;
     if (logoPath != null) {
       final logoFile = File(logoPath!);
-      image = Image.file(logoFile);
+
+      if (logoFile.existsSync()) {
+        image = Image.file(logoFile);
+      }
     }
 
     return Container(

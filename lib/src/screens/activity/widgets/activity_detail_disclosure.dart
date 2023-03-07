@@ -89,6 +89,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
           titleTextStyle: IrmaTheme.of(context).textTheme.headline5!.copyWith(
                 fontWeight: FontWeight.w600,
               ),
+          imagePath: logEntry.serverName?.logoPath,
         )
       ],
     );
