@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.0.1] - in beta 2023-03-09
+### Changed
+- Illustration on pin forgotten screen is updated
+- Category names are no longer shown twice on credential detail screens
+
+### Fixed
+- Starting a custom issue wizard fails
+- ArrowBackScreen (iOS) is not always closed properly
+- Button to re-obtain expired or revoked credentials is missing within a session
+- Old log entries may not have a hostnames field ([#103](https://github.com/privacybydesign/irmamobile/issues/103))
+- Pretty verifier logos are not shown properly ([#104](https://github.com/privacybydesign/irmamobile/issues/104))
+- HistoryRepository: Cannot add to unmodifiable list ([#105](https://github.com/privacybydesign/irmamobile/issues/105))
+- SessionScreen: Null check operator used on null value ([#111](https://github.com/privacybydesign/irmamobile/issues/111))
+
 ## [7.0.0] - in beta 2023-02-20
 ### Added
 - First public release styled with new Yivi brand
@@ -224,6 +238,7 @@ This release only includes iOS changes.
 - Various bug fixes
 
 
+[7.0.1]: https://github.com/privacybydesign/irmamobile/compare/v7.0.0...v7.0.1
 [7.0.0]: https://github.com/privacybydesign/irmamobile/compare/v6.4.1...v7.0.0
 [6.4.1]: https://github.com/privacybydesign/irmamobile/compare/v6.4.0...v6.4.1
 [6.4.0]: https://github.com/privacybydesign/irmamobile/compare/v6.3.3...v6.4.0
