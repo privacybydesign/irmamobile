@@ -12,15 +12,15 @@ class LogEntries extends UnmodifiableListView<LogEntry> {
 }
 
 class HistoryState {
-  List<LogEntry> logEntries;
-  bool loading;
-  bool moreLogsAvailable;
+  final UnmodifiableListView<LogEntry> logEntries;
+  final bool loading;
+  final bool moreLogsAvailable;
 
   HistoryState({
-    this.logEntries = const [],
+    List<LogEntry> logEntries = const [],
     this.loading = false,
     this.moreLogsAvailable = false,
-  });
+  }) : logEntries = UnmodifiableListView(logEntries);
 
   HistoryState copyWith({
     required IrmaRepository repo,
@@ -32,7 +32,7 @@ class HistoryState {
         (c) => Credential.fromRaw(irmaConfiguration: repo.irmaConfiguration, rawCredential: c).isKeyshareCredential);
 
     return HistoryState(
-      logEntries: (logEntries ?? this.logEntries)..removeWhere(containsKeyshareCredential),
+      logEntries: (logEntries ?? this.logEntries).whereNot(containsKeyshareCredential).toList(),
       loading: loading ?? this.loading,
       moreLogsAvailable: moreLogsAvailable ?? this.moreLogsAvailable,
     );
@@ -62,12 +62,10 @@ class HistoryRepository {
         final supportedLogEntries =
             event.logEntries.where((entry) => _serverNameOptional.contains(entry.type) || entry.serverName != null);
 
-        final logEntries = prevState.logEntries..addAll(supportedLogEntries);
-
         return prevState.copyWith(
           repo: repo,
           loading: false,
-          logEntries: logEntries,
+          logEntries: [...prevState.logEntries, ...supportedLogEntries],
           moreLogsAvailable: event.logEntries.isEmpty,
         );
       }
