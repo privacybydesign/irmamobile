@@ -471,13 +471,10 @@
     }
   },
   "reset_pin": {
-    "title": "Lost PIN",
-    "message": "Lost your PIN? We're sorry but the Yivi organisation does not have a copy of your PIN. If you wish to continue using Yivi, you will have to enter a new PIN and reload all data.",
-    "existing_data_title": "What happens to my data",
-    "existing_data_message": "All existing data will be deleted from your Yivi app. After adding new data to the app you can start using Yivi again.",
-    "back": "Cancel",
-    "reset": "Start all over",
-    "existing_data_removed": "All data in your Yivi app will be deleted."
+    "title": "Forgot PIN",
+    "header" : "Forgot your PIN?",
+    "explanation": "We're sorry but the Yivi organisation does not have a copy of your PIN. If you wish to continue using Yivi, you will have to enter a new PIN and reload all data.",
+    "reset": "Start all over"
   },
   "rooted_warning": {
     "title": "Device unsafe",
