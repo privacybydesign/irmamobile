@@ -9,6 +9,7 @@ class IssuerVerifierHeader extends StatelessWidget {
   final String? title;
   final TextStyle? titleTextStyle;
   final Image? image;
+  final String? imagePath;
   final Color? backgroundColor;
   final Color? textColor;
 
@@ -16,6 +17,7 @@ class IssuerVerifierHeader extends StatelessWidget {
     this.title,
     this.titleTextStyle,
     this.image,
+    this.imagePath,
     this.backgroundColor,
     this.textColor,
   });
@@ -43,6 +45,7 @@ class IssuerVerifierHeader extends StatelessWidget {
           IrmaAvatar(
             size: 52,
             logoImage: image,
+            logoPath: imagePath,
             initials: title != '' ? title[0] : null,
           ),
           SizedBox(

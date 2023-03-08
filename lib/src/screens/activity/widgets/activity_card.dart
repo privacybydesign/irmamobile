@@ -39,8 +39,8 @@ class ActivityCard extends StatelessWidget {
     } else {
       if (logEntry.serverName != null) {
         title = logEntry.serverName!.name.translate(lang);
-        if (logEntry.serverName!.logo != null) {
-          logo = logEntry.serverName!.logo;
+        if (logEntry.serverName!.logoPath != null) {
+          logo = logEntry.serverName!.logoPath;
         }
       }
 
