@@ -482,12 +482,9 @@
   },
   "reset_pin": {
     "title": "Pincode vergeten",
-    "message": "Pincode vergeten? Dat is vervelend voor je. De organisatie achter Yivi weet jouw pincode ook niet en kan je hiermee dus niet helpen. Als je Yivi wilt blijven gebruiken, moet je helaas opnieuw beginnen: een nieuwe pincode kiezen en nieuwe gegevens ophalen.",
-    "existing_data_title": "Wat gebeurt er met mijn oude gegevens?",
-    "existing_data_message": "Je oude gegevens worden uit je mobiel verwijderd. Je kunt nieuwe gegevens ophalen en daarmee Yivi weer gebruiken.",
-    "back": "Annuleer",
-    "reset": "Begin opnieuw",
-    "existing_data_removed": "Alle gegevens in je Yivi-app worden verwijderd."
+    "header": "Pincode vergeten?",
+    "explanation" : "Dat is vervelend voor je. De organisatie achter Yivi weet jouw pincode ook niet en kan je hiermee dus niet helpen. Als je Yivi wilt blijven gebruiken, moet je helaas opnieuw beginnen: een nieuwe pincode kiezen en nieuwe gegevens ophalen.",
+    "reset": "Begin opnieuw"
   },
   "rooted_warning": {
     "title": "Apparaat niet veilig",
