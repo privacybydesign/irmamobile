@@ -264,6 +264,16 @@
       "point_3": "Niemand kijkt mee, ook Yivi niet!",
       "accept_markdown": "Ja, ik ga akkoord met de [algemene voorwaarden](https://privacybydesign.foundation/privacy-policy/)"
     },
+    "error_reporting": {
+      "accept" : {
+        "share_errors" : "Foutmeldingen en app gezondheid delen",
+        "with_yivi" : "met Yivi"
+      },
+      "dialog": {
+        "title": "Foutmeldingen en app gezondheid delen",
+        "explanation": "Door de foutmeldingen automatisch naar ons door te sturen kunnen we problemen sneller verhelpen. Ook controleren we periodiek of je applicatie nog goed werkt. Natuurlijk doen we dat allemaal geanonimiseerd."
+      }
+    },
     "submit": {
       "title": "Aanmelden",
       "progress_enrollment": "Welkom! Even geduld, we melden je aan."

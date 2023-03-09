@@ -264,6 +264,16 @@
       "point_3": "Nobody can see your data or your transactions, not even Yivi!",
       "accept_markdown": "Yes, I accept the [terms and conditions](https://privacybydesign.foundation/privacy-policy-en/)"
     },
+    "error_reporting": {
+      "accept": {
+        "share_errors": "Share error messages and app health",
+        "with_yivi": "with Yivi"
+      },
+      "dialog": {
+        "title": "Error and app health reporting",
+        "explanation": "By enabling error reporting you help us improve the user experience. This also allows us to check up on your app and make sure it's working properly. All of this data is completely anonymized."
+      }
+    },
     "submit": {
       "title": "Logging in",
       "progress_enrollment": "Welcome! Please wait a moment, we're signing you up."
