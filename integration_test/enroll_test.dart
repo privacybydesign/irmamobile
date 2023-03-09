@@ -222,7 +222,7 @@ void main() {
         // Expect the bottom sheet to contain the correct text
         final expectedErrorReportingBottomSheetText = [
           'Error and app health reporting',
-          "By enabling error reporting you help us improve the user experience. This also allows us to check up on your app and make sure it's working properly. All of this data is completely anonymized."
+          "By enabling error reporting you're helping us improve the user experience. This option also allows your app to send us a periodic app health message. Of course, we do all of that without having access to your personal information or transactions."
         ];
         final actualErrorReportingBottomSheetText = tester.getAllText(bottomSheetFinder);
         expect(actualErrorReportingBottomSheetText, expectedErrorReportingBottomSheetText);
