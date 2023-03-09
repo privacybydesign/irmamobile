@@ -13,9 +13,15 @@ class ErrorReportingInfoBottomSheet extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TranslatedText(
-            'enrollment.error_reporting.dialog.title',
-            style: theme.textTheme.headline3,
+          // Added padding to the right so the header doesn't overlap with the close button.
+          Padding(
+            padding: EdgeInsets.only(
+              right: theme.mediumSpacing,
+            ),
+            child: TranslatedText(
+              'enrollment.error_reporting.dialog.title',
+              style: theme.textTheme.headline3,
+            ),
           ),
           Padding(
             padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
