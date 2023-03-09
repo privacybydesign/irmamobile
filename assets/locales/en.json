@@ -271,7 +271,7 @@
       },
       "dialog": {
         "title": "Error and app health reporting",
-        "explanation": "By enabling error reporting you help us improve the user experience. This also allows us to check up on your app and make sure it's working properly. All of this data is completely anonymized."
+        "explanation": "By enabling error reporting you're helping us improve the user experience. This option also allows your app to send us a periodic app health message. Of course, we do all of that without having access to your personal information or transactions."
       }
     },
     "submit": {

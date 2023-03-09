@@ -265,13 +265,13 @@
       "accept_markdown": "Ja, ik ga akkoord met de [algemene voorwaarden](https://privacybydesign.foundation/privacy-policy/)"
     },
     "error_reporting": {
-      "accept" : {
-        "share_errors" : "Foutmeldingen en app gezondheid delen",
-        "with_yivi" : "met Yivi"
+      "accept": {
+        "share_errors": "Foutmeldingen en app gezondheid delen",
+        "with_yivi": "met Yivi"
       },
       "dialog": {
         "title": "Foutmeldingen en app gezondheid delen",
-        "explanation": "Door de foutmeldingen automatisch naar ons door te sturen kunnen we problemen sneller verhelpen. Ook controleren we periodiek of je app nog goed werkt. Natuurlijk doen we dat allemaal geanonimiseerd."
+        "explanation": "Door de foutmeldingen automatisch naar ons door te sturen kunnen we problemen sneller verhelpen. Ook stuurt de app periodiek een melding of alles nog goed werkt. Natuurlijk doen we dat allemaal zonder toegang te hebben tot je persoonlijke gegevens of transacties."
       }
     },
     "submit": {
