@@ -1,17 +1,22 @@
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/models/enrollment_status.dart';
 import 'package:irmamobile/src/screens/enrollment/accept_terms/accept_terms_screen.dart';
+import 'package:irmamobile/src/screens/enrollment/accept_terms/widgets/error_reporting_check_box.dart';
 import 'package:irmamobile/src/screens/enrollment/choose_pin/choose_pin_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/confirm_pin/confirm_pin_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/enrollment_screen.dart';
 import 'package:irmamobile/src/screens/enrollment/widgets/enrollment_instruction.dart';
 import 'package:irmamobile/src/screens/home/home_screen.dart';
+import 'package:irmamobile/src/widgets/irma_bottom_sheet.dart';
+import 'package:irmamobile/src/widgets/irma_close_button.dart';
 import 'package:irmamobile/src/widgets/irma_dialog.dart';
 import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
 
@@ -169,13 +174,76 @@ void main() {
         await _goThroughIntroduction(tester);
         expect(find.byType(AcceptTermsScreen), findsOneWidget);
 
+        // Scroll to the error reporting opt in
+        // Note: this is the entire widget (including the text), not just the checkbox
+        final errorReportingOptInFinder = find.byType(ErrorReportingCheckBox);
+        await tester.scrollUntilVisible(errorReportingOptInFinder, 50);
+
+        // Check the default error reporting value in the preferences
+        final defaultReportErrorsValue = await irmaBinding.repository.preferences.getReportErrors().first;
+        expect(defaultReportErrorsValue, false);
+
+        // Find the actual checkbox in the ErrorReportingCheckBox widget and assert the value
+        final errorReportingCheckBoxFinder = find.descendant(
+          of: errorReportingOptInFinder,
+          matching: find.byType(Checkbox),
+        );
+        final defaultErrorReportingCheckBoxValue = tester.widget<Checkbox>(errorReportingCheckBoxFinder).value;
+        expect(defaultErrorReportingCheckBoxValue, defaultReportErrorsValue);
+
+        // Now tap the checkbox and check the value again
+        await tester.tapAndSettle(errorReportingCheckBoxFinder);
+
+        final updatedReportErrorsValue = await irmaBinding.repository.preferences.getReportErrors().first;
+        expect(updatedReportErrorsValue, true);
+
+        final updatedErrorReportingCheckBoxValue = tester.widget<Checkbox>(errorReportingCheckBoxFinder).value;
+        expect(updatedErrorReportingCheckBoxValue, updatedReportErrorsValue);
+
+        // We need to do some extra steps to find the text span link in the ErrorReportingCheckBox widget
+        final errorReportingTextFinder = find.descendant(
+          of: errorReportingOptInFinder,
+          matching: find.byType(RichText),
+        );
+        final errorReportingTextWidget = tester.widget<RichText>(errorReportingTextFinder);
+
+        // The first text span in the rich text should be the link
+        final linkTextSpan = (errorReportingTextWidget.text as TextSpan).children?.first as TextSpan;
+
+        // Expect the recognizer to be a TapGestureRecognizer and tap it
+        expect(linkTextSpan.recognizer, isA<TapGestureRecognizer>());
+        (linkTextSpan.recognizer as TapGestureRecognizer).onTap?.call();
+        await tester.pumpAndSettle();
+
+        // Expect the bottom sheet to be visible
+        final bottomSheetFinder = find.byType(IrmaBottomSheet);
+        expect(bottomSheetFinder, findsOneWidget);
+
+        // Expect the bottom sheet to contain the correct text
+        final expectedErrorReportingBottomSheetText = [
+          'Error and app health reporting',
+          "By enabling error reporting you help us improve the user experience. This also allows us to check up on your app and make sure it's working properly. All of this data is completely anonymized."
+        ];
+        final actualErrorReportingBottomSheetText = tester.getAllText(bottomSheetFinder);
+        expect(actualErrorReportingBottomSheetText, expectedErrorReportingBottomSheetText);
+
+        // Close the bottom sheet
+        final bottomSheetCloseButtonFinder = find.descendant(
+          of: bottomSheetFinder,
+          matching: find.byType(IrmaCloseButton),
+        );
+        await tester.tapAndSettle(bottomSheetCloseButtonFinder);
+
+        // Expect the bottom sheet to be gone
+        expect(bottomSheetFinder, findsNothing);
+
         // Next button should be disabled by default
         expect(tester.widget<YiviThemedButton>(nextButtonFinder).onPressed, isNull);
 
-        // Tap checkbox
-        final checkBoxFinder = find.byKey(const Key('accept_terms_checkbox'));
-        await tester.scrollUntilVisible(checkBoxFinder.hitTestable(), 50);
-        await tester.tapAndSettle(checkBoxFinder);
+        // Accept the terms checkbox
+        final termsCheckBoxFinder = find.byKey(const Key('accept_terms_checkbox'));
+        await tester.scrollUntilVisible(termsCheckBoxFinder.hitTestable(), 50);
+        await tester.tapAndSettle(termsCheckBoxFinder);
 
         // Next button should be enabled now
         expect(tester.widget<YiviThemedButton>(nextButtonFinder).onPressed, isNotNull);
