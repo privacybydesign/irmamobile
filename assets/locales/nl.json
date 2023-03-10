@@ -264,6 +264,16 @@
       "point_3": "Niemand kijkt mee, ook Yivi niet!",
       "accept_markdown": "Ja, ik ga akkoord met de [algemene voorwaarden](https://privacybydesign.foundation/privacy-policy/)"
     },
+    "error_reporting": {
+      "accept": {
+        "share_errors": "Foutmeldingen en app gezondheid delen",
+        "with_yivi": "met Yivi"
+      },
+      "dialog": {
+        "title": "Foutmeldingen en app gezondheid delen",
+        "explanation": "Door de foutmeldingen automatisch naar ons door te sturen kunnen we problemen sneller verhelpen. Ook stuurt de app periodiek een melding of alles nog goed werkt. Natuurlijk doen we dat allemaal zonder toegang te hebben tot je persoonlijke gegevens of transacties."
+      }
+    },
     "submit": {
       "title": "Aanmelden",
       "progress_enrollment": "Welkom! Even geduld, we melden je aan."
@@ -516,8 +526,8 @@
     "title": "Instellingen",
     "start_qr": "QR-scanner direct openen",
     "start_qr_explanation": "QR-scanner automatisch openen na het opstarten van de app.",
-    "report_errors": "Fouten naar Yivi sturen",
-    "report_errors_explanation": "Door foutrapportage in te schakelen, help je ons de gebruikerservaring te verbeteren.",
+    "report_errors": "Foutmeldingen en app gezondheid delen",
+    "report_errors_explanation": "Door deze informatie te delen help je ons de gebruikservaring te verbeteren.",
     "enable_screenshots": "Screenshots toestaan",
     "enable_screenshots_explanation": "Als dit is ingeschakeld, wordt de app niet vervaagd in de app-switcher.",
     "developer_mode": "Developer modus",
