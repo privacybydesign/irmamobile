@@ -141,7 +141,12 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
           );
         }
       } else {
-        yield* _obtainCredentials(state, state.getSelectedCon(state.currentDiscon!.key)!);
+        final credentialsToObtain = state.getSelectedCon(state.currentDiscon!.key)!;
+        if (credentialsToObtain.every((cred) => cred.obtainable)) {
+          yield* _obtainCredentials(state, state.getSelectedCon(state.currentDiscon!.key)!);
+        } else {
+          throw Exception('Current DisCon is not fully obtainable and therefore not selectable');
+        }
       }
     } else if (state is DisclosurePermissionObtainCredentials && event is DisclosurePermissionNextPressed) {
       if (state.allObtained) {
