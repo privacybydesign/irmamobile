@@ -53,7 +53,7 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
               SizedBox(height: theme.defaultSpacing),
               DisclosureDisconStepper(
                 currentCandidateKey: state.currentDiscon?.key,
-                candidates: state.candidates,
+                candidatesList: state.candidatesList,
                 selectedConIndices: state.selectedConIndices,
                 onChoiceUpdated: (int conIndex) => onEvent(
                   DisclosurePermissionChoiceUpdated(

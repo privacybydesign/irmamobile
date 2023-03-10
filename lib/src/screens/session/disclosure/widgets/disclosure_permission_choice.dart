@@ -24,8 +24,10 @@ class DisclosurePermissionChoice extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     final isDisabled = option.value.any((cred) => cred is TemplateDisclosureCredential && !cred.obtainable);
 
-    // TODO: items should be re-ordered in issue wizard.
+    // TODO: don't pre-select unobtainable items
+    // TODO: bloc unit test
     // TODO: int test
+    // TODO: hide confirm close dialog on forced close
     // TODO: Choices screen?
     return Padding(
       padding: EdgeInsets.all(theme.tinySpacing),

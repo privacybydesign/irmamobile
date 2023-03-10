@@ -11,13 +11,13 @@ import 'disclosure_permission_choice.dart';
 
 class DisclosureDisconStepper extends StatelessWidget {
   final int? currentCandidateKey;
-  final UnmodifiableMapView<int, DisCon<DisclosureCredential>> candidates;
-  final UnmodifiableMapView<int, int> selectedConIndices;
+  final List<MapEntry<int, DisCon<DisclosureCredential>>> candidatesList;
+  final Map<int, int> selectedConIndices;
   final Function(int conIndex) onChoiceUpdated;
 
   const DisclosureDisconStepper({
     this.currentCandidateKey,
-    required this.candidates,
+    required this.candidatesList,
     required this.selectedConIndices,
     required this.onChoiceUpdated,
   });
@@ -26,13 +26,13 @@ class DisclosureDisconStepper extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
     final currentCandidateIndex = currentCandidateKey != null
-        ? candidates.entries.toList().indexWhere(
-              (candidateEntry) => candidateEntry.key == currentCandidateKey,
-            )
+        ? candidatesList.indexWhere(
+            (candidateEntry) => candidateEntry.key == currentCandidateKey,
+          )
         : null;
     return IrmaStepper(
       currentIndex: currentCandidateIndex,
-      children: candidates.entries
+      children: candidatesList
           .mapIndexed(
             (candidateIndex, candidateEntry) =>
                 // If this item is a choice, render choice widget.

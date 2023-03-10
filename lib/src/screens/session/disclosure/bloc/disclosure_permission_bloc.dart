@@ -90,6 +90,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       yield DisclosurePermissionIssueWizard(
         plannedSteps: _calculatePlannedSteps(state.candidates, selectedConIndices, session),
         candidates: state.candidates,
+        candidatesList: state.candidatesList,
         selectedConIndices: selectedConIndices,
         obtained: state.obtained,
       );
@@ -486,11 +487,22 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
                         .none((cred2) => cred2 is ChoosableDisclosureCredential && cred2.fullId == cred.fullId))),
               ),
         };
+
+        // Ensure all unobtainable templates are displayed first.
+        final groupedIssueWizardCandidates = groupBy<MapEntry<int, DisCon<TemplateDisclosureCredential>>, bool>(
+            issueWizardCandidates.entries,
+            (candidateEntry) => candidateEntry.value.every((con) => con.any((cred) => !cred.obtainable)));
+        final List<MapEntry<int, DisCon<TemplateDisclosureCredential>>> issueWizardCandidatesList = [
+          ...(groupedIssueWizardCandidates[true] ?? []),
+          ...(groupedIssueWizardCandidates[false] ?? []),
+        ];
+
         final selectedConIndices = issueWizardCandidates.map((i, _) => MapEntry(i, 0));
         final obtained = issueWizardCandidates.map((i, _) => MapEntry(i, false));
         return DisclosurePermissionIssueWizard(
           plannedSteps: _calculatePlannedSteps(issueWizardCandidates, selectedConIndices, session),
           candidates: issueWizardCandidates,
+          candidatesList: issueWizardCandidatesList,
           selectedConIndices: selectedConIndices,
           obtained: obtained,
         );
@@ -525,6 +537,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     return DisclosurePermissionIssueWizard(
       plannedSteps: _calculatePlannedSteps(candidates, selectedConIndices, session),
       candidates: prevState.candidates,
+      candidatesList: prevState.candidatesList,
       selectedConIndices: selectedConIndices,
       obtained: obtained,
     );
