@@ -81,6 +81,9 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       if (event.conIndex < 0 || event.conIndex >= state.currentDiscon!.value.length) {
         throw Exception('Unknown conIndex ${event.conIndex} in current discon');
       }
+      if (state.currentDiscon!.value[event.conIndex].any((cred) => !cred.obtainable)) {
+        throw Exception('Selected conIndex ${event.conIndex} is not fully obtainable and therefore not selectable');
+      }
 
       final selectedConIndices = state.selectedConIndices
           .map((i, selected) => MapEntry(i, i == state.currentDiscon!.key ? event.conIndex : selected));
@@ -497,7 +500,10 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
           ...(groupedIssueWizardCandidates[false] ?? []),
         ];
 
-        final selectedConIndices = issueWizardCandidates.map((i, _) => MapEntry(i, 0));
+        final selectedConIndices = issueWizardCandidates.map((i, choice) {
+          final selectedConIndex = choice.indexWhere((con) => con.every((cred) => cred.obtainable));
+          return MapEntry(i, selectedConIndex >= 0 ? selectedConIndex : 0);
+        });
         final obtained = issueWizardCandidates.map((i, _) => MapEntry(i, false));
         return DisclosurePermissionIssueWizard(
           plannedSteps: _calculatePlannedSteps(issueWizardCandidates, selectedConIndices, session),
@@ -758,12 +764,17 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
 
     // If no con is selected yet, we simply select the first valid choosable option.
     // If none of the options is valid, we select the first invalid choosable option.
+    // If none is choosable, then we select the first one without unobtainable templates.
     // If there is no choosable option at all, we simply select the first option.
     final validChoice = discon.indexWhere(
       (con) => con.every((cred) => cred is ChoosableDisclosureCredential && cred.valid),
     );
     if (validChoice >= 0) return validChoice;
-    final choice = discon.indexWhere((con) => con.every((cred) => cred is ChoosableDisclosureCredential));
+    final choosableChoice = discon.indexWhere((con) => con.every((cred) => cred is ChoosableDisclosureCredential));
+    if (choosableChoice >= 0) return choosableChoice;
+    final choice = discon.indexWhere(
+      (con) => con.every((cred) => cred is ChoosableDisclosureCredential || cred.obtainable),
+    );
     return choice >= 0 ? choice : 0;
   }
 
