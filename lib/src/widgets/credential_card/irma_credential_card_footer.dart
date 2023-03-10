@@ -53,7 +53,7 @@ class IrmaCredentialCardFooter extends StatelessWidget {
 
   Widget? _buildReobtainOption(BuildContext context, IrmaThemeData theme) {
     if (credentialView.obtainable) {
-      if (credentialView.invalid || _isExpiringSoon) {
+      if (!credentialView.valid || _isExpiringSoon) {
         return Padding(
           padding: EdgeInsets.only(top: theme.smallSpacing),
           child: YiviThemedButton(
@@ -66,7 +66,7 @@ class IrmaCredentialCardFooter extends StatelessWidget {
           ),
         );
       }
-    } else if (credentialView.invalid || credentialView is TemplateDisclosureCredential) {
+    } else if (!credentialView.valid || credentialView is TemplateDisclosureCredential) {
       return InformationBox(
         message: FlutterI18n.translate(
           context,

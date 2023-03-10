@@ -60,7 +60,7 @@ class IrmaCredentialCard extends StatelessWidget {
     final isExpiringSoon = expiryDate?.expiresSoon ?? false;
 
     return IrmaCard(
-      style: credentialView.invalid ? IrmaCardStyle.danger : style,
+      style: credentialView.valid ? style : IrmaCardStyle.danger,
       onTap: onTap,
       padding: padding,
       child: Column(
@@ -82,7 +82,7 @@ class IrmaCredentialCard extends StatelessWidget {
           ),
           // If there are attributes in this credential, then we show the attribute list
           if (credentialView.attributesWithValue.isNotEmpty && !hideAttributes) ...[
-            IrmaDivider(color: credentialView.invalid ? theme.danger : null),
+            IrmaDivider(color: credentialView.valid ? null : theme.danger),
             IrmaCredentialCardAttributeList(
               credentialView.attributes,
               compareTo: compareTo,

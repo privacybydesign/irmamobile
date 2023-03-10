@@ -42,9 +42,6 @@ class CredentialView implements CredentialInfo {
   final bool revoked;
   final List<Attribute> _attributes;
 
-  bool get invalid => expired || revoked;
-  bool get obtainable => credentialType.issueUrl.isNotEmpty;
-
   CredentialView({
     required this.info,
     this.expired = false,
@@ -100,6 +97,7 @@ class CredentialView implements CredentialInfo {
   bool get isKeyshareCredential =>
       attributes.any((attr) => info.schemeManager.keyshareAttributes.contains(attr.attributeType.fullId));
   bool get valid => !expired && !revoked;
+  bool get obtainable => credentialType.issueUrl.isNotEmpty;
 
   @override
   CredentialType get credentialType => info.credentialType;
