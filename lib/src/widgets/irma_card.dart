@@ -32,7 +32,6 @@ class IrmaCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final borderRadius = BorderRadius.circular(8);
     final shadow = [
       BoxShadow(
         color: Colors.grey.shade300,
@@ -45,7 +44,7 @@ class IrmaCard extends StatelessWidget {
     switch (style) {
       case IrmaCardStyle.normal:
         boxDecoration = BoxDecoration(
-          borderRadius: borderRadius,
+          borderRadius: theme.borderRadius,
           border: Border.all(color: Colors.transparent),
           boxShadow: shadow,
           color: theme.light,
@@ -53,14 +52,14 @@ class IrmaCard extends StatelessWidget {
         break;
       case IrmaCardStyle.flat:
         boxDecoration = BoxDecoration(
-          borderRadius: borderRadius,
+          borderRadius: theme.borderRadius,
           border: Border.all(color: Colors.transparent),
           color: theme.light,
         );
         break;
       case IrmaCardStyle.outlined:
         boxDecoration = BoxDecoration(
-          borderRadius: borderRadius,
+          borderRadius: theme.borderRadius,
           border: Border.all(
             color: theme.themeData.colorScheme.secondary,
             width: 1,
@@ -71,7 +70,7 @@ class IrmaCard extends StatelessWidget {
         break;
       case IrmaCardStyle.highlighted:
         boxDecoration = BoxDecoration(
-          borderRadius: borderRadius,
+          borderRadius: theme.borderRadius,
           border: Border.all(
             color: theme.tertiary,
             width: 1,
@@ -81,7 +80,7 @@ class IrmaCard extends StatelessWidget {
         break;
       case IrmaCardStyle.danger:
         boxDecoration = BoxDecoration(
-          borderRadius: borderRadius,
+          borderRadius: theme.borderRadius,
           border: Border.all(
             color: theme.danger,
             width: 1,
@@ -100,7 +99,7 @@ class IrmaCard extends StatelessWidget {
     return Padding(
       padding: padding ?? EdgeInsets.all(theme.tinySpacing),
       child: InkWell(
-        borderRadius: borderRadius,
+        borderRadius: theme.borderRadius,
         onTap: onTap,
         child: Container(
           //In this context the "margin" is set on the container padding.

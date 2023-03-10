@@ -42,6 +42,9 @@ class CredentialView implements CredentialInfo {
   final bool revoked;
   final List<Attribute> _attributes;
 
+  bool get invalid => expired || revoked;
+  bool get obtainable => credentialType.issueUrl.isNotEmpty;
+
   CredentialView({
     required this.info,
     this.expired = false,

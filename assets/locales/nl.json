@@ -89,7 +89,8 @@
     },
     "about_to_expire": "Gaat verlopen",
     "expired": "Verlopen",
-    "revoked": "Ingetrokken"
+    "revoked": "Ingetrokken",
+    "not_obtainable": "Deze gegevens zijn niet op te halen. Neem contact op met {issuerName} om deze gegevens te krijgen."
   },
   "data": {
     "tab": {

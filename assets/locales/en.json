@@ -89,7 +89,8 @@
     },
     "about_to_expire": "About to expire",
     "expired": "Expired",
-    "revoked": "Revoked"
+    "revoked": "Revoked",
+    "not_obtainable": "This data cannot be obtained. Please contact {issuerName} to obtain this data."
   },
   "data": {
     "tab": {
