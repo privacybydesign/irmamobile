@@ -25,8 +25,8 @@ class DisclosurePermissionChoice extends StatelessWidget {
     final isDisabled = option.value.any((cred) => cred is TemplateDisclosureCredential && !cred.obtainable);
 
     // TODO: items should be re-ordered in issue wizard.
-    // TODO: block should prevent to continue when trying to re-obtain an unobtainable cred.
     // TODO: int test
+    // TODO: Choices screen?
     return Padding(
       padding: EdgeInsets.all(theme.tinySpacing),
       child: Column(

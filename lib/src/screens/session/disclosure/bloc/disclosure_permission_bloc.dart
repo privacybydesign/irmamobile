@@ -142,12 +142,14 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     } else if (state is DisclosurePermissionObtainCredentials && event is DisclosurePermissionNextPressed) {
       if (state.allObtained) {
         yield state.parentState;
-      } else {
+      } else if (state.currentIssueWizardItem?.obtainable ?? false) {
         // currentIssueWizardItem cannot be null when allObtained returned false.
         yield DisclosurePermissionCredentialInformation(
           parentState: state,
           credentialType: state.currentIssueWizardItem!.credentialType,
         );
+      } else {
+        throw Exception('Credential cannot be obtained');
       }
     } else if (state is DisclosurePermissionPreviouslyAddedCredentialsOverview &&
         event is DisclosurePermissionNextPressed) {
@@ -813,10 +815,14 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     assert(selectedConTemplates.isNotEmpty);
     // If only one credential is involved, we can open the issue url immediately.
     if (selectedConTemplates.length == 1) {
-      yield DisclosurePermissionCredentialInformation(
-        parentState: parentState,
-        credentialType: selectedConTemplates.first.credentialType,
-      );
+      if (selectedConTemplates.first.obtainable) {
+        yield DisclosurePermissionCredentialInformation(
+          parentState: parentState,
+          credentialType: selectedConTemplates.first.credentialType,
+        );
+      } else {
+        Exception('Credential cannot be obtained');
+      }
     } else {
       yield DisclosurePermissionObtainCredentials(
         parentState: parentState,
