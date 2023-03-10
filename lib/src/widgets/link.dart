@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../theme/theme.dart';
-import 'irma_button.dart';
 import 'irma_dialog.dart';
 import 'irma_repository_provider.dart';
-import 'irma_themed_button.dart';
 import 'translated_text.dart';
+import 'yivi_themed_button.dart';
 
 class ContactLink extends StatelessWidget {
   final String translationKey;
@@ -32,12 +31,9 @@ class ContactLink extends StatelessWidget {
               return IrmaDialog(
                 title: FlutterI18n.translate(context, 'help.mail_error_title'),
                 content: FlutterI18n.translate(context, 'help.mail_error'),
-                child: IrmaButton(
-                  size: IrmaButtonSize.small,
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  label: FlutterI18n.translate(context, 'help.mail_error_button'),
+                child: YiviThemedButton(
+                  label: 'help.mail_error_button',
+                  onPressed: () => Navigator.pop(context),
                 ),
               );
             },

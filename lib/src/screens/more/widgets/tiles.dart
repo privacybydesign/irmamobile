@@ -5,11 +5,10 @@ import 'package:share/share.dart';
 
 import '../../../sentry/sentry.dart';
 import '../../../theme/theme.dart';
-import '../../../widgets/irma_button.dart';
 import '../../../widgets/irma_dialog.dart';
 import '../../../widgets/irma_repository_provider.dart';
-import '../../../widgets/irma_themed_button.dart';
 import '../../../widgets/translated_text.dart';
+import '../../../widgets/yivi_themed_button.dart';
 
 class ContactLinkTile extends StatelessWidget {
   final IconData? iconData;
@@ -39,12 +38,9 @@ class ContactLinkTile extends StatelessWidget {
               return IrmaDialog(
                 title: FlutterI18n.translate(context, 'help.mail_error_title'),
                 content: FlutterI18n.translate(context, 'help.mail_error'),
-                child: IrmaButton(
-                  size: IrmaButtonSize.small,
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  label: FlutterI18n.translate(context, 'help.mail_error_button'),
+                child: YiviThemedButton(
+                  label: 'help.mail_error_button',
+                  onPressed: () => Navigator.pop(context),
                 ),
               );
             },
