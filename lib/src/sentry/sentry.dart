@@ -22,11 +22,13 @@ Future<void> initSentry({required IrmaPreferences preferences}) async {
           options.release = release;
           options.dsn = dsn;
           options.enableNativeCrashHandling = reportErrors;
+
+          // Enable app health check
+          options.enableAutoSessionTracking = true;
+
           // As noted in the docs of enableNativeCrashHandling, platform checking does not work on iOS when
           // native crash handling is disabled. Therefore, we add a fallback implementation.
           if (!options.enableNativeCrashHandling && Platform.isIOS) options.platformChecker = StubPlatformChecker();
-          // In the privacy policy we only mention error events, so we don't send the session health information.
-          options.enableAutoSessionTracking = false;
         },
       );
       if (!completer.isCompleted) completer.complete();

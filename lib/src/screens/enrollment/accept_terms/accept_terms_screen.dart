@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../theme/theme.dart';
 import '../../../widgets/translated_text.dart';
 import '../widgets/enrollment_nav_bar.dart';
+import 'widgets/error_reporting_check_box.dart';
 import 'widgets/terms_bullet_list.dart';
 import 'widgets/terms_check_box.dart';
 
@@ -60,7 +61,8 @@ class AcceptTermsScreen extends StatelessWidget {
                         TermsCheckBox(
                           isAccepted: isAccepted,
                           onToggleAccepted: onToggleAccepted,
-                        )
+                        ),
+                        ErrorReportingCheckBox()
                       ],
                     ),
                   ),
