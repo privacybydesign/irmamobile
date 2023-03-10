@@ -32,13 +32,13 @@ class _CredentialsDetailScreenState extends State<CredentialsDetailScreen> {
   _showCredentialOptionsBottomSheet(BuildContext context, Credential cred) async => showModalBottomSheet<void>(
         context: context,
         builder: (context) => IrmaCredentialCardOptionsBottomSheet(
-          onDelete: cred.info.credentialType.issueUrl.isEmpty
+          onDelete: cred.info.credentialType.disallowDelete
               ? null
               : () async {
                   Navigator.of(context).pop();
                   await _showConfirmDeleteDialog(_scaffoldKey.currentContext!, cred);
                 },
-          onReobtain: cred.info.credentialType.disallowDelete
+          onReobtain: cred.info.credentialType.issueUrl.isEmpty
               ? null
               : () {
                   Navigator.of(context).pop();

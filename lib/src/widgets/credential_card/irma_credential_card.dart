@@ -4,9 +4,9 @@ import '../../models/attribute.dart';
 import '../../models/credentials.dart';
 import '../../theme/theme.dart';
 import '../../util/language.dart';
+import '../greyed_out.dart';
 import '../irma_card.dart';
 import '../irma_divider.dart';
-
 import 'irma_credential_card_attribute_list.dart';
 import 'irma_credential_card_footer.dart';
 import 'irma_credential_card_header.dart';
@@ -22,6 +22,7 @@ class IrmaCredentialCard extends StatelessWidget {
   final CardExpiryDate? expiryDate;
   final bool hideFooter;
   final bool hideAttributes;
+  final bool disabled;
 
   const IrmaCredentialCard({
     Key? key,
@@ -34,6 +35,7 @@ class IrmaCredentialCard extends StatelessWidget {
     this.expiryDate,
     this.hideFooter = false,
     this.hideAttributes = false,
+    this.disabled = false,
   }) : super(key: key);
 
   IrmaCredentialCard.fromCredential(
@@ -46,6 +48,7 @@ class IrmaCredentialCard extends StatelessWidget {
     this.padding,
     this.hideFooter = false,
     this.hideAttributes = false,
+    this.disabled = false,
   })  : credentialView = credential,
         expiryDate = CardExpiryDate(credential.expires),
         super(key: key);
@@ -64,14 +67,18 @@ class IrmaCredentialCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          IrmaCredentialCardHeader(
-            credentialName: getTranslation(context, credentialView.credentialType.name),
-            issuerName: getTranslation(context, credentialView.issuer.name),
-            logo: credentialView.credentialType.logo,
-            trailing: headerTrailing,
-            isExpired: credentialView.expired,
-            isRevoked: credentialView.revoked,
-            isExpiringSoon: isExpiringSoon,
+          // Only the header should be greyed out when the card is disabled.
+          GreyedOut(
+            filterActive: disabled,
+            child: IrmaCredentialCardHeader(
+              credentialName: getTranslation(context, credentialView.credentialType.name),
+              issuerName: getTranslation(context, credentialView.issuer.name),
+              logo: credentialView.credentialType.logo,
+              trailing: headerTrailing,
+              isExpired: credentialView.expired,
+              isRevoked: credentialView.revoked,
+              isExpiringSoon: isExpiringSoon,
+            ),
           ),
           // If there are attributes in this credential, then we show the attribute list
           if (credentialView.attributesWithValue.isNotEmpty && !hideAttributes) ...[

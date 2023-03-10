@@ -90,6 +90,9 @@ class DisclosurePermissionIssueWizard extends DisclosurePermissionStep {
   /// Returns the selected con in the discon that should currently be handled.
   Con<TemplateDisclosureCredential>? get currentCon => currentDiscon?.value[selectedConIndices[currentDiscon!.key]!];
 
+  /// Returns whether the currently selected con in the issue wizard can be completed.
+  bool get currentCanBeCompleted => currentCon?.every((cred) => cred.obtainable) ?? true;
+
   /// Returns whether the issue wizard is completed.
   bool get isCompleted => obtained.values.every((match) => match);
 

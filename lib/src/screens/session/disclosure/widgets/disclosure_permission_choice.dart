@@ -24,23 +24,27 @@ class DisclosurePermissionChoice extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     final isDisabled = option.value.any((cred) => cred is TemplateDisclosureCredential && !cred.obtainable);
 
-    // TODO: disabled card has to be greyed out.
     // TODO: items should be re-ordered in issue wizard.
+    // TODO: block should prevent to continue when trying to re-obtain an unobtainable cred.
+    // TODO: int test
     return Padding(
       padding: EdgeInsets.all(theme.tinySpacing),
       child: Column(
         children: option.value
             .map(
               (credential) => GestureDetector(
-                onTap: () {
-                  if (isActive) {
-                    onChoiceUpdated(option.key);
-                  }
-                },
+                onTap: isDisabled
+                    ? null
+                    : () {
+                        if (isActive) {
+                          onChoiceUpdated(option.key);
+                        }
+                      },
                 child: IrmaCredentialCard(
                   padding: EdgeInsets.zero,
                   credentialView: credential,
                   compareTo: credential is TemplateDisclosureCredential ? credential.attributes : null,
+                  disabled: isDisabled,
                   headerTrailing: credential == option.value.first
                       ? RadioIndicator(
                           isSelected: option.key == selectedConIndex,

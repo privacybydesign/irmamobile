@@ -66,8 +66,10 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: state.isCompleted ? 'disclosure_permission.next_step' : 'disclosure_permission.obtain_data',
-        onPrimaryPressed: () => onEvent(DisclosurePermissionNextPressed()),
+        primaryButtonLabel: state.isCompleted
+            ? 'disclosure_permission.next_step'
+            : (state.currentCanBeCompleted ? 'disclosure_permission.obtain_data' : 'disclosure_permission.close'),
+        onPrimaryPressed: state.currentCanBeCompleted ? () => onEvent(DisclosurePermissionNextPressed()) : onDismiss,
       ),
     );
   }
