@@ -7,7 +7,7 @@ import '../../irma_binding.dart';
 import '../../util.dart';
 import '../disclosure_helpers.dart';
 
-Future<void> randomBindTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
+Future<void> randomBlindTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBinding) async {
   await pumpAndUnlockApp(tester, irmaBinding.repository);
 
   // Disclose election attribute from stempas.
