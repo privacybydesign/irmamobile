@@ -1959,13 +1959,13 @@ void main() {
 
     expect(await bloc2.stream.first, isA<DisclosurePermissionChoicesOverview>());
     choicesOverviewBlocState = bloc2.state as DisclosurePermissionChoicesOverview;
-    expect(choicesOverviewBlocState.choicesValid, false);
+    expect(choicesOverviewBlocState.choicesValid, true);
 
     bloc2.add(DisclosurePermissionChangeChoicePressed(disconIndex: 0));
     expect(await bloc2.stream.first, isA<DisclosurePermissionChangeChoice>());
     DisclosurePermissionChangeChoice changeChoiceBlocState = bloc2.state as DisclosurePermissionChangeChoice;
     expect(changeChoiceBlocState.disconIndex, 0);
-    expect(changeChoiceBlocState.selectedConIndex, 0);
+    expect(changeChoiceBlocState.selectedConIndex, 1);
     expect(changeChoiceBlocState.choosableCons.keys, [0, 1]);
     expect(changeChoiceBlocState.choosableCons[0]?.length, 1);
     expect(changeChoiceBlocState.choosableCons[0]?[0].fullId, 'pbdf.chipsoft.bsn');
@@ -1993,6 +1993,112 @@ void main() {
 
     bloc2.add(DisclosurePermissionNextPressed());
 
+    await repo.getSessionState(45).firstWhere((session) => session.status == SessionStatus.success);
+  });
+
+  test('credential-status-sorting', () async {
+    // Issue revoked credential
+    await _issueCredential(
+      repo,
+      mockBridge,
+      43,
+      [
+        {
+          'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31611111111'),
+        }
+      ],
+      revoked: true,
+    );
+
+    // Issue available credential
+    await _issueCredential(
+      repo,
+      mockBridge,
+      42,
+      [
+        {
+          'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31633333333'),
+        }
+      ],
+    );
+
+    // Issue expired credential
+    await _issueCredential(
+      repo,
+      mockBridge,
+      44,
+      [
+        {
+          'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31622222222'),
+        }
+      ],
+      validity: const Duration(days: -1),
+    );
+
+    mockBridge.mockDisclosureSession(45, [
+      [
+        {
+          'pbdf.pbdf.mobilenumber.mobilenumber': null,
+        },
+      ],
+    ]);
+
+    final obtainCredentialsController = StreamController<String>.broadcast();
+    final bloc = DisclosurePermissionBloc(
+      sessionID: 45,
+      repo: repo,
+      onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
+    );
+    expect(bloc.state, isA<DisclosurePermissionInitial>());
+
+    repo.dispatch(
+      NewSessionEvent(sessionID: 45, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      isBridgedEvent: true,
+    );
+
+    // When doing a disclosure session the first time, we should see the introduction.
+    expect(await bloc.stream.first, isA<DisclosurePermissionIntroduction>());
+    bloc.add(DisclosurePermissionNextPressed());
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
+    DisclosurePermissionChoicesOverview choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
+    expect(choicesOverviewBlocState.choicesValid, true);
+    expect(choicesOverviewBlocState.requiredChoices.keys, [0]);
+    expect(choicesOverviewBlocState.requiredChoices[0]?.length, 1);
+
+    // The unrevoked and unexpired credential should be selected.
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].credentialHash, 'session-42-0');
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].revoked, false);
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].expired, false);
+
+    // Add change choice event
+    bloc.add(DisclosurePermissionChangeChoicePressed(disconIndex: 0));
+    expect(await bloc.stream.first, isA<DisclosurePermissionChangeChoice>());
+    DisclosurePermissionChangeChoice changeChoiceBlocState = bloc.state as DisclosurePermissionChangeChoice;
+    expect(changeChoiceBlocState.choosableCons.length, 3);
+
+    // The expired/ revoked credentials should be visible.
+    expect(changeChoiceBlocState.choosableCons[0]?[0].credentialHash, 'session-43-0');
+    expect(changeChoiceBlocState.choosableCons[0]?[0].revoked, true);
+
+    expect(changeChoiceBlocState.choosableCons[1]?[0].credentialHash, 'session-42-0');
+
+    expect(changeChoiceBlocState.choosableCons[2]?[0].credentialHash, 'session-44-0');
+    expect(changeChoiceBlocState.choosableCons[2]?[0].expired, true);
+
+    // Back to DisclosurePermissionChoicesOverview
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
+
+    // Press next to trigger confirmation popup.
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
+    choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
+    expect(choicesOverviewBlocState.showConfirmationPopup, true);
+
+    // Confirm all choices.
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo.getSessionState(45).firstWhere((session) => session.status == SessionStatus.success);
   });
 }
