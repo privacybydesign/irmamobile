@@ -152,7 +152,6 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       if (state.allObtained) {
         yield state.parentState;
       } else if (state.currentIssueWizardItem?.obtainable ?? false) {
-        // currentIssueWizardItem cannot be null when allObtained returned false.
         yield DisclosurePermissionCredentialInformation(
           parentState: state,
           credentialType: state.currentIssueWizardItem!.credentialType,
