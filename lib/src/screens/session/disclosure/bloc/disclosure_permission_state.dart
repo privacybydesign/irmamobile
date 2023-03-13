@@ -60,6 +60,9 @@ abstract class DisclosurePermissionChoices extends DisclosurePermissionStep {
 
   /// Returns whether the selected choices are valid.
   bool get choicesValid => choices.values.flattened.every((cred) => cred.valid);
+
+  /// Returns whether the selected choices are valid or can be made valid.
+  bool get choicesCanBeValid => choices.values.flattened.every((cred) => cred.valid || cred.obtainable);
 }
 
 class DisclosurePermissionIssueWizard extends DisclosurePermissionStep {

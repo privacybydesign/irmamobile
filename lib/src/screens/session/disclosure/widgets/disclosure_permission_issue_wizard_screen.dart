@@ -66,12 +66,15 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
+        // If all steps in the wizard are completed, then we show the next button.
+        // If the current step can be completed, then we show a obtain data button.
+        // If the current step cannot be completed, then we show a close button.
         primaryButtonLabel: state.isCompleted
             ? 'disclosure_permission.next_step'
             : (state.currentCanBeCompleted ? 'disclosure_permission.obtain_data' : 'disclosure_permission.close'),
         onPrimaryPressed: state.currentCanBeCompleted
             ? () => onEvent(DisclosurePermissionNextPressed())
-            : () => onDismiss(skipConfirmation: true), // TODO: Should we do this on the ChoicesScreen too?
+            : () => onDismiss(skipConfirmation: true),
       ),
     );
   }

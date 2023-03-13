@@ -24,7 +24,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
   final RequestorInfo requestor;
   final DisclosurePermissionChoices state;
   final Function(DisclosurePermissionBlocEvent) onEvent;
-  final Function() onDismiss;
+  final Function({bool skipConfirmation}) onDismiss;
   final ReturnURL? returnURL;
 
   const DisclosurePermissionChoicesScreen({
@@ -185,10 +185,17 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: state is DisclosurePermissionPreviouslyAddedCredentialsOverview
-            ? 'disclosure_permission.next_step'
-            : 'disclosure_permission.overview.confirm',
-        onPrimaryPressed: state.choicesValid ? () => onEvent(DisclosurePermissionNextPressed()) : null,
+        // If the choices are valid, then we show the next/confirm button (depending on the exact state).
+        // If the choices are not valid but can be made valid, then we show a disabled next/confirm button.
+        // If the choices cannot be made valid at all, then we show a close button.
+        primaryButtonLabel: state.choicesCanBeValid
+            ? (state is DisclosurePermissionPreviouslyAddedCredentialsOverview
+                ? 'disclosure_permission.next_step'
+                : 'disclosure_permission.overview.confirm')
+            : 'disclosure_permission.close',
+        onPrimaryPressed: state.choicesCanBeValid
+            ? (state.choicesValid ? () => onEvent(DisclosurePermissionNextPressed()) : null)
+            : () => onDismiss(skipConfirmation: true),
       ),
     );
   }
