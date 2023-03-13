@@ -505,10 +505,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
           ...(groupedIssueWizardCandidates[false] ?? []),
         ];
 
-        final selectedConIndices = issueWizardCandidates.map((i, choice) {
-          final selectedConIndex = choice.indexWhere((con) => con.every((cred) => cred.obtainable));
-          return MapEntry(i, selectedConIndex >= 0 ? selectedConIndex : 0);
-        });
+        final selectedConIndices = issueWizardCandidates.map((i, choice) => MapEntry(i, _findSelectedConIndex(choice)));
         final obtained = issueWizardCandidates.map((i, _) => MapEntry(i, false));
         return DisclosurePermissionIssueWizard(
           plannedSteps: _calculatePlannedSteps(issueWizardCandidates, selectedConIndices, session),
