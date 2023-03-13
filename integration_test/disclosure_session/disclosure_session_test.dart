@@ -19,6 +19,7 @@ import 'filled_app_scenarios/filled_specific_attribute_values_no_match.dart';
 import 'special_scenarios/attribute_order.dart';
 import 'special_scenarios/combined_disclosure_issuance.dart';
 import 'special_scenarios/nullables.dart';
+import 'special_scenarios/random_bind.dart';
 import 'special_scenarios/revocation.dart';
 import 'special_scenarios/signing.dart';
 
@@ -188,6 +189,15 @@ void main() {
       testWidgets(
         'attribute-order',
         (tester) => attributeOrderTest(
+          tester,
+          irmaBinding,
+        ),
+      );
+
+      // Disclosing stempas credential which is an unobtainable credential (no IssueURL) and contains a random blind attribute.
+      testWidgets(
+        'random-blind',
+        (tester) => randomBindTest(
           tester,
           irmaBinding,
         ),
