@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:irmamobile/src/widgets/irma_button.dart';
+import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
 
 import 'helpers/helpers.dart';
 import 'irma_binding.dart';
@@ -43,7 +43,7 @@ void main() {
 
       await tester.tapAndSettle(find.descendant(
         of: find.byKey(const Key('irma_dialog')),
-        matching: find.byType(IrmaButton),
+        matching: find.byType(YiviThemedButton),
       ));
     });
 
@@ -71,7 +71,7 @@ void main() {
           'This PIN is not correct. You have 2 attempts left before your Yivi app will be blocked temporarily.');
       await tester.tapAndSettle(find.descendant(
         of: find.byKey(const Key('irma_dialog')),
-        matching: find.byType(IrmaButton),
+        matching: find.byType(YiviThemedButton),
       ));
       // login using wrong pin
       await enterPin(tester, '54321');
@@ -86,7 +86,7 @@ void main() {
           string, 'This PIN is not correct. You have 1 attempt left before your Yivi app will be blocked temporarily.');
       await tester.tapAndSettle(find.descendant(
         of: find.byKey(const Key('irma_dialog')),
-        matching: find.byType(IrmaButton),
+        matching: find.byType(YiviThemedButton),
       ));
       // login using wrong pin
       await enterPin(tester, '54321');
@@ -101,7 +101,7 @@ void main() {
       expect(string, 'Your app has been blocked for 1 minute. Please try again later.');
       await tester.tapAndSettle(find.descendant(
         of: find.byKey(const Key('irma_dialog')),
-        matching: find.byType(IrmaButton),
+        matching: find.byType(YiviThemedButton),
       ));
       // Wait 65 seconds and try again using the correct pin
       await tester.pumpAndSettle(const Duration(seconds: 65));

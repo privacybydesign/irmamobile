@@ -3,10 +3,9 @@ import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
 
 import '../theme/theme.dart';
-import 'irma_button.dart';
 import 'irma_dialog.dart';
-import 'irma_themed_button.dart';
 import 'translated_text.dart';
+import 'yivi_themed_button.dart';
 
 class IrmaInfoScaffoldBody extends StatelessWidget {
   final String titleTranslationKey;
@@ -50,10 +49,9 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
           return IrmaDialog(
             title: FlutterI18n.translate(context, 'error.details_title'),
             content: linkDialogText!,
-            child: IrmaButton(
-              size: IrmaButtonSize.small,
-              onPressed: () => Navigator.of(context).pop(),
+            child: YiviThemedButton(
               label: 'error.button_ok',
+              onPressed: () => Navigator.of(context).pop(),
             ),
           );
         },

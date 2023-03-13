@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../theme/theme.dart';
-
 import 'irma_close_button.dart';
 
 class IrmaBottomSheet extends StatelessWidget {
@@ -38,7 +37,10 @@ class IrmaBottomSheet extends StatelessWidget {
             ),
             // Actual content
             Padding(
-              padding: EdgeInsets.all(theme.mediumSpacing),
+              padding: EdgeInsets.symmetric(
+                horizontal: theme.mediumSpacing,
+                vertical: theme.defaultSpacing,
+              ),
               child: child,
             )
           ],

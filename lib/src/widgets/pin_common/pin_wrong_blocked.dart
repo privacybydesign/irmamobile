@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
-import '../irma_button.dart';
 import '../irma_dialog.dart';
-import '../irma_themed_button.dart';
+import '../yivi_themed_button.dart';
 import 'format_blocked_for.dart';
 
 class PinWrongBlockedDialog extends StatelessWidget {
@@ -22,10 +21,9 @@ class PinWrongBlockedDialog extends StatelessWidget {
     return IrmaDialog(
       title: FlutterI18n.translate(context, 'pin_common.blocked_title'),
       content: FlutterI18n.translate(context, 'pin_common.blocked_pin', translationParams: {'blocked': blockedForStr}),
-      child: IrmaButton(
-        size: IrmaButtonSize.small,
-        onPressed: onClose ?? () => Navigator.of(context).pop(),
+      child: YiviThemedButton(
         label: 'pin_common.blocked_close',
+        onPressed: onClose ?? () => Navigator.of(context).pop(),
       ),
     );
   }
