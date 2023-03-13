@@ -497,8 +497,9 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
 
         // Ensure all unobtainable templates are displayed first.
         final groupedIssueWizardCandidates = groupBy<MapEntry<int, DisCon<TemplateDisclosureCredential>>, bool>(
-            issueWizardCandidates.entries,
-            (candidateEntry) => candidateEntry.value.every((con) => con.any((cred) => !cred.obtainable)));
+          issueWizardCandidates.entries,
+          (candidateEntry) => candidateEntry.value.every((con) => con.any((cred) => !cred.obtainable)),
+        );
         final List<MapEntry<int, DisCon<TemplateDisclosureCredential>>> issueWizardCandidatesList = [
           ...(groupedIssueWizardCandidates[true] ?? []),
           ...(groupedIssueWizardCandidates[false] ?? []),

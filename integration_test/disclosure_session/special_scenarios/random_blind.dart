@@ -27,8 +27,10 @@ Future<void> randomBlindTest(WidgetTester tester, IntegrationTestIrmaBinding irm
 
   expect(find.byType(DisclosurePermissionIssueWizardScreen), findsOneWidget);
 
-  expect(find.text('This data cannot be obtained. Please contact Demo Voting Card Issuer to obtain this data.'),
-      findsOneWidget);
+  expect(
+    find.text('This data cannot be obtained. Please contact Demo Voting Card Issuer to obtain this data.'),
+    findsOneWidget,
+  );
 
   await tester.tapAndSettle(find.text('Close'));
 
