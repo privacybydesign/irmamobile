@@ -15,7 +15,7 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
   final RequestorInfo requestor;
   final DisclosurePermissionIssueWizard state;
   final Function(DisclosurePermissionBlocEvent) onEvent;
-  final Function() onDismiss;
+  final Function({bool skipConfirmation}) onDismiss;
 
   const DisclosurePermissionIssueWizardScreen({
     required this.requestor,
@@ -69,7 +69,9 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
         primaryButtonLabel: state.isCompleted
             ? 'disclosure_permission.next_step'
             : (state.currentCanBeCompleted ? 'disclosure_permission.obtain_data' : 'disclosure_permission.close'),
-        onPrimaryPressed: state.currentCanBeCompleted ? () => onEvent(DisclosurePermissionNextPressed()) : onDismiss,
+        onPrimaryPressed: state.currentCanBeCompleted
+            ? () => onEvent(DisclosurePermissionNextPressed())
+            : () => onDismiss(skipConfirmation: true), // TODO: Should we do this on the ChoicesScreen too?
       ),
     );
   }
