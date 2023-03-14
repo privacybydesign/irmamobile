@@ -467,7 +467,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
           final Con<DisclosureCredential>? preferredCon =
               // Always prefer an option that is not revoked / expired
               choosableCons.firstWhereOrNull(
-                    (con) => con.every((cred) => !cred.revoked && !cred.expired),
+                    (con) => con.every((cred) => cred.valid),
                   ) ??
                   // If there is none, just grab the first choosable option
                   choosableCons.firstOrNull;
