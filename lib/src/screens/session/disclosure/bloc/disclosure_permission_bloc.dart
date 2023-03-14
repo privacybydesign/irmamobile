@@ -772,7 +772,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     // If no con is selected yet, we simply select the first valid choosable option.
     // If none of the options is valid, we select the first invalid choosable option.
     // If none is choosable, then we select the first one without unobtainable templates.
-    // If there is no choosable option at all, we simply select the first option.
+    // If there is no preferred option at all, we simply select the first option.
     final validChoice = discon.indexWhere(
       (con) => con.every((cred) => cred is ChoosableDisclosureCredential && cred.valid),
     );
