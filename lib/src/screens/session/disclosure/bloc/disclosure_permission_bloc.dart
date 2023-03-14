@@ -458,7 +458,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       ));
 
       // Determine whether an issue wizard is needed to bootstrap the session.
-      // If no previous choice is given, _findSelectedConIndex will select the choice that fits best.
+      // If no previous choice is given, _findSelectedConIndex will select the option that fits best.
       // If the best fit is not fully choosable, then we know an issue wizard should be started.
       final choices = candidates.map(
         (i, discon) {
