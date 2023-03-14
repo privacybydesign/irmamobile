@@ -47,37 +47,39 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
 
   Widget _buildChoiceEntry(
     BuildContext context,
-    MapEntry<int, Con<ChoosableDisclosureCredential>> choiceEntry,
-    bool isOptional,
-  ) {
+    MapEntry<int, Con<ChoosableDisclosureCredential>> choiceEntry, {
+    required bool optional,
+    required bool changeable,
+  }) {
     final theme = IrmaTheme.of(context);
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            Flexible(
-              child: YiviThemedButton(
-                label: 'disclosure_permission.change_choice',
-                style: YiviButtonStyle.outlined,
-                size: YiviButtonSize.small,
-                isTransparent: true,
-                onPressed: () => onEvent(
-                  DisclosurePermissionChangeChoicePressed(
-                    disconIndex: choiceEntry.key,
+        if (changeable)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Flexible(
+                child: YiviThemedButton(
+                  label: 'disclosure_permission.change_choice',
+                  style: YiviButtonStyle.outlined,
+                  size: YiviButtonSize.small,
+                  isTransparent: true,
+                  onPressed: () => onEvent(
+                    DisclosurePermissionChangeChoicePressed(
+                      disconIndex: choiceEntry.key,
+                    ),
                   ),
                 ),
-              ),
-            )
-          ],
-        ),
+              )
+            ],
+          ),
         SizedBox(height: theme.smallSpacing),
         for (int i = 0; i < choiceEntry.value.length; i++)
           IrmaCredentialCard(
             credentialView: choiceEntry.value[i],
             padding: EdgeInsets.symmetric(horizontal: theme.tinySpacing),
-            headerTrailing: isOptional && i == 0
+            headerTrailing: optional && i == 0
                 ? IrmaIconButton(
                     icon: Icons.close,
                     size: 22,
@@ -164,10 +166,20 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                 ),
               ],
               SizedBox(height: theme.smallSpacing),
-              ...state.requiredChoices.entries.map((choiceEntry) => _buildChoiceEntry(context, choiceEntry, false)),
+              ...state.requiredChoices.entries.map((choiceEntry) => _buildChoiceEntry(
+                    context,
+                    choiceEntry,
+                    optional: false,
+                    changeable: state.changeableChoices.contains(choiceEntry.key),
+                  )),
               if (state.optionalChoices.isNotEmpty) ...[
                 TranslatedText('disclosure_permission.optional_data', style: theme.themeData.textTheme.headline4),
-                ...state.optionalChoices.entries.map((choiceEntry) => _buildChoiceEntry(context, choiceEntry, true)),
+                ...state.optionalChoices.entries.map((choiceEntry) => _buildChoiceEntry(
+                      context,
+                      choiceEntry,
+                      optional: true,
+                      changeable: state.changeableChoices.contains(choiceEntry.key),
+                    )),
               ],
               if (state.requiredChoices.isEmpty && state.optionalChoices.isEmpty)
                 TranslatedText('disclosure_permission.no_data_selected', style: theme.textTheme.headline4),
