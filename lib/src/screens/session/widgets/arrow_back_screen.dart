@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:flutter_svg/svg.dart';
 import 'package:native_device_orientation/native_device_orientation.dart';
 
-import '../../../widgets/irma_info_scaffold_body.dart';
+import '../../../theme/theme.dart';
+import '../../../widgets/translated_text.dart';
 import '../../home/home_screen.dart';
 
 class ArrowBack extends StatefulWidget {
@@ -54,14 +56,18 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
     // The NativeDeviceOrientationReader is configured to rebuild according to the gyroscope.
     // On the IOS emulator it is not possible to reproduce this, so this has to be tested on a real device.
     return NativeDeviceOrientationReader(
       useSensor: true,
       builder: (context) {
         final orientation = NativeDeviceOrientationReader.orientation(context);
-        late int quarterTurns;
+        final isNativeLandscape = orientation == NativeDeviceOrientation.landscapeLeft ||
+            orientation == NativeDeviceOrientation.landscapeRight;
 
+        late int quarterTurns;
         switch (orientation) {
           case NativeDeviceOrientation.landscapeLeft:
             quarterTurns = 1;
@@ -77,16 +83,54 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
         }
 
         return Scaffold(
-          body: RotatedBox(
-            quarterTurns: quarterTurns,
-            child: IrmaInfoScaffoldBody(
-              imagePath: 'assets/arrow_back/pointing_up.svg',
-              titleTranslationKey: widget.success
-                  ? widget.amountIssued > 0
-                      ? 'arrow_back.issuance_success'
-                      : 'arrow_back.disclosure_success'
-                  : 'arrow_back.no_success',
-              bodyTranslationKey: 'arrow_back.safari',
+          body: Center(
+            // The SingleChildScrollView is used to prevent overflows when the user increases the device text size
+            child: SingleChildScrollView(
+              // Disable scrolling in landscape mode because the orientation is locked
+              physics: isNativeLandscape ? const NeverScrollableScrollPhysics() : null,
+              padding: EdgeInsets.all(theme.defaultSpacing),
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SvgPicture.asset(
+                    'assets/arrow_back/pointing_up.svg',
+                    width: 250,
+                  ),
+                  SizedBox(height: theme.hugeSpacing),
+                  RotatedBox(
+                    quarterTurns: quarterTurns,
+                    child: SizedBox(
+                      // Set a fixed width when in landscape mode, otherwise the text will be too wide.
+                      width: isNativeLandscape ? 250 : null,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(
+                            child: TranslatedText(
+                              widget.success
+                                  ? widget.amountIssued > 0
+                                      ? 'arrow_back.issuance_success'
+                                      : 'arrow_back.disclosure_success'
+                                  : 'arrow_back.no_success',
+                              style: theme.textTheme.headline1,
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          SizedBox(height: theme.mediumSpacing),
+                          Flexible(
+                            child: TranslatedText(
+                              'arrow_back.safari',
+                              style: theme.textTheme.bodyText2,
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );

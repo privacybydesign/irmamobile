@@ -24,7 +24,12 @@ class InformationBox extends StatelessWidget {
         children: [
           Icon(Icons.info_outline, color: theme.primary),
           SizedBox(width: theme.smallSpacing),
-          Expanded(child: Text(message, textHeightBehavior: const TextHeightBehavior(applyHeightToFirstAscent: false))),
+          Expanded(
+            child: Text(
+              message,
+              textHeightBehavior: const TextHeightBehavior(applyHeightToFirstAscent: false),
+            ),
+          ),
         ],
       ),
     );
