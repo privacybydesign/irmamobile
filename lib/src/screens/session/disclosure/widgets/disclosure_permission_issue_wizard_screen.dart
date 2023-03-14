@@ -15,7 +15,7 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
   final RequestorInfo requestor;
   final DisclosurePermissionIssueWizard state;
   final Function(DisclosurePermissionBlocEvent) onEvent;
-  final Function() onDismiss;
+  final Function({bool skipConfirmation}) onDismiss;
 
   const DisclosurePermissionIssueWizardScreen({
     required this.requestor,
@@ -53,7 +53,7 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
               SizedBox(height: theme.defaultSpacing),
               DisclosureDisconStepper(
                 currentCandidateKey: state.currentDiscon?.key,
-                candidates: state.candidates,
+                candidatesList: state.candidatesList,
                 selectedConIndices: state.selectedConIndices,
                 onChoiceUpdated: (int conIndex) => onEvent(
                   DisclosurePermissionChoiceUpdated(
@@ -66,8 +66,15 @@ class DisclosurePermissionIssueWizardScreen extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: IrmaBottomBar(
-        primaryButtonLabel: state.isCompleted ? 'disclosure_permission.next_step' : 'disclosure_permission.obtain_data',
-        onPrimaryPressed: () => onEvent(DisclosurePermissionNextPressed()),
+        // If all steps in the wizard are completed, then we show the next button.
+        // If the current step can be completed, then we show a obtain data button.
+        // If the current step cannot be completed, then we show a close button.
+        primaryButtonLabel: state.isCompleted
+            ? 'disclosure_permission.next_step'
+            : (state.currentCanBeCompleted ? 'disclosure_permission.obtain_data' : 'disclosure_permission.close'),
+        onPrimaryPressed: state.currentCanBeCompleted
+            ? () => onEvent(DisclosurePermissionNextPressed())
+            : () => onDismiss(skipConfirmation: true),
       ),
     );
   }

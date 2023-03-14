@@ -20,42 +20,46 @@ class DisclosurePermissionChoice extends StatelessWidget {
     this.isActive = true,
   });
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildChoiceOption(BuildContext context, MapEntry<int, Con<DisclosureCredential>> option) {
     final theme = IrmaTheme.of(context);
+    final isDisabled = option.value.any((cred) => cred is TemplateDisclosureCredential && !cred.obtainable);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        for (final i in choice.keys) ...[
-          Padding(
-            padding: EdgeInsets.all(theme.tinySpacing),
-            child: Column(
-              children: choice[i]!
-                  .map(
-                    (credential) => GestureDetector(
-                      onTap: () {
+    return Padding(
+      padding: EdgeInsets.all(theme.tinySpacing),
+      child: Column(
+        children: option.value
+            .map(
+              (credential) => GestureDetector(
+                onTap: isDisabled
+                    ? null
+                    : () {
                         if (isActive) {
-                          onChoiceUpdated(i);
+                          onChoiceUpdated(option.key);
                         }
                       },
-                      child: IrmaCredentialCard(
-                        padding: EdgeInsets.zero,
-                        credentialView: credential,
-                        compareTo: credential is TemplateDisclosureCredential ? credential.attributes : null,
-                        headerTrailing: credential == choice[i]!.first
-                            ? RadioIndicator(
-                                isSelected: i == selectedConIndex,
-                              )
-                            : null,
-                      ),
-                    ),
-                  )
-                  .toList(),
-            ),
-          ),
-        ]
-      ],
+                child: IrmaCredentialCard(
+                  padding: EdgeInsets.zero,
+                  credentialView: credential,
+                  compareTo: credential is TemplateDisclosureCredential ? credential.attributes : null,
+                  disabled: isDisabled,
+                  headerTrailing: credential == option.value.first
+                      ? RadioIndicator(
+                          isSelected: option.key == selectedConIndex,
+                        )
+                      : null,
+                ),
+              ),
+            )
+            .toList(),
+      ),
     );
   }
+
+  @override
+  Widget build(BuildContext context) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final entry in choice.entries) _buildChoiceOption(context, entry),
+        ],
+      );
 }

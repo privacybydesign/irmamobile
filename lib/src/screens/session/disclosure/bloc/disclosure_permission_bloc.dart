@@ -81,6 +81,9 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       if (event.conIndex < 0 || event.conIndex >= state.currentDiscon!.value.length) {
         throw Exception('Unknown conIndex ${event.conIndex} in current discon');
       }
+      if (state.currentDiscon!.value[event.conIndex].any((cred) => !cred.obtainable)) {
+        throw Exception('Selected conIndex ${event.conIndex} is not fully obtainable and therefore not selectable');
+      }
 
       final selectedConIndices = state.selectedConIndices
           .map((i, selected) => MapEntry(i, i == state.currentDiscon!.key ? event.conIndex : selected));
@@ -90,6 +93,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       yield DisclosurePermissionIssueWizard(
         plannedSteps: _calculatePlannedSteps(state.candidates, selectedConIndices, session),
         candidates: state.candidates,
+        candidatesList: state.candidatesList,
         selectedConIndices: selectedConIndices,
         obtained: state.obtained,
       );
@@ -137,17 +141,23 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
           );
         }
       } else {
-        yield* _obtainCredentials(state, state.getSelectedCon(state.currentDiscon!.key)!);
+        final credentialsToObtain = state.getSelectedCon(state.currentDiscon!.key);
+        if (credentialsToObtain?.every((cred) => cred.obtainable) ?? false) {
+          yield* _obtainCredentials(state, credentialsToObtain!);
+        } else {
+          throw Exception('Current DisCon is not fully obtainable and therefore not selectable');
+        }
       }
     } else if (state is DisclosurePermissionObtainCredentials && event is DisclosurePermissionNextPressed) {
       if (state.allObtained) {
         yield state.parentState;
-      } else {
-        // currentIssueWizardItem cannot be null when allObtained returned false.
+      } else if (state.currentIssueWizardItem?.obtainable ?? false) {
         yield DisclosurePermissionCredentialInformation(
           parentState: state,
           credentialType: state.currentIssueWizardItem!.credentialType,
         );
+      } else {
+        throw Exception('Credential cannot be obtained');
       }
     } else if (state is DisclosurePermissionPreviouslyAddedCredentialsOverview &&
         event is DisclosurePermissionNextPressed) {
@@ -484,11 +494,23 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
                         .none((cred2) => cred2 is ChoosableDisclosureCredential && cred2.fullId == cred.fullId))),
               ),
         };
-        final selectedConIndices = issueWizardCandidates.map((i, _) => MapEntry(i, 0));
+
+        // Ensure all unobtainable templates are displayed first.
+        final groupedIssueWizardCandidates = groupBy<MapEntry<int, DisCon<TemplateDisclosureCredential>>, bool>(
+          issueWizardCandidates.entries,
+          (candidateEntry) => candidateEntry.value.every((con) => con.any((cred) => !cred.obtainable)),
+        );
+        final List<MapEntry<int, DisCon<TemplateDisclosureCredential>>> issueWizardCandidatesList = [
+          ...(groupedIssueWizardCandidates[true] ?? []),
+          ...(groupedIssueWizardCandidates[false] ?? []),
+        ];
+
+        final selectedConIndices = issueWizardCandidates.map((i, choice) => MapEntry(i, _findSelectedConIndex(choice)));
         final obtained = issueWizardCandidates.map((i, _) => MapEntry(i, false));
         return DisclosurePermissionIssueWizard(
           plannedSteps: _calculatePlannedSteps(issueWizardCandidates, selectedConIndices, session),
           candidates: issueWizardCandidates,
+          candidatesList: issueWizardCandidatesList,
           selectedConIndices: selectedConIndices,
           obtained: obtained,
         );
@@ -523,6 +545,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     return DisclosurePermissionIssueWizard(
       plannedSteps: _calculatePlannedSteps(candidates, selectedConIndices, session),
       candidates: prevState.candidates,
+      candidatesList: prevState.candidatesList,
       selectedConIndices: selectedConIndices,
       obtained: obtained,
     );
@@ -743,12 +766,17 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
 
     // If no con is selected yet, we simply select the first valid choosable option.
     // If none of the options is valid, we select the first invalid choosable option.
+    // If none is choosable, then we select the first one without unobtainable templates.
     // If there is no choosable option at all, we simply select the first option.
     final validChoice = discon.indexWhere(
       (con) => con.every((cred) => cred is ChoosableDisclosureCredential && cred.valid),
     );
     if (validChoice >= 0) return validChoice;
-    final choice = discon.indexWhere((con) => con.every((cred) => cred is ChoosableDisclosureCredential));
+    final choosableChoice = discon.indexWhere((con) => con.every((cred) => cred is ChoosableDisclosureCredential));
+    if (choosableChoice >= 0) return choosableChoice;
+    final choice = discon.indexWhere(
+      (con) => con.every((cred) => cred is ChoosableDisclosureCredential || cred.obtainable),
+    );
     return choice >= 0 ? choice : 0;
   }
 
@@ -813,10 +841,14 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     assert(selectedConTemplates.isNotEmpty);
     // If only one credential is involved, we can open the issue url immediately.
     if (selectedConTemplates.length == 1) {
-      yield DisclosurePermissionCredentialInformation(
-        parentState: parentState,
-        credentialType: selectedConTemplates.first.credentialType,
-      );
+      if (selectedConTemplates.first.obtainable) {
+        yield DisclosurePermissionCredentialInformation(
+          parentState: parentState,
+          credentialType: selectedConTemplates.first.credentialType,
+        );
+      } else {
+        Exception('Credential cannot be obtained');
+      }
     } else {
       yield DisclosurePermissionObtainCredentials(
         parentState: parentState,

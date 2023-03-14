@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 
-import 'package:flutter_i18n/flutter_i18n.dart';
-
 import '../../models/attribute.dart';
 import '../../models/credentials.dart';
 import '../../theme/theme.dart';
-import '../../util/date_formatter.dart';
 import '../../util/language.dart';
+import '../greyed_out.dart';
 import '../irma_card.dart';
 import '../irma_divider.dart';
-
 import 'irma_credential_card_attribute_list.dart';
 import 'irma_credential_card_footer.dart';
 import 'irma_credential_card_header.dart';
@@ -25,6 +22,7 @@ class IrmaCredentialCard extends StatelessWidget {
   final CardExpiryDate? expiryDate;
   final bool hideFooter;
   final bool hideAttributes;
+  final bool disabled;
 
   const IrmaCredentialCard({
     Key? key,
@@ -37,6 +35,7 @@ class IrmaCredentialCard extends StatelessWidget {
     this.expiryDate,
     this.hideFooter = false,
     this.hideAttributes = false,
+    this.disabled = false,
   }) : super(key: key);
 
   IrmaCredentialCard.fromCredential(
@@ -49,72 +48,52 @@ class IrmaCredentialCard extends StatelessWidget {
     this.padding,
     this.hideFooter = false,
     this.hideAttributes = false,
+    this.disabled = false,
   })  : credentialView = credential,
         expiryDate = CardExpiryDate(credential.expires),
         super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final lang = FlutterI18n.currentLocale(context)!.languageCode;
     final theme = IrmaTheme.of(context);
 
-    final isInvalid = credentialView.expired || credentialView.revoked;
     final isExpiringSoon = expiryDate?.expiresSoon ?? false;
-    final isObtainable = (isInvalid || isExpiringSoon) && credentialView.credentialType.issueUrl.isNotEmpty;
-
-    String? footerText;
-    if (!credentialView.revoked && (expiryDate != null || expiryDate?.dateTime != null)) {
-      footerText = FlutterI18n.translate(
-        context,
-        credentialView.expired
-            ? 'credential.expired_on'
-            : isExpiringSoon
-                ? 'credential.expires_on'
-                : 'credential.valid_until',
-        translationParams: {
-          'date': printableDate(
-            expiryDate!.dateTime!,
-            lang,
-          ),
-        },
-      );
-    }
 
     return IrmaCard(
-      style: isInvalid ? IrmaCardStyle.danger : style,
+      style: credentialView.valid ? style : IrmaCardStyle.danger,
       onTap: onTap,
       padding: padding,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          IrmaCredentialCardHeader(
-            credentialName: getTranslation(context, credentialView.credentialType.name),
-            issuerName: getTranslation(context, credentialView.issuer.name),
-            logo: credentialView.credentialType.logo,
-            trailing: headerTrailing,
-            isExpired: credentialView.expired,
-            isRevoked: credentialView.revoked,
-            isExpiringSoon: isExpiringSoon,
+          // Only the header should be greyed out when the card is disabled.
+          GreyedOut(
+            filterActive: disabled,
+            child: IrmaCredentialCardHeader(
+              credentialName: getTranslation(context, credentialView.credentialType.name),
+              issuerName: getTranslation(context, credentialView.issuer.name),
+              logo: credentialView.credentialType.logo,
+              trailing: headerTrailing,
+              isExpired: credentialView.expired,
+              isRevoked: credentialView.revoked,
+              isExpiringSoon: isExpiringSoon,
+            ),
           ),
           // If there are attributes in this credential, then we show the attribute list
           if (credentialView.attributesWithValue.isNotEmpty && !hideAttributes) ...[
-            IrmaDivider(color: isInvalid ? theme.danger : null),
+            IrmaDivider(color: credentialView.valid ? null : theme.danger),
             IrmaCredentialCardAttributeList(
               credentialView.attributes,
               compareTo: compareTo,
             ),
           ],
-          if (!hideFooter && (isObtainable || footerText != null)) ...[
-            SizedBox(
-              height: IrmaTheme.of(context).smallSpacing,
-            ),
+          if (!hideFooter)
             IrmaCredentialCardFooter(
-              credentialType: credentialView.credentialType,
-              text: footerText,
-              isObtainable: isObtainable,
-            )
-          ]
+              credentialView: credentialView,
+              expiryDate: expiryDate,
+              padding: EdgeInsets.only(top: theme.smallSpacing),
+            ),
         ],
       ),
     );

@@ -42,9 +42,12 @@ class IrmaThemeData {
   final Color link = const Color(0xFF1D4E89);
   final Color danger = const Color(0xffEABEBE);
 
-  //Fonts
+  // Fonts
   final String primaryFontFamily = 'Alexandria';
   final String secondaryFontFamily = 'Open Sans';
+
+  // Borders
+  final BorderRadius borderRadius = BorderRadius.circular(8);
 
   //TODO: The values below are marked late and have to be initialized in the constructor body.
   //In the future these values should be phased out and be move into ThemeData.colorScheme.

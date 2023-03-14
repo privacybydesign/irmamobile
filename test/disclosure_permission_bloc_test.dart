@@ -1804,6 +1804,197 @@ void main() {
 
     await repo.getSessionState(43).firstWhere((session) => session.status == SessionStatus.success);
   });
+
+  test('unobtainable-credential', () async {
+    mockBridge.mockDisclosureSession(42, [
+      [
+        {
+          'pbdf.pbdf.mobilenumber.mobilenumber': null,
+        },
+      ],
+      [
+        {
+          'pbdf.chipsoft.bsn.bsn': null,
+        }
+      ],
+      [
+        {
+          'pbdf.pbdf.email.email': null,
+        },
+      ],
+    ]);
+
+    final bloc = DisclosurePermissionBloc(
+      sessionID: 42,
+      repo: repo,
+      onObtainCredential: (_) {},
+    );
+    expect(bloc.state, isA<DisclosurePermissionInitial>());
+
+    repo.dispatch(
+      NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      isBridgedEvent: true,
+    );
+
+    // When doing a disclosure session the first time, we should see the introduction.
+    expect(await bloc.stream.first, isA<DisclosurePermissionIntroduction>());
+    bloc.add(DisclosurePermissionNextPressed());
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
+    final issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
+    // pbdf.chipsoft.bsn.bsn is unobtainable and should therefore be mentioned first in the ordered candidatesList.
+    expect(issueWizardBlocState.currentCanBeCompleted, false);
+    expect(issueWizardBlocState.candidatesList.length, 3);
+    expect(issueWizardBlocState.candidatesList[0].key, 1);
+    expect(issueWizardBlocState.candidatesList[0].value.length, 1);
+    expect(issueWizardBlocState.candidatesList[0].value[0].length, 1);
+    expect(issueWizardBlocState.candidatesList[0].value[0][0].fullId, 'pbdf.chipsoft.bsn');
+    expect(issueWizardBlocState.candidatesList[1].key, 0);
+    expect(issueWizardBlocState.candidatesList[1].value.length, 1);
+    expect(issueWizardBlocState.candidatesList[1].value[0].length, 1);
+    expect(issueWizardBlocState.candidatesList[1].value[0][0].fullId, 'pbdf.pbdf.mobilenumber');
+    expect(issueWizardBlocState.candidatesList[2].key, 2);
+    expect(issueWizardBlocState.candidatesList[2].value.length, 1);
+    expect(issueWizardBlocState.candidatesList[2].value[0].length, 1);
+    expect(issueWizardBlocState.candidatesList[2].value[0][0].fullId, 'pbdf.pbdf.email');
+
+    repo.dispatch(
+      RespondPermissionEvent(sessionID: 42, proceed: false, disclosureChoices: [[]]),
+      isBridgedEvent: true,
+    );
+    expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
+    await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.canceled);
+  });
+
+  test('unobtainable-expired-credential', () async {
+    await _issueCredential(
+      repo,
+      mockBridge,
+      42,
+      [
+        {
+          'pbdf.chipsoft.bsn.bsn': TextValue.fromString('12345'),
+          'pbdf.chipsoft.bsn.dateofbirth': TextValue.fromString('01-01-2000'),
+          'pbdf.chipsoft.bsn.familyname': TextValue.fromString('Jansen'),
+          'pbdf.chipsoft.bsn.firstnames': TextValue.fromString('Jan'),
+          'pbdf.chipsoft.bsn.initials': TextValue.fromString('J.J.'),
+          'pbdf.chipsoft.bsn.prefix': TextValue.fromString(''),
+        }
+      ],
+      validity: const Duration(days: -1),
+    );
+    await _issueCredential(
+      repo,
+      mockBridge,
+      43,
+      [
+        {
+          'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31612345678'),
+        }
+      ],
+    );
+
+    mockBridge.mockDisclosureSession(44, [
+      [
+        {
+          'pbdf.pbdf.mobilenumber.mobilenumber': null,
+        },
+      ],
+      [
+        {
+          'pbdf.chipsoft.bsn.bsn': null,
+        }
+      ],
+    ]);
+
+    final bloc = DisclosurePermissionBloc(
+      sessionID: 44,
+      repo: repo,
+      onObtainCredential: (_) {},
+    );
+    expect(bloc.state, isA<DisclosurePermissionInitial>());
+
+    repo.dispatch(
+      NewSessionEvent(sessionID: 44, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      isBridgedEvent: true,
+    );
+
+    // When doing a disclosure session the first time, we should see the introduction.
+    expect(await bloc.stream.first, isA<DisclosurePermissionIntroduction>());
+    bloc.add(DisclosurePermissionNextPressed());
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
+    DisclosurePermissionChoicesOverview choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
+    expect(choicesOverviewBlocState.choicesValid, false);
+
+    repo.dispatch(
+      RespondPermissionEvent(sessionID: 44, proceed: false, disclosureChoices: [[]]),
+      isBridgedEvent: true,
+    );
+    expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
+    await repo.getSessionState(44).firstWhere((session) => session.status == SessionStatus.canceled);
+
+    mockBridge.mockDisclosureSession(45, [
+      [
+        {
+          'pbdf.chipsoft.bsn.bsn': null,
+        },
+        {
+          'pbdf.pbdf.mobilenumber.mobilenumber': null,
+        },
+      ],
+    ]);
+
+    final bloc2 = DisclosurePermissionBloc(
+      sessionID: 45,
+      repo: repo,
+      onObtainCredential: (_) {},
+    );
+    expect(bloc2.state, isA<DisclosurePermissionInitial>());
+
+    repo.dispatch(
+      NewSessionEvent(sessionID: 45, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      isBridgedEvent: true,
+    );
+
+    expect(await bloc2.stream.first, isA<DisclosurePermissionChoicesOverview>());
+    choicesOverviewBlocState = bloc2.state as DisclosurePermissionChoicesOverview;
+    expect(choicesOverviewBlocState.choicesValid, false);
+
+    bloc2.add(DisclosurePermissionChangeChoicePressed(disconIndex: 0));
+    expect(await bloc2.stream.first, isA<DisclosurePermissionChangeChoice>());
+    DisclosurePermissionChangeChoice changeChoiceBlocState = bloc2.state as DisclosurePermissionChangeChoice;
+    expect(changeChoiceBlocState.disconIndex, 0);
+    expect(changeChoiceBlocState.selectedConIndex, 0);
+    expect(changeChoiceBlocState.choosableCons.keys, [0, 1]);
+    expect(changeChoiceBlocState.choosableCons[0]?.length, 1);
+    expect(changeChoiceBlocState.choosableCons[0]?[0].fullId, 'pbdf.chipsoft.bsn');
+    expect(changeChoiceBlocState.choosableCons[1]?.length, 1);
+    expect(changeChoiceBlocState.choosableCons[1]?[0].fullId, 'pbdf.pbdf.mobilenumber');
+
+    // Test feature to add extra credential instance while choosing.
+    bloc2.add(DisclosurePermissionChoiceUpdated(conIndex: 1));
+    expect(await bloc2.stream.first, isA<DisclosurePermissionChangeChoice>());
+    changeChoiceBlocState = bloc2.state as DisclosurePermissionChangeChoice;
+    expect(changeChoiceBlocState.disconIndex, 0);
+    expect(changeChoiceBlocState.selectedConIndex, 1);
+
+    bloc2.add(DisclosurePermissionNextPressed());
+    expect(await bloc2.stream.first, isA<DisclosurePermissionChoicesOverview>());
+    choicesOverviewBlocState = bloc2.state as DisclosurePermissionChoicesOverview;
+    expect(choicesOverviewBlocState.choicesValid, true);
+    expect(choicesOverviewBlocState.showConfirmationPopup, false);
+
+    bloc2.add(DisclosurePermissionNextPressed());
+    expect(await bloc2.stream.first, isA<DisclosurePermissionChoicesOverview>());
+    choicesOverviewBlocState = bloc2.state as DisclosurePermissionChoicesOverview;
+    expect(choicesOverviewBlocState.choicesValid, true);
+    expect(choicesOverviewBlocState.showConfirmationPopup, true);
+
+    bloc2.add(DisclosurePermissionNextPressed());
+
+    await repo.getSessionState(45).firstWhere((session) => session.status == SessionStatus.success);
+  });
 }
 
 Future<void> _issueCredential(

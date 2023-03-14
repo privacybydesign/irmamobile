@@ -60,12 +60,20 @@ abstract class DisclosurePermissionChoices extends DisclosurePermissionStep {
 
   /// Returns whether the selected choices are valid.
   bool get choicesValid => choices.values.flattened.every((cred) => cred.valid);
+
+  /// Returns whether the selected choices are valid or can be made valid.
+  bool get choicesCanBeValid => choices.values.flattened.every((cred) => cred.valid || cred.obtainable);
 }
 
 class DisclosurePermissionIssueWizard extends DisclosurePermissionStep {
   /// ConDisCon with all disclosure candidates being relevant in this step (required and optional).
-  /// They are stored in a map with the disconIndex being used as map key.
+  /// They are stored in a map with the disconIndex being used as map key. This map is not ordered.
+  /// For a list of candidates in the order of the wizard, use candidatesList.
   final UnmodifiableMapView<int, DisCon<TemplateDisclosureCredential>> candidates;
+
+  /// Ordered list with all disclosure candidates being relevant in this step (required and optional).
+  /// It is an ordered representation of candidates.
+  final UnmodifiableListView<MapEntry<int, DisCon<TemplateDisclosureCredential>>> candidatesList;
 
   /// Stores for every discon which con is currently selected.
   final UnmodifiableMapView<int, int> selectedConIndices;
@@ -75,20 +83,25 @@ class DisclosurePermissionIssueWizard extends DisclosurePermissionStep {
   DisclosurePermissionIssueWizard({
     required List<DisclosurePermissionStepName> plannedSteps,
     required Map<int, DisCon<TemplateDisclosureCredential>> candidates,
+    required List<MapEntry<int, DisCon<TemplateDisclosureCredential>>> candidatesList,
     required Map<int, int> selectedConIndices,
     required Map<int, bool> obtained,
   })  : assert(candidates.keys.every((i) => selectedConIndices.containsKey(i) && obtained.containsKey(i))),
         candidates = UnmodifiableMapView(candidates),
+        candidatesList = UnmodifiableListView(candidatesList),
         selectedConIndices = UnmodifiableMapView(selectedConIndices),
         obtained = UnmodifiableMapView(obtained),
         super(plannedSteps: plannedSteps);
 
   /// Returns the discon that should currently be handled.
   MapEntry<int, DisCon<TemplateDisclosureCredential>>? get currentDiscon =>
-      candidates.entries.firstWhereOrNull((entry) => !obtained[entry.key]!);
+      candidatesList.firstWhereOrNull((entry) => !obtained[entry.key]!);
 
   /// Returns the selected con in the discon that should currently be handled.
   Con<TemplateDisclosureCredential>? get currentCon => currentDiscon?.value[selectedConIndices[currentDiscon!.key]!];
+
+  /// Returns whether the currently selected con in the issue wizard can be completed.
+  bool get currentCanBeCompleted => currentCon?.every((cred) => cred.obtainable) ?? true;
 
   /// Returns whether the issue wizard is completed.
   bool get isCompleted => obtained.values.every((match) => match);
