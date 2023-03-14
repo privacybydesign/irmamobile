@@ -2001,7 +2001,7 @@ void main() {
     await _issueCredential(
       repo,
       mockBridge,
-      43,
+      42,
       [
         {
           'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31611111111'),
@@ -2014,7 +2014,7 @@ void main() {
     await _issueCredential(
       repo,
       mockBridge,
-      42,
+      43,
       [
         {
           'pbdf.pbdf.mobilenumber.mobilenumber': TextValue.fromString('+31633333333'),
@@ -2067,7 +2067,7 @@ void main() {
     expect(choicesOverviewBlocState.requiredChoices[0]?.length, 1);
 
     // The unrevoked and unexpired credential should be selected.
-    expect(choicesOverviewBlocState.requiredChoices[0]?[0].credentialHash, 'session-42-0');
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].credentialHash, 'session-43-0');
     expect(choicesOverviewBlocState.requiredChoices[0]?[0].revoked, false);
     expect(choicesOverviewBlocState.requiredChoices[0]?[0].expired, false);
 
@@ -2078,10 +2078,10 @@ void main() {
     expect(changeChoiceBlocState.choosableCons.length, 3);
 
     // The expired/ revoked credentials should be visible.
-    expect(changeChoiceBlocState.choosableCons[0]?[0].credentialHash, 'session-43-0');
+    expect(changeChoiceBlocState.choosableCons[0]?[0].credentialHash, 'session-42-0');
     expect(changeChoiceBlocState.choosableCons[0]?[0].revoked, true);
 
-    expect(changeChoiceBlocState.choosableCons[1]?[0].credentialHash, 'session-42-0');
+    expect(changeChoiceBlocState.choosableCons[1]?[0].credentialHash, 'session-43-0');
 
     expect(changeChoiceBlocState.choosableCons[2]?[0].credentialHash, 'session-44-0');
     expect(changeChoiceBlocState.choosableCons[2]?[0].expired, true);
