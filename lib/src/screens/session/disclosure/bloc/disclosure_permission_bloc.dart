@@ -459,12 +459,24 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
 
       // Check whether an issue wizard is needed to bootstrap the session.
       final choices = candidates.map(
-        (i, discon) => MapEntry(
-          i,
-          discon
-              .firstWhereOrNull((con) => con.every((cred) => cred is ChoosableDisclosureCredential))
-              ?.cast<ChoosableDisclosureCredential>(),
-        ),
+        (i, discon) {
+          final choosableCons = discon.where(
+            (con) => con.every((cred) => cred is ChoosableDisclosureCredential),
+          );
+
+          final Con<DisclosureCredential>? preferredCon =
+              // Always prefer an option that is not revoked / expired
+              choosableCons.firstWhereOrNull(
+                    (con) => con.every((cred) => cred.valid),
+                  ) ??
+                  // If there is none, just grab the first choosable option
+                  choosableCons.firstOrNull;
+
+          return MapEntry(
+            i,
+            preferredCon?.cast<ChoosableDisclosureCredential>(),
+          );
+        },
       );
 
       if (choices.values.every((choice) => choice != null)) {
