@@ -457,24 +457,17 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         (i, rawDiscon) => MapEntry(i, _parseCandidatesDisCon(rawDiscon)),
       ));
 
-      // Check whether an issue wizard is needed to bootstrap the session.
+      // Determine whether an issue wizard is needed to bootstrap the session.
+      // If no previous choice is given, _findSelectedConIndex will select the choice that fits best.
+      // If the best fit is not fully choosable, then we know an issue wizard should be started.
       final choices = candidates.map(
         (i, discon) {
-          final choosableCons = discon.where(
-            (con) => con.every((cred) => cred is ChoosableDisclosureCredential),
-          );
-
-          final Con<DisclosureCredential>? preferredCon =
-              // Always prefer an option that is not revoked / expired
-              choosableCons.firstWhereOrNull(
-                    (con) => con.every((cred) => cred.valid),
-                  ) ??
-                  // If there is none, just grab the first choosable option
-                  choosableCons.firstOrNull;
-
+          final preferredCon = discon[_findSelectedConIndex(discon)];
           return MapEntry(
             i,
-            preferredCon?.cast<ChoosableDisclosureCredential>(),
+            preferredCon.every((cred) => cred is ChoosableDisclosureCredential)
+                ? preferredCon.cast<ChoosableDisclosureCredential>()
+                : null,
           );
         },
       );
