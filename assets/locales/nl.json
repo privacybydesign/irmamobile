@@ -558,7 +558,8 @@
     "retry": "Opnieuw proberen",
     "error": "Er is iets misgegaan",
     "end_of_list": "Je bent aan het einde van de lijst gekomen",
-    "unknown": "Onbekend"
+    "unknown": "Onbekend",
+    "go_back": "Ga terug"
   },
   "update": {
     "title": "Update beschikbaar",

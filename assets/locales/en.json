@@ -558,7 +558,8 @@
     "retry": "Try again",
     "error": "Something went wrong",
     "end_of_list": "You have reached the end of the list",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "go_back": "Go back"
   },
   "update": {
     "title": "Update available",

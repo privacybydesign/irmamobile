@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
 
 import '../theme/theme.dart';
@@ -62,81 +64,88 @@ class IrmaActionCard extends StatelessWidget {
       color: contentColor,
     );
 
-    return ClipRRect(
-      borderRadius: const BorderRadius.all(
-        Radius.circular(8),
+    return Semantics(
+      button: true,
+      label: FlutterI18n.translate(
+        context,
+        titleKey,
       ),
-      child: Stack(
-        children: [
-          // Background
-          Positioned.fill(
-            child: isFancy
-                ? SvgPicture.asset(
-                    'assets/ui/btn-bg.svg',
-                    alignment: Alignment.center,
-                    fit: BoxFit.fill,
-                  )
-                : const IrmaCard(),
-          ),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.all(
+          Radius.circular(8),
+        ),
+        child: Stack(
+          children: [
+            // Background
+            Positioned.fill(
+              child: isFancy
+                  ? SvgPicture.asset(
+                      'assets/ui/btn-bg.svg',
+                      alignment: Alignment.center,
+                      fit: BoxFit.fill,
+                    )
+                  : const IrmaCard(),
+            ),
 
-          // Content
-          Material(
-            type: MaterialType.transparency,
-            child: InkWell(
-              onTap: onTap,
-              child: Padding(
-                padding: EdgeInsets.all(theme.defaultSpacing),
-                child: centeredLayout
-                    // Layout where the text is centrally aligned with the icon
-                    ? Row(
-                        mainAxisSize: MainAxisSize.max,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
+            // Content
+            Material(
+              type: MaterialType.transparency,
+              child: InkWell(
+                onTap: onTap,
+                child: Padding(
+                  padding: EdgeInsets.all(theme.defaultSpacing),
+                  child: centeredLayout
+                      // Layout where the text is centrally aligned with the icon
+                      ? Row(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  flexibleTitleTextWidget,
+                                  if (flexibleSubtitleTextWidget != null) flexibleSubtitleTextWidget,
+                                ],
+                              ),
+                            ),
+                            iconWidget
+                          ],
+                        )
+                      // Layout where the text and the icon stick to the top
+                      // and the subtitle can extend underneath the icon
+                      : Column(
+                          children: [
+                            Row(
+                              mainAxisSize: MainAxisSize.max,
                               crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 flexibleTitleTextWidget,
-                                if (flexibleSubtitleTextWidget != null) flexibleSubtitleTextWidget,
+                                SizedBox(
+                                  width: theme.smallSpacing,
+                                ),
+                                iconWidget
                               ],
                             ),
-                          ),
-                          iconWidget
-                        ],
-                      )
-                    // Layout where the text and the icon stick to the top
-                    // and the subtitle can extend underneath the icon
-                    : Column(
-                        children: [
-                          Row(
-                            mainAxisSize: MainAxisSize.max,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              flexibleTitleTextWidget,
+                            if (flexibleSubtitleTextWidget != null) ...[
                               SizedBox(
-                                width: theme.smallSpacing,
+                                height: theme.smallSpacing,
                               ),
-                              iconWidget
-                            ],
-                          ),
-                          if (flexibleSubtitleTextWidget != null) ...[
-                            SizedBox(
-                              height: theme.smallSpacing,
-                            ),
-                            Row(
-                              children: [
-                                flexibleSubtitleTextWidget,
-                              ],
-                            )
-                          ]
-                        ],
-                      ),
+                              Row(
+                                children: [
+                                  flexibleSubtitleTextWidget,
+                                ],
+                              )
+                            ]
+                          ],
+                        ),
+                ),
               ),
-            ),
-          )
-        ],
+            )
+          ],
+        ),
       ),
     );
   }
