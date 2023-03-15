@@ -87,10 +87,13 @@ class AddDataScreen extends StatelessWidget {
                   ),
                   SizedBox(height: theme.mediumSpacing),
                   for (final category in categories) ...[
-                    Text(
-                      category,
-                      style: theme.textTheme.headline4!.copyWith(
-                        color: theme.neutralExtraDark,
+                    Semantics(
+                      header: true,
+                      child: Text(
+                        category,
+                        style: theme.textTheme.headline4!.copyWith(
+                          color: theme.neutralExtraDark,
+                        ),
                       ),
                     ),
                     SizedBox(height: theme.smallSpacing),
