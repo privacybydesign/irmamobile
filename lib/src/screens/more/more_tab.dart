@@ -32,6 +32,7 @@ class MoreTab extends StatelessWidget {
           padding: EdgeInsets.only(bottom: theme.defaultSpacing),
           child: TranslatedText(
             translationKey,
+            isHeader: true,
             style: theme.textTheme.bodyText1!.copyWith(
               color: theme.neutralExtraDark,
             ),
