@@ -40,39 +40,41 @@ class AddDataScreen extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(theme.defaultSpacing),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TranslatedText(
-              'data.add.choose',
-              style: theme.textTheme.bodyText2,
-            ),
-            SizedBox(
-              height: theme.defaultSpacing,
-            ),
-            StoreCredentialTypesBuilder(
-              builder: (
-                context,
-                groupedCredentialTypes,
-                groupedObtainedCredentialTypes,
-              ) =>
-                  Column(
-                children: groupedCredentialTypes.entries
-                    .map(
-                      (credentialTypesByCategory) => CredentialCategoryList(
-                        categoryName: credentialTypesByCategory.key,
-                        credentialTypes: credentialTypesByCategory.value,
-                        obtainedCredentialTypes: groupedObtainedCredentialTypes[credentialTypesByCategory.key],
-                        onCredentialTypeTap: (CredentialType credType) => _navToAddDataDetailScreen(
-                          context,
-                          credType,
-                        ),
-                      ),
-                    )
-                    .toList(growable: false),
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TranslatedText(
+                'data.add.choose',
+                style: theme.textTheme.bodyText2,
               ),
-            )
-          ],
+              SizedBox(
+                height: theme.defaultSpacing,
+              ),
+              StoreCredentialTypesBuilder(
+                builder: (
+                  context,
+                  groupedCredentialTypes,
+                  groupedObtainedCredentialTypes,
+                ) =>
+                    Column(
+                  children: groupedCredentialTypes.entries
+                      .map(
+                        (credentialTypesByCategory) => CredentialCategoryList(
+                          categoryName: credentialTypesByCategory.key,
+                          credentialTypes: credentialTypesByCategory.value,
+                          obtainedCredentialTypes: groupedObtainedCredentialTypes[credentialTypesByCategory.key],
+                          onCredentialTypeTap: (CredentialType credType) => _navToAddDataDetailScreen(
+                            context,
+                            credType,
+                          ),
+                        ),
+                      )
+                      .toList(growable: false),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

@@ -29,35 +29,37 @@ class DataTab extends StatelessWidget {
 
     return SingleChildScrollView(
       padding: EdgeInsets.all(theme.defaultSpacing),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          IrmaActionCard(
-            titleKey: 'data.tab.obtain_data',
-            onTap: () => Navigator.of(context).pushNamed(AddDataScreen.routeName),
-            icon: Icons.add_circle_sharp,
-          ),
-          CredentialTypesBuilder(
-            builder: (context, groupedCredentialTypes) => Column(
-              children: groupedCredentialTypes.entries
-                  .map(
-                    (credentialTypesByCategory) => CredentialCategoryList(
-                      categoryName: credentialTypesByCategory.key,
-                      credentialTypes: credentialTypesByCategory.value,
-                      onCredentialTypeTap: (CredentialType credType) => _navToCredTypeDetailScreen(
-                        context,
-                        credType.fullId,
-                        credentialTypesByCategory.key,
-                      ),
-                    ),
-                  )
-                  .toList(growable: false),
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            IrmaActionCard(
+              titleKey: 'data.tab.obtain_data',
+              onTap: () => Navigator.of(context).pushNamed(AddDataScreen.routeName),
+              icon: Icons.add_circle_sharp,
             ),
-          ),
-          SizedBox(
-            height: theme.defaultSpacing,
-          )
-        ],
+            CredentialTypesBuilder(
+              builder: (context, groupedCredentialTypes) => Column(
+                children: groupedCredentialTypes.entries
+                    .map(
+                      (credentialTypesByCategory) => CredentialCategoryList(
+                        categoryName: credentialTypesByCategory.key,
+                        credentialTypes: credentialTypesByCategory.value,
+                        onCredentialTypeTap: (CredentialType credType) => _navToCredTypeDetailScreen(
+                          context,
+                          credType.fullId,
+                          credentialTypesByCategory.key,
+                        ),
+                      ),
+                    )
+                    .toList(growable: false),
+              ),
+            ),
+            SizedBox(
+              height: theme.defaultSpacing,
+            )
+          ],
+        ),
       ),
     );
   }
