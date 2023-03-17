@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+
 import 'package:flutter_svg/svg.dart';
+import 'package:lottie/lottie.dart';
 
 import '../../../theme/theme.dart';
 
-class EnrollmentGraphic extends StatelessWidget {
+class EnrollmentHero extends StatelessWidget {
   final String imagePath;
 
-  const EnrollmentGraphic(
+  EnrollmentHero(
     this.imagePath,
-  );
+  ) : assert(imagePath.endsWith('svg') || imagePath.endsWith('json'));
 
   @override
   Widget build(BuildContext context) {
@@ -22,10 +24,15 @@ class EnrollmentGraphic extends StatelessWidget {
               vertical: theme.defaultSpacing,
             )
           : EdgeInsets.zero,
-      child: SvgPicture.asset(
-        imagePath,
-        fit: BoxFit.contain,
-      ),
+      child: imagePath.endsWith('json')
+          ? Lottie.asset(
+              imagePath,
+              frameRate: FrameRate(60),
+            )
+          : SvgPicture.asset(
+              imagePath,
+              fit: BoxFit.contain,
+            ),
     );
   }
 }
