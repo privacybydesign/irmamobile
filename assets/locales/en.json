@@ -119,7 +119,7 @@
   "disclosure": {
     "title": "Data request",
     "disclosure_header": "Do you wish to disclose the following data to {otherParty}?",
-    "disclosure_call_header": "Do you wish to diclose the following data to {otherParty} and call to {phoneNumber}?",
+    "disclosure_call_header": "Do you wish to disclose the following data to {otherParty} and call to {phoneNumber}?",
     "signing_header": "{otherParty} asks you to sign a message",
     "signing_call_header": "{otherParty} asks you to sign a message and call to {phoneNumber}",
     "unsatisfiable_header": "You don't have all data that {otherParty} is asking for in your Yivi app.",
@@ -151,7 +151,7 @@
       "text": {
         "success": "Your data is disclosed to {otherParty}",
         "canceled": "Your data has not been disclosed to {otherParty}",
-        "notSatisfiable": "Your data is not disclosed because {otherParty} requests outdated data. There is nothing you can do to remedy this. Please contact the requesting party."
+        "notSatisfiable": "Your data is not disclosed because {otherParty} requests outdated data. There is nothing you can do to remedy this. Please get in touch with the requesting party."
       }
     }
   },
@@ -175,7 +175,7 @@
     },
     "issue_wizard": {
       "title": "Collect data",
-      "explanation_incomplete": "Obtain my data step by step and share it with the requesting party thereafter",
+      "explanation_incomplete": "Obtain my data step by step and share it with the requesting party after that",
       "explanation_complete": "All required data has been added"
     },
     "previously_added": {
@@ -210,9 +210,9 @@
       "disclosure_explanation": "Do you wish to disclose the following data to {otherParty} and call to {phoneNumber}?",
       "disclosure_success": "Data has been shared with {otherParty}",
       "explanation_header_ios": "Choose next to call",
-      "explanation_ios": "A pop-up will appear, with the option to place the call. The number is pre-filled, followed by a link-code. If you choose to call, you will hear a few beeps and you will be connected.",
+      "explanation_ios": "A pop-up will appear, with the option to place the call. The number is pre-filled, followed by a link code. If you choose to call, you will hear a few beeps and you will be connected.",
       "explanation_header_android": "1. Choose next",
-      "explanation_android": "Your phone app now opens automatically. The number is pre-filled, followed by a link-code.",
+      "explanation_android": "Your phone app now opens automatically. The number is pre-filled, followed by a link code.",
       "extra_explanation_header_android": "2. Tap the call button in your phone app",
       "extra_explanation_android": "You will hear a few beeps and you will be connected."
     }
@@ -229,7 +229,7 @@
       },
       "step_3": {
         "title": "Securely on your phone",
-        "explanation": "Only you have access to the data on your phone. Nobody has access to your transactions, not even Yivi."
+        "explanation": "Only you can access the data on your phone. Nobody has access to your transactions, not even Yivi."
       }
     },
     "confirm_pin": {
@@ -255,7 +255,7 @@
         "title": "Confirm your e-mail address",
         "header": "Our e-mail has been sent to:",
         "explanation": "It can take a few minutes until the e-mail arrives. Didn't receive our e-mail? Please check your spam folder.",
-        "explanation_extra_markdown": "You have received an e-mail from **noreply@sidn.nl**. Open the link in this message to link your e-mail address to your Yivi app."
+        "explanation_extra_markdown": "You have received an e-mail from **noreply@yivi.app**. Open the link in this message to link your e-mail address to your Yivi app."
       }
     },
     "terms_and_conditions": {
@@ -264,7 +264,7 @@
       "point_1": "You decide what data you store, and what you share.",
       "point_2": "Your data only resides on your phone, safe and secure. Nowhere else.",
       "point_3": "Nobody can see your data or your transactions, not even Yivi!",
-      "accept_markdown": "Yes, I accept the [terms and conditions](https://privacybydesign.foundation/privacy-policy-en/)"
+      "accept_markdown": "Yes, I accept the [terms and conditions](https://www.yivi.app/en/terms-and-conditions)"
     },
     "error_reporting": {
       "accept": {
@@ -294,7 +294,7 @@
     "report": "If this happens again, please inform the Yivi team.",
     "types": {
       "general": "Something went wrong.",
-      "blocked": "Your Yivi app has been remotely blocked.\n\nThis has either been done via MyYivi, or because you did not use Yivi on this device for more than two years. If you want to continue using Yivi on this device, you will need to start over.",
+      "blocked": "Your Yivi app has been remotely blocked.\n\nThis has either been done via MyYivi or because you did not use Yivi on this device for more than two years. If you want to continue using Yivi on this device, you will need to start over.",
       "expired": "The session has expired. Please start over.",
       "pairing_rejected": "The session was rejected. Please start over.",
       "no_internet": "Please make sure your device has a functional internet connection."
@@ -303,7 +303,7 @@
   "help": {
     "about_irma": "About Yivi",
     "ask": "Ask a question",
-    "contact": "yivi.support@sidn.nl",
+    "contact": "support@yivi.app",
     "device": "Mobile",
     "email": "Send an e-mail",
     "faq": "Frequently asked questions",
@@ -340,11 +340,11 @@
     "question_8": "Where is my Yivi data stored?",
     "answer_8": "All data stored in the Yivi app is only stored locally. There is no centralized data (or cloud) storage. This means that you're the only one who can access your data. You're in control and giving permission to share your data with online organisations. Deleted your data from the app? That means they're all gone, permanently. You're in full control of your data. Only you decide what you're sharing, and with whom.",
     "question_9": "What makes Yivi privacy-friendly and secure?",
-    "answer_9": "Giving people back control over their digital data is the mission of Yivi. What are you storing? What do you share? And with whom? Yivi empowers you to make that choice. With our app, you can decide what others learn about you. This data is shared from your phone with the requesting party, nobody else is part of that transaction. Not even Yivi. \n\nEverything is stored securely on your phone, encrypted and behind a PIN-code. There is no centralized data or cloud storage that contains your personal data. Lost your phone? Don't panic. Just remotely block your Yivi app. That prevents anyone from using your data without your knowledge.\n\nThe data that's loaded into Yivi is digitally signed by the supplier of the data. Proving its validity. This means that the requesting party can always be sure that the data you supplied is real.",
+    "answer_9": "Giving people back control over their digital data is the mission of Yivi. What are you storing? What do you share? And with whom? Yivi empowers you to make that choice. With our app, you can decide what others learn about you. This data is shared from your phone with the requesting party, nobody else is part of that transaction. Not even Yivi. \n\nEverything is stored securely on your phone, encrypted and behind a PIN code. There is no centralized data or cloud storage that contains your personal data. Lost your phone? Don't panic. Just remotely block your Yivi app. That prevents anyone from using your data without your knowledge.\n\nThe data that's loaded into Yivi is digitally signed by the supplier of the data. Proving its validity. This means that the requesting party can always be sure that the data you supplied is real.",
     "question_10": "Why does the data in the Yivi app have limited validity?",
-    "answer_10": "The supplier of the data can determine what the validity period off the data is. So your data can expire. You will get a warning in the Yivi app if this happens. How long your data remains valid depends on the type of data. Your name and birthdate are valid for 5 years. Your address just one year. You can always refresh your data, whenever you want. For instance by refreshing your age after your 18th birthday. That way you can directly show that you're older than 18. ",
+    "answer_10": "The supplier of the data can determine what the validity period of the data is. So your data can expire. You will get a warning in the Yivi app if this happens. How long your data remains valid depends on the type of data. Your name and birthdate are valid for 5 years. Your address is just one year. You can always refresh your data, whenever you want. For instance by refreshing your age after your 18th birthday. That way you can directly show that you're older than 18. ",
     "question_11": "Yivi, privacy and safety",
-    "answer_11": "The Yivi app has been developed in such a way that you and only you can see and use your personal data. Your personal data is only stored on your phone and nowhere else. We don't store your data in the cloud.\n\nThe Yivi app enables a website or shop to (cryptographically) verify that the data you disclosed is genuine.\n\nThe Yivi app discloses your data directly from your phone to the website. No one else can see that you're identifying yourself. Not even the organization behind Yivi. \n\nWhen using Yivi, you agree with the [privacy policy](https://privacybydesign.foundation/privacy-policy-en/).",
+    "answer_11": "The Yivi app has been developed in such a way that you and only you can see and use your personal data. Your personal data is only stored on your phone and nowhere else. We don't store your data in the cloud.\n\nThe Yivi app enables a website or shop to (cryptographically) verify that the data you disclosed is genuine.\n\nThe Yivi app discloses your data directly from your phone to the website. No one else can see that you're identifying yourself. Not even the organization behind Yivi. \n\nWhen using Yivi, you agree with the [privacy policy](https://www.yivi.app/en/privacy).",
     "send": "Do you have other/more questions? Send an e-mail. It may take a couple of days before you get a reply.",
     "security_and_privacy": "Security and privacy"
   },
@@ -396,7 +396,7 @@
     "debugging": "Debugging",
     "contact": "Contact us",
     "share": "Share Yivi",
-    "share_text": "Check out the Yivi app: https://irma.app",
+    "share_text": "Check out the Yivi app: https://yivi.app",
     "website": "Yivi website",
     "meet_up": "Yivi meetups",
     "need_help": "Need help?",
@@ -413,15 +413,15 @@
     "developer_mode_enabled": "Developer mode enabled",
     "developer_mode_already_enabled": "Developer mode already enabled",
     "irma_website": "Yivi website",
-    "irma_website_link": "https://irma.app/?lang=en",
+    "irma_website_link": "https://www.yivi.app/en",
     "privacy_policy": "Yivi's privacy policy",
-    "privacy_policy_link": "https://privacybydesign.foundation/privacy-policy-en/",
+    "privacy_policy_link": "https://www.yivi.app/en/privacy",
     "app_id": "App ID {id}",
     "log_out": "Log out"
   },
   "pin": {
     "subtitle": "Enter your PIN",
-    "button_forgot": "PIN forgotten",
+    "button_forgot": "I forgot my PIN",
     "button_block": "Block Yivi"
   },
   "pin_accessibility": {
@@ -478,13 +478,13 @@
     },
     "error": {
       "title": "Sorry",
-      "message": "This is not an Yivi QR code",
-      "semantic": "Sorry! This is not an Yivi QR code."
+      "message": "This is not a Yivi QR code",
+      "semantic": "Sorry! This is not a Yivi QR code."
     }
   },
   "reset_pin": {
     "title": "Forgot PIN",
-    "header" : "Forgot your PIN?",
+    "header": "Forgot your PIN?",
     "explanation": "We're sorry but the Yivi organisation does not have a copy of your PIN. If you wish to continue using Yivi, you will have to enter a new PIN and reload all data.",
     "reset": "Start all over"
   },
@@ -499,8 +499,8 @@
     "subtitle": "A secure PIN has the following properties:",
     "rules": {
       "contains_3_unique": "Contains at least 3 unique numbers",
-      "must_not_asc_or_desc": "Must not contain ascending nor descending keyboard patterns, like: 12345",
-      "not_abcab_nor_abcba": "Must not contain the following keyboard patterns: abcba, abcab, like: 12312, 12321, 13331",
+      "must_not_asc_or_desc": "Must not contain ascending nor descending keyboard patterns, like 12345",
+      "not_abcab_nor_abcba": "Must not contain the following keyboard patterns: abcba, abcab, like 12312, 12321, 13331",
       "must_contain_valid_subset": "Must contain 5 adjacent numbers, that comply with the rules mentioned above"
     }
   },
