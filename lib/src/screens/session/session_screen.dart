@@ -117,7 +117,14 @@ class _SessionScreenState extends State<SessionScreen> {
     }
   }
 
+  Widget _buildDismissed(SessionState session) {
+    WidgetsBinding.instance?.addPostFrameCallback((_) => Navigator.of(context).pop());
+    return _buildLoadingScreen(session.isIssuanceSession);
+  }
+
   Widget _buildFinishedContinueSecondDevice(SessionState session) {
+    if (session.dismissed) return _buildDismissed(session);
+
     if (session.isIssuanceSession) {
       final issuedCredentialTypeIds = session.issuedCredentials?.map((e) => e.credentialType.fullId) ?? [];
       _repo.removeLaunchedCredentials(issuedCredentialTypeIds);
@@ -142,6 +149,8 @@ class _SessionScreenState extends State<SessionScreen> {
   }
 
   Widget _buildFinishedReturnPhoneNumber(SessionState session) {
+    if (session.dismissed) return _buildDismissed(session);
+
     final serverName = session.serverName.name.translate(FlutterI18n.currentLocale(context)!.languageCode);
 
     // Navigate to call info screen when session succeeded.
