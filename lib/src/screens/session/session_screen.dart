@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../data/irma_repository.dart';
@@ -18,7 +17,6 @@ import '../../util/navigation.dart';
 import '../../widgets/loading_indicator.dart';
 import '../error/session_error_screen.dart';
 import '../pin/session_pin_screen.dart';
-
 import 'call_info_screen.dart';
 import 'disclosure/disclosure_permission.dart';
 import 'session.dart';
@@ -121,7 +119,7 @@ class _SessionScreenState extends State<SessionScreen> {
 
   Widget _buildFinishedContinueSecondDevice(SessionState session) {
     if (session.isIssuanceSession) {
-      final issuedCredentialTypeIds = session.issuedCredentials!.map((e) => e.credentialType.fullId).toList();
+      final issuedCredentialTypeIds = session.issuedCredentials?.map((e) => e.credentialType.fullId) ?? [];
       _repo.removeLaunchedCredentials(issuedCredentialTypeIds);
 
       if (session.status == SessionStatus.success) {
