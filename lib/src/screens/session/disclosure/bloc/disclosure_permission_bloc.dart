@@ -322,6 +322,16 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       onObtainCredential(state.credentialType);
     } else if (state is DisclosurePermissionCredentialInformation && event is DisclosurePermissionPreviousPressed) {
       yield state.parentState;
+    } else if (event is DisclosurePermissionDismissed) {
+      yield DisclosurePermissionFinished();
+      _repo.dispatch(
+        RespondPermissionEvent(
+          sessionID: sessionID,
+          proceed: false,
+          disclosureChoices: [],
+        ),
+        isBridgedEvent: true,
+      );
     } else {
       throw UnsupportedError(
           'Event ${event.runtimeType.toString()} not supported in state ${state.runtimeType.toString()}');
