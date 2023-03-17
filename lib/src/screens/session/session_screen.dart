@@ -123,8 +123,6 @@ class _SessionScreenState extends State<SessionScreen> {
   }
 
   Widget _buildFinishedContinueSecondDevice(SessionState session) {
-    if (session.dismissed) return _buildDismissed(session);
-
     if (session.isIssuanceSession) {
       final issuedCredentialTypeIds = session.issuedCredentials?.map((e) => e.credentialType.fullId) ?? [];
       _repo.removeLaunchedCredentials(issuedCredentialTypeIds);
@@ -134,10 +132,12 @@ class _SessionScreenState extends State<SessionScreen> {
           onDismiss: popToHome,
         );
       } else {
-        WidgetsBinding.instance?.addPostFrameCallback((_) => popToHome(context));
-        return _buildLoadingScreen(true);
+        return _buildDismissed(session);
       }
     }
+
+    if (session.dismissed) return _buildDismissed(session);
+
     final serverName = session.serverName.name.translate(FlutterI18n.currentLocale(context)!.languageCode);
     final feedbackType =
         session.status == SessionStatus.success ? DisclosureFeedbackType.success : DisclosureFeedbackType.canceled;
@@ -149,8 +149,6 @@ class _SessionScreenState extends State<SessionScreen> {
   }
 
   Widget _buildFinishedReturnPhoneNumber(SessionState session) {
-    if (session.dismissed) return _buildDismissed(session);
-
     final serverName = session.serverName.name.translate(FlutterI18n.currentLocale(context)!.languageCode);
 
     // Navigate to call info screen when session succeeded.
@@ -181,6 +179,8 @@ class _SessionScreenState extends State<SessionScreen> {
     } else if (session.isIssuanceSession) {
       WidgetsBinding.instance?.addPostFrameCallback((_) => popToHome(context));
       return _buildLoadingScreen(true);
+    } else if (session.dismissed) {
+      return _buildDismissed(session);
     } else {
       return DisclosureFeedbackScreen(
         feedbackType: DisclosureFeedbackType.canceled,
