@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/models/enrollment_status.dart';
@@ -42,7 +41,7 @@ void main() {
     ],
     [
       'Securely on your phone',
-      'Only you have access to the data on your phone. Nobody has access to your transactions, not even Yivi.'
+      'Only you can access the data on your phone. Nobody has access to your transactions, not even Yivi.'
     ]
   ];
 
