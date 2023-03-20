@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
@@ -50,52 +51,55 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
     MapEntry<int, Con<ChoosableDisclosureCredential>> choiceEntry, {
     required bool optional,
     required bool changeable,
+    required EdgeInsetsGeometry padding,
   }) {
     final theme = IrmaTheme.of(context);
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (changeable)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Flexible(
-                child: YiviThemedButton(
-                  label: 'disclosure_permission.change_choice',
-                  style: YiviButtonStyle.outlined,
-                  size: YiviButtonSize.small,
-                  isTransparent: true,
-                  onPressed: () => onEvent(
-                    DisclosurePermissionChangeChoicePressed(
-                      disconIndex: choiceEntry.key,
-                    ),
-                  ),
-                ),
-              )
-            ],
-          ),
-        SizedBox(height: theme.smallSpacing),
-        for (int i = 0; i < choiceEntry.value.length; i++)
-          IrmaCredentialCard(
-            credentialView: choiceEntry.value[i],
-            padding: EdgeInsets.symmetric(horizontal: theme.tinySpacing),
-            headerTrailing: optional && i == 0
-                ? IrmaIconButton(
-                    icon: Icons.close,
-                    size: 22,
-                    padding: EdgeInsets.zero,
-                    onTap: () => onEvent(
-                      DisclosurePermissionRemoveOptionalDataPressed(
-                        disconIndex: choiceEntry.key,
+    return Padding(
+      padding: padding,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (changeable)
+            Padding(
+              padding: EdgeInsets.only(bottom: theme.smallSpacing),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Flexible(
+                    child: YiviThemedButton(
+                      label: 'disclosure_permission.change_choice',
+                      style: YiviButtonStyle.outlined,
+                      size: YiviButtonSize.small,
+                      isTransparent: true,
+                      onPressed: () => onEvent(
+                        DisclosurePermissionChangeChoicePressed(
+                          disconIndex: choiceEntry.key,
+                        ),
                       ),
                     ),
                   )
-                : null,
-          ),
-        SizedBox(
-          height: theme.defaultSpacing,
-        )
-      ],
+                ],
+              ),
+            ),
+          for (int i = 0; i < choiceEntry.value.length; i++)
+            IrmaCredentialCard(
+              credentialView: choiceEntry.value[i],
+              padding: EdgeInsets.symmetric(horizontal: theme.tinySpacing),
+              headerTrailing: optional && i == 0
+                  ? IrmaIconButton(
+                      icon: Icons.close,
+                      size: 22,
+                      padding: EdgeInsets.zero,
+                      onTap: () => onEvent(
+                        DisclosurePermissionRemoveOptionalDataPressed(
+                          disconIndex: choiceEntry.key,
+                        ),
+                      ),
+                    )
+                  : null,
+            ),
+        ],
+      ),
     );
   }
 
@@ -148,8 +152,8 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                 contentTranslationKey: contentTranslationKey,
                 contentTranslationParams: contentTranslationsParams,
               ),
-              SizedBox(height: theme.defaultSpacing),
               if (state is DisclosurePermissionChoicesOverview && state.isSignatureSession) ...[
+                SizedBox(height: theme.defaultSpacing),
                 TranslatedText(
                   'disclosure_permission.overview.sign',
                   style: theme.themeData.textTheme.headline4,
@@ -165,20 +169,29 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                   ),
                 ),
               ],
-              SizedBox(height: theme.smallSpacing),
-              ...state.requiredChoices.entries.map((choiceEntry) => _buildChoiceEntry(
+              ...state.requiredChoices.entries.mapIndexed((i, choiceEntry) => _buildChoiceEntry(
                     context,
                     choiceEntry,
                     optional: false,
                     changeable: state.changeableChoices.contains(choiceEntry.key),
+                    padding: EdgeInsets.only(
+                      // We add extra padding between the choices, so we have to exclude the first entry.
+                      top: i == 0 ? theme.defaultSpacing : theme.mediumSpacing,
+                      bottom: theme.defaultSpacing,
+                    ),
                   )),
               if (state.optionalChoices.isNotEmpty) ...[
                 TranslatedText('disclosure_permission.optional_data', style: theme.themeData.textTheme.headline4),
-                ...state.optionalChoices.entries.map((choiceEntry) => _buildChoiceEntry(
+                ...state.optionalChoices.entries.mapIndexed((i, choiceEntry) => _buildChoiceEntry(
                       context,
                       choiceEntry,
                       optional: true,
                       changeable: state.changeableChoices.contains(choiceEntry.key),
+                      padding: EdgeInsets.only(
+                        // We add extra padding between the choices, so we have to exclude the first entry.
+                        top: i == 0 ? theme.defaultSpacing : theme.mediumSpacing,
+                        bottom: theme.defaultSpacing,
+                      ),
                     )),
               ],
               if (state.requiredChoices.isEmpty && state.optionalChoices.isEmpty)
