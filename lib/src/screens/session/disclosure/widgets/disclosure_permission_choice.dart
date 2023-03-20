@@ -26,31 +26,34 @@ class DisclosurePermissionChoice extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.all(theme.tinySpacing),
-      child: Column(
-        children: option.value
-            .map(
-              (credential) => GestureDetector(
-                onTap: isDisabled
-                    ? null
-                    : () {
-                        if (isActive) {
-                          onChoiceUpdated(option.key);
-                        }
-                      },
-                child: IrmaCredentialCard(
-                  padding: EdgeInsets.zero,
-                  credentialView: credential,
-                  compareTo: credential is TemplateDisclosureCredential ? credential.attributes : null,
-                  disabled: isDisabled,
-                  headerTrailing: credential == option.value.first
-                      ? RadioIndicator(
-                          isSelected: option.key == selectedConIndex,
-                        )
-                      : null,
+      child: Semantics(
+        button: true,
+        child: Column(
+          children: option.value
+              .map(
+                (credential) => GestureDetector(
+                  onTap: isDisabled
+                      ? null
+                      : () {
+                          if (isActive) {
+                            onChoiceUpdated(option.key);
+                          }
+                        },
+                  child: IrmaCredentialCard(
+                    padding: EdgeInsets.zero,
+                    credentialView: credential,
+                    compareTo: credential is TemplateDisclosureCredential ? credential.attributes : null,
+                    disabled: isDisabled,
+                    headerTrailing: credential == option.value.first
+                        ? RadioIndicator(
+                            isSelected: option.key == selectedConIndex,
+                          )
+                        : null,
+                  ),
                 ),
-              ),
-            )
-            .toList(),
+              )
+              .toList(),
+        ),
       ),
     );
   }

@@ -35,6 +35,7 @@ class ActivityDetailIssuance extends StatelessWidget {
         TranslatedText(
           'activity.received_data',
           style: theme.themeData.textTheme.headline4,
+          isHeader: true,
         ),
         SizedBox(height: theme.smallSpacing),
         for (var rawCredential in logEntry.issuedCredentials)

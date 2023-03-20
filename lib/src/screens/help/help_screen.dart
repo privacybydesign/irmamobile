@@ -25,6 +25,7 @@ class _HelpScreenState extends State<HelpScreen> {
   ) =>
       TranslatedText(
         translationKey,
+        isHeader: true,
         style: theme.textTheme.bodyText1!.copyWith(
           color: theme.neutralExtraDark,
         ),

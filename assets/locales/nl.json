@@ -21,10 +21,14 @@
   },
   "activity": {
     "data_deleted": "Gegevens verwijderd",
+    "data_deleted_semantics": "Gegevens verwijderd van {issuerName} op {date}",
     "data_received": "Gegevens ontvangen",
+    "data_received_semantics": "Gegevens ontvangen van {otherParty} op {date}",
     "data_shared": "Gegevens gedeeld",
+    "data_shared_semantics": "Gegevens gedeeld met {otherParty} op {date}",
     "signed_message": "Getekend bericht",
     "message_signed": "Bericht getekend",
+    "signed_message_semantics": "Bericht getekend van {otherParty} op {date}",
     "shared_with": "Gedeeld met",
     "shared_data": "Gedeelde gegevens",
     "received_data": "Ontvangen gegevens",
@@ -485,7 +489,7 @@
   "reset_pin": {
     "title": "Pincode vergeten",
     "header": "Pincode vergeten?",
-    "explanation" : "Dat is vervelend voor je. De organisatie achter Yivi weet jouw pincode ook niet en kan je hiermee dus niet helpen. Als je Yivi wilt blijven gebruiken, moet je helaas opnieuw beginnen: een nieuwe pincode kiezen en nieuwe gegevens ophalen.",
+    "explanation": "Dat is vervelend voor je. De organisatie achter Yivi weet jouw pincode ook niet en kan je hiermee dus niet helpen. Als je Yivi wilt blijven gebruiken, moet je helaas opnieuw beginnen: een nieuwe pincode kiezen en nieuwe gegevens ophalen.",
     "reset": "Begin opnieuw"
   },
   "rooted_warning": {
@@ -558,7 +562,8 @@
     "retry": "Opnieuw proberen",
     "error": "Er is iets misgegaan",
     "end_of_list": "Je bent aan het einde van de lijst gekomen",
-    "unknown": "Onbekend"
+    "unknown": "Onbekend",
+    "go_back": "Ga terug"
   },
   "update": {
     "title": "Update beschikbaar",
