@@ -259,7 +259,7 @@
         "title": "Bevestig onze e-mail",
         "header": "Onze e-mail is gestuurd naar:",
         "explanation": "Het kan even duren voordat onze e-mail verschijnt. Geen e-mail ontvangen? Controleer of hij in je spamfolder zit.",
-        "explanation_extra_markdown": "Je hebt een e-mail ontvangen van **noreply@sidn.nl**. Open de link in dat bericht om je e-mailadres aan de Yivi-app te koppelen."
+        "explanation_extra_markdown": "Je hebt een e-mail ontvangen van **noreply@yivi.app**. Open de link in dat bericht om je e-mailadres aan de Yivi-app te koppelen."
       }
     },
     "terms_and_conditions": {
@@ -268,7 +268,7 @@
       "point_1": "Jij bepaalt wat je opslaat, wat je deelt en met wie.",
       "point_2": "Jouw gegevens staan alleen op je mobiel, wel zo veilig.",
       "point_3": "Niemand kijkt mee, ook Yivi niet!",
-      "accept_markdown": "Ja, ik ga akkoord met de [algemene voorwaarden](https://privacybydesign.foundation/privacy-policy/)"
+      "accept_markdown": "Ja, ik ga akkoord met de [algemene voorwaarden](https://www.yivi.app/algemene-voorwaarden)"
     },
     "error_reporting": {
       "accept": {
@@ -307,7 +307,7 @@
   "help": {
     "about_irma": "Over Yivi",
     "ask": "Stel je vraag",
-    "contact": "yivi.support@sidn.nl",
+    "contact": "support@yivi.app",
     "device": "Mobiel",
     "email": "Stuur een e-mail",
     "faq": "Veelgestelde vragen",
@@ -319,7 +319,7 @@
     "question_1": "Wat kan ik met Yivi?",
     "answer_1_markdown": "Yivi is een veilige, privacyvriendelijke én gratis app voor op jouw mobiel. Zie Yivi als jouw ‘digital wallet’ met je persoonsgegevens. Je kunt ermee inloggen en bewijzen dat jij het bent, maar zonder onnodige gegevens te delen. Want Yivi laat altijd de keuze aan jou. Wat je opslaat, wat je deelt en met wie. Jij bepaalt, altijd. Je hoeft geen accountgegevens en wachtwoorden meer te onthouden alleen je Yivi-pincode. En je deelt alleen dié gegevens die nodig zijn om jouw bestelling te laten bezorgen. Of om een afspraak te maken bij je huisarts. Wil je een kaartje bestellen voor een festival? Met Yivi laat je makkelijk via een vinkje zien dat je 18+ bent. En niet meer dan dat. Zo bescherm je direct je privacy. Ook kun je met Yivi documenten digitaal ondertekenen. Je gebruikt alleen belangrijke kenmerken van jezelf in een soort digitale stempel. Zo kun je met Yivi ondertekenen als burger, als arts of vanuit een andere rol. Bekijk het actuele overzicht van welke organisaties al werken met Yivi.",
     "question_2": "Waarom bestaat Yivi?",
-    "answer_2": "Mensen de controle laten terugpakken over hun online gegevens. Dat is de missie van Yivi. Wat sla je op? Wat deel je? En met wie? Yivi laat de keuze aan jou. Met jouw telefoon bepaal je in een handomdraai wat mensen online van je mogen weten. Niemand kijkt mee. Ook Yivi niet. Alles staat veilig in je eigen app, met pincode. Er is geen centrale opslagplek of cloud. Telefoon verloren? Geen paniek. Blokkeer jouw Yivi-app op afstand. [Link naar pagina om de blokkeerkeuze in te stellen*] Zo gaat niemand met je gegevens aan de haal. De gegevens die je ophaalt (bijvoorbeeld bij de gemeente of overheid) en in de Yivi-app zet, zijn digitaal ondertekend door hen. Daarom weet een website of winkel direct dat jouw gegevens echt zijn. En hoeven deze niet gecontroleerd te worden door anderen. Jouw gegevens zijn géén verdienmodel? Daarom is Yivi helemaal gratis. Waar het addertje dan zit? Die is er niet! Alleen de aanbieders van Yivi betalen. Zodat zij aangesloten zijn. Zo blijft Yivi voor jou altijd gratis.",
+    "answer_2": "Mensen de controle laten terugpakken over hun online gegevens. Dat is de missie van Yivi. Wat sla je op? Wat deel je? En met wie? Yivi laat de keuze aan jou. Met jouw telefoon bepaal je in een handomdraai wat mensen online van je mogen weten. Niemand kijkt mee. Ook Yivi niet. Alles staat veilig in je eigen app, met pincode. Er is geen centrale opslagplek of cloud. Telefoon verloren? Geen paniek. Blokkeer jouw Yivi-app op afstand. Zo gaat niemand met je gegevens aan de haal.\n\n De gegevens die je ophaalt (bijvoorbeeld bij de gemeente of overheid) en in de Yivi-app zet, zijn digitaal ondertekend door hen. Daarom weet een website of winkel direct dat jouw gegevens echt zijn. En hoeven deze niet gecontroleerd te worden door anderen. Jouw gegevens zijn géén verdienmodel. Daarom is Yivi helemaal gratis. Waar het addertje dan zit? Die is er niet! Alleen de aanbieders van Yivi betalen. Zodat zij aangesloten zijn. Zo blijft Yivi voor jou altijd gratis.",
     "question_3": "Wie zit er achter de Yivi-app?",
     "answer_3_markdown": "SIDN ontwikkelt Yivi. Die naam ken je misschien niet, maar je kent vast wel een website die eindigt op .nl. Iedere keer dat je naar zo’n site surft, zorgt SIDN dat je op de juiste plek terecht komt. En dat doen ze 2 miljard keer per dag, al meer dan 25 jaar. Als stichting heeft SIDN geen winstoogmerk. En door hun jarenlange ervaring in online veiligheid kun je er dus op vertrouwen dat Yivi goed én veilig werkt. Altijd en overal. ",
     "question_4": "Hoe kan ik met Yivi inloggen op een mobiele website?",
@@ -338,7 +338,7 @@
       "step_5": "Na het doorgeven ben je ingelogd.\nJe kunt de website nu gebruiken."
     },
     "question_6": "Wat doe ik als ik mijn mobiel verlies?",
-    "answer_6_markdown": "Als je je mobiel verliest kan niemand in je Yivi-app. Want je hebt deze goed beveiligd met je pincode.\n Je gegevens nog beter beschermen? Kies dan tijdens de installatie van de app de optie om je e-mailadres op te geven via MijnYivi [link MijnYivi]. Dat kan je op afstand de app blokkeren. Dan kan er echt niks meer gebeuren met je gegevens als je je mobiel verliest. Nog niet je e-mailadres toegevoegd aan MijnYivi? Het is een kleine moeite die jou extra zekerheid biedt. Ga nu naar MijnYivi om je e-mailadres toe te voegen.",
+    "answer_6_markdown": "Als je je mobiel verliest kan niemand in je Yivi-app. Want je hebt deze goed beveiligd met je pincode.\n Je gegevens nog beter beschermen? Kies dan tijdens de installatie van de app de optie om je e-mailadres op te geven via MijnYivi. Dat kan je op afstand de app blokkeren. Dan kan er echt niks meer gebeuren met je gegevens als je je mobiel verliest. Nog niet je e-mailadres toegevoegd aan MijnYivi? Het is een kleine moeite die jou extra zekerheid biedt. Ga nu naar MijnYivi om je e-mailadres toe te voegen.",
     "question_7": "Kan ik Yivi op meerdere mobiele telefoons zetten?",
     "answer_7": "Jazeker, we raden het zelfs aan! Download de app en vul Yivi met jouw gegevens. Als je jouw mobiel kwijt bent, kun je altijd nog met je andere toestel inloggen.",
     "question_8": "Waar staan mijn Yivi-gegevens opgeslagen?",
@@ -348,8 +348,8 @@
     "question_10": "Waarom zijn gegevens in de Yivi-app beperkt geldig?",
     "answer_10": "Degene bij wie je de gegevens ophaalt, bepaalt de geldigheidsduur. Deze kan dus verlopen. Je krijgt dan een waarschuwing in de Yivi-app. Hoe lang je gegevens geldig zijn? Dat ligt aan het type gegevens. Naam en geboortedatum zijn 5 jaar geldig. Je adres maar één jaar. Verversen kan altijd, wanneer jij maar wil. Bijvoorbeeld door direct na je 18e verjaardag je leeftijd up-to-date te maken in de app. Dan kan je meteen laten zien dat je 18+ bent.",
     "question_11": "Yivi, privacy en veiligheid",
-    "answer_11": "De Yivi-app is zo gemaakt dat jij en jij alleen je gegevens in de app kunt zien en gebruiken. Jouw gegevens staan alleen in de Yivi-app op je mobiel, en nergens anders (dus ook niet in de cloud).\n De Yivi-app is zo gemaakt dat een website of winkel waar je jezelf bekend maakt (cryptografisch) kan controleren dat de gegevens die je toont echt zijn.\n De Yivi-app toont jouw gegevens vanuit je mobiel rechtstreeks aan een website. Niemand anders kan zien dat jij jezelf daar bekendmaakt. Ook de organisatie achter Yivi kan niet meekijken. \n Met het gebruik van Yivi ga je akkoord met de [privacy policy](https://privacybydesign.foundation/privacy-policy/).",
-    "send": "Heb je een andere vraag? Laat het ons weten via yivi.support@sidn.nl. Wij beantwoorden je mail zo snel mogelijk.",
+    "answer_11": "De Yivi-app is zo gemaakt dat jij en jij alleen je gegevens in de app kunt zien en gebruiken. Jouw gegevens staan alleen in de Yivi-app op je mobiel, en nergens anders (dus ook niet in de cloud).\n De Yivi-app is zo gemaakt dat een website of winkel waar je jezelf bekend maakt (cryptografisch) kan controleren dat de gegevens die je toont echt zijn.\n De Yivi-app toont jouw gegevens vanuit je mobiel rechtstreeks aan een website. Niemand anders kan zien dat jij jezelf daar bekendmaakt. Ook de organisatie achter Yivi kan niet meekijken. \n Met het gebruik van Yivi ga je akkoord met de [privacy policy](https://www.yivi.app/en/privacy).",
+    "send": "Heb je een andere vraag? Laat het ons weten via support@yivi.app. Wij beantwoorden je mail zo snel mogelijk.",
     "security_and_privacy": "Beveiliging en privacy"
   },
   "home": {
@@ -400,7 +400,7 @@
     "debugging": "Debugging",
     "contact": "Contact opnemen",
     "share": "Deel Yivi",
-    "share_text": "Kijk eens naar de Yivi-app: https://irma.app",
+    "share_text": "Kijk eens naar de Yivi-app: https://yivi.app",
     "website": "Yivi-website",
     "meet_up": "Yivi-meetups",
     "need_help": "Hulp nodig?",
@@ -417,9 +417,9 @@
     "developer_mode_enabled": "Developer modus ingeschakeld",
     "developer_mode_already_enabled": "Developer modus is al ingeschakeld",
     "irma_website": "Yivi-website",
-    "irma_website_link": "https://irma.app/?lang=nl",
+    "irma_website_link": "https://yivi.app",
     "privacy_policy": "Yivi's privacyregels",
-    "privacy_policy_link": "https://privacybydesign.foundation/privacy-policy/",
+    "privacy_policy_link": "https://www.yivi.app/en/privacy",
     "app_id": "App-ID {id}",
     "log_out": "Uitloggen"
   },

@@ -33,7 +33,7 @@ Future<void> filledSpecificAttributeValuesNoMatchTest(
 
   // Expect obtain credential screen
   expect(find.byType(DisclosurePermissionIssueWizardScreen), findsOneWidget);
-  expect(find.text('Obtain my data step by step and share it with the requesting party thereafter'), findsOneWidget);
+  expect(find.text('Obtain my data step by step and share it with the requesting party after that'), findsOneWidget);
 
   final cardsFinder = find.byType(IrmaCredentialCard);
   expect(cardsFinder, findsOneWidget);
