@@ -62,8 +62,10 @@ class ProvidedDisclosurePermission extends StatelessWidget {
   Widget build(BuildContext context) {
     final bloc = context.read<DisclosurePermissionBloc>();
     void addEvent(DisclosurePermissionBlocEvent event) => bloc.add(event);
-    void onDismiss({bool skipConfirmation = false}) =>
-        skipConfirmation ? Navigator.of(context).pop() : DisclosurePermissionCloseDialog.show(context);
+    void onConfirmedDismiss() => addEvent(DisclosurePermissionDismissed());
+    void onDismiss({bool skipConfirmation = false}) => skipConfirmation
+        ? onConfirmedDismiss()
+        : DisclosurePermissionCloseDialog.show(context, onConfirm: onConfirmedDismiss);
 
     // Wrapped with WillPopScope to gain control over the behavior of the "go back" gesture
     return WillPopScope(

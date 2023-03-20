@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 
 import '../../theme/irma_icons.dart';
 import '../../theme/theme.dart';
@@ -32,6 +33,7 @@ class MoreTab extends StatelessWidget {
           padding: EdgeInsets.only(bottom: theme.defaultSpacing),
           child: TranslatedText(
             translationKey,
+            isHeader: true,
             style: theme.textTheme.bodyText1!.copyWith(
               color: theme.neutralExtraDark,
             ),
@@ -43,7 +45,10 @@ class MoreTab extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeaderText('more_tab.app_management'),
+          Semantics(
+            sortKey: const OrdinalSortKey(0),
+            child: _buildHeaderText('more_tab.app_management'),
+          ),
           const TilesCard(
             children: [
               InternalLinkTile(

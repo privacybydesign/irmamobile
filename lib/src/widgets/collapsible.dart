@@ -97,6 +97,7 @@ class _CollapsibleState extends State<Collapsible> {
         ),
         header: Expanded(
           child: Semantics(
+            button: true,
             label: _isExpanded
                 ? FlutterI18n.translate(context, 'accessibility.expanded')
                 : FlutterI18n.translate(context, 'accessibility.collapsed'),

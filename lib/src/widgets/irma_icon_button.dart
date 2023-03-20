@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../theme/theme.dart';
 
@@ -7,6 +8,7 @@ class IrmaIconButton extends StatelessWidget {
   final Function() onTap;
   final double size;
   final EdgeInsets? padding;
+  final String? semanticsLabelKey;
 
   const IrmaIconButton({
     Key? key,
@@ -14,6 +16,7 @@ class IrmaIconButton extends StatelessWidget {
     required this.onTap,
     this.size = 24,
     this.padding,
+    this.semanticsLabelKey,
   })  : assert(size >= 2),
         super(key: key);
 
@@ -24,16 +27,25 @@ class IrmaIconButton extends StatelessWidget {
 
     return Padding(
       padding: padding ?? const EdgeInsets.all(12),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: borderRadius,
-        child: InkWell(
-          onTap: onTap,
+      child: Semantics(
+        button: true,
+        label: semanticsLabelKey != null
+            ? FlutterI18n.translate(
+                context,
+                semanticsLabelKey!,
+              )
+            : null,
+        child: Material(
+          color: Colors.transparent,
           borderRadius: borderRadius,
-          child: Icon(
-            icon,
-            size: size,
-            color: theme.neutralExtraDark,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: borderRadius,
+            child: Icon(
+              icon,
+              size: size,
+              color: theme.neutralExtraDark,
+            ),
           ),
         ),
       ),
