@@ -68,7 +68,8 @@ void main() {
 
     Future<void> _goThroughIntroduction(WidgetTester tester) async {
       for (var i = 0; i < expectedInstructions.length; i++) {
-        await tester.tapAndSettle(nextButtonFinder);
+        await tester.tap(nextButtonFinder);
+        await tester.pump(const Duration(milliseconds: 500));
       }
     }
 
