@@ -11,6 +11,7 @@ class TranslatedText extends StatelessWidget {
   final Map<String, String>? translationParams;
   final TextStyle? style;
   final int? maxLines;
+  final bool isHeader;
 
   // Text only
   final TextAlign? textAlign;
@@ -24,6 +25,7 @@ class TranslatedText extends StatelessWidget {
     this.style,
     this.textAlign,
     this.maxLines,
+    this.isHeader = false,
   }) : super(key: key);
 
   Widget _buildMarkdown(String translation, BuildContext context) {
@@ -64,8 +66,11 @@ class TranslatedText extends StatelessWidget {
       );
     }
 
-    return _buildText(
-      _translate(context, _key),
+    return Semantics(
+      header: isHeader,
+      child: _buildText(
+        _translate(context, _key),
+      ),
     );
   }
 }

@@ -23,6 +23,7 @@ class SessionState {
   final Set<String> previouslyLaunchedCredentials;
   final String sessionType;
   final String? pairingCode;
+  final bool dismissed;
 
   SessionState({
     required this.sessionID,
@@ -31,6 +32,7 @@ class SessionState {
     required this.serverName,
     required this.previouslyLaunchedCredentials,
     required this.sessionType,
+    this.dismissed = false,
     this.disclosuresCandidates,
     this.clientReturnURL,
     this.isSignatureSession,
@@ -77,6 +79,7 @@ class SessionState {
     bool? canBeFinished,
     SessionError? error,
     String? pairingCode,
+    bool? dismissed,
   }) {
     return SessionState(
       sessionID: sessionID,
@@ -95,6 +98,7 @@ class SessionState {
       previouslyLaunchedCredentials: previouslyLaunchedCredentials,
       sessionType: sessionType,
       pairingCode: pairingCode ?? this.pairingCode,
+      dismissed: dismissed ?? this.dismissed,
     );
   }
 }

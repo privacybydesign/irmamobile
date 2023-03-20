@@ -146,6 +146,7 @@ class SessionRepository {
         status: SessionStatus.communicating,
         disclosureChoices:
             event.proceed ? ConCon.fromRaw(event.disclosureChoices, (AttributeIdentifier attrId) => attrId) : null,
+        dismissed: !event.proceed,
       );
     }
 

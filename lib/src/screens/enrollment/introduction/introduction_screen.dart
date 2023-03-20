@@ -76,7 +76,6 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
 
     return Scaffold(
       body: SafeArea(
-        top: isLandscape,
         bottom: isLandscape,
         child: contentWidget,
       ),

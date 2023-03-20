@@ -322,6 +322,16 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       onObtainCredential(state.credentialType);
     } else if (state is DisclosurePermissionCredentialInformation && event is DisclosurePermissionPreviousPressed) {
       yield state.parentState;
+    } else if (event is DisclosurePermissionDismissed) {
+      yield DisclosurePermissionFinished();
+      _repo.dispatch(
+        RespondPermissionEvent(
+          sessionID: sessionID,
+          proceed: false,
+          disclosureChoices: [],
+        ),
+        isBridgedEvent: true,
+      );
     } else {
       throw UnsupportedError(
           'Event ${event.runtimeType.toString()} not supported in state ${state.runtimeType.toString()}');
@@ -457,24 +467,17 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         (i, rawDiscon) => MapEntry(i, _parseCandidatesDisCon(rawDiscon)),
       ));
 
-      // Check whether an issue wizard is needed to bootstrap the session.
+      // Determine whether an issue wizard is needed to bootstrap the session.
+      // If no previous choice is given, _findSelectedConIndex will select the option that fits best.
+      // If the best fit is not fully choosable, then we know an issue wizard should be started.
       final choices = candidates.map(
         (i, discon) {
-          final choosableCons = discon.where(
-            (con) => con.every((cred) => cred is ChoosableDisclosureCredential),
-          );
-
-          final Con<DisclosureCredential>? preferredCon =
-              // Always prefer an option that is not revoked / expired
-              choosableCons.firstWhereOrNull(
-                    (con) => con.every((cred) => cred.valid),
-                  ) ??
-                  // If there is none, just grab the first choosable option
-                  choosableCons.firstOrNull;
-
+          final preferredCon = discon[_findSelectedConIndex(discon)];
           return MapEntry(
             i,
-            preferredCon?.cast<ChoosableDisclosureCredential>(),
+            preferredCon.every((cred) => cred is ChoosableDisclosureCredential)
+                ? preferredCon.cast<ChoosableDisclosureCredential>()
+                : null,
           );
         },
       );
@@ -779,7 +782,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
     // If no con is selected yet, we simply select the first valid choosable option.
     // If none of the options is valid, we select the first invalid choosable option.
     // If none is choosable, then we select the first one without unobtainable templates.
-    // If there is no choosable option at all, we simply select the first option.
+    // If there is no preferred option at all, we simply select the first option.
     final validChoice = discon.indexWhere(
       (con) => con.every((cred) => cred is ChoosableDisclosureCredential && cred.valid),
     );

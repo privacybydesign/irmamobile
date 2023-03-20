@@ -21,10 +21,14 @@
   },
   "activity": {
     "data_deleted": "Data deleted",
+    "data_deleted_semantics" : "Data deleted from {issuerName} on {date}",
     "data_received": "Data received",
+    "data_received_semantics" : "Data received from {otherParty} on {date}",
     "data_shared": "Data shared",
+    "data_shared_semantics" : "Data shared with {otherParty} on {date}",
     "signed_message": "Signed message",
     "message_signed": "Message signed",
+    "signed_message_semantics" : "Message signed from {otherParty} on {date}",
     "shared_with": "Shared with",
     "shared_data": "Shared data",
     "received_data": "Received data",
@@ -558,7 +562,8 @@
     "retry": "Try again",
     "error": "Something went wrong",
     "end_of_list": "You have reached the end of the list",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "go_back": "Go back"
   },
   "update": {
     "title": "Update available",

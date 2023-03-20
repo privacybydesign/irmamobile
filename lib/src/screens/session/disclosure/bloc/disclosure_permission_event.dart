@@ -32,3 +32,6 @@ class DisclosurePermissionChoiceUpdated implements DisclosurePermissionBlocEvent
 
 /// Event to indicate that the user dismisses a dialog.
 class DisclosurePermissionDialogDismissed implements DisclosurePermissionBlocEvent {}
+
+/// Event to indicate that the user wants to dismiss the disclosure permission request.
+class DisclosurePermissionDismissed implements DisclosurePermissionBlocEvent {}
