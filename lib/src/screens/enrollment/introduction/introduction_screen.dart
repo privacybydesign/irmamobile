@@ -22,8 +22,8 @@ class IntroductionScreen extends StatefulWidget {
     ),
     const IntroductionStep(
       imagePath: 'assets/enrollment/introduction_3.svg',
-      titleTranslationKey: 'enrollment.introduction.step_2.title',
-      explanationTranslationKey: 'enrollment.introduction.step_2.explanation',
+      titleTranslationKey: 'enrollment.introduction.step_3.title',
+      explanationTranslationKey: 'enrollment.introduction.step_3.explanation',
     ),
   ];
 
