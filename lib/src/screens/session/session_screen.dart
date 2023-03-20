@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../data/irma_repository.dart';
@@ -18,7 +17,6 @@ import '../../util/navigation.dart';
 import '../../widgets/loading_indicator.dart';
 import '../error/session_error_screen.dart';
 import '../pin/session_pin_screen.dart';
-
 import 'call_info_screen.dart';
 import 'disclosure/disclosure_permission.dart';
 import 'session.dart';
@@ -119,9 +117,14 @@ class _SessionScreenState extends State<SessionScreen> {
     }
   }
 
+  Widget _buildDismissed(SessionState session) {
+    WidgetsBinding.instance?.addPostFrameCallback((_) => Navigator.of(context).pop());
+    return _buildLoadingScreen(session.isIssuanceSession);
+  }
+
   Widget _buildFinishedContinueSecondDevice(SessionState session) {
     if (session.isIssuanceSession) {
-      final issuedCredentialTypeIds = session.issuedCredentials!.map((e) => e.credentialType.fullId).toList();
+      final issuedCredentialTypeIds = session.issuedCredentials?.map((e) => e.credentialType.fullId) ?? [];
       _repo.removeLaunchedCredentials(issuedCredentialTypeIds);
 
       if (session.status == SessionStatus.success) {
@@ -129,10 +132,12 @@ class _SessionScreenState extends State<SessionScreen> {
           onDismiss: popToHome,
         );
       } else {
-        WidgetsBinding.instance?.addPostFrameCallback((_) => popToHome(context));
-        return _buildLoadingScreen(true);
+        return _buildDismissed(session);
       }
     }
+
+    if (session.dismissed) return _buildDismissed(session);
+
     final serverName = session.serverName.name.translate(FlutterI18n.currentLocale(context)!.languageCode);
     final feedbackType =
         session.status == SessionStatus.success ? DisclosureFeedbackType.success : DisclosureFeedbackType.canceled;
@@ -174,6 +179,8 @@ class _SessionScreenState extends State<SessionScreen> {
     } else if (session.isIssuanceSession) {
       WidgetsBinding.instance?.addPostFrameCallback((_) => popToHome(context));
       return _buildLoadingScreen(true);
+    } else if (session.dismissed) {
+      return _buildDismissed(session);
     } else {
       return DisclosureFeedbackScreen(
         feedbackType: DisclosureFeedbackType.canceled,
