@@ -34,11 +34,14 @@ class CredentialCategoryList extends StatelessWidget {
         ),
         SizedBox(height: theme.smallSpacing),
         ...credentialTypes.map(
-          (credType) => IrmaCredentialTypeCard(
-            credType: credType,
-            checked: obtainedCredentialTypes?.contains(credType) ?? false,
-            onTap: () => onCredentialTypeTap?.call(
-              credType,
+          (credType) => Semantics(
+            button: true,
+            child: IrmaCredentialTypeCard(
+              credType: credType,
+              checked: obtainedCredentialTypes?.contains(credType) ?? false,
+              onTap: () => onCredentialTypeTap?.call(
+                credType,
+              ),
             ),
           ),
         )

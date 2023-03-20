@@ -49,6 +49,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
         TranslatedText(
           'activity.data_shared',
           style: theme.themeData.textTheme.headline4,
+          isHeader: true,
         ),
         SizedBox(height: theme.smallSpacing),
         // If all disclosed attributes are empty render one empty data card
@@ -72,6 +73,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
             child: TranslatedText(
               'activity.signed_message',
               style: theme.themeData.textTheme.headline4,
+              isHeader: true,
             ),
           ),
           IrmaQuote(quote: logEntry.signedMessage?.message),
@@ -80,6 +82,7 @@ class ActivityDetailDisclosure extends StatelessWidget {
         TranslatedText(
           'activity.shared_with',
           style: theme.themeData.textTheme.headline4,
+          isHeader: true,
         ),
         SizedBox(height: theme.smallSpacing),
         IssuerVerifierHeader(
