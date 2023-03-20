@@ -104,8 +104,11 @@ void main() {
           if (i == 0) {
             expect(previousButtonFinder, findsNothing);
           } else {
-            await tester.tapAndSettle(previousButtonFinder);
-            await tester.tapAndSettle(nextButtonFinder);
+            await tester.tap(previousButtonFinder);
+            await tester.pump();
+
+            await tester.tap(nextButtonFinder);
+            await tester.pump();
           }
 
           // Evaluate the content
@@ -115,7 +118,8 @@ void main() {
           expect(actualCurrentInstructionTexts, expectedCurrentInstructionTexts);
 
           // Go Next step
-          await tester.tapAndSettle(nextButtonFinder);
+          await tester.tap(nextButtonFinder);
+          await tester.pump();
 
           // If we go next on the last step, expect that we left the enrollment introduction.
           if (i == expectedInstructions.length) {
