@@ -98,6 +98,7 @@ void main() {
       'introduction',
       (tester) async {
         await _initEnrollment(tester);
+        const pumpTime = Duration(milliseconds: 500);
 
         for (var i = 0; i < expectedInstructions.length; i++) {
           // Try going back, if this is not the first instruction;
@@ -105,10 +106,10 @@ void main() {
             expect(previousButtonFinder, findsNothing);
           } else {
             await tester.tap(previousButtonFinder);
-            await tester.pump();
+            await tester.pump(pumpTime);
 
             await tester.tap(nextButtonFinder);
-            await tester.pump();
+            await tester.pump(pumpTime);
           }
 
           // Evaluate the content
@@ -119,7 +120,7 @@ void main() {
 
           // Go Next step
           await tester.tap(nextButtonFinder);
-          await tester.pump();
+          await tester.pump(pumpTime);
 
           // If we go next on the last step, expect that we left the enrollment introduction.
           if (i == expectedInstructions.length) {
