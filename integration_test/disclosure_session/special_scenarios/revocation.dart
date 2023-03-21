@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_choices_screen.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
@@ -79,18 +77,7 @@ Future<void> revocationTest(WidgetTester tester, IntegrationTestIrmaBinding irma
     isNull,
   );
 
-  // Press change choice
-  await tester.tapAndSettle(find.text('Change choice'));
-
-  // Revoked (but obtainable) card should be visible here too.
-  await _evaluateDemoCredentialCard(
-    tester,
-    demoCredentialCardFinder,
-    isRevoked: true,
-  );
-
-  // Navigate to back to choices overview
-  await tester.tapAndSettle(find.byKey(const Key('irma_app_bar_leading')));
+  expect(find.text('Change choice'), findsNothing);
 
   // Now reobtain the card.
   await issueCredentials(

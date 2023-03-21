@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 class EnrollmentLayout extends StatelessWidget {
-  final Widget graphic;
+  final Widget hero;
   final Widget instruction;
 
   const EnrollmentLayout({
-    required this.graphic,
+    required this.hero,
     required this.instruction,
   });
 
@@ -13,7 +13,7 @@ class EnrollmentLayout extends StatelessWidget {
         children: [
           Flexible(
             flex: 4,
-            child: graphic,
+            child: hero,
           ),
           Flexible(
             flex: 5,
@@ -26,7 +26,7 @@ class EnrollmentLayout extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Expanded(
-            child: graphic,
+            child: hero,
           ),
           Expanded(
             child: instruction,

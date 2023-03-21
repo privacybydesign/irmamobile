@@ -49,6 +49,7 @@ class IrmaMockBridge extends IrmaBridge {
     int sessionId,
     List<List<Map<String, String?>>> condiscon,
     List<RawCredential> credentials,
+    String? signedMessage,
   ) {
     // Expand candidates with concrete options, based on the given credentials.
     final disclosureCandidates = condiscon
@@ -145,7 +146,8 @@ class IrmaMockBridge extends IrmaBridge {
       satisfiable: disclosureCandidates
           .every((discon) => discon.any((con) => con.every((candidate) => candidate.credentialHash.isNotEmpty))),
       disclosuresCandidates: disclosureCandidates,
-      isSignatureSession: false,
+      isSignatureSession: signedMessage != null,
+      signedMessage: signedMessage,
     );
   }
 
@@ -160,7 +162,12 @@ class IrmaMockBridge extends IrmaBridge {
   /// Inner cons should be given as a map, i.e. {"irma-demo.some.attribute.type": "value"}.
   /// When requesting null, any attribute value is accepted.
   @visibleForTesting
-  Future<void> mockDisclosureSession(int sessionId, List<List<Map<String, String?>>> condiscon) => () async* {
+  Future<void> mockDisclosureSession(
+    int sessionId,
+    List<List<Map<String, String?>>> condiscon, {
+    String? signedMessage,
+  }) =>
+      () async* {
         await _sessionEventsSubject.firstWhere((event) => event is NewSessionEvent && event.sessionID == sessionId);
         yield StatusUpdateSessionEvent(
           sessionID: sessionId,
@@ -173,14 +180,15 @@ class IrmaMockBridge extends IrmaBridge {
           status: 'connected',
         );
 
-        yield _constructRequestVerificationPermissionEvent(sessionId, condiscon, _storedCredentials);
+        yield _constructRequestVerificationPermissionEvent(sessionId, condiscon, _storedCredentials, signedMessage);
 
         // Keep updating verification permission when new credentials have been added, until user has responded.
         yield* events
             .takeUntil(_sessionEventsSubject.where((e) => e is RespondPermissionEvent && e.sessionID == sessionId))
             .where((e) => e is CredentialsEvent)
             .cast<CredentialsEvent>()
-            .map((e) => _constructRequestVerificationPermissionEvent(sessionId, condiscon, e.credentials));
+            .map((e) =>
+                _constructRequestVerificationPermissionEvent(sessionId, condiscon, e.credentials, signedMessage));
 
         if ((_sessionEventsSubject.value as RespondPermissionEvent).proceed) {
           yield SuccessSessionEvent(sessionID: sessionId);

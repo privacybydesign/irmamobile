@@ -93,8 +93,9 @@ Future<void> noChoiceMultipleCredsTest(WidgetTester tester, IntegrationTestIrmaB
   expect(find.text('All required data has been added'), findsOneWidget);
   await tester.tapAndSettle(find.text('Next step'));
 
-  // Expect the choices screen
+  // Expect the choices screen with change choice buttons (email and mobile number are not singleton)
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
+  expect(find.text('Change choice'), findsNWidgets(2));
   await tester.tapAndSettle(find.text('Share data'));
 
   await evaluateShareDialog(tester);
