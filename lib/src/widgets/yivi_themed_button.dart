@@ -125,18 +125,21 @@ class YiviThemedButton extends StatelessWidget {
       ),
     );
 
-    Widget buttonWidget = SizedBox(
-      height: buttonHeight,
-      width: buttonWidth,
-      child: ClipRRect(
-        borderRadius: borderRadius,
-        child: style == YiviButtonStyle.fancy
-            ? _buildFancyButton(centeredTextWidget)
-            : _buildNormalButton(
-                centeredTextWidget,
-                theme,
-                borderRadius,
-              ),
+    Widget buttonWidget = Semantics(
+      button: true,
+      child: SizedBox(
+        height: buttonHeight,
+        width: buttonWidth,
+        child: ClipRRect(
+          borderRadius: borderRadius,
+          child: style == YiviButtonStyle.fancy
+              ? _buildFancyButton(centeredTextWidget)
+              : _buildNormalButton(
+                  centeredTextWidget,
+                  theme,
+                  borderRadius,
+                ),
+        ),
       ),
     );
 

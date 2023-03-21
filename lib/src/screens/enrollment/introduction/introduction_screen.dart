@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../widgets/enrollment_graphic.dart';
+import '../widgets/enrollment_hero.dart';
 import '../widgets/enrollment_instruction.dart';
 import '../widgets/enrollment_layout.dart';
 import 'models/introduction_step.dart';
@@ -9,18 +9,23 @@ import 'widgets/introduction_animation_wrapper.dart';
 class IntroductionScreen extends StatefulWidget {
   static const String routeName = 'introduction';
 
-  static List<IntroductionStep> introductionSteps = List.generate(
-    3,
-    (int stepIndex) {
-      final step = stepIndex + 1;
-      return IntroductionStep(
-        imagePath: 'assets/enrollment/introduction_$step.svg',
-        titleTranslationKey: 'enrollment.introduction.step_$step.title',
-        explanationTranslationKey: 'enrollment.introduction.step_$step.explanation',
-      );
-    },
-    growable: false,
-  );
+  static List<IntroductionStep> introductionSteps = [
+    const IntroductionStep(
+      imagePath: 'assets/enrollment/introduction_1.svg',
+      titleTranslationKey: 'enrollment.introduction.step_1.title',
+      explanationTranslationKey: 'enrollment.introduction.step_1.explanation',
+    ),
+    const IntroductionStep(
+      imagePath: 'assets/enrollment/introduction_2.json',
+      titleTranslationKey: 'enrollment.introduction.step_2.title',
+      explanationTranslationKey: 'enrollment.introduction.step_2.explanation',
+    ),
+    const IntroductionStep(
+      imagePath: 'assets/enrollment/introduction_3.svg',
+      titleTranslationKey: 'enrollment.introduction.step_3.title',
+      explanationTranslationKey: 'enrollment.introduction.step_3.explanation',
+    ),
+  ];
 
   final int currentStepIndex;
   final VoidCallback onContinue;
@@ -54,7 +59,7 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
     final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
 
     Widget contentWidget = EnrollmentLayout(
-      graphic: EnrollmentGraphic(
+      hero: EnrollmentHero(
         IntroductionScreen.introductionSteps[widget.currentStepIndex].imagePath,
       ),
       instruction: EnrollmentInstruction(
@@ -76,7 +81,6 @@ class _IntroductionScreenState extends State<IntroductionScreen> {
 
     return Scaffold(
       body: SafeArea(
-        top: isLandscape,
         bottom: isLandscape,
         child: contentWidget,
       ),

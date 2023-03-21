@@ -46,6 +46,7 @@ class IssuerVerifierHeader extends StatelessWidget {
             size: 52,
             logoImage: image,
             logoPath: imagePath,
+            logoSemanticsLabel: title,
             initials: title != '' ? title[0] : null,
           ),
           SizedBox(
