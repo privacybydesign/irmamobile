@@ -2,7 +2,7 @@ name: irmamobile
 description: IRMA Authentication
 
 # A build number cannot be reused once a build is in use on Android.
-version: 7.0.1+4194455
+version: 7.1.0+4194456
 
 environment:
   sdk: ">=2.13.0 <3.0.0"
