@@ -27,7 +27,7 @@ Future<void> nullablesTest(WidgetTester tester, IntegrationTestIrmaBinding irmaB
 
   // Expect obtain credential screen
   expect(find.byType(DisclosurePermissionIssueWizardScreen), findsOneWidget);
-  expect(find.text('Obtain my data step by step and share it with the requesting party thereafter'), findsOneWidget);
+  expect(find.text('Obtain my data step by step and share it with the requesting party after that'), findsOneWidget);
 
   // One stepper should be visible
   expect(find.byType(DisclosureDisconStepper), findsOneWidget);
