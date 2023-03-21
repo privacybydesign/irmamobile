@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.1.0] - in beta 2023-03-22
+### Added
+- Extra animation during onboarding
+- Opt-in for error reporting during onboarding
+- Information dialog for invalid credentials that are not obtainable in an online flow
+
+### Changed
+- Settings screen: active toggle color changed
+- Prefer non-revoked or expired credentials during attribute request flows
+- Change choice option no longer visible when only one choice is possible
+- New layout for data screen
+- Increased safe space on onboarding screens
+- Changed remaining IRMA style buttons to Yivi themed versions
+
+### Fixed
+- Incorrect return behavior when cancelling session request ([#134](https://github.com/privacybydesign/irmamobile/issues/134))
+- Arrow back screen not properly aligned in landscape mode
+- PIN incorrect dialog button text not scaling properly
+- Voice over - accessibility tags properly set so semantics are working again
+- Missing shadow at some UI elements
+- Signed message disappears when changing choices in a signature session
+
 ## [7.0.1] - in beta 2023-03-09
 ### Changed
 - Illustration on pin forgotten screen is updated
@@ -238,6 +260,7 @@ This release only includes iOS changes.
 - Various bug fixes
 
 
+[7.1.0]: https://github.com/privacybydesign/irmamobile/compare/v7.0.1...v7.1.0
 [7.0.1]: https://github.com/privacybydesign/irmamobile/compare/v7.0.0...v7.0.1
 [7.0.0]: https://github.com/privacybydesign/irmamobile/compare/v6.4.1...v7.0.0
 [6.4.1]: https://github.com/privacybydesign/irmamobile/compare/v6.4.0...v6.4.1
