@@ -4,7 +4,6 @@ import '../theme/theme.dart';
 
 enum IrmaCardStyle {
   normal,
-  flat,
   outlined,
   highlighted,
   danger,
@@ -18,6 +17,7 @@ class IrmaCard extends StatelessWidget {
   final IrmaCardStyle style;
   final EdgeInsetsGeometry? margin;
   final Color? color;
+  final bool hasShadow;
 
   const IrmaCard({
     Key? key,
@@ -27,30 +27,16 @@ class IrmaCard extends StatelessWidget {
     this.style = IrmaCardStyle.normal,
     this.margin,
     this.color,
+    this.hasShadow = true,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final shadow = [
-      BoxShadow(
-        color: Colors.grey.shade300,
-        offset: const Offset(0.0, 1.0),
-        blurRadius: 6.0,
-      )
-    ];
 
     BoxDecoration boxDecoration;
     switch (style) {
       case IrmaCardStyle.normal:
-        boxDecoration = BoxDecoration(
-          borderRadius: theme.borderRadius,
-          border: Border.all(color: Colors.transparent),
-          boxShadow: shadow,
-          color: theme.light,
-        );
-        break;
-      case IrmaCardStyle.flat:
         boxDecoration = BoxDecoration(
           borderRadius: theme.borderRadius,
           border: Border.all(color: Colors.transparent),
@@ -65,7 +51,6 @@ class IrmaCard extends StatelessWidget {
             width: 1,
           ),
           color: Colors.white,
-          boxShadow: shadow,
         );
         break;
       case IrmaCardStyle.highlighted:
@@ -86,7 +71,6 @@ class IrmaCard extends StatelessWidget {
             width: 1,
           ),
           color: theme.surfaceTertiary,
-          boxShadow: shadow,
         );
         break;
     }
@@ -94,6 +78,18 @@ class IrmaCard extends StatelessWidget {
     // Override card color if a color is provided
     if (color != null) {
       boxDecoration = boxDecoration.copyWith(color: color);
+    }
+
+    if (hasShadow) {
+      boxDecoration = boxDecoration.copyWith(
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade300,
+            offset: const Offset(0.0, 1.0),
+            blurRadius: 6.0,
+          )
+        ],
+      );
     }
 
     return Padding(
