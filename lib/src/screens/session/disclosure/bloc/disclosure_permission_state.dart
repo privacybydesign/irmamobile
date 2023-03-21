@@ -156,7 +156,7 @@ class DisclosurePermissionChoicesOverview extends DisclosurePermissionChoices {
     required Map<int, Con<ChoosableDisclosureCredential>> optionalChoices,
     required Set<int> changeableChoices,
     required bool hasAdditionalOptionalChoices,
-    this.signedMessage,
+    required this.signedMessage,
     this.showConfirmationPopup = false,
   }) : super(
           plannedSteps: plannedSteps,

@@ -181,6 +181,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
             (entry) => entry.value.isNotEmpty && session.disclosuresCandidates![entry.key].any((con) => con.isEmpty))),
         changeableChoices: changeableChoices,
         hasAdditionalOptionalChoices: choices.values.any((choice) => choice.isEmpty),
+        signedMessage: session.isSignatureSession ?? false ? session.signedMessage : null,
       );
     } else if (state is DisclosurePermissionPreviouslyAddedCredentialsOverview &&
         event is DisclosurePermissionChangeChoicePressed) {
@@ -295,6 +296,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
           optionalChoices: state.optionalChoices,
           changeableChoices: state.changeableChoices,
           hasAdditionalOptionalChoices: state.hasAdditionalOptionalChoices,
+          signedMessage: state.signedMessage,
           showConfirmationPopup: true,
         );
       } else {
@@ -327,6 +329,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         optionalChoices: state.optionalChoices,
         changeableChoices: state.changeableChoices,
         hasAdditionalOptionalChoices: state.hasAdditionalOptionalChoices,
+        signedMessage: state.signedMessage,
       );
     } else if (state is DisclosurePermissionCredentialInformation && event is DisclosurePermissionNextPressed) {
       onObtainCredential(state.credentialType);
@@ -453,6 +456,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
       });
       final requiredChoices = state.requiredChoices.map((i, _) => MapEntry(i, choices[i]!));
       final optionalChoices = state.optionalChoices.map((i, _) => MapEntry(i, choices[i]!));
+
       if (state is DisclosurePermissionPreviouslyAddedCredentialsOverview) {
         return DisclosurePermissionPreviouslyAddedCredentialsOverview(
           requiredChoices: requiredChoices,
@@ -461,14 +465,17 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
           plannedSteps: state.plannedSteps,
           hasAdditionalOptionalChoices: state.hasAdditionalOptionalChoices,
         );
-      } else {
+      } else if (state is DisclosurePermissionChoicesOverview) {
         return DisclosurePermissionChoicesOverview(
           requiredChoices: requiredChoices,
           optionalChoices: optionalChoices,
           changeableChoices: changeableChoices,
           plannedSteps: state.plannedSteps,
           hasAdditionalOptionalChoices: state.hasAdditionalOptionalChoices,
+          signedMessage: state.signedMessage,
         );
+      } else {
+        throw Exception('Unknown DisclosurePermissionChoices implementation: ${state.runtimeType}');
       }
     } else if (state is DisclosurePermissionWrongCredentialsObtained) {
       return DisclosurePermissionWrongCredentialsObtained(
@@ -720,6 +727,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
         optionalChoices: optionalChoices,
         changeableChoices: changeableChoices,
         hasAdditionalOptionalChoices: hasAdditionalOptionalChoices,
+        signedMessage: prevState.signedMessage,
       );
     } else {
       throw UnsupportedError('Unknown DisclosurePermissionChoices implementation: ${prevState.runtimeType}');
