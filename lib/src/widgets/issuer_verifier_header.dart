@@ -34,7 +34,7 @@ class IssuerVerifierHeader extends StatelessWidget {
 
     return IrmaCard(
       color: backgroundColor,
-      style: IrmaCardStyle.flat,
+      hasShadow: false,
       padding: EdgeInsets.zero,
       margin: EdgeInsets.all(
         theme.smallSpacing,

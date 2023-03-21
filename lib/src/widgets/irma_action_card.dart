@@ -85,7 +85,9 @@ class IrmaActionCard extends StatelessWidget {
                         alignment: Alignment.center,
                         fit: BoxFit.fill,
                       )
-                    : const IrmaCard(),
+                    : const IrmaCard(
+                        hasShadow: false,
+                      ),
               ),
 
               // Content
