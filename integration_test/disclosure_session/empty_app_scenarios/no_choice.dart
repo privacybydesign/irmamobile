@@ -42,7 +42,7 @@ Future<void> noChoiceTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBi
   expect(find.text('All required data has been added'), findsOneWidget);
   await tester.tapAndSettle(find.text('Next step'));
 
-  // Expect the choices screen that does not show change choice options.
+  // Expect the choices screen. It should not show change choice options.
   expect(find.byType(DisclosurePermissionChoicesScreen), findsOneWidget);
   expect(find.text('Change choice'), findsNothing);
 
