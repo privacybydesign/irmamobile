@@ -2101,6 +2101,81 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo.getSessionState(45).firstWhere((session) => session.status == SessionStatus.success);
   });
+
+  test('changeable-choices', () async {
+    // Issue address credential (singleton)
+    await _issueCredential(repo, mockBridge, 42, [
+      {
+        'pbdf.gemeente.address.street': TextValue.fromString('Beukenlaan'),
+        'pbdf.gemeente.address.houseNumber': TextValue.fromString('1'),
+        'pbdf.gemeente.address.city': TextValue.fromString('Amsterdam'),
+        'pbdf.gemeente.address.municipality': TextValue.fromString('Amsterdam'),
+        'pbdf.gemeente.address.zipcode': TextValue.fromString('1000AA'),
+      }
+    ]);
+
+    // Issue email credential (not singleton)
+    await _issueCredential(repo, mockBridge, 43, [
+      {
+        'pbdf.pbdf.email.email': TextValue.fromString('test@example.com'),
+        'pbdf.pbdf.email.domain': TextValue.fromString('example.com'),
+      }
+    ]);
+
+    // Disclose city and email address
+    mockBridge.mockDisclosureSession(44, [
+      [
+        {
+          'pbdf.gemeente.address.city': null,
+        }
+      ],
+      [
+        {
+          'pbdf.pbdf.email.email': null,
+        }
+      ]
+    ]);
+
+    final bloc = DisclosurePermissionBloc(
+      sessionID: 44,
+      repo: repo,
+      onObtainCredential: (_) {},
+    );
+    expect(bloc.state, isA<DisclosurePermissionInitial>());
+
+    repo.dispatch(
+      NewSessionEvent(sessionID: 44, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      isBridgedEvent: true,
+    );
+
+    // When doing a disclosure session the first time, we should see the introduction.
+    expect(await bloc.stream.first, isA<DisclosurePermissionIntroduction>());
+    bloc.add(DisclosurePermissionNextPressed());
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
+    DisclosurePermissionChoicesOverview choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
+    expect(choicesOverviewBlocState.isSignatureSession, false);
+    expect(choicesOverviewBlocState.showConfirmationPopup, false);
+    expect(choicesOverviewBlocState.hasAdditionalOptionalChoices, false);
+    expect(choicesOverviewBlocState.optionalChoices, {});
+    expect(choicesOverviewBlocState.requiredChoices.keys, [0, 1]);
+    expect(choicesOverviewBlocState.changeableChoices, {1});
+    expect(choicesOverviewBlocState.requiredChoices[0]?.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0], isA<ChoosableDisclosureCredential>());
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].fullId, 'pbdf.gemeente.address');
+    expect(choicesOverviewBlocState.requiredChoices[1]?.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[1]?[0], isA<ChoosableDisclosureCredential>());
+    expect(choicesOverviewBlocState.requiredChoices[1]?[0].fullId, 'pbdf.pbdf.email');
+
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
+    choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
+    expect(choicesOverviewBlocState.showConfirmationPopup, true);
+
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
+    await repo.getSessionState(44).firstWhere((session) => session.status == SessionStatus.success);
+  });
 }
 
 Future<void> _issueCredential(

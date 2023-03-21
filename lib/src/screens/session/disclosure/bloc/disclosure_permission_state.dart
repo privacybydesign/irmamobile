@@ -38,11 +38,16 @@ abstract class DisclosurePermissionStep implements DisclosurePermissionBlocState
 
 /// Abstract class containing all behaviour for states that contain disclosure choices.
 abstract class DisclosurePermissionChoices extends DisclosurePermissionStep {
-  /// List with all required choices. In required choices a choice between one of the options must be made.
+  /// Map with all required choices. For each choice, the currently selected option is included as map value.
+  /// In required choices a choice between one of the options must be made.
   final UnmodifiableMapView<int, Con<ChoosableDisclosureCredential>> requiredChoices;
 
-  /// List with all optional choices. Optional choices can be deselected.
-  final Map<int, Con<ChoosableDisclosureCredential>> optionalChoices;
+  /// Map with all optional choices. For each choice, the currently selected option is included as map value.
+  /// Optional choices can be deselected.
+  final UnmodifiableMapView<int, Con<ChoosableDisclosureCredential>> optionalChoices;
+
+  /// Set that specifies which choices can be changed.
+  final UnmodifiableSetView<int> changeableChoices;
 
   /// Is true if there are more choices available to extend optionalChoices with.
   final bool hasAdditionalOptionalChoices;
@@ -51,9 +56,11 @@ abstract class DisclosurePermissionChoices extends DisclosurePermissionStep {
     required List<DisclosurePermissionStepName> plannedSteps,
     required Map<int, Con<ChoosableDisclosureCredential>> requiredChoices,
     required Map<int, Con<ChoosableDisclosureCredential>> optionalChoices,
+    required Set<int> changeableChoices,
     required this.hasAdditionalOptionalChoices,
   })  : requiredChoices = UnmodifiableMapView(requiredChoices),
         optionalChoices = UnmodifiableMapView(optionalChoices),
+        changeableChoices = UnmodifiableSetView(changeableChoices),
         super(plannedSteps: plannedSteps);
 
   Map<int, Con<ChoosableDisclosureCredential>> get choices => {...requiredChoices, ...optionalChoices};
@@ -119,11 +126,13 @@ class DisclosurePermissionPreviouslyAddedCredentialsOverview extends DisclosureP
     required List<DisclosurePermissionStepName> plannedSteps,
     required Map<int, Con<ChoosableDisclosureCredential>> requiredChoices,
     required Map<int, Con<ChoosableDisclosureCredential>> optionalChoices,
+    required Set<int> changeableChoices,
     required bool hasAdditionalOptionalChoices,
   }) : super(
           plannedSteps: plannedSteps,
           requiredChoices: requiredChoices,
           optionalChoices: optionalChoices,
+          changeableChoices: changeableChoices,
           hasAdditionalOptionalChoices: hasAdditionalOptionalChoices,
         );
 
@@ -145,6 +154,7 @@ class DisclosurePermissionChoicesOverview extends DisclosurePermissionChoices {
     required List<DisclosurePermissionStepName> plannedSteps,
     required Map<int, Con<ChoosableDisclosureCredential>> requiredChoices,
     required Map<int, Con<ChoosableDisclosureCredential>> optionalChoices,
+    required Set<int> changeableChoices,
     required bool hasAdditionalOptionalChoices,
     this.signedMessage,
     this.showConfirmationPopup = false,
@@ -152,6 +162,7 @@ class DisclosurePermissionChoicesOverview extends DisclosurePermissionChoices {
           plannedSteps: plannedSteps,
           requiredChoices: requiredChoices,
           optionalChoices: optionalChoices,
+          changeableChoices: changeableChoices,
           hasAdditionalOptionalChoices: hasAdditionalOptionalChoices,
         );
 
