@@ -67,7 +67,8 @@ void main() {
 
     Future<void> _goThroughIntroduction(WidgetTester tester) async {
       for (var i = 0; i < expectedInstructions.length; i++) {
-        await tester.tapAndSettle(nextButtonFinder);
+        await tester.tap(nextButtonFinder);
+        await tester.pump(const Duration(milliseconds: 500));
       }
     }
 
@@ -97,14 +98,18 @@ void main() {
       'introduction',
       (tester) async {
         await _initEnrollment(tester);
+        const pumpTime = Duration(milliseconds: 500);
 
         for (var i = 0; i < expectedInstructions.length; i++) {
           // Try going back, if this is not the first instruction;
           if (i == 0) {
             expect(previousButtonFinder, findsNothing);
           } else {
-            await tester.tapAndSettle(previousButtonFinder);
-            await tester.tapAndSettle(nextButtonFinder);
+            await tester.tap(previousButtonFinder);
+            await tester.pump(pumpTime);
+
+            await tester.tap(nextButtonFinder);
+            await tester.pump(pumpTime);
           }
 
           // Evaluate the content
@@ -114,7 +119,8 @@ void main() {
           expect(actualCurrentInstructionTexts, expectedCurrentInstructionTexts);
 
           // Go Next step
-          await tester.tapAndSettle(nextButtonFinder);
+          await tester.tap(nextButtonFinder);
+          await tester.pump(pumpTime);
 
           // If we go next on the last step, expect that we left the enrollment introduction.
           if (i == expectedInstructions.length) {
