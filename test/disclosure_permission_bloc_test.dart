@@ -2176,6 +2176,170 @@ void main() {
     expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
     await repo.getSessionState(44).firstWhere((session) => session.status == SessionStatus.success);
   });
+
+  test('signed-message', () async {
+    final sessionReq = [
+      [
+        {
+          'pbdf.pbdf.idin.address': null,
+        },
+        {
+          'pbdf.gemeente.address.street': null,
+          'pbdf.gemeente.address.houseNumber': null,
+        },
+      ],
+    ];
+
+    // Disclose address issued by gemeente or iDIN and sign a test message.
+    mockBridge.mockDisclosureSession(42, sessionReq, signedMessage: 'test message');
+
+    final obtainCredentialsController = StreamController<String>.broadcast();
+    final bloc = DisclosurePermissionBloc(
+      sessionID: 42,
+      repo: repo,
+      onObtainCredential: (credType) => obtainCredentialsController.add(credType.fullId),
+    );
+    expect(bloc.state, isA<DisclosurePermissionInitial>());
+
+    repo.dispatch(
+      NewSessionEvent(sessionID: 42, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      isBridgedEvent: true,
+    );
+
+    // When doing a disclosure session the first time, we should see the introduction.
+    expect(await bloc.stream.first, isA<DisclosurePermissionIntroduction>());
+    bloc.add(DisclosurePermissionNextPressed());
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
+    DisclosurePermissionIssueWizard issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
+    expect(issueWizardBlocState.candidates.keys, [0]);
+    expect(issueWizardBlocState.candidates[0]?.length, 2);
+    expect(issueWizardBlocState.candidates[0]?[0][0].fullId, 'pbdf.pbdf.idin');
+    expect(issueWizardBlocState.candidates[0]?[1][0].fullId, 'pbdf.gemeente.address');
+
+    // Choose for pbdf.gemeente.address.
+    bloc.add(DisclosurePermissionChoiceUpdated(conIndex: 1));
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
+    issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
+    expect(issueWizardBlocState.candidates.keys, [0]);
+    expect(issueWizardBlocState.selectedConIndices[0], 1);
+
+    // Obtain pbdf.gemeente.address.
+    bloc.add(DisclosurePermissionNextPressed());
+
+    // Expect CredentialInformation state
+    expect(await bloc.stream.first, isA<DisclosurePermissionCredentialInformation>());
+    bloc.add(DisclosurePermissionNextPressed());
+
+    // Because the templates length is only 1, the credential should be obtained immediately.
+    expect(await obtainCredentialsController.stream.first, 'pbdf.gemeente.address');
+
+    await _issueCredential(repo, mockBridge, 43, [
+      {
+        'pbdf.gemeente.address.street': TextValue.fromString('Beukenlaan'),
+        'pbdf.gemeente.address.houseNumber': TextValue.fromString('1'),
+        'pbdf.gemeente.address.city': TextValue.fromString('Amsterdam'),
+        'pbdf.gemeente.address.municipality': TextValue.fromString('Amsterdam'),
+        'pbdf.gemeente.address.zipcode': TextValue.fromString('1000AA'),
+      }
+    ]);
+
+    // Obtaining credentials should be completed and, because the length was 1,
+    // we should go back the issue wizard immediately.
+    expect(await bloc.stream.first, isA<DisclosurePermissionIssueWizard>());
+    issueWizardBlocState = bloc.state as DisclosurePermissionIssueWizard;
+    expect(issueWizardBlocState.isCompleted, true);
+
+    // Finish issue wizard and continue to next step.
+    bloc.add(DisclosurePermissionNextPressed());
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
+    DisclosurePermissionChoicesOverview choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
+    expect(choicesOverviewBlocState.showConfirmationPopup, false);
+    expect(choicesOverviewBlocState.isSignatureSession, true);
+    expect(choicesOverviewBlocState.signedMessage, 'test message');
+    expect(choicesOverviewBlocState.optionalChoices, {});
+    expect(choicesOverviewBlocState.requiredChoices.keys, [0]);
+    expect(choicesOverviewBlocState.requiredChoices[0]?.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].fullId, 'pbdf.gemeente.address');
+
+    // Check whether we can choose for another address.
+    bloc.add(DisclosurePermissionChangeChoicePressed(disconIndex: 0));
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionChangeChoice>());
+    DisclosurePermissionChangeChoice changeChoiceBlocState = bloc.state as DisclosurePermissionChangeChoice;
+    expect(changeChoiceBlocState.disconIndex, 0);
+    expect(changeChoiceBlocState.choosableCons.keys, [0]);
+    expect(changeChoiceBlocState.selectedCon.length, 1);
+    expect(changeChoiceBlocState.selectedConIndex, 0);
+    expect(changeChoiceBlocState.selectedCon[0].fullId, 'pbdf.gemeente.address');
+    expect(changeChoiceBlocState.templateCons.keys, [1]);
+    expect(changeChoiceBlocState.templateCons[1]?.length, 1);
+    expect(changeChoiceBlocState.templateCons[1]?[0].fullId, 'pbdf.pbdf.idin');
+
+    // Confirm choice.
+    bloc.add(DisclosurePermissionNextPressed());
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
+    choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
+    expect(choicesOverviewBlocState.showConfirmationPopup, false);
+    expect(choicesOverviewBlocState.isSignatureSession, true);
+    expect(choicesOverviewBlocState.signedMessage, 'test message');
+
+    // Press next to trigger confirmation popup.
+    bloc.add(DisclosurePermissionNextPressed());
+
+    expect(await bloc.stream.first, isA<DisclosurePermissionChoicesOverview>());
+    choicesOverviewBlocState = bloc.state as DisclosurePermissionChoicesOverview;
+    expect(choicesOverviewBlocState.showConfirmationPopup, true);
+    expect(choicesOverviewBlocState.isSignatureSession, true);
+    expect(choicesOverviewBlocState.signedMessage, 'test message');
+
+    // Confirm all choices.
+    bloc.add(DisclosurePermissionNextPressed());
+    expect(await bloc.stream.first, isA<DisclosurePermissionFinished>());
+    await repo.getSessionState(42).firstWhere((session) => session.status == SessionStatus.success);
+
+    // Test session again to test for copy state inconsistencies.
+    mockBridge.mockDisclosureSession(44, sessionReq, signedMessage: 'test message 2');
+
+    final bloc2 = DisclosurePermissionBloc(
+      sessionID: 44,
+      repo: repo,
+      onObtainCredential: (_) {},
+    );
+    expect(bloc2.state, isA<DisclosurePermissionInitial>());
+
+    repo.dispatch(
+      NewSessionEvent(sessionID: 44, request: SessionPointer(irmaqr: 'disclosing', u: '')),
+      isBridgedEvent: true,
+    );
+
+    expect(await bloc2.stream.first, isA<DisclosurePermissionChoicesOverview>());
+    choicesOverviewBlocState = bloc2.state as DisclosurePermissionChoicesOverview;
+    expect(choicesOverviewBlocState.showConfirmationPopup, false);
+    expect(choicesOverviewBlocState.isSignatureSession, true);
+    expect(choicesOverviewBlocState.signedMessage, 'test message 2');
+    expect(choicesOverviewBlocState.optionalChoices, {});
+    expect(choicesOverviewBlocState.requiredChoices.keys, [0]);
+    expect(choicesOverviewBlocState.requiredChoices[0]?.length, 1);
+    expect(choicesOverviewBlocState.requiredChoices[0]?[0].fullId, 'pbdf.gemeente.address');
+
+    // Press next to trigger confirmation popup.
+    bloc2.add(DisclosurePermissionNextPressed());
+
+    expect(await bloc2.stream.first, isA<DisclosurePermissionChoicesOverview>());
+    choicesOverviewBlocState = bloc2.state as DisclosurePermissionChoicesOverview;
+    expect(choicesOverviewBlocState.showConfirmationPopup, true);
+    expect(choicesOverviewBlocState.isSignatureSession, true);
+    expect(choicesOverviewBlocState.signedMessage, 'test message 2');
+
+    // Confirm all choices.
+    bloc2.add(DisclosurePermissionNextPressed());
+    expect(await bloc2.stream.first, isA<DisclosurePermissionFinished>());
+    await repo.getSessionState(44).firstWhere((session) => session.status == SessionStatus.success);
+  });
 }
 
 Future<void> _issueCredential(
