@@ -465,7 +465,7 @@ class DisclosurePermissionBloc extends Bloc<DisclosurePermissionBlocEvent, Discl
           signedMessage: state.signedMessage,
         );
       } else {
-        throw Exception('Unknown DisclosurePermissionChoices implementation: : ${state.runtimeType}');
+        throw Exception('Unknown DisclosurePermissionChoices implementation: ${state.runtimeType}');
       }
     } else if (state is DisclosurePermissionWrongCredentialsObtained) {
       return DisclosurePermissionWrongCredentialsObtained(
