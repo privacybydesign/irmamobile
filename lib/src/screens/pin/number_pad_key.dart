@@ -25,38 +25,36 @@ class _NumberPadKey extends StatelessWidget {
       fontWeight: FontWeight.w600,
     );
 
-    return ClipPath(
-      clipper: _PerfectCircleClip(),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: (() => onEnterNumber(number)).haptic,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: (() => onEnterNumber(number)).haptic,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Flexible(
+              child: _ScalableText(
+                '$number',
+                heightFactor: (subtitle != null) ? heightFactor : .45,
+                textStyle: bigNumberTextStyle,
+              ),
+            ),
+            if (subtitle != null)
               Flexible(
                 child: _ScalableText(
-                  '$number',
-                  heightFactor: (subtitle != null) ? heightFactor : .45,
-                  textStyle: bigNumberTextStyle,
-                ),
-              ),
-              if (subtitle != null)
-                Flexible(
-                  child: _ScalableText(
-                    subtitle!,
-                    heightFactor: 1.1 - heightFactor,
-                    textStyle: TextStyle(
-                      fontFamily: theme.secondaryFontFamily,
-                      color: theme.secondary,
-                      fontWeight: FontWeight.w400,
-                      height: 14.0 / 24.0,
-                    ),
+                  subtitle!,
+                  heightFactor: 1.1 - heightFactor,
+                  textStyle: TextStyle(
+                    fontFamily: theme.secondaryFontFamily,
+                    color: theme.secondary,
+                    fontWeight: FontWeight.w400,
+                    height: 14.0 / 24.0,
                   ),
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
       ),
     );

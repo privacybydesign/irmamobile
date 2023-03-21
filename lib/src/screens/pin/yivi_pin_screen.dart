@@ -18,7 +18,6 @@ import '../../widgets/yivi_bottom_sheet.dart';
 import '../../widgets/yivi_themed_button.dart';
 
 part 'bloc/enter_pin_state.dart';
-part 'circle_clip.dart';
 part 'number_pad.dart';
 part 'number_pad_icon.dart';
 part 'number_pad_key.dart';
@@ -100,27 +99,25 @@ class YiviPinScreen extends StatelessWidget {
       String semanticLabelKey,
       VoidCallback fn,
     ) =>
-        ClipPath(
-          clipper: _PerfectCircleClip(),
-          child: Material(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(28),
-            child: Ink(
-              width: 32,
-              height: 32,
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-              ),
-              child: InkWell(
-                onTap: fn,
-                child: Icon(
-                  icon,
-                  size: 24,
-                  color: theme.secondary,
-                  semanticLabel: FlutterI18n.translate(
-                    context,
-                    semanticLabelKey,
-                  ),
+        Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(28),
+          child: Ink(
+            width: 32,
+            height: 32,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+            ),
+            child: InkWell(
+              onTap: fn,
+              customBorder: const CircleBorder(),
+              child: Icon(
+                icon,
+                size: 24,
+                color: theme.secondary,
+                semanticLabel: FlutterI18n.translate(
+                  context,
+                  semanticLabelKey,
                 ),
               ),
             ),
