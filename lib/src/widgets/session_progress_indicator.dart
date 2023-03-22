@@ -31,6 +31,7 @@ class SessionProgressIndicator extends StatelessWidget {
     final showProgress = step != null && stepCount != null && stepCount != 1;
 
     return IrmaCard(
+      hasShadow: false,
       padding: EdgeInsets.symmetric(
         vertical: theme.defaultSpacing,
       ),
