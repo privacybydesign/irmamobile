@@ -32,6 +32,7 @@ class IrmaQuote extends StatelessWidget {
     return IrmaCard(
       padding: EdgeInsets.zero,
       hasShadow: false,
+      style: IrmaCardStyle.highlighted,
       child: Row(
         children: [
           Flexible(
