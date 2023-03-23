@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../../data/irma_preferences.dart';
-import '../../data/irma_repository.dart';
 import '../../models/clear_all_data_event.dart';
 import '../../theme/theme.dart';
 import '../../widgets/irma_app_bar.dart';
