@@ -9,12 +9,14 @@ class CredentialCategoryList extends StatelessWidget {
   final List<CredentialType> credentialTypes;
   final List<CredentialType>? obtainedCredentialTypes;
   final Function(CredentialType credType)? onCredentialTypeTap;
+  final IconData? credentialTypeTrailingIcon;
 
   const CredentialCategoryList({
     required this.categoryName,
     required this.credentialTypes,
     this.obtainedCredentialTypes,
     this.onCredentialTypeTap,
+    this.credentialTypeTrailingIcon,
   });
 
   @override
@@ -39,6 +41,7 @@ class CredentialCategoryList extends StatelessWidget {
             child: IrmaCredentialTypeCard(
               credType: credType,
               checked: obtainedCredentialTypes?.contains(credType) ?? false,
+              trailingIcon: credentialTypeTrailingIcon,
               onTap: () => onCredentialTypeTap?.call(
                 credType,
               ),
