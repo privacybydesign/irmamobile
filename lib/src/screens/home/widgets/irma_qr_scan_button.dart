@@ -2,28 +2,22 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 import '../../../theme/theme.dart';
 import '../../../widgets/translated_text.dart';
 import '../../scanner/scanner_screen.dart';
-import '../../scanner/widgets/camera_permission_dialog.dart';
+import '../../scanner/util/handle_camera_permission.dart';
 
 class IrmaQrScanButton extends StatelessWidget {
   const IrmaQrScanButton({Key? key}) : super(key: key);
 
-  Future<void> _showCameraPermissionDialog(BuildContext context) => showDialog<void>(
-        context: context,
-        builder: (context) => CameraPermissionDialog(),
+  Future<void> _onQrScanButtonTap(BuildContext context) async {
+    final hasCameraPermission = await handleCameraPermission(context);
+
+    if (hasCameraPermission) {
+      Navigator.of(context).pushNamed(
+        ScannerScreen.routeName,
       );
-
-  _onQrScanButtonTap(BuildContext context) async {
-    final status = await Permission.camera.request();
-
-    if (status.isPermanentlyDenied) {
-      await _showCameraPermissionDialog(context);
-    } else if (status.isGranted) {
-      await Navigator.pushNamed(context, ScannerScreen.routeName);
     }
   }
 
@@ -55,7 +49,7 @@ class IrmaQrScanButton extends StatelessWidget {
                         button: true,
                         label: FlutterI18n.translate(context, 'home.nav_bar.scan_qr'),
                         child: InkWell(
-                          onTap: () async => _onQrScanButtonTap(context),
+                          onTap: () => _onQrScanButtonTap(context),
                           child: Icon(
                             Icons.qr_code_scanner_rounded,
                             color: theme.light,
