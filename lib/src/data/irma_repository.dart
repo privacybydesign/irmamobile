@@ -599,4 +599,10 @@ class IrmaRepository {
     sessionPtr.continueOnSecondDevice = continueOnSecondDevice;
     _pendingPointerSubject.add(sessionPtr);
   }
+
+  /// Only meant for testing and debug purposes.
+  Future<void> startTestIssueWizard(String wizardKey) async {
+    final issueWizardPointer = IssueWizardPointer(wizardKey);
+    _pendingPointerSubject.add(issueWizardPointer);
+  }
 }

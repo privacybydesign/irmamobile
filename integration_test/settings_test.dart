@@ -80,12 +80,9 @@ void main() {
         final repo = irmaBinding.repository;
         await _initAndNavToSettingsScreen(tester);
 
-        await _testToggle(
-          tester,
-          'qr_toggle',
-          false,
-          repo.preferences.getStartQRScan(),
-        );
+        // ! Note: there is no test to toggle the scanner on startup
+        // ! because it will ask for camera permissions
+
         await _testToggle(
           tester,
           'report_toggle',
