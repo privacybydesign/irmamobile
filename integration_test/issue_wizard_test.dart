@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:integration_test/integration_test.dart';
-import 'package:irmamobile/src/models/session.dart';
 import 'package:irmamobile/src/screens/issue_wizard/widgets/issue_wizard_success_screen.dart';
 import 'package:irmamobile/src/screens/issue_wizard/widgets/wizard_scaffold.dart';
-import 'package:irmamobile/src/screens/scanner/widgets/qr_scanner.dart';
 import 'package:irmamobile/src/widgets/collapsible.dart';
 import 'package:irmamobile/src/widgets/irma_card.dart';
 import 'package:irmamobile/src/widgets/irma_markdown.dart';
@@ -27,25 +25,12 @@ void main() {
     setUp(() => irmaBinding.setUp());
     tearDown(() => irmaBinding.tearDown());
 
-    // ! This tests uses the scanner screen so the camera permission dialog will appear.
-    // ! To prevent this dialog from overlapping other tests,
-    // ! make sure you run this test last in the test group
     testWidgets('issue-wizard', (tester) async {
       await pumpAndUnlockApp(tester, irmaBinding.repository);
 
-      // Navigate to the scanner screen
-      await tester.tapAndSettle(
-        find.byKey(const Key('nav_button_scanner')),
-        duration: const Duration(seconds: 1),
+      await irmaBinding.repository.startTestIssueWizard(
+        'irma-demo-requestors.ivido.demo-client',
       );
-
-      // Create a pointer for the Ivido demo
-      final ividoIssueWizardPointer = IssueWizardPointer('irma-demo-requestors.ivido.demo-client');
-
-      // Feed the pointer to the onFound in the QrScanner widget to mock starting a session via QR code
-      final qrScannerFinder = find.byType(QRScanner);
-      final qrScannerWidget = qrScannerFinder.evaluate().first.widget as QRScanner;
-      qrScannerWidget.onFound(ividoIssueWizardPointer);
 
       // This takes quite some time
       await tester.pumpAndSettle(const Duration(seconds: 3));

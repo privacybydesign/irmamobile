@@ -72,6 +72,8 @@ PODS:
     - Flutter
   - package_info_plus (0.4.5):
     - Flutter
+  - permission_handler_apple (9.0.4):
+    - Flutter
   - PromisesObjC (2.1.1)
   - Protobuf (3.21.12)
   - Sentry/HybridSDK (7.31.5)
@@ -95,6 +97,7 @@ DEPENDENCIES:
   - native_device_orientation (from `.symlinks/plugins/native_device_orientation/ios`)
   - package_info (from `.symlinks/plugins/package_info/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
+  - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
   - sentry_flutter (from `.symlinks/plugins/sentry_flutter/ios`)
   - share (from `.symlinks/plugins/share/ios`)
   - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
@@ -135,6 +138,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/package_info/ios"
   package_info_plus:
     :path: ".symlinks/plugins/package_info_plus/ios"
+  permission_handler_apple:
+    :path: ".symlinks/plugins/permission_handler_apple/ios"
   sentry_flutter:
     :path: ".symlinks/plugins/sentry_flutter/ios"
   share:
@@ -165,6 +170,7 @@ SPEC CHECKSUMS:
   native_device_orientation: 3b4cfc9565a7b879cc4fde282b3e27745e852d0d
   package_info: 873975fc26034f0b863a300ad47e7f1ac6c7ec62
   package_info_plus: 6c92f08e1f853dc01228d6f553146438dafcd14e
+  permission_handler_apple: 44366e37eaf29454a1e7b1b7d736c2cceaeb17ce
   PromisesObjC: ab77feca74fa2823e7af4249b8326368e61014cb
   Protobuf: 120350fc38646e2dedc26f49ecba778184ea1de2
   Sentry: 4c9babff9034785067c896fd580b1f7de44da020
@@ -173,6 +179,6 @@ SPEC CHECKSUMS:
   shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
   url_launcher: 6fef411d543ceb26efce54b05a0a40bfd74cbbef
 
-PODFILE CHECKSUM: 904333a2d48ad106420759e9c79fef130156218b
+PODFILE CHECKSUM: 6481f0eb60f548a47d740e4b9431c58b05cf55b3
 
 COCOAPODS: 1.11.3
