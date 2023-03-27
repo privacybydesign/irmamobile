@@ -64,6 +64,7 @@ class AddDataScreen extends StatelessWidget {
                           categoryName: credentialTypesByCategory.key,
                           credentialTypes: credentialTypesByCategory.value,
                           obtainedCredentialTypes: groupedObtainedCredentialTypes[credentialTypesByCategory.key],
+                          credentialTypeTrailingIcon: Icons.add_circle_sharp,
                           onCredentialTypeTap: (CredentialType credType) => _navToAddDataDetailScreen(
                             context,
                             credType,

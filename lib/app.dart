@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_privacy_screen/flutter_privacy_screen.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../../routing.dart';
@@ -29,6 +30,7 @@ import '../../src/screens/splash_screen/splash_screen.dart';
 import '../../src/theme/theme.dart';
 import '../../src/util/combine.dart';
 import '../../src/util/handle_pointer.dart';
+import 'src/data/irma_preferences.dart';
 
 const schemeUpdateIntervalHours = 3;
 
@@ -131,7 +133,9 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
         if (!locked && lastActive.isBefore(DateTime.now().subtract(const Duration(minutes: 5)))) {
           widget.irmaRepository.lock();
         } else {
-          _maybeOpenQrScanner();
+          _maybeOpenQrScanner(
+            widget.irmaRepository.preferences,
+          );
         }
       }
     }
@@ -171,7 +175,9 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
         //  the session screens have no home screen to pop back to.
         //  The home screen is only pushed when the user is fully enrolled.
         _listenToPendingSessionPointer();
-        _maybeOpenQrScanner();
+        _maybeOpenQrScanner(
+          widget.irmaRepository.preferences,
+        );
         break;
 
       case ScannerScreen.routeName:
@@ -221,14 +227,25 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     });
   }
 
-  Future<void> _maybeOpenQrScanner() async {
-    // Push the QR scanner screen if the preference is enabled
-    final startQrScanner = await widget.irmaRepository.preferences.getStartQRScan().first;
-    // Check if the app was started with a HandleURLEvent or resumed when returning from in-app browser.
-    // If so, do not open the QR scanner.
-    final appResumedAutomatically = await widget.irmaRepository.appResumedAutomatically();
-    if (startQrScanner && !appResumedAutomatically && !_qrScannerActive) {
-      _navigatorKey.currentState?.pushNamed(ScannerScreen.routeName);
+  Future<void> _maybeOpenQrScanner(IrmaPreferences prefs) async {
+    // Check if the setting is enabled to open the QR scanner on start up
+    final startQrScannerOnStartUp = await widget.irmaRepository.preferences.getStartQRScan().first;
+
+    if (startQrScannerOnStartUp) {
+      // Check if we actually have permission to use the camera
+      final hasCameraPermission = await Permission.camera.isGranted;
+
+      if (hasCameraPermission) {
+        // Check if the app was started with a HandleURLEvent or resumed when returning from in-app browser.
+        // If so, do not open the QR scanner.
+        final appResumedAutomatically = await widget.irmaRepository.appResumedAutomatically();
+        if (!appResumedAutomatically && !_qrScannerActive) {
+          _navigatorKey.currentState?.pushNamed(ScannerScreen.routeName);
+        }
+      } else {
+        // If the user has revoked the camera permission, just turn off the setting
+        await prefs.setStartQRScan(false);
+      }
     }
   }
 

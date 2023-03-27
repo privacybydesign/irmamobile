@@ -10,7 +10,9 @@ class IrmaConfirmationDialog extends StatelessWidget {
   final String contentTranslationKey;
   final Map<String, String>? contentTranslationParams;
   final String? cancelTranslationKey;
+  final Function()? onCancelPressed;
   final String? confirmTranslationKey;
+  final Function()? onConfirmPressed;
   final bool nudgeCancel;
 
   const IrmaConfirmationDialog({
@@ -18,7 +20,9 @@ class IrmaConfirmationDialog extends StatelessWidget {
     required this.contentTranslationKey,
     this.contentTranslationParams,
     this.cancelTranslationKey,
+    this.onCancelPressed,
     this.confirmTranslationKey,
+    this.onConfirmPressed,
     this.nudgeCancel = false,
   });
 
@@ -28,14 +32,14 @@ class IrmaConfirmationDialog extends StatelessWidget {
 
     final confirmButton = YiviThemedButton(
       key: const Key('dialog_confirm_button'),
-      onPressed: () => Navigator.of(context).pop(true),
+      onPressed: onConfirmPressed ?? () => Navigator.of(context).pop(true),
       label: confirmTranslationKey ?? 'ui.confirm',
       style: !nudgeCancel ? YiviButtonStyle.fancy : YiviButtonStyle.outlined,
     );
 
     final cancelButton = YiviThemedButton(
       key: const Key('dialog_cancel_button'),
-      onPressed: () => Navigator.of(context).pop(false),
+      onPressed: onCancelPressed ?? () => Navigator.of(context).pop(false),
       label: cancelTranslationKey ?? 'ui.cancel',
       style: nudgeCancel ? YiviButtonStyle.fancy : YiviButtonStyle.outlined,
     );

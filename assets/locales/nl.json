@@ -485,6 +485,11 @@
       "title": "Sorry",
       "message": "Dit is geen Yivi QR-code",
       "semantic": "Sorry! Dit is geen Yivi QR-code."
+    },
+    "permission_dialog": {
+      "title": "Schakel camera in",
+      "content": "Geef Yivi toegang tot je camera. Ga naar instellingen om toestemming te geven.",
+      "settings": "Instellingen"
     }
   },
   "reset_pin": {
