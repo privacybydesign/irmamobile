@@ -470,6 +470,7 @@
     "hide": "Pincode verbergen"
   },
   "qr_scanner": {
+    "title" : "QR Code Scannen",
     "instruction": {
       "title": "Begin met scannen",
       "message": "Richt je mobiel op een Yivi QR-code",
