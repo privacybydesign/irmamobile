@@ -11,11 +11,13 @@ class IrmaCredentialTypeCard extends StatelessWidget {
   final CredentialType credType;
   final VoidCallback? onTap;
   final bool checked;
+  final IconData? trailingIcon;
 
   const IrmaCredentialTypeCard({
     required this.credType,
     this.onTap,
     this.checked = false,
+    this.trailingIcon,
   });
 
   @override
@@ -81,7 +83,7 @@ class IrmaCredentialTypeCard extends StatelessWidget {
           ),
           SizedBox(width: theme.smallSpacing),
           Icon(
-            Icons.chevron_right,
+            trailingIcon ?? Icons.chevron_right,
             size: 24,
             color: theme.neutralExtraDark,
           ),
