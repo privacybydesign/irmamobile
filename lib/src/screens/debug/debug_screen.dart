@@ -195,6 +195,7 @@ class _DebugScreenState extends State<DebugScreen> {
         keyboardType: TextInputType.multiline,
         maxLines: null,
         expands: true,
+        autocorrect: false,
       ),
     );
   }
