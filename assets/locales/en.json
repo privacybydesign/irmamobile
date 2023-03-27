@@ -470,6 +470,7 @@
     "hide": "Hide PIN"
   },
   "qr_scanner": {
+    "title" : "Scan QR Code",
     "instruction": {
       "title": "Start scanning",
       "message": "Aim the camera of your mobile at the Yivi QR code",
