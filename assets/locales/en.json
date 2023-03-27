@@ -484,6 +484,11 @@
       "title": "Sorry",
       "message": "This is not a Yivi QR code",
       "semantic": "Sorry! This is not a Yivi QR code."
+    },
+    "permission_dialog": {
+      "title": "Turn camera on",
+      "content": "Give Yivi permission to use your camera. Go to settings to give permission.",
+      "settings": "Settings"
     }
   },
   "reset_pin": {
