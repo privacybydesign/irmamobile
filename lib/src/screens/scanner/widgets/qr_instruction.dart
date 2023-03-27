@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../../../theme/theme.dart';
+import '../../../widgets/translated_text.dart';
 
 class QRInstruction extends StatelessWidget {
   // QR code found
@@ -10,47 +10,64 @@ class QRInstruction extends StatelessWidget {
   // wrong QR code found
   final bool error;
 
-  const QRInstruction({required this.found, required final this.error});
+  const QRInstruction({
+    required this.found,
+    required final this.error,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final theme = IrmaTheme.of(context);
+
     var screen = 'instruction';
-    var color = IrmaTheme.of(context).themeData.colorScheme.secondary;
+    var color = theme.surfaceSecondary;
+    var textColor = theme.dark;
+    var borderColor = theme.tertiary;
 
     if (error) {
       screen = 'error';
-      color = IrmaTheme.of(context).error;
+      color = theme.error;
+      borderColor = theme.error;
+      textColor = theme.light;
     } else if (found) {
       screen = 'success';
-      color = IrmaTheme.of(context).success;
+      color = theme.success;
+      borderColor = theme.success;
+      textColor = theme.light;
     }
 
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: EdgeInsets.all(IrmaTheme.of(context).defaultSpacing),
-            color: color,
-            child: Column(
-              children: <Widget>[
-                Text(
-                  FlutterI18n.translate(context, 'qr_scanner.$screen.title'),
-                  style: Theme.of(context).textTheme.headline3?.copyWith(color: Colors.white),
-                  textAlign: TextAlign.center,
-                ),
-                Text(
-                  FlutterI18n.translate(context, 'qr_scanner.$screen.message'),
-                  style: Theme.of(context).textTheme.bodyText2?.copyWith(
-                        color: Colors.white,
-                        height: 1.5,
-                      ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
+      child: Container(
+        padding: EdgeInsets.all(theme.defaultSpacing),
+        decoration: BoxDecoration(
+          borderRadius: theme.borderRadius,
+          color: color,
+          border: Border.all(
+            color: borderColor,
           ),
-        ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TranslatedText(
+              'qr_scanner.$screen.title',
+              style: theme.textTheme.headline3?.copyWith(
+                color: textColor,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            Flexible(
+              child: TranslatedText(
+                'qr_scanner.$screen.message',
+                style: theme.textTheme.bodyText2?.copyWith(
+                  height: 1.5,
+                  color: textColor,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

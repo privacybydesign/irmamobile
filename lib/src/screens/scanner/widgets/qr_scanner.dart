@@ -12,12 +12,10 @@ import 'qr_overlay.dart';
 import 'qr_view_container.dart';
 
 class QRScanner extends StatefulWidget {
-  final void Function() onClose;
   final void Function(Pointer) onFound;
 
   const QRScanner({
     Key? key,
-    required this.onClose,
     required this.onFound,
   }) : super(key: key);
 
@@ -42,58 +40,63 @@ class _QRScannerState extends State<QRScanner> with SingleTickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Stack(
-        children: [
-          // Due to issues in the qr_code_scanner library, the scanner's QRView
-          // widget does not render properly when the pin screen overlay is active.
-          // Therefore we make sure the QRView only renders when the app is unlocked
-          // and the pin screen overlay is not active.
-          // https://github.com/juliuscanute/qr_code_scanner/issues/87
-          // This is still an issue in qr_code_scanner 0.7.0
-          StreamBuilder<bool>(
-            stream: IrmaRepositoryProvider.of(context).getLocked(),
-            builder: (context, isLocked) {
-              if (!isLocked.hasData || isLocked.data!) {
-                return Container(color: Colors.black);
-              }
-              return QRViewContainer(
-                onFound: (qr) => _foundQR(qr),
-              );
-            },
-          ),
-          Container(
-            constraints: const BoxConstraints.expand(),
-            child: CustomPaint(
-              painter: QROverlay(
-                found: found,
-                error: error,
-                theme: IrmaTheme.of(context),
-                topOffsetFactor: _qrInstructionHeightFactor,
-              ),
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+
+    return Stack(
+      children: [
+        // Due to issues in the qr_code_scanner library, the scanner's QRView
+        // widget does not render properly when the pin screen overlay is active.
+        // Therefore we make sure the QRView only renders when the app is unlocked
+        // and the pin screen overlay is not active.
+        // https://github.com/juliuscanute/qr_code_scanner/issues/87
+        // This is still an issue in qr_code_scanner 0.7.0
+        StreamBuilder<bool>(
+          stream: IrmaRepositoryProvider.of(context).getLocked(),
+          builder: (context, isLocked) {
+            if (!isLocked.hasData || isLocked.data!) {
+              return Container(color: Colors.black);
+            }
+            return QRViewContainer(
+              onFound: (qr) => _foundQR(qr),
+            );
+          },
+        ),
+        Container(
+          constraints: const BoxConstraints.expand(),
+          child: CustomPaint(
+            painter: QROverlay(
+              found: found,
+              error: error,
+              theme: IrmaTheme.of(context),
+              topOffsetFactor: isLandscape ? _qrInstructionHeightFactor + 0.07 : _qrInstructionHeightFactor,
             ),
           ),
-          FractionallySizedBox(
-            heightFactor: _qrInstructionHeightFactor,
-            child: QRInstruction(found: found, error: error),
-          ),
-          Align(
-            alignment: Alignment.topLeft,
-            child: Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: CircleAvatar(
-                backgroundColor: Colors.grey.shade300,
-                radius: 24,
-                child: IconButton(
-                    tooltip: FlutterI18n.translate(context, 'accessibility.back'),
-                    padding: EdgeInsets.zero,
-                    onPressed: Navigator.of(context).pop,
-                    icon: Icon(Icons.chevron_left, size: 24, color: Colors.grey.shade800)),
+        ),
+        SafeArea(
+            child: FractionallySizedBox(
+          heightFactor: _qrInstructionHeightFactor,
+          child: QRInstruction(found: found, error: error),
+        )),
+
+        if (isLandscape)
+          SafeArea(
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: CircleAvatar(
+                  backgroundColor: Colors.grey.shade300,
+                  radius: 24,
+                  child: IconButton(
+                      tooltip: FlutterI18n.translate(context, 'accessibility.back'),
+                      padding: EdgeInsets.zero,
+                      onPressed: Navigator.of(context).pop,
+                      icon: Icon(Icons.chevron_left, size: 24, color: Colors.grey.shade800)),
+                ),
               ),
             ),
           )
-        ],
-      ),
+      ],
     );
   }
 

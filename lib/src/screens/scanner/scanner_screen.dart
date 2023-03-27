@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../models/session.dart';
 import '../../util/handle_pointer.dart';
+import '../../widgets/irma_app_bar.dart';
 import 'widgets/qr_scanner.dart';
 
 class ScannerScreen extends StatelessWidget {
@@ -21,9 +22,15 @@ class ScannerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+
     return Scaffold(
+      appBar: isLandscape
+          ? null
+          : const IrmaAppBar(
+              titleTranslationKey: 'qr_scanner.title',
+            ),
       body: QRScanner(
-        onClose: () => Navigator.of(context).pop(),
         onFound: (code) => _onSuccess(context, code),
       ),
     );
