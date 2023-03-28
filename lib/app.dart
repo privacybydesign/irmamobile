@@ -61,20 +61,18 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
 
   AppState();
 
-  static List<LocalizationsDelegate> defaultLocalizationsDelegates([Locale? forcedLocale]) {
-    return [
-      FlutterI18nDelegate(
-        translationLoader: FileTranslationLoader(
-          fallbackFile: 'en',
-          basePath: 'assets/locales',
-          forcedLocale: forcedLocale,
+  static List<LocalizationsDelegate> defaultLocalizationsDelegates([Locale? forcedLocale]) => [
+        FlutterI18nDelegate(
+          translationLoader: FileTranslationLoader(
+            fallbackFile: 'en',
+            basePath: 'assets/locales',
+            forcedLocale: forcedLocale,
+          ),
         ),
-      ),
-      GlobalMaterialLocalizations.delegate,
-      GlobalWidgetsLocalizations.delegate,
-      GlobalCupertinoLocalizations.delegate
-    ];
-  }
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate
+      ];
 
   static List<Locale> defaultSupportedLocales() {
     return const [
@@ -385,8 +383,10 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
               key: const Key('app'),
               title: 'Yivi',
               theme: IrmaTheme.of(context).themeData,
-              localizationsDelegates: defaultLocalizationsDelegates(),
-              supportedLocales: widget.forcedLocale == null ? defaultSupportedLocales() : [widget.forcedLocale!],
+              localizationsDelegates: defaultLocalizationsDelegates(
+                widget.forcedLocale,
+              ),
+              supportedLocales: defaultSupportedLocales(),
               navigatorKey: _navigatorKey,
               navigatorObservers: [this],
               onGenerateRoute: Routing.generateRoute,

@@ -1,0 +1,35 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_i18n/flutter_i18n.dart';
+
+import '../../../../app.dart';
+import '../../../data/irma_preferences.dart';
+import '../../../util/language.dart';
+import '../../../widgets/irma_repository_provider.dart';
+import '../../more/widgets/tiles_radio.dart';
+
+class LanguageRadio extends StatelessWidget {
+  final supportedLocales = AppState.defaultSupportedLocales();
+
+  _onChangedLanguage(int index, IrmaPreferences prefs) async {
+    final selectedLocale = supportedLocales[index];
+    await prefs.setPreferredLanguageCode(selectedLocale.languageCode);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final prefs = IrmaRepositoryProvider.of(context).preferences;
+    final lang = FlutterI18n.currentLocale(context)!.languageCode;
+
+    return RadioTilesCard(
+      onChanged: (i) => _onChangedLanguage(i, prefs),
+      defaultSelectedIndex: supportedLocales.indexWhere(
+        (locale) => locale.languageCode == lang,
+      ),
+      options: supportedLocales
+          .map(
+            (locale) => locale.languageName(),
+          )
+          .toList(),
+    );
+  }
+}
