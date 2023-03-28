@@ -82,6 +82,16 @@ class _SessionScreenState extends State<SessionScreen> {
     ));
   }
 
+  void _popToUnderlyingOrHome() {
+    if (widget.arguments.wizardActive) {
+      popToWizard(context);
+    } else if (widget.arguments.hasUnderlyingSession) {
+      Navigator.of(context).pop();
+    } else {
+      popToHome(context);
+    }
+  }
+
   /// Opens the given clientReturnUrl in the in-app browser, if the url is suitable for the in-app browser, otherwise
   /// the URL is opened externally. In case the URL cannot be opened, a FailureSessionEvent is dispatched. In case
   /// of a silentFailure, only an error report is made for Sentry.
@@ -221,16 +231,12 @@ class _SessionScreenState extends State<SessionScreen> {
         // hasUnderlyingSession during issuance is handled at the beginning of _buildFinished, so
         // we don't have to explicitly exclude issuance here.
         if (session.clientReturnURL!.isInApp) {
-          widget.arguments.hasUnderlyingSession && !widget.arguments.wizardActive
-              ? Navigator.of(context).pop()
-              : popToWizard(context);
+          _popToUnderlyingOrHome();
           await _openClientReturnUrl(session.clientReturnURL!);
         } else {
           final hasOpened = await _openClientReturnUrl(session.clientReturnURL!);
           if (!hasOpened || !mounted) return;
-          widget.arguments.hasUnderlyingSession && !widget.arguments.wizardActive
-              ? Navigator.of(context).pop()
-              : popToWizard(context);
+          _popToUnderlyingOrHome();
         }
       });
     } else if (widget.arguments.wizardActive || session.didIssuePreviouslyLaunchedCredential) {
