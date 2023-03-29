@@ -32,12 +32,12 @@ Future<void> main() async {
 }
 
 class IrmaApp extends StatelessWidget {
-  final Locale? forcedLocale;
+  final Locale? defaultLanguage;
   final IrmaRepository repository;
 
   const IrmaApp({
     Key? key,
-    this.forcedLocale,
+    this.defaultLanguage,
     required this.repository,
   }) : super(key: key);
 
@@ -46,15 +46,18 @@ class IrmaApp extends StatelessWidget {
         repository: repository,
         child: PreferredLocaleBuilder(builder: (context, preferredLocale) {
           Locale? appLocale;
-          if (forcedLocale != null) {
-            // If there is a forced locale prefer that one.
-            // This is mainly used for testing purposes
-            appLocale = forcedLocale;
-          } else {
+          if (preferredLocale != null) {
             // The preferred locale is the locale that the user has selected in the settings
-            // If it's not null it will override the system locale
+            // If it's not null it will override the system/default locale
             appLocale = preferredLocale;
+          } else {
+            // If there is a default locale prefer that one.
+            // This is mainly used for testing purposes
+            appLocale = defaultLanguage;
           }
+
+          // If there is no preferred locale and no default locale,
+          // appLocale will be null and the system locale will be used
 
           return App(
             irmaRepository: repository,

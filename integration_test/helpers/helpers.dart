@@ -39,10 +39,10 @@ Future<void> enterPin(WidgetTester tester, String pin) async {
   await tester.pumpAndSettle(const Duration(seconds: 1));
 }
 
-Future<void> pumpIrmaApp(WidgetTester tester, IrmaRepository repo, [Locale? locale]) async {
+Future<void> pumpIrmaApp(WidgetTester tester, IrmaRepository repo, [Locale? defaultLanguage]) async {
   await tester.pumpWidgetAndSettle(IrmaApp(
     repository: repo,
-    forcedLocale: locale ?? const Locale('en', 'EN'),
+    defaultLanguage: defaultLanguage ?? const Locale('en', 'EN'),
   ));
 
   // Wait for the App widget to be build inside of the IrmaApp widget

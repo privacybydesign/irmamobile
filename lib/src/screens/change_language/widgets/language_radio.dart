@@ -21,6 +21,7 @@ class LanguageRadio extends StatelessWidget {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     return RadioTilesCard(
+      key: const Key('language_select'),
       onChanged: (i) => _onChangedLanguage(i, prefs),
       defaultSelectedIndex: supportedLocales.indexWhere(
         (locale) => locale.languageCode == lang,
