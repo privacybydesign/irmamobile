@@ -49,7 +49,7 @@ class IrmaApp extends StatelessWidget {
           if (forcedLocale != null) {
             // If there is a forced locale prefer that one.
             // This is mainly used for testing purposes
-            preferredLocale = forcedLocale;
+            appLocale = forcedLocale;
           } else {
             // The preferred locale is the locale that the user has selected in the settings
             // If it's not null it will override the system locale
