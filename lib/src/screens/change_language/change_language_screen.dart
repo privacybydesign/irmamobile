@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../theme/theme.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/preferred_language_builder.dart';
-import 'widgets/language_radio.dart';
+import 'widgets/change_language_radio.dart';
 import 'widgets/system_language_toggle.dart';
 
 class ChangeLanguageScreen extends StatelessWidget {
@@ -28,7 +28,7 @@ class ChangeLanguageScreen extends StatelessWidget {
               children: [
                 UseSystemLanguageToggle(),
                 SizedBox(height: theme.defaultSpacing),
-                if (preferredLocale != null) LanguageRadio(),
+                if (preferredLocale != null) ChangeLanguageRadio(),
               ],
             ),
           ),
