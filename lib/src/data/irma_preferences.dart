@@ -27,7 +27,8 @@ class IrmaPreferences {
         _showDisclosureDialog = preferences.getBool(_showDisclosureDialogKey, defaultValue: true),
         _acceptedRootedRisk = preferences.getBool(_acceptedRootedRiskKey, defaultValue: false),
         _completedDisclosurePermissionIntro =
-            preferences.getBool(_completedDisclosurePermissionIntroKey, defaultValue: false) {
+            preferences.getBool(_completedDisclosurePermissionIntroKey, defaultValue: false),
+        _preferredLanguageCode = preferences.getString(_preferredLanguageKey, defaultValue: '') {
     // Remove unused IRMA -> Yivi name change notification key
     preferences.remove(_showNameChangeNotificationKey);
     // Remove old value for displaying the dev mode toggle
@@ -90,4 +91,10 @@ class IrmaPreferences {
 
   Stream<bool> getCompletedDisclosurePermissionIntro() => _completedDisclosurePermissionIntro;
   Future<bool> setCompletedDisclosurePermissionIntro(bool value) => _completedDisclosurePermissionIntro.setValue(value);
+
+  static const String _preferredLanguageKey = 'preference.preferred_language_code';
+  final Preference<String> _preferredLanguageCode;
+
+  Stream<String> getPreferredLanguageCode() => _preferredLanguageCode;
+  Future<bool> setPreferredLanguageCode(String value) => _preferredLanguageCode.setValue(value);
 }

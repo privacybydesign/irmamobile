@@ -3,14 +3,17 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
+import '../../data/irma_preferences.dart';
 import '../../models/clear_all_data_event.dart';
 import '../../theme/theme.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/translated_text.dart';
+import '../change_language/change_language_screen.dart';
 import '../change_pin/change_pin_screen.dart';
 import '../more/widgets/tiles.dart';
 import '../more/widgets/tiles_card.dart';
+import '../scanner/util/handle_camera_permission.dart';
 import 'widgets/delete_data_confirmation_dialog.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -38,6 +41,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
         });
       }
     });
+  }
+
+  Future<void> _onChangeQrToggle(bool newValue, IrmaPreferences prefs) async {
+    if (newValue) {
+      final hasCameraPermission = await handleCameraPermission(context);
+      if (!hasCameraPermission) return;
+    }
+
+    await prefs.setStartQRScan(newValue);
   }
 
   @override
@@ -92,7 +104,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ToggleTile(
                     key: const Key('qr_toggle'),
                     labelTranslationKey: 'settings.start_qr',
-                    onChanged: repo.preferences.setStartQRScan,
+                    onChanged: (newValue) => _onChangeQrToggle(
+                      newValue,
+                      repo.preferences,
+                    ),
                     stream: repo.preferences.getStartQRScan(),
                   ),
                 ],
@@ -142,6 +157,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _buildHeaderText('settings.other'),
               TilesCard(
                 children: [
+                  const InternalLinkTile(
+                    key: Key('change_language_link'),
+                    labelTranslationKey: 'settings.language',
+                    routeName: ChangeLanguageScreen.routeName,
+                  ),
                   const InternalLinkTile(
                     key: Key('change_pin_link'),
                     labelTranslationKey: 'settings.change_pin',

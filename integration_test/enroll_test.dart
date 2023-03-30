@@ -58,10 +58,7 @@ void main() {
 
     // Pumps an unenrolled app with english locale
     Future<void> _initEnrollment(WidgetTester tester) async {
-      await tester.pumpWidgetAndSettle(IrmaApp(
-        repository: irmaBinding.repository,
-        forcedLocale: const Locale('en', 'EN'),
-      ));
+      await pumpIrmaApp(tester, irmaBinding.repository);
       expect(find.byType(EnrollmentScreen), findsOneWidget);
     }
 

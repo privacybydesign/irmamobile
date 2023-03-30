@@ -470,6 +470,7 @@
     "hide": "Hide PIN"
   },
   "qr_scanner": {
+    "title" : "Scan QR Code",
     "instruction": {
       "title": "Start scanning",
       "message": "Aim the camera of your mobile at the Yivi QR code",
@@ -484,6 +485,11 @@
       "title": "Sorry",
       "message": "This is not a Yivi QR code",
       "semantic": "Sorry! This is not a Yivi QR code."
+    },
+    "permission_dialog": {
+      "title": "Turn camera on",
+      "content": "Give Yivi permission to use your camera. Go to settings to give permission.",
+      "settings": "Settings"
     }
   },
   "reset_pin": {
@@ -538,6 +544,8 @@
     "enable_screenshots_explanation": "When enabled, the app will not be blurred in the app switcher.",
     "developer_mode": "Developer mode",
     "other": "Other",
+    "language": "Language",
+    "use_system_language": "Use system language",
     "change_pin": "Change PIN",
     "delete": "Delete data",
     "confirm_delete_dialog": {

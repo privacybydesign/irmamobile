@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'src/models/native_events.dart';
 import 'src/screens/add_data/add_data_screen.dart';
+import 'src/screens/change_language/change_language_screen.dart';
 import 'src/screens/change_pin/change_pin_screen.dart';
 import 'src/screens/debug/debug_screen.dart';
 import 'src/screens/enrollment/enrollment_screen.dart';
@@ -24,6 +25,7 @@ class Routing {
     EnrollmentScreen.routeName: (context) => EnrollmentScreen(),
     ScannerScreen.routeName: (context) => ScannerScreen(),
     ChangePinScreen.routeName: (context) => ChangePinScreen(),
+    ChangeLanguageScreen.routeName: (context) => ChangeLanguageScreen(),
     SettingsScreen.routeName: (context) => SettingsScreen(),
     AddDataScreen.routeName: (context) => AddDataScreen(),
     HelpScreen.routeName: (context) => HelpScreen(),

@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.2.0] - in beta 2023-03-28
+### Added
+- Show notification when camera permissions are denied
+
+### Changed
+- User interface of QR scanner screen
+- Scale all logos as avatars
+- Use the 'add' icon as trailing icon on add data cards
+- Build target set to Android 13 (API level 33)
+
+### Fixed
+- Increase touchable area and improve responsiveness of PIN inputs
+- PIN session token becomes invalid after the PIN is changed
+- Prevent black screens to be shown when finishing a session with a clientReturnUrl
+
 ## [7.1.0] - in beta 2023-03-22
 ### Added
 - Extra animation during onboarding
@@ -260,6 +275,7 @@ This release only includes iOS changes.
 - Various bug fixes
 
 
+[7.2.0]: https://github.com/privacybydesign/irmamobile/compare/v7.1.0...v7.2.0
 [7.1.0]: https://github.com/privacybydesign/irmamobile/compare/v7.0.1...v7.1.0
 [7.0.1]: https://github.com/privacybydesign/irmamobile/compare/v7.0.0...v7.0.1
 [7.0.0]: https://github.com/privacybydesign/irmamobile/compare/v6.4.1...v7.0.0
