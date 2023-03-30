@@ -9,6 +9,7 @@ import '../../theme/theme.dart';
 import '../../widgets/irma_app_bar.dart';
 import '../../widgets/irma_repository_provider.dart';
 import '../../widgets/translated_text.dart';
+import '../change_language/change_language_screen.dart';
 import '../change_pin/change_pin_screen.dart';
 import '../more/widgets/tiles.dart';
 import '../more/widgets/tiles_card.dart';
@@ -156,6 +157,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _buildHeaderText('settings.other'),
               TilesCard(
                 children: [
+                  const InternalLinkTile(
+                    key: Key('change_language_link'),
+                    labelTranslationKey: 'settings.language',
+                    routeName: ChangeLanguageScreen.routeName,
+                  ),
                   const InternalLinkTile(
                     key: Key('change_pin_link'),
                     labelTranslationKey: 'settings.change_pin',

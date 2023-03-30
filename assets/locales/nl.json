@@ -544,6 +544,8 @@
     "enable_screenshots_explanation": "Als dit is ingeschakeld, wordt de app niet vervaagd in de app-switcher.",
     "developer_mode": "Developer modus",
     "other": "Overig",
+    "language": "Taal",
+    "use_system_language": "Gebruik systeemtaal",
     "change_pin": "Pincode veranderen",
     "delete": "Verwijder gegevens",
     "confirm_delete_dialog": {
