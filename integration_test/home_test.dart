@@ -56,8 +56,9 @@ void main() {
         expect(find.byType(DataTab), findsOneWidget);
 
         // Navigate to activity
-        await tester.tapAndSettle(find.byKey(const Key('nav_button_activity')));
+        await tester.tap(find.byKey(const Key('nav_button_activity')));
         await tester.pump(const Duration(milliseconds: 500));
+        expect(find.byType(DataTab), findsNothing);
         expect(find.byType(ActivityTab), findsOneWidget);
 
         //Navigate to more
