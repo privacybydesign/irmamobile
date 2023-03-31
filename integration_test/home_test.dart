@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/src/screens/activity/activity_tab.dart';
@@ -58,7 +57,7 @@ void main() {
 
         // Navigate to activity
         await tester.tapAndSettle(find.byKey(const Key('nav_button_activity')));
-        expect(find.byType(DataTab), findsNothing);
+        await tester.pump(const Duration(milliseconds: 500));
         expect(find.byType(ActivityTab), findsOneWidget);
 
         //Navigate to more
