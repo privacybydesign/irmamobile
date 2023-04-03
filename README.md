@@ -2,12 +2,14 @@
 
 ## Authentication made easy, privacy-friendly, and secure
 
-IRMA offers a privacy-friendly, flexible and secure solution to many authentication problems,
+Yivi, formerly known as IRMA, offers a privacy-friendly, flexible and secure solution to many authentication problems,
 putting the user in full control over his/her data.
 
-The IRMA app manages the user's IRMA cards containing personal data. It can receive new cards, selectively disclose data contained in the user's cards to others, and
+The Yivi app manages the user's cards containing personal data. It can receive new cards, selectively disclose data contained in the user's cards to others, and
 attaching data to signed statements. These data can be relevant properties, such as: "I am over 18", "my name is
 ..." and "I am entitled to access ....". They are only stored on the user's device and nowhere else.
+
+> **_NOTE:_** During the transition period in which we change IRMA to Yivi, it can happen that both names are used interchangeably.
 
 [<img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png"
      alt="Get it on Google Play"
@@ -19,10 +21,10 @@ attaching data to signed statements. These data can be relevant properties, such
      alt="Get it on F-Droid"
      height="80">](https://f-droid.org/packages/org.irmacard.cardemu/)
 
-<img src="https://irma.app/docs/assets/irmamobile/ios_pin.png" width="200" alt="Screenshot of the IRMA app on iOS, showing the PIN screen" /> &nbsp;
-<img src="https://irma.app/docs/assets/irmamobile/android_wallet.png" width="200" alt="Screenshot of the IRMA app on Android, showing the wallet screen with three cards" /> &nbsp;
-<img src="https://irma.app/docs/assets/irmamobile/ios_wallet_expanded.png" width="200" alt="Screenshot of the IRMA app on iOS, showing the wallet screen with a card expanded" />
-<img src="https://irma.app/docs/assets/irmamobile/android_disclosure.png" width="200" alt="Screenshot of the IRMA app on Android, showing the data disclosure screen" /> &nbsp;
+<img src="screenshots/android/en/enrollment_introduction.png" width="200" alt="Screenshot of the Yivi app on Android, showing the introduction screen at the start of the onboarding process" />&nbsp;
+<img src="screenshots/android/en/home.png" width="200" alt="Screenshot of the Yivi app on Android, showing the home screen with recent activities" />&nbsp;
+<img src="screenshots/android/en/issue_wizard_collect.png" width="200" alt="Screenshot of the Yivi app on Android, showing the issue wizard at the point where the user is collecting data" />&nbsp;
+<img src="screenshots/android/en/issue_wizard_share.png" width="200" alt="Screenshot of the Yivi app on Android, showing the issue wizard screen at the point where the user is about to share the collected data" />&nbsp;
 
 ## Development setup
 
