@@ -23,16 +23,12 @@ class HistoryState {
   }) : logEntries = UnmodifiableListView(logEntries);
 
   HistoryState copyWith({
-    required IrmaRepository repo,
     List<LogEntry>? logEntries,
     bool? loading,
     bool? moreLogsAvailable,
   }) {
-    bool containsKeyshareCredential(LogEntry e) => e.issuedCredentials.any(
-        (c) => Credential.fromRaw(irmaConfiguration: repo.irmaConfiguration, rawCredential: c).isKeyshareCredential);
-
     return HistoryState(
-      logEntries: (logEntries ?? this.logEntries).whereNot(containsKeyshareCredential).toList(),
+      logEntries: logEntries ?? this.logEntries,
       loading: loading ?? this.loading,
       moreLogsAvailable: moreLogsAvailable ?? this.moreLogsAvailable,
     );
@@ -51,7 +47,6 @@ class HistoryRepository {
     _historyStateSubscription = repo.getEvents().scan<HistoryState>((prevState, event, _) {
       if (event is LoadLogsEvent) {
         return prevState.copyWith(
-          repo: repo,
           loading: true,
           logEntries: event.before == null ? [] : prevState.logEntries,
         );
@@ -62,11 +57,17 @@ class HistoryRepository {
         final supportedLogEntries =
             event.logEntries.where((entry) => _serverNameOptional.contains(entry.type) || entry.serverName != null);
 
+        bool containsKeyshareCredential(LogEntry e) => e.issuedCredentials.any((c) =>
+            Credential.fromRaw(irmaConfiguration: repo.irmaConfiguration, rawCredential: c).isKeyshareCredential);
+
+        // FIXME: We assume that when the activityLogEntries list is empty, then all log entries are loaded.
+        // If an user adds multiple keyshare servers one after another, this assumption will break.
+        final activityLogEntries = supportedLogEntries.where((entry) => !containsKeyshareCredential(entry));
+
         return prevState.copyWith(
-          repo: repo,
           loading: false,
-          logEntries: [...prevState.logEntries, ...supportedLogEntries],
-          moreLogsAvailable: event.logEntries.isEmpty,
+          logEntries: [...prevState.logEntries, ...activityLogEntries],
+          moreLogsAvailable: activityLogEntries.isNotEmpty,
         );
       }
 
