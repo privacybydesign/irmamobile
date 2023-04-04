@@ -40,7 +40,7 @@ void main() {
         'Share Yivi',
         "Yivi's privacy policy",
         'Yivi meetups',
-        '@irma_privacy',
+        '@YiviApp',
         'GitHub',
       ];
       for (final text in texts) {
