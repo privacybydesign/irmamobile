@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:irmamobile/src/screens/activity/activity_tab.dart';
 import 'package:irmamobile/src/screens/activity/widgets/activity_card.dart';
 import 'package:irmamobile/src/screens/add_data/add_data_details_screen.dart';
@@ -95,7 +94,8 @@ Future<void> completelyOptionalTest(WidgetTester tester, IntegrationTestIrmaBind
 
   // Navigate to to activity tab
   expect(find.byType(HomeScreen), findsOneWidget);
-  await tester.tapAndSettle(find.byKey(const Key('nav_button_activity')));
+  await tester.tap(find.byKey(const Key('nav_button_activity')));
+  await tester.pump(const Duration(milliseconds: 500));
   expect(find.byType(ActivityTab), findsOneWidget);
 
   // Tap the second activity card.
