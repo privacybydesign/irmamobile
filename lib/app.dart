@@ -87,6 +87,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     WidgetsBinding.instance?.addObserver(this);
     _listenForDataClear();
     _listenScreenshotPref();
+    _handleUpdateSchemes();
   }
 
   @override
@@ -98,16 +99,16 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     super.dispose();
   }
 
-  @override
-  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
-    widget.irmaRepository.dispatch(AppLifecycleChangedEvent(state));
-
-    if (state == AppLifecycleState.resumed &&
-        (lastSchemeUpdate == null ||
-            DateTime.now().difference(lastSchemeUpdate!).inHours > schemeUpdateIntervalHours)) {
+  Future<void> _handleUpdateSchemes() async {
+    if (lastSchemeUpdate == null || DateTime.now().difference(lastSchemeUpdate!).inHours > schemeUpdateIntervalHours) {
       lastSchemeUpdate = DateTime.now();
       widget.irmaRepository.bridgedDispatch(UpdateSchemesEvent());
     }
+  }
+
+  @override
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+    widget.irmaRepository.dispatch(AppLifecycleChangedEvent(state));
 
     // We check the transition goes from paused -> inactive -> resumed
     // because the transition inactive -> resumed can also happen
