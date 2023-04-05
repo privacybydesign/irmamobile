@@ -24,7 +24,7 @@ Future<void> initSentry({required IrmaPreferences preferences}) async {
           options.enableNativeCrashHandling = reportErrors;
 
           // Enable app health check
-          options.enableAutoSessionTracking = true;
+          options.enableAutoSessionTracking = reportErrors;
 
           // As noted in the docs of enableNativeCrashHandling, platform checking does not work on iOS when
           // native crash handling is disabled. Therefore, we add a fallback implementation.
