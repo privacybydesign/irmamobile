@@ -246,48 +246,59 @@ class YiviPinScreen extends StatelessWidget {
     );
 
     // Only call when required
-    List<Widget> bodyPortrait(bool showSecurePinText) => [
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                scaledLogo,
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      instructionText,
-                      pinDotsDecorated,
-                      if (checkSecurePin && showSecurePinText)
-                        _UnsecurePinWarningTextButton(scaffoldKey: scaffoldKey!, bloc: pinBloc),
-                      if (onTogglePinSize != null)
-                        Link(
-                          onTap: onTogglePinSize!,
-                          label: FlutterI18n.translate(context, togglePinSizeCopy),
+    Column bodyPortrait(bool showSecurePinText) => Column(
+          children: [
+            Expanded(
+              child: LayoutBuilder(
+                builder: ((context, constraints) => SingleChildScrollView(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                          minWidth: constraints.maxWidth,
                         ),
-                      if (onForgotPin != null)
-                        Link(
-                          onTap: onForgotPin!,
-                          label: FlutterI18n.translate(context, 'pin.button_forgot'),
+                        child: IntrinsicHeight(
+                          child: Column(
+                            children: [
+                              scaledLogo,
+                              Expanded(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    instructionText,
+                                    pinDotsDecorated,
+                                    if (checkSecurePin && showSecurePinText)
+                                      _UnsecurePinWarningTextButton(scaffoldKey: scaffoldKey!, bloc: pinBloc),
+                                    if (onTogglePinSize != null)
+                                      Link(
+                                        onTap: onTogglePinSize!,
+                                        label: FlutterI18n.translate(context, togglePinSizeCopy),
+                                      ),
+                                    if (onForgotPin != null)
+                                      Link(
+                                        onTap: onForgotPin!,
+                                        label: FlutterI18n.translate(context, 'pin.button_forgot'),
+                                      ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
                         ),
-                    ],
-                  ),
-                ),
-              ],
+                      ),
+                    )),
+              ),
             ),
-          ),
-          Expanded(
-            child: _NumberPad(
-              onEnterNumber: pinBloc.add,
+            Expanded(
+              child: _NumberPad(
+                onEnterNumber: pinBloc.add,
+              ),
             ),
-          ),
-          SizedBox(height: theme.screenPadding),
-          nextButton,
-        ];
+            SizedBox(height: theme.screenPadding),
+            nextButton,
+          ],
+        );
 
-    List<Widget> bodyLandscape(bool showSecurePinText) {
+    Row bodyLandscape(bool showSecurePinText) {
       final leftColumnChildren = [
         instructionText,
         pinDotsDecorated,
@@ -321,16 +332,31 @@ class YiviPinScreen extends StatelessWidget {
         ],
       );
 
-      return [
-        Expanded(
-          child: separatedChildren,
-        ),
-        Expanded(
-          child: _NumberPad(
-            onEnterNumber: pinBloc.add,
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: LayoutBuilder(
+              builder: ((context, constraints) => SingleChildScrollView(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight,
+                        minWidth: constraints.maxWidth,
+                      ),
+                      child: IntrinsicHeight(
+                        child: separatedChildren,
+                      ),
+                    ),
+                  )),
+            ),
           ),
-        ),
-      ];
+          Expanded(
+            child: _NumberPad(
+              onEnterNumber: pinBloc.add,
+            ),
+          ),
+        ],
+      );
     }
 
     return OrientationBuilder(
@@ -341,14 +367,9 @@ class YiviPinScreen extends StatelessWidget {
           builder: (context, state) {
             final showSecurePinText = state.pin.length >= shortPinSize && !state.goodEnough;
             if (Orientation.portrait == orientation) {
-              return Column(
-                children: bodyPortrait(showSecurePinText),
-              );
+              return bodyPortrait(showSecurePinText);
             } else {
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: bodyLandscape(showSecurePinText),
-              );
+              return bodyLandscape(showSecurePinText);
             }
           },
         );

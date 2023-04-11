@@ -36,7 +36,7 @@ Future<void> enterPin(WidgetTester tester, String pin) async {
       find.byKey(Key('number_pad_key_${digit.toString()}')),
     );
   }
-  await tester.pumpAndSettle(const Duration(seconds: 1));
+  await tester.pumpAndSettle(const Duration(milliseconds: 1500));
 }
 
 Future<void> pumpIrmaApp(WidgetTester tester, IrmaRepository repo, [Locale? defaultLanguage]) async {

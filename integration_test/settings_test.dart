@@ -124,7 +124,10 @@ void main() {
 
       final changePinButtonFinder = find.text('Change PIN').hitTestable();
       await tester.scrollUntilVisible(changePinButtonFinder, 50);
-      await tester.tapAndSettle(changePinButtonFinder);
+      await tester.tapAndSettle(
+        changePinButtonFinder,
+        duration: const Duration(milliseconds: 750),
+      );
 
       // Enter current pin PIN
       await enterPin(tester, '12345');
@@ -141,7 +144,10 @@ void main() {
 
       await tester.waitFor(nextButtonFinder);
       await tester.ensureVisible(nextButtonFinder);
-      await tester.tapAndSettle(nextButtonFinder);
+      await tester.tapAndSettle(
+        nextButtonFinder,
+        duration: const Duration(milliseconds: 750),
+      );
 
       // Enter new PIN (again)
       await enterPin(tester, '54321');
@@ -179,7 +185,10 @@ void main() {
       // Logout
       final logoutButtonFinder = find.byKey(const Key('log_out_button')).hitTestable();
       await tester.scrollUntilVisible(logoutButtonFinder, 100);
-      await tester.tapAndSettle(logoutButtonFinder);
+      await tester.tapAndSettle(
+        logoutButtonFinder,
+        duration: const Duration(milliseconds: 750),
+      );
 
       // Log back in with new pin
       await enterPin(tester, '54321');
