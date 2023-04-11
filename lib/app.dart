@@ -111,6 +111,11 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     widget.irmaRepository.dispatch(AppLifecycleChangedEvent(state));
 
+    // Resumed = when the app regains focus after being inactive or paused in the background
+    if (state == AppLifecycleState.resumed) {
+      _handleUpdateSchemes();
+    }
+
     // We check the transition goes from paused -> inactive -> resumed
     // because the transition inactive -> resumed can also happen
     // in scenarios where the app is not closed. Like an apple pay
