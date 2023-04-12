@@ -83,7 +83,7 @@ class IrmaCredentialCardHeader extends StatelessWidget {
             ],
           ),
         ),
-        if (trailing != null && !isExpired && !isRevoked) ...[
+        if (trailing != null) ...[
           SizedBox(width: theme.smallSpacing),
           trailing!,
         ],
