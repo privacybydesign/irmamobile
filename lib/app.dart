@@ -53,7 +53,6 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   StreamSubscription<bool>? _screenshotPrefSubscription;
   bool _qrScannerActive = false;
   bool _privacyScreenLoaded = false;
-  DateTime? lastSchemeUpdate;
 
   // We keep track of the last two life cycle states
   // to be able to determine the flow
@@ -87,6 +86,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     WidgetsBinding.instance?.addObserver(this);
     _listenForDataClear();
     _listenScreenshotPref();
+    _handleUpdateSchemes();
   }
 
   @override
@@ -98,15 +98,22 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     super.dispose();
   }
 
+  Future<void> _handleUpdateSchemes() async {
+    final lastSchemeUpdate = await widget.irmaRepository.preferences.getLastSchemeUpdate().first;
+
+    if (DateTime.now().difference(lastSchemeUpdate).inHours > schemeUpdateIntervalHours) {
+      widget.irmaRepository.preferences.setLastSchemeUpdate(DateTime.now());
+      widget.irmaRepository.bridgedDispatch(UpdateSchemesEvent());
+    }
+  }
+
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     widget.irmaRepository.dispatch(AppLifecycleChangedEvent(state));
 
-    if (state == AppLifecycleState.resumed &&
-        (lastSchemeUpdate == null ||
-            DateTime.now().difference(lastSchemeUpdate!).inHours > schemeUpdateIntervalHours)) {
-      lastSchemeUpdate = DateTime.now();
-      widget.irmaRepository.bridgedDispatch(UpdateSchemesEvent());
+    // Resumed = when the app regains focus after being inactive or paused in the background
+    if (state == AppLifecycleState.resumed) {
+      _handleUpdateSchemes();
     }
 
     // We check the transition goes from paused -> inactive -> resumed
