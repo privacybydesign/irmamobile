@@ -55,7 +55,7 @@ public class IIABPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
                 try {
                     String url = call.<String>arguments();
                     CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
-                    builder.setToolbarColor(Color.parseColor("#DFE6EE"));
+                    builder.setToolbarColor(Color.parseColor("#FFFFFF"));
                     CustomTabsIntent customTabsIntent = builder.build();
                     customTabsIntent.launchUrl(mainActivity, Uri.parse(url));
                 } catch (Exception e) {
