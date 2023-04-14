@@ -3,6 +3,7 @@ import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_per
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_share_dialog.dart';
 import 'package:irmamobile/src/screens/session/session_screen.dart';
 import 'package:irmamobile/src/screens/session/widgets/disclosure_feedback_screen.dart';
+import 'package:irmamobile/src/screens/session/widgets/success_graphic.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
 
@@ -45,6 +46,19 @@ Future<void> evaluateFeedback(WidgetTester tester, [feedbackType = DisclosureFee
     (feedbackScreenFinder.evaluate().single.widget as DisclosureFeedbackScreen).feedbackType,
     feedbackType,
   );
+
+  if (feedbackType == DisclosureFeedbackType.success) {
+    // Expect the SuccessGraphic in the feedback screen
+    final successGraphicFinder = find.byType(SuccessGraphic);
+    expect(
+      find.descendant(
+        of: feedbackScreenFinder,
+        matching: successGraphicFinder,
+      ),
+      findsOneWidget,
+    );
+  }
+
   await tester.tapAndSettle(find.text('OK'));
 
   // Session flow should be over now

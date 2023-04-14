@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:irmamobile/src/screens/data/credentials_detail_screen.dart';
 import 'package:irmamobile/src/screens/session/widgets/issuance_success_screen.dart';
+import 'package:irmamobile/src/screens/session/widgets/success_graphic.dart';
 import 'package:irmamobile/src/widgets/credential_card/irma_credential_card.dart';
 
 import 'helpers/helpers.dart';
@@ -37,7 +38,19 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byType(IssuanceSuccessScreen), findsOneWidget);
+      final successScreenFinder = find.byType(IssuanceSuccessScreen);
+      expect(successScreenFinder, findsOneWidget);
+
+      // Expect the SuccessGraphic in the IssuanceSuccessScreen
+      final successGraphicFinder = find.byType(SuccessGraphic);
+      expect(
+        find.descendant(
+          of: successScreenFinder,
+          matching: successGraphicFinder,
+        ),
+        findsOneWidget,
+      );
+
       await tester.tapAndSettle(find.text('OK'));
 
       // Go to data tab

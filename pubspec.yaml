@@ -93,6 +93,7 @@ flutter:
     - assets/non-free/
     - assets/disclosure/
     - assets/ui/
+    - assets/success/
 
   fonts:
     - family: Alexandria
