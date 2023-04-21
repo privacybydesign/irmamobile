@@ -87,6 +87,9 @@ Future<void> evaluateShareDialog(
       findsOneWidget);
 
   await tester.tapAndSettle(
-    find.text(isSignatureSession ? 'Sign and share' : 'Share'),
+    find.descendant(
+      of: find.byType(DisclosurePermissionConfirmDialog),
+      matching: find.text(isSignatureSession ? 'Sign and share' : 'Share'),
+    ),
   );
 }
