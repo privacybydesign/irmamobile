@@ -199,9 +199,13 @@
     },
     "confirm_dialog": {
       "title": "Gegevens delen",
+      "title_signature": "Ondertekenen en data delen",
       "explanation": "Je staat op het punt om gegevens te delen met {requestorName}. Klik op 'Delen' om verder te gaan.",
+      "explanation_signature": "Je staat op het punt om het bericht van {requestorName} te tekenen met je data. Klik op 'Ondertekenen en delen' om verder te gaan.",
       "confirm": "Delen",
-      "decline": "Niet delen"
+      "confirm_signature": "Ondertekenen en delen",
+      "decline": "Niet delen",
+      "decline_signature": "Niet ondertekenen"
     },
     "confirm_close_dialog": {
       "title": "Gegevens delen stoppen",

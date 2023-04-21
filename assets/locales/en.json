@@ -199,9 +199,13 @@
     },
     "confirm_dialog": {
       "title": "Share data",
+      "title_signature": "Sign and share data",
       "explanation": "You are about to share data with {requestorName}. Tap 'Share' to continue",
+      "explanation_signature": "You are about to sign the message of {requestorName} with your data. Tap 'Sign and share' to continue",
       "confirm": "Share",
-      "decline": "Don't share"
+      "confirm_signature": "Sign and share",
+      "decline": "Don't share",
+      "decline_signature": "Don't sign"
     },
     "confirm_close_dialog": {
       "title": "Cancel data sharing",
