@@ -74,7 +74,19 @@ Future<void> evaluateFeedback(
   expect(find.byType(SessionScreen), findsNothing);
 }
 
-Future<void> evaluateShareDialog(WidgetTester tester) async {
+Future<void> evaluateShareDialog(
+  WidgetTester tester, {
+  isSignatureSession = false,
+}) async {
   expect(find.byType(DisclosurePermissionConfirmDialog), findsOneWidget);
-  await tester.tapAndSettle(find.text('Share'));
+
+  expect(
+      find.textContaining(
+        isSignatureSession ? 'You are about to sign the message' : 'You are about to share data',
+      ),
+      findsOneWidget);
+
+  await tester.tapAndSettle(
+    find.text(isSignatureSession ? 'Sign and share' : 'Share'),
+  );
 }
