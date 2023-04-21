@@ -10,12 +10,15 @@ import '../../home/home_screen.dart';
 
 class ArrowBack extends StatefulWidget {
   final bool success;
-  final int amountIssued;
+  final bool isIssuanceSession;
+  final bool isSignatureSession;
 
   const ArrowBack({
     this.success = false,
-    required this.amountIssued,
-  });
+    bool? isIssuanceSession,
+    bool? isSignatureSession,
+  })  : isIssuanceSession = isIssuanceSession ?? false,
+        isSignatureSession = isSignatureSession ?? false;
 
   @override
   State<StatefulWidget> createState() => _ArrowBackState();
@@ -109,9 +112,11 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
                           Flexible(
                             child: TranslatedText(
                               widget.success
-                                  ? widget.amountIssued > 0
-                                      ? 'arrow_back.issuance_success'
-                                      : 'arrow_back.disclosure_success'
+                                  ? widget.isSignatureSession
+                                      ? 'arrow_back.signature_success'
+                                      : widget.isIssuanceSession
+                                          ? 'arrow_back.issuance_success'
+                                          : 'arrow_back.disclosure_success'
                                   : 'arrow_back.no_success',
                               style: theme.textTheme.headline1,
                               textAlign: TextAlign.center,
