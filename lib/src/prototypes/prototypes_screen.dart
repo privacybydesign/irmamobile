@@ -130,10 +130,25 @@ class PrototypesScreen extends StatelessWidget {
           ),
           _buildTile(
             context,
-            'Arrow back',
+            'Arrow back - Issuance',
             const ArrowBack(
               success: true,
-              amountIssued: 1,
+              isIssuanceSession: true,
+            ),
+          ),
+          _buildTile(
+            context,
+            'Arrow back - Signature',
+            const ArrowBack(
+              success: true,
+              isSignatureSession: true,
+            ),
+          ),
+          _buildTile(
+            context,
+            'Arrow back - Disclosure',
+            const ArrowBack(
+              success: true,
             ),
           ),
           _buildTile(
@@ -192,11 +207,59 @@ class PrototypesScreen extends StatelessWidget {
           ),
           _buildTile(
             context,
-            'Disclosure feedback - success',
+            'Disclosure feedback - disclosure notSatisfiable',
+            DisclosureFeedbackScreen(
+              feedbackType: DisclosureFeedbackType.notSatisfiable,
+              otherParty: 'other party',
+              onDismiss: Navigator.pop,
+            ),
+          ),
+          _buildTile(
+            context,
+            'Disclosure feedback - signature notSatisfiable',
+            DisclosureFeedbackScreen(
+              feedbackType: DisclosureFeedbackType.notSatisfiable,
+              otherParty: 'other party',
+              onDismiss: Navigator.pop,
+              isSignatureSession: true,
+            ),
+          ),
+          _buildTile(
+            context,
+            'Disclosure feedback - disclosure success',
             DisclosureFeedbackScreen(
               feedbackType: DisclosureFeedbackType.success,
+              otherParty: 'other party',
+              onDismiss: Navigator.pop,
+            ),
+          ),
+          _buildTile(
+            context,
+            'Disclosure feedback - disclosure canceled',
+            DisclosureFeedbackScreen(
+              feedbackType: DisclosureFeedbackType.canceled,
+              otherParty: 'other party',
+              onDismiss: Navigator.pop,
+            ),
+          ),
+          _buildTile(
+            context,
+            'Disclosure feedback - signature success',
+            DisclosureFeedbackScreen(
+              feedbackType: DisclosureFeedbackType.success,
+              otherParty: 'other party',
+              onDismiss: Navigator.pop,
+              isSignatureSession: true,
+            ),
+          ),
+          _buildTile(
+            context,
+            'Disclosure feedback - signature canceled',
+            DisclosureFeedbackScreen(
+              feedbackType: DisclosureFeedbackType.canceled,
               otherParty: 'successful party',
               onDismiss: Navigator.pop,
+              isSignatureSession: true,
             ),
           ),
           _buildTile(

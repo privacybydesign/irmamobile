@@ -57,8 +57,11 @@ Future<void> signingTest(WidgetTester tester, IntegrationTestIrmaBinding irmaBin
     style: IrmaCardStyle.normal,
   );
 
-  await tester.tapAndSettle(find.text('Share data'));
+  await tester.tapAndSettle(find.text('Sign and share'));
 
   await evaluateShareDialog(tester);
-  await evaluateFeedback(tester);
+  await evaluateFeedback(
+    tester,
+    isSignatureSession: true,
+  );
 }

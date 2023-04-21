@@ -38,7 +38,11 @@ Future<void> evaluateIntroduction(WidgetTester tester) async {
   await tester.tapAndSettle(continueButtonFinder);
 }
 
-Future<void> evaluateFeedback(WidgetTester tester, [feedbackType = DisclosureFeedbackType.success]) async {
+Future<void> evaluateFeedback(
+  WidgetTester tester, {
+  feedbackType = DisclosureFeedbackType.success,
+  isSignatureSession = false,
+}) async {
   // Expect the success screen
   final feedbackScreenFinder = find.byType(DisclosureFeedbackScreen);
   expect(feedbackScreenFinder, findsOneWidget);
@@ -57,6 +61,11 @@ Future<void> evaluateFeedback(WidgetTester tester, [feedbackType = DisclosureFee
       ),
       findsOneWidget,
     );
+
+    expect(find.textContaining('You signed the request'), isSignatureSession ? findsOneWidget : findsNothing);
+    expect(find.textContaining('Your data is disclosed'), isSignatureSession ? findsNothing : findsOneWidget);
+  } else if (feedbackType == DisclosureFeedbackType.canceled) {
+    expect(find.text('Canceled'), findsOneWidget);
   }
 
   await tester.tapAndSettle(find.text('OK'));
