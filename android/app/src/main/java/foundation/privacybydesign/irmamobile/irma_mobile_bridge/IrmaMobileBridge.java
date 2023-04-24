@@ -7,6 +7,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.ApplicationInfo;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.Arrays;
+
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
@@ -17,9 +19,8 @@ import android.net.Uri;
 import android.content.Intent;
 
 public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMobileBridge {
-  private MethodChannel channel;
-  private Context context;
-  private Activity activity;
+  private final MethodChannel channel;
+  private final Activity activity;
   private Uri initialURL;
   private boolean debug;
   private boolean appReady;
@@ -27,7 +28,6 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
 
   public IrmaMobileBridge(Context context, Activity activity, MethodChannel channel, Uri initialURL) {
     this.channel = channel;
-    this.context = context;
     this.activity = activity;
     this.initialURL = initialURL;
     appReady = false;
@@ -41,7 +41,7 @@ public class IrmaMobileBridge implements MethodCallHandler, irmagobridge.IrmaMob
       this.debug = (pi.applicationInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
     } catch (GeneralSecurityException | IOException | PackageManager.NameNotFoundException e) {
       this.nativeError = String.format("{\"Exception\":\"%s\",\"Stack\":\"%s\",\"Fatal\":true}", e.toString(),
-          e.getStackTrace());
+        Arrays.toString(e.getStackTrace()));
     }
   }
 
