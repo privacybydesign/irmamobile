@@ -26,7 +26,7 @@ class DisclosureFeedbackScreen extends StatefulWidget {
     required this.feedbackType,
     required this.otherParty,
     required this.onDismiss,
-    bool? isSignatureSession = false,
+    bool? isSignatureSession,
   })  : isSignatureSession = isSignatureSession ?? false,
         _translationKey = _translationKeys[feedbackType];
 
