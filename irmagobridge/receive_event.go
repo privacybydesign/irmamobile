@@ -2,17 +2,14 @@ package irmagobridge
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/go-errors/errors"
 )
 
 // DispatchFromNative receives events from the Android / iOS native side
 func DispatchFromNative(eventName, payloadString string) {
-	defer func() {
-		if e := recover(); e != nil {
-			reportError(errors.New(e), false)
-		}
-	}()
+	defer recoverFromPanic(fmt.Sprintf("Handling %s panicked", eventName))
 
 	payloadBytes := []byte(payloadString)
 	var err error
@@ -79,6 +76,7 @@ func DispatchFromNative(eventName, payloadString string) {
 		}
 	case "UpdateSchemesEvent":
 		go func() {
+			defer recoverFromPanic("Handling UpdateSchemesEvent panicked")
 			err := bridgeEventHandler.updateSchemes()
 			if err != nil {
 				reportError(errors.New(err), false)
