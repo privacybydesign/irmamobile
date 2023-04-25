@@ -254,9 +254,13 @@ class _SessionScreenState extends State<SessionScreen> {
     } else if (Platform.isIOS) {
       // On iOS, show a screen to press the return arrow in the top-left corner.
       return ArrowBack(
-        success: session.status == SessionStatus.success,
-        isIssuanceSession: session.issuedCredentials?.isNotEmpty ?? false,
-        isSignatureSession: session.isSignatureSession,
+        type: session.status != SessionStatus.success
+            ? ArrowBackType.error
+            : session.isSignatureSession ?? false
+                ? ArrowBackType.signature
+                : session.isIssuanceSession
+                    ? ArrowBackType.issuance
+                    : ArrowBackType.disclosure,
       );
     } else {
       // On Android just background the app to let the user return to the previous activity
@@ -273,7 +277,7 @@ class _SessionScreenState extends State<SessionScreen> {
         builder: (BuildContext context, bool displayArrowBack, Widget? child) {
           if (displayArrowBack) {
             return const ArrowBack(
-              success: false,
+              type: ArrowBackType.error,
             );
           }
           return child ?? Container();
