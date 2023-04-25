@@ -31,7 +31,13 @@ end
 
 lane :android_build_irmagobridge do
   Dir.chdir("..") do
-    sh("gomobile", "bind", "-target", "android", "-o", "android/irmagobridge/irmagobridge.aar", "github.com/privacybydesign/irmamobile/irmagobridge")
+    sh(
+      "gomobile", "bind",
+      "-target", "android",
+      "-androidapi", "23",
+      "-o", "android/irmagobridge/irmagobridge.aar",
+      "github.com/privacybydesign/irmamobile/irmagobridge"
+    )
   end
 end
 
@@ -125,7 +131,13 @@ end
 
 lane :ios_build_irmagobridge do
   Dir.chdir("..") do
-    sh("gomobile", "bind", "-target", "ios", "-iosversion", "12.0", "-o", "ios/Runner/Irmagobridge.xcframework", "github.com/privacybydesign/irmamobile/irmagobridge")
+    sh(
+      "gomobile", "bind",
+      "-target", "ios",
+      "-iosversion", "12.0",
+      "-o", "ios/Runner/Irmagobridge.xcframework",
+      "github.com/privacybydesign/irmamobile/irmagobridge"
+    )
   end
 end
 
