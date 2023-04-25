@@ -131,25 +131,19 @@ class PrototypesScreen extends StatelessWidget {
           _buildTile(
             context,
             'Arrow back - Issuance',
-            const ArrowBack(
-              success: true,
-              isIssuanceSession: true,
-            ),
+            const ArrowBack(type: ArrowBackType.issuance),
           ),
           _buildTile(
             context,
             'Arrow back - Signature',
             const ArrowBack(
-              success: true,
-              isSignatureSession: true,
+              type: ArrowBackType.signature,
             ),
           ),
           _buildTile(
             context,
             'Arrow back - Disclosure',
-            const ArrowBack(
-              success: true,
-            ),
+            const ArrowBack(type: ArrowBackType.disclosure),
           ),
           _buildTile(
             context,
