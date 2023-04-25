@@ -36,10 +36,13 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
     this.returnURL,
   });
 
-  Future<void> _showConfirmationDialog(BuildContext context) async {
+  Future<void> _showConfirmationDialog(BuildContext context, bool isSignatureSession) async {
     final confirmed = await showDialog<bool>(
           context: context,
-          builder: (context) => DisclosurePermissionConfirmDialog(requestor: requestor),
+          builder: (context) => DisclosurePermissionConfirmDialog(
+            requestor: requestor,
+            isSignatureSession: isSignatureSession,
+          ),
         ) ??
         false;
 
@@ -109,8 +112,10 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
     final theme = IrmaTheme.of(context);
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
+    final isSignatureSession = state is DisclosurePermissionChoicesOverview && state.isSignatureSession;
+
     if (state is DisclosurePermissionChoicesOverview && state.showConfirmationPopup) {
-      Future.delayed(Duration.zero, () => _showConfirmationDialog(context));
+      Future.delayed(Duration.zero, () => _showConfirmationDialog(context, isSignatureSession));
     }
 
     String contentTranslationKey;
@@ -216,7 +221,9 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
         primaryButtonLabel: state.choicesCanBeValid
             ? (state is DisclosurePermissionPreviouslyAddedCredentialsOverview
                 ? 'disclosure_permission.next_step'
-                : 'disclosure_permission.overview.confirm')
+                : isSignatureSession
+                    ? 'disclosure_permission.overview.confirm_sign'
+                    : 'disclosure_permission.overview.confirm')
             : 'disclosure_permission.close',
         onPrimaryPressed: state.choicesCanBeValid
             ? (state.choicesValid ? () => onEvent(DisclosurePermissionNextPressed()) : null)

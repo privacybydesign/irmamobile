@@ -151,8 +151,10 @@ class _SessionScreenState extends State<SessionScreen> {
     final serverName = session.serverName.name.translate(FlutterI18n.currentLocale(context)!.languageCode);
     final feedbackType =
         session.status == SessionStatus.success ? DisclosureFeedbackType.success : DisclosureFeedbackType.canceled;
+
     return DisclosureFeedbackScreen(
       feedbackType: feedbackType,
+      isSignatureSession: session.isSignatureSession,
       otherParty: serverName,
       onDismiss: popToHome,
     );
@@ -194,6 +196,7 @@ class _SessionScreenState extends State<SessionScreen> {
     } else {
       return DisclosureFeedbackScreen(
         feedbackType: DisclosureFeedbackType.canceled,
+        isSignatureSession: session.isSignatureSession,
         otherParty: serverName,
         onDismiss: popToHome,
       );
@@ -251,8 +254,13 @@ class _SessionScreenState extends State<SessionScreen> {
     } else if (Platform.isIOS) {
       // On iOS, show a screen to press the return arrow in the top-left corner.
       return ArrowBack(
-        success: session.status == SessionStatus.success,
-        amountIssued: session.issuedCredentials?.length ?? 0,
+        type: session.status != SessionStatus.success
+            ? ArrowBackType.error
+            : session.isSignatureSession ?? false
+                ? ArrowBackType.signature
+                : session.isIssuanceSession
+                    ? ArrowBackType.issuance
+                    : ArrowBackType.disclosure,
       );
     } else {
       // On Android just background the app to let the user return to the previous activity
@@ -269,7 +277,7 @@ class _SessionScreenState extends State<SessionScreen> {
         builder: (BuildContext context, bool displayArrowBack, Widget? child) {
           if (displayArrowBack) {
             return const ArrowBack(
-              amountIssued: 0,
+              type: ArrowBackType.error,
             );
           }
           return child ?? Container();
@@ -349,6 +357,7 @@ class _SessionScreenState extends State<SessionScreen> {
               final serverName = session.serverName.name.translate(FlutterI18n.currentLocale(context)!.languageCode);
               return DisclosureFeedbackScreen(
                 feedbackType: DisclosureFeedbackType.notSatisfiable,
+                isSignatureSession: session.isSignatureSession,
                 otherParty: serverName,
                 onDismiss: popToHome,
               );

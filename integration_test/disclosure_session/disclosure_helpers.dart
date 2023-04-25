@@ -38,7 +38,11 @@ Future<void> evaluateIntroduction(WidgetTester tester) async {
   await tester.tapAndSettle(continueButtonFinder);
 }
 
-Future<void> evaluateFeedback(WidgetTester tester, [feedbackType = DisclosureFeedbackType.success]) async {
+Future<void> evaluateFeedback(
+  WidgetTester tester, {
+  feedbackType = DisclosureFeedbackType.success,
+  isSignatureSession = false,
+}) async {
   // Expect the success screen
   final feedbackScreenFinder = find.byType(DisclosureFeedbackScreen);
   expect(feedbackScreenFinder, findsOneWidget);
@@ -57,6 +61,11 @@ Future<void> evaluateFeedback(WidgetTester tester, [feedbackType = DisclosureFee
       ),
       findsOneWidget,
     );
+
+    expect(find.textContaining('You signed the request'), isSignatureSession ? findsOneWidget : findsNothing);
+    expect(find.textContaining('Your data is disclosed'), isSignatureSession ? findsNothing : findsOneWidget);
+  } else if (feedbackType == DisclosureFeedbackType.canceled) {
+    expect(find.text('Canceled'), findsOneWidget);
   }
 
   await tester.tapAndSettle(find.text('OK'));
@@ -65,7 +74,22 @@ Future<void> evaluateFeedback(WidgetTester tester, [feedbackType = DisclosureFee
   expect(find.byType(SessionScreen), findsNothing);
 }
 
-Future<void> evaluateShareDialog(WidgetTester tester) async {
+Future<void> evaluateShareDialog(
+  WidgetTester tester, {
+  isSignatureSession = false,
+}) async {
   expect(find.byType(DisclosurePermissionConfirmDialog), findsOneWidget);
-  await tester.tapAndSettle(find.text('Share'));
+
+  expect(
+      find.textContaining(
+        isSignatureSession ? 'You are about to sign the message' : 'You are about to share data',
+      ),
+      findsOneWidget);
+
+  await tester.tapAndSettle(
+    find.descendant(
+      of: find.byType(DisclosurePermissionConfirmDialog),
+      matching: find.text(isSignatureSession ? 'Sign and share' : 'Share'),
+    ),
+  );
 }
