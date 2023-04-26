@@ -1,17 +1,16 @@
 package foundation.privacybydesign.irmamobile.irma_mobile_bridge;
 
+import android.annotation.TargetApi;
 import android.app.KeyguardManager;
-import android.content.pm.PackageManager;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.security.keystore.KeyGenParameterSpec;
-import android.security.keystore.KeyInfo;
 import android.security.keystore.KeyProperties;
 
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
@@ -24,11 +23,11 @@ import java.security.SignatureException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.spec.ECGenParameterSpec;
-import java.security.spec.InvalidKeySpecException;
 
+@TargetApi(Build.VERSION_CODES.M)
 public class ECDSA implements irmagobridge.Signer {
   private final KeyStore keyStore;
-  private Context context;
+  private final Context context;
 
   public ECDSA(Context context)
     throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
@@ -91,8 +90,10 @@ public class ECDSA implements irmagobridge.Signer {
     // Issue tracker: https://issuetracker.google.com/u/1/issues/191391068
     // spec.setUnlockedDeviceRequired(true);
 
-    if (this.context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_STRONGBOX_KEYSTORE)) {
-      spec.setIsStrongBoxBacked(true);
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+      if (this.context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_STRONGBOX_KEYSTORE)) {
+        spec.setIsStrongBoxBacked(true);
+      }
     }
 
     KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_EC, "AndroidKeyStore");
