@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [7.3.1] - in beta 2023-04-26
 ### Changed
 - Randomize which success graphic is shown
-- Color of browser toolbar in custom tabs on Android is set to white
+- Set color of browser toolbar in custom tabs on Android to white
 - Clarify texts to better distinguish signing sessions from regular disclosure sessions
 
 ### Fixed
