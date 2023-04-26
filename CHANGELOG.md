@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.3.1] - in beta 2023-04-26
+### Changed
+- Randomize which success graphic is shown
+- Set color of browser toolbar in custom tabs on Android to white
+- Clarify texts to better distinguish signing sessions from regular disclosure sessions
+
+### Fixed
+- Scheme update mechanism is not called at every app start-up
+- Anonymous app health information is being collected when error reporting is disabled
+- Text could overflow its UI container on the PIN screen
+- Options menu to delete data is not visible when data is expired or revoked
+- Unsafe irma.SessionError type cast causes panics
+- Exclude superfluous x86 library assets from Android app bundle
+
+### Internal
+- Bump native_device_orientation Flutter dependency to 1.1.4
+- Bump activesupport Ruby dependency to 6.1.7.3
+- Improved stability of entering PIN codes in integration tests
+
 ## [7.3.0] - 2023-04-11 (in beta 2023-04-05)
 ### Added
 - Setting to select app language
@@ -285,6 +304,7 @@ This release only includes iOS changes.
 - Various bug fixes
 
 
+[7.3.1]: https://github.com/privacybydesign/irmamobile/compare/v7.3.0...v7.3.1
 [7.3.0]: https://github.com/privacybydesign/irmamobile/compare/v7.2.0...v7.3.0
 [7.2.0]: https://github.com/privacybydesign/irmamobile/compare/v7.1.0...v7.2.0
 [7.1.0]: https://github.com/privacybydesign/irmamobile/compare/v7.0.1...v7.1.0
