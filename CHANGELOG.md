@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Text could overflow its UI container on the PIN screen
 - Options menu to delete data is not visible when data is expired or revoked
 - Unsafe irma.SessionError type cast causes panics
+- Exclude superfluous x86 library assets from Android app bundle
 
 ### Internal
 - Bump native_device_orientation Flutter dependency to 1.1.4
