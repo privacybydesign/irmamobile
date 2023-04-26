@@ -38,10 +38,6 @@ android {
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
-        ndk {
-            abiFilters "armeabi-v7a", "arm64-v8a", "x86_64"
-        }
     }
 
     flavorDimensions "track"
@@ -69,6 +65,11 @@ android {
 
     buildTypes {
         release {
+            // Flutter does not support building for x86 in release mode.
+            ndk {
+                abiFilters "armeabi-v7a", "arm64-v8a", "x86_64"
+            }
+
             if (project.hasProperty("keyStoreFile")) {
                 signingConfig signingConfigs.release
             } else {
