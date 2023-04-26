@@ -45,6 +45,8 @@ class IntegrationTestIrmaBinding {
     // Ensure the app is not enrolled to its keyshare server yet.
     if (currEnrollmentStatus.enrolledSchemeManagerIds.isNotEmpty) {
       await tearDown();
+      _bridge.dispatch(AppReadyEvent());
+      currEnrollmentStatus = await _expectBridgeEventGuarded<EnrollmentStatusEvent>();
     }
 
     // Ensure test scheme is available.

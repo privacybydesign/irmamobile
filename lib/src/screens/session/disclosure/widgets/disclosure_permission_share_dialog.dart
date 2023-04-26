@@ -6,9 +6,11 @@ import '../../../../widgets/irma_confirmation_dialog.dart';
 
 class DisclosurePermissionConfirmDialog extends StatelessWidget {
   final RequestorInfo requestor;
+  final bool isSignatureSession;
 
   const DisclosurePermissionConfirmDialog({
     required this.requestor,
+    this.isSignatureSession = false,
   });
 
   @override
@@ -16,13 +18,16 @@ class DisclosurePermissionConfirmDialog extends StatelessWidget {
     final lang = FlutterI18n.currentLocale(context)!.languageCode;
 
     return IrmaConfirmationDialog(
-      titleTranslationKey: 'disclosure_permission.confirm_dialog.title',
-      contentTranslationKey: 'disclosure_permission.confirm_dialog.explanation',
+      titleTranslationKey: 'disclosure_permission.confirm_dialog.' + (isSignatureSession ? 'title_signature' : 'title'),
+      contentTranslationKey:
+          'disclosure_permission.confirm_dialog.' + (isSignatureSession ? 'explanation_signature' : 'explanation'),
       contentTranslationParams: {
         'requestorName': requestor.name.translate(lang),
       },
-      confirmTranslationKey: 'disclosure_permission.confirm_dialog.confirm',
-      cancelTranslationKey: 'disclosure_permission.confirm_dialog.decline',
+      confirmTranslationKey:
+          'disclosure_permission.confirm_dialog.' + (isSignatureSession ? 'confirm_signature' : 'confirm'),
+      cancelTranslationKey:
+          'disclosure_permission.confirm_dialog.' + (isSignatureSession ? 'decline_signature' : 'decline'),
     );
   }
 }

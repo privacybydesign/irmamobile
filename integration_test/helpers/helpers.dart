@@ -6,6 +6,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:irmamobile/app.dart';
 
 import 'package:irmamobile/main.dart';
 import 'package:irmamobile/src/data/irma_repository.dart';
@@ -35,15 +36,26 @@ Future<void> enterPin(WidgetTester tester, String pin) async {
       find.byKey(Key('number_pad_key_${digit.toString()}')),
     );
   }
-  await tester.pumpAndSettle(const Duration(seconds: 1));
+  await tester.pumpAndSettle(const Duration(milliseconds: 1500));
+}
+
+Future<void> pumpIrmaApp(WidgetTester tester, IrmaRepository repo, [Locale? defaultLanguage]) async {
+  await tester.pumpWidgetAndSettle(IrmaApp(
+    repository: repo,
+    defaultLanguage: defaultLanguage ?? const Locale('en', 'EN'),
+  ));
+
+  // Wait for the App widget to be build inside of the IrmaApp widget
+  // (There is a builder wrapping the app widget that is used to check the preferred locale)
+  await tester.waitFor(find.descendant(
+    of: find.byType(IrmaApp),
+    matching: find.byType(App),
+  ));
 }
 
 // Pump a new app and unlock it
 Future<void> pumpAndUnlockApp(WidgetTester tester, IrmaRepository repo, [Locale? locale]) async {
-  await tester.pumpWidgetAndSettle(IrmaApp(
-    repository: repo,
-    forcedLocale: locale ?? const Locale('en', 'EN'),
-  ));
+  await pumpIrmaApp(tester, repo, locale);
   await unlock(tester);
 }
 

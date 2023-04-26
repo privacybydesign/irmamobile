@@ -53,7 +53,6 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   StreamSubscription<bool>? _screenshotPrefSubscription;
   bool _qrScannerActive = false;
   bool _privacyScreenLoaded = false;
-  DateTime? lastSchemeUpdate;
 
   // We keep track of the last two life cycle states
   // to be able to determine the flow
@@ -61,20 +60,18 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
 
   AppState();
 
-  static List<LocalizationsDelegate> defaultLocalizationsDelegates([Locale? forcedLocale]) {
-    return [
-      FlutterI18nDelegate(
-        translationLoader: FileTranslationLoader(
-          fallbackFile: 'en',
-          basePath: 'assets/locales',
-          forcedLocale: forcedLocale,
+  static List<LocalizationsDelegate> defaultLocalizationsDelegates([Locale? forcedLocale]) => [
+        FlutterI18nDelegate(
+          translationLoader: FileTranslationLoader(
+            fallbackFile: 'en',
+            basePath: 'assets/locales',
+            forcedLocale: forcedLocale,
+          ),
         ),
-      ),
-      GlobalMaterialLocalizations.delegate,
-      GlobalWidgetsLocalizations.delegate,
-      GlobalCupertinoLocalizations.delegate
-    ];
-  }
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate
+      ];
 
   static List<Locale> defaultSupportedLocales() {
     return const [
@@ -89,6 +86,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     WidgetsBinding.instance?.addObserver(this);
     _listenForDataClear();
     _listenScreenshotPref();
+    _handleUpdateSchemes();
   }
 
   @override
@@ -100,15 +98,22 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     super.dispose();
   }
 
+  Future<void> _handleUpdateSchemes() async {
+    final lastSchemeUpdate = await widget.irmaRepository.preferences.getLastSchemeUpdate().first;
+
+    if (DateTime.now().difference(lastSchemeUpdate).inHours > schemeUpdateIntervalHours) {
+      widget.irmaRepository.preferences.setLastSchemeUpdate(DateTime.now());
+      widget.irmaRepository.bridgedDispatch(UpdateSchemesEvent());
+    }
+  }
+
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
     widget.irmaRepository.dispatch(AppLifecycleChangedEvent(state));
 
-    if (state == AppLifecycleState.resumed &&
-        (lastSchemeUpdate == null ||
-            DateTime.now().difference(lastSchemeUpdate!).inHours > schemeUpdateIntervalHours)) {
-      lastSchemeUpdate = DateTime.now();
-      widget.irmaRepository.bridgedDispatch(UpdateSchemesEvent());
+    // Resumed = when the app regains focus after being inactive or paused in the background
+    if (state == AppLifecycleState.resumed) {
+      _handleUpdateSchemes();
     }
 
     // We check the transition goes from paused -> inactive -> resumed
@@ -385,8 +390,10 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
               key: const Key('app'),
               title: 'Yivi',
               theme: IrmaTheme.of(context).themeData,
-              localizationsDelegates: defaultLocalizationsDelegates(),
-              supportedLocales: widget.forcedLocale == null ? defaultSupportedLocales() : [widget.forcedLocale!],
+              localizationsDelegates: defaultLocalizationsDelegates(
+                widget.forcedLocale,
+              ),
+              supportedLocales: defaultSupportedLocales(),
               navigatorKey: _navigatorKey,
               navigatorObservers: [this],
               onGenerateRoute: Routing.generateRoute,

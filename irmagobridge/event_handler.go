@@ -39,7 +39,7 @@ func (ah *eventHandler) enroll(event *enrollEvent) (err error) {
 }
 
 // Authenticate to the keyshare server to get access to the app
-func (ah *eventHandler) authenticate(event *authenticateEvent) (err error) {
+func (ah *eventHandler) authenticate(event *authenticateEvent) error {
 	enrolled := false
 	for _, schemeID := range client.EnrolledSchemeManagers() {
 		if schemeID == event.SchemeID {
@@ -55,14 +55,23 @@ func (ah *eventHandler) authenticate(event *authenticateEvent) (err error) {
 				Info:      "Can't verify PIN, not enrolled",
 			}},
 		})
-		return
+		return nil
 	}
 
 	go func() {
+		defer recoverFromPanic("Handling authenticate event panicked")
 		success, tries, blocked, err := client.KeyshareVerifyPin(event.Pin, event.SchemeID)
 		if err != nil {
+			serr, ok := err.(*irma.SessionError)
+			if !ok {
+				serr = &irma.SessionError{
+					Err:       err,
+					ErrorType: irma.ErrorType("unknown"),
+					Info:      "Error while verifying PIN",
+				}
+			}
 			dispatchEvent(&authenticationErrorEvent{
-				Error: &sessionError{err.(*irma.SessionError)},
+				Error: &sessionError{serr},
 			})
 		} else if success {
 			dispatchEvent(&authenticationSuccessEvent{})
@@ -113,6 +122,7 @@ func (ah *eventHandler) respondPermission(event *respondPermissionEvent) (err er
 	}
 
 	go func() {
+		defer recoverFromPanic("Handling respondPermission event panicked")
 		disclosureChoice := &irma.DisclosureChoice{Attributes: event.DisclosureChoices}
 		sh.permissionHandler(event.Proceed, disclosureChoice)
 	}()
@@ -130,7 +140,10 @@ func (ah *eventHandler) respondPin(event *respondPinEvent) (err error) {
 		return errors.Errorf("Unset pinHandler in RespondPin")
 	}
 
-	go sh.pinHandler(event.Proceed, event.Pin)
+	go func() {
+		defer recoverFromPanic("Handling respondPin event panicked")
+		sh.pinHandler(event.Proceed, event.Pin)
+	}()
 	return nil
 }
 

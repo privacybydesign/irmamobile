@@ -3,6 +3,7 @@ import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_per
 import 'package:irmamobile/src/screens/session/disclosure/widgets/disclosure_permission_share_dialog.dart';
 import 'package:irmamobile/src/screens/session/session_screen.dart';
 import 'package:irmamobile/src/screens/session/widgets/disclosure_feedback_screen.dart';
+import 'package:irmamobile/src/screens/session/widgets/success_graphic.dart';
 import 'package:irmamobile/src/widgets/irma_app_bar.dart';
 import 'package:irmamobile/src/widgets/yivi_themed_button.dart';
 
@@ -37,7 +38,11 @@ Future<void> evaluateIntroduction(WidgetTester tester) async {
   await tester.tapAndSettle(continueButtonFinder);
 }
 
-Future<void> evaluateFeedback(WidgetTester tester, [feedbackType = DisclosureFeedbackType.success]) async {
+Future<void> evaluateFeedback(
+  WidgetTester tester, {
+  feedbackType = DisclosureFeedbackType.success,
+  isSignatureSession = false,
+}) async {
   // Expect the success screen
   final feedbackScreenFinder = find.byType(DisclosureFeedbackScreen);
   expect(feedbackScreenFinder, findsOneWidget);
@@ -45,13 +50,46 @@ Future<void> evaluateFeedback(WidgetTester tester, [feedbackType = DisclosureFee
     (feedbackScreenFinder.evaluate().single.widget as DisclosureFeedbackScreen).feedbackType,
     feedbackType,
   );
+
+  if (feedbackType == DisclosureFeedbackType.success) {
+    // Expect the SuccessGraphic in the feedback screen
+    final successGraphicFinder = find.byType(SuccessGraphic);
+    expect(
+      find.descendant(
+        of: feedbackScreenFinder,
+        matching: successGraphicFinder,
+      ),
+      findsOneWidget,
+    );
+
+    expect(find.textContaining('You signed the request'), isSignatureSession ? findsOneWidget : findsNothing);
+    expect(find.textContaining('Your data is disclosed'), isSignatureSession ? findsNothing : findsOneWidget);
+  } else if (feedbackType == DisclosureFeedbackType.canceled) {
+    expect(find.text('Canceled'), findsOneWidget);
+  }
+
   await tester.tapAndSettle(find.text('OK'));
 
   // Session flow should be over now
   expect(find.byType(SessionScreen), findsNothing);
 }
 
-Future<void> evaluateShareDialog(WidgetTester tester) async {
+Future<void> evaluateShareDialog(
+  WidgetTester tester, {
+  isSignatureSession = false,
+}) async {
   expect(find.byType(DisclosurePermissionConfirmDialog), findsOneWidget);
-  await tester.tapAndSettle(find.text('Share'));
+
+  expect(
+      find.textContaining(
+        isSignatureSession ? 'You are about to sign the message' : 'You are about to share data',
+      ),
+      findsOneWidget);
+
+  await tester.tapAndSettle(
+    find.descendant(
+      of: find.byType(DisclosurePermissionConfirmDialog),
+      matching: find.text(isSignatureSession ? 'Sign and share' : 'Share'),
+    ),
+  );
 }

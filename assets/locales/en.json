@@ -39,6 +39,7 @@
     "no_success": "Cancelled",
     "disclosure_success": "Success, your data has been shared",
     "issuance_success": "Success, the data has been added",
+    "signature_success": "Success, the message has been signed",
     "safari": "Tap on the name of the application (such as Safari, Chrome, Firefox) in the top left corner to return to the previous application."
   },
   "change_pin": {
@@ -150,12 +151,15 @@
       "header": {
         "success": "Success",
         "canceled": "Cancelled",
-        "notSatisfiable": "Cancelled"
+        "not_satisfiable": "Cancelled"
       },
       "text": {
         "success": "Your data is disclosed to {otherParty}",
+        "success_signature": "You signed the request of {otherParty}",
         "canceled": "Your data has not been disclosed to {otherParty}",
-        "notSatisfiable": "Your data is not disclosed because {otherParty} requests outdated data. There is nothing you can do to remedy this. Please get in touch with the requesting party."
+        "canceled_signature": "You did not sign the request of {otherParty}",
+        "not_satisfiable": "Your data is not disclosed because {otherParty} requests outdated data. There is nothing you can do to remedy this. Please get in touch with the requesting party.",
+        "not_satisfiable_signature": "{otherParty} is requesting you to sign with outdated data. There is nothing you can do to remedy this. Please get in touch with the requesting party."
       }
     }
   },
@@ -188,15 +192,20 @@
     },
     "overview": {
       "title": "Share my data",
+      "sign": "This is the message you're signing:",
       "explanation": "Share my data with {requestorName}",
       "confirm": "Share data",
-      "sign": "This is the message you're signing:"
+      "confirm_sign": "Sign and share"
     },
     "confirm_dialog": {
       "title": "Share data",
+      "title_signature": "Sign and share data",
       "explanation": "You are about to share data with {requestorName}. Tap 'Share' to continue",
+      "explanation_signature": "You are about to sign the message of {requestorName}. Tap 'Sign and share' to continue",
       "confirm": "Share",
-      "decline": "Don't share"
+      "confirm_signature": "Sign and share",
+      "decline": "Don't share",
+      "decline_signature": "Don't sign"
     },
     "confirm_close_dialog": {
       "title": "Cancel data sharing",
@@ -408,9 +417,9 @@
     "stay_informed": "Stay informed and join the conversation",
     "slogan": "Everyone deserves privacy",
     "meetups": "Yivi meetups",
-    "meetups_link": "https://privacybydesign.foundation/meetings/",
-    "twitter": "@irma_privacy",
-    "twitter_link": "https://twitter.com/irma_privacy",
+    "meetups_link": "https://www.yivi.app/en/yivi-meetups",
+    "twitter": "@YiviApp",
+    "twitter_link": "https://twitter.com/yiviapp",
     "github": "GitHub",
     "github_link": "https://github.com/privacybydesign",
     "version": "Version {version}",
@@ -544,6 +553,8 @@
     "enable_screenshots_explanation": "When enabled, the app will not be blurred in the app switcher.",
     "developer_mode": "Developer mode",
     "other": "Other",
+    "language": "Language",
+    "use_system_language": "Use system language",
     "change_pin": "Change PIN",
     "delete": "Delete data",
     "confirm_delete_dialog": {

@@ -12,12 +12,13 @@ class DisclosureFeedbackScreen extends StatefulWidget {
   static const _translationKeys = {
     DisclosureFeedbackType.success: 'success',
     DisclosureFeedbackType.canceled: 'canceled',
-    DisclosureFeedbackType.notSatisfiable: 'notSatisfiable',
+    DisclosureFeedbackType.notSatisfiable: 'not_satisfiable',
   };
 
   final DisclosureFeedbackType feedbackType;
   final String otherParty;
   final Function(BuildContext) onDismiss;
+  final bool isSignatureSession;
 
   final String? _translationKey;
 
@@ -25,7 +26,9 @@ class DisclosureFeedbackScreen extends StatefulWidget {
     required this.feedbackType,
     required this.otherParty,
     required this.onDismiss,
-  }) : _translationKey = _translationKeys[feedbackType];
+    bool? isSignatureSession,
+  })  : isSignatureSession = isSignatureSession ?? false,
+        _translationKey = _translationKeys[feedbackType];
 
   @override
   State<StatefulWidget> createState() {
@@ -54,7 +57,8 @@ class DisclosureFeedbackScreenState extends State<DisclosureFeedbackScreen> with
       success: widget.feedbackType == DisclosureFeedbackType.success,
       titleTranslationKey: 'disclosure.feedback.header.${widget._translationKey}',
       titleTranslationParams: otherPartyTranslationParam,
-      explanationTranslationKey: 'disclosure.feedback.text.${widget._translationKey}',
+      explanationTranslationKey:
+          'disclosure.feedback.text.${widget._translationKey}${widget.isSignatureSession ? '_signature' : ''}',
       explanationTranslationParams: otherPartyTranslationParam,
       onDismiss: () => widget.onDismiss(context),
     );

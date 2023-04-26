@@ -39,6 +39,7 @@
     "no_success": "Afgebroken",
     "disclosure_success": "Gelukt, je gegevens zijn gedeeld",
     "issuance_success": "Gelukt, de gegevens zijn toegevoegd",
+    "signature_success": "Gelukt, je hebt het bericht getekend",
     "safari": "Tik bovenin op de naam van het programma (bijvoorbeeld Safari, Chrome, Firefox) om terug te gaan naar het programma waar je mee bezig was."
   },
   "change_pin": {
@@ -150,12 +151,15 @@
       "header": {
         "success": "Gelukt",
         "canceled": "Afgebroken",
-        "notSatisfiable": "Afgebroken"
+        "not_satisfiable": "Afgebroken"
       },
       "text": {
         "success": "Je gegevens zijn doorgegeven aan {otherParty}",
+        "success_signature": "Je hebt het bericht van {otherParty} ondertekend",
         "canceled": "Je gegevens zijn niet doorgegeven aan {otherParty}",
-        "notSatisfiable": "Je gegevens zijn niet doorgegeven, omdat {otherParty} de verkeerde gegevens vraagt. Je kunt hier zelf niets aan doen. Neem contact op met de betreffende partij."
+        "canceled_signature": "Je hebt het bericht van {otherParty} niet ondertekend",
+        "not_satisfiable": "Je gegevens zijn niet doorgegeven, omdat {otherParty} de verkeerde gegevens vraagt. Je kunt hier zelf niets aan doen. Neem contact op met de betreffende partij.",
+        "not_satisfiable_signature": "Je hebt het bericht niet ondertekend, omdat {otherParty} de verkeerde gegevens vraagt. Je kunt hier zelf niets aan doen. Neem contact op met de betreffende partij."
       }
     }
   },
@@ -188,15 +192,20 @@
     },
     "overview": {
       "title": "Deel mijn gegevens",
+      "sign": "Dit bericht ga je ondertekenen:",
       "explanation": "Deel mijn gegevens met {requestorName}",
       "confirm": "Gegevens delen",
-      "sign": "Dit bericht ga je ondertekenen:"
+      "confirm_sign": "Ondertekenen en deel"
     },
     "confirm_dialog": {
       "title": "Gegevens delen",
+      "title_signature": "Ondertekenen en data delen",
       "explanation": "Je staat op het punt om gegevens te delen met {requestorName}. Klik op 'Delen' om verder te gaan.",
+      "explanation_signature": "Je staat op het punt om het bericht van {requestorName} te tekenen met je data. Klik op 'Ondertekenen en delen' om verder te gaan.",
       "confirm": "Delen",
-      "decline": "Niet delen"
+      "confirm_signature": "Ondertekenen en delen",
+      "decline": "Niet delen",
+      "decline_signature": "Niet ondertekenen"
     },
     "confirm_close_dialog": {
       "title": "Gegevens delen stoppen",
@@ -408,9 +417,9 @@
     "stay_informed": "Blijf op de hoogte en praat mee",
     "slogan": "Iedereen heeft recht op privacy",
     "meetups": "Yivi-meetups",
-    "meetups_link": "https://privacybydesign.foundation/meetings/",
-    "twitter": "@irma_privacy",
-    "twitter_link": "https://twitter.com/irma_privacy",
+    "meetups_link": "https://www.yivi.app/yivi-meetups",
+    "twitter": "@YiviApp",
+    "twitter_link": "https://twitter.com/yiviapp",
     "github": "GitHub",
     "github_link": "https://github.com/privacybydesign",
     "version": "Versie {version}",
@@ -470,7 +479,7 @@
     "hide": "Pincode verbergen"
   },
   "qr_scanner": {
-    "title" : "QR Code Scannen",
+    "title": "QR Code Scannen",
     "instruction": {
       "title": "Begin met scannen",
       "message": "Richt je mobiel op een Yivi QR-code",
@@ -544,6 +553,8 @@
     "enable_screenshots_explanation": "Als dit is ingeschakeld, wordt de app niet vervaagd in de app-switcher.",
     "developer_mode": "Developer modus",
     "other": "Overig",
+    "language": "Taal",
+    "use_system_language": "Gebruik systeemtaal",
     "change_pin": "Pincode veranderen",
     "delete": "Verwijder gegevens",
     "confirm_delete_dialog": {
