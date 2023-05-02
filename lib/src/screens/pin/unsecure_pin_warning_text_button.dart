@@ -20,7 +20,7 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
             children: [
               Text(
                 FlutterI18n.translate(context, 'secure_pin.title'),
-                style: theme.textTheme.headline3?.copyWith(
+                style: theme.textTheme.displaySmall?.copyWith(
                   fontWeight: FontWeight.w700,
                   color: Colors.black,
                 ),
@@ -56,7 +56,7 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
         alignment: Alignment.centerLeft,
         child: Text(
           FlutterI18n.translate(context, 'secure_pin.subtitle'),
-          style: theme.textTheme.bodyText2,
+          style: theme.textTheme.bodyMedium,
         ),
       ),
       SizedBox(height: theme.screenPadding),
@@ -102,7 +102,7 @@ class _UnsecurePinWarningTextButton extends StatelessWidget {
               children: [
                 Text(
                   FlutterI18n.translate(context, 'secure_pin.info_button'),
-                  style: theme.textTheme.caption?.copyWith(color: theme.warning, fontWeight: FontWeight.w700),
+                  style: theme.textTheme.bodySmall?.copyWith(color: theme.warning, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(width: 2.0),
                 Icon(

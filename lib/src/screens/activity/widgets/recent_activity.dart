@@ -83,7 +83,7 @@ class _RecentActivityState extends State<RecentActivity> {
                     header: true,
                     child: TranslatedText(
                       'home_tab.recent_activity',
-                      style: theme.textTheme.headline4,
+                      style: theme.textTheme.headlineMedium,
                     ),
                   ),
                 ),

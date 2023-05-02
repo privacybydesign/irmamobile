@@ -38,7 +38,7 @@ class IrmaTextButton extends StatelessWidget {
       ),
       child: Text(
         label != null ? FlutterI18n.translate(context, label!) : '',
-        style: textStyle ?? theme.textTheme.button!.copyWith(color: theme.secondary),
+        style: textStyle ?? theme.textTheme.labelLarge!.copyWith(color: theme.secondary),
         textAlign: TextAlign.center,
       ),
     );

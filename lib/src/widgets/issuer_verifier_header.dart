@@ -56,7 +56,7 @@ class IssuerVerifierHeader extends StatelessWidget {
             child: Text(
               title,
               style: titleTextStyle ??
-                  theme.textTheme.bodyText1!.copyWith(
+                  theme.textTheme.bodyLarge!.copyWith(
                     color: textColor ?? theme.neutralExtraDark,
                   ),
             ),

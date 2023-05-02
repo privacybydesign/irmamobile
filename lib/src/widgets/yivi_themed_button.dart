@@ -107,7 +107,7 @@ class YiviThemedButton extends StatelessWidget {
       buttonWidth = size.value * 4;
     }
 
-    TextStyle baseTextStyle = theme.textTheme.button!;
+    TextStyle baseTextStyle = theme.textTheme.labelLarge!;
     if (size == YiviButtonSize.small) {
       baseTextStyle = baseTextStyle.copyWith(
         fontFamily: theme.secondaryFontFamily,

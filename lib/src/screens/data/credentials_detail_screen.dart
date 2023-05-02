@@ -72,7 +72,7 @@ class _CredentialsDetailScreenState extends State<CredentialsDetailScreen> {
       SnackBar(
         content: TranslatedText(
           'credential.options.delete_success',
-          style: theme.themeData.textTheme.bodyText2!.copyWith(
+          style: theme.themeData.textTheme.bodyMedium!.copyWith(
             color: theme.light,
           ),
         ),

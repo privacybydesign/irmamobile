@@ -43,7 +43,7 @@ class AcceptTermsScreen extends StatelessWidget {
                         SizedBox(height: theme.mediumSpacing),
                         TranslatedText(
                           'enrollment.terms_and_conditions.title',
-                          style: theme.textTheme.headline1,
+                          style: theme.textTheme.displayLarge,
                           textAlign: TextAlign.start,
                         ),
                         SizedBox(height: theme.mediumSpacing),

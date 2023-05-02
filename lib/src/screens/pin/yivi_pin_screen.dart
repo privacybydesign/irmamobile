@@ -166,7 +166,7 @@ class YiviPinScreen extends StatelessWidget {
       child: Text(
         instruction ?? FlutterI18n.translate(context, instructionKey!),
         textAlign: TextAlign.center,
-        style: theme.textTheme.headline3,
+        style: theme.textTheme.displaySmall,
       ),
     );
 
@@ -212,7 +212,7 @@ class YiviPinScreen extends StatelessWidget {
                       bloc: pinBloc,
                       builder: (context, state) => Text(
                         '${state.pin.length}/$maxPinSize',
-                        style: theme.textTheme.caption?.copyWith(
+                        style: theme.textTheme.bodySmall?.copyWith(
                             fontWeight: FontWeight.w300,
                             color: state.pin.isNotEmpty ? theme.secondary : Colors.transparent),
                       ),

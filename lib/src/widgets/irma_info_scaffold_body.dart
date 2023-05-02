@@ -81,7 +81,7 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
             TranslatedText(
               titleTranslationKey,
               translationParams: titleTranslationParams,
-              style: theme.textTheme.headline1,
+              style: theme.textTheme.displayLarge,
               textAlign: TextAlign.center,
             ),
             if (bodyTranslationKey != null) ...[
@@ -89,7 +89,7 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
               TranslatedText(
                 bodyTranslationKey!,
                 translationParams: bodyTranslationParams,
-                style: theme.textTheme.bodyText2,
+                style: theme.textTheme.bodyMedium,
                 textAlign: TextAlign.center,
               ),
             ],
@@ -102,7 +102,7 @@ class IrmaInfoScaffoldBody extends StatelessWidget {
                 },
                 child: TranslatedText(
                   linkTranslationKey!,
-                  style: theme.textTheme.bodyText2?.copyWith(
+                  style: theme.textTheme.bodyMedium?.copyWith(
                     decoration: TextDecoration.underline,
                     color: theme.link,
                   ),

@@ -68,7 +68,7 @@ class IrmaDialog extends StatelessWidget {
                                   child: Text(
                                     title,
                                     key: const Key('irma_dialog_title'),
-                                    style: theme.textTheme.headline3,
+                                    style: theme.textTheme.displaySmall,
                                     textAlign: TextAlign.center,
                                   ),
                                 ),
@@ -76,7 +76,7 @@ class IrmaDialog extends StatelessWidget {
                                 Text(
                                   content,
                                   key: const Key('irma_dialog_content'),
-                                  style: theme.textTheme.bodyText2,
+                                  style: theme.textTheme.bodyMedium,
                                   textAlign: TextAlign.center,
                                 ),
                                 if (image != null) ...[

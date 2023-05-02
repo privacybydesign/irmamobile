@@ -86,101 +86,85 @@ class IrmaThemeData {
 
     //Init Text theme
     textTheme = TextTheme(
-      headline1: TextStyle(
+      displayLarge: TextStyle(
         fontFamily: primaryFontFamily,
         fontSize: 26,
         height: 36 / 26,
         fontWeight: FontWeight.w700,
         color: neutralExtraDark,
       ),
-      headline2: TextStyle(
+      displayMedium: TextStyle(
         fontFamily: primaryFontFamily,
         fontSize: 24,
         height: 30 / 24,
         fontWeight: FontWeight.w700,
         color: neutralExtraDark,
       ),
-      // headline3 is used for very large text
-      headline3: TextStyle(
+      displaySmall: TextStyle(
         fontFamily: primaryFontFamily,
         fontSize: 18,
         height: 36 / 18,
         fontWeight: FontWeight.w600,
         color: neutralExtraDark,
       ),
-      // headline4 is used for large text
-      headline4: TextStyle(
+      headlineMedium: TextStyle(
         fontFamily: primaryFontFamily,
         fontSize: 16.0,
         height: 24 / 16,
         fontWeight: FontWeight.w600,
         color: neutralExtraDark,
       ),
-      // headline5 is used for large text in dialogs
-      headline5: TextStyle(
+      headlineSmall: TextStyle(
         fontFamily: primaryFontFamily,
         fontSize: 16.0,
         height: 24 / 16,
         fontWeight: FontWeight.w400,
         color: neutralExtraDark,
       ),
-      // headline6 is used for the primary text in app bars and dialogs
-      headline6: TextStyle(
+      titleLarge: TextStyle(
         fontSize: 10,
         height: 16 / 10,
         fontWeight: FontWeight.w500,
         color: neutralExtraDark,
       ),
-      // bodyText1 is used for emphasizing text
-      bodyText1: TextStyle(
+      bodyLarge: TextStyle(
         fontFamily: secondaryFontFamily,
         fontSize: 16.0,
         fontWeight: FontWeight.bold,
         color: dark,
       ),
-      // bodyText2 is the default text style
-      bodyText2: TextStyle(
+      bodyMedium: TextStyle(
         fontFamily: secondaryFontFamily,
         fontSize: 16.0,
         height: 24.0 / 16.0,
         fontWeight: FontWeight.w400,
         color: dark,
       ),
-      // overline is used for the smallest text
-      overline: TextStyle(
+      labelSmall: TextStyle(
         fontSize: 12.0,
         height: 16.0 / 12.0,
         fontWeight: FontWeight.w600,
         color: dark,
       ),
-
-      // subtitle1 is used for the primary text in lists
-      // also used in textfield inputs' text style
-      subtitle1: TextStyle(
+      titleMedium: TextStyle(
         fontSize: 16.0,
         height: 22.0 / 18.0,
         fontWeight: FontWeight.normal,
         color: dark,
       ),
-
-      // subtitle2 is used for medium emphasis text that's a little smaller than subhead.
-      subtitle2: TextStyle(
+      titleSmall: TextStyle(
         fontSize: 16.0,
         height: 22.0 / 16.0,
         fontWeight: FontWeight.w500,
         color: dark,
       ),
-
-      // caption is used for auxiliary text associated with images
-      caption: TextStyle(
+      bodySmall: TextStyle(
         fontSize: 14.0,
         height: 24.0 / 14.0,
         fontWeight: FontWeight.normal,
         color: dark,
       ),
-
-      // button is used for text on CustomButton, ElevatedButton and TextButton
-      button: TextStyle(
+      labelLarge: TextStyle(
         fontFamily: primaryFontFamily,
         fontSize: 16,
         height: 24 / 16,
@@ -191,7 +175,7 @@ class IrmaThemeData {
 
     //Init Input Decoration Theme
     final inputDecorationTheme = InputDecorationTheme(
-      labelStyle: textTheme.overline,
+      labelStyle: textTheme.labelSmall,
       enabledBorder: const UnderlineInputBorder(
         borderSide: BorderSide(
           color: Colors.grey,
@@ -214,7 +198,7 @@ class IrmaThemeData {
           color: Colors.grey,
         ),
       ),
-      errorStyle: textTheme.bodyText2?.copyWith(color: error),
+      errorStyle: textTheme.bodyMedium?.copyWith(color: error),
     );
 
     //Init App Bar Theme
@@ -224,8 +208,8 @@ class IrmaThemeData {
       iconTheme: IconThemeData(
         color: dark,
       ),
-      toolbarTextStyle: textTheme.bodyText2,
-      titleTextStyle: textTheme.headline6,
+      toolbarTextStyle: textTheme.bodyMedium,
+      titleTextStyle: textTheme.titleLarge,
     );
 
     //Init extra textstyles

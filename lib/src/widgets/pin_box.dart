@@ -50,7 +50,7 @@ class PinBox extends StatelessWidget {
           color: disabled ? Colors.grey : Colors.white),
       child: Text(
         char,
-        style: Theme.of(context).textTheme.headline3?.copyWith(
+        style: Theme.of(context).textTheme.displaySmall?.copyWith(
               fontSize: height / 2 + 4,
               height: 22.0 / 18.0,
               color: completed ? theme.secondary : Colors.grey,

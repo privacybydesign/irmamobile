@@ -61,7 +61,7 @@ class IrmaThemedButton extends StatelessWidget {
 
     final textWidget = Text(
       FlutterI18n.translate(context, label),
-      style: textStyle ?? IrmaTheme.of(context).textTheme.button!.copyWith(color: textColor),
+      style: textStyle ?? IrmaTheme.of(context).textTheme.labelLarge!.copyWith(color: textColor),
     );
 
     final fixedHeight = size != null ? size!.value : IrmaButtonSize.medium.value;

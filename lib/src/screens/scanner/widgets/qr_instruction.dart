@@ -51,7 +51,7 @@ class QRInstruction extends StatelessWidget {
           children: [
             TranslatedText(
               'qr_scanner.$screen.title',
-              style: theme.textTheme.headline3?.copyWith(
+              style: theme.textTheme.displaySmall?.copyWith(
                 color: textColor,
               ),
               textAlign: TextAlign.center,
@@ -59,7 +59,7 @@ class QRInstruction extends StatelessWidget {
             Flexible(
               child: TranslatedText(
                 'qr_scanner.$screen.message',
-                style: theme.textTheme.bodyText2?.copyWith(
+                style: theme.textTheme.bodyMedium?.copyWith(
                   height: 1.5,
                   color: textColor,
                 ),
