@@ -38,7 +38,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
 
     if (widget.initialEvent != null) {
       _pinBloc.add(widget.initialEvent!);
@@ -92,7 +92,7 @@ class _PinScreenState extends State<PinScreen> with WidgetsBindingObserver {
   @override
   void dispose() {
     _pinBloc.close();
-    WidgetsBinding.instance?.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 

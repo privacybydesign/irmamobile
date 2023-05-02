@@ -115,7 +115,7 @@ class _CredentialsDetailScreenState extends State<CredentialsDetailScreen> {
                   .toList();
 
               if (filteredCredentials.isEmpty) {
-                WidgetsBinding.instance?.addPostFrameCallback((_) => Navigator.pop(context));
+                WidgetsBinding.instance.addPostFrameCallback((_) => Navigator.pop(context));
                 return Container();
               }
 
