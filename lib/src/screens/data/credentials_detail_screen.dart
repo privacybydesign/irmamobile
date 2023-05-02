@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import '../../models/credential_events.dart';
 import '../../models/credentials.dart';
 import '../../theme/theme.dart';
-import '../../util/language.dart';
 import '../../widgets/credential_card/delete_credential_confirmation_dialog.dart';
 import '../../widgets/credential_card/irma_credential_card.dart';
 import '../../widgets/credential_card/irma_credential_card_options_bottom_sheet.dart';
