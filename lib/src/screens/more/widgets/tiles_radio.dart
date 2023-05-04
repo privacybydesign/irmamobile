@@ -26,6 +26,7 @@ class _RadioTilesCardState extends State<RadioTilesCard> {
 
   @override
   void initState() {
+    super.initState();
     if (widget.defaultSelectedIndex != null) {
       _selectedIndex = widget.defaultSelectedIndex!;
     }
@@ -33,7 +34,6 @@ class _RadioTilesCardState extends State<RadioTilesCard> {
 
   _onChangeOptions(int index) {
     setState(() => _selectedIndex = index);
-    final selectedOptions = widget.options[_selectedIndex];
     widget.onChanged(_selectedIndex);
   }
 
