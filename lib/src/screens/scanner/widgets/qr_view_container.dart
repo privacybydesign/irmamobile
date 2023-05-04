@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -23,13 +22,6 @@ class _QRViewContainerState extends State<QRViewContainer> {
   @override
   void dispose() {
     _qrViewSubscription.cancel();
-    // Due to an issue in the qr code scanner library, the camera is not always
-    // disabled properly on iOS. Therefore we pause it manually for now.
-    // https://github.com/juliuscanute/qr_code_scanner/issues/137
-    // TODO: Is this still necessary? (check CHANGELOG qr_code_scanner 0.0.14)
-    if (Platform.isIOS) {
-      _qrViewController.pauseCamera();
-    }
     _qrViewController.dispose();
     super.dispose();
   }
