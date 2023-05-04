@@ -62,7 +62,7 @@ class IrmaCredentialTypeCard extends StatelessWidget {
               children: [
                 Text(
                   getTranslation(context, credType.name),
-                  style: theme.textTheme.headline4!.copyWith(
+                  style: theme.textTheme.headlineMedium!.copyWith(
                     color: theme.dark,
                   ),
                 ),
@@ -74,7 +74,7 @@ class IrmaCredentialTypeCard extends StatelessWidget {
                     context,
                     repo.irmaConfiguration.issuers[credType.fullIssuerId]!.name,
                   ),
-                  style: theme.textTheme.bodyText2!.copyWith(
+                  style: theme.textTheme.bodyMedium!.copyWith(
                     fontSize: 14,
                   ),
                 ),

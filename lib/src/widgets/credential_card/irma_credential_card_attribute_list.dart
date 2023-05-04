@@ -33,7 +33,7 @@ class IrmaCredentialCardAttributeList extends StatelessWidget {
 
     Text buildLabel(Attribute a) => Text(
           a.attributeType.name.translate(lang),
-          style: theme.themeData.textTheme.bodyText2,
+          style: theme.themeData.textTheme.bodyMedium,
         );
 
     TranslatedText buildTextContent(Attribute attribute, TextValue attrValue) {
@@ -41,7 +41,7 @@ class IrmaCredentialCardAttributeList extends StatelessWidget {
           compareTo?.firstWhereOrNull((e) => e.attributeType.fullId == attribute.attributeType.fullId);
       return TranslatedText(
         attrValue.translated.translate(lang),
-        style: theme.themeData.textTheme.bodyText1!.copyWith(
+        style: theme.themeData.textTheme.bodyLarge!.copyWith(
           color: compareValue == null || compareValue.value is NullValue
               ? theme.dark
               : attribute.value.raw == compareValue.value.raw

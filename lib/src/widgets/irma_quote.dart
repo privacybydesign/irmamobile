@@ -42,7 +42,7 @@ class IrmaQuote extends StatelessWidget {
                     styleSheet: MarkdownStyleSheet.fromTheme(
                       ThemeData(
                         textTheme: TextTheme(
-                          bodyText2: theme.textTheme.bodyText2!.copyWith(
+                          bodyMedium: theme.textTheme.bodyMedium!.copyWith(
                             fontSize: 14,
                             fontWeight: FontWeight.normal,
                           ),

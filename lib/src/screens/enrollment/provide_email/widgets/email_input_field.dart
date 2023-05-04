@@ -15,7 +15,7 @@ class EmailInputField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final baseTextStyle = theme.textTheme.bodyText2;
+    final baseTextStyle = theme.textTheme.bodyMedium;
 
     return TextFormField(
       key: const Key('email_input_field'),

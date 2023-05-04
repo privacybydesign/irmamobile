@@ -18,7 +18,7 @@ class Heading extends StatelessWidget {
       header: true,
       child: Text(
         title,
-        style: style ?? Theme.of(context).textTheme.headline3,
+        style: style ?? Theme.of(context).textTheme.displaySmall,
         textAlign: textAlign ?? TextAlign.left,
       ),
     );

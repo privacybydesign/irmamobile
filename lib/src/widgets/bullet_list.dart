@@ -15,7 +15,7 @@ class BulletList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
-    final textStyle = theme.textTheme.bodyText1;
+    final textStyle = theme.textTheme.bodyLarge;
 
     return Column(
       children: translationKeys

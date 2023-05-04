@@ -335,7 +335,7 @@ class _SessionScreenState extends State<SessionScreen> {
 
         // Prevent stealing focus from pin screen in case app is locked
         final locked = snapshot.data!.a;
-        Navigator.of(context).focusScopeNode.canRequestFocus = !locked;
+        Navigator.of(context).focusNode.enclosingScope?.canRequestFocus = !locked;
 
         final session = snapshot.data!.b;
 

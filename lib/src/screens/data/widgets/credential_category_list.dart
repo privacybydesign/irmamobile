@@ -31,7 +31,7 @@ class CredentialCategoryList extends StatelessWidget {
           header: true,
           child: Text(
             categoryName,
-            style: theme.textTheme.headline4,
+            style: theme.textTheme.headlineMedium,
           ),
         ),
         SizedBox(height: theme.smallSpacing),

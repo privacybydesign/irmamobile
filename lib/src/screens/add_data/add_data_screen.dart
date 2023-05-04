@@ -46,7 +46,7 @@ class AddDataScreen extends StatelessWidget {
             children: [
               TranslatedText(
                 'data.add.choose',
-                style: theme.textTheme.bodyText2,
+                style: theme.textTheme.bodyMedium,
               ),
               SizedBox(
                 height: theme.defaultSpacing,

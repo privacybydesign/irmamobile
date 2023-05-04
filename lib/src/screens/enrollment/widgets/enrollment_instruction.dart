@@ -47,7 +47,7 @@ class EnrollmentInstruction extends StatelessWidget {
               ),
               TranslatedText(
                 titleTranslationKey,
-                style: theme.textTheme.headline1,
+                style: theme.textTheme.displayLarge,
               ),
               SizedBox(
                 height: theme.defaultSpacing,
