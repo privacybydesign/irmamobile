@@ -196,7 +196,7 @@ class IrmaRepository {
         final pointer = Pointer.fromString(event.url);
         _pendingPointerSubject.add(pointer);
         _resumedWithURLSubject.add(true);
-        closeWebView();
+        closeInAppWebView();
       } on MissingPointer {
         // pass
       }
