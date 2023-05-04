@@ -12,7 +12,7 @@ class QRInstruction extends StatelessWidget {
 
   const QRInstruction({
     required this.found,
-    required final this.error,
+    required this.error,
   });
 
   @override
