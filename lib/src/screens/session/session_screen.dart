@@ -128,7 +128,7 @@ class _SessionScreenState extends State<SessionScreen> {
   }
 
   Widget _buildDismissed(SessionState session) {
-    WidgetsBinding.instance?.addPostFrameCallback((_) => Navigator.of(context).pop());
+    WidgetsBinding.instance.addPostFrameCallback((_) => Navigator.of(context).pop());
     return _buildLoadingScreen(session.isIssuanceSession);
   }
 
@@ -189,7 +189,7 @@ class _SessionScreenState extends State<SessionScreen> {
         onCancel: () => popToHome(context),
       );
     } else if (session.isIssuanceSession) {
-      WidgetsBinding.instance?.addPostFrameCallback((_) => popToHome(context));
+      WidgetsBinding.instance.addPostFrameCallback((_) => popToHome(context));
       return _buildLoadingScreen(true);
     } else if (session.dismissed) {
       return _buildDismissed(session);
@@ -207,7 +207,7 @@ class _SessionScreenState extends State<SessionScreen> {
     // In case of issuance during disclosure, another session is open in a screen lower in the stack.
     // Ignore clientReturnUrl in this case (issuance) and pop immediately.
     if (session.isIssuanceSession && widget.arguments.hasUnderlyingSession) {
-      WidgetsBinding.instance?.addPostFrameCallback((_) => Navigator.of(context).pop());
+      WidgetsBinding.instance.addPostFrameCallback((_) => Navigator.of(context).pop());
       return _buildLoadingScreen(true);
     }
 
@@ -229,7 +229,7 @@ class _SessionScreenState extends State<SessionScreen> {
     // It concerns a mobile session.
     if (session.clientReturnURL != null && !issuedWizardCred) {
       // If there is a return URL, navigate to it when we're done.
-      WidgetsBinding.instance?.addPostFrameCallback((_) async {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
         // When being in a disclosure, we can continue to underlying sessions in this case;
         // hasUnderlyingSession during issuance is handled at the beginning of _buildFinished, so
         // we don't have to explicitly exclude issuance here.
@@ -244,13 +244,13 @@ class _SessionScreenState extends State<SessionScreen> {
       });
     } else if (widget.arguments.wizardActive || session.didIssuePreviouslyLaunchedCredential) {
       // If the wizard is active or this concerns a combined session, pop accordingly.
-      WidgetsBinding.instance?.addPostFrameCallback(
+      WidgetsBinding.instance.addPostFrameCallback(
         (_) => widget.arguments.wizardActive ? popToWizard(context) : Navigator.of(context).pop(),
       );
     } else if (widget.arguments.hasUnderlyingSession) {
       // In case of a disclosure having an underlying session we only continue to underlying session
       // if it is a mobile session and there was no clientReturnUrl.
-      WidgetsBinding.instance?.addPostFrameCallback((_) => Navigator.of(context).pop());
+      WidgetsBinding.instance.addPostFrameCallback((_) => Navigator.of(context).pop());
     } else if (Platform.isIOS) {
       // On iOS, show a screen to press the return arrow in the top-left corner.
       return ArrowBack(
@@ -264,7 +264,7 @@ class _SessionScreenState extends State<SessionScreen> {
       );
     } else {
       // On Android just background the app to let the user return to the previous activity
-      WidgetsBinding.instance?.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         _repo.bridgedDispatch(AndroidSendToBackgroundEvent());
         popToHome(context);
       });
@@ -335,7 +335,7 @@ class _SessionScreenState extends State<SessionScreen> {
 
         // Prevent stealing focus from pin screen in case app is locked
         final locked = snapshot.data!.a;
-        Navigator.of(context).focusScopeNode.canRequestFocus = !locked;
+        Navigator.of(context).focusNode.enclosingScope?.canRequestFocus = !locked;
 
         final session = snapshot.data!.b;
 

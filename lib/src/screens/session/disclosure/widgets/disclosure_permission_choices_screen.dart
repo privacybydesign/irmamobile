@@ -161,7 +161,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                 SizedBox(height: theme.defaultSpacing),
                 TranslatedText(
                   'disclosure_permission.overview.sign',
-                  style: theme.themeData.textTheme.headline4,
+                  style: theme.themeData.textTheme.headlineMedium,
                 ),
                 Padding(
                   padding: EdgeInsets.only(
@@ -186,7 +186,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                     ),
                   )),
               if (state.optionalChoices.isNotEmpty) ...[
-                TranslatedText('disclosure_permission.optional_data', style: theme.themeData.textTheme.headline4),
+                TranslatedText('disclosure_permission.optional_data', style: theme.themeData.textTheme.headlineMedium),
                 ...state.optionalChoices.entries.mapIndexed((i, choiceEntry) => _buildChoiceEntry(
                       context,
                       choiceEntry,
@@ -200,7 +200,7 @@ class DisclosurePermissionChoicesScreen extends StatelessWidget {
                     )),
               ],
               if (state.requiredChoices.isEmpty && state.optionalChoices.isEmpty)
-                TranslatedText('disclosure_permission.no_data_selected', style: theme.textTheme.headline4),
+                TranslatedText('disclosure_permission.no_data_selected', style: theme.textTheme.headlineMedium),
               if (state.hasAdditionalOptionalChoices) ...[
                 SizedBox(height: theme.defaultSpacing),
                 IrmaActionCard(

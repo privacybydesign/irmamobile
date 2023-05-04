@@ -55,7 +55,7 @@ class ErrorReportingCheckBox extends StatelessWidget {
                   ),
                 ),
                 TextSpan(
-                  style: theme.textTheme.bodyText2,
+                  style: theme.textTheme.bodyMedium,
                   text: ' ' +
                       FlutterI18n.translate(
                         context,

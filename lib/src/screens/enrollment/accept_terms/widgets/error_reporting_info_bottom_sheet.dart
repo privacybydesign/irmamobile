@@ -20,14 +20,14 @@ class ErrorReportingInfoBottomSheet extends StatelessWidget {
             ),
             child: TranslatedText(
               'enrollment.error_reporting.dialog.title',
-              style: theme.textTheme.headline3,
+              style: theme.textTheme.displaySmall,
             ),
           ),
           Padding(
             padding: EdgeInsets.symmetric(vertical: theme.defaultSpacing),
             child: TranslatedText(
               'enrollment.error_reporting.dialog.explanation',
-              style: theme.textTheme.bodyText2,
+              style: theme.textTheme.bodyMedium,
             ),
           ),
         ],

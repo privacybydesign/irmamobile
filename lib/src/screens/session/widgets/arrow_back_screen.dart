@@ -48,13 +48,13 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     _forcePortraitOrientation();
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance?.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     _allowAllOrientations();
     super.dispose();
   }
@@ -130,7 +130,7 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
                           Flexible(
                             child: TranslatedText(
                               infoText,
-                              style: theme.textTheme.headline1,
+                              style: theme.textTheme.displayLarge,
                               textAlign: TextAlign.center,
                             ),
                           ),
@@ -138,7 +138,7 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
                           Flexible(
                             child: TranslatedText(
                               'arrow_back.safari',
-                              style: theme.textTheme.bodyText2,
+                              style: theme.textTheme.bodyMedium,
                               textAlign: TextAlign.center,
                             ),
                           ),

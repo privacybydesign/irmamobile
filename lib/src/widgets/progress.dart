@@ -21,7 +21,7 @@ class IrmaProgress extends StatelessWidget {
           ),
           TranslatedText(
             'ui.loading',
-            style: theme.textTheme.headline3,
+            style: theme.textTheme.displaySmall,
             textAlign: TextAlign.center,
           ),
         ],

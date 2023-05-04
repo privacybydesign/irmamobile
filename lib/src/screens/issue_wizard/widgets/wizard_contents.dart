@@ -57,11 +57,11 @@ class IssueWizardContents extends StatelessWidget {
                       children: [
                         Text(
                           item.header.translate(lang),
-                          style: theme.textTheme.bodyText1,
+                          style: theme.textTheme.bodyLarge,
                         ),
                         Text(
                           item.text.translate(lang),
-                          style: theme.textTheme.bodyText2,
+                          style: theme.textTheme.bodyMedium,
                         ),
                       ],
                     ),

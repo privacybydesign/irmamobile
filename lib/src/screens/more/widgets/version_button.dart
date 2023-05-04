@@ -34,7 +34,7 @@ class _VersionButtonState extends State<VersionButton> {
     final repo = IrmaRepositoryProvider.of(context);
     final theme = IrmaTheme.of(context);
 
-    final textStyle = theme.textTheme.headline6!.copyWith(
+    final textStyle = theme.textTheme.titleLarge!.copyWith(
       fontWeight: FontWeight.w600,
     );
 

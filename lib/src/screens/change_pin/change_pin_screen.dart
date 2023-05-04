@@ -128,7 +128,7 @@ class ProvidedChangePinScreenState extends State<ProvidedChangePinScreen> {
         SnackBar(
           content: TranslatedText(
             'change_pin.toast',
-            style: theme.themeData.textTheme.caption!.copyWith(color: theme.light),
+            style: theme.themeData.textTheme.bodySmall!.copyWith(color: theme.light),
           ),
           behavior: SnackBarBehavior.floating,
           backgroundColor: theme.themeData.colorScheme.secondary,

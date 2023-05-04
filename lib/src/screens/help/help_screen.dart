@@ -26,7 +26,7 @@ class _HelpScreenState extends State<HelpScreen> {
       TranslatedText(
         translationKey,
         isHeader: true,
-        style: theme.textTheme.bodyText1!.copyWith(
+        style: theme.textTheme.bodyLarge!.copyWith(
           color: theme.neutralExtraDark,
         ),
       );
@@ -143,7 +143,7 @@ class _HelpScreenState extends State<HelpScreen> {
               SizedBox(height: theme.defaultSpacing),
               TranslatedText(
                 'help.send',
-                style: theme.textTheme.bodyText2,
+                style: theme.textTheme.bodyMedium,
               ),
               Padding(
                 padding: EdgeInsets.symmetric(vertical: theme.smallSpacing),

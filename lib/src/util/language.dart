@@ -19,7 +19,7 @@ extension LanguageName on Locale {
     }
 
     throw UnsupportedError('''
-      No language name found for: '${languageCode}'.
+      No language name found for: '$languageCode'.
       Please add the language name to the languageName() extension.
     ''');
   }

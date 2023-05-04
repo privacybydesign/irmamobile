@@ -21,12 +21,12 @@ class LoadingScreen extends StatelessWidget {
         if (snapshot.hasData) {
           if (snapshot.data == EnrollmentStatus.enrolled) {
             // We don't add a smooth transition here like below, because it will be covered by the PinScreen anyway.
-            WidgetsBinding.instance?.addPostFrameCallback((_) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
             });
           } else if (snapshot.data == EnrollmentStatus.unenrolled) {
             // Because this happens on start-up immediately, we have to make sure a smooth transition is being made.
-            WidgetsBinding.instance?.addPostFrameCallback((_) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.of(context).pushReplacement(PageRouteBuilder(
                 pageBuilder: (context, a1, a2) => EnrollmentScreen(),
                 transitionsBuilder: (context, a1, a2, child) => FadeTransition(opacity: a1, child: child),

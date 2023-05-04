@@ -63,7 +63,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             header: true,
             child: TranslatedText(
               translationKey,
-              style: theme.textTheme.headline4,
+              style: theme.textTheme.headlineMedium,
             ),
           ),
         );
@@ -75,7 +75,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           child: TranslatedText(
             translationKey,
-            style: theme.textTheme.bodyText2!.copyWith(
+            style: theme.textTheme.bodyMedium!.copyWith(
               fontSize: 14,
               color: theme.neutral,
             ),

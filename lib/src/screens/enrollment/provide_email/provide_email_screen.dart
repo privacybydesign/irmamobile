@@ -93,7 +93,7 @@ class _ProvideEmailScreenState extends State<ProvideEmailScreen> {
                         children: [
                           TranslatedText(
                             'enrollment.email.provide.header',
-                            style: theme.textTheme.headline3,
+                            style: theme.textTheme.displaySmall,
                           ),
                           SizedBox(height: theme.defaultSpacing),
                           const TranslatedText('enrollment.email.provide.explanation'),

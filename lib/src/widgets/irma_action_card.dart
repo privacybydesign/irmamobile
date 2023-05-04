@@ -35,10 +35,10 @@ class IrmaActionCard extends StatelessWidget {
       child: TranslatedText(
         titleKey,
         style: isFancy
-            ? theme.textTheme.headline2!.copyWith(
+            ? theme.textTheme.displayMedium!.copyWith(
                 color: contentColor,
               )
-            : theme.textTheme.headline4!.copyWith(
+            : theme.textTheme.headlineMedium!.copyWith(
                 color: theme.dark,
               ),
       ),
@@ -49,7 +49,7 @@ class IrmaActionCard extends StatelessWidget {
       flexibleSubtitleTextWidget = Flexible(
         child: TranslatedText(
           subtitleKey!,
-          style: theme.textTheme.bodyText2!.copyWith(
+          style: theme.textTheme.bodyMedium!.copyWith(
             fontSize: 14,
             color: contentColor,
             fontWeight: FontWeight.w600,

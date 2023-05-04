@@ -48,7 +48,7 @@ class IrmaStepIndicator extends StatelessWidget {
             : Text(
                 step.toString(),
                 textAlign: TextAlign.center,
-                style: theme.textTheme.caption!.copyWith(
+                style: theme.textTheme.bodySmall!.copyWith(
                   height: 1.2,
                   fontWeight: FontWeight.bold,
                   color:

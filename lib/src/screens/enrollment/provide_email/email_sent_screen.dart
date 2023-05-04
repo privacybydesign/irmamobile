@@ -61,7 +61,7 @@ class EmailSentScreen extends StatelessWidget {
                     ),
                     TextSpan(
                       text: '$email ',
-                      style: theme.textTheme.bodyText1,
+                      style: theme.textTheme.bodyLarge,
                     ),
                   ],
                 ),

@@ -30,7 +30,7 @@ class ResetPinScreen extends StatelessWidget {
           children: [
             TranslatedText(
               'reset_pin.header',
-              style: theme.themeData.textTheme.headline3!.copyWith(
+              style: theme.themeData.textTheme.displaySmall!.copyWith(
                 color: theme.dark,
               ),
             ),
@@ -39,7 +39,7 @@ class ResetPinScreen extends StatelessWidget {
             ),
             TranslatedText(
               'reset_pin.explanation',
-              style: theme.themeData.textTheme.bodyText2,
+              style: theme.themeData.textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),
           ],

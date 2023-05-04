@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import '../../models/credential_events.dart';
 import '../../models/credentials.dart';
 import '../../theme/theme.dart';
-import '../../util/language.dart';
 import '../../widgets/credential_card/delete_credential_confirmation_dialog.dart';
 import '../../widgets/credential_card/irma_credential_card.dart';
 import '../../widgets/credential_card/irma_credential_card_options_bottom_sheet.dart';
@@ -73,7 +72,7 @@ class _CredentialsDetailScreenState extends State<CredentialsDetailScreen> {
       SnackBar(
         content: TranslatedText(
           'credential.options.delete_success',
-          style: theme.themeData.textTheme.bodyText2!.copyWith(
+          style: theme.themeData.textTheme.bodyMedium!.copyWith(
             color: theme.light,
           ),
         ),
@@ -115,7 +114,7 @@ class _CredentialsDetailScreenState extends State<CredentialsDetailScreen> {
                   .toList();
 
               if (filteredCredentials.isEmpty) {
-                WidgetsBinding.instance?.addPostFrameCallback((_) => Navigator.pop(context));
+                WidgetsBinding.instance.addPostFrameCallback((_) => Navigator.pop(context));
                 return Container();
               }
 
