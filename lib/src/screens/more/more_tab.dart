@@ -131,7 +131,7 @@ class MoreTab extends StatelessWidget {
             },
           ),
           spacerWidget,
-          VersionButton(),
+          const VersionButton(),
         ],
       ),
     );
