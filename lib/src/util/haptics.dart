@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/services.dart';
 
 extension Haptic<P, R> on R Function(P) {
