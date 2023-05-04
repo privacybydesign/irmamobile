@@ -62,7 +62,7 @@ class CallInfoScreen extends StatelessWidget {
                   _appendPlatformToTranslationKey(
                     'disclosure_permission.call.explanation_header',
                   ),
-                  style: theme.themeData.textTheme.headline4),
+                  style: theme.themeData.textTheme.headlineMedium),
               SizedBox(
                 height: theme.tinySpacing,
               ),
@@ -70,7 +70,7 @@ class CallInfoScreen extends StatelessWidget {
                 _appendPlatformToTranslationKey(
                   'disclosure_permission.call.explanation',
                 ),
-                style: theme.themeData.textTheme.caption,
+                style: theme.themeData.textTheme.bodySmall,
               ),
               // Android requires an extra step
               if (Platform.isAndroid) ...[
@@ -79,14 +79,14 @@ class CallInfoScreen extends StatelessWidget {
                 ),
                 TranslatedText(
                   'disclosure_permission.call.extra_explanation_header_android',
-                  style: theme.themeData.textTheme.headline4,
+                  style: theme.themeData.textTheme.headlineMedium,
                 ),
                 SizedBox(
                   height: theme.tinySpacing,
                 ),
                 TranslatedText(
                   'disclosure_permission.call.extra_explanation_android',
-                  style: theme.themeData.textTheme.caption,
+                  style: theme.themeData.textTheme.bodySmall,
                 ),
               ]
             ],

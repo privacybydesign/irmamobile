@@ -47,7 +47,7 @@ class SessionProgressIndicator extends StatelessWidget {
                 'i': step.toString(),
                 'n': stepCount.toString(),
               },
-              style: theme.themeData.textTheme.bodyText2!.copyWith(
+              style: theme.themeData.textTheme.bodyMedium!.copyWith(
                 fontSize: 14,
                 color: theme.neutralExtraDark,
               ),
@@ -66,7 +66,7 @@ class SessionProgressIndicator extends StatelessWidget {
                   child: TranslatedText(
                     contentTranslationKey!,
                     translationParams: contentTranslationParams,
-                    style: theme.themeData.textTheme.headline4!.copyWith(
+                    style: theme.themeData.textTheme.headlineMedium!.copyWith(
                       color: theme.dark,
                     ),
                   ),

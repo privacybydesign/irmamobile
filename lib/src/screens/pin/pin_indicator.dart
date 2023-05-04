@@ -22,10 +22,10 @@ class _PinIndicator extends StatelessWidget {
     final textColor = isPinVisible ? theme.secondary : Colors.transparent;
 
     final style = maxPinSize != shortPinSize
-        ? theme.textTheme.headline5?.copyWith(
+        ? theme.textTheme.headlineSmall?.copyWith(
             color: textColor,
           )
-        : theme.textTheme.headline2?.copyWith(
+        : theme.textTheme.displayMedium?.copyWith(
             color: textColor,
           );
 

@@ -13,7 +13,7 @@ class IrmaEmptyCredentialCard extends StatelessWidget {
       child: Center(
         child: TranslatedText(
           'credential.no_data',
-          style: theme.themeData.textTheme.headline4!.copyWith(
+          style: theme.themeData.textTheme.headlineMedium!.copyWith(
             color: theme.dark,
           ),
         ),

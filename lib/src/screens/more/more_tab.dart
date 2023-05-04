@@ -34,7 +34,7 @@ class MoreTab extends StatelessWidget {
           child: TranslatedText(
             translationKey,
             isHeader: true,
-            style: theme.textTheme.bodyText1!.copyWith(
+            style: theme.textTheme.bodyLarge!.copyWith(
               color: theme.neutralExtraDark,
             ),
           ),

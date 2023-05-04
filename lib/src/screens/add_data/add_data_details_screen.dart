@@ -91,7 +91,7 @@ class _AddDataDetailsScreenState extends State<AddDataDetailsScreen> {
                           },
                         )
                       : getTranslation(context, widget.credentialType.faqIntro).replaceAll('\\n', '\n'),
-                  style: theme.textTheme.bodyText2,
+                  style: theme.textTheme.bodyMedium,
                 ),
               ),
               Padding(

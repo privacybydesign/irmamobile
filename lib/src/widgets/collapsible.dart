@@ -110,7 +110,7 @@ class _CollapsibleState extends State<Collapsible> {
               ),
               child: Text(
                 widget.header,
-                style: theme.textTheme.headline5,
+                style: theme.textTheme.headlineSmall,
               ),
             ),
           ),

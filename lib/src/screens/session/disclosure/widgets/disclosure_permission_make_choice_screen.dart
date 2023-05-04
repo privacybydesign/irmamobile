@@ -45,7 +45,7 @@ class DisclosurePermissionMakeChoiceScreen extends StatelessWidget {
                   padding: EdgeInsets.all(theme.smallSpacing),
                   child: TranslatedText(
                     'disclosure_permission.obtain_new',
-                    style: theme.themeData.textTheme.headline4,
+                    style: theme.themeData.textTheme.headlineMedium,
                     isHeader: true,
                   ),
                 ),

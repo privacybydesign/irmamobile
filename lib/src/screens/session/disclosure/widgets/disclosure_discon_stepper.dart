@@ -46,7 +46,7 @@ class DisclosureDisconStepper extends StatelessWidget {
                             padding: EdgeInsets.all(theme.smallSpacing),
                             child: TranslatedText(
                               'disclosure_permission.choose',
-                              style: theme.themeData.textTheme.headline4,
+                              style: theme.themeData.textTheme.headlineMedium,
                             ),
                           ),
                           DisclosurePermissionChoice(

@@ -26,11 +26,11 @@ class IrmaMarkdown extends StatelessWidget {
       // Define small style sheet, and merge in any passed styleSheet
       styleSheet: MarkdownStyleSheet.fromTheme(theme.themeData)
           .merge(MarkdownStyleSheet(
-            h1: theme.textTheme.headline1,
-            h2: theme.textTheme.headline2,
-            h3: theme.textTheme.headline3,
-            h4: theme.textTheme.headline4,
-            strong: theme.textTheme.bodyText1,
+            h1: theme.textTheme.displayLarge,
+            h2: theme.textTheme.displayMedium,
+            h3: theme.textTheme.displaySmall,
+            h4: theme.textTheme.headlineMedium,
+            strong: theme.textTheme.bodyLarge,
             a: theme.hyperlinkTextStyle,
             textScaleFactor: MediaQuery.textScaleFactorOf(context),
           ))

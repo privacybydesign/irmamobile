@@ -135,13 +135,13 @@ class ActivityCard extends StatelessWidget {
                           Text(
                             title,
                             overflow: TextOverflow.ellipsis,
-                            style: theme.themeData.textTheme.headline4!.copyWith(
+                            style: theme.themeData.textTheme.headlineMedium!.copyWith(
                               color: theme.dark,
                             ),
                           ),
                           TranslatedText(
                             subtitleTranslationKey,
-                            style: theme.themeData.textTheme.bodyText2!.copyWith(
+                            style: theme.themeData.textTheme.bodyMedium!.copyWith(
                               fontSize: 14,
                               color: theme.dark,
                             ),

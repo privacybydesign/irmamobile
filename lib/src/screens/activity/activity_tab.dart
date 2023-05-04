@@ -103,7 +103,7 @@ class _ActivityTabState extends State<ActivityTab> {
                 header: true,
                 child: Text(
                   DateFormat('MMMM', local).format(logEntry.time).toCapitalized(),
-                  style: theme.themeData.textTheme.headline3,
+                  style: theme.themeData.textTheme.displaySmall,
                 ),
               ),
             ),

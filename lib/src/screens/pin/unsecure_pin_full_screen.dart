@@ -21,7 +21,7 @@ class _UnsecurePinFullScreen extends StatelessWidget {
         children: [
           Text(
             FlutterI18n.translate(context, 'secure_pin.subtitle'),
-            style: theme.textTheme.headline5?.copyWith(
+            style: theme.textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.w700,
             ),
           ),

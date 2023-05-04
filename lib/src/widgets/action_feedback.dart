@@ -52,7 +52,7 @@ class ActionFeedback extends StatelessWidget {
             children: [
               TranslatedText(
                 titleTranslationKey,
-                style: theme.themeData.textTheme.headline3!.copyWith(
+                style: theme.themeData.textTheme.displaySmall!.copyWith(
                   color: theme.dark,
                 ),
               ),
@@ -62,7 +62,7 @@ class ActionFeedback extends StatelessWidget {
               TranslatedText(
                 explanationTranslationKey,
                 translationParams: explanationTranslationParams,
-                style: theme.themeData.textTheme.bodyText2,
+                style: theme.themeData.textTheme.bodyMedium,
                 textAlign: TextAlign.center,
               ),
             ],

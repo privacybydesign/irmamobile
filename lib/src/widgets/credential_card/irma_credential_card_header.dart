@@ -39,27 +39,27 @@ class IrmaCredentialCardHeader extends StatelessWidget {
               if (isRevoked)
                 TranslatedText(
                   'credential.revoked',
-                  style: theme.themeData.textTheme.headline4!.copyWith(
+                  style: theme.themeData.textTheme.headlineMedium!.copyWith(
                     color: theme.error,
                   ),
                 )
               else if (isExpired)
                 TranslatedText(
                   'credential.expired',
-                  style: theme.themeData.textTheme.headline4!.copyWith(
+                  style: theme.themeData.textTheme.headlineMedium!.copyWith(
                     color: theme.error,
                   ),
                 )
               else if (isExpiringSoon)
                 TranslatedText(
                   'credential.about_to_expire',
-                  style: theme.themeData.textTheme.headline4!.copyWith(
+                  style: theme.themeData.textTheme.headlineMedium!.copyWith(
                     color: theme.warning,
                   ),
                 ),
               Text(
                 credentialName,
-                style: theme.themeData.textTheme.headline4!.copyWith(color: theme.dark),
+                style: theme.themeData.textTheme.headlineMedium!.copyWith(color: theme.dark),
               ),
               if (issuerName != null)
                 Padding(
@@ -71,11 +71,11 @@ class IrmaCredentialCardHeader extends StatelessWidget {
                     children: [
                       TranslatedText(
                         'credential.issued_by',
-                        style: theme.themeData.textTheme.bodyText2,
+                        style: theme.themeData.textTheme.bodyMedium,
                       ),
                       Text(
                         issuerName!,
-                        style: theme.themeData.textTheme.bodyText1,
+                        style: theme.themeData.textTheme.bodyLarge,
                       ),
                     ],
                   ),

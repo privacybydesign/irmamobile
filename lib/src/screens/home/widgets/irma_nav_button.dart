@@ -50,7 +50,7 @@ class IrmaNavButton extends StatelessWidget {
               ),
               TranslatedText(
                 _navBarTabTranslationKeys[tab]!,
-                style: theme.themeData.textTheme.headline6!.copyWith(
+                style: theme.themeData.textTheme.titleLarge!.copyWith(
                   color: isSelected ? activeColor : inactiveColor,
                 ),
               )
