@@ -88,6 +88,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     _listenForDataClear();
     _listenScreenshotPref();
     _handleUpdateSchemes();
+    _updateShowNameChangedNotification();
   }
 
   @override
@@ -97,6 +98,17 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     _dataClearSubscription?.cancel();
     _screenshotPrefSubscription?.cancel();
     super.dispose();
+  }
+
+  Future<void> _updateShowNameChangedNotification() async {
+    final showNameChangedNotification = await widget.irmaRepository.preferences.getShowNameChangedNotification().first;
+    if (showNameChangedNotification) {
+      // If the user is enrolling we never want to show the name changed notification
+      final status = await widget.irmaRepository.getEnrollmentStatus().first;
+      if (status == EnrollmentStatus.unenrolled) {
+        widget.irmaRepository.preferences.setShowNameChangedNotification(false);
+      }
+    }
   }
 
   Future<void> _handleUpdateSchemes() async {

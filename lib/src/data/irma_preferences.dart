@@ -40,8 +40,11 @@ class IrmaPreferences {
   static Future<IrmaPreferences> fromInstance() async => IrmaPreferences(await StreamingSharedPreferences.instance);
 
   Future<void> clearAll() {
+    // Reset all preferences to their default values
+    // except showNameChangedNotification should be false now
     return StreamingSharedPreferences.instance.then((preferences) async {
       await preferences.clear();
+      await _showNameChangedNotification.setValue(false);
     });
   }
 
