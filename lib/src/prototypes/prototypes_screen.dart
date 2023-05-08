@@ -4,6 +4,7 @@ import '../screens/error/blocked_screen.dart';
 import '../screens/error/error_screen.dart';
 import '../screens/error/no_internet_screen.dart';
 import '../screens/loading/loading_screen.dart';
+import '../screens/name_changed/name_changed_screen.dart';
 import '../screens/pin/yivi_pin_screen.dart';
 import '../screens/required_update/required_update_screen.dart';
 import '../screens/rooted_warning/rooted_warning_screen.dart';
@@ -290,6 +291,13 @@ class PrototypesScreen extends StatelessWidget {
             DisclosurePermissionIntroductionScreen(
               onEvent: (_) {},
               onDismiss: () {},
+            ),
+          ),
+          _buildTile(
+            context,
+            'Name changed screen',
+            NameChangedScreen(
+              onContinuePressed: () => Navigator.of(context).pop(),
             ),
           ),
         ],

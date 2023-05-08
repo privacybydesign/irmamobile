@@ -586,5 +586,10 @@
     "title": "Update available",
     "explanation": "To continue using the Yivi app, you must download the latest version.",
     "update_app": "Update app"
+  },
+  "name_changed": {
+    "title": "Do you remember us?",
+    "header": "IRMA now has a new name and a new look: Yivi",
+    "explanation": "Everything has remained the same under the hood, you can just log in with your old PIN code."
   }
 }
