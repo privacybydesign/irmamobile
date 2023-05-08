@@ -29,6 +29,7 @@ class IrmaPreferences {
         _completedDisclosurePermissionIntro =
             preferences.getBool(_completedDisclosurePermissionIntroKey, defaultValue: false),
         _preferredLanguageCode = preferences.getString(_preferredLanguageKey, defaultValue: ''),
+        _showNameChangedNotification = preferences.getBool(_showNameChangedNotificationKey, defaultValue: true),
         _lastSchemeUpdate = preferences.getInt(_lastSchemeUpdateKey, defaultValue: 0) {
     // Remove unused IRMA -> Yivi name change notification key
     preferences.remove(_showNameChangeNotificationKey);
@@ -80,7 +81,7 @@ class IrmaPreferences {
   Stream<bool> getAcceptedRootedRisk() => _acceptedRootedRisk;
   Future<bool> setAcceptedRootedRisk(bool value) => _acceptedRootedRisk.setValue(value);
 
-  /// Originates from the IRMA -> Yivi name change, only used for cleanup-purposes
+  /// Originates from the notification that  IRMA is ABOUT TO change to Yivi, only used for cleanup-purposes
   static const String _showNameChangeNotificationKey = 'preference.show_name_change_notification';
 
   /// Old value that was used for displaying the dev mode toggle,
@@ -98,6 +99,13 @@ class IrmaPreferences {
 
   Stream<String> getPreferredLanguageCode() => _preferredLanguageCode;
   Future<bool> setPreferredLanguageCode(String value) => _preferredLanguageCode.setValue(value);
+
+  // Value that is used to display the notification that IRMA HAS changed to Yivi
+  static const String _showNameChangedNotificationKey = 'preference.show_name_changed_notification';
+  final Preference<bool> _showNameChangedNotification;
+
+  Stream<bool> getShowNameChangedNotification() => _showNameChangedNotification;
+  Future<bool> setShowNameChangedNotification(bool value) => _showNameChangedNotification.setValue(value);
 
   static const String _lastSchemeUpdateKey = 'preference.last_schemeupdate';
   final Preference<int> _lastSchemeUpdate;
