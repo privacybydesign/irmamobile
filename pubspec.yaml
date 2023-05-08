@@ -28,7 +28,7 @@ dependencies:
   rxdart: ^0.27.2
   package_info: ^2.0.2
   collection: ^1.15.0
-  mobile_scanner: ^1.1.2
+  qr_code_scanner: ^1.0.1
   native_device_orientation: ^1.1.4
   share: ^2.0.4
   intl: ^0.17.0
