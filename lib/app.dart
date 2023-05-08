@@ -31,6 +31,7 @@ import '../../src/theme/theme.dart';
 import '../../src/util/combine.dart';
 import '../../src/util/handle_pointer.dart';
 import 'src/data/irma_preferences.dart';
+import 'src/screens/name_changed/name_changed_screen.dart';
 
 const schemeUpdateIntervalHours = 3;
 
@@ -323,8 +324,8 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   }
 
   Widget _buildAppOverlay(BuildContext context) {
-    return StreamBuilder<CombinedState3<bool, VersionInformation?, bool>>(
-      stream: combine3(
+    return StreamBuilder<CombinedState4<bool, VersionInformation?, bool, bool>>(
+      stream: combine4(
         _displayDeviceIsRootedWarning(),
         // combine3 cannot handle empty streams, so we have to make sure always a value is present.
         widget.irmaRepository
@@ -332,6 +333,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
             .map<VersionInformation?>((version) => version)
             .defaultIfEmpty(null),
         widget.irmaRepository.getLocked(),
+        widget.irmaRepository.preferences.getShowNameChangedNotification(),
       ),
       builder: (context, snapshot) {
         if (!snapshot.hasData || !_privacyScreenLoaded) {
@@ -344,6 +346,13 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
             onAcceptRiskButtonPressed: () async {
               _detectRootedDeviceRepo.setHasAcceptedRootedDeviceRisk();
             },
+          );
+        }
+
+        final showNameChangedNotification = snapshot.data!.d;
+        if (showNameChangedNotification) {
+          return NameChangedScreen(
+            onContinuePressed: () => widget.irmaRepository.preferences.setShowNameChangedNotification(false),
           );
         }
 
