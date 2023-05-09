@@ -357,7 +357,7 @@
     "question_10": "Waarom zijn gegevens in de Yivi-app beperkt geldig?",
     "answer_10": "Degene bij wie je de gegevens ophaalt, bepaalt de geldigheidsduur. Deze kan dus verlopen. Je krijgt dan een waarschuwing in de Yivi-app. Hoe lang je gegevens geldig zijn? Dat ligt aan het type gegevens. Naam en geboortedatum zijn 5 jaar geldig. Je adres maar één jaar. Verversen kan altijd, wanneer jij maar wil. Bijvoorbeeld door direct na je 18e verjaardag je leeftijd up-to-date te maken in de app. Dan kan je meteen laten zien dat je 18+ bent.",
     "question_11": "Yivi, privacy en veiligheid",
-    "answer_11": "De Yivi-app is zo gemaakt dat jij en jij alleen je gegevens in de app kunt zien en gebruiken. Jouw gegevens staan alleen in de Yivi-app op je mobiel, en nergens anders (dus ook niet in de cloud).\n De Yivi-app is zo gemaakt dat een website of winkel waar je jezelf bekend maakt (cryptografisch) kan controleren dat de gegevens die je toont echt zijn.\n De Yivi-app toont jouw gegevens vanuit je mobiel rechtstreeks aan een website. Niemand anders kan zien dat jij jezelf daar bekendmaakt. Ook de organisatie achter Yivi kan niet meekijken. \n Met het gebruik van Yivi ga je akkoord met de [privacy policy](https://www.yivi.app/en/privacy).",
+    "answer_11": "De Yivi-app is zo gemaakt dat jij en jij alleen je gegevens in de app kunt zien en gebruiken. Jouw gegevens staan alleen in de Yivi-app op je mobiel, en nergens anders (dus ook niet in de cloud).\n De Yivi-app is zo gemaakt dat een website of winkel waar je jezelf bekend maakt (cryptografisch) kan controleren dat de gegevens die je toont echt zijn.\n De Yivi-app toont jouw gegevens vanuit je mobiel rechtstreeks aan een website. Niemand anders kan zien dat jij jezelf daar bekendmaakt. Ook de organisatie achter Yivi kan niet meekijken. \n Met het gebruik van Yivi ga je akkoord met de [privacy policy](https://www.yivi.app/privacy).",
     "send": "Heb je een andere vraag? Laat het ons weten via support@yivi.app. Wij beantwoorden je mail zo snel mogelijk.",
     "security_and_privacy": "Beveiliging en privacy"
   },
@@ -428,7 +428,7 @@
     "irma_website": "Yivi-website",
     "irma_website_link": "https://yivi.app",
     "privacy_policy": "Yivi's privacyregels",
-    "privacy_policy_link": "https://www.yivi.app/en/privacy",
+    "privacy_policy_link": "https://www.yivi.app/privacy",
     "app_id": "App-ID {id}",
     "log_out": "Uitloggen"
   },
