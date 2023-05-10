@@ -52,6 +52,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   StreamSubscription<Pointer?>? _pointerSubscription;
   StreamSubscription<Event>? _dataClearSubscription;
   StreamSubscription<bool>? _screenshotPrefSubscription;
+  StreamSubscription<EnrollmentStatus>? _enrollmentStatusSubscription;
   bool _qrScannerActive = false;
   bool _privacyScreenLoaded = false;
 
@@ -88,7 +89,7 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     _listenForDataClear();
     _listenScreenshotPref();
     _handleUpdateSchemes();
-    _updateShowNameChangedNotification();
+    _listenShowNameChangedNotification();
   }
 
   @override
@@ -97,17 +98,21 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     _pointerSubscription?.cancel();
     _dataClearSubscription?.cancel();
     _screenshotPrefSubscription?.cancel();
+    _enrollmentStatusSubscription?.cancel();
     super.dispose();
   }
 
-  Future<void> _updateShowNameChangedNotification() async {
+  Future<void> _listenShowNameChangedNotification() async {
     final showNameChangedNotification = await widget.irmaRepository.preferences.getShowNameChangedNotification().first;
+
     if (showNameChangedNotification) {
-      // If the user is enrolling we never want to show the name changed notification
-      final status = await widget.irmaRepository.getEnrollmentStatus().first;
-      if (status == EnrollmentStatus.unenrolled) {
-        widget.irmaRepository.preferences.setShowNameChangedNotification(false);
-      }
+      _enrollmentStatusSubscription = widget.irmaRepository.getEnrollmentStatus().listen((event) {
+        // If the user is unenrolled we never want to show the name changed notification again
+        if (event == EnrollmentStatus.unenrolled) {
+          widget.irmaRepository.preferences.setShowNameChangedNotification(false);
+          _enrollmentStatusSubscription?.cancel();
+        }
+      });
     }
   }
 
