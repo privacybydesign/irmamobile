@@ -586,5 +586,10 @@
     "title": "Update beschikbaar",
     "explanation": "Om de Yivi-app te blijven gebruiken moet je de laatste versie downloaden",
     "update_app": "Update app"
+  },
+  "name_changed": {
+    "title": "Ken je ons nog?",
+    "header": "IRMA heeft een nieuwe naam en een nieuw uiterlijk gekregen: Yivi",
+    "explanation": "Onder de motorkap is alles hetzelfde gebleven, je kunt gewoon inloggen met je oude PIN-code."
   }
 }
