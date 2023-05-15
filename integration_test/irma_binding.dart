@@ -54,7 +54,7 @@ class IntegrationTestIrmaBinding {
       _bridge.dispatch(InstallSchemeEvent(
         url: 'https://drksn.nl/irma_configuration/test',
         publicKey:
-            '-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAErWv2+LXHsFQvLZ7udfpatUebiQV3\nAKJq92/3Qv8GErrRWuNkLd3D/LBZZrpuZ95xAb/GfoCCXrT0cUGESQ9JIA==\n-----END PUBLIC KEY-----',
+            '-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE0d8s6KCWffx7I8cpit7CgVEATFAp\nGBSdMEJFRp3aDhsk/N8hkbTTdtqJUNfK1WEDMnAURlWJM88BE6YIomAMUw==\n-----END PUBLIC KEY-----',
       ));
       currEnrollmentStatus = await _expectBridgeEventGuarded<EnrollmentStatusEvent>();
       if (!currEnrollmentStatus.unenrolledSchemeManagerIds.contains('test')) {
