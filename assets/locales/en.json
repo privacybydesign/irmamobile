@@ -119,7 +119,8 @@
         "obtain": "Add {credential} to my Yivi-app"
       }
     },
-    "category_other": "Other"
+    "category_other": "Other",
+    "category_personal": "Personal"
   },
   "disclosure": {
     "title": "Data request",
