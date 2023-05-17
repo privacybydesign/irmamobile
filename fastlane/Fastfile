@@ -181,7 +181,7 @@ lane :ios_build_app do |options|
 
   Dir.chdir("..") do
     sh("flutter", "build", "ipa", "--release", "--export-options-plist", "./ios/Runner/Flutter-Build-IPA.plist")
-    sh("cp", "./build/ios/ipa/*.ipa", "./fastlane/build/app-#{options[:flavor]}-ios-#{export_method}.ipa")
+    sh("cp ./build/ios/ipa/*.ipa ./fastlane/build/app-#{options[:flavor]}-ios-#{export_method}.ipa")
   end
 end
 
