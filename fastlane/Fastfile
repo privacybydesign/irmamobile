@@ -120,7 +120,6 @@ end
 lane :ios_build do |options|
   ios_build_irmagobridge()
   ios_build_app(
-    export: options[:export],
     flavor: options[:flavor],
     sentry_dsn: options[:sentry_dsn],
     certificate_path: options[:certificate_path],
