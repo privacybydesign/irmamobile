@@ -93,8 +93,26 @@ jobs:
         with:
           name: irmagobridge-ios
           path: ios/Runner/Irmagobridge.xcframework/
-      # We don't export here, because we don't have signing keys in this environment.
-      - run: bundle exec fastlane ios_build_app flavor:${{ matrix.flavor }} export:false
+      - name: Decode binary environment secrets
+        env:
+          APPLE_DEVELOPMENT_CERTIFICATE: ${{ secrets.APPLE_DEVELOPMENT_CERTIFICATE }}
+          APPLE_DEVELOPMENT_PROVISIONING_PROFILE: ${{ secrets.APPLE_DEVELOPMENT_PROVISIONING_PROFILE }}
+        run: |
+          mkdir -p ./fastlane/profiles
+          echo $APPLE_DEVELOPMENT_CERTIFICATE | base64 --decode > ./fastlane/profiles/ios_development.p12
+          echo $APPLE_DEVELOPMENT_PROVISIONING_PROFILE | base64 --decode > ./fastlane/profiles/development.mobileprovision
+      - name: Build
+        run: >
+          bundle exec fastlane ios_build_app
+          flavor:${{ matrix.flavor }}
+          certificate_path:profiles/ios_development.p12
+          certificate_password:${{ secrets.APPLE_DEVELOPMENT_CERTIFICATE_PASSWORD }}
+          provisioning_profile_path:profiles/development.mobileprovision
+          code_signing_identity:"iPhone Developer"
+      - uses: actions/upload-artifact@v3
+        with:
+          name: app-${{ matrix.flavor }}-ios
+          path: ./fastlane/build/*.ipa
   build-app-android:
     runs-on: ubuntu-latest
     needs: build-irmagobridge-android
@@ -155,7 +173,8 @@ jobs:
           mkdir -p ./fastlane/profiles
           echo $APPLE_DEVELOPMENT_CERTIFICATE | base64 --decode > ./fastlane/profiles/ios_development.p12
           echo $APPLE_DEVELOPMENT_PROVISIONING_PROFILE | base64 --decode > ./fastlane/profiles/development.mobileprovision
-      - run: >
+      - name: Build
+        run: >
           bundle exec fastlane ios_build_integration_test
           certificate_path:profiles/ios_development.p12
           certificate_password:${{ secrets.APPLE_DEVELOPMENT_CERTIFICATE_PASSWORD }}

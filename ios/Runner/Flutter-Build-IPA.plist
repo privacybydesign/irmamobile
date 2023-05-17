@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>provisioningProfiles</key>
+    <dict>
+        <key>foundation.privacybydesign.irmamob</key>
+        <string>00000000-0000-0000-0000-000000000000</string>
+        <key>foundation.privacybydesign.irmamob.alpha</key>
+        <string>00000000-0000-0000-0000-000000000000</string>
+    </dict>
+</dict>
+</plist>

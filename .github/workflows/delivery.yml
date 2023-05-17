@@ -9,28 +9,8 @@ on:
 concurrency: ${{ github.ref }}
 
 jobs:
-  # We make sure that lint succeeds before we start any other job to
-  # prevent that the setup-build-environment action runs in parallel.
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v3
-      - name: Setup build environment
-        uses: ./.github/actions/setup-build-environment
-      - run: bundle exec fastlane lint
-  unit-test:
-    runs-on: ubuntu-latest
-    needs: lint
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v3
-      - name: Setup build environment
-        uses: ./.github/actions/setup-build-environment
-      - run: bundle exec fastlane unit_test
   build-irmagobridge-ios:
     runs-on: macos-12
-    needs: lint
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
@@ -43,7 +23,6 @@ jobs:
           path: ios/Runner/Irmagobridge.xcframework/
   build-irmagobridge-android:
     runs-on: ubuntu-latest
-    needs: lint
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
@@ -57,9 +36,7 @@ jobs:
   build-app-ios-alpha:
     # Ad Hoc builds do not require unique build numbers, so we can build this on every push.
     runs-on: macos-12
-    needs:
-      - unit-test
-      - build-irmagobridge-ios
+    needs: build-irmagobridge-ios
     environment: ad-hoc-alpha
     timeout-minutes: 20 # To prevent job runs to hang indefinitely. See comment in ios_build_app lane in the Fastfile.
     steps:
@@ -96,9 +73,7 @@ jobs:
           path: ./fastlane/build/*.ipa
   build-app-android-alpha:
     runs-on: ubuntu-latest
-    needs:
-      - unit-test
-      - build-irmagobridge-android
+    needs: build-irmagobridge-android
     environment: android-alpha
     # For now, we also build the beta flavor using the alpha secrets to enable ad-hoc distribution of the
     # beta flavor Android app. This is needed, because the irma-frontend-packages use the app identifier of the
