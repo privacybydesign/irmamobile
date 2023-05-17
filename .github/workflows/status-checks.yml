@@ -75,12 +75,9 @@ jobs:
         with:
           name: prototypes-alpha-android
           path: ./build/app/outputs/apk/alpha/release/*.apk
-  build-app-ios:
+  build-app-ios-alpha:
     runs-on: macos-12 # MacOS version is pinned, because it determines which XCode version is used.
     needs: build-irmagobridge-ios
-    strategy:
-      matrix:
-        flavor: [ alpha, beta ]
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
@@ -104,14 +101,14 @@ jobs:
       - name: Build
         run: >
           bundle exec fastlane ios_build_app
-          flavor:${{ matrix.flavor }}
+          flavor:alpha
           certificate_path:profiles/ios_development.p12
           certificate_password:${{ secrets.APPLE_DEVELOPMENT_CERTIFICATE_PASSWORD }}
           provisioning_profile_path:profiles/development.mobileprovision
           code_signing_identity:"iPhone Developer"
       - uses: actions/upload-artifact@v3
         with:
-          name: app-${{ matrix.flavor }}-ios
+          name: app-alpha-ios
           path: ./fastlane/build/*.ipa
   build-app-android:
     runs-on: ubuntu-latest
