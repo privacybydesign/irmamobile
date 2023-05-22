@@ -1,4 +1,5 @@
 import 'activity_test.dart' as activity_test;
+import 'credential_store_test.dart' as credential_store_test;
 import 'disclosure_session/disclosure_session_test.dart' as disclosure_session;
 import 'enroll_test.dart' as enroll_test;
 import 'home_test.dart' as home_test;
@@ -19,4 +20,5 @@ void main() {
   home_test.main();
   disclosure_session.main();
   issue_wizard_test.main();
+  credential_store_test.main();
 }
