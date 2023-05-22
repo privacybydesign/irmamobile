@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Internal
 - Use 'flutter build ipa' in Fastlane to build iOS app
+- Bump fastlane version to 2.212.2
 
 ## [7.3.1] - 2023-05-04 (in beta 2023-04-26)
 ### Changed
