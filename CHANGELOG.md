@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump irmago version to [0.12.4](https://github.com/privacybydesign/irmago/releases/tag/v0.12.4)
 - Pin the personal category to the top of credential store
 
+### Internal
+- Use 'flutter build ipa' in Fastlane to build iOS app
+- Bump fastlane version to 2.212.2
+
 ## [7.3.1] - 2023-05-04 (in beta 2023-04-26)
 ### Changed
 - Randomize which success graphic is shown
