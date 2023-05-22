@@ -154,7 +154,7 @@ lane :ios_build_app do |options|
   else
     raise "Unsupported flavor"
   end
-  if options[:code_signing_identity].include?('Developer')
+  if options[:code_signing_identity]&.include?("Developer")
     export_method = "development"
   end
 
