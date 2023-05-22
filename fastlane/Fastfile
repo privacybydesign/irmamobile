@@ -138,10 +138,10 @@ end
 lane :ios_build_app do |options|
   display_name = ""
   app_identifier = ""
-  export = options[:export]
-  export = true if export.nil?
   export_method = ""
-  # For now, we assume that alpha builds are meant for ad hoc distribution and beta builds for app store distribution.
+
+  # When a distribution certificate is set, we assume that alpha builds are meant for ad hoc distribution
+  # and beta builds for app store distribution.
   case options[:flavor]
   when "alpha"
     display_name = "Yivi 2023"
@@ -153,6 +153,9 @@ lane :ios_build_app do |options|
     export_method = "app-store"
   else
     raise "Unsupported flavor"
+  end
+  if options[:code_signing_identity].include?('Developer')
+    export_method = "development"
   end
 
   update_schemes()
@@ -177,6 +180,13 @@ lane :ios_build_app do |options|
     certificate_path: options[:certificate_path],
     certificate_password: options[:certificate_password],
     code_signing_identity: options[:code_signing_identity]
+  )
+
+  # Set export method in plist file.
+  set_info_plist_value(
+    path: "ios/Runner/Flutter-Build-IPA.plist",
+    key: "method",
+    value: export_method
   )
 
   Dir.chdir("..") do
