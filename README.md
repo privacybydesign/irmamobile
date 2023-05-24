@@ -21,10 +21,10 @@ attaching data to signed statements. These data can be relevant properties, such
      alt="Get it on F-Droid"
      height="80">](https://f-droid.org/packages/org.irmacard.cardemu/)
 
-<img src="screenshots/android/en/enrollment_introduction.png" width="200" alt="Screenshot of the Yivi app on Android, showing the introduction screen at the start of the onboarding process" />&nbsp;
-<img src="screenshots/android/en/home.png" width="200" alt="Screenshot of the Yivi app on Android, showing the home screen with recent activities" />&nbsp;
-<img src="screenshots/android/en/issue_wizard_collect.png" width="200" alt="Screenshot of the Yivi app on Android, showing the issue wizard at the point where the user is collecting data" />&nbsp;
-<img src="screenshots/android/en/issue_wizard_share.png" width="200" alt="Screenshot of the Yivi app on Android, showing the issue wizard screen at the point where the user is about to share the collected data" />&nbsp;
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/enrollment_introduction.png" width="200" alt="Screenshot of the Yivi app on Android, showing the introduction screen at the start of the onboarding process" />&nbsp;
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/home.png" width="200" alt="Screenshot of the Yivi app on Android, showing the home screen with recent activities" />&nbsp;
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/issue_wizard_collect.png" width="200" alt="Screenshot of the Yivi app on Android, showing the issue wizard at the point where the user is collecting data" />&nbsp;
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/issue_wizard_share.png" width="200" alt="Screenshot of the Yivi app on Android, showing the issue wizard screen at the point where the user is about to share the collected data" />&nbsp;
 
 ## Development setup
 
