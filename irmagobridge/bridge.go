@@ -146,6 +146,7 @@ func Start(givenBridge IrmaMobileBridge, appDataPath string, assetsPath string, 
 	irma.Logger.SetOutput(writer(func(m string) {
 		bridge.DebugLog(fmt.Sprintf("[irmago] %s", m))
 	}))
+	irma.Logger.Hooks.Add(&errorReporter{})
 
 	// Initialize the client
 	configurationPath := filepath.Join(assetsPath, "irma_configuration")
