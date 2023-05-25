@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pin the personal category to the top of credential store
 - Report warnings from irmago to Sentry
 
+### Fixed
+- Arrow back screen shows a message about signing when doing issuance
+
 ### Internal
 - Use 'flutter build ipa' in Fastlane to build iOS app
 - Bump fastlane version to 2.212.2

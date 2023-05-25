@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:flutter_svg/svg.dart';
 import 'package:native_device_orientation/native_device_orientation.dart';
 
@@ -66,7 +65,7 @@ class _ArrowBackState extends State<ArrowBack> with WidgetsBindingObserver {
     final String infoText;
     switch (widget.type) {
       case ArrowBackType.issuance:
-        infoText = 'arrow_back.signature_success';
+        infoText = 'arrow_back.issuance_success';
         break;
       case ArrowBackType.disclosure:
         infoText = 'arrow_back.disclosure_success';
