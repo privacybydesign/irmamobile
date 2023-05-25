@@ -15,7 +15,7 @@ import Flutter
 
     GeneratedPluginRegistrant.register(with: self)
     IrmaMobileBridgePlugin.register(
-        with: self.registrar(forPlugin: "IrmaMobileBridgePlugin")
+        with: self.registrar(forPlugin: "IrmaMobileBridgePlugin")!
     )
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
