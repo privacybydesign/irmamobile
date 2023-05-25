@@ -1,5 +1,7 @@
-IRMA keeps your personal data safe and gives you control.
+Yivi is an app that lets you easily and securely log in, share data and prove who you are. Without sharing too much about yourself. With Yivi, you take control of your data. You always see what an organisation wants to know about you and you decide whether to share that data. Your data is only stored on your mobile, safely behind a PIN code. No one is watching, not even Yivi. That's how safe it is.
 
-The IRMA app manages your personal IRMA cards: you can receive new cards, selectively disclose them to others, and associate them with digital signatures. Examples of tickets are "I am over 18", "my name is ..." and "I have access to ...". These are safely stored on your phone and are protected by your PIN code.
+Yivi is being developed by SIDN, the Dutch registry for the .nl internet zone, and is based on work by the Privacy By Design Foundation. Previously known as“IRMA” the Yivi ID wallet is fully open-source.
 
-IRMA is produced and maintained by the <a href="https://privacybydesign.foundation/irma-en">Privacy by Design Foundation</a> together with <a href="https://sidn.nl/en">SIDN</a>. It is freely available and open source. Find out more at <a href="https://irma.app">irma.app</a>. For the IRMA source code, see <a href="https://github.com/privacybydesign">github.com/privacybydesign</a>.
+Yivi website: www.yivi.app/en/
+Technical documentation: https://irma.app/docs/what-is-irma/
+Source code: https://github.com/privacybydesign
