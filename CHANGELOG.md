@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Bump irmago version to [0.12.5](https://github.com/privacybydesign/irmago/releases/tag/v0.12.5)
 - Pin the personal category to the top of credential store
+- Report warnings from irmago to Sentry
 
 ### Fixed
 - Arrow back screen shows a message about signing when doing issuance
