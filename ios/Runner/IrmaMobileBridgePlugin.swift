@@ -20,11 +20,7 @@ class IrmaMobileBridgePlugin: NSObject, FlutterPlugin {
   }
 
   func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    NSLog("Hi from handle function")
-
     NSLog("handling \(call.method)")
-
-    debugLog("handling \(call.method)")
 
     if nativeError != nil {
       channel?.invokeMethod("ErrorEvent", arguments: nativeError)
@@ -50,9 +46,6 @@ class IrmaMobileBridgePlugin: NSObject, FlutterPlugin {
   }
 
   func dispatchFromGo(_ name: String, payload: String) {
-
-    NSLog("DISPATCH FROM GO ")
-
     debugLog("dispatching \(name)(\(payload))")
     channel?.invokeMethod(name, arguments: payload)
   }
