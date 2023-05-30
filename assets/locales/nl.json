@@ -119,7 +119,8 @@
         "obtain": "Voeg {credential} toe aan mijn Yivi-app"
       }
     },
-    "category_other": "Overig"
+    "category_other": "Overig",
+    "category_personal": "Persoonlijk"
   },
   "disclosure": {
     "title": "Gegevens delen",

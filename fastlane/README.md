@@ -214,7 +214,7 @@ The APKs are written to the `build` directory (so `fastlane/build` from the repo
 
 Builds an iOS IPA file for the requested flavor.
 
-For all extra parameters, please check the [documentation of `ios_build_app`](#ios_build_app).
+For all extra parameters, please check the [documentation of `ios_build_app`](#iosbuildapp).
 
 ### ios_build_irmagobridge
 
@@ -246,13 +246,6 @@ If the certificate bundle contains a development certificate, then the code sign
 
 ```sh
 [bundle exec] fastlane ios_build_integration_test code_signing_identity:"iPhone Developer" provisioning_profile_path:<VALUE> certificate_path:<VALUE> certificate_password:<VALUE>
-```
-
-Alternatively, you can run this action without an app provisioning profile by disabling the IPA export.
-This can be useful for testing purposes if you don't have access to the keys.
-
-```sh
-[bundle exec] fastlane ios_build_app flavor:<VALUE> export:false
 ```
 
 The `flavor` parameter accepts the values `alpha` or `beta`.

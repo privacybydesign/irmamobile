@@ -120,7 +120,6 @@ end
 lane :ios_build do |options|
   ios_build_irmagobridge()
   ios_build_app(
-    export: options[:export],
     flavor: options[:flavor],
     sentry_dsn: options[:sentry_dsn],
     certificate_path: options[:certificate_path],
@@ -139,10 +138,10 @@ end
 lane :ios_build_app do |options|
   display_name = ""
   app_identifier = ""
-  export = options[:export]
-  export = true if export.nil?
   export_method = ""
-  # For now, we assume that alpha builds are meant for ad hoc distribution and beta builds for app store distribution.
+
+  # When a distribution certificate is set, we assume that alpha builds are meant for ad hoc distribution
+  # and beta builds for app store distribution.
   case options[:flavor]
   when "alpha"
     display_name = "Yivi 2023"
@@ -154,6 +153,9 @@ lane :ios_build_app do |options|
     export_method = "app-store"
   else
     raise "Unsupported flavor"
+  end
+  if options[:code_signing_identity]&.include?("Developer")
+    export_method = "development"
   end
 
   update_schemes()
@@ -180,22 +182,16 @@ lane :ios_build_app do |options|
     code_signing_identity: options[:code_signing_identity]
   )
 
-  # The 'flutter build ipa' command does not support changing the export method in Flutter 2.
-  # Therefore, we use 'flutter build ios' for now with the --no-codesign option
-  # and then we use Fastlane's build_ios_app action to sign and export the build.
-  # This work-around causes the lane to get stuck indefinitely sometimes.
-  Dir.chdir("..") do
-    sh("flutter", "build", "ios", "--release", "--no-codesign")
-  end
+  # Set export method in plist file.
+  set_info_plist_value(
+    path: "ios/Runner/Flutter-Build-IPA.plist",
+    key: "method",
+    value: export_method
+  )
 
-  if export
-    build_ios_app(
-      scheme: "Runner",
-      workspace: "ios/Runner.xcworkspace",
-      output_directory: "fastlane/build",
-      output_name: "app-#{options[:flavor]}-ios-#{export_method}.ipa",
-      export_method: export_method
-    )
+  Dir.chdir("..") do
+    sh("flutter", "build", "ipa", "--release", "--export-options-plist", "./ios/Runner/Flutter-Build-IPA.plist")
+    sh("cp ./build/ios/ipa/*.ipa ./fastlane/build/app-#{options[:flavor]}-ios-#{export_method}.ipa")
   end
 end
 
@@ -288,6 +284,21 @@ private_lane :set_provisioning_profile do |options|
   # Otherwise, we use the profile that is currently selected in XCode.
   if options[:provisioning_profile_path]
     provisioning_profile_path = File.absolute_path(options[:provisioning_profile_path])
+
+    # Get uuid of provisioning profile
+    uuid_regex = /[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/
+    uuid = ""
+    File.open(provisioning_profile_path, "r:BINARY") do |file|
+      file.each_line do |line|
+        encoded_line = line.encode("UTF-8", invalid: :replace, undef: :replace)
+        match_data = encoded_line.match(uuid_regex)
+        if match_data
+          uuid = match_data[0]
+          break
+        end
+      end
+    end
+
     install_provisioning_profile(
       path: provisioning_profile_path
     )
@@ -296,6 +307,19 @@ private_lane :set_provisioning_profile do |options|
       profile: provisioning_profile_path,
       target_filter: "^Runner$",
       code_signing_identity: options[:code_signing_identity] || "iPhone Distribution"
+    )
+    # Set uuid in plist file for flutter
+    set_info_plist_value(
+      path: "ios/Runner/Flutter-Build-IPA.plist",
+      key: "provisioningProfiles",
+      subkey: "foundation.privacybydesign.irmamob",
+      value: uuid
+    )
+    set_info_plist_value(
+      path: "ios/Runner/Flutter-Build-IPA.plist",
+      key: "provisioningProfiles",
+      subkey: "foundation.privacybydesign.irmamob.alpha",
+      value: uuid
     )
   end
 end

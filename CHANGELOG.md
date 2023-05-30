@@ -6,8 +6,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [7.4.0] - 2023-05-25
+### Added
+- Show notification on startup that the app name has changed
+
 ### Changed
-- Bump irmago version to [0.12.4](https://github.com/privacybydesign/irmago/releases/tag/v0.12.4)
+- Upgrade to Flutter 3
+- Bump irmago version to [0.12.5](https://github.com/privacybydesign/irmago/releases/tag/v0.12.5)
+- Pin the personal category to the top of credential store
+- Report warnings from irmago to Sentry
+
+### Fixed
+- QR scanner library is not FOSS ([#163](https://github.com/privacybydesign/irmamobile/issues/163))
+- Dutch translations link to English version of the privacy policy
+- Some newlines are preceded by whitespace
+- App screenshots are not placed in the right directory for FDroid
+- Arrow back screen shows a message about signing when doing issuance
+
+### Internal
+- Use 'flutter build ipa' in Fastlane to build iOS app
+- Bump fastlane version to 2.212.2
 
 ## [7.3.1] - 2023-05-04 (in beta 2023-04-26)
 ### Changed
@@ -309,6 +327,7 @@ This release only includes iOS changes.
 - Various bug fixes
 
 
+[7.4.0]: https://github.com/privacybydesign/irmamobile/compare/v7.3.1...v7.4.0
 [7.3.1]: https://github.com/privacybydesign/irmamobile/compare/v7.3.0...v7.3.1
 [7.3.0]: https://github.com/privacybydesign/irmamobile/compare/v7.2.0...v7.3.0
 [7.2.0]: https://github.com/privacybydesign/irmamobile/compare/v7.1.0...v7.2.0
