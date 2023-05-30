@@ -106,7 +106,7 @@ class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProtocol, Fl
     }
     
     
-    /// Implements the DispatchFromGo method  of the IrmaMobileBridge interface.
+    /// Implements the DispatchFromGo method of the IrmaMobileBridge interface.
     /// - Parameters:
     ///   - name: name of the method being invoked
     ///   - payload: payload that contains the arguments for the requested method
