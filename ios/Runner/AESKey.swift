@@ -6,7 +6,7 @@ enum AESKeyError: Error {
 
 @objc public class AESKey: NSObject {
     let path = FileManager.default.urls(for: .libraryDirectory,
-                                           in: .userDomainMask)[0].appendingPathComponent("storageKey")
+                                        in: .userDomainMask)[0].appendingPathComponent("storageKey")
     let tag = "storageKey"
     
     @objc func getKey() throws -> Data {
