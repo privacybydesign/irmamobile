@@ -22,7 +22,7 @@ class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProtocol, Fl
     }
     
     
-    /// Calls the Start method of the IrmaMobileBridge interface.
+    /// Calls the Start method of irmagobridge.
     private func start() {
         let bundlePath = Bundle.main.bundlePath
         let libraryPath = NSSearchPathForDirectoriesInDomains(.libraryDirectory, .userDomainMask, true)[0]
