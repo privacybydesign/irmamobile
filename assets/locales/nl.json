@@ -308,7 +308,7 @@
     "report": "Als het fout blijft gaan, laat het dan weten aan ons weten.",
     "types": {
       "general": "Er is iets misgegaan.",
-      "blocked": "Je Yivi-app is geblokkeerd. Het kan zijn dat via 'Mijn Yivi' een blokkering is aangevraagd. Het kan ook dat Yivi meer dan 2 jaar niet is gebruikt. Wil je Yivi toch gebruiken dan zul je de app opnieuw moeten instellen.",
+      "blocked": "Je Yivi-app is geblokkeerd. Het kan zijn dat via 'Mijn Yivi' een blokkering is aangevraagd. Het kan ook zijn dat je Yivi meer dan één jaar niet hebt gebruikt. Wil je Yivi toch gebruiken dan zul je de app opnieuw moeten instellen.",
       "expired": "Sorry, de sessie is verlopen. Start de sessie opnieuw.",
       "pairing_rejected": "Sorry, de sessie is geweigerd. Start de sessie opnieuw.",
       "no_internet": "Controleer je internetverbinding. Zonder verbinding werkt Yivi niet."
