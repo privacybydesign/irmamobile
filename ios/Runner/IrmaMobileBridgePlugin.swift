@@ -1,27 +1,29 @@
 import Flutter
 import Foundation
 
+
+/// Flutter plugin that implements irmagobridge's IrmaMobileBridge interface for iOS. This plugin forms the bridge between Flutter/Dart and Go.
 class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProtocol, FlutterPlugin {
-    var registrar: FlutterPluginRegistrar
-    var channel: FlutterMethodChannel
+    private var channel: FlutterMethodChannel
     
-    var initialURL: String?
-    var nativeError: String?
-    var appReady: Bool
+    private var initialURL: String?
+    private var nativeError: String?
+    private var appReady: Bool
     
-    init(registrar: FlutterPluginRegistrar, channel: FlutterMethodChannel) {
-        self.registrar = registrar
+    
+    /// Private constructor. This constructor is called indirectly via register (see below).
+    /// - Parameters:
+    ///   - channel: Channel to send messages to the Flutter side
+    private init(channel: FlutterMethodChannel) {
         self.channel = channel
         appReady = false
         
         super.init()
     }
     
-    static func register(with registrar: FlutterPluginRegistrar) {
-        let channel = FlutterMethodChannel(
-            name: "irma.app/irma_mobile_bridge", binaryMessenger: registrar.messenger())
-        let instance = IrmaMobileBridgePlugin(registrar: registrar, channel: channel)
-        
+    
+    /// Calls the Start method of the IrmaMobileBridge interface.
+    private func start() {
         let bundlePath = Bundle.main.bundlePath
         let libraryPath = NSSearchPathForDirectoriesInDomains(.libraryDirectory, .userDomainMask, true)[0]
         
@@ -34,11 +36,11 @@ class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProtocol, Fl
         } catch {
             let msg = "Error excluding \(url.lastPathComponent) from backup"
             NSLog("%s: %s", msg, error.localizedDescription)
-            instance.nativeError = "{\"Exception\":\"\(msg)\",\"Stack\":\"\(error.localizedDescription)\",\"Fatal\":true}"
+            nativeError = "{\"Exception\":\"\(msg)\",\"Stack\":\"\(error.localizedDescription)\",\"Fatal\":true}"
             return
         }
         
-        instance.debugLog("Starting irmago, lib=\(libraryPath), bundle=\(bundlePath)")
+        debugLog("Starting irmago, lib=\(libraryPath), bundle=\(bundlePath)")
         
         var aesKey: Data
         do {
@@ -46,16 +48,32 @@ class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProtocol, Fl
         } catch {
             let msg = "Error retrieving storage key"
             NSLog("%s: %s", msg, error.localizedDescription)
-            instance.nativeError = "{\"Exception\":\"\(msg)\",\"Stack\":\"\(error.localizedDescription)\",\"Fatal\":true}"
+            nativeError = "{\"Exception\":\"\(msg)\",\"Stack\":\"\(error.localizedDescription)\",\"Fatal\":true}"
             return
         }
         
-        IrmagobridgeStart(instance, libraryPath, bundlePath, TEE(), aesKey)
+        IrmagobridgeStart(self, libraryPath, bundlePath, TEE(), aesKey)
+    }
+    
+    
+    /// Implements the register method of the FlutterPlugin interface. This method is called by Flutter to bootstrap the plugin.
+    /// - Parameter registrar: Registration context of the Flutter plugin
+    static func register(with registrar: FlutterPluginRegistrar) {
+        let channel = FlutterMethodChannel(
+            name: "irma.app/irma_mobile_bridge", binaryMessenger: registrar.messenger())
+        
+        let instance = IrmaMobileBridgePlugin(channel: channel)
+        instance.start()
         
         registrar.addMethodCallDelegate(instance, channel: channel)
         registrar.addApplicationDelegate(instance)
     }
     
+    
+    /// Implements the handle method of the FlutterPlugin interface. This method is called when invokeMethod is called on the plugin's method channel in Flutter/Dart.
+    /// - Parameters:
+    ///   - call: Object that specifies the method that should be handled and the corresponding arguments
+    ///   - result: Result callback
     func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         NSLog("handling \(call.method)")
         
@@ -76,6 +94,9 @@ class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProtocol, Fl
         result(nil)
     }
     
+    
+    /// Implements the DebugLog method of the IrmaMobileBridge interface.
+    /// - Parameter message: Message to be logged
     func debugLog(_ message: String?) {
 #if DEBUG
         if message != nil {
@@ -84,6 +105,11 @@ class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProtocol, Fl
 #endif
     }
     
+    
+    /// Implements the DispatchFromGo method  of the IrmaMobileBridge interface.
+    /// - Parameters:
+    ///   - name: name of the method being invoked
+    ///   - payload: payload that contains the arguments for the requested method
     func dispatch(fromGo name: String?, payload: String?) {
         let eventName = name ?? "UnknownEvent"
         debugLog("dispatching \(eventName)(\(payload ?? ""))")
@@ -91,6 +117,7 @@ class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProtocol, Fl
     }
 }
 
+/// Extension that enables the IrmaMobileBridgePlugin to monitor Flutter for life cycle changes.
 extension IrmaMobileBridgePlugin: FlutterApplicationLifeCycleDelegate {
     private func application(
         _ application: UIApplication,
