@@ -308,7 +308,7 @@
     "report": "If this happens again, please inform the Yivi team.",
     "types": {
       "general": "Something went wrong.",
-      "blocked": "Your Yivi app has been remotely blocked.\n\nThis has either been done via MyYivi or because you did not use Yivi on this device for more than two years. If you want to continue using Yivi on this device, you will need to start over.",
+      "blocked": "Your Yivi app has been remotely blocked. This has either been done via MyYivi or because you did not use Yivi on this device for more than one year. If you want to continue using Yivi on this device, you will need to start over.",
       "expired": "The session has expired. Please start over.",
       "pairing_rejected": "The session was rejected. Please start over.",
       "no_internet": "Please make sure your device has a functional internet connection."

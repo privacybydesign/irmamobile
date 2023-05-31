@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+### Added
+- Show custom error message when the server returns a response indicating that the user is not registered
 
 ### Internal
 - Refactored the IrmaMobileBridgePlugin from Objective-C to Swift
