@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Internal
+- Refactored the IrmaMobileBridgePlugin from Objective-C to Swift
+
 ## [7.4.0] - 2023-05-25
 ### Added
 - Show notification on startup that the app name has changed
