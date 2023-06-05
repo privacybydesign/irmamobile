@@ -29,7 +29,6 @@ import '../../src/screens/scanner/scanner_screen.dart';
 import '../../src/screens/splash_screen/splash_screen.dart';
 import '../../src/theme/theme.dart';
 import '../../src/util/combine.dart';
-import '../../src/util/handle_pointer.dart';
 import 'src/data/irma_preferences.dart';
 import 'src/screens/name_changed/name_changed_screen.dart';
 
@@ -193,11 +192,6 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
   void _onScreenPushed(Route route) {
     switch (route.settings.name) {
       case HomeScreen.routeName:
-        // We have to make sure that sessions can be started once the
-        //  home screen has been pushed to the navigator. Otherwise
-        //  the session screens have no home screen to pop back to.
-        //  The home screen is only pushed when the user is fully enrolled.
-        _listenToPendingSessionPointer();
         _maybeOpenQrScanner(
           widget.irmaRepository.preferences,
         );
@@ -215,28 +209,11 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
 
   void _onScreenPopped(Route route) {
     switch (route.settings.name) {
-      case HomeScreen.routeName:
-        _pointerSubscription?.cancel();
-        break;
       case ScannerScreen.routeName:
         _qrScannerActive = false;
         break;
       default:
     }
-  }
-
-  void _listenToPendingSessionPointer() {
-    // Listen for incoming SessionPointers as long as the home screen is there.
-    //  We can always act on these, because if the app is locked,
-    //  their screens will simply be covered.
-    _pointerSubscription = widget.irmaRepository.getPendingPointer().listen((pointer) {
-      if (pointer == null) {
-        return;
-      }
-
-      final navigatorState = _navigatorKey.currentState;
-      if (navigatorState != null) handlePointer(navigatorState, pointer);
-    });
   }
 
   void _listenForDataClear() {
