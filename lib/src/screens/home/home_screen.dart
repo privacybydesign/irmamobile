@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
 
-import '../../data/irma_repository.dart';
 import '../../models/native_events.dart';
 import '../../theme/theme.dart';
 import '../../widgets/irma_app_bar.dart';
@@ -9,7 +7,7 @@ import '../../widgets/irma_repository_provider.dart';
 import '../activity/activity_tab.dart';
 import '../data/data_tab.dart';
 import '../more/more_tab.dart';
-import '../scanner/scanner_screen.dart';
+import '../scanner/util/open_scanner.dart';
 import 'home_tab.dart';
 import 'widgets/irma_nav_bar.dart';
 import 'widgets/irma_qr_scan_button.dart';
@@ -37,30 +35,8 @@ class _HomeScreenState extends State<HomeScreen> {
       final repo = IrmaRepositoryProvider.of(context);
       final navigator = Navigator.of(context);
 
-      _maybeOpenQrScanner(repo, navigator);
+      maybeOpenQrScanner(repo, navigator);
     });
-  }
-
-  Future<void> _maybeOpenQrScanner(IrmaRepository repo, NavigatorState navigator) async {
-    // Check if the setting is enabled to open the QR scanner on start up
-    final startQrScannerOnStartUp = await repo.preferences.getStartQRScan().first;
-
-    if (startQrScannerOnStartUp) {
-      // Check if we actually have permission to use the camera
-      final hasCameraPermission = await Permission.camera.isGranted;
-
-      if (hasCameraPermission) {
-        // Check if the app was started with a HandleURLEvent or resumed when returning from in-app browser.
-        // If so, do not open the QR scanner.
-        final appResumedAutomatically = await repo.appResumedAutomatically();
-        if (!appResumedAutomatically) {
-          navigator.pushNamed(ScannerScreen.routeName);
-        }
-      } else {
-        // If the user has revoked the camera permission, just turn off the setting
-        await repo.preferences.setStartQRScan(false);
-      }
-    }
   }
 
   @override

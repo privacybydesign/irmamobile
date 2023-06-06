@@ -27,6 +27,7 @@ import '../../src/screens/splash_screen/splash_screen.dart';
 import '../../src/theme/theme.dart';
 import '../../src/util/combine.dart';
 import 'src/screens/name_changed/name_changed_screen.dart';
+import 'src/screens/scanner/util/open_scanner.dart';
 
 const schemeUpdateIntervalHours = 3;
 
@@ -150,6 +151,11 @@ class AppState extends State<App> with WidgetsBindingObserver {
       if (status == EnrollmentStatus.enrolled) {
         if (!locked && lastActive.isBefore(DateTime.now().subtract(const Duration(minutes: 5)))) {
           widget.irmaRepository.lock();
+        } else {
+          maybeOpenQrScanner(
+            widget.irmaRepository,
+            _navigatorKey.currentState!,
+          );
         }
       }
     }
