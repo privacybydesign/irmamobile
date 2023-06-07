@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../../models/irma_configuration.dart';
 import '../../../models/log_entry.dart';
 import '../../../theme/theme.dart';
+import '../../../util/string.dart';
 import '../../../widgets/irma_avatar.dart';
 import '../../../widgets/irma_card.dart';
 import '../../../widgets/translated_text.dart';
@@ -96,6 +97,8 @@ class ActivityCard extends StatelessWidget {
           },
         );
       }
+
+      title = title.replaceBreakingHyphens();
     }
 
     return Semantics(
@@ -134,7 +137,6 @@ class ActivityCard extends StatelessWidget {
                           TranslatedText(localizedTimeStamp),
                           Text(
                             title,
-                            overflow: TextOverflow.ellipsis,
                             style: theme.themeData.textTheme.headlineMedium!.copyWith(
                               color: theme.dark,
                             ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 
 import '../theme/theme.dart';
+import '../util/string.dart';
 import 'irma_avatar.dart';
 import 'irma_card.dart';
 
@@ -26,7 +27,7 @@ class IssuerVerifierHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = IrmaTheme.of(context);
 
-    final title = this.title ??
+    final title = this.title?.replaceBreakingHyphens() ??
         FlutterI18n.translate(
           context,
           'ui.unknown',
