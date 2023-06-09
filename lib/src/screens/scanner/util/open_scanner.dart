@@ -8,7 +8,7 @@ Future<void> maybeOpenQrScanner(
   IrmaRepository repo,
   NavigatorState navigator,
 ) async {
-// Another screen is already present top of the HomeScreen, so don't open the scanner
+  // Another screen is already present top of the HomeScreen, so don't open the scanner
   if (navigator.canPop()) return;
 
   // Check if the setting is enabled to open the QR scanner on start up
