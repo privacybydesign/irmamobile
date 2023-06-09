@@ -85,10 +85,12 @@ void main() {
         expect(collapsibleFinder, findsOneWidget);
 
         // Expect the question text to be present on this collapsible
-        final questionFinder = find.descendant(
-          of: collapsibleFinder,
-          matching: find.text(question).hitTestable(),
-        );
+        final questionFinder = find
+            .descendant(
+              of: collapsibleFinder,
+              matching: find.text(question),
+            )
+            .hitTestable();
         expect(questionFinder, findsOneWidget);
 
         // Unfold answer.
