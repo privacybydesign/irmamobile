@@ -119,7 +119,10 @@ void main() {
       await tester.tapAndSettle(find.text('More'));
 
       // Open help
-      await tester.tapAndSettle(find.text('Frequently asked questions'));
+      final faqFinder = find.text('Frequently asked questions');
+      // In landscape mode on some devices the FAQ button is not visible so we scroll to it.
+      await tester.scrollUntilVisible(faqFinder, 100);
+      await tester.tapAndSettle(faqFinder);
 
       // Expand all questions.
       const questions = [
