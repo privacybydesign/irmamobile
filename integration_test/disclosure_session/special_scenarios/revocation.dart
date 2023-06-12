@@ -80,6 +80,8 @@ Future<void> revocationTest(WidgetTester tester, IntegrationTestIrmaBinding irma
   await tester.tapAndSettle(find.byKey(const Key('nav_button_data')));
 
   // Tap the card with the text Demo Root
+  final demoRootFinder = find.text('Demo Root');
+  await tester.scrollUntilVisible(demoRootFinder, 100);
   await tester.tapAndSettle(find.text('Demo Root'));
 
   // Find the credential card
