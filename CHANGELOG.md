@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Show custom error message when the server returns a response indicating that the user is not registered
 
+### Fixed
+- Cold starting the app with a universal link fails to start a session
+
 ### Internal
 - Refactored the IrmaMobileBridgePlugin from Objective-C to Swift
 

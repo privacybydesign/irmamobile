@@ -119,7 +119,7 @@ class IrmaMobileBridgePlugin: NSObject, IrmagobridgeIrmaMobileBridgeProtocol, Fl
 
 /// Extension that enables the IrmaMobileBridgePlugin to monitor Flutter for life cycle changes.
 extension IrmaMobileBridgePlugin: FlutterApplicationLifeCycleDelegate {
-    private func application(
+    public func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
@@ -128,8 +128,8 @@ extension IrmaMobileBridgePlugin: FlutterApplicationLifeCycleDelegate {
         }
         return true
     }
-    
-    func application(
+
+    public func application(
         _ application: UIApplication,
         open url: URL,
         options: [UIApplication.OpenURLOptionsKey: Any] = [:]
@@ -142,11 +142,11 @@ extension IrmaMobileBridgePlugin: FlutterApplicationLifeCycleDelegate {
         }
         return true
     }
-    
-    private func application(
+
+    public func application(
         _ application: UIApplication,
         continue userActivity: NSUserActivity,
-        restorationHandler: @escaping ([Any]?) -> Void
+        restorationHandler: @escaping ([Any]) -> Void
     ) -> Bool {
         if userActivity.activityType == NSUserActivityTypeBrowsingWeb, let url = userActivity.webpageURL
         {

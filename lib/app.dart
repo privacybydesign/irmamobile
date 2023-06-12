@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_i18n/flutter_i18n.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_privacy_screen/flutter_privacy_screen.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../../routing.dart';
@@ -19,19 +18,16 @@ import '../../src/models/session.dart';
 import '../../src/models/update_schemes_event.dart';
 import '../../src/models/version_information.dart';
 import '../../src/screens/enrollment/enrollment_screen.dart';
-import '../../src/screens/home/home_screen.dart';
 import '../../src/screens/pin/pin_screen.dart';
 import '../../src/screens/required_update/required_update_screen.dart';
 import '../../src/screens/reset_pin/reset_pin_screen.dart';
 import '../../src/screens/rooted_warning/repository.dart';
 import '../../src/screens/rooted_warning/rooted_warning_screen.dart';
-import '../../src/screens/scanner/scanner_screen.dart';
 import '../../src/screens/splash_screen/splash_screen.dart';
 import '../../src/theme/theme.dart';
 import '../../src/util/combine.dart';
-import '../../src/util/handle_pointer.dart';
-import 'src/data/irma_preferences.dart';
 import 'src/screens/name_changed/name_changed_screen.dart';
+import 'src/screens/scanner/util/open_scanner.dart';
 
 const schemeUpdateIntervalHours = 3;
 
@@ -45,7 +41,7 @@ class App extends StatefulWidget {
   AppState createState() => AppState();
 }
 
-class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver {
+class AppState extends State<App> with WidgetsBindingObserver {
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
   final _detectRootedDeviceRepo = DetectRootedDeviceIrmaPrefsRepository();
 
@@ -156,8 +152,9 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
         if (!locked && lastActive.isBefore(DateTime.now().subtract(const Duration(minutes: 5)))) {
           widget.irmaRepository.lock();
         } else {
-          _maybeOpenQrScanner(
-            widget.irmaRepository.preferences,
+          maybeOpenQrScanner(
+            widget.irmaRepository,
+            _navigatorKey.currentState!,
           );
         }
       }
@@ -169,76 +166,6 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     prevLifeCycleStates[1] = state;
   }
 
-  @override
-  void didPush(Route route, Route? previousRoute) {
-    _onScreenPushed(route);
-  }
-
-  @override
-  void didReplace({Route? newRoute, Route? oldRoute}) {
-    if (oldRoute != null) _onScreenPopped(oldRoute);
-    if (newRoute != null) _onScreenPushed(newRoute);
-  }
-
-  @override
-  void didPop(Route route, Route? previousRoute) {
-    _onScreenPopped(route);
-  }
-
-  @override
-  void didRemove(Route route, Route? previousRoute) {
-    _onScreenPopped(route);
-  }
-
-  void _onScreenPushed(Route route) {
-    switch (route.settings.name) {
-      case HomeScreen.routeName:
-        // We have to make sure that sessions can be started once the
-        //  home screen has been pushed to the navigator. Otherwise
-        //  the session screens have no home screen to pop back to.
-        //  The home screen is only pushed when the user is fully enrolled.
-        _listenToPendingSessionPointer();
-        _maybeOpenQrScanner(
-          widget.irmaRepository.preferences,
-        );
-        break;
-
-      case ScannerScreen.routeName:
-        // Check whether the qr code scanner is active to prevent the scanner
-        //  from being re-launched over a previous instance on startup.
-        _qrScannerActive = true;
-        break;
-
-      default:
-    }
-  }
-
-  void _onScreenPopped(Route route) {
-    switch (route.settings.name) {
-      case HomeScreen.routeName:
-        _pointerSubscription?.cancel();
-        break;
-      case ScannerScreen.routeName:
-        _qrScannerActive = false;
-        break;
-      default:
-    }
-  }
-
-  void _listenToPendingSessionPointer() {
-    // Listen for incoming SessionPointers as long as the home screen is there.
-    //  We can always act on these, because if the app is locked,
-    //  their screens will simply be covered.
-    _pointerSubscription = widget.irmaRepository.getPendingPointer().listen((pointer) {
-      if (pointer == null) {
-        return;
-      }
-
-      final navigatorState = _navigatorKey.currentState;
-      if (navigatorState != null) handlePointer(navigatorState, pointer);
-    });
-  }
-
   void _listenForDataClear() {
     // Clearing all data can be done both from the pin entry screen, or from
     // the settings screen. As these are on different navigation stacks entirely,
@@ -248,28 +175,6 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
     _dataClearSubscription = widget.irmaRepository.getEvents().where((event) => event is ClearAllDataEvent).listen((_) {
       _navigatorKey.currentState?.pushNamedAndRemoveUntil(EnrollmentScreen.routeName, (_) => false);
     });
-  }
-
-  Future<void> _maybeOpenQrScanner(IrmaPreferences prefs) async {
-    // Check if the setting is enabled to open the QR scanner on start up
-    final startQrScannerOnStartUp = await widget.irmaRepository.preferences.getStartQRScan().first;
-
-    if (startQrScannerOnStartUp) {
-      // Check if we actually have permission to use the camera
-      final hasCameraPermission = await Permission.camera.isGranted;
-
-      if (hasCameraPermission) {
-        // Check if the app was started with a HandleURLEvent or resumed when returning from in-app browser.
-        // If so, do not open the QR scanner.
-        final appResumedAutomatically = await widget.irmaRepository.appResumedAutomatically();
-        if (!appResumedAutomatically && !_qrScannerActive) {
-          _navigatorKey.currentState?.pushNamed(ScannerScreen.routeName);
-        }
-      } else {
-        // If the user has revoked the camera permission, just turn off the setting
-        await prefs.setStartQRScan(false);
-      }
-    }
   }
 
   Widget _buildPinScreen() {
@@ -421,7 +326,6 @@ class AppState extends State<App> with WidgetsBindingObserver, NavigatorObserver
               ),
               supportedLocales: defaultSupportedLocales(),
               navigatorKey: _navigatorKey,
-              navigatorObservers: [this],
               onGenerateRoute: Routing.generateRoute,
 
               // Set showSemanticsDebugger to true to view semantics in emulator.
