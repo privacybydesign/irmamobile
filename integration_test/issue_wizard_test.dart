@@ -78,11 +78,16 @@ void main() {
 
         // Find the specific collapsible which we are checking this iteration.
         final collapsibleFinder = collapsiblesFinder.at(i);
-
-        if (!tester.any(collapsibleFinder)) {
-          await tester.scrollUntilVisible(collapsibleFinder, 100);
-        }
         expect(collapsibleFinder, findsOneWidget);
+
+        // Somehow there are two scrollables on the screen, we need to target the last one when scrolling.
+        final lastScrollableFinder = find.byType(Scrollable).last;
+
+        await tester.scrollUntilVisible(
+          collapsibleFinder,
+          100,
+          scrollable: lastScrollableFinder,
+        );
 
         // Expect the question text to be present on this collapsible
         final questionFinder = find.descendant(
