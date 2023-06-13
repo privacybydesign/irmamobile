@@ -82,7 +82,7 @@ Future<void> revocationTest(WidgetTester tester, IntegrationTestIrmaBinding irma
   // Tap the card with the text Demo Root
   final demoRootFinder = find.text('Demo Root');
   await tester.scrollUntilVisible(demoRootFinder, 100);
-  await tester.tapAndSettle(find.text('Demo Root'));
+  await tester.tapAndSettle(demoRootFinder);
 
   // Find the credential card
   final credentialCardFinder = find.byType(IrmaCredentialCard).first;
