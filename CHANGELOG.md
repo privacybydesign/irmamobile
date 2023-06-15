@@ -4,11 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
-### Changed
-- Replace breaking hyphens in requestor URLs with non-breaking hyphens
+## [7.4.1] - 2023-06-15
 ### Added
 - Show custom error message when the server returns a response indicating that the user is not registered
+
+### Changed
+- Replace breaking hyphens in requestor URLs with non-breaking hyphens
 
 ### Fixed
 - Cold starting the app with a universal link fails to start a session
@@ -336,7 +337,7 @@ This release only includes iOS changes.
 - Log screen now shows all log items
 - Various bug fixes
 
-
+[7.4.1]: https://github.com/privacybydesign/irmamobile/compare/v7.4.0...v7.4.1
 [7.4.0]: https://github.com/privacybydesign/irmamobile/compare/v7.3.1...v7.4.0
 [7.3.1]: https://github.com/privacybydesign/irmamobile/compare/v7.3.0...v7.3.1
 [7.3.0]: https://github.com/privacybydesign/irmamobile/compare/v7.2.0...v7.3.0
