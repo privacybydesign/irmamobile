@@ -19,14 +19,12 @@ class LoadingScreen extends StatefulWidget {
 
 class _LoadingScreenState extends State<LoadingScreen> {
   StreamSubscription<EnrollmentStatus>? _enrollmentStatusSubscription;
-  Stream<ErrorEvent>? _errorEventStream;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final repo = IrmaRepositoryProvider.of(context);
-      _errorEventStream = repo.getFatalErrors();
       _enrollmentStatusSubscription = repo.getEnrollmentStatus().listen(_enrollmentStatusHandler);
     });
   }
@@ -52,7 +50,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
 
   @override
   Widget build(BuildContext context) => StreamBuilder<ErrorEvent>(
-        stream: _errorEventStream,
+        stream: IrmaRepositoryProvider.of(context).getFatalErrors(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             final error = snapshot.data;
