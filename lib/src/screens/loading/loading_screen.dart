@@ -26,18 +26,24 @@ class _LoadingScreenState extends State<LoadingScreen> {
     super.initState();
 
     final repo = IrmaRepositoryProvider.of(context);
-    _enrollmentStatusSubscription = repo.getEnrollmentStatus().listen((EnrollmentStatus status) {
-      if (status == EnrollmentStatus.enrolled) {
+    _enrollmentStatusSubscription = repo.getEnrollmentStatus().listen(_enrollmentStatusHandler);
+  }
+
+  void _enrollmentStatusHandler(EnrollmentStatus status) {
+    if (status == EnrollmentStatus.enrolled) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
-      } else if (status == EnrollmentStatus.unenrolled) {
-        // Because this happens on start-up immediately, we have to make sure a smooth transition is being made.
+      });
+    } else if (status == EnrollmentStatus.unenrolled) {
+      // Because this happens on start-up immediately, we have to make sure a smooth transition is being made.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.of(context).pushReplacement(PageRouteBuilder(
           pageBuilder: (context, a1, a2) => EnrollmentScreen(),
           transitionsBuilder: (context, a1, a2, child) => FadeTransition(opacity: a1, child: child),
           transitionDuration: const Duration(milliseconds: 500),
         ));
-      }
-    });
+      });
+    }
   }
 
   @override
