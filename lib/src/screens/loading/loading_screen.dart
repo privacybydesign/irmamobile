@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../models/enrollment_status.dart';
@@ -8,48 +10,57 @@ import '../error/error_screen.dart';
 import '../home/home_screen.dart';
 import '../splash_screen/splash_screen.dart';
 
-class LoadingScreen extends StatelessWidget {
+class LoadingScreen extends StatefulWidget {
   static const routeName = '/';
 
   @override
-  Widget build(BuildContext context) {
-    final repo = IrmaRepositoryProvider.of(context);
+  State<LoadingScreen> createState() => _LoadingScreenState();
+}
 
-    return StreamBuilder<EnrollmentStatus>(
-      stream: repo.getEnrollmentStatus(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          if (snapshot.data == EnrollmentStatus.enrolled) {
-            // We don't add a smooth transition here like below, because it will be covered by the PinScreen anyway.
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
-            });
-          } else if (snapshot.data == EnrollmentStatus.unenrolled) {
-            // Because this happens on start-up immediately, we have to make sure a smooth transition is being made.
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              Navigator.of(context).pushReplacement(PageRouteBuilder(
-                pageBuilder: (context, a1, a2) => EnrollmentScreen(),
-                transitionsBuilder: (context, a1, a2, child) => FadeTransition(opacity: a1, child: child),
-                transitionDuration: const Duration(milliseconds: 500),
-              ));
-            });
-          }
-        }
-        return StreamBuilder<ErrorEvent>(
-          stream: repo.getFatalErrors(),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              final error = snapshot.data;
-              return ErrorScreen.fromEvent(
-                error: error!,
-              );
-            }
-            return const SplashScreen(
-              isLoading: true,
-            );
-          },
-        );
-      },
-    );
+class _LoadingScreenState extends State<LoadingScreen> {
+  StreamSubscription<EnrollmentStatus>? _enrollmentStatusSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final repo = IrmaRepositoryProvider.of(context);
+      _enrollmentStatusSubscription = repo.getEnrollmentStatus().listen(_enrollmentStatusHandler);
+    });
   }
+
+  void _enrollmentStatusHandler(EnrollmentStatus status) {
+    if (status == EnrollmentStatus.enrolled) {
+      Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
+    } else if (status == EnrollmentStatus.unenrolled) {
+      // Because this happens on start-up immediately, we have to make sure a smooth transition is being made.
+      Navigator.of(context).pushReplacement(PageRouteBuilder(
+        pageBuilder: (context, a1, a2) => EnrollmentScreen(),
+        transitionsBuilder: (context, a1, a2, child) => FadeTransition(opacity: a1, child: child),
+        transitionDuration: const Duration(milliseconds: 500),
+      ));
+    }
+  }
+
+  @override
+  void dispose() {
+    _enrollmentStatusSubscription?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => StreamBuilder<ErrorEvent>(
+        stream: IrmaRepositoryProvider.of(context).getFatalErrors(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            final error = snapshot.data;
+            return ErrorScreen.fromEvent(
+              error: error!,
+            );
+          }
+          return const SplashScreen(
+            isLoading: true,
+          );
+        },
+      );
 }
