@@ -18,14 +18,15 @@ class LoadingScreen extends StatefulWidget {
 }
 
 class _LoadingScreenState extends State<LoadingScreen> {
-  EnrollmentStatus? status;
   StreamSubscription<EnrollmentStatus>? _enrollmentStatusSubscription;
+  Stream<ErrorEvent>? _errorEventStream;
 
   @override
   void initState() {
     super.initState();
 
     final repo = IrmaRepositoryProvider.of(context);
+    _errorEventStream = repo.getFatalErrors();
     _enrollmentStatusSubscription = repo.getEnrollmentStatus().listen(_enrollmentStatusHandler);
   }
 
@@ -54,16 +55,17 @@ class _LoadingScreenState extends State<LoadingScreen> {
 
   @override
   Widget build(BuildContext context) => StreamBuilder<ErrorEvent>(
-      stream: IrmaRepositoryProvider.of(context).getFatalErrors(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          final error = snapshot.data;
-          return ErrorScreen.fromEvent(
-            error: error!,
+        stream: _errorEventStream,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            final error = snapshot.data;
+            return ErrorScreen.fromEvent(
+              error: error!,
+            );
+          }
+          return const SplashScreen(
+            isLoading: true,
           );
-        }
-        return const SplashScreen(
-          isLoading: true,
-        );
-      });
+        },
+      );
 }
