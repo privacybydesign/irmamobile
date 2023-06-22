@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Fixed
-- LoadingScreen StreamBuilder creates multiple streams sometimes
+- LoadingScreen StreamBuilder triggers multiple navigation actions
 ## [7.4.1] - 2023-06-15
 ### Added
 - Show custom error message when the server returns a response indicating that the user is not registered
